@@ -831,7 +831,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 
 	sub_ti = proto_tree_add_uint(tree, hf_sna_nlp_opti_0d_4,
 	    tvb, 4, 1, bits);
-	sub_tree = proto_item_add_subtree(sub_ti, 
+	sub_tree = proto_item_add_subtree(sub_ti,
 	    ett_sna_nlp_opti_0d_4);
 
 	proto_tree_add_boolean(sub_tree, hf_sna_nlp_opti_0d_target,
@@ -876,7 +876,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		sub_ti = proto_tree_add_item(tree, hf_sna_nlp_opti_0e_stat,
 		    tvb, 2, 1, FALSE);
-		sub_tree = proto_item_add_subtree(sub_ti, 
+		sub_tree = proto_item_add_subtree(sub_ti,
 		    ett_sna_nlp_opti_0e_stat);
 
 		proto_tree_add_boolean(sub_tree, hf_sna_nlp_opti_0e_gap,
@@ -974,7 +974,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tvb, offset, 1, len);
 	proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_si_key,
 	    tvb, offset+1, 1, type);
-	
+
 	bits = tvb_get_guint8(tvb, offset+2);
 	bf_item = proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_si_2,
 	    tvb, offset+2, 1, bits);
@@ -1026,7 +1026,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tvb, offset, 1, len);
 	proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_rr_key,
 	    tvb, offset+1, 1, type);
-	
+
 	bits = tvb_get_guint8(tvb, offset+2);
 	bf_item = proto_tree_add_uint(sub_tree, hf_sna_nlp_opti_14_rr_2,
 	    tvb, offset+2, 1, bits);
@@ -1140,7 +1140,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    -1, -1), pinfo, tree);
 			return;
 		}
-			
+
 		ett = ett_sna_nlp_opti_un;
 		if(type == 0x0d) ett = ett_sna_nlp_opti_0d;
 		if(type == 0x0e) ett = ett_sna_nlp_opti_0e;
@@ -1259,7 +1259,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
-			h_item = proto_tree_add_item(nlp_tree, 
+			h_item = proto_tree_add_item(nlp_tree,
 			    hf_sna_nlp_fra, tvb, index, counter, FALSE);
 		index += counter;
 		if (tree)
@@ -1273,7 +1273,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if ((nhdr_1 & 0xf0) == 0x10) {
 			nhdr_x = tvb_get_guint8(tvb, index);
 			if (tree)
-				proto_tree_add_uint(tree, hf_sna_nlp_frh, 
+				proto_tree_add_uint(tree, hf_sna_nlp_frh,
 				    tvb, index, 1, nhdr_x);
 			index ++;
 
@@ -1290,7 +1290,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
-			h_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_anr, 
+			h_item = proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
 			    tvb, index, counter, FALSE);
 		index += counter;
 
@@ -1309,7 +1309,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	thdr_dlf = tvb_get_ntohl(tvb, index+12);
 
 	if (tree) {
-		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_thdr, tvb, 
+		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_thdr, tvb,
 		    index, thdr_len << 2, FALSE);
 		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_thdr);
 
@@ -1395,7 +1395,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				dissect_gds(tvb_new_subset(tvb, index, -1, -1),
 				    pinfo, tree, parent_tree);
 			} else
-				call_dissector(data_handle, 
+				call_dissector(data_handle,
 				    tvb_new_subset(tvb, index, -1, -1),
 				    pinfo, parent_tree);
 		}
@@ -2250,8 +2250,8 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
         	}
 
-		call_dissector(data_handle, 
-		    tvb_new_subset(rh_tvb, rh_offset, -1, -1), 
+		call_dissector(data_handle,
+		    tvb_new_subset(rh_tvb, rh_offset, -1, -1),
 		    pinfo, parent_tree);
 	}
 }
@@ -2424,7 +2424,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 
 	buf = tvb_get_ephemeral_string(tvb, 3, len);
 	EBCDIC_to_ASCII(buf, len);
-	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, buf);
+	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, (char *)buf);
 }
 
 static void
@@ -2523,7 +2523,7 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
  */
 
 static void
-dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *parent_tree)
 {
 	guint16		length;
@@ -3305,7 +3305,7 @@ proto_register_sna(void)
 		    NULL, 0x0, "", HFILL }},
 
 		{ &hf_sna_xid_idblock,
-		{ "ID Block", "sna.xid.idblock", FT_UINT32, BASE_HEX, NULL, 
+		{ "ID Block", "sna.xid.idblock", FT_UINT32, BASE_HEX, NULL,
 		    0xfff00000, "", HFILL }},
 
 		{ &hf_sna_xid_idnum,
@@ -3489,24 +3489,24 @@ proto_register_sna(void)
                 { "Control Vector HPR Key", "sna.control.hprkey",
 		    FT_UINT8, BASE_HEX, VALS(sna_control_hpr_vals), 0x0, "",
 		    HFILL }},
-	
+
                 { &hf_sna_control_05_delay,
                 { "Channel Delay", "sna.control.05.delay",
 		    FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-	
+
                 { &hf_sna_control_05_type,
                 { "Network Address Type", "sna.control.05.type",
 		    FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-	
+
                 { &hf_sna_control_05_ptp,
                 { "Point-to-point", "sna.control.05.ptp",
 		    FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
-	
+
                 { &hf_sna_control_0e_type,
                 { "Type", "sna.control.0e.type",
 		    FT_UINT8, BASE_HEX, VALS(sna_control_0e_type_vals),
 		    0, "", HFILL }},
-	
+
                 { &hf_sna_control_0e_value,
                 { "Value", "sna.control.0e.value",
 		    FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
