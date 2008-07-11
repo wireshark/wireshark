@@ -113,8 +113,8 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	int option_len, value_len;
 	int value_offset;
-	const guint8 *optionname;
-	const guint8 *optionvalue;
+	const char *optionname;
+	const char *optionvalue;
 	proto_item *opt_item;
 	proto_tree *opt_tree;
 
