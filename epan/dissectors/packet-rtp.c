@@ -203,7 +203,7 @@ static int hf_pkt_ccc_ts       = -1;
 static gint ett_pkt_ccc = -1;
 
 /* PacketCable CCC port preference */
-static gboolean global_pkt_ccc_udp_port = 0;
+static guint global_pkt_ccc_udp_port = 0;
 
 
 #define RTP0_INVALID 0
@@ -216,7 +216,7 @@ static enum_val_t rtp_version0_types[] = {
 	{ "t38", "T.38 packets", RTP0_T38 },
 	{ NULL, NULL, 0 }
 };
-static guint global_rtp_version0_type = 0;
+static gint global_rtp_version0_type = 0;
 
 static dissector_handle_t data_handle;
 
@@ -1902,11 +1902,11 @@ proto_register_rtp(void)
 	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
-    prefs_register_uint_preference(rtp_module,
-                                   "rfc2198_payload_type", "Payload Type for RFC2198",
-                                   "Payload Type for RFC2198 Redundant Audio Data",
-                                   10,
-                                   &rtp_rfc2198_pt);
+	prefs_register_uint_preference(rtp_module,
+				       "rfc2198_payload_type", "Payload Type for RFC2198",
+				       "Payload Type for RFC2198 Redundant Audio Data",
+				       10,
+				       &rtp_rfc2198_pt);
 
 	register_init_routine(rtp_fragment_init);
 }
