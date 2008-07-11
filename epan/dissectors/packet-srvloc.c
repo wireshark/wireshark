@@ -451,7 +451,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 static guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
-  const char	*ascii_text = tvb_get_ptr(tvb, offset, length);
+  const guint8	*ascii_text = tvb_get_ptr(tvb, offset, length);
   int	i, j=0;
   guint8	c_char, c_char1;
   guint8	*byte_array;
@@ -516,7 +516,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     guint8  *byte_value;
     proto_item 	*ti;
     proto_tree 	*srvloc_tree;
-    guint8  *tmp;
+    char *tmp;
 
     static const value_string srvloc_svc[] = {
         { 50, "TCP/UDP" },
@@ -566,10 +566,10 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             if (strcmp(attr_type, "svcaddr-ws")==0) {
                 i=1;
                 for (foffset = offset; foffset<length; foffset += 2) {
-        
+
                     ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
                     srvloc_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
-        
+
                     svc = tvb_get_guint8(tvb, foffset+1);
         			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
         				    "Service Type: %s", val_to_str(svc, srvloc_svc, "Unknown"));
