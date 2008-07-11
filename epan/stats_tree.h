@@ -39,9 +39,9 @@ typedef struct _stats_tree stats_tree;
 
 /* tap packet callback for stats_tree */
 typedef int  (*stat_tree_packet_cb)(stats_tree*,
-									packet_info*,
-									epan_dissect_t*,
-									const void *);
+				    packet_info*,
+				    epan_dissect_t*,
+				    const void *);
 
 /* stats_tree initialization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree*);
@@ -55,14 +55,14 @@ typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
  * packet: per packet callback
  * init: tree initialization callback
  */
-extern void stats_tree_register(const guint8* tapname,
-								const guint8* abbr, 
-								const guint8* name,
-								stat_tree_packet_cb packet,
-								stat_tree_init_cb init,
-								stat_tree_cleanup_cb cleanup);
+extern void stats_tree_register(const gchar *tapname,
+				const gchar *abbr, 
+				const gchar *name,
+				stat_tree_packet_cb packet,
+				stat_tree_init_cb init,
+				stat_tree_cleanup_cb cleanup);
 
-extern int stats_tree_parent_id_by_name(stats_tree* st, const gchar* parent_name);
+extern int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
 
 /* Creates a node in the tree (to be used in the in init_cb)
 * st: the stats_tree in which to create it
@@ -70,53 +70,53 @@ extern int stats_tree_parent_id_by_name(stats_tree* st, const gchar* parent_name
 * parent_name: the name of the parent_node (NULL for root)
 * with_children: TRUE if this node will have "dynamically created" children
 */
-extern int stats_tree_create_node(stats_tree* st,
-						const gchar* name,
-						int parent_id,
-						gboolean with_children);
+extern int stats_tree_create_node(stats_tree *st,
+				  const gchar *name,
+				  int parent_id,
+				  gboolean with_children);
 
 /* creates a node using it's parent's tree name */ 
-extern int stats_tree_create_node_by_pname(stats_tree* st,
-						  const gchar* name,
-						  const gchar* parent_name,
-						  gboolean with_children);
+extern int stats_tree_create_node_by_pname(stats_tree *st,
+					   const gchar *name,
+					   const gchar *parent_name,
+					   gboolean with_children);
 
 /* creates a node in the tree, that will contain a ranges list.
  example:
  stats_tree_create_range_node(st,name,parent,
-				   "-99","100-199","200-299","300-399","400-", NULL);
+			      "-99","100-199","200-299","300-399","400-", NULL);
 */
-extern int stats_tree_create_range_node(stats_tree* st,
-								const gchar* name,
-								int parent_id,
-								...);
+extern int stats_tree_create_range_node(stats_tree *st,
+					const gchar *name,
+					int parent_id,
+					...);
 
-extern int stats_tree_range_node_with_pname(stats_tree* st,
-											  const gchar* name,
-											  const gchar* parent_name,
-											  ...);
+extern int stats_tree_range_node_with_pname(stats_tree *st,
+					    const gchar *name,
+					    const gchar *parent_name,
+					    ...);
 
 /* increases by one the ranged node and the sub node to whose range the value belongs */
-extern int stats_tree_tick_range(stats_tree* st,
-								 const gchar* name,
-								 int parent_id,
-								 int value_in_range);
+extern int stats_tree_tick_range(stats_tree *st,
+				 const gchar *name,
+				 int parent_id,
+				 int value_in_range);
 
 #define stats_tree_tick_range_by_pname(st,name,parent_name,value_in_range) \
      stats_tree_tick_range((st),(name),stats_tree_parent_id_by_name((st),(parent_name),(value_in_range))
 
 /* */
-extern int stats_tree_create_pivot(stats_tree* st,
-							 const gchar* name,
-							 int parent_id);
+extern int stats_tree_create_pivot(stats_tree *st,
+				   const gchar *name,
+				   int parent_id);
 
-extern int stats_tree_create_pivot_by_pname(stats_tree* st,
-											  const gchar* name,
-											  const gchar* parent_name);
+extern int stats_tree_create_pivot_by_pname(stats_tree *st,
+					    const gchar *name,
+					    const gchar *parent_name);
 
-extern int stats_tree_tick_pivot(stats_tree* st,
-					  int pivot_id,
-					  const gchar* pivot_value);
+extern int stats_tree_tick_pivot(stats_tree *st,
+				 int pivot_id,
+				 const gchar *pivot_value);
 
 /*
  * manipulates the value of the node whose name is given
@@ -126,11 +126,11 @@ extern int stats_tree_tick_pivot(stats_tree* st,
  */
 typedef enum _manip_node_mode { MN_INCREASE, MN_SET } manip_node_mode;
 extern int stats_tree_manip_node(manip_node_mode mode,
-							   stats_tree* st,
-							   const guint8* name,
-							   int parent_id,
-							   gboolean with_children,
-							   gint value);
+				 stats_tree *st,
+				 const gchar *name,
+				 int parent_id,
+				 gboolean with_children,
+				 gint value);
 
 #define increase_stat_node(st,name,parent_id,with_children,value) \
 (stats_tree_manip_node(MN_INCREASE,(st),(name),(parent_id),(with_children),(value)))

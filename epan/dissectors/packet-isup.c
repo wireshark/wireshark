@@ -7228,12 +7228,16 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int st_node_msg = -1;
 static int st_node_dir = -1;
 
-static void msg_stats_tree_init(stats_tree* st) {
+static void
+msg_stats_tree_init(stats_tree* st)
+{
 	st_node_msg = stats_tree_create_node(st, "Messages by Type", 0, TRUE);
 	st_node_dir = stats_tree_create_node(st, "Messages by Direction", 0, TRUE);
 }
 
-static int msg_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p ) {
+static int
+msg_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p )
+{
 	const gchar* msg = match_strval(((const isup_tap_rec_t*)p)->message_type, isup_message_type_value_acro);
 	gchar src[MAX_ADDR_STR_LEN];
 	gchar dst[MAX_ADDR_STR_LEN];
@@ -8249,7 +8253,8 @@ proto_register_isup(void)
 		&isup_apm_desegment);
 
 	/* Register the stats_tree */
-	stats_tree_register("isup","isup_msg","ISUP Messages", msg_stats_tree_packet, msg_stats_tree_init, NULL );
+	stats_tree_register("isup", "isup_msg", "ISUP Messages",
+			    msg_stats_tree_packet, msg_stats_tree_init, NULL);
 }
 
 

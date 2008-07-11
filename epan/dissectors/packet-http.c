@@ -277,7 +277,9 @@ static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
 /* HTTP/Load Distribution stats init function */
-static void http_reqs_stats_tree_init(stats_tree* st) {
+static void
+http_reqs_stats_tree_init(stats_tree* st)
+{
 	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, TRUE);
 	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
 	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
@@ -285,7 +287,9 @@ static void http_reqs_stats_tree_init(stats_tree* st) {
 }
 
 /* HTTP/Load Distribution stats packet function */
-static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p) {
+static int
+http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
+{
 	const http_info_value_t* v = p;
 	int reqs_by_this_host;
 	int reqs_by_this_addr;
@@ -331,15 +335,19 @@ static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_
 
 
 static int st_node_requests_by_host = -1;
-static const guint8* st_str_requests_by_host = "HTTP Requests by HTTP Host";
+static const gchar *st_str_requests_by_host = "HTTP Requests by HTTP Host";
 
 /* HTTP/Requests stats init function */
-static void http_req_stats_tree_init(stats_tree* st) {
+static void
+http_req_stats_tree_init(stats_tree* st)
+{
 	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, TRUE);
 }
 
 /* HTTP/Requests stats packet function */
-static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
+static int
+http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
 	const http_info_value_t* v = p;
 	int reqs_by_this_host;
 
@@ -360,16 +368,16 @@ static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, ep
 	return 0;
 }
 
-static const guint8* st_str_packets = "Total HTTP Packets";
-static const guint8* st_str_requests = "HTTP Request Packets";
-static const guint8* st_str_responses = "HTTP Response Packets";
-static const guint8* st_str_resp_broken = "???: broken";
-static const guint8* st_str_resp_100 = "1xx: Informational";
-static const guint8* st_str_resp_200 = "2xx: Success";
-static const guint8* st_str_resp_300 = "3xx: Redirection";
-static const guint8* st_str_resp_400 = "4xx: Client Error";
-static const guint8* st_str_resp_500 = "5xx: Server Error";
-static const guint8* st_str_other = "Other HTTP Packets";
+static const gchar *st_str_packets = "Total HTTP Packets";
+static const gchar *st_str_requests = "HTTP Request Packets";
+static const gchar *st_str_responses = "HTTP Response Packets";
+static const gchar *st_str_resp_broken = "???: broken";
+static const gchar *st_str_resp_100 = "1xx: Informational";
+static const gchar *st_str_resp_200 = "2xx: Success";
+static const gchar *st_str_resp_300 = "3xx: Redirection";
+static const gchar *st_str_resp_400 = "4xx: Client Error";
+static const gchar *st_str_resp_500 = "5xx: Server Error";
+static const gchar *st_str_other = "Other HTTP Packets";
 
 static int st_node_packets = -1;
 static int st_node_requests = -1;
@@ -384,7 +392,9 @@ static int st_node_other = -1;
 
 
 /* HTTP/Packet Counter stats init function */
-static void http_stats_tree_init(stats_tree* st) {
+static void
+http_stats_tree_init(stats_tree* st)
+{
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
 	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
 	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
@@ -398,7 +408,9 @@ static void http_stats_tree_init(stats_tree* st) {
 }
 
 /* HTTP/Packet Counter stats packet function */
-static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
+static int
+http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
 	const http_info_value_t* v = p;
 	guint i = v->response_code;
 	int resp_grp;

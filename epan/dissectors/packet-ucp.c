@@ -110,12 +110,12 @@ static int st_ucp_results	= -1;
 static int st_ucp_results_pos	= -1;
 static int st_ucp_results_neg	= -1;
 
-static guint8* st_str_ucp	= "UCP Messages";
-static guint8* st_str_ops	= "Operations";
-static guint8* st_str_res	= "Results";
-static guint8* st_str_ucp_res	= "UCP Results Acks/Nacks";
-static guint8* st_str_pos	= "Positive";
-static guint8* st_str_neg	= "Negative";
+static gchar* st_str_ucp	= "UCP Messages";
+static gchar* st_str_ops	= "Operations";
+static gchar* st_str_res	= "Results";
+static gchar* st_str_ucp_res	= "UCP Results Acks/Nacks";
+static gchar* st_str_pos	= "Positive";
+static gchar* st_str_neg	= "Negative";
 
 /*
  * Data (variable) section
@@ -2757,5 +2757,7 @@ proto_reg_handoff_ucp(void)
     dissector_add_handle("tcp.port", ucp_handle);
 
     /* Tapping setup */
-    stats_tree_register("ucp", "ucp_messages", st_str_ucp, ucp_stats_tree_per_packet, ucp_stats_tree_init, NULL);
+    stats_tree_register("ucp", "ucp_messages", st_str_ucp,
+			ucp_stats_tree_per_packet, ucp_stats_tree_init,
+			NULL);
 }

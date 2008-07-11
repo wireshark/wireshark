@@ -58,7 +58,7 @@ static void ip_hosts_stats_tree_init(stats_tree* st) {
 }
 
 static int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
-	static guint8 str[128];
+	static gchar str[128];
 	
 	tick_stat_node(st, st_str_ip, 0, FALSE);
 	
@@ -118,7 +118,7 @@ static void dsts_stats_tree_init(stats_tree* st) {
 }
 
 static int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
-	static guint8 str[128];
+	static gchar str[128];
 	int ip_dst_node;
 	int proto_node;
 	
