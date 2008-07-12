@@ -35,6 +35,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include "packet-ssl.h"
 
 static int proto_imap = -1;
 static int hf_imap_response = -1;
@@ -44,6 +45,7 @@ static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
 
 #define TCP_PORT_IMAP			143
+#define TCP_PORT_SSL_IMAP		993
 
 static void
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -192,4 +194,5 @@ proto_reg_handoff_imap(void)
 
   imap_handle = create_dissector_handle(dissect_imap, proto_imap);
   dissector_add("tcp.port", TCP_PORT_IMAP, imap_handle);
+  ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
 }

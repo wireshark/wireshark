@@ -1,9 +1,12 @@
 /* packet-ssl-utils.h
+ * ssl manipulation functions
+ * By Paolo Abeni <paolo.abeni@email.com>
  *
  * $Id$
  *
- * ssl manipulation functions
- * By Paolo Abeni <paolo.abeni@email.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,11 +59,6 @@
 #define SSL_PRIVATE_KEY void
 #endif /* HAVE_LIBGNUTLS */
 
- /* The TCP port to associate with by default */
-#define TCP_PORT_SSL                    443
-#define TCP_PORT_SSL_LDAP               636
-#define TCP_PORT_SSL_IMAP               993
-#define TCP_PORT_SSL_POP                995
 
 /* version state tables */
 #define SSL_VER_UNKNOWN                   0

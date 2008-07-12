@@ -39,6 +39,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include "packet-ssl.h"
 
 static int proto_pop = -1;
 
@@ -71,6 +72,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t imf_handle = NULL;
 
 #define TCP_PORT_POP			110
+#define TCP_PORT_SSL_POP		995
 
 /* desegmentation of POP command and response lines */
 static gboolean pop_data_desegment = TRUE;
@@ -468,6 +470,7 @@ proto_reg_handoff_pop(void)
 
   pop_handle = create_dissector_handle(dissect_pop, proto_pop);
   dissector_add("tcp.port", TCP_PORT_POP, pop_handle);
+  ssl_dissector_add(TCP_PORT_SSL_POP, "pop", TRUE);
   data_handle = find_dissector("data");
 
   /* find the IMF dissector */

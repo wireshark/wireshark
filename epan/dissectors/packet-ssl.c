@@ -4381,10 +4381,6 @@ proto_reg_handoff_ssl(void)
 
     /* parse key list */
     ssl_parse();
-
-    /* add ssl dissection to defaults ports */
-    ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
-    ssl_dissector_add(TCP_PORT_SSL_POP, "pop", TRUE);
 }
 
 void
