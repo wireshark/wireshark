@@ -312,7 +312,7 @@ format_text_wsp(const guchar *string, int len)
     } else if  (isspace(c)) {
       fmtbuf[idx][column] = ' ';
       column++;
-	}else {
+    } else {
       fmtbuf[idx][column] =  '\\';
       column++;
       switch (c) {
