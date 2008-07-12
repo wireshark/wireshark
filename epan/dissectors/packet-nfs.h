@@ -105,19 +105,25 @@
 #define NFS4_OP_WRITE						38
 #define NFS4_OP_RELEASE_LOCKOWNER		39
 /* Minor version 1 */
+#define NFS4_OP_BACKCHANNEL_CTL       40
+#define NFS4_OP_BIND_CONN_TO_SESSION  41
 #define NFS4_OP_EXCHANGE_ID       42
 #define NFS4_OP_CREATE_SESSION    43
 #define NFS4_OP_DESTROY_SESSION   44
+#define NFS4_OP_FREE_STATEID          45
+#define NFS4_OP_GET_DIR_DELEGATION    46
 #define NFS4_OP_GETDEVINFO        47
 #define NFS4_OP_GETDEVLIST		  48
 #define NFS4_OP_LAYOUTCOMMIT         49
 #define NFS4_OP_LAYOUTGET	    	 50
 #define NFS4_OP_LAYOUTRETURN		 51
+#define NFS4_OP_SECINFO_NO_NAME       52
 #define NFS4_OP_SEQUENCE             53
-#define NFS4_OP_NOTIFYDS             60
-#define NFS4_OP_PNFS_CREATE          61
-#define NFS4_OP_PNFS_WRITE           62
-#define NFS4_OP_PNFS_READ            63
+#define NFS4_OP_SET_SSV               54
+#define NFS4_OP_TEST_STATEID          55
+#define NFS4_OP_WANT_DELEGATION       56
+#define NFS4_OP_DESTROY_CLIENTID      57
+#define NFS4_OP_RECLAIM_COMPLETE      58
 
 #define NFS4_OP_ILLEGAL						10044
 
@@ -130,6 +136,17 @@
 #define UNCHECKED 0
 #define GUARDED 1
 #define EXCLUSIVE 2
+
+/* for create4 */
+#define UNCHECKED4 0
+#define GUARDED4 1
+#define EXCLUSIVE4 2
+#define EXCLUSIVE4_1 3
+
+/* pNFS layout types */
+#define LAYOUT4_NFSV4_1_FILES  1
+#define LAYOUT4_OSD2_OBJECTS   2
+#define LAYOUT4_BLOCK_VOLUME   3
 
 extern gboolean nfs_file_name_snooping;
 

@@ -294,6 +294,7 @@ static int hf_nfs_fattr4_space_free = -1;
 static int hf_nfs_fattr4_space_total = -1;
 static int hf_nfs_fattr4_space_used = -1;
 static int hf_nfs_fattr4_mounted_on_fileid = -1;
+static int hf_nfs_fattr4_layout_blksize = -1;
 static int hf_nfs_who = -1;
 static int hf_nfs_server = -1;
 static int hf_nfs_fslocation4 = -1;
@@ -348,6 +349,7 @@ static int hf_nfs_callback_ident = -1;
 static int hf_nfs_r_netid = -1;
 static int hf_nfs_gsshandle4 = -1;
 static int hf_nfs_r_addr = -1;
+static int hf_nfs_createmode4 = -1;
 
 /* NFSv4.1 */
 static int hf_nfs_length4_minlength = -1;
@@ -368,7 +370,6 @@ static int hf_nfs_deviceidx4 = -1;
 static int hf_nfs_layout4 = -1;
 static int hf_nfs_stripedevs4 = -1;
 static int hf_nfs_devaddr4 = -1;
-static int hf_nfs_notifydsop4 = -1;
 static int hf_nfs_return_on_close4 = -1;
 static int hf_nfs_slotid4 = -1;
 static int hf_nfs_sr_status4 = -1;
@@ -405,6 +406,13 @@ static int hf_nfs_create_session_flags4 = -1;
 static int hf_nfs_cachethis4 = -1;
 static int hf_nfs_util4 = -1;
 static int hf_nfs_first_stripe_idx4 = -1;
+static int hf_nfs_layout_count = -1;
+static int hf_nfs_pattern_offset = -1;
+static int hf_nfs_notification_bitmap4 = -1;
+static int hf_nfs_lrs_present = -1;
+static int hf_nfs_nfl_util = -1;
+static int hf_nfs_nfl_first_stripe_index = -1;
+static int hf_nfs_lrf_body_content = -1;
 
 /* Hidden field for v2, v3, and v4 status */
 int hf_nfs_nfsstat = -1;
@@ -530,12 +538,10 @@ static gint ett_nfs_layoutcommit4 = -1;
 static gint ett_nfs_layoutreturn4 = -1;
 static gint ett_nfs_getdevinfo4 = -1;
 static gint ett_nfs_getdevlist4 = -1;
-static gint ett_nfs_notifyds4 = -1;
 static gint ett_nfs_exchange_id4 = -1;
 static gint ett_nfs_create_session4 = -1;
 static gint ett_nfs_destroy_session4 = -1;
 static gint ett_nfs_sequence4 = -1;
-static gint ett_nfs_pnfs_create4 = -1;
 static gint ett_nfs_slotid4 = -1;
 static gint ett_nfs_sr_status4 = -1;
 static gint ett_nfs_serverscope4 = -1;
@@ -562,6 +568,8 @@ static gint ett_nfs_uid4 = -1;
 static gint ett_nfs_gid4 = -1;
 static gint ett_nfs_service4 = -1;
 static gint ett_nfs_sessionid4 = -1;
+static gint ett_nfs_layoutseg = -1;
+static gint ett_nfs_layoutseg_fh = -1;
 
 /* what type of fhandles shoudl we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -5830,6 +5838,19 @@ static const value_string names_nfs_nfsstat4[] = {
 	{	10071,	"NFS4ERR_OP_NOT_IN_SESSION"			},
 	{	10072,	"NFS4ERR_HASH_ALG_UNSUPP"			},
 	{	10073,	"NFS4ERR_CONN_BINDING_NOT_ENFORCED"		},
+	{	10074,	"NFS4ERR_CLIENTID_BUSY"				},
+	{	10075,	"NFS4ERR_PNFS_IO_HOLE"				},
+	{	10076,	"NFS4ERR_SEQ_FALSE_RETRY"			},
+	{	10077,	"NFS4ERR_BAD_HIGH_SLOT"				},
+	{	10078,	"NFS4ERR_DEADSESSION"				},
+	{	10079,	"NFS4ERR_ENCR_ALG_UNSUPP"			},
+	{	10080,	"NFS4ERR_PNFS_NO_LAYOUT"			},
+	{	10081,	"NFS4ERR_NOT_ONLY_OP"				},
+	{	10082,	"NFS4ERR_WRONG_CRED"				},
+	{	10083,	"NFS4ERR_WRONG_TYPE"				},
+	{	10084,	"NFS4ERR_DIRDELEG_UNAVAIL"			},
+	{	10085,	"NFS4ERR_REJECT_DELEG"				},
+	{	10086,	"NFS4ERR_RETURNCONFLICT"			},
 	{	0,	NULL }
 };
 
@@ -6443,18 +6464,46 @@ static const value_string names_fattr4[] = {
 	{	FATTR4_MOUNTED_ON_FILEID, "FATTR4_MOUNTED_ON_FILEID"	},
 #define FATTR4_DIR_NOTIF_DELAY 56
 	{	FATTR4_DIR_NOTIF_DELAY, "FATTR4_DIR_NOTIF_DELAY"	},
-#define FATTR4_DIRENT_NOTIF_DELAY   57
+#define FATTR4_DIRENT_NOTIF_DELAY  57
 	{	FATTR4_DIRENT_NOTIF_DELAY, "FATTR4_DIRENT_NOTIF_DELAY"	},
-#define FATTR4_SEND_IMPL_ID   58
-	{	FATTR4_SEND_IMPL_ID, "FATTR4_SEND_IMPL_ID"	},
-#define FATTR4_RECV_IMPL_ID  59
-	{	FATTR4_RECV_IMPL_ID, "FATTR4_RECV_IMPL_ID"	},
-#define FATTR4_ABSENT  60
-	{	FATTR4_ABSENT, "FATTR4_ABSENT"	},
-#define FATTR4_FS_STATUS  61
-	{	FATTR4_FS_STATUS, "FATTR4_FS_STATUS"	},
-#define FATTR4_FS_LAYOUT_TYPES   62
-	{	FATTR4_MOUNTED_ON_FILEID, "FATTR4_FS_LAYOUT_TYPES"	},
+#define FATTR4_DACL                58
+	{	FATTR4_DACL, "FATTR4_DACL"				},
+#define FATTR4_SACL                59
+	{	FATTR4_SACL, "FATTR4_SACL"				},
+#define FATTR4_CHANGE_POLICY       60
+	{	FATTR4_CHANGE_POLICY, "FATTR4_CHANGE_POLICY"		},
+#define FATTR4_FS_STATUS           61
+	{	FATTR4_FS_STATUS, "FATTR4_FS_STATUS"			},
+#define FATTR4_FS_LAYOUT_TYPE      62
+	{	FATTR4_FS_LAYOUT_TYPE, "FATTR4_FS_LAYOUT_TYPE"		},
+#define FATTR4_LAYOUT_HINT         63
+	{	FATTR4_LAYOUT_HINT, "FATTR4_LAYOUT_HINT"		},
+#define FATTR4_LAYOUT_TYPE         64
+	{	FATTR4_LAYOUT_TYPE, "FATTR4_LAYOUT_TYPE"		},
+#define FATTR4_LAYOUT_BLKSIZE      65
+	{	FATTR4_LAYOUT_BLKSIZE, "FATTR4_LAYOUT_BLKSIZE"		},
+#define FATTR4_LAYOUT_ALIGNMENT    66
+	{	FATTR4_LAYOUT_ALIGNMENT, "FATTR4_LAYOUT_ALIGNMENT"	},
+#define FATTR4_FS_LOCATIONS_INFO   67
+	{	FATTR4_FS_LOCATIONS_INFO, "FATTR4_FS_LOCATIONS_INFO"	},
+#define FATTR4_MDSTHRESHOLD        68
+	{	FATTR4_MDSTHRESHOLD, "FATTR4_MDSTHRESHOLD"		},
+#define FATTR4_RETENTION_GET       69
+	{	FATTR4_RETENTION_GET, "FATTR4_RETENTION_GET"		},
+#define FATTR4_RETENTION_SET       70
+	{	FATTR4_RETENTION_SET, "FATTR4_RETENTION_SET"		},
+#define FATTR4_RETENTEVT_GET       71
+	{	FATTR4_RETENTEVT_GET, "FATTR4_RETENTEVT_GET"		},
+#define FATTR4_RETENTEVT_SET       72
+	{	FATTR4_RETENTEVT_SET, "FATTR4_RETENTEVT_SET"		},
+#define FATTR4_RETENTION_HOLD      73
+	{	FATTR4_RETENTION_HOLD, "FATTR4_RETENTION_HOLD"		},
+#define FATTR4_MODE_SET_MASKED     74
+	{	FATTR4_MODE_SET_MASKED, "FATTR4_MODE_SET_MASKED"	},
+#define FATTR4_SUPPATTR_EXCLCREAT  75
+	{	FATTR4_SUPPATTR_EXCLCREAT, "FATTR4_SUPPATTR_EXCLCREAT"	},
+#define FATTR4_FS_CHARSET_CAP      76
+	{	FATTR4_FS_CHARSET_CAP, "FATTR4_FS_CHARSET_CAP"		},
 	{	0,	NULL	}
 };
 
@@ -6797,6 +6846,10 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						attr_vals_offset = dissect_rpc_uint64(tvb, attr_newftree, 
 							hf_nfs_fattr4_mounted_on_fileid, attr_vals_offset);
 						break;
+					case FATTR4_LAYOUT_BLKSIZE:
+						attr_vals_offset = dissect_rpc_uint32(tvb, attr_newftree,
+							hf_nfs_fattr4_layout_blksize, attr_vals_offset);
+						break;
 
 					default:
 						break;
@@ -6839,6 +6892,22 @@ static const value_string names_open4_share_access[] = {
 	{ OPEN4_SHARE_ACCESS_WRITE, "OPEN4_SHARE_ACCESS_WRITE" },
 #define OPEN4_SHARE_ACCESS_BOTH 0x00000003
 	{ OPEN4_SHARE_ACCESS_BOTH, "OPEN4_SHARE_ACCESS_BOTH" },
+#define  OPEN4_SHARE_ACCESS_WANT_NO_PREFERENCE     0x0000
+	{ OPEN4_SHARE_ACCESS_WANT_NO_PREFERENCE, "OPEN4_SHARE_ACCESS_WANT_NO_PREFERENCE" },
+#define  OPEN4_SHARE_ACCESS_WANT_READ_DELEG        0x0100
+	{ OPEN4_SHARE_ACCESS_WANT_READ_DELEG, "OPEN4_SHARE_ACCESS_WANT_READ_DELEG" },
+#define  OPEN4_SHARE_ACCESS_WANT_WRITE_DELEG       0x0200
+	{ OPEN4_SHARE_ACCESS_WANT_WRITE_DELEG, "OPEN4_SHARE_ACCESS_WANT_WRITE_DELEG" },
+#define  OPEN4_SHARE_ACCESS_WANT_ANY_DELEG         0x0300
+	{ OPEN4_SHARE_ACCESS_WANT_ANY_DELEG, "OPEN4_SHARE_ACCESS_WANT_ANY_DELEG" },
+#define  OPEN4_SHARE_ACCESS_WANT_NO_DELEG          0x0400
+	{ OPEN4_SHARE_ACCESS_WANT_NO_DELEG, "OPEN4_SHARE_ACCESS_WANT_NO_DELEG" },
+#define  OPEN4_SHARE_ACCESS_WANT_CANCEL            0x0500
+	{ OPEN4_SHARE_ACCESS_WANT_CANCEL, "OPEN4_SHARE_ACCESS_WANT_CANCEL" },
+#define OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL 0x10000
+	{ OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL, "OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL"},
+#define OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED  0x20000
+	{ OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED, "OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED"},
 	{ 0, NULL }
 };
 
@@ -6905,12 +6974,18 @@ dissect_nfs_open_claim_delegate_cur4(tvbuff_t *tvb, int offset,
 #define CLAIM_PREVIOUS			1
 #define CLAIM_DELEGATE_CUR		2
 #define CLAIM_DELEGATE_PREV	3
+#define CLAIM_FH		4
+#define CLAIM_DELEG_CUR_FH	5
+#define CLAIM_DELEG_CUR_PREV_FH	6
 
 static const value_string names_claim_type4[] = {
 	{	CLAIM_NULL,  		"CLAIM_NULL"  },
 	{	CLAIM_PREVIOUS, 	"CLAIM_PREVIOUS" },
 	{	CLAIM_DELEGATE_CUR, 	"CLAIM_DELEGATE_CUR" },
 	{	CLAIM_DELEGATE_PREV,	"CLAIM_DELEGATE_PREV" },
+	{	CLAIM_FH,		"CLAIM_FH" },
+	{	CLAIM_DELEG_CUR_FH,	"CLAIM_DELEG_CUR_FH"},
+	{	CLAIM_DELEG_CUR_PREV_FH,"CLAIN_DELEG_CUR_PREV_FH"},
 	{	0, NULL }
 };
 
@@ -6959,26 +7034,38 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static const value_string names_createmode4[] = {
+	{	UNCHECKED4, "UNCHECKED4" },
+	{	GUARDED4,   "GUARDED4" },
+	{	EXCLUSIVE4, "EXCLUSIVE4" },
+	{	EXCLUSIVE4_1, "EXCLUSIVE4_1" },
+	{	0, NULL }
+};
+
 static int
 dissect_nfs_createhow4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
 	guint mode;
 
-	/* This is intentional; we're using the same flags as NFSv3 */
 	mode = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_nfs_createmode3, tvb, offset, 4, mode);
+	proto_tree_add_uint(tree, hf_nfs_createmode4, tvb, offset, 4, mode);
 	offset += 4;
 
 	switch(mode)
 	{
-	case UNCHECKED:		/* UNCHECKED4 */
-	case GUARDED:		/* GUARDED4 */
+	case UNCHECKED4:
+	case GUARDED4:
 		offset = dissect_nfs_fattr4(tvb, offset, pinfo, tree);
 		break;
 
-	case EXCLUSIVE:		/* EXCLUSIVE4 */
+	case EXCLUSIVE4:
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_verifier4, offset);
+		break;
+
+	case EXCLUSIVE4_1:
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_verifier4, offset);
+		offset = dissect_nfs_fattr4(tvb, offset, pinfo, tree);
 		break;
 
 	default:
@@ -7122,16 +7209,20 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_EXCHANGE_ID,		"EXCHANGE_ID" },
 	{	NFS4_OP_CREATE_SESSION,		"CREATE_SESSION" },
 	{	NFS4_OP_DESTROY_SESSION,	"DESTROY_SESSION" },
-	{	NFS4_OP_SEQUENCE,		"SEQUENCE" },
+	{	NFS4_OP_FREE_STATEID,		"FREE_STATEID"},
+	{	NFS4_OP_GET_DIR_DELEGATION,	"GET_DIR_DELEGATION"},
 	{	NFS4_OP_GETDEVINFO,		"GETDEVINFO"},
 	{	NFS4_OP_GETDEVLIST,		"GETDEVLIST"},
 	{	NFS4_OP_LAYOUTCOMMIT,		"LAYOUTCOMMIT" },
 	{	NFS4_OP_LAYOUTGET,		"LAYOUTGET" },
 	{	NFS4_OP_LAYOUTRETURN,		"LAYOUTRETURN" },
-	{	NFS4_OP_NOTIFYDS,		"PNFS_NOTIFYDS"},
-	{	NFS4_OP_PNFS_CREATE,		"PNFS_CREATE"},
-	{	NFS4_OP_PNFS_WRITE,		"PNFS_WRITE"},
-	{	NFS4_OP_PNFS_READ,		"PNFS_READ"},
+	{	NFS4_OP_SECINFO_NO_NAME,	"SECINFO_NO_NAME" },
+	{	NFS4_OP_SEQUENCE,		"SEQUENCE" },
+	{	NFS4_OP_SET_SSV,		"SET-SSV"},
+	{	NFS4_OP_TEST_STATEID,		"TEST-STATEID"},
+	{	NFS4_OP_WANT_DELEGATION,	"WANT-DELEG" },
+	{	NFS4_OP_DESTROY_CLIENTID,	"DESTROY-CLIENTID" },
+	{	NFS4_OP_RECLAIM_COMPLETE,	"RECLAIM-COMPLETE" },
 	{	NFS4_OP_ILLEGAL,		"ILLEGAL"},
 	{	0,	NULL }
 };
@@ -7175,28 +7266,25 @@ gint *nfsv4_operation_ett[] =
 	 &ett_nfs_verify4 ,
 	 &ett_nfs_write4,
 	 &ett_nfs_release_lockowner4,
-	 NULL,
-	 NULL,
+	 NULL, /* backchannel_ctl */
+	 NULL, /* bind connection to session */
 	 &ett_nfs_exchange_id4,
 	 &ett_nfs_create_session4,
 	 &ett_nfs_destroy_session4,
-	 NULL,
-	 NULL,
+	 NULL, /* free stateid */
+	 NULL, /* get dir delegation */
 	 &ett_nfs_getdevinfo4,
 	 &ett_nfs_getdevlist4,
 	 &ett_nfs_layoutcommit4,
 	 &ett_nfs_layoutget4,
 	 &ett_nfs_layoutreturn4,
-	 NULL,
+	 NULL, /* secinfo no name */
 	 &ett_nfs_sequence4,
-	 NULL,
-	 NULL,
-	 NULL,
-	 NULL,
-	 NULL,
-	 NULL,
-	 &ett_nfs_notifyds4,
-	 &ett_nfs_pnfs_create4
+	 NULL, /* set ssv */
+	 NULL, /* test stateid */
+	 NULL, /* want delegation */
+	 NULL, /* destroy clientid */
+	 NULL  /* reclaim complete*/
 };
 
 static int
@@ -7559,10 +7647,12 @@ dissect_nfs_open_write_delegation4(tvbuff_t *tvb, int offset,
 #define OPEN_DELEGATE_NONE 0
 #define OPEN_DELEGATE_READ 1
 #define OPEN_DELEGATE_WRITE 2
+#define OPEN_DELEGATE_NONE_EXT 3 /* new to v4.1 */
 static const value_string names_open_delegation_type4[] = {
 	{	OPEN_DELEGATE_NONE,	"OPEN_DELEGATE_NONE" },
 	{	OPEN_DELEGATE_READ, 	"OPEN_DELEGATE_READ" },
 	{	OPEN_DELEGATE_WRITE,	"OPEN_DELEGATE_WRITE" },
+	{	OPEN_DELEGATE_NONE_EXT, "OPEN_DELEGATE_NONE_EXT"},
 	{	0,	NULL }
 };
 
@@ -7718,6 +7808,38 @@ dissect_nfs_layoutreturn4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (returntype == 1) { /* RETURN_FILE */
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
+		offset = dissect_nfs_stateid4(tvb, offset, tree);
+		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_lrf_body_content);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_layoutreturn_stateid(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	guint lrs_present;
+
+	lrs_present = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs_lrs_present, offset);
+
+	if (lrs_present) {
+		offset = dissect_nfs_stateid4(tvb, offset, tree);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_notification_bitmap4(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	guint32 bitmap_num;
+	guint i;
+
+	bitmap_num = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	for (i = 0; i < bitmap_num; i++) {
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_notification_bitmap4, offset);
 	}
 
 	return offset;
@@ -7726,8 +7848,8 @@ dissect_nfs_layoutreturn4(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint i;
-	guint32 num_devs,num_indices,num_multipath;
+	guint i,j;
+	guint32 num_indices,num_multipath, num_addr;
 
 	/* No layout type - argh */
 
@@ -7740,13 +7862,12 @@ dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
 		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceidx4,offset);
 	}
 
-	/* disect devices */
-	num_devs = tvb_get_ntohl(tvb, offset);
+	num_multipath = tvb_get_ntohl(tvb, offset);
 	offset += 4;
-	for (i = 0; i < num_devs; i++) {
-		num_multipath = tvb_get_ntohl(tvb, offset);
+	for (i = 0; i < num_multipath; i++) {
+		num_addr = tvb_get_ntohl(tvb, offset);
 		offset += 4;
-		for (i = 0; i < num_multipath; i++) {
+		for (j = 0; j < num_addr; j++) {
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_netid);
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_addr);
 		}
@@ -7759,10 +7880,12 @@ dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_nfs_deviceaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	/* No layout type - argh */
 
-	/* Assume file layout for now */
+	/* layout type */
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+
+	/* skip da_addr_body size */
+	offset+=4;
 
 	offset = dissect_nfs_devices4(tvb, offset, tree);
 
@@ -7778,17 +7901,9 @@ dissect_nfs_devicelist4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	count = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_devicenum4, offset);
 	for (i = 0; i < count; i++) {
-		int opaque_devs, dev_limit;
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceid4, offset);
-
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
-
-		opaque_devs = tvb_get_ntohl(tvb, offset);
-		offset += 4;
-		dev_limit = opaque_devs + offset;
-		while (offset < dev_limit) {
-			offset = dissect_nfs_devices4(tvb, offset, tree);
-		}
+		offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+						hf_nfs_deviceid4, TRUE, 16,
+						FALSE, NULL, NULL);
 	}
 	return offset;
 }
@@ -7875,73 +7990,61 @@ dissect_rpc_secparms4(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_nfs_notifydsargs4(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-
-	guint op;
-
-	op = tvb_get_ntohl(tvb, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_notifydsop4, offset);
-	switch(op) {
-	case 0: { /* ADDSTATE */
-		guint count, i;
-		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_clientid4, offset);
-
-		proto_tree_add_text(tree, tvb, offset, 0, "filehandle: %s",
-							tvb_bytes_to_str(tvb, offset, 16));
-		offset += 16;
-
-		count = tvb_get_ntohl(tvb, offset);
-		offset += 4;
-		for (i = 0; i < count; i++) {
-			offset = dissect_nfs_stateid4(tvb, offset, tree);
-		}
-		break;
-	}
-	case 1: { /* DELSTATE */
-		guint count, i;
-		count = tvb_get_ntohl(tvb, offset);
-		offset += 4;
-		for (i = 0; i < count; i++) {
-			offset = dissect_nfs_stateid4(tvb, offset, tree);
-		}
-		break;
-	}
-	case 2: /* DELCLIENT */
-		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_clientid4, offset);
-		break;
-	default:
-		break;
-	}
-
-	return offset;
-}
-
-static int
 dissect_nfs_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint layout_type;
+	guint fh_num;
+	guint lo_seg_count;
+	guint i, lo_seg;
+	proto_item *fitem;
+	proto_item *fh_fitem;
+	proto_tree *newtree = NULL;
+	proto_tree *fh_tree = NULL;
 
-	layout_type = tvb_get_ntohl(tvb, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+	lo_seg_count = tvb_get_ntohl(tvb, offset);
 
-	if (layout_type == 1) { /* NFS Files */
-		guint num;
-		guint i;
-		offset += 4; /* Skip past opaque count */
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceid4, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_util4, offset);
-		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_first_stripe_idx4, offset);
+	fitem = proto_tree_add_text(tree, tvb, offset, 4,
+			"Layout Segment (count: %u)", lo_seg_count);
+	offset += 4;
 
-		num = tvb_get_ntohl(tvb, offset); /* Len of dev list */
-		offset += 4;
-		for (i = 0; i < num; i++) {
-			offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle");
+	newtree = proto_item_add_subtree(fitem, ett_nfs_layoutseg);
+
+	for (lo_seg = 0; lo_seg < lo_seg_count; lo_seg++) {
+		offset = dissect_rpc_uint64(tvb, newtree, hf_nfs_offset4, offset);
+		offset = dissect_rpc_uint64(tvb, newtree, hf_nfs_length4, offset);
+
+		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_iomode4, offset);
+
+		layout_type = tvb_get_ntohl(tvb, offset);
+		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_layouttype4, offset);
+
+		/* If not files layout type eat the rest and move on.. */
+		if (layout_type != LAYOUT4_NFSV4_1_FILES) {
+			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs_layout4);
+			continue;
 		}
-	} else {
-		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_layout4);
-	}
 
+		/* NFS Files */
+		offset += 4; /* Skip past opaque count */
+
+		offset = dissect_rpc_opaque_data(tvb, offset, newtree, NULL,
+				hf_nfs_deviceid4, TRUE, 16, FALSE, NULL, NULL);
+
+		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_nfl_util, offset);
+		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_nfl_first_stripe_index, offset);
+		offset = dissect_rpc_uint64(tvb, newtree, hf_nfs_offset4, offset);
+
+		fh_num = tvb_get_ntohl(tvb, offset); /* Len of FH list */
+
+		fh_fitem = proto_tree_add_text(newtree, tvb, offset, 4,
+				"File Handles (count: %u)", fh_num);
+		offset += 4;
+
+		fh_tree = proto_item_add_subtree(fh_fitem, ett_nfs_layoutseg_fh);
+		for (i = 0; i < fh_num; i++) {
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, fh_tree, "lo_filehandle");
+		}
+	}
 	return offset;
 }
 
@@ -7980,7 +8083,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		/* the opcodes are not contiguous */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_PNFS_CREATE)	&&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE)	&&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
@@ -8280,6 +8383,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_rpc_uint64(tvb, newftree,
 										hf_nfs_length4_minlength, offset);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
 										offset);
 			break;
@@ -8288,8 +8392,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim4, offset);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree);
 			offset = dissect_nfs_newoffset4(tvb, offset, newftree);
-			offset = dissect_nfs_newtime4(tvb, offset, newftree);
 			offset = dissect_nfs_newtime4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
 										offset);
@@ -8306,12 +8410,15 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_GETDEVINFO:
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_deviceid4,
-										offset);
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
+							hf_nfs_deviceid4, TRUE, 16,
+							FALSE, NULL, NULL);
+
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
 										offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
 										offset);
+			offset = dissect_nfs_notification_bitmap4(tvb, newftree, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -8332,14 +8439,6 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
-			break;
-
-		case NFS4_OP_NOTIFYDS:
-			offset = dissect_nfs_notifydsargs4(tvb, offset, newftree);
-			break;
-
-		case NFS4_OP_PNFS_CREATE:
-			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
 			break;
 
 		/* In theory, it's possible to get this opcode */
@@ -8428,7 +8527,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		opcode = tvb_get_ntohl(tvb, offset);
 
 		/* sanity check for bogus packets */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_PNFS_CREATE) &&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RECLAIM_COMPLETE) &&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
@@ -8618,9 +8717,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_LAYOUTGET:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_return_on_close4,
 									  offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
+			offset = dissect_nfs_stateid4(tvb, offset, newftree);
 			offset = dissect_nfs_layout(tvb, offset, pinfo, newftree);
 			break;
 
@@ -8629,10 +8726,12 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_LAYOUTRETURN:
+			offset = dissect_nfs_layoutreturn_stateid(tvb, newftree, offset);
 			break;
 
 		case NFS4_OP_GETDEVINFO:
 			offset = dissect_nfs_deviceaddr4(tvb, offset, newftree);
+			offset = dissect_nfs_notification_bitmap4(tvb, newftree, offset);
 			break;
 
 		case NFS4_OP_GETDEVLIST:
@@ -8654,12 +8753,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_sr_status4,
 										offset);
-			break;
-
-		case NFS4_OP_NOTIFYDS:
-			break;
-
-		case NFS4_OP_PNFS_CREATE:
 			break;
 
 		default:
@@ -8861,13 +8954,6 @@ static const value_string names_nfs_nfsstat[] = {
 	{	10046,	"ERR_FILE_OPEN"					},
 	{	10047,	"ERR_ADMIN_REVOKED"				},
 	{	10048,	"ERR_CB_PATH_DOWN"				},
-	{	0,	NULL }
-};
-
-static const value_string notifydsop_names[] = {
-	{	0,	"ADD_STATE"				},
-	{	1,	"DEL_STATE"				},
-	{	2,	"DEL_CLIENT"			},
 	{	0,	NULL }
 };
 
@@ -9735,6 +9821,10 @@ proto_register_nfs(void)
 			"fileid", "nfs.fattr4.mounted_on_fileid", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_fattr4_layout_blksize, {
+			"fileid", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs_verifier4, {
 			"verifier", "nfs.verifier4", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -9846,6 +9936,10 @@ proto_register_nfs(void)
 		{ &hf_nfs_lock_owner4, {
 			"owner", "nfs.lock_owner4", FT_BYTES, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_createmode4, {
+			"Create Mode", "nfs.createmode4", FT_UINT32, BASE_DEC,
+			VALS(names_createmode4), 0, NULL, HFILL }},
 
 		{ &hf_nfs_secinfo_rpcsec_gss_info_service, {
 			"service", "nfs.secinfo.rpcsec_gss_info.service", FT_UINT32, BASE_DEC,
@@ -10019,6 +10113,10 @@ proto_register_nfs(void)
 			"return type", "nfs.returntype", FT_UINT32, BASE_DEC,
 			VALS(layoutreturn_names), 0, NULL, HFILL }},
 
+		{ &hf_nfs_lrf_body_content, {
+			"lrf_body_content", "nfs.lrf_body_content", FT_BYTES, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs_iomode4, {
 			"IO mode", "nfs.iomode", FT_UINT32, BASE_DEC,
 			VALS(iomode_names), 0, NULL, HFILL }},
@@ -10038,6 +10136,14 @@ proto_register_nfs(void)
 		{ &hf_nfs_first_stripe_idx4, {
 			"first stripe index", "nfs.stripeindex", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_pattern_offset, {
+			"layout pattern offset", "nfs.patternoffset", FT_UINT64, BASE_DEC,
+			NULL, 0, "layout pattern offset", HFILL }},
+
+		{ &hf_nfs_notification_bitmap4, {
+			"notification bitmap", "nfs.notificationbitmap", FT_UINT32, BASE_DEC,
+			NULL, 0, "notification bitmap", HFILL }},
 
 		{ &hf_nfs_newtime4, {
 			"new time?", "nfs.newtime", FT_BOOLEAN, BASE_NONE,
@@ -10064,8 +10170,8 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_deviceid4, {
-			"device ID", "nfs.deviceid", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			"device ID", "nfs.deviceid", FT_BYTES, BASE_HEX,
+			NULL, 0, "device ID", HFILL }},
 
 		{ &hf_nfs_devicenum4, {
 			"num devices", "nfs.devicenum4", FT_UINT32, BASE_DEC,
@@ -10079,6 +10185,11 @@ proto_register_nfs(void)
 			"layout", "nfs.layout", FT_BYTES, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_layout_count, {
+			"layout", "nfs.layoutcount", FT_UINT32, BASE_DEC,
+			NULL, 0, "layout count", HFILL }},
+
+
 		{ &hf_nfs_stripedevs4, {
 			"stripe devs", "nfs.stripedevs", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -10087,13 +10198,17 @@ proto_register_nfs(void)
 			"device addr", "nfs.devaddr", FT_BYTES, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
-		{ &hf_nfs_notifydsop4, {
-			"NotifyDS op", "nfs.notifydsop", FT_UINT32, BASE_DEC,
-			VALS(notifydsop_names), 0, NULL, HFILL }},
-
 		{ &hf_nfs_return_on_close4, {
 			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+
+		{ &hf_nfs_nfl_util, {
+			"nfl_util", "nfs.nfl_util", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_nfl_first_stripe_index, {
+			"first stripe to use index", "nfs.nfl_first_stripe_index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_slotid4, {
 			"slot ID", "nfs.slotid4", FT_UINT32, BASE_DEC,
@@ -10216,6 +10331,10 @@ proto_register_nfs(void)
 			"Cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0, NULL, HFILL }},
 
+		{ &hf_nfs_lrs_present, {
+			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC,
@@ -10316,8 +10435,6 @@ proto_register_nfs(void)
 		&ett_nfs_layoutreturn4,
 		&ett_nfs_getdevinfo4,
 		&ett_nfs_getdevlist4,
-		&ett_nfs_notifyds4,
-		&ett_nfs_pnfs_create4,
 		&ett_nfs_illegal4,
 		&ett_nfs_verifier4,
 		&ett_nfs_opaque,
@@ -10372,7 +10489,9 @@ proto_register_nfs(void)
 		&ett_nfs_uid4,
 		&ett_nfs_gid4,
 		&ett_nfs_service4,
-		&ett_nfs_sessionid4
+		&ett_nfs_sessionid4,
+		&ett_nfs_layoutseg,
+		&ett_nfs_layoutseg_fh
 	};
 	module_t *nfs_module;
 
