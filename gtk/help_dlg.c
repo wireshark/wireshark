@@ -242,7 +242,7 @@ topic_action(topic_action_e action)
         help_topic_html("ChWorkFindPacketSection.html");
         break;
     case(HELP_FIREWALL_DIALOG):
-        help_topic_html("ChUseAnalyzeMenuSection.html");
+        help_topic_html("ChUseToolsMenuSection.html");
         break;
     case(HELP_GOTO_DIALOG):
         help_topic_html("ChWorkGoToPacketSection.html");
