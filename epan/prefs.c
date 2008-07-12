@@ -2342,12 +2342,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
            the new preference. */
         if (strcmp(dotp, "erfeth") == 0) {
           pref = find_preference(module, "ethfcs");
-          if (strcmp(value, "ethfcs") == 0)
-            value = "fcs";
-          else if (strcmp(value, "eth") == 0)
-            value = "nofcs";
-          else if (strcmp(value, "raw") == 0)
-            value = "maybefcs";
+          if (strcmp(value, "ethfcs") == 0 || strcmp(value, "Ethernet with FCS") == 0)
+            value = "TRUE";
+          else if (strcmp(value, "eth") == 0 || strcmp(value, "Ethernet") == 0)
+            value = "FALSE";
+          else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
+            value = "TRUE";
         }
       }
     }

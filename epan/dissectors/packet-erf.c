@@ -166,14 +166,8 @@ typedef enum {
 static gint erf_atm_default = ERF_ATM_MAX;
 static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX];
 
-typedef enum {   
-  ERF_ETHFCS_YES = 1,
-  ERF_ETHFCS_NO = 2,
-  ERF_ETHFCS_MAYBE = 3,
-  ERF_ETH_MAX = 3
-} erf_ethfcs_type;
-static gint erf_ethfcs = ERF_ETHFCS_MAYBE;
-static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX];
+static gboolean erf_ethfcs = TRUE;
+static dissector_handle_t erf_ethwithfcs_dissector, erf_ethwithoutfcs_dissector;
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
@@ -734,17 +728,10 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_COLOR_ETH:
   case ERF_TYPE_DSM_COLOR_ETH:
     dissect_eth_header(tvb, pinfo, erf_tree);
-
-    /* Clean the pseudo header (if used in subdissector) */
-    switch (erf_ethfcs) {
-    case ERF_ETHFCS_YES:
-    case ERF_ETHFCS_NO:
-    case ERF_ETHFCS_MAYBE:
-      memset(&pinfo->pseudo_header->eth, 0, sizeof(pinfo->pseudo_header->eth));
-      break;
-    }
-      
-    call_dissector(erf_eth_dissector[erf_ethfcs], tvb, pinfo, tree);
+    if (erf_ethfcs)
+      call_dissector(erf_ethwithfcs_dissector, tvb, pinfo, tree);
+    else
+      call_dissector(erf_ethwithoutfcs_dissector, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -905,13 +892,6 @@ proto_register_erf(void)
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t erf_ethfcs_options[] = { 
-    { "fcs",      "Present",          ERF_ETHFCS_YES },
-    { "nofcs",    "Not present",      ERF_ETHFCS_NO },
-    { "maybefcs", "Possibly present", ERF_ETHFCS_MAYBE },
-    { NULL, NULL, 0 }
-  };
-
   module_t *erf_module;
 
   proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
@@ -930,9 +910,10 @@ proto_register_erf(void)
                                  "Protocol encapsulated in ATM records",
                                  &erf_atm_default, erf_atm_options, FALSE);
 
-  prefs_register_enum_preference(erf_module, "ethfcs", "Ethernet FCS",
-                                 "Whether the FCS appears in Ethernet records",
-                                 &erf_ethfcs, erf_ethfcs_options, FALSE);
+  prefs_register_bool_preference(erf_module, "ethfcs",
+                                 "Ethernet packets have FCS",
+                                 "Whether the FCS is present in Ethernet packets",
+                                 &erf_ethfcs);
 }
 
 void
@@ -960,7 +941,6 @@ proto_reg_handoff_erf(void)
   erf_atm_dissector[ERF_ATM_LLC] = find_dissector("llc");
 
   /* Create Ethernet dissectors table */
-  erf_eth_dissector[ERF_ETHFCS_YES] = find_dissector("eth_withfcs");  
-  erf_eth_dissector[ERF_ETHFCS_NO] = find_dissector("eth_withoutfcs");
-  erf_eth_dissector[ERF_ETHFCS_MAYBE] = find_dissector("eth");
+  erf_ethwithfcs_dissector = find_dissector("eth_withfcs");  
+  erf_ethwithoutfcs_dissector = find_dissector("eth_withoutfcs");
 }
