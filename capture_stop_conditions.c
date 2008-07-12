@@ -120,7 +120,7 @@ static gboolean _cnd_eval_timeout(condition* cnd, va_list ap _U_){
   /* check timeout here */
   if(data->timeout_s == 0) return FALSE; /* 0 == infinite */
   elapsed_time = (gint32) (time(NULL) - data->start_time);
-  if(elapsed_time > data->timeout_s) return TRUE;
+  if(elapsed_time >= data->timeout_s) return TRUE;
   return FALSE;
 } /* END _cnd_eval_timeout()*/
 
