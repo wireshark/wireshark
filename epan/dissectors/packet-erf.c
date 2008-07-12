@@ -906,9 +906,9 @@ proto_register_erf(void)
   };
 
   static enum_val_t erf_ethfcs_options[] = { 
-    { "ethfcs",   "Present",          ERF_ETHFCS_YES },
-    { "ethnofcs", "Not present",      ERF_ETHFCS_NO },
-    { "eth",      "Possibly present", ERF_ETHFCS_MAYBE },
+    { "fcs",      "Present",          ERF_ETHFCS_YES },
+    { "nofcs",    "Not present",      ERF_ETHFCS_NO },
+    { "maybefcs", "Possibly present", ERF_ETHFCS_MAYBE },
     { NULL, NULL, 0 }
   };
 

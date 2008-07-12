@@ -2342,10 +2342,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
            the new preference. */
         if (strcmp(dotp, "erfeth") == 0) {
           pref = find_preference(module, "ethfcs");
-          if (strcmp(value, "eth") == 0)
-            value = "ethnofcs";
+          if (strcmp(value, "ethfcs") == 0)
+            value = "fcs";
+          else if (strcmp(value, "eth") == 0)
+            value = "nofcs";
           else if (strcmp(value, "raw") == 0)
-            value = "eth";
+            value = "maybefcs";
         }
       }
     }
