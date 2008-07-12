@@ -45,7 +45,7 @@ static GHashTable *registry = NULL;
 /* writes into the buffers pointed by value, rate and percent
    the string representations of a node*/
 extern void
-stats_tree_get_strs_from_node(const stat_node *node, guint8 *value, guint8 *rate, guint8 *percent)
+stats_tree_get_strs_from_node(const stat_node *node, gchar *value, gchar *rate, gchar *percent)
 {
 	float f;
 	

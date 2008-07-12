@@ -73,7 +73,9 @@ enum _stat_tree_columns {
 /* creates the gtk representation for a stat_node
  * node: the node
  */
-static void setup_gtk_node_pr(stat_node* node) {
+static void
+setup_gtk_node_pr(stat_node* node)
+{
 	GtkTreeIter* parent =  NULL;
 
 	node->pr = g_malloc(sizeof(st_node_pres));
@@ -90,7 +92,9 @@ static void setup_gtk_node_pr(stat_node* node) {
 }
 
 
-static void draw_gtk_node(stat_node* node) {
+static void
+draw_gtk_node(stat_node* node)
+{
 	static gchar value[NUM_BUF_SIZE];
 	static gchar rate[NUM_BUF_SIZE];
 	static gchar percent[NUM_BUF_SIZE];
@@ -113,7 +117,9 @@ static void draw_gtk_node(stat_node* node) {
 	}
 }
 
-static void draw_gtk_tree( void *psp  ) {
+static void
+draw_gtk_tree(void *psp)
+{
 	stats_tree *st = psp;
 	stat_node* child;
 
@@ -133,7 +139,8 @@ static void draw_gtk_tree( void *psp  ) {
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 
-static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
+static void
+free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 {
 	
 	protect_thread_critical_region();
@@ -148,7 +155,9 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	
 }
 
-static void clear_node_pr(stat_node* n) {
+static void
+clear_node_pr(stat_node* n)
+{
 	stat_node* c;
 	for (c = n->children; c; c = c->next) {
 		clear_node_pr(c);
@@ -160,8 +169,10 @@ static void clear_node_pr(stat_node* n) {
 	}
 }
 
-static void reset_tap(void* p) {
-    stats_tree* st = p;
+static void
+reset_tap(void* p)
+{
+	stats_tree* st = p;
 	stat_node* c;
 	for (c = st->root.children; c; c = c->next) {
 		clear_node_pr(c);
@@ -171,8 +182,10 @@ static void reset_tap(void* p) {
 }
 
 /* initializes the stats_tree window */
-static void init_gtk_tree(const char* optarg, void *userdata _U_) {
-	guint8* abbr = stats_tree_get_abbr(optarg);
+static void
+init_gtk_tree(const char* optarg, void *userdata _U_)
+{
+	gchar *abbr = stats_tree_get_abbr(optarg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;
 	tree_pres* pr = g_malloc(sizeof(tree_pres));
@@ -320,7 +333,9 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 }
 
 
-static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
+static void
+register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
+{
 	stats_tree_cfg* cfg = v;
 
 	cfg->pr = g_malloc(sizeof(tree_pres));
@@ -336,7 +351,9 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	    REGISTER_STAT_GROUP_UNSORTED);
 }
 
-static void free_tree_presentation(stats_tree* st) {
+static void
+free_tree_presentation(stats_tree* st)
+{
 	g_free(st->pr);
 }
 

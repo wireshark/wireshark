@@ -414,7 +414,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	const http_info_value_t* v = p;
 	guint i = v->response_code;
 	int resp_grp;
-	const guint8* resp_str;
+	const gchar *resp_str;
 	static gchar str[64];
 
 	tick_stat_node(st, st_str_packets, 0, FALSE);

@@ -45,7 +45,7 @@ struct _wlan_stats {
   guint8 channel;
   guint8 ssid_len;
   guchar ssid[MAX_SSID_LEN];
-  guchar protection[MAX_PROTECT_LEN];
+  gchar protection[MAX_PROTECT_LEN];
 };
 
 typedef struct _wlan_hdr {

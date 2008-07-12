@@ -181,9 +181,9 @@ extern stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
    the buffers given by value, rate and precent
    if NULL they are ignored */
 extern void stats_tree_get_strs_from_node(const stat_node *node,
-					  guint8 *value,
-					  guint8 *rate,
-					  guint8 *percent);
+					  gchar *value,
+					  gchar *rate,
+					  gchar *percent);
 
 /* populates the given GString with a tree representation of a branch given by node,
    using indent spaces as indentation */
