@@ -2336,6 +2336,17 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       } else if (strcmp(module->name, "llcgprs") == 0) {
         if (strcmp(dotp, "ignore_cipher_bit") == 0)
           pref = find_preference(module, "autodetect_cipher_bit");
+      } else if (strcmp(module->name, "erf") == 0) {
+        /* Handle the old "erfeth" preference; map it to the new
+           "ethfcs" preference, and map the values to those for
+           the new preference. */
+        if (strcmp(dotp, "erfeth") == 0) {
+          pref = find_preference(module, "ethfcs");
+          if (strcmp(value, "eth") == 0)
+            value = "ethnofcs";
+          else if (strcmp(value, "raw") == 0)
+            value = "eth";
+        }
       }
     }
     if (pref == NULL)

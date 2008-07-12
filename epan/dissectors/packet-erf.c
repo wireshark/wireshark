@@ -167,11 +167,12 @@ static gint erf_atm_default = ERF_ATM_MAX;
 static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX];
 
 typedef enum {   
-  ERF_ETH_ETHFCS = 1,
-  ERF_ETH_ETHNOFCS = 2,
+  ERF_ETHFCS_YES = 1,
+  ERF_ETHFCS_NO = 2,
+  ERF_ETHFCS_MAYBE = 3,
   ERF_ETH_MAX = 3
-} erf_eth_type;
-static gint erf_eth_default = ERF_ETH_MAX;
+} erf_ethfcs_type;
+static gint erf_ethfcs = ERF_ETHFCS_MAYBE;
 static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX];
 
 /* Header for ATM trafic identification */
@@ -735,17 +736,15 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_eth_header(tvb, pinfo, erf_tree);
 
     /* Clean the pseudo header (if used in subdissector) */
-    switch (erf_eth_default) {
-    case ERF_ETH_ETHFCS:
-    case ERF_ETH_ETHNOFCS:
+    switch (erf_ethfcs) {
+    case ERF_ETHFCS_YES:
+    case ERF_ETHFCS_NO:
+    case ERF_ETHFCS_MAYBE:
       memset(&pinfo->pseudo_header->eth, 0, sizeof(pinfo->pseudo_header->eth));
       break;
     }
       
-    if (erf_eth_default < ERF_ETH_MAX)
-      call_dissector(erf_eth_dissector[erf_eth_default], tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_ETH Layer 2 preference for ERF is set to \"Raw data\"");
+    call_dissector(erf_eth_dissector[erf_ethfcs], tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -906,10 +905,10 @@ proto_register_erf(void)
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t erf_eth_options[] = { 
-    { "ethfcs",   "Ethernet with FCS", ERF_ETH_ETHFCS },
-    { "eth",      "Ethernet",          ERF_ETH_ETHNOFCS },
-    { "raw",      "Raw data",          ERF_ETH_MAX },
+  static enum_val_t erf_ethfcs_options[] = { 
+    { "ethfcs",   "Present",          ERF_ETHFCS_YES },
+    { "ethnofcs", "Not present",      ERF_ETHFCS_NO },
+    { "eth",      "Possibly present", ERF_ETHFCS_MAYBE },
     { NULL, NULL, 0 }
   };
 
@@ -931,9 +930,9 @@ proto_register_erf(void)
                                  "Protocol encapsulated in ATM records",
                                  &erf_atm_default, erf_atm_options, FALSE);
 
-  prefs_register_enum_preference(erf_module, "erfeth", "ERF_ETH Layer 2",
-                                 "Protocol encapsulated in Ethernet records",
-                                 &erf_eth_default, erf_eth_options, FALSE);
+  prefs_register_enum_preference(erf_module, "ethfcs", "Ethernet FCS",
+                                 "Whether the FCS appears in Ethernet records",
+                                 &erf_ethfcs, erf_ethfcs_options, FALSE);
 }
 
 void
@@ -961,6 +960,7 @@ proto_reg_handoff_erf(void)
   erf_atm_dissector[ERF_ATM_LLC] = find_dissector("llc");
 
   /* Create Ethernet dissectors table */
-  erf_eth_dissector[ERF_ETH_ETHFCS] = find_dissector("eth_withfcs");  
-  erf_eth_dissector[ERF_ETH_ETHNOFCS] = find_dissector("eth_withoutfcs");
+  erf_eth_dissector[ERF_ETHFCS_YES] = find_dissector("eth_withfcs");  
+  erf_eth_dissector[ERF_ETHFCS_NO] = find_dissector("eth_withoutfcs");
+  erf_eth_dissector[ERF_ETHFCS_MAYBE] = find_dissector("eth");
 }
