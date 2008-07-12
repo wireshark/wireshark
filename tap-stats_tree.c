@@ -36,22 +36,24 @@
 
 /* actually unused */
 struct _st_node_pres {
-	void* dummy;
+	void *dummy;
 };
 
 struct _tree_pres {
-	void* dummy;
+	void** dummy;
 };
 
 struct _tree_cfg_pres {
-	guint8* init_string;	
+	gchar *init_string;	
 };
 
-static void draw_stats_tree(void *psp) {
+static void
+draw_stats_tree(void *psp)
+{
 	stats_tree *st = psp;
-	GString* s;
-	gchar* fmt;
-	stat_node* child;
+	GString *s;
+	gchar *fmt;
+	stat_node *child;
 	
 	s = g_string_new("\n===================================================================\n");
 	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_tree_branch_max_namelen(&st->root,0));
@@ -69,11 +71,13 @@ static void draw_stats_tree(void *psp) {
 	
 }
 
-static void  init_stats_tree(const char *optarg,void* userdata _U_) {
-	guint8* abbr = stats_tree_get_abbr(optarg);
+static void
+init_stats_tree(const char *optarg, void *userdata _U_)
+{
+	char *abbr = stats_tree_get_abbr(optarg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
-	stats_tree* st = NULL;
+	stats_tree *st = NULL;
 	
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
@@ -113,17 +117,21 @@ static void  init_stats_tree(const char *optarg,void* userdata _U_) {
 
 }
 
-void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
-	stats_tree_cfg* cfg = v;
+void
+register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
+{
+	stats_tree_cfg *cfg = v;
 	
 	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
-	cfg->pr->init_string = g_strdup_printf("%s,tree",cfg->abbr);
+	cfg->pr->init_string = g_strdup_printf("%s,tree", cfg->abbr);
 
 	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree, NULL);
 	
 }
 
-static void free_tree_presentation(stats_tree* st) {
+static void
+free_tree_presentation(stats_tree *st)
+{
 	g_free(st->pr);
 }
 
@@ -131,7 +139,6 @@ static void free_tree_presentation(stats_tree* st) {
 void
 register_tap_listener_stats_tree_stat(void)
 {
-	stats_tree_presentation(register_stats_tree_tap,
-							NULL, NULL, NULL, NULL, NULL,
-							free_tree_presentation, NULL, NULL, NULL);
+	stats_tree_presentation(register_stats_tree_tap, NULL, NULL, NULL, NULL,
+				NULL, free_tree_presentation, NULL, NULL, NULL);
 }
