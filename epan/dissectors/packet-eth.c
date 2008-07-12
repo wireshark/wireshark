@@ -392,7 +392,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
 
     if (dissector_try_heuristic(eth_trailer_subdissector_list, trailer_tvb,
 		pinfo, fh_tree)) {
-	return;
+      return;
     }
 
     trailer_length = tvb_length(trailer_tvb);
