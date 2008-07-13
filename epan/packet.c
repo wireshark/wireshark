@@ -279,6 +279,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.dst.len = 0;
 	edt->pi.dst.data = NULL;
 	edt->pi.ethertype = 0;
+	edt->pi.mpls_label = 0;
 	edt->pi.ipproto  = 0;
 	edt->pi.ipxptype = 0;
 	edt->pi.ctype = CT_NONE;

@@ -1640,6 +1640,14 @@ decode_add_notebook (GtkWidget *format_hb)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
+    /* Add mpls selection page */
+    if (cfile.edt->pi.mpls_label) {
+	g_snprintf(buffer, 40, "Data after label %u", cfile.edt->pi.mpls_label);
+	page = decode_add_simple_page(buffer, "MPLS", "mpls.label", cfile.edt->pi.mpls_label);
+	label = gtk_label_new("MPLS");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+    }
+
     /* Add network selection page */
     if (cfile.edt->pi.ipproto) {
 	/*

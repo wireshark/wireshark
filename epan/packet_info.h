@@ -54,6 +54,7 @@ typedef struct _packet_info {
   guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;		/* IP protocol, if this is an IP packet */
   guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
+  guint32 mpls_label;		/* last mpls label in label stack, if this is a MPLS packet */
   circuit_type ctype;		/* type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;		/* circuit ID, for protocols with a VC identifier */
   const char *noreassembly_reason;  /* reason why reassembly wasn't done, if any */

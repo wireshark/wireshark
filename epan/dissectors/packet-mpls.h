@@ -37,7 +37,8 @@ enum {
     LABEL_IP6_EXPLICIT_NULL,
     LABEL_IMPLICIT_NULL,
     LABEL_OAM_ALERT = 14,
-    LABEL_MAX_RESERVED = 15
+    LABEL_MAX_RESERVED = 15,
+    LABEL_INVALID = 0xffffffff
 };
 
 extern const value_string special_labels[];
