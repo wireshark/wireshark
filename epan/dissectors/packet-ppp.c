@@ -89,6 +89,15 @@ static gint ett_osicp_options = -1;
 static gint ett_osicp_align_npdu_opt = -1;
 
 static int proto_bcp = -1;
+static int hf_bcp_flags = -1;
+static int hf_bcp_fcs_present = -1;
+static int hf_bcp_zeropad = -1;
+static int hf_bcp_bcontrol = -1;
+static int hf_bcp_pads = -1;
+static int hf_bcp_mac_type = -1;
+
+static gint ett_bcp = -1;
+static gint ett_bcp_flags = -1;
 
 static int proto_ccp = -1;
 
@@ -145,6 +154,7 @@ static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
 static int hf_mp_sequence_num = -1;
+static int hf_mp_short_sequence_num = -1;
 
 static int ett_mp = -1;
 static int ett_mp_flags = -1;
@@ -206,6 +216,7 @@ static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t eth_withfcs_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 
 static const value_string ppp_direction_vals[] = {
     { P2P_DIR_RECV, "DCE->DTE"},
@@ -669,11 +680,11 @@ static const value_string lzsdcp_processmode_vals[] = {
 #define CI_NUMBERED_MODE	11	/* Numbered Mode (RFC 1663) */
 #define CI_CALLBACK		13	/* Callback (RFC 1570) */
 #define CI_COMPOUND_FRAMES	15	/* Compound frames (RFC 1570) */
-#define CI_MULTILINK_MRRU	17	/* Multilink MRRU (RFC 1717) */
+#define CI_MULTILINK_MRRU	17	/* Multilink MRRU (RFC 1990) */
 #define CI_MULTILINK_SSNH	18	/* Multilink Short Sequence Number
-					   Header (RFC 1717) */
+					   Header (RFC 1990) */
 #define CI_MULTILINK_EP_DISC	19	/* Multilink Endpoint Discriminator
-					   (RFC 1717) */
+					   (RFC 1990) */
 #define CI_DCE_IDENTIFIER	21	/* DCE Identifier */
 #define CI_MULTILINK_PLUS_PROC	22	/* Multilink Plus Procedure */
 #define CI_LINK_DISC_FOR_BACP	23	/* Link Discriminator for BACP
@@ -2857,12 +2868,120 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * RFC 3518
  */
+#define BCP_FCS_PRESENT		0x80
+#define BCP_ZEROPAD		0x20
+#define BCP_IS_BCONTROL		0x10
+#define BCP_PADS_MASK		0x0f
+
+#define BCP_MACT_ETHERNET	1
+#define BCP_MACT_802_4		2
+#define BCP_MACT_802_5_NONCANON	3
+#define BCP_MACT_FDDI_NONCANON	4
+#define BCP_MACT_802_5_CANON	11
+#define BCP_MACT_FDDI_CANON	12
+
+static const value_string bcp_mac_type_vals[] = {
+    { BCP_MACT_ETHERNET,       "IEEE 802.3/Ethernet" },
+    { BCP_MACT_802_4,          "IEEE 802.4" },
+    { BCP_MACT_802_5_NONCANON, "IEEE 802.5, non-canonical addresses" },
+    { BCP_MACT_FDDI_NONCANON,  "FDDI, non-canonical addresses" },
+    { BCP_MACT_802_5_CANON,    "IEEE 802.5, canonical addresses" },
+    { BCP_MACT_FDDI_CANON,     "FDDI, canonical addresses" },
+    { 0,                       NULL }
+};
+
 static void
 dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tvbuff_t    *next_tvb;
-  next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-  call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
+  proto_item *ti = NULL, *flags_item;
+  proto_tree *bcp_tree = NULL, *flags_tree;
+  int offset = 0;
+  guint8 flags;
+  guint8 mac_type;
+  gint captured_length, reported_length, pad_length;
+  tvbuff_t *next_tvb;
+
+  if(check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BCP");
+
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_bcp, tvb, 0, -1, FALSE);
+    bcp_tree = proto_item_add_subtree(ti, ett_bcp);
+  }
+
+  flags = tvb_get_guint8(tvb, offset);
+  if (flags & BCP_IS_BCONTROL) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Bridge control");
+  }
+  if (tree) {
+    flags_item = proto_tree_add_uint(bcp_tree, hf_bcp_flags, tvb, offset, 1, flags);
+    flags_tree = proto_item_add_subtree(flags_item, ett_bcp_flags);
+    proto_tree_add_boolean(flags_tree, hf_bcp_fcs_present, tvb, offset, 1, flags);
+    proto_tree_add_boolean(flags_tree, hf_bcp_zeropad, tvb, offset, 1, flags);
+    proto_tree_add_boolean(flags_tree, hf_bcp_bcontrol, tvb, offset, 1, flags);
+    proto_tree_add_uint(flags_tree, hf_bcp_pads, tvb, offset, 1, flags);
+  }
+  offset++;
+
+  mac_type = tvb_get_guint8(tvb, offset);
+  if (!(flags & BCP_IS_BCONTROL)) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_str(pinfo->cinfo, COL_INFO,
+                  val_to_str(mac_type, bcp_mac_type_vals,
+                             "Unknown MAC type %u"));
+  }
+  if (tree)
+    proto_tree_add_uint(bcp_tree, hf_bcp_mac_type, tvb, offset, 1, mac_type);
+  offset++;
+
+  switch (mac_type) {
+
+  case BCP_MACT_802_4:
+  case BCP_MACT_802_5_NONCANON:
+  case BCP_MACT_FDDI_NONCANON:
+  case BCP_MACT_802_5_CANON:
+  case BCP_MACT_FDDI_CANON:
+    if (tree)
+      proto_tree_add_text(bcp_tree, tvb, offset, 1, "Pad");
+    offset++;
+    break;
+  }
+
+  if (!(flags & BCP_IS_BCONTROL)) {
+    captured_length = tvb_length_remaining(tvb, offset);
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+    pad_length = flags & BCP_PADS_MASK;
+    if (reported_length >= pad_length) {
+      reported_length -= pad_length;
+      if (captured_length > reported_length)
+        captured_length = reported_length;
+      next_tvb = tvb_new_subset(tvb, offset, captured_length, reported_length);
+      switch (mac_type) {
+
+      case BCP_MACT_ETHERNET:
+        if (flags & BCP_FCS_PRESENT)
+          call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
+        else
+          call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+        break;
+
+      case BCP_MACT_802_4:
+      case BCP_MACT_802_5_NONCANON:
+      case BCP_MACT_FDDI_NONCANON:
+      case BCP_MACT_802_5_CANON:
+      case BCP_MACT_FDDI_CANON:
+        break;
+
+      default:
+        call_dissector(data_handle, next_tvb, pinfo, tree);
+        break;
+      }
+    }
+  }
 }
 
 /*
@@ -3375,29 +3494,28 @@ dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     NULL, 0, pinfo, tree);
 }
 
-#define MP_FRAG_MASK     0xC0
-#define MP_FRAG(bits)    ((bits) & MP_FRAG_MASK)
-#define MP_FRAG_FIRST    0x80
-#define MP_FRAG_LAST     0x40
-#define MP_FRAG_RESERVED 0x3f
+static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
 
-static const true_false_string frag_truth = {
-  "Yes",
-  "No"
-};
+#define MP_FRAG_MASK           0xC0
+#define MP_FRAG(bits)          ((bits) & MP_FRAG_MASK)
+#define MP_FRAG_FIRST          0x80
+#define MP_FRAG_LAST           0x40
+#define MP_FRAG_RESERVED       0x3f
+#define MP_FRAG_RESERVED_SHORT 0x30
 
-/* According to RFC 1717, the length the MP header isn't indicated anywhere
+/* According to RFC 1990, the length the MP header isn't indicated anywhere
    in the header itself.  It starts out at four bytes and can be
-   negotiated down to two using LCP.  We currently assume that all
-   headers are four bytes.  - gcc
+   negotiated down to two using LCP.  We currently have a preference
+   to select short headers.  - gcc & gh
  */
 static void
 dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree  *mp_tree, *hdr_tree;
+  proto_tree  *mp_tree = NULL, *hdr_tree;
   proto_item  *ti = NULL;
   guint8       flags;
   const gchar *flag_str;
+  gint        hdrlen;
   tvbuff_t    *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3406,10 +3524,15 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
 
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, mp_short_seqno ? 2 : 4, FALSE);
+    mp_tree = proto_item_add_subtree(ti, ett_mp);
+  }
+
   flags = tvb_get_guint8(tvb, 0);
 
   if (tree) {
-    switch (flags) {
+    switch (MP_FRAG(flags)) {
       case MP_FRAG_FIRST:
         flag_str = "First";
         break;
@@ -3423,21 +3546,27 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flag_str = "Unknown";
         break;
     }
-    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, 4, FALSE);
-    mp_tree = proto_item_add_subtree(ti, ett_mp);
     ti = proto_tree_add_text(mp_tree, tvb, 0, 1, "Fragment: 0x%2X (%s)",
-      flags, flag_str);
+      MP_FRAG(flags), flag_str);
     hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
     proto_tree_add_boolean(hdr_tree, hf_mp_frag_first, tvb, 0, 1, flags);
-    proto_tree_add_boolean(hdr_tree, hf_mp_frag_last, tvb, 0, 1, flags),
-    proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
-      decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
-        "reserved", "reserved"));
-    proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, FALSE);
+    proto_tree_add_boolean(hdr_tree, hf_mp_frag_last, tvb, 0, 1, flags);
+    if (mp_short_seqno) {
+      proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
+        decode_boolean_bitfield(flags, MP_FRAG_RESERVED_SHORT, sizeof(flags) * 8,
+          "reserved", "reserved"));
+      proto_tree_add_item(mp_tree, hf_mp_short_sequence_num, tvb,  0, 2, FALSE);
+    } else {
+      proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
+        decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
+          "reserved", "reserved"));
+      proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, FALSE);
+    }
   }
 
-  if (tvb_reported_length_remaining(tvb, 4) > 0) {
-    next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+  hdrlen = mp_short_seqno ? 2 : 4;
+  if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
+    next_tvb = tvb_new_subset(tvb, hdrlen, -1, -1);
     dissect_ppp(next_tvb, pinfo, tree);
   }
 }
@@ -4096,14 +4225,18 @@ proto_register_mp(void)
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
     { "First fragment",		"mp.first",	FT_BOOLEAN, 8,
-        TFS(&frag_truth), MP_FRAG_FIRST, "", HFILL }},
+        TFS(&tfs_yes_no), MP_FRAG_FIRST, "", HFILL }},
 
     { &hf_mp_frag_last,
     { "Last fragment",		"mp.last",	FT_BOOLEAN, 8,
-        TFS(&frag_truth), MP_FRAG_LAST, "", HFILL }},
+        TFS(&tfs_yes_no), MP_FRAG_LAST, "", HFILL }},
 
     { &hf_mp_sequence_num,
     { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
+    	"", HFILL }},
+
+    { &hf_mp_short_sequence_num,
+    { "Sequence number",	"mp.seq",	FT_UINT16, BASE_DEC, NULL, 0x0FFF,
     	"", HFILL }}
   };
   static gint *ett[] = {
@@ -4111,9 +4244,20 @@ proto_register_mp(void)
     &ett_mp_flags,
   };
 
+  module_t *mp_module;
+
   proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP", "mp");
   proto_register_field_array(proto_mp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register the preferences for the PPP multilink protocol */
+  mp_module = prefs_register_protocol(proto_mp, NULL);
+
+  prefs_register_bool_preference(mp_module,
+	"short_seqno",
+	"Short sequence numbers",
+	"Whether PPP Multilink frames use 12-bit sequence numbers",
+	&mp_short_seqno);
 }
 
 void
@@ -4217,7 +4361,40 @@ proto_reg_handoff_ipcp(void)
 void
 proto_register_bcp(void)
 {
+  static hf_register_info hf[] = {
+    { &hf_bcp_flags,
+    { "Flags", "bcp.flags", FT_UINT8, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
+
+    { &hf_bcp_fcs_present,
+    { "LAN FCS present",	"bcp.flags.fcs_present",	FT_BOOLEAN, 8,
+        TFS(&tfs_yes_no), BCP_FCS_PRESENT, "", HFILL }},
+
+    { &hf_bcp_zeropad,
+    { "802.3 pad zero-filled",	"bcp.flags.zeropad",	FT_BOOLEAN, 8,
+        TFS(&tfs_yes_no), BCP_ZEROPAD, "", HFILL }},
+
+    { &hf_bcp_bcontrol,
+    { "Bridge control",	"bcp.flags.bcontrol",	FT_BOOLEAN, 8,
+        TFS(&tfs_yes_no), BCP_IS_BCONTROL, "", HFILL }},
+
+    { &hf_bcp_pads,
+    { "Pads",	"bcp.pads",	FT_UINT8, BASE_DEC,
+        NULL, BCP_PADS_MASK, "", HFILL }},
+
+    { &hf_bcp_mac_type,
+    { "MAC Type", "bcp.mac_type", FT_UINT8, BASE_DEC,
+        VALS(bcp_mac_type_vals), 0x0, "", HFILL }},
+
+  };
+  static gint *ett[] = {
+    &ett_bcp,
+    &ett_bcp_flags
+  };
+
   proto_bcp = proto_register_protocol("PPP Bridge Control Protocol", "PPP BCP",                                      "bcp");
+  proto_register_field_array(proto_bcp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -4239,6 +4416,7 @@ proto_reg_handoff_bcp(void)
 {
   dissector_handle_t bcp_handle;
   eth_withfcs_handle = find_dissector("eth_withfcs");
+  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
   bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);
   dissector_add("ppp.protocol", PPP_BPDU, bcp_handle);
