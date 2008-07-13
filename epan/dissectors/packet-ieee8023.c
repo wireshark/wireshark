@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-ieee8023.h"
 #include "packet-eth.h"
 #include "packet-frame.h"
@@ -36,21 +37,39 @@ static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 
 void
-dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
+dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
 	      int offset_after_length, packet_info *pinfo, proto_tree *tree,
 	      proto_tree *fh_tree, int length_id, int trailer_id,
 	      int fcs_len)
 {
+  proto_item		*length_it;
   tvbuff_t		*volatile next_tvb = NULL;
   tvbuff_t		*volatile trailer_tvb = NULL;
   const char		*saved_proto;
-  gint			captured_length;
+  gint			captured_length, reported_length;
 
-  if (fh_tree)
-    proto_tree_add_uint(fh_tree, length_id, tvb, offset_after_length - 2, 2,
-			length);
+  length_it = proto_tree_add_uint(fh_tree, length_id, tvb,
+                                  offset_after_length - 2, 2, length);
 
-  /* Give the next dissector only 'length' number of bytes */
+  /* Get the length of the payload.
+     If the FCS length is positive, remove the FCS.
+     (If it's zero, there's no FCS; if it's negative, we don't know whether
+     there's an FCS, so we'll guess based on the length of the trailer.) */
+  reported_length = tvb_reported_length_remaining(tvb, offset_after_length);
+  if (fcs_len > 0) {
+    if (reported_length >= fcs_len)
+      reported_length -= fcs_len;
+  }
+
+  /* Make sure the length in the 802.3 header doesn't go past the end of
+     the payload. */
+  if (length > reported_length) {
+    length = reported_length;
+    expert_add_info_format(pinfo, length_it, PI_MALFORMED, PI_ERROR,
+        "Length field value goes past the end of the payload");
+  }
+
+  /* Give the next dissector only 'length' number of bytes. */
   captured_length = tvb_length_remaining(tvb, offset_after_length);
   if (captured_length > length)
     captured_length = length;

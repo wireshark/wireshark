@@ -187,8 +187,9 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		int etype_id, int trailer_id, int fcs_len)
 {
 	const char		*description;
-	tvbuff_t		*next_tvb;
+	tvbuff_t		*volatile next_tvb;
 	guint			length_before;
+	gint			captured_length, reported_length;
 	volatile gboolean	dissector_found = FALSE;
 	const char		*saved_proto;
 
@@ -198,13 +199,33 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		    offset_after_etype - 2, 2, etype);
 	}
 
-	/* Tvbuff for the payload after the Ethernet type. */
-	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
+	/* Get the captured length and reported length of the data
+	   after the Ethernet type. */
+	captured_length = tvb_length_remaining(tvb, offset_after_etype);
+	reported_length = tvb_reported_length_remaining(tvb,
+	    offset_after_etype);
+
+	/* Remember how much data there is after the Ethernet type,
+	   including any trailer and FCS. */
+	length_before = reported_length;
+
+	/* Construct a tvbuff for the payload after the Ethernet type.
+	   If the FCS length is positive, remove the FCS.
+	   (If it's zero, there's no FCS; if it's negative,
+	   we don't know whether there's an FCS, so we'll
+	   guess based on the length of the trailer.) */
+	if (fcs_len > 0) {
+		if (captured_length >= 0 && reported_length >= 0) {
+			if (reported_length >= fcs_len)
+				reported_length -= fcs_len;
+			if (captured_length > reported_length)
+				captured_length = reported_length;
+		}
+	}
+	next_tvb = tvb_new_subset(tvb, offset_after_etype, captured_length,
+	    reported_length);
 
 	pinfo->ethertype = etype;
-
-	/* Remember how much data there is in it. */
-	length_before = tvb_reported_length(next_tvb);
 
 	/* Look for sub-dissector, and call it if found.
 	   Catch exceptions, so that if the reported length of "next_tvb"
