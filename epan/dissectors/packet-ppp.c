@@ -263,7 +263,7 @@ const value_string ppp_vals[] = {
 	{PPP_IPX,       "Netware IPX/SPX"},
 	{PPP_VJC_COMP,	"VJ compressed TCP"},
 	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"},
-	{PPP_BPDU,      "Bridging PDU"},
+	{PPP_BCP,       "Bridging Control Protocol"},
 	{PPP_ST,	"Stream Protocol (ST-II)" },
 	{PPP_VINES,     "Vines"          },
 	{PPP_AT_EDDP,	"AppleTalk EDDP" },
@@ -4392,7 +4392,7 @@ proto_register_bcp(void)
     &ett_bcp_flags
   };
 
-  proto_bcp = proto_register_protocol("PPP Bridge Control Protocol", "PPP BCP",                                      "bcp");
+  proto_bcp = proto_register_protocol("PPP Bridging Control Protocol", "PPP BCP", "bcp");
   proto_register_field_array(proto_bcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -4419,7 +4419,7 @@ proto_reg_handoff_bcp(void)
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
   bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);
-  dissector_add("ppp.protocol", PPP_BPDU, bcp_handle);
+  dissector_add("ppp.protocol", PPP_BCP, bcp_handle);
 }
 
 void
