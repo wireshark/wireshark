@@ -94,7 +94,6 @@ ASN_DISSECTOR_SRC = \
 	packet-disp.c \
 	packet-dop.c \
 	packet-dsp.c \
-	packet-erf.c \
 	packet-ess.c \
 	packet-ftam.c \
 	packet-gnm.c \
@@ -381,6 +380,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-epl.c		\
 	packet-epl_v1.c		\
 	packet-epmd.c   	\
+	packet-erf.c		\
 	packet-esis.c		\
 	packet-eth.c		\
 	packet-etheric.c	\
