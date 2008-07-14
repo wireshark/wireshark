@@ -149,14 +149,15 @@ static gint erf_infiniband_default = ERF_INFINIBAND;
 static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
 
 typedef enum { 
-  ERF_HDLC_CHDLC = 1,
-  ERF_HDLC_PPP = 2,
-  ERF_HDLC_FRELAY = 3,
-  ERF_HDLC_MTP2 = 4,
+  ERF_HDLC_CHDLC = 0,
+  ERF_HDLC_PPP = 1,
+  ERF_HDLC_FRELAY = 2,
+  ERF_HDLC_MTP2 = 3,
+  ERF_HDLC_GUESS = 4,
   ERF_HDLC_MAX = 5
-} erf_hdlc_type;
-static gint erf_hdlc_default = ERF_HDLC_MAX;
-static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX];
+} erf_hdlc_type_vals;
+static gint erf_hdlc_type = ERF_HDLC_GUESS;
+static dissector_handle_t chdlc_handle, ppp_handle, frelay_handle, mtp2_handle;
 
 static gboolean erf_rawcell_first = FALSE;
 
@@ -590,6 +591,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *erf_tree = NULL;
   guint atm_pdu_caplen;
   const guint8 *atm_pdu;
+  erf_hdlc_type_vals hdlc_type;
+  guint8 first_byte;
   tvbuff_t *new_tvb;
 
   erf_type=pinfo->pseudo_header->erf.phdr.type;
@@ -767,26 +770,40 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
-    /* Clean the pseudo header (if used in subdissector) */
-    switch (erf_hdlc_default) {
+    hdlc_type = erf_hdlc_type;
+
+    if (hdlc_type == ERF_HDLC_GUESS) {
+      /* Try to guess the type. */
+      first_byte = tvb_get_guint8(tvb, 0);
+      if (first_byte == 0x0f || first_byte == 0x8f)
+        hdlc_type = ERF_HDLC_CHDLC;
+      else {
+      	/* Anything to check for to recognize Frame Relay or MTP2?
+      	   Should we require PPP packets to beging with FF 03? */
+        hdlc_type = ERF_HDLC_PPP;
+      }
+    }
+    /* Clean the pseudo header (if used in subdissector) and call the
+       appropriate subdissector. */
+    switch (hdlc_type) {
     case ERF_HDLC_CHDLC:
+      call_dissector(chdlc_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_PPP:
+      call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_FRELAY: 
       memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
+      call_dissector(frelay_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_MTP2:
       /* not used, but .. */
       memset(&pinfo->pseudo_header->mtp2, 0, sizeof(pinfo->pseudo_header->mtp2));
+      call_dissector(mtp2_handle, tvb, pinfo, tree);
       break;
     default:
       break;
     }
-    if (erf_hdlc_default < ERF_HDLC_MAX)
-      call_dissector(erf_hdlc_dissector[erf_hdlc_default], tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_HDLC Layer 2 preference for ERF is set to \"Raw data\"");
     break;
       
   default:
@@ -902,11 +919,11 @@ proto_register_erf(void)
   };
 
   static enum_val_t erf_hdlc_options[] = { 
-    { "chdlc", "Cisco HDLC",  ERF_HDLC_CHDLC },
-    { "ppp",   "PPP serial",  ERF_HDLC_PPP },
-    { "fr",    "Frame Relay", ERF_HDLC_FRELAY },
-    { "mtp2",  "SS7 MTP2",    ERF_HDLC_MTP2 },
-    { "raw",   "Raw data",    ERF_HDLC_MAX },
+    { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
+    { "ppp",    "PPP serial",       ERF_HDLC_PPP },
+    { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
+    { "mtp2",   "SS7 MTP2",         ERF_HDLC_MTP2 },
+    { "guess",  "Attempt to guess", ERF_HDLC_GUESS },
     { NULL, NULL, 0 }
   };
 
@@ -926,9 +943,9 @@ proto_register_erf(void)
   
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
-  prefs_register_enum_preference(erf_module, "erfhdlc", "ERF_HDLC Layer 2",
+  prefs_register_enum_preference(erf_module, "hdlc_type", "ERF_HDLC Layer 2",
                                  "Protocol encapsulated in HDLC records",
-                                 &erf_hdlc_default, erf_hdlc_options, FALSE);
+                                 &erf_hdlc_type, erf_hdlc_options, FALSE);
 
   prefs_register_bool_preference(erf_module, "rawcell_first",
                                  "Raw ATM cells are first cell of AAL5 PDU",
@@ -961,11 +978,11 @@ proto_reg_handoff_erf(void)
   /* Create ERF_INFINIBAND dissectors table */
   erf_infiniband_dissector[ERF_INFINIBAND] = find_dissector("infiniband");
 
-  /* Create ERF_HDLC dissectors table */
-  erf_hdlc_dissector[ERF_HDLC_CHDLC] = find_dissector("chdlc");
-  erf_hdlc_dissector[ERF_HDLC_PPP] = find_dissector("ppp_hdlc");
-  erf_hdlc_dissector[ERF_HDLC_FRELAY] = find_dissector("fr");
-  erf_hdlc_dissector[ERF_HDLC_MTP2] = find_dissector("mtp2");
+  /* Get handles for serial line protocols */
+  chdlc_handle = find_dissector("chdlc");
+  ppp_handle = find_dissector("ppp_hdlc");
+  frelay_handle = find_dissector("fr");
+  mtp2_handle = find_dissector("mtp2");
 
   /* Get ATM dissector */
   erf_atm_untruncated_dissector = find_dissector("atm_untruncated");

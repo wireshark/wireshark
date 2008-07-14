@@ -2359,6 +2359,21 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
             value = "llc";
           else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
             value = "guess";
+        } else if (strcmp(dotp, "erfhdlc") == 0) {
+          /* Handle the old "erfhdlc" preference; map it to the new
+             "hdlc_type" preference, and map the values to those for
+             the new preference. */
+          pref = find_preference(module, "hdlc_type");
+          if (strcmp(value, "chdlc") == 0 || strcmp(value, "Cisco HDLC") == 0)
+            value = "chdlc";
+          else if (strcmp(value, "ppp") == 0 || strcmp(value, "PPP serial") == 0)
+            value = "ppp";
+          else if (strcmp(value, "fr") == 0 || strcmp(value, "Frame Relay") == 0)
+            value = "frelay";
+          else if (strcmp(value, "mtp2") == 0 || strcmp(value, "SS7 MTP2") == 0)
+            value = "mtp2";
+          else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
+            value = "guess";
         }
       }
     }
