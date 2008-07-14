@@ -277,9 +277,11 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  if (!erf_read_header(wth->random_fh, NULL, pseudo_header, &erf_header,
-		       err, err_info, NULL, &packet_size))
-    return FALSE;
+  do {
+    if (!erf_read_header(wth->random_fh, NULL, pseudo_header, &erf_header,
+			 err, err_info, NULL, &packet_size))
+      return FALSE;
+  } while ( erf_header.type == ERF_TYPE_PAD );
 
   wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err);
 
@@ -348,6 +350,7 @@ static int erf_read_header(FILE_T fh,
     return TRUE;
     ***/
     break;
+  case ERF_TYPE_PAD:
   case ERF_TYPE_HDLC_POS:
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
