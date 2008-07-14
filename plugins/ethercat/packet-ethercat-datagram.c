@@ -824,7 +824,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                if( subCount < 10 ){
                   aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
-	    		      PROTO_ITEM_SET_HIDDEN(aitem)
+	    		      PROTO_ITEM_SET_HIDDEN(aitem);
 		   }
             }
          }
