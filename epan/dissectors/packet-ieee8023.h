@@ -27,7 +27,7 @@
 #ifndef __PACKET_IEEE8023_H__
 #define __PACKET_IEEE8023_H__
 
-void dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
+void dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
     int offset_after_length, packet_info *pinfo, proto_tree *tree,
     proto_tree *fh_tree, int length_id, int trailer_id, int fcs_len);
 
