@@ -143,10 +143,7 @@ static gint ett_erf_eth = -1;
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
 
-/* Possible there will be more in the future */
-#define ERF_INFINIBAND 1
-static gint erf_infiniband_default = ERF_INFINIBAND;
-static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
+static dissector_handle_t infiniband_handle;
 
 typedef enum { 
   ERF_HDLC_CHDLC = 0,
@@ -166,10 +163,10 @@ typedef enum {
   ERF_AAL5_LLC = 1,
 } erf_aal5_type_val;
 static gint erf_aal5_type = ERF_AAL5_GUESS;
-static dissector_handle_t erf_atm_untruncated_dissector;
+static dissector_handle_t atm_untruncated_handle;
 
 static gboolean erf_ethfcs = TRUE;
-static dissector_handle_t erf_ethwithfcs_dissector, erf_ethwithoutfcs_dissector;
+static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
@@ -628,8 +625,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch(erf_type) {
 
   case ERF_TYPE_INFINIBAND:
-    if (erf_infiniband_dissector[erf_infiniband_default])
-      call_dissector(erf_infiniband_dissector[erf_infiniband_default], tvb, pinfo, erf_tree);
+    if (infiniband_handle)
+      call_dissector(infiniband_handle, tvb, pinfo, erf_tree);
     else
       call_dissector(data_handle, tvb, pinfo, erf_tree);
     break;
@@ -689,7 +686,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
       }
 
-      call_dissector(erf_atm_untruncated_dissector, new_tvb, pinfo, tree);
+      call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     } else {
       /* Treat this as a raw cell */
       pinfo->pseudo_header->atm.flags |= ATM_RAW_CELL;
@@ -730,7 +727,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
 
-    call_dissector(erf_atm_untruncated_dissector, new_tvb, pinfo, tree);
+    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_AAL2:
@@ -749,7 +746,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
     new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
-    call_dissector(erf_atm_untruncated_dissector, new_tvb, pinfo, tree);
+    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_ETH:
@@ -757,9 +754,9 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_DSM_COLOR_ETH:
     dissect_eth_header(tvb, pinfo, erf_tree);
     if (erf_ethfcs)
-      call_dissector(erf_ethwithfcs_dissector, tvb, pinfo, tree);
+      call_dissector(ethwithfcs_handle, tvb, pinfo, tree);
     else
-      call_dissector(erf_ethwithoutfcs_dissector, tvb, pinfo, tree);
+      call_dissector(ethwithoutfcs_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -975,8 +972,8 @@ proto_reg_handoff_erf(void)
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
 	
-  /* Create ERF_INFINIBAND dissectors table */
-  erf_infiniband_dissector[ERF_INFINIBAND] = find_dissector("infiniband");
+  /* Get handle for Infiniband dissector */
+  infiniband_handle = find_dissector("infiniband");
 
   /* Get handles for serial line protocols */
   chdlc_handle = find_dissector("chdlc");
@@ -984,10 +981,10 @@ proto_reg_handoff_erf(void)
   frelay_handle = find_dissector("fr");
   mtp2_handle = find_dissector("mtp2");
 
-  /* Get ATM dissector */
-  erf_atm_untruncated_dissector = find_dissector("atm_untruncated");
+  /* Get handle for ATM dissector */
+  atm_untruncated_handle = find_dissector("atm_untruncated");
 
-  /* Get Ethernet dissectors */
-  erf_ethwithfcs_dissector = find_dissector("eth_withfcs");  
-  erf_ethwithoutfcs_dissector = find_dissector("eth_withoutfcs");
+  /* Get handles for Ethernet dissectors */
+  ethwithfcs_handle = find_dissector("eth_withfcs");  
+  ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
 }
