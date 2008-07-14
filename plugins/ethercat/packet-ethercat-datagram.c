@@ -464,7 +464,12 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       total Ethernet frame length of 64 bytes (Ethernet header + Ethernet Data +
       FCS). Hence at least 44 bytes data shall always be available in any
       EtherCAT datagram. */
-   tvb_ensure_bytes_exist(tvb, offset, 44);
+   /* tvb_ensure_bytes_exist(tvb, offset, 44);
+      this is not correct, because the frame might have been captured before the
+      os added the padding bytes. E.g. in Windows the frames are captured on the
+      protocol layer. When another protocol driver sends a frame this frame does
+      not include the padding bytes.	
+   */
 
    /* Count the length of the individual EtherCAT datagrams (sub datagrams)
       that are part of this EtherCAT frame. Stop counting when the current
@@ -807,19 +812,21 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          if( tree )
          {
             const guint startOfData = offset + EcParserHDR_Len + MBoxLength;
-            const guint dataLength = ((ecHdr.len & 0x7ff) - startOfData) + EcParserHDR_Len;
-
-            /* Allow sub dissectors to have a chance with this data */
-            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
+            const guint dataLength = (ecHdr.len & 0x7ff) - MBoxLength;
+            if ( dataLength > 0 )
             {
-               /* No sub dissector did recognize this data, dissect it as data only */
-               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, TRUE);
-            }
+               /* Allow sub dissectors to have a chance with this data */
+               if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
+               {
+                  /* No sub dissector did recognize this data, dissect it as data only */
+                  aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, TRUE);
+               }
 
-            if( subCount < 10 ){
-               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
-			   PROTO_ITEM_SET_HIDDEN(aitem);
-			}
+               if( subCount < 10 ){
+                  aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
+	    		      PROTO_ITEM_SET_HIDDEN(aitem)
+		   }
+            }
          }
       }
       else
