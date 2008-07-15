@@ -63,7 +63,6 @@ static int hf_ctdb_dmaster = -1;
 static int hf_ctdb_request_in = -1;
 static int hf_ctdb_response_in = -1;
 static int hf_ctdb_time = -1;
-static int hf_ctdb_xid = -1;
 static int hf_ctdb_generation = -1;
 static int hf_ctdb_hopcount = -1;
 static int hf_ctdb_rsn = -1;
@@ -88,8 +87,8 @@ static gint ett_ctdb_key = -1;
 emem_tree_t *ctdb_transactions=NULL;
 typedef struct _ctdb_trans_t {
 	guint32 key_hash;
-	gint32 request_in;
-	gint32 response_in;
+	guint32 request_in;
+	guint32 response_in;
 	nstime_t req_time;
 } ctdb_trans_t;
 
@@ -97,8 +96,8 @@ typedef struct _ctdb_trans_t {
 emem_tree_t *ctdb_controls=NULL;
 typedef struct _ctdb_control_t {
 	guint32 opcode;
-	gint32 request_in;
-	gint32 response_in;
+	guint32 request_in;
+	guint32 response_in;
 	nstime_t req_time;
 } ctdb_control_t;
 
@@ -467,21 +466,18 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 {
 	proto_item *item;
 
-	item=proto_tree_add_uint(tree, hf_ctdb_xid, tvb, 0, 0, (int)ctdb_trans);
-	PROTO_ITEM_SET_GENERATED(item);
-
-	if(ctdb_trans->request_in!=(gint32)pinfo->fd->num){
+	if(ctdb_trans->request_in!=pinfo->fd->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_trans->request_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if( (ctdb_trans->response_in!=-1)
-	  &&(ctdb_trans->response_in!=(gint32)pinfo->fd->num) ){
+	if( (ctdb_trans->response_in!=0)
+	  &&(ctdb_trans->response_in!=pinfo->fd->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_trans->response_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if((gint32)pinfo->fd->num==ctdb_trans->response_in){
+	if(pinfo->fd->num==ctdb_trans->response_in){
 		nstime_t ns;
 
 		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_trans->req_time);
@@ -495,21 +491,18 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 {
 	proto_item *item;
 
-	item=proto_tree_add_uint(tree, hf_ctdb_xid, tvb, 0, 0, (int)ctdb_control);
-	PROTO_ITEM_SET_GENERATED(item);
-
-	if(ctdb_control->request_in!=(gint32)pinfo->fd->num){
+	if(ctdb_control->request_in!=pinfo->fd->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_control->request_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if( (ctdb_control->response_in!=-1)
-	  &&(ctdb_control->response_in!=(gint32)pinfo->fd->num) ){
+	if( (ctdb_control->response_in!=0)
+	  &&(ctdb_control->response_in!=pinfo->fd->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_control->response_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if((gint32)pinfo->fd->num==ctdb_control->response_in){
+	if(pinfo->fd->num==ctdb_control->response_in){
 		nstime_t ns;
 
 		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_control->req_time);
@@ -767,7 +760,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		ctdb_control=se_alloc(sizeof(ctdb_control_t));
 		ctdb_control->opcode=opcode;
 		ctdb_control->request_in=pinfo->fd->num;
-		ctdb_control->response_in=-1;
+		ctdb_control->response_in=0;
 		ctdb_control->req_time=pinfo->fd->abs_ts;
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
@@ -961,7 +954,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 		ctdb_trans=se_alloc(sizeof(ctdb_trans_t));
 		ctdb_trans->key_hash=keyhash;
 		ctdb_trans->request_in=pinfo->fd->num;
-		ctdb_trans->response_in=-1;
+		ctdb_trans->response_in=0;
 		ctdb_trans->req_time=pinfo->fd->abs_ts;
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
@@ -1189,9 +1182,6 @@ proto_register_ctdb(void)
 	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_time, { 
 	  "Time since request", "ctdb.time", FT_RELATIVE_TIME, BASE_NONE, 
-	  NULL, 0x0, "", HFILL }},
-	{ &hf_ctdb_xid, { 
-	  "xid", "ctdb.xid", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_hopcount, { 
 	  "Hopcount", "ctdb.hopcount", FT_UINT32, BASE_DEC, 
