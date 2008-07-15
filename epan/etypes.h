@@ -382,6 +382,10 @@
 #define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
 #endif
 
+#ifndef ETHERTYPE_FIP
+#define ETHERTYPE_FIP		0x8914	/* FCoE Initialization Protocol */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif

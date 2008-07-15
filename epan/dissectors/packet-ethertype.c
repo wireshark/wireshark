@@ -139,6 +139,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_LLT,				"Veritas Low Latency Transport (not officially registered)"},
     {ETHERTYPE_CFM,				"IEEE 802.1ag Connectivity Fault Management (CFM) protocol" },
     {ETHERTYPE_FCOE,				"Fibre Channel over Ethernet" },
+    {ETHERTYPE_FIP,				"FCoE Initialization Protocol" },
     {ETHERTYPE_PTP,				"PTPv2 over Ethernet (IEEE1588)"},
     {ETHERTYPE_PRP,				"Parallel Redundancy Protocol (IEC62439 Chapter 6)"},
     {0,						NULL } };

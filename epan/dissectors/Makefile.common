@@ -403,6 +403,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-fcswils.c	\
 	packet-fddi.c		\
 	packet-ff.c		\
+	packet-fip.c		\
 	packet-fix.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
