@@ -54,8 +54,13 @@ static gint ett_cotp           = -1;
 static gint ett_cotp_segments  = -1;
 static gint ett_cotp_segment   = -1;
 
+static int hf_cotp_li          = -1;
+static int hf_cotp_type        = -1;
 static int hf_cotp_srcref      = -1;
 static int hf_cotp_destref     = -1;
+static int hf_cotp_class       = -1;
+static int hf_cotp_opts_extended_formats = -1;
+static int hf_cotp_opts_no_explicit_flow_control = -1;
 static int hf_cotp_tpdu_number = -1;
 static int hf_cotp_tpdu_number_extended = -1;
 static int hf_cotp_next_tpdu_number = -1;
@@ -63,8 +68,6 @@ static int hf_cotp_next_tpdu_number_extended = -1;
 static int hf_cotp_eot			= -1;
 static int hf_cotp_eot_extended	= -1;
 
-static int hf_cotp_li          = -1;
-static int hf_cotp_type        = -1;
 static int hf_cotp_segments    = -1;
 static int hf_cotp_segment     = -1;
 static int hf_cotp_segment_overlap = -1;
@@ -138,6 +141,15 @@ static const value_string cotp_tpdu_type_abbrev_vals[] = {
 static const value_string cltp_tpdu_type_abbrev_vals[] = {
   { UD_TPDU,	"UD" },
   { 0,		NULL }
+};
+
+static const value_string class_option_vals[] = {
+  {0,	"Class 0"},
+  {1,	"Class 1"},
+  {2,	"Class 2"},
+  {3,	"Class 3"},
+  {4,	"Class 4"},
+  {0,	NULL}
 };
 
 /* field position */
@@ -1205,10 +1217,9 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   if (tree) {
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Class: %1u", (class_option & 0xF0) >> 4);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Option: %1u", (class_option & 0x0F));
+    proto_tree_add_uint(cotp_tree, hf_cotp_class, tvb, offset, 1, class_option);
+    proto_tree_add_boolean(cotp_tree, hf_cotp_opts_extended_formats, tvb, offset, 1, class_option);
+    proto_tree_add_boolean(cotp_tree, hf_cotp_opts_no_explicit_flow_control, tvb, offset, 1, class_option);
   }
   offset += 1;
   li -= 1;
@@ -1709,18 +1720,27 @@ cotp_reassemble_init(void)
 void proto_register_cotp(void)
 {
   static hf_register_info hf[] = {
-    { &hf_cotp_srcref,
-      { "Source reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Source address reference", HFILL}},
-    { &hf_cotp_destref,
-      { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Destination address reference", HFILL}},
     { &hf_cotp_li,
       { "Length", "cotp.li", FT_UINT8, BASE_DEC, NULL, 0x0,
         "Length Indicator, length of this header", HFILL}},
     { &hf_cotp_type,
       { "PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
         "PDU Type - upper nibble of byte", HFILL}},
+    { &hf_cotp_srcref,
+      { "Source reference", "cotp.srcref", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Source address reference", HFILL}},
+    { &hf_cotp_destref,
+      { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Destination address reference", HFILL}},
+    { &hf_cotp_class,
+      { "Class", "cotp.class", FT_UINT8, BASE_DEC, NULL, 0xF0,
+        "Transport protocol class", HFILL}},
+    { &hf_cotp_opts_extended_formats,
+      { "Extended formats", "cotp.opts.extended_formats", FT_BOOLEAN, 8, NULL, 0x02,
+        "Use of extended formats in classes 2, 3, and 4", HFILL}},
+    { &hf_cotp_opts_no_explicit_flow_control,
+      { "No explicit flow control", "cotp.opts.no_explicit_flow_control", FT_BOOLEAN, 8, NULL, 0x01,
+        "No explicit flow control in class 2", HFILL}},
     { &hf_cotp_tpdu_number,
       { "TPDU number", "cotp.tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x7f,
         "TPDU number", HFILL}},
