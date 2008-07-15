@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
+#include <epan/ppptypes.h>
 
 #include "packet-atm.h"
 #include "packet-snmp.h"
@@ -69,6 +70,9 @@ static dissector_handle_t sscop_handle;
 static dissector_handle_t lane_handle;
 static dissector_handle_t ilmi_handle;
 static dissector_handle_t fp_handle;
+static dissector_handle_t ppp_handle;
+static dissector_handle_t eth_handle;
+static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
 static gboolean dissect_lanesscop = FALSE;
@@ -1106,11 +1110,61 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
 
     default:
-      if (tree) {
-        /* Dump it as raw data. */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        break;
+      {
+        gboolean decoded = FALSE;
+
+        if (tvb_length(next_tvb) > 20) /* arbitrary size */
+        {
+            guint8 octet[8];
+            tvb_memcpy(next_tvb, octet, 0, sizeof(octet)); 
+
+            decoded = TRUE;
+            if (pntohs(octet) == PPP_IP)
+            {
+                call_dissector(ppp_handle, next_tvb, pinfo, tree);
+            }
+            else if (pntohs(octet) == 0x00)
+            {
+                /* assume vc muxed bridged ethernet */
+                proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");
+                next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+                call_dissector(eth_handle, next_tvb, pinfo, tree);
+            }
+            else if (octet[2] == 0x03    && /* NLPID */
+                    ((octet[3] == 0xcc   || /* IPv4  */
+                      octet[3] == 0x8e)  || /* IPv6  */
+                     (octet[3] == 0x00   && /* Eth   */
+                      octet[4] == 0x80)))   /* Eth   */
+            {
+                /* assume network interworking with FR 2 byte header */
+                call_dissector(fr_handle, next_tvb, pinfo, tree);
+            }
+            else if (octet[4] == 0x03    && /* NLPID */
+                    ((octet[5] == 0xcc   || /* IPv4  */
+                      octet[5] == 0x8e)  || /* IPv6  */
+                     (octet[5] == 0x00   && /* Eth   */
+                      octet[6] == 0x80)))   /* Eth   */
+            {
+                /* assume network interworking with FR 4 byte header */
+                call_dissector(fr_handle, next_tvb, pinfo, tree);
+            }
+            else if (((octet[0] & 0xf0)== 0x40) ||
+                     ((octet[0] & 0xf0) == 0x60))
+            {
+                call_dissector(ip_handle, next_tvb, pinfo, tree);
+            }
+            else
+            {
+                decoded = FALSE;
+            }
+        }
+
+        if (tree && !decoded) {
+            /* Dump it as raw data. */
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+        }
       }
+      break;
     }
     break;
 
@@ -1729,6 +1783,9 @@ proto_reg_handoff_atm(void)
 	sscop_handle = find_dissector("sscop");
 	lane_handle = find_dissector("lane");
 	ilmi_handle = find_dissector("ilmi");
+	ppp_handle = find_dissector("ppp");
+	eth_handle = find_dissector("eth");
+	ip_handle = find_dissector("ip");
 	data_handle = find_dissector("data");
 	fp_handle = find_dissector("fp");
 
