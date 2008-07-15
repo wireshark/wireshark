@@ -733,7 +733,7 @@ process_libs:
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		zlib123 zlib123.zip
+		zlib123 zlib123ws.zip
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
