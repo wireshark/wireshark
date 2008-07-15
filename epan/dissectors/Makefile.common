@@ -605,6 +605,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-omapi.c		\
 	packet-osi-options.c	\
 	packet-osi.c		\
+	packet-ositp.c		\
 	packet-ospf.c		\
 	packet-pana.c		\
 	packet-p_mul.c		\
