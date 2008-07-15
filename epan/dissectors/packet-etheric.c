@@ -12,7 +12,7 @@
  * We also use its table for message types, but have our own #defines
  * for them; should we adopt the ISUP dissector's #defines, or have our
  * own table?
- * 
+ *
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
@@ -20,17 +20,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -63,7 +63,7 @@ static int hf_etheric_parameter_type	= -1;
 
 static int hf_etheric_calling_partys_category					= -1;
 static int hf_etheric_forw_call_isdn_access_indicator			= -1;
-	
+
 static int hf_etheric_transmission_medium_requirement			= -1;
 static int hf_etheric_odd_even_indicator						= -1;
 static int hf_etheric_called_party_nature_of_address_indicator	= -1;
@@ -86,7 +86,7 @@ static int hf_etheric_parameter_length							= -1;
 static int hf_etheric_pointer_to_start_of_optional_part			= -1;
 static int hf_etheric_inband_information_ind					= -1;
 static int hf_etheric_cause_indicator							= -1;
-static int hf_etheric_event_ind									= -1;	
+static int hf_etheric_event_ind									= -1;
 static int hf_etheric_event_presentation_restricted_ind			= -1;
 
 /* Initialize the subtree pointers */
@@ -307,13 +307,13 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *etheric_tree;
 	gint		offset = 0;
-	guint8		message_length; 
+	guint8		message_length;
 	guint16		cic;
 	guint8		message_type,etheric_version;
-	
+
 	tvbuff_t	*message_tvb;
-	
-	
+
+
 	/* Do we have the version number? */
 	if (tvb_length(tvb) <  1) {
 		/* No - reject this packet. */
@@ -327,10 +327,10 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Etheric");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	message_type = tvb_get_guint8(tvb, 4);
@@ -353,7 +353,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cic = tvb_get_letohs(tvb, offset) & 0x0FFF; /*since upper 4 bits spare */
 		proto_tree_add_uint_format(etheric_tree, hf_etheric_cic, tvb, offset, 2, cic, "CIC: %u", cic);
 		offset = offset + 2;
-	
+
 		message_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		dissect_etheric_message(message_tvb, pinfo, etheric_tree,etheric_version, message_length);
 
@@ -371,7 +371,7 @@ dissect_etheric_forward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_
   guint8 forward_call_ind;
 
   forward_call_ind = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_etheric_forw_call_isdn_access_indicator, 
+  proto_tree_add_boolean(parameter_tree, hf_etheric_forw_call_isdn_access_indicator,
 	  parameter_tvb, 0, 1, forward_call_ind);
 
   proto_item_set_text(parameter_item, "Forward Call Indicators: 0x%x", forward_call_ind );
@@ -386,7 +386,7 @@ dissect_etheric_calling_partys_category_parameter(tvbuff_t *parameter_tvb,proto_
   guint8 calling_partys_category;
 
   calling_partys_category = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_etheric_calling_partys_category, parameter_tvb, 
+  proto_tree_add_uint(parameter_tree, hf_etheric_calling_partys_category, parameter_tvb,
 	  0, 1, calling_partys_category);
 
   proto_item_set_text(parameter_item, "Calling Party's category: 0x%x (%s)", calling_partys_category,
@@ -420,7 +420,7 @@ dissect_etheric_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   gint length;
   char *called_number;
   e164_info_t e164_info;
- 
+
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_etheric_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
   proto_tree_add_uint(parameter_tree, hf_etheric_called_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
@@ -510,7 +510,7 @@ dissect_etheric_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tr
 
   proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
-  
+
     e164_info.e164_number_type = CALLING_PARTY_NUMBER;
     e164_info.nature_of_address = indicators1 & 0x7f;
     e164_info.E164_number_str = calling_number;
@@ -606,9 +606,9 @@ dissect_etheric_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *
 			 proto_item *parameter_item, packet_info *pinfo)
 { guint length = tvb_reported_length(parameter_tvb);
 
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, 
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1,
 	  "Access transport parameter field (-> Q.931)");
-  
+
   if (q931_ie_handle)
     call_dissector(q931_ie_handle, parameter_tvb, pinfo, parameter_tree);
 
@@ -794,10 +794,10 @@ dissect_etheric_address_complete_message(tvbuff_t *message_tvb, proto_tree *ethe
 				       1,
 				       "Backward Call Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_etheric_parameter);
-  
+
   proto_tree_add_uint_format(parameter_tree, hf_etheric_parameter_type, message_tvb, 0, 0,
 	  parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
-  
+
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(1, actual_length), 1);
   dissect_etheric_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -871,7 +871,7 @@ dissect_etheric_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info
 	case PARAM_TYPE_ACC_TRANSP:
 	  dissect_etheric_access_transport_parameter(parameter_tvb, parameter_tree, parameter_item, pinfo);
 	  break;
-	 
+
 	case PARAM_TYPE_LOCATION_NR:
 	  dissect_etheric_location_number_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
@@ -890,7 +890,7 @@ dissect_etheric_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info
     }
   }
 }
-		
+
 
 static void
 dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *etheric_tree, guint8 etheric_version, guint8 message_length)
@@ -898,7 +898,7 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
   tvbuff_t *parameter_tvb;
   tvbuff_t *optional_parameter_tvb;
   gint offset, bufferlength;
-  guint8 message_type; 
+  guint8 message_type;
   guint8 opt_parameter_pointer = 0;
   gint opt_part_possible = FALSE; /* default setting - for message types allowing optional
 				     params explicitely set to TRUE in case statement */
@@ -964,7 +964,7 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
     case ETHERIC_MESSAGE_TYPE_RESET_CIRCUIT:
       /* no dissector necessary since no mandatory parameters included */
       break;
- 
+
 	case ETHERIC_MESSAGE_TYPE_UNBLOCKING:
       /* no dissector necessary since no mandatory parameters included */
       break;
@@ -974,7 +974,7 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
  default:
      bufferlength = tvb_length_remaining(message_tvb, offset);
      if (bufferlength != 0)
-       proto_tree_add_text(etheric_tree, parameter_tvb, 0, bufferlength, 
+       proto_tree_add_text(etheric_tree, parameter_tvb, 0, bufferlength,
 			"Unknown Message type (possibly reserved/used in former ISUP version)");
      break;
   }
@@ -994,7 +994,7 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
 	   }
    }
    else if (message_type !=ETHERIC_MESSAGE_TYPE_CHARGE_INFO)
-     proto_tree_add_text(etheric_tree, message_tvb, 0, 0, 
+     proto_tree_add_text(etheric_tree, message_tvb, 0, 0,
 		"No optional parameters are possible with this message type");
 
 }
@@ -1031,28 +1031,28 @@ proto_reg_handoff_etheric(void)
 
 void
 proto_register_etheric(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_etheric_protocol_version,
 			{ "Protocol version",           "etheric.protocol_version",
-			FT_UINT8, BASE_HEX, VALS(&protocol_version_vals), 0x0,          
+			FT_UINT8, BASE_HEX, VALS(&protocol_version_vals), 0x0,
 			"Etheric protocol version", HFILL }
 		},
 		{ &hf_etheric_message_length,
 			{ "Message length",           "etheric.message.length",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Etheric Message length", HFILL }
 		},
 		{ &hf_etheric_cic,
 			{ "CIC",           "etheric.cic",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Etheric CIC", HFILL }
 		},
 		{ &hf_etheric_message_type,
 			{ "Message type",           "etheric.message.type",
-			FT_UINT8, BASE_HEX, VALS(&isup_message_type_value), 0x0,          
+			FT_UINT8, BASE_HEX, VALS(isup_message_type_value), 0x0,
 			"Etheric message types", HFILL }
 		},
 		{ &hf_etheric_parameter_type,
