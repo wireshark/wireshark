@@ -844,7 +844,7 @@ basic_avp_reginfo(diam_avp_t* a, const char* name, enum ftenum ft,
 	hf->hfinfo.abbrev = alnumerize(g_strdup_printf("diameter.%s",name));
 
 	g_array_append_vals(build_dict.hf,hf,1);
-	g_ptr_array_add(build_dict.ett,&ettp);
+	g_ptr_array_add(build_dict.ett,ettp);
 }
 
 static diam_avp_t*
@@ -915,7 +915,7 @@ RFC3588
 		alnumerize(ep_strdup_printf("diameter.%s",name)),
 		"", FT_BYTES, BASE_NONE, NULL, 0);
 
-	g_ptr_array_add(build_dict.ett,&ettp);
+	g_ptr_array_add(build_dict.ett,ettp);
 
 	return a;
 }
@@ -941,7 +941,7 @@ build_proto_avp(const avp_type_t* type _U_, guint32 code,
 	t->handle = NULL;
 	t->reassemble_mode = 0;
 
-	g_ptr_array_add(build_dict.ett,&ettp);
+	g_ptr_array_add(build_dict.ett,ettp);
 
 	return a;
 }
@@ -1396,7 +1396,7 @@ proto_register_diameter(void)
 	ett_length = array_length(ett_base);
 	for (i = 0; i < ett_length; i++)
 	{
-		g_ptr_array_add(build_dict.ett, &ett_base[i]);
+		g_ptr_array_add(build_dict.ett, ett_base[i]);
 	}
 
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
