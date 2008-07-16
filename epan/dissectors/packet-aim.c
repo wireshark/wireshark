@@ -1193,7 +1193,7 @@ int dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid _U_, tvbuff_t *t
 }
 
 int dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
-  guint32 value32 = tvb_get_ntoh24(tvb, 0);
+  guint32 value32 = tvb_get_ntohl(tvb, 0);
   proto_item_set_text(ti, "Value: %d", value32);
   return 4;
 }
