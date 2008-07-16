@@ -252,7 +252,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
 	fi
 ],)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) /* -W is now known as -Wextra */
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
