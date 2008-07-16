@@ -2472,6 +2472,8 @@ write_pref(gpointer data, gpointer user_data)
 	write_pref_arg_t *arg = user_data;
 	const enum_val_t *enum_valp;
 	const char *val_string;
+	gchar **desc_lines;
+	int i;
 
 	if (pref->type == PREF_OBSOLETE) {
 		/*
@@ -2483,7 +2485,20 @@ write_pref(gpointer data, gpointer user_data)
 		return;
 	}
 
-	fprintf(arg->pf, "\n# %s\n", pref->description);
+	/* 
+	 * Make multiple line descriptions appear as 
+	 * multiple commented lines in prefs file.
+	 */
+	if (g_ascii_strncasecmp(pref->description,"", 2) != 0) {
+		desc_lines = g_strsplit(pref->description,"\n",0);
+		for (i = 0; desc_lines[i] != NULL; ++i) {
+			fprintf(arg->pf, "\n# %s", desc_lines[i]);
+		}
+		fprintf(arg->pf, "\n");
+		g_strfreev(desc_lines);
+	} else {
+		fprintf(arg->pf, "\n# No description\n");
+	}
 
 	switch (pref->type) {
 
