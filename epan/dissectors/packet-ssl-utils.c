@@ -955,7 +955,7 @@ static SslCipherSuite cipher_suites[]={
     {26,KEX_DH,SIG_NONE,ENC_DES,8,64,64,DIG_MD5,16,0, SSL_CIPHER_MODE_CBC},
     {27,KEX_DH,SIG_NONE,ENC_3DES,8,192,192,DIG_MD5,16,0, SSL_CIPHER_MODE_CBC},
     {47,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
-    {51,KEX_DH, SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC}, 
+    {51,KEX_DH, SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {53,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {96,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
     {97,KEX_RSA,SIG_RSA,ENC_RC2,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
@@ -986,8 +986,7 @@ ssl_find_cipher(int num,SslCipherSuite* cs)
 }
 
 static gint
-tls_hash(StringInfo* secret,
-        StringInfo* seed, gint md, StringInfo* out)
+tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
 {
     guint8 *ptr;
     guint left;
@@ -1050,7 +1049,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
         goto free_sha;
     }
     if (ssl_data_alloc(&seed, usage_len+rnd1->data_len+rnd2->data_len) < 0) {
-        ssl_debug_printf("tls_prf: can't allocate rnd %d\n", 
+        ssl_debug_printf("tls_prf: can't allocate rnd %d\n",
                          usage_len+rnd1->data_len+rnd2->data_len);
         goto free_md5;
     }
@@ -1289,7 +1288,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     guint need_any = SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET;
     if (((ssl_session->state & need_all) != need_all) || ((ssl_session->state & need_any) == 0)) {
         ssl_debug_printf("ssl_generate_keyring_material not enough data to generate key "
-                         "(0x%02X required 0x%02X or 0x%02X)\n", ssl_session->state, 
+                         "(0x%02X required 0x%02X or 0x%02X)\n", ssl_session->state,
                          need_all|SSL_MASTER_SECRET, need_all|SSL_PRE_MASTER_SECRET);
         return -1;
     }
@@ -2325,9 +2324,16 @@ ssl_hash  (gconstpointer v)
   const guint* cur;
   hash = 0;
   id = (const StringInfo*) v;
-  cur = (const guint*) id->data;
 
-  for (l=4; (l<id->data_len); l+=4, cur++)
+  /*  id and id->data are mallocated in ssl_save_session().  As such 'data'
+   *  should be aligned for any kind of access (for example as a guint as
+   *  is done below).  The intermediate void* cast is to prevent "cast
+   *  increases required alignment of target type" warnings on CPUs (such
+   *  as SPARCs) that do not allow misaligned memory accesses.
+   */
+  cur = (const guint*)(void*) id->data;
+
+  for (l=4; (l < id->data_len); l+=4, cur++)
     hash = hash ^ (*cur);
 
   return hash;
@@ -2729,6 +2735,10 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
   master_secret = se_alloc0(48 + sizeof(StringInfo));
 
   master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
+
+  /*  ssl_hash() depends on session_id->data being aligned for guint access
+   *  so be careful in changing how it is allocated.
+   */
   session_id->data = ((guchar*)session_id+sizeof(StringInfo));
 
   ssl_data_set(session_id, ssl->session_id.data, ssl->session_id.data_len);
