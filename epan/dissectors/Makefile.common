@@ -215,6 +215,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-atm.c		\
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
+	packet-bacapp.c		\
 	packet-bacnet.c		\
 	packet-bat-batman.c	\
 	packet-bat.c		\
@@ -807,7 +808,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-zebra.c 
 
 DISSECTOR_SRC =	\
-	packet-bacapp.c		\
 	packet-ieee802154.c	\
 	packet-k12.c 		\
 	packet-nbd.c		\

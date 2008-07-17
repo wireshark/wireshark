@@ -30,9 +30,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#if HAVE_ICONV
-#include <iconv.h>
-#endif
 #endif
 
 #include <stdio.h>
@@ -2074,7 +2071,7 @@ void
 proto_reg_handoff_bacapp(void);
 
 /**
- * converts XXX coded strings to UTF-8 if iconv is allowed
+ * converts XXX coded strings to UTF-8
  * else 'in' is copied to 'out'
  * @param in  -- pointer to string
  * @param inbytesleft
@@ -2084,7 +2081,7 @@ proto_reg_handoff_bacapp(void);
  * @return count of modified characters of returned string, -1 for errors
  */
 guint32
-fConvertXXXtoUTF8(const guint8 *in, size_t *inbytesleft,guint8 *out, size_t *outbytesleft, const gchar *fromcoding);
+fConvertXXXtoUTF8(gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesleft, const gchar *fromcoding);
 
 #endif /* __BACAPP_H__ */
 
