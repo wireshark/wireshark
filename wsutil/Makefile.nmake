@@ -53,6 +53,7 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
+##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) ../tools/checkAPIs.pl -g termoutput \
 	$(LIBWSUTIL_SRC) \
 #	file_util.c unicode-utils.c
