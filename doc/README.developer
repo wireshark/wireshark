@@ -2845,7 +2845,7 @@ So add the following items to the struct that is used for the protocol data:
 The ts_prev value should only be set during the first run through the
 packets (ie pinfo->fd->flags.visited is false).
 
-Next step is to use the per packet information (described in section 2.5)
+Next step is to use the per-packet information (described in section 2.5)
 to keep the calculated delta timestamp, as it can only be calculated
 on the first run through the packets. This is because a packet can be
 selected in random order once the whole file has been read.
@@ -2864,7 +2864,7 @@ for this is that a higher level conversation is able to overwrite
 the values of lowel level conversations in these two columns. Being
 able to actively select which protocols may overwrite the conversation
 timestamp columns gives the user the power to control these columns.
-(A second reason is that conversation timestamps use the per packet
+(A second reason is that conversation timestamps use the per-packet
 data structure which uses additional memory, which should be avoided
 if these timestamps are not needed)
 
@@ -3205,7 +3205,7 @@ static dissector_handle_t sub_dissector_handle;
 	    conversation_set_dissector(conversation, sub_dissector_handle);
 	}
 
-2.5 Per packet information.
+2.5 Per-packet information.
 
 Information can be stored for each data packet that is processed by the
 dissector.  The information is added with the p_add_proto_data function and
