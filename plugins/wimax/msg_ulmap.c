@@ -685,9 +685,9 @@ gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint duci;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -734,9 +734,9 @@ gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gi
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint duci;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -783,9 +783,9 @@ gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint duci;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -833,9 +833,9 @@ gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -893,9 +893,9 @@ gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -953,9 +953,9 @@ gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const guint8 *b
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint muin,dmci,ackd,i;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
@@ -1014,9 +1014,9 @@ gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    //proto_item *generic_item = NULL;
+    /*proto_item *generic_item = NULL;*/
     gint ackd,txct,sboi;
-    //guint16 calculated_crc;
+    /*guint16 calculated_crc;*/
 
     bit = offset;
 
