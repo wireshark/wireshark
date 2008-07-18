@@ -93,8 +93,7 @@ LIBWIRESHARK_SRC = 		\
 	tvbuff.c		\
 	uat.c			\
 	value_string.c		\
-	xdlc.c			\
-	xmlstub.c
+	xdlc.c
 
 #
 # These get removed on "make distclean", as the tools we use to generate
@@ -231,8 +230,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	uat-int.h		\
 	value_string.h		\
 	x264_prt_id.h		\
-	xdlc.h			\
-	xmlstub.h
+	xdlc.h
 
 #
 # As with LIBWIRESHARK_DISTCLEAN_GENERATED_SRC, so with
