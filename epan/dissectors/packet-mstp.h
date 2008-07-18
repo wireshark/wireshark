@@ -28,9 +28,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#if HAVE_ICONV
-#include <iconv.h>
-#endif
 #endif
 
 #include <stdio.h>
