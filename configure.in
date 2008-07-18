@@ -1129,9 +1129,6 @@ AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sy
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
 
-dnl iconv check
-AM_ICONV
-
 dnl SSL Check
 SSL_LIBS=''
 AC_MSG_CHECKING(whether to use SSL library)

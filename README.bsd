@@ -22,7 +22,6 @@ Install the latest versions of the following programs before compiling:
     glitz
     gtk2 / gtk+2
     jpeg
-    libiconv
     pango
     pkgconfig
     png

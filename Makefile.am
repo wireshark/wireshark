@@ -316,7 +316,6 @@ wireshark_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
-	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
@@ -346,7 +345,6 @@ tshark_LDADD = \
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
 	@FRAMEWORKS@			\
-	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
@@ -375,7 +373,6 @@ rawshark_LDADD = \
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
 	@FRAMEWORKS@			\
-	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
@@ -431,7 +428,6 @@ dftest_LDADD = \
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
-	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
@@ -564,7 +560,6 @@ EXTRA_DIST = \
 	aclocal-fallback/glib.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-fallback/gtk.m4 \
-	aclocal-fallback/iconv.m4 \
 	aclocal-flags		\
 	adns_dll.dep		\
 	adns_dll.rc		\

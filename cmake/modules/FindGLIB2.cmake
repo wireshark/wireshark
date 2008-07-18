@@ -168,34 +168,6 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS)
   endif (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
   ##
 
-  ## libiconv
-  find_path(LIBICONV_INCLUDE_DIR
-    NAMES
-      iconv.h
-    PATHS
-      /opt/gnome/include/glib-2.0
-      /usr/include/glib-2.0
-      /usr/local/include/glib-2.0
-      /opt/local/include/glib-2.0
-      /sw/include/glib-2.0
-  )
- 
-  find_library(LIBICONV_LIBRARY
-    NAMES
-      iconv
-    PATHS
-      /opt/gnome/lib
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-  )
-
-  if (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
-    set(LIBICONV_FOUND TRUE)
-  endif (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
-  ##
-
   set(GLIB2_INCLUDE_DIRS
     ${GLIB_INCLUDE_DIR}
     ${GLIBCONFIG_INCLUDE_DIR}
@@ -218,11 +190,6 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS)
     set(GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBINTL_LIBRARY})
     set(GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBINTL_INCLUDE_DIR})
   endif (LIBINTL_FOUND)
-
-  if (LIBICONV_FOUND)
-    set(GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBICONV_LIBRARY})
-    set(GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBICONV_INCLUDE_DIR})
-  endif (LIBICONV_FOUND)
 
   if (GLIB2_INCLUDE_DIRS AND GLIB2_LIBRARIES)
      set(GLIB2_FOUND TRUE)

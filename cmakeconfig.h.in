@@ -39,9 +39,6 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
-/* Define if you have the iconv() function. */
-#cmakedefine HAVE_ICONV 1
-
 /* Define if inet_ntop() prototype exists */
 #cmakedefine HAVE_INET_NTOP_PROTO 1
 
@@ -226,9 +223,6 @@
 
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER
-
-/* Define as const if the declaration of iconv() needs const. */
-#cmakedefine ICONV_CONST 1
 
 /* Define if <inttypes.h> defines PRI[doxu]64 macros */
 /* Note: always defines  PRI[doxu]64 macros so inttypes.h becomes useless.*/
