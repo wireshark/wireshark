@@ -91,9 +91,9 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_CODE_SESSION    0x00
 #define PPPOE_CODE_PADO       0x07
 #define PPPOE_CODE_PADI       0x09
-#define PPPOE_CODE_PADG       0x10
-#define PPPOE_CODE_PADC       0x11
-#define PPPOE_CODE_PADQ       0x12
+#define PPPOE_CODE_PADG       0x0a
+#define PPPOE_CODE_PADC       0x0b
+#define PPPOE_CODE_PADQ       0x0c
 #define PPPOE_CODE_PADR       0x19
 #define PPPOE_CODE_PADS       0x65
 #define PPPOE_CODE_PADT       0xa7
