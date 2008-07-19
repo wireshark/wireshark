@@ -1317,7 +1317,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		guint32 fsid = tvb_get_letohl(tvb, offset + 20);
 		guint32 export = tvb_get_letohl(tvb, offset + 24);
 		guint32 export_snapgen = tvb_get_letohl(tvb, offset + 28);
-		
+
 		proto_item *item;
 		proto_tree *subtree;
 		char *flag_string;
@@ -1389,7 +1389,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	guint32 fileid, snapgen, generation, fsid;
 	guint32 handle_type = tvb_get_ntohl(tvb, offset + 24);
 	guint32 inum = tvb_get_ntohl(tvb, offset + 12);
-		
+
 	const char *handle_string=NULL;
 	const char *handle_type_strings [] = { "NORMAL",
 					       "UNEXP",
@@ -1400,11 +1400,11 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 					     };
 
 	char *flag_string;
-	const char *strings[] = { " MNT_PNT", 
-				  " SNAPDIR", 
+	const char *strings[] = { " MNT_PNT",
+				  " SNAPDIR",
 				  " SNAPDIR_ENT",
-				  " EMPTY", 
-				  " VBN_ACCESS", 
+				  " EMPTY",
+				  " VBN_ACCESS",
 				  " MULTIVOLUME",
 				  " METADATA",
 				  " ORPHAN",
@@ -1456,7 +1456,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 		}
 		item = proto_tree_add_text(tree, tvb, offset + 0, 8, "export (inode %u)", fileid);
 		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_export);
-		
+
 		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
 					   tvb, offset + 0, 4, fileid);
 		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_generation,
@@ -1530,7 +1530,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
     guint8      utility;
     guint8      volcnt;
     guint32	offset = 0;
-	 
+
     if (tree) {
         /* = utility = */
         utility = tvb_get_guint8(tvb, offset);
@@ -1541,47 +1541,47 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 
         field_tree = proto_item_add_subtree(tf, ett_nfs_gxfh3_utlfield);
         if (utility & NFS3GX_FH_TREE_MASK) {
-		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_tree_w, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_tree_w, tvb,
 	                            offset, 1, utility);
 	}
 	else {
-		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_tree_r, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_tree_r, tvb,
 	                            offset, 1, utility);
 	}
         if (utility & NFS3GX_FH_JUN_MASK) {
-		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_jun, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_jun, tvb,
 	                            offset, 1, utility);
 	}
 	else {
-		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_jun_not, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_jun_not, tvb,
 	                            offset, 1, utility);
 	}
-	proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_ver, tvb, 
+	proto_tree_add_uint(field_tree, hf_gxfh3_utlfield_ver, tvb,
 	                            offset, 1, utility);
 
         /* = volume count== */
-        volcnt = tvb_get_guint8(tvb, offset+1);	
+        volcnt = tvb_get_guint8(tvb, offset+1);
 	proto_tree_add_uint_format(tree, hf_gxfh3_volcnt, tvb,
                                    offset+1, 1, volcnt,
 		                   "  volume count: 0x%02x (%d)", volcnt, volcnt);
         /* = epoch = */
-        epoch = tvb_get_letohs(tvb, offset+2);	
+        epoch = tvb_get_letohs(tvb, offset+2);
 	proto_tree_add_uint_format(tree, hf_gxfh3_epoch, tvb,
                                    offset+2, 2, epoch,
 		                   "  epoch: 0x%04x (%u)", epoch, epoch);
         /* = spin file handle = */
-        local_dsid   = tvb_get_letohl(tvb, offset+4); 
-        cluster_id   = tvb_get_letohs(tvb, offset+8); 
-        reserved     = tvb_get_guint8(tvb, offset+10);	
-        flags        = tvb_get_guint8(tvb, offset+11);	
-        spinfile_id  = tvb_get_letohl(tvb, offset+12); 
-        spinfile_uid = tvb_get_letohl(tvb, offset+16); 
+        local_dsid   = tvb_get_letohl(tvb, offset+4);
+        cluster_id   = tvb_get_letohs(tvb, offset+8);
+        reserved     = tvb_get_guint8(tvb, offset+10);
+        flags        = tvb_get_guint8(tvb, offset+11);
+        spinfile_id  = tvb_get_letohl(tvb, offset+12);
+        spinfile_uid = tvb_get_letohl(tvb, offset+16);
 
-	tf = proto_tree_add_text(tree, tvb, offset+4, 16, 
+	tf = proto_tree_add_text(tree, tvb, offset+4, 16,
 	                         "  spin file handle");
         field_tree = proto_item_add_subtree(tf, ett_nfs_gxfh3_sfhfield);
 
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_ldsid, tvb, 
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_ldsid, tvb,
 	                           offset+4, 4, local_dsid,
 	                           " local dsid: 0x%08x (%u)", local_dsid, local_dsid);
 	proto_tree_add_uint_format(field_tree, hf_gxfh3_cid, tvb,
@@ -1596,49 +1596,49 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
                                         offset+11, 1, utility,
 		                        " flags: 0x%02x", flags);
         field_tree = proto_item_add_subtree(tf, ett_nfs_gxfh3_sfhflags);
-	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv1, tvb, 
+	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv1, tvb,
 	                    offset+11, 1, flags);
-	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv2, tvb, 
+	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv2, tvb,
 	                    offset+11, 1, flags);
 
         if (flags & SPINNP_FH_FLAG_ONTAP_MASK) {
-		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontap7G, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontap7G, tvb,
 	                            offset+11, 1, flags);
 	}
 	else {
-		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontapGX, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontapGX, tvb,
 	                            offset+11, 1, flags);
 	}
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_striped, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_striped, tvb,
 	                            offset+11, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_empty, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_empty, tvb,
 	                            offset+11, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdirent, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdirent, tvb,
 	                            offset+11, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdir, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdir, tvb,
 	                            offset+11, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_streamdir, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_streamdir, tvb,
 	                            offset+11, 1, flags);
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfid, tvb, 
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfid, tvb,
 	                           offset+12, 4, spinfile_id,
 	                           "spin file id: 0x%08x (%u)", spinfile_id, spinfile_id);
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfuid, tvb, 
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfuid, tvb,
 	                           offset+16, 4, spinfile_id,
 	                           "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);
 
-        /* = spin file handle (mount point) = */		 
-        local_dsid   = tvb_get_letohl(tvb, offset+20); 
-        cluster_id   = tvb_get_letohs(tvb, offset+24); 
-        reserved     = tvb_get_guint8(tvb, offset+26);	
-        flags        = tvb_get_guint8(tvb, offset+27);	
-        spinfile_id  = tvb_get_letohl(tvb, offset+28); 
-        spinfile_uid = tvb_get_letohl(tvb, offset+32); 
+        /* = spin file handle (mount point) = */
+        local_dsid   = tvb_get_letohl(tvb, offset+20);
+        cluster_id   = tvb_get_letohs(tvb, offset+24);
+        reserved     = tvb_get_guint8(tvb, offset+26);
+        flags        = tvb_get_guint8(tvb, offset+27);
+        spinfile_id  = tvb_get_letohl(tvb, offset+28);
+        spinfile_uid = tvb_get_letohl(tvb, offset+32);
 
-	tf = proto_tree_add_text(tree, tvb, offset+20, 16, 
+	tf = proto_tree_add_text(tree, tvb, offset+20, 16,
 	                         "  spin (mount point) file handle");
         field_tree = proto_item_add_subtree(tf, ett_nfs_gxfh3_sfhfield);
 
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_ldsid, tvb, 
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_ldsid, tvb,
 	                           offset+20, 4, local_dsid,
 	                           " local dsid: 0x%08x (%u)", local_dsid, local_dsid);
 	proto_tree_add_uint_format(field_tree, hf_gxfh3_cid, tvb,
@@ -1653,44 +1653,44 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
                                         offset+27, 1, utility,
 		                        " flags: 0x%02x", flags);
         field_tree = proto_item_add_subtree(tf, ett_nfs_gxfh3_sfhflags);
-	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv1, tvb, 
+	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv1, tvb,
 	                    offset+27, 1, flags);
-	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv2, tvb, 
+	proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_resv2, tvb,
 	                    offset+27, 1, flags);
 
         if (flags & SPINNP_FH_FLAG_ONTAP_MASK) {
-		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontap7G, tvb, 
-	                            offset+27, 1, flags);
-	} 
-	else {
-		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontapGX, tvb, 
+		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontap7G, tvb,
 	                            offset+27, 1, flags);
 	}
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_striped, tvb, 
+	else {
+		proto_tree_add_uint(field_tree, hf_gxfh3_sfhflags_ontapGX, tvb,
 	                            offset+27, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_empty, tvb, 
+	}
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_striped, tvb,
 	                            offset+27, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdirent, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_empty, tvb,
 	                            offset+27, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdir, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdirent, tvb,
 	                            offset+27, 1, flags);
-	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_streamdir, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_snapdir, tvb,
 	                            offset+27, 1, flags);
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfid, tvb, 
+	proto_tree_add_boolean(field_tree, hf_gxfh3_sfhflags_streamdir, tvb,
+	                            offset+27, 1, flags);
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfid, tvb,
 	                           offset+28, 4, spinfile_id,
 	                           "spin file id: 0x%08x (%u)", spinfile_id, spinfile_id);
-	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfuid, tvb, 
+	proto_tree_add_uint_format(field_tree, hf_gxfh3_spinfuid, tvb,
 	                           offset+32, 4, spinfile_id,
-	                           "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);    
-        /* = export point id  = */		 
-        export_id  = tvb_get_letohl(tvb, offset+36); 
-        export_uid = tvb_get_letohl(tvb, offset+40); 
-	proto_tree_add_uint_format(tree, hf_gxfh3_exportptid, tvb, 
+	                           "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);
+        /* = export point id  = */
+        export_id  = tvb_get_letohl(tvb, offset+36);
+        export_uid = tvb_get_letohl(tvb, offset+40);
+	proto_tree_add_uint_format(tree, hf_gxfh3_exportptid, tvb,
 	                           offset+36, 4, spinfile_id,
 	                           "  export point id: 0x%08x (%u)", export_id, export_id);
-        /* = export point unique id  = */		 
-        export_uid = tvb_get_letohl(tvb, offset+40); 
-	proto_tree_add_uint_format(tree, hf_gxfh3_exportptuid, tvb, 
+        /* = export point unique id  = */
+        export_uid = tvb_get_letohl(tvb, offset+40);
+	proto_tree_add_uint_format(tree, hf_gxfh3_exportptuid, tvb,
 	                           offset+40, 4, spinfile_id,
 	                           "  export point unique id: 0x%08x (%u)", export_uid, export_uid);
 
@@ -1750,7 +1750,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 				{
 					proto_tree* encoding_tree = proto_item_add_subtree(encoding_item,
 						ett_nfs_fh_encoding);
-						
+
 					proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
 							tvb, offset+1, 1, auth_type);
 					proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
@@ -1839,7 +1839,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 				{
 					proto_tree* fileid_tree = proto_item_add_subtree(
 						fileid_item, ett_nfs_fh_fn);
-				
+
 					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
 						tvb, offset+0, 4, inode);
 					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
@@ -3446,7 +3446,7 @@ dissect_specdata3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	if (tree) {
 		specdata3_item = proto_tree_add_text(tree, tvb, offset, 8,
 			"%s: %u,%u", name, specdata1, specdata2);
-		
+
 		specdata3_tree = proto_item_add_subtree(specdata3_item,
 					ett_nfs_specdata3);
 
@@ -3480,7 +3480,7 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (tree) {
 		fitem = proto_tree_add_text(tree, tvb, offset, 4+fh3_len_full,
 			"%s", name);
-		
+
 		ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
@@ -3865,7 +3865,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 
 	if (tree) {
 		set_it_name = val_to_str(set_it,value_follows,"Unknown");
-		
+
 		set_mode3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_mode3_tree = proto_item_add_subtree(set_mode3_item,
@@ -3997,7 +3997,7 @@ dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 
 	if (tree) {
 		set_it_name = val_to_str(set_it,value_follows,"Unknown");
-		
+
 		set_size3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_size3_tree = proto_item_add_subtree(set_size3_item,
@@ -4055,7 +4055,7 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 
 	if (tree) {
 		set_it_name = val_to_str(set_it,time_how,"Unknown");
-		
+
 		set_atime_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_atime_tree = proto_item_add_subtree(set_atime_item,
@@ -5575,7 +5575,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 				properties_tree = proto_item_add_subtree(properties_item,
 						ett_nfs_fsinfo_properties);
-				
+
 				proto_tree_add_text(properties_tree, tvb,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
@@ -6231,7 +6231,7 @@ dissect_nfs_fh4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_nfs_server4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) 
+dissect_nfs_server4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	return dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_server, NULL);
 }
@@ -6311,7 +6311,7 @@ dissect_nfs_fattr4_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 	{
 		expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"fattr4_fh_expire_type: 0x%08x", expire_type);
-		
+
 		expire_type_tree = proto_item_add_subtree(expire_type_item,
 				ett_nfs_fattr4_fh_expire_type);
 	}
@@ -6345,6 +6345,21 @@ dissect_nfs_fattr4_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 	}
 
 	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_nfs_fs_layout_type(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	guint count, i;
+
+	count = tvb_get_ntohl(tvb, offset);
+	offset +=4;
+
+	for (i = 0; i < count; i++) {
+		offset += dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+	}
 
 	return offset;
 }
@@ -6843,8 +6858,12 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							attr_vals_offset, attr_newftree, "settime4");
 						break;
 					case FATTR4_MOUNTED_ON_FILEID:
-						attr_vals_offset = dissect_rpc_uint64(tvb, attr_newftree, 
+						attr_vals_offset = dissect_rpc_uint64(tvb, attr_newftree,
 							hf_nfs_fattr4_mounted_on_fileid, attr_vals_offset);
+						break;
+					case FATTR4_FS_LAYOUT_TYPE:
+						attr_vals_offset = dissect_nfs_fs_layout_type(tvb, attr_newftree,
+													attr_vals_offset);
 						break;
 					case FATTR4_LAYOUT_BLKSIZE:
 						attr_vals_offset = dissect_rpc_uint32(tvb, attr_newftree,
@@ -8072,11 +8091,11 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", 
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",
 				ops_counter==0?' ':';',
 				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
 		}
-		
+
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs_argop4, tvb, offset, 4,
 			opcode);
@@ -8304,7 +8323,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *callback_tree = NULL;
 
 				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "client");
-				
+
 				client_tree = proto_item_add_subtree(fitem, ett_nfs_client_id4);
 
 				offset = dissect_nfs_client_id4(tvb, offset, client_tree);
@@ -8532,7 +8551,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", 
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",
 				ops_counter==0?' ':';',
 				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
 		}
@@ -8971,9 +8990,9 @@ static const value_string stripetype_names[] = {
 };
 
 static const value_string layouttype_names[] = {
-	{ 1, "LAYOUT_NFSV4_FILES"},
-	{ 2, "LAYOUT_OSD2_OBJECTS"},
-	{ 3, "LAYOUT_BLOCK_VOLUME"},
+	{ 1, "LAYOUT4_NFSV4_1_FILES"},
+	{ 2, "LAYOUT4_OSD2_OBJECTS"},
+	{ 3, "LAYOUT4_BLOCK_VOLUME"},
 	{ 0, NULL }
 };
 
@@ -9630,8 +9649,8 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fslocation4, {
-			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_DEC, 
-			NULL, 0, NULL, HFILL }}, 
+			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr4_owner, {
 			"fattr4_owner", "nfs.fattr4_owner", FT_STRING, BASE_DEC,
@@ -9816,7 +9835,7 @@ proto_register_nfs(void)
 		{ &hf_nfs_fattr4_space_used, {
 			"space_used", "nfs.fattr4.space_used", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_nfs_fattr4_mounted_on_fileid, {
 			"fileid", "nfs.fattr4.mounted_on_fileid", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -10004,51 +10023,51 @@ proto_register_nfs(void)
 		{ &hf_gxfh3_utlfield, {
 			"utility", "nfs.gxfh3.utility", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_utlfield_tree_r, {
 			"tree R", "nfs.gxfh3.utlfield.treeR", FT_UINT8, BASE_HEX,
 			NULL, NFS3GX_FH_TREE_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_utlfield_tree_w, {
 			"tree W", "nfs.gxfh3.utlfield.treeW", FT_UINT8, BASE_HEX,
 			NULL, NFS3GX_FH_TREE_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_utlfield_jun, {
 			"broken junction", "nfs.gxfh3.utlfield.junction", FT_UINT8, BASE_HEX,
 			NULL, NFS3GX_FH_JUN_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_utlfield_jun_not, {
 			"not broken junction", "nfs.gxfh3.utlfield.notjunction", FT_UINT8, BASE_HEX,
 			NULL, NFS3GX_FH_JUN_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_utlfield_ver, {
 			"file handle version","nfs.gxfh3.utlfield.version", FT_UINT8, BASE_HEX,
 			NULL, NFS3GX_FH_VER_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_volcnt, {
 			"volume count", "nfs.gxfh3.volcnt", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_epoch, {
 			"epoch", "nfs.gxfh3.epoch", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_ldsid, {
 			"  local dsid", "nfs.gxfh3.ldsid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_cid, {
 			"  cluster id", "nfs.gxfh3.cid", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_resv, {
 			"  reserved", "nfs.gxfh3.reserved", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags, {
 			"  flags", "nfs.gxfh3.sfhflags", FT_UINT8, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_resv1, {
 			"reserved", "nfs.gxfh3.sfhflags.reserve1", FT_UINT8, BASE_HEX,
 			NULL, SPINNP_FH_FLAG_RESV1, NULL, HFILL }},
@@ -10060,31 +10079,31 @@ proto_register_nfs(void)
 		{ &hf_gxfh3_sfhflags_ontap7G, {
 			"ontap-7g", "nfs.gxfh3.sfhflags.ontap7g", FT_UINT8, BASE_HEX,
 			NULL, SPINNP_FH_FLAG_ONTAP_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_ontapGX, {
 			"ontap-gx", "nfs.gxfh3.sfhflags.ontapgx", FT_UINT8, BASE_HEX,
 			NULL, SPINNP_FH_FLAG_ONTAP_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_striped, {
 			"striped", "nfs.gxfh3.sfhflags.striped", FT_BOOLEAN, 8,
 			TFS(&flags_set_truth), SPINNP_FH_FLAG_STRIPED_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_empty, {
-			"empty", "nfs.gxfh3.sfhflags.empty", FT_BOOLEAN, 8, 
+			"empty", "nfs.gxfh3.sfhflags.empty", FT_BOOLEAN, 8,
 			TFS(&flags_set_truth), SPINNP_FH_FLAG_EMPTY_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_snapdirent, {
 			"snap dir ent", "nfs.gxfh3.sfhflags.snapdirent", FT_BOOLEAN, 8,
 			TFS(&flags_set_truth), SPINNP_FH_FLAG_SNAPDIR_ENT_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_snapdir, {
 			"snap dir", "nfs.gxfh3.sfhflags.snapdir", FT_BOOLEAN, 8,
 			TFS(&flags_set_truth), SPINNP_FH_FLAG_SNAPDIR_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_sfhflags_streamdir, {
 			"stream dir", "nfs.gxfh3.sfhflags.streamdir", FT_BOOLEAN, 8,
 			TFS(&flags_set_truth), SPINNP_FH_FLAG_STREAMDIR_MASK, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_spinfid, {
 			"spin file id", "nfs.gxfh3.spinfid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -10092,7 +10111,7 @@ proto_register_nfs(void)
 		{ &hf_gxfh3_spinfuid, {
 			"spin file unique id", "nfs.gxfh3.spinfuid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
-			
+
 		{ &hf_gxfh3_exportptid, {
 			"export point id", "nfs.gxfh3.exportptid", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -10537,7 +10556,7 @@ proto_reg_handoff_nfs(void)
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
-	
+
 	/* Register the procedure tables */
 	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, hf_nfs_procedure_v2);
 	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, hf_nfs_procedure_v3);
@@ -10557,13 +10576,13 @@ proto_reg_handoff_nfs(void)
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
-	
+
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_NETAPP_V4, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
-	
+
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
 	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
 

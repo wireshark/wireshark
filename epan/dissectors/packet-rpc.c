@@ -257,7 +257,7 @@ static dissector_handle_t rpc_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
-static guint max_rpc_tcp_pdu_size = 262144;
+static guint max_rpc_tcp_pdu_size = 4 * 1024 * 1024;
 
 static const fragment_items rpc_frag_items = {
 	&ett_rpc_fragment,
