@@ -2755,6 +2755,10 @@ Sven Eckelmann		<lazhur [AT] gmx.de> {
 	B.A.T.M.A.N. dissector
 }
 
+Edward J. Paradise		<pdice [AT] cisco.com> {
+	RFC4938bis enhancements to PPPoE
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

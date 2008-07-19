@@ -65,7 +65,10 @@ static gint hf_pppoed_tag_metrics_resource = -1;
 static gint hf_pppoed_tag_metrics_latency = -1;
 static gint hf_pppoed_tag_metrics_curr_drate = -1;
 static gint hf_pppoed_tag_metrics_max_drate = -1;
+static gint hf_pppoed_tag_mdr_units = -1;
+static gint hf_pppoed_tag_cdr_units = -1;
 static gint hf_pppoed_tag_seq_num = -1;
+static gint hf_pppoed_tag_cred_scale = -1;
 static gint hf_pppoed_tag_relay_session_id = -1;
 static gint hf_pppoed_tag_hurl = -1;
 static gint hf_pppoed_tag_motm = -1;
@@ -109,6 +112,7 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_CREDITS     0x0106
 #define PPPOE_TAG_METRICS     0x0107
 #define PPPOE_TAG_SEQ_NUM     0x0108
+#define PPPOE_TAG_CRED_SCALE  0x0109
 #define PPPOE_TAG_RELAY_ID    0x0110
 #define PPPOE_TAG_HURL        0x0111
 #define PPPOE_TAG_MOTM        0x0112
@@ -117,6 +121,16 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_SVC_ERR     0x0201
 #define PPPOE_TAG_AC_ERR      0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
+
+#define PPPOE_CDR_MASK        0x06
+#define PPPOE_MDR_MASK        0x18
+#define PPPOE_RCV_ONLY_MASK   0x01
+
+#define PPPOE_SCALE_KBPS      0x00
+#define PPPOE_SCALE_MBPS      0x01
+#define PPPOE_SCALE_GBPS      0x02
+#define PPPOE_SCALE_TBPS      0x03
+
 
 static const value_string code_vals[] = {
 		{PPPOE_CODE_SESSION, "Session Data"                             },
@@ -144,6 +158,7 @@ static const value_string tag_vals[] = {
 		{PPPOE_TAG_CREDITS,    "Credits"           },
 		{PPPOE_TAG_METRICS,    "Metrics"           },
 		{PPPOE_TAG_SEQ_NUM,    "Seqence Number"    },
+		{PPPOE_TAG_CRED_SCALE, "Credit Scale Factor"},
 		{PPPOE_TAG_RELAY_ID,   "Relay-Session-Id"  },
 		{PPPOE_TAG_HURL,       "HURL"              },
 		{PPPOE_TAG_MOTM,       "MOTM"              },
@@ -155,6 +170,14 @@ static const value_string tag_vals[] = {
 		{0,                    NULL                }
 };
 
+const value_string datarate_scale_vals[] = {
+                {PPPOE_SCALE_KBPS,	"kilobits per second"},
+                {PPPOE_SCALE_MBPS,	"megabits per second"},
+                {PPPOE_SCALE_GBPS,	"gigabits per second"},
+                {PPPOE_SCALE_TBPS,	"terabits per second"},
+		{0,			NULL                 }
+};
+
 
 /* Dissect discovery protocol tags */
 static void
@@ -164,6 +187,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 	guint16 poe_tag;
 	guint16 poe_tag_length;
 	int tagstart;
+        guint16 poe_rsv = 0;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
@@ -245,7 +269,13 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				case PPPOE_TAG_METRICS:
 					if (poe_tag_length == 10)
 					{
-						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
+                                                poe_rsv = tvb_get_ntohs(tvb, tagstart+4);
+
+                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_mdr_units, tvb,
+                                                                    tagstart+4, 2, FALSE);
+                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cdr_units, tvb,
+                                                                    tagstart+4, 2, FALSE);
+                                                proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
 						                    tagstart+4, 2, FALSE);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_rlq, tvb,
 						                    tagstart+6, 1, FALSE);
@@ -253,10 +283,47 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						                    tagstart+7, 1, FALSE);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_latency, tvb,
 						                    tagstart+8, 2, FALSE);
-						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_curr_drate, tvb,
-						                    tagstart+10, 2, FALSE);
-						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_max_drate, tvb,
+
+                                                /* CDR */
+						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_curr_drate, tvb,
+                                                                         tagstart+10, 2, FALSE);
+
+                                                switch ((poe_rsv & PPPOE_CDR_MASK) >> 1)
+                                                {
+                                                case (PPPOE_SCALE_KBPS):
+                                                    proto_item_append_text(ti, " kbps");
+                                                    break;
+                                                case (PPPOE_SCALE_MBPS):
+                                                    proto_item_append_text(ti, " mbps");
+                                                    break;
+                                                case (PPPOE_SCALE_GBPS):
+                                                    proto_item_append_text(ti, " gbps");
+                                                    break;
+                                                case (PPPOE_SCALE_TBPS):
+                                                    proto_item_append_text(ti, " tbps");
+                                                    break;
+                                                }
+
+                                                /* MDR */
+						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_max_drate, tvb,
 						                    tagstart+12, 2, FALSE);
+
+                                                switch ((poe_rsv & PPPOE_MDR_MASK) >> 3)
+                                                {
+                                                case (PPPOE_SCALE_KBPS):
+                                                    proto_item_append_text(ti, " kbps");
+                                                    break;
+                                                case (PPPOE_SCALE_MBPS):
+                                                    proto_item_append_text(ti, " mbps");
+                                                    break;
+                                                case (PPPOE_SCALE_GBPS):
+                                                    proto_item_append_text(ti, " gbps");
+                                                    break;
+                                                case (PPPOE_SCALE_TBPS):
+                                                    proto_item_append_text(ti, " tbps");
+                                                    break;
+                                                }
+
 					} else {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics, tvb,
 						                    tagstart+4, poe_tag_length, FALSE);
@@ -266,6 +333,10 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_seq_num, tvb,
 					                    tagstart+4, poe_tag_length, FALSE);
 					break;
+                                case PPPOE_TAG_CRED_SCALE:
+                                        proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
+                                                            tagstart+4, poe_tag_length, FALSE);
+                                        break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
 					                    tagstart+4, poe_tag_length, FALSE);
@@ -466,12 +537,12 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_credits_fcn,
-			{ "FCN", "pppoed.tags.credits.fcn", FT_UINT16, BASE_HEX,
+			{ "FCN", "pppoed.tags.credits.fcn", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_pppoed_tag_credits_bcn,
-			{ "BCN", "pppoed.tags.credits.bcn", FT_UINT16, BASE_HEX,
+			{ "BCN", "pppoed.tags.credits.bcn", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
 		},
@@ -482,16 +553,26 @@ void proto_register_pppoed(void)
 		},
 		{ &hf_pppoed_tag_metrics_r,
 			{ "Receive Only", "pppoed.tags.metrics.r", FT_BOOLEAN, 16,
-				 NULL, 0x01, "", HFILL
+				 NULL, PPPOE_RCV_ONLY_MASK, "", HFILL
+			}
+		},
+                { &hf_pppoed_tag_mdr_units,
+			{ "MDR Units", "pppoed.tags.metrics.mdr_units", FT_UINT16, BASE_HEX,
+                                 VALS(datarate_scale_vals), PPPOE_MDR_MASK, "", HFILL
+			}
+		},
+                { &hf_pppoed_tag_cdr_units,
+			{ "CDR Units", "pppoed.tags.metrics.cdr_units", FT_UINT16, BASE_HEX,
+                                 VALS(datarate_scale_vals), PPPOE_CDR_MASK, "", HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_rlq,
-			{ "Relative Link Quality", "pppoed.tags.metrics.rlq", FT_UINT8, BASE_HEX,
+			{ "Relative Link Quality", "pppoed.tags.metrics.rlq", FT_UINT8, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_resource,
-			{ "Resource", "pppoed.tags.metrics.resource", FT_UINT8, BASE_HEX,
+			{ "Resource", "pppoed.tags.metrics.resource", FT_UINT8, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
 		},
@@ -512,6 +593,11 @@ void proto_register_pppoed(void)
 		},
 		{ &hf_pppoed_tag_seq_num,
 			{ "Sequence Number", "pppoed.tags.seq_num", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+                { &hf_pppoed_tag_cred_scale,
+			{ "Credit Scale Factor", "pppoed.tags.credit_scale", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
 		},
