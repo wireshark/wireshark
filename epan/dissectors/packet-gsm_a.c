@@ -4229,6 +4229,8 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, int ra
             wsize=7;
             imax = 29;
             break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
         }
     }
     iused = imax;   /* in case the list is actually full */
