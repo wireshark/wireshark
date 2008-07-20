@@ -4547,15 +4547,6 @@ dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   return offset;
 }
 
-
-
-static int
-dissect_dap_DAP_InvokeIDSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ros_InvokeId(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static int dissect_DirectoryBindArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {

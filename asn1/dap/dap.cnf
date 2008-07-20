@@ -7,6 +7,10 @@
 #.IMPORT	../ros/ros-exp.cnf
 #.IMPORT	../acse/acse-exp.cnf
 
+#.OMIT_ASSIGNMENT
+DAP-InvokeIDSet
+#.END
+
 #.MODULE_IMPORT
 ServiceAdministration	x509if
 AttributeCertificateDefinitions	x509af
