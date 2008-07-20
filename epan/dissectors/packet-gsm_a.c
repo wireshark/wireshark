@@ -1343,9 +1343,13 @@ static sccp_assoc_info_t* sccp_assoc;
 #define	IS_UPLINK_UNKNOWN	2
 static gint is_uplink;
 
-/* defines and nasty static for handling half octet mandatory V IEs */
-#define UPPER_NIBBLE    (-2)
-#define LOWER_NIBBLE    (-1)
+/* Defines and nasty static for handling half octet mandatory V IEs 
+ * TODO: Note origimally UPPER_NIBBLE was -2 and LOWER_NIBBLE was -1
+ * changed here to unsigned integer as it wouldn't compile (Warnings on Ubuntu)
+ * uggly hack...
+ */
+#define UPPER_NIBBLE    (2)
+#define LOWER_NIBBLE    (1)
 static gboolean lower_nibble=FALSE;
 
 typedef struct dgt_set_t
@@ -4907,17 +4911,17 @@ de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     curr_offset = offset;		
 
 	/* Cipher Mode Setting
-		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
-		 * as part of the Cipher Mode Setting IE.
-		 */
-		oct = tvb_get_guint8(tvb,curr_offset);
+	 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
+	 * as part of the Cipher Mode Setting IE.
+	 */
+	oct = tvb_get_guint8(tvb,curr_offset);
 	if (UPPER_NIBBLE==len)
 		oct>>=4;
 
 	proto_tree_add_uint(tree, hf_gsm_a_rr_sc, tvb, curr_offset, 1, oct);
 		if ( (oct & 1) == 1){ /* Start ciphering */
 			/* algorithm identifier */
-		proto_tree_add_uint(tree, hf_gsm_a_algorithm_id, tvb, curr_offset, 1, oct);
+			proto_tree_add_uint(tree, hf_gsm_a_algorithm_id, tvb, curr_offset, 1, oct);
 		}
 	curr_offset = curr_offset + 1;
 
