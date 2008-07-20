@@ -4230,6 +4230,8 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, int ra
             imax = 29;
             break;
 		default:
+            wsize=0;
+            imax = 0;
 			DISSECTOR_ASSERT_NOT_REACHED();
         }
     }
