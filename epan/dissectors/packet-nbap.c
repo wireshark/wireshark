@@ -1278,6 +1278,7 @@ static int hf_nbap_ModulationPO_MBSFN_PDU = -1;   /* ModulationPO_MBSFN */
 static int hf_nbap_MBSFN_Only_Mode_Indicator_PDU = -1;  /* MBSFN_Only_Mode_Indicator */
 static int hf_nbap_MBSFN_Only_Mode_Capability_PDU = -1;  /* MBSFN_Only_Mode_Capability */
 static int hf_nbap_Multicarrier_Number_PDU = -1;  /* Multicarrier_Number */
+static int hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU = -1;  /* MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR */
 static int hf_nbap_NCyclesPerSFNperiod_PDU = -1;  /* NCyclesPerSFNperiod */
 static int hf_nbap_NRepetitionsPerCyclePeriod_PDU = -1;  /* NRepetitionsPerCyclePeriod */
 static int hf_nbap_NeighbouringCellMeasurementInformation_PDU = -1;  /* NeighbouringCellMeasurementInformation */
@@ -37860,6 +37861,14 @@ static int dissect_Multicarrier_Number_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR(tvb, offset, &asn1_ctx, tree, hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_NCyclesPerSFNperiod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -43376,6 +43385,10 @@ void proto_register_nbap(void) {
       { "Multicarrier-Number", "nbap.Multicarrier_Number",
         FT_UINT32, BASE_DEC, NULL, 0,
         "nbap.Multicarrier_Number", HFILL }},
+    { &hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU,
+      { "MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR", "nbap.MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "nbap.MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR", HFILL }},
     { &hf_nbap_NCyclesPerSFNperiod_PDU,
       { "NCyclesPerSFNperiod", "nbap.NCyclesPerSFNperiod",
         FT_UINT32, BASE_DEC, VALS(nbap_NCyclesPerSFNperiod_vals), 0,
@@ -54992,6 +55005,7 @@ proto_reg_handoff_nbap(void)
   dissector_add("nbap.extension", id_MIMO_N_M_Ratio, new_create_dissector_handle(dissect_MIMO_N_M_Ratio_PDU, proto_nbap));
   dissector_add("nbap.extension", id_multicarrier_number, new_create_dissector_handle(dissect_Multicarrier_Number_PDU, proto_nbap));
   dissector_add("nbap.extension", id_number_Of_Supported_Carriers, new_create_dissector_handle(dissect_Number_Of_Supported_Carriers_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_multipleFreq_HSPDSCH_InformationList_ResponseTDDLCR, new_create_dissector_handle(dissect_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU, proto_nbap));
   dissector_add("nbap.extension", id_SixtyfourQAM_UsageAllowedIndicator, new_create_dissector_handle(dissect_SixtyfourQAM_UsageAllowedIndicator_PDU, proto_nbap));
   dissector_add("nbap.extension", id_SixtyfourQAM_DL_UsageIndicator, new_create_dissector_handle(dissect_SixtyfourQAM_DL_UsageIndicator_PDU, proto_nbap));
   dissector_add("nbap.extension", id_SixteenQAM_UL_Operation_Indicator, new_create_dissector_handle(dissect_SixteenQAM_UL_Operation_Indicator_PDU, proto_nbap));

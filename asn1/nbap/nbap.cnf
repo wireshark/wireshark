@@ -873,6 +873,7 @@ MIMO-Mode-Indicator													N nbap.extension id-MIMO-Mode-Indicator
 MIMO-N-M-Ratio														N nbap.extension id-MIMO-N-M-Ratio
 Multicarrier-Number													N nbap.extension id-multicarrier-number
 Number-Of-Supported-Carriers										N nbap.extension id-number-Of-Supported-Carriers
+MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR					N nbap.extension id-multipleFreq-HSPDSCH-InformationList-ResponseTDDLCR
 SixtyfourQAM-UsageAllowedIndicator									N nbap.extension id-SixtyfourQAM-UsageAllowedIndicator
 SixtyfourQAM-DL-UsageIndicator										N nbap.extension id-SixtyfourQAM-DL-UsageIndicator
 SixteenQAM-UL-Operation-Indicator									N nbap.extension id-SixteenQAM-UL-Operation-Indicator
