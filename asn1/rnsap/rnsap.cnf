@@ -492,7 +492,7 @@ DL-PowerBalancing-Information      N rnsap.extension id-DL-PowerBalancing-Inform
 HSDSCH-FDD-Information             N rnsap.extension id-HSDSCH-FDD-Information
 RL-ID                              N rnsap.extension id-HSPDSCH-RL-ID
 MBMS-Bearer-Service-List           N rnsap.extension id-MBMS-Bearer-Service-List
-EDPCH-Information-FDD              N rnsap.extension id-EDPCH-Information
+EDPCH-Information-RLReconfPrepare-FDD	N rnsap.extension id-EDPCH-Information
 EDCH-FDD-Information               N rnsap.extension id-EDCH-FDD-Information
 EDCH-Serving-RL                    N rnsap.extension id-Serving-EDCHRL-Id
 F-DPCH-Information-RL-SetupRqstFDD N rnsap.extension id-F-DPCH-Information-RL-SetupRqstFDD
