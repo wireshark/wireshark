@@ -628,25 +628,23 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     toolbar               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
     toolbar_cm            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-#define CANT_SAVE_ERR_STR "Cannot save configuration!\n" \
-	"In order to store the configuration in the registry you must:\n\n" \
-	"- Close all the airpcap-based applications.\n"\
-	"- Have administrative privileges."
+#define CANT_SAVE_ERR_STR "Cannot save configuration! Another application" \
+    "might be using AirPcap, or you might not have sufficient privileges."
     /* Set the Decryption Mode */
     if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
     else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
     {
         set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(TRUE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(TRUE)) g_warning(CANT_SAVE_ERR_STR);
     }
     else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
     {
         set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
 
     /* Save the configuration */
@@ -1791,17 +1789,17 @@ on_enable_decryption_en_changed(GtkWidget *w, gpointer data)
     if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
     else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
     {
         set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(TRUE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(TRUE)) g_warning(CANT_SAVE_ERR_STR);
     }
     else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
     {
         set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
 
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -1825,7 +1823,7 @@ update_decryption_mode_cm(GtkWidget *w)
     {
         gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
         /* We don't know if AirPcap decryption is on or off, but we just turn it off */
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
+        if (!set_airpcap_decryption(FALSE)) g_warning(CANT_SAVE_ERR_STR);
     }
     /* AirPcap decryption is on */
     else if (airpcap_decryption_on())
