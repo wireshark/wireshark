@@ -11,6 +11,13 @@ MTSAbstractService	x411
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../acse/acse-exp.cnf
 
+#.OMIT_ASSIGNMENT
+# These gives unused code warnings
+RN
+NRN
+ON
+ID
+#.END
 #.EXPORTS
 ORDescriptor
 InformationObject
@@ -63,17 +70,17 @@ ForwardedContentToken/_item/body-part-choice/message-or-content-body-part	forwar
 ForwardedContentToken/_item/body-part-choice	T_body_part_token_choice
 
 #.REGISTER
-AbsenceAdvice			B "2.6.1.19.0"  "id-on-absence-advice"
-ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
-IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
+AbsenceAdvice				B "2.6.1.19.0"  "id-on-absence-advice"
+ChangeOfAddressAdvice		B "2.6.1.19.1"  "id-on-change-of-address-advice"
+IPMAssemblyInstructions		B "2.6.1.17.2"  "id-mst-assembly-instructions"
 
-IncompleteCopy			B "2.6.1.5.0"	"id-hex-incomplete-copy"
-Languages				B "2.6.1.5.1"	"id-hex-languages"
-AutoSubmitted			B "2.6.1.5.2"	"id-hex-auto-submitted"
-BodyPartSignatures		B "2.6.1.5.3"	"id-hex-body-part-signatures"
-IPMSecurityLabel		B "2.6.1.5.4"	"id-hex-ipm-security-label"
-AuthorizationTime		B "2.6.1.5.5"	"id-hex-authorization-time"
-CirculationList			B "2.6.1.5.6"	"id-hex-circulation-list-recipients"
+IncompleteCopy				B "2.6.1.5.0"	"id-hex-incomplete-copy"
+Languages					B "2.6.1.5.1"	"id-hex-languages"
+AutoSubmitted				B "2.6.1.5.2"	"id-hex-auto-submitted"
+BodyPartSignatures			B "2.6.1.5.3"	"id-hex-body-part-signatures"
+IPMSecurityLabel			B "2.6.1.5.4"	"id-hex-ipm-security-label"
+AuthorizationTime			B "2.6.1.5.5"	"id-hex-authorization-time"
+CirculationList				B "2.6.1.5.6"	"id-hex-circulation-list-recipients"
 CirculationListIndicator	B "2.6.1.20.0"	"id-rex-circulation-list-indicator"
 DistributionCodes			B "2.6.1.5.7"	"id-hex-distribution-codes"
 ExtendedSubject				B "2.6.1.5.8"	"id-hex-extended-subject"
@@ -101,8 +108,8 @@ BilaterallyDefinedBodyPart 	B "2.6.1.4.9" 	"id-et-bilaterally-defined"
 
 GeneralTextParameters		B "2.6.1.11.11"	"id-ep-general-text"
 GeneralTextData				B "2.6.1.4.11"	"id-et-general-text"
-FileTransferParameters	B	"2.6.1.11.12"	"id-ep-file-transfer"
-FileTransferData	B	"2.6.1.4.12"	"id-et-file-transfer"
+FileTransferParameters		B "2.6.1.11.12"	"id-ep-file-transfer"
+FileTransferData			B "2.6.1.4.12"	"id-et-file-transfer"
 # {id-et 13} is no longer defined
 # ForwardedReportBodyPart {id-et 14} defined in x411.cnf
 MessageParameters 			B "2.6.1.11.15" "id-ep-notification"
@@ -122,53 +129,77 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 # PKCS#7Bodypart {id-et 18} defined in cms.cnf
 
 # Message Store Attributes
-IPMEntryType		B	"2.6.1.6.0"	"id-sat-ipm-entry-type"
-IPMSynopsis		B	"2.6.1.6.1"	"id-sat-ipm-synopsis"
-BodyPartDescriptor	B	"2.6.1.6.2"	"id-sat-body-parts-summary"
-#Boolean		B	"2.6.1.6.3"	"id-sat-ipm-auto-discarded" - see x509sat.cnf
+IPMEntryType				B	"2.6.1.6.0"	"id-sat-ipm-entry-type"
+IPMSynopsis					B	"2.6.1.6.1"	"id-sat-ipm-synopsis"
+BodyPartDescriptor			B	"2.6.1.6.2"	"id-sat-body-parts-summary"
+#Boolean					B	"2.6.1.6.3"	"id-sat-ipm-auto-discarded" - see x509sat.cnf
 
-Heading				B	"2.6.1.7.0"	"id-hat-heading"
-ThisIPMField			B	"2.6.1.7.1"	"id-hat-this-ipm"
-OriginatorField			B	"2.6.1.7.2"	"id-hat-originator"
-RepliedToIPMField		B	"2.6.1.7.3"	"id-hat-replied-to-IPM"
-SubjectField			B	"2.6.1.7.4"	"id-hat-subject"
-ExpiryTimeField			B	"2.6.1.7.5"	"id-hat-expiry-time"
-ReplyTimeField			B	"2.6.1.7.6"	"id-hat-reply-time"
-ImportanceField			B	"2.6.1.7.7"	"id-hat-importance"
-SensitivityField		B	"2.6.1.7.8"	"id-hat-sensitivity"
-AutoForwardedField		B	"2.6.1.7.9"	"id-hat-auto-forwarded"
+Heading						B	"2.6.1.7.0"	"id-hat-heading"
+ThisIPMField				B	"2.6.1.7.1"	"id-hat-this-ipm"
+OriginatorField				B	"2.6.1.7.2"	"id-hat-originator"
+RepliedToIPMField			B	"2.6.1.7.3"	"id-hat-replied-to-IPM"
+SubjectField				B	"2.6.1.7.4"	"id-hat-subject"
+ExpiryTimeField				B	"2.6.1.7.5"	"id-hat-expiry-time"
+ReplyTimeField				B	"2.6.1.7.6"	"id-hat-reply-time"
+ImportanceField				B	"2.6.1.7.7"	"id-hat-importance"
+SensitivityField			B	"2.6.1.7.8"	"id-hat-sensitivity"
+AutoForwardedField			B	"2.6.1.7.9"	"id-hat-auto-forwarded"
 AuthorizingUsersSubfield	B	"2.6.1.7.10"	"id-hat-authorizing-users"
 PrimaryRecipientsSubfield	B	"2.6.1.7.11"	"id-hat-primary-recipients"
 CopyRecipientsSubfield		B	"2.6.1.7.12"	"id-hat-copy-recipients"
 BlindCopyRecipientsSubfield	B	"2.6.1.7.13"	"id-hat-blind-copy-recipients"
 ObsoletedIPMsSubfield		B	"2.6.1.7.14"	"id-hat-obsoleted-IPMs"
-RelatedIPMsSubfield		B	"2.6.1.7.15"	"id-hat-related-IPMs"
+RelatedIPMsSubfield			B	"2.6.1.7.15"	"id-hat-related-IPMs"
 ReplyRecipientsSubfield		B	"2.6.1.7.16"	"id-hat-reply-recipients"
-IncompleteCopy			B	"2.6.1.7.17"	"id-hat-incomplete-copy"
-Language			B	"2.6.1.7.18"	"id-hat-languages"
-ORDescriptor			B	"2.6.1.7.19"	"id-hat-rn-requestors"
-ORDescriptor			B	"2.6.1.7.20"	"id-hat-nrn-requestors"
-ORDescriptor			B	"2.6.1.7.21"	"id-hat-reply-requestors"
-AutoSubmitted			B	"2.6.1.7.22"	"id-hat-auto-submitted"
-BodyPartSignatures		B	"2.6.1.7.23"	"id-hat-body-part-signatures"
-IPMSecurityLabel		B	"2.6.1.7.24"	"id-hat-ipm-security-label"
+IncompleteCopy				B	"2.6.1.7.17"	"id-hat-incomplete-copy"
+Language					B	"2.6.1.7.18"	"id-hat-languages"
+ORDescriptor				B	"2.6.1.7.19"	"id-hat-rn-requestors"
+ORDescriptor				B	"2.6.1.7.20"	"id-hat-nrn-requestors"
+ORDescriptor				B	"2.6.1.7.21"	"id-hat-reply-requestors"
+AutoSubmitted				B	"2.6.1.7.22"	"id-hat-auto-submitted"
+BodyPartSignatures			B	"2.6.1.7.23"	"id-hat-body-part-signatures"
+IPMSecurityLabel			B	"2.6.1.7.24"	"id-hat-ipm-security-label"
 BodyPartSecurityLabel		B	"2.6.1.7.25"	"id-hat-body-part-security-label"
-BodyPartTokens			B	"2.6.1.7.26"	"id-hat-body-part-encryption-token"
-AuthorizationTime		B	"2.6.1.7.27"	"id-hat-authorization-time"
-CirculationMember		B	"2.6.1.7.28"	"id-hat-circulation-list-recipients"
-DistributionCode		B	"2.6.1.7.29"	"id-hat-distribution-codes"
-ExtendedSubject			B	"2.6.1.7.30"	"id-hat-extended-subject"
-InformationCategory		B	"2.6.1.7.31"	"id-hat-information-category"
+BodyPartTokens				B	"2.6.1.7.26"	"id-hat-body-part-encryption-token"
+AuthorizationTime			B	"2.6.1.7.27"	"id-hat-authorization-time"
+CirculationMember			B	"2.6.1.7.28"	"id-hat-circulation-list-recipients"
+DistributionCode			B	"2.6.1.7.29"	"id-hat-distribution-codes"
+ExtendedSubject				B	"2.6.1.7.30"	"id-hat-extended-subject"
+InformationCategory			B	"2.6.1.7.31"	"id-hat-information-category"
 ManualHandlingInstruction	B	"2.6.1.7.32"	"id-hat-manual-handling-instructions"
 OriginatorsReference		B	"2.6.1.7.33"	"id-hat-originators-reference"
 PrecedencePolicyIdentifier	B	"2.6.1.7.34"	"id-hat-precedence-policy-id"
 ForwardedContentToken		B	"2.6.1.7.35"	"id-hat-forwarded-content-token"
-#MessageToken			B	"2.6.1.7.36"	"id-hat-forwarded-token" - see x411.cnf
-Precedence			B	"2.6.1.7.37"	"id-hat-precedence"
+#MessageToken				B	"2.6.1.7.36"	"id-hat-forwarded-token" - see x411.cnf
+Precedence					B	"2.6.1.7.37"	"id-hat-precedence"
 BodyPartSignatureVerification	B	"2.6.1.7.38"	"id-hat-body-part-signature-verification-status"
 
-Body			B	"2.6.1.8.0"	"id-bat-body"
+Body						B	"2.6.1.8.0"	"id-bat-body"
 
+# id-cat ID ::= {id-ipms  13} -- correlation attributes
+CorrelatedDeliveredIPNs		B	"2.6.1.13.0"	"id-cat-correlated-delivered-ipns"
+CorrelatedDeliveredReplies	B	"2.6.1.13.1"	"id-cat-correlated-delivered-replies"
+DeliveredIPNStatus			B	"2.6.1.13.2"	"id-cat-delivered-ipn-summary"
+DeliveredReplyStatus		B	"2.6.1.13.3"	"id-cat-delivered-replies-summary"
+#SequenceNumber				B	"2.6.1.13.4"	"id-cat-forwarded-ipms"
+#SequenceNumber				B	"2.6.1.13.5"	"id-cat-forwarding-ipms"
+#ORDescriptor				B	"2.6.1.13.6"	"id-cat-ipm-recipients"
+IPMLocation					B	"2.6.1.13.7"	"id-cat-obsoleted-ipms"
+#SequenceNumber				B	"2.6.1.13.8"	"id-cat-obsoleting-ipms"
+#IPMLocation				B	"2.6.1.13.9"	"id-cat-related-ipms"
+#SequenceNumber				B	"2.6.1.13.10"	"id-cat-relating-ipms"
+#SequenceNumber				B	"2.6.1.13.11"	"id-cat-replied-to-ipm"
+#id-cat-replying-ipms		B	"2.6.1.13.12"	"id-cat-replying-ipms"
+#ReplyTimeField				B	"2.6.1.13.13"	"id-cat-revised-reply-time"
+SubmittedIPNStatus			B	"2.6.1.13.14"	"id-cat-submitted-ipn-status"
+#SequenceNumber				B	"2.6.1.13.15"	"id-cat-submitted-ipns"
+SubmittedReplyStatus		B	"2.6.1.13.16"	"id-cat-submitted-reply-status"
+#SequenceNumber				B	"2.6.1.13.17"	"id-cat-subject-ipm"
+RecipientCategory			B	"2.6.1.13.18"	"id-cat-recipient-category"
+
+# id-sec ID ::= {id-ipms  18} -- ipm security extensions
+RecipientSecurityRequest	B	"2.6.1.18.0"	"id-sec-ipm-security-request"
+IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
 #.FN_PARS IPMSExtension/type
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id

@@ -168,6 +168,16 @@ static int hf_x420_IPMEntryType_PDU = -1;         /* IPMEntryType */
 static int hf_x420_IPMSynopsis_PDU = -1;          /* IPMSynopsis */
 static int hf_x420_BodyPartDescriptor_PDU = -1;   /* BodyPartDescriptor */
 static int hf_x420_BodyPartSignatureVerification_PDU = -1;  /* BodyPartSignatureVerification */
+static int hf_x420_IPMLocation_PDU = -1;          /* IPMLocation */
+static int hf_x420_DeliveredReplyStatus_PDU = -1;  /* DeliveredReplyStatus */
+static int hf_x420_CorrelatedDeliveredReplies_PDU = -1;  /* CorrelatedDeliveredReplies */
+static int hf_x420_DeliveredIPNStatus_PDU = -1;   /* DeliveredIPNStatus */
+static int hf_x420_CorrelatedDeliveredIPNs_PDU = -1;  /* CorrelatedDeliveredIPNs */
+static int hf_x420_SubmittedReplyStatus_PDU = -1;  /* SubmittedReplyStatus */
+static int hf_x420_SubmittedIPNStatus_PDU = -1;   /* SubmittedIPNStatus */
+static int hf_x420_RecipientCategory_PDU = -1;    /* RecipientCategory */
+static int hf_x420_RecipientSecurityRequest_PDU = -1;  /* RecipientSecurityRequest */
+static int hf_x420_IpnSecurityResponse_PDU = -1;  /* IpnSecurityResponse */
 static int hf_x420_BodyPartTokens_PDU = -1;       /* BodyPartTokens */
 static int hf_x420_ForwardedContentToken_PDU = -1;  /* ForwardedContentToken */
 static int hf_x420_ipm = -1;                      /* IPM */
@@ -778,7 +788,7 @@ dissect_x420_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 177 "x420.cnf"
+#line 208 "x420.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -796,7 +806,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 185 "x420.cnf"
+#line 216 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -973,7 +983,7 @@ dissect_x420_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 207 "x420.cnf"
+#line 238 "x420.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1176,7 +1186,7 @@ dissect_x420_IA5TextBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_x420_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1239,7 +1249,7 @@ dissect_x420_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "x420.cnf"
+#line 256 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1328,7 +1338,7 @@ static const value_string x420_VideotexSyntax_vals[] = {
 static int
 dissect_x420_VideotexSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1480,7 +1490,7 @@ dissect_x420_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 228 "x420.cnf"
+#line 259 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1594,7 +1604,7 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "x420.cnf"
+#line 220 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
@@ -1866,7 +1876,7 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 197 "x420.cnf"
+#line 228 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
@@ -1898,33 +1908,6 @@ dissect_x420_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  InformationObject_choice, hf_index, ett_x420_InformationObject,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x420_RN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x420_IPN(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x420_NRN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x420_IPN(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x420_ON(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x420_IPN(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -1982,7 +1965,7 @@ dissect_x420_ChangeOfAddressAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_x420_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1992,7 +1975,7 @@ dissect_x420_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_x420_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2487,7 +2470,7 @@ dissect_x420_PrecedencePolicyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int
 dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2496,10 +2479,10 @@ dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "x420.cnf"
+#line 249 "x420.cnf"
   guint32 crs;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &crs);
+                                                &crs);
 
 
   if(actx->created_item)
@@ -2669,7 +2652,7 @@ static const value_string x420_ExplicitRelationship_vals[] = {
 static int
 dissect_x420_ExplicitRelationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2737,7 +2720,7 @@ dissect_x420_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x420_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "x420.cnf"
+#line 262 "x420.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -2893,7 +2876,7 @@ dissect_x420_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x420_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 234 "x420.cnf"
+#line 265 "x420.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 
@@ -2905,7 +2888,7 @@ dissect_x420_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 237 "x420.cnf"
+#line 268 "x420.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -3463,7 +3446,7 @@ static const value_string x420_DeliveredReplyStatus_vals[] = {
 static int
 dissect_x420_DeliveredReplyStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3520,7 +3503,7 @@ static const value_string x420_DeliveredIPNStatus_vals[] = {
 static int
 dissect_x420_DeliveredIPNStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3560,7 +3543,7 @@ static const value_string x420_SubmittedReplyStatus_vals[] = {
 static int
 dissect_x420_SubmittedReplyStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3582,7 +3565,7 @@ static const value_string x420_SubmittedIPNStatus_vals[] = {
 static int
 dissect_x420_SubmittedIPNStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3601,7 +3584,7 @@ static const value_string x420_RecipientCategory_vals[] = {
 static int
 dissect_x420_RecipientCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3740,7 +3723,7 @@ static const value_string x420_SecurityDiagnosticCode_vals[] = {
 static int
 dissect_x420_SecurityDiagnosticCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3875,15 +3858,6 @@ static int
 dissect_x420_ForwardedContentToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ForwardedContentToken_set_of, hf_index, ett_x420_ForwardedContentToken);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x420_ID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -4245,6 +4219,56 @@ static void dissect_BodyPartSignatureVerification_PDU(tvbuff_t *tvb _U_, packet_
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x420_BodyPartSignatureVerification(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_BodyPartSignatureVerification_PDU);
 }
+static void dissect_IPMLocation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_IPMLocation(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_IPMLocation_PDU);
+}
+static void dissect_DeliveredReplyStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_DeliveredReplyStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_DeliveredReplyStatus_PDU);
+}
+static void dissect_CorrelatedDeliveredReplies_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_CorrelatedDeliveredReplies(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_CorrelatedDeliveredReplies_PDU);
+}
+static void dissect_DeliveredIPNStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_DeliveredIPNStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_DeliveredIPNStatus_PDU);
+}
+static void dissect_CorrelatedDeliveredIPNs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_CorrelatedDeliveredIPNs(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_CorrelatedDeliveredIPNs_PDU);
+}
+static void dissect_SubmittedReplyStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_SubmittedReplyStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_SubmittedReplyStatus_PDU);
+}
+static void dissect_SubmittedIPNStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_SubmittedIPNStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_SubmittedIPNStatus_PDU);
+}
+static void dissect_RecipientCategory_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_RecipientCategory(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_RecipientCategory_PDU);
+}
+static void dissect_RecipientSecurityRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_RecipientSecurityRequest(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_RecipientSecurityRequest_PDU);
+}
+static void dissect_IpnSecurityResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x420_IpnSecurityResponse(FALSE, tvb, 0, &asn1_ctx, tree, hf_x420_IpnSecurityResponse_PDU);
+}
 static void dissect_BodyPartTokens_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -4579,6 +4603,46 @@ void proto_register_x420(void) {
       { "BodyPartSignatureVerification", "x420.BodyPartSignatureVerification",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x420.BodyPartSignatureVerification", HFILL }},
+    { &hf_x420_IPMLocation_PDU,
+      { "IPMLocation", "x420.IPMLocation",
+        FT_UINT32, BASE_DEC, VALS(x420_IPMLocation_vals), 0,
+        "x420.IPMLocation", HFILL }},
+    { &hf_x420_DeliveredReplyStatus_PDU,
+      { "DeliveredReplyStatus", "x420.DeliveredReplyStatus",
+        FT_INT32, BASE_DEC, VALS(x420_DeliveredReplyStatus_vals), 0,
+        "x420.DeliveredReplyStatus", HFILL }},
+    { &hf_x420_CorrelatedDeliveredReplies_PDU,
+      { "CorrelatedDeliveredReplies", "x420.CorrelatedDeliveredReplies",
+        FT_UINT32, BASE_DEC, VALS(x420_CorrelatedDeliveredReplies_vals), 0,
+        "x420.CorrelatedDeliveredReplies", HFILL }},
+    { &hf_x420_DeliveredIPNStatus_PDU,
+      { "DeliveredIPNStatus", "x420.DeliveredIPNStatus",
+        FT_INT32, BASE_DEC, VALS(x420_DeliveredIPNStatus_vals), 0,
+        "x420.DeliveredIPNStatus", HFILL }},
+    { &hf_x420_CorrelatedDeliveredIPNs_PDU,
+      { "CorrelatedDeliveredIPNs", "x420.CorrelatedDeliveredIPNs",
+        FT_UINT32, BASE_DEC, VALS(x420_CorrelatedDeliveredIPNs_vals), 0,
+        "x420.CorrelatedDeliveredIPNs", HFILL }},
+    { &hf_x420_SubmittedReplyStatus_PDU,
+      { "SubmittedReplyStatus", "x420.SubmittedReplyStatus",
+        FT_INT32, BASE_DEC, VALS(x420_SubmittedReplyStatus_vals), 0,
+        "x420.SubmittedReplyStatus", HFILL }},
+    { &hf_x420_SubmittedIPNStatus_PDU,
+      { "SubmittedIPNStatus", "x420.SubmittedIPNStatus",
+        FT_INT32, BASE_DEC, VALS(x420_SubmittedIPNStatus_vals), 0,
+        "x420.SubmittedIPNStatus", HFILL }},
+    { &hf_x420_RecipientCategory_PDU,
+      { "RecipientCategory", "x420.RecipientCategory",
+        FT_INT32, BASE_DEC, VALS(x420_RecipientCategory_vals), 0,
+        "x420.RecipientCategory", HFILL }},
+    { &hf_x420_RecipientSecurityRequest_PDU,
+      { "RecipientSecurityRequest", "x420.RecipientSecurityRequest",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "x420.RecipientSecurityRequest", HFILL }},
+    { &hf_x420_IpnSecurityResponse_PDU,
+      { "IpnSecurityResponse", "x420.IpnSecurityResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x420.IpnSecurityResponse", HFILL }},
     { &hf_x420_BodyPartTokens_PDU,
       { "BodyPartTokens", "x420.BodyPartTokens",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6008,6 +6072,16 @@ void proto_reg_handoff_x420(void) {
   register_ber_oid_dissector("2.6.1.7.37", dissect_Precedence_PDU, proto_x420, "id-hat-precedence");
   register_ber_oid_dissector("2.6.1.7.38", dissect_BodyPartSignatureVerification_PDU, proto_x420, "id-hat-body-part-signature-verification-status");
   register_ber_oid_dissector("2.6.1.8.0", dissect_Body_PDU, proto_x420, "id-bat-body");
+  register_ber_oid_dissector("2.6.1.13.0", dissect_CorrelatedDeliveredIPNs_PDU, proto_x420, "id-cat-correlated-delivered-ipns");
+  register_ber_oid_dissector("2.6.1.13.1", dissect_CorrelatedDeliveredReplies_PDU, proto_x420, "id-cat-correlated-delivered-replies");
+  register_ber_oid_dissector("2.6.1.13.2", dissect_DeliveredIPNStatus_PDU, proto_x420, "id-cat-delivered-ipn-summary");
+  register_ber_oid_dissector("2.6.1.13.3", dissect_DeliveredReplyStatus_PDU, proto_x420, "id-cat-delivered-replies-summary");
+  register_ber_oid_dissector("2.6.1.13.7", dissect_IPMLocation_PDU, proto_x420, "id-cat-obsoleted-ipms");
+  register_ber_oid_dissector("2.6.1.13.14", dissect_SubmittedIPNStatus_PDU, proto_x420, "id-cat-submitted-ipn-status");
+  register_ber_oid_dissector("2.6.1.13.16", dissect_SubmittedReplyStatus_PDU, proto_x420, "id-cat-submitted-reply-status");
+  register_ber_oid_dissector("2.6.1.13.18", dissect_RecipientCategory_PDU, proto_x420, "id-cat-recipient-category");
+  register_ber_oid_dissector("2.6.1.18.0", dissect_RecipientSecurityRequest_PDU, proto_x420, "id-sec-ipm-security-request");
+  register_ber_oid_dissector("2.6.1.18.1", dissect_IpnSecurityResponse_PDU, proto_x420, "id-sec-security-common-fields");
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
