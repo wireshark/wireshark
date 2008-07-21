@@ -428,12 +428,11 @@ DL-Power                           N rnsap.extension id-Minimum-DL-Power-Timeslo
 DSCH-InitialWindowSize             N rnsap.extension id-DSCH-InitialWindowSize
 BindingID                          N rnsap.extension id-BindingID
 TransportLayerAddress              N rnsap.extension id-TransportLayerAddress
-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator N rnsap.extension id-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator
-E-DCH-PowerOffset-for-SchedulingInfo N rnsap.extension id-E-DCH-PowerOffset-for-SchedulingInfo
-TrCH-SrcStatisticsDescr            N rnsap.extension id-TrCH-SrcStatisticsDescr
-E-DCH-Minimum-Set-E-TFCIValidityIndicator N rnsap.extension id-E-DCH-Minimum-Set-E-TFCIValidityIndicator
-E-TFCI-BetaEC-Boost                N rnsap.extension id-E-TFCI-BetaEC-Boost
-E-DCH-MACdFlow-Retransmission-Timer-LCR N rnsap.extension id-eDCH-MACdFlow-Retransmission-Timer-LCR
+E-RGCH-E-HICH-ChannelisationCodeValidityIndicator	N rnsap.extension id-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator
+E-DCH-PowerOffset-for-SchedulingInfo				N rnsap.extension id-E-DCH-PowerOffset-for-SchedulingInfo
+TrCH-SrcStatisticsDescr								N rnsap.extension id-TrCH-SrcStatisticsDescr
+E-DCH-Minimum-Set-E-TFCIValidityIndicator			N rnsap.extension id-E-DCH-Minimum-Set-E-TFCIValidityIndicator
+E-DCH-MACdFlow-Retransmission-Timer-LCR				N rnsap.extension id-eDCH-MACdFlow-Retransmission-Timer-LCR
 Satellite-Almanac-Information-ExtItem N rnsap.extension id-Satellite-Almanac-Information-ExtItem
 HARQ-Preamble-Mode                 N rnsap.extension id-HARQ-Preamble-Mode
 HSDSCH-MACdPDUSizeFormat           N rnsap.extension id-HSDSCH-MACdPDUSizeFormat

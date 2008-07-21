@@ -911,7 +911,6 @@ static int hf_rnsap_EDCH_Serving_RL_PDU = -1;     /* EDCH_Serving_RL */
 static int hf_rnsap_Enhanced_FACH_Information_ResponseFDD_PDU = -1;  /* Enhanced_FACH_Information_ResponseFDD */
 static int hf_rnsap_Enhanced_FACH_Support_Indicator_PDU = -1;  /* Enhanced_FACH_Support_Indicator */
 static int hf_rnsap_Enhanced_PCH_Capability_PDU = -1;  /* Enhanced_PCH_Capability */
-static int hf_rnsap_E_TFCI_BetaEC_Boost_PDU = -1;  /* E_TFCI_BetaEC_Boost */
 static int hf_rnsap_E_TFCI_Boost_Information_PDU = -1;  /* E_TFCI_Boost_Information */
 static int hf_rnsap_E_DCH_Minimum_Set_E_TFCIValidityIndicator_PDU = -1;  /* E_DCH_Minimum_Set_E_TFCIValidityIndicator */
 static int hf_rnsap_Enhanced_PrimaryCPICH_EcNo_PDU = -1;  /* Enhanced_PrimaryCPICH_EcNo */
@@ -31395,14 +31394,6 @@ static int dissect_Enhanced_PCH_Capability_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_E_TFCI_BetaEC_Boost_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_rnsap_E_TFCI_BetaEC_Boost(tvb, offset, &asn1_ctx, tree, hf_rnsap_E_TFCI_BetaEC_Boost_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_E_TFCI_Boost_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -35995,10 +35986,6 @@ void proto_register_rnsap(void) {
       { "Enhanced-PCH-Capability", "rnsap.Enhanced_PCH_Capability",
         FT_UINT32, BASE_DEC, VALS(rnsap_Enhanced_PCH_Capability_vals), 0,
         "rnsap.Enhanced_PCH_Capability", HFILL }},
-    { &hf_rnsap_E_TFCI_BetaEC_Boost_PDU,
-      { "E-TFCI-BetaEC-Boost", "rnsap.E_TFCI_BetaEC_Boost",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "rnsap.E_TFCI_BetaEC_Boost", HFILL }},
     { &hf_rnsap_E_TFCI_Boost_Information_PDU,
       { "E-TFCI-Boost-Information", "rnsap.E_TFCI_Boost_Information",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -45700,7 +45687,6 @@ proto_reg_handoff_rnsap(void)
   dissector_add("rnsap.extension", id_E_DCH_PowerOffset_for_SchedulingInfo, new_create_dissector_handle(dissect_E_DCH_PowerOffset_for_SchedulingInfo_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_TrCH_SrcStatisticsDescr, new_create_dissector_handle(dissect_TrCH_SrcStatisticsDescr_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_E_DCH_Minimum_Set_E_TFCIValidityIndicator, new_create_dissector_handle(dissect_E_DCH_Minimum_Set_E_TFCIValidityIndicator_PDU, proto_rnsap));
-  dissector_add("rnsap.extension", id-E-TFCI-BetaEC-Boost, new_create_dissector_handle(dissect_E_TFCI_BetaEC_Boost_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_eDCH_MACdFlow_Retransmission_Timer_LCR, new_create_dissector_handle(dissect_E_DCH_MACdFlow_Retransmission_Timer_LCR_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_Satellite_Almanac_Information_ExtItem, new_create_dissector_handle(dissect_Satellite_Almanac_Information_ExtItem_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_HARQ_Preamble_Mode, new_create_dissector_handle(dissect_HARQ_Preamble_Mode_PDU, proto_rnsap));
