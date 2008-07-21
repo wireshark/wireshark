@@ -692,9 +692,9 @@ process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-2.16.3.zip
+		glib gtk2.12/glib-2.16.5.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-dev-2.16.3.zip
+		glib gtk2.12/glib-dev-2.16.5.zip
 !ELSEIF "$(GTK_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.13.zip
@@ -756,9 +756,9 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-2.12.10.zip
+		gtk2 gtk2.12/gtk+-2.12.11.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-dev-2.12.10.zip
+		gtk2 gtk2.12/gtk+-dev-2.12.11.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/cairo-1.6.4-2.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -793,9 +793,9 @@ process_libs:
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.20"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-1.20.3.zip
+		gtk2 gtk2.12/pango-1.20.5.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-dev-1.20.3.zip
+		gtk2 gtk2.12/pango-dev-1.20.5.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-1.16.4.zip
