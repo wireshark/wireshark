@@ -4,6 +4,8 @@ MTSAbstractService	x411
 #.IMPORT ../x411/x411-exp.cnf
 #.IMPORT ../x420/x420-exp.cnf
 
+
+#.END
 #.TYPE_RENAME
 AddressListDesignator/type	AddressListType
 OtherRecipientDesignator/type	OtherRecipientType
@@ -17,16 +19,16 @@ OtherRecipientDesignator/type	other_recipient_type
 PrimaryPrecedence
 CopyPrecedence
 MessageType
-AddressListDesignator
-ExemptedAddress
+#AddressListDesignator
+#ExemptedAddress
 ExtendedAuthorisationInfo
 DistributionCodes
 HandlingInstructions
 MessageInstructions
 CodressMessage
 OriginatorReference
-OtherRecipientDesignator
-PilotInformation
+#OtherRecipientDesignator
+#PilotInformation
 Acp127MessageIdentifier
 OriginatorPlad
 Acp127NotificationType
