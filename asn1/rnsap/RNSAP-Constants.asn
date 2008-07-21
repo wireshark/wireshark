@@ -1,7 +1,7 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V7.5.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-750.zip/25423-750.DOC
+-- Taken from 3GPP TS 25.423 V7.9.0 (2008-06-13)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.6	Constant Definitions
 --
@@ -179,9 +179,19 @@ maxNrOfHS-DSCHTBSs						INTEGER ::= 90
 maxNrOfHS-DSCHTBSs-HS-SCCHless			INTEGER ::= 4
 maxHS-PDSCHCodeNrComp-1					INTEGER ::= 15
 maxNrOfEHICHCodes						INTEGER ::= 4
-maxGANSSSat								INTEGER ::= 32
+maxGANSSSat								INTEGER ::= 64
 maxNoGANSS								INTEGER ::= 8
-maxSgnType								INTEGER ::= 4
+maxSgnType								INTEGER ::= 8
+maxNrOfBroadcastPLMNs					INTEGER ::= 5
+maxHSDPAFrequency						INTEGER ::= 8
+maxHSDPAFrequency-1						INTEGER ::= 7
+maxFrequencyinCell						INTEGER ::= 12
+maxFrequencyinCell-1					INTEGER ::= 11
+maxGANSSSatAlmanac						INTEGER ::= 36
+maxGANSSClockMod						INTEGER ::= 4
+maxNrOfEDCHRLs							INTEGER ::= 4
+
+
 
 
 
@@ -711,9 +721,7 @@ id-Continuous-Packet-Connectivity-DTX-DRX-Information						ProtocolIE-ID ::= 670
 id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information					ProtocolIE-ID ::= 671
 id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response			ProtocolIE-ID ::= 672
 id-CPC-Information															ProtocolIE-ID ::= 673
-id-MIMO-Information															ProtocolIE-ID ::= 674
 id-MIMO-InformationResponse													ProtocolIE-ID ::= 675
-id-MIMO-InformationToModify													ProtocolIE-ID ::= 676
 id-E-DCH-LCR-Information													ProtocolIE-ID ::= 677
 id-E-DCH-LCR-Information-Reconfig											ProtocolIE-ID ::= 678
 id-E-DCH-LCR-Information-Response											ProtocolIE-ID ::= 679
@@ -724,22 +732,58 @@ id-Extended-RNC-ID															ProtocolIE-ID ::= 683
 id-SixtyfourQAM-DL-SupportIndicator											ProtocolIE-ID ::= 684
 id-Enhanced-FACH-Support-Indicator											ProtocolIE-ID ::= 685
 id-Enhanced-FACH-Information-ResponseFDD									ProtocolIE-ID ::= 686
-id-SixteenQAM-UL-Information												ProtocolIE-ID ::= 688
 id-HSDSCH-MACdPDUSizeFormat													ProtocolIE-ID ::= 690
 id-MaximumMACdPDU-SizeExtended												ProtocolIE-ID ::= 691
 id-F-DPCH-SlotFormat														ProtocolIE-ID ::= 692
 id-F-DPCH-SlotFormatSupportRequest											ProtocolIE-ID ::= 693
 id-eDCH-MACdFlow-Retransmission-Timer-LCR									ProtocolIE-ID ::= 694
 id-Max-UE-DTX-Cycle															ProtocolIE-ID ::= 695
-id-SixteenQAM-UL-Information-to-Modify										ProtocolIE-ID ::= 696
-id-E-TFCI-BetaEC-Boost														ProtocolIE-ID ::= 697
-id-E-TFCI-BetaED-Switch														ProtocolIE-ID ::= 698
 id-GANSS-Common-Data														ProtocolIE-ID ::= 699
 id-GANSS-Information														ProtocolIE-ID ::= 700
 id-GANSS-Generic-Data														ProtocolIE-ID ::= 701
 id-TUTRANGANSSMeasurementThresholdInformation								ProtocolIE-ID ::= 702
 id-TUTRANGANSSMeasurementValueInformation									ProtocolIE-ID ::= 703
-id-Enhanced-PCH-Support-Indicator											ProtocolIE-ID ::= 704
-
+id-Ext-Reference-E-TFCI-PO													ProtocolIE-ID ::= 705
+id-Ext-Max-Bits-MACe-PDU-non-scheduled										ProtocolIE-ID ::= 706
+id-HARQ-MemoryPartitioningInfoExtForMIMO									ProtocolIE-ID ::= 707
+id-MIMO-ActivationIndicator													ProtocolIE-ID ::= 708
+id-MIMO-Mode-Indicator														ProtocolIE-ID ::= 709
+id-MIMO-N-M-Ratio															ProtocolIE-ID ::= 710
+id-TransportBearerNotSetupIndicator											ProtocolIE-ID ::= 711
+id-TransportBearerNotRequestedIndicator										ProtocolIE-ID ::= 712
+id-PowerControlGAP																ProtocolIE-ID ::= 713
+id-UARFCNforNt																ProtocolIE-ID ::= 714
+id-LCRTDD-uplink-Physical-Channel-Capability								ProtocolIE-ID ::= 715
+id-number-Of-Supported-Carriers												ProtocolIE-ID ::= 716
+id-HSSICH-SIRTarget																ProtocolIE-ID ::= 717
+id-HSSICH-TPC-StepSize														ProtocolIE-ID ::= 718
+id-tSN-Length																ProtocolIE-ID ::= 719
+id-HS-SICH-ID-Extension														ProtocolIE-ID ::= 720
+id-HSSICH-Info-DM-Rqst-Extension											ProtocolIE-ID ::= 721
+id-multipleFreq-HSPDSCH-InformationList-ResponseTDDLCR						ProtocolIE-ID ::= 722
+id-multicarrier-number														ProtocolIE-ID ::= 723
+id-UPPCHPositionLCR															ProtocolIE-ID ::= 724
+id-UpPCH-InformationList-LCRTDD												ProtocolIE-ID ::= 725
+id-UpPCH-InformationItem-LCRTDD												ProtocolIE-ID ::= 726
+id-Multiple-PLMN-List														ProtocolIE-ID ::= 727
+id-UE-Capabilities-Info														ProtocolIE-ID ::= 728
+id-FrameOffset																ProtocolIE-ID ::= 729
+id-ChipOffset																ProtocolIE-ID ::= 730
+id-Enhanced-PCH-Capability													ProtocolIE-ID ::= 731
+id-SixteenQAM-UL-Operation-Indicator										ProtocolIE-ID ::= 732
+id-E-TFCI-Boost-Information													ProtocolIE-ID ::= 733
+id-SixtyfourQAM-UsageAllowedIndicator										ProtocolIE-ID ::= 734
+id-SixtyfourQAM-DL-UsageIndicator											ProtocolIE-ID ::= 735
+id-Default-Serving-Grant-in-DTX-Cycle2										ProtocolIE-ID ::= 736
+id-E-DPDCH-PowerInterpolation												ProtocolIE-ID ::= 737
+id-Extended-E-DCH-LCRTDD-PhysicalLayerCategory								ProtocolIE-ID ::= 738
+id-Continuous-Packet-Connectivity-HS-SCCH-Less-Deactivate-Indicator			ProtocolIE-ID ::= 740
+id-E-DCH-DL-Control-Channel-Change-Information								ProtocolIE-ID ::= 741
+id-E-DCH-DL-Control-Channel-Grant-Information								ProtocolIE-ID ::= 742
+id-MaximumNumber-Of-Retransmission-For-SchedulingInfo-LCRTDD				ProtocolIE-ID ::= 743
+id-E-DCH-RetransmissionTimer-For-SchedulingInfo-LCRTDD						ProtocolIE-ID ::= 744
+id-E-PUCH-PowerControlGAP													ProtocolIE-ID ::= 745
+id-HSDSCH-TBSizeTableIndicator												ProtocolIE-ID ::= 746
+id-DGANSS-Corrections-Req													ProtocolIE-ID ::= 748
 
 END

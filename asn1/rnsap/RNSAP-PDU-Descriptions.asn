@@ -1,7 +1,7 @@
 -- RNSAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.423 V7.5.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-750.zip/25423-750.DOC
+-- Taken from 3GPP TS 25.423 V7.9.0 (2008-06-13)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.2	Elementary Procedure Definitions
 --
