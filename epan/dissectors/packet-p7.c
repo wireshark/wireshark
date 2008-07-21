@@ -83,8 +83,10 @@ static int hf_p7_MessageGroupName_PDU = -1;       /* MessageGroupName */
 static int hf_p7_MSBindArgument_PDU = -1;         /* MSBindArgument */
 static int hf_p7_MSBindResult_PDU = -1;           /* MSBindResult */
 static int hf_p7_MS_EIT_PDU = -1;                 /* MS_EIT */
+static int hf_p7_ChangeCredentialsAlgorithms_PDU = -1;  /* ChangeCredentialsAlgorithms */
 static int hf_p7_PAR_ms_bind_error_PDU = -1;      /* PAR_ms_bind_error */
 static int hf_p7_CreationTime_PDU = -1;           /* CreationTime */
+static int hf_p7_OriginatorToken_PDU = -1;        /* OriginatorToken */
 static int hf_p7_SummarizeArgument_PDU = -1;      /* SummarizeArgument */
 static int hf_p7_SummarizeResult_PDU = -1;        /* SummarizeResult */
 static int hf_p7_ListArgument_PDU = -1;           /* ListArgument */
@@ -95,6 +97,7 @@ static int hf_p7_DeleteArgument_PDU = -1;         /* DeleteArgument */
 static int hf_p7_DeleteResult_PDU = -1;           /* DeleteResult */
 static int hf_p7_Register_MSArgument_PDU = -1;    /* Register_MSArgument */
 static int hf_p7_Register_MSResult_PDU = -1;      /* Register_MSResult */
+static int hf_p7_ProtectedChangeCredentials_PDU = -1;  /* ProtectedChangeCredentials */
 static int hf_p7_AlertArgument_PDU = -1;          /* AlertArgument */
 static int hf_p7_AlertResult_PDU = -1;            /* AlertResult */
 static int hf_p7_ModifyArgument_PDU = -1;         /* ModifyArgument */
@@ -125,6 +128,7 @@ static int hf_p7_SubmissionError_PDU = -1;        /* SubmissionError */
 static int hf_p7_SignatureVerificationStatus_PDU = -1;  /* SignatureVerificationStatus */
 static int hf_p7_StoragePeriod_PDU = -1;          /* StoragePeriod */
 static int hf_p7_StorageTime_PDU = -1;            /* StorageTime */
+static int hf_p7_RTSE_apdus_PDU = -1;             /* RTSE_apdus */
 static int hf_p7_attribute_type = -1;             /* AttributeType */
 static int hf_p7_attribute_values = -1;           /* AttributeValues */
 static int hf_p7_attribute_values_item = -1;      /* AttributeItem */
@@ -728,7 +732,7 @@ dissect_p7_AutoActionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_p7_INTEGER_1_ub_per_auto_action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -837,7 +841,7 @@ static const value_string p7_EntryClass_vals[] = {
 static int
 dissect_p7_EntryClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -858,7 +862,7 @@ static const value_string p7_EntryType_vals[] = {
 static int
 dissect_p7_EntryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -868,7 +872,7 @@ dissect_p7_EntryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 int
 dissect_p7_SequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &seqno);
+                                                &seqno);
 
   return offset;
 }
@@ -885,7 +889,7 @@ static const value_string p7_RetrievalStatus_vals[] = {
 static int
 dissect_p7_RetrievalStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -980,7 +984,7 @@ dissect_p7_MS_EITs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_p7_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1111,7 +1115,7 @@ dissect_p7_T_matching_rules_supported(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int
 dissect_p7_INTEGER_1_ub_group_depth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1602,7 +1606,7 @@ dissect_p7_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_p7_INTEGER_1_ub_messages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1647,7 +1651,7 @@ dissect_p7_Selector(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_p7_INTEGER_1_ub_attribute_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1657,7 +1661,7 @@ dissect_p7_INTEGER_1_ub_attribute_values(gboolean implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_p7_INTEGER_0_ub_attribute_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1840,7 +1844,7 @@ dissect_p7_T_count(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 	int count = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &count);
+                                                &count);
 
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -2531,7 +2535,7 @@ dissect_p7_Register_MSResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_p7_INTEGER_1_ub_auto_actions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2860,7 +2864,7 @@ static const value_string p7_AttributeProblem_vals[] = {
 static int
 dissect_p7_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2932,7 +2936,7 @@ static const value_string p7_AutoActionRequestProblem_vals[] = {
 static int
 dissect_p7_AutoActionRequestProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2993,7 +2997,7 @@ static const value_string p7_DeleteProblem_vals[] = {
 static int
 dissect_p7_DeleteProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3053,7 +3057,7 @@ static const value_string p7_FetchRestrictionProblem_vals[] = {
 static int
 dissect_p7_FetchRestrictionProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3143,7 +3147,7 @@ static const value_string p7_RangeProblem_vals[] = {
 static int
 dissect_p7_RangeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3172,7 +3176,7 @@ static const value_string p7_SequenceNumberProblem_vals[] = {
 static int
 dissect_p7_SequenceNumberProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3231,7 +3235,7 @@ static const value_string p7_ServiceProblem_vals[] = {
 static int
 dissect_p7_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3267,7 +3271,7 @@ static const value_string p7_MessageGroupProblem_vals[] = {
 static int
 dissect_p7_MessageGroupProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3355,7 +3359,7 @@ static const value_string p7_ModifyProblem_vals[] = {
 static int
 dissect_p7_ModifyProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3414,7 +3418,7 @@ dissect_p7_EntryClassErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_p7_INTEGER_1_ub_recipients(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3573,7 +3577,7 @@ const value_string p7_SignatureStatus_vals[] = {
 int
 dissect_p7_SignatureStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3602,7 +3606,7 @@ dissect_p7_SignatureVerificationStatus(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_p7_StoragePeriod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3623,7 +3627,7 @@ dissect_p7_StorageTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_p7_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3655,7 +3659,7 @@ static const value_string p7_AbortReason_vals[] = {
 static int
 dissect_p7_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3767,6 +3771,11 @@ static void dissect_MS_EIT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_MS_EIT(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MS_EIT_PDU);
 }
+static void dissect_ChangeCredentialsAlgorithms_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_p7_ChangeCredentialsAlgorithms(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ChangeCredentialsAlgorithms_PDU);
+}
 static int dissect_PAR_ms_bind_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3778,6 +3787,11 @@ static void dissect_CreationTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_CreationTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_CreationTime_PDU);
+}
+static void dissect_OriginatorToken_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_p7_OriginatorToken(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_OriginatorToken_PDU);
 }
 static int dissect_SummarizeArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -3848,6 +3862,11 @@ static int dissect_Register_MSResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_p7_Register_MSResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_Register_MSResult_PDU);
   return offset;
+}
+static void dissect_ProtectedChangeCredentials_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_p7_ProtectedChangeCredentials(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ProtectedChangeCredentials_PDU);
 }
 static int dissect_AlertArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -4041,6 +4060,11 @@ static void dissect_StorageTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_StorageTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_StorageTime_PDU);
 }
+static void dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_p7_RTSE_apdus(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_RTSE_apdus_PDU);
+}
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
@@ -4173,6 +4197,10 @@ void proto_register_p7(void) {
       { "MS-EIT", "p7.MS_EIT",
         FT_OID, BASE_NONE, NULL, 0,
         "p7.MS_EIT", HFILL }},
+    { &hf_p7_ChangeCredentialsAlgorithms_PDU,
+      { "ChangeCredentialsAlgorithms", "p7.ChangeCredentialsAlgorithms",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "p7.ChangeCredentialsAlgorithms", HFILL }},
     { &hf_p7_PAR_ms_bind_error_PDU,
       { "PAR-ms-bind-error", "p7.PAR_ms_bind_error",
         FT_UINT32, BASE_DEC, VALS(p7_PAR_ms_bind_error_vals), 0,
@@ -4181,6 +4209,10 @@ void proto_register_p7(void) {
       { "CreationTime", "p7.CreationTime",
         FT_STRING, BASE_NONE, NULL, 0,
         "p7.CreationTime", HFILL }},
+    { &hf_p7_OriginatorToken_PDU,
+      { "OriginatorToken", "p7.OriginatorToken",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "p7.OriginatorToken", HFILL }},
     { &hf_p7_SummarizeArgument_PDU,
       { "SummarizeArgument", "p7.SummarizeArgument",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4221,6 +4253,10 @@ void proto_register_p7(void) {
       { "Register-MSResult", "p7.Register_MSResult",
         FT_UINT32, BASE_DEC, VALS(p7_Register_MSResult_vals), 0,
         "p7.Register_MSResult", HFILL }},
+    { &hf_p7_ProtectedChangeCredentials_PDU,
+      { "ProtectedChangeCredentials", "p7.ProtectedChangeCredentials",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "p7.ProtectedChangeCredentials", HFILL }},
     { &hf_p7_AlertArgument_PDU,
       { "AlertArgument", "p7.AlertArgument",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4341,6 +4377,10 @@ void proto_register_p7(void) {
       { "StorageTime", "p7.StorageTime",
         FT_STRING, BASE_NONE, NULL, 0,
         "p7.StorageTime", HFILL }},
+    { &hf_p7_RTSE_apdus_PDU,
+      { "RTSE-apdus", "p7.RTSE_apdus",
+        FT_UINT32, BASE_DEC, VALS(p7_RTSE_apdus_vals), 0,
+        "p7.RTSE_apdus", HFILL }},
     { &hf_p7_attribute_type,
       { "attribute-type", "p7.attribute_type",
         FT_OID, BASE_NONE, NULL, 0,
@@ -5775,6 +5815,10 @@ void proto_reg_handoff_p7(void) {
   register_ber_oid_dissector("2.6.4.3.79", dissect_SignatureVerificationStatus_PDU, proto_p7, "id-att-signature-verification-status");
   register_ber_oid_dissector("2.6.4.3.73", dissect_StoragePeriod_PDU, proto_p7, "id-att-storage-period");
   register_ber_oid_dissector("2.6.4.3.74", dissect_StorageTime_PDU, proto_p7, "id-att-storage-time");
+  register_ber_oid_dissector("2.6.4.9.5", dissect_ChangeCredentialsAlgorithms_PDU, proto_p7, "id-ext-protected-change-credentials-capability");
+  register_ber_oid_dissector("2.6.4.9.3", dissect_OriginatorToken_PDU, proto_p7, "id-ext-originator-token");
+  register_ber_oid_dissector("2.6.4.9.4", dissect_ProtectedChangeCredentials_PDU, proto_p7, "id-ext-protected-change-credentials");
+  register_ber_oid_dissector("2.6.0.2.10""id-as-ms-rtse", dissect_RTSE_apdus_PDU, proto_p7, "");
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/

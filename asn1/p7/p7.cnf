@@ -8,6 +8,7 @@
 
 #.MODULE_IMPORT
 MTSAbstractService				x411
+Reliable-Transfer-APDU			rtse
 
 #.EXPORTS
 SequenceNumber
@@ -212,67 +213,67 @@ OPERATION.&ResultType
 
 #.REGISTER
 # MSGeneralAttributeTypes
-ReportLocation		B	"2.6.4.3.42"	"id-att-ac-correlated-report-list"
-SequenceNumber		B	"2.6.4.3.76"	"id-att-ac-report-subject-entry"
-ReportSummary		B	"2.6.4.3.43"	"id-att-ac-report-summary"
-PerRecipientReport	B	"2.6.4.3.44"	"id-att-ac-uncorrelated-report-list"
-AutoActionError		B	"2.6.4.3.46"	"id-att-auto-action-error"
-#Integer		B	"2.6.4.3.47"	"id-att-auto-action-registration-identifier" - see XXX
-SequenceNumber		B	"2.6.4.3.48"	"id-att-auto-action-subject-entry"
-AutoActionType		B	"2.6.4.3.49"	"id-att-auto-action-type"
+ReportLocation			B	"2.6.4.3.42"	"id-att-ac-correlated-report-list"
+SequenceNumber			B	"2.6.4.3.76"	"id-att-ac-report-subject-entry"
+ReportSummary			B	"2.6.4.3.43"	"id-att-ac-report-summary"
+PerRecipientReport		B	"2.6.4.3.44"	"id-att-ac-uncorrelated-report-list"
+AutoActionError			B	"2.6.4.3.46"	"id-att-auto-action-error"
+#Integer				B	"2.6.4.3.47"	"id-att-auto-action-registration-identifier" - see XXX
+SequenceNumber			B	"2.6.4.3.48"	"id-att-auto-action-subject-entry"
+AutoActionType			B	"2.6.4.3.49"	"id-att-auto-action-type"
 #CertificateSelectors	B	"2.6.4.3.80"	"id-att-certificate-selectors" - see x411.cnf
-SequenceNumber		B	"2.6.4.3.0"	"id-att-child-sequence-numbers"
-#Content		B	"2.6.4.3.1"	"id-att-content" - see XXX
-#AlgorithmIdentifier	B	"2.6.4.3.2"	"id-att-content-confidentiality-algorithm-identifier" - see XXX
-#ContentCorrelator	B	"2.6.4.3.3"	"id-att-content-correlator" - see x411.cnf
-#ContentIdentifier	B	"2.6.4.3.4"	"id-att-content-identifier" - see x411.cnf
-#ContentIntegrityCheck	B	"2.6.4.3.5"	"id-att-content-inetgrity-check" - see x411.cnf
-#ContentLength		B	"2.6.4.3.6"	"id-att-content-length" - see x411.cnf
-#Boolean		B	"2.6.4.3.7"	"id-att-content-returned" - see XXX
-#ExtendedContentType	B	"2.6.4.3.8"	"id-att-content-type" - see x411.cnf
-#ConversionWithLossProhibited	B	"2.6.4.3.9"	"id-att-conversion-with-loss-prohibited" - see x411.cnf
-MS-EIT			B	"2.6.4.3.10"	"id-att-converted-EITs"
-CreationTime		B	"2.6.4.3.11"	"id-att-creation-time"
+SequenceNumber			B	"2.6.4.3.0"		"id-att-child-sequence-numbers"
+#Content				B	"2.6.4.3.1"		"id-att-content" - see XXX
+#AlgorithmIdentifier	B	"2.6.4.3.2"		"id-att-content-confidentiality-algorithm-identifier" - see XXX
+#ContentCorrelator		B	"2.6.4.3.3"		"id-att-content-correlator" - see x411.cnf
+#ContentIdentifier		B	"2.6.4.3.4"		"id-att-content-identifier" - see x411.cnf
+#ContentIntegrityCheck	B	"2.6.4.3.5"		"id-att-content-inetgrity-check" - see x411.cnf
+#ContentLength			B	"2.6.4.3.6"		"id-att-content-length" - see x411.cnf
+#Boolean				B	"2.6.4.3.7"		"id-att-content-returned" - see XXX
+#ExtendedContentType	B	"2.6.4.3.8"		"id-att-content-type" - see x411.cnf
+#ConversionWithLossProhibited		B	"2.6.4.3.9"	"id-att-conversion-with-loss-prohibited" - see x411.cnf
+MS-EIT								B	"2.6.4.3.10"	"id-att-converted-EITs"
+CreationTime						B	"2.6.4.3.11"	"id-att-creation-time"
 DeferredDeliveryCancellationTime	B	"2.6.4.3.50"	"id-att-deferred-delivery-cancellation-time"
-#DeferredDeliveryTime	B	"2.6.4.3.51"	"id-att-deferred-delivery-time" - see x411.cnf
-DeletionTime		B	"2.6.4.3.52"	"id-att-deletion-time"
-MS-EIT			B	"2.6.4.3.12"	"id-att-delivered-EITs"
-#DeliveryFlags		B	"2.6.4.3.13"	"id-att-delivery-flags" - see x411.cnf
-#ORName			B	"2.6.4.3.78"	"id-att-dl-exempted-recipients" - see x411.cnf
-#DLExpansion		B	"2.6.4.3.14"	"id-att-dl-expansion-history" - see x411.cnf
-#DLExpansionProhibited	B	"2.6.4.3.53"	"id-att-dl-expansion-prohibited" - see x411.cnf
-EntryType		B	"2.6.4.3.16"	"id-att-entry-type"
+#DeferredDeliveryTime				B	"2.6.4.3.51"	"id-att-deferred-delivery-time" - see x411.cnf
+DeletionTime						B	"2.6.4.3.52"	"id-att-deletion-time"
+MS-EIT								B	"2.6.4.3.12"	"id-att-delivered-EITs"
+#DeliveryFlags						B	"2.6.4.3.13"	"id-att-delivery-flags" - see x411.cnf
+#ORName								B	"2.6.4.3.78"	"id-att-dl-exempted-recipients" - see x411.cnf
+#DLExpansion						B	"2.6.4.3.14"	"id-att-dl-expansion-history" - see x411.cnf
+#DLExpansionProhibited				B	"2.6.4.3.53"	"id-att-dl-expansion-prohibited" - see x411.cnf
+EntryType							B	"2.6.4.3.16"	"id-att-entry-type"
 #InternalTraceInformationElement	B	"2.6.4.3.54"	"id-att-internal-trace-information" - see x411.cnf
-#LatestDeliveryTime	B	"2.6.4.3.55"	"id-att-latest-delivery-time" - see x411.cnf
-#NULL			B	"2.6.4.3.77"	"id-att-locally-originated - see XXX
-#NULL			B	"2.6.4.3.56"	"id-att-marked-for-deletion" - see XXX
-#MessageDeliveryEnvelope	B	"2.6.4.3.18"	"id-att-message-delivery-envelope" - see x411.cnf
-#MessageDeliveryTime	B	"2.6.4.3.20"	"id-att-message-delivery-time" - see x411.cnf
-MessageGroupName	B	"2.6.4.3.57"	"id-att-message-group-name"
-#MTSIdentifier		B	"2.6.4.3.19"	"id-att-message-identifier" - see x411.cnf
-#GeneralString		B	"2.6.4.3.58"	"id-att-message-notes" - see XXX
+#LatestDeliveryTime					B	"2.6.4.3.55"	"id-att-latest-delivery-time" - see x411.cnf
+#NULL								B	"2.6.4.3.77"	"id-att-locally-originated - see XXX
+#NULL								B	"2.6.4.3.56"	"id-att-marked-for-deletion" - see XXX
+#MessageDeliveryEnvelope			B	"2.6.4.3.18"	"id-att-message-delivery-envelope" - see x411.cnf
+#MessageDeliveryTime				B	"2.6.4.3.20"	"id-att-message-delivery-time" - see x411.cnf
+MessageGroupName					B	"2.6.4.3.57"	"id-att-message-group-name"
+#MTSIdentifier						B	"2.6.4.3.19"	"id-att-message-identifier" - see x411.cnf
+#GeneralString						B	"2.6.4.3.58"	"id-att-message-notes" - see XXX
 #MessageOriginAuthenticationCheck	B	"2.6.4.3.21"	"id-at-message-orgin-authentication-check" - see x411.cnf
-#MessageSecurityLabel	B	"2.6.4.3.22"	"id-att-message-security-label" - see x411.cnf
-#MessageSubmissionEnvelope	B	"2.6.4.3.59"	"id-att-message-submission-envelope" - see x411.cnf
-#MessageSubmissionTime	B	"2.6.4.3.23"	"id-att-message-submission-time"
-#MessageToken		B	"2.6.4.3.24"	"id-att-message-token"
-#NULL			B	"2.6.4.3.60"	"id-att-ms-originated"
-SubmissionError		B	"2.6.4.3.61"	"id-att-ms-submission-error"
-#ExtendedCertificates	B	"2.6.4.3.81"	"id-att-multiple-originator-certificates" - see x411.cnf
-MS-EIT			B	"2.6.4.3.25"	"id-att-original-EITs"
-#ORName			B	"2.6.4.3.17"	"id-att-originally-intended-recipient-name" - see x411.cnf
-#OriginatingMTACertificate	B	"2.6.4.3.62"	"id-att-originating-MTA-certificate" - see x411.cnf
-#OriginatorCertificate	B	"2.6.4.3.26"	"id-att-originator-certificate" - see x411.cnf
-#ORName			B	"2.6.4.3.27"	"id-att-originator-name" - see x411.cnf
-#OriginatorReportRequest	B	"2.6.4.3.63"	"id-att-originator-report-request" - see x411.cnf
-#OriginatorReturnAddress	B	"2.6.4.3.64"	"id-att-originator-return-address" - see x411.cnf
-#ORName			B	"2.6.4.3.28"	"id-att-other-recipient-names" - see x411.cnf
-SequenceNumber		B	"2.6.4.3.29"	"id-att-parent-sequence-number"
-#PerMessageIndicators	B	"2.6.4.3.65"	"id-att-per-message-indicators" - see x411.cnf
+#MessageSecurityLabel				B	"2.6.4.3.22"	"id-att-message-security-label" - see x411.cnf
+#MessageSubmissionEnvelope			B	"2.6.4.3.59"	"id-att-message-submission-envelope" - see x411.cnf
+#MessageSubmissionTime				B	"2.6.4.3.23"	"id-att-message-submission-time"
+#MessageToken						B	"2.6.4.3.24"	"id-att-message-token"
+#NULL								B	"2.6.4.3.60"	"id-att-ms-originated"
+SubmissionError						B	"2.6.4.3.61"	"id-att-ms-submission-error"
+#ExtendedCertificates				B	"2.6.4.3.81"	"id-att-multiple-originator-certificates" - see x411.cnf
+MS-EIT								B	"2.6.4.3.25"	"id-att-original-EITs"
+#ORName								B	"2.6.4.3.17"	"id-att-originally-intended-recipient-name" - see x411.cnf
+#OriginatingMTACertificate			B	"2.6.4.3.62"	"id-att-originating-MTA-certificate" - see x411.cnf
+#OriginatorCertificate				B	"2.6.4.3.26"	"id-att-originator-certificate" - see x411.cnf
+#ORName								B	"2.6.4.3.27"	"id-att-originator-name" - see x411.cnf
+#OriginatorReportRequest			B	"2.6.4.3.63"	"id-att-originator-report-request" - see x411.cnf
+#OriginatorReturnAddress			B	"2.6.4.3.64"	"id-att-originator-return-address" - see x411.cnf
+#ORName								B	"2.6.4.3.28"	"id-att-other-recipient-names" - see x411.cnf
+SequenceNumber						B	"2.6.4.3.29"	"id-att-parent-sequence-number"
+#PerMessageIndicators				B	"2.6.4.3.65"	"id-att-per-message-indicators" - see x411.cnf
 #PerRecipientMessageSubmissionFields	B	"2.6.4.3.66"	"id-att-per-recipient-message-submission-fields" - see x411.cnf
 #PerRecipientProbeSubmissionFields	B	"2.6.4.3.67"	"id-att-per-recipient-probe-submission-fields" - see x411.cnf
 #PerRecipientReportDeliveryFields	B	"2.6.4.3.30"	"id-att-per-recipient-report-delivery-fields" - see x411.cnf
-#Priority		B	"2.6.4.3.31"	"id-att-priority" - see x411.cnf
+#Priority							B	"2.6.4.3.31"	"id-att-priority" - see x411.cnf
 #ProbeOriginAuthenticationCheck	B	"2.6.4.3.68"	"id-att-probe-origin-authentication-check" - see x411.cnf
 #ProbeSubmissionEnvelope	B	"2.6.4.3.69"	"id-att-probe-submission-envelope" - see x411.cnf
 #ProofOfDeliveryRequest	B	"2.6.4.3.32"	"id-att-proof-of-delivery-request" - see x411.cnf
@@ -294,6 +295,13 @@ StorageTime		B	"2.6.4.3.74"	"id-att-storage-time"
 #SubjectSubmissionIdentifier	B	"2.6.4.3.40"	"id-att-subject-submission-identifier" - see x411.cnf
 #ORName			B	"2.6.4.3.41"	"id-att-this-recipient-name" - see x411.cnf
 #TraceInformationElement	B	"2.6.4.3.75"	"id-att-trace-information" - see x411.cnf
+
+#MSExtensions
+ChangeCredentialsAlgorithms			B	"2.6.4.9.5"	"id-ext-protected-change-credentials-capability"
+OriginatorToken						B	"2.6.4.9.3"	"id-ext-originator-token"
+ProtectedChangeCredentials			B	"2.6.4.9.4"	"id-ext-protected-change-credentials"
+
+RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse" 
 
 #.FN_PARS	AttributeType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
