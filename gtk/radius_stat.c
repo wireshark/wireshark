@@ -85,6 +85,7 @@ static const value_string radius_message_code[] = {
   {  5, "Diconnect"},
   {  6, "Change Filter"},
   {  7, "Other"},
+  {  0, NULL}
 };
 
 typedef enum _radius_category {
