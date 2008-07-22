@@ -64,6 +64,7 @@ static const value_string mgcp_mesage_type[] = {
   {  7,	"AUEP   "},
   {  8, "AUCX   "},
   {  9, "RSIP   "},
+  {  0, NULL}
 };
 
 static int

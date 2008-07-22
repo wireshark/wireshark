@@ -54,13 +54,14 @@ static const value_string vals_flags[] =
 {
     {0, "Even Half-Slot (tiles 0,2,4)"},
     {1, "Odd Half-Slot (tiles 1,3,5)"},
-	{0, NULL}
+    {0, NULL}
 };
 
 static const value_string vals_values[] =
 {
     {0, "ACK"},
-    {1, "NACK"}
+    {1, "NACK"},
+    {0, NULL}
 };
 
 static gint hf_hack_burst = -1;
