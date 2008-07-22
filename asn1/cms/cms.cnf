@@ -9,6 +9,7 @@
 #.OMIT_ASSIGNMENT
 KeyWrapAlgorithm
 CBCParameter
+IV
 #.END
 
 #.EXPORTS

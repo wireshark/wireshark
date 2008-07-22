@@ -82,16 +82,6 @@ static int hf_h450_clearCallIfAnyInvokePduNotRecognized = -1;  /* NULL */
 static int hf_h450_rejectAnyUnrecognizedInvokePdu = -1;  /* NULL */
 static int hf_h450_rosApdus = -1;                 /* T_rosApdus */
 static int hf_h450_rosApdus_item = -1;            /* T_rosApdus_item */
-static int hf_h450_addressScreened_presentationAllowedAddress = -1;  /* AddressScreened */
-static int hf_h450_presentationRestricted = -1;   /* NULL */
-static int hf_h450_numberNotAvailableDueToInterworking = -1;  /* NULL */
-static int hf_h450_addressScreened_presentationRestrictedAddress = -1;  /* AddressScreened */
-static int hf_h450_addressUnscreened_presentationAllowedAddress = -1;  /* Address */
-static int hf_h450_addressUnscreened_presentationRestrictedAddress = -1;  /* Address */
-static int hf_h450_numberScreened_presentationAllowedAddress = -1;  /* NumberScreened */
-static int hf_h450_numberScreened_presentationRestrictedAddress = -1;  /* NumberScreened */
-static int hf_h450_numberUnscreened_presentationAllowedAddress = -1;  /* PartyNumber */
-static int hf_h450_numberUnscreened_presentationRestrictedAddress = -1;  /* PartyNumber */
 static int hf_h450_partyNumber = -1;              /* PartyNumber */
 static int hf_h450_screeningIndicator = -1;       /* ScreeningIndicator */
 static int hf_h450_partySubaddress = -1;          /* PartySubaddress */
@@ -478,10 +468,6 @@ static gint ett_h450_EntityType = -1;
 static gint ett_h450_InterpretationApdu = -1;
 static gint ett_h450_ServiceApdus = -1;
 static gint ett_h450_T_rosApdus = -1;
-static gint ett_h450_PresentedAddressScreened = -1;
-static gint ett_h450_PresentedAddressUnscreened = -1;
-static gint ett_h450_PresentedNumberScreened = -1;
-static gint ett_h450_PresentedNumberUnscreened = -1;
 static gint ett_h450_AddressScreened = -1;
 static gint ett_h450_NumberScreened = -1;
 static gint ett_h450_Address = -1;
@@ -942,7 +928,7 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "h450.cnf"
+#line 57 "h450.cnf"
   h450_rose_ctx.apdu_depth = 1;
   actx->rose_ctx = &h450_rose_ctx;
 
@@ -995,7 +981,7 @@ static const per_sequence_t h450_H4501SupplementaryService_sequence[] = {
 
 static int
 dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "h450.cnf"
+#line 50 "h450.cnf"
   proto_item *hidden_item;
 
   hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
@@ -1100,73 +1086,6 @@ dissect_h450_AddressScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const value_string h450_PresentedAddressScreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const per_choice_t h450_PresentedAddressScreened_choice[] = {
-  {   0, &hf_h450_addressScreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_AddressScreened },
-  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   3, &hf_h450_addressScreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_AddressScreened },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_h450_PresentedAddressScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_h450_PresentedAddressScreened, h450_PresentedAddressScreened_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_Address_sequence[] = {
-  { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
-  { &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h450_Address, h450_Address_sequence);
-
-  return offset;
-}
-
-
-static const value_string h450_PresentedAddressUnscreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const per_choice_t h450_PresentedAddressUnscreened_choice[] = {
-  {   0, &hf_h450_addressUnscreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_Address },
-  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   3, &hf_h450_addressUnscreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_Address },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_h450_PresentedAddressUnscreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_h450_PresentedAddressUnscreened, h450_PresentedAddressUnscreened_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t h450_NumberScreened_sequence[] = {
   { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
   { &hf_h450_screeningIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_ScreeningIndicator },
@@ -1182,53 +1101,16 @@ dissect_h450_NumberScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string h450_PresentedNumberScreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const per_choice_t h450_PresentedNumberScreened_choice[] = {
-  {   0, &hf_h450_numberScreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_NumberScreened },
-  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   3, &hf_h450_numberScreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h450_NumberScreened },
-  { 0, NULL, 0, NULL }
+static const per_sequence_t h450_Address_sequence[] = {
+  { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
+  { &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
+  { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_h450_PresentedNumberScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_h450_PresentedNumberScreened, h450_PresentedNumberScreened_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string h450_PresentedNumberUnscreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const per_choice_t h450_PresentedNumberUnscreened_choice[] = {
-  {   0, &hf_h450_numberUnscreened_presentationAllowedAddress, ASN1_EXTENSION_ROOT    , dissect_h225_PartyNumber },
-  {   1, &hf_h450_presentationRestricted, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   2, &hf_h450_numberNotAvailableDueToInterworking, ASN1_EXTENSION_ROOT    , dissect_h450_NULL },
-  {   3, &hf_h450_numberUnscreened_presentationRestrictedAddress, ASN1_EXTENSION_ROOT    , dissect_h225_PartyNumber },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_h450_PresentedNumberUnscreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_h450_PresentedNumberUnscreened, h450_PresentedNumberUnscreened_choice,
-                                 NULL);
+dissect_h450_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h450_Address, h450_Address_sequence);
 
   return offset;
 }
@@ -5094,46 +4976,6 @@ void proto_register_h450(void) {
       { "Item", "h450.rosApdus_item",
         FT_UINT32, BASE_DEC, VALS(h450_ros_ROS_vals), 0,
         "h450.T_rosApdus_item", HFILL }},
-    { &hf_h450_addressScreened_presentationAllowedAddress,
-      { "presentationAllowedAddress", "h450.presentationAllowedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.AddressScreened", HFILL }},
-    { &hf_h450_presentationRestricted,
-      { "presentationRestricted", "h450.presentationRestricted",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.NULL", HFILL }},
-    { &hf_h450_numberNotAvailableDueToInterworking,
-      { "numberNotAvailableDueToInterworking", "h450.numberNotAvailableDueToInterworking",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.NULL", HFILL }},
-    { &hf_h450_addressScreened_presentationRestrictedAddress,
-      { "presentationRestrictedAddress", "h450.presentationRestrictedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.AddressScreened", HFILL }},
-    { &hf_h450_addressUnscreened_presentationAllowedAddress,
-      { "presentationAllowedAddress", "h450.presentationAllowedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.Address", HFILL }},
-    { &hf_h450_addressUnscreened_presentationRestrictedAddress,
-      { "presentationRestrictedAddress", "h450.presentationRestrictedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.Address", HFILL }},
-    { &hf_h450_numberScreened_presentationAllowedAddress,
-      { "presentationAllowedAddress", "h450.presentationAllowedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.NumberScreened", HFILL }},
-    { &hf_h450_numberScreened_presentationRestrictedAddress,
-      { "presentationRestrictedAddress", "h450.presentationRestrictedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h450.NumberScreened", HFILL }},
-    { &hf_h450_numberUnscreened_presentationAllowedAddress,
-      { "presentationAllowedAddress", "h450.presentationAllowedAddress",
-        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
-        "h225.PartyNumber", HFILL }},
-    { &hf_h450_numberUnscreened_presentationRestrictedAddress,
-      { "presentationRestrictedAddress", "h450.presentationRestrictedAddress",
-        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
-        "h225.PartyNumber", HFILL }},
     { &hf_h450_partyNumber,
       { "partyNumber", "h450.partyNumber",
         FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
@@ -6530,10 +6372,6 @@ void proto_register_h450(void) {
     &ett_h450_InterpretationApdu,
     &ett_h450_ServiceApdus,
     &ett_h450_T_rosApdus,
-    &ett_h450_PresentedAddressScreened,
-    &ett_h450_PresentedAddressUnscreened,
-    &ett_h450_PresentedNumberScreened,
-    &ett_h450_PresentedNumberUnscreened,
     &ett_h450_AddressScreened,
     &ett_h450_NumberScreened,
     &ett_h450_Address,

@@ -15,6 +15,10 @@ GROUP_BY_PROT
 -o h460
 #.END
 
+#.OMIT_ASSIGNMENT
+MessageBroadcastGroups
+#.END
+
 #.MODULE
 NUMBER-PORTABILITY                   h460.2
 CIRCUIT-STATUS-MAP                   h460.3

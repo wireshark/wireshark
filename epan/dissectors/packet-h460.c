@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h460.c                                                              */
-/* ../../tools/asn2wrs.py -c ./h460.cnf -s ./packet-h460-template -D . NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
+/* ../../tools/asn2wrs.py -c h460.cnf -s packet-h460-template NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
 
 /* Input file: packet-h460-template.c */
 
@@ -258,7 +258,6 @@ static int hf_h460_21_maxGroups = -1;             /* INTEGER_1_65535 */
 static int hf_h460_21_groupIdentifer = -1;        /* GloballyUniqueID */
 static int hf_h460_21_capability = -1;            /* Capability */
 static int hf_h460_21_sourceAddress = -1;         /* UnicastAddress */
-static int hf_h460_21_MessageBroadcastGroups_item = -1;  /* GroupAttributes */
 static int hf_h460_21_priority = -1;              /* INTEGER_0_255 */
 static int hf_h460_21_groupAddress = -1;          /* MulticastAddress */
 static int hf_h460_21_alertUser = -1;             /* BOOLEAN */
@@ -359,7 +358,6 @@ static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_TransmitCapabilities = -1;
 static gint ett_h460_21_ReceiveCapabilities = -1;
 static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability = -1;
 static gint ett_h460_21_TransmitCapabilities = -1;
-static gint ett_h460_21_MessageBroadcastGroups = -1;
 static gint ett_h460_21_GroupAttributes = -1;
 
 /*--- End of included file: packet-h460-ett.c ---*/
@@ -1999,20 +1997,6 @@ dissect_h460_21_GroupAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   return offset;
 }
 
-
-static const per_sequence_t h460_21_MessageBroadcastGroups_sequence_of[1] = {
-  { &hf_h460_21_MessageBroadcastGroups_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h460_21_GroupAttributes },
-};
-
-static int
-dissect_h460_21_MessageBroadcastGroups(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_h460_21_MessageBroadcastGroups, h460_21_MessageBroadcastGroups_sequence_of,
-                                                  1, 256);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static int dissect_h460_21_CapabilityAdvertisement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -2929,10 +2913,6 @@ void proto_register_h460(void) {
       { "sourceAddress", "h460.21.sourceAddress",
         FT_UINT32, BASE_DEC, VALS(h245_UnicastAddress_vals), 0,
         "h245.UnicastAddress", HFILL }},
-    { &hf_h460_21_MessageBroadcastGroups_item,
-      { "Item", "h460.21.MessageBroadcastGroups_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "h460_21.GroupAttributes", HFILL }},
     { &hf_h460_21_priority,
       { "priority", "h460.21.priority",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3044,7 +3024,6 @@ void proto_register_h460(void) {
     &ett_h460_21_ReceiveCapabilities,
     &ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability,
     &ett_h460_21_TransmitCapabilities,
-    &ett_h460_21_MessageBroadcastGroups,
     &ett_h460_21_GroupAttributes,
 
 /*--- End of included file: packet-h460-ettarr.c ---*/
