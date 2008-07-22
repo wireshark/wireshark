@@ -8,6 +8,12 @@
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
+ * Statistics support using Stats Tree API
+ * provided by Abhik Sarkar
+ *
+ * Support for SMPP 5.0
+ * introduced by Abhik Sarkar
+ *
  * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
@@ -192,11 +198,39 @@ static int hf_smpp_ussd_service_op		= -1;
 static int hf_smpp_display_time			= -1;
 static int hf_smpp_sms_signal			= -1;
 static int hf_smpp_ms_validity			= -1;
+static int hf_smpp_alert_on_message_delivery_null	= -1;
 static int hf_smpp_alert_on_message_delivery	= -1;
 static int hf_smpp_its_reply_type		= -1;
 static int hf_smpp_its_session_number		= -1;
 static int hf_smpp_its_session_sequence		= -1;
 static int hf_smpp_its_session_ind		= -1;
+
+/* Optional Parameters introduced in SMPP 5.0	*/
+static int hf_smpp_congestion_state		= -1;
+static int hf_smpp_billing_identification	= -1;
+static int hf_smpp_dest_addr_np_country		= -1;
+static int hf_smpp_dest_addr_np_information	= -1;
+static int hf_smpp_dest_addr_np_resolution	= -1;
+static int hf_smpp_source_network_id		= -1;
+static int hf_smpp_source_node_id		= -1;
+static int hf_smpp_dest_network_id		= -1;
+static int hf_smpp_dest_node_id			= -1;
+/* Optional Parameters for Cell Broadcast Operations */
+static int hf_smpp_broadcast_channel_indicator	= -1;
+static int hf_smpp_broadcast_content_type_nw	= -1;
+static int hf_smpp_broadcast_content_type_type	= -1;
+static int hf_smpp_broadcast_content_type_info	= -1;
+static int hf_smpp_broadcast_message_class	= -1;
+static int hf_smpp_broadcast_rep_num		= -1;
+static int hf_smpp_broadcast_frequency_interval_unit	= -1;
+static int hf_smpp_broadcast_frequency_interval_value	= -1;
+static int hf_smpp_broadcast_area_identifier	= -1;
+static int hf_smpp_broadcast_area_identifier_format	= -1;
+static int hf_smpp_broadcast_error_status	= -1;
+static int hf_smpp_broadcast_area_success	= -1;
+static int hf_smpp_broadcast_end_time		= -1;
+static int hf_smpp_broadcast_end_time_r		= -1;
+static int hf_smpp_broadcast_service_group	= -1;
 
 /*
  * Data Coding Scheme section
@@ -260,6 +294,13 @@ static const value_string vals_command_id[] = {		/* Operation	*/
     { 0x00000102, "Alert_notification" },
     { 0x00000103, "Data_sm" },
     { 0x80000103, "Data_sm - resp" },
+    /* Introduced in SMPP 5.0 */
+    { 0x00000111, "Broadcast_sm" },
+    { 0x80000111, "Broadcast_sm - resp" },
+    { 0x00000112, "Query_broadcast_sm" },
+    { 0x80000112, "Query_broadcast_sm - resp" },
+    { 0x00000113, "Cancel_broadcast_sm" },
+    { 0x80000113, "Cancel_broadcast_sm - resp" },
     { 0, NULL }
 };
 
@@ -321,8 +362,28 @@ static const value_string vals_command_status[] = {	/* Status	*/
     { 0x000000C2, "Invalid parameter length" },
     { 0x000000C3, "Expected optional parameter missing" },
     { 0x000000C4, "Invalid optional parameter  value" },
-    { 0x000000FE, "Delivery failure (used for data_sm_resp)" },
+    { 0x000000FE, "(Transaction) Delivery failure (used for data_sm_resp)" },
     { 0x000000FF, "Unknown error" },
+    /* Introduced in SMPP 5.0 */
+    { 0x00000100, "ESME Not authorised to use specified service_type." },
+    { 0x00000101, "ESME Prohibited from using specified operation."},
+    { 0x00000102, "Specified service_type is unavailable." },
+    { 0x00000103, "Specified service_type is denied." },
+    { 0x00000104, "Invalid Data Coding Scheme." },
+    { 0x00000105, "Source Address Sub unit is Invalid." },
+    { 0x00000106, "Destination Address Sub unit is Invalid." },
+    { 0x00000107, "Broadcast Frequency Interval is invalid." },
+    { 0x00000108, "Broadcast Alias Name is invalid." },
+    { 0x00000109, "Broadcast Area Format is invalid." },
+    { 0x0000010A, "Number of Broadcast Areas is invalid." },
+    { 0x0000010B, "Broadcast Content Type is invalid." },
+    { 0x0000010C, "Broadcast Message Class is invalid." },
+    { 0x0000010D, "broadcast_sm operation failed." },
+    { 0x0000010E, "query_broadcast_sm operation failed." },
+    { 0x0000010F, "cancel_broadcast_sm operation failed." },
+    { 0x00000110, "Number of Repeated Broadcasts is invalid." },
+    { 0x00000111, "Broadcast Service Group is invalid." },
+    { 0x00000112, "Broadcast Channel Indicator is invalid." },
     { 0, NULL }
 };
 
@@ -392,7 +453,7 @@ static const value_string vals_regdel_receipt[] = {
     {  0x0, "No SMSC delivery receipt requested" },
     {  0x1, "Delivery receipt requested (for success or failure)" },
     {  0x2, "Delivery receipt requested (for failure)" },
-    {  0x3, "Reserved" },
+    {  0x3, "Reserved in version <= 3.4; Delivery receipt requested (for success) in 5.0" },
     {  0, NULL }
 };
 
@@ -432,7 +493,7 @@ static const value_string vals_data_coding[] = {
     {  12, "reserved" },
     {  13, "Extended Kanji JIS(X 0212-1990)" },
     {  14, "KS C 5601" },
-    /*! \todo Rest to be defined (bitmask?) according GSM 03.38	*/
+    /*! \TODO Rest to be defined (bitmask?) according GSM 03.38	*/
     {  0, NULL }
 };
 
@@ -611,10 +672,14 @@ static const value_string vals_callback_num_scrn[] = {
 };
 
 static const value_string vals_network_error_type[] = {
-    {  1, "ANSI-136" },
-    {  2, "IS-95" },
+    {  1, "ANSI-136 (Access Denied Reason)" },
+    {  2, "IS-95 (Access Denied Reason)" },
     {  3, "GSM" },
-    {  4, "[Reserved]" },
+    {  4, "[Reserved] in <= 3.4; ANSI 136 Cause Code in 5.0" },
+    {  5, "[Reserved] in <= 3.4; IS 95 Cause Code in 5.0" },
+    {  6, "[Reserved] in <= 3.4; ANSI-41 Error in 5.0" },
+    {  7, "[Reserved] in <= 3.4; SMPP Error in 5.0" },
+    {  8, "[Reserved] in <= 3.4; Message Center Specific in 5.0" },
     {  0, NULL }
 };
 
@@ -741,6 +806,131 @@ static const value_string vals_dcs_wap_charset[] = {
 	{ 0x03, "Reserved" },
 	{ 0x00, NULL }
 };
+
+static const value_string vals_alert_on_message_delivery[] = {
+	{ 0x00, "Use mobile default alert (Default)" },
+	{ 0x01, "Use low-priority alert" },
+	{ 0x02, "Use medium-priority alert" },
+	{ 0x03, "Use high-priority alert" },
+	{ 0x00, NULL }
+};
+
+static const range_string vals_congestion_state[] = {
+	{0, 	0,	"Idle"},
+	{1, 	29,	"Low Load"},
+	{30, 	49,	"Medium Load"},
+	{50, 	79,	"High Load"},
+	{80, 	89,	"Optimum Load"}, /*Specs says 80-90, but that is probably a mistake */
+	{90, 	99,	"Nearing Congestion"},
+	{100, 	100,	"Congested / Maximum Load"},
+	{ 0,	0,	NULL }
+};
+
+static const range_string vals_broadcast_channel_indicator[] = {
+	{0, 	0,	"Basic Broadcast Channel (Default)"},
+	{1, 	1,	"Extended Broadcast Channel"},
+	{2, 	255,	"[Reserved]"},
+	{ 0,	0,	NULL }
+};
+
+static const value_string vals_broadcast_message_class[] = {
+	{0, "No Class Specified (default)"},
+	{1, "Class 1 (User Defined)"},
+	{2, "Class 2 (User Defined)"},
+	{3, "Class 3 (Terminal Equipment)"},
+	{0, NULL }
+};
+
+static const range_string vals_broadcast_area_success[] = {
+	{0, 	100,	"%"},
+	{101, 	254,	"[Reserved]"},
+	{255, 	255,	"Information not available"},
+	{ 0,	0,	NULL }
+};
+
+static const value_string vals_broadcast_content_type_nw[] = {
+	{0, 	"Generic"},
+	{1, 	"GSM [23041]"},
+	{2, 	"TDMA [IS824][ANSI-41]"},
+	{3, 	"CDMA [IS824][IS637]"},
+	{0,	NULL }
+};
+
+static const value_string vals_broadcast_content_type_type[] = {
+	{0x0000,	"[System Service] Index"},
+	{0x0001,	"[System Service] Emergency Broadcasts"},
+	{0x0002,	"[System Service] IRDB Download"},
+	{0x0010, 	"[News Service] News Flashes"},
+	{0x0011, 	"[News Service] General News (Local)"},
+	{0x0012, 	"[News Service] General News (Regional)"},
+	{0x0013, 	"[News Service] General News (National)"},
+	{0x0014, 	"[News Service] General News (Internationa)"},
+	{0x0015, 	"[News Service] Business/Financial News (Local)"},
+	{0x0016, 	"[News Service] Business/Financial News (Regional)"},
+	{0x0017, 	"[News Service] Business/Financial News (National)"},
+	{0x0018, 	"[News Service] Business/Financial News (International)"},
+	{0x0019, 	"[News Service] Sports News (Local)"},
+	{0x001A, 	"[News Service] Sports News (Regional)"},
+	{0x001B, 	"[News Service] Sports News (National)"},
+	{0x001C, 	"[News Service] Sports News (International)"},
+	{0x001D, 	"[News Service] Entertainment News (Local)"},
+	{0x001E, 	"[News Service] Entertainment News (Regional)"},
+	{0x001F, 	"[News Service] Entertainment News (National)"},
+	{0x0020, 	"[News Service] Entertainment News (International)"},
+	{0x0021, 	"[Subscriber Information Services] Medical/Health/Hospitals"},
+	{0x0022, 	"[Subscriber Information Services] Doctors"},
+	{0x0023, 	"[Subscriber Information Services] Pharmacy"},
+	{0x0030, 	"[Subscriber Information Services] Local Traffic/Road Reports"},
+	{0x0031, 	"[Subscriber Information Services] Long Distance Traffic/Road Reports"},
+	{0x0032, 	"[Subscriber Information Services] Taxis"},
+	{0x0033, 	"[Subscriber Information Services] Weather"},
+	{0x0034, 	"[Subscriber Information Services] Local Airport Flight Schedules"},
+	{0x0035, 	"[Subscriber Information Services] Restaurants"},
+	{0x0036, 	"[Subscriber Information Services] Lodgings"},
+	{0x0037, 	"[Subscriber Information Services] Retail Directory"},
+	{0x0038, 	"[Subscriber Information Services] Advertisements"},
+	{0x0039, 	"[Subscriber Information Services] Stock Quotes"},
+	{0x0040, 	"[Subscriber Information Services] Employment Opportunities"},
+	{0x0041, 	"[Subscriber Information Services] Technology News"},
+	{0x0070, 	"[Carrier Information Services] District (Base Station Info)"},
+	{0x0071, 	"[Carrier Information Services] Network Information"},
+	{0x0080, 	"[Subscriber Care Services] Operator Services"},
+	{0x0081, 	"[Subscriber Care Services] Directory Enquiries (National)"},
+	{0x0082, 	"[Subscriber Care Services] Directory Enquiries (International)"},
+	{0x0083, 	"[Subscriber Care Services] Customer Care (National)"},
+	{0x0084, 	"[Subscriber Care Services] Customer Care (International)"},
+	{0x0085, 	"[Subscriber Care Services] Local Date/Time/Time Zone"},
+	{0x0100, 	"[Multi Category Services] Multi Category Services"},
+	{0x0000,	NULL }
+};
+
+static const value_string vals_broadcast_frequency_interval_unit[] = {
+	{0x00,	"As frequently as possible"},
+	{0x08,	"seconds"},
+	{0x09,	"minutes"},
+	{0x0A,	"hours"},
+	{0x0B,	"days"},
+	{0x0C,	"weeks"},
+	{0x0D,	"months"},
+	{0x0E,	"years"},
+	{0x00,	NULL }
+};
+
+static const value_string vals_dest_addr_np_resolution[] = {
+	{0x00,	"query has not been performed (default)"},
+	{0x01,	"query has been performed, number not ported"},
+	{0x02,	"query has been performed, number ported"},
+	{0x00,	NULL }
+};
+
+static const range_string vals_broadcast_area_identifier_format[] = {
+	{0, 0, "Alias / Name"},
+	{1, 1, "Ellipsoid Arc"},
+	{2, 2, "Polygon"},
+	{3, 255, "[Reserved]"},
+	{0, 0,	NULL }
+};
+
 
 static dissector_handle_t gsm_sms_handle;
 
@@ -1037,6 +1227,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
     guint	 tag;
     guint	 length;
     guint8	 field;
+    guint16	 field16;
     guint8	 major, minor;
     char	 *strval=NULL;
 
@@ -1116,14 +1307,14 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 		break;
 	    case  0x0202:	/* source_subaddress	*/
 		if (length) {
-		    proto_tree_add_item(sub_tree, hf_smpp_source_subaddress, 
+		    proto_tree_add_item(sub_tree, hf_smpp_source_subaddress,
 				    tvb, *offset, length, FALSE);
                     (*offset) += length;
 		}
 		break;
 	    case  0x0203:	/* dest_subaddress	*/
 		if (length) {
-		    proto_tree_add_item(sub_tree, hf_smpp_dest_subaddress, 
+		    proto_tree_add_item(sub_tree, hf_smpp_dest_subaddress,
 				    tvb, *offset, length, FALSE);
                     (*offset) += length;
 		}
@@ -1231,9 +1422,117 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 		smpp_handle_int1(sub_tree, tvb,
 				 hf_smpp_message_state, offset);
 		break;
+	    case	0x0428: /* congestion_state */
+		smpp_handle_int1(sub_tree, tvb,
+				 hf_smpp_congestion_state, offset);
+
+	       	break;
 	    case  0x0501:	/* ussd_service_op	*/
 		smpp_handle_int1(sub_tree, tvb,
 				 hf_smpp_ussd_service_op, offset);
+		break;
+	    case 0x0600:	/* broadcast_channel_indicator */
+		smpp_handle_int1(sub_tree, tvb,
+				 hf_smpp_broadcast_channel_indicator, offset);
+		break;
+	    case 0x0601:	/* broadcast_content_type */
+		field = tvb_get_guint8(tvb, *offset);
+	        proto_tree_add_uint(sub_tree, hf_smpp_broadcast_content_type_nw, tvb, *offset, 1, field);
+    		(*offset)++;
+		field16 = tvb_get_ntohs(tvb, *offset);
+		proto_tree_add_uint(sub_tree, hf_smpp_broadcast_content_type_type, tvb, *offset, 2, field16);
+		(*offset) += 2;
+		break;
+	    case 0x0602:	/* broadcast_content_type_info */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_broadcast_content_type_info,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x0603:	/* broadcast_message_class */
+		smpp_handle_int1(sub_tree, tvb,
+				hf_smpp_broadcast_message_class, offset);
+		break;
+	    case 0x0604:	/* broadcast_rep_num */
+		smpp_handle_int1(sub_tree, tvb,
+				hf_smpp_broadcast_rep_num, offset);
+		break;
+	    case 0x0605:	/* broadcast_frequency_interval */
+		field = tvb_get_guint8(tvb, *offset);
+	        proto_tree_add_uint(sub_tree, hf_smpp_broadcast_frequency_interval_unit, tvb, *offset, 1, field);
+    		(*offset)++;
+		field16 = tvb_get_ntohs(tvb, *offset);
+		proto_tree_add_uint(sub_tree, hf_smpp_broadcast_frequency_interval_value, tvb, *offset, 2, field16);
+		(*offset) += 2;
+		break;
+	    case 0x0606:	/* broadcast_area_identifier */
+		field = tvb_get_guint8(tvb, *offset);
+	        proto_tree_add_uint(sub_tree, hf_smpp_broadcast_area_identifier_format, tvb, *offset, 1, field);
+		proto_tree_add_item(sub_tree, hf_smpp_broadcast_area_identifier,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x0607:	/* broadcast_error_status */
+		smpp_handle_int4(sub_tree, tvb,
+				hf_smpp_broadcast_error_status, offset);
+		break;
+	    case 0x0608:	/* broadcast_area_success */
+		smpp_handle_int1(sub_tree, tvb,
+				hf_smpp_broadcast_area_success, offset);
+		break;
+	    case 0x0609:	/* broadcast_end_time */
+		smpp_handle_time(sub_tree, tvb, hf_smpp_broadcast_end_time,
+				hf_smpp_broadcast_end_time_r, offset);
+		break;
+	    case 0x060A:	/* broadcast_service_group */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_broadcast_service_group,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x060B:	/* billing_identification */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_billing_identification,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    /* 0x060C is skipped in the specs for some reason :-? */
+	    case 0x060D:	/* source_network_id */
+		smpp_handle_string_z(sub_tree, tvb, hf_smpp_source_network_id,
+				offset, "Empty!");
+		break;
+	    case 0x060E:	/* dest_network_id */
+		smpp_handle_string_z(sub_tree, tvb, hf_smpp_dest_network_id,
+				offset, "Empty!");
+		break;
+	    case 0x060F:	/* source_node_id */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_source_node_id,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x0610:	/* dest_node_id */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_dest_node_id,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x0611:	/* dest_addr_np_resolution */
+		smpp_handle_int1(sub_tree, tvb,
+				hf_smpp_dest_addr_np_resolution, offset);
+		break;
+	    case 0x0612:	/* dest_addr_np_information */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_dest_addr_np_information,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
+		break;
+	    case 0x0613:	/* dest_addr_np_country */
+		/* TODO : Fetch values from packet-e164? */
+		if (length)
+		    proto_tree_add_item(sub_tree, hf_smpp_dest_addr_np_country,
+					tvb, *offset, length, FALSE);
+		(*offset) += length;
 		break;
 	    case  0x1201:	/* display_time	*/
 		smpp_handle_int1(sub_tree, tvb,
@@ -1249,9 +1548,14 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 				 hf_smpp_ms_validity, offset);
 		break;
 	    case  0x130C:	/* alert_on_message_delivery	*/
-		proto_tree_add_item(sub_tree,
-			    	    hf_smpp_alert_on_message_delivery,
+		if (length == 0) {
+			proto_tree_add_item(sub_tree,
+			    	    hf_smpp_alert_on_message_delivery_null,
 				    tvb, *offset, length, FALSE);
+		} else {
+			smpp_handle_int1(sub_tree, tvb,
+				    hf_smpp_alert_on_message_delivery, offset);
+		}
 		(*offset) += length;
 		break;
 	    case  0x1380:	/* its_reply_type	*/
@@ -1268,7 +1572,10 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 				    tvb, *offset, 1, field);
 		(*offset)++;
 		break;
+
 	    default:
+		/* TODO : Hopefully to be implemented soon - handle vendor specific TLVs
+		 * from a dictionary before treating them as unknown! */
 		if ((tag >= 0x1400) && (tag <= 0x3FFF))
 		    proto_tree_add_item(sub_tree, hf_smpp_vendor_op, tvb,
 			    		*offset, length, FALSE);
@@ -1647,6 +1954,65 @@ data_sm(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
+/*
+ * Request operations introduced in the SMPP 5.0
+ */
+static void
+broadcast_sm(proto_tree *tree, tvbuff_t *tvb)
+{
+    int		 offset = 0;
+
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_priority_flag, &offset);
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+		hf_smpp_schedule_delivery_time_r, &offset);
+    } else { /* Time = NULL means Immediate delivery */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+		"Scheduled delivery time: Immediate delivery");
+    }
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+		hf_smpp_validity_period_r, &offset);
+    } else { /* Time = NULL means SMSC default validity */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+		"Validity period: SMSC default validity period");
+    }
+    smpp_handle_int1(tree, tvb, hf_smpp_replace_if_present_flag, &offset);
+    smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_sm_default_msg_id, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
+}
+
+static void
+query_broadcast_sm(proto_tree *tree, tvbuff_t *tvb)
+{
+    int		 offset = 0;
+
+    smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
+}
+
+static void
+cancel_broadcast_sm(proto_tree *tree, tvbuff_t *tvb)
+{
+    int		 offset = 0;
+
+    smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
+    smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
+    smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
+}
+
 /*!
  * The next set of routines handle the different operation-responses,
  * associated with SMPP.
@@ -1682,6 +2048,7 @@ submit_sm_resp(proto_tree *tree, tvbuff_t *tvb)
     int		 offset = 0;
 
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
 }
 
 #define deliver_sm_resp(a, b) submit_sm_resp(a, b)
@@ -1693,6 +2060,7 @@ submit_multi_resp(proto_tree *tree, tvbuff_t *tvb)
 
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     smpp_handle_dlist_resp(tree, tvb, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
 }
 
 static void
@@ -1703,6 +2071,18 @@ data_sm_resp(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
     smpp_handle_tlv(tree, tvb, &offset);
 }
+
+#define broadcast_sm_resp(a, b) submit_sm_resp(a, b)
+
+static void
+query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb)
+{
+    int		 offset = 0;
+
+    smpp_handle_string(tree, tvb, hf_smpp_message_id, &offset);
+    smpp_handle_tlv(tree, tvb, &offset);
+}
+
 
 /*
  * A 'heuristic dissector' that attemtps to establish whether we have
@@ -1944,7 +2324,14 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case   7:	/* Replace SM resp	*/
 			case   8:	/* Cancel SM resp	*/
 			case  21:	/* Enquire link resp	*/
+			case 275:	/* Cancel Broadcast SM resp */
 			    break;
+			/* FIXME: The body of the response PDUs are only
+			 * only dissected if the request was successful.
+			 * However, in SMPP 5.0 some responses might
+			 * contain body to provide additional information
+			 * about the error. This needs to be handled.
+			 */
 			case   1:
 			    if (!command_status)
 				bind_receiver_resp(smpp_tree, tmp_tvb);
@@ -1976,6 +2363,14 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 259:
 			    if (!command_status)
 				data_sm_resp(smpp_tree, tmp_tvb);
+			    break;
+			case 273:
+			    if (!command_status)
+				broadcast_sm_resp(smpp_tree, tmp_tvb);
+			    break;
+			case 274:
+			    if (!command_status)
+				query_broadcast_sm_resp(smpp_tree, tmp_tvb);
 			    break;
 			default:
 			    break;
@@ -2022,6 +2417,15 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    break;
 			case  259:
 			    data_sm(smpp_tree, tmp_tvb);
+			    break;
+			case 273:
+			    broadcast_sm(smpp_tree, tmp_tvb);
+			    break;
+			case 274:
+			    query_broadcast_sm(smpp_tree, tmp_tvb);
+			    break;
+			case 275:
+			    cancel_broadcast_sm(smpp_tree, tmp_tvb);
 			    break;
 			default:
 			    break;
@@ -2706,9 +3110,16 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
-	{   &hf_smpp_alert_on_message_delivery,
+	{   &hf_smpp_alert_on_message_delivery_null,
 	    {   "Alert on delivery", "smpp.alert_on_message_delivery",
 		FT_NONE, BASE_NONE, NULL, 0x00,
+		"Instructs the handset to alert user on message delivery.",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_alert_on_message_delivery,
+	    {   "Alert on delivery", "smpp.alert_on_message_delivery",
+		FT_UINT8, BASE_DEC, VALS(vals_alert_on_message_delivery), 0x00,
 		"Instructs the handset to alert user on message delivery.",
 		HFILL
 	    }
@@ -2816,6 +3227,151 @@ proto_register_smpp(void)
 			"as specified by the WAP Forum (WAP over GSM USSD).", HFILL
 		}
 	},
+	/* Changes in SMPP 5.0 */
+	{	&hf_smpp_congestion_state,
+		{	"Congestion State", "smpp.congestion_state",
+			FT_UINT8, BASE_DEC, RVALS(vals_congestion_state), 0x00,
+			"Congestion info between ESME and MC for flow control/cong. control", HFILL
+		}
+	},
+	{	&hf_smpp_billing_identification,
+		{	"Billing Identification", "smpp.billing_id",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Billing identification info", HFILL
+		}
+	},
+	{	&hf_smpp_dest_addr_np_country,
+		{	"Destination Country Code", "smpp.dest_addr_np_country",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Destination Country Code (E.164 Region Code)", HFILL
+		}
+	},
+	{	&hf_smpp_dest_addr_np_information,
+		{	"Number Portability information", "smpp.dest_addr_np_info",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Number Portability information", HFILL
+		}
+	},
+	{	&hf_smpp_dest_addr_np_resolution,
+		{	"Number Portability query information", "smpp.dest_addr_np_resolution",
+			FT_UINT8, BASE_DEC, VALS(vals_dest_addr_np_resolution), 0x00,
+			"Number Portability query information - method used to resolve number", HFILL
+		}
+	},
+	{	&hf_smpp_source_network_id,
+		{	"Source Network ID", "smpp.source_network_id",
+			FT_STRING, BASE_NONE, NULL, 0x00,
+			"Unique ID for a network or ESME operator", HFILL
+		}
+	},
+	{	&hf_smpp_source_node_id,
+		{	"Source Node ID", "smpp.source_node_id",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Unique ID for a ESME or MC node", HFILL
+		}
+	},
+	{	&hf_smpp_dest_network_id,
+		{	"Destination Network ID", "smpp.dest_network_id",
+			FT_STRING, BASE_NONE, NULL, 0x00,
+			"Unique ID for a network or ESME operator", HFILL
+		}
+	},
+	{	&hf_smpp_dest_node_id,
+		{	"Destination Node ID", "smpp.dest_node_id",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Unique ID for a ESME or MC node", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_channel_indicator,
+		{	"Cell Broadcast channel", "smpp.broadcast_channel_indicator",
+			FT_UINT8, BASE_DEC, RVALS(vals_broadcast_channel_indicator), 0x00,
+			"Cell Broadcast channel", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_content_type_nw,
+		{	"Broadcast Content Type - Network Tag", "smpp.broadcast_content_type.nw",
+			FT_UINT8, BASE_DEC, VALS(vals_broadcast_content_type_nw), 0x00,
+			"Cell Broadcast content type", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_content_type_type,
+		{	"Broadcast Content Type - Content Type", "smpp.broadcast_content_type.type",
+			FT_UINT16, BASE_HEX, VALS(vals_broadcast_content_type_type), 0x00,
+			"Cell Broadcast content type", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_content_type_info,
+		{	"Broadcast Content Type Info", "smpp.broadcast_content_type.type",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Cell Broadcast content type Info", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_message_class,
+		{	"Broadcast Message Class", "smpp.broadcast_message_class",
+			FT_UINT8, BASE_HEX, VALS(vals_broadcast_message_class), 0x00,
+			"Cell Broadcast Message Class", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_rep_num,
+		{	"Broadcast Message - Number of repetitions requested", "smpp.broadcast_rep_num",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"Cell Broadcast Message - Number of repetitions requested", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_frequency_interval_unit,
+		{	"Broadcast Message - frequency interval - Unit", "smpp.broadcast_frequency_interval.unit",
+			FT_UINT8, BASE_HEX, VALS(vals_broadcast_frequency_interval_unit), 0x00,
+			"Cell Broadcast Message - frequency interval at which broadcast must be repeated", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_frequency_interval_value,
+		{	"Broadcast Message - frequency interval - Unit", "smpp.broadcast_frequency_interval.value",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"Cell Broadcast Message - frequency interval at which broadcast must be repeated", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_area_identifier,
+		{	"Broadcast Message - Area Identifier", "smpp.broadcast_area_identifier",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Cell Broadcast Message - Area Identifier", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_area_identifier_format,
+		{	"Broadcast Message - Area Identifier Format", "smpp.broadcast_area_identifier.format",
+			FT_UINT8, BASE_HEX, RVALS(vals_broadcast_area_identifier_format), 0x00,
+			"Cell Broadcast Message - Area Identifier Format", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_error_status,
+		{	"Broadcast Message - Error Status", "smpp.broadcast_error_status",
+			FT_UINT32, BASE_HEX, VALS(vals_command_status), 0x00,
+			"Cell Broadcast Message - Error Status", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_area_success,
+		{	"Broadcast Message - Area Success", "smpp.broadcast_area_success",
+			FT_UINT8, BASE_DEC, RVALS(vals_broadcast_area_success), 0x00,
+			"Cell Broadcast Message - success rate indicator (ratio) - No. of BTS which accepted Message:Total BTS", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_end_time,
+		{	"Broadcast Message - End Time", "smpp.broadcast_end_time",
+			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+			"Cell Broadcast Message - Date and time at which MC set the state of the message to terminated", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_end_time_r,
+		{	"Broadcast Message - End Time", "smpp.broadcast_end_time_r",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"Cell Broadcast Message - Date and time at which MC set the state of the message to terminated", HFILL
+		}
+	},
+	{	&hf_smpp_broadcast_service_group,
+		{	"Broadcast Message - Service Group", "smpp.broadcast_service_group",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			"Cell Broadcast Message - Service Group", HFILL
+		}
+	}
     };
     /* Setup protocol subtree array */
     static gint *ett[] = {
