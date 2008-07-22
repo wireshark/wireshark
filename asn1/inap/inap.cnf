@@ -16,9 +16,9 @@ RedirectionInformation
 ServiceKey
 
 #.PDU_NEW
-ERROR.&ParameterType
-OPERATION.&ArgumentType
-OPERATION.&ResultType
+#ERROR.&ParameterType
+#OPERATION.&ArgumentType
+#OPERATION.&ResultType
 #.END
 
 #.NO_EMIT
@@ -71,14 +71,14 @@ INAP-Component
 #ActivateServiceFilteringArg
 #ServiceFilteringResponseArg
 
-CallInformationReportArg
-CallInformationRequestArg
-PlayAnnouncementArg
-PromptAndCollectUserInformationArg
-SpecializedResourceReportArg
-CancelArg
-RequestCurrentStatusReportResultArg
-ReceivedInformationArg
+#CallInformationReportArg
+#CallInformationRequestArg
+#PlayAnnouncementArg
+#PromptAndCollectUserInformationArg
+#SpecializedResourceReportArg
+#CancelArg
+#RequestCurrentStatusReportResultArg
+#ReceivedInformationArg
 
 # This table creates the value_sting to name Inap operation codes and errors
 # in file packet-inap-table.c which is included in the template file
