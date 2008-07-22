@@ -5303,6 +5303,7 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static const value_string gsm_a_rr_dtx_vals[] = {
 	{ 0,	"DTX was not used"},
 	{ 1,	"DTX was used"},
+        { 0,    NULL}
 };
 static const value_string gsm_a_rr_rxlev_vals [] = {
   {0, "< -110 dBm"},
@@ -5369,10 +5370,12 @@ static const value_string gsm_a_rr_rxlev_vals [] = {
   {61, "-50 <= x < -49 dBm"},
   {62, "-49 <= x < -48 dBm"},
   {63, ">= -48 dBm"},
+  {0,  NULL}
 };
 static const value_string gsm_a_rr_mv_vals[] = {
 	{ 0,	"The measurement results are valid"},
 	{ 1,	"The measurement results are not valid"},
+	{ 0,    NULL}
 };
 static const value_string gsm_a_rr_rxqual_vals [] = {
   {0, "BER < 0.2%, Mean value 0.14%"},
@@ -5383,6 +5386,7 @@ static const value_string gsm_a_rr_rxqual_vals [] = {
   {5, "3.2% <= BER < 6.4%, Mean value 4.53%"},
   {6, "6.4% <= BER < 12.8%, Mean value 9.05%"},
   {7, "BER > 12.8%, Mean value 18.10%"},
+  {0, NULL}
 };
 static const value_string gsm_a_rr_ncell_vals [] = {
   {0, "No neighbour cell measurement result"},
@@ -5393,6 +5397,7 @@ static const value_string gsm_a_rr_ncell_vals [] = {
   {5, "5 neighbour cell measurement result"},
   {6, "6 neighbour cell measurement result"},
   {7, "Neighbour cell information not available for serving cell"},
+  {0, NULL}
 };
 
 guint8
