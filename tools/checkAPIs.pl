@@ -4,10 +4,10 @@
 # Copyright 2006, Jeff Morriss <jeff.morriss[AT]ulticom.com>
 #
 # A simple tool to check source code for function calls that should not
-# be called by Wireshark code.
+# be called by Wireshark code and to perform certain other checks.
 #
 # Usage:
-# checkAPIs.pl [-g group1] [-g group2] file1 file2 ...
+# checkAPIs.pl [-g group1] [-g group2] [--nocheck-value-string-array-null-termination] file1 file2 ...
 #
 # $Id$
 #
@@ -216,8 +216,19 @@ my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)
 my $errorCount = 0;
 # The default list, which can be expanded.
 my @apiGroups = qw(prohibited deprecated);
+my $check_value_string_array_null_termination = 1; # default: enabled
+my $debug_flag = 0;
 
-GetOptions('g=s' => \@apiGroups);
+my $result = GetOptions(
+                        'g=s' => \@apiGroups, 
+                        'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
+                        'debug' => \$debug_flag
+                       );
+if (!$result) {
+    print "Usage: checkAPIs.pl [-g group1] [-g group2] [--nocheck-value-string-array-null-termination] file1 file2 ..\n";
+    exit(1);
+}
+
 while ($_ = $ARGV[0])
 {
 	shift;
@@ -263,6 +274,32 @@ while ($_ = $ARGV[0])
 		$errorCount++;
         }
 
+	# Brute force check for value_string arrays which are not NULL terminated
+	if ($check_value_string_array_null_termination) {
+		#  Assumption: definition is of form:
+		#    "... const value_string ... = { ... ;" (possibly over multiple lines) 
+		# ToDo: investigate cases in Wireshark code of value_string definitions such as
+		#        "const value_string ...;".
+		while ($fileContents =~ /( (static \s+)? const \s+ value_string [^;*]+ = [^;]+ \{ [^;]+ ; )/xsg) {
+			# value_string array definition found; check if NULL terminated
+			my $vs = my $vsx = $1;
+			if ($debug_flag) {
+				$vsx =~ /(.+ value_string [^=]+ ) = /x;
+				printf STDERR "==> %-35.35s: %s\n", $filename, $1;
+			}
+			$vs =~ s/\s//g;
+			# README.developer says 
+			#  "Don't put a comma after the last tuple of an initializer of an array"
+			# However: since this usage is present in some number of cases, we'll allow for now
+			if ($vs !~ / , NULL \} ,? \} ; $/x) {
+				$vsx =~ /( value_string [^=]+ ) = /x;
+				printf STDERR "Error: %-35.35s: Non-terminated: %s\n", $filename, $1;
+				$errorCount++;
+			}
+		}
+	}
+
+	# Check APIs
 	for my $apiName (@apiGroups) {
 		my $pfx = "Warning";
 		@foundAPIs = ();
