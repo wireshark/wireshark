@@ -45,7 +45,7 @@
 #include "gtk/stock_icons.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
-
+#include "gtk/filter_autocomplete.h"
 
 #define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
 #define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"
@@ -535,6 +535,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY, filter_te);
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_name_te_changed_cb), filter_list_type_p);
+    g_object_set_data(G_OBJECT(main_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+    g_signal_connect(main_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     gtk_widget_show(filter_te);
 
     g_object_set_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
@@ -1320,5 +1323,3 @@ filter_te_syntax_check_cb(GtkWidget *w)
         statusbar_push_filter_msg(" Invalid filter");
     }
 }
-
-

@@ -35,6 +35,7 @@
 #include <gtk/gtk.h>
 
 #include "filter_dlg.h"
+#include "filter_autocomplete.h"
 
 #include "keys.h"
 #include "gtkglobals.h"
@@ -125,6 +126,9 @@ GtkWidget *filter_toolbar_new()
     g_object_set_data(G_OBJECT(top_level), E_DFILTER_CM_KEY, filter_cm);
     g_signal_connect(filter_te, "activate", G_CALLBACK(filter_activate_cb), filter_te);
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+    g_object_set_data(G_OBJECT(filter_tb), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+    g_signal_connect(filter_tb, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     gtk_widget_set_size_request(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm,

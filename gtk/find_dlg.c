@@ -48,7 +48,7 @@
 #include "gtk/prefs_dlg.h"
 #include "gtk/keys.h"
 #include "gtk/help_dlg.h"
-
+#include "gtk/filter_autocomplete.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY       "find_filter_te"
@@ -210,6 +210,9 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(find_frame_w), E_FILT_TE_PTR_KEY, filter_text_box);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
   g_signal_connect(filter_text_box, "changed", G_CALLBACK(find_filter_te_syntax_check_cb), find_frame_w);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+  g_signal_connect(filter_text_box, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(find_frame_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   gtk_widget_show(filter_text_box);
 
 

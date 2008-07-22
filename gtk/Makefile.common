@@ -56,6 +56,7 @@ WIRESHARK_GTK_SRC = \
 	expert_comp_table.c    \
 	export_object.c	       \
 	export_object_http.c   \
+	filter_autocomplete.c	\
 	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
@@ -222,6 +223,7 @@ noinst_HEADERS = \
 	export_object.h	\
 	file_dlg.h	\
 	fileset_dlg.h	\
+	filter_autocomplete.h	\
 	filter_dlg.h	\
 	filter_utils.h	\
 	find_dlg.h	\
