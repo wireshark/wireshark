@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-inap.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p inap -c ./inap.cnf -s ./packet-inap-template -D . ../ros/Remote-Operations-Information-Objects.asn IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn inap.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn */
+/* ../../tools/asn2wrs.py -b -e -p inap -c inap.cnf -s packet-inap-template ../ros/Remote-Operations-Information-Objects.asn IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn inap.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn */
 
 /* Input file: packet-inap-template.c */
 
@@ -7879,35 +7879,47 @@ static void dissect_INAP_Component_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_inap_INAP_Component(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_INAP_Component_PDU);
 }
-static void dissect_ActivateServiceFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ActivateServiceFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ActivateServiceFilteringArg_PDU);
+  offset = dissect_inap_ActivateServiceFilteringArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ActivateServiceFilteringArg_PDU);
+  return offset;
 }
-static void dissect_AnalysedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AnalysedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_AnalysedInformationArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_AnalysedInformationArg_PDU);
+  offset = dissect_inap_AnalysedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AnalysedInformationArg_PDU);
+  return offset;
 }
-static void dissect_AnalyseInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AnalyseInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_AnalyseInformationArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_AnalyseInformationArg_PDU);
+  offset = dissect_inap_AnalyseInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AnalyseInformationArg_PDU);
+  return offset;
 }
-static void dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ApplyChargingArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ApplyChargingArg_PDU);
+  offset = dissect_inap_ApplyChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ApplyChargingArg_PDU);
+  return offset;
 }
-static void dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ApplyChargingReportArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ApplyChargingReportArg_PDU);
+  offset = dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ApplyChargingReportArg_PDU);
+  return offset;
 }
-static void dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_AssistRequestInstructionsArg_PDU);
+  offset = dissect_inap_AssistRequestInstructionsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_AssistRequestInstructionsArg_PDU);
+  return offset;
 }
 static int dissect_AuthorizeTerminationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -7923,10 +7935,12 @@ static int dissect_CallFilteringArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset = dissect_inap_CallFilteringArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallFilteringArg_PDU);
   return offset;
 }
-static void dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_CallGapArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_CallGapArg_PDU);
+  offset = dissect_inap_CallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CallGapArg_PDU);
+  return offset;
 }
 static void dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -7950,25 +7964,33 @@ static int dissect_CancelStatusReportRequestArg_PDU(tvbuff_t *tvb _U_, packet_in
   offset = dissect_inap_CancelStatusReportRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CancelStatusReportRequestArg_PDU);
   return offset;
 }
-static void dissect_CollectedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CollectedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_CollectedInformationArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_CollectedInformationArg_PDU);
+  offset = dissect_inap_CollectedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CollectedInformationArg_PDU);
+  return offset;
 }
-static void dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_CollectInformationArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_CollectInformationArg_PDU);
+  offset = dissect_inap_CollectInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_CollectInformationArg_PDU);
+  return offset;
 }
-static void dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ConnectArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ConnectArg_PDU);
+  offset = dissect_inap_ConnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ConnectArg_PDU);
+  return offset;
 }
-static void dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ConnectToResourceArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ConnectToResourceArg_PDU);
+  offset = dissect_inap_ConnectToResourceArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ConnectToResourceArg_PDU);
+  return offset;
 }
 static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8026,20 +8048,26 @@ static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset = dissect_inap_EntityReleasedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EntityReleasedArg_PDU);
   return offset;
 }
-static void dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
+  offset = dissect_inap_EstablishTemporaryConnectionArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EstablishTemporaryConnectionArg_PDU);
+  return offset;
 }
-static void dissect_EventNotificationChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventNotificationChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_EventNotificationChargingArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_EventNotificationChargingArg_PDU);
+  offset = dissect_inap_EventNotificationChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EventNotificationChargingArg_PDU);
+  return offset;
 }
-static void dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_EventReportBCSMArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_EventReportBCSMArg_PDU);
+  offset = dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_EventReportBCSMArg_PDU);
+  return offset;
 }
 static int dissect_EventReportFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8055,25 +8083,33 @@ static int dissect_FacilitySelectedAndAvailableArg_PDU(tvbuff_t *tvb _U_, packet
   offset = dissect_inap_FacilitySelectedAndAvailableArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_FacilitySelectedAndAvailableArg_PDU);
   return offset;
 }
-static void dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_FurnishChargingInformationArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_FurnishChargingInformationArg_PDU);
+  offset = dissect_inap_FurnishChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_FurnishChargingInformationArg_PDU);
+  return offset;
 }
-static void dissect_HoldCallInNetworkArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_HoldCallInNetworkArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_HoldCallInNetworkArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_HoldCallInNetworkArg_PDU);
+  offset = dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_HoldCallInNetworkArg_PDU);
+  return offset;
 }
-static void dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_InitialDPArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_InitialDPArg_PDU);
+  offset = dissect_inap_InitialDPArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_InitialDPArg_PDU);
+  return offset;
 }
-static void dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_InitiateCallAttemptArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_InitiateCallAttemptArg_PDU);
+  offset = dissect_inap_InitiateCallAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_InitiateCallAttemptArg_PDU);
+  return offset;
 }
 static int dissect_ManageTriggerDataArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8131,20 +8167,26 @@ static int dissect_OAbandonArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset = dissect_inap_OAbandonArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OAbandonArg_PDU);
   return offset;
 }
-static void dissect_OAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_OAnswerArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_OAnswerArg_PDU);
+  offset = dissect_inap_OAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OAnswerArg_PDU);
+  return offset;
 }
-static void dissect_OCalledPartyBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OCalledPartyBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_OCalledPartyBusyArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_OCalledPartyBusyArg_PDU);
+  offset = dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OCalledPartyBusyArg_PDU);
+  return offset;
 }
-static void dissect_ODisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ODisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ODisconnectArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ODisconnectArg_PDU);
+  offset = dissect_inap_ODisconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ODisconnectArg_PDU);
+  return offset;
 }
 static int dissect_MidCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8153,10 +8195,12 @@ static int dissect_MidCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
   offset = dissect_inap_MidCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_MidCallArg_PDU);
   return offset;
 }
-static void dissect_ONoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ONoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ONoAnswerArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ONoAnswerArg_PDU);
+  offset = dissect_inap_ONoAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ONoAnswerArg_PDU);
+  return offset;
 }
 static int dissect_OriginationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8165,10 +8209,12 @@ static int dissect_OriginationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset = dissect_inap_OriginationAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OriginationAttemptArg_PDU);
   return offset;
 }
-static void dissect_OriginationAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_OriginationAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
+  offset = dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
+  return offset;
 }
 static int dissect_OSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8184,10 +8230,12 @@ static int dissect_ReconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset = dissect_inap_ReconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReconnectArg_PDU);
   return offset;
 }
-static void dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ReleaseCallArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ReleaseCallArg_PDU);
+  offset = dissect_inap_ReleaseCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReleaseCallArg_PDU);
+  return offset;
 }
 static int dissect_ReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8196,35 +8244,45 @@ static int dissect_ReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset = dissect_inap_ReportUTSIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ReportUTSIArg_PDU);
   return offset;
 }
-static void dissect_RequestCurrentStatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestCurrentStatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
+  offset = dissect_inap_RequestCurrentStatusReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestCurrentStatusReportArg_PDU);
+  return offset;
 }
 static void dissect_RequestCurrentStatusReportResultArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_inap_RequestCurrentStatusReportResultArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestCurrentStatusReportResultArg_PDU);
 }
-static void dissect_RequestEveryStatusChangeReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestEveryStatusChangeReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
+  offset = dissect_inap_RequestEveryStatusChangeReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestEveryStatusChangeReportArg_PDU);
+  return offset;
 }
-static void dissect_RequestFirstStatusMatchReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestFirstStatusMatchReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
+  offset = dissect_inap_RequestFirstStatusMatchReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestFirstStatusMatchReportArg_PDU);
+  return offset;
 }
-static void dissect_RequestNotificationChargingEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestNotificationChargingEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RequestNotificationChargingEventArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestNotificationChargingEventArg_PDU);
+  offset = dissect_inap_RequestNotificationChargingEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestNotificationChargingEventArg_PDU);
+  return offset;
 }
-static void dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RequestReportBCSMEventArg_PDU);
+  offset = dissect_inap_RequestReportBCSMEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestReportBCSMEventArg_PDU);
+  return offset;
 }
 static int dissect_RequestReportFacilityEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8240,25 +8298,33 @@ static int dissect_RequestReportUTSIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   offset = dissect_inap_RequestReportUTSIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RequestReportUTSIArg_PDU);
   return offset;
 }
-static void dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ResetTimerArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ResetTimerArg_PDU);
+  offset = dissect_inap_ResetTimerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ResetTimerArg_PDU);
+  return offset;
 }
-static void dissect_RouteSelectFailureArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_RouteSelectFailureArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_RouteSelectFailureArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_RouteSelectFailureArg_PDU);
+  offset = dissect_inap_RouteSelectFailureArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_RouteSelectFailureArg_PDU);
+  return offset;
 }
-static void dissect_SelectFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SelectFacilityArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_SelectFacilityArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_SelectFacilityArg_PDU);
+  offset = dissect_inap_SelectFacilityArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SelectFacilityArg_PDU);
+  return offset;
 }
-static void dissect_SelectRouteArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SelectRouteArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_SelectRouteArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_SelectRouteArg_PDU);
+  offset = dissect_inap_SelectRouteArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SelectRouteArg_PDU);
+  return offset;
 }
 static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8281,10 +8347,12 @@ static int dissect_SendSTUIArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset = dissect_inap_SendSTUIArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SendSTUIArg_PDU);
   return offset;
 }
-static void dissect_ServiceFilteringResponseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ServiceFilteringResponseArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_ServiceFilteringResponseArg_PDU);
+  offset = dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_ServiceFilteringResponseArg_PDU);
+  return offset;
 }
 static int dissect_SetServiceProfileArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8300,30 +8368,40 @@ static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset = dissect_inap_SplitLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_SplitLegArg_PDU);
   return offset;
 }
-static void dissect_StatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_StatusReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_StatusReportArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_StatusReportArg_PDU);
+  offset = dissect_inap_StatusReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_StatusReportArg_PDU);
+  return offset;
 }
-static void dissect_TAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_TAnswerArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_TAnswerArg_PDU);
+  offset = dissect_inap_TAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TAnswerArg_PDU);
+  return offset;
 }
-static void dissect_TBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TBusyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_TBusyArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_TBusyArg_PDU);
+  offset = dissect_inap_TBusyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TBusyArg_PDU);
+  return offset;
 }
-static void dissect_TDisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TDisconnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_TDisconnectArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_TDisconnectArg_PDU);
+  offset = dissect_inap_TDisconnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TDisconnectArg_PDU);
+  return offset;
 }
-static void dissect_TermAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TermAttemptAuthorizedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
+  offset = dissect_inap_TermAttemptAuthorizedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TermAttemptAuthorizedArg_PDU);
+  return offset;
 }
 static int dissect_TerminationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
@@ -8332,10 +8410,12 @@ static int dissect_TerminationAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset = dissect_inap_TerminationAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TerminationAttemptArg_PDU);
   return offset;
 }
-static void dissect_TNoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_TNoAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_inap_TNoAnswerArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_inap_TNoAnswerArg_PDU);
+  offset = dissect_inap_TNoAnswerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_inap_TNoAnswerArg_PDU);
+  return offset;
 }
 static int dissect_TSuspendedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
