@@ -29,9 +29,13 @@ H235CertificateSignature
 
 EncodedGeneralToken
 EncodedPwdCertToken
+PwdCertToken
 EncodedKeySignedMaterial
+KeySignedMaterial
 EncodedReturnSig
+ReturnSig
 EncodedKeySyncMaterial
+KeySyncMaterial
 #.END
 
 #.FIELD_RENAME

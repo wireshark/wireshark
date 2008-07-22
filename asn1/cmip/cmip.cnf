@@ -403,7 +403,7 @@ RejectProblem
 		break;
 	case 18: /* missingAttributeValue */
 		/* Hmmm  SET OF AttributeId */
-		dissect_cmip_AttributeId(FALSE, tvb,  offset, actx, tree, -1);
+		dissect_cmip_PAR_missingAttributeValue(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 9: /* noSuchAction */ 
 		dissect_cmip_NoSuchAction(FALSE, tvb,  offset, actx, tree, -1);

@@ -6,6 +6,11 @@
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 
+#.OMIT_ASSIGNMENT
+KeyWrapAlgorithm
+CBCParameter
+#.END
+
 #.EXPORTS
 ContentInfo
 ContentType

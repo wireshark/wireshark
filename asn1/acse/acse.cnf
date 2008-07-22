@@ -5,6 +5,10 @@
 
 #.IMPORT ../x509if/x509if-exp.cnf
 
+#.OMIT_ASSIGNMENT
+Application-context-name
+#.END
+
 #.EXPORTS
 EXTERNALt
 AE-title
