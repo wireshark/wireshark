@@ -76,7 +76,7 @@ static const value_string vals_extensions[] = {
 	{ 0xFE, "Comment" },
 	{ 0xFF, "Application" },
 	{ 0x01, "Plain Text" },
-	{ 0x00, NULL, },
+	{ 0x00, NULL },
 };
 
 enum {
