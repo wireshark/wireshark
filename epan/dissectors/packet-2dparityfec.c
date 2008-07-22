@@ -96,7 +96,9 @@ static int hf_2dparityfec_payload         = -1;
 static const value_string fec_type_names[] = {
       {0, "XOR"},
       {1, "Hamming"},
-      {2, "Reed-Solomon"}};
+      {2, "Reed-Solomon"},
+      {0, NULL}
+};
 
 static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

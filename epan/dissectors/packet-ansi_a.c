@@ -5222,7 +5222,8 @@ static const value_string ansi_a_adds_strings[] = {
     { ADDS_APP_SDB,		"SDB" },
     { ADDS_APP_HRPD,		"HRPD" },
     { ADDS_APP_EXT_INTL,	"EXT_INTL" },
-    { ADDS_APP_EXT,		"EXT" }
+    { ADDS_APP_EXT,		"EXT" },
+    { 0,			NULL}
 };
 
 /*

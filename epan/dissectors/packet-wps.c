@@ -523,6 +523,7 @@ static const value_string eapwps_tlv_configuration_error_vals[] = {
 static const value_string eapwps_tlv_connection_type_vals[] = {
   { EAPWPS_CONNTYPE_ESS,  "ESS" },
   { EAPWPS_CONNTYPE_IBSS, "IBSS" },
+  { 0, NULL}
 };
 
 #define EAPWPS_DEVPW_PIN 0x0

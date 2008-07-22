@@ -4528,7 +4528,8 @@ dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, proto_tree *rsvp_object_tree,
       {0, "LSP is FA (MPLS-TE topology advertisement only)"},
       {1, "LSP is RA (IP network advertisement only)"},
       {2, "LSP is RA (both IP and MPLS-TE topology advertisement)"},
-      {3, "LSP is to be used as a virtual local link"}
+      {3, "LSP is to be used as a virtual local link"},
+      {0, NULL}
     };
 
     proto_item_set_text(ti, "LSP INTERFACE-ID: ");
