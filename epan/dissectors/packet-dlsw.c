@@ -206,8 +206,7 @@ static const value_string dlsw_refuse_vals[] = {
 	{ 0xa	, "duplicate control vector"},
 	{ 0xb	, "out-of-sequence control vector"},
 	{ 0xc	, "DLSw Supported SAP List control vector is missing"},
-	{ 0xd	, "inconsistent DLSw Version, Multicast Capabilities,\
- and TCP Connections CV received on the inbound Capabilities exchange"},
+	{ 0xd	, "inconsistent DLSw Version, Multicast Capabilities, and TCP Connections CV received on the inbound Capabilities exchange"},
 	{ 0x0	, NULL }
 };
 
