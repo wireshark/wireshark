@@ -283,7 +283,7 @@ while ($_ = $ARGV[0])
 		#    "... const value_string ... = { ... ;" (possibly over multiple lines) 
 		# ToDo: investigate cases in Wireshark code of value_string definitions such as
 		#        "const value_string ...;".
-		while ($fileContents =~ /( (static \s+)? const \s+ value_string [^;*]+ = [^;]+ \{ [^;]+ ; )/xsg) {
+		while ($fileContents =~ /( (?: static \s+)? const \s+ value_string [^;*]+ = [^;]+ \{ [^;]+ ; )/xsg) {
 			# value_string array definition found; check if NULL terminated
 			my $vs = my $vsx = $1;
 			if ($debug_flag) {
