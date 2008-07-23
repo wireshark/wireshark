@@ -12,7 +12,7 @@ GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 CaseIgnoreListMatch
 CountryName
 Criteria
-DayTime
+#DayTime
 DayTimeBand
 DestinationIndicator
 DirectoryString
@@ -65,20 +65,20 @@ BitString
 Integer
 Boolean
 SyntaxGeneralizedTime
-SyntaxUTCTime
-SyntaxNumericString
+#SyntaxUTCTime
+#SyntaxNumericString
 SyntaxPrintableString
 SyntaxIA5String
 SyntaxBMPString
-SyntaxUniversalString
+#SyntaxUniversalString
 SyntaxUTF8String
-SyntaxTeletexString
-SyntaxT61String
-SyntaxVideotexString
+#SyntaxTeletexString
+#SyntaxT61String
+#SyntaxVideotexString
 SyntaxGraphicString
-SyntaxISO646String
-SyntaxVisibleString
-SyntaxGeneralString
+#SyntaxISO646String
+#SyntaxVisibleString
+#SyntaxGeneralString
 
 #.REGISTER
 ObjectIdentifier        B "2.5.4.0"   "id-at-objectClass"
@@ -148,7 +148,7 @@ DirectoryString         B "2.5.4.51"   "id-at-houseIdentifier"
 ObjectIdentifier        B "2.5.4.52"	"id-at-supportedAlgorithms"
 # 53 "id-at-deltaRevocationList" - what syntax?
 DirectoryString         B "2.5.4.54"   "id-at-dmdName"
-# 55 "id-at-clearance" - what syntax (or rather where?)
+#Clearance				B "2.5.4.55"	"id-at-clearance"
 # 56 "id-at-defaultDirQop" - what syntax?
 # 56 "id-at-attributeIntegrityInfo" - what syntax?
 # 58 "id-at-attributeCertificate" - see x509af.cnf
@@ -173,6 +173,16 @@ ObjectIdentifier       B "2.5.18.5" "id-oa-administrativeRole"
 ObjectIdentifier       B "2.5.18.7" "id-oa-collectiveExclusions"
 SyntaxGeneralizedTime  B "2.5.18.8" "id-oa-subschemaTimeStamp"	
 Boolean		           B "2.5.18.9" "id-oa-hasSubordinates"
+#id-oa-subschemaSubentryList OBJECT IDENTIFIER ::= {id-oa 10}
+#id-oa-accessControlSubentryList OBJECT IDENTIFIER ::= {id-oa 11}
+#id-oa-collectiveAttributeSubentryList OBJECT IDENTIFIER ::= {id-oa 12}
+#id-oa-contextDefaultSubentryList OBJECT IDENTIFIER ::= {id-oa 13}
+#id-oa-contextAssertionDefault OBJECT IDENTIFIER ::= {id-oa 14}
+#id-oa-serviceAdminSubentryList OBJECT IDENTIFIER ::= {id-oa 15}
+#id-oa-searchRules OBJECT IDENTIFIER ::= {id-oa 16}
+#id-oa-hierarchyLevel OBJECT IDENTIFIER ::= {id-oa 17}
+#id-oa-hierarchyBelow OBJECT IDENTIFIER ::= {id-oa 18}
+#id-oa-hierarchyParent OBJECT IDENTIFIER ::= {id-oa 19}
 
 ObjectIdentifier       B "2.5.24.1" "id-aca-accessControlScheme"
 
