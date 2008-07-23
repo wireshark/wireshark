@@ -12159,17 +12159,19 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 			length_remaining = tvb_reported_length_remaining(tvb, 8);
 
 			if (length_remaining >= 8) {
+				proto_item *pi;
+
                                 ping_version = tvb_get_letohl(tvb, 8);
 				proto_tree_add_uint(ncp_tree, hf_nds_ping_version, tvb, 8,
-				    4, ping_version);
+						    4, ping_version);
 				nds_flags = tvb_get_letohl(tvb, 12);
 				if (request_value){
-                    request_value->nds_request_verb = 0xf0;
-                    request_value->req_nds_flags = nds_flags;
-                }
-                    proto_tree_add_uint_hidden(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0,
-                        240);
+				    request_value->nds_request_verb = 0xf0;
+				    request_value->req_nds_flags = nds_flags;
+				}
 
+				pi = proto_tree_add_uint(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0, 240);
+				PROTO_ITEM_SET_HIDDEN(pi);
 
                                 pvalue.vvalue = tvb_get_letohs(tvb, 12);
                                 pvalue.vtype = VTYPE_BITFIELD;
