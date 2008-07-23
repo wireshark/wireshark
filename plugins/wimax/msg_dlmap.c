@@ -705,24 +705,24 @@ gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint leng
     tree = proto_item_add_subtree(ti, ett_286j);
 
     if (RCID_Type == 0) {
-	XBIT(cid, 16, "CID");
+        XBIT(cid, 16, "CID");
     } else {
         proto_tree_add_text(tree, tvb, BITHI(bit,1), "Prefix: %d", Prefix);
         bit++;
 
         if (Prefix == 1) {
             /* RCID 11 */
-	    XBIT(cid, 11, "CID11");
+            XBIT(cid, 11, "CID11");
         } else {
             if (RCID_Type == 1) {
                 /* RCID 11 */
-		XBIT(cid, 11, "CID11");
+                XBIT(cid, 11, "CID11");
             } else if (RCID_Type == 2) {
                 /* RCID 7 */
-		XBIT(cid, 7, "CID7");
+                XBIT(cid, 7, "CID7");
             } else if (RCID_Type == 3) {
                 /* RCID 3 */
-		XBIT(cid, 3, "CID3");
+                XBIT(cid, 3, "CID3");
             }
         }
     }
@@ -761,17 +761,17 @@ gint Dedicated_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint o
     if ((nibble & 1) == 1) {
         nibble = NIB_NIBBLE(nib, bufptr);
         proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Num SDMA Layers: %d", (nibble >> 2) & 0x3);
-	/* Bit padding */
-	if ((nib*4)+2 < (offset+length)*4) {
-	    len = ((offset + length - nib) * 4) - 2;
-	    proto_tree_add_text(tree, tvb, BITHI(nib*4, len), "Reserved bits");
-	}
+        /* Bit padding */
+        if ((nib*4)+2 < (offset+length)*4) {
+            len = ((offset + length - nib) * 4) - 2;
+            proto_tree_add_text(tree, tvb, BITHI(nib*4, len), "Reserved bits");
+        }
     } else {
-	    /* Nibble padding */
-	    if (nib < offset+length) {
-		len = (offset + length) - nib;
-		proto_tree_add_text(tree, tvb, NIBHI(nib,len), "Reserved bits");
-	    }
+        /* Nibble padding */
+        if (nib < offset+length) {
+            len = (offset + length) - nib;
+            proto_tree_add_text(tree, tvb, NIBHI(nib,len), "Reserved bits");
+        }
     }
     return (length + 1);
 }
@@ -800,25 +800,25 @@ gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
 
     /* MIMO Control Info */
     if (mci == 1) {
-	XBIT(matrix, 2, "Matrix");
+        XBIT(matrix, 2, "Matrix");
         if (STC_Zone_Dedicated_Pilots == 1) {
-	    XBIT(data, 2, "Num_Beamformed_Streams");
+            XBIT(data, 2, "Num_Beamformed_Streams");
         }
     }
 
     /* CQICH Control Info */
     if (cqi == 1) {
         CQICH_num = 0;
-	XBIT(data, 3, "Period");
-	XBIT(data, 3, "Frame Offset");
-	XBIT(data, 4, "Duration");
+        XBIT(data, 3, "Period");
+        XBIT(data, 3, "Frame Offset");
+        XBIT(data, 4, "Duration");
         for (j = 0; j < N_layer; j++) {
-	    XBIT(data, 6, "Allocation Index");
+            XBIT(data, 6, "Allocation Index");
         }
-	XBIT(CQICH_num, 2, "CQICH_Num");
+        XBIT(CQICH_num, 2, "CQICH_Num");
         for (j = 0; j < CQICH_num; j++) {
-	    XBIT(data, 3, "Feedback type");
-	    XBIT(data, 6, "Allocation index");
+            XBIT(data, 3, "Feedback type");
+            XBIT(data, 6, "Allocation index");
         }
     }
 
@@ -830,21 +830,21 @@ gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
             mimo_mode = STC_Zone_Matrix;
         }
         if (mimo_mode == 0 || mimo_mode == 1) {
-	    XBIT(data, 3, "Antenna Grouping Index");
+            XBIT(data, 3, "Antenna Grouping Index");
         } else if (mimo_mode == 2) {
-	    XBIT(data, 2, "Num_stream");
-	    XBIT(data, 3, "Antenna Selection Index");
+            XBIT(data, 2, "Num_stream");
+            XBIT(data, 3, "Antenna Selection Index");
         } else if (mimo_mode == 3) {
-	    XBIT(data, 2, "Num_stream");
-	    XBIT(data, 6, "Codebook Precoding Index");
+            XBIT(data, 2, "Num_stream");
+            XBIT(data, 6, "Codebook Precoding Index");
         }
     }
 
     /* padding to nibble */
     pad = BIT_PADDING(bit,4);
     if(pad){
-	proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits", pad);
-	bit += pad;
+        proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits", pad);
+        bit += pad;
     }
 
     return (bit - offset);
@@ -873,27 +873,27 @@ gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
     nsub += 1;
     for (j = 0; j < nsub; j++) {
         bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
-	XBIT(dur, 10, "Duration");
-	XBIT(sbi,  1, "Sub-Burst DIUC Indicator");
-	XBIT(res,  1, "Reserved");
+        XBIT(dur, 10, "Duration");
+        XBIT(sbi,  1, "Sub-Burst DIUC Indicator");
+        XBIT(res,  1, "Reserved");
 
         if (sbi == 1) {
-	    XBIT(diuc, 4, "DIUC");
-	    XBIT(rci, 2, "Repetition Coding Indication");
-	    XBIT(res, 2, "Reserved");
+            XBIT(diuc, 4, "DIUC");
+            XBIT(rci, 2, "Repetition Coding Indication");
+            XBIT(res, 2, "Reserved");
         }
 
-	XBIT(data, 4, "ACID");
-	XBIT(data, 1, "AI_SN");
-	XBIT(data, 1, "ACK disable");
-	XBIT(ddci, 2, "Dedicated DL Control Indicator");
+        XBIT(data, 4, "ACID");
+        XBIT(data, 1, "AI_SN");
+        XBIT(data, 1, "ACK disable");
+        XBIT(ddci, 2, "Dedicated DL Control Indicator");
 
         if ((ddci & 1) == 1) {
-	    XBIT(dur, 4, "Duration (d)");
+            XBIT(dur, 4, "Duration (d)");
             if (dur != 0) {
-		XBIT(ind, 6, "Allocation Index");
-		XBIT(per, 3, "Period (p)");
-		XBIT(ofs, 3, "Frame offset");
+                XBIT(ind, 6, "Allocation Index");
+                XBIT(per, 3, "Period (p)");
+                XBIT(ofs, 3, "Frame offset");
             }
         }
 
@@ -931,22 +931,22 @@ gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gi
     for (j = 0; j < nsub; j++) {
         bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
 
-	XBIT(data, 4, "N(EP)");
-	XBIT(data, 4, "N(SCH)");
-	XBIT(data, 2, "SPID");
-	XBIT(data, 4, "ACID");
-	XBIT(data, 1, "AI_SN");
-	XBIT(data, 1, "ACK disable");
-	XBIT(data, 2, "Reserved");
-	XBIT(ddci, 2, "Dedicated DL Control Indicator");
+        XBIT(data, 4, "N(EP)");
+        XBIT(data, 4, "N(SCH)");
+        XBIT(data, 2, "SPID");
+        XBIT(data, 4, "ACID");
+        XBIT(data, 1, "AI_SN");
+        XBIT(data, 1, "ACK disable");
+        XBIT(data, 2, "Reserved");
+        XBIT(ddci, 2, "Dedicated DL Control Indicator");
 
         if ((ddci & 1) == 1) {
-	    XBIT(dur, 4, "Duration (d)");
+            XBIT(dur, 4, "Duration (d)");
 
             if (dur != 0) {
-		XBIT(ind, 6, "Allocation Index");
-		XBIT(per, 3, "Period (p)");
-		XBIT(ofs, 3, "Frame offset");
+                XBIT(ind, 6, "Allocation Index");
+                XBIT(per, 3, "Period (p)");
+                XBIT(ofs, 3, "Frame offset");
             }
         }
         if ((ddci & 2) == 2) {
@@ -956,16 +956,16 @@ gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gi
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -996,30 +996,30 @@ gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
     for (j = 0; j < nsub; j++) {
         bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type) / 4;
 
-	XBIT(data, 10, "Duration");
-	XBIT(sbdi,  1, "Sub-Burst DIUC Indicator");
-	XBIT(data,  1, "Reserved");
+        XBIT(data, 10, "Duration");
+        XBIT(sbdi,  1, "Sub-Burst DIUC Indicator");
+        XBIT(data,  1, "Reserved");
 
         if (sbdi) {
-	    XBIT(data, 4, "DIUC");
-	    XBIT(data, 2, "Repetition Coding Indication");
-	    XBIT(data, 2, "Reserved");
+            XBIT(data, 4, "DIUC");
+            XBIT(data, 2, "Repetition Coding Indication");
+            XBIT(data, 2, "Reserved");
         }
 
-	XBIT(data, 4, "ACID");
-	XBIT(data, 1, "AI_SN");
-	XBIT(data, 2, "SPID");
-	XBIT(data, 1, "ACK disable");
-	XBIT(ddci, 2, "Dedicated DL Control Indicator");
-	XBIT(data, 2, "Reserved");
+        XBIT(data, 4, "ACID");
+        XBIT(data, 1, "AI_SN");
+        XBIT(data, 2, "SPID");
+        XBIT(data, 1, "ACK disable");
+        XBIT(ddci, 2, "Dedicated DL Control Indicator");
+        XBIT(data, 2, "Reserved");
 
         if (ddci & 1) {
-	    XBIT(dur, 4, "Duration (d)");
+            XBIT(dur, 4, "Duration (d)");
 
             if (dur != 0) {
-		XBIT(ind, 6, "Allocation Index");
-		XBIT(per, 3, "Period (p)");
-		XBIT(ofs, 3, "Frame offset");
+                XBIT(ind, 6, "Allocation Index");
+                XBIT(per, 3, "Period (p)");
+                XBIT(ofs, 3, "Frame offset");
             }
         }
         if ((ddci & 2) == 2) {
@@ -1029,16 +1029,16 @@ gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -1067,25 +1067,25 @@ gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr
 
     nsub += 1;
     for (j = 0; j < nsub; j++) {
-	XBIT(mui, 1, "MU Indicator");
-	XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-	XBIT(akd, 1, "ACK Disable");
+        XBIT(mui, 1, "MU Indicator");
+        XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
+        XBIT(akd, 1, "ACK Disable");
         if (mui == 0) {
             bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
         }
         if (dci == 1) {
             bit += Dedicated_MIMO_DL_Control_IE(tree, bufptr, bit, length, tvb);
         }
-	XBIT(data, 10, "Duration");
+        XBIT(data, 10, "Duration");
         for (i = 0; i < N_layer; i++) {
             if (mui == 1) {
                 bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
             }
-	    XBIT(data, 4, "DIUC");
-	    XBIT(data, 2, "Repetition Coding Indication");
+            XBIT(data, 4, "DIUC");
+            XBIT(data, 2, "Repetition Coding Indication");
             if (akd == 0) {
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
+                XBIT(data, 4, "ACID");
+                XBIT(data, 1, "AI_SN");
             }
         }
     }
@@ -1098,16 +1098,16 @@ gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -1136,41 +1136,41 @@ gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
 
     nsub += 1;
     for (j = 0; j < nsub; j++) {
-	XBIT(mui, 1, "MU Indicator");
-	XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-	XBIT(akd, 1, "ACK Disable");
+        XBIT(mui, 1, "MU Indicator");
+        XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
+        XBIT(akd, 1, "ACK Disable");
         if (mui == 0) {
             bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
         }
         if (dci == 1) {
             bit += Dedicated_MIMO_DL_Control_IE(tree, bufptr, bit, length, tvb);
         }
-	XBIT(data, 4, "N(SCH)");
+        XBIT(data, 4, "N(SCH)");
         for (i = 0; i < N_layer; i++) {
             if (mui == 1) {
                 bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
             }
-	    XBIT(data, 4, "N(EP)");
+            XBIT(data, 4, "N(EP)");
             if (akd) {
-		XBIT(data, 2, "SPID");
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
+                XBIT(data, 2, "SPID");
+                XBIT(data, 4, "ACID");
+                XBIT(data, 1, "AI_SN");
             }
         }
     }
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -1199,42 +1199,42 @@ gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bu
 
     nsub += 1;
     for (j = 0; j < nsub; j++) {
-	XBIT(mui, 1, "MU Indicator");
-	XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-	XBIT(akd, 1, "ACK Disable");
+        XBIT(mui, 1, "MU Indicator");
+        XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
+        XBIT(akd, 1, "ACK Disable");
         if (mui == 0) {
             bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
         }
         if (dci == 1) {
             bit += Dedicated_MIMO_DL_Control_IE(tree, bufptr, bit, length, tvb);
         }
-	XBIT(data, 10, "Duration");
+        XBIT(data, 10, "Duration");
         for (i = 0; i < N_layer; i++) {
             if (mui == 1) {
                 bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
             }
-	    XBIT(data, 4, "DIUC");
-	    XBIT(data, 2, "Repetition Coding Indication");
+            XBIT(data, 4, "DIUC");
+            XBIT(data, 2, "Repetition Coding Indication");
             if (akd == 0) {
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
-		XBIT(data, 2, "SPID");
+                XBIT(data, 4, "ACID");
+                XBIT(data, 1, "AI_SN");
+                XBIT(data, 2, "SPID");
             }
         }
     }
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -1263,40 +1263,40 @@ gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, 
 
     nsub += 1;
     for (j = 0; j < nsub; j++) {
-	XBIT(txc, 2, "TX Count");
-	XBIT(data, 10, "Duration");
-	XBIT(sbi, 1, "Sub-burst offset indication");
-	XBIT(data, 3, "Reserved");
+        XBIT(txc, 2, "TX Count");
+        XBIT(data, 10, "Duration");
+        XBIT(sbi, 1, "Sub-burst offset indication");
+        XBIT(data, 3, "Reserved");
         if (sbi == 1) {
-	    XBIT(data, 8, "Sub-burst offset");
+            XBIT(data, 8, "Sub-burst offset");
         }
         bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
-	XBIT(akd, 1, "ACK Disable");
+        XBIT(akd, 1, "ACK Disable");
         if (txc == 0) {
-	    XBIT(dmci, 1, "Dedicated MIMO DL Control Indicator");
+            XBIT(dmci, 1, "Dedicated MIMO DL Control Indicator");
             if (dmci == 1) {
                 bit += Dedicated_MIMO_DL_Control_IE(tree, bufptr, bit, length, tvb);
             }
-	    XBIT(data, 4, "DIUC");
-	    XBIT(data, 2, "Repetition coding Indication");
+            XBIT(data, 4, "DIUC");
+            XBIT(data, 2, "Repetition coding Indication");
         }
         if (akd == 0) {
-	    XBIT(data, 4, "ACID");
+            XBIT(data, 4, "ACID");
         }
     }
 
     if (include_cor2_changes)
     {
-	/* CRC-16 is always appended */
-	data = BIT_BITS(bit, bufptr, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
-	/* calculate the CRC */
-	calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
-	if (data != calculated_crc)
-	{
-		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	}
-	bit += 16;
+        /* CRC-16 is always appended */
+        data = BIT_BITS(bit, bufptr, 16);
+        generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        if (data != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
+        bit += 16;
     }
 
     return (BIT_TO_NIB(bit) - offset);
@@ -1329,32 +1329,32 @@ gint MBS_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint l
     XBIT(mde, 1, "Macro diversity enhanced");
     if (mde == 1)
     {
-	XBIT(data, 2, "Permutation");
-	XBIT(data, 5, "DL_PermBase");
-	XBIT(data, 2, "PRBS_ID");
-	XBIT(data, 7, "OFDMA_Symbol_Offset");
-	XBIT(dci, 1, "DIUC_change_indication");
-	XBIT(data, 3, "Reserved");
+        XBIT(data, 2, "Permutation");
+        XBIT(data, 5, "DL_PermBase");
+        XBIT(data, 2, "PRBS_ID");
+        XBIT(data, 7, "OFDMA_Symbol_Offset");
+        XBIT(dci, 1, "DIUC_change_indication");
+        XBIT(data, 3, "Reserved");
         if (dci == 1) {
-	    XBIT(data, 3, "Reserved");
-	    XBIT(data, 3, "Boosting");
-	    XBIT(data, 4, "DIUC");
-	    XBIT(data, 6, "No. Subchannels");
-	    XBIT(data, 6, "No. OFDMA Symbols");
-	    XBIT(data, 2, "Repetition Coding Indication");
+            XBIT(data, 3, "Reserved");
+            XBIT(data, 3, "Boosting");
+            XBIT(data, 4, "DIUC");
+            XBIT(data, 6, "No. Subchannels");
+            XBIT(data, 6, "No. OFDMA Symbols");
+            XBIT(data, 2, "Repetition Coding Indication");
         }
     } else {
-	XBIT(data, 4, "DIUC");
-	XBIT(data, 16, "CID");
-	XBIT(data, 8, "OFDMA Symbols Offset");
-	XBIT(data, 6, "Subchannel offset");
-	XBIT(data, 3, "Boosting");
-	XBIT(s3i, 1, "SLC_3_indication");
-	XBIT(data, 6, "No. OFDMA Symbols");
-	XBIT(data, 6, "No. Subchannels");
-	XBIT(data, 2, "Repetition Coding Indication");
+        XBIT(data, 4, "DIUC");
+        XBIT(data, 16, "CID");
+        XBIT(data, 8, "OFDMA Symbols Offset");
+        XBIT(data, 6, "Subchannel offset");
+        XBIT(data, 3, "Boosting");
+        XBIT(s3i, 1, "SLC_3_indication");
+        XBIT(data, 6, "No. OFDMA Symbols");
+        XBIT(data, 6, "No. Subchannels");
+        XBIT(data, 2, "Repetition Coding Indication");
         if (s3i == 1) {
-	    XBIT(data, 8, "Next MBS_MAP_IE frame offset");
+            XBIT(data, 8, "Next MBS_MAP_IE frame offset");
         }
     }
     data = BIT_PADDING(bit, 4);
@@ -1529,15 +1529,15 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
             XBIT(data,  7, "Subchannel offset");
             XBIT(data,  7, "Number of OFDMA symbols");
             XBIT(data,  7, "Number of subchannels");
-	    if (include_cor2_changes)
-	    {
-		XBIT(data,  1, "Rectangular Sub-Burst Indicator"); /* Implemented: "Rectangular Sub-Burst Indicator" field added */
-		XBIT(data,  2, "Reserved");   /* and "Reserved" field resized from 3 bits to 2 bits         */
-	    }
-	    else
-	    {
-		XBIT(data,  3, "Reserved");
-	    }
+            if (include_cor2_changes)
+            {
+                XBIT(data,  1, "Rectangular Sub-Burst Indicator"); /* Implemented: "Rectangular Sub-Burst Indicator" field added */
+                XBIT(data,  2, "Reserved");   /* and "Reserved" field resized from 3 bits to 2 bits         */
+            }
+            else
+            {
+                XBIT(data,  3, "Reserved");
+            }
         } else {
             XBIT(data,  8, "Region_ID");
         }
@@ -1615,16 +1615,16 @@ gint Enhanced_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset
     XBIT(numass, 4, "Num_Assignment");
     for (i = 0; i < numass; i++) {
         if (INC_CID == 1) {
-	    XBIT(n_cid, 8, "N_CID");
+            XBIT(n_cid, 8, "N_CID");
             for (n = 0; n < n_cid; n++) {
-		XBIT(data, 16, "CID");
+                XBIT(data, 16, "CID");
             }
         }
-	XBIT(data, 4, "DIUC");
-	XBIT(data, 3, "Boosting");
-	XBIT(data, 2, "Repetition Coding Indication");
-	XBIT(data, 8, "Region_ID");
-	XBIT(data, 3, "Reserved");
+        XBIT(data, 4, "DIUC");
+        XBIT(data, 3, "Boosting");
+        XBIT(data, 2, "Repetition Coding Indication");
+        XBIT(data, 8, "Region_ID");
+        XBIT(data, 3, "Reserved");
     }
     return BIT_TO_NIB(bit);
 }
@@ -1981,14 +1981,14 @@ gint HARQ_Map_Pointer_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offse
 
     length_in_bits = NIB_TO_BIT(length-1);
     while (bit < length_in_bits) {
-	XBIT(diuc, 4, "DIUC");
-	XBIT(slots, 8, "No. Slots");
-	XBIT(rep, 2, "Repetition Coding Indication");
-	XBIT(map, 2, "Map Version");
+        XBIT(diuc, 4, "DIUC");
+        XBIT(slots, 8, "No. Slots");
+        XBIT(rep, 2, "Repetition Coding Indication");
+        XBIT(map, 2, "Map Version");
         if (map == 2) {
-	    XBIT(idle, 1, "Idle users");
-	    XBIT(sleep, 1, "Sleep users");
-	    XBIT(mask_len, 2, "CID Mask Length");
+            XBIT(idle, 1, "Idle users");
+            XBIT(sleep, 1, "Sleep users");
+            XBIT(mask_len, 2, "CID Mask Length");
             if (mask_len == 0) {
                 /* 12 bits */
                 proto_tree_add_text(diuc_tree, tvb, BITHI(bit,12), "CID Mask: 12 bits");
@@ -2032,9 +2032,9 @@ gint PHYMOD_DL_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint
 
     XBIT(pmt, 1, "Preamble Modifier Type");
     if (pmt == 0) {
-	XBIT(data, 4, "Preamble frequency shift index");
+        XBIT(data, 4, "Preamble frequency shift index");
     } else {
-	XBIT(data, 4, "Preamble Time Shift Index");
+        XBIT(data, 4, "Preamble Time Shift Index");
     }
     XBIT(data, 1, "Pilot Pattern Modifier");
     XBIT(data, 2, "Pilot Pattern Index");
@@ -2158,28 +2158,28 @@ gint UL_interference_and_noise_level_IE(proto_tree *diuc_tree, const guint8 *buf
     XNIB(bitmap,  1, "Bitmap");
 
     if (bitmap & 0x01) {
-	XNIB(data, 2, "CQI/ACK/Periodic Ranging region NI");
+        XNIB(data, 2, "CQI/ACK/Periodic Ranging region NI");
     }
     if (bitmap & 0x02) {
-	XNIB(data, 2, "PUSC region NI");
+        XNIB(data, 2, "PUSC region NI");
     }
     if (bitmap & 0x04) {
-	XNIB(data, 2, "Optional PUSC region NI");
+        XNIB(data, 2, "Optional PUSC region NI");
     }
     if (bitmap & 0x08) {
-	XNIB(data, 2, "AMC region NI");
+        XNIB(data, 2, "AMC region NI");
     }
     if (bitmap & 0x10) {
-	XNIB(data, 2, "AAS region NI");
+        XNIB(data, 2, "AAS region NI");
     }
     if (bitmap & 0x20) {
-	XNIB(data, 2, "Periodic Ranging region NI");
+        XNIB(data, 2, "Periodic Ranging region NI");
     }
     if (bitmap & 0x40) {
-	XNIB(data, 2, "Sounding region NI");
+        XNIB(data, 2, "Sounding region NI");
     }
     if (bitmap & 0x80) {
-	XNIB(data, 2, "MIMO region NI");
+        XNIB(data, 2, "MIMO region NI");
     }
 
     return nib;
@@ -2196,14 +2196,14 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 {
     if (proto_mac_mgmt_msg_dlmap_decoder == -1)
     {
-	proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (
-						"WiMax DLMAP/ULMAP Messages", /* name */
-						"WiMax DLMAP/ULMAP (map)", /* short name */
-						"wmx.map" /* abbrev */
-						);
+        proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (
+                "WiMax DLMAP/ULMAP Messages", /* name */
+                "WiMax DLMAP/ULMAP (map)", /* short name */
+                "wmx.map" /* abbrev */
+                );
 
-	proto_register_field_array(proto_mac_mgmt_msg_dlmap_decoder, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+        proto_register_field_array(proto_mac_mgmt_msg_dlmap_decoder, hf, array_length(hf));
+        proto_register_subtree_array(ett, array_length(ett));
     }
 }
 
@@ -2292,12 +2292,12 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
                 /* 8.4.5.3.24 Closed-loop MIMO DL Enhanced IE */
                 nibble = Closed_loop_MIMO_DL_Enhanced_IE(tree, bufptr, nibble, len, tvb);
                 break;
-	    case 0x0b:
-		nibble = MIMO_DL_Basic_IE(tree, bufptr, nibble, len, tvb);
-		break;
-	    case 0x0c:
-		nibble = MIMO_DL_Enhanced_IE(tree, bufptr, nibble, len, tvb);
-		break;
+            case 0x0b:
+                nibble = MIMO_DL_Basic_IE(tree, bufptr, nibble, len, tvb);
+                break;
+            case 0x0c:
+                nibble = MIMO_DL_Enhanced_IE(tree, bufptr, nibble, len, tvb);
+                break;
 
             case 0x0e:
                 nibble = AAS_SDMA_DL_IE(tree, bufptr, nibble, len, tvb);
@@ -2305,7 +2305,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
 
             default:
                 proto_tree_add_text(tree, tvb, NIBHI(nibble,len), "(reserved Extended-2 DIUC: %d)", ext2_diuc);
-		nibble += len;
+                nibble += len;
                 break;
 
         }
@@ -2361,9 +2361,9 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
                 /* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
                 nibble = DL_PUSC_Burst_Allocation_in_Other_Segment_IE(tree, bufptr, nibble, len, tvb);
                 break;
-	    case 0x0c:
-		nibble = PUSC_ASCA_Alloc_IE(tree, bufptr, nibble, len, tvb);
-		break;
+            case 0x0c:
+                nibble = PUSC_ASCA_Alloc_IE(tree, bufptr, nibble, len, tvb);
+                break;
 
             case 0x0f:
                 /* 8.4.5.3.19 UL_interference_and_noise_level_IE */
@@ -2372,7 +2372,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
 
             default:
                 proto_tree_add_text(tree, tvb, NIBHI(nibble,len), "(reserved Extended DIUC: %d)", ext_diuc);
-		nibble += len;
+                nibble += len;
                 break;
         }
     }
@@ -2526,7 +2526,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* update the info column */
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed DL-MAP");
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed DL-MAP");
     }
 
     INC_CID = 0;
@@ -2559,19 +2559,19 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* DL-MAP IEs */
     length -= 15; /* remaining length in bytes (11 bytes above + CRC at end) */
     if (dl_ie_count) {
-	ti = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
-	ie_tree = proto_item_add_subtree(ti, ett_dlmap_ie);
+        ti = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
+        ie_tree = proto_item_add_subtree(ti, ett_dlmap_ie);
 
-	length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); /* convert length to nibbles */
+        length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); /* convert length to nibbles */
 
-	while (dl_ie_count--) {
-	    nib += dissect_dlmap_ie(ie_tree, bufptr, nib, tvb_len * 2, tvb);
-	}
-	pad = NIB_PADDING(nib);
-	if (pad) {
-	    proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Padding nibble");
-	    nib++;
-	}
+        while (dl_ie_count--) {
+            nib += dissect_dlmap_ie(ie_tree, bufptr, nib, tvb_len * 2, tvb);
+        }
+        pad = NIB_PADDING(nib);
+        if (pad) {
+            proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Padding nibble");
+            nib++;
+        }
     }
 
     if (ulmap_appended) {
@@ -2582,20 +2582,20 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* CRC is always appended */
     /* check the length */
     if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
-    {	/* get the CRC */
-	    mac_crc = tvb_get_ntohl(tvb, mac_len - sizeof(mac_crc));
-	    /* calculate the CRC */
-	    calculated_crc = wimax_mac_calc_crc32((guint8 *)tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
-	    /* display the CRC */
-	    generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), FALSE);
-	    if (mac_crc != calculated_crc)
-	    {
-		    proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
-	    }
+    {   /* get the CRC */
+        mac_crc = tvb_get_ntohl(tvb, mac_len - sizeof(mac_crc));
+        /* calculate the CRC */
+        calculated_crc = wimax_mac_calc_crc32((guint8 *)tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
+        /* display the CRC */
+        generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), FALSE);
+        if (mac_crc != calculated_crc)
+        {
+            proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        }
     }
     else
-    {	/* display error message */
-	    proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_dlmap_decoder, tvb, 0, tvb_len, "CRC missing - the frame is too short (%u bytes)", tvb_len);
+    {   /* display error message */
+        proto_tree_add_protocol_format(base_tree, proto_mac_mgmt_msg_dlmap_decoder, tvb, 0, tvb_len, "CRC missing - the frame is too short (%u bytes)", tvb_len);
     }
 
     return mac_len;
@@ -2688,7 +2688,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
     calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, NIB_TO_BYTE(nib)), NIB_TO_BYTE(nib));
     if (data != calculated_crc)
     {
-	    proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
     }
     nib += 4;
 
@@ -2817,7 +2817,7 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
     if (data != calculated_crc)
     {
-	    proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
+        proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
     }
     bit += 16;
 
