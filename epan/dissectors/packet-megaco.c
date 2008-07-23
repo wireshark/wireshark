@@ -302,6 +302,19 @@ static gint find_megaco_messageBody_names(tvbuff_t *tvb, int offset, guint heade
         return -1;
 }
 
+proto_item *
+my_proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+			 gint start, gint length, const char *value)
+{
+	proto_item *pi;
+
+	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
+	if (global_megaco_dissect_tree) {
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
+
+	return(pi);
+}
 /*
  * dissect_megaco_text - The dissector for the MEGACO Protocol, using
  * text encoding.
@@ -315,7 +328,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		tvb_command_start_offset, tvb_command_end_offset;
 	gint		tvb_descriptors_start_offset, tvb_descriptors_end_offset;
 	proto_tree  *megaco_tree, *message_tree, *message_body_tree, *megaco_context_tree, *megaco_tree_command_line, *ti, *sub_ti;
-	proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint, gint, const char*);
 
 	guint8		word[7];
 	guint8		TermID[30];
@@ -352,16 +364,16 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	RBRKT_counter				= 0;
 	LBRKT_counter				= 0;
 
-	/* Check if H.248 in otp(Erlang) internal format 
+	/* Check if H.248 in otp(Erlang) internal format
 	 * XXX Needs improvment?
 	 * Ref:
-	 * http://www.erlang.org/doc/apps/megaco/part_frame.html 
+	 * http://www.erlang.org/doc/apps/megaco/part_frame.html
 	 * 4.1 Internal form of messages
-	 * 4.2 The different encodings 
+	 * 4.2 The different encodings
 	 */
 	dword = tvb_get_ntoh24(tvb,0);
 	if ((dword == 0x836803)&&(h248_otp_handle)){
-		call_dissector(h248_otp_handle, tvb, pinfo, tree); 
+		call_dissector(h248_otp_handle, tvb, pinfo, tree);
 		return;
 	}
 
@@ -410,11 +422,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Create megaco subtree */
 	ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
 	megaco_tree = proto_item_add_subtree(ti, ett_megaco);
-
-	if(global_megaco_dissect_tree)
-		my_proto_tree_add_string = proto_tree_add_string;
-	else
-		my_proto_tree_add_string = proto_tree_add_string_hidden;
 
  	/*  Format of 'message' is = MegacopToken SLASH Version SEP mId SEP messageBody */
 	/*  MegacopToken = "MEGACO" or "!"						*/
