@@ -864,12 +864,13 @@ gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
     bit = NIB_TO_BIT(offset);
 
     /* 8.4.5.3.21 table 286m */
-    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, 4), "DL_HARQ_Chase_sub_burst_IE");
+    ti = proto_tree_add_text(diuc_tree, tvb, BITHI(bit, length), "DL_HARQ_Chase_sub_burst_IE");
     tree = proto_item_add_subtree(ti, ett_286m);
 
     XBIT(nsub, 4, "N sub burst[ISI]");
     XBIT(data, 4, "N ACK channel");
 
+    nsub += 1;
     for (j = 0; j < nsub; j++) {
         bit += RCID_IE(tree, bufptr, bit, length, tvb, RCID_Type);
 	XBIT(dur, 10, "Duration");
@@ -901,7 +902,7 @@ gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
         }
     }
 
-    proto_tree_add_text(tree, tvb, BITHI(bit,4), "(DL HARQ Chase sub-burst IE)");
+    /* proto_tree_add_text(tree, tvb, BITHI(bit,4), "(DL HARQ Chase sub-burst IE)"); */
     return (BIT_TO_NIB(bit) - offset);
 }
 
@@ -1502,7 +1503,7 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
     gint data;
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
-    gint len, lastbit, rui, mode;
+    gint len, lastbit, rui, mode, sub_len;
 
     bit = NIB_TO_BIT(offset);
 
@@ -1541,28 +1542,29 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
             XBIT(data,  8, "Region_ID");
         }
         XBIT(mode,  4, "Mode");
-        XBIT(data,  8, "Sub-burst IE Length");
+        XBIT(sub_len,  8, "Sub-burst IE Length");
 
         /* 8.4.5.3.21 */
         /* length of these are variable, each returns length in nibbles */
         if (mode == 0) {
-            bit += 4*DL_HARQ_Chase_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            DL_HARQ_Chase_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 1) {
-            bit += 4*DL_HARQ_IR_CTC_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            DL_HARQ_IR_CTC_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 2) {
-            bit += 4*DL_HARQ_IR_CC_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            DL_HARQ_IR_CC_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 3) {
-            bit += 4*MIMO_DL_Chase_HARQ_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            MIMO_DL_Chase_HARQ_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 4) {
-            bit += 4*MIMO_DL_IR_HARQ_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            MIMO_DL_IR_HARQ_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 5) {
-            bit += 4*MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else if (mode == 6) {
-            bit += 4*MIMO_DL_STC_HARQ_sub_burst_IE(diuc_tree, bufptr, BIT_TO_NIB(bit), length, tvb);
+            MIMO_DL_STC_HARQ_sub_burst_IE(tree, bufptr, BIT_TO_NIB(bit), length, tvb);
         } else {
-            proto_tree_add_text(diuc_tree, tvb, BITHI(bit,1), "(reserved Mode)");
+            proto_tree_add_text(tree, tvb, BITHI(bit,1), "(reserved Mode)");
             break; /* cannot continue */
         }
+        bit += NIB_TO_BIT(sub_len);
     }
     return BIT_TO_NIB(bit);
 }
@@ -2276,7 +2278,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
                 break;
             case 0x07:
                 /* 8.4.5.3.21 HARQ_DL_MAP_IE */
-                nibble += HARQ_DL_MAP_IE(tree, bufptr, nibble, len, tvb);
+                nibble = HARQ_DL_MAP_IE(tree, bufptr, nibble, len, tvb);
                 break;
             case 0x08:
                 /* 8.4.5.3.22 HARQ_ACK IE */
