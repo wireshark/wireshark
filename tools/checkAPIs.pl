@@ -194,7 +194,9 @@ my $CComment = qr{/\*[^*]*\*+([^/*][^*]*\*+)*/};
 #my $CppComment = qr{//(.*?)\n};
 
 # 2. A regex which matches double-quoted strings.
-my $DoubleQuotedStr = qr{(?:\"(?:\\.|[^\"\\])*\")};
+#    ?s added so that strings containing a 'line continuation' 
+#    ( \ followed by a new-line) will match.
+my $DoubleQuotedStr = qr{(?:\"(?s:\\.|[^\"\\])*\")};
 
 # 3. A regex which matches single-quoted strings.
 my $SingleQuotedStr = qr{(?:\'(?:\\.|[^\'\\])*\')};
@@ -208,7 +210,8 @@ my $SingleQuotedStr = qr{(?:\'(?:\\.|[^\'\\])*\')};
 
 # 4. Wireshark is strictly a C program so don't take out C++ style comments
 #    since they shouldn't be there anyway...
-my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)};
+#    Also: capturing the comment isn't necessary.
+my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr|$CComment)};
 
 #
 # MAIN
@@ -216,7 +219,7 @@ my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)
 my $errorCount = 0;
 # The default list, which can be expanded.
 my @apiGroups = qw(prohibited deprecated);
-my $check_value_string_array_null_termination = 0; # default: disabled
+my $check_value_string_array_null_termination = 1; # default: enabled
 my $debug_flag = 0;
 
 my $result = GetOptions(
@@ -286,6 +289,7 @@ while ($_ = $ARGV[0])
 			if ($debug_flag) {
 				$vsx =~ /(.+ value_string [^=]+ ) = /x;
 				printf STDERR "==> %-35.35s: %s\n", $filename, $1;
+				printf STDERR "%s\n", $vs;
 			}
 			$vs =~ s/\s//g;
 			# README.developer says 
@@ -293,7 +297,7 @@ while ($_ = $ARGV[0])
 			# However: since this usage is present in some number of cases, we'll allow for now
 			if ($vs !~ / , NULL \} ,? \} ; $/x) {
 				$vsx =~ /( value_string [^=]+ ) = /x;
-				printf STDERR "Error: %-35.35s: Non-terminated: %s\n", $filename, $1;
+				printf STDERR "Error: %-35.35s: Not terminated: %s\n", $filename, $1;
 				$errorCount++;
 			}
 		}
