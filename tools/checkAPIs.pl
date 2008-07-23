@@ -216,7 +216,7 @@ my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr)|($CComment)
 my $errorCount = 0;
 # The default list, which can be expanded.
 my @apiGroups = qw(prohibited deprecated);
-my $check_value_string_array_null_termination = 1; # default: enabled
+my $check_value_string_array_null_termination = 0; # default: disabled
 my $debug_flag = 0;
 
 my $result = GetOptions(
