@@ -58,8 +58,6 @@ static int proto_pkix1implicit = -1;
 #line 1 "packet-pkix1implicit-hf.c"
 static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
-static int hf_pkix1implicit_nameAssigner = -1;    /* DirectoryString */
-static int hf_pkix1implicit_partyName = -1;       /* DirectoryString */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_item = -1;  /* AccessDescription */
 static int hf_pkix1implicit_accessMethod = -1;    /* OBJECT_IDENTIFIER */
 static int hf_pkix1implicit_accessLocation = -1;  /* GeneralName */
@@ -79,7 +77,6 @@ static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
 /*--- Included file: packet-pkix1implicit-ett.c ---*/
 #line 1 "packet-pkix1implicit-ett.c"
-static gint ett_pkix1implicit_EDIPartyName = -1;
 static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
 static gint ett_pkix1implicit_AccessDescription = -1;
 static gint ett_pkix1implicit_UserNotice = -1;
@@ -122,21 +119,6 @@ dissect_pkix1implicit_KeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_pkix1implicit_Dummy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const ber_sequence_t EDIPartyName_sequence[] = {
-  { &hf_pkix1implicit_nameAssigner, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_DirectoryString },
-  { &hf_pkix1implicit_partyName, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_pkix1explicit_DirectoryString },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_pkix1implicit_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EDIPartyName_sequence, hf_index, ett_pkix1implicit_EDIPartyName);
 
   return offset;
 }
@@ -240,7 +222,7 @@ dissect_pkix1implicit_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_pkix1implicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -322,14 +304,6 @@ void proto_register_pkix1implicit(void) {
       { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1implicit.AuthorityInfoAccessSyntax", HFILL }},
-    { &hf_pkix1implicit_nameAssigner,
-      { "nameAssigner", "pkix1implicit.nameAssigner",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "pkix1explicit.DirectoryString", HFILL }},
-    { &hf_pkix1implicit_partyName,
-      { "partyName", "pkix1implicit.partyName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "pkix1explicit.DirectoryString", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_item,
       { "Item", "pkix1implicit.AuthorityInfoAccessSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -384,7 +358,6 @@ void proto_register_pkix1implicit(void) {
 
 /*--- Included file: packet-pkix1implicit-ettarr.c ---*/
 #line 1 "packet-pkix1implicit-ettarr.c"
-    &ett_pkix1implicit_EDIPartyName,
     &ett_pkix1implicit_AuthorityInfoAccessSyntax,
     &ett_pkix1implicit_AccessDescription,
     &ett_pkix1implicit_UserNotice,

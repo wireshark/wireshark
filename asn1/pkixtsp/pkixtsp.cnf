@@ -26,5 +26,8 @@ TSTInfo/version Tst_version
 PKIStatusInfo/status	pki_status
 TSTInfo/version tst_version
 
+#.REGISTER
+TSTInfo			B "1.2.840.113549.1.9.16.1.4" "id-ct-TSTInfo"
+
 #.END
 

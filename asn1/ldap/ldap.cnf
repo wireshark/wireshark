@@ -31,8 +31,8 @@ AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 
 #.REGISTER
 SearchControlValue 		B "1.2.840.113556.1.4.319" "pagedResultsControl"
-SortKeyList	   		B "1.2.840.113556.1.4.473" "sortKeyList"
-SortResult			B "1.2.840.113556.1.4.474" "sortResult"
+SortKeyList	   			B "1.2.840.113556.1.4.473" "sortKeyList"
+SortResult				B "1.2.840.113556.1.4.474" "sortResult"
 ReplControlValue		B "1.2.840.113556.1.4.841" "replControlValue"
 #RFC 3062
 PasswdModifyRequestValue	B "1.3.6.1.4.1.4203.1.11.1" "passwdModifyOID"

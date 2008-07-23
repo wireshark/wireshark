@@ -144,6 +144,6 @@ void proto_reg_handoff_pkixtsp(void) {
 	timestamp_query_handle = new_create_dissector_handle(dissect_timestamp_query, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-query", timestamp_query_handle);
 
-/*#include "packet-pkixtsp-dis-tab.c"*/
+#include "packet-pkixtsp-dis-tab.c"
 }
 

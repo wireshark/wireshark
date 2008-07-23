@@ -57,6 +57,7 @@ static int proto_pkixtsp = -1;
 
 /*--- Included file: packet-pkixtsp-hf.c ---*/
 #line 1 "packet-pkixtsp-hf.c"
+static int hf_pkixtsp_TSTInfo_PDU = -1;           /* TSTInfo */
 static int hf_pkixtsp_version = -1;               /* T_version */
 static int hf_pkixtsp_messageImprint = -1;        /* MessageImprint */
 static int hf_pkixtsp_reqPolicy = -1;             /* TSAPolicyId */
@@ -122,7 +123,7 @@ static const value_string pkixtsp_T_version_vals[] = {
 static int
 dissect_pkixtsp_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -166,7 +167,7 @@ dissect_pkixtsp_TSAPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_pkixtsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -214,7 +215,7 @@ static const value_string pkixtsp_PKIStatus_vals[] = {
 static int
 dissect_pkixtsp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -290,7 +291,7 @@ static const value_string pkixtsp_Tst_version_vals[] = {
 static int
 dissect_pkixtsp_Tst_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -309,7 +310,7 @@ dissect_pkixtsp_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_pkixtsp_INTEGER_1_999(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -351,6 +352,14 @@ dissect_pkixtsp_TSTInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                    TSTInfo_sequence, hf_index, ett_pkixtsp_TSTInfo);
 
   return offset;
+}
+
+/*--- PDUs ---*/
+
+static void dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkixtsp_TSTInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixtsp_TSTInfo_PDU);
 }
 
 
@@ -419,6 +428,10 @@ void proto_register_pkixtsp(void) {
 
 /*--- Included file: packet-pkixtsp-hfarr.c ---*/
 #line 1 "packet-pkixtsp-hfarr.c"
+    { &hf_pkixtsp_TSTInfo_PDU,
+      { "TSTInfo", "pkixtsp.TSTInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkixtsp.TSTInfo", HFILL }},
     { &hf_pkixtsp_version,
       { "version", "pkixtsp.version",
         FT_INT32, BASE_DEC, VALS(pkixtsp_T_version_vals), 0,
@@ -583,6 +596,13 @@ void proto_reg_handoff_pkixtsp(void) {
 	timestamp_query_handle = new_create_dissector_handle(dissect_timestamp_query, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-query", timestamp_query_handle);
 
-/*#include "packet-pkixtsp-dis-tab.c"*/
+
+/*--- Included file: packet-pkixtsp-dis-tab.c ---*/
+#line 1 "packet-pkixtsp-dis-tab.c"
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.4", dissect_TSTInfo_PDU, proto_pkixtsp, "id-ct-TSTInfo");
+
+
+/*--- End of included file: packet-pkixtsp-dis-tab.c ---*/
+#line 148 "packet-pkixtsp-template.c"
 }
 

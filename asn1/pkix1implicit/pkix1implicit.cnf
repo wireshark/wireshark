@@ -9,6 +9,10 @@ PKIX1Explicit93 pkix1explicit
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
 
+#.OMIT_ASSIGNMENT
+EDIPartyName
+#.END
+
 #.EXPORTS
 
 AuthorityInfoAccessSyntax
