@@ -8,6 +8,8 @@
 #.EXPORTS
 
 #.NO_EMIT
+SemiOctetString
+#.END
 
 #.PDU
 

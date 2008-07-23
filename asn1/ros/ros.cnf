@@ -7,6 +7,10 @@ InvokeId
 Code
 ROS
 
+#.OMIT_ASSIGNMENT
+Priority
+.#END
+
 #.TYPE_RENAME
 ReturnResult/result/result	OperationResult
 

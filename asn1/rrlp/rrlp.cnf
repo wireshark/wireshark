@@ -19,6 +19,7 @@ VelocityEstimate
 
 #.OMIT_ASSIGNMENT  MAP-ExtensionDataTypes
 SLR-ArgExtensionContainer
+SLR-Arg-PCS-Extensions
 #.END
 
 #.FN_HDR PDU

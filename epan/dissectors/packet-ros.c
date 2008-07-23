@@ -494,7 +494,7 @@ dissect_ros_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ros_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "ros.cnf"
+#line 30 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
@@ -535,7 +535,7 @@ dissect_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ros_OperationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 41 "ros.cnf"
+#line 45 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -599,7 +599,7 @@ dissect_ros_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "ros.cnf"
+#line 60 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -647,7 +647,7 @@ static const value_string ros_GeneralProblem_vals[] = {
 
 static int
 dissect_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 148 "ros.cnf"
+#line 152 "ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -679,7 +679,7 @@ static const value_string ros_InvokeProblem_vals[] = {
 
 static int
 dissect_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "ros.cnf"
+#line 164 "ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -706,7 +706,7 @@ static const value_string ros_ReturnResultProblem_vals[] = {
 
 static int
 dissect_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "ros.cnf"
+#line 176 "ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -735,7 +735,7 @@ static const value_string ros_ReturnErrorProblem_vals[] = {
 
 static int
 dissect_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "ros.cnf"
+#line 188 "ros.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -796,7 +796,7 @@ dissect_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ros_T_reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 140 "ros.cnf"
+#line 144 "ros.cnf"
 	if(check_col(actx->pinfo->cinfo, COL_INFO))
 		col_set_str(actx->pinfo->cinfo, COL_INFO, "Reject");
 	  offset = dissect_ros_Reject(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -811,7 +811,7 @@ dissect_ros_T_reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ros_T_bind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "ros.cnf"
+#line 76 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
@@ -831,7 +831,7 @@ dissect_ros_T_bind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ros_T_bind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 83 "ros.cnf"
+#line 87 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
@@ -851,7 +851,7 @@ dissect_ros_T_bind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ros_T_bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "ros.cnf"
+#line 98 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
@@ -872,7 +872,7 @@ dissect_ros_T_bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ros_T_unbind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "ros.cnf"
+#line 110 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
@@ -893,7 +893,7 @@ dissect_ros_T_unbind_invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ros_T_unbind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 118 "ros.cnf"
+#line 122 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
@@ -913,7 +913,7 @@ dissect_ros_T_unbind_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ros_T_unbind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "ros.cnf"
+#line 133 "ros.cnf"
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");
@@ -994,16 +994,6 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Code_choice, hf_index, ett_ros_Code,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ros_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
 
   return offset;
 }

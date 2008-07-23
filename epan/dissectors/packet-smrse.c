@@ -129,7 +129,7 @@ static const value_string smrse_T_address_type_vals[] = {
 static int
 dissect_smrse_T_address_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -149,26 +149,17 @@ static const value_string smrse_T_numbering_plan_vals[] = {
 static int
 dissect_smrse_T_numbering_plan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
 
-
-
-static int
-dissect_smrse_SemiOctetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
 
 
 
 static int
 dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 19 "smrse.cnf"
+#line 21 "smrse.cnf"
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
 	gint8 class;
@@ -302,7 +293,7 @@ static const value_string smrse_Connect_fail_vals[] = {
 static int
 dissect_smrse_Connect_fail(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -348,7 +339,7 @@ dissect_smrse_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_smrse_RP_MR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -368,7 +359,7 @@ dissect_smrse_RP_UD(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_smrse_SM_TC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -454,7 +445,7 @@ static const value_string smrse_Error_reason_vals[] = {
 static int
 dissect_smrse_Error_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
