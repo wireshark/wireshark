@@ -251,7 +251,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static ipxhdr_t ipxh_arr[4];
 	static int ipx_current=0;
 	ipxhdr_t *ipxh;
-	
+
 	ipx_current++;
 	if(ipx_current==4){
 		ipx_current=0;
@@ -1213,7 +1213,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		cursor;
 	struct sap_query query;
 	guint16		server_type;
-	char		server_name[48];
+	gchar		*server_name;
 	guint16		server_port;
 	guint16		intermediate_network;
 
@@ -1265,11 +1265,10 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			int available_length = tvb_reported_length(tvb);
 			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
 				server_type = tvb_get_ntohs(tvb, cursor);
-				tvb_memcpy(tvb, (guint8 *)server_name,
-				    cursor+2, 48);
+				server_name = tvb_format_stringzpad(tvb, cursor+2, 48);
 
 				ti = proto_tree_add_text(sap_tree, tvb, cursor+2, 48,
-					"Server Name: %.48s", server_name);
+					"Server Name: %s", server_name);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_text(s_tree, tvb, cursor, 2, "Server Type: %s (0x%04X)",
@@ -1362,7 +1361,7 @@ proto_register_ipx(void)
 		{ &hf_ipx_node,
 		{ "Source or Destination Node", "ipx.node", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-        
+
 		{ &hf_ipx_socket,
 		{ "Source or Destination Socket", "ipx.socket", FT_UINT16, BASE_HEX,
 			VALS(ipx_socket_vals), 0x0,
@@ -1513,7 +1512,7 @@ proto_register_ipx(void)
 	    "IPX socket", FT_UINT16, BASE_HEX);
 	spx_socket_dissector_table = register_dissector_table("spx.socket",
 	    "SPX socket", FT_UINT16, BASE_HEX);
-	
+
 	register_init_routine(&spx_init_protocol);
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);
         ipx_tap=register_tap("ipx");
