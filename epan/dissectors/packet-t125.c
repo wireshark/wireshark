@@ -59,7 +59,6 @@ int proto_t125 = -1;
 /*--- Included file: packet-t125-hf.c ---*/
 #line 1 "packet-t125-hf.c"
 static int hf_t125_ConnectMCSPDU_PDU = -1;        /* ConnectMCSPDU */
-static int hf_t125_DomainMCSPDU_PDU = -1;         /* DomainMCSPDU */
 static int hf_t125_maxChannelIds = -1;            /* INTEGER_0_MAX */
 static int hf_t125_maxUserIds = -1;               /* INTEGER_0_MAX */
 static int hf_t125_maxTokenIds = -1;              /* INTEGER_0_MAX */
@@ -264,7 +263,7 @@ static gint ett_t125_DomainMCSPDU = -1;
 static int
 dissect_t125_ChannelId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -319,7 +318,7 @@ dissect_t125_AssignedChannelId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_t125_TokenId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -385,7 +384,7 @@ dissect_t125_Segmentation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_t125_INTEGER_0_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2124,13 +2123,6 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset = dissect_t125_ConnectMCSPDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_t125_ConnectMCSPDU_PDU);
   return offset;
 }
-static int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_t125_DomainMCSPDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_t125_DomainMCSPDU_PDU);
-  return offset;
-}
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
@@ -2179,10 +2171,6 @@ void proto_register_t125(void) {
       { "ConnectMCSPDU", "t125.ConnectMCSPDU",
         FT_UINT32, BASE_DEC, VALS(t125_ConnectMCSPDU_vals), 0,
         "t125.ConnectMCSPDU", HFILL }},
-    { &hf_t125_DomainMCSPDU_PDU,
-      { "DomainMCSPDU", "t125.DomainMCSPDU",
-        FT_UINT32, BASE_DEC, VALS(t125_DomainMCSPDU_vals), 0,
-        "t125.DomainMCSPDU", HFILL }},
     { &hf_t125_maxChannelIds,
       { "maxChannelIds", "t125.maxChannelIds",
         FT_UINT32, BASE_DEC, NULL, 0,

@@ -12,7 +12,7 @@
 #.PDU_NEW
 #----------------------------------------------------------------------------------------
 ConnectMCSPDU
-DomainMCSPDU
+#DomainMCSPDU
 #.END
 
 #.VIRTUAL_ASSGN
