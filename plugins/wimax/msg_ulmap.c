@@ -2039,7 +2039,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         nibble += 2;
         */
 
-        len = 4 + BYTE_TO_NIB(len); /* length in nibbles */
+        len = 3 + BYTE_TO_NIB(len); /* length in nibbles */
 
         /* data table 290c 8.4.5.4.4.2 */
         switch (ext2_uiuc) {
