@@ -2155,7 +2155,7 @@ gint UL_interference_and_noise_level_IE(proto_tree *diuc_tree, const guint8 *buf
     XNIB(data,  1, "Extended DIUC");
     XNIB(data,  1, "Length");
 
-    XNIB(bitmap,  1, "Bitmap");
+    XNIB(bitmap,  2, "Bitmap");
 
     if (bitmap & 0x01) {
         XNIB(data, 2, "CQI/ACK/Periodic Ranging region NI");
