@@ -1803,9 +1803,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_item(tree, id, tvb, start, length, little_endian);
 
 	proto_item*
-	proto_tree_add_item_hidden(tree, id, tvb, start, length, little_endian);
-
-	proto_item*
 	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
 
 	proto_item*
@@ -1814,9 +1811,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_bytes(tree, id, tvb, start, length, start_ptr);
-
-	proto_item *
-	proto_tree_add_bytes_hidden(tree, id, tvb, start, length, start_ptr);
 
 	proto_item *
 	proto_tree_add_bytes_format(tree, id, tvb, start, length, start_ptr,
@@ -1830,9 +1824,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
-	proto_tree_add_time_hidden(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
 	proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
 	    format, ...);
 
@@ -1842,9 +1833,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_ipxnet(tree, id, tvb, start, length, value);
-
-	proto_item *
-	proto_tree_add_ipxnet_hidden(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_ipxnet_format(tree, id, tvb, start, length, value,
@@ -1858,9 +1846,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_ipv4(tree, id, tvb, start, length, value);
 
 	proto_item *
-	proto_tree_add_ipv4_hidden(tree, id, tvb, start, length, value);
-
-	proto_item *
 	proto_tree_add_ipv4_format(tree, id, tvb, start, length, value,
 	    format, ...);
 
@@ -1870,9 +1855,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_ipv6(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
-	proto_tree_add_ipv6_hidden(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_ipv6_format(tree, id, tvb, start, length, value_ptr,
@@ -1886,9 +1868,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
-	proto_tree_add_ether_hidden(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
 	proto_tree_add_ether_format(tree, id, tvb, start, length, value_ptr,
 	    format, ...);
 
@@ -1898,9 +1877,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_string(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
-	proto_tree_add_string_hidden(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_string_format(tree, id, tvb, start, length, value_ptr,
@@ -1914,9 +1890,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_boolean(tree, id, tvb, start, length, value);
 
 	proto_item *
-	proto_tree_add_boolean_hidden(tree, id, tvb, start, length, value);
-
-	proto_item *
 	proto_tree_add_boolean_format(tree, id, tvb, start, length, value,
 	    format, ...);
 
@@ -1926,9 +1899,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_float(tree, id, tvb, start, length, value);
-
-	proto_item *
-	proto_tree_add_float_hidden(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_float_format(tree, id, tvb, start, length, value,
@@ -1942,9 +1912,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_double(tree, id, tvb, start, length, value);
 
 	proto_item *
-	proto_tree_add_double_hidden(tree, id, tvb, start, length, value);
-
-	proto_item *
 	proto_tree_add_double_format(tree, id, tvb, start, length, value,
 	    format, ...);
 
@@ -1954,9 +1921,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_uint(tree, id, tvb, start, length, value);
-
-	proto_item *
-	proto_tree_add_uint_hidden(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_uint_format(tree, id, tvb, start, length, value,
@@ -1979,9 +1943,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_int(tree, id, tvb, start, length, value);
-
-	proto_item *
-	proto_tree_add_int_hidden(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_int_format(tree, id, tvb, start, length, value,
@@ -2012,9 +1973,6 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
-	proto_tree_add_guid_hidden(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
 	proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
 	    format, ...);
 
@@ -2024,9 +1982,6 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
-
-	proto_item *
-	proto_tree_add_oid_hidden(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
@@ -2112,68 +2067,6 @@ Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 in the past.
 
-proto_tree_add_item_hidden()
-----------------------------
-proto_tree_add_item_hidden is used to add fields and values to a tree,
-but not show them on a GUI tree.
-
-NOTE that creating hidden fields is actually quite a bad idea from a UI design
-perspective because the user (someone who did not write nor has ever seen the
-code) has no way of knowing that hidden fields are there to be filtered on
-thus defeating the whole purpose of putting them there.  A Better Way might
-be to add the fields (that might otherwise be hidden) to a subtree where they
-won't be seen unless the user opens the subtree--but they can be found if the
-user wants.
-
-NOTE, too, that all of the proto_tree_add_*_hidden() APIs are deprecated:
-instead of using them, add the item using proto_tree_add_item() and then
-make it hidden using PROTO_ITEM_SET_HIDDEN().
-
-One use for hidden fields (which would be better implemented using visible
-fields in a subtree) follows: The caller may want a value to be
-included in a tree so that the packet can be filtered on this field, but
-the representation of that field in the tree is not appropriate.  An
-example is the token-ring routing information field (RIF).  The best way
-to show the RIF in a GUI is by a sequence of ring and bridge numbers.
-Rings are 3-digit hex numbers, and bridges are single hex digits:
-
-	RIF: 001-A-013-9-C0F-B-555
-
-In the case of RIF, the programmer should use a field with no value and
-use proto_tree_add_none_format() to build the above representation. The
-programmer can then add the ring and bridge values, one-by-one, with
-proto_tree_add_item_hidden() so that the user can then filter on or
-search for a particular ring or bridge. Here's a skeleton of how the
-programmer might code this.
-
-	char *rif;
-	rif = create_rif_string(...);
-
-	proto_tree_add_none_format(tree, hf_tr_rif_label, ..., "RIF: %s", rif);
-
-	for(i = 0; i < num_rings; i++) {
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, ..., FALSE);
-	}
-	for(i = 0; i < num_rings - 1; i++) {
-		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, ..., FALSE);
-	}
-
-The logical tree has these items:
-
-	hf_tr_rif_label, text="RIF: 001-A-013-9-C0F-B-555", value = NONE
-	hf_tr_rif_ring,  hidden, value=0x001
-	hf_tr_rif_bridge, hidden, value=0xA
-	hf_tr_rif_ring,  hidden, value=0x013
-	hf_tr_rif_bridge, hidden, value=0x9
-	hf_tr_rif_ring,  hidden, value=0xC0F
-	hf_tr_rif_bridge, hidden, value=0xB
-	hf_tr_rif_ring,  hidden, value=0x555
-
-GUI or print code will not display the hidden fields, but a display
-filter or "packet grep" routine will still see the values. The possible
-filter is then possible:
-
-	tr.rif_ring eq 0x013
 
 proto_tree_add_protocol_format()
 --------------------------------
@@ -2277,25 +2170,6 @@ e_guid_t structure.
 
 For proto_tree_add_oid(), the 'value_ptr' argument is a pointer to an
 ASN.1 Object Identifier.
-
-proto_tree_add_bytes_hidden()
-proto_tree_add_time_hidden()
-proto_tree_add_ipxnet_hidden()
-proto_tree_add_ipv4_hidden()
-proto_tree_add_ipv6_hidden()
-proto_tree_add_ether_hidden()
-proto_tree_add_string_hidden()
-proto_tree_add_boolean_hidden()
-proto_tree_add_float_hidden()
-proto_tree_add_double_hidden()
-proto_tree_add_uint_hidden()
-proto_tree_add_int_hidden()
-proto_tree_add_guid_hidden()
-proto_tree_add_oid_hidden()
-----------------------------
-These routines add fields and values to a tree, but don't show them in the GUI
-tree.  They are used for the same reason that proto_tree_add_item_hidden() is
-used (and they should not be used for the same reasons).
 
 proto_tree_add_bytes_format()
 proto_tree_add_time_format()
@@ -2455,6 +2329,71 @@ Example: (from the scsi dissector)
 	...
 
 Which provides very pretty dissection of this one byte bitmask.
+
+PROTO_ITEM_SET_HIDDEN()
+-----------------------
+PROTO_ITEM_SET_HIDDEN is used to hide fields, which have already been added
+to the tree, from being visible in the displayed tree.
+
+NOTE that creating hidden fields is actually quite a bad idea from a UI design
+perspective because the user (someone who did not write nor has ever seen the
+code) has no way of knowing that hidden fields are there to be filtered on
+thus defeating the whole purpose of putting them there.  A Better Way might
+be to add the fields (that might otherwise be hidden) to a subtree where they
+won't be seen unless the user opens the subtree--but they can be found if the
+user wants.
+
+One use for hidden fields (which would be better implemented using visible
+fields in a subtree) follows: The caller may want a value to be
+included in a tree so that the packet can be filtered on this field, but
+the representation of that field in the tree is not appropriate.  An
+example is the token-ring routing information field (RIF).  The best way
+to show the RIF in a GUI is by a sequence of ring and bridge numbers.
+Rings are 3-digit hex numbers, and bridges are single hex digits:
+
+	RIF: 001-A-013-9-C0F-B-555
+
+In the case of RIF, the programmer should use a field with no value and
+use proto_tree_add_none_format() to build the above representation. The
+programmer can then add the ring and bridge values, one-by-one, with
+proto_tree_add_item() and hide them with PROTO_ITEM_SET_HIDDEN() so that the
+user can then filter on or search for a particular ring or bridge. Here's a
+skeleton of how the programmer might code this.
+
+	char *rif;
+	rif = create_rif_string(...);
+
+	proto_tree_add_none_format(tree, hf_tr_rif_label, ..., "RIF: %s", rif);
+
+	for(i = 0; i < num_rings; i++) {
+		proto_item *pi;
+
+		pi = proto_tree_add_item(tree, hf_tr_rif_ring, ..., FALSE);
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
+	for(i = 0; i < num_rings - 1; i++) {
+		proto_item *pi;
+
+		pi = proto_tree_add_item(tree, hf_tr_rif_bridge, ..., FALSE);
+		PROTO_ITEM_SET_HIDDEN(pi);
+	}
+
+The logical tree has these items:
+
+	hf_tr_rif_label, text="RIF: 001-A-013-9-C0F-B-555", value = NONE
+	hf_tr_rif_ring,  hidden, value=0x001
+	hf_tr_rif_bridge, hidden, value=0xA
+	hf_tr_rif_ring,  hidden, value=0x013
+	hf_tr_rif_bridge, hidden, value=0x9
+	hf_tr_rif_ring,  hidden, value=0xC0F
+	hf_tr_rif_bridge, hidden, value=0xB
+	hf_tr_rif_ring,  hidden, value=0x555
+
+GUI or print code will not display the hidden fields, but a display
+filter or "packet grep" routine will still see the values. The possible
+filter is then possible:
+
+	tr.rif_ring eq 0x013
 
 
 1.7 Utility routines.

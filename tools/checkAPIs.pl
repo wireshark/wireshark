@@ -134,22 +134,6 @@ my %APIs = (
 		# Use strerror() and report messages in whatever
 		# fashion is appropriate for the code in question.
 		'perror',
-		# Use PROTO_ITEM_SET_HIDDEN instead of these:
-		'proto_tree_add_item_hidden',
-		'proto_tree_add_bytes_hidden',
-		'proto_tree_add_time_hidden',
-		'proto_tree_add_ipxnet_hidden',
-		'proto_tree_add_ipv4_hidden',
-		'proto_tree_add_ipv6_hidden',
-		'proto_tree_add_ether_hidden',
-		'proto_tree_add_guid_hidden',
-		'proto_tree_add_oid_hidden',
-		'proto_tree_add_string_hidden',
-		'proto_tree_add_boolean_hidden',
-		'proto_tree_add_float_hidden',
-		'proto_tree_add_double_hidden',
-		'proto_tree_add_uint_hidden',
-		'proto_tree_add_int_hidden',
 		]},
 
 	# APIs that make the program exit. Dissectors shouldn't call these
