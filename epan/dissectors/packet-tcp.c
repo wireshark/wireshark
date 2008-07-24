@@ -1422,6 +1422,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head;
+	int last_fragment_len;
 	gboolean must_desegment;
 	gboolean called_dissector;
 	int another_pdu_follows;
@@ -1435,6 +1436,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 again:
 	ipfd_head=NULL;
+	last_fragment_len=0;
 	must_desegment = FALSE;
 	called_dissector = FALSE;
 	another_pdu_follows = 0;
@@ -1477,6 +1479,7 @@ again:
 		} else {
 			len=MIN(nxtseq, msp->nxtpdu) - seq;
 		}
+		last_fragment_len = len;
 
 		ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
 			tcp_fragment_table,
@@ -1585,7 +1588,7 @@ again:
 			 * desegmented, or does it think we need even more
 			 * data?
 			 */
-			old_len=(int)(tvb_reported_length(next_tvb)-tvb_reported_length_remaining(tvb, offset));
+			old_len=(int)(tvb_reported_length(next_tvb)-last_fragment_len);
 			if(pinfo->desegment_len &&
 			    pinfo->desegment_offset<=old_len){
 				/*
@@ -1615,13 +1618,17 @@ again:
 					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + 1;
 					msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
 				} else {
-					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + pinfo->desegment_len;
+					msp->nxtpdu=seq + last_fragment_len + pinfo->desegment_len;
 				}
 				/* Since we need at least some more data
 				 * there can be no pdu following in the
 				 * tail of this segment.
 				 */
 				another_pdu_follows=0;
+				offset += last_fragment_len;
+				seq += last_fragment_len;
+				if (tvb_length_remaining(tvb, offset) > 0)
+					goto again;
 			} else {
 				/*
 				 * Show the stuff in this TCP segment as
