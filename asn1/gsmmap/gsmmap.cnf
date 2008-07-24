@@ -38,6 +38,13 @@ SS-DataTypes					gsm_ss
 SS-Operations					gsm_ss
 DummyMAP						gsm_old
 
+Remote-Operations-Information-Objects ROS
+
+#.OMIT_ASSIGNMENT
+Code
+Priority
+CommonComponentId
+#.END
 #.EXPORTS
 AddressString
 Add-GeographicalInformation
