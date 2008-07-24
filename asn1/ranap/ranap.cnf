@@ -22,6 +22,9 @@ ProcedureCode
 ProtocolIE-ID
 
 #.NO_EMIT
+TBCD-STRING
+Presence
+#.END
 
 #.OMIT_ASSIGNMENT
 RateControlAllowed
