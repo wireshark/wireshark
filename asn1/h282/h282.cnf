@@ -9,6 +9,10 @@ PER
 ALIGNED
 #.END
 
+#.OMIT_ASSIGNMENT
+IrisContinuous
+#.END
+
 #.PDU_NEW
 RDCPDU
 NonCollapsingCapabilities
