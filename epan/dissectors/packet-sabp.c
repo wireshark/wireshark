@@ -308,7 +308,7 @@ dissect_sabp_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 51 "sabp.cnf"
+#line 54 "sabp.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sabp_ProcedureCode_vals,
@@ -356,7 +356,7 @@ dissect_sabp_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 38 "sabp.cnf"
+#line 41 "sabp.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sabp_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -474,49 +474,8 @@ dissect_sabp_Available_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 170 "sabp.cnf"
- tvbuff_t *parameter_tvb=NULL;
- proto_tree *subtree;
-  int			length, par_offset;
-  guint8		out_len, no_of_pages;
- static unsigned char bigbuf[1024];
-
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 9968, FALSE, &parameter_tvb);
-
-	if (!parameter_tvb)
-		return offset;
-	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_bcast_msg);
-	par_offset = 0;
-	/* Number-of-Pages */
-	no_of_pages = tvb_get_guint8(parameter_tvb,0);
-	proto_tree_add_item(subtree, hf_sabp_no_of_pages, parameter_tvb, par_offset, 1, FALSE);
-
-	if((no_of_pages > 82)||(no_of_pages == 1)){
-		proto_tree_add_text(subtree, parameter_tvb, 0, -1, "Wrong number of pages");
-		return offset;
-	}
-	par_offset++;
-	length = tvb_length_remaining(parameter_tvb,par_offset);
-
-	switch(sms_encoding){
-    case SMS_ENCODING_7BIT:
-    case SMS_ENCODING_7BIT_LANG:
-	out_len = gsm_sms_char_7bit_unpack(par_offset, length, sizeof(bigbuf),
-					   tvb_get_ptr(parameter_tvb, par_offset, length),
-						       bigbuf);
-
-	bigbuf[out_len] = '\0';
-	gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-	bigbuf[1023] = '\0';
-	proto_tree_add_text(tree, parameter_tvb, par_offset, length, "USSD String: %s", bigbuf);
-	break;
-    case SMS_ENCODING_8BIT:
-	proto_tree_add_text(tree, parameter_tvb , par_offset, length, "USSD String: %s", tvb_get_ptr(parameter_tvb, par_offset, length));
-	break;
-    default:
-	break;	
-  }
+                                     1, 9968, FALSE, NULL);
 
   return offset;
 }
@@ -674,7 +633,7 @@ dissect_sabp_MessageStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "sabp.cnf"
+#line 161 "sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -695,19 +654,10 @@ dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
-static int
-dissect_sabp_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_sabp_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "sabp.cnf"
+#line 149 "sabp.cnf"
   tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 

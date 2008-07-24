@@ -43,6 +43,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_sms.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -61,12 +62,14 @@ static dissector_handle_t sabp_tcp_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
 
+static int hf_sabp_no_of_pages = -1;
 #include "packet-sabp-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
 static int ett_sabp_e212 = -1;
-static int ett_sabp_cbs_data_coding = -1;;
+static int ett_sabp_cbs_data_coding = -1;
+static int ett_sabp_bcast_msg = -1;
 
 #include "packet-sabp-ett.c"
 
@@ -170,6 +173,11 @@ void proto_register_sabp(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_sabp_no_of_pages,
+      { "Number-of-Pages", "sabp.no_of_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Number-of-Pages", HFILL }},
+
 #include "packet-sabp-hfarr.c"
   };
 
@@ -178,6 +186,7 @@ void proto_register_sabp(void) {
 		  &ett_sabp,
 		  &ett_sabp_e212,
 		  &ett_sabp_cbs_data_coding,
+		  &ett_sabp_bcast_msg,
 #include "packet-sabp-ettarr.c"
   };
 
