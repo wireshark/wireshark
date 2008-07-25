@@ -164,7 +164,10 @@ static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *p
 	int offset = 0;
 
 	/* get timestamp */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
+	nstime_t tmptime;
+	tmptime.secs = tvb_get_ntohl(tvb, offset);
+	tmptime.nsecs = 0;
+	proto_tree_add_time(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, &tmptime);
 	offset += 4;
 
 	/* get number of SSI items */
@@ -181,6 +184,7 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	proto_item *ti;
 	proto_tree *ssi_entry = NULL;
 	guint16 num_items, i;
+	nstime_t tmptime;
 
 	/* SSI Version */
 	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
@@ -194,11 +198,26 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	offset += 2;
 
 	for(i = 0; i < num_items; i++) {
-		ti = proto_tree_add_text(tree, tvb, offset, tvb_get_ntohs(tvb, offset+10)+10, "SSI Entry");
+		/* size of SSI entry can be calculated as:
+		 *   sizeof(buddy name length field) = sizeof(guint16) = 2
+		 * + sizeof(buddy name string) = buddy name length field = N
+		 * + sizeof(group ID) = sizeof(guint16) = 2
+		 * + sizeof(buddy ID) = sizeof(guint16) = 2
+		 * + sizeof(buddy type) = sizeof(guint16) = 2
+		 * + sizeof(TLV length) = sizeof(guint16) = 2
+		 * + sizeof(TLVs) = TLV length = M
+		 * = 2 + N + 2 * 4 + M
+		 */
+		gint ssi_entry_size = 2 + tvb_get_ntohs(tvb, offset) + 2 * 3;
+		ssi_entry_size += tvb_get_ntohs(tvb, offset + ssi_entry_size) + 2;
+		ti = proto_tree_add_text(tree, tvb, offset, ssi_entry_size, "SSI Entry");
 		ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
 		offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry);
 	}
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
+	tmptime.secs = tvb_get_ntohl(tvb, offset);
+	tmptime.nsecs = 0;
+	proto_tree_add_time(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, &tmptime);
+
 	return offset;
 }
 
@@ -275,7 +294,7 @@ proto_register_aim_ssi(void)
 			{ "SSI Object count", "aim_ssi.fnac.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_last_change_time,
-			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_buddyname_len,
 			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
