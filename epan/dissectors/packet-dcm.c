@@ -2028,8 +2028,6 @@ dissect_dcm_pdv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 tlen = 0;
     guint32 nlen = 0;			/* Length of next sub item */
 
-    guint32 tag_rlen = 0;
-
     guchar *tag_value=NULL;		/* used for commands only so far */
 
     guint8  syntax;
