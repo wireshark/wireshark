@@ -55,6 +55,7 @@ WIRESHARK_GTK_SRC = \
 	drag_and_drop.c 	\
 	expert_comp_table.c    \
 	export_object.c	       \
+	export_object_dicom.c	\
 	export_object_http.c   \
 	filter_autocomplete.c	\
 	file_dlg.c	\
