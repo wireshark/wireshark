@@ -37,31 +37,4 @@ typedef struct _dicom_eo_t {
 	const guint8 *payload_data;
 } dicom_eo_t;
 
-/* ---------------------------------------------------------------------
- * DICOM UID Definitions
-
- * Part 6 lists following different UID Types (2006-2008)
-
- * Application Context Name
- * Coding Scheme
- * DICOM UIDs as a Coding Scheme
- * LDAP OID
- * Meta SOP Class
- * SOP Class
- * Service Class
- * Transfer Syntax
- * Well-known Print Queue SOP Instance
- * Well-known Printer SOP Instance
- * Well-known SOP Instance
- * Well-known frame of reference
- */
-
-struct dcm_uid {
-    const char *value;
-    const char *name;
-    const char *type;
-};
-
-typedef struct dcm_uid dcm_uid_t;
-
 #endif  /* PACKET_DCM_H */

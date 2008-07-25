@@ -104,6 +104,7 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
         remove_tap_listener(object_list);
         unprotect_thread_critical_region();
 
+	/* Free the GSList attributes */
 	while(slist) {
 		entry = slist->data;
 
@@ -116,6 +117,7 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
        		g_free(entry);
 	}
 
+	/* Free the GSList elements */
 	g_slist_free(object_list->entries);
    	g_free(object_list);
 }
@@ -239,6 +241,12 @@ eo_draw(void *tapdata)
 
 	GSList *slist = object_list->entries;
 	GtkTreeIter new_iter;
+
+	/*  Free the tree first, since we may get called more than once for the same capture 
+	    Not doing so caused duplicate entries and clicking them caused crashes.
+	*/
+
+	gtk_tree_store_clear(object_list->store);
 
 	while(slist) {
 		eo_entry = slist->data;

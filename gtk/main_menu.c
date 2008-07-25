@@ -458,8 +458,9 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     {"/File/Export/Selected Packet _Bytes...", "<control>H", GTK_MENU_FUNC(savehex_cb),
                              0, NULL, NULL,},
-    {"/File/Export/_Objects/_HTTP", NULL, GTK_MENU_FUNC(eo_http_cb), 0, NULL,
-		       NULL,},
+    {"/File/Export/_Objects/_HTTP", NULL, GTK_MENU_FUNC(eo_http_cb), 0, NULL, NULL,},
+    {"/File/Export/_Objects/_DICOM", NULL, GTK_MENU_FUNC(eo_dicom_cb), 0, NULL, NULL,},
+
     {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/File/_Print...", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb),
                              0, "<StockItem>", GTK_STOCK_PRINT,},

@@ -51,5 +51,6 @@ void export_object_window(const gchar *tapname, const gchar *name,
 
 /* Protocol specific */
 void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
+void eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_);
 
 #endif /* __EXPORT_OBJECT_H__ */
