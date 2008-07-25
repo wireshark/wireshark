@@ -975,7 +975,7 @@ dcm_set_syntax(dcm_state_pctx_t *pctx, guchar *xfer_uid, guchar *xfer_desc)
     pctx->xfer_uid = g_strdup(xfer_uid);
     pctx->xfer_desc = g_strdup(xfer_desc);
 
-    if (*xfer_uid == NULL) return;
+    if (xfer_uid == NULL) return;
     /* this would be faster to skip the common parts, and have a FSA to
      * find the syntax.
      * Absent of coding that, this is in descending order of probability */
@@ -1127,7 +1127,7 @@ dcm_guin32_to_le(guint8 *buffer, guint32 value)
 }
 
 static guint32
-dcm_export_create_tag_base(guint8 *buffer, guint32 bufflen, guint32 offset,
+dcm_export_create_tag_base(guint8 *buffer, guint32 bufflen _U_, guint32 offset,
  			   guint16 grp, guint16 elm, guint16 vr,
 			   guint8 *value_buffer, guint32 value_len)
 
@@ -1406,8 +1406,8 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
 
 static void
-dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		       dcm_state_assoc_t *assoc, int offset,
+dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		       dcm_state_assoc_t *assoc _U_, int offset,
 		       guchar *pitem_prefix, int item_value_type,
 		       guchar **item_value, guchar **item_description,
 		       int *hf_type, int *hf_len, int *hf_value, int ett_subtree)
@@ -1477,7 +1477,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case DCM_ITEM_VALUE_TYPE_UINT32:
 	item_number = tvb_get_ntohl(tvb, offset+4);
 	*item_value = se_alloc(MAX_BUFFER);
-	g_snprintf(*item_value, MAX_BUFFER, "%d", item_number, item_number);
+	g_snprintf(*item_value, MAX_BUFFER, "%d", item_number);
 
 	proto_item_append_text(assoc_item_pitem, "%s", *item_value);
 	proto_tree_add_item(assoc_item_ptree, *hf_value, tvb, offset+4, 4, FALSE);
@@ -1689,11 +1689,10 @@ dissect_dcm_userinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8  item_type;
     guint16 item_len;
 
-    guint32 mlen=0;
 
     gboolean first_item=TRUE;
 
-    guchar *buf_desc=NULL;		    /* Used in infor mode for item text */
+/*     guchar *buf_desc=NULL;		    Used in infor mode for item text */
 
     guchar *info_max_pdu=NULL;
     guchar *info_impl_uid=NULL;
@@ -1784,7 +1783,6 @@ dissect_dcm_assoc(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,
 		  dcm_state_assoc_t *assoc, int offset, int len)
 {
     proto_tree *assoc_tree  = NULL;	/* Tree for PDU details */
-    proto_item *item_pctx = NULL;
 
     guint8  item_type;
     guint16 item_len;
@@ -1794,7 +1792,7 @@ dissect_dcm_assoc(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,
     guchar *item_value=NULL;
     guchar *item_description=NULL;
 
-    guchar *info_pctx=NULL;		/* Description of Presentation Context */
+/*    guchar *info_pctx=NULL;		 Description of Presentation Context */
 
     endpos = offset+len;
 
@@ -2023,7 +2021,6 @@ dissect_dcm_pdv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *pitem = NULL;
 
     int toffset, state, vr = 0, tr = 0;
-    guchar  *flag_description=NULL;
 
     guint32 tag_value_fragment_len;	/* used for values that span multiple PDVs */
 
@@ -2568,7 +2565,6 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
     gboolean	valid_pdutype=TRUE;
 
-    guchar *buf=NULL;
     guchar *info_str = NULL;
 
     /* Get or create converstation. Used to store context IDs and xfer Syntax */
