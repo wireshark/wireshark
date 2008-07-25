@@ -27,6 +27,16 @@
 #ifndef PACKET_DCM_H
 #define PACKET_DCM_H
 
+/* Used for DICOM Export Object feature */
+typedef struct _dicom_eo_t {
+	guint32  pkt_num;
+	gchar   *hostname;
+	gchar   *filename;
+	gchar   *content_type;
+	guint32  payload_len;
+	const guint8 *payload_data;
+} dicom_eo_t;
+
 /* --------------------------------------------------------------------- 
  * DICOM UID Definitions
 
