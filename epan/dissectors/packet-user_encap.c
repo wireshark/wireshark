@@ -95,7 +95,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	}
 	
 	if (!encap) {
-		char* msg = ep_strdup_printf("user encap not hanlded: DLT=%d, check you Preferences->Protocols->DLT_USER",
+		char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, check your Preferences->Protocols->DLT_USER",
 									 pinfo->match_port + 147 - WTAP_ENCAP_USER0);
 		proto_item* item = proto_tree_add_text(tree, tvb, 0, 0, msg);
 		
