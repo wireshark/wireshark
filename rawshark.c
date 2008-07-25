@@ -945,7 +945,6 @@ load_cap_file(capture_file *cf)
   int          err;
   gchar        *err_info;
   gint64       data_offset = 0;
-  char         *save_file_string = NULL;
   struct wtap_pkthdr  phdr;
   guchar       pd[WTAP_MAX_PACKET_SIZE];
 
@@ -983,9 +982,6 @@ load_cap_file(capture_file *cf)
       break;
     }
   }
-
-  if (save_file_string != NULL)
-    g_free(save_file_string);
 
   return err;
 }
