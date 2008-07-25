@@ -883,6 +883,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc.h	\
 	packet-dcom.h	\
 	packet-dcom-dispatch.h	\
+	packet-dcm.h	\
 	packet-ddtp.h	\
 	packet-diffserv-mpls-common.h	\
 	packet-disp.h	\
