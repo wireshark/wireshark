@@ -1323,19 +1323,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "\n"
 "Help can be found at:\n"
 "\n"
-"       http://wiki.wireshark.org/CaptureSetup\n"
-"\n"
-"64-bit Windows:\n"
-"WinPcap does not support 64-bit Windows; you will have to use some other\n"
-"tool to capture traffic, such as netcap.\n"
-"For netcap details see: http://support.microsoft.com/?id=310875\n"
-"\n"
-"Modem (PPP/WAN):\n"
-"Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
-"support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
-"Server 2003.\n"
-"WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
-"support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
+"       http://wiki.wireshark.org/WinPcap\n"
+"       http://wiki.wireshark.org/CaptureSetup\n",
     capture_opts->iface);
 #endif /* _WIN32 */
       }
