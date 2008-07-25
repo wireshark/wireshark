@@ -226,8 +226,6 @@ static gint
 
 static dissector_handle_t dcm_handle;
 
-static gboolean dcm_desegment_headers = TRUE;
-
 static const value_string dcm_pdu_ids[] = {
     { 1, "ASSOC Request" },
     { 2, "ASSOC Accept" },
@@ -957,7 +955,7 @@ dcm_uid_or_desc(guchar *dcm_uid, guchar *dcm_desc)
 {
     /* Return Description, UID or error */
 
-    return (dcm_desc == NULL ? (dcm_uid == NULL ? "Malformed Packet" : dcm_uid) : dcm_desc);
+    return (dcm_desc == NULL ? (dcm_uid == NULL ? (guchar *)"Malformed Packet" : dcm_uid) : dcm_desc);
 }
 
 static void
@@ -3076,3 +3074,4 @@ From 3.7 Annex D Association Negotiation
     7-n Server-response This field shall contain the Kerberos Server ticket, encoded in accordance with RFC-1510, if the User-Identity-Type value in the A-ASSOCIATE-RQ was 3. This field shall contain the SAML response if the User-Identity-Type value in the A-ASSOCIATE-RQ was 4. This field shall be zero length if the value of the User-Identity-Type in the A-ASSOCIATE-RQ was 1 or 2.
 
  */
+
