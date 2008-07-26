@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h245.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h245 -c ./h245.cnf -s ./packet-h245-template -D . MULTIMEDIA-SYSTEM-CONTROL.asn */
+/* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.c */
 
@@ -2518,7 +2518,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 892 "h245.cnf"
-	guint32 value;
+	gint32 value;
 
 	nsiOID = "";
 	h221NonStandard = 0;
@@ -3618,7 +3618,7 @@ dissect_h245_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 753 "h245.cnf"
-  gint32 value_int = -1;
+  guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -3976,7 +3976,7 @@ static const per_choice_t Application_choice[] = {
 static int
 dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 505 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_Application, Application_choice,
@@ -5622,7 +5622,7 @@ static const per_choice_t VideoCapability_choice[] = {
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 495 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_VideoCapability, VideoCapability_choice,
@@ -5942,7 +5942,7 @@ static const per_choice_t AudioCapability_choice[] = {
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 485 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_AudioCapability, AudioCapability_choice,
@@ -9142,7 +9142,7 @@ static const per_choice_t VideoMode_choice[] = {
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 523 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_VideoMode, VideoMode_choice,
@@ -9470,7 +9470,7 @@ static const per_choice_t AudioMode_choice[] = {
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 514 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_AudioMode, AudioMode_choice,
@@ -9539,7 +9539,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 532 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_DataModeApplication, DataModeApplication_choice,
@@ -10528,7 +10528,7 @@ static const per_choice_t RequestMessage_choice[] = {
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 366 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_RequestMessage, RequestMessage_choice,
@@ -12167,7 +12167,7 @@ static const per_choice_t ResponseMessage_choice[] = {
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 406 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ResponseMessage, ResponseMessage_choice,
@@ -13209,7 +13209,7 @@ static const per_choice_t CommandMessage_choice[] = {
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 459 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_CommandMessage, CommandMessage_choice,
@@ -14285,7 +14285,7 @@ static const per_choice_t IndicationMessage_choice[] = {
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 433 "h245.cnf"
-  guint32 value;
+  gint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_IndicationMessage, IndicationMessage_choice,

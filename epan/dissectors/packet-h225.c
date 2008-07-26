@@ -3680,14 +3680,14 @@ dissect_h225_CircuitIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 681 "h225.cnf"
-  gint32 value_int = -1;
+  guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 16383U, &value_int, TRUE);
 
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = ep_strdup_printf("%d", value_int);
+  if (gefx) gefx->id = ep_strdup_printf("%u", value_int);
 
 
   return offset;
@@ -4697,7 +4697,7 @@ static const per_choice_t T_h323_message_body_choice[] = {
 static int
 dissect_h225_T_h323_message_body(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 242 "h225.cnf"
-	guint32 message_body_val;
+	gint32 message_body_val;
 
 	contains_faststart = FALSE;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7422,7 +7422,7 @@ static const per_choice_t RasMessage_choice[] = {
 int
 dissect_h225_RasMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 285 "h225.cnf"
-  	guint32 rasmessage_value;
+  	gint32 rasmessage_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h225_RasMessage, RasMessage_choice,

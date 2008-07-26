@@ -363,7 +363,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RequestMessage  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
@@ -403,7 +403,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
@@ -430,7 +430,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY IndicationMessage  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
@@ -456,7 +456,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CommandMessage  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
@@ -482,7 +482,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioCapability  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
@@ -492,7 +492,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoCapability  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
@@ -502,7 +502,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY Application  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
@@ -511,7 +511,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioMode  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
@@ -520,7 +520,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoMode  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
@@ -529,7 +529,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DataMode/application  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
@@ -750,7 +750,7 @@ if (h245_pi != NULL)
 #.END
 
 #.FN_BODY ParameterIdentifier/standard  VAL_PTR = &value_int
-  gint32 value_int = -1;
+  guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s
@@ -889,7 +889,7 @@ if (h245_pi != NULL)
 NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
 #.FN_BODY NonStandardIdentifier  VAL_PTR = &value
-	guint32 value;
+	gint32 value;
 
 	nsiOID = "";
 	h221NonStandard = 0;

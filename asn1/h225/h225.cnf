@@ -239,7 +239,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h323-message-body  VAL_PTR = &message_body_val
-	guint32 message_body_val;
+	gint32 message_body_val;
 
 	contains_faststart = FALSE;
 %(DEFAULT_BODY)s
@@ -282,7 +282,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RasMessage  VAL_PTR = &rasmessage_value
-  	guint32 rasmessage_value;
+  	gint32 rasmessage_value;
 
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
@@ -678,12 +678,12 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 #.END
 
 #.FN_BODY GenericIdentifier/standard  VAL_PTR = &value_int
-  gint32 value_int = -1;
+  guint32 value_int = (guint32)-1;
   gef_ctx_t *gefx;
 
 %(DEFAULT_BODY)s
   gefx = gef_ctx_get(actx->private_data);
-  if (gefx) gefx->id = ep_strdup_printf("%%d", value_int);
+  if (gefx) gefx->id = ep_strdup_printf("%%u", value_int);
 #.END
 
 #.FN_BODY GenericIdentifier/oid  FN_VARIANT = _str  VAL_PTR = &oid_str
