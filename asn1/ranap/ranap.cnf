@@ -496,10 +496,10 @@ RAB-DataVolumeReportRequestItem    N ranap.ies id-RAB-DataVolumeReportRequestIte
 RAB-FailedtoReportList             N ranap.ies id-RAB-FailedtoReportList
 RABs-failed-to-reportItem          N ranap.ies id-RAB-FailedtoReportItem
 GlobalRNC-ID                       N ranap.ies id-GlobalRNC-ID
-ResetResourceList		           N ranap.ies IMSG||id_IuSigConIdList
-ResetResourceItem	               N ranap.ies IMSG||id_IuSigConIdItem
-ResetResourceAckList               N ranap.ies SOUT||id_IuSigConIdList
-ResetResourceAckItem               N ranap.ies SOUT||id_IuSigConIdItem
+ResetResourceList		           N ranap.ies IMSG|id_IuSigConIdList
+ResetResourceItem	               N ranap.ies IMSG|id_IuSigConIdItem
+ResetResourceAckList               N ranap.ies SOUT|id_IuSigConIdList
+ResetResourceAckItem               N ranap.ies SOUT|id_IuSigConIdItem
 RAB-ReleaseList                    N ranap.ies id-RAB-ReleaseList
 RAB-ReleaseItem                    N ranap.ies id-RAB-ReleaseItem
 TemporaryUE-ID                     N ranap.ies id-TemporaryUE-ID

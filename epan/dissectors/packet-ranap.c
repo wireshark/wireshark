@@ -13174,10 +13174,10 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.ies", id_RAB_FailedtoReportList, new_create_dissector_handle(dissect_RAB_FailedtoReportList_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_FailedtoReportItem, new_create_dissector_handle(dissect_RABs_failed_to_reportItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_GlobalRNC_ID, new_create_dissector_handle(dissect_GlobalRNC_ID_PDU, proto_ranap));
-  dissector_add("ranap.ies", IMSG||id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceList_PDU, proto_ranap));
-  dissector_add("ranap.ies", IMSG||id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceItem_PDU, proto_ranap));
-  dissector_add("ranap.ies", SOUT||id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceAckList_PDU, proto_ranap));
-  dissector_add("ranap.ies", SOUT||id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceAckItem_PDU, proto_ranap));
+  dissector_add("ranap.ies", IMSG|id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceList_PDU, proto_ranap));
+  dissector_add("ranap.ies", IMSG|id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceItem_PDU, proto_ranap));
+  dissector_add("ranap.ies", SOUT|id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceAckList_PDU, proto_ranap));
+  dissector_add("ranap.ies", SOUT|id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceAckItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_ReleaseList, new_create_dissector_handle(dissect_RAB_ReleaseList_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_ReleaseItem, new_create_dissector_handle(dissect_RAB_ReleaseItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_TemporaryUE_ID, new_create_dissector_handle(dissect_TemporaryUE_ID_PDU, proto_ranap));
