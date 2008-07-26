@@ -78,6 +78,23 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 
+/* Some IE:s identities uses the same value for different IE:s
+ * depending on PDU type:
+ * InitiatingMessage
+ * SuccessfulOutcome
+ * UnsuccessfulOutcome
+ * Outcome
+ * As a workarond a value is added to the IE:id in the .cnf file.
+ * Example:
+ * ResetResourceList                N rnsap.ies IMSG||id-IuSigConIdList  # no spaces are allowed in value as a space is delimiter
+ * PDU type is stored in a global variable and can is used in the IE decoding section.
+ */
+/* Only these two needed currently */
+#define IMSG (1<<16)
+#define SOUT (2<<16)
+
+int pdu_type = 0; /* 0 means wildcard */
+
 /* Initialise the Preferences */
 static gint global_ranap_sccp_ssn = SCCP_SSN_RANAP;
 
@@ -106,7 +123,19 @@ void proto_reg_handoff_ranap(void);
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+
+  int ret;
+
+  ret = (dissector_try_port(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  if (ret == 0) {
+
+    int key = pdu_type || ProtocolIE_ID;
+
+    ret = (dissector_try_port(ranap_ies_dissector_table, key, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+
+  }
+
+  return ret;
 }
 
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -126,12 +155,16 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  pdu_type = IMSG;
   return (dissector_try_port(ranap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  pdu_type = 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  pdu_type = SOUT;
   return (dissector_try_port(ranap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  pdu_type = 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -149,6 +182,8 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*ranap_item = NULL;
 	proto_tree	*ranap_tree = NULL;
+
+	pdu_type = 0;
 
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))

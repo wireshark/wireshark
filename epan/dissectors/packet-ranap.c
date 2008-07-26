@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ranap.c                                                             */
-/* ../../tools/asn2wrs.py -p ranap -c ./ranap.cnf -s ./packet-ranap-template -D . RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -k -p ranap -c ranap.cnf -s packet-ranap-template RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
 
 /* Input file: packet-ranap-template.c */
 
@@ -508,6 +508,8 @@ static int hf_ranap_RABs_failed_to_reportItem_PDU = -1;  /* RABs_failed_to_repor
 static int hf_ranap_Reset_PDU = -1;               /* Reset */
 static int hf_ranap_ResetAcknowledge_PDU = -1;    /* ResetAcknowledge */
 static int hf_ranap_ResetResource_PDU = -1;       /* ResetResource */
+static int hf_ranap_ResetResourceList_PDU = -1;   /* ResetResourceList */
+static int hf_ranap_ResetResourceItem_PDU = -1;   /* ResetResourceItem */
 static int hf_ranap_ResetResourceAcknowledge_PDU = -1;  /* ResetResourceAcknowledge */
 static int hf_ranap_ResetResourceAckList_PDU = -1;  /* ResetResourceAckList */
 static int hf_ranap_ResetResourceAckItem_PDU = -1;  /* ResetResourceAckItem */
@@ -1185,6 +1187,23 @@ static gint ett_ranap_Outcome = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+
+/* Some IE:s identities uses the same value for different IE:s
+ * depending on PDU type:
+ * InitiatingMessage
+ * SuccessfulOutcome
+ * UnsuccessfulOutcome
+ * Outcome
+ * As a workarond a value is added to the IE:id in the .cnf file.
+ * Example:
+ * ResetResourceList                N rnsap.ies IMSG||id-IuSigConIdList  # no spaces are allowed in value as a space is delimiter
+ * PDU type is stored in a global variable and can is used in the IE decoding section.
+ */
+/* Only these two needed currently */
+#define IMSG (1<<16)
+#define SOUT (2<<16)
+
+int pdu_type = 0; /* 0 means wildcard */
 
 /* Initialise the Preferences */
 static gint global_ranap_sccp_ssn = SCCP_SSN_RANAP;
@@ -9776,6 +9795,22 @@ static int dissect_ResetResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ResetResourceList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_ResetResourceList(tvb, offset, &asn1_ctx, tree, hf_ranap_ResetResourceList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ResetResourceItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_ResetResourceItem(tvb, offset, &asn1_ctx, tree, hf_ranap_ResetResourceItem_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ResetResourceAcknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -10411,11 +10446,23 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 106 "packet-ranap-template.c"
+#line 123 "packet-ranap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+
+  int ret;
+
+  ret = (dissector_try_port(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  if (ret == 0) {
+
+    int key = pdu_type || ProtocolIE_ID;
+
+    ret = (dissector_try_port(ranap_ies_dissector_table, key, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+
+  }
+
+  return ret;
 }
 
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -10435,12 +10482,16 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  pdu_type = IMSG;
   return (dissector_try_port(ranap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  pdu_type = 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  pdu_type = SOUT;
   return (dissector_try_port(ranap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  pdu_type = 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -10458,6 +10509,8 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*ranap_item = NULL;
 	proto_tree	*ranap_tree = NULL;
+
+	pdu_type = 0;
 
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -11164,6 +11217,14 @@ void proto_register_ranap(void) {
       { "ResetResource", "ranap.ResetResource",
         FT_NONE, BASE_NONE, NULL, 0,
         "ranap.ResetResource", HFILL }},
+    { &hf_ranap_ResetResourceList_PDU,
+      { "ResetResourceList", "ranap.ResetResourceList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.ResetResourceList", HFILL }},
+    { &hf_ranap_ResetResourceItem_PDU,
+      { "ResetResourceItem", "ranap.ResetResourceItem",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.ResetResourceItem", HFILL }},
     { &hf_ranap_ResetResourceAcknowledge_PDU,
       { "ResetResourceAcknowledge", "ranap.ResetResourceAcknowledge",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12738,7 +12799,7 @@ void proto_register_ranap(void) {
         "ranap.T_value_03", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 188 "packet-ranap-template.c"
+#line 223 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13015,7 +13076,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 194 "packet-ranap-template.c"
+#line 229 "packet-ranap-template.c"
   };
 
 
@@ -13113,8 +13174,10 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.ies", id_RAB_FailedtoReportList, new_create_dissector_handle(dissect_RAB_FailedtoReportList_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_FailedtoReportItem, new_create_dissector_handle(dissect_RABs_failed_to_reportItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_GlobalRNC_ID, new_create_dissector_handle(dissect_GlobalRNC_ID_PDU, proto_ranap));
-  dissector_add("ranap.ies", id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceAckList_PDU, proto_ranap));
-  dissector_add("ranap.ies", id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceAckItem_PDU, proto_ranap));
+  dissector_add("ranap.ies", IMSG||id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceList_PDU, proto_ranap));
+  dissector_add("ranap.ies", IMSG||id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceItem_PDU, proto_ranap));
+  dissector_add("ranap.ies", SOUT||id_IuSigConIdList, new_create_dissector_handle(dissect_ResetResourceAckList_PDU, proto_ranap));
+  dissector_add("ranap.ies", SOUT||id_IuSigConIdItem, new_create_dissector_handle(dissect_ResetResourceAckItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_ReleaseList, new_create_dissector_handle(dissect_RAB_ReleaseList_PDU, proto_ranap));
   dissector_add("ranap.ies", id_RAB_ReleaseItem, new_create_dissector_handle(dissect_RAB_ReleaseItem_PDU, proto_ranap));
   dissector_add("ranap.ies", id_TemporaryUE_ID, new_create_dissector_handle(dissect_TemporaryUE_ID_PDU, proto_ranap));
@@ -13325,7 +13388,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 243 "packet-ranap-template.c"
+#line 278 "packet-ranap-template.c"
 }
 
 
