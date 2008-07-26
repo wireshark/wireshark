@@ -1,14 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ranap.c                                                             */
-/* ../../tools/asn2wrs.py -p ranap -c ranap.cnf -s packet-ranap-template RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p ranap -c ./ranap.cnf -s ./packet-ranap-template -D . RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
 
 /* Input file: packet-ranap-template.c */
 
 #line 1 "packet-ranap-template.c"
 /* packet-ranap.c
  * Routines for UMTS Node B Application Part(RANAP) packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005, Anders Broman <anders.broman[AT]ericsson.com>
  *
  * $Id$
  *
@@ -46,6 +46,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -59,7 +60,7 @@
 #pragma warning(disable:4146)
 #endif
 
-#define SCCP_SSN_RANAP 0x8E
+#define SCCP_SSN_RANAP 142
 
 #define PNAME  "Radio Access Network Application Part"
 #define PSNAME "RANAP"
@@ -329,7 +330,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
-#line 61 "packet-ranap-template.c"
+#line 62 "packet-ranap-template.c"
 
 static dissector_handle_t ranap_handle = NULL;
 
@@ -902,7 +903,7 @@ static int hf_ranap_value_02 = -1;                /* T_value_02 */
 static int hf_ranap_value_03 = -1;                /* T_value_03 */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 69 "packet-ranap-template.c"
+#line 70 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1178,12 +1179,15 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 74 "packet-ranap-template.c"
+#line 75 "packet-ranap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+
+/* Initialise the Preferences */
+static gint global_ranap_sccp_ssn = SCCP_SSN_RANAP;
 
 /* Dissector tables */
 static dissector_table_t ranap_ies_dissector_table;
@@ -1204,6 +1208,7 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void proto_reg_handoff_ranap(void);
 
 
 /*--- Included file: packet-ranap-fn.c ---*/
@@ -10406,7 +10411,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 101 "packet-ranap-template.c"
+#line 106 "packet-ranap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -10461,14 +10466,14 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* create the ranap protocol tree */
 	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
 	ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
-	
+
 	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 	if (pinfo->sccp_info) {
 		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
-		
+
 		if (sccp_msg->data.co.assoc)
 			sccp_msg->data.co.assoc->payload = SCCP_PLOAD_RANAP;
-		
+
 		if (! sccp_msg->data.co.label && ProcedureCode != 0xFFFFFFFF) {
 			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
 			sccp_msg->data.co.label = se_strdup(str);
@@ -10478,6 +10483,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*--- proto_register_ranap -------------------------------------------*/
 void proto_register_ranap(void) {
+  module_t *ranap_module;
 
   /* List of fields */
 
@@ -12732,7 +12738,7 @@ void proto_register_ranap(void) {
         "ranap.T_value_03", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 182 "packet-ranap-template.c"
+#line 188 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13009,7 +13015,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 188 "packet-ranap-template.c"
+#line 194 "packet-ranap-template.c"
   };
 
 
@@ -13018,7 +13024,7 @@ void proto_register_ranap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_ranap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("ranap", dissect_ranap, proto_ranap);
   ranap_handle = find_dissector("ranap");
@@ -13035,6 +13041,10 @@ void proto_register_ranap(void) {
 
   nas_pdu_dissector_table = register_dissector_table("ranap.nas_pdu", "RANAP NAS PDU", FT_UINT8, BASE_DEC);
 
+  ranap_module = prefs_register_protocol(proto_ranap, proto_reg_handoff_ranap);
+  prefs_register_uint_preference(ranap_module, "sccp_ssn", "SCCP SSN for RANAP",
+				 "The SCCP SubSystem Number for RANAP (default 142)", 10,
+				 &global_ranap_sccp_ssn);
 }
 
 
@@ -13042,8 +13052,17 @@ void proto_register_ranap(void) {
 void
 proto_reg_handoff_ranap(void)
 {
+	static int initialized = FALSE;
+	static gint local_ranap_sccp_ssn;
 
-	dissector_add("sccp.ssn", SCCP_SSN_RANAP, ranap_handle);
+	if (!initialized) {
+		initialized = TRUE;
+	} else {
+		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
+	}
+
+	dissector_add("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
+	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
 
 
 /*--- Included file: packet-ranap-dis-tab.c ---*/
@@ -13306,7 +13325,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 224 "packet-ranap-template.c"
+#line 243 "packet-ranap-template.c"
 }
 
 
