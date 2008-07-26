@@ -38,6 +38,11 @@ PresentedAddressScreened
 PresentedAddressUnscreened
 PresentedNumberScreened
 PresentedNumberUnscreened
+AddressScreened
+NumberScreened
+Address
+# implemented manually in h450-ros as asn2wrs is not able to handle subtype constraint event passed through parameter
+InvokeIDs
 #.END
 
 #.PDU_NEW

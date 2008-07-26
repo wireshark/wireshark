@@ -30,7 +30,7 @@
 
 typedef struct _t38_packet_info {
 	guint16 seq_num;	/* UDPTLPacket sequence number */
-	guint32 type_msg;	/* 0=t30-indicator    1=data */
+	gint32 type_msg;	/* 0=t30-indicator    1=data */
 	guint32 t30ind_value;
 	guint32 data_value;	/* standard and speed */
 	guint32 setup_frame_number;

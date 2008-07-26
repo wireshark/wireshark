@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t38.h                                                               */
-/* ../../tools/asn2wrs.py -p t38 -c ./t38.cnf -s ./packet-t38-template -D . T38_2002.asn */
+/* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38_2002.asn */
 
 /* Input file: packet-t38-template.h */
 
@@ -38,7 +38,7 @@
 
 typedef struct _t38_packet_info {
 	guint16 seq_num;	/* UDPTLPacket sequence number */
-	guint32 type_msg;	/* 0=t30-indicator    1=data */
+	gint32 type_msg;	/* 0=t30-indicator    1=data */
 	guint32 t30ind_value;
 	guint32 data_value;	/* standard and speed */
 	guint32 setup_frame_number;

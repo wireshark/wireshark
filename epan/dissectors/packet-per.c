@@ -269,19 +269,19 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 guint32 
 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
 {
-	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_ASN1_ENC);
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_ASN1_ENC);
 }
 
 guint32 
 dissect_per_open_type_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb)
 {
-	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_DISSECTOR);
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_DISSECTOR);
 }
 
 guint32 
 dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb)
 {
-	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_NEW_DISSECTOR);
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_NEW_DISSECTOR);
 }
 
 /* 10.9 General rules for encoding a length determinant -------------------- 

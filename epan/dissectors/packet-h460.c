@@ -258,9 +258,6 @@ static int hf_h460_21_maxGroups = -1;             /* INTEGER_1_65535 */
 static int hf_h460_21_groupIdentifer = -1;        /* GloballyUniqueID */
 static int hf_h460_21_capability = -1;            /* Capability */
 static int hf_h460_21_sourceAddress = -1;         /* UnicastAddress */
-static int hf_h460_21_priority = -1;              /* INTEGER_0_255 */
-static int hf_h460_21_groupAddress = -1;          /* MulticastAddress */
-static int hf_h460_21_alertUser = -1;             /* BOOLEAN */
 
 /*--- End of included file: packet-h460-hf.c ---*/
 #line 51 "packet-h460-template.c"
@@ -358,7 +355,6 @@ static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_TransmitCapabilities = -1;
 static gint ett_h460_21_ReceiveCapabilities = -1;
 static gint ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability = -1;
 static gint ett_h460_21_TransmitCapabilities = -1;
-static gint ett_h460_21_GroupAttributes = -1;
 
 /*--- End of included file: packet-h460-ett.c ---*/
 #line 54 "packet-h460-template.c"
@@ -1959,44 +1955,6 @@ dissect_h460_21_CapabilityAdvertisement(tvbuff_t *tvb _U_, int offset _U_, asn1_
   return offset;
 }
 
-
-
-static int
-dissect_h460_21_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_h460_21_BOOLEAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t h460_21_GroupAttributes_sequence[] = {
-  { &hf_h460_21_priority    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h460_21_INTEGER_0_255 },
-  { &hf_h460_21_groupIdentifer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h460_21_GloballyUniqueID },
-  { &hf_h460_21_capability  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_Capability },
-  { &hf_h460_21_groupAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_MulticastAddress },
-  { &hf_h460_21_sourceAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_UnicastAddress },
-  { &hf_h460_21_alertUser   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h460_21_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h460_21_GroupAttributes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h460_21_GroupAttributes, h460_21_GroupAttributes_sequence);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static int dissect_h460_21_CapabilityAdvertisement_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -2913,18 +2871,6 @@ void proto_register_h460(void) {
       { "sourceAddress", "h460.21.sourceAddress",
         FT_UINT32, BASE_DEC, VALS(h245_UnicastAddress_vals), 0,
         "h245.UnicastAddress", HFILL }},
-    { &hf_h460_21_priority,
-      { "priority", "h460.21.priority",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "h460_21.INTEGER_0_255", HFILL }},
-    { &hf_h460_21_groupAddress,
-      { "groupAddress", "h460.21.groupAddress",
-        FT_UINT32, BASE_DEC, VALS(h245_MulticastAddress_vals), 0,
-        "h245.MulticastAddress", HFILL }},
-    { &hf_h460_21_alertUser,
-      { "alertUser", "h460.21.alertUser",
-        FT_BOOLEAN, 8, NULL, 0,
-        "h460_21.BOOLEAN", HFILL }},
 
 /*--- End of included file: packet-h460-hfarr.c ---*/
 #line 250 "packet-h460-template.c"
@@ -3024,7 +2970,6 @@ void proto_register_h460(void) {
     &ett_h460_21_ReceiveCapabilities,
     &ett_h460_21_SEQUENCE_SIZE_1_256_OF_Capability,
     &ett_h460_21_TransmitCapabilities,
-    &ett_h460_21_GroupAttributes,
 
 /*--- End of included file: packet-h460-ettarr.c ---*/
 #line 255 "packet-h460-template.c"

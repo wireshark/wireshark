@@ -63,7 +63,7 @@ ReturnErrorProblem   VAL_PTR = &problem_val
 
 #--- INVOKE ---
 
-# body is impleneted manually as asn2wrs is not able to handle subtype constraint event passed through parameter
+# body is implemented manually as asn2wrs is not able to handle subtype constraint event passed through parameter
 #.FN_BODY Invoke/invokeId
   offset = dissect_per_constrained_integer(%(TVB)s, %(OFFSET)s, %(ACTX)s, %(TREE)s, %(HF_INDEX)s,
                                            0U, 65535U, %(VAL_PTR)s, TRUE);

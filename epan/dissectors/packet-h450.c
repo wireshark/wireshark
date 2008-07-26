@@ -82,9 +82,6 @@ static int hf_h450_clearCallIfAnyInvokePduNotRecognized = -1;  /* NULL */
 static int hf_h450_rejectAnyUnrecognizedInvokePdu = -1;  /* NULL */
 static int hf_h450_rosApdus = -1;                 /* T_rosApdus */
 static int hf_h450_rosApdus_item = -1;            /* T_rosApdus_item */
-static int hf_h450_partyNumber = -1;              /* PartyNumber */
-static int hf_h450_screeningIndicator = -1;       /* ScreeningIndicator */
-static int hf_h450_partySubaddress = -1;          /* PartySubaddress */
 static int hf_h450_destinationAddress = -1;       /* SEQUENCE_OF_AliasAddress */
 static int hf_h450_destinationAddress_item = -1;  /* AliasAddress */
 static int hf_h450_remoteExtensionAddress = -1;   /* AliasAddress */
@@ -468,9 +465,6 @@ static gint ett_h450_EntityType = -1;
 static gint ett_h450_InterpretationApdu = -1;
 static gint ett_h450_ServiceApdus = -1;
 static gint ett_h450_T_rosApdus = -1;
-static gint ett_h450_AddressScreened = -1;
-static gint ett_h450_NumberScreened = -1;
-static gint ett_h450_Address = -1;
 static gint ett_h450_EndpointAddress = -1;
 static gint ett_h450_SEQUENCE_OF_AliasAddress = -1;
 static gint ett_h450_PartySubaddress = -1;
@@ -928,7 +922,7 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "h450.cnf"
+#line 62 "h450.cnf"
   h450_rose_ctx.apdu_depth = 1;
   actx->rose_ctx = &h450_rose_ctx;
 
@@ -981,7 +975,7 @@ static const per_sequence_t h450_H4501SupplementaryService_sequence[] = {
 
 static int
 dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "h450.cnf"
+#line 55 "h450.cnf"
   proto_item *hidden_item;
 
   hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
@@ -994,11 +988,33 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+static const per_sequence_t h450_SEQUENCE_OF_AliasAddress_sequence_of[1] = {
+  { &hf_h450_destinationAddress_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_AliasAddress },
+};
 
 static int
-dissect_h450_InvokeIDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
+dissect_h450_SEQUENCE_OF_AliasAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_h450_SEQUENCE_OF_AliasAddress, h450_SEQUENCE_OF_AliasAddress_sequence_of);
+
+  return offset;
+}
+
+
+static const per_sequence_t h450_EndpointAddress_sequence[] = {
+  { &hf_h450_destinationAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SEQUENCE_OF_AliasAddress },
+  { &hf_h450_remoteExtensionAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_AliasAddress },
+  { &hf_h450_destinationAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
+  { &hf_h450_destinationAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
+  { &hf_h450_remoteExtensionAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
+  { &hf_h450_remoteExtensionAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h450_EndpointAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h450_EndpointAddress, h450_EndpointAddress_sequence);
 
   return offset;
 }
@@ -1065,84 +1081,6 @@ dissect_h450_PartySubaddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h450_PartySubaddress, h450_PartySubaddress_choice,
                                  NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_AddressScreened_sequence[] = {
-  { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
-  { &hf_h450_screeningIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_ScreeningIndicator },
-  { &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_AddressScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h450_AddressScreened, h450_AddressScreened_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_NumberScreened_sequence[] = {
-  { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
-  { &hf_h450_screeningIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_ScreeningIndicator },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_NumberScreened(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h450_NumberScreened, h450_NumberScreened_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_Address_sequence[] = {
-  { &hf_h450_partyNumber    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_PartyNumber },
-  { &hf_h450_partySubaddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h450_PartySubaddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h450_Address, h450_Address_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_SEQUENCE_OF_AliasAddress_sequence_of[1] = {
-  { &hf_h450_destinationAddress_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_AliasAddress },
-};
-
-static int
-dissect_h450_SEQUENCE_OF_AliasAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
-                                      ett_h450_SEQUENCE_OF_AliasAddress, h450_SEQUENCE_OF_AliasAddress_sequence_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t h450_EndpointAddress_sequence[] = {
-  { &hf_h450_destinationAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h450_SEQUENCE_OF_AliasAddress },
-  { &hf_h450_remoteExtensionAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_AliasAddress },
-  { &hf_h450_destinationAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
-  { &hf_h450_destinationAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
-  { &hf_h450_remoteExtensionAddressPresentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
-  { &hf_h450_remoteExtensionAddressScreeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_h450_EndpointAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h450_EndpointAddress, h450_EndpointAddress_sequence);
 
   return offset;
 }
@@ -4976,18 +4914,6 @@ void proto_register_h450(void) {
       { "Item", "h450.rosApdus_item",
         FT_UINT32, BASE_DEC, VALS(h450_ros_ROS_vals), 0,
         "h450.T_rosApdus_item", HFILL }},
-    { &hf_h450_partyNumber,
-      { "partyNumber", "h450.partyNumber",
-        FT_UINT32, BASE_DEC, VALS(h225_PartyNumber_vals), 0,
-        "h225.PartyNumber", HFILL }},
-    { &hf_h450_screeningIndicator,
-      { "screeningIndicator", "h450.screeningIndicator",
-        FT_UINT32, BASE_DEC, VALS(h225_ScreeningIndicator_vals), 0,
-        "h225.ScreeningIndicator", HFILL }},
-    { &hf_h450_partySubaddress,
-      { "partySubaddress", "h450.partySubaddress",
-        FT_UINT32, BASE_DEC, VALS(h450_PartySubaddress_vals), 0,
-        "h450.PartySubaddress", HFILL }},
     { &hf_h450_destinationAddress,
       { "destinationAddress", "h450.destinationAddress",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6372,9 +6298,6 @@ void proto_register_h450(void) {
     &ett_h450_InterpretationApdu,
     &ett_h450_ServiceApdus,
     &ett_h450_T_rosApdus,
-    &ett_h450_AddressScreened,
-    &ett_h450_NumberScreened,
-    &ett_h450_Address,
     &ett_h450_EndpointAddress,
     &ett_h450_SEQUENCE_OF_AliasAddress,
     &ett_h450_PartySubaddress,

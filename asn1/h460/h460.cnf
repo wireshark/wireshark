@@ -17,6 +17,7 @@ GROUP_BY_PROT
 
 #.OMIT_ASSIGNMENT
 MessageBroadcastGroups
+GroupAttributes
 #.END
 
 #.MODULE

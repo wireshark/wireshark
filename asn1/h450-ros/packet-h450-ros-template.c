@@ -54,7 +54,7 @@ int proto_h450_ros = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static guint32 problem_val;
+static gint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h450-ros.c                                                          */
-/* ../../tools/asn2wrs.py -e -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
+/* ../../tools/asn2wrs.py -e -p h450.ros -c h450-ros.cnf -s packet-h450-ros-template ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
 
 /* Input file: packet-h450-ros-template.c */
 
@@ -100,7 +100,7 @@ static gint ett_h450_ros_T_problem = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static guint32 problem_val;
+static gint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 

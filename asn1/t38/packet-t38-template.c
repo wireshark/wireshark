@@ -121,7 +121,7 @@ static dissector_handle_t rtp_handle;
 static dissector_handle_t t30_hdlc_handle;
 static dissector_handle_t data_handle;
 
-static guint32 Type_of_msg_value;
+static gint32 Type_of_msg_value;
 static guint32 Data_Field_field_type_value;
 static guint32 Data_value;
 static guint32 T30ind_value;

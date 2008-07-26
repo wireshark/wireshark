@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t38.c                                                               */
-/* ../../tools/asn2wrs.py -p t38 -c ./t38.cnf -s ./packet-t38-template -D . T38_2002.asn */
+/* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38_2002.asn */
 
 /* Input file: packet-t38-template.c */
 
@@ -129,7 +129,7 @@ static dissector_handle_t rtp_handle;
 static dissector_handle_t t30_hdlc_handle;
 static dissector_handle_t data_handle;
 
-static guint32 Type_of_msg_value;
+static gint32 Type_of_msg_value;
 static guint32 Data_Field_field_type_value;
 static guint32 Data_value;
 static guint32 T30ind_value;

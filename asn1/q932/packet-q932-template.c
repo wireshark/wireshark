@@ -131,9 +131,9 @@ static const value_string str_nd[] = {
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
 dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
-  guint8 class;
+  gint8 class;
   gboolean pc;
-  guint32 tag;
+  gint32 tag;
   guint32 len;
   int hoffset, eoffset;
   int ie_end;

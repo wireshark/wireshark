@@ -73,6 +73,7 @@ ExtendedAliasAddress
 
 #.OMIT_ASSIGNMENT
 EncodedFastStartToken
+FastStartToken
 #.END
 
 #.VIRTUAL_ASSGN
@@ -455,83 +456,83 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY FacilityReason  VAL_PTR = &value
-	guint32 value;
+	gint32 value;
 	
 %(DEFAULT_BODY)s
 	h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY GatekeeperRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRequestReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY BandRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AdmissionRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RegistrationRejectReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReleaseCompleteReason  VAL_PTR = &value
-  guint32 value;
+  gint32 value;
 	
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
@@ -586,7 +587,7 @@ NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
 
 #.FN_BODY NonStandardIdentifier  VAL_PTR = &value
-	guint32 value;
+	gint32 value;
 
 	nsiOID = "";
 	h221NonStandard = 0;
