@@ -55,9 +55,10 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
-    lua_tree = ep_alloc(sizeof(struct _wslua_treeitem));
+    lua_tree = g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = tree;
     lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+    lua_tree->expired = FALSE;
     PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
     /*
@@ -102,9 +103,11 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
     }
 
-    clear_outstanding_tvbs();
-    clear_outstanding_pinfos();
-    clear_outstanding_trees();
+    clear_outstanding_Tvb();
+    clear_outstanding_Pinfo();
+    clear_outstanding_Column();
+    clear_outstanding_Columns();
+    clear_outstanding_TreeItem();
 
 
     lua_pinfo = NULL;

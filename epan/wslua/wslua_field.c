@@ -154,8 +154,9 @@ int FieldInfo_get_range(lua_State* L) {
 	/* the TvbRange covering this field */
 	FieldInfo fi = checkFieldInfo(L,1);
 	TvbRange r = ep_alloc(sizeof(struct _wslua_tvbrange));
+	r->tvb = ep_alloc(sizeof(struct _wslua_tvb));
 
-	r->tvb = fi->ds_tvb;
+	r->tvb->ws_tvb = fi->ds_tvb;
 	r->offset = fi->start;
 	r->len = fi->length;
 

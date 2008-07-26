@@ -5,6 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
+ * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
  *
  * $Id$
  *
@@ -59,8 +60,18 @@
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define LOG_DOMAIN_LUA "wslua"
 
+struct _wslua_tvb {
+    tvbuff_t* ws_tvb;
+    gboolean expired;
+};
+
+struct _wslua_pinfo {
+    packet_info* ws_pinfo;
+    gboolean expired;
+};
+
 struct _wslua_tvbrange {
-    tvbuff_t* tvb;
+    struct _wslua_tvb* tvb;
     int offset;
     int len;
 };
@@ -139,11 +150,19 @@ struct _wslua_distbl_t {
 struct _wslua_col_info {
     column_info* cinfo;
     gint col;
+    gboolean expired;
+};
+
+struct _wslua_cols {
+    column_info* cinfo;
+    gboolean expired;
 };
 
 struct _wslua_treeitem {
 	proto_item* item;
 	proto_tree* tree;
+    	gboolean expired;
+	
 };
 
 typedef void (*tap_extractor_t)(lua_State*,const void*);
@@ -183,11 +202,11 @@ typedef struct _wslua_proto_t* Proto;
 typedef struct _wslua_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
 typedef GByteArray* ByteArray;
-typedef tvbuff_t* Tvb;
+typedef struct _wslua_tvb* Tvb;
 typedef struct _wslua_tvbrange* TvbRange; 
 typedef struct _wslua_col_info* Column;
-typedef column_info* Columns;
-typedef packet_info* Pinfo;
+typedef struct _wslua_cols* Columns;
+typedef struct _wslua_pinfo* Pinfo;
 typedef struct _wslua_treeitem* TreeItem;
 typedef address* Address;
 typedef header_field_info** Field;
@@ -307,6 +326,18 @@ typedef int dummy##C
 #define NOP
 #define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,index,s)
 
+/* Clears or marks references that connects Lua to Wireshark structures */
+#define CLEAR_OUTSTANDING(C, marker, marker_val) void clear_outstanding_##C(void) { \
+    while (outstanding_##C->len) { \
+        C p = (C)g_ptr_array_remove_index_fast(outstanding_##C,0); \
+        if (p) { \
+            if (p->marker != marker_val) \
+                p->marker = marker_val; \
+            else \
+                g_free(p); \
+        } \
+    } \
+} 
 
 
 #define WSLUA_CLASS_DECLARE(C) \
@@ -341,14 +372,16 @@ extern void lua_prime_all_fields(proto_tree* tree);
 
 extern int Proto_commit(lua_State* L);
 
-extern void* push_Tvb(lua_State* L, Tvb tvb);
-extern void clear_outstanding_tvbs(void);
+extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
+extern void clear_outstanding_Tvb(void);
 
-extern void* push_Pinfo(lua_State* L, Pinfo p);
-extern void clear_outstanding_pinfos(void);
+extern Pinfo* push_Pinfo(lua_State* L, packet_info* p);
+extern void clear_outstanding_Pinfo(void);
+extern void clear_outstanding_Column(void);
+extern void clear_outstanding_Columns(void);
 
-extern void* push_TreeItem(lua_State* L, TreeItem ti);
-extern void clear_outstanding_trees(void);
+extern TreeItem* push_TreeItem(lua_State* L, TreeItem ti);
+extern void clear_outstanding_TreeItem(void);
 
 extern void wslua_print_stack(char* s, lua_State* L);
 

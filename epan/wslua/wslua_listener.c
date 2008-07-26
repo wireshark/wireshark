@@ -100,9 +100,10 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
 	
     lua_pinfo = pinfo; 
     lua_tvb = edt->tvb;
-    lua_tree = ep_alloc(sizeof(struct _wslua_treeitem));
+    lua_tree = g_malloc(sizeof(struct _wslua_treeitem));
 	lua_tree->tree = edt->tree;
 	lua_tree->item = NULL;
+	lua_tree->expired = FALSE;
     
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
@@ -118,8 +119,8 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
             break;
     }
     
-    clear_outstanding_pinfos();
-    clear_outstanding_tvbs();
+    clear_outstanding_Pinfo();
+    clear_outstanding_Tvb();
     
     lua_pinfo = NULL; 
     lua_tvb = NULL;

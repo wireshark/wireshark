@@ -4,6 +4,7 @@
  * Wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
  *
  * $Id$
  *
@@ -36,29 +37,31 @@
 
 
 /*
- * NULLify lua userdata to avoid crashing when trying to
- * access saved copies of invalid stuff.
- *
- * see comment on lua_tvb.c
+ * Track pointers to wireshark's structures.
+ * see comment on wslua_tvb.c
  */
 
-static GPtrArray* outstanding_stuff = NULL;
+static GPtrArray* outstanding_Pinfo = NULL;
+static GPtrArray* outstanding_Column = NULL;
+static GPtrArray* outstanding_Columns = NULL;
 
-void clear_outstanding_pinfos(void) {
-    while (outstanding_stuff->len) {
-        void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);
-        *p = NULL;
+CLEAR_OUTSTANDING(Pinfo,expired, TRUE)
+CLEAR_OUTSTANDING(Column,expired, TRUE)
+CLEAR_OUTSTANDING(Columns,expired, TRUE)
+
+Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
+    Pinfo pinfo = NULL;
+    if (ws_pinfo) {
+        pinfo = g_malloc(sizeof(struct _wslua_pinfo));
+        pinfo->ws_pinfo = ws_pinfo;
+        pinfo->expired = FALSE;
+        g_ptr_array_add(outstanding_Pinfo,pinfo);
     }
+    return pushPinfo(L,pinfo);
 }
 
-void* push_Pinfo(lua_State* L, Pinfo pinfo) {
-    void** p = (void**)pushPinfo(L,pinfo);
-    g_ptr_array_add(outstanding_stuff,p);
-	return p;
-}
-
-#define PUSH_COLUMN(L,c) g_ptr_array_add(outstanding_stuff,pushColumn(L,c))
-#define PUSH_COLUMNS(L,c) g_ptr_array_add(outstanding_stuff,pushColumns(L,c))
+#define PUSH_COLUMN(L,c) {g_ptr_array_add(outstanding_Column,c);pushColumn(L,c);}
+#define PUSH_COLUMNS(L,c) {g_ptr_array_add(outstanding_Columns,c);pushColumns(L,c);}
 
 WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
 
@@ -377,6 +380,20 @@ WSLUA_METAMETHOD Column__tostring(lua_State *L) {
     WSLUA_RETURN(1); /* A string representing the column */
 }
 
+WSLUA_METAMETHOD Column__gc(lua_State* L) {
+    Column col = checkColumn(L,1);
+
+    if (!col) return 0;
+    
+    if (!col->expired)
+        col->expired = TRUE;
+    else
+        g_free(col);
+
+    return 0;
+
+}
+
 WSLUA_METHOD Column_clear(lua_State *L) {
 	/* Clears a Column */
     Column c = checkColumn(L,1);
@@ -452,6 +469,7 @@ WSLUA_METHODS Column_methods[] = {
 
 WSLUA_META Column_meta[] = {
     {"__tostring", Column__tostring },
+    {"__gc", Column__gc },
     {0,0}
 };
 
@@ -485,14 +503,18 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
     const char* text;
 
     if (!cols) return 0;
+    if (cols->expired) {
+        luaL_error(L,"expired column");
+        return 0;
+    }
 
     colname = luaL_checkstring(L,WSLUA_ARG_Columns__newindex_COLUMN);
     text = luaL_checkstring(L,WSLUA_ARG_Columns__newindex_TEXT);
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            if (check_col(cols, cn->id))
-                col_set_str(cols, cn->id, text);
+            if (check_col(cols->cinfo, cn->id))
+                col_set_str(cols->cinfo, cn->id, text);
             return 0;
         }
     }
@@ -508,23 +530,29 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
     const char* colname = luaL_checkstring(L,2);
 
     if (!cols) {
-        Column c = ep_alloc(sizeof(struct _wslua_col_info));
+        Column c = g_malloc(sizeof(struct _wslua_col_info));
         c->cinfo = NULL;
         c->col = col_name_to_id(colname);
+	c->expired = FALSE;
 
         PUSH_COLUMN(L,c);
         return 1;
     }
 
 
+    if (cols->expired) {
+        luaL_error(L,"expired column");
+        return 0;
+    }
 
     if (!colname) return 0;
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            Column c = ep_alloc(sizeof(struct _wslua_col_info));
-            c->cinfo = cols;
+            Column c = g_malloc(sizeof(struct _wslua_col_info));
+            c->cinfo = cols->cinfo;
             c->col = col_name_to_id(colname);
+	    c->expired = FALSE;
 
             PUSH_COLUMN(L,c);
             return 1;
@@ -534,11 +562,26 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
     return 0;
 }
 
+WSLUA_METAMETHOD Columns_gc(lua_State* L) {
+    Columns cols = checkColumns(L,1);
+
+    if (!cols) return 0;
+    
+    if (!cols->expired)
+        cols->expired = TRUE;
+    else
+        g_free(cols);
+
+    return 0;
+
+}
+
 
 static const luaL_reg Columns_meta[] = {
     {"__tostring", Columns__tostring },
     {"__newindex", Columns__newindex },
     {"__index",  Columns_index},
+    {"__gc",  Columns_gc},
     { NULL, NULL }
 };
 
@@ -557,6 +600,10 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 #define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
     Pinfo pinfo = checkPinfo(L,1); \
     if (!pinfo) return 0;\
+    if (pinfo->expired) { \
+        luaL_error(L,"expired_pinfo"); \
+        return 0; \
+    } \
     lua_pushnumber(L,(lua_Number)(val));\
     return 1;\
 }
@@ -565,6 +612,10 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
     Pinfo pinfo = checkPinfo(L,1); \
     const gchar* value; \
     if (!pinfo) return 0; \
+    if (pinfo->expired) { \
+        luaL_error(L,"expired_pinfo"); \
+        return 0; \
+    } \
     value = val; \
     if (value) lua_pushstring(L,(const char*)(value)); else lua_pushnil(L); \
     return 1; \
@@ -574,25 +625,29 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
     Pinfo pinfo = checkPinfo(L,1); \
     Address addr = g_malloc(sizeof(address)); \
     if (!pinfo) return 0; \
-    COPY_ADDRESS(addr, &(pinfo->role)); \
+    if (pinfo->expired) { \
+        luaL_error(L,"expired_pinfo"); \
+        return 0; \
+    } \
+    COPY_ADDRESS(addr, &(pinfo->ws_pinfo->role)); \
     pushAddress(L,addr); \
     return 1; \
 }
 
-PINFO_GET_NUMBER(Pinfo_number,pinfo->fd->num)
-PINFO_GET_NUMBER(Pinfo_len,pinfo->fd->pkt_len)
-PINFO_GET_NUMBER(Pinfo_caplen,pinfo->fd->cap_len)
-PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->fd->abs_ts.secs) + (((double)pinfo->fd->abs_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->fd->rel_ts.secs) + (((double)pinfo->fd->rel_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_cap_ts.secs) + (((double)pinfo->fd->del_cap_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_delta_dis_ts,(((double)pinfo->fd->del_dis_ts.secs) + (((double)pinfo->fd->del_dis_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ipproto)
-PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id)
-PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype)
-PINFO_GET_NUMBER(Pinfo_src_port,pinfo->srcport)
-PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->destport)
+PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)
+PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
+PINFO_GET_NUMBER(Pinfo_caplen,pinfo->ws_pinfo->fd->cap_len)
+PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->ws_pinfo->fd->abs_ts.secs) + (((double)pinfo->ws_pinfo->fd->abs_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->ws_pinfo->fd->rel_ts.secs) + (((double)pinfo->ws_pinfo->fd->rel_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->ws_pinfo->fd->del_cap_ts.secs) + (((double)pinfo->ws_pinfo->fd->del_cap_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_delta_dis_ts,(((double)pinfo->ws_pinfo->fd->del_dis_ts.secs) + (((double)pinfo->ws_pinfo->fd->del_dis_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ws_pinfo->ipproto)
+PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->ws_pinfo->circuit_id)
+PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ws_pinfo->ptype)
+PINFO_GET_NUMBER(Pinfo_src_port,pinfo->ws_pinfo->srcport)
+PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->ws_pinfo->destport)
 
-PINFO_GET_STRING(Pinfo_curr_proto,pinfo->current_proto)
+PINFO_GET_STRING(Pinfo_curr_proto,pinfo->ws_pinfo->current_proto)
 
 PINFO_GET_ADDRESS(Pinfo_net_src,net_src)
 PINFO_GET_ADDRESS(Pinfo_net_dst,net_dst)
@@ -604,7 +659,11 @@ PINFO_GET_ADDRESS(Pinfo_dst,dst)
 static int Pinfo_visited(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     if (!pinfo) return 0;
-    lua_pushboolean(L,pinfo->fd->flags.visited);
+    if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
+    lua_pushboolean(L,pinfo->ws_pinfo->fd->flags.visited);
     return 1;
 }
 
@@ -613,25 +672,39 @@ static int Pinfo_match(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
+    if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
-    if (pinfo->match_string) {
-        lua_pushstring(L,pinfo->match_string);
+    if (pinfo->ws_pinfo->match_string) {
+        lua_pushstring(L,pinfo->ws_pinfo->match_string);
     } else {
-        lua_pushnumber(L,(lua_Number)(pinfo->match_port));
+        lua_pushnumber(L,(lua_Number)(pinfo->ws_pinfo->match_port));
     }
 
     return 1;
 }
 
 static int Pinfo_columns(lua_State *L) {
+    Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
     const gchar* colname = luaL_optstring(L,2,NULL);
 
+    if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
+    
+    cols = g_malloc(sizeof(struct _wslua_cols));
+    cols->cinfo = pinfo->ws_pinfo->cinfo;
+    cols->expired = FALSE;
+
     if (!colname) {
-        PUSH_COLUMNS(L,pinfo->cinfo);
+        PUSH_COLUMNS(L,cols);
     } else {
         lua_settop(L,0);
-        PUSH_COLUMNS(L,pinfo->cinfo);
+        PUSH_COLUMNS(L,cols);
         lua_pushstring(L,colname);
         return Columns_index(L);
     }
@@ -666,6 +739,11 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
         luaL_error(L,"Not an OK address");
         return 0;
     }
+    
+    if (!pinfo) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
     switch(pt) {
         case PARAM_ADDR_SRC:
@@ -698,6 +776,11 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
 int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     guint v = luaL_checkint(L,1);
 
+    if (!pinfo) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
+    
     switch(pt) {
         case PARAM_PORT_SRC:
             pinfo->srcport = v;
@@ -727,11 +810,15 @@ static int Pinfo_hi(lua_State *L) {
 	Address addr = g_malloc(sizeof(address));
 
 	if (!pinfo) return 0;
+        if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
-	if (CMP_ADDRESS(&(pinfo->src), &(pinfo->dst) ) >= 0) {
-		COPY_ADDRESS(addr, &(pinfo->src));
+	if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
+		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
 	} else {
-		COPY_ADDRESS(addr, &(pinfo->dst));
+		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
 	}
 
 	pushAddress(L,addr);
@@ -743,11 +830,15 @@ static int Pinfo_lo(lua_State *L) {
 	Address addr = g_malloc(sizeof(address));
 
 	if (!pinfo) return 0;
+        if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
-	if (CMP_ADDRESS(&(pinfo->src), &(pinfo->dst) ) < 0) {
-		COPY_ADDRESS(addr, &(pinfo->src));
+	if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
+		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
 	} else {
-		COPY_ADDRESS(addr, &(pinfo->dst));
+		COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
 	}
 
 	pushAddress(L,addr);
@@ -851,6 +942,10 @@ static int Pinfo_index(lua_State* L) {
         lua_pushnil(L);
         return 1;
     }
+    if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
     for (curr = Pinfo_methods ; curr->name ; curr++) {
         if (g_str_equal(curr->name,name)) {
@@ -873,6 +968,10 @@ static int Pinfo_setindex(lua_State* L) {
     if (! (pinfo && name) ) {
         return 0;
     }
+    if (pinfo->expired) {
+        luaL_error(L,"expired_pinfo");
+        return 0;
+    }
 
     for (curr = Pinfo_methods ; curr->name ; curr++) {
         if (g_str_equal(curr->name,name)) {
@@ -884,19 +983,36 @@ static int Pinfo_setindex(lua_State* L) {
 
     lua_remove(L,1);
     lua_remove(L,1);
-    return method(L,pinfo,param_type);
+    return method(L,pinfo->ws_pinfo,param_type);
+}
+
+WSLUA_METAMETHOD Pinfo_gc(lua_State* L) {
+    Pinfo pinfo = checkPinfo(L,1);
+
+    if (!pinfo) return 0;
+    
+    if (!pinfo->expired)
+        pinfo->expired = TRUE;
+    else
+        g_free(pinfo);
+
+    return 0;
+
 }
 
 static const luaL_reg Pinfo_meta[] = {
     {"__index", Pinfo_index},
     {"__newindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},
+    {"__gc", Pinfo_gc},
     { NULL, NULL }
 };
 
 int Pinfo_register(lua_State* L) {
 	WSLUA_REGISTER_META(Pinfo);
-    outstanding_stuff = g_ptr_array_new();
+    outstanding_Pinfo = g_ptr_array_new();
+    outstanding_Column = g_ptr_array_new();
+    outstanding_Columns = g_ptr_array_new();
     return 1;
 }
 
