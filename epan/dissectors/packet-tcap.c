@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tcap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . tcap.asn */
+/* ../../tools/asn2wrs.py -b -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
 
@@ -87,8 +87,6 @@ static int hf_tcap_user_information = -1;         /* User_information */
 static int hf_tcap_protocol_versionre = -1;       /* T_protocol_versionre */
 static int hf_tcap_result = -1;                   /* Associate_result */
 static int hf_tcap_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
-static int hf_tcap_reasonrq = -1;                 /* Release_request_reason */
-static int hf_tcap_reasonre = -1;                 /* Release_response_reason */
 static int hf_tcap_abort_source = -1;             /* ABRT_source */
 static int hf_tcap_dialogue_service_user = -1;    /* T_dialogue_service_user */
 static int hf_tcap_dialogue_service_provider = -1;  /* T_dialogue_service_provider */
@@ -225,8 +223,6 @@ static gint ett_tcap_AARQ_apdu_U = -1;
 static gint ett_tcap_T_protocol_versionrq = -1;
 static gint ett_tcap_AARE_apdu_U = -1;
 static gint ett_tcap_T_protocol_versionre = -1;
-static gint ett_tcap_RLRQ_apdu_U = -1;
-static gint ett_tcap_RLRE_apdu_U = -1;
 static gint ett_tcap_ABRT_apdu_U = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 static gint ett_tcap_UniDialoguePDU = -1;
@@ -358,7 +354,7 @@ dissect_tcap_T_protocol_versionrq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "tcap.cnf"
+#line 79 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
 	tcap_private.oid= (void*) cur_oid;
@@ -373,7 +369,7 @@ dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_tcap_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "tcap.cnf"
+#line 51 "tcap.cnf"
 
 return dissect_tcap_UserInformation(FALSE, tvb, offset, actx, tree, -1);
 
@@ -601,7 +597,7 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "tcap.cnf"
+#line 41 "tcap.cnf"
 
 return dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 
@@ -629,7 +625,7 @@ dissect_tcap_ExternalPDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "tcap.cnf"
+#line 36 "tcap.cnf"
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_ExternalPDU_U);
@@ -644,7 +640,7 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "tcap.cnf"
+#line 87 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &tcapext_oid);
 
 
@@ -657,7 +653,7 @@ dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_tcap_ExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "tcap.cnf"
+#line 91 "tcap.cnf"
 tvbuff_t	*next_tvb;
 gint8 class;
 gboolean pc;
@@ -729,31 +725,6 @@ dissect_tcap_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t RLRQ_apdu_U_sequence[] = {
-  { &hf_tcap_reasonrq       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_Release_request_reason },
-  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_RLRQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RLRQ_apdu_U_sequence, hf_index, ett_tcap_RLRQ_apdu_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_RLRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 2, TRUE, dissect_tcap_RLRQ_apdu_U);
-
-  return offset;
-}
-
-
 static const value_string tcap_Release_response_reason_vals[] = {
   {   0, "normal" },
   {   1, "not-finished" },
@@ -766,31 +737,6 @@ static int
 dissect_tcap_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t RLRE_apdu_U_sequence[] = {
-  { &hf_tcap_reasonre       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_Release_response_reason },
-  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_RLRE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RLRE_apdu_U_sequence, hf_index, ett_tcap_RLRE_apdu_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_tcap_RLRE_apdu_U);
 
   return offset;
 }
@@ -860,7 +806,7 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "tcap.cnf"
+#line 31 "tcap.cnf"
 
 return dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
@@ -925,7 +871,7 @@ dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "tcap.cnf"
+#line 46 "tcap.cnf"
 
 return dissect_tcap_param(actx,tree,tvb,offset);
 
@@ -1197,7 +1143,7 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "tcap.cnf"
+#line 56 "tcap.cnf"
 tvbuff_t	*next_tvb;
 gint8 class;
 gboolean pc;
@@ -1279,7 +1225,7 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "tcap.cnf"
+#line 146 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len, i;
 proto_item *tid_item;
@@ -1332,7 +1278,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "tcap.cnf"
+#line 220 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -1355,7 +1301,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 182 "tcap.cnf"
+#line 185 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 proto_item *tid_item;
@@ -1405,7 +1351,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "tcap.cnf"
+#line 235 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1428,7 +1374,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "tcap.cnf"
+#line 243 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1500,7 +1446,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "tcap.cnf"
+#line 251 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1516,7 +1462,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_TransactionID_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 288 "tcap.cnf"
+#line 291 "tcap.cnf"
 
 tvbuff_t *next_tvb;
 guint8 len;
@@ -1743,7 +1689,7 @@ dissect_tcap_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_tcap_ANSIParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "tcap.cnf"
+#line 114 "tcap.cnf"
 /* we are doing the ParamSet here so need to look at the tags*/
 	guint32 len;
 len = tvb_length_remaining(tvb, offset);
@@ -1906,7 +1852,7 @@ static const ber_choice_t ComponentPDU_choice[] = {
 
 static int
 dissect_tcap_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "tcap.cnf"
+#line 125 "tcap.cnf"
 tvbuff_t	*next_tvb;
 gint8 class;
 gboolean pc;
@@ -1993,7 +1939,7 @@ dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_tcap_T_ansiqueryWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 264 "tcap.cnf"
+#line 267 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
@@ -2007,7 +1953,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_T_ansiqueryWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "tcap.cnf"
+#line 271 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
@@ -2021,7 +1967,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_T_ansiresponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 272 "tcap.cnf"
+#line 275 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "Response ");
@@ -2035,7 +1981,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_T_ansiconversationWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 276 "tcap.cnf"
+#line 279 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
@@ -2049,7 +1995,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_T_ansiconversationWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 280 "tcap.cnf"
+#line 283 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
@@ -2126,7 +2072,7 @@ static const ber_sequence_t AbortPDU_sequence[] = {
 
 static int
 dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "tcap.cnf"
+#line 259 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -2465,14 +2411,6 @@ proto_register_tcap(void)
       { "result-source-diagnostic", "tcap.result_source_diagnostic",
         FT_UINT32, BASE_DEC, VALS(tcap_Associate_source_diagnostic_vals), 0,
         "tcap.Associate_source_diagnostic", HFILL }},
-    { &hf_tcap_reasonrq,
-      { "reasonrq", "tcap.reasonrq",
-        FT_INT32, BASE_DEC, VALS(tcap_Release_request_reason_vals), 0,
-        "tcap.Release_request_reason", HFILL }},
-    { &hf_tcap_reasonre,
-      { "reasonre", "tcap.reasonre",
-        FT_INT32, BASE_DEC, VALS(tcap_Release_response_reason_vals), 0,
-        "tcap.Release_response_reason", HFILL }},
     { &hf_tcap_abort_source,
       { "abort-source", "tcap.abort_source",
         FT_INT32, BASE_DEC, VALS(tcap_ABRT_source_vals), 0,
@@ -2923,8 +2861,6 @@ proto_register_tcap(void)
     &ett_tcap_T_protocol_versionrq,
     &ett_tcap_AARE_apdu_U,
     &ett_tcap_T_protocol_versionre,
-    &ett_tcap_RLRQ_apdu_U,
-    &ett_tcap_RLRE_apdu_U,
     &ett_tcap_ABRT_apdu_U,
     &ett_tcap_Associate_source_diagnostic,
     &ett_tcap_UniDialoguePDU,

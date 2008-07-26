@@ -2,7 +2,10 @@
 # $Id$
 # tcap conformation file
 
-#
+#.OMIT_ASSIGNMENT
+RLRQ-apdu
+RLRE-apdu
+#.END
 
 #.MODULE_IMPORT
 
