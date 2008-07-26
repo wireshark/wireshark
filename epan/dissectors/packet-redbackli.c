@@ -176,6 +176,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint		len, offset=0, eoh=0;
 	guint8		avptype, avplen;
+	guint32		avpfound=0;
 
 	len=tvb_length(tvb);
 	if (len < MIN_REDBACKLI_SIZE)
@@ -197,11 +198,13 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case(RB_AVP_SESSID):
 				if (avplen != 4)
 					return FALSE;
+				avpfound|=1<<avptype;
 				break;
 			case(RB_AVP_LABEL):
+				avpfound|=1<<avptype;
 				break;
 			case(RB_AVP_EOH):
-				if (avplen > 1)
+				if (avplen > 1 || offset == 0)
 					return FALSE;
 				eoh=1;
 				break;
@@ -211,6 +214,13 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset+=2+avplen;
 		len-=2+avplen;
 	}
+
+	if (!(avpfound & (1<<RB_AVP_SEQNO)))
+		return FALSE;
+	if (!(avpfound & (1<<RB_AVP_SESSID)))
+		return FALSE;
+	if (!(avpfound & (1<<RB_AVP_LIID)))
+		return FALSE;
 
 	redbackli_dissect(tvb, pinfo, tree);
 

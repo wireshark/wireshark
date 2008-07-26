@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.2">
+  <!ENTITY WiresharkCurrentVersion "1.0.3">
 
 ]>
 
@@ -31,7 +31,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-03.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-04.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -58,11 +58,22 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Dumpcap could crash on some versions of Windows (primarily Vista).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2677">Bug
-          2677</ulink>)
+          Packets could wrongly be dissected as "Redback Lawful Intercept"
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2376">Bug
+          2376</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          MIKEY dissector improvements
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
+          2400</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Following a TCP stream could incorrectly reassemble packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2606">Bug
+          2606</ulink>)
+        </para></listitem>
       </itemizedlist>
 
     </para>
