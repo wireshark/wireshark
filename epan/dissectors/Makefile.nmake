@@ -56,7 +56,7 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 # maybe we could just require every .o file to have an register routine
 # of a given name (packet-aarp.o -> proto_register_aarp, etc.).
 #
-# Formatting conventions:  The name of the proto_register_* routines an
+# Formatting conventions:  The name of the proto_register_* routines and
 # proto_reg_handoff_* routines must start in column zero, or must be
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
@@ -100,6 +100,8 @@ packet-ncp2222.c : ncp2222.py
 	mv packet-ncp.c packet-ncp.c.save
 	touch packet-ncp.c $@
 !ENDIF
+
+packet-ncp2222.obj: packet-ncp2222.inc
 
 clean:
 	rm -f dissectors.lib *.pdb register.c-tmp register-cache.pkl \
