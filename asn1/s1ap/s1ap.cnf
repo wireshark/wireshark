@@ -22,9 +22,11 @@ TBCD-STRING
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
 PrivateIE-Container
+PrivateIE-Field
 SAEB-IE-ContainerPairList
 
 Presence
@@ -44,10 +46,10 @@ UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 
 
-PrivateIE-Field/id private_id
+#PrivateIE-Field/id private_id
 ProtocolExtensionField/id ext_id
 
-PrivateIE-Field/value private_value
+#PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
