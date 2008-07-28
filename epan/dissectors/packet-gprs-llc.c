@@ -48,6 +48,10 @@
 #define UI_MASK_E      0x0002
 #define UI_MASK_PM     0x0001
 
+#define N202           4U
+#define CRC_LENGTH     3U
+#define UI_HDR_LENGTH  3U
+
 /* Initialize the protocol and registered fields */
 static int proto_llcgprs       = -1;
 static int hf_llcgprs_pd       = -1;
@@ -306,15 +310,124 @@ static guint32 crc_calc(guint32 fcs, tvbuff_t *tvb, guint len)
 typedef enum {
 	FCS_VALID,
 	FCS_NOT_VALID,
+	FCS_NOT_VALID_DUE_TO_CIPHERING,
 	FCS_NOT_COMPUTED
 } fcs_status_t;
+
+/* sub-dissector for XID data */
+static void llc_gprs_dissect_xid(tvbuff_t *tvb, 
+								guint16 offset, 
+								guint16 llc_data_length, 
+								guint8 info_len,
+								proto_item *llcgprs_tree,
+								proto_tree *ui_tree,
+								proto_item *ui_ti)
+{
+	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
+	guint16 location = offset;
+	int loop_counter = 0;
+	proto_item *u_ti;
+	proto_item *uinfo_field = NULL;
+	proto_tree *uinfo_tree = NULL;
+
+	u_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_length-2),
+		"Information Field: Length = %u", info_len);
+	ui_tree = proto_item_add_subtree(u_ti, ett_ui);
+
+	while (location < (offset + info_len))
+	{
+		/* parse the XID parameters */
+		byte1 = tvb_get_guint8(tvb, location);
+
+		if (byte1 & 0x80)
+		{
+			guint8 xid_param_len_high = 0;
+			guint8 xid_param_len_low = 0;
+			byte2 = tvb_get_guint8(tvb, location + 1);
+
+			/* XL bit is set - length is continued in second byte */
+			xid_param_len_high = byte1 & 0x03;
+			xid_param_len_low = byte2 & 0xFC;
+
+			/* bit shift the rest of the length */
+			xid_param_len_low = xid_param_len_low >> 2;
+			xid_param_len_low = xid_param_len_low & 0x3F;
+
+			xid_param_len_high = xid_param_len_high << 6;
+			xid_param_len_high = xid_param_len_high & 0xC0;
+
+			/* combine the two */
+			xid_param_len = xid_param_len_high | xid_param_len_low;
+			item_len = xid_param_len + 2;
+
+		}
+		else
+		{
+			xid_param_len = byte1 & 0x3;
+			item_len = xid_param_len + 1;
+		}
+
+		tmp =  byte1 & 0x7C;
+		tmp = tmp >> 2;
+
+		if (( xid_param_len > 0 ) && ( xid_param_len <=4 ))
+		{
+			unsigned long value = 0;
+			int i;
+			for (i=1;i<=xid_param_len;i++) 
+			{
+				value <<= 8;
+				value |= (unsigned long)tvb_get_guint8(tvb, location+i );
+			}
+			uinfo_field = proto_tree_add_text(ui_tree, tvb, location, item_len,
+				"XID Parameter Type: %s - Value: %lu",
+				val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
+		}
+		else
+		{
+			uinfo_field = proto_tree_add_text(ui_tree, tvb, location, item_len,
+				"XID Parameter Type: %s",
+				val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
+		}
+		uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
+		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
+			1, byte1);
+		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location,
+			1, byte1);
+		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location,
+			1, byte1);
+
+		if (byte1 & 0x80) {
+			/* length continued into byte 2 */
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location,
+				1, byte2);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location,
+				1, byte2);
+
+			/* be sure to account for the second byte of length */
+			location++;
+		}
+
+		location++;
+		for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
+		{
+			/* grab the information in the XID param */
+			byte2 = tvb_get_guint8(tvb, location);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb, location,
+				1, byte2);
+
+			location++;
+		}
+	}
+}
+
 
 /* Code to actually dissect the packets */
 static void
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
-	guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_start=0 ;
+	guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_length=0, llc_data_length=0 ;
 	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
@@ -337,7 +450,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
 	}
 
-    addr_fld = tvb_get_guint8(tvb,offset);
+	addr_fld = tvb_get_guint8(tvb,offset);
 	offset++;
 
 	if (addr_fld > 128 )
@@ -356,29 +469,71 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s", val_to_str(sapi,sapi_abrv, "Unknown (%d)"));
 	}
 
-
-	length = tvb_reported_length(tvb);
-	if (tvb_length(tvb) >= length && length >= 3)
+	ctrl_fld_fb = tvb_get_guint8(tvb,offset);
+	if (ctrl_fld_fb < 0xC0)
 	{
+		frame_format = (ctrl_fld_fb < 0x80)? I_FORMAT : S_FORMAT;
+	}
+	else
+	{
+		frame_format = (ctrl_fld_fb < 0xe0 )? UI_FORMAT : U_FORMAT;
+	}
+	length = tvb_reported_length(tvb);
+	llc_data_length = length - CRC_LENGTH; /* llc_data_length includes the header and the payload */
+	if (tvb_length(tvb) >= length && length >= CRC_LENGTH)
+	{
+		gboolean ciphered_ui_frame = FALSE;
 		/*
 		 * We have all the packet data, including the full FCS,
 		 * so we can compute the FCS.
 		 *
-		 * XXX - do we need to check the PM bit?
+		 * We need to check the PM bit for UI frames. Read the control field here.
 		 */
-	    crc_start = length-3;
-		fcs_calc = crc_calc ( INIT_CRC24 , tvb, crc_start );
+		if (frame_format == UI_FORMAT)
+		{
+			nu = ctrl_fld_ui_s = tvb_get_ntohs(tvb, offset);
+			offset +=2;
+			epm = ctrl_fld_ui_s & 0x3;
+			nu = (nu >>2)&0x01FF;
+
+			/* If the frame is ciphered, the calculated FCS will not be valid (unless it has been unciphered) */
+			if (epm & UI_MASK_E)
+			{
+				ciphered_ui_frame = TRUE;
+			}
+			if ((epm & UI_MASK_PM)== 0)
+			{
+				/* FCS covers at maximum the LLC header and N202 bytes */
+				crc_length = MIN(UI_HDR_LENGTH + N202, llc_data_length);
+			}
+			else
+			{
+				crc_length = llc_data_length;
+			}
+		}
+		else
+		{
+			crc_length = llc_data_length;
+		}
+		fcs_calc = crc_calc ( INIT_CRC24 , tvb, crc_length );
 		fcs_calc = ~fcs_calc;
 		fcs_calc &= 0xffffff;
 
-		fcs = tvb_get_letoh24(tvb, crc_start);
+		fcs = tvb_get_letoh24(tvb, llc_data_length);
 		if ( fcs_calc == fcs )
 		{
 			fcs_status = FCS_VALID;
 		}
 		else
 		{
-			fcs_status = FCS_NOT_VALID;
+			if (ciphered_ui_frame)
+			{
+				fcs_status = FCS_NOT_VALID_DUE_TO_CIPHERING;
+			}
+			else
+			{
+				fcs_status = FCS_NOT_VALID;
+			}
 		}
 	}
 	else
@@ -389,7 +544,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Squelch compiler warnings. */
 		fcs = 0;
 		fcs_calc = 0;
-		crc_start = 0;
+		llc_data_length = 0;
 	}
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -408,13 +563,18 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (fcs_status) {
 
 		case FCS_VALID:
-			proto_tree_add_text (llcgprs_tree, tvb, crc_start, 3,
+			proto_tree_add_text (llcgprs_tree, tvb, llc_data_length, CRC_LENGTH,
 				"FCS: 0x%06x (correct)", fcs_calc&0xffffff);
 			break;
 
 		case FCS_NOT_VALID:
-			proto_tree_add_text (llcgprs_tree, tvb,crc_start, 3,
+			proto_tree_add_text (llcgprs_tree, tvb, llc_data_length, CRC_LENGTH,
 				"FCS: 0x%06x  (incorrect, should be 0x%06x)", fcs, fcs_calc );
+			break;
+
+		case FCS_NOT_VALID_DUE_TO_CIPHERING:
+			proto_tree_add_text (llcgprs_tree, tvb, llc_data_length, CRC_LENGTH,
+				"FCS: 0x%06x  (incorrect, maybe due to ciphering, calculated 0x%06x)", fcs, fcs_calc );
 			break;
 
 		case FCS_NOT_COMPUTED:
@@ -428,18 +588,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(ad_f_tree, hf_llcgprs_pd, tvb, 0, 1, addr_fld );
         proto_tree_add_boolean(ad_f_tree, hf_llcgprs_cr, tvb, 0, 1, addr_fld );
         proto_tree_add_uint(ad_f_tree, hf_llcgprs_sapib, tvb, 0, 1, addr_fld );
-	}
-
-
-
-	ctrl_fld_fb = tvb_get_guint8(tvb,offset);
-	if (ctrl_fld_fb < 0xC0)
-	{
-		frame_format = (ctrl_fld_fb < 0x80)? I_FORMAT : S_FORMAT;
-	}
-	else
-	{
-               frame_format = (ctrl_fld_fb < 0xe0 )? UI_FORMAT : U_FORMAT;
 	}
 
 	switch (frame_format)
@@ -552,7 +700,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tom_pd = tom_byte & 0x0F;
 
 					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
-						(crc_start-offset), "TOM Envelope - Protocol: %s",
+						(llc_data_length-offset), "TOM Envelope - Protocol: %s",
 						val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
 					ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
@@ -578,7 +726,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							offset++;
 						}
 
-						remaining_length = crc_start - offset;
+						remaining_length = llc_data_length - offset;
 
 						/* parse the TOM message capsule */
 						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
@@ -597,7 +745,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 			{
 				/* otherwise - call a subdissector */
-				next_tvb = tvb_new_subset(tvb, offset, (crc_start-offset), -1);
+				next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), -1);
    				if (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
 				/* if no subdissector is found, call the data dissector */
 				{
@@ -608,76 +756,176 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			break;
 		case S_FORMAT:
-		case UI_FORMAT:
 			nu = ctrl_fld_ui_s = tvb_get_ntohs(tvb, offset);
 			offset +=2;
 			epm = ctrl_fld_ui_s & 0x3;
 			nu = (nu >>2)&0x01FF;
-
-			if (frame_format == S_FORMAT)
+			
+			if (check_col(pinfo->cinfo, COL_INFO))
 			{
-/* S format */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_str(pinfo->cinfo, COL_INFO, ", S, ");
-					col_append_str(pinfo->cinfo, COL_INFO, val_to_str(epm,cr_formats_ipluss, "Unknown (%d)"));
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u", nu);
-				}
-
+				col_append_str(pinfo->cinfo, COL_INFO, ", S, ");
+				col_append_str(pinfo->cinfo, COL_INFO, val_to_str(epm,cr_formats_ipluss, "Unknown (%d)"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u", nu);
+			}
+			
+			if (tree)
+			{
+				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2, 2,
+					"Supervisory format: %s: N(R) = %u",
+					val_to_str(epm,cr_formats_ipluss, "Unknown (%d)"), nu);
+				
+				ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_S_fmt, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_As, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				
+				/* MLT CHANGES - added spare bits */
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sspare, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				/* END MLT CHANGES */
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NR, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sjsd, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+			}
+			/* MLT CHANGES - additional parsing code to handle SACK */
+			if ((ctrl_fld_ui_s & 0x03) == 0x03)
+				/* It is a SACK frame */
+			{
+				/* TODO: length is fudged - it is not correct */
+				guint32 sack_length = llc_data_length - offset;
+				
 				if (tree)
 				{
-					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2, 2,
-						"Supervisory format: %s: N(R) = %u",
-						val_to_str(epm,cr_formats_ipluss, "Unknown (%d)"), nu);
-
-					ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_S_fmt, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_As, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-
-					/* MLT CHANGES - added spare bits */
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sspare, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					/* END MLT CHANGES */
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NR, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sjsd, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-				}
-
-				/* MLT CHANGES - additional parsing code to handle SACK */
-				if ((ctrl_fld_ui_s & 0x03) == 0x03)
-				/* It is a SACK frame */
-				{
-					/* TODO: length is fudged - it is not correct */
-					guint32 sack_length = crc_start - offset;
-
-					if (tree)
+					guint8 loop_count = 0;
+					guint8 r_byte = 0;
+					guint16 location = offset;
+					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
+						sack_length, "SACK FRAME: length = %u", sack_length);
+					/* display the R Bitmap */
+					for (loop_count = 0; loop_count < sack_length; loop_count++)
 					{
-						guint8 loop_count = 0;
-						guint8 r_byte = 0;
-						guint16 location = offset;
+						r_byte = tvb_get_guint8(tvb, location);
+						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_rbyte, tvb,
+							location, 1, r_byte);
+						location++;
+					}
+					
+					/* step past the r bitmap */
+					offset += sack_length;
+				}
+			}
+			
+			/* should parse the rest of the supervisory message based on type */
+			/* if SAPI is TOM do other parsing */
+			if ((sapi == SAPI_TOM2) || (sapi == SAPI_TOM8))
+			{
+				if (tree)
+				{
+					guint8 tom_byte = 0;
+					guint8 remaining_length = 0;
+					guint8 tom_pd = 0;
+					int loop_counter = 0;
 
-						ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
-							sack_length, "SACK FRAME: length = %u", sack_length);
+					tom_byte = tvb_get_guint8(tvb, offset);
+					remaining_length = (tom_byte >> 4) & 0x0F;
+					tom_pd = tom_byte & 0x0F;
 
-						/* display the R Bitmap */
-						for (loop_count = 0; loop_count < sack_length; loop_count++)
+					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
+						(llc_data_length-offset), "TOM Envelope - Protocol: %s",
+						val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
+					
+					ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
+					
+					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
+					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
+					
+					/* step past the TOM header first byte */
+					offset++;
+					
+					/* TOM remaining length field value 0x0F is reserved for extension */
+					if (remaining_length != 0x0F)
+					{
+						/* parse the rest of the TOM header */
+						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 						{
-							r_byte = tvb_get_guint8(tvb, location);
-							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_rbyte, tvb,
-								location, 1, r_byte);
-
-							location++;
+							tom_byte = tvb_get_guint8(tvb, offset);
+							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
+								offset, 1, tom_byte);
+							
+							/* step to the next byte */
+							offset++;
 						}
+						
+						/* Amount of frame left from offset to crc */
+						remaining_length = llc_data_length - offset;
+						
+						/* parse the TOM message capsule */
+						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
+						{
+							tom_byte = tvb_get_guint8(tvb, offset);
+							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
+								offset, 1, tom_byte);
 
-						/* step past the r bitmap */
-						offset += sack_length;
+							/* step to the next byte */
+							offset++;
+						}
 					}
 				}
+			}
+			else
+			{
+				/* otherwise - call a subdissector */
+				next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), -1 );
+				if (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
+				{
+					call_dissector(data_handle, next_tvb, pinfo, tree);
+				}
+			}
+			/* END MLT CHANGES */
 
-				/* should parse the rest of the supervisory message based on type */
+		case UI_FORMAT:
+			/* nu and epm calculated before FCS check for UI frame */
+			
+			if (check_col(pinfo->cinfo, COL_INFO))
+			{
+				col_append_str(pinfo->cinfo, COL_INFO, ", UI, ");
+				col_append_str(pinfo->cinfo, COL_INFO, val_to_str(epm, pme, "Unknown (%d)"));
+				col_append_fstr(pinfo->cinfo,COL_INFO, ", N(U) = %u", nu);
+			}
+			
+			if (tree)
+			{
+				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2,
+					2, "Unnumbered Information format - UI, N(U) = %u", nu);
+				ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_ctrlf);
+				
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_U_fmt, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sp_bits, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NU, tvb, offset-2, 2,
+					ctrl_fld_ui_s);
+				proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_E_bit, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+				proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_PM_bit, tvb, offset-2,
+					2, ctrl_fld_ui_s);
+			}
+			
+			/* MLT CHANGES - TOM parsing added */
+			next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), -1);
+			
+			if ((ignore_cipher_bit && (fcs_status == FCS_VALID)) || !(epm & 0x2))
+			{
+				/* Either we're ignoring the cipher bit
+				 * (because the bit is set but the
+				 * data is unciphered), and the data has
+				 * a valid FCS, or the cipher
+				 * bit isn't set (indicating that the
+				 * data is unciphered).  Try dissecting
+				 * it with a subdissector. */
+				
 				/* if SAPI is TOM do other parsing */
 				if ((sapi == SAPI_TOM2) || (sapi == SAPI_TOM8))
 				{
@@ -687,23 +935,23 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						guint8 remaining_length = 0;
 						guint8 tom_pd = 0;
 						int loop_counter = 0;
-
+						
 						tom_byte = tvb_get_guint8(tvb, offset);
 						remaining_length = (tom_byte >> 4) & 0x0F;
 						tom_pd = tom_byte & 0x0F;
-
+						
 						ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
-							(crc_start-offset), "TOM Envelope - Protocol: %s",
+							(llc_data_length-offset), "TOM Envelope - Protocol: %s",
 							val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
-
+						
 						ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
-
+						
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
 						proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
-
+						
 						/* step past the TOM header first byte */
 						offset++;
-
+						
 						/* TOM remaining length field value 0x0F is reserved for extension */
 						if (remaining_length != 0x0F)
 						{
@@ -711,25 +959,25 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 							{
 								tom_byte = tvb_get_guint8(tvb, offset);
-
+								
 								proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
 									offset, 1, tom_byte);
-
+								
 								/* step to the next byte */
 								offset++;
 							}
-
+							
 							/* Amount of frame left from offset to crc */
-							remaining_length = crc_start - offset;
-
+							remaining_length = llc_data_length - offset;
+							
 							/* parse the TOM message capsule */
 							for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
 							{
 								tom_byte = tvb_get_guint8(tvb, offset);
-
+								
 								proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
 									offset, 1, tom_byte);
-
+								
 								/* step to the next byte */
 								offset++;
 							}
@@ -739,131 +987,20 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else
 				{
 					/* otherwise - call a subdissector */
-					next_tvb = tvb_new_subset(tvb, offset, (crc_start-offset), -1 );
-   					if (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
+					if (!dissector_try_port(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 					{
-	   					call_dissector(data_handle, next_tvb, pinfo, tree);
+						call_dissector(data_handle, next_tvb, pinfo, tree);
 					}
 				}
-				/* END MLT CHANGES */
 			}
 			else
 			{
-/*UI format*/
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_str(pinfo->cinfo, COL_INFO, ", UI, ");
-					col_append_str(pinfo->cinfo, COL_INFO, val_to_str(epm, pme, "Unknown (%d)"));
-					col_append_fstr(pinfo->cinfo,COL_INFO, ", N(U) = %u", nu);
-				}
-
-				if (tree)
-				{
-					ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2,
-						2, "Unnumbered Information format - UI, N(U) = %u", nu);
-					ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_ctrlf);
-
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_U_fmt, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_sp_bits, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_NU, tvb, offset-2, 2,
-						ctrl_fld_ui_s);
-					proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_E_bit, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-					proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_PM_bit, tvb, offset-2,
-						2, ctrl_fld_ui_s);
-		     	}
-
-				/* MLT CHANGES - TOM parsing added */
- 		   		next_tvb = tvb_new_subset(tvb, offset, (crc_start-offset), -1);
-
-		   		if ((ignore_cipher_bit && (fcs_status == FCS_VALID)) || !(epm & 0x2))
-				{
-			  		/* Either we're ignoring the cipher bit
-			  		* (because the bit is set but the
-			  		* data is unciphered), and the data has
-			  		* a valid FCS, or the cipher
-			  		* bit isn't set (indicating that the
-			  		* data is unciphered).  Try dissecting
-			  		* it with a subdissector. */
-
-					/* if SAPI is TOM do other parsing */
-					if ((sapi == SAPI_TOM2) || (sapi == SAPI_TOM8))
-					{
-						if (tree)
-						{
-							guint8 tom_byte = 0;
-							guint8 remaining_length = 0;
-							guint8 tom_pd = 0;
-							int loop_counter = 0;
-
-							tom_byte = tvb_get_guint8(tvb, offset);
-							remaining_length = (tom_byte >> 4) & 0x0F;
-							tom_pd = tom_byte & 0x0F;
-
-							ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset,
-								(crc_start-offset), "TOM Envelope - Protocol: %s",
-								val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
-
-							ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
-
-							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
-							proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
-
-							/* step past the TOM header first byte */
-							offset++;
-
-							/* TOM remaining length field value 0x0F is reserved for extension */
-							if (remaining_length != 0x0F)
-							{
-								/* parse the rest of the TOM header */
-								for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
-								{
-									tom_byte = tvb_get_guint8(tvb, offset);
-
-									proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_header, tvb,
-										offset, 1, tom_byte);
-
-									/* step to the next byte */
-									offset++;
-								}
-
-								/* Amount of frame left from offset to crc */
-								remaining_length = crc_start - offset;
-
-								/* parse the TOM message capsule */
-								for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
-								{
-									tom_byte = tvb_get_guint8(tvb, offset);
-
-									proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_data, tvb,
-										offset, 1, tom_byte);
-
-									/* step to the next byte */
-									offset++;
-								}
-							}
-						}
-					}
-					else
-					{
-						/* otherwise - call a subdissector */
-		   				if (!dissector_try_port(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
-						{
-		   					call_dissector(data_handle, next_tvb, pinfo, tree);
-						}
-					}
-				}
-				else
-				{
-					/* ciphered information - just parse it as data */
-					call_dissector(data_handle, next_tvb, pinfo, tree);
-				}
-
-				/* END MLT CHANGES */
+				/* ciphered information - just parse it as data */
+				call_dissector(data_handle, next_tvb, pinfo, tree);
 			}
+			/* END MLT CHANGES */
 			break;
+
 		case U_FORMAT:
 		     offset +=1;
 		     tmp = 0;
@@ -877,7 +1014,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			if(tree){
-				ui_ti = proto_tree_add_text(llcgprs_tree, tvb, (offset-1), (crc_start-1),
+				ui_ti = proto_tree_add_text(llcgprs_tree, tvb, (offset-1), (llc_data_length-1),
 					"Unnumbered frame: %s",
 					val_to_str(tmp,cr_formats_unnumb, "Unknown/invalid code:%X"));
 
@@ -891,7 +1028,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* MLT CHANGES - parse rest of the message based on type (M Bits) */
 			m_bits = ctrl_fld_fb & 0x0F;
 
-			info_len = crc_start - offset;
+			info_len = llc_data_length - offset;
 
 			switch (m_bits)
 			{
@@ -901,7 +1038,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* These frames SHOULD NOT have an info field */
 				if (tree)
 				{
-					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (crc_start-2),
+					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_length-2),
 						"No Information Field");
 					ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
 				}
@@ -911,96 +1048,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Info field, if it exists, consists of XID parameters */
 				if (tree)
 				{
-					if (info_len > 0)
-					{
-						guint8 xid_param_len = 0;
-						guint16 location = offset;
-						guint8 byte1 = 0;
-						guint8 byte2 = 0;
-						guint8 ending = 0;
-						int loop_counter = 0;
-
-						ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (crc_start-2),
-							"Information Field: Length = %u", info_len);
-						ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
-
-						while (location < (offset + info_len))
-						{
-							/* parse the XID parameters */
-							byte1 = tvb_get_guint8(tvb, location);
-
-							if (byte1 & 0x80)
-							{
-								guint8 xid_param_len_high = 0;
-								guint8 xid_param_len_low = 0;
-
-								byte2 = tvb_get_guint8(tvb, location + 1);
-
-								/* XL bit is set - length is continued in second byte */
-								xid_param_len_high = byte1 & 0x03;
-								xid_param_len_low = byte2 & 0xFC;
-
-								/* bit shift the rest of the length */
-								xid_param_len_low = xid_param_len_low >> 2;
-								xid_param_len_low = xid_param_len_low & 0x3F;
-
-								xid_param_len_high = xid_param_len_high << 6;
-								xid_param_len_high = xid_param_len_high & 0xC0;
-
-								/* combine the two */
-								xid_param_len = xid_param_len_high | xid_param_len_low;
-
-							}
-							else
-							{
-								xid_param_len = byte1 & 0x3;
-							}
-
-							ending = location + xid_param_len;
-
-							tmp =  byte1 & 0x7C;
-							tmp = tmp >> 2;
-							uinfo_field = proto_tree_add_text(ui_tree, tvb, location,
-								(ending - 1), "XID Parameter Type: %s",
-								val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
-
-							uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb,
-								location, 1, byte1);
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb,
-								location, 1, byte1);
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb,
-								location, 1, byte1);
-
-							if (byte1 & 0x80) {
-								/* length continued into byte 2 */
-								proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb,
-									location, 1, byte2);
-								proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb,
-									location, 1, byte2);
-
-								/* be sure to account for the second byte of length */
-								location++;
-							}
-
-							location++;
-							for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
-							{
-								/* grab the information in the XID param */
-								byte2 = tvb_get_guint8(tvb, location);
-								proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb,
-									location, 1, byte2);
-
-								location++;
-							}
-						}
-					}
-					else
-					{
-						ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (crc_start-2),
-							"No Information Field");
-						ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
-					}
+					llc_gprs_dissect_xid(tvb, offset, llc_data_length, info_len, llcgprs_tree, ui_tree, ui_ti);
 				}
 				break;
 			case U_SABM:
@@ -1009,101 +1057,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Info field consists of XID parameters */
 				if (tree)
 				{
-					guint8 xid_param_len = 0;
-					guint16 location = offset;
-					guint8 byte1 = 0;
-					guint8 byte2 = 0;
-					guint8 ending = 0;
-					int loop_counter = 0;
-
-					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (crc_start-2),
-						"Information Field: Length = %u", info_len);
-					ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
-
-					while (location < (offset + info_len))
-					{
-						/* parse the XID parameters */
-						byte1 = tvb_get_guint8(tvb, location);
-
-						if (byte1 & 0x80)
-						{
-							guint8 xid_param_len_high = 0;
-							guint8 xid_param_len_low = 0;
-
-							byte2 = tvb_get_guint8(tvb, location + 1);
-
-							/* XL bit is set - length is continued in second byte */
-							xid_param_len_high = byte1 & 0x03;
-							xid_param_len_low = byte2 & 0xFC;
-
-							/* bit shift the rest of the length */
-							xid_param_len_low = xid_param_len_low >> 2;
-							xid_param_len_low = xid_param_len_low & 0x3F;
-
-							xid_param_len_high = xid_param_len_high << 6;
-							xid_param_len_high = xid_param_len_high & 0xC0;
-
-							/* combine the two */
-							xid_param_len = xid_param_len_high | xid_param_len_low;
-
-						}
-						else
-						{
-							xid_param_len = byte1 & 0x3;
-						}
-
-						ending = location + xid_param_len;
-
-						tmp =  byte1 & 0x7C;
-						tmp = tmp >> 2;
-
-						if (( xid_param_len > 0 ) && ( xid_param_len <=4 ))
-						{
-							unsigned long value = 0;
-							int i;
-							for (i=1;i<=xid_param_len;i++) {
-								value <<= 8;
-								value |= (unsigned long)tvb_get_guint8(tvb, location+i );
-							}
-							uinfo_field = proto_tree_add_text(ui_tree, tvb, location, (ending - 1),
-								"XID Parameter Type: %s - Value: %lu",
-								val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
-						}
-						else
-							uinfo_field = proto_tree_add_text(ui_tree, tvb, location, (ending - 1),
-								"XID Parameter Type: %s",
-								val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
-
-						uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
-						proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
-							1, byte1);
-						proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location,
-							1, byte1);
-						proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location,
-							1, byte1);
-
-						if (byte1 & 0x80) {
-							/* length continued into byte 2 */
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location,
-								1, byte2);
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location,
-								1, byte2);
-
-							/* be sure to account for the second byte of length */
-							location++;
-						}
-
-						location++;
-						for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
-						{
-							/* grab the information in the XID param */
-							byte2 = tvb_get_guint8(tvb, location);
-							proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb, location,
-								1, byte2);
-
-							location++;
-						}
-					}
+					llc_gprs_dissect_xid(tvb, offset, llc_data_length, info_len, llcgprs_tree, ui_tree, ui_ti);
 				}
 				break;
 			case U_FRMR:
@@ -1115,7 +1069,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					int loop_counter = 0;
 					int location = 0;
 
-					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (crc_start-2),
+					ui_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_length-2),
 						"Information Field: Length = %u", info_len);
 					ui_tree = proto_item_add_subtree(ui_ti, ett_ui);
 
@@ -1326,3 +1280,4 @@ proto_reg_handoff_llcgprs(void)
 
 	data_handle = find_dissector("data");
 }
+
