@@ -321,7 +321,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 								guint8 info_len,
 								proto_item *llcgprs_tree,
 								proto_tree *ui_tree,
-								proto_item *ui_ti)
+								proto_item *ui_ti _U_)
 {
 	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
 	guint16 location = offset;
