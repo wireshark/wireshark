@@ -23,62 +23,32 @@ ServiceKey
 
 #.NO_EMIT
 
+#.OMIT_ASSIGNMENT
+# Removed as they are giving 'defined but not used' warnings currently.
+Priority
+#.END
+
 #.TYPE_RENAME
+ReturnResult/result/result		ResultArgument
 
 #.FIELD_RENAME
+Invoke/linkedId/present			linkedIdPresent
+Reject/problem/invoke			invokeProblem
+Reject/problem/returnError		returnErrorProblem
+ReturnResult/result/result		resultArgument
+Reject/problem/returnResult		problemReturnResult
+
+#.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
+Bind
+Unbind
+#.END
+
+#.PDU_NEW
+ERROR.&ParameterType
+OPERATION.&ArgumentType
+OPERATION.&ResultType
 
 #.PDU
-INAP-Component
-#InitialDPArg
-#OriginationAttemptAuthorizedArg
-#CollectedInformationArg
-#AnalysedInformationArg
-#RouteSelectFailureArg
-#OCalledPartyBusyArg
-#ONoAnswerArg
-#OAnswerArg
-#ODisconnectArg
-#TermAttemptAuthorizedArg
-#TBusyArg
-#TNoAnswerArg
-#TAnswerArg
-#TDisconnectArg
-#MidCallArg
-#AssistRequestInstructionsArg
-#EstablishTemporaryConnectionArg
-#ConnectToResourceArg
-#ConnectArg
-#HoldCallInNetworkArg
-#ReleaseCallArg
-#RequestReportBCSMEventArg
-#EventReportBCSMArg
-#RequestNotificationChargingEventArg
-#EventNotificationChargingArg
-#CollectInformationArg
-#AnalyseInformationArg
-#SelectRouteArg
-#SelectFacilityArg
-#InitiateCallAttemptArg
-#ResetTimerArg
-#FurnishChargingInformationArg
-#ApplyChargingArg
-#ApplyChargingReportArg
-#RequestCurrentStatusReportArg
-#RequestEveryStatusChangeReportArg
-#RequestFirstStatusMatchReportArg
-#StatusReportArg
-#CallGapArg
-#ActivateServiceFilteringArg
-#ServiceFilteringResponseArg
-
-#CallInformationReportArg
-#CallInformationRequestArg
-#PlayAnnouncementArg
-#PromptAndCollectUserInformationArg
-#SpecializedResourceReportArg
-#CancelArg
-#RequestCurrentStatusReportResultArg
-#ReceivedInformationArg
 
 # This table creates the value_sting to name Inap operation codes and errors
 # in file packet-inap-table.c which is included in the template file
@@ -103,6 +73,64 @@ static const value_string inap_err_code_string_vals[] = {
 };
 #.END
 
+# This table creates the switch() to branch on Camel operation codes and errors
+# in file packet-inap-table2.c which is included in the template file
+#
+#.TABLE2_HDR
+static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(opcode){
+#.TABLE2_BODY OPERATION.&ArgumentType
+    case %(&operationCode)s:  /* %(_ident)s */
+      offset= %(_argument_pdu)s(tvb, actx->pinfo , tree);
+      break;
+#.TABLE2_FTR
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+    /* todo call the asn.1 dissector */
+  }
+  return offset;
+}
+#.END
+#.TABLE2_HDR
+static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(opcode){
+#.TABLE2_BODY OPERATION.&ResultType
+    case %(&operationCode)s:  /* %(_ident)s */
+	  offset= %(_result_pdu)s(tvb, actx->pinfo , tree);
+      break;
+#.TABLE2_FTR
+  default:
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnResultData %d",opcode);
+  }
+  return offset;
+}
+#.END
+#.TABLE2_HDR
+static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(errorCode) {
+#.TABLE2_BODY ERROR.&ParameterType
+    case %(&errorCode)s:  /* %(_ident)s */
+      %(_parameter_pdu)s(tvb, actx->pinfo , tree);
+      break;
+#.TABLE2_FTR
+  default:
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnErrorData %d",errorCode);
+  }
+  return offset;
+}
+#.END
+
 # Create a table of opcode and corresponding args and res
 #.TABLE11_HDR
 typedef struct _inap_op_t {
@@ -119,17 +147,62 @@ static const inap_op_t inap_op_tab[] = {
 #.END
 
 #.TABLE11_HDR
-typedef struct _camel_err_t {
+typedef struct _inap_err_t {
   gint32 errcode;
   new_dissector_t err_pdu;
-} camel_err_t;
+} inap_err_t;
 
-static const camel_err_t camel_err_tab[] = {
+static const inap_err_t inap_err_tab[] = {
 #.TABLE11_BODY ERROR.&errorCode
   /* %(_name)-30s */ { %(&errorCode)4s, %(_parameter_pdu)s },
 #.TABLE11_FTR
 };
 #.END
+
+# ROS stuff here XXX change when TCAP is redone.
+
+#.FN_BODY Code/local  VAL_PTR = &opcode
+  %(DEFAULT_BODY)s
+  	if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
+	  errorCode = opcode;	
+	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	       val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+	  }
+	}else{
+	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	       val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%%u)"));
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+	  }
+   }
+
+#.FN_HDR Invoke
+  inap_opcode_type=INAP_OPCODE_INVOKE;
+
+#.FN_HDR ReturnResult
+  inap_opcode_type=INAP_OPCODE_RETURN_RESULT;
+
+#.FN_HDR ReturnError
+  inap_opcode_type=INAP_OPCODE_RETURN_ERROR;
+
+#.FN_HDR Reject
+  inap_opcode_type=INAP_OPCODE_REJECT;
+
+#.FN_BODY Invoke/argument
+	offset = dissect_invokeData(tree, tvb, offset, actx);
+
+#.FN_BODY ReturnResult/result/result
+	offset = dissect_returnResultData(tree, tvb, offset, actx);
+
+#.FN_BODY ReturnError/parameter
+	offset = dissect_returnErrorData(tree, tvb, offset, actx);
+
+# END ROS
+
 
 #.FN_BODY TriggerData/triggerPar
 /* FIX ME */
@@ -150,28 +223,7 @@ static const camel_err_t camel_err_tab[] = {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
-#.FN_BODY InvokeParameter
-	offset = dissect_invokeData(tree, tvb, offset, actx);
 
-#.FN_BODY ReturnResultParameter
-	offset = dissect_returnResultData(tree, tvb, offset, actx);
-
-#.FN_BODY ReturnErrorParameter
-	offset = dissect_returnErrorData(tree, tvb, offset, actx);
-
-#.FN_BODY INAPLocalErrorcode VAL_PTR = &errorCode
-  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_index, &errorCode);
-
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_error_code_strings, "Unknown Inap (%u)"));
-  }
-
-#.FN_BODY INAPOperationLocalvalue
-  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_index, &opcode);
-
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
-  }
 
 #.FN_BODY CalledPartyNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;

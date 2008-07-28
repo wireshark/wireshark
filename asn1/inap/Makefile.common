@@ -29,9 +29,12 @@ NEED_PACKET_PROTO_H = 1
 
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
-EXT_ASN_FILE_LIST = ../ros/Remote-Operations-Information-Objects.asn
+EXT_ASN_FILE_LIST_LATE = \
+	../ros/Remote-Operations-Information-Objects.asn \
+	../ros/Remote-Operations-Generic-ROS-PDUs.asn
 
 1248_1_ASN_FILES= \
+	IN-operationcodes.asn \
 	IN-object-identifiers.asn \
 	IN-common-datatypes.asn
 
@@ -50,7 +53,6 @@ EXT_ASN_FILE_LIST = ../ros/Remote-Operations-Information-Objects.asn
 
 ASN_FILE_LIST= \
 	$(1248_CLASSES_ASN) \
-	$(PROTOCOL_NAME).asn \
 	$(1248_1_ASN_FILES) \
 	$(1248_2_ASN_FILES) \
 	$(1248_3_ASN_FILES)
