@@ -18,31 +18,24 @@
 
 #.OMIT_ASSIGNMENT
 AddedTps
-AddLeg
 AddTpsToGtpInformation
 AddTpsToGtpResult
 AddTpsToTpPoolInformation
 AddTpsToTpPoolResult
 AlarmEffectOnServiceParameter
 CircuitPackAvailabilityStatus
-ConnectInformation
-ConnectionType
-ConnectionTypeBi
 ConnectorType
 ConnectResult
 CreateError
 CTPUpstreamPointer
 CTPDownstreamPointer
 DisconnectInformation
-DisconnectResult
 GeneralError
 GeneralErrorCause
 IndividualSwitchOver
 IndividualResult
 ListOfTPs
 LocationName
-NamedCrossConnection' 
-PhysicalPortSignalRateAndMappingList
 PortNumber
 Reach
 RemoveTpsFromGtpInformation
@@ -50,7 +43,6 @@ RemoveTpsFromGtpResult
 RemoveTpsFromTpPoolInformation
 RemoveTpsFromTpPoolResult
 RemoveTpsResultInformation
-SignalRateAndMappingList
 SwitchOverInformation
 SwitchOverResult
 TerminationPointInformation
@@ -135,6 +127,9 @@ TransmissionCharacteristics		B "0.0.13.3100.0.7.67" "transmissionCharacteristics
 NameType						B "0.0.13.3100.0.7.68" "managedElementComplexId(68)"
 SerialNumber					B "0.0.13.3100.0.7.69" "serialNumber(69)"
 
+# Actions
+ConnectInformation				B "0.0.13.3100.0.9.4" "connect(4)"
+DisconnectResult				B "0.0.13.3100.0.9.5" "disconnect(5)"
 
 SupportedTOClasses				B "2.9.2.12.7.7"		"supportedTOClasses(7)"
 

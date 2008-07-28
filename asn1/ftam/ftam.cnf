@@ -16,6 +16,11 @@ Pathname
 Permitted-Actions-Attribute
 Private-Use-Attribute
 
+#.OMIT_ASSIGNMENT
+F-CHECK-request
+F-CHECK-response
+#.END
+
 #.PDU
 
 #.NO_EMIT
