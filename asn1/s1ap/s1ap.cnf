@@ -18,10 +18,13 @@ ProcedureCode
 ProtocolIE-ID
 
 #.NO_EMIT
+TBCD-STRING
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
+PrivateIE-Container
 SAEB-IE-ContainerPairList
 
 Presence
@@ -99,17 +102,18 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
 #	ProtocolIE-ContainerPair {{IEsSetParam}}
 
-#.FN_PARS ProtocolIE-ContainerPairList
-MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-#.FN_HDR ProtocolIE-ContainerPairList
-  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
-#.END
+# Currently not used
+# FN_PARS ProtocolIE-ContainerPairList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerPairList
+#  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
+# END
 
 #SAEB-IE-ContainerList                  { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfSAEBs,   {IEsSetParam} }
 #.FN_BODY SAEB-IE-ContainerList

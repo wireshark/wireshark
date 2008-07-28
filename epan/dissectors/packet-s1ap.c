@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s1ap.c                                                              */
-/* ../../tools/asn2wrs.py -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p s1ap -c s1ap.cnf -s packet-s1ap-template S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
 
 /* Input file: packet-s1ap-template.c */
 
@@ -388,11 +388,9 @@ static int hf_s1ap_firstValue = -1;               /* T_firstValue */
 static int hf_s1ap_secondCriticality = -1;        /* Criticality */
 static int hf_s1ap_secondValue = -1;              /* T_secondValue */
 static int hf_s1ap_ProtocolIE_ContainerList_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_s1ap_ProtocolIE_ContainerPairList_item = -1;  /* ProtocolIE_ContainerPair */
 static int hf_s1ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_s1ap_ext_id = -1;                   /* ProtocolExtensionID */
 static int hf_s1ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_s1ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
 static int hf_s1ap_private_id = -1;               /* PrivateIE_ID */
 static int hf_s1ap_private_value = -1;            /* T_private_value */
 static int hf_s1ap_priorityLevel = -1;            /* PriorityLevel */
@@ -531,10 +529,8 @@ static gint ett_s1ap_ProtocolIE_Field = -1;
 static gint ett_s1ap_ProtocolIE_ContainerPair = -1;
 static gint ett_s1ap_ProtocolIE_FieldPair = -1;
 static gint ett_s1ap_ProtocolIE_ContainerList = -1;
-static gint ett_s1ap_ProtocolIE_ContainerPairList = -1;
 static gint ett_s1ap_ProtocolExtensionContainer = -1;
 static gint ett_s1ap_ProtocolExtensionField = -1;
-static gint ett_s1ap_PrivateIE_Container = -1;
 static gint ett_s1ap_PrivateIE_Field = -1;
 static gint ett_s1ap_AllocationRetentionPriority = -1;
 static gint ett_s1ap_AggregateMaximumBitrate = -1;
@@ -819,7 +815,7 @@ dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 68 "s1ap.cnf"
+#line 71 "s1ap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
@@ -943,7 +939,7 @@ dissect_s1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 52 "s1ap.cnf"
+#line 55 "s1ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(s1ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -1073,7 +1069,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "s1ap.cnf"
+#line 93 "s1ap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1083,28 +1079,6 @@ dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_s1ap_ProtocolIE_ContainerList, ProtocolIE_ContainerList_sequence_of,
-                                                  asn1_param_get_integer(actx,"lowerBound"), asn1_param_get_integer(actx,"upperBound"));
-
-  return offset;
-}
-
-
-static const per_sequence_t ProtocolIE_ContainerPairList_sequence_of[1] = {
-  { &hf_s1ap_ProtocolIE_ContainerPairList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_ContainerPair },
-};
-
-static int
-dissect_s1ap_ProtocolIE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "s1ap.cnf"
-  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
-
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_s1ap_ProtocolIE_ContainerPairList, ProtocolIE_ContainerPairList_sequence_of,
                                                   asn1_param_get_integer(actx,"lowerBound"), asn1_param_get_integer(actx,"upperBound"));
 
   return offset;
@@ -1170,20 +1144,6 @@ static int
 dissect_s1ap_PrivateIE_Field(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_PrivateIE_Field, PrivateIE_Field_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t PrivateIE_Container_sequence_of[1] = {
-  { &hf_s1ap_PrivateIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_PrivateIE_Field },
-};
-
-static int
-dissect_s1ap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_s1ap_PrivateIE_Container, PrivateIE_Container_sequence_of,
-                                                  1, maxPrivateIEs);
 
   return offset;
 }
@@ -1317,19 +1277,10 @@ dissect_s1ap_Bearers_SubjectToStatusTransfer_Item(tvbuff_t *tvb _U_, int offset 
 
 
 
-static int
-dissect_s1ap_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 149 "s1ap.cnf"
+#line 153 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1748,7 +1699,7 @@ dissect_s1ap_ENB_Global_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "s1ap.cnf"
+#line 164 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2843,7 +2794,7 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_SAEB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "s1ap.cnf"
+#line 120 "s1ap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfSAEBs);
@@ -6401,10 +6352,6 @@ void proto_register_s1ap(void) {
       { "Item", "s1ap.ProtocolIE_ContainerList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.ProtocolIE_SingleContainer", HFILL }},
-    { &hf_s1ap_ProtocolIE_ContainerPairList_item,
-      { "Item", "s1ap.ProtocolIE_ContainerPairList_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "s1ap.ProtocolIE_ContainerPair", HFILL }},
     { &hf_s1ap_ProtocolExtensionContainer_item,
       { "Item", "s1ap.ProtocolExtensionContainer_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6417,10 +6364,6 @@ void proto_register_s1ap(void) {
       { "extensionValue", "s1ap.extensionValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.T_extensionValue", HFILL }},
-    { &hf_s1ap_PrivateIE_Container_item,
-      { "Item", "s1ap.PrivateIE_Container_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "s1ap.PrivateIE_Field", HFILL }},
     { &hf_s1ap_private_id,
       { "id", "s1ap.id",
         FT_UINT32, BASE_DEC, VALS(s1ap_PrivateIE_ID_vals), 0,
@@ -6926,10 +6869,8 @@ void proto_register_s1ap(void) {
     &ett_s1ap_ProtocolIE_ContainerPair,
     &ett_s1ap_ProtocolIE_FieldPair,
     &ett_s1ap_ProtocolIE_ContainerList,
-    &ett_s1ap_ProtocolIE_ContainerPairList,
     &ett_s1ap_ProtocolExtensionContainer,
     &ett_s1ap_ProtocolExtensionField,
-    &ett_s1ap_PrivateIE_Container,
     &ett_s1ap_PrivateIE_Field,
     &ett_s1ap_AllocationRetentionPriority,
     &ett_s1ap_AggregateMaximumBitrate,
