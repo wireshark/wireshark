@@ -2,6 +2,11 @@
 # $Id$
 # tcap conformation file
 
+#.OMIT_ASSIGNMENT
+# Removed as they are giving 'defined but not used' warnings currently.
+Priority
+#.END
+
 #--- OperationCode ---
 
 #.FN_PARS
