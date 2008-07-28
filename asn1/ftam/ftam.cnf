@@ -28,7 +28,6 @@ Access-Control-Change-Attribute/actual-values	T_actual_values1
 Contents-Type-List/_untag/_item Contents_Type_List_item
 Charging/_untag/_item Charging_item
 Diagnostic/_untag/_item Diagnostic_item
-Scope/_untag/_item Scope_item
 Path-Access-Passwords/_untag/_item Path_Access_Passwords_item
 
 #.FIELD_RENAME

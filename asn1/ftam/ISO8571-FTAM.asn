@@ -3,24 +3,16 @@
 -- Copyright © ISO/IEC 1988. This version of
 -- this ASN.1 module is part of ISO/IEC 8571-4:1988;
 -- see the ISO|IEC text itself for full legal notices.
--- 
--- Manually added NBS9
 --
-ISO8571-FTAM {iso(1) standard(0) 8571 application-context(1) iso-ftam(1)} DEFINITIONS
+ISO8571-FTAM {iso standard 8571 application-context(1) iso-ftam(1)} DEFINITIONS
 ::=
 BEGIN
-
-IMPORTS
-  EXTERNALt
-    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
 PDU ::= CHOICE {
   fTAM-Regime-PDU  FTAM-Regime-PDU,
   file-PDU         File-PDU,
   bulk-Data-PDU    Bulk-Data-PDU,
-  fSM-PDU          FSM-PDU,
-  -- NBS9
-  nBS9		   [PRIVATE 2] IMPLICIT F-READ-ATTRIB-response
+  fSM-PDU          FSM-PDU
 }
 
 FTAM-Regime-PDU ::= CHOICE {
@@ -70,34 +62,18 @@ F-INITIALIZE-response ::= SEQUENCE {
 
 -- If the recovery or restart data transfer functional units are
 -- not available, the Checkpoint-window Parameter shall not be sent.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Protocol-Version ::= [0] IMPLICIT BIT STRING {version-1(0), version-2(1)
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Implementation-Information ::= [1] IMPLICIT GraphicString
 
 -- This Parameter is provided solely for the convenience of implementors
 -- needing to distinguish between implernentations of a specific version number
 -- of different equipment, it shall not be the subject of conformance test.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Service-Class ::= [3] IMPLICIT BIT STRING {
   unconstrained-class(0), management-class(1), transfer-class(2),
   transfer-and-management-class(3), access-class(4)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Functional-Units ::= [4] IMPLICIT BIT STRING {
   read(2), write(3), file-access(4), limited-file-management(5),
   enhanced-file-management(6), grouping(7), fadu-locking(8), recovery(9),
@@ -107,31 +83,19 @@ Functional-Units ::= [4] IMPLICIT BIT STRING {
 }
 
 -- Values 2 to 14 are Chosen to align with numbering scheme used in ISO 8571-3.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Attribute-Groups ::= [5] IMPLICIT BIT STRING {
   storage(0), security(1), private(2), extension(3)}
 
 -- The extension bit is defined if and only if the limited-filestore-management
 -- or the group-manipulation functional units are available.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 FTAM-Quality-of-Service ::= [6] IMPLICIT INTEGER {
   no-recovery(0), class-1-recovery(1), class-2-recovery(2), class-3-recovery(3)
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Contents-Type-List ::=
   [7] IMPLICIT
     SEQUENCE OF
-      CHOICE {document-type-name    [APPLICATION 14] IMPLICIT Document-Type-Name,
+      CHOICE {document-type-name    Document-Type-Name,
               abstract-Syntax-name  Abstract-Syntax-Name}
 
 F-TERMINATE-request ::= SEQUENCE {
@@ -381,7 +345,7 @@ F-RECOVER-response ::= SEQUENCE {
   contents-type                    [1]  Contents-Type-Attribute,
   recovety-Point                   [2] IMPLICIT INTEGER DEFAULT 0,
   -- Zero indicates beginning of file.
-  -- Point after last Checkpoint indicates end of file. 
+  -- Point after last Checkpoint indicates end of file.
   diagnostic                       Diagnostic OPTIONAL,
   presentation-action              [6] IMPLICIT BOOLEAN DEFAULT FALSE,
   -- This flag is set if the responder is going to follow this response
@@ -530,29 +494,13 @@ F-RESTART-response ::= SEQUENCE {
   last-transfer-end-write-response  [5] IMPLICIT INTEGER OPTIONAL
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Degree-Of-Overlap ::= [APPLICATION 30] IMPLICIT INTEGER {
   normal(0), consecutive(1), concurrent(2)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Request-Type ::= [APPLICATION 31] IMPLICIT INTEGER {read(0), write(1)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Abstract-Syntax-Name ::= [APPLICATION 0] IMPLICIT OBJECT IDENTIFIER
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Access-Context ::= [APPLICATION 1] IMPLICIT SEQUENCE {
   access-context
     [0] IMPLICIT INTEGER {hierarchical-all-data-units(0),--HA--
@@ -568,10 +516,6 @@ Access-Context ::= [APPLICATION 1] IMPLICIT SEQUENCE {
 -- Present if and only if flat-one-level-data-units
 -- (access context FL) is selected.
 -- As defined in ISO 8571-2.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Access-Passwords ::= [APPLICATION 2] IMPLICIT SEQUENCE {
   read-password              [0]  Password,
   insert-password            [1]  Password,
@@ -589,40 +533,20 @@ Access-Passwords ::= [APPLICATION 2] IMPLICIT SEQUENCE {
 -- access-passwords if and only if the limited-filestore-management
 -- or the Object-manipulation or the group-manipulation functional
 -- units are available.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Access-Request ::= [APPLICATION 3] IMPLICIT BIT STRING {
   read(0), insert(1), replace(2), extend(3), erase(4), read-attribute(5),
   change-attribute(6), delete-Object(7)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Account ::= [APPLICATION 4] IMPLICIT GraphicString
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Action-Result ::= [APPLICATION 5] IMPLICIT INTEGER {
   success(0), transient-error(1), permanent-error(2)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Activity-Identifier ::= [APPLICATION 6] IMPLICIT INTEGER
 
-Application-Entity-Title ::= [APPLICATION 7] AE-title
+Application-Entity-Title ::= [APPLICATION 7]  AE-title
 
 -- As defined in ISO 8650.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Change-Attributes ::= [APPLICATION 8] IMPLICIT SEQUENCE {
   -- Kerne1 Group
   pathname              Pathname-Attribute OPTIONAL,
@@ -646,10 +570,6 @@ Change-Attributes ::= [APPLICATION 8] IMPLICIT SEQUENCE {
 -- enhanced-filestore-management functional unit is available.
 -- Atleast one attribute shall be present in the Change-Attributes
 -- Parameter on the request PDU.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Charging ::=
   [APPLICATION 9] IMPLICIT
     SEQUENCE OF
@@ -657,10 +577,6 @@ Charging ::=
                 charging-unit        [1] IMPLICIT GraphicString,
                 charging-value       [2] IMPLICIT INTEGER}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Concurrency-Control ::= [APPLICATION 10] IMPLICIT SEQUENCE {
   read              [0] IMPLICIT Lock,
   insert            [1] IMPLICIT Lock,
@@ -674,16 +590,8 @@ Concurrency-Control ::= [APPLICATION 10] IMPLICIT SEQUENCE {
 
 Lock ::= INTEGER {not-required(0), shared(1), exclusive(2), no-access(3)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Constraint-Set-Name ::= [APPLICATION 11] IMPLICIT OBJECT IDENTIFIER
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Create-Attributes ::= [APPLICATION 12] IMPLICIT SEQUENCE {
   -- Kerne1 Group
   pathname              Pathname-Attribute,
@@ -710,10 +618,6 @@ Create-Attributes ::= [APPLICATION 12] IMPLICIT SEQUENCE {
 
 -- This Parameter tan only be sent when the
 -- limited-filestore-management functional unit is available.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Diagnostic ::=
   [APPLICATION 13] IMPLICIT
     SEQUENCE OF
@@ -738,18 +642,8 @@ Entity-Reference ::= INTEGER {
 --NOTE
 -- 1. The values 0 and 3 are only valid as values in error-source.
 -- 2. The value 5 corresponds to the virtual filestore.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
--- Document-Type-Name ::= [APPLICATION 14] IMPLICIT OBJECT IDENTIFIER
--- Changed where used instead. 20060403 Anders Broman (Bug 850)
-Document-Type-Name ::= OBJECT IDENTIFIER
+Document-Type-Name ::= [APPLICATION 14] IMPLICIT OBJECT IDENTIFIER
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 FADU-Identity ::= [APPLICATION 15]  CHOICE {
   first-last   [0] IMPLICIT INTEGER {first(0), last(1)},
   relative     [1] IMPLICIT INTEGER {previous(0), current(1), next(2)},
@@ -760,28 +654,16 @@ FADU-Identity ::= [APPLICATION 15]  CHOICE {
 }
 
 -- As defined in ISO 8571-2.
-Node-Name ::= EXTERNALt
+Node-Name ::= EXTERNAL
 
 -- The type to be used for Node-Name is defined in IS08571-FADU.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 FADU-Lock ::= [APPLICATION 16] IMPLICIT INTEGER {off(0), on(1)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Password ::= [APPLICATION 17]  CHOICE {
   graphicString  GraphicString,
   octetString    OCTET STRING
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Read-Attributes ::= [APPLICATION 18] IMPLICIT SEQUENCE {
   -- Kerne1 Group
   pathname                                      Pathname-Attribute OPTIONAL,
@@ -846,28 +728,18 @@ Read-Attributes ::= [APPLICATION 18] IMPLICIT SEQUENCE {
 
 -- This Parameter tan be sent if and only if
 -- the limited-filestore-management functional unit is available.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Select-Attributes ::= [APPLICATION 19] IMPLICIT SEQUENCE {
   -- Kerne1 Group
   pathname  Pathname-Attribute
 }
 
+Shared-ASE-Information ::= [APPLICATION 20] IMPLICIT EXTERNAL
+
 -- This field may be used to convey commitment control as described
 -- in ISO 8571-3.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 State-Result ::= [APPLICATION 21] IMPLICIT INTEGER {success(0), failure(1)
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 User-Identity ::= [APPLICATION 22] IMPLICIT GraphicString
 
 Access-Control-Attribute ::= CHOICE {
@@ -928,9 +800,9 @@ Account-Attribute ::= CHOICE {
 
 Contents-Type-Attribute ::= CHOICE {
   document-type
-    [0] IMPLICIT SEQUENCE {document-type-name  [APPLICATION 14] IMPLICIT Document-Type-Name,
+    [0] IMPLICIT SEQUENCE {document-type-name  Document-Type-Name,
                            parameter
-                             [0]  ANY OPTIONAL},
+                             [0]  TYPE-IDENTIFIER.&Type OPTIONAL},
   -- The actual types to be used for values of the Parameter field
   -- are defined in the named document type.
   constraint-set-and-abstract-Syntax
@@ -987,7 +859,7 @@ Private-Use-Attribute ::= CHOICE {
   -- This value shall only appear in response PDUs.
   abstract-Syntax-not-supported  [1] IMPLICIT NULL,
   -- Indicates that abstract Syntax is not available.
-  actual-values                  [2] IMPLICIT EXTERNALt
+  actual-values                  [2] IMPLICIT EXTERNAL
 }
 
 Object-Type-Attribute ::= INTEGER {file(0), file-directory(1), reference(2)}
@@ -1293,22 +1165,21 @@ Attribute-Extension-Set ::= SEQUENCE {
 }
 
 Extension-Attribute ::= SEQUENCE {
-  extension-attribute-identifier  OBJECT IDENTIFIER,
-  extension-attribute		  ANY
+  extension-attribute-identifier  TYPE-IDENTIFIER.&id({Extension-Attributes}),
+  extension-attribute
+    TYPE-IDENTIFIER.&Type
+      ({Extension-Attributes}{@extension-attribute-identifier})
 }
 
 --Extension-Attributes TYPE-IDENTIFIER ::=
-    -- dynamically extensible
---  {...} 
+--  {...} - - dynamically extensible
 
 Extension-Set-Identifier ::= OBJECT IDENTIFIER
 
 Extension-Attribute-identifier ::= OBJECT IDENTIFIER
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
+Attribute-Value-Assertions ::= [APPLICATION 26] IMPLICIT OR-Set
+
 Scope ::=
   [APPLICATION 28] IMPLICIT
     SEQUENCE OF
@@ -1377,7 +1248,7 @@ Equality-Comparision ::= BIT STRING {
   -- Set impies “No Value Available” matches the test.
   -- Clear implies “No Value Availabie” fails the test.
   equals-matches(1)
-  
+
 -- Set implies equal items match the test.
 -- Clear implies equal items fail the test.
 }
@@ -1393,7 +1264,7 @@ Relational-Comparision ::= BIT STRING {
   -- Set implies a value less than the test cke matches.
   -- Clear implies a value less than the test case fails.
   greater-than-matches(3)
-  
+
 -- Set implies a value greater than the test case matches.
 -- Clear implies a value greater than the test case fails.
 }
@@ -1466,25 +1337,24 @@ Attribute-Extensions-Pattern ::=
                 [0] IMPLICIT Extension-Set-Identifier,
               extension-set-attribute-Patterns
                 [1] IMPLICIT SEQUENCE OF
-                               SEQUENCE {extension-attribute-identifier OBJECT IDENTIFIER,
-                                         extension-attribute-Pattern    ANY
-                               }
-              }
+                               SEQUENCE {extension-attribute-identifier
+                                           TYPE-IDENTIFIER.&id
+                                             ({Extension-attribute-Patterns}),
+                                         extension-attribute-Pattern
+                                           TYPE-IDENTIFIER.&Type
+                                             ({Extension-attribute-Patterns}
+                                                {@.extension-attribute-identifier})
+                               }}
 
 -- conjunction with the extention attribute in Order to
 -- perform Pattern matthing operations on it. it may be
 -- defined in terms of other Patterns within this
 -- Standard.
 --Extension-attribute-Patterns TYPE-IDENTIFIER ::=
-   -- dynamically extensible information object set
---  {...} 
+--  {...} - - dynamically extensible information object set
 
 Destination-File-Directory ::= [APPLICATION 24]  Pathname-Attribute
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Objects-Attributes-List ::=
   [APPLICATION 25] IMPLICIT SEQUENCE OF Read-Attributes
 
@@ -1495,10 +1365,6 @@ Override ::= INTEGER {
 
 Error-Action ::= INTEGER {terminate(0), continue(1)}
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Operation-Result ::= [APPLICATION 30]  CHOICE {
   success-Object-count  [0] IMPLICIT INTEGER,
   success-Object-names  [1] IMPLICIT SEQUENCE OF Pathname
@@ -1511,31 +1377,23 @@ Pass-Passwords ::= SEQUENCE OF Password
 -- There is a one-to-one correspondence between the elements of
 -- Pass-Passwords and the non-terminal elements of the specified
 -- Pathname.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Path-Access-Passwords ::=
   [APPLICATION 27] IMPLICIT
     SEQUENCE OF
-      SEQUENCE {read-password              [0] IMPLICIT Password,
-                insert-password            [1] IMPLICIT Password,
-                replace-password           [2] IMPLICIT Password,
-                extend-password            [3] IMPLICIT Password,
-                erase-password             [4] IMPLICIT Password,
-                read-attribute-password    [5] IMPLICIT Password,
-                change-attribute-password  [6] IMPLICIT Password,
-                delete-password            [7] IMPLICIT Password,
+      SEQUENCE {read-password              [0] Password,
+                insert-password            [1] Password,
+                replace-password           [2] Password,
+                extend-password            [3] Password,
+                erase-password             [4] Password,
+                read-attribute-password    [5] Password,
+                change-attribute-password  [6] Password,
+                delete-password            [7] Password,
                 pass-passwords             [8] IMPLICIT Pass-Passwords,
-                link-password              [9] IMPLICIT Password}
+                link-password              [9] Password}
 
 -- There is a one-to-one correspondence between the elements of
 -- Path-Access-Passwords and the non-terminal elements sf the
 -- specified Pathname.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Request-Operation-Result ::= [APPLICATION 31] IMPLICIT INTEGER {
   summary(0), fiii-list(1)}
 
@@ -1557,53 +1415,37 @@ Attribute-Names ::= BIT STRING -- Kernel group
   read-future-Object-size(14),
   -- Security group
   read-access-control(15), read-path-access-control(21),
-  read-legal-qualifiCatiOnS(16),
+  read-l8gal-qualifiCatiOnS(16),
   -- Private group
   read-private-use(17)}
 
 -- Bits 19 through 23 arc defined if and only if the limited-fil8Store-manag8m8nt
 -- or group-manipulation functionat units are available.
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
 Referent-Indicator ::= [APPLICATION 29] IMPLICIT BOOLEAN
 
--- dw: definition of AE-title, as defined in ISO 8650:1988/Cor.1:1990 
+-- dw: definition of AE-title, as defined in ISO 8650:1988/Cor.1:1990
 -- dw: defined in-line here so we don't need to import it, original comments
 -- dw: are as they appear in the 8650:1988 Annex E
-AP-title ::= ANY
+AP-title ::= TYPE-IDENTIFIER.&Type
 
 -- The exact definition and values used for AP-title
--- should be chosen taking into account the ongoing 
--- work in areas of naming, the Directory, and the 
+-- should be chosen taking into account the ongoing
+-- work in areas of naming, the Directory, and the
 -- Registration Authority procedures for AE titles,
 -- AE titles, and AE qualifiers
-AE-qualifier ::= ANY
+AE-qualifier ::= TYPE-IDENTIFIER.&Type
 
 -- The exact definition and values used for AE-qualifier
--- should be chosen taking into account the ongoing 
--- work in areas of naming, the Directory, and the 
+-- should be chosen taking into account the ongoing
+-- work in areas of naming, the Directory, and the
 -- Registration Authority procedures for AE titles,
 -- AE titles, and AE qualifiers
 AE-title ::= SEQUENCE {ap  AP-title,
                        ae  AE-qualifier
 }
 
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
-Shared-ASE-Information ::= [APPLICATION 20] IMPLICIT EXTERNALt
-
---
--- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in the conformance file
---
-Attribute-Value-Assertions ::= [APPLICATION 26] IMPLICIT SEQUENCE OF AND-Set
-
-
 END
 
 -- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+
 
