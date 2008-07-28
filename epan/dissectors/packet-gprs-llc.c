@@ -428,7 +428,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
 	guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_length=0, llc_data_length=0 ;
-	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
+	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti = NULL;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
 	guint length;
