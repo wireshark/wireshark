@@ -19,6 +19,7 @@ Private-Use-Attribute
 #.OMIT_ASSIGNMENT
 F-CHECK-request
 F-CHECK-response
+Other-Pattern
 #.END
 
 #.PDU
