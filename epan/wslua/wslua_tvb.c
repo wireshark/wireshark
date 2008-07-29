@@ -425,7 +425,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     WSLUA_RETURN(1); /* the string. */
 }
 
-WSLUA_METAMETHOD Tvb__gc(lua_State* L) {
+static int Tvb__gc(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
 
     if (!tvb) return 0;

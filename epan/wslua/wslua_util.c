@@ -343,7 +343,7 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 	return 0;
 }
 
-WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
+static int wslua_Dir__gc(lua_State* L) {
 	Dir dir = checkDir(L,1);
 	
 	if (dir->dir) {

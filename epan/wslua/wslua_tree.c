@@ -311,7 +311,7 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     return 0;
 }
 
-WSLUA_METAMETHOD TreeItem_gc(lua_State* L) {
+static int TreeItem_gc(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
     if (!ti) return 0;

@@ -380,7 +380,7 @@ WSLUA_METAMETHOD Column__tostring(lua_State *L) {
     WSLUA_RETURN(1); /* A string representing the column */
 }
 
-WSLUA_METAMETHOD Column__gc(lua_State* L) {
+static int Column__gc(lua_State* L) {
     Column col = checkColumn(L,1);
 
     if (!col) return 0;
@@ -562,7 +562,7 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
     return 0;
 }
 
-WSLUA_METAMETHOD Columns_gc(lua_State* L) {
+static int Columns_gc(lua_State* L) {
     Columns cols = checkColumns(L,1);
 
     if (!cols) return 0;
@@ -986,7 +986,7 @@ static int Pinfo_setindex(lua_State* L) {
     return method(L,pinfo->ws_pinfo,param_type);
 }
 
-WSLUA_METAMETHOD Pinfo_gc(lua_State* L) {
+static int Pinfo_gc(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
