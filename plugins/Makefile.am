@@ -61,6 +61,6 @@ MAINTAINERCLEANFILES = \
 
 checkapi:
 	for i in $(SUBDIRS); do \
-		(cd "$i"; $(MAKE) checkapi); \
+		(cd "$$i"; $(MAKE) checkapi); \
 	done
 
