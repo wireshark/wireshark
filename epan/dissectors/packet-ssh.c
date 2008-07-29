@@ -107,7 +107,7 @@ struct ssh_flow_data {
 	gchar*  enc_client_request;
 	gchar*  enc_server_offer;
 	gchar*	enc;
-	
+
 	gchar*  comp_client_request;
 	gchar*  comp_server_offer;
 	gchar*	comp;
@@ -262,20 +262,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	global_data = conversation_get_proto_data(conversation,proto_ssh);
 	if(!global_data ) {
-		global_data = se_alloc(sizeof(struct ssh_flow_data));
-		global_data->req_counter=0;
-		global_data->rsp_counter=0;
+		global_data = se_alloc0(sizeof(struct ssh_flow_data));
 		global_data->version=SSH_VERSION_UNKNOWN;
-
-		global_data->mac_client_request=NULL;
-		global_data->mac_server_offer=NULL;
 		global_data->mac_length=-1;
-
-		global_data->enc_client_request=NULL;
-		global_data->enc_server_offer=NULL;
-
-		global_data->comp_client_request=NULL;
-		global_data->comp_server_offer=NULL;
 
 		conversation_add_proto_data(conversation,proto_ssh,global_data);
 	}
@@ -526,7 +515,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 				msg_code);
 		}
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, 
+			col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
 		}
 		offset += 1;
@@ -665,7 +654,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
 	}
 	offset += 1;
@@ -703,7 +692,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 			offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_h_sig,hf_ssh_kexdh_h_sig_length);
 		}
  	}
- 
+
 	len = plen+4-padding_length-(offset-last_offset);
 	if (tree ) {
 		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_payload,
