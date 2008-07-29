@@ -306,7 +306,7 @@ File "${GETTEXT_DIR}\bin\intl.dll"
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
 !ifdef ADNS_DIR
-File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
+File "${ADNS_DIR}\..\${MSVC_VARIANT}\adns\adns_dll.dll"
 !endif
 !ifdef PCRE_DIR
 File "${PCRE_DIR}\bin\pcre3.dll"
