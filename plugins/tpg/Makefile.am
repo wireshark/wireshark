@@ -64,7 +64,7 @@ EXTRA_DIST = \
 	http.tpg \
 	Makefile.nmake
 
-TPG = ../../tools/tpg
+TPG = $(top_builddir)/tools/tpg
 
 http-parser.h: http-parser.c
 
@@ -75,4 +75,4 @@ http-parser.c: http.tpg $(TPG)/tpg.pl $(TPG)/TPG.pm
 	$(PERL) -I$(TPG) $(TPG)/tpg.pl http.tpg
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

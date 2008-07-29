@@ -22,7 +22,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-include ../../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
 INCLUDES = -I$(top_srcdir)
 
@@ -137,7 +137,7 @@ RUNLEX = $(top_srcdir)/tools/runlex.sh
 
 mate_parser_lex.h : mate_parser.c
 
-LEMON = ../../tools/lemon
+LEMON = $(top_builddir)/tools/lemon
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
@@ -145,4 +145,4 @@ mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
 		(rm -f grammar.c grammar.h ; false)
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

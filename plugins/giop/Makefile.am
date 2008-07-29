@@ -66,7 +66,7 @@ EXTRA_DIST = \
 	Makefile.nmake
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
 	packet-cosnaming.c \
 	packet-coseventcomm.c \
 	packet-tango.c \

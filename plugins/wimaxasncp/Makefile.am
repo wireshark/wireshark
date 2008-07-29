@@ -23,7 +23,7 @@
 #
 
 # lex rules
-include ../../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
 INCLUDES = -I$(top_srcdir) -I$(includedir)
 
@@ -145,4 +145,4 @@ wimaxasncpdir = $(pkgdatadir)/wimaxasncp
 
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

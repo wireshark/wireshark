@@ -127,4 +127,4 @@ EXTRA_DIST = \
 	README
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
