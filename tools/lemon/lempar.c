@@ -1,4 +1,6 @@
 /* Driver template for the LEMON parser generator.
+* $Id$
+*
 ** Copyright 1991-1995 by D. Richard Hipp.
 **
 ** This library is free software; you can redistribute it and/or
@@ -17,10 +19,10 @@
 ** Boston, MA  02111-1307, USA.
 **
 ** Modified 1997 to make it suitable for use with makeheaders.
-* Updated to sqlite lemon version 1.22
+* Updated to sqlite lemon version 1.36
 */
-/* First off, code is include which follows the "include" declaration
-** in the input file. */
+/* First off, code is included that follows the "include" declaration
+** in the input grammar file. */
 %%
 #include <stdio.h>
 #include <string.h>
@@ -79,7 +81,11 @@
 #define YY_ACCEPT_ACTION  (YYNSTATE+YYNRULE+1)
 #define YY_ERROR_ACTION   (YYNSTATE+YYNRULE)
 
-/* Next are that tables used to determine what action to take based on the
+/* The yyzerominor constant is used to initialize instances of
+** YYMINORTYPE objects to zero. */
+static const YYMINORTYPE yyzerominor;
+
+/* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
 ** functions that take a state number and lookahead value and return an
 ** action integer.  
@@ -134,7 +140,7 @@
 ** 
 **      %fallback ID X Y Z.
 **
-** appears in the grammer, then ID becomes a fallback token for X, Y,
+** appears in the grammar, then ID becomes a fallback token for X, Y,
 ** and Z.  Whenever one of the tokens X, Y, or Z is input to the parser
 ** but it does not parse, the type of the token is changed to ID and
 ** the parse is retried before an error is thrown.
@@ -158,11 +164,11 @@ static const YYCODETYPE yyFallback[] = {
 **      It is sometimes called the "minor" token.
 */
 struct yyStackEntry {
-  int stateno;       /* The state-number */
-  int major;         /* The major token value.  This is the code
-                     ** number for the token at this stack level */
-  YYMINORTYPE minor; /* The user-supplied minor token value.  This
-                     ** is the value of the token  */
+  YYACTIONTYPE stateno;  /* The state-number */
+  YYCODETYPE major;      /* The major token value.  This is the code
+                         ** number for the token at this stack level */
+  YYMINORTYPE minor;     /* The user-supplied minor token value.  This
+                         ** is the value of the token  */
 };
 typedef struct yyStackEntry yyStackEntry;
 
@@ -170,6 +176,9 @@ typedef struct yyStackEntry yyStackEntry;
 ** the following structure */
 struct yyParser {
   int yyidx;                    /* Index of top element in stack */
+#ifdef YYTRACKMAXSTACKDEPTH
+  int yyidxMax;                 /* Maximum value of yyidx */
+#endif
   int yyerrcnt;                 /* Shifts left before out of the error */
   ParseARG_SDECL                /* A place to hold %extra_argument */
 #if YYSTACKDEPTH<=0
@@ -276,6 +285,9 @@ void *ParseAlloc(void *(*mallocProc)(gulong)){
 #endif
   if( pParser ){
     pParser->yyidx = -1;
+#ifdef YYTRACKMAXSTACKDEPTH
+    pParser->yyidxMax = 0;
+#endif
 #if YYSTACKDEPTH<=0
     yyGrowStack(pParser);
 #endif
@@ -357,6 +369,16 @@ void ParseFree(
 }
 
 /*
+** Return the peak depth of the stack for a parser.
+*/
+#ifdef YYTRACKMAXSTACKDEPTH
+int ParseStackPeak(void *p){
+  yyParser *pParser = (yyParser*)p;
+  return pParser->yyidxMax;
+}
+#endif
+
+/*
 ** Find the appropriate action for a parser given the terminal
 ** look-ahead token iLookAhead.
 **
@@ -425,13 +447,25 @@ static int yy_find_reduce_action(
   YYCODETYPE iLookAhead     /* The look-ahead token */
 ){
   int i;
+#ifdef YYERRORSYMBOL
+  if( stateno>YY_REDUCE_MAX ){
+    return yy_default[stateno];
+  }
+#else
   assert( stateno<=YY_REDUCE_MAX );
+#endif
   i = yy_reduce_ofst[stateno];
   assert( i!=YY_REDUCE_USE_DFLT );
   assert( iLookAhead!=YYNOCODE );
   i += iLookAhead;
+#ifdef YYERRORSYMBOL
+  if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
+    return yy_default[stateno];
+  }
+#else
   assert( i>=0 && i<YY_SZ_ACTTAB );
   assert( yy_lookahead[i]==iLookAhead );
+#endif
   return yy_action[i];
 }
 
@@ -460,10 +494,15 @@ static void yy_shift(
   yyParser *yypParser,          /* The parser to be shifted */
   int yyNewState,               /* The new state to shift in */
   int yyMajor,                  /* The major token to shift in */
-  YYMINORTYPE *yypMinor         /* Pointer ot the minor token to shift in */
+  YYMINORTYPE *yypMinor         /* Pointer to the minor token to shift in */
 ){
   yyStackEntry *yytos;
   yypParser->yyidx++;
+#ifdef YYTRACKMAXSTACKDEPTH
+  if( yypParser->yyidx>yypParser->yyidxMax ){
+    yypParser->yyidxMax = yypParser->yyidx;
+  }
+#endif
 #if YYSTACKDEPTH>0
   if( yypParser->yyidx>=YYSTACKDEPTH ){
     yyStackOverflow(yypParser, yypMinor);
@@ -543,7 +582,8 @@ static void yy_reduce(
   ** from wireshark this week.  Clearly they are stressing Lemon in ways
   ** that it has not been previously stressed...  (SQLite ticket #2172)
   */
-  memset(&yygotominor, 0, sizeof(yygotominor));
+  /*memset(&yygotominor, 0, sizeof(yygotominor));*/
+  yygotominor = yyzerominor;
   switch( yyruleno ){
   /* Beginning here are the reduction cases.  A typical example
   ** follows:
@@ -672,8 +712,9 @@ void Parse(
   if( yypParser->yyidx<0 ){
 #if YYSTACKDEPTH<=0
     if( yypParser->yystksz <=0 ){
-      memset(&yyminorunion, 0, sizeof(yyminorunion));
-      yyStackOverflow(yypParser, &yyminorunion);
+      /*memset(&yyminorunion, 0, sizeof(yyminorunion));*/
+      yyminorunion = yyzerominor;
+       yyStackOverflow(yypParser, &yyminorunion);
       return;
     }
 #endif
