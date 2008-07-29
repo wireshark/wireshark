@@ -373,17 +373,21 @@ typedef struct _mimetype_and_clock {
 	http://www.iana.org/assignments/rtp-parameters.
 */
 static const mimetype_and_clock mimetype_and_clock_map[] = {
-	{"AMR",		8000},			/* [RFC3267] */
-	{"AMR-WB",	16000},			/* [RFC3267] */
+	{"AMR",		8000},			/* [RFC4867][RFC3267] */
+	{"AMR-WB",	16000},			/* [RFC4867][RFC3267] */
 	{"EVRC",	8000},			/* [RFC3558] */
-	{"EVRC0",	8000},			/* [RFC3558] */
+	{"EVRC0",	8000},			/* [RFC4788] */
+	{"EVRC1",	8000},			/* [RFC4788] */
+	{"EVRCB",	8000},			/* [RFC4788] */
+	{"EVRCB0",	8000},			/* [RFC4788] */
+	{"EVRCB1",	8000},			/* [RFC4788] */
 	{"G7221",	16000},			/* [RFC3047] */
-	{"G726-16",	8000},			/* [RFC3551] */
-	{"G726-24",	8000},			/* [RFC3551] */
-	{"G726-32",	8000},			/* [RFC3551] */
-	{"G726-40",	8000},			/* [RFC3551] */
-	{"G729D",	8000},			/* [RFC3551] */
-	{"G729E",	8000},			/* [RFC3551] */
+	{"G726-16",	8000},			/* [RFC3551][RFC4856] */
+	{"G726-24",	8000},			/* [RFC3551][RFC4856] */
+	{"G726-32",	8000},			/* [RFC3551][RFC4856] */
+	{"G726-40",	8000},			/* [RFC3551][RFC4856] */
+	{"G729D",	8000},			/* [RFC3551][RFC4856] */
+	{"G729E",	8000},			/* [RFC3551][RFC4856] */
 	{"GSM-EFR",	8000},			/* [RFC3551] */
 	{"mpa-robust",	90000},		/* [RFC3119] */
 	{"SMV",		8000},			/* [RFC3558] */
@@ -400,7 +404,8 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"MP4V-ES",	90000},			/* [RFC3016] */
 	{"pointer",	90000},			/* [RFC2862] */
 	{"raw",		90000},			/* [RFC4175] */
-	{"telephone-event", 8000},              /* [RFC4733] */
+	{"telephone-event", 8000},  /* [RFC4733] */
+	{"H264", 90000},            /* [RFC3984] */
 };
 
 #define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])

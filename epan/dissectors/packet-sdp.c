@@ -161,6 +161,7 @@ static int hf_media_format = -1;
 static int hf_media_attribute_field = -1;
 static int hf_media_attribute_value = -1;
 static int hf_media_encoding_name = -1;
+static int hf_media_sample_rate = -1;
 static int hf_media_format_specific_parameter = -1;
 static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
@@ -1575,6 +1576,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 	  key=g_malloc( sizeof(gint) );
 	  *key=atol((char*)payload_type);
 
+	  offset = next_offset + 1;
+	  tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
+
+	  tokenlen = next_offset - offset;
+	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
+                        offset, tokenlen, FALSE);
 	  /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
 	     For example:
 
@@ -1929,6 +1936,10 @@ proto_register_sdp(void)
       { "MIME Type",
         "sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
         "SDP MIME Type", HFILL }},
+	{ &hf_media_sample_rate,
+      { "Sample Rate",
+        "sdp.sample_rate",FT_STRING, BASE_NONE, NULL, 0x0,
+        "Sample Rate", HFILL }},
     { &hf_media_format_specific_parameter,
       { "Media format specific parameters",
         "sdp.fmtp.parameter",FT_STRING, BASE_NONE, NULL, 0x0,
