@@ -237,6 +237,9 @@ Hide                          [RFC3261] (deprecated)
                 { "P-User-Database",			NULL },  /*  51 RFC4457  */
                 { "P-Visited-Network-ID",       NULL },  /*  52 RFC3455  */
                 { "Path",                       NULL },  /*  53 RFC3327  */
+				/*
+				Permission-Missing            [RFC-ietf-sip-consent-framework-04.txt
+				*/
                 { "Priority", 					NULL },  /*  54 RFC3261  */
                 { "Privacy",                    NULL },  /*  55 RFC3323  */
                 { "Proxy-Authenticate", 		NULL },	 /*  56 */
@@ -274,6 +277,9 @@ Hide                          [RFC3261] (deprecated)
                 { "Target-Dialog",				NULL },  /*  85 RFC4538  */
                 { "Timestamp",					NULL },  /*  86 RFC3261  */
                 { "To",							"t"  },  /*  87 RFC3261  */
+				/*
+				Trigger-Consent               [RFC-ietf-sip-consent-framework-04.tx
+				*/
                 { "Unsupported",				NULL },  /*  88 RFC3261  */
                 { "User-Agent", 				NULL },  /*  89 RFC3261  */
                 { "Via",			 			"v"  },  /*  90 RFC3261  */
@@ -1712,6 +1718,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		guchar c;
 		size_t value_len;
 		char *value;
+		gboolean is_no_header_termination = FALSE;
+		proto_item *cause;
 
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 		if (linelen == 0) {
@@ -1724,18 +1732,21 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}
 
 		line_end_offset = offset + linelen;
-		while ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t')
-		{
-			/*
-			 * This line end is not a header seperator.
-			 * It just extends the header with another line.
-			 * Look for next line end:
-			 */
-			linelen += (next_offset - line_end_offset);
-			linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, FALSE);
-			line_end_offset = offset + linelen;
+		if(tvb_reported_length_remaining(tvb, next_offset) == 0){
+			is_no_header_termination = TRUE;
+		}else{
+			while ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t')
+			{
+				/*
+				 * This line end is not a header seperator.
+				 * It just extends the header with another line.
+				 * Look for next line end:
+				 */
+				linelen += (next_offset - line_end_offset);
+				linelen += tvb_find_line_end(tvb, next_offset, -1, &next_offset, FALSE);
+				line_end_offset = offset + linelen;
+			}
 		}
-
 		colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
 		if (colon_offset == -1) {
 			/*
@@ -2007,12 +2018,12 @@ separator_found2:
 
 						/* Add CSeq  tree */
 						if (hdr_tree) {
-							ti = proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-							cseq_tree = proto_item_add_subtree(ti, ett_sip_cseq);
+							cseq_tree = proto_item_add_subtree(sip_element_item, ett_sip_cseq);
 						}
 
 						/* Walk past number and spaces characters to get to start
@@ -2078,12 +2089,12 @@ separator_found2:
 
 						/* Add RAck  tree */
 						if (hdr_tree) {
-							ti = proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-							rack_tree = proto_item_add_subtree(ti, ett_sip_rack);
+							rack_tree = proto_item_add_subtree(sip_element_item, ett_sip_rack);
 						}
 
 						/* RSeq number */
@@ -2158,7 +2169,7 @@ separator_found2:
 
 						/* Add 'Call-id' string item to tree */
 						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -2173,7 +2184,7 @@ separator_found2:
 						}
 						/* Add 'Expires' string item to tree */
 						if(hdr_tree) {
-							proto_tree_add_uint(hdr_tree,
+							sip_element_item = proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
 							                    offset, next_offset - offset,
 							                    atoi(value));
@@ -2188,7 +2199,7 @@ separator_found2:
 					 */
 					case POS_CONTENT_TYPE :
 						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -2226,7 +2237,7 @@ separator_found2:
 					case POS_CONTENT_LENGTH :
 						content_length = atoi(value);
 						if(hdr_tree) {
-							proto_tree_add_uint_format(hdr_tree,
+							sip_element_item = proto_tree_add_uint_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
 							                   content_length, "%s",
@@ -2237,7 +2248,7 @@ separator_found2:
 					case POS_MAX_FORWARDS :
 					case POS_RSEQ :
 						if(hdr_tree) {
-							proto_tree_add_uint(hdr_tree,
+							sip_element_item = proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
 							                    offset, next_offset - offset,
 							                    atoi(value));
@@ -2334,30 +2345,30 @@ separator_found2:
 					case POS_VIA:
 						/* Add Via subtree */
 						if (hdr_tree) {
-							ti = proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-							via_tree = proto_item_add_subtree(ti, ett_sip_via);
+							via_tree = proto_item_add_subtree(sip_element_item, ett_sip_via);
 						}
 						dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
 						break;
 					case POS_REASON:
 						if(hdr_tree) {
-							ti = proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
 							                             tvb_format_text(tvb, offset, linelen));
-							reason_tree = proto_item_add_subtree(ti, ett_sip_reason);
+							reason_tree = proto_item_add_subtree(sip_element_item, ett_sip_reason);
 						}
 						dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
 						break;
 					default :
 						/* Default case is to assume its an FT_STRING field */
 						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
 							                             offset, next_offset - offset,
 							                             value, "%s",
@@ -2367,6 +2378,16 @@ separator_found2:
 				}/* end switch */
 			}/*if HF_index */
 		}/* if colon_offset */
+		if (is_no_header_termination == TRUE){
+			/* Header not terminated by empty line CRLF */
+			cause=proto_tree_add_text(hdr_tree, tvb, line_end_offset, -1, 
+						"[Header not terminated by empty line (CRLF)]");
+
+			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+			expert_add_info_format(pinfo, sip_element_item,
+				PI_MALFORMED, PI_WARN,
+				"Header not terminated by empty line (CRLF)");
+		}
 		offset = next_offset;
 	}/* End while */
 
