@@ -41,7 +41,7 @@
 #define PPP_IPX		0x2b	/* IPX protocol */
 #define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
 #define	PPP_VJC_UNCOMP	0x2f	/* VJ uncompressed TCP */
-#define PPP_BPDU	0x31	/* Bridging PDU (spanning tree BPDU?) */
+#define PPP_BCP		0x31	/* Bridging Control Protocol */
 #define PPP_ST		0x33	/* Stream Protocol (ST-II) */
 #define	PPP_VINES	0x35	/* Banyan Vines */
 #define PPP_AT_EDDP	0x39	/* AppleTalk EDDP */

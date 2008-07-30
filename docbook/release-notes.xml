@@ -37,11 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash while reassembling packets.
-            <!-- Fixed in r25343 -->
-	    <!-- (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2470">2470</ulink>) -->
+            Wireshark could crash while uncompressing zlib-compressed packet data.
+            <!-- Fixed in r25677 -->
+	    <!-- (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2649">2649</ulink>) -->
           </para>
-          <para>Versions affected: 0.8.19 to 1.0.1</para>
+          <para>Versions affected: 0.10.14 to 1.0.2</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -74,6 +74,11 @@ Wireshark Info
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2606">Bug
           2606</ulink>)
         </para></listitem>
+
+        <listitem><para>
+          Setting a duration on a capture file would capture for an extra second.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -98,7 +103,10 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-There are no updated protocols in this release.
+AIM,
+ERF,
+PPP BCP,
+Redback LI,
 
     </para>
     </section>
@@ -106,7 +114,7 @@ There are no updated protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-There is no new or updated capture file support in this release.
+Endace ERF.
 
     </para>
     </section>

@@ -143,36 +143,30 @@ static gint ett_erf_eth = -1;
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
 
-/* Possible there will be more in the future */
-#define ERF_INFINIBAND 1
-static gint erf_infiniband_default = ERF_INFINIBAND;
-static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
+static dissector_handle_t infiniband_handle;
 
 typedef enum { 
-  ERF_HDLC_CHDLC = 1,
-  ERF_HDLC_PPP = 2,
-  ERF_HDLC_FRELAY = 3,
-  ERF_HDLC_MTP2 = 4,
+  ERF_HDLC_CHDLC = 0,
+  ERF_HDLC_PPP = 1,
+  ERF_HDLC_FRELAY = 2,
+  ERF_HDLC_MTP2 = 3,
+  ERF_HDLC_GUESS = 4,
   ERF_HDLC_MAX = 5
-} erf_hdlc_type;
-static gint erf_hdlc_default = ERF_HDLC_MAX;
-static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX];
+} erf_hdlc_type_vals;
+static gint erf_hdlc_type = ERF_HDLC_GUESS;
+static dissector_handle_t chdlc_handle, ppp_handle, frelay_handle, mtp2_handle;
+
+static gboolean erf_rawcell_first = FALSE;
 
 typedef enum {
-  ERF_ATM_ATM = 1,
-  ERF_ATM_LLC = 2,
-  ERF_ATM_MAX = 3
-} erf_atm_type;
-static gint erf_atm_default = ERF_ATM_MAX;
-static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX];
+  ERF_AAL5_GUESS = 0,
+  ERF_AAL5_LLC = 1,
+} erf_aal5_type_val;
+static gint erf_aal5_type = ERF_AAL5_GUESS;
+static dissector_handle_t atm_untruncated_handle;
 
-typedef enum {   
-  ERF_ETH_ETHFCS = 1,
-  ERF_ETH_ETHNOFCS = 2,
-  ERF_ETH_MAX = 3
-} erf_eth_type;
-static gint erf_eth_default = ERF_ETH_MAX;
-static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX];
+static gboolean erf_ethfcs = TRUE;
+static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
@@ -275,9 +269,10 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_INFINIBAND, "INFINIBAND"},
   {0, NULL}
 };
+
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
-erf_atm_guess_lane_type(const guint8 *pd, guint32 len,
+erf_atm_guess_lane_type(const guint8 *pd, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
 	if (len >= 2) {
@@ -299,8 +294,9 @@ erf_atm_guess_lane_type(const guint8 *pd, guint32 len,
 		}
 	}
 }
+
 static void
-erf_atm_guess_traffic_type(const guint8 *pd, guint32 len,
+erf_atm_guess_traffic_type(const guint8 *pd, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
 	/*
@@ -590,6 +586,10 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 atm_hdr=0;
   proto_item *erf_item = NULL;
   proto_tree *erf_tree = NULL;
+  guint atm_pdu_caplen;
+  const guint8 *atm_pdu;
+  erf_hdlc_type_vals hdlc_type;
+  guint8 first_byte;
   tvbuff_t *new_tvb;
 
   erf_type=pinfo->pseudo_header->erf.phdr.type;
@@ -625,8 +625,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch(erf_type) {
 
   case ERF_TYPE_INFINIBAND:
-    if (erf_infiniband_dissector[erf_infiniband_default])
-      call_dissector(erf_infiniband_dissector[erf_infiniband_default], tvb, pinfo, erf_tree);
+    if (infiniband_handle)
+      call_dissector(infiniband_handle, tvb, pinfo, erf_tree);
     else
       call_dissector(data_handle, tvb, pinfo, erf_tree);
     break;
@@ -664,19 +664,36 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
 
-    /* Work around to have decoding working */
-    pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
-    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
-      
     new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
-    /* Try to guess the type according to the first bytes */
-    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);
-      
-    if (erf_atm_default < ERF_ATM_MAX)
-      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
+    /* Work around to have decoding working */
+    if (erf_rawcell_first) {
+      /* Treat this as a (short) ATM AAL5 PDU */
+      pinfo->pseudo_header->atm.aal = AAL_5;
+      switch (erf_aal5_type) {
+
+      case ERF_AAL5_GUESS:
+        pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        /* Try to guess the type according to the first bytes */
+        atm_pdu_caplen = tvb_length(new_tvb);
+        atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
+        erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
+        break;
+
+      case ERF_AAL5_LLC:
+        pinfo->pseudo_header->atm.type = TRAF_LLCMX;
+        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        break;
+      }
+
+      call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+    } else {
+      /* Treat this as a raw cell */
+      pinfo->pseudo_header->atm.flags |= ATM_RAW_CELL;
+      pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
+
+      call_dissector(data_handle, new_tvb, pinfo, tree);
+    }
     break;
 
   case ERF_TYPE_MC_AAL5:
@@ -689,19 +706,28 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
-    /* Work around to have decoding working */
-    pinfo->pseudo_header->atm.aal = AAL_5;
-    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
     new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
-    /* Try to guess the type according to the first bytes */
-    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
+    /* Work around to have decoding working */
+    pinfo->pseudo_header->atm.aal = AAL_5;
+    switch (erf_aal5_type) {
 
-    if (erf_atm_default < ERF_ATM_MAX)
-      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
+    case ERF_AAL5_GUESS:
+      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      /* Try to guess the type according to the first bytes */
+      atm_pdu_caplen = tvb_length(new_tvb);
+      atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
+      erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
+      break;
+
+    case ERF_AAL5_LLC:
+      pinfo->pseudo_header->atm.type = TRAF_LLCMX;
+      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      break;
+    }
+
+    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_AAL2:
@@ -720,32 +746,17 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
     new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
-    /* Try to guess the type according to the first bytes */
-    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
-
-    if (erf_atm_default < ERF_ATM_MAX)
-      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
+    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_ETH:
   case ERF_TYPE_COLOR_ETH:
   case ERF_TYPE_DSM_COLOR_ETH:
     dissect_eth_header(tvb, pinfo, erf_tree);
-
-    /* Clean the pseudo header (if used in subdissector) */
-    switch (erf_eth_default) {
-    case ERF_ETH_ETHFCS:
-    case ERF_ETH_ETHNOFCS:
-      memset(&pinfo->pseudo_header->eth, 0, sizeof(pinfo->pseudo_header->eth));
-      break;
-    }
-      
-    if (erf_eth_default < ERF_ETH_MAX)
-      call_dissector(erf_eth_dissector[erf_eth_default], tvb, pinfo, tree);
+    if (erf_ethfcs)
+      call_dissector(ethwithfcs_handle, tvb, pinfo, tree);
     else
-      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_ETH Layer 2 preference for ERF is set to \"Raw data\"");
+      call_dissector(ethwithoutfcs_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -756,26 +767,40 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
-    /* Clean the pseudo header (if used in subdissector) */
-    switch (erf_hdlc_default) {
+    hdlc_type = erf_hdlc_type;
+
+    if (hdlc_type == ERF_HDLC_GUESS) {
+      /* Try to guess the type. */
+      first_byte = tvb_get_guint8(tvb, 0);
+      if (first_byte == 0x0f || first_byte == 0x8f)
+        hdlc_type = ERF_HDLC_CHDLC;
+      else {
+      	/* Anything to check for to recognize Frame Relay or MTP2?
+      	   Should we require PPP packets to beging with FF 03? */
+        hdlc_type = ERF_HDLC_PPP;
+      }
+    }
+    /* Clean the pseudo header (if used in subdissector) and call the
+       appropriate subdissector. */
+    switch (hdlc_type) {
     case ERF_HDLC_CHDLC:
+      call_dissector(chdlc_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_PPP:
+      call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_FRELAY: 
       memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
+      call_dissector(frelay_handle, tvb, pinfo, tree);
       break;
     case ERF_HDLC_MTP2:
       /* not used, but .. */
       memset(&pinfo->pseudo_header->mtp2, 0, sizeof(pinfo->pseudo_header->mtp2));
+      call_dissector(mtp2_handle, tvb, pinfo, tree);
       break;
     default:
       break;
     }
-    if (erf_hdlc_default < ERF_HDLC_MAX)
-      call_dissector(erf_hdlc_dissector[erf_hdlc_default], tvb, pinfo, tree);
-    else
-      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_HDLC Layer 2 preference for ERF is set to \"Raw data\"");
     break;
       
   default:
@@ -891,25 +916,17 @@ proto_register_erf(void)
   };
 
   static enum_val_t erf_hdlc_options[] = { 
-    { "chdlc", "Cisco HDLC",  ERF_HDLC_CHDLC },
-    { "ppp",   "PPP serial",  ERF_HDLC_PPP },
-    { "fr",    "Frame Relay", ERF_HDLC_FRELAY },
-    { "mtp2",  "SS7 MTP2",    ERF_HDLC_MTP2 },
-    { "raw",   "Raw data",    ERF_HDLC_MAX },
+    { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
+    { "ppp",    "PPP serial",       ERF_HDLC_PPP },
+    { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
+    { "mtp2",   "SS7 MTP2",         ERF_HDLC_MTP2 },
+    { "guess",  "Attempt to guess", ERF_HDLC_GUESS },
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t erf_atm_options[] = { 
-    { "atm",   "ATM",      ERF_ATM_ATM },
-    { "llc",   "LLC",      ERF_ATM_LLC },
-    { "raw",   "Raw data", ERF_ATM_MAX },
-    { NULL, NULL, 0 }
-  };
-
-  static enum_val_t erf_eth_options[] = { 
-    { "ethfcs",   "Ethernet with FCS", ERF_ETH_ETHFCS },
-    { "eth",      "Ethernet",          ERF_ETH_ETHNOFCS },
-    { "raw",      "Raw data",          ERF_ETH_MAX },
+  static enum_val_t erf_aal5_options[] = { 
+    { "guess", "Attempt to guess", ERF_AAL5_GUESS },
+    { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
     { NULL, NULL, 0 }
   };
 
@@ -923,17 +940,25 @@ proto_register_erf(void)
   
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
-  prefs_register_enum_preference(erf_module, "erfhdlc", "ERF_HDLC Layer 2",
+  prefs_register_enum_preference(erf_module, "hdlc_type", "ERF_HDLC Layer 2",
                                  "Protocol encapsulated in HDLC records",
-                                 &erf_hdlc_default, erf_hdlc_options, FALSE);
+                                 &erf_hdlc_type, erf_hdlc_options, FALSE);
 
-  prefs_register_enum_preference(erf_module, "erfatm", "ERF_ATM Layer 2",
-                                 "Protocol encapsulated in ATM records",
-                                 &erf_atm_default, erf_atm_options, FALSE);
+  prefs_register_bool_preference(erf_module, "rawcell_first",
+                                 "Raw ATM cells are first cell of AAL5 PDU",
+                                 "Whether raw ATM cells should be treated as "
+                                 "the first cell of an AAL5 PDU",
+                                 &erf_rawcell_first);
 
-  prefs_register_enum_preference(erf_module, "erfeth", "ERF_ETH Layer 2",
-                                 "Protocol encapsulated in Ethernet records",
-                                 &erf_eth_default, erf_eth_options, FALSE);
+  prefs_register_enum_preference(erf_module, "aal5_type",
+                                 "ATM AAL5 packet type",
+                                 "Protocol encapsulated in ATM AAL5 packets",
+                                 &erf_aal5_type, erf_aal5_options, FALSE);
+
+  prefs_register_bool_preference(erf_module, "ethfcs",
+                                 "Ethernet packets have FCS",
+                                 "Whether the FCS is present in Ethernet packets",
+                                 &erf_ethfcs);
 }
 
 void
@@ -947,20 +972,19 @@ proto_reg_handoff_erf(void)
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
 	
-  /* Create ERF_INFINIBAND dissectors table */
-  erf_infiniband_dissector[ERF_INFINIBAND] = find_dissector("infiniband");
+  /* Get handle for Infiniband dissector */
+  infiniband_handle = find_dissector("infiniband");
 
-  /* Create ERF_HDLC dissectors table */
-  erf_hdlc_dissector[ERF_HDLC_CHDLC] = find_dissector("chdlc");
-  erf_hdlc_dissector[ERF_HDLC_PPP] = find_dissector("ppp_hdlc");
-  erf_hdlc_dissector[ERF_HDLC_FRELAY] = find_dissector("fr");
-  erf_hdlc_dissector[ERF_HDLC_MTP2] = find_dissector("mtp2");
+  /* Get handles for serial line protocols */
+  chdlc_handle = find_dissector("chdlc");
+  ppp_handle = find_dissector("ppp_hdlc");
+  frelay_handle = find_dissector("fr");
+  mtp2_handle = find_dissector("mtp2");
 
-  /* Create ERF_ATM dissectors table */  
-  erf_atm_dissector[ERF_ATM_ATM] = find_dissector("atm_untruncated");
-  erf_atm_dissector[ERF_ATM_LLC] = find_dissector("llc");
+  /* Get handle for ATM dissector */
+  atm_untruncated_handle = find_dissector("atm_untruncated");
 
-  /* Create Ethernet dissectors table */
-  erf_eth_dissector[ERF_ETH_ETHFCS] = find_dissector("eth_withfcs");  
-  erf_eth_dissector[ERF_ETH_ETHNOFCS] = find_dissector("eth_withoutfcs");
+  /* Get handles for Ethernet dissectors */
+  ethwithfcs_handle = find_dissector("eth_withfcs");  
+  ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
 }
