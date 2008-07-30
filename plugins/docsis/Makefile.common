@@ -47,11 +47,15 @@ DISSECTOR_SRC = \
 	packet-dsdrsp.c \
 	packet-macmgmt.c \
 	packet-map.c \
+	packet-mdd.c \
 	packet-regack.c \
 	packet-regreq.c \
+	packet-regreqmp.c \
 	packet-regrsp.c \
+	packet-regrspmp.c \
 	packet-rngreq.c \
 	packet-rngrsp.c \
+	packet-sync.c \
 	packet-tlv.c \
 	packet-type29ucd.c \
 	packet-uccreq.c \
