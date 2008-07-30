@@ -1598,11 +1598,12 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     iscsi_session_t *iscsi_session=NULL;
     guint8 opcode, tmpbyte;
 
-    /* quick check to see if the packet is long enough to contain the
-     * minimum amount of information we need */
     if (available_bytes < 48 ){
-	/* no, so give up */
-	return FALSE;
+	/* heuristic already rejected the packet if size < 48,
+	  assume it's an iscsi packet with a segmented header */
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = 48 - available_bytes;
+        return TRUE;
     }
 
     opcode = tvb_get_guint8(tvb, offset + 0);
@@ -2347,6 +2348,15 @@ dissect_iscsi_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 */
 static gboolean
 dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    guint32 available_bytes = tvb_length(tvb);
+
+    /* quick check to see if the packet is long enough to contain the
+     * minimum amount of information we need */
+    if (available_bytes < 48 ){
+	/* no, so give up */
+	return FALSE;
+    }
+
     return dissect_iscsi(tvb, pinfo, tree, TRUE);
 }
 
