@@ -118,6 +118,7 @@ static int hf_megaco_pkgdname					= -1;
 static int hf_megaco_mId						= -1;
 static int hf_megaco_h245						= -1;
 static int hf_megaco_h223Capability				= -1;
+static int hf_megaco_audititem				= -1;
 
 /* Define the trees for megaco */
 static int ett_megaco 							= -1;
@@ -1349,6 +1350,7 @@ static const megaco_tokens_t megaco_descriptors_names[] = {
 };
 
 /* Returns index of megaco_tokens_t */
+/* note - also called by dissect_megaco_auditdescriptor */
 static gint find_megaco_descriptors_names(tvbuff_t *tvb, int offset, guint header_len)
 {
         guint i;
@@ -2194,37 +2196,61 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
 
 }
+
+/*
+   auditDescriptor      = AuditToken LBRKT [ auditItem *(COMMA auditItem) ] RBRKT
+
+   auditItem            = ( MuxToken / ModemToken / MediaToken /
+                           SignalsToken / EventBufferToken /
+                           DigitMapToken / StatsToken / EventsToken /
+                           ObservedEventsToken / PackagesToken )                     */
 static void
-dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo,  gint tvb_RBRKT, gint tvb_previous_offset)
+dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo,  gint tvb_stop, gint tvb_offset)
 {
+	gint		tokenlen, tvb_end, tvb_next, token_index;
+	proto_tree	*megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;
 
-	gint 	tokenlen, tvb_LBRKT;
-	/*proto_tree  *megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;*/
-
-	tokenlen = 0;
-
-	tvb_LBRKT  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
-	tokenlen = (tvb_LBRKT + 1) - tvb_previous_offset;
-	proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tokenlen,
-				"%s", tvb_format_text(tvb, tvb_previous_offset, tokenlen));
-
-	/*
-	tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
-
-	megaco_auditdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_audit_descriptor,tvb,tvb_previous_offset,tokenlen, FALSE);
-	megaco_auditdescriptor_tree = proto_item_add_subtree(megaco_auditdescriptor_ti, ett_megaco_auditdescriptor);
-	*/
-
-	tvb_previous_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
-
-	if ( megaco_tvb_skip_wsp(tvb, tvb_previous_offset +1) != tvb_RBRKT ){
-		dissect_megaco_descriptors(tvb, megaco_tree, pinfo, tvb_previous_offset,tvb_RBRKT);
-	}else{
-		proto_tree_add_text(megaco_tree, tvb, tvb_RBRKT, 1,
-					"%s",tvb_format_text(tvb, tvb_RBRKT, 1));
-
+	tvb_next  = tvb_find_guint8(tvb, tvb_offset, tvb_stop, '{');           /* find opening LBRKT - is this already checked by caller?*/
+	if( tvb_next == -1 )                                                   /* complain and give up if not there */
+	{
+		proto_tree_add_text(megaco_tree, tvb, tvb_offset, tvb_stop+1-tvb_offset, "Badly constructed audit descriptor (no { )");
+		return;
 	}
+	tokenlen = (tvb_stop + 1) - tvb_offset;
+
+	megaco_auditdescriptor_ti = proto_tree_add_none_format( megaco_tree, hf_megaco_audit_descriptor, 
+								tvb, tvb_offset, tokenlen, "Audit descriptor" );
+
+	megaco_auditdescriptor_tree = proto_item_add_subtree( megaco_auditdescriptor_ti, ett_megaco_auditdescriptor );
+
+	tokenlen = tvb_next + 1 - tvb_offset;
+
+	proto_tree_add_text( megaco_auditdescriptor_tree, tvb, tvb_offset, tokenlen, "Audit token {" );
+
+	tvb_offset = tvb_next;
+
+	while( tvb_offset < tvb_stop )
+	{
+		tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);                                          /* find start of an auditItem */
+                if( tvb_get_guint8(tvb, tvb_offset) != '}' )                                                  /* got something */
+                {
+			tvb_next = tvb_find_guint8(tvb, tvb_offset, tvb_stop, ',');                           /* end of an auditItem */
+        	        if (tvb_next == -1)  tvb_next = tvb_stop;                                             /* last item doesn't have a comma */
+			tvb_end = megaco_tvb_skip_wsp_return(tvb, tvb_next-1);                                /* trim any trailing whitespace */
+			tokenlen =  tvb_end - tvb_offset;                                                     /* get length of token */
+
+			token_index = find_megaco_descriptors_names(tvb, tvb_offset, tokenlen);               /* lookup the token */
+			if( token_index == -1 )  token_index = 0;                                             /* if not found then 0 => Unknown */
+
+			proto_tree_add_string(megaco_auditdescriptor_tree, hf_megaco_audititem, tvb, 
+					tvb_offset, tokenlen, megaco_descriptors_names[token_index].name);    /* and display the long form */
+
+			tvb_offset = tvb_next;                                                                /* advance pointer */
+		}
+	}
+	proto_tree_add_text(megaco_auditdescriptor_tree, tvb, tvb_stop, 1, "}");                              /* End of auditDescriptor */
 }
+
 /*
  *    serviceChangeDescriptor = ServicesToken LBRKT serviceChangeParm
  *                          *(COMMA serviceChangeParm) RBRKT
@@ -3342,8 +3368,11 @@ void
 proto_register_megaco(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_megaco_audititem,
+		{ " Audit Item", "megaco.audititem", FT_STRING, BASE_DEC, NULL, 0x0,
+		"Identity of item to be audited ", HFILL }},
 		{ &hf_megaco_audit_descriptor,
-		{ "Audit Descriptor", "megaco.audit", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Audit Descriptor", "megaco.audit", FT_NONE, BASE_DEC, NULL, 0x0,
 		"Audit Descriptor of the megaco Command ", HFILL }},
 		{ &hf_megaco_command_line,
 		{ "Command line", "megaco.command_line", FT_STRING, BASE_DEC, NULL, 0x0,
