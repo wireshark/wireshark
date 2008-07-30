@@ -8,6 +8,8 @@
  *
  * Added support for Connection Configuration Object
  *   ryan wamsley * Copyright 2007
+ * Added Additional Status text in Forward Open Response
+ *   ryan wamsley * Copyright 2008
  *
  * $Id$
  *
@@ -108,6 +110,47 @@
 #define CI_GRC_MEMBER_NOT_SETTABLE  0x29
 
 #define CI_GRC_STILL_PROCESSING     0xFF
+
+/* Extended Status Error Codes */
+#define CI_SREC_CONNECTION_IN_USE      0x0100
+#define CI_SREC_TCLASS_TRIGGER_ERR     0x0103
+#define CI_SREC_OWNERSHIP_CONFLICT     0x0106
+#define CI_SREC_CONN_NOT_FOUND         0x0107
+#define CI_SREC_INVALID_CONN_TYPE      0x0108
+#define CI_SREC_INVALID_CONN_SIZE      0x0109
+#define CI_SREC_DEV_NOT_CONFIGURED     0x0110
+#define CI_SREC_UNSUPPORTED_RPI        0x0111
+#define CI_SREC_NO_MORE_CONNS          0x0113
+#define CI_SREC_VEN_OR_PCODE_MISMATCH  0x0114
+#define CI_SREC_PRODTYPE_MISMATCH      0x0115
+#define CI_SREC_REVISION_MISMATCH      0x0116
+#define CI_SREC_BAD_CONN_POINT         0x0117
+#define CI_SREC_INVAL_CONFIG_FRMT      0x0118
+#define CI_SREC_NO_CONTROL_CONN        0x0119
+#define CI_SREC_NO_MORE_CONN_SUPPORT   0x011A
+#define CI_SREC_RPI_SMALLERTHAN_PIT    0x011B
+#define CI_SREC_CONN_ALREADY_CLOSED    0x0203
+#define CI_SREC_UNCONN_SND_TIMEOUT     0x0204
+#define CI_SREC_UNCONN_PARM_ERR        0x0205
+#define CI_SREC_UCONN_TOO_LARGE        0x0206
+#define CI_SREC_UCONN_ACK_NO_REP       0x0207
+#define CI_SREC_NO_MEMORY              0x0301
+#define CI_SREC_NO_NET_BANDWIDTH       0x0302
+#define CI_SREC_NO_SCREENERS           0x0303
+#define CI_SREC_NO_REALTIME_CONFIG     0x0304
+#define CI_SREC_INVALID_PORT           0x0311
+#define CI_SREC_LINKADDR_NOT_AVAIL     0x0312
+#define CI_SREC_INVALID_SEGMENT_TYP    0x0315
+#define CI_SREC_CLOSE_PATH_ERR         0x0316
+#define CI_SREC_NO_SCHED               0x0317
+#define CI_SREC_INVALID_LINK_ADDR      0x0318
+#define CI_SREC_UNAVAIL_RESOURCE       0x0319
+#define CI_SREC_CONN_ALREADY_ESTAB     0x031A
+#define CI_SREC_DCONN_ALREADY_ESTAB    0x031B
+#define CI_SREC_MISC                   0x031C
+#define CI_SREC_REDUNDANT_MISMATCH     0x031D
+#define CI_SREC_NO_CONSUME_RESRC       0x031E
+#define CI_SREC_NO_CONN_RESRC          0x031F
 
 
 /* IOI Path types */

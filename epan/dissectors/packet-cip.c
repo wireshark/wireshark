@@ -8,6 +8,8 @@
  *
  * Added support for Connection Configuration Object
  *   ryan wamsley * Copyright 2007
+ * Added Additional Status text in Forward Open Response
+ *   ryan wamsley * Copyright 2008
  *
  * $Id$
  *
@@ -288,6 +290,52 @@ static const value_string cip_gs_vals[] = {
 
   	{ 0,				               NULL }
 };
+
+/* Translate function to string - CIP Extended Status codes */
+static const value_string cip_es_vals[] = {
+	{ CI_GRC_SUCCESS,           "Success" },
+   { CI_SREC_CONNECTION_IN_USE,     "Connection in Use or Duplicate Forward Open" },
+   { CI_SREC_TCLASS_TRIGGER_ERR,    "Transport Class and Trigger combination not supported" },
+   { CI_SREC_OWNERSHIP_CONFLICT,    "Ownership Conflict"  },
+   { CI_SREC_CONN_NOT_FOUND,        "Connection not found at target application" },
+   { CI_SREC_INVALID_CONN_TYPE,     "Invalid Connection Type" },
+   { CI_SREC_INVALID_CONN_SIZE,     "Invalid Connection Size" },
+   { CI_SREC_DEV_NOT_CONFIGURED,    "Device not configured" },
+   { CI_SREC_UNSUPPORTED_RPI,       "RPI not supported" },
+   { CI_SREC_NO_MORE_CONNS,         "Connection Manager cannot support any more connections" },
+   { CI_SREC_VEN_OR_PCODE_MISMATCH, "The Vendor Id or Product Code did not match the device" },
+   { CI_SREC_PRODTYPE_MISMATCH,     "The Product Type did not match the device" },
+   { CI_SREC_REVISION_MISMATCH,     "The Major or Minor Revision did not match the device" },
+   { CI_SREC_BAD_CONN_POINT,        "Invalid Connection Point" },
+   { CI_SREC_INVAL_CONFIG_FRMT,     "Invalid Configuration Format" },
+   { CI_SREC_NO_CONTROL_CONN,       "There is no controlling connection currently open" },
+   { CI_SREC_NO_MORE_CONN_SUPPORT,  "Target Application cannot support any more connections" },
+   { CI_SREC_RPI_SMALLERTHAN_PIT,   "RPI is smaller than the Production Inhibit Time" },
+   { CI_SREC_CONN_ALREADY_CLOSED,   "Connection cannot be closed: connection has timed out" },
+   { CI_SREC_UNCONN_SND_TIMEOUT,    "Unconnected Send timed out" },
+   { CI_SREC_UNCONN_PARM_ERR,       "Parameter Error in Unconnected Send Service" },
+   { CI_SREC_UCONN_TOO_LARGE,       "Message too large for Unconnected message service" },
+   { CI_SREC_UCONN_ACK_NO_REP,      "Unconnected acknowledge without reply" },
+   { CI_SREC_NO_MEMORY,             "No buffer memory available" },
+   { CI_SREC_NO_NET_BANDWIDTH,      "Network Bandwidth not available for data" },
+   { CI_SREC_NO_SCREENERS,          "No screeners available" },
+   { CI_SREC_NO_REALTIME_CONFIG,    "Not Configured to send real-time data" },
+   { CI_SREC_INVALID_PORT,          "Port specified in Port Segment Not Available" },
+   { CI_SREC_LINKADDR_NOT_AVAIL,    "Link Address specified in Port Segment Not Available" },
+   { CI_SREC_INVALID_SEGMENT_TYP,   "Invalid Segment Type or Segment Value in Path" },
+   { CI_SREC_CLOSE_PATH_ERR,        "Error in close path" },
+   { CI_SREC_NO_SCHED,              "Scheduling not specified" },
+   { CI_SREC_INVALID_LINK_ADDR,     "Link Address to Self Invalid" },
+   { CI_SREC_UNAVAIL_RESOURCE,      "Resources on Secondary Unavailable" },
+   { CI_SREC_CONN_ALREADY_ESTAB,    "Connection already established" },
+   { CI_SREC_DCONN_ALREADY_ESTAB,   "Direct connection already established" },
+   { CI_SREC_MISC,                  "Miscellaneous" },
+   { CI_SREC_REDUNDANT_MISMATCH,    "Redundant connection mismatch" },
+   { CI_SREC_NO_CONSUME_RESRC,      "No more consumer resources available in the producing module" },
+   { CI_SREC_NO_CONN_RESRC,         "No connection resources exist for target path" },
+
+  	{ 0,				               NULL }
+} ;
 
 /* Translate Vendor ID:s */
 const value_string cip_vendor_vals[] = {
@@ -1079,7 +1127,9 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
 
          for( i=0; i < add_stat_size/2; i ++ )
          {
-           proto_item_append_text( pi, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
+           proto_item_append_text( pi, " %s", val_to_str( ( tvb_get_letohs( tvb, offset+4+(i*2) ) ),
+                                   cip_es_vals , "Unknown Status (%x)")   );
+           proto_item_append_text( pi, " (0x%04X)", tvb_get_letohs( tvb, offset+4+(i*2) ) );
            proto_item_append_text( status_item, " 0x%04X", tvb_get_letohs( tvb, offset+4+(i*2) ) );
          }
 		}
