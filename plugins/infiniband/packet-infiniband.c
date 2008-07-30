@@ -1076,7 +1076,9 @@ static void parse_RWH(proto_tree * ah_tree, tvbuff_t *tvb, gint *offset, packet_
 	RWH_header_tree = proto_item_add_subtree(RWH_header_item, ett_rwh);
 
 	ether_type = tvb_get_ntohs(tvb, *offset);
-	//ether_type = ether_type & 0x0F; /* mask off reserved bits just in case. */
+#if 0
+	ether_type = ether_type & 0x0F; /* mask off reserved bits just in case. */
+#endif
 	*offset += 2;
 
 	proto_tree_add_uint(RWH_header_tree, hf_infiniband_reserved16_RWH, tvb,
