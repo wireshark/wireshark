@@ -1894,7 +1894,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * need, and return.
 	 */
 	pinfo->desegment_offset = offset;
-	pinfo->desegment_len = fixed_len - length_remaining;
+	pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 	return;
       }
     }
@@ -1925,7 +1925,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*
      * Display the PDU length as a field
      */
-    item=proto_tree_add_uint(pinfo->tcp_tree, hf_tcp_pdu_size, tvb, 0, 0, plen);
+    item=proto_tree_add_uint(pinfo->tcp_tree, hf_tcp_pdu_size, tvb, offset, plen, plen);
     PROTO_ITEM_SET_GENERATED(item);
 
 
