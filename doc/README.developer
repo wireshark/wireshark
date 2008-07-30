@@ -1026,6 +1026,13 @@ accessed via the tvbuffer accessors.
 
 The accessors are:
 
+Bit accessors for a maximum of 8-bits, 16-bits 32-bits and 64-bits:
+
+guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits);
+guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian);
+
 Single-byte accessor:
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
@@ -1803,6 +1810,12 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_item(tree, id, tvb, start, length, little_endian);
 
 	proto_item*
+	proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits, little_endian);
+
+	proto_item *
+	proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits, return_value, little_endian);
+
+	proto_item*
 	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
 
 	proto_item*
@@ -1999,7 +2012,8 @@ The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
 tvbuff of the item being added, and the 'length' argument is the length,
-in bytes, of the item.
+in bytes, of the item, bit_offset is the offset in bits and no_of_bits
+is the lenght in bits.
 
 The length of some items cannot be determined until the item has been
 dissected; to add such an item, add it with a length of -1, and, when the
@@ -2067,6 +2081,17 @@ Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 in the past.
 
+proto_tree_add_bits_item()
+--------------------------
+Adds a number of bits to the protocol tree which does not have to be byte aligned.
+The offset and length is in bits.
+Output format:
+
+..10 1010 10.. .... "value" (formated as FT_ indicates).
+
+proto_tree_add_bits_ret_val()
+-----------------------------
+Works in the same way but alo returns the value of the read bits.
 
 proto_tree_add_protocol_format()
 --------------------------------
