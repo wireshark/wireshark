@@ -2357,8 +2357,14 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						x25_reassembled_table,
 						payload_len, m_bit_set);
 		pinfo->fragmented = m_bit_set;
-	      
-		if (fd_head) {
+
+                /* Fragment handling is not adapted to handle several x25
+                 * packets in the same frame. This is common with XOT and
+                 * shorter packet sizes.
+                 * Therefore, fragment_add_seq_next seem to always return fd_head
+                 * A fix to use m_bit_set to only show fragments for last pkt
+                 */
+		if (!m_bit_set && fd_head) {
 		    if (fd_head->next) {
 		        proto_item *frag_tree_item;
 
@@ -2368,10 +2374,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						     fd_head->len);
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			add_new_data_source(pinfo, next_tvb, "Reassembled X.25");
-			show_fragment_seq_tree(fd_head, 
-					       &x25_frag_items, 
-					       x25_tree, 
-					       pinfo, next_tvb, &frag_tree_item);
+                        if (x25_tree) {
+                           show_fragment_seq_tree(fd_head, 
+                                                  &x25_frag_items, 
+                                                  x25_tree, 
+                                                  pinfo, next_tvb, &frag_tree_item);
+                        }
 		    }
 	        }
 
