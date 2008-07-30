@@ -689,6 +689,73 @@ static const UINT32 Td3[256] = {
 	0xcb84617bU, 0x32b670d5U, 0x6c5c7448U, 0xb85742d0U,
 };
 
+static const UINT32 Td4[256] = {
+    0x52525252U, 0x09090909U, 0x6a6a6a6aU, 0xd5d5d5d5U,
+    0x30303030U, 0x36363636U, 0xa5a5a5a5U, 0x38383838U,
+    0xbfbfbfbfU, 0x40404040U, 0xa3a3a3a3U, 0x9e9e9e9eU,
+    0x81818181U, 0xf3f3f3f3U, 0xd7d7d7d7U, 0xfbfbfbfbU,
+    0x7c7c7c7cU, 0xe3e3e3e3U, 0x39393939U, 0x82828282U,
+    0x9b9b9b9bU, 0x2f2f2f2fU, 0xffffffffU, 0x87878787U,
+    0x34343434U, 0x8e8e8e8eU, 0x43434343U, 0x44444444U,
+    0xc4c4c4c4U, 0xdedededeU, 0xe9e9e9e9U, 0xcbcbcbcbU,
+    0x54545454U, 0x7b7b7b7bU, 0x94949494U, 0x32323232U,
+    0xa6a6a6a6U, 0xc2c2c2c2U, 0x23232323U, 0x3d3d3d3dU,
+    0xeeeeeeeeU, 0x4c4c4c4cU, 0x95959595U, 0x0b0b0b0bU,
+    0x42424242U, 0xfafafafaU, 0xc3c3c3c3U, 0x4e4e4e4eU,
+    0x08080808U, 0x2e2e2e2eU, 0xa1a1a1a1U, 0x66666666U,
+    0x28282828U, 0xd9d9d9d9U, 0x24242424U, 0xb2b2b2b2U,
+    0x76767676U, 0x5b5b5b5bU, 0xa2a2a2a2U, 0x49494949U,
+    0x6d6d6d6dU, 0x8b8b8b8bU, 0xd1d1d1d1U, 0x25252525U,
+    0x72727272U, 0xf8f8f8f8U, 0xf6f6f6f6U, 0x64646464U,
+    0x86868686U, 0x68686868U, 0x98989898U, 0x16161616U,
+    0xd4d4d4d4U, 0xa4a4a4a4U, 0x5c5c5c5cU, 0xccccccccU,
+    0x5d5d5d5dU, 0x65656565U, 0xb6b6b6b6U, 0x92929292U,
+    0x6c6c6c6cU, 0x70707070U, 0x48484848U, 0x50505050U,
+    0xfdfdfdfdU, 0xededededU, 0xb9b9b9b9U, 0xdadadadaU,
+    0x5e5e5e5eU, 0x15151515U, 0x46464646U, 0x57575757U,
+    0xa7a7a7a7U, 0x8d8d8d8dU, 0x9d9d9d9dU, 0x84848484U,
+    0x90909090U, 0xd8d8d8d8U, 0xababababU, 0x00000000U,
+    0x8c8c8c8cU, 0xbcbcbcbcU, 0xd3d3d3d3U, 0x0a0a0a0aU,
+    0xf7f7f7f7U, 0xe4e4e4e4U, 0x58585858U, 0x05050505U,
+    0xb8b8b8b8U, 0xb3b3b3b3U, 0x45454545U, 0x06060606U,
+    0xd0d0d0d0U, 0x2c2c2c2cU, 0x1e1e1e1eU, 0x8f8f8f8fU,
+    0xcacacacaU, 0x3f3f3f3fU, 0x0f0f0f0fU, 0x02020202U,
+    0xc1c1c1c1U, 0xafafafafU, 0xbdbdbdbdU, 0x03030303U,
+    0x01010101U, 0x13131313U, 0x8a8a8a8aU, 0x6b6b6b6bU,
+    0x3a3a3a3aU, 0x91919191U, 0x11111111U, 0x41414141U,
+    0x4f4f4f4fU, 0x67676767U, 0xdcdcdcdcU, 0xeaeaeaeaU,
+    0x97979797U, 0xf2f2f2f2U, 0xcfcfcfcfU, 0xcecececeU,
+    0xf0f0f0f0U, 0xb4b4b4b4U, 0xe6e6e6e6U, 0x73737373U,
+    0x96969696U, 0xacacacacU, 0x74747474U, 0x22222222U,
+    0xe7e7e7e7U, 0xadadadadU, 0x35353535U, 0x85858585U,
+    0xe2e2e2e2U, 0xf9f9f9f9U, 0x37373737U, 0xe8e8e8e8U,
+    0x1c1c1c1cU, 0x75757575U, 0xdfdfdfdfU, 0x6e6e6e6eU,
+    0x47474747U, 0xf1f1f1f1U, 0x1a1a1a1aU, 0x71717171U,
+    0x1d1d1d1dU, 0x29292929U, 0xc5c5c5c5U, 0x89898989U,
+    0x6f6f6f6fU, 0xb7b7b7b7U, 0x62626262U, 0x0e0e0e0eU,
+    0xaaaaaaaaU, 0x18181818U, 0xbebebebeU, 0x1b1b1b1bU,
+    0xfcfcfcfcU, 0x56565656U, 0x3e3e3e3eU, 0x4b4b4b4bU,
+    0xc6c6c6c6U, 0xd2d2d2d2U, 0x79797979U, 0x20202020U,
+    0x9a9a9a9aU, 0xdbdbdbdbU, 0xc0c0c0c0U, 0xfefefefeU,
+    0x78787878U, 0xcdcdcdcdU, 0x5a5a5a5aU, 0xf4f4f4f4U,
+    0x1f1f1f1fU, 0xddddddddU, 0xa8a8a8a8U, 0x33333333U,
+    0x88888888U, 0x07070707U, 0xc7c7c7c7U, 0x31313131U,
+    0xb1b1b1b1U, 0x12121212U, 0x10101010U, 0x59595959U,
+    0x27272727U, 0x80808080U, 0xececececU, 0x5f5f5f5fU,
+    0x60606060U, 0x51515151U, 0x7f7f7f7fU, 0xa9a9a9a9U,
+    0x19191919U, 0xb5b5b5b5U, 0x4a4a4a4aU, 0x0d0d0d0dU,
+    0x2d2d2d2dU, 0xe5e5e5e5U, 0x7a7a7a7aU, 0x9f9f9f9fU,
+    0x93939393U, 0xc9c9c9c9U, 0x9c9c9c9cU, 0xefefefefU,
+    0xa0a0a0a0U, 0xe0e0e0e0U, 0x3b3b3b3bU, 0x4d4d4d4dU,
+    0xaeaeaeaeU, 0x2a2a2a2aU, 0xf5f5f5f5U, 0xb0b0b0b0U,
+    0xc8c8c8c8U, 0xebebebebU, 0xbbbbbbbbU, 0x3c3c3c3cU,
+    0x83838383U, 0x53535353U, 0x99999999U, 0x61616161U,
+    0x17171717U, 0x2b2b2b2bU, 0x04040404U, 0x7e7e7e7eU,
+    0xbabababaU, 0x77777777U, 0xd6d6d6d6U, 0x26262626U,
+    0xe1e1e1e1U, 0x69696969U, 0x14141414U, 0x63636363U,
+    0x55555555U, 0x21212121U, 0x0c0c0c0cU, 0x7d7d7d7dU,
+};
+
 static const UINT32 rcon[] = {
 	0x01000000, 0x02000000, 0x04000000, 0x08000000,
 	0x10000000, 0x20000000, 0x40000000, 0x80000000,
@@ -833,12 +900,14 @@ INT rijndaelKeySetupDec(
 	return Nr;
 }
 
+/* TODO: this is inefficient. We are building both the encryption and decryption key
+         regardless of how we want to use the key. Would be faster to build the one
+         key we need. */
 void rijndael_set_key(
 	rijndael_ctx *ctx,
 	const UCHAR *key,
 	INT bits)
 {
-
 	ctx->Nr = rijndaelKeySetupEnc(ctx->ek, key, bits);
 	rijndaelKeySetupDec(ctx->dk, key, bits);
 }
@@ -1037,5 +1106,248 @@ void rijndael_encrypt(
 
 	rijndaelEncrypt(ctx->ek, ctx->Nr, src, dst);
 }
+
+
+void rijndaelDecrypt(const UINT32 rk[/*4*(Nr + 1)*/], INT Nr, const UINT8 ct[16], UINT8 pt[16]) {
+	UINT32 s0, s1, s2, s3, t0, t1, t2, t3;
+#ifndef FULL_UNROLL
+    INT r;
+#endif /* ?FULL_UNROLL */
+
+    /*
+	 * map byte array block to cipher state
+	 * and add initial round key:
+	 */
+    s0 = GETU32(ct     ) ^ rk[0];
+    s1 = GETU32(ct +  4) ^ rk[1];
+    s2 = GETU32(ct +  8) ^ rk[2];
+    s3 = GETU32(ct + 12) ^ rk[3];
+#ifdef FULL_UNROLL
+    /* round 1: */
+    t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[ 4];
+    t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[ 5];
+    t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[ 6];
+    t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[ 7];
+    /* round 2: */
+    s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[ 8];
+    s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[ 9];
+    s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[10];
+    s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[11];
+    /* round 3: */
+    t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[12];
+    t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[13];
+    t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[14];
+    t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[15];
+    /* round 4: */
+    s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[16];
+    s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[17];
+    s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[18];
+    s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[19];
+    /* round 5: */
+    t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[20];
+    t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[21];
+    t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[22];
+    t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[23];
+    /* round 6: */
+    s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[24];
+    s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[25];
+    s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[26];
+    s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[27];
+    /* round 7: */
+    t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[28];
+    t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[29];
+    t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[30];
+    t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[31];
+    /* round 8: */
+    s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[32];
+    s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[33];
+    s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[34];
+    s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[35];
+    /* round 9: */
+    t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[36];
+    t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[37];
+    t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[38];
+    t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[39];
+    if (Nr > 10) {
+        /* round 10: */
+        s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[40];
+        s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[41];
+        s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[42];
+        s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[43];
+        /* round 11: */
+        t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[44];
+        t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[45];
+        t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[46];
+        t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[47];
+        if (Nr > 12) {
+            /* round 12: */
+            s0 = Td0[t0 >> 24] ^ Td1[(t3 >> 16) & 0xff] ^ Td2[(t2 >>  8) & 0xff] ^ Td3[t1 & 0xff] ^ rk[48];
+            s1 = Td0[t1 >> 24] ^ Td1[(t0 >> 16) & 0xff] ^ Td2[(t3 >>  8) & 0xff] ^ Td3[t2 & 0xff] ^ rk[49];
+            s2 = Td0[t2 >> 24] ^ Td1[(t1 >> 16) & 0xff] ^ Td2[(t0 >>  8) & 0xff] ^ Td3[t3 & 0xff] ^ rk[50];
+            s3 = Td0[t3 >> 24] ^ Td1[(t2 >> 16) & 0xff] ^ Td2[(t1 >>  8) & 0xff] ^ Td3[t0 & 0xff] ^ rk[51];
+            /* round 13: */
+            t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[52];
+            t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[53];
+            t2 = Td0[s2 >> 24] ^ Td1[(s1 >> 16) & 0xff] ^ Td2[(s0 >>  8) & 0xff] ^ Td3[s3 & 0xff] ^ rk[54];
+            t3 = Td0[s3 >> 24] ^ Td1[(s2 >> 16) & 0xff] ^ Td2[(s1 >>  8) & 0xff] ^ Td3[s0 & 0xff] ^ rk[55];
+        }
+    }
+	rk += Nr << 2;
+#else  /* !FULL_UNROLL */
+    /*
+     * Nr - 1 full rounds:
+     */
+    r = Nr >> 1;
+    for (;;) {
+        t0 =
+            Td0[(s0 >> 24)       ] ^
+            Td1[(s3 >> 16) & 0xff] ^
+            Td2[(s2 >>  8) & 0xff] ^
+            Td3[(s1      ) & 0xff] ^
+            rk[4];
+        t1 =
+            Td0[(s1 >> 24)       ] ^
+            Td1[(s0 >> 16) & 0xff] ^
+            Td2[(s3 >>  8) & 0xff] ^
+            Td3[(s2      ) & 0xff] ^
+            rk[5];
+        t2 =
+            Td0[(s2 >> 24)       ] ^
+            Td1[(s1 >> 16) & 0xff] ^
+            Td2[(s0 >>  8) & 0xff] ^
+            Td3[(s3      ) & 0xff] ^
+            rk[6];
+        t3 =
+            Td0[(s3 >> 24)       ] ^
+            Td1[(s2 >> 16) & 0xff] ^
+            Td2[(s1 >>  8) & 0xff] ^
+            Td3[(s0      ) & 0xff] ^
+            rk[7];
+
+        rk += 8;
+        if (--r == 0) {
+            break;
+        }
+
+        s0 =
+            Td0[(t0 >> 24)       ] ^
+            Td1[(t3 >> 16) & 0xff] ^
+            Td2[(t2 >>  8) & 0xff] ^
+            Td3[(t1      ) & 0xff] ^
+            rk[0];
+        s1 =
+            Td0[(t1 >> 24)       ] ^
+            Td1[(t0 >> 16) & 0xff] ^
+            Td2[(t3 >>  8) & 0xff] ^
+            Td3[(t2      ) & 0xff] ^
+            rk[1];
+        s2 =
+            Td0[(t2 >> 24)       ] ^
+            Td1[(t1 >> 16) & 0xff] ^
+            Td2[(t0 >>  8) & 0xff] ^
+            Td3[(t3      ) & 0xff] ^
+            rk[2];
+        s3 =
+            Td0[(t3 >> 24)       ] ^
+            Td1[(t2 >> 16) & 0xff] ^
+            Td2[(t1 >>  8) & 0xff] ^
+            Td3[(t0      ) & 0xff] ^
+            rk[3];
+    }
+#endif /* ?FULL_UNROLL */
+    /*
+	 * apply last round and
+	 * map cipher state to byte array block:
+	 */
+   	s0 =
+   		(Td4[(t0 >> 24)       ] & 0xff000000) ^
+   		(Td4[(t3 >> 16) & 0xff] & 0x00ff0000) ^
+   		(Td4[(t2 >>  8) & 0xff] & 0x0000ff00) ^
+   		(Td4[(t1      ) & 0xff] & 0x000000ff) ^
+   		rk[0];
+	PUTU32(pt     , s0);
+   	s1 =
+   		(Td4[(t1 >> 24)       ] & 0xff000000) ^
+   		(Td4[(t0 >> 16) & 0xff] & 0x00ff0000) ^
+   		(Td4[(t3 >>  8) & 0xff] & 0x0000ff00) ^
+   		(Td4[(t2      ) & 0xff] & 0x000000ff) ^
+   		rk[1];
+	PUTU32(pt +  4, s1);
+   	s2 =
+   		(Td4[(t2 >> 24)       ] & 0xff000000) ^
+   		(Td4[(t1 >> 16) & 0xff] & 0x00ff0000) ^
+   		(Td4[(t0 >>  8) & 0xff] & 0x0000ff00) ^
+   		(Td4[(t3      ) & 0xff] & 0x000000ff) ^
+   		rk[2];
+	PUTU32(pt +  8, s2);
+   	s3 =
+   		(Td4[(t3 >> 24)       ] & 0xff000000) ^
+   		(Td4[(t2 >> 16) & 0xff] & 0x00ff0000) ^
+   		(Td4[(t1 >>  8) & 0xff] & 0x0000ff00) ^
+   		(Td4[(t0      ) & 0xff] & 0x000000ff) ^
+   		rk[3];
+	PUTU32(pt + 12, s3);
+}
+
+
+void rijndael_decrypt(
+	const rijndael_ctx *ctx,
+	const UCHAR *src,
+	UCHAR *dst)
+{
+	rijndaelDecrypt(ctx->dk, ctx->Nr, src, dst);
+}
+
+
+/* Based on RFC 3394 and NIST AES Key Wrap Specification pseudo-code.
+
+This function is used to unwrap an encrypted AES key.  One example of its use is
+in the WPA-2 protocol to get the group key.
+*/
+UCHAR
+AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len, UCHAR *output)
+{
+	UCHAR a[8], b[16];
+	UCHAR *r;
+	UCHAR *c;
+	gint16 i, j, n;
+	rijndael_ctx  ctx;
+
+	/* Initialize variables */
+
+	n = (cipher_len/8)-1;  /* the algorithm works on 64-bits at a time */
+	memcpy(a, cipher_text, 8);
+	r = output;
+	c = cipher_text;
+	memcpy(r, c+8, cipher_len - 8);
+
+	/* Compute intermediate values */
+
+	for (j=5; j >= 0; --j){
+		r = output + (n - 1) * 8;
+		/* DEBUG_DUMP("r1", (r-8), 8); */
+		/* DEBUG_DUMP("r2", r, 8); */
+		for (i = n; i >= 1; --i){
+			UINT16 t = (n*j) + i;
+			/* DEBUG_DUMP("a", a, 8); */
+			memcpy(b, a, 8);
+			b[7] ^= t;
+			/* DEBUG_DUMP("a plus t", b, 8); */
+			memcpy(b+8, r, 8);
+			rijndael_set_key(&ctx, kek, key_len*8 /*bits*/);
+			rijndael_decrypt(&ctx, b, b);  /* NOTE: we are using the same src and dst buffer. It's ok. */
+			/* DEBUG_DUMP("aes decrypt", b, 16) */
+			memcpy(a,b,8);
+			memcpy(r, b+8, 8);
+			r -= 8;
+		}
+	}
+
+	/* DEBUG_DUMP("a", a, 8); */
+	/* DEBUG_DUMP("output", output, cipher_len - 8); */
+
+	return 0;
+}
+
 /*																										*/
 /******************************************************************************/

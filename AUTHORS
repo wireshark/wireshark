@@ -2760,6 +2760,10 @@ Edward J. Paradise		<pdice [AT] cisco.com> {
 	RFC4938bis enhancements to PPPoE
 }
 
+Brian Stormont		<nospam [AT] stormyprods.com> {
+	WPA group key decryption
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
