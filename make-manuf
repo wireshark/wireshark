@@ -15,6 +15,9 @@
 
 # LWP is part of the standard Perl module libwww 
 
+use Encode;
+use open ':encoding(utf8)'; 
+
 eval "require LWP::UserAgent;";
 if( $@ ) {
   die "LWP isn't installed. It is part of the standard Perl\n" .
@@ -26,7 +29,8 @@ $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
-$ieee_url = "http://standards.ieee.org/regauth/oui/oui.txt";
+$oui_url  = "http://standards.ieee.org/regauth/oui/oui.txt";
+$iab_url  = "http://standards.ieee.org/regauth/oui/iab.txt";
 $cb_url   = "http://www.cavebear.com/CaveBear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
@@ -37,8 +41,10 @@ $ieee_re  = "$hp-$hp-$hp";
 $tmpl_added   = 0;
 $cb_added     = 0;
 $cb_skipped   = 0;
-$ieee_added   = 0;
-$ieee_skipped = 0;
+$oui_added   = 0;
+$oui_skipped = 0;
+$iab_added   = 0;
+$iab_skipped = 0;
 
 sub shorten
 {
@@ -64,6 +70,19 @@ sub shorten
   }
 }
 
+sub fetch
+{
+  my $url = shift;
+  print "Fetching $url.\n";
+  $request  = HTTP::Request->new(GET => $url);
+  $result   = $agent->request($request);
+
+  if (!$result->is_success) {
+    die ("Error fetching $url: " . $result->status_line . "\n");
+  }
+  return decode("iso-8859-1", $result->content);
+}
+
 # Write out the header and populate the OUI list with our entries.
 
 open (TMPL, "< $template") || 
@@ -83,16 +102,34 @@ while ($line = <TMPL>) {
   }
 }
 
+# Add IEEE entries for IABs
+
+$ieee_list = fetch($iab_url);
+
+foreach $line (split(/\n/, $ieee_list)) {
+  # determine the OUI used for IAB (currently only 00-50-C2)
+  if (($iab_tmp, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+      $iab_base = $iab_tmp;
+  }
+  # determine next two bytes
+  if (($iab4, $iab5, $manuf) = ($line =~ /^($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
+    $iab = "$iab_base:$iab4:$iab5:00/36";
+    $iab =~ tr /-/:/; # The IEEE bytes are separated by dashes.
+    # Ensure IAB is all upper-case
+    $iab =~ tr/a-f/A-F/;
+    if (exists $oui_list{$iab}) {
+      printf "$iab - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$iab}\"\n";
+      $iab_skipped++;
+    } else {
+      $oui_list{$iab} = &shorten($manuf);
+      $iab_added++;
+    }
+  }
+}
+
 # Add IEEE entries for OUIs not yet known.
 
-print "Fetching $ieee_url.\n";
-$request  = HTTP::Request->new(GET => $ieee_url);
-$result   = $agent->request($request);
-
-if (!$result->is_success) {
-  die ("Error fetching $ieee_url: " . $result->status_line . "\n");
-}
-$ieee_list = $result->content;
+$ieee_list = fetch($oui_url);
 
 foreach $line (split(/\n/, $ieee_list)) {
   if (($oui, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
@@ -101,24 +138,17 @@ foreach $line (split(/\n/, $ieee_list)) {
     $oui =~ tr/a-f/A-F/;
     if (exists $oui_list{$oui}) {
       printf "$oui - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
-      $ieee_skipped++;
+      $oui_skipped++;
     } else {
       $oui_list{$oui} = &shorten($manuf);
-      $ieee_added++;
+      $oui_added++;
     }
   }
 }
 
 # Add CaveBear entries for OUIs not yet known.
 
-print "Fetching $cb_url.\n";
-$request  = HTTP::Request->new(GET => $cb_url);
-$result   = $agent->request($request);
-
-if (!$result->is_success) {
-  die ("Error fetching $cb_url: " . $result->status_line . "\n");
-}
-$cb_list = $result->content;
+$cb_list = fetch($cb_url);
 
 foreach $line (split(/\n/, $cb_list)) {
   if (($oui, $manuf) = ($line =~ /^($cb_re)\s+(\S.*)$/)) {
@@ -166,13 +196,15 @@ while ($line = <WKATMPL>) {
   print(OUT "$line\n");
 }
 
-$total_added = $tmpl_added + $cb_added + $ieee_added;
+$total_added = $tmpl_added + $cb_added + $oui_added + $iab_added;
 print <<"Fin"
 Original entries : $tmpl_added
-IEEE added       : $ieee_added
+IEEE OUI added   : $oui_added
+IEEE IAB added   : $iab_added
 CaveBear added   : $cb_added
 Total            : $total_added
 
-IEEE skipped     : $ieee_skipped
+IEEE OUI skipped : $oui_skipped
+IEEE IAB skipped : $iab_skipped
 CaveBear skipped : $cb_skipped
 Fin
