@@ -70,6 +70,8 @@ struct _value_string;
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
 #define TFS(x)	(const struct true_false_string*)(x)
 
+typedef void (*custom_fmt_func_t)(gchar *, guint32);
+
 /** Make a const range_string[] look like a _range_string pointer, used to set
  * header_field_info.strings */
 #define RVALS(x) (const struct _range_string*)(x)
@@ -153,7 +155,8 @@ typedef enum {
 	BASE_HEX,	/**< hexadecimal */
 	BASE_OCT,	/**< octal */
 	BASE_DEC_HEX,	/**< decimal (hexadecimal) */
-	BASE_HEX_DEC	/**< hexadecimal (decimal) */
+	BASE_HEX_DEC,	/**< hexadecimal (decimal) */
+	BASE_CUSTOM	/**< call custom routine (in ->strings) to format */
 } base_display_e;
 
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)

@@ -985,7 +985,7 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
 		FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
-		BASE_HEX_DEC, BASE_RANGE_STRING
+		BASE_HEX_DEC, BASE_RANGE_STRING, BASE_CUSTOM
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field, or NULL.
@@ -1575,11 +1575,21 @@ are:
 	BASE_HEX,
 	BASE_OCT,
 	BASE_DEC_HEX,
-	BASE_HEX_DEC
+	BASE_HEX_DEC,
+	BASE_CUSTOM
 
 BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
 respectively. BASE_DEC_HEX and BASE_HEX_DEC display value in two bases
 (the 1st representation followed by the 2nd in parenthesis).
+
+BASE_CUSTOM allows one to specify a callback function pointer that will
+format the value. The function pointer of the same type as defined by
+custom_fmt_func_t in epan/proto.h, specifically:
+
+  void func(gchar *, guint32);
+
+The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
+and the second argument is the value to be formatted.
 
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is

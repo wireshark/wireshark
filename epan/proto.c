@@ -116,12 +116,9 @@ proto_tree_free_node(proto_node *node, gpointer data);
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
-static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
-static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
-static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
+static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
-static void fill_label_enumerated_int(field_info *fi, gchar *label_str);
 
 int hfinfo_bitwidth(header_field_info *hfinfo);
 static const char* hfinfo_uint_vals_format(header_field_info *hfinfo);
@@ -3984,20 +3981,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT32:
 		case FT_FRAMENUM:
 			if (hfinfo->bitmask) {
-				if (hfinfo->strings) {
-					fill_label_enumerated_bitfield(fi, label_str);
-				}
-				else {
-					fill_label_numeric_bitfield(fi, label_str);
-				}
-			}
-			else {
-				if (hfinfo->strings) {
-					fill_label_enumerated_uint(fi, label_str);
-				}
-				else {
-					fill_label_uint(fi, label_str);
-				}
+				fill_label_bitfield(fi, label_str);
+			} else {
+				fill_label_uint(fi, label_str);
 			}
 			break;
 
@@ -4010,12 +3996,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT24:
 		case FT_INT32:
 			DISSECTOR_ASSERT(!hfinfo->bitmask);
-			if (hfinfo->strings) {
-				fill_label_enumerated_int(fi, label_str);
-			}
-			else {
-				fill_label_int(fi, label_str);
-			}
+			fill_label_int(fi, label_str);
 			break;
 
 		case FT_INT64:
@@ -4193,7 +4174,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 
 /* Fills data for bitfield ints with val_strings */
 static void
-fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
+fill_label_bitfield(field_info *fi, gchar *label_str)
 {
 	const char *format = NULL;
 	char *p;
@@ -4206,9 +4187,6 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 
 	/* Figure out the bit width */
 	bitwidth = hfinfo_bitwidth(hfinfo);
-
-	/* Pick the proper format string */
-	format = hfinfo_uint_vals_format(hfinfo);
 
 	/* Un-shift bits */
 	unshifted_value = fvalue_get_uinteger(&fi->value);
@@ -4222,79 +4200,32 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	bitfield_byte_length = p - label_str;
 
 	/* Fill in the textual info using stored (shifted) value */
-	ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-			format,  hfinfo->name,
-			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
-	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-}
+	if (hfinfo->display == BASE_CUSTOM) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
 
-static void
-fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
-{
-	const char *format = NULL;
-	char *p;
-	int bitfield_byte_length, bitwidth;
-	guint32 unshifted_value;
-	guint32 value;
-	int					ret;	/*tmp return value */
-
-	header_field_info	*hfinfo = fi->hfinfo;
-
-	/* Figure out the bit width */
-	bitwidth = hfinfo_bitwidth(hfinfo);
-
-	/* Pick the proper format string */
-	format = hfinfo_uint_format(hfinfo);
-
-	/* Un-shift bits */
-	unshifted_value = fvalue_get_uinteger(&fi->value);
-	value = unshifted_value;
-	if (hfinfo->bitshift > 0) {
-		unshifted_value <<= hfinfo->bitshift;
+		DISSECTOR_ASSERT(fmtfunc);
+		fmtfunc(tmp, value);
+		ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+				"%s: %s", hfinfo->name, tmp);
 	}
-
-	/* Create the bitfield using */
-	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
-	bitfield_byte_length = p - label_str;
-
-	/* Fill in the textual info using stored (shifted) value */
-	if (IS_BASE_DUAL(hfinfo->display)) {
+	else if (hfinfo->strings) {
+		format = hfinfo_uint_vals_format(hfinfo);
 		ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				format,  hfinfo->name, value, value);
-	} else {
-		ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				format,  hfinfo->name, value);
+				format,  hfinfo->name,
+				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	}
+	else {
+		format = hfinfo_uint_format(hfinfo);
+		if (IS_BASE_DUAL(hfinfo->display)) {
+			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+					format,  hfinfo->name, value, value);
+		} else {
+			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+					format,  hfinfo->name, value);
+		}
 	}
 	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-
-}
-
-static void
-fill_label_enumerated_uint(field_info *fi, gchar *label_str)
-{
-	const char *format = NULL;
-	header_field_info	*hfinfo = fi->hfinfo;
-	guint32 value;
-	int					ret;	/*tmp return value */
-
-	/* Pick the proper format string */
-	format = hfinfo_uint_vals_format(hfinfo);
-
-	value = fvalue_get_uinteger(&fi->value);
-
-	/* Fill in the textual info */
-	if (hfinfo->display & BASE_RANGE_STRING) {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			format,  hfinfo->name,
-			rval_to_str(value, hfinfo->strings, "Unknown"), value);
-	} else {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			format,  hfinfo->name,
-			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
-	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
@@ -4306,17 +4237,32 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	guint32 value;
 	int					ret;	/*tmp return value */
 
-	/* Pick the proper format string */
-	format = hfinfo_uint_format(hfinfo);
 	value = fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
-	if (IS_BASE_DUAL(hfinfo->display)) {
+	if (hfinfo->display == BASE_CUSTOM) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+		DISSECTOR_ASSERT(fmtfunc);
+		fmtfunc(tmp, value);
+		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+	}
+	else if (hfinfo->strings) {
+		format = hfinfo_uint_vals_format(hfinfo);
 		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value, value);
-	} else {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value);
+				format,  hfinfo->name,
+				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	}
+	else {
+		format = hfinfo_uint_format(hfinfo);
+		if (IS_BASE_DUAL(hfinfo->display)) {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value, value);
+		} else {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value);
+		}
 	}
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -4347,32 +4293,6 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 }
 
 static void
-fill_label_enumerated_int(field_info *fi, gchar *label_str)
-{
-	const char *format = NULL;
-	header_field_info	*hfinfo = fi->hfinfo;
-	guint32 value;
-	int					ret;	/*tmp return value */
-
-	/* Pick the proper format string */
-	format = hfinfo_int_vals_format(hfinfo);
-	value = fvalue_get_sinteger(&fi->value);
-
-	/* Fill in the textual info */
-	if (hfinfo->display & BASE_RANGE_STRING) {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			format,  hfinfo->name,
-			rval_to_str(value, hfinfo->strings, "Unknown"), value);
-	} else {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-			format,  hfinfo->name,
-			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
-	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-}
-
-static void
 fill_label_int(field_info *fi, gchar *label_str)
 {
 	const char *format = NULL;
@@ -4380,17 +4300,32 @@ fill_label_int(field_info *fi, gchar *label_str)
 	guint32 value;
 	int					ret;	/*tmp return value */
 
-	/* Pick the proper format string */
-	format = hfinfo_int_format(hfinfo);
 	value = fvalue_get_sinteger(&fi->value);
 
 	/* Fill in the textual info */
-	if (IS_BASE_DUAL(hfinfo->display)) {
+	if (hfinfo->display == BASE_CUSTOM) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+		custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+		DISSECTOR_ASSERT(fmtfunc);
+		fmtfunc(tmp, value);
+		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+	}
+	else if (hfinfo->strings) {
+		format = hfinfo_int_vals_format(hfinfo);
 		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value, value);
-	} else {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name, value);
+				format,  hfinfo->name,
+				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	}
+	else {
+		format = hfinfo_int_format(hfinfo);
+		if (IS_BASE_DUAL(hfinfo->display)) {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value, value);
+		} else {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					format,  hfinfo->name, value);
+		}
 	}
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -5220,7 +5155,8 @@ proto_registrar_dump_values(void)
 			vals = NULL;
 			tfs = NULL;
 
-			if (hfinfo->type == FT_UINT8 ||
+			if (hfinfo->display != BASE_CUSTOM &&
+				(hfinfo->type == FT_UINT8 ||
 				hfinfo->type == FT_UINT16 ||
 				hfinfo->type == FT_UINT24 ||
 				hfinfo->type == FT_UINT32 ||
@@ -5229,7 +5165,7 @@ proto_registrar_dump_values(void)
 				hfinfo->type == FT_INT16 ||
 				hfinfo->type == FT_INT24 ||
 				hfinfo->type == FT_INT32 ||
-				hfinfo->type == FT_INT64) {
+				hfinfo->type == FT_INT64)) {
 
 				vals = hfinfo->strings;
 			}
@@ -5388,6 +5324,9 @@ proto_registrar_dump_fields(int format)
 						case BASE_HEX_DEC:
 							base_name = "BASE_HEX_DEC";
 							break;
+						case BASE_CUSTOM:
+							base_name = "BASE_CUSTOM";
+							break;
 					}
 				}
 			}
@@ -5436,6 +5375,7 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
+			case BASE_CUSTOM:
 				switch(hfinfo->type) {
 					case FT_UINT8:
 					case FT_UINT16:
@@ -5836,7 +5776,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int h
 				}
 			}
 			/* Show the value_string content (if there is one) */
-			if(hf_field->strings){
+			if(hf_field->strings && hf_field->display != BASE_CUSTOM){
 				proto_item_append_text(item, ",  %s", val_to_str(tmpval, hf_field->strings, "Unknown"));
 			}
 
