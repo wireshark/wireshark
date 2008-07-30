@@ -108,7 +108,7 @@ static const value_string response_table[] = {
 	{ 553, "Requested action not taken: File name not allowed" },
 	{ 0,   NULL }
 };
-		
+
 static void
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -251,7 +251,7 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
 		char delimiter = '\0';
 		while ((c = *p) != '\0' && (c != '('))
 			p++;
-		
+
 		if (*p == '\0') {
 			return FALSE;
 		}
@@ -413,7 +413,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			tvb_get_nstringz0(tvb, offset, sizeof(code_str), code_str);
 			code = strtoul(code_str, NULL, 10);
-				
+
 			if (tree) {
 				proto_tree_add_uint(reqresp_tree,
 				    hf_ftp_response_code, tvb, offset, 3, code);
@@ -693,7 +693,7 @@ proto_register_ftp(void)
 
     { &hf_ftp_pasv_ip,
       { "Passive IP address", "ftp.passive.ip",
-	FT_IPv4, BASE_NONE, NULL,0x0, 
+	FT_IPv4, BASE_NONE, NULL,0x0,
         "Passive IP address (check NAT)", HFILL}},
 
     { &hf_ftp_pasv_port,
@@ -730,7 +730,9 @@ proto_register_ftp(void)
 
   proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP",
 				      "ftp");
+  register_dissector("ftp", dissect_ftp, proto_ftp);
   proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
+  register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
