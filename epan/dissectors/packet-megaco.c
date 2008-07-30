@@ -2205,7 +2205,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
                            DigitMapToken / StatsToken / EventsToken /
                            ObservedEventsToken / PackagesToken )                     */
 static void
-dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo,  gint tvb_stop, gint tvb_offset)
+dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_info *pinfo _U_,  gint tvb_stop, gint tvb_offset)
 {
 	gint		tokenlen, tvb_end, tvb_next, token_index;
 	proto_tree	*megaco_auditdescriptor_tree, *megaco_auditdescriptor_ti;
