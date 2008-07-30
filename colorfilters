@@ -18,3 +18,7 @@
 @TCP@tcp@[59345,58980,65534][0,0,0]
 @UDP@udp@[28834,57427,65533][0,0,0]
 @Broadcast@eth[0] & 1@[65535,65535,65535][32768,32768,32768]
+@Subnet Management@infiniband.mad.mgmtclass == 0x81 || infiniband.mad.mgmtclass == 0x01@[2602,11570,65535][65535,65535,65535]
+@Subnet Administration@infiniband.mad.mgmtclass == 0x03@[6957,36050,61400][65535,65535,65535]
+@Not Implemented@infiniband.mad.mgmtclass != 0x81 && infiniband.mad.mgmtclass != 0x03 && infiniband.mad.mgmtclass != 0x01@[52640,31280,10653][65535,65535,65535]
+@Infiniband Data@infiniband.lrh.vl != 0x0f@[6660,20360,11712][65535,65535,65535]

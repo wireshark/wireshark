@@ -336,6 +336,7 @@ epan_dissect_run
 epan_get_version
 epan_init
 epan_strcasestr
+ethertype
 ether_to_str
 ex_opt_add
 ex_opt_count
@@ -822,6 +823,7 @@ se_tree_create_non_persistent
 set_actual_length
 set_profile_name
 set_tap_dfilter
+show_exception
 show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA
