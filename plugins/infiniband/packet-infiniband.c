@@ -180,9 +180,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Set destination in packet view. */
 	if (check_col(pinfo->cinfo, COL_DEF_DST))
 	{
-		col_set_str(pinfo->cinfo, COL_DEF_DST, "DLID: ");
-		col_set_fence(pinfo->cinfo, COL_DEF_DST);
-		col_set_str(pinfo->cinfo, COL_DEF_DST, tvb_bytes_to_str(tvb, offset, 2));
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DLID: %s", tvb_bytes_to_str(tvb, offset, 2));
 	}
 	offset+=2;
 
@@ -199,9 +197,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Set Source in packet view. */
 	if (check_col(pinfo->cinfo, COL_DEF_SRC))
 	{
-		col_set_str(pinfo->cinfo, COL_DEF_SRC, "SLID: ");
-		col_set_fence(pinfo->cinfo, COL_DEF_SRC);
-		col_set_str(pinfo->cinfo, COL_DEF_SRC, tvb_bytes_to_str(tvb, offset, 2));
+		col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SLID: %s", tvb_bytes_to_str(tvb, offset, 2));
 	}
 
 	offset+=2;
@@ -232,9 +228,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_get_ipv6(tvb, offset, &SRCgid);
 			if (check_col(pinfo->cinfo, COL_DEF_SRC))
 			{
-				col_set_str(pinfo->cinfo, COL_DEF_SRC, "SGID: ");
-				col_set_fence(pinfo->cinfo, COL_DEF_SRC);
-				col_set_str(pinfo->cinfo, COL_DEF_SRC, ip6_to_str(&SRCgid));
+				col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SGID: %s", ip6_to_str(&SRCgid));
 			}
 			offset += 16;
 
@@ -243,9 +237,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_get_ipv6(tvb, offset, &DSTgid);
 			if (check_col(pinfo->cinfo, COL_DEF_DST))
 			{
-				col_set_str(pinfo->cinfo, COL_DEF_DST, "DGID: ");
-				col_set_fence(pinfo->cinfo, COL_DEF_DST);
-				col_set_str(pinfo->cinfo, COL_DEF_DST, ip6_to_str(&DSTgid));
+				col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DGID: %s", ip6_to_str(&DSTgid));
 			}
 			offset += 16;
 			packetLength -= 40; /* Shave 40 bytes for GRH */
@@ -3390,18 +3382,14 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 	/* Set destination in packet view. */
 	if (check_col(pinfo->cinfo, COL_DEF_DST))
 	{
-		col_set_str(pinfo->cinfo, COL_DEF_DST, "DLID: ");
-		col_set_fence(pinfo->cinfo, COL_DEF_DST);
-		col_set_str(pinfo->cinfo, COL_DEF_DST, tvb_bytes_to_str(tvb, offset, 2));
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DLID: %s", tvb_bytes_to_str(tvb, offset, 2));
 	}
 	offset+=4;
 
 	/* Set Source in packet view. */
 	if (check_col(pinfo->cinfo, COL_DEF_SRC))
 	{
-		col_set_str(pinfo->cinfo, COL_DEF_SRC, "SLID: ");
-		col_set_fence(pinfo->cinfo, COL_DEF_SRC);
-		col_set_str(pinfo->cinfo, COL_DEF_SRC, tvb_bytes_to_str(tvb, offset, 2));
+		col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SLID: %s", tvb_bytes_to_str(tvb, offset, 2));
 	}
 	offset+=2;
 
@@ -3415,18 +3403,14 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 			tvb_get_ipv6(tvb, offset, &SRCgid);
 			if (check_col(pinfo->cinfo, COL_DEF_SRC))
 			{
-				col_set_str(pinfo->cinfo, COL_DEF_SRC, "SGID: ");
-				col_set_fence(pinfo->cinfo, COL_DEF_SRC);
-				col_set_str(pinfo->cinfo, COL_DEF_SRC, ip6_to_str(&SRCgid));
+				col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "SGID: %s", ip6_to_str(&SRCgid));
 			}
 			offset += 16;
 
 			tvb_get_ipv6(tvb, offset, &DSTgid);
 			if (check_col(pinfo->cinfo, COL_DEF_DST))
 			{
-				col_set_str(pinfo->cinfo, COL_DEF_DST, "DGID: ");
-				col_set_fence(pinfo->cinfo, COL_DEF_DST);
-				col_set_str(pinfo->cinfo, COL_DEF_DST, ip6_to_str(&DSTgid));
+				col_add_fstr(pinfo->cinfo, COL_DEF_DST, "DGID: %s", ip6_to_str(&DSTgid));
 			}
 			offset += 16;
 
