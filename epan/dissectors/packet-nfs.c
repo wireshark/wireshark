@@ -7135,8 +7135,26 @@ dissect_nfs_openflag4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_netid);
-	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_addr);
+	char *universal_ip_address = NULL;
+	char *protocol = NULL;
+	char *end;
+	guint32 test;
+	guint16 port;
+	
+	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_netid, offset, &protocol);
+	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_addr, offset, &universal_ip_address);
+	
+	if(strlen(protocol) == 3 && strncmp(protocol,"tcp",3) == 0) {
+		test = strtol(universal_ip_address, &end, 10);
+		test = strtol(end+1, &end, 10);
+		test = strtol(end+1, &end, 10);
+		test = strtol(end+1, &end, 10);
+		*end = '\0';
+		port = (((guint16)strtol(end+1, &end, 10)) << 8) | ((guint16)strtol(end+1, &end, 10));
+		
+		proto_tree_add_text(tree,tvb,0,0,"[callback ip address %s, protocol=%s, port=%u]",
+							universal_ip_address, protocol, port);
+	}
 
 	return offset;
 }
@@ -7149,13 +7167,11 @@ dissect_nfs_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_item *fitem = NULL;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_program, offset);
-
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "cb_location");
 
 	if (fitem)
 	{
 		cb_location = proto_item_add_subtree(fitem, ett_nfs_clientaddr4);
-
 		offset = dissect_nfs_clientaddr4(tvb, offset, cb_location);
 	}
 
@@ -7887,8 +7903,8 @@ dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
 		num_addr = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 		for (j = 0; j < num_addr; j++) {
-			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_netid);
-			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_addr);
+			offset = dissect_rpc_string(tvb, tree, hf_nfs_r_netid, offset, NULL);
+			offset = dissect_rpc_string(tvb, tree, hf_nfs_r_addr, offset, NULL);
 		}
 	}
 
@@ -10005,11 +10021,11 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_r_netid, {
-			"r_netid", "nfs.r_netid", FT_BYTES, BASE_DEC,
+			"r_netid", "nfs.r_netid", FT_STRING, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_r_addr, {
-			"r_addr", "nfs.r_addr", FT_BYTES, BASE_DEC,
+			"r_addr", "nfs.r_addr", FT_STRING, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fh_fhandle_data, {
