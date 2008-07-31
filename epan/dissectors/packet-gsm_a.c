@@ -13500,7 +13500,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 }
 
 static guint8
-de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13545,7 +13545,7 @@ de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 }
 
 static guint8
-de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13565,7 +13565,7 @@ de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 static guint8
-de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13607,7 +13607,7 @@ de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 
 static guint8
-de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13653,7 +13653,7 @@ de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 static guint8
-de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13687,7 +13687,7 @@ de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 }
 
 static guint8
-de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guint16  value;
@@ -13711,7 +13711,7 @@ de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static guint8
-de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13733,7 +13733,7 @@ de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 
 static guint8
-de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13755,7 +13755,7 @@ de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static guint8
-de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13804,7 +13804,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 static guint8
-de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guchar  oct;
@@ -13829,7 +13829,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 }
 
 static guint8
-de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     guint32 value;
