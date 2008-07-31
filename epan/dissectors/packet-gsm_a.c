@@ -447,6 +447,34 @@ const value_string gsm_a_dtap_msg_ss_strings[] = {
     { 0, NULL }
 };
 
+const value_string gsm_a_dtap_msg_tp_strings[] = {
+    { 0x00, "Close TCH Loop Cmd" },
+    { 0x01, "Close TCH Loop Ack" },
+    { 0x06, "Open Loop Cmd" },
+    { 0x0c, "Act EMMI Cmd" },
+    { 0x0d, "Act EMMI Ack" },
+    { 0x10, "Deact EMMI" },
+    { 0x14, "Test Interface" },
+    { 0x20, "Close Multi-slot Loop Cmd" },
+    { 0x21, "Close Multi-slot Loop Ack" },
+    { 0x22, "Open Multi-slot Loop Cmd" },
+    { 0x23, "Open Multi-slot Loop Ack" },
+    { 0x24, "GPRS Test Mode Cmd" },
+    { 0x25, "EGPRS Start Radio Block Loopback Cmd" },
+    { 0x40, "Close UE Test Loop" },
+    { 0x41, "Close UE Test Loop Complete" },
+    { 0x42, "Open UE Test Loop" },
+    { 0x43, "Open UE Test Loop Complete" },
+    { 0x44, "Activate RB Test Mode" },
+    { 0x45, "Activate RB Test Mode Complete" },
+    { 0x46, "Deactivate RB Test Mode" },
+    { 0x47, "Deactivate RB Test Mode Complete" },
+    { 0x48, "Reset UE Positioning Stored Information" },
+    { 0x49, "UE Test Loop Mode 3 RLC SDU Counter Request" },
+    { 0x4A, "UE Test Loop Mode 3 RLC SDU Counter Response" },
+    { 0, NULL }
+};
+
 static const value_string gsm_rp_msg_strings[] = {
     { 0x00,	"RP-DATA (MS to Network)" },
     { 0x01,	"RP-DATA (Network to MS)" },
@@ -815,6 +843,18 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00, "Radio Priority 2"},
 	{ 0x00,	"MBMS context status"},
     { 0x00, "Spare Nibble"},
+    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+    { 0x00, "Close TCH Loop Cmd Sub-channel"},
+    { 0x00, "Open Loop Cmd Ack"},
+    { 0x00, "Close Multi-slot Loop Cmd Loop type"},
+    { 0x00, "Close Multi-slot Loop Ack Result"},
+    { 0x00, "Test Interface Tested device"},
+    { 0x00, "GPRS Test Mode Cmd PDU description"},
+    { 0x00, "GPRS Test Mode Cmd Mode flag"},
+    { 0x00, "EGPRS Start Radio Block Loopback Cmd Mode flag"},
+    { 0x00, "Close UE Test Loop Mode"},
+    { 0x00, "UE Positioning Technology"},
+    { 0x00, "RLC SDU Counter Value"},
     { 0, NULL }
 };
 
@@ -834,7 +874,7 @@ const gchar *gsm_a_pd_str[] = {
     "Location Services",
     "Unknown",
     "Reserved for extension of the PD to one octet length",
-    "Reserved for tests procedures"
+    "Special conformance testing functions"
 };
 /* L3 Protocol discriminator values according to TS 24 007 (6.4.0)  */
 static const value_string protocol_discriminator_vals[] = {
@@ -853,7 +893,7 @@ static const value_string protocol_discriminator_vals[] = {
 	{0xc,		"Location services specified in 3GPP TS 44.071 [8a]"},
 	{0xd,		"Unknown"},
 	{0xe,		"Reserved for extension of the PD to one octet length "},
-	{0xf,		"Reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
+	{0xf,		"Special conformance testing functions"},
 	{ 0,	NULL }
 };
 
@@ -873,7 +913,7 @@ static const value_string gsm_a_pd_short_str_vals[] = {
 	{0xc,		"LS"},				/* Location Services */
 	{0xd,		"Unknown"},
 	{0xe,		"Reserved"},		/*  for extension of the PD to one octet length  */
-	{0xf,		"Reserved"},		/*  for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a].*/
+	{0xf,		"TP"},		/*  for tests procedures described in 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0.*/
 	{ 0,	NULL }
 };
 static const value_string bssap_cc_values[] = {
@@ -1085,6 +1125,7 @@ static const value_string gsm_a_rr_cell_id_disc_vals[] = {
 #define	DTAP_SMS_IEI_MASK	0xff
 #define	DTAP_SM_IEI_MASK	0xff
 #define	DTAP_SS_IEI_MASK	0x3f
+#define DTAP_TP_IEI_MASK  0xff
 
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
@@ -1103,6 +1144,7 @@ static int hf_gsm_a_dtap_msg_gmm_type = -1;
 static int hf_gsm_a_dtap_msg_sms_type = -1;
 static int hf_gsm_a_dtap_msg_sm_type = -1;
 static int hf_gsm_a_dtap_msg_ss_type = -1;
+static int hf_gsm_a_dtap_msg_tp_type = -1;
 static int hf_gsm_a_rp_msg_type = -1;
 static int hf_gsm_a_length = -1;
 static int hf_gsm_a_bssmap_elem_id = -1;
@@ -3529,6 +3571,18 @@ typedef enum
     DE_RAD_PRIO_2,					/* [8] 10.5.7.5		Radio Priority 2 */
 	DE_MBMS_CTX_STATUS,				/* [8] 10.5.7.6		MBMS context status */
     DE_SPARE_NIBBLE,				/* Spare Nibble */
+    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+    DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
+    DE_TP_ACK,			/* Open Loop Cmd Ack */
+    DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
+    DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
+    DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
+    DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
+    DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
+    DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+    DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
+    DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
+    DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
     DE_NONE							/* NONE */
 }
 dtap_elem_idx_t;
@@ -13445,6 +13499,351 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  return(curr_offset - offset);
 }
 
+static guint8
+de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+    const gchar	*str;
+    
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset) & 0x3f;
+    if ((oct & 0x38) == 0x38)
+        str = "I";
+    else if ((oct & 0x38) == 0x18)
+        str = "F";
+    else if ((oct & 0x38) == 0x10)
+        str = "E";
+    else if ((oct & 0x38) == 0x08)
+        str = "D";
+    else if ((oct & 0x3c) == 0x04)
+        str = "C";
+    else if ((oct & 0x3e) == 0x02)
+        str = "B";
+    else if ((oct & 0x3e) == 0x00)
+        str = "A";
+    else
+        str = "unknown";
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Test Loop %s",str);
+
+    if (oct & 0x01)
+        proto_tree_add_text(tree,
+        	tvb, curr_offset, 1,
+        	"Only one TCH active or sub-channel 0 of two half rate channels is to be looped");
+    else
+        proto_tree_add_text(tree,
+        	tvb, curr_offset, 1,
+        	"Sub-channel 1 of two half rate channels is to be looped");
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+    
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    if ((oct & 0xF0) == 0x80)
+        proto_tree_add_text(tree,tvb, curr_offset, 1, "Acknowledgment element: %d",oct&0x01);
+    else
+        proto_tree_add_text(tree,tvb, curr_offset, 1, "No acknowledgment element present");
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch (oct & 0x03)
+    {
+        case 0x00:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding not needed. The Burst-by-Burst loop is activated, type G");
+            break;
+        case 0x01:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding needed. Frame erasure is to be signalled, type H");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding reserved (%d)",oct & 0x03);
+            break;
+    }
+
+    switch (oct & 0x1c)
+    {
+        case 0x00:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot mechanism 1");
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Timeslot number %d",(oct & 0xe0)>>5);
+            break;
+        case 0x04:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot mechanism 2");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Loop mechanism reserved (%d)",(oct & 0x1c)>>2);
+            break;
+    }
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch (oct & 0x30)
+    {
+        case 0x00:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding not needed. The Burst-by-Burst loop is activated, type G");
+            break;
+        case 0x10:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding needed. Frame erasure is to be signalled, type H");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Channel coding reserved (%d)",(oct & 0x30)>>4);
+            break;
+    }
+
+    switch (oct & 0x0e)
+    {
+        case 0x00:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot mechanism 1");
+            break;
+        case 0x02:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot mechanism 2");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Loop mechanism reserved (%d)",(oct & 0x0e)>>1);
+            break;
+    }
+
+    if (oct & 0x01)
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot TCH loop was not closed due to error");
+    else
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "Multi-slot TCH loop was closed successfully");
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch (oct)
+    {
+        case 0:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Normal operation (no tested device via DAI)");
+            break;
+        case 1:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Test of speech decoder / DTX functions (downlink)");
+            break;
+        case 2:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Test of speech encoder / DTX functions (uplink)");
+            break;
+        case 4:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Test of acoustic devices and A/D & D/A");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Tested device reserved (%d)",oct);
+            break;
+    }
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guint16  value;
+
+    curr_offset = offset;
+
+    value = tvb_get_ntohs(tvb, curr_offset);
+    curr_offset += 2;
+
+    if (value & 0x8000)
+    {
+        if ((value & 0xfff) == 0)
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "Infinite number of PDUs to be transmitted in the TBF");
+        else
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "%d PDUs to be transmitted in the TBF",value & 0xfff);
+    }
+    else
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "PDU description reserved");
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    if (oct & 0x01)
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "MS shall select the loop back option");
+    else
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "MS shall itself generate the pseudorandom data");
+
+    proto_tree_add_text(tree, tvb, curr_offset, 1, "Downlink Timeslot Offset: timeslot number %d",(oct & 0x0e)>>1);
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    if (oct & 0x01)
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "MS loops back blocks on the uplink using GMSK modulation only");
+    else
+        proto_tree_add_text(tree, tvb, curr_offset, 1, "MS loops back blocks on the uplink using either GMSK or 8-PSK modulation following the detected received modulation");
+
+    proto_tree_add_text(tree, tvb, curr_offset, 1, "Downlink Timeslot Offset: timeslot number %d",(oct & 0x0e)>>1);
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+    guint8  lb_setup_length,i,j;
+    guint16 value;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_offset+= 1;
+
+    switch (oct & 0x03)
+    {
+        case 0:
+        {
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "UE test loop mode 1 loop back (loopback of RLC SDUs or PDCP SDUs)");
+            lb_setup_length = tvb_get_guint8(tvb, curr_offset);
+            curr_offset += 1;
+            for (i=0,j=0; (i<lb_setup_length) && (j<4); i+=3,j++)
+            {
+                proto_tree_add_text(tree, tvb, curr_offset, 1, "LB setup RB IE %d",j+1);
+                value = tvb_get_ntohs(tvb, curr_offset);
+                curr_offset += 2;
+                proto_tree_add_text(tree, tvb, curr_offset, 1, "Uplink RLC SDU size is %d bits",value);
+                oct = tvb_get_guint8(tvb, curr_offset);
+                curr_offset+= 1;
+                proto_tree_add_text(tree, tvb, curr_offset, 1, "Radio Bearer %d",oct & 0x1f);
+            }
+            break;
+        }
+        case 1:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "UE test loop mode 2 loop back (loopback of transport block data and CRC bits)");
+            break;
+        case 2:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "UE test loop mode 3 RLC SDU counting (counting of received RLC SDUs)");
+            oct = tvb_get_guint8(tvb, curr_offset);
+            curr_offset+= 1;
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "MBMS short transmission identity %d",(oct & 0x1f)+1);
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "UE test loop mode reserved (%d)",oct & 0x03);
+            break;
+    }
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guchar  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch (oct)
+    {
+        case 0:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "AGPS");
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, curr_offset, 1, "UE positioning technology reserved (%d)",oct);
+            break;
+    }
+
+    curr_offset+= 1;	   
+
+    return(curr_offset - offset);
+}
+
+static guint8
+de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guint32 value;
+
+    curr_offset = offset;
+
+    value = tvb_get_ntohl(tvb, curr_offset);
+    curr_offset+= 4;
+
+    proto_tree_add_text(tree, tvb, curr_offset, 1, "UE received RLC SDU counter value %d",value);
+
+    return(curr_offset - offset);
+}
+
 static guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
     be_cic,	/* Circuit Identity Code */
     NULL,	/* Reserved */
@@ -13805,6 +14204,18 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_gc_radio_prio2,	/* Radio Priority 2 */
 	de_gc_mbms_context_stat, /* 10.5.7.6 MBMS context status */
     de_gc_spare,	/* Spare Nibble */
+    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+    de_tp_sub_channel,	/* Close TCH Loop Cmd Sub-channel */
+    de_tp_ack,	/* Open Loop Cmd Ack */
+    de_tp_loop_type,			/* Close Multi-slot Loop Cmd Loop type */
+    de_tp_loop_ack,			/* Close Multi-slot Loop Ack Result */
+    de_tp_tested_device,			/* Test Interface Tested device */
+    de_tp_pdu_description,			/* GPRS Test Mode Cmd PDU description */
+    de_tp_mode_flag,			/* GPRS Test Mode Cmd Mode flag */
+    de_tp_egprs_mode_flag,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+    de_tp_ue_test_loop_mode,			/* Close UE Test Loop Mode */
+    de_tp_ue_positioning_technology,			/* UE Positioning Technology */
+    de_tp_rlc_sdu_counter_value,			/* RLC SDU Counter Value */
     NULL,	/* NONE */
 };
 
@@ -19319,6 +19730,159 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * [8] 9.5.26 Request MBMS Context Activation Reject
  */
 
+static void
+dtap_tp_close_tch_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_SUB_CHANNEL );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_open_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    if (curr_len)
+        ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_ACK );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_multi_slot_loop_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_LOOP_TYPE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_multi_slot_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_LOOP_ACK );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_test_interface(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_TESTED_DEVICE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_gprs_test_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_PDU_DESCRIPTION );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_MODE_FLAG );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_EGPRS_MODE_FLAG );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_UE_TEST_LOOP_MODE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_reset_ue_positioning_ue_stored_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_UE_POSITIONING_TECHNOLOGY );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_len = len;
+    curr_offset = offset;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_TP_RLC_SDU_COUNTER_VALUE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
@@ -19569,6 +20133,37 @@ static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     dtap_ss_register,	/* Register */
     NULL,	/* NONE */
 };
+
+#define	NUM_GSM_DTAP_MSG_TP (sizeof(gsm_a_dtap_msg_tp_strings)/sizeof(value_string))
+static gint ett_gsm_dtap_msg_tp[NUM_GSM_DTAP_MSG_TP];
+static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+    dtap_tp_close_tch_loop_cmd,	/* CLOSE TCH LOOP CMD */
+    NULL,	/* CLOSE TCH LOOP ACK */
+    dtap_tp_open_loop_cmd,	/* OPEN LOOP CMD */
+    NULL,	/* ACT EMMI CMD */
+    NULL,	/* ACT EMMI ACK */
+    NULL,	/* DEACT EMMI */
+    dtap_tp_test_interface,	/* Test Interface */
+    dtap_tp_multi_slot_loop_cmd,	/* CLOSE Multi-slot LOOP CMD */
+    dtap_tp_multi_slot_loop_ack,	/* CLOSE Multi-slot LOOP ACK */
+    NULL,	/* OPEN Multi-slot LOOP CMD */
+    NULL,	/* OPEN Multi-slot LOOP ACK */
+    dtap_tp_gprs_test_mode_cmd,	/* GPRS TEST MODE CMD */
+    dtap_tp_egprs_start_radio_block_loopback_cmd,	/* EGPRS START RADIO BLOCK LOOPBACK CMD */
+    dtap_tp_close_ue_test_loop,	/* CLOSE UE TEST LOOP */
+    NULL,	/* CLOSE UE TEST LOOP COMPLETE */
+    NULL,	/* OPEN UE TEST LOOP */
+    NULL,	/* OPEN UE TEST LOOP COMPLETE */
+    NULL,	/* ACTIVATE RB TEST MODE */
+    NULL,	/* ACTIVATE RB TEST MODE COMPLETE */
+    NULL,	/* DEACTIVATE RB TEST MODE */
+    NULL,	/* DEACTIVATE RB TEST MODE COMPLETE */
+    dtap_tp_reset_ue_positioning_ue_stored_information,	/* RESET UE POSITIONING STORED INFORMATION */
+    NULL,	/* UE Test Loop Mode 3 RLC SDU Counter Request */
+    dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,	/* UE Test Loop Mode 3 RLC SDU Counter Response */
+    NULL,	/* NONE */
+};
+
 
 #define	NUM_GSM_RP_MSG (sizeof(gsm_rp_msg_strings)/sizeof(value_string))
 static gint ett_gsm_rp_msg[NUM_GSM_RP_MSG];
@@ -19952,6 +20547,15 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nsd = TRUE;
 	break;
 
+    case 15:
+	msg_str = match_strval_idx((guint32) (oct & DTAP_TP_IEI_MASK), gsm_a_dtap_msg_tp_strings, &idx);
+	ett_tree = ett_gsm_dtap_msg_tp[idx];
+	hf_idx = hf_gsm_a_dtap_msg_tp_type;
+	msg_fcn = dtap_msg_tp_fcn[idx];
+	ti = (oct_1 & DTAP_TI_MASK) >> 4;
+	nsd = TRUE;
+	break;
+
     default:
     /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
 	return;
@@ -20227,6 +20831,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nsd = TRUE;
 	break;
 
+    case 15:
+	msg_str = match_strval_idx((guint32) (oct & DTAP_TP_IEI_MASK), gsm_a_dtap_msg_tp_strings, &idx);
+	ett_tree = ett_gsm_dtap_msg_tp[idx];
+	hf_idx = hf_gsm_a_dtap_msg_tp_type;
+	msg_fcn = dtap_msg_tp_fcn[idx];
+	ti = (oct_1 & DTAP_TI_MASK) >> 4;
+	nsd = TRUE;
+	break;
+
     default:
     /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
 	return;
@@ -20428,6 +21041,11 @@ proto_register_gsm_a(void)
 	{ &hf_gsm_a_dtap_msg_ss_type,
 	    { "DTAP Non call Supplementary Service Message Type",	"gsm_a.dtap_msg_ss_type",
 	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_ss_strings), 0x0,
+	    "", HFILL }
+	},
+	{ &hf_gsm_a_dtap_msg_tp_type,
+	    { "DTAP Tests Procedures Message Type",	"gsm_a.dtap_msg_tp_type",
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_tp_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_rp_msg_type,
@@ -21311,6 +21929,12 @@ proto_register_gsm_a(void)
     {
 	ett_gsm_dtap_msg_ss[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_ss[i];
+    }
+
+    for (i=0; i < NUM_GSM_DTAP_MSG_TP; i++, last_offset++)
+    {
+	ett_gsm_dtap_msg_tp[i] = -1;
+	ett[last_offset] = &ett_gsm_dtap_msg_tp[i];
     }
 
     for (i=0; i < NUM_GSM_RP_MSG; i++, last_offset++)
