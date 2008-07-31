@@ -175,7 +175,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(subtree, hf_mstp_frame_source, tvb,
 			offset+2, 1, TRUE);
 	proto_tree_add_item(subtree, hf_mstp_frame_pdu_len, tvb,
-			offset+3, 2, TRUE);
+			offset+3, 2, FALSE);
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 	/* calculate checksum to validate */
 	for (i = 0; i < 5; i++) {
