@@ -1247,7 +1247,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
   gboolean update_col_info = TRUE;
-  gboolean save_fragmented;
+  gboolean save_fragmented = FALSE;
   const char *sep = "IPv6 ";
 
   struct ip6_hdr ipv6;
@@ -1376,15 +1376,35 @@ again:
 			offset += advance;
 			plen -= advance;
 			goto again;
-    case IP_PROTO_FRAGMENT:
-			frag = TRUE;
+    case IP_PROTO_FRAGMENT:	
 			advance = dissect_frag6(tvb, offset, pinfo, ipv6_tree,
 			    &offlg, &ident);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
 			plen -= advance;
-			goto again;
+			frag = offlg & (IP6F_OFF_MASK | IP6F_MORE_FRAG);
+			save_fragmented |= frag;
+			if (ipv6_reassemble && frag && tvb_bytes_exist(tvb, offset, plen)) {
+				ipfd_head = fragment_add_check(tvb, offset, pinfo, ident,
+				ipv6_fragment_table,
+				ipv6_reassembled_table,
+			    offlg & IP6F_OFF_MASK,
+			    plen,
+			    offlg & IP6F_MORE_FRAG);
+				next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPv6",
+				ipfd_head, &ipv6_frag_items, &update_col_info, ipv6_tree);
+				if (next_tvb) {	/* Process post-fragment headers after reassembly... */
+					offset= 0;
+					offlg = 0;
+					frag = FALSE;
+					tvb = next_tvb;
+					goto again; 
+				}
+			}
+			if (!(offlg & IP6F_OFF_MASK)) /*...or in the first fragment */
+				goto again;
+			break;
     case IP_PROTO_AH:
 			ah = TRUE;
 			advance = dissect_ah_header(
@@ -1424,56 +1444,28 @@ again:
   pinfo->iplen = sizeof(ipv6) + plen + offset;
   pinfo->iphdrlen = offset;
 
-  /* If ipv6_reassemble is on, this is a fragment, and we have all the data
-   * in the fragment, then just add the fragment to the hashtable.
-   */
-  save_fragmented = pinfo->fragmented;
-  if (ipv6_reassemble && frag && tvb_bytes_exist(tvb, offset, plen)) {
-    ipfd_head = fragment_add_check(tvb, offset, pinfo, ident,
-			     ipv6_fragment_table,
-			     ipv6_reassembled_table,
-			     offlg & IP6F_OFF_MASK,
-			     plen,
-			     offlg & IP6F_MORE_FRAG);
-
-    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled IPv6",
-          ipfd_head, &ipv6_frag_items, &update_col_info, ipv6_tree);
-  } else {
-    /* If this is the first fragment, dissect its contents, otherwise
-       just show it as a fragment.
-
-       XXX - if we eventually don't save the reassembled contents of all
-       fragmented datagrams, we may want to always reassemble. */
-    if (offlg & IP6F_OFF_MASK) {
-      /* Not the first fragment - don't dissect it. */
-      next_tvb = NULL;
-    } else {
-      /* First fragment, or not fragmented.  Dissect what we have here. */
-
-      /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-      /*
-       * If this is the first fragment, but not the only fragment,
-       * tell the next protocol that.
-       */
-      if (offlg & IP6F_MORE_FRAG)
-        pinfo->fragmented = TRUE;
-      else
-        pinfo->fragmented = FALSE;
-    }
-  }
-
-  if (next_tvb == NULL) {
-    /* Just show this as a fragment. */
+  if (offlg & IP6F_OFF_MASK || (ipv6_reassemble && offlg & IP6F_MORE_FRAG)) {
+    /* Not the first fragment, or the first when we are reassembling and there are more. */
+    /* Don't dissect it; just show this as a fragment. */
     /* COL_INFO was filled in by "dissect_frag6()" */
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-
-    /* As we haven't reassembled anything, we haven't changed "pi", so
-       we don't have to restore it. */
-    pinfo->fragmented = save_fragmented;
     return;
+  } else {
+    /* First fragment, not fragmented, or already reassembled.  Dissect what we have here. */
+
+    /* Get a tvbuff for the payload. */
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+    /*
+     * If this is the first fragment, but not the only fragment,
+     * tell the next protocol that.
+     */
+    if (offlg & IP6F_MORE_FRAG)
+      pinfo->fragmented = TRUE;
+    else
+      pinfo->fragmented = FALSE;
   }
+
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
