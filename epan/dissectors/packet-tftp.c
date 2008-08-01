@@ -155,63 +155,20 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 }
 
-static void
-dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
+				 tvbuff_t *tvb, packet_info *pinfo, 
+				 proto_tree *tree)
 {
 	proto_tree	 *tftp_tree = NULL;
 	proto_item	 *ti;
-	conversation_t   *conversation = NULL;
 	gint		 offset = 0;
 	guint16		 opcode;
 	guint16		 bytes;
 	guint16		 blocknum;
 	guint            i1;
 	guint16	         error;
-	tftp_conv_info_t *tftp_info;
 
-	/*
-	 * The first TFTP packet goes to the TFTP port; the second one
-	 * comes from some *other* port, but goes back to the same
-	 * IP address and port as the ones from which the first packet
-	 * came; all subsequent packets go between those two IP addresses
-	 * and ports.
-	 *
-	 * If this packet went to the TFTP port, we check to see if
-	 * there's already a conversation with one address/port pair
-	 * matching the source IP address and port of this packet,
-	 * the other address matching the destination IP address of this
-	 * packet, and any destination port.
-	 *
-	 * If not, we create one, with its address 1/port 1 pair being
-	 * the source address/port of this packet, its address 2 being
-	 * the destination address of this packet, and its port 2 being
-	 * wildcarded, and give it the TFTP dissector as a dissector.
-	 */
-	if (pinfo->destport == UDP_PORT_TFTP) {
-	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
-					   pinfo->srcport, 0, NO_PORT_B);
-	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
-	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
-					    pinfo->srcport, 0, NO_PORT2);
-            conversation_set_dissector(conversation, tftp_handle);
-	  }
-	} else {
-	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
-	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
-					    pinfo->destport, pinfo->srcport, 0);
-            conversation_set_dissector(conversation, tftp_handle);
-	  }
-	}
-	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
-        if (!tftp_info) {
-       		tftp_info = se_alloc(sizeof(tftp_conv_info_t));
-		tftp_info->blocksize = 512; /* TFTP default block size */
-       		conversation_add_proto_data(conversation, proto_tftp, tftp_info);
-	}
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+  	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
 	opcode = tvb_get_ntohs(tvb, offset);
@@ -372,7 +329,105 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 
 	}
+  return;
 }
+
+static gboolean
+dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  /* Used to dissect TFTP packets where one can not assume
+     that the TFTP is the only protocol used by that port, and
+     that TFTP may not be carried by UDP */
+  conversation_t   *conversation = NULL;
+  guint16		 opcode;
+  tftp_conv_info_t *tftp_info;
+
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+				   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  if(conversation == NULL) {
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+				    pinfo->ptype,
+				    pinfo->srcport,pinfo->destport, 0);
+  }
+
+  tftp_info = conversation_get_proto_data(conversation, proto_tftp);
+  if (!tftp_info) {
+    tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+    tftp_info->blocksize = 512; /* TFTP default block size */
+    conversation_add_proto_data(conversation, proto_tftp, tftp_info);
+  }
+
+  opcode = tvb_get_ntohs(tvb, 0);
+
+  if ((opcode == TFTP_RRQ) ||
+      (opcode == TFTP_WRQ) ||
+      (opcode == TFTP_DATA) ||
+      (opcode == TFTP_ACK) ||
+      (opcode == TFTP_ERROR) ||
+      (opcode == TFTP_INFO) ||
+      (opcode == TFTP_OACK)) {
+    dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+static void
+dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	conversation_t   *conversation = NULL;
+	tftp_conv_info_t *tftp_info;
+
+	/*
+	 * The first TFTP packet goes to the TFTP port; the second one
+	 * comes from some *other* port, but goes back to the same
+	 * IP address and port as the ones from which the first packet
+	 * came; all subsequent packets go between those two IP addresses
+	 * and ports.
+	 *
+	 * If this packet went to the TFTP port, we check to see if
+	 * there's already a conversation with one address/port pair
+	 * matching the source IP address and port of this packet,
+	 * the other address matching the destination IP address of this
+	 * packet, and any destination port.
+	 *
+	 * If not, we create one, with its address 1/port 1 pair being
+	 * the source address/port of this packet, its address 2 being
+	 * the destination address of this packet, and its port 2 being
+	 * wildcarded, and give it the TFTP dissector as a dissector.
+	 */
+	if (pinfo->destport == UDP_PORT_TFTP) {
+	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+					   pinfo->srcport, 0, NO_PORT_B);
+	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
+	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+					    pinfo->srcport, 0, NO_PORT2);
+            conversation_set_dissector(conversation, tftp_handle);
+	  }
+	} else {
+	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
+	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+					    pinfo->destport, pinfo->srcport, 0);
+            conversation_set_dissector(conversation, tftp_handle);
+	  }
+	}
+	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
+        if (!tftp_info) {
+       		tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+		tftp_info->blocksize = 512; /* TFTP default block size */
+       		conversation_add_proto_data(conversation, proto_tftp, tftp_info);
+	}
+
+
+	dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+
+	return;
+}
+
 
 void
 proto_register_tftp(void)
@@ -443,4 +498,7 @@ proto_reg_handoff_tftp(void)
   tftp_handle = find_dissector("tftp");
 
   dissector_add("udp.port", UDP_PORT_TFTP, tftp_handle);
+
+  heur_dissector_add("stun2", dissect_embeddedtftp_heur, 
+  		     proto_tftp);
 }

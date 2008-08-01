@@ -2,7 +2,7 @@
  * Routines for Session Traversal Utilities for NAT (STUN) dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  * Copyright 2006, Marc Petit-Huguenin <marc@petit-huguenin.org>
- * Copyright 2007, 8x8 Inc. <petithug@8x8.com>
+ * Copyright 2007-2008, 8x8 Inc. <petithug@8x8.com>
  * Copyright 2008, Gael Breard <gael@breard.org>
  *
  * $Id$
@@ -25,8 +25,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * Please refer to draft-ietf-behave-rfc3489bis-15
- * and draft-ietf-behave-turn-07 for protocol detail.
+ * Please refer to the following specs for protocol detail:
+ * - draft-ietf-behave-rfc3489bis-17
+ * - draft-ietf-mmusic-ice-19
+ * - draft-ietf-behave-nat-behavior-discovery-03
+ * - draft-ietf-behave-turn-09
+ * - draft-ietf-behave-turn-ipv6-03
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,24 +44,41 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/ipproto.h>
 #include <packet-tcp.h>
 #include <packet-udp.h>
+
+/* heuristic subdissectors */
+static heur_dissector_list_t heur_subdissector_list;
+
+/* data dissector handle */
+static dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_stun2 = -1;
 
 static int hf_stun2_channel = -1;
 
-static int hf_stun2_class = -1;
-static int hf_stun2_method = -1;
+static int hf_stun2_type = -1;
+static int hf_stun2_type_class = -1;
+static int hf_stun2_type_method = -1;
+static int hf_stun2_type_method_assignment = -1;
 static int hf_stun2_length = -1;
 static int hf_stun2_cookie = -1;
 static int hf_stun2_id = -1;
-static int hf_stun2_att = -1;
+static int hf_stun2_attributes = -1;
+static int hf_stun2_response_in = -1;
+static int hf_stun2_response_to = -1;
+static int hf_stun2_time = -1;
+static int hf_stun2_duplicate = -1;
+static int hf_stun2_attr = -1;
 
 static int stun2_att_type = -1;		/* STUN2 attribute fields */
 static int stun2_att_length = -1;
 static int stun2_att_family = -1;
+static int stun2_att_type_comprehension = -1;
+static int stun2_att_type_assignment = -1;
 static int stun2_att_ipv4 = -1;
 static int stun2_att_ipv6 = -1;
 static int stun2_att_port = -1;
@@ -74,72 +95,93 @@ static int stun2_att_unknown = -1;
 static int stun2_att_xor_ipv4 = -1;
 static int stun2_att_xor_ipv6 = -1;
 static int stun2_att_xor_port = -1;
-static int stun2_att_server = -1;
+static int stun2_att_icmp_type = -1;
+static int stun2_att_icmp_code = -1;
+static int stun2_att_software = -1;
+static int stun2_att_priority = -1;
+static int stun2_att_tie_breaker = -1;
+static int stun2_att_change_ip = -1;
+static int stun2_att_change_port = -1;
+static int stun2_att_cache_timeout = -1;
+static int stun2_att_token = -1;
+static int stun2_att_properties_e = -1;
+static int stun2_att_properties_r = -1;
+static int stun2_att_properties_p = -1;
+static int stun2_att_reserved = -1;
 static int stun2_att_value = -1;
-static int stun2_att_channelnum = -1;
-
 static int stun2_att_transp = -1;
 static int stun2_att_bandwidth = -1;
 static int stun2_att_lifetime = -1;
+static int stun2_att_channelnum = -1;
 
-static int stun2_att_reserved = -1;
+
+/* Structure containing transaction specific information */
+typedef struct _stun2_transaction_t {
+        guint32 req_frame;
+        guint32 rep_frame;
+        nstime_t req_time;
+} stun2_transaction_t;
+
+/* Structure containing conversation specific information */
+typedef struct _stun2_conv_info_t {
+        emem_tree_t *transaction_pdus;
+} stun2_conv_info_t;
+
 
 /* Message classes */
-#define CLASS_MASK	0xC110
 #define REQUEST		0x0000
 #define INDICATION	0x0001
-#define RESPONSE	0x0010
-#define ERROR_RESPONSE	0x0011
+#define RESPONSE	0x0002
+#define ERROR_RESPONSE	0x0003
 
-/* Request/Response Transactions */
-#define METHOD_MASK		0xCEEF
-#define BINDING			0x0001  /* draft-ietf-behave-rfc3489bis-07 */
-#define ALLOCATE		0x0003  /*draft-ietf-behave-turn-07*/
-#define REFRESH			0x0004  /*draft-ietf-behave-turn-07*/
-#define CHANNELBIND		0x0009  /*draft-ietf-behave-turn-07*/
+
+/* Methods */
+#define BINDING			0x0001	/*draft-ietf-behave-rfc3489bis-17 */
+#define ALLOCATE		0x0003  /*draft-ietf-behave-turn-09*/
+#define REFRESH			0x0004  /*draft-ietf-behave-turn-09*/
+#define CHANNELBIND		0x0009  /*draft-ietf-behave-turn-09*/
 /* Indications */
-#define SEND			0x0006  /*draft-ietf-behave-turn-07*/
-#define DATA_IND		0x0007  /*draft-ietf-behave-turn-07*/
+#define SEND			0x0006  /*draft-ietf-behave-turn-09*/
+#define DATA_IND		0x0007  /*draft-ietf-behave-turn-09*/
 
 
 /* Attribute Types */
 /* Comprehension-required range (0x0000-0x7FFF) */
-#define MAPPED_ADDRESS				0x0001 /* rfc3489bis-15 */
-#define RESPONSE_ADDRESS			0x0002 /* HISTORIC */
-#define CHANGE_REQUEST				0x0003 /* nat-behavior-discovery-03 */
-#define SOURCE_ADDRESS				0x0004 /* HISTORIC */
-#define CHANGED_ADDRESS				0x0005 /* HISTORIC */
-#define USERNAME					0x0006 /* rfc3489bis-15 */
-#define PASSWORD					0x0007 /* HISTORIC - RESERVED */
-#define MESSAGE_INTEGRITY			0x0008 /* rfc3489bis-15 */
-#define ERROR_CODE					0x0009 /* rfc3489bis-15 */
-#define UNKNOWN_ATTRIBUTES			0x000A /* rfc3489bis-15 */
-#define REFLECTED_FROM				0x000B /* HISTORIC */
-#define CHANNEL_NUMBER				0x000C /* turn-07 */
-#define LIFETIME					0x000D /* turn-07 */
-#define BANDWIDTH					0x0010 /* turn-07 */
-#define PEER_ADDRESS				0x0012 /* turn-07 */
-#define DATA						0x0013 /* turn-07 */
-#define REALM						0x0014 /* rfc3489bis-15 */
-#define NONCE						0x0015 /* rfc3489bis-15 */
-#define RELAY_ADDRESS				0x0016 /* turn-07 */
-#define REQUESTED_ADDRESS_TYPE		0x0017 /* turn-ipv6-04 */
-#define REQUESTED_PROPS				0x0018 /* turn-07 */
-#define REQUESTED_TRANSPORT			0x0019 /* turn-07 */
-#define XOR_MAPPED_ADDRESS			0x0020 /* rfc3489bis-15 */
-#define RESERVATION_TOKEN			0x0022 /* turn-07 */
-#define PADDING						0x0026 /* nat-behavior-discovery-03 */
-#define XOR_RESPONSE_TARGET			0x0027 /* nat-behavior-discovery-03 */
-#define XOR_REFLECTED_FROM			0x0028 /* nat-behavior-discovery-03 */
-
+#define MAPPED_ADDRESS		0x0001	/* draft-ietf-behave-rfc3489bis-17 */
+#define CHANGE_REQUEST		0x0003	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define USERNAME		0x0006	/* draft-ietf-behave-rfc3489bis-17 */
+#define MESSAGE_INTEGRITY	0x0008	/* draft-ietf-behave-rfc3489bis-17 */
+#define ERROR_CODE		0x0009	/* draft-ietf-behave-rfc3489bis-17 */
+#define UNKNOWN_ATTRIBUTES	0x000a	/* draft-ietf-behave-rfc3489bis-17 */
+#define CHANNEL_NUMBER		0x000c	/* draft-ietf-behave-turn-09 */
+#define LIFETIME		0x000d	/* draft-ietf-behave-turn-09 */
+#define BANDWIDTH		0x0010 /* turn-07 */
+#define PEER_ADDRESS		0x0012	/* draft-ietf-behave-turn-09 */
+#define DATA			0x0013	/* draft-ietf-behave-turn-09 */
+#define REALM			0x0014	/* draft-ietf-behave-rfc3489bis-17 */
+#define NONCE			0x0015	/* draft-ietf-behave-rfc3489bis-17 */
+#define RELAYED_ADDRESS	        0x0016	/* draft-ietf-behave-turn-09 */
+#define REQUESTED_ADDRESS_TYPE	0x0017	/* draft-ietf-behave-turn-ipv6-03 */
+#define REQUESTED_PROPS	        0x0018	/* draft-ietf-behave-turn-09 */
+#define REQUESTED_TRANSPORT	0x0019	/* draft-ietf-behave-turn-09 */
+#define XOR_MAPPED_ADDRESS	0x0020	/* draft-ietf-behave-rfc3489bis-17 */
+#define RESERVATION_TOKEN	0x0022	/* draft-ietf-behave-turn-09 */
+#define PRIORITY		0x0024	/* draft-ietf-mmusic-ice-19 */
+#define USE_CANDIDATE		0x0025	/* draft-ietf-mmusic-ice-19 */
+#define PADDING		        0x0026	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define XOR_RESPONSE_TARGET	0x0027	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define XOR_REFLECTED_FROM	0x0028	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define ICMP			0x0030	/* draft-ietf-behave-turn-09 */
 /* Comprehension-optional range (0x8000-0xFFFF) */
-#define SERVER						0x8022 /* rfc3489bis-15 */
-#define ALTERNATE_SERVER			0x8023 /* rfc3489bis-15 */
-#define CACHE_TIMEOUT				0x8027 /* nat-behavior-discovery-03 */
-#define FINGERPRINT					0x8028 /* rfc3489bis-15 */
-#define RESPONSE_ORIGIN				0x802b /* nat-behavior-discovery-03 */
-#define OTHER_ADDRESS				0x802c /* nat-behavior-discovery-03 */
-
+#define SOFTWARE		0x8022	/* draft-ietf-behave-rfc3489bis-17 */
+#define ALTERNATE_SERVER	0x8023	/* draft-ietf-behave-rfc3489bis-17 */
+#define CACHE_TIMEOUT		0x8027	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define FINGERPRINT		0x8028	/* draft-ietf-behave-rfc3489bis-17 */
+#define ICE_CONTROLLED		0x8029	/* draft-ietf-mmusic-ice-19 */
+#define ICE_CONTROLLING		0x802a	/* draft-ietf-mmusic-ice-19 */
+#define RESPONSE_ORIGIN		0x802b	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define OTHER_ADDRESS		0x802c	/* draft-ietf-behave-nat-behavior-discovery-03 */
+ 
 /* divers */
 #define PROTO_NUM_UDP	17
 #define PROTO_NUM_TCP	6
@@ -156,10 +198,13 @@ static int stun2_att_reserved = -1;
 
 
 
+
 /* Initialize the subtree pointers */
 static gint ett_stun2 = -1;
-static gint ett_stun2_att_type = -1;
+static gint ett_stun2_type = -1;
+static gint ett_stun2_att_all= -1;
 static gint ett_stun2_att = -1;
+static gint ett_stun2_att_type = -1;
 
 #define UDP_PORT_STUN2 	3478
 #define TCP_PORT_STUN2	3478
@@ -197,24 +242,80 @@ static const value_string methods[] = {
 
 static const value_string attributes[] = {
 	{MAPPED_ADDRESS, "MAPPED-ADDRESS"},
+	{CHANGE_REQUEST, "CHANGE_REQUEST"},
 	{USERNAME, "USERNAME"},
 	{MESSAGE_INTEGRITY, "MESSAGE-INTEGRITY"},
 	{ERROR_CODE, "ERROR-CODE"},
 	{UNKNOWN_ATTRIBUTES, "UNKNOWN-ATTRIBUTES"},
+	{CHANNEL_NUMBER, "CHANNEL-NUMBER"},
+	{LIFETIME, "LIFETIME"},
+	{BANDWIDTH, "BANDWIDTH"},
+	{PEER_ADDRESS, "PEER-ADDRESS"},
+	{DATA, "DATA"},
 	{REALM, "REALM"},
 	{NONCE, "NONCE"},
-	{XOR_MAPPED_ADDRESS, "XOR-MAPPED-ADDRESS"},
-	{SERVER, "SERVER"},
-	{ALTERNATE_SERVER, "ALTERNATE-SERVER"},
-	{FINGERPRINT, "FINGERPRINT"},
-	{PEER_ADDRESS, "PEER-ADDRESS"},
-	{RELAY_ADDRESS, "RELAY-ADDRESS"},
-	{DATA, "DATA"},
+	{RELAYED_ADDRESS, "RELAYED-ADDRESS"},
+	{REQUESTED_ADDRESS_TYPE, "REQUESTED-ADDRESS-TYPE"},
+	{REQUESTED_PROPS, "REQUESTED-PROPS"},
 	{REQUESTED_TRANSPORT, "REQUESTED-TRANSPORT"},
-	{BANDWIDTH, "BANDWIDTH"},
-	{LIFETIME, "LIFETIME"},
-	{CHANNEL_NUMBER, "CHANNEL-NUMBER"},
+	{XOR_MAPPED_ADDRESS, "XOR-MAPPED-ADDRESS"},
+	{RESERVATION_TOKEN, "RESERVATION-TOKEN"},
+	{PRIORITY, "PRIORITY"},
+	{USE_CANDIDATE, "USE-CANDIDATE"},
+	{PADDING, "PADDING"},
+	{XOR_RESPONSE_TARGET, "XOR-RESPONSE-TARGET"},
+	{XOR_REFLECTED_FROM, "XOR-REFELECTED-FROM"},
+	{ICMP, "ICMP"},
+	{SOFTWARE, "SOFTWARE"},
+	{ALTERNATE_SERVER, "ALTERNATE-SERVER"},
+	{CACHE_TIMEOUT, "CACHE-TIMEOUT"},
+	{FINGERPRINT, "FINGERPRINT"},
+	{ICE_CONTROLLED, "ICE-CONTROLLED"},
+	{ICE_CONTROLLING, "ICE-CONTROLLING"},
+	{RESPONSE_ORIGIN, "RESPONSE-ORIGIN"},
+	{OTHER_ADDRESS, "OTHER-ADDRESS"},
 	{0x00, NULL}
+};
+
+static const value_string assignments[] = {
+	{0x0000, "IETF Review"},
+	{0x0001, "Designated Expert"},
+        {0x00, NULL}
+};
+
+static const value_string comprehensions[] = {
+	{0x0000, "Required"},
+	{0x0001, "Optional"},
+        {0x00, NULL}
+};
+
+static const value_string attributes_properties_e[] = {
+	{0, "Even or odd port number"},
+	{1, "Even port number"},
+	{0x00, NULL}
+};
+
+static const value_string attributes_properties_r[] = {
+	{0, "No reservation"},
+	{1, "Reserve next port number"},
+	{0x00, NULL}
+};
+
+static const value_string attributes_properties_p[] = {
+	{0, "All allocation"},
+	{1, "Preserving allocation"},
+	{0x00, NULL}
+};
+
+static const value_string attributes_family[] = {
+	{0x0001, "IPv4"},
+	{0x0002, "IPv6"},
+	{0x00, NULL}
+};
+
+static const true_false_string set_flag = {
+	"SET",
+	"NOT SET"
 };
 
 static const value_string error_code[] = {
@@ -237,12 +338,6 @@ static const value_string error_code[] = {
 	{0x00, NULL}
 };
 
-
-static const value_string attributes_family[] = {
-	{0x0001, "IPv4"},
-	{0x0002, "IPv6"},
-	{0x00, NULL}
-};
 
 static guint
 get_stun2_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -268,21 +363,30 @@ static int
 dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_item *ta;
 	proto_tree *stun2_tree;
+	proto_tree *stun2_type_tree;
+	proto_tree *att_all_tree;
 	proto_tree *att_type_tree;
 	proto_tree *att_tree;
 	guint16 msg_type;
 	guint16 msg_length;
+	guint16 msg_type_method;
+	guint16 msg_type_class;
 	const char *msg_class_str;
 	const char *msg_method_str;
 	guint16 att_type;
 	guint16 att_length;
+	const char *att_type_str;
 	guint16 offset;
 	guint i;
-	guint transaction_id_first_word;
+	guint magic_cookie_first_word;
 	guint len;
 	guint msg_total_len;
+	conversation_t *conversation=NULL;
+	stun2_conv_info_t *stun2_info;
+	stun2_transaction_t * stun2_trans;
+	emem_tree_key_t transaction_id_key[2];
+	guint32 transaction_id[3];
 
 	/*
 	 * First check if the frame is really meant for us.
@@ -300,13 +404,24 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	msg_type = tvb_get_ntohs(tvb, 0);
 	msg_length = tvb_get_ntohs(tvb, 2);
 
-
 	if (msg_type & 0xC000)
 	{
 		/* two first bits not NULL => should be a channel-data message */
 		if (msg_type == 0xFFFF)
 			return FALSE;
+                /* padding is only mandtory over streaming protocols */
 		msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4) ;
+
+                /* check if payload enough */
+                if (len != msg_total_len) {
+                  if (pinfo->ipproto != IP_PROTO_UDP) {
+                        return FALSE;
+                  }
+                  /* recalculate the total length without padding */
+                  msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
+                  if (len != msg_total_len) 
+                        return FALSE;
+                }
 	}
 	else 
 	{
@@ -317,12 +432,11 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check if it is really a STUN2 message */
 		if ( tvb_get_ntohl(tvb, 4) != 0x2112a442)
 			return FALSE;
+
+                /* check if payload enough */
+                if (len != msg_total_len)
+                        return FALSE;
 	}
-
-	/* check if payload enough */
-	if (len != msg_total_len)
-		return FALSE;
-
 
 	/* The message seems to be a valid STUN2 message! */
 
@@ -332,6 +446,9 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* BEGIN of CHANNEL-DATA specific section */
 	if (msg_type & 0xC000)
 	{
+                guint data_length;
+                tvbuff_t *next_tvb;
+                guint reported_len, new_len;
 		/* two first bits not NULL => should be a channel-data message*/
 
 		/* Clear out stuff in the info column */
@@ -346,16 +463,114 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti, ", TURN ChannelData Message");
 		stun2_tree = proto_item_add_subtree(ti, ett_stun2);
 		proto_tree_add_item(stun2_tree, hf_stun2_channel, tvb, offset, 2, FALSE); offset += 2;
+                data_length = tvb_get_ntohs(tvb, 2);
 		proto_tree_add_item(stun2_tree, hf_stun2_length,  tvb, offset, 2, FALSE); offset += 2;
 
-		decode_udp_ports(tvb, offset, pinfo, tree, 0, 0, (int) offset + msg_length);
-		/* TODO ports : get src and dst ports from context */
+
+                new_len = tvb_length_remaining(tvb, CHANNEL_DATA_HDR_LEN);
+                reported_len = tvb_reported_length_remaining(tvb, 
+                                                             CHANNEL_DATA_HDR_LEN);
+                if (data_length < reported_len) {
+                  reported_len = data_length;
+                }
+                next_tvb = tvb_new_subset(tvb, CHANNEL_DATA_HDR_LEN, new_len, 
+                                          reported_len);
+
+
+                if (!dissector_try_heuristic(heur_subdissector_list, 
+                                             next_tvb, pinfo, tree)) {
+                  call_dissector_only(data_handle,next_tvb, pinfo, tree);
+                }
+
 		return TRUE;
 	}
 	/* END of CHANNEL-DATA specific section */
 
-	msg_class_str = match_strval((msg_type & CLASS_MASK) >> 4, classes);
-	msg_method_str = match_strval(msg_type & METHOD_MASK, methods);
+        /* At this stage, we know this is a standard stun2 message */
+
+	/* Create the transaction key which may be used
+	   to track the conversation */
+	transaction_id[0] = tvb_get_ntohl(tvb, 8);
+	transaction_id[1] = tvb_get_ntohl(tvb, 12);
+	transaction_id[2] = tvb_get_ntohl(tvb, 16);
+
+	transaction_id_key[0].length = 3;
+	transaction_id_key[0].key =  transaction_id;
+        transaction_id_key[1].length = 0;
+        transaction_id_key[1].key = NULL;
+
+	msg_type_class = ((msg_type & 0x0010) >> 4) | ((msg_type & 0x0100) >> 7) ;
+	msg_type_method = (msg_type & 0x000F) | ((msg_type & 0x00E0) >> 1) | ((msg_type & 0x3E00) >> 2);
+
+	/* Do we already have a conversation ? */
+	conversation = 
+	  find_conversation(pinfo->fd->num, 
+			    &pinfo->src, &pinfo->dst,
+			    pinfo->ptype, 
+			    pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+	  /* We don't yet have a conversation, so create one. */
+	  conversation = conversation_new(pinfo->fd->num, 
+					  &pinfo->src, &pinfo->dst,
+					  pinfo->ptype,
+					  pinfo->srcport, pinfo->destport, 0);
+	}
+	/*
+	 * Do we already have a state structure for this conv
+	 */
+        stun2_info = conversation_get_proto_data(conversation, proto_stun2);
+	if (!stun2_info) {
+	  /* No.  Attach that information to the conversation, and add
+	   * it to the list of information structures.
+	   */
+	  stun2_info = se_alloc(sizeof(stun2_conv_info_t));
+	  stun2_info->transaction_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "stun2_transaction_pdus");
+	  conversation_add_proto_data(conversation, proto_stun2, stun2_info);
+	}
+
+	if (!pinfo->fd->flags.visited){
+	  if ((stun2_trans=
+	       se_tree_lookup32_array(stun2_info->transaction_pdus, 
+				      transaction_id_key)) == NULL) {
+	    stun2_trans=se_alloc(sizeof(stun2_transaction_t));
+	    stun2_trans->req_frame=0;
+	    stun2_trans->rep_frame=0;
+	    stun2_trans->req_time=pinfo->fd->abs_ts;
+	    se_tree_insert32_array(stun2_info->transaction_pdus, 
+				   transaction_id_key, 
+				   (void *)stun2_trans);
+	  }
+	  
+	  if (msg_type_class == REQUEST) {
+	    /* This is a request */
+	    if (stun2_trans->req_frame == 0) {
+	      stun2_trans->req_frame=pinfo->fd->num;
+	    }
+  
+	  } else {
+	    /* This is a catch-all for all non-request messages */
+            if (stun2_trans->rep_frame == 0) {
+              stun2_trans->rep_frame=pinfo->fd->num;
+	    }
+	 
+	  }
+	} else {
+	  stun2_trans=se_tree_lookup32_array(stun2_info->transaction_pdus, 
+					     transaction_id_key);
+	}
+	
+	if (!stun2_trans) {
+          /* create a "fake" pana_trans structure */
+	  stun2_trans=ep_alloc(sizeof(stun2_transaction_t));
+	  stun2_trans->req_frame=0;
+	  stun2_trans->rep_frame=0;
+	  stun2_trans->req_time=pinfo->fd->abs_ts;
+	}
+
+        
+	msg_class_str = match_strval(msg_type_class, classes);
+	msg_method_str = match_strval(msg_type_method, methods);
+
 	if (msg_method_str == NULL)
 		msg_method_str = "Unknown";
 
@@ -370,36 +585,92 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	stun2_tree = proto_item_add_subtree(ti, ett_stun2);
 
-	proto_tree_add_uint(stun2_tree, hf_stun2_class, tvb, 0, 2, msg_type);
-	proto_tree_add_uint(stun2_tree, hf_stun2_method, tvb, 0, 2, msg_type);
+
+	if (msg_type_class == REQUEST) {
+	  if (stun2_trans->req_frame != pinfo->fd->num) {
+	    proto_item *it;
+	    it=proto_tree_add_uint(stun2_tree, hf_stun2_duplicate, 
+				   tvb, 0, 0, 
+				   stun2_trans->req_frame);
+	    PROTO_ITEM_SET_GENERATED(it);
+	  }
+	  if (stun2_trans->rep_frame) {
+	    proto_item *it;
+	    it=proto_tree_add_uint(stun2_tree, hf_stun2_response_in, 
+				   tvb, 0, 0, 
+				   stun2_trans->rep_frame);
+	    PROTO_ITEM_SET_GENERATED(it);
+	  }
+	}
+	else {
+	  /* Retransmission control */
+	  if (stun2_trans->rep_frame != pinfo->fd->num) {
+	    proto_item *it;
+	    it=proto_tree_add_uint(stun2_tree, hf_stun2_duplicate, 
+				   tvb, 0, 0, 
+				   stun2_trans->rep_frame);
+	    PROTO_ITEM_SET_GENERATED(it);
+	  }
+	  if (msg_type_class == RESPONSE || msg_type_class == ERROR_RESPONSE) {
+	    /* This is a response */
+	    if (stun2_trans->req_frame) {
+	      proto_item *it;
+	      nstime_t ns;
+	      
+	      it=proto_tree_add_uint(stun2_tree, hf_stun2_response_to, tvb, 0, 0, stun2_trans->req_frame);
+	      PROTO_ITEM_SET_GENERATED(it);
+	      
+	      nstime_delta(&ns, &pinfo->fd->abs_ts, &stun2_trans->req_time);
+	      it=proto_tree_add_time(stun2_tree, hf_stun2_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED(it);
+	    }
+    
+	  }
+	}
+
+	ti = proto_tree_add_uint_format(stun2_tree, hf_stun2_type, tvb, 0, 2, msg_type, "Message Type: 0x%04x (%s %s)", msg_type, msg_method_str, msg_class_str);
+	stun2_type_tree = proto_item_add_subtree(ti, ett_stun2_type);
+	proto_tree_add_uint(stun2_type_tree, hf_stun2_type_class, tvb, 0, 2, msg_type);
+	ti = proto_tree_add_text(stun2_type_tree, tvb, 0, 2, "%s (%d)", msg_class_str, msg_type_class);
+	PROTO_ITEM_SET_GENERATED(ti);
+	proto_tree_add_uint(stun2_type_tree, hf_stun2_type_method, tvb, 0, 2, msg_type);
+	ti = proto_tree_add_text(stun2_type_tree, tvb, 0, 2, "%s (0x%03x)", msg_method_str, msg_type_method);
+	PROTO_ITEM_SET_GENERATED(ti);
+	proto_tree_add_uint(stun2_type_tree, hf_stun2_type_method_assignment, tvb, 0, 2, msg_type);
+	ti = proto_tree_add_text(stun2_type_tree, tvb, 0, 2, "%s (%d)", match_strval((msg_type & 0x2000) >> 13, assignments), (msg_type & 0x2000) >> 13);
+	PROTO_ITEM_SET_GENERATED(ti);
+
 	proto_tree_add_uint(stun2_tree, hf_stun2_length, tvb, 2, 2, msg_length);
 	proto_tree_add_item(stun2_tree, hf_stun2_cookie, tvb, 4, 4, FALSE);
 	proto_tree_add_item(stun2_tree, hf_stun2_id, tvb, 8, 12, FALSE);
 
 	/* Remember this (in host order) so we can show clear xor'd addresses */
-	/* TODO IPv6 support */
-	transaction_id_first_word = tvb_get_ntohl(tvb, 4);
+	magic_cookie_first_word = tvb_get_ntohl(tvb, 4);
 
 	if (msg_length > 0) {
-		ta = proto_tree_add_item(stun2_tree, hf_stun2_att, tvb, STUN2_HDR_LEN, msg_length, FALSE);
-		att_type_tree = proto_item_add_subtree(ta, ett_stun2_att_type);
+                ti = proto_tree_add_item(stun2_tree, hf_stun2_attributes, tvb, STUN2_HDR_LEN, msg_length, FALSE);
+                att_all_tree = proto_item_add_subtree(ti, ett_stun2_att_all);
 
 		offset = STUN2_HDR_LEN;
 
 		while (msg_length > 0) {
 			att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
 			att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
+                        att_type_str = match_strval(att_type, attributes);
+                        if (att_type_str == NULL)
+                          att_type_str = "Unknown";
+		        ti = proto_tree_add_uint_format(att_all_tree, hf_stun2_attr, tvb, offset, ATTR_HDR_LEN+att_length, att_type, "%s", att_type_str);
+		        att_tree = proto_item_add_subtree(ti, ett_stun2_att);
+                        ti = proto_tree_add_uint(att_tree, stun2_att_type, tvb,
+                                         offset, 2, att_type);
+                        att_type_tree = proto_item_add_subtree(ti, ett_stun2_att_type);
+                        proto_tree_add_uint(att_type_tree, stun2_att_type_comprehension, tvb, offset, 2, att_type);
+                        ti = proto_tree_add_text(att_type_tree, tvb, offset, 2, "%s (%d)", match_strval((att_type & 0x8000) >> 15, comprehensions), (att_type & 0x8000) >> 15);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_tree_add_uint(att_type_tree, stun2_att_type_assignment, tvb, offset, 2, att_type);
+                        ti = proto_tree_add_text(att_type_tree, tvb, offset, 2, "%s (%d)", match_strval((att_type & 0x4000) >> 14, assignments), (att_type & 0x4000) >> 14);
+                        PROTO_ITEM_SET_GENERATED(ti);
 
-			ta = proto_tree_add_text(att_type_tree, tvb, offset,
-				ATTR_HDR_LEN+att_length,
-				"Attribute: %s",
-				val_to_str(att_type, attributes, att_type & 0x8000 ?
-					"Unknown (0x%4x) - Comprehension-optional" :
-					"Unknown (0x%04x)- Comprehension-required"));
-			att_tree = proto_item_add_subtree(ta, ett_stun2_att);
-
-			proto_tree_add_uint(att_tree, stun2_att_type, tvb,
-				offset, 2, att_type);
 			offset += 2;
 			if (ATTR_HDR_LEN+att_length > msg_length) {
 				proto_tree_add_uint_format(att_tree,
@@ -415,6 +686,11 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (att_type) {
 			case MAPPED_ADDRESS:
 			case ALTERNATE_SERVER:
+			case RESPONSE_ORIGIN:
+			case OTHER_ADDRESS:
+				if (att_length < 1)
+					break;
+				proto_tree_add_uint(att_tree, stun2_att_reserved, tvb, offset, 1, 1);
 				if (att_length < 2)
 					break;
 				proto_tree_add_item(att_tree, stun2_att_family, tvb, offset+1, 1, FALSE);
@@ -452,6 +728,13 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				break;
 
+			case CHANGE_REQUEST:
+				if (att_length < 4)
+				    break;
+				proto_tree_add_item(att_tree, stun2_att_change_ip, tvb, offset, 4, FALSE);
+				proto_tree_add_item(att_tree, stun2_att_change_port, tvb, offset, 4, FALSE);
+				break;
+
 			case USERNAME:
 				proto_tree_add_item(att_tree, stun2_att_username, tvb, offset, att_length, FALSE);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
@@ -473,6 +756,9 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case ERROR_CODE:
+				if (att_length < 2)
+					break;
+				proto_tree_add_uint(att_tree, stun2_att_reserved, tvb, offset, 2, 2);
 				if (att_length < 3)
 					break;
 				proto_tree_add_item(att_tree, stun2_att_error_class, tvb, offset+2, 1, FALSE);
@@ -549,7 +835,12 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case XOR_MAPPED_ADDRESS:
 			case PEER_ADDRESS:
-			case RELAY_ADDRESS:
+			case RELAYED_ADDRESS:
+			case XOR_RESPONSE_TARGET:
+			case XOR_REFLECTED_FROM:
+				if (att_length < 1)
+					break;
+				    	proto_tree_add_uint(att_tree, stun2_att_reserved, tvb, offset, 1, 1);
 				if (att_length < 2)
 					break;
 				proto_tree_add_item(att_tree, stun2_att_family, tvb, offset+1, 1, FALSE);
@@ -562,7 +853,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				Add host-order port into tree. */
 				ti = proto_tree_add_uint(att_tree, stun2_att_port, tvb, offset+2, 2,
 					tvb_get_ntohs(tvb, offset+2) ^
-					(transaction_id_first_word >> 16));
+					(magic_cookie_first_word >> 16));
 				PROTO_ITEM_SET_GENERATED(ti);
 
 				if (att_length < 8)
@@ -578,16 +869,16 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					Add in network order tree. */
 					ti = proto_tree_add_ipv4(att_tree, stun2_att_ipv4, tvb, offset+4, 4,
 						g_htonl(tvb_get_ntohl(tvb, offset+4) ^
-						transaction_id_first_word));
+						magic_cookie_first_word));
 					PROTO_ITEM_SET_GENERATED(ti);
 
 					{
 						const gchar *ipstr;
 						guint32 ip;
 						guint16 port;
-						ip = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ transaction_id_first_word);
+						ip = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ magic_cookie_first_word);
 						ipstr = ip_to_str((guint8*)&ip);
-						port = tvb_get_ntohs(tvb, offset+2) ^ (transaction_id_first_word >> 16);
+						port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
 						proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
 						if (check_col(pinfo->cinfo, COL_INFO)) {
 							col_append_fstr(
@@ -604,24 +895,71 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case 2:
 					if (att_length < 20)
 						break;
-					/* TODO add IPv6 */
 					proto_tree_add_item(att_tree, stun2_att_xor_ipv6, tvb, offset+4, 16, FALSE);
+                                        {
+                                          guint32 IPv6[4];
+                                          IPv6[0] = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ magic_cookie_first_word);
+                                          IPv6[1] = g_htonl(tvb_get_ntohl(tvb, offset+8) ^ transaction_id[0]);
+                                          IPv6[2] = g_htonl(tvb_get_ntohl(tvb, offset+12) ^ transaction_id[1]);
+                                          IPv6[3] = g_htonl(tvb_get_ntohl(tvb, offset+16) ^ transaction_id[2]);
+                                          ti = proto_tree_add_ipv6(att_tree, stun2_att_ipv6, tvb, offset+4, 16, (const guint8 *)IPv6);
+                                          PROTO_ITEM_SET_GENERATED(ti); 
+                                        }
+
 					break;
 				}
 				break;
+				
+			case REQUESTED_ADDRESS_TYPE:
+				if (att_length < 1)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_family, tvb, offset, 1, FALSE);
+				if (att_length < 4)
+					break;
+				proto_tree_add_uint(att_tree, stun2_att_reserved, tvb, offset+1, 3, 3);
+				break;
 
-			case SERVER:
-				proto_tree_add_item(att_tree, stun2_att_server, tvb, offset, att_length, FALSE);
-				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(
-						pinfo->cinfo, COL_INFO,
-						" server: %s",
-						tvb_get_ephemeral_string(tvb,offset, att_length)
-						);
-				}
+			case REQUESTED_PROPS:
+				if (att_length < 4)
+				break;
+				proto_tree_add_item(att_tree, stun2_att_properties_e, tvb, offset, 4, FALSE);
+				proto_tree_add_item(att_tree, stun2_att_properties_r, tvb, offset, 4, FALSE);
+				proto_tree_add_item(att_tree, stun2_att_properties_p, tvb, offset, 4, FALSE);
+				break;
+
+			case RESERVATION_TOKEN:
+				if (att_length < 8)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_token, tvb, offset, 8, FALSE);
+				break;
+
+			case PRIORITY:
+				if (att_length < 4)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_priority, tvb, offset, 4, FALSE);
+				break;
+
+			case PADDING:
+				proto_tree_add_uint(att_tree, stun2_att_padding, tvb, offset, att_length, att_length);
+				break;
+
+			case ICMP:
+				if (att_length < 4)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_icmp_type, tvb, offset, 1, FALSE);
+				proto_tree_add_item(att_tree, stun2_att_icmp_code, tvb, offset+1, 1, FALSE);
+				break;
+
+			case SOFTWARE:
+				proto_tree_add_item(att_tree, stun2_att_software, tvb, offset, att_length, FALSE);
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun2_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+				break;
+
+			case CACHE_TIMEOUT:
+				if (att_length < 4)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_cache_timeout, tvb, offset, 4, FALSE);
 				break;
 
 			case FINGERPRINT:
@@ -630,21 +968,45 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(att_tree, stun2_att_crc32, tvb, offset, att_length, FALSE);
 				break;
 
+			case ICE_CONTROLLED:
+			case ICE_CONTROLLING:
+				if (att_length < 8)
+					break;
+				proto_tree_add_item(att_tree, stun2_att_tie_breaker, tvb, offset, 8, FALSE);
+				break;
+
 			case DATA:
 				if (att_length > 0) {
+                                        tvbuff_t *next_tvb;
+                                        guint reported_len, pad=0;
 					proto_tree_add_item(att_tree, stun2_att_value, tvb, offset, att_length, FALSE);
 					if (att_length % 4 != 0) {
-						proto_tree_add_uint(att_tree, stun2_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                                                pad = 4-(att_length % 4);
+						proto_tree_add_uint(att_tree, stun2_att_padding, tvb, offset+att_length, pad, pad);
 					}
-					decode_udp_ports(tvb, offset, pinfo, tree, 0, 0, (int) offset + att_length);
-					/* TODO ports */
+                                        reported_len = att_length; 
+				 
+				  
+                                        next_tvb = 
+                                          tvb_new_subset(tvb, offset, 
+                                                         reported_len, 
+                                                         reported_len);
+
+                                        if (!dissector_try_heuristic(heur_subdissector_list, 
+                                                                     next_tvb, pinfo, att_tree)) {
+                                          call_dissector_only(data_handle,next_tvb, pinfo, att_tree);
+                                        }
+
 				}
 				break;
 
 			case REQUESTED_TRANSPORT:
-				if (att_length < 4)
+				if (att_length < 1)
 					break;
 				proto_tree_add_item(att_tree, stun2_att_transp, tvb, offset, 1, FALSE);
+				if (att_length < 4)
+					break;
+				
 				{
 					guint8  protoCode = tvb_get_guint8(tvb, offset);
 					proto_item_append_text(att_tree, ": %s", val_to_str(protoCode, transportnames, "Unknown (0x%8x)"));
@@ -759,7 +1121,19 @@ dissect_stun2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* two first bits not NULL => should be a channel-data message */
 		if (msg_type == 0xFFFF)
 			return FALSE;
-		msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4);
+                /* note that padding is only mandatory over streaming 
+                   protocols */
+                msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4);
+                /* check if payload enough */
+                if (len != msg_total_len) {
+                  if (pinfo->ipproto != IP_PROTO_UDP) {
+                        return FALSE;
+                  }
+                  /* recalculate the total length without padding */
+                  msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
+                  if (len != msg_total_len) 
+                        return FALSE;
+                }
 	}
 	else
 	{
@@ -769,12 +1143,11 @@ dissect_stun2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return FALSE;
 		/* Check if it is really a STUN2 message */
 		if (tvb_get_ntohl(tvb, 4) != 0x2112a442)
-			return FALSE;
+                        return FALSE;
+                /* check if payload enough */
+                if (len != msg_total_len) 
+                        return FALSE;
 	}
-
-	/* check if payload enough */
-	if (len != msg_total_len)
-		return FALSE;
 
 	dissect_stun2_message(tvb, pinfo, tree);
 	return TRUE;
@@ -791,14 +1164,22 @@ proto_register_stun2(void)
 		},
 
 		/* ////////////////////////////////////// */
-		{ &hf_stun2_class,
-		{ "Message Class",	"stun2.class", 	FT_UINT16,
-		BASE_HEX, 	VALS(classes),	0x0110, 	"", 	HFILL }
+		{ &hf_stun2_type,
+			{ "Message Type",	"stun2.type", 	FT_UINT16,
+			BASE_HEX, 	NULL,	0, 	"", 	HFILL }
 		},
-		{ &hf_stun2_method,
-		{ "Message Method",	"stun2.method", 	FT_UINT16,
-		BASE_HEX, 	VALS(methods),	0x3EEF, 	"", 	HFILL }
+		{ &hf_stun2_type_class,
+			{ "Message Class",	"stun2.type.class", 	FT_UINT16,
+			BASE_HEX, 	NULL,	0x0110, 	"", 	HFILL }
 		},
+		{ &hf_stun2_type_method,
+			{ "Message Method",	"stun2.type.method", 	FT_UINT16,
+			BASE_HEX, 	NULL,	0x3EEF, 	"", 	HFILL }
+		},
+		{ &hf_stun2_type_method_assignment,
+			{ "Message Method Assignment",	"stun2.type.method-assignment", 	FT_UINT16,
+			BASE_HEX, 	NULL,	0x2000, 	"", 	HFILL }
+                },
 		{ &hf_stun2_length,
 		{ "Message Length",	"stun2.length",	FT_UINT16,
 		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
@@ -811,21 +1192,49 @@ proto_register_stun2(void)
 		{ "Message Transaction ID",	"stun2.id",	FT_BYTES,
 		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
 		},
-		{ &hf_stun2_att,
-		{ "Attributes",		"stun2.att",	FT_NONE,
+		{ &hf_stun2_attributes,
+			{ "Attributes",		"stun2.attributes",	FT_NONE,
 		BASE_NONE,	NULL, 	0x0, 	"",	HFILL }
+		},
+		{ &hf_stun2_attr,
+			{ "Attribute Type",	"stun2.attribute", 	FT_UINT16,
+			BASE_HEX, 	NULL,	0, 	"", 	HFILL }
+		},
+		{ &hf_stun2_response_in,
+			{ "Response In",	"stun2.response-in", FT_FRAMENUM, 
+			BASE_DEC, NULL, 0x0, "The response to this STUN2 query is in this frame", HFILL }
+		},
+		{ &hf_stun2_response_to,
+			{ "Request In", "stun2.response-to", FT_FRAMENUM, 
+			BASE_DEC, NULL, 0x0, "This is a response to the STUN2 Request in this frame", HFILL }
+		},
+		{ &hf_stun2_time,
+			{ "Time", "stun2.time", FT_RELATIVE_TIME, 
+			BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL }
+		},
+		{ &hf_stun2_duplicate,
+			{ "Duplicated original message in", "stun2.reqduplicate", FT_FRAMENUM, 
+			BASE_DEC, NULL, 0x0, "This is a duplicate of STUN2 message in this frame ", HFILL }
 		},
 		/* ////////////////////////////////////// */
 		{ &stun2_att_type,
 		{ "Attribute Type",	"stun2.att.type",	FT_UINT16,
 		BASE_HEX,	VALS(attributes),	0x0, 	"",	HFILL }
 		},
+		{ &stun2_att_type_comprehension,
+			{ "Attribute Type Comprehension",	"stun2.att.type.comprehension",	FT_UINT16,
+			BASE_HEX,	NULL,	0x8000, 	"",	HFILL }
+		},
+		{ &stun2_att_type_assignment,
+			{ "Attribute Type Assignment",	"stun2.att.type.assignment",	FT_UINT16,
+			BASE_HEX,	NULL,	0x4000, 	"",	HFILL }
+		},
 		{ &stun2_att_length,
 		{ "Attribute Length",	"stun2.att.length",	FT_UINT16,
 		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun2_att_family,
-		{ "Protocol Family",	"stun2.att.family",	FT_UINT16,
+		{ "Protocol Family",	"stun2.att.family",	FT_UINT8,
 		BASE_HEX,	VALS(attributes_family),	0x0, 	"",	HFILL }
 		},
 		{ &stun2_att_ipv4,
@@ -881,20 +1290,68 @@ proto_register_stun2(void)
 		BASE_HEX, 	NULL,	0x0,	"",	HFILL}
 		},
 		{ &stun2_att_xor_ipv4,
-		{ "IP (XOR-d)",		"stun2.att.ipv4-xord",	FT_IPv4,
+		{ "IP (XOR-d)",		"stun2.att.ipv4-xord",	FT_BYTES,
 		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun2_att_xor_ipv6,
-		{ "IP (XOR-d)",		"stun2.att.ipv6-xord",	FT_IPv6,
-		BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		{ "IP (XOR-d)",		"stun2.att.ipv6-xord",	FT_BYTES,
+		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun2_att_xor_port,
-		{ "Port (XOR-d)",	"stun2.att.port-xord",	FT_UINT16,
-		BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		{ "Port (XOR-d)",	"stun2.att.port-xord",	FT_BYTES,
+		BASE_HEX,	NULL,	0x0, 	"",	HFILL }
 		},
-		{ &stun2_att_server,
-		{ "Server software","stun2.att.server",	FT_STRING,
+		{ &stun2_att_icmp_type,
+			{ "ICMP type",		"stun2.att.icmp.type",	FT_UINT8,
+                         BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun2_att_icmp_code,
+			{ "ICMP code",		"stun2.att.icmp.code",	FT_UINT8,
+			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun2_att_software,
+			{ "Software","stun2.att.software",	FT_STRING,
 		BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+		},
+		{ &stun2_att_priority,
+			{ "Priority",		"stun2.att.priority",	FT_UINT32,
+			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun2_att_tie_breaker,
+			{ "Tie breaker",	"stun2.att.tie-breaker",	FT_BYTES,
+			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun2_att_lifetime,
+			{ "Lifetime",		"stun2.att.lifetime",	FT_UINT32,
+			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun2_att_change_ip,
+			{ "Change IP","stun2.att.change-ip",	FT_BOOLEAN,
+		16, 	TFS(&set_flag),	0x0004,	"",	HFILL}
+		},
+		{ &stun2_att_change_port,
+			{ "Change Port","stun2.att.change-port",	FT_BOOLEAN,
+			16, 	TFS(&set_flag),	0x0002,	"",	HFILL}
+		},		
+		{ &stun2_att_properties_e,
+			{ "Properties","stun2.att.properties.even",	FT_UINT32,
+			BASE_DEC, 	VALS(attributes_properties_e),	0x80000000,	"",	HFILL}
+		},		
+		{ &stun2_att_properties_r,
+			{ "Properties","stun2.att.properties.reserve",	FT_UINT32,
+			BASE_DEC, 	VALS(attributes_properties_r),	0x40000000,	"",	HFILL}
+		},		
+		{ &stun2_att_properties_p,
+			{ "Properties","stun2.att.properties.preserving",	FT_UINT32,
+			BASE_DEC, 	VALS(attributes_properties_p),	0x20000000,	"",	HFILL}
+		},		
+		{ &stun2_att_cache_timeout,
+			{ "Cache timeout",		"stun2.att.cache-timeout",	FT_UINT32,
+			BASE_DEC, 	NULL,	0x0,	"",	HFILL}
+ 		},
+		{ &stun2_att_token,
+			{ "Token",	"stun2.att.token",	FT_BYTES,
+			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
 		},
 		{ &stun2_att_value,
 		{ "Value",	"stun2.value",	FT_BYTES,
@@ -916,17 +1373,15 @@ proto_register_stun2(void)
 		{ "Bandwidth",	"stun2.port.bandwidth", 	FT_UINT32,
 		BASE_DEC, 	NULL,	0x0, 	"", HFILL }
 		},
-		{ &stun2_att_lifetime,
-		{ "Lifetime",	"stun2.port.lifetime", 	FT_UINT32,
-		BASE_DEC, 	NULL,	0x0, 	"", HFILL }
-		}
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_stun2,
+		&ett_stun2_type,
+		&ett_stun2_att_all,
+		&ett_stun2_att,
 		&ett_stun2_att_type,
-		&ett_stun2_att
 	};
 
 	/* Register the protocol name and description */
@@ -936,6 +1391,9 @@ proto_register_stun2(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_stun2, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+        /* heuristic subdissectors (used for the DATA field) */
+	register_heur_dissector_list("stun2", &heur_subdissector_list);
 }
 
 void
@@ -952,5 +1410,9 @@ proto_reg_handoff_stun2(void)
 
 	heur_dissector_add("udp", dissect_stun2_heur, proto_stun2);
 	heur_dissector_add("tcp", dissect_stun2_heur, proto_stun2);
+	heur_dissector_add("stun2", dissect_stun2_heur, 
+			   proto_stun2);
+
+        data_handle = find_dissector("data");
 }
 

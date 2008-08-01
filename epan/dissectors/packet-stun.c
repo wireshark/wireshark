@@ -37,6 +37,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_stun = -1;
@@ -45,6 +46,10 @@ static int hf_stun_type = -1;		/* STUN message header */
 static int hf_stun_length = -1;
 static int hf_stun_id = -1;
 static int hf_stun_att = -1;
+static int hf_stun_response_in = -1;
+static int hf_stun_response_to = -1;
+static int hf_stun_time = -1;
+
 
 static int stun_att_type = -1;		/* STUN attribute fields */
 static int stun_att_length = -1;
@@ -69,6 +74,18 @@ static int stun_att_bandwidth = -1;
 static int stun_att_data = -1;
 static int stun_att_connection_request_binding = -1;
 
+/* Structure containing transaction specific information */
+typedef struct _stun_transaction_t {
+        guint32 req_frame;
+        guint32 rep_frame;
+        nstime_t req_time;
+} stun_transaction_t;
+
+/* Structure containing conversation specific information */
+typedef struct _stun_conv_info_t {
+        emem_tree_t *pdus;
+} stun_conv_info_t;
+
 
 /* Message Types */
 #define BINDING_REQUEST			0x0001
@@ -88,6 +105,13 @@ static int stun_att_connection_request_binding = -1;
 #define SET_ACTIVE_DESTINATION_RESPONSE	0x0106
 #define SET_ACTIVE_DESTINATION_ERROR_RESPONSE	0x0116
 
+
+/* Message classes */
+#define CLASS_MASK	0xC110
+#define REQUEST		0x0000
+#define INDICATION	0x0001
+#define RESPONSE	0x0010
+#define ERROR_RESPONSE	0x0011    
 
 /* Attribute Types */
 #define MAPPED_ADDRESS		0x0001
@@ -210,6 +234,12 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 offset;
 	guint   len;
 	guint i;
+	conversation_t *conversation;
+	stun_conv_info_t *stun_info;
+	stun_transaction_t * stun_trans;
+	emem_tree_key_t transaction_id_key[2];
+	guint32 transaction_id[4];
+
 
 	/*
 	 * First check if the frame is really meant for us.
@@ -220,6 +250,9 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	
 	msg_type = tvb_get_ntohs(tvb, 0);
+
+	if (msg_type & 0xC000 || tvb_get_ntohl(tvb, 4) == 0x2112a442)
+                return 0;
 	
 	/* check if message type is correct */
 	msg_type_str = match_strval(msg_type, messages);
@@ -233,6 +266,74 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 
 	/* The message seems to be a valid STUN message! */
+
+	/* Create the transaction key which may be used
+	   to track the conversation */
+	transaction_id[0] = tvb_get_ntohl(tvb, 4);
+	transaction_id[1] = tvb_get_ntohl(tvb, 8);
+	transaction_id[2] = tvb_get_ntohl(tvb, 12);
+	transaction_id[3] = tvb_get_ntohl(tvb, 16);
+
+	transaction_id_key[0].length = 4;
+	transaction_id_key[0].key =  transaction_id;
+	transaction_id_key[1].length = 0;
+	transaction_id_key[1].key =  NULL;
+
+	/*
+	 * Do we have a conversation for this connection?
+	 */
+	conversation = find_conversation(pinfo->fd->num, 
+					 &pinfo->src, &pinfo->dst,
+					 pinfo->ptype, 
+					 pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+	  /* We don't yet have a conversation, so create one. */
+	  conversation = conversation_new(pinfo->fd->num, 
+					  &pinfo->src, &pinfo->dst,
+					  pinfo->ptype,
+					  pinfo->srcport, pinfo->destport, 0);
+	}
+	/*
+	 * Do we already have a state structure for this conv
+	 */
+	stun_info = conversation_get_proto_data(conversation, proto_stun);
+	if (!stun_info) {
+	  /* No.  Attach that information to the conversation, and add
+	   * it to the list of information structures.
+	   */
+	  stun_info = se_alloc(sizeof(stun_conv_info_t));
+	  stun_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "stun_pdus");
+	  conversation_add_proto_data(conversation, proto_stun, stun_info);
+	}
+	
+	if(!pinfo->fd->flags.visited){
+	  if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
+	    /* This is a request */
+	    stun_trans=se_alloc(sizeof(stun_transaction_t));
+	    stun_trans->req_frame=pinfo->fd->num;
+	    stun_trans->rep_frame=0;
+	    stun_trans->req_time=pinfo->fd->abs_ts;
+	    se_tree_insert32_array(stun_info->pdus, transaction_id_key, 
+				  (void *)stun_trans);
+	  } else {
+	    stun_trans=se_tree_lookup32_array(stun_info->pdus, 
+					       transaction_id_key);
+	    if(stun_trans){
+	      stun_trans->rep_frame=pinfo->fd->num;
+	    }
+	  }
+	} else {
+	  stun_trans=se_tree_lookup32_array(stun_info->pdus, transaction_id_key);
+	}
+	if(!stun_trans){
+	  /* create a "fake" pana_trans structure */
+	  stun_trans=ep_alloc(sizeof(stun_transaction_t));
+	  stun_trans->req_frame=0;
+	  stun_trans->rep_frame=0;
+	  stun_trans->req_time=pinfo->fd->abs_ts;
+	}
+	
+
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
@@ -248,6 +349,32 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, FALSE);
 			    
 		stun_tree = proto_item_add_subtree(ti, ett_stun);
+
+		if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
+		  if (stun_trans->rep_frame) {
+		    proto_item *it;
+		    it=proto_tree_add_uint(stun_tree, hf_stun_response_in, 
+					   tvb, 0, 0, 
+					   stun_trans->rep_frame);
+		    PROTO_ITEM_SET_GENERATED(it);
+		  }
+		}
+		else if ((((msg_type & CLASS_MASK) >> 4) == RESPONSE) ||
+			 (((msg_type & CLASS_MASK) >> 4) == ERROR_RESPONSE)) {
+		  /* This is a response */
+		  if(stun_trans->req_frame){
+		    proto_item *it;
+		    nstime_t ns;
+		    
+		    it=proto_tree_add_uint(stun_tree, hf_stun_response_to, tvb, 0, 0, stun_trans->req_frame);
+		    PROTO_ITEM_SET_GENERATED(it);
+		    
+		    nstime_delta(&ns, &pinfo->fd->abs_ts, &stun_trans->req_time);
+		    it=proto_tree_add_time(stun_tree, hf_stun_time, tvb, 0, 0, &ns);
+		    PROTO_ITEM_SET_GENERATED(it);
+		  }
+		  
+		}
 
 		proto_tree_add_uint(stun_tree, hf_stun_type, tvb, 0, 2, msg_type);
 		proto_tree_add_uint(stun_tree, hf_stun_length, tvb, 2, 2, msg_length);
@@ -473,6 +600,19 @@ proto_register_stun(void)
 			{ "Attributes",		"stun.att",	FT_NONE,
 			0, 		NULL, 	0x0, 	"",	HFILL }
 		},
+		{ &hf_stun_response_in,
+		  { "Response In", "stun.response_in",
+		    FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		    "The response to this STUN query is in this frame", HFILL }},
+		{ &hf_stun_response_to,
+		  { "Request In", "stun.response_to",
+		    FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		    "This is a response to the STUN Request in this frame", HFILL }},
+		{ &hf_stun_time,
+		  { "Time", "stun.time",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "The time between the Request and the Response", HFILL }},
+
 		/* ////////////////////////////////////// */
 		{ &stun_att_type,
 			{ "Attribute Type",	"stun.att.type",	FT_UINT16,

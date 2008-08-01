@@ -1939,6 +1939,7 @@ proto_reg_handoff_rtp(void)
 	dissector_add("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
 
 	heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
+	heur_dissector_add("stun2", dissect_rtp_heur, proto_rtp);
 }
 
 /*

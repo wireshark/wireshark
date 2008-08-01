@@ -760,6 +760,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-turbocell.c	\
+	packet-turnchannel.c	\
 	packet-tuxedo.c		\
 	packet-tzsp.c		\
 	packet-ucp.c		\

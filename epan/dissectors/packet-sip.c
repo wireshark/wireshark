@@ -3950,4 +3950,5 @@ proto_reg_handoff_sip(void)
 	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
 	heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
 	heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
+	heur_dissector_add("stun2", dissect_sip_heur, proto_sip);
 }
