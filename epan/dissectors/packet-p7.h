@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p7.h                                                                */
-/* ../../tools/asn2wrs.py -b -e -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p p7 -c ./p7.cnf -s ./packet-p7-template -D . MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
 
 /* Input file: packet-p7-template.h */
 

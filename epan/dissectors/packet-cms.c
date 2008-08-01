@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cms.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ../../tools/asn2wrs.py -b -e -p cms -c ./cms.cnf -s ./packet-cms-template -D . CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -1295,9 +1295,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cms_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

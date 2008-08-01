@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s4406.c                                                             */
-/* ../../tools/asn2wrs.py -b -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* ../../tools/asn2wrs.py -b -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -223,9 +223,7 @@ dissect_s4406_ExemptedAddressSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_s4406_ExtendedAuthorisationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

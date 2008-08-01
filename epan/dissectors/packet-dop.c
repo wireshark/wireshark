@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dop.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
+/* ../../tools/asn2wrs.py -b -e -p dop -c ./dop.cnf -s ./packet-dop-template -D . dop.asn */
 
 /* Input file: packet-dop-template.c */
 
@@ -679,9 +679,7 @@ dissect_dop_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_dop_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

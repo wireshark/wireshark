@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x420.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn */
+/* ../../tools/asn2wrs.py -b -e -p x420 -c ./x420.cnf -s ./packet-x420-template -D . IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn */
 
 /* Input file: packet-x420-template.c */
 
@@ -635,9 +635,7 @@ static int dissect_x420_ForwardedContentToken(gboolean implicit_tag _U_, tvbuff_
 
 static int
 dissect_x420_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

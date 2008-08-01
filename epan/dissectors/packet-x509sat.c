@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -1457,9 +1457,7 @@ dissect_x509sat_SyntaxGeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_x509sat_SyntaxUTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
