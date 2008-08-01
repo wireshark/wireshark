@@ -88,18 +88,18 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
 	if (len < TURNCHANNEL_HDR_LEN) {
-		  return FALSE;
+		  return 0;
 	}
 
 	channel_id = tvb_get_ntohs(tvb, 0);
 	data_len = tvb_get_ntohs(tvb, 2);
 
 	if ((channel_id < 0x4000) || (channel_id > 0xFFFE)) {
-	  return FALSE;
+	  return 0;
 	}
 
 	if (len != TURNCHANNEL_HDR_LEN + data_len) {
-	  return FALSE;
+	  return 0;
 	}
 
 	/* Seems to be a decent TURN channel message */
@@ -110,7 +110,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);
 
 	if (!tree)
-	  return TRUE;
+	  return tvb_length(tvb);
 
 	ti = proto_tree_add_item(tree, proto_turnchannel, tvb, 0, -1, FALSE);
 
@@ -140,7 +140,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	  }
 	}
 
-	return TRUE;
+	return tvb_length(tvb);
 }
 
 
@@ -215,7 +215,7 @@ proto_register_turnchannel(void)
 	proto_turnchannel = proto_register_protocol("TURN Channel",
 	    "TURNCHANNEL", "turnchannel");
 
-	register_dissector("turnchannel", dissect_turnchannel_message,
+	new_register_dissector("turnchannel", dissect_turnchannel_message,
 			   proto_turnchannel);
 
 /* subdissectors */
