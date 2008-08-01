@@ -160,7 +160,7 @@ static gint ett_sndcp_comp_field        = -1;
  */
 static dissector_handle_t data_handle;
 
-static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, boolean dcomp);
+static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp);
 /******************************************************/
 /* Compression algorithms element dissector functions */
 /******************************************************/
@@ -563,7 +563,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 
-static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, boolean dcomp)
+static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp)
 {
 	guint8 entity, len, algo_id;
 	guint8 number_of_comp, i;
