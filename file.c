@@ -2846,7 +2846,7 @@ static gboolean
 match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t		*info = criterion;
-  const char	*ascii_text = info->data;
+  const guint8	*ascii_text = info->data;
   size_t	textlen = info->data_len;
   gboolean	frame_matched;
   guint32	buf_len;
@@ -2880,7 +2880,7 @@ static gboolean
 match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t		*info = criterion;
-  const char	*ascii_text = info->data;
+  const guint8	*ascii_text = info->data;
   size_t	textlen = info->data_len;
   gboolean	frame_matched;
   guint32	buf_len;
@@ -2912,7 +2912,7 @@ static gboolean
 match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t		*info = criterion;
-  const char	*ascii_text = info->data;
+  const guint8	*ascii_text = info->data;
   size_t	textlen = info->data_len;
   gboolean	frame_matched;
   guint32	buf_len;
