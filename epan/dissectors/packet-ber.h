@@ -200,6 +200,8 @@ extern int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto
 
 extern int dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
+extern int dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
+ 
 typedef struct _asn_namedbit {
 	guint32 bit;
 	int *p_id;
