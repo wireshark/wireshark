@@ -130,10 +130,12 @@ static gint ett_ui = -1;
 static gint ett_llcgprs_sframe = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t sndcp_xid_handle;
 
 static gboolean ignore_cipher_bit = FALSE;
 
 static dissector_table_t llcgprs_subdissector_table;
+
 static const value_string sapi_t[] = {
 	{  0, "Reserved"},
 	{  1, "GPRS Mobility Management" },
@@ -314,27 +316,29 @@ typedef enum {
 	FCS_NOT_COMPUTED
 } fcs_status_t;
 
+
 /* sub-dissector for XID data */
 static void llc_gprs_dissect_xid(tvbuff_t *tvb, 
-								guint16 offset, 
-								guint16 llc_data_length, 
-								guint8 info_len,
-								proto_item *llcgprs_tree,
-								proto_tree *ui_tree,
-								proto_item *ui_ti _U_)
+								 packet_info *pinfo,
+								 proto_item *llcgprs_tree)
+
 {
 	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
-	guint16 location = offset;
-	int loop_counter = 0;
-	proto_item *u_ti;
+	guint16 location = 0;
+	guint16 loop_counter = 0;
+	proto_item *u_ti = NULL;
 	proto_item *uinfo_field = NULL;
 	proto_tree *uinfo_tree = NULL;
+	proto_tree *xid_tree = NULL;
+	guint16 info_len;
 
-	u_ti = proto_tree_add_text(llcgprs_tree, tvb, offset, (llc_data_length-2),
+	info_len = tvb_reported_length(tvb);
+
+	u_ti = proto_tree_add_text(llcgprs_tree, tvb, 0, info_len,
 		"Information Field: Length = %u", info_len);
-	ui_tree = proto_item_add_subtree(u_ti, ett_ui);
+	xid_tree = proto_item_add_subtree(u_ti, ett_ui);
 
-	while (location < (offset + info_len))
+	while (location < info_len)
 	{
 		/* parse the XID parameters */
 		byte1 = tvb_get_guint8(tvb, location);
@@ -370,53 +374,78 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 		tmp =  byte1 & 0x7C;
 		tmp = tmp >> 2;
 
-		if (( xid_param_len > 0 ) && ( xid_param_len <=4 ))
+		if (tmp == 0xB) /* L3 XID parameters, call the SNDCP-XID dissector */
 		{
-			unsigned long value = 0;
-			int i;
-			for (i=1;i<=xid_param_len;i++) 
-			{
-				value <<= 8;
-				value |= (unsigned long)tvb_get_guint8(tvb, location+i );
+			tvbuff_t	*sndcp_xid_tvb;
+
+			uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
+				"XID parameter Type: L3 parameters");
+			uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location, 1, byte1);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location, 1, byte1);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location,	1, byte1);
+			if (byte1 & 0x80) {
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location+1, 1, byte2);
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location+1, 1, byte2);
 			}
-			uinfo_field = proto_tree_add_text(ui_tree, tvb, location, item_len,
-				"XID Parameter Type: %s - Value: %lu",
-				val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
+
+			if (xid_param_len) {
+				sndcp_xid_tvb = tvb_new_subset (tvb, location+2, xid_param_len, xid_param_len);
+				if(sndcp_xid_handle)
+					call_dissector(sndcp_xid_handle, sndcp_xid_tvb, pinfo, uinfo_tree);
+			}
+
+			location += item_len;
 		}
 		else
 		{
-			uinfo_field = proto_tree_add_text(ui_tree, tvb, location, item_len,
-				"XID Parameter Type: %s",
-				val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
-		}
-		uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
-		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
-			1, byte1);
-		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location,
-			1, byte1);
-		proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location,
-			1, byte1);
+			if (( xid_param_len > 0 ) && ( xid_param_len <=4 ))
+			{
+				guint32 value = 0;
+				guint8 i;
+				for (i=1;i<=xid_param_len;i++) 
+				{
+					value <<= 8;
+					value |= (guint32)tvb_get_guint8(tvb, location+i );
+				}
+				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
+					"XID Parameter Type: %s - Value: %lu",
+					val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
+			}
+			else
+			{
+				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
+					"XID Parameter Type: %s",
+					val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
+			}
+			uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
+				1, byte1);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location,
+				1, byte1);
+			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location,
+				1, byte1);
 
-		if (byte1 & 0x80) {
-			/* length continued into byte 2 */
-			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location,
-				1, byte2);
-			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location,
-				1, byte2);
+			if (byte1 & 0x80) {
+				/* length continued into byte 2 */
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location,
+					1, byte2);
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location,
+					1, byte2);
 
-			/* be sure to account for the second byte of length */
+				/* be sure to account for the second byte of length */
+				location++;
+			}
+
 			location++;
-		}
-
-		location++;
-		for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
-		{
-			/* grab the information in the XID param */
-			byte2 = tvb_get_guint8(tvb, location);
-			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb, location,
-				1, byte2);
-
-			location++;
+			for (loop_counter = 0; loop_counter < xid_param_len; loop_counter++)
+			{
+				/* grab the information in the XID param */
+				byte2 = tvb_get_guint8(tvb, location);
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_byte, tvb, location,
+					1, byte2);
+				location++;
+			}
 		}
 	}
 }
@@ -428,7 +457,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0 ;
 	guint16 offset=0 , epm = 0, nu=0,ctrl_fld_ui_s=0,crc_length=0, llc_data_length=0 ;
-	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti = NULL;
+	proto_item *ti, *addres_field_item, *ctrl_field_item, *ui_ti;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
 	guint length;
@@ -1048,7 +1077,10 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Info field, if it exists, consists of XID parameters */
 				if (tree)
 				{
-					llc_gprs_dissect_xid(tvb, offset, llc_data_length, info_len, llcgprs_tree, ui_tree, ui_ti);
+					tvbuff_t	*xid_tvb;
+					xid_tvb = tvb_new_subset (tvb, offset, info_len, info_len);
+
+					llc_gprs_dissect_xid(xid_tvb, pinfo, llcgprs_tree);
 				}
 				break;
 			case U_SABM:
@@ -1057,7 +1089,10 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Info field consists of XID parameters */
 				if (tree)
 				{
-					llc_gprs_dissect_xid(tvb, offset, llc_data_length, info_len, llcgprs_tree, ui_tree, ui_ti);
+					tvbuff_t	*xid_tvb;
+					xid_tvb = tvb_new_subset (tvb, offset, info_len, info_len);
+
+					llc_gprs_dissect_xid(xid_tvb, pinfo, llcgprs_tree);
 				}
 				break;
 			case U_FRMR:
@@ -1195,6 +1230,7 @@ proto_register_llcgprs(void)
 				{ "Spare","llcgprs.xidspare", FT_UINT8, BASE_HEX, NULL, 0x03, "Ignore", HFILL}},
 		{&hf_llcgprs_xid_byte,
 				{ "Parameter Byte","llcgprs.xidbyte", FT_UINT8, BASE_HEX, NULL, 0xFF, "Data", HFILL}},
+
 		/* FRMR Parsing Information */
 		{&hf_llcgprs_frmr_cf,
 				{ "Control Field Octet","llcgprs.frmrrfcf", FT_UINT16, BASE_DEC, NULL,
@@ -1253,6 +1289,7 @@ proto_register_llcgprs(void)
 	proto_llcgprs = proto_register_protocol("Logical Link Control GPRS",
 	    "GPRS-LLC", "llcgprs");
 	llcgprs_subdissector_table = register_dissector_table("llcgprs.sapi","GPRS LLC SAPI", FT_UINT8,BASE_HEX);
+
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_llcgprs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1279,5 +1316,6 @@ proto_reg_handoff_llcgprs(void)
 	dissector_add("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
 	data_handle = find_dissector("data");
+	sndcp_xid_handle  = find_dissector("sndcpxid");
 }
 
