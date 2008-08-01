@@ -863,13 +863,13 @@ proto_register_drda(void)
       { "Data (ASCII)", "drda.param.data", FT_STRING, BASE_NONE, NULL, 0x0, "Param data left as ASCII for display", HFILL }},
 
    { &hf_drda_param_data_ebcdic,
-      { "Data (EBCDIC)", "drda.param.data", FT_EBCDIC, BASE_NONE, NULL, 0x0, "Param data converted from EBCDIC to ASCII for display", HFILL }},
+      { "Data (EBCDIC)", "drda.param.data.ebcdic", FT_EBCDIC, BASE_NONE, NULL, 0x0, "Param data converted from EBCDIC to ASCII for display", HFILL }},
 
    { &hf_drda_sqlstatement,
      { "SQL statement (ASCII)", "drda.sqlstatement", FT_STRING, BASE_NONE, NULL, 0x0, "SQL statement left as ASCII for display", HFILL }},
 
    { &hf_drda_sqlstatement_ebcdic,
-      { "SQL statement (EBCDIC)", "drda.sqlstatement", FT_EBCDIC, BASE_NONE, NULL, 0x0, "SQL statement converted from EBCDIC to ASCII for display", HFILL }}
+      { "SQL statement (EBCDIC)", "drda.sqlstatement.ebcdic", FT_EBCDIC, BASE_NONE, NULL, 0x0, "SQL statement converted from EBCDIC to ASCII for display", HFILL }}
 
   };
   static gint *ett[] = {
