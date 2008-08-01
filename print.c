@@ -40,6 +40,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "ps.h"
+#include "version_info.h"
 #include <wsutil/file_util.h>
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
@@ -1105,12 +1106,12 @@ print_preamble_ps(print_stream_t *self, gchar *filename)
 
 	print_ps_preamble(output->fh);
 
-	fputs("%% Set the font to 10 point\n", output->fh);
-	fputs("/Courier findfont 10 scalefont setfont\n", output->fh);
+	fputs("%% Set the font to 8 point\n", output->fh);
+	fputs("/Courier findfont 8 scalefont setfont\n", output->fh);
 	fputs("\n", output->fh);
 	fputs("%% the page title\n", output->fh);
 	ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
-	fprintf(output->fh, "/eth_pagetitle (%s - Wireshark) def\n", psbuffer);
+	fprintf(output->fh, "/eth_pagetitle (%s - Wireshark " VERSION "%s) def\n", psbuffer, wireshark_svnversion);
 	fputs("\n", output->fh);
 	return !ferror(output->fh);
 }
