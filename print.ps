@@ -50,20 +50,13 @@ clippath pathbbox
 /hmax exch def
 pop pop		% junk
 
-% 1-inch margins
-%/lmargin 72 def
-%/tmargin vmax 72 sub def
-%/bmargin 72 def
-%/pagenumtab hmax 72 sub def
-
 % 1/2-inch margins
 /lmargin 36 def					% left margin
 /tmargin vmax 56 sub def		% top margin
 /bmargin 36 def					% bottom margin
-/pagenumtab hmax 36 sub def	% right margin
+/pagenumtab hmax 36 sub def		% right margin
 
 % Counters
-/vpos vmax 40 sub def
 /thispagenum 1 def
 
 % Strings
@@ -90,7 +83,7 @@ pop pop		% junk
 
 	/vpos vpos 10 sub def
 
-	vpos bmargin le 			% is vpos <= bottom margin?
+	vpos 5 sub bmargin le 		% is vpos <= bottom margin?
 	{
 		formfeed
 	}
@@ -104,7 +97,7 @@ pop pop		% junk
 	/indent exch def
 	
 	% wrapat = width / sizeof font (remember: monospaced font)
-	/pagewidth pagenumtab bmargin sub def
+	/pagewidth pagenumtab lmargin sub def
 	/cwidth (A) stringwidth pop def
 	/wrapat pagewidth cwidth div cvi def
 		
@@ -134,7 +127,7 @@ pop pop		% junk
 		eth_pagetitle show
 
 		% this page number
-		pagenumtab (Page ) stringwidth pop sub thispagenum pagenostr cvs stringwidth pop sub 					% X
+		pagenumtab (Page ) stringwidth pop sub thispagenum pagenostr cvs stringwidth pop sub 		% X
 		vmax 36 sub					% Y
 		moveto
 		(Page ) show
@@ -158,7 +151,6 @@ pop pop		% junk
 		bmargin						% Y
 		moveto
 		
-		% title
 		pagenumtab					% X
 		bmargin						% Y
 		lineto
@@ -246,12 +238,9 @@ formfeed
 
 % ---- wireshark finale start ---- %
 
-% If this is not the first page, then print the page number
-thispagenum 1 gt				% is thispagenum > 1 ?
-{
-	printpagedecorations
-}
-if
-
+printpagedecorations
 showpage
+
+%%EOF
+
 % ---- wireshark finale end ---- %
