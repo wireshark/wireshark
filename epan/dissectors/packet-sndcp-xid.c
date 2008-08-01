@@ -480,7 +480,7 @@ static algo_parameters_t dcomp_algo_pars[] = {
 /* Code to actually dissect the packets 
 */
 static void
-dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it 
 	*/
