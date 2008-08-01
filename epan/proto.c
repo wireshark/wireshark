@@ -3022,14 +3022,28 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 	int	ret;	/*tmp return value */
 	int	replen;
 	field_info *fi = PITEM_FINFO(pi);
+	header_field_info *hf = fi->hfinfo;
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
 		replen = 0;
+		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
+			char tmpbuf[64];
+			guint32 val;
 
-		/* put in the hf name */
-		ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-				 "%s: ", fi->hfinfo->name);
+			val = fvalue_get_uinteger(&fi->value);
+			if (hf->bitshift > 0) {
+				val <<= hf->bitshift;
+			}
+			decode_bitfield_value(tmpbuf, val, hf->bitmask, hfinfo_bitwidth(hf));
+			/* put in the hf name */
+			ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+					 "%s%s: ", tmpbuf, fi->hfinfo->name);
+		} else {
+			/* put in the hf name */
+			ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+					 "%s: ", fi->hfinfo->name);
+		}
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
 			/* That's all we can put in the representation. */
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';

@@ -342,7 +342,7 @@ proto_register_bvlc(void)
 		 * packet to dissect */
 		{ &hf_bvlc_result,
 			{ "Result",           "bvlc.result",
-			FT_UINT16, BASE_HEX, NULL, 0xffff,
+			FT_UINT16, BASE_HEX, NULL, 0,
 			"Result Code", HFILL }
 		},
 		{ &hf_bvlc_bdt_ip,
