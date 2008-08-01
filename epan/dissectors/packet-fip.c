@@ -338,7 +338,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_pri, desc_tvb,
                     3, 1, FALSE);
-            proto_item_append_text(item, "%d", tvb_get_guint8(desc_tvb, 3));
+            proto_item_append_text(item, "%u", tvb_get_guint8(desc_tvb, 3));
             break;
         case FIP_DT_MAC:
             subtree = proto_item_add_subtree(item, ett_fip_dt_mac);
@@ -377,7 +377,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_mrs, desc_tvb,
                     2, 2, FALSE);
-            proto_item_append_text(item, "%d", tvb_get_ntohs(desc_tvb, 2));
+            proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
             break;
         case FIP_DT_FLOGI:
         case FIP_DT_FDISC:
@@ -387,7 +387,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fip_desc_type_len(subtree, desc_tvb);
             ls_tvb = tvb_new_subset(desc_tvb, 4, dlen - 4, -1);
             call_dissector(fc_handle, ls_tvb, pinfo, subtree);
-            proto_item_append_text(item, "%d bytes", dlen - 4);
+            proto_item_append_text(item, "%u bytes", dlen - 4);
             break;
         case FIP_DT_VN:
             subtree = proto_item_add_subtree(item, ett_fip_dt_vn);
@@ -408,7 +408,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_fka, desc_tvb,
                     4, 4, FALSE);
-            proto_item_append_text(item, "%d seconds",
+            proto_item_append_text(item, "%u seconds",
                     tvb_get_ntohl(desc_tvb, 4));
             break;
         case FIP_DT_VEND:
