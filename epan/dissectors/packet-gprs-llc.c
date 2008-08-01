@@ -409,7 +409,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 					value |= (guint32)tvb_get_guint8(tvb, location+i );
 				}
 				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
-					"XID Parameter Type: %s - Value: %lu",
+					"XID Parameter Type: %s - Value: %u",
 					val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
 			}
 			else

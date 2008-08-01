@@ -715,6 +715,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-sna.c		\
 	packet-snaeth.c		\
 	packet-sndcp.c		\
+	packet-sndcp-xid.c	\
 	packet-socks.c		\
 	packet-spp.c		\
 	packet-spray.c		\
@@ -722,7 +723,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-sscf-nni.c	\
 	packet-srvloc.c		\
 	packet-sscop.c		\
-        packet-scriptingservice.c \
+	packet-scriptingservice.c \
 	packet-ssh.c		\
 	packet-ssl.c		\
 	packet-ssl-utils.c	\
