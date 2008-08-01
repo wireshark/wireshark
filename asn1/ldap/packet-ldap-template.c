@@ -1383,10 +1383,11 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	/* check for a SASL header, i.e. assume it is SASL if 
 	 * 1, first four bytes (SASL length) is an integer 
-	 *    with a value that must be <64k and >2
+	 *    with a value that must be <LDAP_SASL_MAX_BUF and >2
 	 *    (>2 to fight false positives, 0x00000000 is a common
 	 *        "random" tcp payload)
-	 * (no SASL ldap PDUs are ever going to be >64k in size?)
+	 * (SASL ldap PDUs might be >64k in size, which is why 
+	 * LDAP_SASL_MAX_BUF is used - defined in packet-ldap.h)
 	 *
 	 * 2, we must have a conversation and the auth type must
 	 *    be LDAP_AUTH_SASL

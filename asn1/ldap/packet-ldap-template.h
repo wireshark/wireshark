@@ -79,6 +79,8 @@
 #define LDAP_MOD_DELETE         1
 #define LDAP_MOD_REPLACE        2
 
+#define LDAP_SASL_MAX_BUF	4*64*1024
+
 typedef struct ldap_call_response {
   gboolean is_request;
   guint32 req_frame;
