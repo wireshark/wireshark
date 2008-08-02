@@ -1292,7 +1292,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		if (type & 0x8000) {
 		  pen_count++;
 		  pen = *(guint32 *)&template->entries[i + pen_count];
-		  if (pen == REVPEN) { // reverse PEN
+		  if (pen == REVPEN) { /* reverse PEN */
 		    type &= 0x7fff;
 		  }
 		}
@@ -2567,7 +2567,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 			offset, 2, FALSE);
     offset += 2; i += 2;
 
-    if (type & 0x8000) { // Private Enterprise Number (IPFIX only)
+    if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
       proto_tree_add_item(pdutree,
 			  hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
       scope_pen_count++;
@@ -2588,7 +2588,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 			offset, 2, FALSE);
     offset += 2; i += 2;
 
-    if (type & 0x8000) { // Private Enterprise Number (IPFIX only)
+    if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
       proto_tree_add_item(pdutree,
 			  hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
       pen_count++;
@@ -2663,7 +2663,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 
 		for (i = 1; i <= count; i++) {
 			guint16 type, length;
-			guint32 pen;
+			guint32 pen = 0;
 
 			type = tvb_get_ntohs(tvb, offset);
 			length = tvb_get_ntohs(tvb, offset + 2);
@@ -2674,7 +2674,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			field_item = proto_tree_add_text(template_tree, tvb,
 							 offset, 4, "Field (%u/%u)", i, count);
 			field_tree = proto_item_add_subtree(field_item, ett_field);
-			if ((type & 0x8000) && (pen != REVPEN)) { // except reverse pen
+			if ((type & 0x8000) && (pen != REVPEN)) { /* except reverse pen */
 			  proto_tree_add_text(field_tree,
 					      tvb, offset, 2,
 					      "Type: %u", type & 0x7fff);
@@ -2687,7 +2687,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			proto_tree_add_item(field_tree,
 					    hf_cflow_template_field_length, tvb, offset, 2, FALSE);
 			offset += 2;
-			if (type & 0x8000) { // Private Enterprise Number (IPFIX only)
+			if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
 			  proto_tree_add_item(field_tree,
 					      hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
 			  pen_count++;
