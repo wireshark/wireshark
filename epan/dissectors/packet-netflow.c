@@ -2665,15 +2665,16 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 			guint16 type, length;
 			guint32 pen = 0;
 
+			field_item = proto_tree_add_text(template_tree, tvb,
+							 offset, 4, "Field (%u/%u)", i, count);
+			field_tree = proto_item_add_subtree(field_item, ett_field);
+
 			type = tvb_get_ntohs(tvb, offset);
 			length = tvb_get_ntohs(tvb, offset + 2);
 			if (type & 0x8000) {
 			  pen = tvb_get_ntohl(tvb, offset + 4);
 			}
 
-			field_item = proto_tree_add_text(template_tree, tvb,
-							 offset, 4, "Field (%u/%u)", i, count);
-			field_tree = proto_item_add_subtree(field_item, ett_field);
 			if ((type & 0x8000) && (pen != REVPEN)) { /* except reverse pen */
 			  proto_tree_add_text(field_tree,
 					      tvb, offset, 2,
