@@ -917,7 +917,9 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
-	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);
+	/* g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat); */
+	g_signal_connect(rep->clist, "select-row", G_CALLBACK(remember_selected_row), uat);
+
 
 	g_signal_connect(rep->bt_new, "clicked", G_CALLBACK(uat_new_cb), uat);
 	g_signal_connect(rep->bt_edit, "clicked", G_CALLBACK(uat_edit_cb), uat);
