@@ -238,7 +238,7 @@ extern gboolean file_exists(const char *fname);
  */
 extern gboolean files_identical(const char *fname1, const char *fname2);
 
-#ifdef WIN32
+#ifdef _WIN32
 /*
  * utf8 version of getenv, needed to get win32 filename paths
  */
