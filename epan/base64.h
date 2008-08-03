@@ -28,8 +28,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "epan/tvbuff.h"
 /* In-place decoding of a base64 string. */
 size_t epan_base64_decode(char *s);
+
+extern tvbuff_t* base64_to_tvb(const char *base64);
 
 #ifdef __cplusplus
 }

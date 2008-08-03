@@ -898,25 +898,6 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
                       tvb, offset, -1, FALSE);
 }
 
-/* Return a tvb that contains the binary representation of a base64
-   string */
-
-static tvbuff_t *
-base64_to_tvb(const char *base64)
-{
-  tvbuff_t *tvb;
-  char *data = g_strdup(base64);
-  size_t len;
-
-  len = epan_base64_decode(data);
-  tvb = tvb_new_real_data((const guint8 *)data, len, len);
-
-  tvb_set_free_cb(tvb, g_free);
-
-  return tvb;
-}
-
-
 static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti){
   gchar *data = NULL;
   gchar *prtcl_id = NULL;

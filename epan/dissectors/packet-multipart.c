@@ -178,20 +178,12 @@ unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset);
 static tvbuff_t *
 base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 {
-	tvbuff_t *tvb;
 	char *data;
-	size_t len;
 
 	data = g_strdup(tvb_get_ephemeral_string(b64_tvb, 0, tvb_length(b64_tvb)));
 
-	len = epan_base64_decode(data);
-	tvb = tvb_new_real_data((const guint8 *)data, len, len);
 
-	tvb_set_free_cb(tvb, g_free);
-
-	add_new_data_source(pinfo, tvb, name);
-
-	return tvb;
+	return base64_to_tvb(data);
 }
 
 /*

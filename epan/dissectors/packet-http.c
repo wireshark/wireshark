@@ -455,24 +455,6 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	return 1;
 }
 
-/* Return a tvb that contains the binary representation of a base64
-   string */
-
-static tvbuff_t *
-base64_to_tvb(const char *base64)
-{
-	tvbuff_t *tvb;
-	char *data = g_strdup(base64);
-	size_t len;
-
-	len = epan_base64_decode(data);
-	tvb = tvb_new_real_data((const guint8 *)data, len, len);
-
-	tvb_set_free_cb(tvb, g_free);
-
-	return tvb;
-}
-
 static void
 dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *line)
