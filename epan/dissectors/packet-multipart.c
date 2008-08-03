@@ -179,11 +179,13 @@ static tvbuff_t *
 base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 {
 	char *data;
-
+	tvbuff_t *tvb;
 	data = g_strdup(tvb_get_ephemeral_string(b64_tvb, 0, tvb_length(b64_tvb)));
 
+	tvb = base64_to_tvb(data);
+	add_new_data_source(pinfo, tvb, name);
 
-	return base64_to_tvb(data);
+	return tvb;
 }
 
 /*

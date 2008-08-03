@@ -27,6 +27,7 @@
 #endif
 
 #include <string.h>
+#include "epan/tvbuff.h"
 #include "base64.h"
 
 /* Decode a base64 string in-place - simple and slow algorithm.
