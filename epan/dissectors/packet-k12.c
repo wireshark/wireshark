@@ -1,7 +1,7 @@
 /* packet-k12.c
-* Routines for displaying frames from k12 rf5 files
+* Helper-dissector for Tektronix k12xx-k15xx .rf5 file type
 *
-* Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+* Luis E. Garcia Ontanon <luis@ontanon.org>
 *
 * $Id$
 *
@@ -280,7 +280,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 		if (handles[i] == sscop_handle) {
 			sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
 			if (!p_sscop_info) {
-				p_sscop_info = ep_alloc0(sizeof(sscop_payload_info));
+				p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
 				if (p_sscop_info)
 					p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
 			}
@@ -296,7 +296,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 	if (sub_handle == fp_handle) {
 		fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
 		if (!p_fp_info) {
-			p_fp_info = ep_alloc0(sizeof(fp_info));
+			p_fp_info = se_alloc0(sizeof(fp_info));
 			if (p_fp_info)
 				p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 		}
