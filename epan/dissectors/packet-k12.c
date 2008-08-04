@@ -281,11 +281,9 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 			sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
 			if (!p_sscop_info) {
 				p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
-				if (p_sscop_info)
-					p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
+                p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
+                p_sscop_info->subdissector = handles[i+1];
 			}
-			if (p_sscop_info)
-				p_sscop_info->subdissector = handles[i+1];
 		}
 		/* Add more protocols here */
 	}
@@ -297,13 +295,12 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 		fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
 		if (!p_fp_info) {
 			p_fp_info = se_alloc0(sizeof(fp_info));
-			if (p_fp_info)
-				p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
-		}
+            p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 
-		fill_fp_info(p_fp_info,
-			     pinfo->pseudo_header->k12.extra_info,
-			     pinfo->pseudo_header->k12.extra_length);
+            fill_fp_info(p_fp_info,
+                         pinfo->pseudo_header->k12.extra_info,
+                         pinfo->pseudo_header->k12.extra_length);
+		}
 	}
 
 	call_dissector(sub_handle, tvb, pinfo, tree);
