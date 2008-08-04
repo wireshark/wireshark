@@ -44,7 +44,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-bssap.h>
-#include <epan/dissectors/packet-gsm_a.h>
+#include <epan/dissectors/packet-gsm_a_common.h>
 #include "register.h"
 
 

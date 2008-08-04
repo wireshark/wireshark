@@ -41,7 +41,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
 /* Initialize the protocol and registered fields */

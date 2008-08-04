@@ -3,7 +3,7 @@
  * would be good to split it up.
  *
  * See also bug 1852:
- * packet-gsm_a.c: gsm_a_bssmap has 121 registered fields.  Only a limited
+ * packet-gsm_a_common.c: gsm_a_bssmap has 121 registered fields.  Only a limited
  * few are prefixed to match the PROTOABBREV.  Some of the fields seem as
  * though they would be more appropriately registered under either gsm_a_dtap
  * or possibly gsm_a_rp.  I don't have the expertise with these dissectors to
@@ -11,7 +11,7 @@
  *
  */
 
-/* packet-gsm_a.c
+/* packet-gsm_a_common.c
  * Routines for GSM A Interface (BSSMAP/DTAP) dissection
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
@@ -117,7 +117,7 @@
 #include "packet-bssap.h"
 #include "packet-ber.h"
 #include "packet-q931.h"
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 #include "packet-ipv6.h"
 #include "packet-sccp.h"
 #include "packet-e212.h"

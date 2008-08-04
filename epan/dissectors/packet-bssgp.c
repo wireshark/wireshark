@@ -40,7 +40,7 @@
 
 #include "packet-bssgp.h"
 #include "packet-e212.h"
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 
 /* #define BSSGP_DEBUG */
 #define BSSGP_LITTLE_ENDIAN FALSE

@@ -54,7 +54,7 @@
 #include <epan/emem.h>
 
 #include "packet-bssap.h"
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
 

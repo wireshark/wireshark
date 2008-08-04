@@ -43,7 +43,7 @@
 #include <epan/proto.h>
 #include <epan/lapd_sapi.h>
 
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_rsl		= -1;

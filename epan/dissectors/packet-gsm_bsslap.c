@@ -37,7 +37,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_gsm_bsslap			= -1;

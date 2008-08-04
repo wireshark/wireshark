@@ -66,7 +66,7 @@
 #include "packet-per.h"
 #include "packet-q931.h"
 #include "packet-gsm_map.h"
-#include "packet-gsm_a.h"
+#include "packet-gsm_a_common.h"
 #include "packet-tcap.h"
 #include "packet-e164.h"
 #include "packet-e212.h"

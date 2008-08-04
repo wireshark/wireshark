@@ -43,7 +43,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-bssap.h>
-#include <epan/dissectors/packet-gsm_a.h>
+#include <epan/dissectors/packet-gsm_a_common.h>
 
 #include "../stat_menu.h"
 #include "../simple_dialog.h"

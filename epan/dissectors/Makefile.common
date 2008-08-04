@@ -422,7 +422,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-gprs-llc.c	\
 	packet-gprs-ns.c	\
 	packet-gre.c		\
-	packet-gsm_a.c		\
+	packet-gsm_a_common.c		\
 	packet-gsm_bsslap.c		\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
@@ -928,7 +928,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gnm.h	\
 	packet-gnutella.h	\
 	packet-gre.h	\
-	packet-gsm_a.h	\
+	packet-gsm_a_common.h	\
 	packet-gsm_map.h	\
 	packet-gsm_sms.h	\
 	packet-gssapi.h	\
