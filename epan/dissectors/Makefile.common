@@ -422,7 +422,10 @@ CLEAN_DISSECTOR_SRC = \
 	packet-gprs-llc.c	\
 	packet-gprs-ns.c	\
 	packet-gre.c		\
+	packet-gsm_a_bssmap.c		\
 	packet-gsm_a_common.c		\
+	packet-gsm_a_dtap.c		\
+	packet-gsm_a_rp.c		\
 	packet-gsm_bsslap.c		\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\

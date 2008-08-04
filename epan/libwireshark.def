@@ -312,6 +312,13 @@ emem_tree_lookup32_array
 emem_tree_lookup32_le
 emem_tree_lookup_string
 empty_tcp_stream           DATA
+elem_lv
+elem_t
+elem_tlv
+elem_tv
+elem_tv_short
+elem_v
+elem_v_short
 ep_alloc
 ep_alloc0
 ep_free_all

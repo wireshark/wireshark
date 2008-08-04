@@ -26,6 +26,304 @@
 #ifndef __PACKET_GSM_A_COMMON_H__
 #define __PACKET_GSM_A_COMMON_H__
 
+
+/* PROTOTYPES/FORWARDS */
+typedef guint8 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+
+/* globals needed as a result of spltting the packet-gsm_a.c into several files
+ * until further restructuring can take place to make them more modular
+ */
+
+/* common PD values */
+extern const value_string protocol_discriminator_vals[];
+extern const value_string gsm_a_pd_short_str_vals[];
+
+extern guint8 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+
+/* Needed to share the packet-gsm_a_common.c functions */
+extern const value_string gsm_bssmap_elem_strings[];
+extern gint ett_gsm_bssmap_elem[];
+extern elem_fcn bssmap_elem_fcn[];
+extern int hf_gsm_a_bssmap_elem_id;
+
+extern const value_string gsm_dtap_elem_strings[];
+extern gint ett_gsm_dtap_elem[];
+extern elem_fcn dtap_elem_fcn[];
+extern int hf_gsm_a_dtap_elem_id;
+
+extern const value_string gsm_rp_elem_strings[];
+extern gint ett_gsm_rp_elem[];
+extern elem_fcn rp_elem_fcn[];
+extern int hf_gsm_a_rp_elem_id;
+
+extern gboolean lower_nibble;
+
+/* common field values */
+extern int hf_gsm_a_length;
+extern int hf_gsm_a_extension;
+extern int hf_gsm_a_tmsi;
+extern int hf_gsm_a_L3_protocol_discriminator;
+extern int hf_gsm_a_b8spare;
+
+/* for the nasty hack below */
+#define GSM_BSSMAP_APDU_IE	0x49
+
+/* flags for the packet-gsm_a_common routines */
+#define GSM_A_PDU_TYPE_BSSMAP	BSSAP_PDU_TYPE_BSSMAP /* i.e. 0 - until split complete at least! */
+#define GSM_A_PDU_TYPE_DTAP		BSSAP_PDU_TYPE_DTAP   /* i.e. 1 - until split complete at least! */
+#define GSM_A_PDU_TYPE_RP		2
+
+/*
+ * this should be set on a per message basis, if possible
+ */
+#define	IS_UPLINK_FALSE		0
+#define	IS_UPLINK_TRUE		1
+#define	IS_UPLINK_UNKNOWN	2
+
+/* Defines and nasty static for handling half octet mandatory V IEs 
+ * TODO: Note origimally UPPER_NIBBLE was -2 and LOWER_NIBBLE was -1
+ * changed here to unsigned integer as it wouldn't compile (Warnings on Ubuntu)
+ * uggly hack...
+ */
+#define UPPER_NIBBLE    (2)
+#define LOWER_NIBBLE    (1)
+
+/* FUNCTIONS */
+
+/* ELEMENT FUNCTIONS */
+
+#define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
+	if (((edc_len) > (edc_max_len))||lower_nibble) \
+	{ \
+	proto_tree_add_text(tree, tvb, \
+	    curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
+	curr_offset += ((edc_len) - (edc_max_len)); \
+	}
+
+#define	SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
+	if ((sdc_len) < (sdc_min_len)) \
+	{ \
+	proto_tree_add_text(tree, tvb, \
+	    curr_offset, (sdc_len), "Short Data (?)"); \
+	curr_offset += (sdc_len); \
+	return(curr_offset - offset); \
+	}
+
+#define	EXACT_DATA_CHECK(edc_len, edc_eq_len) \
+	if ((edc_len) != (edc_eq_len)) \
+	{ \
+	proto_tree_add_text(tree, tvb, \
+	    curr_offset, (edc_len), "Unexpected Data Length"); \
+	curr_offset += (edc_len); \
+	return(curr_offset - offset); \
+	}
+
+#define	NO_MORE_DATA_CHECK(nmdc_len) \
+	if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
+
+#define	SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names, SEV_elem_ett, SEV_elem_funcs) \
+    switch (SEV_pdu_type) \
+    { \
+    case BSSAP_PDU_TYPE_BSSMAP: \
+	SEV_elem_names = gsm_bssmap_elem_strings; \
+	SEV_elem_ett = ett_gsm_bssmap_elem; \
+	SEV_elem_funcs = bssmap_elem_fcn; \
+	break; \
+    case BSSAP_PDU_TYPE_DTAP: \
+	SEV_elem_names = gsm_dtap_elem_strings; \
+	SEV_elem_ett = ett_gsm_dtap_elem; \
+	SEV_elem_funcs = dtap_elem_fcn; \
+	break; \
+    case GSM_A_PDU_TYPE_RP: \
+	SEV_elem_names = gsm_rp_elem_strings; \
+	SEV_elem_ett = ett_gsm_rp_elem; \
+	SEV_elem_funcs = rp_elem_fcn; \
+	break; \
+    default: \
+	proto_tree_add_text(tree, \
+	    tvb, curr_offset, -1, \
+	    "Unknown PDU type (%u)", SEV_pdu_type); \
+	return(consumed); \
+    }
+
+
+/*
+ * Type Length Value (TLV) element dissector
+ */
+extern guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+
+/*
+ * Type Value (TV) element dissector
+ *
+ * Length cannot be used in these functions, big problem if a element dissector
+ * is not defined for these.
+ */
+extern guint8 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+
+/*
+ * Type Value (TV) element dissector
+ * Where top half nibble is IEI and bottom half nibble is value.
+ *
+ * Length cannot be used in these functions, big problem if a element dissector
+ * is not defined for these.
+ */
+extern guint8 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+
+/*
+ * Type (T) element dissector
+ */
+extern guint8 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+
+/*
+ * Length Value (LV) element dissector
+ */
+extern guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+
+/*
+ * Value (V) element dissector
+ *
+ * Length cannot be used in these functions, big problem if a element dissector
+ * is not defined for these.
+ */
+extern guint8 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset);
+
+/*
+ * Short Value (V_SHORT) element dissector
+ *
+ * Length is (ab)used in these functions to indicate upper nibble of the octet (-2) or lower nibble (-1)
+ * noting that the tv_short dissector always sets the length to -1, as the upper nibble is the IEI.
+ * This is expected to be used upper nibble first, as the tables of 24.008.
+ */
+
+extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset);
+
+
+#define ELEM_MAND_TLV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
+{\
+	if ((consumed = elem_tlv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	else \
+	{ \
+	proto_tree_add_text(tree, \
+	    tvb, curr_offset, 0, \
+	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+		EMT_iei, \
+		(EMT_pdu_type == BSSAP_PDU_TYPE_BSSMAP) ? \
+		    gsm_bssmap_elem_strings[EMT_elem_idx].strptr : gsm_dtap_elem_strings[EMT_elem_idx].strptr, \
+		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
+	    ); \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
+{\
+	if ((consumed = elem_tlv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
+{\
+	if ((consumed = elem_tv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	else \
+	{ \
+	proto_tree_add_text(tree, \
+	    tvb, curr_offset, 0, \
+	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+		EMT_iei, \
+		(EMT_pdu_type == BSSAP_PDU_TYPE_BSSMAP) ? \
+		    gsm_bssmap_elem_strings[EMT_elem_idx].strptr : gsm_dtap_elem_strings[EMT_elem_idx].strptr, \
+		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
+	    ); \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_OPT_TV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
+{\
+	if ((consumed = elem_tv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_OPT_TV_SHORT(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
+{\
+	if ((consumed = elem_tv_short(tvb, tree, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_OPT_T(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
+{\
+	if ((consumed = elem_t(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
+{\
+	if ((consumed = elem_lv(tvb, tree, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	else \
+	{ \
+	/* Mandatory, but nothing we can do */ \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx) \
+{\
+	if ((consumed = elem_v(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	else \
+	{ \
+	/* Mandatory, but nothing we can do */ \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+#define ELEM_MAND_V_SHORT(EMV_pdu_type, EMV_elem_idx) \
+{\
+	if ((consumed = elem_v_short(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
+	{ \
+	curr_offset += consumed; \
+	curr_len -= consumed; \
+	} \
+	else \
+	{ \
+	/* Mandatory, but nothing we can do */ \
+	} \
+	if (curr_len <= 0) return; \
+}
+
+
 /*
  * this enum must be kept in-sync with 'gsm_a_pd_str'
  * it is used as an index into the array
