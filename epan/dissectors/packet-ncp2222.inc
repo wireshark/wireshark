@@ -6588,24 +6588,32 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
 						    values->vstring = get_string(tvb, ioffset, value2);
 						    proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
 									  value2, values->vstring);
-                                                    ioffset += value2;
-
-                                            }
-                                    }
-                                    values->voffset=ioffset;
-                                    break;
-                            default: /* All other name types are just a string */
-                                    values->vstring = get_string(tvb, ioffset, values->vlength);
-                                    proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
-                                                          values->vlength, values->vstring);
-                                    values->voffset=ioffset + values->vlength;
-                                    ioffset = values->voffset;
-                                    ioffset += align_4(tvb, ioffset);
-                                    break;
-                            }
+						    ioffset += value2;
+					    }
+					    /* XXX: What if "multiple items" ?                 */
+					    /*      What if "Undefined ... " ?                 */  
+					    /*      For now: we'll just keep on walking...     */
+					    /*      Presumably we'll get a ReportedBoundsError */
+					    /*       pretty quickly.                           */
+					    else   /* Undefined or "multiple items" ... */
+					    {
+						    ioffset += 4;
+					    }
+				    } /* for */
+			    } /* else */
+			    values->voffset=ioffset;
+			    break;
+                        default: /* All other name types are just a string */
+                            values->vstring = get_string(tvb, ioffset, values->vlength);
+                            proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
+                                    values->vlength, values->vstring);
+                            values->voffset=ioffset + values->vlength;
+                            ioffset = values->voffset;
+                            ioffset += align_4(tvb, ioffset);
                             break;
-                        }
-                        break;
+                        } /* switch (values->vflags) */
+			break;
+
                 case MVTYPE_PROCESS_ITERATOR: /* Process Iterator subverbs. */
                         temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
 
