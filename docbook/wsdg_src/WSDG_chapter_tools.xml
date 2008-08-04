@@ -415,14 +415,12 @@ PARTICULAR PURPOSE.]]>
             <row>
               <entry>
                 <para>Visual Studio 2008</para>
-                <para>(Code Name "Orcas")</para>
               </entry>
               <entry>
                 <para>Yes</para>
               </entry>
               <entry>
-                <para>Beta
-                <superscript>6</superscript></para>
+                <para>Commercial
               </entry>
               <entry>
                 <para>No
@@ -430,42 +428,42 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>-</para>
-                <para>(not yet implemented!)</para>
+                <para>MSVC2008</para>
               </entry>
               <entry>
                 <para>Microsoft Visual Studio
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
-                <para>beta only</para>
+                <para>-</para>
               </entry>
             </row>
             <row>
               <entry>
-                <para>Visual Studio 2008 Express Edition</para>
-                <para>(Code Name "Orcas")</para>
+                <para>Visual C++ 2008 Express Edition</para>
               </entry>
               <entry>
                 <para>Yes</para>
               </entry>
               <entry>
-                <para>Beta
-                <superscript>6</superscript></para>
+                <para>
+                <ulink url="http://www.microsoft.com/express/vc/">
+                Free Download</ulink></para>
               </entry>
               <entry>
                 <para>No
                 <superscript>2</superscript></para>
               </entry>
               <entry>
-                <para>-</para>
-                <para>(not yet implemented!)</para>
+                <para>MSVC2008EE</para>
               </entry>
               <entry>
                 <para>Microsoft Visual Studio
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
-                <para>beta only</para>
+                <para>vcredist_x86.exe
+                <superscript>3</superscript></para>
               </entry>
             </row>
             <row>
@@ -612,13 +610,15 @@ PARTICULAR PURPOSE.]]>
       setting batch file for the Platform SDK!</para>
       <para>
       <superscript>3</superscript>vcredist_x86.exe (3MB free
-      download) is required to build Wireshark-setup.exe</para>
+      download) is required to build Wireshark-setup.exe. The
+      version of vcredist_x86.exe MUST match the version for
+      your compiler.</para>
       <para>
       <superscript>4</superscript>Wireshark-setup.exe cannot be
       created with this package, as msvcr*.dll is not available or
       not redistributable!</para>
       <para>
-      <superscript>5</superscript>XXX - MSDN remarks that the
+      <superscript>5</superscript>MSDN remarks that the
       corresponding .NET runtime is required. It's currently
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run

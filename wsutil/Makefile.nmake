@@ -36,7 +36,7 @@ libwsutil.dll : $(OBJECTS) libwsutil.def ..\image\libwsutil.res
 		/IMPLIB:libwsutil.lib \
 		..\image\libwsutil.res \
 		$(OBJECTS) $(libwsutil_LIBS)
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 	mt.exe -nologo -manifest "libwsutil.dll.manifest" -outputresource:libwsutil.dll;2
 !ENDIF
 
