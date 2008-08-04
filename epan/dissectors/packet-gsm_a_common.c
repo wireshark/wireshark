@@ -47,7 +47,7 @@ gboolean lower_nibble=FALSE;
 
 static int get_hf_elem_id(int pdu_type)
 {
-	int			hf_elem_id;
+	int			hf_elem_id = 0;
 
 	switch (pdu_type) {
 		case GSM_A_PDU_TYPE_BSSMAP:
