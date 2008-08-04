@@ -803,7 +803,7 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
 	proto_tree *PAYLOAD_header_tree = NULL;
 	proto_item *PAYLOAD_header_item = NULL;
 	guint8 management_class;
-	tvbuff_t *next_tvb;
+	tvbuff_t *volatile next_tvb;
 	gint			captured_length, reported_length;
 	guint16 etype, reserved;
 	const char		*saved_proto;
