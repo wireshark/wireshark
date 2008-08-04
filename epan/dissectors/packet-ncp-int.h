@@ -89,15 +89,15 @@ typedef struct {
 
 
 struct novell_tap {
-    int stat;
-    int hdr;
+	int stat;
+	int hdr;
 };
 
 typedef struct novell_tap _novell_tap;
 
 typedef struct {
-	guint8		error_in_packet;
-	gint		ncp_error_index;
+	guint8			error_in_packet;
+	gint			ncp_error_index;
 } error_equivalency;
 
 typedef struct {
@@ -119,7 +119,7 @@ typedef struct {
 	gboolean		*req_cond_results;
 	guint32			req_frame_num;
 	nstime_t		req_frame_time;
-    guint16         length;
+	guint16			length;
 	guint32			req_nds_flags;
 	guint32			req_nds_prot_flags;
 	guint8			nds_request_verb;
@@ -127,10 +127,10 @@ typedef struct {
 	char			object_name[256];
 	gboolean		nds_frag;
 	guint32			nds_end_frag;
-    guint32         nds_frag_num;
-    guint16         req_mask;
-    guint16         req_mask_ext;
-    guint32         nds_frag_flags;
+	guint32			nds_frag_num;
+	guint16			req_mask;
+	guint16			req_mask_ext;
+	guint32			nds_frag_flags;
 } ncp_req_hash_value;
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,
