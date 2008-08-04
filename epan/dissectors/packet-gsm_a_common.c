@@ -6,7 +6,7 @@
  *
  * Split from packet-gsm_a.c by Neil Piercy <Neil [AT] littlebriars.co.uk>
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -54,13 +54,13 @@ static int get_hf_elem_id(int pdu_type)
 			hf_elem_id = hf_gsm_a_bssmap_elem_id;
 			break;
 		case GSM_A_PDU_TYPE_DTAP:
-			hf_elem_id = hf_gsm_a_bssmap_elem_id;
+			hf_elem_id = hf_gsm_a_dtap_elem_id;
 			break;
 		case GSM_A_PDU_TYPE_RP:
 			hf_elem_id = hf_gsm_a_rp_elem_id;
 			break;
 		default:
-			hf_elem_id = NULL;
+			DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return hf_elem_id;
