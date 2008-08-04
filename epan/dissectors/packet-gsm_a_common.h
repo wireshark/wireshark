@@ -37,7 +37,7 @@ typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /* common PD values */
 extern const value_string protocol_discriminator_vals[];
-extern const value_string gsm_a_pd_short_str_vals[];
+/**extern const value_string gsm_a_pd_short_str_vals[];***/
 
 extern guint8 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
@@ -61,7 +61,7 @@ extern gboolean lower_nibble;
 
 /* common field values */
 extern int hf_gsm_a_length;
-extern int hf_gsm_a_extension;
+/***extern int hf_gsm_a_extension;***/
 extern int hf_gsm_a_tmsi;
 extern int hf_gsm_a_L3_protocol_discriminator;
 extern int hf_gsm_a_b8spare;
