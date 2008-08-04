@@ -573,6 +573,7 @@ static const value_string register_reject_cause_vals[] = {
 };
 
 /* L3 Protocol discriminator values according to TS 24 007 (640)  */
+/*** temporary
 static const value_string protocol_discriminator_vals[] = {
 	{0x0,		"Group call control"},
 	{0x1,		"Broadcast call control"},
@@ -592,6 +593,7 @@ static const value_string protocol_discriminator_vals[] = {
 	{0xf,		"Reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
 	{ 0,	NULL }
 };
+***/
 
 /* algorithm identifier
  * If SC=1 then:
