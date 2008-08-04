@@ -2764,6 +2764,10 @@ Brian Stormont		<nospam [AT] stormyprods.com> {
 	WPA group key decryption
 }
 
+Vincent Helfre           <vincent.helfre [AT] ericsson.com> {
+ SNDCP XID dissection
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2919,6 +2923,7 @@ Peter Hertting		<Peter.Hertting [AT] gmx.net>
 Jess Balint		<jbalint [AT] gmail.com>
 Bahaa Naamneh		<b.naamneh [AT] gmail.com>
 David Aggeler		<david_aggeler [AT] hispeed.ch>
+Magnus Sörman		<magnus.sorman [AT] ericsson.com
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
