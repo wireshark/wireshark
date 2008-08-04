@@ -1539,6 +1539,7 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
         This field will form an expansion under which the individual fields of the
         bitmask is dissected and displayed.
         This field must be of the type FT_[U]INT{8|16|24|32}.
+ @param ett subtree index
  @param fields an array of pointers to int that lists all the fields of the
         bitmask. These fields can be either of the type FT_BOOLEAN for flags
         or another integer of the same type/size as hf_hdr with a mask specified.
@@ -1549,7 +1550,28 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_hdr, gint ett, const int **fields, gboolean little_endian);
+proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, guint offset,
+		int hf_hdr, gint ett, const int **fields, gboolean little_endian);
+
+/** Add a text with a subtree of bitfields.
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param name field name (NULL if bitfield contents should be used)
+ @param fallback field name if none of bitfields were usable
+ @param ett subtree index
+ @param fields NULL-terminated array of bitfield indexes
+ @param little_endian big or little endian byte representation
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len,
+		const char *name, const char *fallback,
+		gint ett, const int **fields, gboolean little_endian, int flags);
+
+#define BMT_NO_APPEND	0x01	/**< Don't change the title at all */
+#define BMT_NO_INT	0x02	/**< Don't add integral (non-boolean) fields to title */
+#define BMT_NO_FALSE	0x04	/**< Don't add booleans unless they're TRUE */
+#define BMT_NO_TFS	0x08	/**< Don't use true_false_string while formatting booleans */
 
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.

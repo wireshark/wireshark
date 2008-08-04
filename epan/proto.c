@@ -202,6 +202,9 @@ static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, gboolean little_endian);
+static gboolean
+proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len, gint ett,
+	const gint **fields, gboolean little_endian, int flags, gboolean first);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
@@ -5695,6 +5698,124 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 }
 
 
+/* This function is common code for both proto_tree_add_bitmask() and
+ *  proto_tree_add_bitmask_text() functions.
+ */
+static gboolean
+proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len, gint ett,
+	const int **fields, gboolean little_endian, int flags, gboolean first)
+{
+	guint32 value = 0, tmpval;
+	proto_tree *tree = NULL;
+	header_field_info *hf;
+	const char *fmt;
+
+	switch (len) {
+	case 1:
+		value = tvb_get_guint8(tvb, offset);
+		break;
+	case 2:
+		value = little_endian ? tvb_get_letohs(tvb, offset) :
+			tvb_get_ntohs(tvb, offset);
+		break;
+	case 3:
+		value = little_endian ? tvb_get_letoh24(tvb, offset) :
+			tvb_get_ntoh24(tvb, offset);
+		break;
+	case 4:
+		value = little_endian ? tvb_get_letohl(tvb, offset) :
+			tvb_get_ntohl(tvb, offset);
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	tree = proto_item_add_subtree(item, ett);
+	while (*fields) {
+		proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
+		if (flags & BMT_NO_APPEND) {
+			fields++;
+			continue;
+		}
+		hf = proto_registrar_get_nth(**fields);
+		DISSECTOR_ASSERT(hf->bitmask != 0);
+		tmpval = (value & hf->bitmask) >> hf->bitshift;
+
+		switch (hf->type) {
+		case FT_INT8:
+		case FT_UINT8:
+		case FT_INT16:
+		case FT_UINT16:
+		case FT_INT24:
+		case FT_UINT24:
+		case FT_INT32:
+		case FT_UINT32:
+			DISSECTOR_ASSERT(len == ftype_length(hf->type));
+
+			if (hf->display == BASE_CUSTOM) {
+				gchar lbl[ITEM_LABEL_LENGTH];
+				custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hf->strings;
+
+				DISSECTOR_ASSERT(fmtfunc);
+				fmtfunc(lbl, tmpval);
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, lbl);
+				first = FALSE;
+			}
+			else if (hf->strings) {
+				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+						hf->name, val_to_str(tmpval, hf->strings, "Unknown"));
+				first = FALSE;
+			}
+			else if (!(flags & BMT_NO_INT)) {
+				if (!first) {
+					proto_item_append_text(item, ", ");
+				}
+
+				fmt = IS_FT_INT(hf->type) ? hfinfo_int_format(hf) : hfinfo_uint_format(hf);
+				if (IS_BASE_DUAL(hf->display)) {
+					proto_item_append_text(item, fmt, hf->name, tmpval, tmpval);
+				} else {
+					proto_item_append_text(item, fmt, hf->name, tmpval);
+				}
+				first = FALSE;
+			}
+
+			break;
+		case FT_BOOLEAN:
+			DISSECTOR_ASSERT(len * 8 == hf->display);
+
+			if (hf->strings && !(flags & BMT_NO_TFS)) {
+				/* If we have true/false strings, emit full - otherwise messages
+				   might look weird */
+				const struct true_false_string *tfs =
+					(const struct true_false_string *)hf->strings;
+
+				if (tmpval) {
+					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+							hf->name, tfs->true_string);
+					first = FALSE;
+				} else if (!(flags & BMT_NO_FALSE)) {
+					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+							hf->name, tfs->false_string);
+					first = FALSE;
+				}
+			} else if (hf->bitmask & value) {
+				/* If the flag is set, show the name */
+				proto_item_append_text(item, "%s%s", first ? "" : ", ", hf->name);
+				first = FALSE;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+		}
+
+		fields++;
+	}
+
+	return first;
+}
+
 /* This function will dissect a sequence of bytes that describe a
  * bitmask.
  * hf_hdr is a 8/16/24/32 bit integer that describes the bitmask to be dissected.
@@ -5708,105 +5829,45 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
  * This array is terminated by a NULL entry.
  *
  * FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
- * FT_integer fields that have a value_string attached will have the
+ * FT_integer fields that have a value_string attached will have the 
  * matched string displayed on the expansion line.
  */
 proto_item *
-proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hf_hdr, gint ett, const int **fields, gboolean little_endian)
+proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, guint offset, int hf_hdr,
+		gint ett, const int **fields, gboolean little_endian)
 {
-	proto_tree *tree=NULL;
-	proto_item *item=NULL;
-	header_field_info *hf_info;
-	int len=0;
-	guint32 value=0;
+	proto_item *item = NULL;
+	header_field_info *hf;
+	int len;
 
-	hf_info=proto_registrar_get_nth(hf_hdr);
-	switch(hf_info->type){
-	case FT_INT8:
-	case FT_UINT8:
-		len=1;
-		value=tvb_get_guint8(tvb, offset);
-		break;
-	case FT_INT16:
-	case FT_UINT16:
-		len=2;
-		if(little_endian){
-			value=tvb_get_letohs(tvb, offset);
-		} else {
-			value=tvb_get_ntohs(tvb, offset);
-		}
-		break;
-	case FT_INT24:
-	case FT_UINT24:
-		len=3;
-		if(little_endian){
-			value=tvb_get_letoh24(tvb, offset);
-		} else {
-			value=tvb_get_ntoh24(tvb, offset);
-		}
-		break;
-	case FT_INT32:
-	case FT_UINT32:
-		len=4;
-		if(little_endian){
-			value=tvb_get_letohl(tvb, offset);
-		} else {
-			value=tvb_get_ntohl(tvb, offset);
-		}
-		break;
-	default:
-		g_assert_not_reached();
+	hf = proto_registrar_get_nth(hf_hdr);
+	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+	len = ftype_length(hf->type);
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, little_endian);
+		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, little_endian,
+				BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}
 
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, little_endian);
-		tree=proto_item_add_subtree(item, ett);
-	}
+	return item;
+}
 
-	while(*fields){
-		header_field_info *hf_field;
-		guint32 tmpval, tmpmask;
+/* The same as proto_tree_add_bitmask(), but using an arbitrary text as a top-level item */
+proto_item *
+proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb, guint offset, guint len,
+		const char *name, const char *fallback,
+		gint ett, const int **fields, gboolean little_endian, int flags)
+{
+	proto_item *item = NULL;
 
-		hf_field=proto_registrar_get_nth(**fields);
-		switch(hf_field->type){
-		case FT_INT8:
-		case FT_UINT8:
-		case FT_INT16:
-		case FT_UINT16:
-		case FT_INT24:
-		case FT_UINT24:
-		case FT_INT32:
-		case FT_UINT32:
-			proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
-
-			/* Mask and shift out the value */
-			tmpmask=hf_field->bitmask;
-			tmpval=value;
-			if(tmpmask){
-				tmpval&=tmpmask;
-				while(!(tmpmask&0x00000001)){
-					tmpval>>=1;
-					tmpmask>>=1;
-				}
-			}
-			/* Show the value_string content (if there is one) */
-			if(hf_field->strings && hf_field->display != BASE_CUSTOM){
-				proto_item_append_text(item, ",  %s", val_to_str(tmpval, hf_field->strings, "Unknown"));
-			}
-
-			break;
-		case FT_BOOLEAN:
-			proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
-			/* if the flag is set, show the name */
-			if(hf_field->bitmask&value){
-				proto_item_append_text(item, ",  %s", hf_field->name);
-			}
-			break;
-		default:
-			g_assert_not_reached();
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, len, "%s", name ? name : "");
+		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, little_endian,
+					flags, TRUE) && fallback) {
+			/* Still at first item - append 'fallback' text if any */
+			proto_item_append_text(item, "%s", fallback);
 		}
-
-		fields++;
 	}
 
 	return item;

@@ -2018,6 +2018,11 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_bitmask(tree, tvb, start, header, ett, **fields,
 	    little_endian);
 
+	proto_item *
+	proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb,
+	    guint offset, guint len, const char *name, const char *fallback,
+            gint ett, const int **fields, gboolean little_endian, int flags);
+
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
@@ -2318,8 +2323,8 @@ This is like proto_tree_add_text(), but takes, as the last argument, a
 variable-length list of arguments to add a text item to the protocol
 tree.
 
-proto_tree_add_bitmask()
-------------------------
+proto_tree_add_bitmask() and proto_tree_add_bitmask_text()
+----------------------------------------------------------
 This function provides an easy to use and convenient helper function
 to manage many types of common bitmasks that occur in protocols.
 
@@ -2430,6 +2435,24 @@ filter is then possible:
 
 	tr.rif_ring eq 0x013
 
+The proto_tree_add_bitmask_text() function is an extended version of
+the proto_tree_add_bitmask() function. In addition, it allows to:
+- Provide a leading text (e.g. "Flags: ") that will appear before
+  the comma-separated list of field values
+- Provide a fallback text (e.g. "None") that will be appended if
+  no fields warranted a change to the top-level title.
+- Using flags, specify which fields will affect the top-level title.
+
+There are the following flags defined:
+
+  BMT_NO_APPEND - the title is taken "as-is" from the 'name' argument.
+  BMT_NO_INT - only boolean flags are added to the title.
+  BMT_NO_FALSE - boolean flags are only added to the title if they are set.
+  BMT_NO_TFS - only add flag name to the title, do not use true_false_string
+
+The proto_tree_add_bitmask() behavior can be obtained by providing
+both 'name' and 'fallback' arguments as NULL, and a flags of
+(BMT_NO_FALSE|BMT_NO_TFS).
 
 1.7 Utility routines.
 
