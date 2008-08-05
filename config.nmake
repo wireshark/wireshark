@@ -47,7 +47,7 @@ PROGRAM_FILES=C:/Program Files
 
 # "Microsoft Visual Studio 6.0"
 # Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
-MSVC_VARIANT=MSVC6
+#MSVC_VARIANT=MSVC6
 
 # "Microsoft Visual Studio .NET (2002)"
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
@@ -83,7 +83,7 @@ MSVC_VARIANT=MSVC6
 
 # "Microsoft Visual Studio 2008"
 # Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
-#MSVC_VARIANT=MSVC2008
+MSVC_VARIANT=MSVC2008
 
 # "Microsoft Visual C++ 2008 Express Edition"
 # Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
