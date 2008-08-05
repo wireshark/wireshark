@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
-luis@ontanon.org * $Id$
+ * $Id$
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  * Copyright (c) 2007 by Luis E. Garcia Ontanon <luis@ontanon.org>

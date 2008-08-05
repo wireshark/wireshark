@@ -1,4 +1,4 @@
-luis@ontanon.org/*
+/*
  *  packet-bctp.c
  *  Q.1990 BICC bearer control tunnelling protocol
  *
