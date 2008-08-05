@@ -346,7 +346,6 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
-File "..\..\example_snmp_users_file"
 
 ; C-runtime redistributable
 !ifdef VCREDIST_EXE
