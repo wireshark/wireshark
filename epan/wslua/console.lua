@@ -1,7 +1,7 @@
 -- console
 -- A console and a window to execute commands in lua
 --
--- (c) 2006 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+-- (c) 2006 Luis E. Garcia Ontanon <luis@ontanon.org>
 --
 -- $Id$
 -- 

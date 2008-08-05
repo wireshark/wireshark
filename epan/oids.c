@@ -1,7 +1,7 @@
 /* oids.c
  * Object IDentifier Support
  *
- * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

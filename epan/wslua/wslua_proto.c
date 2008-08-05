@@ -3,7 +3,7 @@
  *
  * wireshark's interface to the Lua Programming Language
  *
- * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
  *
  * $Id$

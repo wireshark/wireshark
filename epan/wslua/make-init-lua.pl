@@ -4,7 +4,7 @@
 #
 # create the init.lua file based on a template (stdin) 
 #
-# (c) 2006, Luis E. Garcia Onatnon <luis.ontanon@gmail.com>
+# (c) 2006, Luis E. Garcia Onatnon <luis@ontanon.org>
 #
 # $Id$
 #

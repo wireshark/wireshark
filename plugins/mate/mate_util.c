@@ -2,7 +2,7 @@
 * MATE -- Meta Analysis Tracing Engine
 * Utility Library: Single Copy Strings and Attribute Value Pairs
 *
-* Copyright 2004, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
 *
 * $Id$
 *

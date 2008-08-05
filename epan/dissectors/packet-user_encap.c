@@ -1,6 +1,6 @@
 /* packet-user_encap.c
  * Allow users to specify the dissectors for DLTs
- * Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

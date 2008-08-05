@@ -1,6 +1,6 @@
 /* tvbparse.c
 *
-* Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+* Copyright 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
 *
 * $Id$
 *

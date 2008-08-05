@@ -1,8 +1,8 @@
-/*
+luis@ontanon.org/*
  *  packet-bctp.c
  *  Q.1990 BICC bearer control tunnelling protocol
  *
- *  (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *  (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

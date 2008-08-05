@@ -1,7 +1,7 @@
 /* tpg.h
  * Definitions of helper functions for TPG
  *
- *  (c) 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *  (c) 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
  * 
  * $Id$
  *

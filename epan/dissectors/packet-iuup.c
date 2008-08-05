@@ -1,7 +1,7 @@
 /* packet-iuup.c
  * IuUP Protocol 3GPP TS 25.415 V6.2.0 (2005-03)
  *
- * (c) 2005 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2005 Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

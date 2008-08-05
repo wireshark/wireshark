@@ -3,7 +3,7 @@
 # make-doc.pl
 # WSLUA's Reference Manual Generator
 #
-# (c) 2006, Luis E. Garcia Onatnon <luis.ontanon@gmail.com>
+# (c) 2006, Luis E. Garcia Onatnon <luis@ontanon.org>
 #
 # $Id$
 #

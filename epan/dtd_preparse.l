@@ -31,7 +31,7 @@
 	 *					including files, removing comments
 	 *                  and resolving %entities;
 	 *
-	 * Copyright 2004, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+	 * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
 	 *
 	 * $Id$
 	 *

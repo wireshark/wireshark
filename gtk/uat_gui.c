@@ -6,7 +6,7 @@
  *  User Accessible Tables GUI
  *  Mantain an array of user accessible data strucures
  *  
- * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -868,9 +868,10 @@ static GtkWidget* uat_window(void* u) {
 	}
 
 	gtk_clist_thaw(GTK_CLIST(rep->clist));
-	
+	fprintf(stderr,"====> HERE");
 	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist));
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
+	fprintf(stderr,"====> THERE");
 
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -917,7 +918,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
-	/* g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat); */
+	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);
 	g_signal_connect(rep->clist, "select-row", G_CALLBACK(remember_selected_row), uat);
 
 

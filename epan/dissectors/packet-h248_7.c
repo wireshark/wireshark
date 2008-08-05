@@ -3,7 +3,7 @@
  *  H.248.7
  *  Gateway control protocol: Generic Announcement package
  *
- *  (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *  (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

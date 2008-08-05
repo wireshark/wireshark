@@ -2,7 +2,7 @@
  *  packet-h248-annex_c.c
  *  H.248 annex C
  *
- *  (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *  (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

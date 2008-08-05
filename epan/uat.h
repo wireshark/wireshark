@@ -6,7 +6,7 @@
  *  User Accessible Tables
  *  Mantain an array of user accessible data strucures
  *
- * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

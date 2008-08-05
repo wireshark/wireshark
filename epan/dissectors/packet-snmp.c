@@ -23,7 +23,7 @@
  * See RFC 3414 for User-based Security Model for SNMPv3
  * See RFC 3826 for  (AES) Cipher Algorithm in the SNMP USM
  * See RFC 2578 for Structure of Management Information Version 2 (SMIv2)
- * Copyright (C) 2007 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * Copyright (C) 2007 Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

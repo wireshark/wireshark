@@ -1,7 +1,7 @@
 /* pinfo_stats_tree.h
 * Stats tree for ethernet frames
 *
-*  (c) 2005, Luis E. G. Ontanon <luis.ontanon@gmail.com>
+*  (c) 2005, Luis E. G. Ontanon <luis@ontanon.org>
 *
 * $Id$
 *

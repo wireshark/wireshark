@@ -33,7 +33,7 @@
 	 **
 	 ** $Id$
 	 **
-	 ** (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+	 ** (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
 	 ** (c) 2007, Stephen Croll <stephen.d.croll@gmail.com>
 	 **
 	 ** This library is free software; you can redistribute it and/or

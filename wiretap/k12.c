@@ -3,7 +3,7 @@
  *
  *  routines for importing tektronix k12xx *.rf5 files
  *
- *  Copyright (c) 2005, Luis E. Garia Ontanon <luis.ontanon@gmail.com>
+ *  Copyright (c) 2005, Luis E. Garia Ontanon <luis@ontanon.org>
  *
  * $Id$
  *

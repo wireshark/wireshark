@@ -4,7 +4,7 @@
  **
  ** $Id$
  **
- ** (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ ** (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  **
  ** This library is free software; you can redistribute it and/or
  ** modify it under the terms of the GNU Library General Public

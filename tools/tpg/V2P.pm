@@ -3,7 +3,7 @@
 #  a function that prints a complex variable such that the output is a
 # valid perl representation of that variable (does not handle blessed objects)
 #
-# (c) 2002, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+# (c) 2002, Luis E. Garcia Ontanon <luis@ontanon.org>
 #
 # $Id$
 #

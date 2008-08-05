@@ -7,7 +7,7 @@
  *  Gateway control protocol: Media gateway
  *  resource congestion handling package
  *
- *  (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *  (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
