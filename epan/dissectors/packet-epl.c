@@ -1,6 +1,6 @@
 /* packet-epl.c
- * Routines for "Ethernet Powerlink 2.0" dissection
- * (ETHERNET Powerlink V2.0 Communication Profile Specification Draft Standard Version 1.0.0)
+ * Routines for "Ethernet POWERLINK 2.0" dissection
+ * (Ethernet POWERLINK V2.0 Communication Profile Specification Draft Standard Version 1.0.0)
  *
  * Copyright (c) 2006: Zurich University of Applied Sciences Winterthur (ZHW)
  *                     Institute of Embedded Systems (InES)
@@ -970,8 +970,8 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7, tvb, offset, 1, TRUE);
         offset += 2;
 
-        proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_devicespecific_err, tvb,offset, 8, TRUE);
-        offset += 8;
+        proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_devicespecific_err, tvb,offset, 6, TRUE);
+        offset += 6;
 
         /* List of errors / events */
         /* get the number of entries in the error code list*/
@@ -1501,7 +1501,7 @@ static hf_register_info hf[] = {
     module_t *epl_module;
 
     /* Register the protocol name and description */
-    proto_epl = proto_register_protocol("ETHERNET Powerlink v2", "EPL", "epl");
+    proto_epl = proto_register_protocol("Ethernet POWERLINK V2", "EPL", "epl");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_epl, hf, array_length(hf));
