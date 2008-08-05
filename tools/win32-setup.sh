@@ -7,14 +7,18 @@
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save previous tag.
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-08-04/packages/"
+DOWNLOAD_TAG="2008-08-04"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/$DOWNLOAD_TAG/packages/"
+TAG_FILE="current_tag.txt"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
 
 err_exit () {
 	echo ""
-	echo "ERROR: $1"
+        for str in "$@" ; do
+            echo "ERROR: $str"
+        done
 	echo ""
 	exit 1
 }
@@ -24,6 +28,8 @@ usage () {
 	echo "	$0 --appverify <appname> [<appname>] ..."
 	echo "  $0 --libverify <destination> <subdirectory> <package>"
 	echo "	$0 --download  <destination> <subdirectory> <package>"
+	echo "	$0 --settag  <destination>"
+	echo "	$0 --checktag  <destination>"
 	echo ""
 	exit 1
 }
@@ -109,6 +115,30 @@ case "$1" in
 		fi
 	done
 	;;
+--settag)
+	if [ -z "$2" ] ; then
+		usage
+	fi
+	DEST_PATH=`cygpath --dos "$2"`
+        echo "$DOWNLOAD_TAG" > $DEST_PATH/$TAG_FILE
+        ;;
+--checktag)
+	if [ -z "$2" ] ; then
+		usage
+	fi
+	DEST_PATH=`cygpath --dos "$2"`
+	WIN_PATH=`cygpath --windows "$2"`
+        LAST_TAG=`cat $DEST_PATH/$TAG_FILE 2> /dev/null`
+        if [ "$DOWNLOAD_TAG" != "$LAST_TAG" ] ; then
+                if [ -z "$LAST_TAG" ] ; then
+                        LAST_TAG="(unknown)"
+                fi
+                err_exit \
+                        "The contents of $WIN_PATH\\$TAG_FILE is $LAST_TAG." \
+                        "It should be $DOWNLOAD_TAG." \
+                        "Do you need to run \"nmake -f makefile.nmake setup\"?"
+        fi
+        ;;
 *)
 	usage
 	;;

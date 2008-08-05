@@ -689,6 +689,9 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN32_SETUP_OPT).
 process_libs:
+!IF "$(WIN32_SETUP_OPT)" == "--libverify"
+    @$(SH) tools\win32-setup.sh --checktag "$(WIRESHARK_LIBS)"
+!ENDIF
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -816,6 +819,9 @@ process_libs:
 !IFDEF NASM
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. nasm-2.02-win32.zip
+!ENDIF
+!IF "$(WIN32_SETUP_OPT)" == "--download"
+    @$(SH) tools\win32-setup.sh --settag "$(WIRESHARK_LIBS)"
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.
