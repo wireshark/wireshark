@@ -53,6 +53,7 @@
 #include "gtk/service_response_time_table.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
@@ -92,7 +93,7 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		return 0;
 	}
 	/* if we havnt seen the request, just ignore it */
-	if(!ldap->req_frame){ 
+	if(!ldap->req_frame){
 		return 0;
 	}
 
@@ -127,8 +128,6 @@ ldapstat_draw(void *pldap)
 }
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -233,7 +232,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 
 	gtk_widget_show_all(ldap->win);
 	window_present(ldap->win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 

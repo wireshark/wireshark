@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,6 +42,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
+#include "gtk/main.h"
 
 
 typedef const char* bootp_info_value_t;
@@ -68,8 +69,8 @@ dhcp_free_hash( gpointer key _U_ , gpointer value, gpointer user_data _U_ )
 	g_free(value);
 }
 static void
-dhcp_reset_hash(gchar *key _U_ , dhcp_message_type_t *data, gpointer ptr _U_ ) 
-{	
+dhcp_reset_hash(gchar *key _U_ , dhcp_message_type_t *data, gpointer ptr _U_ )
+{
 	data->packets = 0;
 }
 
@@ -113,7 +114,7 @@ static void
 dhcpstat_reset(void *psp)
 {
 	dhcpstat_t *sp=psp;
-	g_hash_table_foreach( sp->hash, (GHFunc)dhcp_reset_hash, NULL);	
+	g_hash_table_foreach( sp->hash, (GHFunc)dhcp_reset_hash, NULL);
 }
 static int
 dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
@@ -124,8 +125,8 @@ dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 
 	if (sp==NULL)
 		return 0;
-	sc = g_hash_table_lookup( 
-			sp->hash, 
+	sc = g_hash_table_lookup(
+			sp->hash,
 			value);
 	if (!sc) {
 		/*g_warning("%s:%d What's Wrong for %s, doc ?", __FILE__, __LINE__, value);*/
@@ -159,7 +160,7 @@ dhcpstat_draw(void *psp)
 		 * let's resize the table */
 		gtk_table_resize ( GTK_TABLE(sp->table_message_type), sp->index  % 2 , 4);
 	}
-	
+
 }
 
 
@@ -170,8 +171,6 @@ dhcpstat_draw(void *psp)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -183,7 +182,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	g_free(sp->filter);
 	g_hash_table_foreach( sp->hash, (GHFunc)dhcp_free_hash, NULL);
-	g_hash_table_destroy( sp->hash);	
+	g_hash_table_destroy( sp->hash);
 	g_free(sp);
 }
 
@@ -201,13 +200,13 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget	*vbox;
 	GtkWidget	*bt_close;
 	GtkWidget	*bbox;
-	
+
 	if (strncmp (optarg, "bootp,stat,", 11) == 0){
 		filter=optarg+11;
 	} else {
 		filter=NULL;
 	}
-	
+
 	sp = g_malloc( sizeof(dhcpstat_t) );
 	sp->hash = g_hash_table_new( g_str_hash, g_str_equal);
 	if(filter){
@@ -230,7 +229,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	message_type_fr = gtk_frame_new("DHCP Message Type");
   	gtk_container_add(GTK_CONTAINER(vbox), message_type_fr);
   	gtk_widget_show(message_type_fr);
-	
+
 	sp->table_message_type = gtk_table_new( 0, 4, FALSE);
 	gtk_table_set_col_spacings( GTK_TABLE(sp->table_message_type), 10);
 	gtk_container_add( GTK_CONTAINER( message_type_fr), sp->table_message_type);
@@ -238,7 +237,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	sp->index = 0; 		/* Nothing to display yet */
 
 
-	error_string = register_tap_listener( 
+	error_string = register_tap_listener(
 			"bootp",
 			sp,
 			filter,

@@ -52,6 +52,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/main.h"
 
 
 static void gtk_h225counter_init(const char *optarg, void *userdata);
@@ -311,7 +312,7 @@ h225counter_draw(void *phs)
 
 	for(i=0;i<=RAS_MSG_TYPES;i++) {
 		if(hs->ras_msg[i]!=0) {
-			g_snprintf(str[0], sizeof(char[256]), 
+			g_snprintf(str[0], sizeof(char[256]),
                 "%s", val_to_str(i,h225_RasMessage_vals,"unknown ras-messages  "));
 			g_snprintf(str[1], sizeof(char[256]),
                 "%d", hs->ras_msg[i]);
@@ -478,8 +479,6 @@ h225counter_draw(void *phs)
 
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {

@@ -1,6 +1,6 @@
 /* expert_dlg.c
  * Display of Expert information.
- * 
+ *
  * Implemented as a tap listener to the "expert" tap.
  *
  * $Id$
@@ -93,7 +93,7 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 	gtk_clist_clear(etd->table);
 	gtk_clist_columns_autosize(etd->table);
 
-	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos"); 
+	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos");
 	if(etd->label) {
 		gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
 	}
@@ -121,10 +121,10 @@ int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt
 {
     expert_info_t	*ei = se_memdup(pointer,sizeof(expert_info_t));
 	expert_tapdata_t * etd = tapdata;
-    
+
     ei->protocol = se_strdup(ei->protocol);
     ei->summary = se_strdup(ei->summary);
-    
+
 	switch(ei->severity) {
 	case(PI_CHAT):
 		etd->chat_events++;
@@ -168,8 +168,8 @@ expert_dlg_draw(void *data)
 
 	if(etd->label) {
 		if(etd->new_events != NULL) {
-			title = g_strdup_printf("Adding: %u new messages", 
-				g_list_length(etd->new_events)); 
+			title = g_strdup_printf("Adding: %u new messages",
+				g_list_length(etd->new_events));
 			gtk_label_set_text(GTK_LABEL(etd->label), title);
 			g_free(title);
 		}
@@ -205,7 +205,7 @@ expert_dlg_draw(void *data)
 
 		/* severity */
 		entries[1] = val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)");
-			
+
 		/* group */
 		entries[2] = val_to_str(ei->group, expert_group_vals, "Unknown group (%u)");
 
@@ -246,7 +246,7 @@ expert_dlg_draw(void *data)
 
 	gtk_clist_sort(etd->table);
 	/* column autosizing is very slow for large number of entries,
-	 * so do it only for the first 1000 of it 
+	 * so do it only for the first 1000 of it
 	 * (there might be no large changes behind this amount) */
 	if(etd->disp_events < 1000)
 		gtk_clist_columns_autosize(etd->table);
@@ -254,14 +254,14 @@ expert_dlg_draw(void *data)
                      etd->disp_events - 1, -1, 1.0, 1.0);
 	gtk_clist_thaw(etd->table);
 
-	if(etd->label) { 
-		title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
+	if(etd->label) {
+		title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u",
 			etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
 			gtk_label_set_text(GTK_LABEL(etd->label), title);
 		g_free(title);
 	}
 
-	title = g_strdup_printf("Wireshark: %u Expert Info%s", 
+	title = g_strdup_printf("Wireshark: %u Expert Info%s",
 		etd->disp_events,
 		plurality(etd->disp_events, "", "s"));
 	gtk_window_set_title(GTK_WINDOW(etd->win), title);
@@ -424,8 +424,6 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 	}*/
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -570,12 +568,12 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 
 	gtk_widget_show_all(etd->win);
 	window_present(etd->win);
-	
+
     cf_retap_packets(&cfile, FALSE);
 }
 
 
-static void 
+static void
 expert_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	expert_dlg_init("", NULL);

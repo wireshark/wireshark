@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -44,6 +44,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the stats for a specific PDU type*/
@@ -59,7 +60,7 @@ typedef struct _wsp_stats_t {
 	guint32		 num_pdus;
 	GtkWidget 	*win;
 	GHashTable	*hash;
-	GtkWidget	*table_pdu_types;	
+	GtkWidget	*table_pdu_types;
 	GtkWidget	*table_status_code;
 	guint		 index;	/* Number of status code to display */
 } wspstat_t;
@@ -78,8 +79,8 @@ wsp_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
 	g_free(value);
 }
 static void
-wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_ ) 
-{	
+wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_ )
+{
 	data->packets = 0;
 }
 
@@ -129,9 +130,9 @@ wspstat_reset(void *psp)
 	{
 		sp->pdu_stats[i].packets=0;
 	}
-	g_hash_table_foreach( sp->hash, (GHFunc)wsp_reset_hash, NULL);	
+	g_hash_table_foreach( sp->hash, (GHFunc)wsp_reset_hash, NULL);
 }
-static gint 
+static gint
 pdut2index(gint pdut)
 {
 	if (pdut<=0x09)		return pdut;
@@ -168,8 +169,8 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		gint *key=g_malloc( sizeof(gint) );
 		wsp_status_code_t *sc;
 		*key=value->status_code ;
-		sc = g_hash_table_lookup( 
-				sp->hash, 
+		sc = g_hash_table_lookup(
+				sp->hash,
 				key);
 		if (!sc) {
 			g_warning("%s:%d What's Wrong, doc ?\n", __FILE__, __LINE__);
@@ -188,7 +189,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		retour=1;
 	}
 
-		
+
 
 	if (index!=0) {
 		sp->pdu_stats[ index ].packets++;
@@ -221,7 +222,7 @@ wspstat_draw(void *psp)
 		 * let's resize the table */
 		gtk_table_resize ( GTK_TABLE(sp->table_status_code), sp->index  % 2 , 4);
 	}
-	
+
 }
 
 
@@ -232,8 +233,6 @@ wspstat_draw(void *psp)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -246,7 +245,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(sp->pdu_stats);
 	g_free(sp->filter);
 	g_hash_table_foreach( sp->hash, (GHFunc)wsp_free_hash, NULL);
-	g_hash_table_destroy( sp->hash);	
+	g_hash_table_destroy( sp->hash);
 	g_free(sp);
 }
 
@@ -271,7 +270,7 @@ wsp_init_table(wspstat_t *sp)
 	int pos=0;
 	guint32 i;
 	/* gchar	buffer[51];	*/
-	
+
 	add_table_entry( sp, "PDU Type               "	, 0, pos, 0);
 	add_table_entry( sp, "packets  "	, 1, pos, 0);
 	add_table_entry( sp, "PDU Type               "	, 2, pos, 0);
@@ -285,7 +284,7 @@ wsp_init_table(wspstat_t *sp)
 		}
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(buffer, 50, "%s  (0X%x)", match_strval( index2pdut( i ), vals_pdu_type), index2pdut(i) );*/
-		add_table_entry( sp, 
+		add_table_entry( sp,
 				match_strval(index2pdut(i), vals_pdu_type), /* or buffer, */
 				x,
 				pos,
@@ -293,7 +292,7 @@ wsp_init_table(wspstat_t *sp)
 				);
 		add_table_entry( sp, "0", x+1, pos
 				, i /* keep a pointer to this widget to update it in _draw() */
-				);	
+				);
 		pos++;
 		if (i== (sp->num_pdus+1) /2) {
 			pos=1;
@@ -315,14 +314,14 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget	*bbox;
 	guint32		 i;
 	wsp_status_code_t *sc;
-	
-	
+
+
 	if (strncmp (optarg, "wsp,stat,", 9) == 0){
 		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
-	
+
 	sp = g_malloc( sizeof(wspstat_t) );
 	sp->win = window_new(GTK_WINDOW_TOPLEVEL, "wsp-stat");
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
@@ -366,7 +365,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	/* PDU Types frame */
 	pdutypes_fr = gtk_frame_new("Summary of PDU Types (wsp.pdu_type)");
   	gtk_container_add(GTK_CONTAINER(main_vb), pdutypes_fr);
-	
+
 	sp->table_pdu_types = gtk_table_new( (sp->num_pdus+1) / 2 + 1, 4, FALSE);
 	gtk_container_add( GTK_CONTAINER( pdutypes_fr), sp->table_pdu_types);
 	gtk_container_set_border_width( GTK_CONTAINER(sp->table_pdu_types) , 10);
@@ -376,13 +375,13 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	/* Status Codes frame */
 	statuscode_fr = gtk_frame_new("Summary of Status Code (wsp.reply.status)");
   	gtk_container_add(GTK_CONTAINER(main_vb), statuscode_fr);
-	
+
 	sp->table_status_code = gtk_table_new( 0, 4, FALSE);
 	gtk_container_add( GTK_CONTAINER( statuscode_fr), sp->table_status_code);
 	gtk_container_set_border_width( GTK_CONTAINER(sp->table_status_code) , 10);
 	sp->index = 0; 		/* No answers to display yet */
 
-	error_string = register_tap_listener( 
+	error_string = register_tap_listener(
 			"wsp",
 			sp,
 			filter,
@@ -411,7 +410,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 
         gtk_widget_show_all(sp->win);
         window_present(sp->win);
-	
+
         cf_retap_packets(&cfile, FALSE);
 }
 

@@ -53,6 +53,7 @@
 #include "gtk/service_response_time_table.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
@@ -132,8 +133,6 @@ smbstat_draw(void *pss)
 }
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -236,7 +235,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 
 	gtk_widget_show_all(ss->win);
 	window_present(ss->win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 

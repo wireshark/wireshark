@@ -52,6 +52,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/main.h"
 
 
 #define NUM_TIMESTATS 10
@@ -220,8 +221,6 @@ mgcpstat_draw(void *pms)
 	}
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -300,7 +299,7 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 
 	gtk_widget_show_all(ms->win);
 	window_present(ms->win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 

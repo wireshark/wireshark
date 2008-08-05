@@ -49,6 +49,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/expert_comp_dlg.h"
 #include "gtk/stock_icons.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
@@ -131,8 +132,6 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 }
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -153,8 +152,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -181,7 +178,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *help_bt;
     expert_tapdata_t *etd;
     GtkTooltips *tooltips = gtk_tooltips_new();
-    
+
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
     etd=g_malloc(sizeof(expert_tapdata_t));
@@ -282,13 +279,13 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     gtk_widget_show_all(ss->win);
     window_present(ss->win);
-    
+
     /* We currently cannot just retap the packets because we will not be able
      * to acquire the fvalue data. The expert items would already have been
      * cleared and we will not be able to perform any filtering of data.
      * So we force a redissect so that all data is valid.
-     * If someone can figure out why the expert_item value is null when 
-     * performing a retap then this call to 
+     * If someone can figure out why the expert_item value is null when
+     * performing a retap then this call to
      * cf_redissect_packets(&cfile);
      * can be changed to...
      * cf_retap_packets(&cfile, NULL);
@@ -297,7 +294,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     cf_redissect_packets(&cfile);
 }
 
-void 
+void
 expert_comp_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     expert_comp_init("", NULL);
@@ -307,7 +304,7 @@ void
 register_tap_listener_expert_comp(void)
 {
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
-    register_stat_menu_item_stock("Expert Info _Composite", 
+    register_stat_menu_item_stock("Expert Info _Composite",
         REGISTER_ANALYZE_GROUP_UNSORTED, WIRESHARK_STOCK_EXPERT_INFO,
         expert_comp_dlg_cb, NULL, NULL, NULL);
 }

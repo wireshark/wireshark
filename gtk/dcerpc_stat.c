@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -55,6 +55,7 @@
 #include "gtk/stock_icons.h"
 #include "gtk/service_response_time_table.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
@@ -167,8 +168,6 @@ dcerpcstat_draw(void *rs_arg)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -437,7 +436,7 @@ static GtkWidget *program_submenu_item;
 static GtkWidget *program_submenu_label;
 static int program_subitem_index;
 static const char *first_menu_name;
-static void 
+static void
 dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 {
 	GtkWidget *program_menu_item;
@@ -452,7 +451,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 		program_submenu_item=gtk_menu_item_new();
 		box=gtk_hbox_new(TRUE,0);
 		gtk_container_add(GTK_CONTAINER(program_submenu_item), box);
-		
+
 		program_submenu_label=gtk_label_new(str);
 		gtk_box_pack_start(GTK_BOX(box), program_submenu_label, TRUE, TRUE, 0);
 		gtk_widget_show(program_submenu_label);
@@ -470,7 +469,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 		break;
 /*qqq*/
 	}
-	program_subitem_index++;		
+	program_subitem_index++;
 
 	program_menu_item=gtk_menu_item_new_with_label(v->name);
 	g_signal_connect(program_menu_item, "activate", G_CALLBACK(dcerpcstat_program_select), k);
@@ -641,7 +640,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
 	}
 	gtk_widget_show(filter_entry);
-	
+
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
@@ -653,7 +652,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
         gtk_widget_show(bbox);
 
         start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
-	g_signal_connect_swapped(start_button, "clicked", 
+	g_signal_connect_swapped(start_button, "clicked",
                               G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
 
         cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);

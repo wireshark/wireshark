@@ -54,6 +54,7 @@
 
 #include "gtk/rtp_stream.h"
 #include "gtk/rtp_stream_dlg.h"
+#include "gtk/main.h"
 
 
 /****************************************************************************/
@@ -157,10 +158,6 @@ const rtpstream_tapinfo_t* rtpstream_get_info(void)
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-
-/* XXX just copied from gtk/rpc_stat.c */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
 void

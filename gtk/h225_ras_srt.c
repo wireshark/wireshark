@@ -53,6 +53,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/main.h"
 
 
 static void gtk_h225rassrt_init(const char *optarg, void *userdata);
@@ -220,27 +221,27 @@ h225rassrt_draw(void *phs)
 			continue;
 		}
 
-		g_snprintf(str[0], sizeof(char[256]), 
+		g_snprintf(str[0], sizeof(char[256]),
             "%s", val_to_str(i,ras_message_category,"Other"));
-		g_snprintf(str[1], sizeof(char[256]), 
+		g_snprintf(str[1], sizeof(char[256]),
             "%7d", hs->ras_rtd[i].stats.num);
-		g_snprintf(str[2], sizeof(char[256]), 
+		g_snprintf(str[2], sizeof(char[256]),
             "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.min)));
-		g_snprintf(str[3], sizeof(char[256]), 
+		g_snprintf(str[3], sizeof(char[256]),
             "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.max)));;
-		g_snprintf(str[4], sizeof(char[256]), 
+		g_snprintf(str[4], sizeof(char[256]),
             "%8.2f msec", get_average(&(hs->ras_rtd[i].stats.tot), hs->ras_rtd[i].stats.num));
-		g_snprintf(str[5], sizeof(char[256]), 
+		g_snprintf(str[5], sizeof(char[256]),
             "%6u", hs->ras_rtd[i].stats.min_num);
-		g_snprintf(str[6], sizeof(char[256]), 
+		g_snprintf(str[6], sizeof(char[256]),
             "%6u", hs->ras_rtd[i].stats.max_num);
-		g_snprintf(str[7], sizeof(char[256]), 
+		g_snprintf(str[7], sizeof(char[256]),
             "%4u", hs->ras_rtd[i].open_req_num);
-		g_snprintf(str[8], sizeof(char[256]), 
+		g_snprintf(str[8], sizeof(char[256]),
             "%4u", hs->ras_rtd[i].disc_rsp_num);
-		g_snprintf(str[9], sizeof(char[256]), 
+		g_snprintf(str[9], sizeof(char[256]),
             "%4u", hs->ras_rtd[i].req_dup_num);
-		g_snprintf(str[10], sizeof(char[256]), 
+		g_snprintf(str[10], sizeof(char[256]),
             "%4u", hs->ras_rtd[i].rsp_dup_num);
 		gtk_clist_append(GTK_CLIST(hs->table), str);
 	}
@@ -249,8 +250,6 @@ h225rassrt_draw(void *phs)
 
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {

@@ -53,6 +53,7 @@
 #include "gtk/service_response_time_table.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/main.h"
 
 
 /* used to keep track of the statistics for an entire program interface */
@@ -458,8 +459,6 @@ ncpstat_draw(void *pss)
 	draw_srt_table_data(&ss->sub_131_srt_table);
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -550,7 +549,7 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     label=gtk_label_new("NCP by Group Type");
     gtk_box_pack_start(GTK_BOX(temp_page), label, FALSE, FALSE, 0);
     init_srt_table(&ss->ncp_srt_table, 256, temp_page, "ncp.group");
-    
+
     /* NCP Functions */
     temp_page = gtk_vbox_new(FALSE, 6);
     label = gtk_label_new("Functions");

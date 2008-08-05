@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,6 +41,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
+#include "gtk/main.h"
 
 
 struct _st_node_pres {
@@ -99,10 +100,10 @@ draw_gtk_node(stat_node* node)
 	static gchar rate[NUM_BUF_SIZE];
 	static gchar percent[NUM_BUF_SIZE];
 	stat_node* child;
-	
+
 	stats_tree_get_strs_from_node(node, value, rate,
 				      percent);
-	
+
 	if (node->st->pr->store && node->pr->iter) {
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
@@ -110,7 +111,7 @@ draw_gtk_node(stat_node* node)
 						   PERCENT_COLUMN, percent,
 						   -1);
 	}
-	
+
 	if (node->children) {
 		for (child = node->children; child; child = child->next )
 			draw_gtk_node(child);
@@ -136,23 +137,20 @@ draw_gtk_tree(void *psp)
 
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-
 static void
 free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 {
-	
+
 	protect_thread_critical_region();
 	remove_tap_listener(st);
 	unprotect_thread_critical_region();
-	
+
 	if (st->root.pr)
 		st->root.pr->iter = NULL;
-	
+
 	st->cfg->in_use = FALSE;
 	stats_tree_free(st);
-	
+
 }
 
 static void
@@ -162,7 +160,7 @@ clear_node_pr(stat_node* n)
 	for (c = n->children; c; c = c->next) {
 		clear_node_pr(c);
 	}
-	
+
 	if (n->pr->iter) {
 		gtk_tree_store_remove(n->st->pr->store, n->pr->iter);
 		n->pr->iter = NULL;
@@ -177,7 +175,7 @@ reset_tap(void* p)
 	for (c = st->root.children; c; c = c->next) {
 		clear_node_pr(c);
 	}
-	
+
 	st->cfg->init(st);
 }
 
@@ -197,26 +195,26 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	GtkWidget *main_vb, *bbox, *bt_close;
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
-	
+
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
-		
+
 		if (cfg && cfg->in_use) {
 			/* XXX: ! */
 			report_failure("cannot open more than one tree of the same type at once");
 			return;
 		}
-		
+
 		if (cfg != NULL) {
 			init_strlen = strlen(cfg->pr->stat_dlg->init_string);
-			
+
 			if (strncmp (optarg, cfg->pr->stat_dlg->init_string, init_strlen) == 0){
 				if (init_strlen == strlen(optarg)) {
 					st = stats_tree_new(cfg,pr,NULL);
-				} else { 
+				} else {
 					st = stats_tree_new(cfg,pr,(char*)optarg+init_strlen+1);
 				}
-				
+
 			} else {
 				st = stats_tree_new(cfg,pr,NULL);
 			}
@@ -226,7 +224,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 			return;
 		}
 		g_free(abbr);
-		
+
 	} else {
 		report_failure("could not obtain stats_tree abbr from optarg");
 		g_free(pr);
@@ -234,20 +232,20 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	}
 
 	cfg->in_use = TRUE;
-	
+
 	window_name = g_strdup_printf("%s Stats Tree", cfg->name);
-	
+
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
 	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), 400, 400);
 	g_free(window_name);
-    
+
 	if(st->filter){
 		title=g_strdup_printf("%s with filter: %s",cfg->name,st->filter);
 	} else {
 		st->filter=NULL;
 		title=g_strdup_printf("%s", cfg->name);
 	}
-	
+
 	gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
 	g_free(title);
 
@@ -259,12 +257,12 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 
 	st->pr->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 									G_TYPE_STRING, G_TYPE_STRING);
-	
+
 	st->pr->tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (st->pr->store));
 	g_object_unref(G_OBJECT(st->pr->store));
 
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->tree);
-	
+
 	/* the columns */
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Topic / Item", renderer,
@@ -273,16 +271,16 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
-	
+
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Count", renderer,
 													   "text", COUNT_COLUMN,
 													   NULL);
-	
+
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
-	
+
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Rate", renderer,
 													   "text", RATE_COLUMN,
@@ -290,7 +288,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_tree_view_column_set_resizable (column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
-	
+
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Percent", renderer,
 													   "text", PERCENT_COLUMN,
@@ -300,14 +298,14 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 
 	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
-	
+
 	error_string = register_tap_listener( cfg->tapname,
 					      st,
 					      st->filter,
 					      reset_tap,
 					      stats_tree_packet,
 					      draw_gtk_tree);
-	
+
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
@@ -315,7 +313,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 		g_string_free(error_string, TRUE);
 	}
-		
+
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -325,10 +323,10 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 
 	g_signal_connect(GTK_WINDOW(st->pr->win), "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(GTK_WINDOW(st->pr->win), "destroy", G_CALLBACK(free_gtk_tree), st);
-	
+
 	gtk_widget_show_all(st->pr->win);
 	window_present(st->pr->win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 
@@ -339,14 +337,14 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	stats_tree_cfg* cfg = v;
 
 	cfg->pr = g_malloc(sizeof(tree_pres));
-	
+
 	cfg->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
-	
+
 	cfg->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",cfg->name);
 	cfg->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",cfg->abbr);
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
-	
+
 	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name,
 	    REGISTER_STAT_GROUP_UNSORTED);
 }
@@ -360,7 +358,7 @@ free_tree_presentation(stats_tree* st)
 void
 register_tap_listener_stats_tree_stat(void)
 {
-	
+
 	stats_tree_presentation(register_gtk_stats_tree_tap,
 							setup_gtk_node_pr,
                             NULL,

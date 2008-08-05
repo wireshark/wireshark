@@ -58,7 +58,7 @@
 static void gtk_camelcounter_reset(void *phs);
 static int gtk_camelcounter_packet(void *phs,
 				   packet_info *pinfo _U_,
-				   epan_dissect_t *edt _U_, 
+				   epan_dissect_t *edt _U_,
 				   const void *phi);
 static void gtk_camelcounter_draw(void *phs);
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data);
@@ -80,10 +80,10 @@ static void gtk_camelcounter_reset(void *phs)
 {
   struct camelcounter_t * p_counter= ( struct camelcounter_t *) phs;
   int i;
-  
+
   /* Erase Message Type count */
   for(i=0;i<camel_MAX_NUM_OPR_CODES;i++) {
-    p_counter->camel_msg[i]=0; 
+    p_counter->camel_msg[i]=0;
   }
 }
 
@@ -93,14 +93,14 @@ static void gtk_camelcounter_reset(void *phs)
  */
 static int gtk_camelcounter_packet(void *phs,
 				   packet_info *pinfo _U_,
-				   epan_dissect_t *edt _U_, 
+				   epan_dissect_t *edt _U_,
 				   const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
   const struct camelsrt_info_t * pi=phi;
   if (pi->opcode != 255)
     p_counter->camel_msg[pi->opcode]++;
-  
+
   return 1;
 }
 
@@ -109,38 +109,35 @@ static void gtk_camelcounter_draw(void *phs)
   struct camelcounter_t *p_counter=(struct camelcounter_t *)phs;
   int i;
   char *str[2];
-  
+
   for(i=0;i<2;i++) {
     str[i]=g_malloc(sizeof(char[256]));
   }
   /* Now print Message and Reason Counter Table */
   /* clear list before printing */
   gtk_clist_clear(p_counter->table);
-  
+
   for(i=0;i<camel_MAX_NUM_OPR_CODES;i++) {
     /* Message counter */
     if(p_counter->camel_msg[i]!=0) {
-      g_snprintf(str[0], sizeof(char[256]), 
+      g_snprintf(str[0], sizeof(char[256]),
 		 "Request %s", val_to_str(i,camel_opr_code_strings,"Unknown message "));
       g_snprintf(str[1], sizeof(char[256]),
 		 "%d", p_counter->camel_msg[i]);
       gtk_clist_append(p_counter->table, str);
-    } 
+    }
   } /* Message Type */
   gtk_widget_show(GTK_WIDGET(p_counter->table));
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
   struct camelcounter_t *hs=(struct camelcounter_t *)data;
-  
+
   protect_thread_critical_region();
   remove_tap_listener(hs);
   unprotect_thread_critical_region();
-  
+
   if(hs->filter){
     g_free(hs->filter);
     hs->filter=NULL;
@@ -155,36 +152,36 @@ static const gchar *titles[]={
 static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
-  const char *filter=NULL; 
-  const char *emptyfilter=""; 
+  const char *filter=NULL;
+  const char *emptyfilter="";
   GString *error_string;
   GtkWidget *bbox;
   GtkWidget *close_bt;
-  
+
   if(strncmp(optarg,"camel,counter,",14) == 0){
     filter=optarg+14;
   } else {
     filter=NULL;
   }
-  
+
   p_camelcounter=g_malloc(sizeof(struct camelcounter_t));
   p_camelcounter->filter=g_strdup(filter);
-  
+
   gtk_camelcounter_reset(p_camelcounter);
-  
+
   p_camelcounter->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: CAMEL counters");
   gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
-  
+
   p_camelcounter->vbox=gtk_vbox_new(FALSE, 3);
   gtk_container_set_border_width(GTK_CONTAINER(p_camelcounter->vbox), 12);
-  
+
   init_main_stat_window(p_camelcounter->win, p_camelcounter->vbox, "CAMEL Messages Counters", filter);
-  
+
   /* init a scrolled window*/
   p_camelcounter->scrolled_window = scrolled_window_new(NULL, NULL);
 
   p_camelcounter->table = create_stat_table(p_camelcounter->scrolled_window, p_camelcounter->vbox, 2, titles);
-  
+
   if (filter) {
     error_string=register_tap_listener("CAMEL", p_camelcounter, filter,
 				       gtk_camelcounter_reset,

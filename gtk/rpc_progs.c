@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -47,6 +47,7 @@
 #include "gtk/gui_stat_menu.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
+#include "gtk/main.h"
 
 
 static GtkWidget *win=NULL;
@@ -209,7 +210,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		}
 	}
 
-	
+
 	/* we are only interested in reply packets */
 	if(ri->request){
 		return 0;
@@ -243,7 +244,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
-	
+
 	rp->tot.secs += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
 	if(rp->tot.nsecs>1000000000){
@@ -305,8 +306,6 @@ rpcprogs_draw(void *dummy _U_)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(void *dummy _U_, gpointer data _U_)
 {
@@ -403,7 +402,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 
 	gtk_widget_show_all(win);
 	window_present(win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 

@@ -50,6 +50,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/help_dlg.h"
+#include "gtk/main.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -179,7 +180,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
         g_string_free(error_string, TRUE);
         return;
     }
-	
+
     /* Allow clist to update */
     gtk_clist_thaw(hosts->table);
 
@@ -223,8 +224,6 @@ reset_hostlist_table_data_cb(void *arg)
     reset_hostlist_table_data(arg);
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 hostlist_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -268,12 +267,12 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		return (gint) (i1-i2);
 	}
 	g_assert_not_reached();
-	
+
 	/* Allow clist to redraw */
-	
+
 	gtk_clist_thaw(clist);
 	gtk_clist_freeze(clist);
-	
+
 	return 0;
 }
 
@@ -525,9 +524,9 @@ draw_hostlist_table_data(hostlist_table *hl)
         gtk_clist_set_text(hl->table, j, 7, str);
 
     }
-	
+
     draw_hostlist_table_addresses(hl);
-	
+
     gtk_clist_sort(hl->table);
 
     /* Allow table to redraw. */
@@ -546,13 +545,13 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
    guint32         i,j;
    gchar           *table_entry;
-   GtkClipboard    *cb;  
+   GtkClipboard    *cb;
    GString         *CSV_str = g_string_new("");
-   
+
    hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
    if (!hosts)
      return;
-   
+
    /* Add the column headers to the CSV data */
    for(i=0;i<hosts->num_columns;i++){                  /* all columns         */
     if(i==1 && !hosts->has_ports) continue;            /* Don't add the port column if it's empty */
@@ -561,7 +560,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
      g_string_append(CSV_str,",");
    }
    g_string_append(CSV_str,"\n");                      /* new row */
- 
+
    /* Add the column values to the CSV data */
    for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
     for(j=0;j<hosts->num_columns;j++){                 /* all columns         */
@@ -570,15 +569,15 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
      g_string_append(CSV_str,table_entry);             /* add the table entry to the CSV string */
     if(j!=hosts->num_columns-1)
      g_string_append(CSV_str,",");
-    } 
-    g_string_append(CSV_str,"\n");                     /* new row */  
+    }
+    g_string_append(CSV_str,"\n");                     /* new row */
    }
 
    /* Now that we have the CSV data, copy it into the default clipboard */
    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
    gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
    g_string_free(CSV_str, TRUE);                       /* Free the memory */
-} 
+}
 
 
 static gboolean
@@ -591,7 +590,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GString *error_string;
     char title[256];
 
-    hosttable->num_columns=NUM_COLS; 
+    hosttable->num_columns=NUM_COLS;
     hosttable->default_titles[0] = "Address";
     hosttable->default_titles[1] = "Port";
     hosttable->default_titles[2] = "Packets";
@@ -609,8 +608,8 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->resolve_names=TRUE;
     hosttable->page_lb = NULL;
 
-    g_snprintf(title, 255, "%s Endpoints", table_name); 
-    hosttable->name_lb = gtk_label_new(title);                                                 
+    g_snprintf(title, 255, "%s Endpoints", table_name);
+    hosttable->name_lb = gtk_label_new(title);
     gtk_box_pack_start(GTK_BOX(vbox), hosttable->name_lb, FALSE, FALSE, 0);
 
     hosttable->scrolled_window=scrolled_window_new(NULL, NULL);
@@ -698,7 +697,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable->use_dfilter=FALSE;
     g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
     hosttable->win=window_new(GTK_WINDOW_TOPLEVEL, title);
-    
+
     gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
 
     vbox=gtk_vbox_new(FALSE, 3);
@@ -722,7 +721,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt, 
+    gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
@@ -737,7 +736,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_present(hosttable->win);
 
     cf_retap_packets(&cfile, FALSE);
-	
+
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
 	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
   	gtk_clist_freeze(hosttable->table);

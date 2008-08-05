@@ -692,10 +692,6 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 /* CALLBACKS */
 
 /****************************************************************************/
-/* XXX just copied from gtk/rpc_stat.c */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-
 
 /****************************************************************************/
 /* close the dialog window and remove the tap listener */
@@ -3228,10 +3224,6 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 	return process_node(ptree_node, hfinformation, proto_field, p_result);
 }
 
-
-/* XXX just copied from gtk/rpc_stat.c */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
 void rtp_analysis(

@@ -43,6 +43,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
+#include "gtk/main.h"
 
 
 #define SUM_STR_MAX	1024
@@ -188,7 +189,7 @@ sip_init_hash(sipstat_t *sp)
         sc->sp = sp;
         g_hash_table_insert(sc->sp->hash_responses, key, sc);
     }
-    
+
     /* Create empty requests table */
     sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
 }
@@ -205,7 +206,7 @@ sip_draw_hash_requests(gchar *key _U_ , sip_request_method_t *data, gchar * unus
     {
         return;
     }
-    
+
     /* Build string showing method and count */
     g_snprintf(string_buff, sizeof(string_buff),
                "     %-11s : %3d packets", data->response, data->packets);
@@ -469,7 +470,7 @@ sipstat_draw(void *psp)
     /* Draw responses and requests from their tables */
     g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_draw_hash_responses, NULL);
     g_hash_table_foreach(sp->hash_requests,  (GHFunc)sip_draw_hash_requests, NULL);
-    
+
     gtk_widget_show_all(sp->win);
 }
 
@@ -480,9 +481,6 @@ sipstat_draw(void *psp)
  *
  * there should not be any other critical regions in gtk2
  */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
-
 /* When window is destroyed, clean up */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)

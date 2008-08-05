@@ -55,6 +55,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/help_dlg.h"
+#include "gtk/main.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -353,8 +354,6 @@ reset_ct_table_data_cb(void *arg)
     reset_ct_table_data(arg);
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {

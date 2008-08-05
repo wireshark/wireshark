@@ -54,6 +54,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/recent.h"
 #include "gtk/help_dlg.h"
+#include "gtk/main.h"
 
 enum {
 	BSSID_COLUMN,
@@ -73,7 +74,7 @@ enum {
 	NUM_COLUMNS
 };
 
-static const gchar *titles[] = { "BSSID", "Ch.", "SSID", "% Packets", "Beacons", "Data Packets", 
+static const gchar *titles[] = { "BSSID", "Ch.", "SSID", "% Packets", "Beacons", "Data Packets",
 				 "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Protection" };
 
 enum {
@@ -92,7 +93,7 @@ enum {
 	NUM_DETAIL_COLUMNS
 };
 
-static const gchar *detail_titles[] = { "Address", "% Packets", "Data Sent", "Data Received", 
+static const gchar *detail_titles[] = { "Address", "% Packets", "Data Sent", "Data Received",
 					"Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Comment" };
 
 typedef struct wlan_details_ep {
@@ -141,7 +142,7 @@ typedef struct _wlan_stat_t {
 	wlan_ep_t* ep_list;
 } wlanstat_t;
 
-static void 
+static void
 dealloc_wlan_details_ep (wlan_details_ep_t *details)
 {
 	wlan_details_ep_t *tmp;
@@ -165,7 +166,7 @@ wlanstat_reset (void *phs)
 	const char *filter = NULL;
 
 	if (wlanstat_dlg_w != NULL) {
-		g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
+		g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s",
 			    cf_get_display_name(&cfile));
 		gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
 	}
@@ -228,7 +229,7 @@ invalidate_detail_iters (wlanstat_t *hs)
 	}
 }
 
-static wlan_ep_t* 
+static wlan_ep_t*
 alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 {
 	wlan_ep_t* ep;
@@ -238,7 +239,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 
 	if (!(ep = g_malloc (sizeof(wlan_ep_t))))
 		return NULL;
-	
+
 	SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
 	ep->stats.channel = si->stats.channel;
 	memcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
@@ -254,7 +255,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	return ep;
 }
 
-static wlan_details_ep_t* 
+static wlan_details_ep_t*
 alloc_wlan_details_ep (address *address)
 {
 	wlan_details_ep_t* d_ep;
@@ -264,7 +265,7 @@ alloc_wlan_details_ep (address *address)
 
 	if (!(d_ep = g_malloc (sizeof(wlan_details_ep_t))))
 		return NULL;
-	
+
 	SE_COPY_ADDRESS (&d_ep->address, address);
 	d_ep->probe_req = 0;
 	d_ep->probe_rsp = 0;
@@ -295,7 +296,7 @@ get_details_ep (wlan_ep_t *te, address *address)
 				break;
 			}
 		}
-    
+
 		if (!d_te) {
 			if ((d_te = alloc_wlan_details_ep (address)) != NULL) {
 				d_te->next = te->details;
@@ -348,7 +349,7 @@ wlanstat_packet_details (wlan_ep_t *te, guint32 type, address *address, gboolean
 		d_te->other++;
 		break;
 	}
-  
+
 	if (type != 0x08) {
 		/* Do not count beacons in details */
 		d_te->number_of_packets++;
@@ -373,12 +374,12 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 	} else {
 		for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
 			if (((si->type == 0x04) &&
-			     (((tmp->stats.ssid_len == 0) && (si->stats.ssid_len == 0) && 
+			     (((tmp->stats.ssid_len == 0) && (si->stats.ssid_len == 0) &&
 			       (strcmp (get_addr_name(&tmp->bssid), "Broadcast") == 0)) ||
 			      (si->stats.ssid_len != 0 &&
-			       (tmp->stats.ssid_len == si->stats.ssid_len) && 
+			       (tmp->stats.ssid_len == si->stats.ssid_len) &&
 			       (memcmp (tmp->stats.ssid, si->stats.ssid, si->stats.ssid_len) == 0)))) ||
-			    ((si->type != 0x04) && 
+			    ((si->type != 0x04) &&
 			     (!CMP_ADDRESS (&tmp->bssid, &si->bssid)))) {
 				te = tmp;
 				break;
@@ -392,11 +393,11 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 			}
 		}
 
-		if (!te->probe_req_searched && (si->type != 0x04) && (te->type[0x04] == 0) && 
+		if (!te->probe_req_searched && (si->type != 0x04) && (te->type[0x04] == 0) &&
 		    (si->stats.ssid_len > 1 || si->stats.ssid[0] != 0)) {
-			/* 
-			 * We have found a matching entry without Probe Requests.  
-			 * Search the rest of the entries for a corresponding entry 
+			/*
+			 * We have found a matching entry without Probe Requests.
+			 * Search the rest of the entries for a corresponding entry
 			 * matching the SSID and BSSID == Broadcast.
 			 *
 			 * This is because we can have a hidden SSID or Probe Request
@@ -409,9 +410,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 				if ((si->stats.ssid_len == tmp->stats.ssid_len) &&
 				    (memcmp (si->stats.ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0) &&
 				    (strcmp (get_addr_name(&tmp->bssid), "Broadcast") == 0)) {
-					/* 
+					/*
 					 * Found a matching entry. Merge with the previous
-					 * found entry and remove from list. 
+					 * found entry and remove from list.
 					 */
 					te->type[0x04] += tmp->type[0x04];
 					te->number_of_packets += tmp->number_of_packets;
@@ -556,7 +557,7 @@ wlanstat_draw(void *phs)
 
 		data = tmp->type[0x20] + tmp->type[0x21] + tmp->type[0x22] + tmp->type[0x23] +
 		  tmp->type[0x28] + tmp->type[0x29] + tmp->type[0x2A] + tmp->type[0x2B];
-		other = tmp->number_of_packets - data - tmp->type[0x08] - tmp->type[0x04] - 
+		other = tmp->number_of_packets - data - tmp->type[0x08] - tmp->type[0x04] -
 		  tmp->type[0x05] - tmp->type[0x0B] - tmp->type[0x0C];
 		f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
@@ -606,7 +607,7 @@ wlanstat_draw(void *phs)
 	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
 	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
 		wlan_ep_t *ep;
-	  
+
 		gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
 		wlanstat_details (hs, ep, FALSE);
 	}
@@ -668,7 +669,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 	int      i;
 
 	for (i=0; i<=PROTECTION_COLUMN; i++) {
-		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN || 
+		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN ||
 		    i == PERCENT_COLUMN || i == PROTECTION_COLUMN) {
 			gtk_tree_model_get(model, iter, i, &table_text, -1);
 			g_string_append(CSV_str, table_text);
@@ -680,7 +681,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 			g_string_append(CSV_str,",");
 	}
 	g_string_append(CSV_str,"\n");
-	
+
 	return FALSE;
 }
 
@@ -711,8 +712,6 @@ wlan_copy_as_csv(GtkWindow *win _U_, gpointer data)
 	g_string_free(CSV_str, TRUE);
 }
 
-void protect_thread_critical_region (void);
-void unprotect_thread_critical_region (void);
 static void
 win_destroy_cb (GtkWindow *win _U_, gpointer data)
 {
@@ -729,7 +728,7 @@ win_destroy_cb (GtkWindow *win _U_, gpointer data)
 	wlanstat_reset (hs);
 	g_free (hs);
 
-	recent.gui_geometry_wlan_stats_pane = 
+	recent.gui_geometry_wlan_stats_pane =
 	  gtk_paned_get_position(GTK_PANED(wlanstat_pane));
 }
 
@@ -755,7 +754,7 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
 	gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
 
 	value = FILTER_EXTRA(callback_action);
-	
+
 	switch (value) {
 	case VALUE_BSSID_ONLY:
 		str = g_strdup_printf("wlan.bssid==%s", address_to_str(&ep->bssid));
@@ -1113,7 +1112,7 @@ wlanstat_dlg_create (void)
 	hs->use_dfilter = FALSE;
 	hs->show_only_existing = FALSE;
 
-	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
+	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s",
 		    cf_get_display_name(&cfile));
 	wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics");
 	gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);
@@ -1140,7 +1139,7 @@ wlanstat_dlg_create (void)
 					    GTK_SHADOW_IN);
 
 	store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-				   G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, 
+				   G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
 				   G_TYPE_STRING, G_TYPE_FLOAT, G_TYPE_POINTER);
 	hs->table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
@@ -1167,7 +1166,7 @@ wlanstat_dlg_create (void)
 #endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
-									  "text", i, 
+									  "text", i,
 									  NULL);
 			gtk_tree_view_column_set_sort_column_id(column, i);
 		}
@@ -1230,7 +1229,7 @@ wlanstat_dlg_create (void)
 #endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
-									  "text", i, 
+									  "text", i,
 									  NULL);
 			gtk_tree_view_column_set_sort_column_id(column, i);
 		}
@@ -1256,7 +1255,7 @@ wlanstat_dlg_create (void)
 	wlan_create_popup_menu(hs);
 	wlan_details_create_popup_menu(hs);
 
-	error_string=register_tap_listener ("wlan", hs, NULL, wlanstat_reset, 
+	error_string=register_tap_listener ("wlan", hs, NULL, wlanstat_reset,
 					    wlanstat_packet, wlanstat_draw);
 	if (error_string) {
 		simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
@@ -1299,7 +1298,7 @@ wlanstat_dlg_create (void)
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 /* 	gtk_button_set_label(GTK_BUTTON(copy_bt), "Copy Overview"); */
-	gtk_tooltips_set_tip(tooltips, copy_bt, 
+	gtk_tooltips_set_tip(tooltips, copy_bt,
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
@@ -1328,6 +1327,6 @@ wlanstat_launch (GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_wlanstat (void)
 {
-	register_stat_menu_item ("WLAN Traffic...", REGISTER_STAT_GROUP_UNSORTED, 
+	register_stat_menu_item ("WLAN Traffic...", REGISTER_STAT_GROUP_UNSORTED,
 				 wlanstat_launch, NULL, NULL, NULL);
 }

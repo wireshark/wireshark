@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -58,10 +58,8 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/pixmap_save.h"
+#include "gtk/main.h"
 
-
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 
 #define MAX_GRAPHS 5
 
@@ -152,7 +150,7 @@ typedef struct _io_stat_graph_t {
 typedef struct _io_stat_t {
 	gboolean needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
-	guint32 last_interval; 
+	guint32 last_interval;
 	guint32 max_interval; /* XXX max_interval and num_items are redundant */
 	guint32 num_items;
 	guint32 left_x_border;
@@ -173,7 +171,7 @@ typedef struct _io_stat_t {
 	int pixels_per_tick;
 	int max_y_units;
 	int count_type;
-} io_stat_t;	
+} io_stat_t;
 
 
 static void init_io_stat_window(io_stat_t *io);
@@ -251,7 +249,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 	git->io->needs_redraw=TRUE;
 
-	/* 
+	/*
 	 * Find which interval this is supposed to go in and store the
 	 * interval index as idx
 	 */
@@ -289,7 +287,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	git->io->last_frame_num=pinfo->fd->num;
 
 	/*
-	 * Find the appropriate io_item_t structure 
+	 * Find the appropriate io_item_t structure
 	 */
 	it=&git->items[idx];
 
@@ -307,9 +305,9 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 			return FALSE;
 		}
 
-		/* update the appropriate counters, make sure that if 
+		/* update the appropriate counters, make sure that if
 		 * fields==0 then this is the first seen value so
-		 * set any min/max values accordingly 
+		 * set any min/max values accordingly
 		 */
 		for(i=0;i<gp->len;i++){
 			int new_int;
@@ -352,9 +350,9 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					guint64 t, pt; /* time in us */
 					int i;
 				case CALC_TYPE_LOAD:
-					/* it is a LOAD calculation of a relative time field. 
+					/* it is a LOAD calculation of a relative time field.
 					 * add the time this call spanned to each
-					 * interval it spanned according to its contribution 
+					 * interval it spanned according to its contribution
 					 * to that interval.
 					 */
 					t=new_time->secs;
@@ -407,7 +405,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 	it->frames++;
 	it->bytes+=pinfo->fd->pkt_len;
-	
+
 	return TRUE;
 }
 
@@ -426,8 +424,8 @@ get_frame_num(io_stat_t *io, guint32 idx, gboolean first)
 
 	if (frame_num==0) {
 		/*
-		 * If first frame not found we select the last 
-		 * frame in the previous interval 
+		 * If first frame not found we select the last
+		 * frame in the previous interval
 		 *
 		 * If selecting the last frame we select the frame
 		 * before the first frame in the next interval
@@ -439,7 +437,7 @@ get_frame_num(io_stat_t *io, guint32 idx, gboolean first)
 			}
 		}
 
-		/* 
+		/*
 		 * If not found we select the last frame
 		 */
 		frame_num=io->last_frame_num;
@@ -629,7 +627,7 @@ io_stat_draw(io_stat_t *io)
 	io->needs_redraw=FALSE;
 
 
-	/* 
+	/*
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
 	 */
@@ -642,7 +640,7 @@ io_stat_draw(io_stat_t *io)
 	}
 
 
-	/* 
+	/*
 	 * find the max value so we can autoscale the y axis
 	 */
 	max_value=0;
@@ -666,7 +664,7 @@ io_stat_draw(io_stat_t *io)
 
 
 
-	/* 
+	/*
 	 * Clear out old plot
 	 */
         gdk_draw_rectangle(io->pixmap,
@@ -737,8 +735,8 @@ io_stat_draw(io_stat_t *io)
 
 
 
-	/* 
-	 * Calculate size of borders surrounding the plot 
+	/*
+	 * Calculate size of borders surrounding the plot
 	 * The border on the right side needs to be adjusted depending
 	 * on the width of the text labels. For simplicity we assume that the
 	 * top y scale label will be the widest one
@@ -776,19 +774,19 @@ io_stat_draw(io_stat_t *io)
 		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
 		pango_layout_set_text(layout, label_string, -1);
 		gdk_draw_layout(io->pixmap,
-				io->draw_area->style->black_gc, 5, 
+				io->draw_area->style->black_gc, 5,
 				io->pixmap_height-bottom_y_border-draw_height-label_height/2,
 				layout);
 	}
 
-	/* 
+	/*
 	 * Draw the y axis and labels
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
-		io->pixmap_width-io->right_x_border+1, 
+		io->pixmap_width-io->right_x_border+1,
 		top_y_border,
-		io->pixmap_width-io->right_x_border+1, 
+		io->pixmap_width-io->right_x_border+1,
 		io->pixmap_height-bottom_y_border);
 
 	if(io->max_y_units==LOGARITHMIC_YSCALE){
@@ -810,18 +808,18 @@ io_stat_draw(io_stat_t *io)
 				ypos=io->pixmap_height-bottom_y_border;
 			} else if(i==tics) {
 				/* position for the top value, do not draw logarithmic tics above graph */
-				ypos=io->pixmap_height-bottom_y_border-draw_height; 
+				ypos=io->pixmap_height-bottom_y_border-draw_height;
 			} else {
 				int j;
 				/* draw the logarithmic tics */
 				for(j=2;j<10;j++) {
 					ypos=(int)(io->pixmap_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
 					/* draw the tick */
-					gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
+					gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
 						      io->pixmap_width-io->right_x_border+1, ypos,
 						      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
 				}
-				ypos=io->pixmap_height-bottom_y_border-(draw_height-ystart)*i/tics-ystart; 
+				ypos=io->pixmap_height-bottom_y_border-(draw_height-ystart)*i/tics-ystart;
 			}
 			/* all "main" logarithmic lines are slightly longer */
 			xwidth=10;
@@ -833,7 +831,7 @@ io_stat_draw(io_stat_t *io)
 			ypos=io->pixmap_height-bottom_y_border-draw_height*i/10;
 		}
 		/* draw the tick */
-		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
+		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
 			      io->pixmap_width-io->right_x_border+1, ypos,
 			      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
 		/* draw the labels */
@@ -866,7 +864,7 @@ io_stat_draw(io_stat_t *io)
 	}
 
 
-	/* 
+	/*
 	 * if we have not specified the last_interval via the gui,
 	 * then just pick the current end of the capture so that is scrolls
 	 * nicely when doing live captures
@@ -876,7 +874,7 @@ io_stat_draw(io_stat_t *io)
 	} else {
 		last_interval=io->last_interval;
 	}
-	
+
 
 
 
@@ -911,9 +909,9 @@ io_stat_draw(io_stat_t *io)
 		}
 
 		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
-		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
+		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
 			x-1-io->pixels_per_tick/2,
-			io->pixmap_height-bottom_y_border+1, 
+			io->pixmap_height-bottom_y_border+1,
 			x-1-io->pixels_per_tick/2,
 			io->pixmap_height-bottom_y_border+xlen+1);
 
@@ -942,8 +940,8 @@ io_stat_draw(io_stat_t *io)
         g_object_unref(G_OBJECT(layout));
 
 
-	/* 
-	 * Loop over all graphs and draw them 
+	/*
+	 * Loop over all graphs and draw them
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint64 val;
@@ -997,7 +995,7 @@ io_stat_draw(io_stat_t *io)
 				break;
 			case PLOT_STYLE_IMPULSE:
 				if(val){
-					gdk_draw_line(io->pixmap, io->graphs[i].gc, 
+					gdk_draw_line(io->pixmap, io->graphs[i].gc,
 						x_pos, draw_height-1+top_y_border,
 						x_pos, y_pos);
 				}
@@ -1066,12 +1064,12 @@ gtk_iostat_draw(void *g)
 }
 
 
-/* ok we get called with both the filter and the field. 
+/* ok we get called with both the filter and the field.
    make sure the field is part of the filter.
    (make sure and make sure  just append it)
    the field MUST be part of the filter or else we wont
    be able to pick up the field values after the edt tree has been
-   pruned 
+   pruned
 */
 static GString *
 enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
@@ -1079,7 +1077,7 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 	char real_filter[262];
 
 	gio->display=TRUE;
-	
+
 	real_filter[0]=0;
 	if(filter){
 		/* skip all whitespaces */
@@ -1204,8 +1202,8 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 		io->graphs[0].filter_field=NULL;
 		io->graphs[0].advanced_buttons=NULL;
 		exit(10);
-	}			
-		
+	}
+
 	/* build the GUI */
 	init_io_stat_window(io);
 
@@ -1251,7 +1249,7 @@ pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
 	}
 
 	draw_width=io->pixmap_width-io->right_x_border-io->left_x_border;
-	
+
 	if ((event->x <= (draw_width+io->left_x_border+1-(draw_width/io->pixels_per_tick)*io->pixels_per_tick)) ||
 	    (event->x >= (draw_width+io->left_x_border-io->pixels_per_tick/2))) {
 	      /* Outside draw area */
@@ -1311,7 +1309,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	g_object_set_data(G_OBJECT(save_bt), "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
 #endif
-    
+
 	gdk_draw_rectangle(io->pixmap,
 			widget->style->white_gc,
 			TRUE,
@@ -1440,7 +1438,7 @@ plot_style_select(GtkWidget *item, gpointer key)
 	io_stat_redraw(ppt->io);
 }
 
-static void 
+static void
 create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[5];
@@ -1475,7 +1473,7 @@ yscale_select(GtkWidget *item, gpointer key)
 	io_stat_redraw(io);
 }
 
-static void 
+static void
 create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[15];
@@ -1506,7 +1504,7 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 	return;
 }
 
-static void 
+static void
 create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	char str[15];
@@ -1570,7 +1568,7 @@ gtk_widget_draw(io->window, &update_rect);
 	}
 }
 
-static void 
+static void
 create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 {
 	GtkWidget *menu_item;
@@ -1798,7 +1796,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	protect_thread_critical_region();
 	remove_tap_listener(gio);
 	unprotect_thread_critical_region();
-	
+
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter, field);
 	cf_retap_packets(&cfile, FALSE);
@@ -1821,7 +1819,7 @@ calc_type_select(GtkWidget *item _U_, gpointer key)
 }
 
 
-static void 
+static void
 create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
 {
 	GtkWidget *menu_item;
@@ -1929,11 +1927,11 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color); 
-	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color); 
-	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color); 
-	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color); 
-	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color); 
+	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color);
+	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color);
+	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color);
+	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color);
+	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color);
 /*	g_signal_connect(gio->display_button, "toggled", filter_callback, gio);*/
 
 
@@ -1944,7 +1942,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	if(gio->args->title){
 		g_free( (gpointer) (gio->args->title) );
 	}
-	gio->args->title=g_strdup(str);	
+	gio->args->title=g_strdup(str);
 
 	g_signal_connect(gio->filter_bt, "clicked", G_CALLBACK(filter_button_clicked), gio);
 	g_signal_connect(gio->filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
@@ -2023,10 +2021,10 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 {
 	guint32         i, interval, val;
 	char            string[15];
-	GtkClipboard    *cb;  
+	GtkClipboard    *cb;
 	GString         *CSV_str=g_string_new("");
 	io_stat_t       *io=(io_stat_t *)data;
-   
+
 	g_string_append(CSV_str, "Interval start");
 	for(i=0;i<MAX_GRAPHS;i++) {
 		if (io->graphs[i].display) {
@@ -2051,10 +2049,10 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
 	gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
 	g_string_free(CSV_str, TRUE);                       /* Free the memory */
-} 
+}
 
 
-static void 
+static void
 init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
@@ -2091,7 +2089,7 @@ init_io_stat_window(io_stat_t *io)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
 				  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 #else
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, 
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY,
 				  GTK_STOCK_HELP, NULL);
 #endif
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
@@ -2110,7 +2108,7 @@ init_io_stat_window(io_stat_t *io)
 #endif
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-	gtk_tooltips_set_tip(tooltips, copy_bt, 
+	gtk_tooltips_set_tip(tooltips, copy_bt,
 			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
@@ -2125,7 +2123,7 @@ init_io_stat_window(io_stat_t *io)
 }
 
 
-static void 
+static void
 gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_iostat_init(NULL,NULL);
@@ -2139,7 +2137,7 @@ register_tap_listener_gtk_iostat(void)
 {
 	register_stat_cmd_arg("io,stat", gtk_iostat_init,NULL);
 
-	register_stat_menu_item_stock("_IO Graphs", 
+	register_stat_menu_item_stock("_IO Graphs",
         REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,
         gtk_iostat_cb, NULL, NULL, NULL);
 }

@@ -57,6 +57,7 @@
 
 #include "gtk/mcast_stream.h"
 #include "gtk/mcast_stream_dlg.h"
+#include "gtk/main.h"
 
 
 
@@ -315,10 +316,6 @@ const mcaststream_tapinfo_t* mcaststream_get_info(void)
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-
-/* XXX just copied from gtk/rpc_stat.c */
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
 void

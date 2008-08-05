@@ -51,6 +51,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/main.h"
 
 
 static void sctpstat_init(const char *optarg, void *userdata);
@@ -116,7 +117,7 @@ sctpstat_reset(void *phs)
 	sctp_ep_t* list = (sctp_ep_t*)sctp_stat->ep_list;
 	sctp_ep_t* tmp = NULL;
 	guint16 chunk_type;
-	
+
 	if(!list)
 		return;
 
@@ -137,7 +138,7 @@ static sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
 
 	if (!(ep = g_malloc(sizeof(sctp_ep_t))))
 		return NULL;
-	
+
 	COPY_ADDRESS(&ep->src,&si->ip_src);
 	COPY_ADDRESS(&ep->dst,&si->ip_dst);
 	ep->sport = si->sport;
@@ -157,10 +158,10 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	struct _sctp_info *si = (struct _sctp_info *) phi;
 	guint32 tvb_number;
 	guint8 chunk_type;
-	
+
 	if (!hs)
 		return (0);
-		
+
 	hs->number_of_packets++;
 	if(!hs->ep_list) {
 		hs->ep_list = alloc_sctp_ep(si);
@@ -186,7 +187,7 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	if(!te)
 		return (0);
 
-	
+
 	if (si->number_of_tvbs > 0) {
 		chunk_type = CHUNK_TYPE(si->tvb[0]);
 		if ((chunk_type == SCTP_INIT_CHUNK_ID) ||
@@ -219,7 +220,7 @@ sctpstat_draw(void *phs)
 
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
-		
+
 		g_snprintf(str[0],  sizeof(char[256]),"%s", address_to_str(&tmp->src));
 		g_snprintf(str[1],  sizeof(char[256]),"%u", tmp->sport);
 		g_snprintf(str[2],  sizeof(char[256]),"%s", address_to_str(&tmp->dst));
@@ -242,8 +243,6 @@ sctpstat_draw(void *phs)
 
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -311,9 +310,9 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 14, titles);
 
-	error_string=register_tap_listener("sctp", hs, filter, 
-	                                   sctpstat_reset, 
-	                                   sctpstat_packet, 
+	error_string=register_tap_listener("sctp", hs, filter,
+	                                   sctpstat_reset,
+	                                   sctpstat_packet,
 	                                   sctpstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);

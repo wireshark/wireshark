@@ -52,6 +52,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/main.h"
 
 
 #define NUM_TIMESTATS 8
@@ -134,7 +135,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	radius_category radius_cat = OTHERS;
 	int ret = 0;
 
-	switch (ri->code) { 
+	switch (ri->code) {
 		case RADIUS_ACCESS_REQUEST:
 		case RADIUS_ACCESS_ACCEPT:
 		case RADIUS_ACCESS_REJECT:
@@ -253,9 +254,9 @@ radiusstat_draw(void *prs)
 		g_snprintf(str[6], sizeof(char[256]), "%6u", rs->radius_rtd[i].stats.max_num);
 		g_snprintf(str[7], sizeof(char[256]), "%4u", rs->radius_rtd[i].open_req_num);
 		g_snprintf(str[8], sizeof(char[256]), "%4u", rs->radius_rtd[i].disc_rsp_num);
-		g_snprintf(str[9], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].req_dup_num, 
+		g_snprintf(str[9], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].req_dup_num,
 			rs->radius_rtd[i].stats.num?((double)rs->radius_rtd[i].req_dup_num*100)/(double)rs->radius_rtd[i].stats.num:0);
-		g_snprintf(str[10], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].rsp_dup_num, 
+		g_snprintf(str[10], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].rsp_dup_num,
 			rs->radius_rtd[i].stats.num?((double)rs->radius_rtd[i].rsp_dup_num*100)/(double)rs->radius_rtd[i].stats.num:0);
 
 		gtk_clist_append(rs->table, str);
@@ -267,8 +268,6 @@ radiusstat_draw(void *prs)
 	}
 }
 
-void protect_thread_critical_region(void);
-void unprotect_thread_critical_region(void);
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -351,7 +350,7 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
-	
+
 	cf_retap_packets(&cfile, FALSE);
 }
 
