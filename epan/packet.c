@@ -51,6 +51,7 @@
 #include "tvbuff.h"
 #include "plugins.h"
 #include "epan_dissect.h"
+
 #include "emem.h"
 
 #include <epan/reassemble.h>
@@ -320,6 +321,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.clnp_srcref = 0;
 	edt->pi.clnp_dstref = 0;
 
+    EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
+    
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
@@ -348,6 +351,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 		RETHROW;
 	}
 	ENDTRY;
+    
+    EP_CHECK_CANARY(("after dissecting frame %d",fd->num));
 
 	fd->flags.visited = 1;
 }
@@ -392,9 +397,13 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 
 	if (handle->is_new) {
+        EP_CHECK_CANARY(("before calling handle->dissector.new for %s",handle->name));
 		ret = (*handle->dissector.new)(tvb, pinfo, tree);
+        EP_CHECK_CANARY(("after calling handle->dissector.new for %s",handle->name));
 	} else {
+        EP_CHECK_CANARY(("before calling handle->dissector.old for %s",handle->name));
 		(*handle->dissector.old)(tvb, pinfo, tree);
+        EP_CHECK_CANARY(("after calling handle->dissector.old for %s",handle->name));
 		ret = tvb_length(tvb);
 		if (ret == 0) {
 			/*
@@ -1592,11 +1601,17 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 					proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)));
 			}
 		}
-
+        EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
+                         proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol))));
 		if ((*dtbl_entry->dissector)(tvb, pinfo, tree)) {
+            EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet",
+                             proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol))));
 			status = TRUE;
 			break;
 		} else {
+            EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned true",
+                             proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol))));
+
 			/*
 			 * That dissector didn't accept the packet, so
 			 * remove its protocol's name from the list
@@ -1605,7 +1620,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			if (pinfo->layer_names != NULL) {
 				g_string_truncate(pinfo->layer_names,
 				    saved_layer_names_len);
-			}
+            }
 		}
 	}
 	pinfo->current_proto = saved_proto;

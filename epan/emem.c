@@ -42,6 +42,7 @@
 #endif
 
 #include <glib.h>
+
 #include <proto.h>
 #include "emem.h"
 
@@ -100,7 +101,9 @@ static int dev_zero_fd;
 #ifdef DEBUG_USE_CANARIES
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
-static guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
+
+/* this should be static, but if it were gdb would had problems finding it */
+guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
 #endif /* DEBUG_USE_CANARIES */
 
 typedef struct _emem_chunk_t {
@@ -173,6 +176,50 @@ emem_canary_pad (size_t allocation) {
 #endif
 #endif /* DEBUG_USE_CANARIES */
 
+/* used for debugging canaries, will block */
+#ifdef DEBUG_INTENSE_CANARY_CHECKS
+gboolean intense_canary_checking = FALSE;
+
+/*  used to intensivelly check ep canaries
+ */
+void ep_check_canary_integrity(const char* fmt, ...) {
+    va_list ap;
+    static gchar there[128] = {
+        'L','a','u','n','c','h',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+    gchar here[128];
+	emem_chunk_t* npc = NULL;
+
+    if (! intense_canary_checking ) return;
+
+    here[126] = '\0';
+    here[127] = '\0';
+    
+    va_start(ap,fmt);
+    g_vsnprintf(here, 126,fmt, ap);
+    va_end(ap);
+    
+	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
+        static unsigned i_ctr;
+
+        if (npc->c_count > 0x00ffffff) {
+            g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
+        }
+        
+		for (i_ctr = 0; i_ctr < npc->c_count; i_ctr++) {
+			if (memcmp(npc->canary[i_ctr], &ep_canary, npc->cmp_len[i_ctr]) != 0) {
+				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s",there, here);
+            }
+		}
+    }
+    
+    strncpy(there,here,126);
+    
+}
+#endif
+
 
 /* Initialize the packet-lifetime memory allocation pool.
  * This function should be called only once when Wireshark or TShark starts
@@ -184,6 +231,10 @@ ep_init_chunk(void)
 	ep_packet_mem.free_list=NULL;
 	ep_packet_mem.used_list=NULL;
 
+#ifdef DEBUG_INTENSE_CANARY_CHECKS
+    intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_CANARY");
+#endif
+    
 #ifdef DEBUG_USE_CANARIES
 	emem_canary(ep_canary);
 #endif /* DEBUG_USE_CANARIES */
@@ -666,6 +717,7 @@ gchar* se_strdup_printf(const gchar* fmt, ...) {
 	va_end(ap);
 	return dst;
 }
+
 
 /* release all allocated memory back to the pool.
  */

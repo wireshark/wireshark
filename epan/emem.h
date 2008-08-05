@@ -365,7 +365,22 @@ gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, v
 
 
 
+/* #define DEBUG_INTENSE_CANARY_CHECKS */
+/* Helper to troubleshoot ep memory corruption
+ * if compiled and the environment variable WIRESHARK_DEBUG_EP_CANARY exists
+ * it will check the canaries and when found corrupt stop there in the hope
+ * the corruptor is still there in the stack.
+ * Some checkpoints are already set in packet.c in strategic points 
+ * before and after dissection of a frame or a dissector call.
+ */
 
+#ifdef DEBUG_INTENSE_CANARY_CHECKS
+void ep_check_canary_integrity(const char* fmt, ...);
+#define EP_CHECK_CANARY(sprintf_args) ep_check_canary_integrity sprintf_args
+#else
+#define EP_CHECK_CANARY(dummy)
+#endif
+    
 void emem_print_tree(emem_tree_t* emem_tree);
 
 
