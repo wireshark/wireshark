@@ -200,6 +200,8 @@ static int hf_gtp_ext_sac			= -1;
 static int hf_gtp_ext_imeisv		= -1;
 static int hf_gtp_targetid			= -1;
 static int hf_gtp_bssgp_cause		= -1;
+static int hf_gtp_sapi				= -1;
+static int hf_gtp_xid_par_len		= -1;
 static int hf_gtp_cmn_flg_ppc		= -1;
 static int hf_gtp_cmn_flg_mbs_srv_type = -1;
 static int hf_gtp_cmn_flg_mbs_ran_pcd_rdy = -1;
@@ -281,6 +283,7 @@ static gint ett_gtp_ext_cell_id 			= -1;
 static gint ett_gtp_ext_pdu_no 				= -1;
 static gint ett_gtp_ext_bssgp_cause 		= -1;
 static gint ett_gtp_ext_ra_prio_lcs 		= -1;
+static gint ett_gtp_ext_ps_handover_xid     = -1;
 static gint ett_gtp_target_id				= -1;
 static gint ett_gtp_utran_cont				= -1;
 	
@@ -611,7 +614,7 @@ static const value_string message_type[] = {
 #define GTP_EXT_REQ_MBMS_BEARER_CAP 0xA1	/* 3G	177	TLV	Required MBMS bearer capabilities	7.7.76 */
 #define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xA2	/* 3G	178	TLV	RIM Routing Address Discriminator	7.7.77 */
 #define GTP_EXT_LIST_OF_SETUP_PFCS	0xA3	/* 3G	179	TLV	List of set-up PFCs	7.7.78 */
-#define GTP_EXT_PS_HANDOWER_XIP_PAR 0xA4	/* 3G	180	TLV	PS Handover XID Parameters	7.7.79 */
+#define GTP_EXT_PS_HANDOVER_XIP_PAR 0xA4	/* 3G	180	TLV	PS Handover XID Parameters	7.7.79 */
 #define GTP_EXT_MS_INF_CHG_REP_ACT	0xA5	/* 3G	181	TLV	MS Info Change Reporting Action	7.7.80 */
 #define GTP_EXT_DIRECT_TUNNEL_FLGS	0xA6	/* 3G	182	TLV	Direct Tunnel Flags	7.7.81 */
 #define GTP_EXT_CORRELATION_ID		0xA7	/* 3G	183	TLV	Correlation-ID	7.7.82 */
@@ -726,7 +729,7 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_REQ_MBMS_BEARER_CAP,	"Required MBMS bearer capabilities" },			/* 7.7.76 */
 	{ GTP_EXT_RIM_ROUTING_ADDR_DISC,"RIM Routing Address Discriminator" },			/* 7.7.77 */
 	{ GTP_EXT_LIST_OF_SETUP_PFCS,	"List of set-up PFCs" },						/* 7.7.78 */
-	{ GTP_EXT_PS_HANDOWER_XIP_PAR,	"PS Handover XID Parameters" },					/* 7.7.79 */
+	{ GTP_EXT_PS_HANDOVER_XIP_PAR,	"PS Handover XID Parameters" },					/* 7.7.79 */
 	{ GTP_EXT_MS_INF_CHG_REP_ACT,	"MS Info Change Reporting Action" },			/* 7.7.80 */
 	{ GTP_EXT_DIRECT_TUNNEL_FLGS,	"Direct Tunnel Flags" },						/* 7.7.81 */
 	{ GTP_EXT_CORRELATION_ID,		"Correlation-ID" },								/* 7.7.82 */
@@ -1380,6 +1383,7 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
+static dissector_handle_t sndcpxid_handle;
 static dissector_table_t bssap_pdu_type_table=NULL;
 
 static int decode_gtp_cause		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -1461,6 +1465,7 @@ static int decode_gtp_bss_cont		(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int decode_gtp_cell_id		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_pdu_no		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_bssgp_cause	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int decode_gtp_ps_handover_xid	(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static int decode_gtp_chrg_addr		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_rel_pack		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -1556,6 +1561,7 @@ static const gtp_opt_t gtpopt[] = {
 	{ GTP_EXT_CELL_ID,				decode_gtp_cell_id },					/* 7.7.73 */
 	{ GTP_EXT_PDU_NO,				decode_gtp_pdu_no },					/* 7.7.74 */
 	{ GTP_EXT_BSSGP_CAUSE,			decode_gtp_bssgp_cause },				/* 7.7.75 */
+	{ GTP_EXT_PS_HANDOVER_XIP_PAR,	decode_gtp_ps_handover_xid },			/* 7.7.79 */
 
 	{ GTP_EXT_REL_PACK,		decode_gtp_rel_pack },				/* charging */
 	{ GTP_EXT_CAN_PACK,		decode_gtp_can_pack },	 			/* charging */
@@ -4426,6 +4432,8 @@ decode_gtp_utran_cont(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 	next_tvb = tvb_new_subset (tvb, offset, length, length);
+	if(data_handle)
+		call_dissector(data_handle, next_tvb, pinfo, ext_tree);
 
 	return 3 + length;
 
@@ -5620,6 +5628,43 @@ decode_gtp_mbms_bearer_cap(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 /*
  * PS Handover XID Parameters	7.7.79
  */
+static int
+decode_gtp_ps_handover_xid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+
+	guint16		length;
+	proto_tree	*ext_tree;
+	proto_item	*te;
+	tvbuff_t	*next_tvb;
+	guint8		sapi;
+	guint8		xid_par_len;
+
+	length = tvb_get_ntohs(tvb, offset+1);
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_PS_HANDOVER_XIP_PAR, gtp_val, "Unknown"));
+	ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ps_handover_xid);
+	
+	offset++;
+	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+
+	sapi = tvb_get_guint8(tvb, offset) & 0x0F;
+	proto_tree_add_uint(ext_tree, hf_gtp_sapi, tvb, offset, 1, sapi);
+	offset++;
+
+	xid_par_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(ext_tree, hf_gtp_xid_par_len, tvb, offset, 1, xid_par_len);
+	offset++;
+
+	if (sndcpxid_handle) {
+		next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		call_dissector (sndcpxid_handle, next_tvb, pinfo, tree);
+	}
+	else
+		proto_tree_add_text (tree, tvb, offset, 0, "Data");
+
+	return 4 + length;
+
+ }
+
 /*
  * MS Info Change Reporting Action	7.7.80
  */
@@ -6247,6 +6292,14 @@ proto_register_gtp(void)
 			{ "BSSGP Cause", "gtp.bssgp_cause",
 			FT_UINT8, BASE_DEC, VALS(tab_cause), 0,
 			"BSSGP Cause", HFILL }},
+		{ &hf_gtp_sapi,
+			{ "PS Handover XID SAPI", "gtp.ps_handover_xid_sapi",
+			FT_UINT8, BASE_DEC, NULL, 0x0F,
+			"SAPI", HFILL }},
+		{ &hf_gtp_xid_par_len,
+			{ "PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
+			FT_UINT8, BASE_DEC, NULL, 0xFF,
+			"XID parameter length", HFILL }},
 		{ &hf_gtp_cmn_flg_ppc,
 			{ "Prohibit Payload Compression", "gtp.cmn_flg.ppc",
 			FT_BOOLEAN, 8, NULL, 0x01,
@@ -6377,6 +6430,7 @@ proto_register_gtp(void)
 		&ett_gtp_ext_pdu_no,
 		&ett_gtp_ext_bssgp_cause,
 		&ett_gtp_ext_ra_prio_lcs,
+		&ett_gtp_ext_ps_handover_xid,
 		&ett_gtp_target_id,
 		&ett_gtp_utran_cont,
 	};
@@ -6458,6 +6512,7 @@ proto_reg_handoff_gtp(void)
 	ppp_handle = find_dissector("ppp");
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");
+	sndcpxid_handle = find_dissector("sndcpxid");
 	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 	/* AVP Code: 904 MBMS-Session-Duration */
 	dissector_add("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
