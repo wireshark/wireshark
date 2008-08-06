@@ -868,10 +868,11 @@ static GtkWidget* uat_window(void* u) {
 	}
 
 	gtk_clist_thaw(GTK_CLIST(rep->clist));
-	fprintf(stderr,"====> HERE");
-	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist));
+
+/*	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist)); 
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
-	fprintf(stderr,"====> THERE");
+*/
+    gtk_clist_set_selection_mode(GTK_CLIST(rep->clist), GTK_SELECTION_SINGLE);
 
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -918,7 +919,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
-	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);
+/*	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);*/
 	g_signal_connect(rep->clist, "select-row", G_CALLBACK(remember_selected_row), uat);
 
 
