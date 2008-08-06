@@ -1113,13 +1113,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       {
         gboolean decoded = FALSE;
 
-        if (tvb_length(next_tvb) > 20) /* arbitrary size */
+        if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
         {
             guint8 octet[8];
             tvb_memcpy(next_tvb, octet, 0, sizeof(octet)); 
 
             decoded = TRUE;
-            if (pntohs(octet) == PPP_IP)
+            if ((pntohs(octet) & 0xff) == PPP_IP)
             {
                 call_dissector(ppp_handle, next_tvb, pinfo, tree);
             }
