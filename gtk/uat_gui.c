@@ -830,7 +830,7 @@ static GtkWidget* uat_window(void* u) {
 
 	rep->window = dlg_conf_window_new(uat->name);
 
-	gtk_window_set_resizable(GTK_WINDOW(rep->window),FALSE);
+	gtk_window_set_resizable(GTK_WINDOW(rep->window),TRUE);
 	gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
 
