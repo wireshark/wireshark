@@ -835,8 +835,6 @@ file_merge_cmd(GtkWidget *w)
   gtk_tooltips_set_tip(tooltips, append_rb,
       "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file,"
       " the packet timestamps will be ignored.", NULL);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(append_rb),
-	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
   gtk_widget_show(append_rb);
   g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_APPEND_KEY, append_rb);
