@@ -1,0 +1,402 @@
+/*
+  dnsserver interface definition
+*/
+
+[ uuid("50abc2a4-574d-40b3-9d66-ee4fd5fba076"),
+  version(5.0),
+  pointer_default(unique),
+  helpstring("DNS Server")
+] interface dnsserver
+{
+
+	typedef [v1_enum] enum {
+		DNS_CLIENT_VERSION_W2K		= 0x00000000,
+		DNS_CLIENT_VERSION_DOTNET	= 0x00000006,
+		DNS_CLIENT_VERSION_LONGHORN	= 0x00000007
+	} DNS_RPC_CLIENT_VERSION;
+
+	typedef [flag(NDR_ALIGN4)] struct {
+		uint8	OSMajorVersion;
+		uint8	OSMinorVersion;
+		uint16	ServicePackVersion;
+	} DNS_RPC_VERSION;
+
+	typedef [enum8bit] enum {
+		DNS_RPC_BOOT_METHOD_FILE	= 0x01,
+		DNS_RPC_BOOT_METHOD_REGISTRY	= 0x02,
+		DNS_RPC_BOOT_METHOD_DIRECTORY	= 0x03
+	} DNS_RPC_BOOT_METHOD;
+
+
+	const uint32 DNS_LOG_LEVEL_ALL_PACKETS	= 0x0000ffff;
+	const uint32 DNS_LOG_LEVEL_NON_QUERY	= 0x000000fe;
+	typedef [bitmap32bit] bitmap {
+		DNS_LOG_LEVEL_QUERY		= 0x00000001,
+		DNS_LOG_LEVEL_NOTIFY		= 0x00000010,
+		DNS_LOG_LEVEL_UPDATE		= 0x00000020,
+		DNS_LOG_LEVEL_QUESTIONS		= 0x00000100,
+		DNS_LOG_LEVEL_ANSWERS		= 0x00000200,
+		DNS_LOG_LEVEL_SEND		= 0x00001000,
+		DNS_LOG_LEVEL_RECV		= 0x00002000,
+		DNS_LOG_LEVEL_UDP		= 0x00004000,
+		DNS_LOG_LEVEL_TCP		= 0x00008000,
+		DNS_LOG_LEVEL_FULL_PACKETS	= 0x01000000,
+		DNS_LOG_LEVEL_WRITE_THROUGH	= 0x80000000
+	} DNS_LOG_LEVELS;
+
+	const uint32 DNS_RPC_USE_ALL_PROTOCOLS	= 0xffffffff;
+	typedef [bitmap32bit] bitmap {
+		DNS_RPC_USE_TCPIP		= 0x00000001,
+		DNS_RPC_USE_NAMED_PIPE		= 0x00000002,
+		DNS_RPC_USE_LPC			= 0x00000004
+	} DNS_RPC_PROTOCOLS;
+
+	typedef [v1_enum] enum {
+		DNS_ALLOW_RFC_NAMES_ONLY	= 0x00000000,
+		DNS_ALLOW_NONRFC_NAMES		= 0x00000001,
+		DNS_ALLOW_MULTIBYTE_NAMES	= 0x00000002,
+		DNS_ALLOW_ALL_NAMES		= 0x00000003
+	} DNS_NAME_CHECK_FLAGS;
+
+	typedef [enum16bit] enum {
+		DNS_TYPE_ZERO			= 0x0000,
+		DNS_TYPE_A			= 0x0001,
+		DNS_TYPE_NS			= 0x0002,
+		DNS_TYPE_MD			= 0x0003,
+		DNS_TYPE_MF			= 0x0004,
+		DNS_TYPE_CNAME			= 0x0005,
+		DNS_TYPE_SOA			= 0x0006,
+		DNS_TYPE_MB			= 0x0007,
+		DNS_TYPE_MG			= 0x0008,
+		DNS_TYPE_MR			= 0x0009,
+		DNS_TYPE_NULL			= 0x000a,
+		DNS_TYPE_WKS			= 0x000b,
+		DNS_TYPE_PTR			= 0x000c,
+		DNS_TYPE_HINFO			= 0x000d,
+		DNS_TYPE_MINFO			= 0x000e,
+		DNS_TYPE_MX			= 0x000f,
+		DNS_TYPE_TXT			= 0x0010,
+		DNS_TYPE_RP			= 0x0011,
+		DNS_TYPE_AFSDB			= 0x0012,
+		DNS_TYPE_X25			= 0x0013,
+		DNS_TYPE_ISDN			= 0x0014,
+		DNS_TYPE_RT			= 0x0015,
+		DNS_TYPE_NSAP			= 0x0016,
+		DNS_TYPE_NSAPPTR		= 0x0017,
+		DNS_TYPE_SIG			= 0x0018,
+		DNS_TYPE_KEY			= 0x0019,
+		DNS_TYPE_PX			= 0x001a,
+		DNS_TYPE_GPOS			= 0x001b,
+		DNS_TYPE_AAAA			= 0x001c,
+		DNS_TYPE_LOC			= 0x001d,
+		DNS_TYPE_NXT			= 0x001e,
+		DNS_TYPE_SRV			= 0x0021,
+		DNS_TYPE_ATMA			= 0x0022,
+		DNS_TYPE_NAPTR			= 0x0023,
+		DNS_TYPE_DNAME			= 0x0024,
+		DNS_TYPE_ALL			= 0x00ff,
+		DNS_TYPE_WINS			= 0xff01,
+		DNS_TYPE_WINSR			= 0xff02
+	} DNS_RECORD_TYPE;
+
+	typedef [bitmap32bit] bitmap {
+		DNS_RPC_VIEW_AUTHORITY_DATA	= 0x00000001,
+		DNS_RPC_VIEW_CACHE_DATA		= 0x00000002,
+		DNS_RPC_VIEW_GLUE_DATA		= 0x00000004,
+		DNS_RPC_VIEW_ROOT_HINT_DATA	= 0x00000008,
+		DNS_RPC_VIEW_ADDITIONAL_DATA	= 0x00000010,
+		DNS_RPC_VIEW_NO_CHILDREN	= 0x00010000,
+		DNS_RPC_VIEW_ONLY_CHILDREN	= 0x00020000
+	} DNS_SELECT_FLAGS;
+
+	typedef [bitmap32bit] bitmap {
+		DNS_RPC_FLAG_CACHE_DATA		= 0x80000000,
+		DNS_RPC_FLAG_ZONE_ROOT		= 0x40000000,
+		DNS_RPC_FLAG_AUTH_ZONE_ROOT	= 0x20000000,
+		DNS_RPC_FLAG_ZONE_DELEGATION	= 0x10000000,
+		DNS_RPC_FLAG_RECOR_DEFAULT_TTL	= 0x08000000,
+		DNS_RPC_FLAG_RECORD_TTL_CHANGE	= 0x04000000,
+		DNS_RPC_FLAG_RECORD_CREATE_PTR	= 0x02000000,
+		DNS_RPC_FLAG_NODE_STICKY	= 0x01000000,
+		DNS_RPC_FLAG_NODE_COMPLETE	= 0x00800000,
+		DNS_RPC_FLAG_OPEN_ACL		= 0x00040000,
+		DNS_RPC_FLAG_AGING_ON		= 0x00020000,
+		DNS_RPC_FLAG_SUPPRESS_NOTIFY	= 0x00010000
+	} DNS_RPC_NODE_FLAGS;
+
+	/* 2.2.2.2.1   this cant really be described in IDL :-( */
+	typedef struct {
+		uint8			NameLength;
+		uint8			Name[NameLength];
+	} DNS_RPC_NAME;
+
+	typedef struct {
+		DNS_RPC_NAME		Name;
+	} DNS_RPC_RECORD_NODE_NAME;
+	
+//	typedef [nodiscriminant] union {
+	typedef union {
+		[case(2)] DNS_RPC_RECORD_NODE_NAME	NodeName;
+	} DNS_RPC_RECORD_UNION;
+
+	typedef struct {
+		uint16			DataLength; // size of 
+		DNS_RECORD_TYPE		Type;
+		uint32			Flags;
+		uint32			Serial;
+		uint32			TtlSeconds;
+		uint32			TimeStamp;
+		uint32			reserved;
+		[switch_is(Type)]	DNS_RPC_RECORD_UNION record;
+	} DNS_RPC_RECORD;
+
+	typedef struct {
+		uint16			Length;
+		uint16			RecordCount;
+		DNS_RPC_NODE_FLAGS	Flags;
+		uint32			Childcount;
+		DNS_RPC_NAME		NodeName;
+		DNS_RPC_RECORD		records[RecordCount];
+	} DNS_RPC_NODE;
+/* XXX */
+
+
+	typedef struct {
+		uint32	AddrCount;
+		[size_is(AddrCount)] uint32 AddrArray[];
+	} IP4_ARRAY;
+
+/* XXX */
+	typedef struct {
+		uint32			RpcStructureVersion;
+		uint32			reserved0;
+		DNS_RPC_VERSION		Version;
+		DNS_RPC_BOOT_METHOD	BootMethod;
+		boolean8		AdminConfigured;
+		boolean8		AllowUpdate;
+		boolean8		DsAvailable;
+		[unique, string] uint8 *ServerName;
+		[unique, string, charset(UTF16)] uint16 *DsContainer;
+		[unique] IP4_ARRAY	*ServerAddrs;
+		[unique] IP4_ARRAY	*ListenAddrs;
+		[unique] IP4_ARRAY	*Forwarders;
+		[unique] IP4_ARRAY	*LogFilter;
+		[unique, string, charset(UTF16)] uint16 *LogFilePath;
+		[unique, string] uint8	*DomainName;
+		[unique, string] uint8	*ForestName;
+		[unique, string] uint8	*DomainDirectoryPartition;
+		[unique, string] uint8	*ForestDirectoryPartition;
+		[unique, string] uint8	*extension0;
+		[unique, string] uint8	*extension1;
+		[unique, string] uint8	*extension2;
+		[unique, string] uint8	*extension3;
+		[unique, string] uint8	*extension4;
+		[unique, string] uint8	*extension5;
+		DNS_LOG_LEVELS		LogLevel;
+		uint32			DebugLevel;
+		uint32			ForwardTimeout;
+		DNS_RPC_PROTOCOLS	RpcProtocol;
+		DNS_NAME_CHECK_FLAGS	NameCheckFlag;
+		uint32			AddressAnswerLimit;
+		uint32			RecursionRetry;
+		uint32			RecursionTimeout;
+		uint32			MaxCacheTtl;
+		uint32			DsPollingInterval;
+		uint32			LocalNetPriorityNetmask;
+		uint32			ScavengingInterval;
+		uint32			DefaultRefreshInterval;
+		uint32			DefaultNoRefreshInterval;
+		uint32			LastScavengeTime;
+		uint32			EventLogLevel;
+		uint32			LogFileMaxSize;
+		uint32			DsForestVersion;
+		uint32			DsDomainVersion;
+		uint32			DsDsaVersion;
+		uint32			reserve_array[4];
+		boolean8		AutoReverseZones;
+		boolean8		AutoCacheUpdate;
+		boolean8		RecurseAfterForwarding;
+		boolean8		ForwardDelegations;
+		boolean8		NoRecursion;
+		boolean8		SecureResponses;
+		boolean8		RoundRobin;
+		boolean8		LocalNetPriority;
+		boolean8		BindSecondaries;
+		boolean8		WriteAuthorityNs;
+		boolean8		StrictFileParsing;
+		boolean8		LooseWildcarding;
+		boolean8		DefaultAgingState;
+		boolean8		reserve_array2[15];
+	} DNS_RPC_SERVER_INFO_DOTNET;
+/* XXX */
+
+	typedef [v1_enum, flag(NDR_PAHEX)] enum {
+		DNSSRV_TYPEID_NULL			=  0,
+		DNSSRV_TYPEID_DWORD			=  1,
+		DNSSRV_TYPEID_LPSTR			=  2,
+		DNSSRV_TYPEID_LPWSTR			=  3,
+		DNSSRV_TYPEID_IPARRAY			=  4,
+		DNSSRV_TYPEID_BUFFER			=  5,
+		DNSSRV_TYPEID_SERVER_INFO_W2K		=  6,
+		DNSSRV_TYPEID_STATS			=  7,
+		DNSSRV_TYPEID_FORWARDERS_W2K		=  8,
+		DNSSRV_TYPEID_ZONE_W2K			=  9,
+		DNSSRV_TYPEID_ZONE_INFO_W2K		= 10,
+		DNSSRV_TYPEID_ZONE_SECONDARIES_W2K	= 11,
+		DNSSRV_TYPEID_ZONE_DATABASE_W2K		= 12,
+		DNSSRV_TYPEID_ZONE_TYPE_RESET_W2K	= 13,
+		DNSSRV_TYPEID_ZONE_CREATE_W2K		= 14,
+		DNSSRV_TYPEID_NAME_AND_PARAM		= 15,
+		DNSSRV_TYPEID_ZONE_LIST_W2K		= 16,
+		DNSSRV_TYPEID_ZONE_RENAME		= 17,
+		DNSSRV_TYPEID_ZONE_EXPORT		= 18,
+		DNSSRV_TYPEID_SERVER_INFO_DOTNET	= 19,
+		DNSSRV_TYPEID_FORWARDERS_DOTNET		= 20,
+		DNSSRV_TYPEID_ZONE			= 21,
+		DNSSRV_TYPEID_ZONE_INFO_DOTNET		= 22,
+		DNSSRV_TYPEID_ZONE_SECONDARIES_DOTNET	= 23,
+		DNSSRV_TYPEID_ZONE_DATABASE		= 24,
+		DNSSRV_TYPEID_ZONE_TYPE_RESET_DOTNET	= 25,
+		DNSSRV_TYPEID_ZONE_CREATE_DOTNET	= 26,
+		DNSSRV_TYPEID_ZONE_LIST			= 27,
+		DNSSRV_TYPEID_DP_ENUM			= 28,
+		DNSSRV_TYPEID_DP_INFO			= 29,
+		DNSSRV_TYPEID_DP_LIST			= 30,
+		DNSSRV_TYPEID_ENLIST_DP			= 31,
+		DNSSRV_TYPEID_ZONE_CHANGE_DP		= 32,
+		DNSSRV_TYPEID_ENUM_ZONES_FILTER		= 33,
+		DNSSRV_TYPEID_ADDARRAY			= 34,
+		DNSSRV_TYPEID_SERVER_INFO		= 35,
+		DNSSRV_TYPEID_ZONE_INFO			= 36,
+		DNSSRV_TYPEID_FORWARDERS		= 37,
+		DNSSRV_TYPEID_ZONE_SECONDARIES		= 38,
+		DNSSRV_TYPEID_ZONE_TYPE_RESET		= 39,
+		DNSSRV_TYPEID_ZONE_CREATE		= 40,
+		DNSSRV_TYPEID_IP_VALIDATE		= 41,
+		DNSSRV_TYPEID_AUTOCONFIGURE		= 42,
+		DNSSRV_TYPEID_UTF8_STRING_LIST		= 43,
+		DNSSRV_TYPEID_UNICODE_STRING_LIST	= 44
+	} DnssrvRpcTypeId;
+
+	typedef union {
+	[case(DNSSRV_TYPEID_NULL)]	uint8 *null;
+	[case(DNSSRV_TYPEID_DWORD)]	uint32 dword;
+/* DNSSRV_TYPEID_LPSTR			=  2,*/
+/* DNSSRV_TYPEID_LPWSTR			=  3,*/
+/* DNSSRV_TYPEID_IPARRAY			=  4,*/
+/* DNSSRV_TYPEID_BUFFER			=  5,*/
+/* DNSSRV_TYPEID_SERVER_INFO_W2K		=  6,*/
+/* DNSSRV_TYPEID_STATS			=  7,*/
+/* DNSSRV_TYPEID_FORWARDERS_W2K		=  8,*/
+/* DNSSRV_TYPEID_ZONE_W2K			=  9,*/
+/* DNSSRV_TYPEID_ZONE_INFO_W2K		= 10,*/
+/* DNSSRV_TYPEID_ZONE_SECONDARIES_W2K	= 11,*/
+/* DNSSRV_TYPEID_ZONE_DATABASE_W2K		= 12,*/
+/* DNSSRV_TYPEID_ZONE_TYPE_RESET_W2K	= 13,*/
+/* DNSSRV_TYPEID_ZONE_CREATE_W2K		= 14,*/
+/* DNSSRV_TYPEID_NAME_AND_PARAM		= 15,*/
+/* DNSSRV_TYPEID_ZONE_LIST_W2K		= 16,*/
+/* DNSSRV_TYPEID_ZONE_RENAME		= 17,*/
+/* DNSSRV_TYPEID_ZONE_EXPORT		= 18,*/
+	[case(DNSSRV_TYPEID_SERVER_INFO_DOTNET)] DNS_RPC_SERVER_INFO_DOTNET *ServerInfoDotnet;
+/* DNSSRV_TYPEID_FORWARDERS_DOTNET		= 20,*/
+/* DNSSRV_TYPEID_ZONE			= 21,*/
+/* DNSSRV_TYPEID_ZONE_INFO_DOTNET		= 22,*/
+/* DNSSRV_TYPEID_ZONE_SECONDARIES_DOTNET	= 23,*/
+/* DNSSRV_TYPEID_ZONE_DATABASE		= 24,*/
+/* DNSSRV_TYPEID_ZONE_TYPE_RESET_DOTNET	= 25,*/
+/* DNSSRV_TYPEID_ZONE_CREATE_DOTNET	= 26,*/
+/* DNSSRV_TYPEID_ZONE_LIST			= 27,*/
+/* DNSSRV_TYPEID_DP_ENUM			= 28,*/
+/* DNSSRV_TYPEID_DP_INFO			= 29,*/
+/* DNSSRV_TYPEID_DP_LIST			= 30,*/
+/* DNSSRV_TYPEID_ENLIST_DP			= 31,*/
+/* DNSSRV_TYPEID_ZONE_CHANGE_DP		= 32,*/
+/* DNSSRV_TYPEID_ENUM_ZONES_FILTER		= 33,*/
+/* DNSSRV_TYPEID_ADDARRAY			= 34,*/
+/* DNSSRV_TYPEID_SERVER_INFO		= 35,*/
+/* DNSSRV_TYPEID_ZONE_INFO			= 36,*/
+/* DNSSRV_TYPEID_FORWARDERS		= 37,*/
+/* DNSSRV_TYPEID_ZONE_SECONDARIES		= 38,*/
+/* DNSSRV_TYPEID_ZONE_TYPE_RESET		= 39,*/
+/* DNSSRV_TYPEID_ZONE_CREATE		= 40,*/
+/* DNSSRV_TYPEID_IP_VALIDATE		= 41,*/
+/* DNSSRV_TYPEID_AUTOCONFIGURE		= 42,*/
+/* DNSSRV_TYPEID_UTF8_STRING_LIST		= 43,*/
+/* DNSSRV_TYPEID_UNICODE_STRING_LIST	= 44*/
+	} DNSSRV_RPC_UNION;
+
+
+	/******************/
+	/* Function: 0x00 */
+	NTSTATUS DnssrvOperation (
+	);
+
+	/******************/
+	/* Function: 0x01 */
+	NTSTATUS DnssrvQuery (
+	);
+
+	/******************/
+	/* Function: 0x02 */
+	NTSTATUS DnssrvComplexOperation (
+	);
+
+	/******************/
+	/* Function: 0x03 */
+	NTSTATUS DnssrvEnumRecords (
+	);
+
+	/******************/
+	/* Function: 0x04 */
+	NTSTATUS DnssrvUpdateRecord (
+	);
+
+	/******************/
+	/* Function: 0x05 */
+	NTSTATUS DnssrvOperation2 (
+	);
+
+	/******************/
+	/* Function: 0x06 */
+	NTSTATUS DnssrvQuery2 (
+		[in]		DNS_RPC_CLIENT_VERSION client_version,
+		[in]		uint32 setting_flags,
+		[in, unique, string, charset(UTF16)] uint16 *server_name,
+		[in, unique, string] uint8 *zone,
+		[in, unique, string] uint8 *operation,
+		[out, ref]	DnssrvRpcTypeId *type_id,
+		[out, ref, switch_is(*type_id)] DNSSRV_RPC_UNION *data
+	);
+
+	/******************/
+	/* Function: 0x07 */
+	NTSTATUS DnssrvComplexOperation2 (
+	);
+
+	typedef struct {
+		DNS_RPC_NODE		rpc_node;
+	} DNS_RECORD_BUFFER;
+
+	/******************/
+	/* Function: 0x08 */
+	NTSTATUS DnssrvEnumRecords2 (
+		[in]		DNS_RPC_CLIENT_VERSION client_version,
+		[in]		uint32 setting_flags,
+		[in, unique, string, charset(UTF16)] uint16 *server_name,
+		[in, unique, string] uint8 *zone,
+		[in, unique, string] uint8 *node_name,
+		[in, unique, string] uint8 *start_child,
+		[in]		DNS_RECORD_TYPE record_type,
+		[in]		DNS_SELECT_FLAGS select_flag,
+		[in, unique, string] uint8 *filter_start,
+		[in, unique, string] uint8 *filter_stop,
+		[out,ref]	uint32 *buffer_length,
+		[out, unique, subcontext(4)] DNS_RPC_NODE *record_buffer
+	);
+
+	/******************/
+	/* Function: 0x09 */
+	NTSTATUS DnssrvUpdateRecord2 (
+	);
+}
