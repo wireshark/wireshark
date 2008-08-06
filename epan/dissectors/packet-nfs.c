@@ -792,14 +792,16 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	/* filter out all '.' and '..' names */
 	if(!name){
 		ptr=(const unsigned char *)tvb_get_ptr(tvb, name_offset, name_len);
-		if(ptr[0]=='.'){
-			if(ptr[1]==0){
+	} else {
+		ptr=name;
+	}
+	if(ptr[0]=='.'){
+		if(ptr[1]==0){
+			return;
+		}
+		if(ptr[1]=='.'){
+			if(ptr[2]==0){
 				return;
-			}
-			if(ptr[1]=='.'){
-				if(ptr[2]==0){
-					return;
-				}
 			}
 		}
 	}
@@ -1009,11 +1011,11 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		if(nns->full_name){
 			if(hidden){
 				fh_item=proto_tree_add_string(tree, hf_nfs_full_name, tvb,
-					fh_offset, 0, nns->name);
+					fh_offset, 0, nns->full_name);
 				PROTO_ITEM_SET_HIDDEN(fh_item);
 			} else {
 				fh_item=proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
-					fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
+					fh_offset, 0, nns->full_name, "Full Name: %s", nns->full_name);
 			}
 			PROTO_ITEM_SET_GENERATED(fh_item);
 		}

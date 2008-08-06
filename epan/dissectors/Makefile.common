@@ -52,6 +52,7 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-budb.c	\
 	packet-dcerpc-butc.c	\
 	packet-dcerpc-dfs.c \
+	packet-dcerpc-dnsserver.c 	\
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
@@ -281,7 +282,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dcerpc-conv.c		\
 	packet-dcerpc-cprpc_server.c 	\
 	packet-dcerpc-dce122.c		\
-	packet-dcerpc-dnsserver.c 	\
 	packet-dcerpc-dtsprovider.c 	\
 	packet-dcerpc-dtsstime_req.c 	\
 	packet-dcerpc-epm.c		\
