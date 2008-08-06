@@ -75,6 +75,14 @@
  * Anders Broman <anders.broman@ericsson.com>
  */
 
+/*
+ * 3-AUG-2008 - Extended the cldap support to include all netlogon data types.
+ *				Updated cldap_netlogon_flags to include Windows 2008 flags
+ *				Expanded the ntver ldap option with bit field
+ *
+ * Gary Reynolds <gazzadownunder@yahoo.co.uk>
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -101,6 +109,7 @@
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
 #include "packet-ssl.h"
+#include "packet-smb-common.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -120,7 +129,23 @@ static int hf_ldap_response_to = -1;
 static int hf_ldap_time = -1;
 static int hf_ldap_guid = -1;
 
+static int hf_mscldap_ntver_flags = -1;
+static int hf_mscldap_ntver_flags_v1 = -1;
+static int hf_mscldap_ntver_flags_v5 = -1;
+static int hf_mscldap_ntver_flags_v5ex = -1;
+static int hf_mscldap_ntver_flags_v5ip = -1;
+static int hf_mscldap_ntver_flags_v5cs = -1;
+static int hf_mscldap_ntver_flags_nt4 = -1;
+static int hf_mscldap_ntver_flags_pdc = -1;
+static int hf_mscldap_ntver_flags_local = -1;
+static int hf_mscldap_ntver_flags_ip = -1;
+static int hf_mscldap_ntver_flags_gc = -1;
+static int hf_mscldap_netlogon_ipaddress_family = -1;
+static int hf_mscldap_netlogon_ipaddress_port = -1;
+static int hf_mscldap_netlogon_ipaddress = -1;
+static int hf_mscldap_netlogon_ipaddress_ipv4 = -1;
 static int hf_mscldap_netlogon_type = -1;
+static int hf_mscldap_netlogon_length = -1;
 static int hf_mscldap_netlogon_flags = -1;
 static int hf_mscldap_netlogon_flags_pdc = -1;
 static int hf_mscldap_netlogon_flags_gc = -1;
@@ -132,6 +157,11 @@ static int hf_mscldap_netlogon_flags_closest = -1;
 static int hf_mscldap_netlogon_flags_writable = -1;
 static int hf_mscldap_netlogon_flags_good_timeserv = -1;
 static int hf_mscldap_netlogon_flags_ndnc = -1;
+static int hf_mscldap_netlogon_flags_fnc = -1;
+static int hf_mscldap_netlogon_flags_dnc = -1;
+static int hf_mscldap_netlogon_flags_dns = -1;
+static int hf_mscldap_netlogon_flags_wdc = -1;
+static int hf_mscldap_netlogon_flags_rodc = -1;
 static int hf_mscldap_domain_guid = -1;
 static int hf_mscldap_forest = -1;
 static int hf_mscldap_domain = -1;
@@ -280,7 +310,7 @@ static int hf_ldap_genPasswd = -1;                /* OCTET_STRING */
 static int hf_ldap_cancelID = -1;                 /* MessageID */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 151 "packet-ldap-template.c"
+#line 181 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -288,6 +318,8 @@ static gint ett_ldap_msg = -1;
 static gint ett_ldap_sasl_blob = -1;
 static guint ett_ldap_payload = -1;
 static gint ett_mscldap_netlogon_flags = -1;
+static gint ett_mscldap_ntver_flags = -1;
+static gint ett_mscldap_ipdetails = -1;
 
 
 /*--- Included file: packet-ldap-ett.c ---*/
@@ -339,7 +371,7 @@ static gint ett_ldap_PasswdModifyResponseValue = -1;
 static gint ett_ldap_CancelRequestValue = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 160 "packet-ldap-template.c"
+#line 192 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */
@@ -461,6 +493,106 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
   return key1->messageId==key2->messageId;
 }
 
+
+ /* These are the NtVer flags
+	http://msdn.microsoft.com/en-us/library/cc201035.aspx
+ */
+
+static const true_false_string tfs_ntver_v1 = {
+	"Client requested V1 netlogon response",
+	"V1 netlogon response not requested"
+};
+
+static const true_false_string tfs_ntver_v5 = {
+	"Client requested V5 netlogon response",
+	"V5 netlogon response not requested"
+};
+static const true_false_string tfs_ntver_v5ex = {
+	"Client requested V5 extended netlogon response",
+	"V5 extended response not requested"
+};
+static const true_false_string tfs_ntver_v5ip = {
+	"Client has requested IP information of the DC",
+	"IP information not requested"
+};
+static const true_false_string tfs_ntver_v5cs = {
+	"Client has asked for the closest site information",
+	"Closest site information not requested"
+};
+static const true_false_string tfs_ntver_nt4 = {
+	"Client has set Neutralize NT4 emulation",
+	"Only full AD DS requested"
+};
+static const true_false_string tfs_ntver_pdc = {
+	"Client has requested the PDC server",
+	"PDC server not requested"
+};
+static const true_false_string tfs_ntver_local = {
+	"Client indicated that it is the local machine",
+	"Client is not local"
+};
+static const true_false_string tfs_ntver_ip = {
+	"Client has requested IP details (obsolete)",
+	"IP details not requested"
+};static const true_false_string tfs_ntver_gc = {
+	"Client has requested a Global Catalog server",
+	"Global Catalog not requested"
+};
+
+
+static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+  guint32 flags;
+  proto_item *item;
+  proto_tree *tree=NULL;
+  guint fields[] = { 
+		     hf_mscldap_ntver_flags_v1,
+		     hf_mscldap_ntver_flags_v5,
+		     hf_mscldap_ntver_flags_v5ex,
+		     hf_mscldap_ntver_flags_v5ip,
+		     hf_mscldap_ntver_flags_v5cs,
+		     hf_mscldap_ntver_flags_nt4,
+		     hf_mscldap_ntver_flags_pdc,
+			 hf_mscldap_ntver_flags_ip,
+		     hf_mscldap_ntver_flags_local,
+		     hf_mscldap_ntver_flags_gc,
+		     0 };
+  
+  guint  *field;
+  header_field_info *hfi;
+  gboolean one_bit_set = FALSE;
+
+  flags=tvb_get_letohl(tvb, offset); 
+  item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, TRUE);
+  if(parent_tree){
+    tree = proto_item_add_subtree(item, ett_mscldap_ntver_flags);
+  }
+
+  proto_item_append_text(item, " (");
+
+  for(field = fields; *field; field++) {
+    proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
+    hfi = proto_registrar_get_nth(*field);
+
+    if(flags & hfi->bitmask) {
+
+      if(one_bit_set)
+	proto_item_append_text(item, ", ");
+      else
+	one_bit_set = TRUE;
+
+      proto_item_append_text(item, hfi->name);
+
+    }
+  }
+ 
+  proto_item_append_text(item, ")"); 
+
+  offset += 4;
+
+  return offset;
+}
+
 /* This string contains the last LDAPString that was decoded */
 static char *attributedesc_string=NULL;
 
@@ -526,6 +658,22 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
                           uuid.Data4[6], uuid.Data4[7]);
 
 		goto finished;
+	} else if (attributedesc_string && !strncmp("NtVer", attributedesc_string, 5)){
+		guint32 flags;
+
+		len = 0;
+		/* get flag value to populate ldapvalue_string */
+		flags=tvb_get_letohl(tvb, offset);
+		
+		ldapvalue_string=ep_alloc(1024);
+		g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
+
+		/* populate bitmask subtree */
+		offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
+
+		goto finished;
+
+
 	}
 
 	/*
@@ -3102,7 +3250,7 @@ static void dissect_CancelRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 560 "packet-ldap-template.c"
+#line 708 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -3556,9 +3704,9 @@ static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxl
   return offset;
 }
 
-/* These flag bits were found to be defined in the samba sources.
- * I hope they are correct (but have serious doubts about the CLOSEST
- * bit being used or being meaningful).
+
+/* These are the cldap DC flags 
+   http://msdn.microsoft.com/en-us/library/cc201036.aspx
  */
 static const true_false_string tfs_ads_pdc = {
 	"This is a PDC",
@@ -3585,7 +3733,7 @@ static const true_false_string tfs_ads_timeserv = {
 	"This dc is NOT running time services (ntp)"
 };
 static const true_false_string tfs_ads_closest = {
-	"This is the CLOSEST dc (unreliable?)",
+	"This is the CLOSEST dc",
 	"This is NOT the closest dc"
 };
 static const true_false_string tfs_ads_writable = {
@@ -3600,12 +3748,38 @@ static const true_false_string tfs_ads_ndnc = {
 	"Domain is NON-DOMAIN NC serviced by ldap server",
 	"Domain is NOT non-domain nc serviced by ldap server"
 };
+static const true_false_string tfs_ads_rodc = {
+	"Domain controller is a Windows 2008 RODC",
+	"Domain controller is not a Windows 2008 RODC"
+};
+static const true_false_string tfs_ads_wdc = {
+	"Domain controller is a Windows 2008 writable NC",
+	"Domain controller is not a Windows 2008 writable NC"
+};
+static const true_false_string tfs_ads_dns = {
+	"Server name is in DNS format (Windows 2008)",
+	"Server name is not in DNS format (Windows 2008)"
+};
+static const true_false_string tfs_ads_dnc = {
+	"The NC is the default NC (Windows 2008)",
+	"The NC is not the default NC (Windows 2008)"
+};
+static const true_false_string tfs_ads_fnc = {
+	"The NC is the default forest NC(Windows 2008)",
+	"The NC is not the default forest NC (Windows 2008)"
+};
 static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
   guint32 flags;
   proto_item *item;
   proto_tree *tree=NULL;
-  guint fields[] = { hf_mscldap_netlogon_flags_ndnc,
+  guint fields[] = { 
+			 hf_mscldap_netlogon_flags_fnc,
+		     hf_mscldap_netlogon_flags_dnc,
+		     hf_mscldap_netlogon_flags_dns,
+		     hf_mscldap_netlogon_flags_wdc,
+		     hf_mscldap_netlogon_flags_rodc,
+			 hf_mscldap_netlogon_flags_ndnc,
 		     hf_mscldap_netlogon_flags_good_timeserv,
 		     hf_mscldap_netlogon_flags_writable,
 		     hf_mscldap_netlogon_flags_closest,
@@ -3615,7 +3789,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
 		     hf_mscldap_netlogon_flags_ldap,
 		     hf_mscldap_netlogon_flags_gc,
 		     hf_mscldap_netlogon_flags_pdc,
-		     0 };
+			 0 };
   guint  *field;
   header_field_info *hfi;
   gboolean one_bit_set = FALSE;
@@ -3655,63 +3829,202 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 {
   int old_offset, offset=0;
   char str[256];
+  guint16 itype;
+  guint16 len;
+  guint32 version;
+  const char *fn;
+  int fn_len;
+  guint16 bc;
+  proto_item *item;
 
   ldm_tree = NULL;
 
-/*qqq*/
 
+  /* Get the length of the buffer */
+  len=tvb_length_remaining(tvb,offset);
+
+  /* check the len if it is to small return */
+  if (len < 10) return;
+  
   /* Type */
-  /*XXX someone that knows what the type means should add that knowledge here*/
-  proto_tree_add_item(tree, hf_mscldap_netlogon_type, tvb, offset, 4, TRUE);
-  offset += 4;
+  itype = tvb_get_letohs(tvb, offset);
 
-  /* Flags */
-  offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
+  /* get the version number from the end of the buffer, as the 
+     length is variable and the version determines what fields
+	 need to be decoded */
+  
+  version = tvb_get_letohl(tvb,len-8);
+  
+  switch(itype){
+		
+		case LOGON_SAM_LOGON_RESPONSE: 
+			/* Type */
+			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb,offset, 2, itype,"Type: LOGON_SAM_LOGON_RESPONSE (19)" );
+			offset = 2;
 
-  /* Domain GUID */
-  proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
-  offset += 16;
+			/* logon server name */
+			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
+			offset +=fn_len;
 
-  /* Forest */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+			/* username */
+			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+			proto_tree_add_string(tree, hf_mscldap_username, tvb,offset, fn_len, fn);
+			offset +=fn_len;
 
-  /* Domain */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+			/* domain name */
+			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
+			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
+			offset +=fn_len;
 
-  /* Hostname */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+			/* include the extra version 5 fields */
+			if ((version & NETLOGON_NT_VERSION_5) == NETLOGON_NT_VERSION_5){
 
-  /* NetBios Domain */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
+				/* domain guid */
+				proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
+				offset += 16;
+				
+				/* domain guid part 2
+				   there is another 16 byte guid but this is alway zero, so we will skip it */
+				offset += 16;
 
-  /* NetBios Hostname */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
+				/* Forest */
+				old_offset=offset;
+				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+				proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
 
-  /* User */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
+				/* Domain */
+				old_offset=offset;
+				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+				proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
 
-  /* Site */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
+				/* Hostname */
+				old_offset=offset;
+				offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+				proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
-  /* Client Site */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+				/* DC IP Address */
+				proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, offset, 4, tvb_get_ntohl(tvb,offset));
+				offset += 4;
 
+				/* Flags */
+				offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
+	
+			}
+
+			break;
+
+		case LOGON_SAM_LOGON_RESPONSE_EX:
+
+			/* Type */
+			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb, offset, 2, itype,"Type: LOGON_SAM_LOGON_RESPONSE_EX (23)" );
+			offset += 4;
+
+
+			/* Flags */
+			offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
+
+			/* Domain GUID */
+			proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
+			offset += 16;
+
+			/* Forest */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+
+			/* Domain */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+
+			/* Hostname */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+
+			/* NetBios Domain */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
+
+			/* NetBios Hostname */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
+
+			/* User */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
+
+			/* Site */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
+
+			/* Client Site */
+			old_offset=offset;
+			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+			proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+			
+			/* include the extra fields for version 5 with IP s */
+			if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
+				
+
+				/* The ip address is returned as a sockaddr_in structure
+				 *  
+				 *  This section may need to be updated if the base Windows APIs
+				 *  are changed to support ipv6, which currently is not the case.
+				 *
+				 *  The desector assumes the length is based on ipv4 and
+				 *  ignores the length
+				 */
+				
+				/* skip the length of the sockaddr_in */ 
+				
+				offset +=1;
+
+				/* add IP address and desect the sockaddr_in structure */
+				
+				old_offset = offset + 4;
+				item = proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, tvb_get_ipv4(tvb,old_offset));
+
+				if (tree){
+					proto_tree *subtree;
+
+					subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
+					
+					/* get sockaddr family */
+					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, TRUE);
+					offset +=2;		
+
+					/* get sockaddr port */
+					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, TRUE);
+					offset +=2;	
+					
+					/* get IP address */
+					proto_tree_add_ipv4(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, tvb_get_ipv4(tvb,offset));
+					offset +=4;
+
+					/* skip the 8 bytes of zeros in the sockaddr structure */
+					offset += 8;
+				}
+
+			}
+
+			break;
+
+		default:
+			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb, offset, 2, itype,"Type: Unknown type (%d)", itype );
+			
+  }				
+
+
+ /* complete the decode with the version and token details */
+
+  offset = len-8;
+ 
   /* Version */
   proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
   offset += 4;
@@ -4088,13 +4401,33 @@ void proto_register_ldap(void) {
 
     { &hf_mscldap_netlogon_type,
       { "Type", "mscldap.netlogon.type",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Type of <please tell Wireshark developers what this type is>", HFILL }},
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "NetLogon Response type", HFILL }},
 
     { &hf_mscldap_netlogon_version,
       { "Version", "mscldap.netlogon.version",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Version of <please tell Wireshark developers what this type is>", HFILL }},
+        "Version", HFILL }},
+
+    { &hf_mscldap_netlogon_ipaddress_family,
+      { "Family", "mscldap.netlogon.ipaddress.family",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Family", HFILL }},
+
+    { &hf_mscldap_netlogon_ipaddress_ipv4,
+      { "IPv4", "mscldap.netlogon.ipaddress.ipv4",
+        FT_IPv4, BASE_DEC, NULL, 0x0,
+        "IP Address", HFILL }},
+
+	{ &hf_mscldap_netlogon_ipaddress_port,
+      { "Port", "mscldap.netlogon.ipaddress.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Port", HFILL }},
+
+	{ &hf_mscldap_netlogon_ipaddress,
+      { "IP Address","mscldap.netlogon.ipaddress",
+		FT_IPv4, BASE_NONE, NULL, 0x0,
+			"Domain Controller IP Address ", HFILL }},
 
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",
@@ -4110,8 +4443,13 @@ void proto_register_ldap(void) {
       { "Flags", "mscldap.netlogon.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "Netlogon flags describing the DC properties", HFILL }},
-
-    { &hf_mscldap_domain_guid,
+    
+	{ &hf_mscldap_ntver_flags,
+      { "Search Flags", "mscldap.ntver.searchflags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "cldap Netlogon request flags", HFILL }},
+	
+	{ &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "Domain GUID", HFILL }},
@@ -4142,7 +4480,7 @@ void proto_register_ldap(void) {
         "NetBios Hostname", HFILL }},
 
     { &hf_mscldap_username,
-      { "User", "mscldap.username",
+      { "Username", "mscldap.username",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "User name", HFILL }},
 
@@ -4161,7 +4499,47 @@ void proto_register_ldap(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Sid", HFILL }},
 
-    { &hf_mscldap_netlogon_flags_pdc,
+	{ &hf_mscldap_ntver_flags_v5cs,
+      { "V5CS", "mscldap.ntver.searchflags.v5cs", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5cs), 0x00000010, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_v5ip,
+      { "V5IP", "mscldap.ntver.searchflags.v5ip", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5ip), 0x00000008, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_v5ex,
+      { "V5EX", "mscldap.ntver.searchflags.v5ex", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5ex), 0x00000004, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_v5,
+      { "V5", "mscldap.ntver.searchflags.v5", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5), 0x00000002, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_v1,
+      { "V1", "mscldap.ntver.searchflags.v1", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v1), 0x00000001, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_gc,
+      { "GC", "mscldap.ntver.searchflags.gc", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_gc), 0x80000000, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_local,
+      { "Local", "mscldap.ntver.searchflags.local", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_local), 0x40000000, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_ip,
+      { "IP", "mscldap.ntver.searchflags.ip", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_ip), 0x20000000, "", HFILL }},
+	
+	{ &hf_mscldap_ntver_flags_pdc,
+      { "PDC", "mscldap.ntver.searchflags.pdc", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_pdc), 0x10000000, "", HFILL }},
+
+	{ &hf_mscldap_ntver_flags_nt4,
+      { "NT4", "mscldap.ntver.searchflags.nt4", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_nt4), 0x01000000, "", HFILL }},
+
+	{ &hf_mscldap_netlogon_flags_pdc,
       { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_pdc), 0x00000001, "Is this DC a PDC or not?", HFILL }},
 
@@ -4187,11 +4565,11 @@ void proto_register_ldap(void) {
 
     { &hf_mscldap_netlogon_flags_closest,
       { "Closest", "mscldap.netlogon.flags.closest", FT_BOOLEAN, 32,
-        TFS(&tfs_ads_closest), 0x00000080, "Is this the closest dc? (is this used at all?)", HFILL }},
+        TFS(&tfs_ads_closest), 0x00000080, "Is this the closest dc?", HFILL }},
 
     { &hf_mscldap_netlogon_flags_writable,
       { "Writable", "mscldap.netlogon.flags.writable", FT_BOOLEAN, 32,
-        TFS(&tfs_ads_writable), 0x00000100, "Is this dc writable? (i.e. can it update the AD?)", HFILL }},
+        TFS(&tfs_ads_writable), 0x00000100, "Is this dc writable?", HFILL }},
 
     { &hf_mscldap_netlogon_flags_good_timeserv,
       { "Good Time Serv", "mscldap.netlogon.flags.good_timeserv", FT_BOOLEAN, 32,
@@ -4200,6 +4578,26 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_flags_ndnc,
       { "NDNC", "mscldap.netlogon.flags.ndnc", FT_BOOLEAN, 32,
         TFS(&tfs_ads_ndnc), 0x00000400, "Is this an NDNC dc?", HFILL }},
+
+	{ &hf_mscldap_netlogon_flags_rodc,
+      { "RODC", "mscldap.netlogon.flags.rodc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_rodc), 0x00000800, "Is this an read only dc?", HFILL }},
+
+	{ &hf_mscldap_netlogon_flags_wdc,
+      { "WDC", "mscldap.netlogon.flags.writabledc.", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_wdc), 0x00001000, "Is this an writable dc (Windows 2008)?", HFILL }},
+
+	{ &hf_mscldap_netlogon_flags_dns,
+      { "DNS", "mscldap.netlogon.flags.dnsname", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_dns), 0x20000000, "Does the server have a dns name (Windows 2008)?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_dnc,
+      { "DNC", "mscldap.netlogon.flags.defaultnc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_dnc), 0x40000000, "Is this the default NC (Windows 2008)?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_fnc,
+      { "FDC", "mscldap.netlogon.flags.forestnc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_fnc), 0x80000000, "Is the the NC the default forest root(Windows 2008)?", HFILL }},
 
     { &hf_ldap_guid,
       { "GUID", "ldap.guid", FT_GUID, BASE_NONE,
@@ -4717,7 +5115,7 @@ void proto_register_ldap(void) {
         "ldap.MessageID", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1690 "packet-ldap-template.c"
+#line 2088 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4727,6 +5125,8 @@ void proto_register_ldap(void) {
     &ett_ldap_sasl_blob,
     &ett_ldap_msg,
     &ett_mscldap_netlogon_flags,
+	&ett_mscldap_ntver_flags,
+	&ett_mscldap_ipdetails,
 
 
 /*--- Included file: packet-ldap-ettarr.c ---*/
@@ -4778,7 +5178,7 @@ void proto_register_ldap(void) {
     &ett_ldap_CancelRequestValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1701 "packet-ldap-template.c"
+#line 2101 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4901,7 +5301,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1812 "packet-ldap-template.c"
+#line 2212 "packet-ldap-template.c"
 	
 
 }

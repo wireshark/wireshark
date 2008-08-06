@@ -81,6 +81,15 @@
 
 #define LDAP_SASL_MAX_BUF	4*64*1024
 
+#define NETLOGON_NT_VERSION_1					1
+#define NETLOGON_NT_VERSION_5					2
+#define NETLOGON_NT_VERSION_5EX					4
+#define NETLOGON_NT_VERSION_5EX_WITH_IP			8
+#define NETLOGON_NT_VERSION_WITH_CLOSEST_SITE	16
+
+#define LOGON_SAM_LOGON_RESPONSE        19
+#define LOGON_SAM_LOGON_RESPONSE_EX     23
+
 typedef struct ldap_call_response {
   gboolean is_request;
   guint32 req_frame;
