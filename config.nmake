@@ -170,7 +170,22 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
 #
-ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05ws
+# If C_ARES_DIR is defined below, it will override this setting.
+#
+#ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05ws
+
+#
+# Optional: the c-ares library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have c-ares, set this to the directory in which the c-ares
+# .lib file is stored. Setting this will override ADNS_DIR above. You
+# can't have both.
+#
+# If you don't have c-ares, comment this line out, so that C_ARES_DIR
+# isn't defined.
+#
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -682,6 +697,17 @@ ZLIB_DLL=
 ZLIB_CONFIG=
 !ENDIF
 
+!IFDEF C_ARES_DIR
+!UNDEF ADNS_DIR
+C_ARES_CFLAGS=/I$(C_ARES_DIR)
+C_ARES_LIBS=$(C_ARES_DIR)\cares.lib
+C_ARES_DLL=$(C_ARES_DIR)\cares.dll
+# Nmake uses carets to escape special characters
+C_ARES_CONFIG=^#define HAVE_C_ARES 1
+!else
+C_ARES_CFLAGS=
+C_ARES_LIBS=
+C_ARES_CONFIG=
 !IFDEF ADNS_DIR
 ADNS_PATH=$(ADNS_DIR)\adns_win32\lib
 ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
@@ -693,7 +719,8 @@ ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
 ADNS_CFLAGS=
 ADNS_LIBS=
 ADNS_CONFIG=
-!ENDIF
+!ENDIF # ADNS
+!ENDIF # C_ARES
 
 !IFDEF KFW_DIR
 KFW_PATH=$(KFW_DIR)\bin

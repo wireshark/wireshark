@@ -63,13 +63,17 @@
  * sites still using NIS rather than DNS for that....)
  */
 
-#ifdef HAVE_GNU_ADNS
-# include <errno.h>
-# include <adns.h>
-# ifdef inet_aton
-#  undef inet_aton
-# endif
-#endif
+#ifdef HAVE_C_ARES
+# include <ares.h>
+#else
+# ifdef HAVE_GNU_ADNS
+#  include <errno.h>
+#  include <adns.h>
+#  ifdef inet_aton
+#   undef inet_aton
+#  endif
+# endif	/* HAVE_GNU_ADNS */
+#endif	/* HAVE_C_ARES */
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -274,28 +278,58 @@ gchar *g_services_path  = NULL;		/* global services file   */
 gchar *g_pservices_path = NULL;		/* personal services file */
 					/* first resolving call  */
 
-/* GNU ADNS */
+/* c-ares */
+#ifdef HAVE_C_ARES
+/*
+ * Submitted queries trigger a callback (c_ares_ghba_cb()).
+ * Queries are added to c_ares_queue_head. During processing, queries are
+ * popped off the front of c_ares_queue_head and submitted using
+ * ares_gethostbyaddr().
+ * The callback processes the response, then frees the request.
+ */
 
+static gboolean c_ares_initialized = FALSE;
+ares_channel alchan;
+int c_ares_in_flight = 0;
+GList *c_ares_queue_head = NULL;
+
+typedef struct _c_ares_queue_msg
+{
+  union {
+    guint32           ip4;
+    struct e_in6_addr ip6;
+  } addr;
+  int                 family;
+} c_ares_queue_msg_t;
+
+static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
+
+#else
+/* GNU ADNS */
 #ifdef HAVE_GNU_ADNS
 
+/*
+ * Submitted queries have to be checked individually using adns_check().
+ * Queries are added to adns_queue_head. During processing, the list is
+ * iterated twice: once to request queries up to the concurrency limit,
+ * and once to check the status of each query.
+ */
+
 static gboolean gnu_adns_initialized = FALSE;
-
 adns_state ads;
-
-int adns_currently_queued = 0;
+int adns_in_flight = 0;
+GList *adns_queue_head = NULL;
 
 typedef struct _adns_queue_msg
 {
   gboolean          submitted;
   guint32           ip4_addr;
-  struct e_in6_addr ip6_addr;
   int               type;
   adns_query        query;
 } adns_queue_msg_t;
 
-GList *adns_queue_head = NULL;
-
 #endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
 typedef struct {
     guint32 mask;
@@ -585,8 +619,8 @@ static void abort_network_query(int sig _U_)
 }
 #endif /* AVOID_DNS_TIMEOUT */
 
-/* Fill in an IP4 structure with info from subnets file or just with
- * string form of address.
+/* Fill in an IP4 structure with info from subnets file or just with the
+ * string form of the address.
  */
 static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
 {
@@ -627,14 +661,49 @@ static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
   }
 }
 
+#ifdef HAVE_C_ARES
+
+static void
+c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
+  c_ares_queue_msg_t *caqm = arg;
+  char **p;
+  char name[MAXNAMELEN];
+
+  if (!caqm) return;
+  c_ares_in_flight--;
+
+  if (status == ARES_SUCCESS) {
+    for (p = he->h_addr_list; *p != NULL; p++) {
+      inet_ntop(he->h_addrtype, *p, name, sizeof(name));
+      switch(caqm->family) {
+        case AF_INET:
+          add_ipv4_name(caqm->addr.ip4, name);
+          break;
+        case AF_INET6:
+          add_ipv6_name(&caqm->addr.ip6, name);
+          break;
+        default:
+          /* Throw an exception? */
+          break;
+      }
+    }
+  }
+  g_free(caqm);
+}
+#endif /* HAVE_C_ARES */
+
 static gchar *host_name_lookup(guint addr, gboolean *found)
 {
   int hash_idx;
   hashipv4_t * volatile tp;
   struct hostent *hostp;
+#ifdef HAVE_C_ARES
+  c_ares_queue_msg_t *caqm;
+#else
 #ifdef HAVE_GNU_ADNS
   adns_queue_msg_t *qmsg;
-#endif
+#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
   *found = TRUE;
 
@@ -664,6 +733,22 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
   tp->addr = addr;
   tp->next = NULL;
 
+#ifdef HAVE_C_ARES
+  if ((g_resolv_flags & RESOLV_CONCURRENT) &&
+      prefs.name_resolve_concurrency > 0 &&
+      c_ares_initialized) {
+    caqm = g_malloc(sizeof(c_ares_queue_msg_t));
+    caqm->family = AF_INET;
+    caqm->addr.ip4 = addr;
+    c_ares_queue_head = g_list_append(c_ares_queue_head, (gpointer) caqm);
+
+    /* XXX found is set to TRUE, which seems a bit odd, but I'm not
+     * going to risk changing the semantics.
+     */
+    fill_dummy_ip4(addr, tp);
+    return tp->name;
+  }
+#else
 #ifdef HAVE_GNU_ADNS
   if ((g_resolv_flags & RESOLV_CONCURRENT) &&
       prefs.name_resolve_concurrency > 0 &&
@@ -681,6 +766,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
     return tp->name;
   }
 #endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
   /*
    * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
@@ -732,6 +818,9 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
   int hash_idx;
   hashipv6_t * volatile tp;
+#ifdef HAVE_C_ARES
+  c_ares_queue_msg_t *caqm;
+#endif /* HAVE_C_ARES */
 #ifdef INET6
   struct hostent *hostp;
 #endif
@@ -763,6 +852,24 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
   /* fill in a new entry */
   tp->addr = *addr;
   tp->next = NULL;
+
+#ifdef HAVE_C_ARES
+  if ((g_resolv_flags & RESOLV_CONCURRENT) &&
+      prefs.name_resolve_concurrency > 0 &&
+      c_ares_initialized) {
+    caqm = g_malloc(sizeof(c_ares_queue_msg_t));
+    caqm->family = AF_INET6;
+    memcpy(&caqm->addr.ip6, addr, sizeof(caqm->addr.ip6));
+    c_ares_queue_head = g_list_append(c_ares_queue_head, (gpointer) caqm);
+
+    /* XXX found is set to TRUE, which seems a bit odd, but I'm not
+     * going to risk changing the semantics.
+     */
+    ip6_to_str_buf(addr, tp->name);
+    tp->is_dummy_entry = TRUE;
+    return tp->name;
+  }
+#endif /* HAVE_C_ARES */
 
 #ifdef INET6
   if (g_resolv_flags & RESOLV_NETWORK) {
@@ -2126,6 +2233,11 @@ host_name_lookup_init(void) {
   }
   g_free(hostspath);
 
+#ifdef HAVE_C_ARES
+  if (ares_init(&alchan) == ARES_SUCCESS) {
+    c_ares_initialized = TRUE;
+  }
+#else
 #ifdef HAVE_GNU_ADNS
   /*
    * We're using GNU ADNS, which doesn't check the system hosts file;
@@ -2170,13 +2282,66 @@ host_name_lookup_init(void) {
     return;
   }
   gnu_adns_initialized = TRUE;
-  adns_currently_queued = 0;
+  adns_in_flight = 0;
 #endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
     subnet_name_lookup_init();
 }
 
-#ifdef HAVE_GNU_ADNS
+#ifdef HAVE_C_ARES
+gboolean
+host_name_lookup_process(gpointer data _U_) {
+  c_ares_queue_msg_t *caqm;
+  struct timeval tv = { 0, 0 };
+  int nfds;
+  fd_set rfds, wfds;
+
+  c_ares_queue_head = g_list_first(c_ares_queue_head);
+
+  while (c_ares_queue_head && c_ares_in_flight <= prefs.name_resolve_concurrency) {
+    caqm = (c_ares_queue_msg_t *) c_ares_queue_head->data;
+    c_ares_queue_head = g_list_remove(c_ares_queue_head, (void *) caqm);
+    if (caqm->family == AF_INET) {
+      ares_gethostbyaddr(alchan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
+        c_ares_ghba_cb, caqm);
+      c_ares_in_flight++;
+    } else if (caqm->family == AF_INET6) {
+      ares_gethostbyaddr(alchan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
+        AF_INET, c_ares_ghba_cb, caqm);
+      c_ares_in_flight++;
+    }
+  }
+
+  FD_ZERO(&rfds);
+  FD_ZERO(&wfds);
+  nfds = ares_fds(alchan, &rfds, &wfds);
+  if (nfds > 0) {
+    select(nfds, &rfds, &wfds, NULL, &tv);
+    ares_process(alchan, &rfds, &wfds);
+  }
+
+  /* Keep the timeout in place */
+  return TRUE;
+}
+
+void
+host_name_lookup_cleanup(void) {
+  GList *cur;
+
+  cur = g_list_first(c_ares_queue_head);
+  while (cur) {
+    g_free(cur->data);
+  }
+
+  g_list_free(c_ares_queue_head);
+
+  if (c_ares_initialized)
+    ares_destroy(alchan);
+  c_ares_initialized = FALSE;
+}
+
+#elif defined(HAVE_GNU_ADNS)
 
 /* XXX - The ADNS "documentation" isn't very clear:
  * - Do we need to keep our query structures around?
@@ -2194,7 +2359,7 @@ host_name_lookup_process(gpointer data _U_) {
   adns_queue_head = g_list_first(adns_queue_head);
 
   cur = adns_queue_head;
-  while (cur && adns_currently_queued <= prefs.name_resolve_concurrency) {
+  while (cur && adns_in_flight <= prefs.name_resolve_concurrency) {
     almsg = (adns_queue_msg_t *) cur->data;
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
@@ -2203,7 +2368,7 @@ host_name_lookup_process(gpointer data _U_) {
       /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
       almsg->submitted = TRUE;
-      adns_currently_queued++;
+      adns_in_flight++;
     }
     cur = cur->next;
   }
@@ -2225,7 +2390,7 @@ host_name_lookup_process(gpointer data _U_) {
     if (dequeue) {
       adns_queue_head = g_list_remove(adns_queue_head, (void *) almsg);
       g_free(almsg);
-      adns_currently_queued--;
+      adns_in_flight--;
     }
   }
 
@@ -2246,9 +2411,10 @@ host_name_lookup_cleanup(void) {
 
   if (gnu_adns_initialized)
     adns_finish(ads);
+  gnu_adns_initialized = FALSE;
 }
 
-#else
+#else /* HAVE_GNU_ADNS */
 
 gboolean
 host_name_lookup_process(gpointer data _U_) {
@@ -2260,7 +2426,7 @@ void
 host_name_lookup_cleanup(void) {
 }
 
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
 extern const gchar *get_hostname(guint addr)
 {

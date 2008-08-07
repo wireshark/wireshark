@@ -305,6 +305,9 @@ File "${GETTEXT_DIR}\bin\intl.dll"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
+!ifdef C_ARES_DIR
+File "${C_ARES_DIR}\cares.dll"
+!endif
 !ifdef ADNS_DIR
 File "${ADNS_DIR}\..\${MSVC_VARIANT}\adns\adns_dll.dll"
 !endif

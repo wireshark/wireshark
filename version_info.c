@@ -216,6 +216,14 @@ get_epan_compiled_version_info(GString *str)
 	g_string_append(str, "without SMI");
 #endif /* _SMI_H */
 
+	/* c-ares */
+	g_string_append(str, ", ");
+#ifdef HAVE_C_ARES
+	g_string_append(str, "with c-ares");
+#else
+	g_string_append(str, "without c-ares");
+#endif /* HAVE_C_ARES */
+
 	/* ADNS */
 	g_string_append(str, ", ");
 #ifdef HAVE_GNU_ADNS

@@ -132,6 +132,9 @@ wireshark-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.
 	/DGETTEXT_DIR=$(GETTEXT_DIR) \
 	/DVERSION=$(VERSION) \
 	/DWTAP_VERSION=$(WTAP_VERSION) \
+!IF "$(C_ARES_DIR)" != ""
+	/DC_ARES_DIR=$(C_ARES_DIR) \
+!ENDIF
 !IF "$(ADNS_DIR)" != ""
 	/DADNS_DIR=$(ADNS_DIR) \
 !ENDIF

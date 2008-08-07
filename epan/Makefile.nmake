@@ -12,7 +12,8 @@ include Makefile.common
 LINK= link
 
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
-	$(ZLIB_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
+	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) \
+	$(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(SMI_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
@@ -28,6 +29,7 @@ WSLUA_DIR=
 # For use when making libwireshark.dll
 libwireshark_LIBS = \
 	$(GLIB_LIBS)	\
+	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(KFW_LIBS) \
@@ -108,8 +110,8 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 
 clean-local:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
-		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp libwireshark.pdb \
-		vc60.pdb vc80.pdb doxygen.cfg html/*.* \
+		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp \
+		*.pdb doxygen.cfg html/*.* \
 		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
 	if exist html rmdir html	
 

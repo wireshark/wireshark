@@ -45,16 +45,16 @@
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"
 #define T_RESOLVE_KEY	"t_resolve"
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 # define C_RESOLVE_KEY	"c_resolve"
 # define RESOLVE_CONCURRENCY_KEY "resolve_concurrency"
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 #define SP_RESOLVE_KEY	"sp_resolve"
 #define SM_RESOLVE_KEY	"sm_resolve"
 #endif
 
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 # ifdef HAVE_LIBSMI
 #  define RESOLV_TABLE_ROWS 7
 # else
@@ -66,7 +66,7 @@
 # else
 #  define RESOLV_TABLE_ROWS 3
 # endif
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 GtkWidget*
 nameres_prefs_show(void)
 {
@@ -74,10 +74,10 @@ nameres_prefs_show(void)
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
 	GtkTooltips *tooltips = gtk_tooltips_new();
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	GtkWidget	*c_resolv_cb, *resolv_concurrency_te;
 	char		concur_str[10+1];
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	GtkWidget	*sp_resolv_cb, *sm_resolv_cb;
 	uat_t *smi_paths_uat;
@@ -126,7 +126,7 @@ nameres_prefs_show(void)
 	    prefs.name_resolve & RESOLV_TRANSPORT);
 	g_object_set_data(G_OBJECT(main_vb), T_RESOLVE_KEY, t_resolv_cb);
 
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	/* Enable concurrent (asynchronous) DNS lookups */
 	table_row++;
 	c_resolv_cb = create_preference_check_button(main_tb, table_row,
@@ -141,7 +141,7 @@ nameres_prefs_show(void)
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	g_object_set_data(G_OBJECT(main_vb), RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	/* SMI paths UAT */
 	smi_paths_uat = uat_get_table_by_name("SMI Paths");
@@ -178,9 +178,9 @@ void
 nameres_prefs_fetch(GtkWidget *w)
 {
 	GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	GtkWidget *c_resolv_cb, *resolv_concurrency_te;
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	GtkWidget *sp_resolv_cb, *sm_resolv_cb;
 #endif
@@ -188,11 +188,11 @@ nameres_prefs_fetch(GtkWidget *w)
 	m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), M_RESOLVE_KEY);
 	n_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), N_RESOLVE_KEY);
 	t_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), T_RESOLVE_KEY);
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	c_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), C_RESOLVE_KEY);
 
 	resolv_concurrency_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), RESOLVE_CONCURRENCY_KEY);
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	sp_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SP_RESOLVE_KEY);
 	sm_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SM_RESOLVE_KEY);
@@ -202,12 +202,12 @@ nameres_prefs_fetch(GtkWidget *w)
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE);
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE);
-#ifdef HAVE_GNU_ADNS
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (c_resolv_cb)->active ? RESOLV_CONCURRENT : RESOLV_NONE);
 
 	prefs.name_resolve_concurrency = strtol (gtk_entry_get_text(
 		GTK_ENTRY(resolv_concurrency_te)), NULL, 10);
-#endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 }
 
 void

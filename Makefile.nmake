@@ -17,7 +17,8 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 CFLAGS=-WX -DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	$(AIRPCAP_CFLAGS) \
-	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(LUA_CFLAGS) $(SMI_CFLAGS) \
+	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
+	$(LUA_CFLAGS) $(SMI_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
@@ -64,6 +65,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\crypt\airpdcap.lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -82,6 +84,7 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\crypt\airpdcap.lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -100,6 +103,7 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\crypt\airpdcap.lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -141,6 +145,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dissectors\dissectors.lib \
 	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -163,7 +168,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
+all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
 
 packaging: all
 	cd packaging
@@ -307,6 +312,7 @@ dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj 
 
 config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
+	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
 	    -e "s/@HAVE_PCRE@/$(PCRE_CONFIG)/" \
  	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
@@ -724,6 +730,10 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		AirPcap_Devpack_1_0_0_594 AirPcap_Devpack_1_0_0_594.zip
 !ENDIF
+!IFDEF C_ARES_DIR
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		. c-ares-1.5.2ws.zip
+!ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. adns-1.0-win32-05ws.zip
@@ -832,6 +842,7 @@ process_libs:
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05ws
+    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.2ws
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
@@ -1033,6 +1044,9 @@ install-all: install-generated-files
 	xcopy $(GETTEXT_DIR)\bin\intl.dll $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
 	xcopy $(ZLIB_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF C_ARES_DIR
+	xcopy $(C_ARES_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF ADNS_DIR
 	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
