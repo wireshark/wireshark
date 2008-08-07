@@ -374,6 +374,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-eapol.c		\
 	packet-echo.c		\
 	packet-edonkey.c	\
+	packet-egd.c		\
 	packet-eigrp.c		\
 	packet-enc.c		\
 	packet-enip.c		\
