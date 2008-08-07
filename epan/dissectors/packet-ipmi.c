@@ -43,6 +43,12 @@
 
 #include "packet-ipmi.h"
 
+/*
+ * See the IPMI specifications at
+ *
+ *	http://www.intel.com/design/servers/ipmi/
+ */
+
 /* Define IPMI_DEBUG to enable printing the process of request-response pairing */
 /* #define IPMI_DEBUG */
 
