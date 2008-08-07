@@ -520,7 +520,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
 				switch(*(++s)) {
 					case 'a': *(p++) = '\a'; len++; break;
 					case 'b': *(p++) = '\b'; len++; break;
-					case 'e': *(p++) = '\033' /* '\e' is non ANSI-C */; len++; printf("."); break;
+					case 'e': *(p++) = '\033' /* '\e' is non ANSI-C */; len++; break;
 					case 'f': *(p++) = '\f'; len++; break;
 					case 'n': *(p++) = '\n'; len++; break;
 					case 'r': *(p++) = '\r'; len++; break;
