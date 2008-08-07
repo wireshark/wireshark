@@ -531,20 +531,13 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   gtk_container_set_border_width( GTK_CONTAINER(gui_font_pg), 5 );
 
-  /* IMPORTANT: the following gtk_font_selection_set_xy() functions will only
-     work, if the widget and it's corresponding window is already shown
+  /* IMPORTANT: the following gtk_font_selection_set_font_name() function will
+     only work if the widget and it's corresponding window is already shown
      (so don't put the following into gui_font_prefs_show()) !!! */
 
-  /* We set the current font and, for GTK+ 1.2[.x], the font filter
-     now, because they appear not to work when run before appending
-     the frame to the notebook. */
+  /* We set the current font now, because setting it appears not to work 
+     when run before appending the frame to the notebook. */
 
-  /* Set the font to the current font.
-     XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
-     wherein that doesn't necessarily cause that font to be
-     selected in the dialog box.  I've sent to the GTK+ folk
-     a fix; hopefully, it'll show up in 1.2.9 if, as, and when
-     they put out a 1.2.9 release. */
   gtk_font_selection_set_font_name(
 	    GTK_FONT_SELECTION(gui_font_pg), prefs.gui_font_name);
 
