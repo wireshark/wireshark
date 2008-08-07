@@ -51,7 +51,7 @@
  * 0x30..0x3f. Note that the commands which bear defining body signature
  * (netFns 0x2c..0x2f) are registered with IPMI_OEM_NONE, as they can be
  * recognized. */
-enum ipmi_oem_selector {
+enum {
 	IPMI_OEM_NONE = 0,
 	IPMI_OEM_PPS		/* Pigeon Point Systems extensions */
 };
@@ -97,7 +97,7 @@ gboolean ipmi_getsaveddata(guint idx, guint32 *val);
 typedef struct ipmi_netfn_handler {
 	struct ipmi_netfn_handler *next;
 	const char *desc;
-	enum ipmi_oem_selector oem_selector;
+	guint oem_selector;
 	const guint8 *sig;
 	ipmi_cmd_t *cmdtab;
 	guint32 cmdtablen;
@@ -135,7 +135,7 @@ void ipmi_fmt_udpport(gchar *, guint32);
 void ipmi_fmt_percent(gchar *, guint32);
 
 /* Registrar for subparsers */
-void ipmi_register_netfn_cmdtab(guint32 netfn, enum ipmi_oem_selector oem_selector,
+void ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 		const guint8 *sig, guint32 siglen, const char *desc,
 		ipmi_cmd_t *cmdtab, guint32 cmdtablen);
 

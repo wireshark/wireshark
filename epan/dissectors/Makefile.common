@@ -481,6 +481,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ipdc.c		\
 	packet-ipfc.c		\
 	packet-ipmi.c		\
+	packet-ipmi-session.c	\
 	packet-ipp.c		\
 	packet-ipsec.c		\
 	packet-ipsec-tcp.c	\
@@ -963,6 +964,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ip.h	\
 	packet-ipdc.h	\
 	packet-ipfc.h	\
+	packet-ipmi.h	\
 	packet-ipsec.h	\
 	packet-ipv6.h	\
 	packet-ipx.h	\
@@ -1122,10 +1124,23 @@ DISSECTOR_INCLUDES =	\
 	rpc_defrag.h	\
 	$(GENERATED_HEADER_FILES)
 
+# IPMI sub-parsers for each network function code
+IPMI_SUBPARSERS = \
+	packet-ipmi-app.c	\
+	packet-ipmi-bridge.c	\
+	packet-ipmi-chassis.c	\
+	packet-ipmi-picmg.c	\
+	packet-ipmi-se.c	\
+	packet-ipmi-storage.c	\
+	packet-ipmi-transport.c \
+	packet-ipmi-pps.c	\
+	packet-ipmi-update.c
+
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not
 # used to generate "register.c").
 DISSECTOR_SUPPORT_SRC =	\
+	$(IPMI_SUBPARSERS) \
 	packet-dcerpc-nt.c \
 	register.c
 
