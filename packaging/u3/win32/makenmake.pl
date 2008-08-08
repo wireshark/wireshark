@@ -75,14 +75,14 @@ while($line = <>) {
 	    $u3fileloc = "\$(" . uc $1 . ")";
 	}
 
-	print "\t\$(COPY) $file $u3fileloc$dir \$(COPY_FLAGS)\n";
+	print "\t\$(COPY) \"$file\" \"$u3fileloc$dir\" \$(COPY_FLAGS)\n";
 
 	if($line =~ /oname=(\S+)/) { # override this filename
 	    $oname = $1;
 	    $file =~ /\\(.*)$/;
 	    $name = $1;
 
-	    print "\t\$(MOVE) $u3fileloc$dir\\$name $u3fileloc$dir\\$oname\n";
+	    print "\t\$(MOVE) \"$u3fileloc$dir\\$name\" \"$u3fileloc$dir\\$oname\"\n";
 
 	}
 

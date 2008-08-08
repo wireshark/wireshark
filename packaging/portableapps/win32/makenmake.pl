@@ -64,14 +64,14 @@ while($line = <>) {
 
 	$oname = "";
 
-	print "\t\$(COPY) $file \$(FILES)\\\$(APP)\\\$(WIRESHARK)$dir \$(COPY_FLAGS)\n";
+	print "\t\$(COPY) \"$file\" \"\$(FILES)\\\$(APP)\\\$(WIRESHARK)$dir\" \$(COPY_FLAGS)\n";
 
 	if($line =~ /oname=(\S+)/) { # override this filename
 	    $oname = $1;
 	    $file =~ /\\(.*)$/;
 	    $name = $1;
 
-	    print "\t\$(MOVE) \$(FILES)\\\$(APP)\\\$(WIRESHARK)\\$dir\\$name \$(FILES)\\\$(APP)\\\$(WIRESHARK)\\$dir\\$oname\n";
+	    print "\t\$(MOVE) \"\$(FILES)\\\$(APP)\\\$(WIRESHARK)\\$dir\\$name\" \"\$(FILES)\\\$(APP)\\\$(WIRESHARK)\\$dir\\$oname\"\n";
 
 	}
 
