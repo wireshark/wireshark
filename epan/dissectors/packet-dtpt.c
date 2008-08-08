@@ -1,8 +1,9 @@
 /* packet-dtpt.c
- * Routines for DTPT packet dissection
+ * Routines for Microsoft ActiveSync Desktop Pass-Through (DTPT) packet
+ * dissection
  *
  * Uwe Girlich <uwe@planetquake.com>
- *	http://www.synce.org/index.php/DTPT
+ *	http://www.synce.org/moin/ProtocolDocumentation/DesktopPassThrough
  *
  * $Id$
  *
@@ -33,25 +34,12 @@
 
 #include <string.h>
 
-#include <sys/types.h>
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/aftypes.h>
+#include <epan/ipproto.h>
 
 static int proto_dtpt = -1;
 
@@ -184,21 +172,32 @@ static const value_string names_error[] = {
 };
 
 static const value_string names_family[] = {
-	{	AF_INET,	"AF_INET"	},
+	{	WINSOCK_AF_INET,	"AF_INET"	},
 	{	0, NULL	}
 };
 
+/*
+ * Winsock's SOCK_ values.  These are probably the same as they are on
+ * other OSes, as they probably all come from 4.2BSD, but it's still
+ * best to define them ourselves (to avoid problems if other OSes
+ * define them differently, and to avoid having to include system
+ * header files that might require a bunch of other includes).
+ */
+#define WINSOCK_SOCK_STREAM	1
+#define WINSOCK_SOCK_DGRAM	2
+#define WINSOCK_SOCK_RAW	3
+
 static const value_string names_socket_type[] = {
-	{	SOCK_STREAM,	"SOCK_STREAM"	},
-	{	SOCK_DGRAM,	"SOCK_DGRAM"	},
-	{	SOCK_RAW,	"SOCK_RAW"	},
+	{	WINSOCK_SOCK_STREAM,	"SOCK_STREAM"	},
+	{	WINSOCK_SOCK_DGRAM,	"SOCK_DGRAM"	},
+	{	WINSOCK_SOCK_RAW,	"SOCK_RAW"	},
 	{	0, NULL	}
 };
 
 static const value_string names_protocol[] = {
-	{	IPPROTO_IP,	"IPPROTO_IP"	},
-	{	IPPROTO_TCP,	"IPPROTO_TCP"	},
-	{	IPPROTO_UDP,	"IPPROTP_UDP"	},
+	{	IP_PROTO_IP,	"IPPROTO_IP"	},
+	{	IP_PROTO_TCP,	"IPPROTO_TCP"	},
+	{	IP_PROTO_UDP,	"IPPROTP_UDP"	},
 	{	0, NULL	}
 };
 
@@ -359,7 +358,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
 						tvb, offset, 2, family);
 				switch (family) {
-					case AF_INET: {
+					case WINSOCK_AF_INET: {
 						guint16 port;
 						guint32	addr;
 
@@ -383,7 +382,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
 						tvb, offset+0, 4, family);
 				switch (family) {
-					case AF_INET: {
+					case WINSOCK_AF_INET: {
 						guint16 port;
 						guint32	addr;
 

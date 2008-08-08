@@ -1,5 +1,6 @@
 /* aftypes.h
- * AF_ values on various flavors of BSD
+ * AF_ values on various OSes; they're used in some network protocols, as
+ * well as in BSD DLT_NULL headers.
  *
  * $Id$
  *
@@ -39,6 +40,11 @@ extern "C" {
 #define BSD_AF_INET6_BSD	24	/* OpenBSD (and probably NetBSD), BSD/OS */
 #define BSD_AF_INET6_FREEBSD	28
 #define BSD_AF_INET6_DARWIN	30
+
+/* Winsock AF_ values. */
+#define WINSOCK_AF_INET		2
+#define WINSOCK_AF_IPX		6
+#define WINSOCK_AF_INET6	23
 
 #ifdef __cplusplus
 }
