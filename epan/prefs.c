@@ -1161,6 +1161,7 @@ init_prefs(void) {
   prefs.gui_geometry_save_column_width =     FALSE;
   prefs.gui_console_open           = console_open_never;
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
+  prefs.gui_recent_df_entries_max  = 10;
   prefs.gui_recent_files_count_max = 10;
   prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
   prefs.gui_fileopen_preview       = 3;
@@ -1627,6 +1628,7 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
 #define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
 #define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
+#define PRS_GUI_RECENT_DF_ENTRIES_MAX    "gui.recent_display_filter_entries.max"
 #define PRS_GUI_FILEOPEN_DIR             "gui.fileopen.dir"
 #define PRS_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen.remembered_dir"
 #define PRS_GUI_FILEOPEN_PREVIEW         "gui.fileopen.preview"
@@ -1984,6 +1986,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     if (prefs.gui_recent_files_count_max == 0) {
       /* We really should put up a dialog box here ... */
       prefs.gui_recent_files_count_max = 10;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_RECENT_DF_ENTRIES_MAX) == 0) {
+    prefs.gui_recent_df_entries_max = strtoul(value, NULL, 10);
+    if (prefs.gui_recent_df_entries_max == 0) {
+      /* We really should put up a dialog box here ... */
+      prefs.gui_recent_df_entries_max = 10;
     }
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_STYLE) == 0) {
     prefs.gui_fileopen_style =
@@ -2708,6 +2716,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
 		  gui_console_open_text[prefs.gui_console_open]);
+
+  fprintf(pf, "\n# The max. number of entries in the display filter list.\n");
+  fprintf(pf, "# A decimal number.\n");
+  fprintf(pf, PRS_GUI_RECENT_DF_ENTRIES_MAX ": %d\n",
+	          prefs.gui_recent_df_entries_max);
 
   fprintf(pf, "\n# The max. number of items in the open recent files list.\n");
   fprintf(pf, "# A decimal number.\n");

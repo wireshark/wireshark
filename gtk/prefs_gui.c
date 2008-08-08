@@ -56,6 +56,8 @@ static gint fileopen_preview_changed_cb(GtkWidget *myentry _U_, GdkEvent *event,
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
 static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 
 					  GdkEvent *event _U_, gpointer parent_w);
+static gint recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
+					  GdkEvent *event _U_, gpointer parent_w);
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
@@ -67,6 +69,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_FILEOPEN_PREVIEW_KEY "fileopen_preview_timeout"
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
+#define GUI_RECENT_DF_ENTRIES_KEY "recent_display_filter_entries"
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
 #define GUI_WEBBROWSER_KEY	    "webbrowser"
@@ -141,6 +144,9 @@ static GtkWidget *font_browse_w;
 /* Used to contain the string from the Recent Files Count Max pref item */
 static char recent_files_count_max_str[128] = "";
 
+/* Used to contain the string from the Recent Display Filter Max Entries pref item */
+static char recent_df_entries_max_str[128] = "";
+
 /* Used to contain the string from the Open File preview timeout pref item */
 static char open_file_preview_str[128] = "";
 
@@ -156,7 +162,7 @@ gui_prefs_show(void)
 	GtkWidget *console_open_om;
 #endif
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
-	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb, *find_wrap_cb;
+	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
 	GtkWidget *use_pref_save_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb, *save_column_width_cb;
@@ -260,6 +266,14 @@ gui_prefs_show(void)
         "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
 	g_signal_connect(fileopen_preview_te, "focus_out_event", G_CALLBACK(fileopen_preview_changed_cb), main_vb);
+
+	/* Number of recent entries in the display filter list ... */
+	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
+	    "Filter display max. list entries:", "Maximum number of recent entries in filter display list", recent_df_entries_max_str);
+	g_snprintf(current_val_str, 128, "%d", prefs.gui_recent_df_entries_max);
+	gtk_entry_set_text(GTK_ENTRY(recent_df_entries_max_te), current_val_str);
+	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_DF_ENTRIES_KEY, recent_df_entries_max_te);
+	g_signal_connect(recent_df_entries_max_te, "focus_out_event", G_CALLBACK(recent_df_entries_changed_cb), main_vb);
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
@@ -481,6 +495,30 @@ gui_prefs_destroy(GtkWidget *w _U_)
 	}
 }
 
+static gint
+recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
+			      GdkEvent *event _U_, gpointer parent_w)
+{
+    GtkWidget	*recent_df_entries_count_te;
+    guint newval;
+
+    recent_df_entries_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_DF_ENTRIES_KEY);
+
+    /*
+     * Now, just convert the string to a number and store it in the prefs
+     * filed ...
+     */
+
+    newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_df_entries_count_te)), NULL, 10);
+
+    if (newval > 0) {
+      prefs.gui_recent_df_entries_max = newval;
+    }
+
+    /* We really should pop up a nasty dialog box if newval <= 0 */
+
+    return FALSE;
+}
 
 static gint
 recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_, 

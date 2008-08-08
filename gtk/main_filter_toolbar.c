@@ -37,6 +37,8 @@
 #include "filter_dlg.h"
 #include "filter_autocomplete.h"
 
+#include "epan/prefs.h"
+
 #include "keys.h"
 #include "gtkglobals.h"
 #include "stock_icons.h"
@@ -218,9 +220,6 @@ GtkWidget *filter_toolbar_new()
     return filter_tb;
 }
 
-/* XXX: use a preference for this setting! */
-static guint dfilter_combo_max_recent = 10;
-
 /* add a display filter to the combo box */
 /* Note: a new filter string will replace an old identical one */
 static gboolean
@@ -264,7 +263,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 
   /* write all non empty display filter strings to the recent file (until max count) */
   li = g_list_first(dfilter_list);
-  while ( li && (max_count++ <= dfilter_combo_max_recent) ) {
+  while ( li && (max_count++ < prefs.gui_recent_df_entries_max) ) {
     if (strlen(li->data)) {
       fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", (char *)li->data);
     }
@@ -327,7 +326,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 
     if (add_filter) {
       /* trim list size first */
-      while (g_list_length(dfilter_list) >= dfilter_combo_max_recent) {
+      while (g_list_length(dfilter_list) >= prefs.gui_recent_df_entries_max) {
         dfilter_list = g_list_remove(dfilter_list, g_list_first(dfilter_list)->data);
       }
 
