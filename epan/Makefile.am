@@ -128,7 +128,7 @@ libwireshark_la_LIBADD = \
 	dfilter/libdfilter.la dissectors/libcleandissectors.la \
 	dissectors/libdissectors.la dissectors/libasndissectors.la \
 	dissectors/libpidldissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
-	@ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ @KRB5_LIBS@ \
+	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ @KRB5_LIBS@ \
 	@SSL_LIBS@ @LIBSMI_LDFLAGS@ -lm
 libwireshark_la_DEPENDENCIES = \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \

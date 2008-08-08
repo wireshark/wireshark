@@ -317,6 +317,7 @@ wireshark_LDADD = \
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@			\
 	@GTK_LIBS@			\
+	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@FRAMEWORKS@			\
@@ -346,6 +347,7 @@ tshark_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
+	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@FRAMEWORKS@			\
@@ -374,6 +376,7 @@ rawshark_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
+	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@FRAMEWORKS@			\
@@ -418,6 +421,7 @@ randpkt_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
+	@C_ARES_LIBS@			\
 	@ADNS_LIBS@
 
 # Libraries and plugin flags with which to link dftest.
@@ -433,6 +437,7 @@ dftest_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
+	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\

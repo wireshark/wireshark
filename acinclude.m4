@@ -1193,6 +1193,37 @@ AC_DEFUN([AC_WIRESHARK_GNU_SED_CHECK],
 ])
 
 #
+# AC_WIRESHARK_C_ARES_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_C_ARES_CHECK],
+[
+	want_c_ares=defaultyes
+
+	if test "x$want_c_ares" = "xdefaultyes"; then
+		want_c_ares=yes
+		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+			withval=/usr/local
+			if test -d "$withval"; then
+				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			fi
+		fi
+	fi
+
+	if test "x$want_c_ares" = "xyes"; then
+		AC_CHECK_LIB(cares, ares_init,
+		  [
+		    C_ARES_LIBS=-lcares
+	    	AC_DEFINE(HAVE_C_ARES, 1, [Define to use c-ares library])
+		have_good_c_ares=yes
+		  ],, $SOCKET_LIBS $NSL_LIBS
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])
+
+
+#
 # AC_WIRESHARK_ADNS_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],

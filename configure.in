@@ -1194,9 +1194,31 @@ else
 fi
 
 
-dnl ADNS Check
-ADNS_LIBS=''
-AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
+dnl c-ares Check
+C_ARES_LIBS=''
+AC_MSG_CHECKING(whether to use the c-ares library if available)
+
+AC_ARG_WITH(c-ares,
+  AC_HELP_STRING( [--with-c-ares@<:@=DIR@:>@],
+                  [use c-ares (located in directory DIR, if supplied). Supersedes --with-adns.   @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_c_ares=no
+elif test "x$withval" = "xyes"; then
+	want_c_ares=yes
+elif test -d "$withval"; then
+	want_c_ares=yes
+	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$want_c_ares" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_C_ARES_CHECK
+fi
+AC_SUBST(C_ARES_LIBS)
+
 
 AC_ARG_WITH(adns,
   AC_HELP_STRING( [--with-adns@<:@=DIR@:>@],
@@ -1211,7 +1233,7 @@ elif test -d "$withval"; then
 	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
 fi
 ])
-if test "x$with_adns" = "xno" ; then
+if test "x$want_adns" = "xno" -o "x$have_good_c_ares" = "xyes" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
@@ -1639,6 +1661,12 @@ else
 	krb5_message="yes ($ac_krb5_version)"
 fi
 
+if test "x$have_good_c_ares" = "xyes" ; then
+	c_ares_message="yes"
+else
+	c_ares_message="no"
+fi
+
 if test "x$have_good_adns" = "xyes" ; then
 	adns_message="yes"
 else
@@ -1675,6 +1703,7 @@ echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"
 echo "                   Use pcre library : $pcre_message"
 echo "               Use kerberos library : $krb5_message"
+echo "                 Use c-ares library : $c_ares_message"
 echo "               Use GNU ADNS library : $adns_message"
 echo "                Use SMI MIB library : $libsmi_message"
 echo "             Use GNU crypto library : $gcrypt_message"
