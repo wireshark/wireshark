@@ -405,7 +405,7 @@ static int hf_rtcp_xr_stats_devttl = -1;
 static int hf_rtcp_xr_lrr = -1;
 static int hf_rtcp_xr_dlrr = -1;
 static int hf_rtcp_length_check = -1;
-static int hf_rtcp_bye_reason_not_terminated = -1;
+static int hf_rtcp_bye_reason_not_padded = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
 static int hf_rtcp_rtpfb_nack_pid = -1;
 static int hf_rtcp_rtpfb_nack_blp = -1;
@@ -1421,6 +1421,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 {
 	unsigned int chunk          = 1;
 	unsigned int reason_length  = 0;
+	gint reason_offset          = 0;
 	char* reason_text = NULL;
 
 	while ( chunk <= count ) {
@@ -1431,8 +1432,6 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	}
 
 	if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
-		gint reason_offset;
-
 		/* Bye reason consists of an 8 bit length l and a string with length l */
 		reason_length = tvb_get_guint8( tvb, offset );
 		proto_tree_add_item( tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
@@ -1442,27 +1441,31 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 		reason_text = (char*)tvb_get_ephemeral_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
 		offset += reason_length;
-
-		/* Now check that there is a terminating null character */
-		if ((tvb_reported_length_remaining(tvb, offset) < 1) ||
-			(tvb_get_guint8(tvb, offset+1) != '\0')) {
-			proto_item *ti;
-			ti = proto_tree_add_none_format(tree, hf_rtcp_bye_reason_not_terminated,
-			                                tvb, reason_offset, reason_length,
-			                                "Reason string is not NULL-terminated (see RFC3550, section 6.6)");
-			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-			                      "Reason string is not NULL-terminated (see RFC3550, section 6.6)");
-			PROTO_ITEM_SET_GENERATED(ti);
-		}
-		else {
-			offset++;
-		}
 	}
 
-	/* BYE packet padded out if string (including null) didn't fit in previous word */
+	/* BYE packet padded out if string didn't fit in previous word */
 	if (offset % 4)
 	{
-		offset += (4 - (offset % 4));
+		gint pad_size = (4 - (offset % 4));
+		int i;
+
+		/* Check padding */
+		for (i = 0; i < pad_size; i++)
+		{
+			if ((!(tvb_offset_exists(tvb, offset + i))) ||
+			    (tvb_get_guint8(tvb, offset + i) != 0))
+			{
+				proto_item *ti;
+				ti = proto_tree_add_none_format(tree, hf_rtcp_bye_reason_not_padded,
+				                                tvb, reason_offset, reason_length,
+				                                "Reason string is not NULL padded (see RFC3550, section 6.6)");
+				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+				                      "Reason string is not NULL padded (see RFC3550, section 6.6)");
+				PROTO_ITEM_SET_GENERATED(ti);
+			}
+		}
+
+		offset += pad_size;
 	}
 
 	return offset;
@@ -4174,15 +4177,15 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_bye_reason_not_terminated,
+			&hf_rtcp_bye_reason_not_padded,
 			{
-				"BYE reason string not NULL terminated",
-				"rtcp.bye_reason_not_terminated",
+				"BYE reason string not NULL padded",
+				"rtcp.bye_reason_not_padded",
 				FT_NONE,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"RTCP BYE reason string not terminated", HFILL
+				"RTCP BYE reason string not padded", HFILL
 			}
 		},
 		{
