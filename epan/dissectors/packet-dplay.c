@@ -29,14 +29,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -51,10 +43,21 @@ static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static int proto_dplay = -1;
 static dissector_handle_t dplay_handle;
 
+/*
+ * Address family definitions used in the protocol; we don't use the AF_
+ * values for the OS for which we're building, as there's no guarantee
+ * that the definitions for that OS match the ones used in the protocol.
+ *
+ * XXX - check that these match what's used in the protocol; what's
+ * used in the protocol is probably what's defined in Winsock.
+ */
+#define DPLAY_AF_INET		2
+#define DPLAY_AF_IPX		6  /* XXX - sys/socket.h: AF_IPX is 4 ? */
+
 /* Common data fields */
 static int hf_dplay_size = -1;              /* Size of the whole data */
 static int hf_dplay_token = -1;
-static int hf_dplay_saddr_af = -1;          /* AF_INET, as this dissector does not handle IPX yet */
+static int hf_dplay_saddr_af = -1;          /* DPLAY_AF_INET, as this dissector does not handle IPX yet */
 static int hf_dplay_saddr_port = -1;        /* port to use for the reply to this packet */
 static int hf_dplay_saddr_ip = -1;          /* IP to use for the reply to this packet, or 0.0.0.0,
                                                then use the same IP as this packet used. */
@@ -363,8 +366,8 @@ static const value_string dplay_command_val[] = {
 };
 
 static const value_string dplay_af_val[] = {
-    { 0x0002, "AF_INET" },
-    { 0x0006, "AF_IPX" },  /* XXX - sys/socket.h: AF_IPX is 4 ? */
+    { DPLAY_AF_INET, "AF_INET" },
+    { DPLAY_AF_IPX, "AF_IPX" },
     { 0     , NULL},
 };
 
@@ -1206,7 +1209,7 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     token = (token & 0xfff00000) >> 20;
     if (token == 0xfab || token == 0xbab || token == 0xcab) {
       /* Check the s_addr_in structure */
-      if (tvb_get_letohs(tvb, 4) == AF_INET) {
+      if (tvb_get_letohs(tvb, 4) == DPLAY_AF_INET) {
         int offset;
         for (offset = 12; offset <= 20; offset++)
           if (tvb_get_guint8(tvb, offset) != 0)
