@@ -2193,12 +2193,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					count++;
 
-					if (user_data->forward.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(*f_pd);
+					if (user_data->reversed.statinfo.pt == PT_PCMU){
+						sample = ulaw2linear(*r_pd);
 						phtons(pd, sample);
 					}
-					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(*f_pd);
+					else if(user_data->reversed.statinfo.pt == PT_PCMA){
+						sample = alaw2linear(*r_pd);
 						phtons(pd, sample);
 					}
 					else{
@@ -2260,7 +2260,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					else if(r_write_silence > 0) {
 						fread = read(forw_fd, f_pd, 1);
-						switch (user_data->forward.statinfo.reg_pt) {
+						switch (user_data->reversed.statinfo.reg_pt) {
 						case PT_PCMU:
 							*r_pd = SILENCE_PCMU;
 							break;
@@ -2464,7 +2464,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: RTP data with padding!");
-		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
+		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Not all data in all packets was captured!");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_NO_DATA)
