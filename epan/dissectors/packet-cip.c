@@ -88,6 +88,8 @@ static int hf_cip_conpoint16          = -1;
 static int hf_cip_conpoint32          = -1;
 static int hf_cip_symbol              = -1;
 
+static int hf_cip_data                = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_cip           = -1;
 static gint ett_ekey_path     = -1;
@@ -421,69 +423,6 @@ static const value_string cip_class_names_vals[] = {
 
 	{ 0,			NULL                                    }
 };
-
-
-static proto_item*
-add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
-{
-  const guint8 *tmp;
-  char         *tmp2, *tmp2start;
-  proto_item   *pi;
-  int           i,tmp_length,tmp2_length;
-  guint32       octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const char my_hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-
-   if( ( length * 2 ) > 32 )
-   {
-      tmp_length = 16;
-      tmp2_length = 36;
-   }
-   else
-   {
-      tmp_length = length;
-      tmp2_length = ( length * 2 ) + 1;
-   }
-
-
-   /* Throw an exception if tmp_length is negative */
-   tvb_ensure_bytes_exist( tvb, start, tmp_length );
-   tmp = tvb_get_ptr( tvb, start, tmp_length );
-   tmp2 = (char*)ep_alloc( tmp2_length );
-
-   tmp2start = tmp2;
-
-   for( i = 0; i < tmp_length; i++ )
-   {
-      octet = tmp[i];
-      octet >>= 4;
-      *tmp2++ = my_hex_digits[octet&0xF];
-      octet = tmp[i];
-      *tmp2++ = my_hex_digits[octet&0xF];
-   }
-
-   if( tmp_length != length )
-   {
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-   }
-
-   *tmp2 = 0;
-
-   pi = proto_tree_add_text( tree, tvb, start, length, "%s%s", str, tmp2start );
-
-   return( pi );
-
-} /* end of add_byte_array_text_to_proto_tree() */
 
 
 /* Dissect EPATH */
@@ -1053,7 +992,6 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
    unsigned char app_rep_size, i, collision;
    int msg_req_siz, num_services, serv_offset;
 
-
    /* Add Service code & Request/Response tree */
 	rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
 	rrsc_tree = proto_item_add_subtree( rrsc_item, ett_rrsc );
@@ -1241,7 +1179,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                /* Unconnected send response (Success) */
 
                /* Display service response data */
-               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, FALSE);
             }
             else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_MULT_SERV_PACK )
             {
@@ -1296,13 +1234,12 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size, 2, "Attribute Count: %d", att_count );
 
                /* Add the data */
-               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+6+add_stat_size, item_length-6-add_stat_size, "Data: " );
-
+               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+6+add_stat_size, item_length-6-add_stat_size, FALSE);
             } /* End if Multiple service Packet */
             else
    			{
    			   /* Add data */
-               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
+               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, FALSE);
    		   } /* end of check service code */
 
    	   }
@@ -1345,8 +1282,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
             else
             {
                /* Add data */
-               add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Data: " );
-            }
+               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, FALSE);            }
 
          } /* end of if-else( CI_CRC_SUCCESS ) */
 
@@ -1683,7 +1619,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
          else
          {
 		      /* Add data */
-            add_byte_array_text_to_proto_tree( cmd_data_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Data: " );
+            proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, FALSE);
+
          } /* End of check service code */
 
       } /* End of if command-specific data present */
@@ -1884,6 +1821,11 @@ proto_register_cip(void)
 			{ "Class", "cip.fwo.transport",
 			FT_UINT8, BASE_DEC, VALS(cip_con_class_vals), 0x0F,
 			"Fwd Open: Transport Class", HFILL }
+		},
+      { &hf_cip_data,
+			{ "Data", "cip.data",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Data", HFILL }
 		}
    };
 

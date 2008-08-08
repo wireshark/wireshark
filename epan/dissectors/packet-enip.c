@@ -196,65 +196,6 @@ static const value_string enip_interface_handle_vals[] = {
 };
 
 
-static proto_item*
-add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
-{
-  const char *tmp;
-  char       *tmp2, *tmp2start;
-  proto_item *pi;
-  int         i,tmp_length,tmp2_length;
-  guint32     octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const char my_hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-
-   if( ( length * 2 ) > 32 )
-   {
-      tmp_length = 16;
-      tmp2_length = 36;
-   }
-   else
-   {
-      tmp_length = length;
-      tmp2_length = ( length * 2 ) + 1;
-   }
-
-   tmp = (const char *)tvb_get_ptr( tvb, start, tmp_length );
-   tmp2 = (char *)ep_alloc( tmp2_length );
-
-   tmp2start = tmp2;
-
-   for( i = 0; i < tmp_length; i++ )
-   {
-      octet = tmp[i];
-      octet >>= 4;
-      *tmp2++ = my_hex_digits[octet&0xF];
-      octet = tmp[i];
-      *tmp2++ = my_hex_digits[octet&0xF];
-   }
-
-   if( tmp_length != length )
-   {
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-   }
-
-   *tmp2 = '\0';
-
-   pi = proto_tree_add_text( tree, tvb, start, length, "%s%s", str, tmp2start );
-
-   return( pi );
-
-} /* end of add_byte_array_text_to_proto_tree() */
-
 /* Disssect Common Packet Format */
 static void
 dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 ifacehndl )
@@ -343,8 +284,11 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
                else
                {
                   /* Display data */
-                  add_byte_array_text_to_proto_tree( item_tree, tvb, offset+6, item_length, "Data: " );
-
+                  if (tvb_length_remaining(tvb, offset+6) > 0)
+                  {
+                     next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+                     call_dissector(data_handle, next_tvb, pinfo, item_tree);
+                  }
                } /* End of if send unit data */
 
                break;
@@ -493,9 +437,12 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
                break;
 
 
-				default:
-
-               add_byte_array_text_to_proto_tree( item_tree, tvb, offset+6, item_length, "Data: " );
+           default:
+               if (tvb_length_remaining(tvb, offset+6) > 0)
+               {
+                 next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+                 call_dissector(data_handle, next_tvb, pinfo, item_tree);
+               }
                break;
 
 			} /* end of switch( item type ) */
@@ -551,6 +498,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint16  encap_cmd, encap_data_length;
    const char *pkt_type_str = "";
    guint32  ifacehndl;
+   tvbuff_t *next_tvb;
 
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti, *encaph, *csf;
@@ -699,9 +647,12 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case INDICATE_STATUS:
             case CANCEL:
             default:
-
                /* Can not decode - Just show the data */
-               add_byte_array_text_to_proto_tree( header_tree, tvb, 24, encap_data_length, "Encap Data: " );
+               if (tvb_length_remaining(tvb, 24) > 0)
+               {
+                  next_tvb = tvb_new_subset(tvb, 24, encap_data_length, encap_data_length);
+                  call_dissector(data_handle, next_tvb, pinfo, header_tree);
+               }
                break;
 
          } /* end of switch() */
