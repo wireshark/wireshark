@@ -41,6 +41,10 @@ extern "C" {
 #define BSD_AF_INET6_FREEBSD	28
 #define BSD_AF_INET6_DARWIN	30
 
+/* Linux AF_ values. */
+#define LINUX_AF_INET		2
+#define LINUX_AF_INET6		10
+
 /* Winsock AF_ values. */
 #define WINSOCK_AF_INET		2
 #define WINSOCK_AF_IPX		6

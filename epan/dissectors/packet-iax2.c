@@ -6,7 +6,11 @@
  * Copyright 2003 Alastair Maw
  *
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
- * http://www.asterisk.org for more information.
+ * http://www.asterisk.org for more information; see
+ *
+ *	http://www.ietf.org/internet-drafts/draft-guy-iax-04.txt
+ *
+ * for the current Internet-Draft for IAX2.
  *
  * $Id$
  *
@@ -42,6 +46,7 @@
 #include <epan/to_str.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
+#include <epan/aftypes.h>
 
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>
@@ -1110,13 +1115,18 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
         break;
 
       case IAX_IE_APPARENT_ADDR:
-        /* the family is little-endian. That's probably broken, given
-           everything else is big-endian, but that's not our fault.
-        */
+        /* The IAX2 I-D says that the "apparent address" structure
+           "is the same as the linux struct sockaddr_in", without
+           bothering to note that the address family field is in
+           *host* byte order in that structure (the I-D seems to be
+           assuming that "everything is a Vax^Wx86 or x86-64" with
+           the address family field being little-endian).
+          
+           This means the address family values are the Linux
+           address family values. */
         apparent_addr_family = tvb_get_letohs(tvb, offset+2);
         switch( apparent_addr_family ) {
-          /* these come from linux/socket.h */
-          case 2: /* AF_INET */
+          case LINUX_AF_INET:
             /* IAX is always over UDP */
             ie_data->peer_ptype = PT_UDP;
             ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
@@ -1200,15 +1210,20 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	  ie_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
 	  sockaddr_tree = proto_item_add_subtree(ie_item, ett_iax2_ies_apparent_addr);
 
-	  /* the family is little-endian. That's probably broken, given
-	     everything else is big-endian, but that's not our fault.
-	  */
+          /* The IAX2 I-D says that the "apparent address" structure
+             "is the same as the linux struct sockaddr_in", without
+             bothering to note that the address family field is in
+             *host* byte order in that structure (the I-D seems to be
+             assuming that "everything is a Vax^Wx86 or x86-64" with
+             the address family field being little-endian).
+            
+             This means the address family values are the Linux
+             address family values. */
 	  apparent_addr_family = tvb_get_letohs(tvb, offset+2);
 	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 	      
 	  switch(  apparent_addr_family ) {
-	    /* these come from linux/socket.h */
-	    case 2: /* AF_INET */
+	    case LINUX_AF_INET:
 	    {
 	      guint32 addr;
 	      proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
