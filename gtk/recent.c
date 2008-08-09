@@ -78,7 +78,6 @@
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
 #define RECENT_KEY_PRIVS_WARN_IF_NO_NPF     "privs.warn_if_no_npf"
-#define RECENT_KEY_HAS_RECENT_COMMON        "recent.has_recent_common"
 
 #define RECENT_FILE_NAME "recent"
 #define RECENT_COMMON_FILE_NAME "recent_common"
@@ -358,10 +357,6 @@ write_profile_recent(void)
 		  recent.gui_geometry_main_lower_pane);
   }
 
-  fprintf(rf, "\n# This configuration has a recent_common file.\n");
-  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(rf, RECENT_KEY_HAS_RECENT_COMMON ": TRUE\n");
-
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
   packet_list_recent_write_all(rf);
@@ -605,13 +600,6 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
-  } else if (strcmp(key, RECENT_KEY_HAS_RECENT_COMMON) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-        recent.has_recent_common = TRUE;
-    }
-    else {
-        recent.has_recent_common = FALSE;
-    }
   } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
@@ -759,7 +747,6 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   recent.privs_warn_if_elevated = TRUE;
   recent.privs_warn_if_no_npf = TRUE;
-  recent.has_recent_common = FALSE;
 
   recent.col_width_list = NULL;
 
@@ -792,7 +779,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 void
 recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
 {
-  char       *rf_path;
+  char       *rf_path, *rf_common_path;
   FILE       *rf;
 
   /* set defaults */
@@ -830,12 +817,14 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
     fclose(rf);
-    if (!recent.has_recent_common) {
+    rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
+    if (!file_exists(rf_common_path)) {
       /* Read older common settings from recent file */
       rf = ws_fopen(rf_path, "r");
       read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
       fclose(rf);
     }
+    g_free(rf_common_path);
     g_free(rf_path);
     rf_path = NULL;
   } else {
@@ -858,9 +847,10 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
 
   /* Construct the pathname of the user's recent file. */
-  if (recent.has_recent_common) {
-    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
-  } else {
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
+  if (!file_exists (rf_path)) {
+    /* Recent common file does not exist, read from recent */
+    g_free (rf_path);
     rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
   }
 
