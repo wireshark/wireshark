@@ -705,9 +705,14 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint16 type = tvb_get_letohs(tvb, 2);
 	/*guint16 class = tvb_get_letohs(tvb, 0);*/
 	proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
-	frag = se_alloc(sizeof(ts2_frag));
-	frag->frag_num=0;
-	
+
+    
+	/* Get our stored fragmentation data or create one! */
+	if ( ! ( frag = p_get_proto_data(pinfo->fd, proto_ts2) ) ) {
+        frag = se_alloc(sizeof(ts2_frag));
+        frag->frag_num=0;
+	}
+
 	/* decide if the packet is server to client or client to server
 	 * then check its fragmentation
 	 */
