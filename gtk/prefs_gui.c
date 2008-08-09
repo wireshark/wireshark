@@ -63,7 +63,6 @@ static gint recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
-#define GEOMETRY_COLUMN_WIDTH_KEY	"geometry_column_width"
 
 #define GUI_CONSOLE_OPEN_KEY "console_open"
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
@@ -165,7 +164,7 @@ gui_prefs_show(void)
 	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
 	GtkWidget *use_pref_save_cb;
 	GtkWidget *webbrowser_te;
-	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb, *save_column_width_cb;
+	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
@@ -222,12 +221,6 @@ gui_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, save_maximized_cb, "Whether to save the "
 		"maximed state of the main window.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
-
-	save_column_width_cb = create_preference_check_button(main_tb, pos++,
-	    "Save column widths:", NULL, prefs.gui_geometry_save_column_width);
-	gtk_tooltips_set_tip(tooltips, save_column_width_cb, "Whether to save the "
-		"column widths.", NULL);
-	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_COLUMN_WIDTH_KEY, save_column_width_cb);
 
 #ifdef _WIN32
 	/* How the console window should be opened */
@@ -385,8 +378,7 @@ gui_prefs_fetch(GtkWidget *w)
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
-	prefs.gui_geometry_save_column_width =
-	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_COLUMN_WIDTH_KEY));
+
 #ifdef _WIN32
 	prefs.gui_console_open = fetch_enum_value(
 	    g_object_get_data(G_OBJECT(w), GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
@@ -444,7 +436,7 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 
 	if (font_changed) {
 		/* This redraws the hex dump windows. */
-		switch (user_font_apply(FALSE)) {
+		switch (user_font_apply()) {
 
 		case FA_SUCCESS:
 			break;

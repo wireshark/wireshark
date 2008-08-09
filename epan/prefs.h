@@ -123,7 +123,6 @@ typedef struct _e_prefs {
   gboolean gui_geometry_save_position;
   gboolean gui_geometry_save_size;
   gboolean gui_geometry_save_maximized;
-  gboolean gui_geometry_save_column_width;
   console_open_e gui_console_open;
   guint    gui_recent_df_entries_max;
   guint    gui_recent_files_count_max;

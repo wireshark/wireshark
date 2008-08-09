@@ -440,7 +440,7 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 
 /* Set the font of the packet list window. */
 void
-packet_list_set_font(PangoFontDescription *font, gboolean saved_column_width)
+packet_list_set_font(PangoFontDescription *font)
 {
 	int i;
 	gint col_width;
@@ -455,10 +455,7 @@ packet_list_set_font(PangoFontDescription *font, gboolean saved_column_width)
 
 	/* Compute default column sizes. */
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
-		col_width = -1;
-		if (saved_column_width) {
-			col_width = recent_get_column_width(i);
-		}
+		col_width = recent_get_column_width(i);
 		if (col_width == -1) {
 			layout = gtk_widget_create_pango_layout(packet_list,
 			   get_column_width_string(get_column_format(i), i));
@@ -498,7 +495,7 @@ packet_list_new(e_prefs *prefs)
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
     packet_list_set_sel_browse(prefs->gui_plist_sel_browse, FALSE);
-    packet_list_set_font(user_font_get_regular(), prefs->gui_geometry_save_column_width);
+    packet_list_set_font(user_font_get_regular());
     gtk_widget_set_name(packet_list, "packet list");
     g_signal_connect(packet_list, "select-row", G_CALLBACK(packet_list_select_cb), NULL);
     g_signal_connect(packet_list, "unselect-row", G_CALLBACK(packet_list_unselect_cb), NULL);
@@ -814,9 +811,7 @@ packet_list_set_time_width(gint col_fmt, gint column)
     gint      width = -1;
     PangoLayout  *layout;
 
-    if (prefs.gui_geometry_save_column_width) {
-      width = recent_get_column_width(column);
-    }
+    width = recent_get_column_width(column);
     if (width == -1) {
         layout = gtk_widget_create_pango_layout(packet_list,
                      get_column_longest_string(col_fmt));

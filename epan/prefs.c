@@ -1158,7 +1158,6 @@ init_prefs(void) {
   prefs.gui_geometry_save_position =         FALSE;
   prefs.gui_geometry_save_size     =         TRUE;
   prefs.gui_geometry_save_maximized=         TRUE;
-  prefs.gui_geometry_save_column_width =     FALSE;
   prefs.gui_console_open           = console_open_never;
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
   prefs.gui_recent_df_entries_max  = 10;
@@ -1638,7 +1637,6 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_GEOMETRY_SAVE_POSITION   "gui.geometry.save.position"
 #define PRS_GUI_GEOMETRY_SAVE_SIZE       "gui.geometry.save.size"
 #define PRS_GUI_GEOMETRY_SAVE_MAXIMIZED  "gui.geometry.save.maximized"
-#define PRS_GUI_GEOMETRY_SAVE_COLUMN_WIDTH "gui.geometry.save.column_width"
 #define PRS_GUI_GEOMETRY_MAIN_X          "gui.geometry.main.x"
 #define PRS_GUI_GEOMETRY_MAIN_Y          "gui.geometry.main.y"
 #define PRS_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry.main.width"
@@ -1965,13 +1963,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     }
     else {
 	    prefs.gui_geometry_save_maximized = FALSE;
-    }
-  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_COLUMN_WIDTH) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-	    prefs.gui_geometry_save_column_width = TRUE;
-    }
-    else {
-	    prefs.gui_geometry_save_column_width = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_X) == 0) {         /* deprecated */
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {         /* deprecated */
@@ -2707,11 +2698,6 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n# Save packet list column widths?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_COLUMN_WIDTH ": %s\n",
-		  prefs.gui_geometry_save_column_width == TRUE ? "TRUE" : "FALSE");
-
   fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
@@ -3024,7 +3010,6 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
   dest->gui_geometry_save_size = src->gui_geometry_save_size;
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
-  dest->gui_geometry_save_column_width = src->gui_geometry_save_column_width;
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
   dest->gui_window_title = g_strdup(src->gui_window_title);
   dest->console_log_level = src->console_log_level;

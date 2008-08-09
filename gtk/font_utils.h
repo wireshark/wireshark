@@ -49,11 +49,9 @@ typedef enum {
 /** Applies a new user font, corresponding to the preferences font name and recent zoom level. 
  *  Will also redraw the screen.
  *
- * @param saved_column_width set if using saved column widths
- *
  * @return if the new font could be set or not
  */
-extern fa_ret_t user_font_apply(gboolean saved_column_width);
+extern fa_ret_t user_font_apply(void);
 
 /** Test, if the given font name is available.
  *

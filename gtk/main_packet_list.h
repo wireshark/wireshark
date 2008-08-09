@@ -94,9 +94,8 @@ extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
 /** Set the font of the packet list.
  *
  * @param font the new font
- * @param saved_column_width set if using saved column widths
  */
-extern void packet_list_set_font(PangoFontDescription *font, gboolean saved_column_width);
+extern void packet_list_set_font(PangoFontDescription *font);
 
 /** Set the selection mode of the packet list window.
  *

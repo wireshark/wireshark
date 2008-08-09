@@ -2444,7 +2444,7 @@ main(int argc, char *argv[])
   menu_auto_scroll_live_changed(auto_scroll_live);
 #endif
 
-  switch (user_font_apply(prefs->gui_geometry_save_column_width)) {
+  switch (user_font_apply()) {
   case FA_SUCCESS:
       break;
   case FA_FONT_NOT_RESIZEABLE:
@@ -3305,5 +3305,5 @@ void change_configuration_profile (const gchar *profile_name)
    packet_list_recreate ();
    status_expert_update();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
-   user_font_apply(prefs.gui_geometry_save_column_width);
+   user_font_apply();
 }
