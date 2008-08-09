@@ -923,7 +923,7 @@ osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install; \
 		cd $(srcdir)/packaging/macosx ;  \
-		./osx-app.sh -bp ../staging/$(PACKAGE).inst/$(bindir) ; \
+		./osx-app.sh -bp ../staging/$(PACKAGE).inst$(bindir) ; \
 	else \
 		echo "Error: OS X packaging tools not found." ; \
 		echo "Package build abandoned." ; \
