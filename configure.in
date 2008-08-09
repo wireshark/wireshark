@@ -447,6 +447,30 @@ darwin*)
 esac
 AC_SUBST(FRAMEWORKS)
 
+#
+# If using $prefix we add "$prefix/include" to the include search path
+# and "$prefix/lib" to the library search path.
+#
+if test "x$prefix" != "x" ; then
+	AC_MSG_CHECKING(whether to use $prefix for headers and libraries)
+	if test -d $prefix/include ; then
+		AC_MSG_RESULT(yes)
+		#
+		# Arrange that we search for header files in "$prefix/include", as
+		# various packages we use may have been installed under "$prefix/include".
+		#
+		CFLAGS="$CFLAGS -I$prefix/include"
+		CPPFLAGS="$CPPFLAGS -I$prefix/include"
+
+		#
+		# Arrange that we search for libraries in "$prefix/lib".
+		#
+		AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $prefix/lib)
+	else
+		AC_MSG_RESULT(no)
+	fi
+fi
+
 dnl Look in /usr/local for header files and libraries ?
 dnl XXX FIXME don't include /usr/local if it is already in the system
 dnl search path as this causes gcc 3.2 on Linux to complain about a change
