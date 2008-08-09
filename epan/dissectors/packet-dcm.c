@@ -3353,10 +3353,10 @@ From 3.7 Annex D Association Negotiation
     1 Reserved
     2 Item-length
     1 User-Identity-Type  Field value shall be in the range 1 to 4 with the following meanings:
-        1 – Username as a string in UTF-8
-        2 – Username as a string in UTF-8 and passcode
-        3 – Kerberos Service ticket
-        4 – SAML Assertion
+        1 - Username as a string in UTF-8
+        2 - Username as a string in UTF-8 and passcode
+        3 - Kerberos Service ticket
+        4 - SAML Assertion
         Other values are reserved for future standardization.
     1 Positive-response-requested Field value:
         0 - no response requested
