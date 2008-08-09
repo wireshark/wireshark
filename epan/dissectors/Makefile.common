@@ -748,6 +748,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-tapa.c		\
 	packet-tcp.c		\
 	packet-tds.c		\
+	packet-teamspeak2.c	\
 	packet-teimanagement.c	\
 	packet-telnet.c		\
 	packet-teredo.c		\

@@ -2765,7 +2765,11 @@ Brian Stormont		<nospam [AT] stormyprods.com> {
 }
 
 Vincent Helfre           <vincent.helfre [AT] ericsson.com> {
- SNDCP XID dissection
+	SNDCP XID dissection
+}
+
+Brooss			<brooss.teambb [AT] gmail.com> {
+	Teamspeak2 dissector
 }
 
 and by:
