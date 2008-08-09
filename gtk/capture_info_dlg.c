@@ -89,15 +89,26 @@ pct(gint num, gint denom) {
   }
 }
 
-static gboolean
-capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
-  capture_options *capture_opts = data;
+/* Workhorse for stopping capture */
+static void
+capture_info_stop(capture_options *capture_opts)
+{
 #ifdef HAVE_AIRPCAP
   airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
-
   capture_stop(capture_opts);
+}
+
+/* GTK signals for "delete" and "clicked" events. Note they have different signatures */
+static gboolean
+capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
+  capture_info_stop(data);
   return TRUE;
+}
+
+static void
+capture_info_stop_clicked_cb(GtkButton *w _U_, gpointer data) {
+  capture_info_stop(data);
 }
 
 static gboolean
@@ -264,7 +275,7 @@ capture_options	*capture_opts)
 
   stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
   window_set_cancel_button(info->cap_w, stop_bt, NULL);
-  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_info_delete_cb), capture_opts);
+  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_info_stop_clicked_cb), capture_opts);
   g_signal_connect(info->cap_w, "delete_event", G_CALLBACK(capture_info_delete_cb), capture_opts);
 
   ci_help = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
