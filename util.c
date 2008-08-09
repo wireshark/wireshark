@@ -175,7 +175,7 @@ const gchar *get_conn_cfilter(void) {
 		/*
 		 * This mirrors what _X11TransConnectDisplay() does.
 		 * Note that, on some systems, the hostname can
-		 * being with "/", which means that it's a pathname
+		 * begin with "/", which means that it's a pathname
 		 * of a UNIX domain socket to connect to.
 		 *
 		 * The comments mirror those in _X11TransConnectDisplay(),
