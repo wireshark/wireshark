@@ -49,7 +49,7 @@ AC_DEFUN([AX_LIBSMI],
             ac_libsmi_ldflags="-L$ac_libsmi_path/lib"
             ac_libsmi_cflags="-I$ac_libsmi_path/include"
         else
-            for ac_libsmi_path_tmp in /usr /usr/local /opt ; do
+            for ac_libsmi_path_tmp in /usr /usr/local /opt $prefix; do
                 if test -f "$ac_libsmi_path_tmp/include/$ac_libsmi_header" \
                     && test -r "$ac_libsmi_path_tmp/include/$ac_libsmi_header"; then
                     ac_libsmi_path=$ac_libsmi_path_tmp
