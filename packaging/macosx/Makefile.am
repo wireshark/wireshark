@@ -76,3 +76,6 @@ EXTRA_DIST = \
 	ScriptExec/version.plist	\
 	utility-launcher	\
 	wireshark.ds_store
+
+clean-local:
+	rm -rf Utilities Wireshark.app ScriptExec/build
