@@ -255,7 +255,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     if (pr >= 0.0 || pr <= 1.0) {
         ops->update_progress(pd->pw, (float) pr, task);
     } else {
-        WSLUA_ERROR(ProgDlg_update,"progress value out of range (0.0 <= pr <= 1.0)");
+        WSLUA_ERROR(ProgDlg_update,"progress value out of range (must be between 0.0 and 1.0)");
     }
     
     return 0;
