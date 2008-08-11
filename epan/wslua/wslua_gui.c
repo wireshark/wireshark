@@ -219,6 +219,129 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 
 
+WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
+
+WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
+#define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
+#define WSLUA_OPTARG_ProgDlg_new_TASK 3  /* Current task, defaults to "". */
+    ProgDlg pd = g_malloc(sizeof(struct _wslua_progdlg));
+    pd->title = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TITLE,"Progress"));
+    pd->task = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TASK,""));
+    pd->stopped = FALSE;
+    
+    if (ops->new_progress_window) {
+        pd->pw = ops->new_progress_window(pd->title,pd->task,TRUE,&(pd->stopped));
+    }
+    
+    pushProgDlg(L,pd);
+    
+	WSLUA_RETURN(1); /* The newly created TextWindow object. */
+}
+
+WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
+#define WSLUA_ARG_ProgDlg_update_PROGRESS 2  /* Part done ( e.g. 0.75 ). */
+#define WSLUA_OPTARG_ProgDlg_update_TASK 3  /* Current task, defaults to "". */
+    ProgDlg pd = checkProgDlg(L,1);
+    double pr = lua_tonumber(L,WSLUA_ARG_ProgDlg_update_PROGRESS);
+    const gchar* task = luaL_optstring(L,WSLUA_OPTARG_ProgDlg_update_TASK,"");
+    
+    g_free(pd->task);
+    pd->task = g_strdup(task);
+
+	if (!pd) {
+		WSLUA_ERROR(ProgDlg_update,"cannot be called for something not a ProgDlg");
+    }
+    
+    if (pr >= 0.0 || pr <= 1.0) {
+        ops->update_progress(pd->pw, (float) pr, task);
+    } else {
+        WSLUA_ERROR(ProgDlg_update,"progress value out of range (0.0 <= pr <= 1.0)");
+    }
+    
+    return 0;
+}
+
+WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has pressed the stop button.  */
+    ProgDlg pd = checkProgDlg(L,1);
+    
+	if (!pd) {
+		WSLUA_ERROR(ProgDlg_stopped,"cannot be called for something not a ProgDlg");
+    }
+    
+    lua_pushboolean(L,pd->stopped);
+    
+	WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
+}
+
+
+
+WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
+    ProgDlg pd = checkProgDlg(L,1);
+    
+	if (!pd) {
+		WSLUA_ERROR(ProgDlg_update,"cannot be called for something not a ProgDlg");
+    }
+
+    if (pd->pw) {
+        ops->destroy_progress_window(pd->pw);
+        pd->pw = NULL;
+    }
+    return 0;
+}
+
+
+static int ProgDlg__tostring(lua_State* L) { 
+    ProgDlg pd = checkProgDlg(L,1);
+    
+    if (pd) {
+        lua_pushstring(L,ep_strdup_printf("%sstopped",pd->stopped?"":"not "));
+    } else {
+        luaL_error(L, "ProgDlg__tostring has being passed something else!");
+    }
+	
+    return 0;
+}
+
+static int ProgDlg__gc(lua_State* L) { 
+    ProgDlg pd = checkProgDlg(L,1);
+    
+    if (pd) {
+        if (pd->pw) ops->destroy_progress_window(pd->pw);
+        
+        g_free(pd);
+    } else {
+        luaL_error(L, "ProgDlg__gc has being passed something else!");
+    }
+	
+    return 0;
+}
+
+
+WSLUA_METHODS ProgDlg_methods[] = {
+    {"new",ProgDlg_new},
+    {"update",ProgDlg_update},
+    {"stopped",ProgDlg_stopped},
+    {"close",ProgDlg_close},
+    {0, 0}
+};
+
+WSLUA_META ProgDlg_meta[] = {
+    {"__tostring", ProgDlg__tostring},
+    {"__gc", ProgDlg__gc},
+    {0, 0}
+};
+
+int ProgDlg_register(lua_State* L) {
+    
+    ops = funnel_get_funnel_ops();
+    
+	WSLUA_REGISTER_CLASS(ProgDlg);
+    
+    return 1;
+}
+
+
+
 WSLUA_CLASS_DEFINE(TextWindow,NOP,NOP); /* Manages a text window. */
 
 /* XXX: button and close callback data is being leaked */

@@ -52,6 +52,7 @@
 #include "../globals.h"
 #include "../stat_menu.h"
 #include "../file.h"
+#include "../progress_dlg.h"
 
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
@@ -227,7 +228,7 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
     int nchars = strlen(str);
     GtkTextBuffer *buf;
     GtkTextIter    iter;
- 
+
     if (! tw->win) return; 
 
     txt = tw->txt;
@@ -241,14 +242,13 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
     
     if (!g_utf8_validate(str, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", str);
-    
+
     gtk_text_buffer_insert(buf, &iter, str, nchars);
 }
 
 
 static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
 {
-    
     if (! tw->win) return; 
     
     text_window_clear(tw);
@@ -523,6 +523,26 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 	return TRUE;
 }
 
+typedef struct progdlg _funnel_progress_window_t;
+
+static funnel_progress_window_t* 
+funnel_new_progress_window(const gchar* label, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag)
+{
+    return (funnel_progress_window_t*)create_progress_dlg(label, task, terminate_is_stop, stop_flag);
+}
+
+static void 
+funnel_update_progress(funnel_progress_window_t* win, float pr, const gchar* task)
+{
+    update_progress_dlg((progdlg_t*)win, pr, task);
+}
+
+static void 
+funnel_destroy_progress_window(funnel_progress_window_t* win)
+{
+    destroy_progress_dlg((progdlg_t*)win);
+}
+
 static void funnel_reload(void) {
 	if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 }
@@ -548,7 +568,10 @@ static const funnel_ops_t funnel_ops = {
 	funnel_reload,
 	funnel_apply_filter,
 	browser_open_url,
-	browser_open_data_file
+	browser_open_data_file,
+    funnel_new_progress_window,
+    funnel_update_progress,
+    funnel_destroy_progress_window
 };
 
 

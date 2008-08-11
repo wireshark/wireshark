@@ -161,8 +161,7 @@ struct _wslua_cols {
 struct _wslua_treeitem {
 	proto_item* item;
 	proto_tree* tree;
-    	gboolean expired;
-	
+    gboolean expired;
 };
 
 typedef void (*tap_extractor_t)(lua_State*,const void*);
@@ -188,7 +187,13 @@ struct _wslua_dir {
 	DIRECTORY_T* dir;
 	char* ext;
 	GError** dummy;
+};
 
+struct _wslua_progdlg {
+    funnel_progress_window_t* pw;
+    char* title;
+    char* task;
+    gboolean stopped;
 };
 
 typedef struct { const char* name; tap_extractor_t extractor; } tappable_t;
@@ -213,6 +218,7 @@ typedef header_field_info** Field;
 typedef field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
 typedef funnel_text_window_t* TextWindow;
+typedef struct _wslua_progdlg* ProgDlg;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
 typedef tvbparse_t* Parser;
