@@ -35,6 +35,7 @@
 #include <glib.h>
 #include "../stat_menu.h"
 
+typedef struct _funnel_progress_window_t funnel_progress_window_t ;
 typedef struct _funnel_text_window_t funnel_text_window_t ;
 typedef struct _funnel_tree_window_t funnel_tree_window_t ;
 typedef struct _funnel_node_t funnel_node_t ;
@@ -64,8 +65,6 @@ typedef struct _funnel_ops_t {
     void (*set_editable)(funnel_text_window_t*  win, gboolean editable);
     void (*destroy_text_window)(funnel_text_window_t*  win);
     void (*add_button)(funnel_text_window_t*  win, funnel_bt_t* cb, const gchar* label);
-
-	
 	
     void (*new_dialog)(const gchar* title,
                                    const gchar** fieldnames,
@@ -81,25 +80,28 @@ typedef struct _funnel_ops_t {
 	
 	void (*retap_packets)(void);
 	void (*copy_to_clipboard)(GString *str);
+    
 	void (*set_filter)(const char*);
 	gboolean (*open_file)(const char* fname, const char* filter, const char** error);
 	void (*reload)(void);
 	void (*apply_filter)(void);
+    
 	gboolean (*browser_open_url)(const gchar *url);
 	void (*browser_open_data_file)(const gchar *filename);
+    
+    funnel_progress_window_t* (*new_progress_window)(const gchar* label, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag);
+    void (*update_progress)(funnel_progress_window_t*, float pr, const gchar* task);
+    void (*destroy_progress_window)(funnel_progress_window_t*);
 } funnel_ops_t;
-
 
 extern const funnel_ops_t* funnel_get_funnel_ops(void);
 extern void funnel_set_funnel_ops(const funnel_ops_t*);
-
 
 extern void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
                                  void (*callback)(gpointer),
                                  gpointer callback_data,
                                  gboolean retap);
-
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          register_stat_group_t group,
