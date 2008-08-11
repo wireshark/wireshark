@@ -182,6 +182,9 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # .lib file is stored. Setting this will override ADNS_DIR above. You
 # can't have both.
 #
+# If you're using Visual C++ 6.0, you'll have to use a platform SDK that
+# defines socklen_t, such as Windows Server 2003 PSDK.
+#
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
