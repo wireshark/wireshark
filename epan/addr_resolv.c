@@ -63,18 +63,6 @@
  * sites still using NIS rather than DNS for that....)
  */
 
-#ifdef HAVE_C_ARES
-# include <ares.h>
-#else
-# ifdef HAVE_GNU_ADNS
-#  include <errno.h>
-#  include <adns.h>
-#  ifdef inet_aton
-#   undef inet_aton
-#  endif
-# endif	/* HAVE_GNU_ADNS */
-#endif	/* HAVE_C_ARES */
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -116,6 +104,22 @@
 #if defined(_WIN32) && defined(INET6)
 # include <ws2tcpip.h>
 #endif
+
+#ifdef HAVE_C_ARES
+# if defined(_WIN32) && !defined(INET6)
+#  define socklen_t unsigned int
+# endif
+# include <ares.h>
+#else
+# ifdef HAVE_GNU_ADNS
+#  include <errno.h>
+#  include <adns.h>
+#  ifdef inet_aton
+#   undef inet_aton
+#  endif
+# endif	/* HAVE_GNU_ADNS */
+#endif	/* HAVE_C_ARES */
+
 
 #include <glib.h>
 
