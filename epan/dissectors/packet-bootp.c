@@ -674,6 +674,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	gboolean		skip_opaque = FALSE;
 	guint8			s_option;
 	int			ava_vid;
+	const gchar		*dns_name;
 
 
 	static const value_string slpda_vals[] = {
@@ -1167,10 +1168,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode2, tvb, optoff+2, 1, FALSE);
 		if (optlen > 3) {
 			if (fqdn_flags & F_FQDN_E) {
-				/* XXX: use code from packet-dns for binary encoded name */
-				proto_tree_add_item(v_tree, hf_bootp_fqdn_name,
-				    tvb, optoff+3, optlen-3, FALSE);
-
+				get_dns_name(tvb, optoff+3, optlen-3, optoff+3, &dns_name);
+				proto_tree_add_string(v_tree, hf_bootp_fqdn_name, 
+				    tvb, optoff+3, optlen-3, dns_name);
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
 				    tvb, optoff+3, optlen-3, FALSE);
@@ -3149,8 +3149,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			suboptoff += 1;
 			switch (prov_type) {
 				case 0:
-					/* XXX - check suboption length */
-					get_dns_name(tvb, suboptoff, suboptoff, &dns_name);
+					get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
 					proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
 					break;
@@ -3221,8 +3220,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			break;
 
 		case PKT_CCC_KRB_REALM: /* String values */
-			/* XXX - check suboption length */
-			get_dns_name(tvb, suboptoff, suboptoff, &dns_name);
+			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
 			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
 			suboptoff += subopt_len;
@@ -3693,7 +3691,7 @@ proto_register_bootp(void)
       	"Result code of PTR-RR update", HFILL }},
 
     { &hf_bootp_fqdn_name,
-      { "Client name",		"bootp.fqdn.name",	FT_BYTES,
+      { "Client name",		"bootp.fqdn.name",	FT_STRING,
         BASE_NONE,		NULL,			0x0,
       	"Name to register via DDNS", HFILL }},
 

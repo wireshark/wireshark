@@ -287,7 +287,8 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 	nbname_buf=ep_alloc(NBNAME_BUF_LEN);
 	nbname = nbname_buf;
-	name_len = get_dns_name(tvb, offset, nbns_data_offset, &name);
+	/* XXX Fix data len */
+	name_len = get_dns_name(tvb, offset, 0, nbns_data_offset, &name);
 
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];

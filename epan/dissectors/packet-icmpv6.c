@@ -1046,7 +1046,8 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case ICMP6_NI_SUBJ_FQDN:
-	    l = get_dns_name(tvb, offset + sizeof(*ni),
+	    /* XXX Fix data length */
+	    l = get_dns_name(tvb, offset + sizeof(*ni), 0,
 	    	offset + sizeof(*ni), &dname);
 	    if (tvb_bytes_exist(tvb, offset + sizeof(*ni) + l, 1) &&
 	        tvb_get_guint8(tvb, offset + sizeof(*ni) + l) == 0) {
@@ -1125,7 +1126,8 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
 	    j = offset + sizeof (*ni) + sizeof(guint32);
 	    while (j < tvb_reported_length(tvb)) {
-		l = get_dns_name(tvb, j,
+		/* XXX Fix data length */
+		l = get_dns_name(tvb, j, 0,
 		   offset + sizeof (*ni) + sizeof(guint32),
 		   &dname);
 		if (tvb_bytes_exist(tvb, j + l, 1) &&

@@ -545,7 +545,7 @@ dns_class_name(int class)
  * it will be automatically free()d when the packet has been dissected.
  */
 int
-get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
+get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
     const char **name)
 {
   int start_offset = offset;
@@ -568,6 +568,8 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   maxname--;	/* reserve space for the trailing '\0' */
   for (;;) {
+    if (max_len && offset - start_offset > max_len - 1)
+      break;
     component_len = tvb_get_guint8(tvb, offset);
     offset++;
     if (component_len == 0)
@@ -585,6 +587,8 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
         }
       }
       while (component_len > 0) {
+        if (max_len && offset - start_offset > max_len - 1)
+          THROW(ReportedBoundsError);
         if (maxname > 0) {
           *np++ = tvb_get_guint8(tvb, offset);
           maxname--;
@@ -722,7 +726,8 @@ get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
   int class;
   int start_offset = offset;
 
-  name_len = get_dns_name(tvb, offset, dns_data_offset, name_ret);
+  /* XXX Fix data length */
+  name_len = get_dns_name(tvb, offset, 0, dns_data_offset, name_ret);
   offset += name_len;
 
   type = tvb_get_ntohs(tvb, offset);
@@ -1100,7 +1105,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *ns_name;
       int ns_name_len;
 
-      ns_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &ns_name);
+      /* XXX Fix data length */
+      ns_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &ns_name);
       name_out = format_text(ns_name, strlen(ns_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
@@ -1117,7 +1123,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *cname;
       int cname_len;
 
-      cname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &cname);
+      /* XXX Fix data length */
+      cname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &cname);
       name_out = format_text(cname, strlen(cname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
@@ -1141,7 +1148,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint32 expire;
       guint32 minimum;
 
-      mname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &mname);
+      /* XXX Fix data length */
+      mname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &mname);
       name_out = format_text(mname, strlen(mname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
@@ -1151,7 +1159,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		       name_out);
 	cur_offset += mname_len;
 
-	rname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &rname);
+        /* XXX Fix data length */
+	rname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &rname);
         name_out = format_text(rname, strlen(rname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, rname_len, "Responsible authority's mailbox: %s",
 		       name_out);
@@ -1189,7 +1198,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *pname;
       int pname_len;
 
-      pname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &pname);
+      /* XXX Fix data length */
+      pname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &pname);
       name_out = format_text(pname, strlen(pname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
@@ -1320,7 +1330,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int mx_name_len;
 
       preference = tvb_get_ntohs(tvb, cur_offset);
-      mx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, &mx_name);
+      /* XXX Fix data length */
+      mx_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &mx_name);
       name_out = format_text(mx_name, strlen(mx_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
@@ -1418,7 +1429,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
-	signer_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &signer_name);
+        /* XXX Fix data length */
+	signer_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &signer_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, signer_name_len,
 		"Signer's name: %s",
 		format_text(signer_name, strlen(signer_name)));
@@ -1569,7 +1581,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	     rr_len -= 16;
 	     break;
 	   case 3:
-	     gw_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &gw);
+             /* XXX Fix data length */
+	     gw_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &gw);
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len,
 				 "Gateway: %s", format_text(gw, strlen(gw)));
 
@@ -1635,7 +1648,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
 
       if (pre_len > 0) {
-        pname_len = get_dns_name(tvb, cur_offset, dns_data_offset,
+        /* XXX Fix data length */
+        pname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
                                  &pname);
       } else {
         pname="";
@@ -1676,7 +1690,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *dname;
       int dname_len;
 
-      dname_len = get_dns_name(tvb, cur_offset, dns_data_offset,
+      /* XXX Fix data length */
+      dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
 			       &dname);
       name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
@@ -1738,7 +1753,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int mask, blockbase, blocksize;
       int i;
 
-      next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
+      /* XXX Fix data length */
+      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
 			&next_domain_name);
       name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
@@ -1786,7 +1802,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int mask;
       int i;
 
-      next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
+      /* XXX Fix data length */
+      next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
 			&next_domain_name);
       name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
@@ -1823,8 +1840,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const char *kx_name;
       int kx_name_len;
 
-      preference = tvb_get_ntohs(tvb, cur_offset);
-      kx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, &kx_name);
+      /* XXX Fix data length */
+      kx_name_len = get_dns_name(tvb, cur_offset + 2, 0, dns_data_offset, &kx_name);
       name_out = format_text(kx_name, strlen(kx_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
@@ -1946,7 +1963,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	proto_tree *key_tree;
 	proto_item *key_item;
 
-	tkey_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tkey_algname);
+        /* XXX Fix data length */
+	tkey_algname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &tkey_algname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
 		"Algorithm name: %s",
 		format_text(tkey_algname, strlen(tkey_algname)));
@@ -2072,7 +2090,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int rr_len = data_len;
 
       if (dns_tree != NULL) {
-	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tsig_raw_algname);
+        /* XXX Fix data length */
+	tsig_algname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &tsig_raw_algname);
 	tsig_algname=format_text(tsig_raw_algname, strlen(tsig_raw_algname));
 	proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, tsig_algname_len, tsig_algname);
 	cur_offset += tsig_algname_len;
@@ -2260,7 +2279,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
       rr_len -= 4;
 
-      dname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &dname);
+      /* XXX Fix data length */
+      dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &dname);
       name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
@@ -2284,7 +2304,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       weight = tvb_get_ntohs(tvb, cur_offset+2);
       port = tvb_get_ntohs(tvb, cur_offset+4);
 
-      target_len = get_dns_name(tvb, cur_offset + 6, dns_data_offset, &target);
+      /* XXX Fix data length */
+      target_len = get_dns_name(tvb, cur_offset + 6, 0, dns_data_offset, &target);
       name_out = format_text(target, strlen(target));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
