@@ -67,6 +67,10 @@
 #include <windows.h>
 #endif
 
+#ifdef HAVE_C_ARES
+#include <ares_version.h>
+#endif
+
 #ifdef HAVE_LUA_5_1
 #include <lua.h>
 #endif
@@ -219,7 +223,8 @@ get_epan_compiled_version_info(GString *str)
 	/* c-ares */
 	g_string_append(str, ", ");
 #ifdef HAVE_C_ARES
-	g_string_append(str, "with c-ares");
+	g_string_append(str, "with c-ares ");
+	g_string_append(str, ARES_VERSION_STR);
 #else
 	g_string_append(str, "without c-ares");
 #endif /* HAVE_C_ARES */
