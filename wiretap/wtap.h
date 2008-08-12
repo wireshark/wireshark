@@ -593,8 +593,9 @@ struct catapult_dct2000_phdr
 
 /*
  * USB setup header as defined in USB specification
+ * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
  */
-struct usb_request_hdr {
+struct usb_device_setup_hdr {
     gint8 bmRequestType;
     guint8 bRequest;
     guint16 wValue;
@@ -604,26 +605,27 @@ struct usb_request_hdr {
 
 /*
  * Header prepended by Linux kernel to each USB event.
- * Followed by a struct usb_request_hdr, although that header is valid
+ * Followed by a struct usb_device_setup_hdr, although that header is valid
  * only if setup_flag is 0.
  * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
+ * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
  *
  * We present this as a pseudo-header; the values are in host byte order.
  */
 struct linux_usb_phdr {
-    guint64 id;             /* urb id, to link submission and completion events*/
-    guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E')  */
+    guint64 id;             /* urb id, to link submission and completion events */
+    guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
     guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
     guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
     guint8 device_address;  /* 0-127 */
     guint16 bus_id;
-    gint8 setup_flag;       /*if !=0 the urb setup header is not present*/
-    gint8 data_flag;        /*if !=0 no urb data is present*/
+    gint8 setup_flag;       /* 0, if the urb setup header is present */
+    gint8 data_flag;        /* 0, if urb data is present */
     gint64 ts_sec;
     gint32 ts_usec;
     gint32 status;
     guint32 urb_len;        /* whole len of urb this event refers to */
-    guint32 data_len;       /* amount of urb data really present in this event*/
+    guint32 data_len;       /* amount of urb data really present in this event */
 };
 
 /*
