@@ -2336,6 +2336,7 @@ host_name_lookup_cleanup(void) {
   cur = g_list_first(c_ares_queue_head);
   while (cur) {
     g_free(cur->data);
+    cur = g_list_next (cur);
   }
 
   g_list_free(c_ares_queue_head);
