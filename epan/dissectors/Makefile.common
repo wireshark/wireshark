@@ -456,6 +456,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-hsrp.c		\
 	packet-http.c		\
 	packet-hyperscsi.c	\
+	packet-i2c.c		\
 	packet-iapp.c		\
 	packet-iax2.c		\
 	packet-icap.c		\
@@ -952,6 +953,7 @@ DISSECTOR_INCLUDES =	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\
 	packet-http.h	\
+	packet-i2c.h	\
 	packet-iax2.h	\
 	packet-idp.h	\
 	packet-ieee80211.h	\

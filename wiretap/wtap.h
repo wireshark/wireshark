@@ -206,6 +206,7 @@ extern "C" {
 #define WTAP_ENCAP_CAN20B                       109
 #define WTAP_ENCAP_LAYER1_EVENT                 110
 #define WTAP_ENCAP_X2E_SERIAL                   111
+#define WTAP_ENCAP_I2C                          112
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -736,6 +737,13 @@ struct bthci_phdr {
 struct l1event_phdr {
 	gboolean uton;
 };
+
+/* * I2C pseudo header */
+struct i2c_phdr {
+	guint8 is_event;
+	guint8 bus;
+	guint32 flags;
+};
   
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
@@ -757,6 +765,7 @@ union wtap_pseudo_header {
 	struct sita_phdr	sita;
 	struct bthci_phdr	bthci;
 	struct l1event_phdr	l1event;
+	struct i2c_phdr		i2c;
 };
 
 struct wtap_nstime {

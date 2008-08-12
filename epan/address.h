@@ -149,7 +149,8 @@ typedef enum {
   PT_SBCCS,		/* FICON */
   PT_IDP,		/* XNS IDP sockets */
   PT_TIPC,		/* TIPC PORT */
-  PT_USB		/* USB endpoint 0xffff means the host */
+  PT_USB,		/* USB endpoint 0xffff means the host */
+  PT_I2C
 } port_type;
 
 /* Types of circuit IDs Wireshark knows about. */

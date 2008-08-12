@@ -50,6 +50,7 @@ capture_enc
 capture_eth
 capture_fddi
 capture_fr
+capture_i2c
 capture_ieee80211
 capture_ipfc
 capture_llap

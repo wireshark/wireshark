@@ -424,7 +424,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "EyeSDN Layer 1 event", "layer1-event" },
 
 	/* WTAP_ENCAP_X2E_SERIAL */
-	{ "X2E serial line capture", "x2e-serial" }
+	{ "X2E serial line capture", "x2e-serial" },
+
+	/* WTAP_ENCAP_I2C */
+	{ "I2C", "i2c" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

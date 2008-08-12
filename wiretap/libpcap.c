@@ -99,6 +99,14 @@
 #define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
 #define LAPD_SLL_LEN			16	/* length of the header */
 
+/*
+ * I2C link-layer on-disk format
+ */
+struct i2c_file_hdr {
+    guint8 bus;
+    guint8 flags[4];
+};
+
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
 
@@ -157,6 +165,10 @@ static gboolean libpcap_get_erf_subheader(const guint8 *erf_subhdr,
     union wtap_pseudo_header *pseudo_header, guint * size);
 static gboolean libpcap_read_erf_subheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_, guint * size);
+static gboolean libpcap_get_i2c_pseudoheader(const struct i2c_file_hdr *i2c_hdr,
+    union wtap_pseudo_header *pseudo_header);
+static gboolean libpcap_read_i2c_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void libpcap_close(wtap *wth);
@@ -349,9 +361,9 @@ static const struct {
 	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP },  /* 802.11 plus radiotap WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
-        { 130,          WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
-        { 131,          WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
-        { 133,          WTAP_ENCAP_JUNIPER_GGSN},
+	{ 130,		WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
+	{ 131,		WTAP_ENCAP_JUNIPER_MLFR }, /* Juniper MLFR (FRF.15) on ML-, LS-, AS- PICs */
+	{ 133,		WTAP_ENCAP_JUNIPER_GGSN},
 	/*
 	 * Values 132-134, 136 not listed here are reserved for use
 	 * in Juniper hardware.
@@ -403,8 +415,8 @@ static const struct {
 	 * but it is used for some Linux IP filtering (ipfilter?).
 	 */
 
-        /* Ethernet PPPoE frames captured on a service PIC */
-        { 167,          WTAP_ENCAP_JUNIPER_PPPOE },
+	/* Ethernet PPPoE frames captured on a service PIC */
+	{ 167,		WTAP_ENCAP_JUNIPER_PPPOE },
 
         /*
 	 * 168 is reserved for more Juniper private-chassis-
@@ -424,16 +436,16 @@ static const struct {
 
 	{ 177,		WTAP_ENCAP_LINUX_LAPD },
 
-        /* Ethernet frames prepended with meta-information */
-        { 178,          WTAP_ENCAP_JUNIPER_ETHER },
-        /* PPP frames prepended with meta-information */
-        { 179,          WTAP_ENCAP_JUNIPER_PPP },
-        /* Frame-Relay frames prepended with meta-information */
-        { 180,          WTAP_ENCAP_JUNIPER_FRELAY },
-        /* C-HDLC frames prepended with meta-information */
-        { 181,          WTAP_ENCAP_JUNIPER_CHDLC },
-        /* VOIP Frames prepended with meta-information */
-        { 183,          WTAP_ENCAP_JUNIPER_VP },
+	/* Ethernet frames prepended with meta-information */
+	{ 178,		WTAP_ENCAP_JUNIPER_ETHER },
+	/* PPP frames prepended with meta-information */
+	{ 179,		WTAP_ENCAP_JUNIPER_PPP },
+	/* Frame-Relay frames prepended with meta-information */
+	{ 180,		WTAP_ENCAP_JUNIPER_FRELAY },
+	/* C-HDLC frames prepended with meta-information */
+	{ 181,		WTAP_ENCAP_JUNIPER_CHDLC },
+	/* VOIP Frames prepended with meta-information */
+	{ 183,		WTAP_ENCAP_JUNIPER_VP },
 	/* raw USB packets */
 	{ 186, 		WTAP_ENCAP_USB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
@@ -445,16 +457,18 @@ static const struct {
 	/* CAN 2.0b frame */
 	{ 190, 		WTAP_ENCAP_CAN20B },
         /* Per-Packet Information header */
-        { 192,          WTAP_ENCAP_PPI },
+	{ 192,		WTAP_ENCAP_PPI },
 	/* IEEE 802.15.4 Wireless PAN */
 	{ 195,		WTAP_ENCAP_IEEE802_15_4 },
 	/* SITA File Encapsulation */
-	{ 196,	        WTAP_ENCAP_SITA },
+	{ 196,		WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
-	{ 197,	        WTAP_ENCAP_ERF },
+	{ 197,		WTAP_ENCAP_ERF },
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	/* IPMB/I2C */
+	{ 209,		WTAP_ENCAP_I2C },
 	/* FlexRay frame */
 	{ 210, 		WTAP_ENCAP_FLEXRAY },
 	/* MOST frame */
@@ -1506,6 +1520,29 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		wth->data_offset += size;
 		break;
 
+	case WTAP_ENCAP_I2C:
+		if (packet_size < sizeof (struct i2c_file_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: I2C file has a %u-byte packet, too small to have even a I2C pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_i2c_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err, err_info))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct i2c_file_hdr);
+		packet_size -= sizeof (struct i2c_file_hdr);
+		wth->data_offset += sizeof (struct i2c_file_hdr);
+		break;
+
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1664,6 +1701,14 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	    return FALSE;
 	  }
 	  break;
+
+	case WTAP_ENCAP_I2C:
+		if (!libpcap_read_i2c_pseudoheader(wth->random_fh, pseudo_header,
+		    err, err_info)) {
+			/* Read error */
+			return FALSE;
+		}
+		break;
 	}
 
 	/*
@@ -2262,6 +2307,35 @@ libpcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean
+libpcap_get_i2c_pseudoheader(const struct i2c_file_hdr *i2c_hdr, union wtap_pseudo_header *pseudo_header)
+{
+	pseudo_header->i2c.is_event = i2c_hdr->bus & 0x80 ? 1 : 0;
+	pseudo_header->i2c.bus = i2c_hdr->bus & 0x7f;
+	pseudo_header->i2c.flags = pntohl(&i2c_hdr->flags);
+
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	struct i2c_file_hdr i2c_hdr;
+	int    bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&i2c_hdr, 1, sizeof (i2c_hdr), fh);
+	if (bytes_read != sizeof (i2c_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return libpcap_get_i2c_pseudoheader(&i2c_hdr, pseudo_header);
+	     
+}
+
+static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -2459,6 +2533,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
 	guint8 sita_hdr[SITA_HDR_LEN];
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
+	struct i2c_file_hdr i2c_hdr;
 	int hdrsize, size;
 
 	switch (wdh->encap) {
@@ -2507,6 +2582,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		default:
 		  break;
 		}
+		break;
+
+	case WTAP_ENCAP_I2C:
+		hdrsize = sizeof (struct i2c_file_hdr);
 		break;
 
 	default:
@@ -2782,6 +2861,25 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += size;
+		break;
+
+	case WTAP_ENCAP_I2C:
+		/*
+		 * Write the I2C header.
+		 */
+		memset(&i2c_hdr, 0, sizeof(i2c_hdr));
+		i2c_hdr.bus = pseudo_header->i2c.bus |
+			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
+		phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
+		nwritten = fwrite(&i2c_hdr, 1, sizeof(i2c_hdr), wdh->fh);
+		if (nwritten != sizeof(i2c_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(i2c_hdr);
 		break;
 	}
 

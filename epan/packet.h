@@ -70,6 +70,8 @@ typedef struct _packet_counts {
   gint           other;
   gint           total;
   gint           arp;
+  gint           i2c_event;
+  gint           i2c_data;
 } packet_counts;
 
 /** Number of packet counts. */

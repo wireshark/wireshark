@@ -168,6 +168,10 @@ capture_options	*capture_opts)
   info->counts[10].value_ptr = &(cinfo->counts->vines);
   info->counts[11].title = "Other";
   info->counts[11].value_ptr = &(cinfo->counts->other);
+  info->counts[12].title = "I2C Events";
+  info->counts[12].value_ptr = &(cinfo->counts->i2c_event);
+  info->counts[13].title = "I2C Data";
+  info->counts[13].value_ptr = &(cinfo->counts->i2c_data);
 
   /*
    * Create the dialog window, with a title that includes the interface.

@@ -57,6 +57,7 @@
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
 #include <epan/dissectors/packet-enc.h>
+#include <epan/dissectors/packet-i2c.h>
 
 static void capture_info_packet(
 packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
@@ -88,6 +89,8 @@ void capture_info_open(capture_options *capture_opts)
     info_data.counts.vines      = 0;
     info_data.counts.other      = 0;
     info_data.counts.arp        = 0;
+    info_data.counts.i2c_event  = 0;
+    info_data.counts.i2c_data   = 0;
 
     info_data.wtap = NULL;
     info_data.ui.counts = &info_data.counts;
@@ -333,6 +336,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
       break;
     case WTAP_ENCAP_PPI:
       capture_ppi(pd, caplen, counts);
+      break;
+    case WTAP_ENCAP_I2C:
+      capture_i2c(pseudo_header, counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;
