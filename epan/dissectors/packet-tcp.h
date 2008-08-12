@@ -148,6 +148,9 @@ typedef struct _tcp_flow_t {
 				 */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we dont know */
+        gint16  scps_capable;   /* flow advertised scps capabilities */
+        guint16 maxsizeacked;   /* 0 if not yet known */
+
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.
  */
