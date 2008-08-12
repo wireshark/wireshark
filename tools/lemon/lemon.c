@@ -1344,13 +1344,13 @@ void ErrorMsg(const char *filename, int lineno, const char *format, ...)
   }else{
     sprintf(prefix,"%.*s: ",PREFIXLIMIT-10,filename);
   }
-  prefixsize = strlen(prefix);
+  prefixsize = (int) strlen(prefix);
   availablewidth = LINEWIDTH - prefixsize;
 
   /* Generate the error message */
   vsprintf(errmsg,format,ap);
   va_end(ap);
-  errmsgsize = strlen(errmsg);
+  errmsgsize = (int) strlen(errmsg);
   /* Remove trailing '\n's from the error message. */
   while( errmsgsize>0 && errmsg[errmsgsize-1]=='\n' ){
      errmsg[--errmsgsize] = 0;
@@ -1675,7 +1675,7 @@ char *msort(char *list, char **next, int (*cmp)(const void *, const void *))
   char *ep;
   char *set[LISTSIZE];
   int i;
-  offset = (char *)next - (char *)list;
+  offset = (int) ((char *)next - (char *)list);
   for(i=0; i<LISTSIZE; i++) set[i] = 0;
   while( list ){
     ep = list;
@@ -1706,10 +1706,10 @@ static void errline(int n, int k, FILE *err)
 {
   int spcnt, i;
   if( argv[0] ) fprintf(err,"%s",argv[0]);
-  spcnt = strlen(argv[0]) + 1;
+  spcnt = (int) strlen(argv[0]) + 1;
   for(i=1; i<n && argv[i]; i++){
     fprintf(err," %s",argv[i]);
-    spcnt += strlen(argv[i])+1;
+    spcnt += (int) strlen(argv[i])+1;
   }
   spcnt += k;
   for(; argv[i]; i++) fprintf(err," %s",argv[i]);
@@ -1925,7 +1925,7 @@ void optprint(void){
   int max, len;
   max = 0;
   for(i=0; op[i].label; i++){
-    len = strlen(op[i].label) + 1;
+    len = (int) strlen(op[i].label) + 1;
     switch( op[i].type ){
       case OPT_FLAG:
       case OPT_FFLAG:
@@ -2375,13 +2375,13 @@ to follow the previous rule.");
         char zLine[50];
         zNew = x;
         if( zNew[0]=='"' || zNew[0]=='{' ) zNew++;
-        nNew = strlen(zNew);
+        nNew = (int) strlen(zNew);
         if( *psp->declargslot ){
           zOld = *psp->declargslot;
         }else{
           zOld = "";
         }
-        nOld = strlen(zOld);
+        nOld = (int) strlen(zOld);
         n = nOld + nNew + 20;
         addLineMacro = psp->insertLineMacro &&
                         (psp->decllinenoslot==0 || psp->decllinenoslot[0]!=0);
@@ -2390,8 +2390,8 @@ to follow the previous rule.");
             if( *z=='\\' ) nBack++;
           }
           sprintf(zLine, "#line %d ", psp->tokenlineno);
-          nLine = strlen(zLine);
-          n += nLine + strlen(psp->filename) + nBack;
+          nLine = (int) strlen(zLine);
+          n += nLine + (int) strlen(psp->filename) + nBack;
         }
         *psp->declargslot = zBuf = realloc(*psp->declargslot, n);
         zBuf += nOld;
@@ -2843,7 +2843,7 @@ void Reprint(struct lemon *lemp)
   maxlen = 10;
   for(i=0; i<lemp->nsymbol; i++){
     sp = lemp->symbols[i];
-    len = strlen(sp->name);
+    len = (int) strlen(sp->name);
     if( len>maxlen ) maxlen = len;
   }
   ncolumns = 76/(maxlen+5);
@@ -3283,7 +3283,7 @@ PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
       used += n;
       assert( used>=0 );
     }
-    n = strlen(zText);
+    n = (int) strlen(zText);
   }
   if( n+(int)sizeof(zInt)*2+used >= alloced ){
     alloced = n + sizeof(zInt)*2 + used + 200;
@@ -3296,7 +3296,7 @@ PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
       sprintf(zInt, "%d", p1);
       p1 = p2;
       strcpy(&z[used], zInt);
-      used += strlen(&z[used]);
+      used += (int) strlen(&z[used]);
       zText++;
       n--;
     }else{
@@ -3449,13 +3449,13 @@ PRIVATE void print_stack_union(
   for(i=0; i<arraysize; i++) types[i] = 0;
   maxdtlength = 0;
   if( lemp->vartype ){
-    maxdtlength = strlen(lemp->vartype);
+    maxdtlength = (int) strlen(lemp->vartype);
   }
   for(i=0; i<lemp->nsymbol; i++){
     int len;
     struct symbol *sp = lemp->symbols[i];
     if( sp->datatype==0 ) continue;
-    len = strlen(sp->datatype);
+    len = (int) strlen(sp->datatype);
     if( len>maxdtlength ) maxdtlength = len;
   }
   stddt = (char*)malloc( maxdtlength*2 + 1 );
@@ -3686,7 +3686,7 @@ void ReportTable(
   name = lemp->name ? lemp->name : "Parse";
   if( lemp->arg && lemp->arg[0] ){
     int i;
-    i = strlen(lemp->arg);
+    i = (int) strlen(lemp->arg);
     while( i>=1 && safe_isspace(lemp->arg[i-1]) ) i--;
     while( i>=1 && (safe_isalnum(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
     fprintf(out,"#define %sARG_SDECL %s;\n",name,lemp->arg);  lineno++;

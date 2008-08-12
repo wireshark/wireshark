@@ -234,7 +234,7 @@ ws_stdio_stat (const gchar *filename,
 	  return -1;
 	}
 
-      len = wcslen (wfilename);
+      len = (int) wcslen (wfilename);
       while (len > 0 && G_IS_DIR_SEPARATOR (wfilename[len-1]))
 	len--;
       if (len > 0 &&
