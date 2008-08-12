@@ -1871,6 +1871,9 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if (global_capture_opts.iface == NULL) {
     gchar *if_device = g_strdup(prefs.capture_device);
+    if (if_device == NULL) {
+      return;
+    }
     if_name = g_strdup(get_if_name(if_device));
     g_free (if_device);
   } else {
