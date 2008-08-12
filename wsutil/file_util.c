@@ -226,7 +226,7 @@ ws_stdio_stat (const gchar *filename,
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
-      int len;
+      size_t len;
 
       if (wfilename == NULL)
 	{
@@ -234,7 +234,7 @@ ws_stdio_stat (const gchar *filename,
 	  return -1;
 	}
 
-      len = (int) wcslen (wfilename);
+      len = wcslen (wfilename);
       while (len > 0 && G_IS_DIR_SEPARATOR (wfilename[len-1]))
 	len--;
       if (len > 0 &&
