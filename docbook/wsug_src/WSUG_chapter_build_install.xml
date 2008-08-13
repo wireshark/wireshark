@@ -509,7 +509,7 @@ pkg_add -r wireshark
 	dissection.
 	</para></listitem>
 	</itemizedlist>
-	<command>Tools</command> (additional commnand line tools to work with 
+	<command>Tools</command> (additional command line tools to work with 
 	capture files):
 	<itemizedlist>
 	<listitem><para>

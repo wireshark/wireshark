@@ -411,7 +411,7 @@ wireshark -i eth0 -k
 		  no filter.
 	      </para>
 	      <para>
-		You can also click on the button labelled Capture Filter, and Wireshark 
+		You can also click on the button labeled "Capture Filter", and Wireshark 
 		will bring up the Capture Filters dialog box and allow you to create 
 		and/or select a filter.  Please see 
 		<xref linkend="ChWorkDefineFilterSection"/>

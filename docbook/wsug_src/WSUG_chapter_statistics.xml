@@ -226,7 +226,7 @@
     </para>
     <para>
       The <command>copy</command> button will copy the list values to the
-      clipboard in CSV (Comma Seperated Values) format.
+      clipboard in CSV (Comma Separated Values) format.
     </para>
     <tip><title>Tip!</title>
     <para>
@@ -358,7 +358,7 @@
       </para>
       <para>
 	The <command>copy</command> button will copy the list values to the
-	clipboard in CSV (Comma Seperated Values) format.
+	clipboard in CSV (Comma Separated Values) format.
       </para>
       <tip><title>Tip!</title>
       <para>
@@ -479,7 +479,7 @@
 	</para>
 	<para>
 	  The <command>copy</command> button will copy values from selected
-	  graphs to the clipboard in CSV (Comma Seperated Values) format.
+	  graphs to the clipboard in CSV (Comma Separated Values) format.
 	  The copy feature is only available in Wireshark version 0.99.8 or higher.
 	</para>
 	<tip><title>Tip!</title>
@@ -514,7 +514,7 @@
     </para>
     <para>
       The <command>copy</command> button will copy the list values to the
-      clipboard in CSV (Comma Seperated Values) format.
+      clipboard in CSV (Comma Separated Values) format.
     </para>
     <tip><title>Tip!</title>
     <para>

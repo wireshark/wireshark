@@ -425,7 +425,7 @@ standard libpcap format.
 		<varlistentry><term><command>persdata</command>:path</term>
 			<listitem><para>
 			path of personal data files, it's the folder initially opened.
-			After the initilization, the recent file will keep the folder
+			After the initialization, the recent file will keep the folder
 			last used.
 			</para></listitem>
 		</varlistentry>
@@ -963,7 +963,7 @@ standard libpcap format.
       </listitem>
       <listitem>
 	<para><command>Default link-layer</command>: each interface may provide several 
-	link-layer header types. The default link-layer choosen here is the one used when you 
+	link-layer header types. The default link-layer chosen here is the one used when you 
 	first start Wireshark.  It is also possible to change this value in 
 	<xref linkend="ChCapCaptureOptions"/> when you start a capture.
 	For a detailed description, see <xref linkend="ChCapLinkLayerHeader"/>.</para>
@@ -1283,7 +1283,7 @@ standard libpcap format.
 
       <section id="ChSNMPUsersSection"><title>SNMP users Table</title>
     <para>
-          Wireshark uses this table to verify auhentication and to decrypt encrypted SNMPv3 packets.
+          Wireshark uses this table to verify authentication and to decrypt encrypted SNMPv3 packets.
    </para>
    <para>
          This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
@@ -1316,9 +1316,9 @@ standard libpcap format.
 	  <varlistentry><term><command>authPassword</command></term>
 	  <listitem>
 		<para>
-			The authentication password. Use '\xDD' for unprintable charachters.
+			The authentication password. Use '\xDD' for unprintable characters.
 			An hexadecimal password must be entered as a sequence of '\xDD' characters.
-			For example the hex passowrd 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
+			For example the hex password 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
 		</para>
 	  </listitem>
 	  </varlistentry>
@@ -1332,9 +1332,9 @@ standard libpcap format.
 	  <varlistentry><term><command>privPassword</command></term>
 	  <listitem>
 		<para>
-			The privacy password. Use '\xDD' for unprintable charachters.
+			The privacy password. Use '\xDD' for unprintable characters.
 			An hexadecimal password must be entered as a sequence of '\xDD' characters.
-			For example the hex passowrd 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
+			For example the hex password 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
 		</para>
 	  </listitem>
 	  </varlistentry>

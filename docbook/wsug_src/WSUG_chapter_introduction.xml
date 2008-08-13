@@ -150,7 +150,7 @@
 	<section><title>Open Source Software</title>
     <para>
       Wireshark is an open source software project, and is released under
-      the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL).
+      the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL).
 	  You can freely use Wireshark on any number of computers you like, without
 	  worrying about license keys or fees or such. In addition, all source
 	  code is freely available under the GPL. Because of that, it is very easy
@@ -393,7 +393,7 @@
     </para>
     <para>
       Wireshark is an open source software project, and is released under
-      the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL).
+      the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL).
 	  All source code is freely available under the GPL.  You are welcome to
       modify Wireshark to suit your own needs, and it would be appreciated
       if you contribute your improvements back to the Wireshark team.
@@ -549,7 +549,7 @@
 	<listitem>
 	  <para>
 	    The version number of Wireshark and the dependent libraries linked with
-		it, eg GTK+, etc. You can obtain this with the command
+		it, e.g. GTK+, etc. You can obtain this with the command
 	    <command>wireshark -v</command>.
 	  </para>
 	</listitem>
