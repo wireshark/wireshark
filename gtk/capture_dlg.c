@@ -185,7 +185,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
 
-static void
+static gboolean
 capture_dlg_prep(gpointer parent_w);
 
 
@@ -1863,19 +1863,25 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
-  /* get the values and close the options dialog */
   if(cap_open_w) {
-    capture_dlg_prep(cap_open_w);
+    /*
+     * There's an options dialog; get the values from it and close it.
+     */
+    gboolean success;
+
+    success = capture_dlg_prep(cap_open_w);
     window_destroy(GTK_WIDGET(cap_open_w));
+    if (!success)
+      return;	/* error in options dialog */
   }
 
   if (global_capture_opts.iface == NULL) {
-    gchar *if_device = g_strdup(prefs.capture_device);
-    if (if_device == NULL) {
+    if (prefs.capture_device == NULL) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        "You didn't specify an interface on which to capture packets.");
       return;
     }
-    if_name = g_strdup(get_if_name(if_device));
-    g_free (if_device);
+    if_name = g_strdup(get_if_name(prefs.capture_device));
   } else {
     if_name = g_strdup(global_capture_opts.iface);
   }
@@ -1959,7 +1965,7 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 
 
 /* convert dialog settings into capture_opts values */
-static void
+static gboolean
 capture_dlg_prep(gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
@@ -2047,7 +2053,7 @@ capture_dlg_prep(gpointer parent_w) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "You didn't specify an interface on which to capture packets.");
     g_free(entry_text);
-    return;
+    return FALSE;
   }
   if (global_capture_opts.iface)
     g_free(global_capture_opts.iface);
@@ -2215,7 +2221,7 @@ capture_dlg_prep(gpointer parent_w) {
           "%sMultiple files: Requested filesize too large!%s\n\n"
           "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).", 
           simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
-        return;
+        return FALSE;
       }
     }
 
@@ -2225,7 +2231,7 @@ capture_dlg_prep(gpointer parent_w) {
         "%sMultiple files: No capture file name given!%s\n\n"
         "You must specify a filename if you want to use multiple files.",
         simple_dialog_primary_start(), simple_dialog_primary_end());
-      return;
+      return FALSE;
     } else if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "%sMultiple files: No file limit given!%s\n\n"
@@ -2234,7 +2240,7 @@ capture_dlg_prep(gpointer parent_w) {
         simple_dialog_primary_start(), simple_dialog_primary_end());
       g_free(global_capture_opts.save_file);
       global_capture_opts.save_file = NULL;
-      return;
+      return FALSE;
     }
   } else {
     global_capture_opts.has_autostop_filesize =
@@ -2249,10 +2255,11 @@ capture_dlg_prep(gpointer parent_w) {
           "%sStop Capture: Requested filesize too large!%s\n\n"
           "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).", 
           simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
-        return;
+        return FALSE;
       }
     }
   } /* multi_files_on */
+  return TRUE;
 }
 
 /* user requested to destroy the dialog */
