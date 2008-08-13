@@ -239,7 +239,7 @@
       <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
-      different values here, e.g. a german version uses
+      different values here, e.g. a German version uses
       C:/Programme - take this also in account where C:\Program
       Files appears elsewhere</para>
     </section>
@@ -274,9 +274,9 @@
       <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
-      different values here, e.g. a german version uses
+      different values here, e.g. a German version uses
       C:/Programme - take this also in account where C:\Program
-      Files appears elsewhereNote: You need to repeat steps 1 - 4
+      Files appears elsewhere. Note: You need to repeat steps 1 - 4
       each time you open a new cmd.exe!</para>
     </section>
     <section id="ChToolsWin32Verify">

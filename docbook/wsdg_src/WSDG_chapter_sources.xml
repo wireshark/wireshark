@@ -37,7 +37,7 @@
 	Subversion repository located at a server at the wireshark.org domain.
 	</para>
 	<para>
-	To qoute the Subversion book about "What is Subversion?":
+	To quote the Subversion book about "What is Subversion?":
 	</para>
 	<para>
 	<quote>Subversion is a free/open-source version control system. That is,
@@ -98,7 +98,7 @@
 	separate from the main repository.
 	It may take several minutes for committed changes to appear in the
 	public repository - so please be patient for a few minutes if you
-	desperately need a code change that was commited to the repository
+	desperately need a code change that was committed to the repository
 	very recently.
 	</para>
 
@@ -688,7 +688,7 @@ Index: file.h
 	<tbody>
 	<row>
 	  <entry>-N</entry>
-	  <entry>Add new files when used in conjuction with -r.</entry>
+	  <entry>Add new files when used in conjunction with -r.</entry>
 	</row>
 	<row>
 	  <entry>-r</entry>
@@ -885,7 +885,7 @@ Index: file.h
 	  another patch.
 	  </para></listitem>
 	  <listitem><para>
-	  You don't get any reponse to your patch (even after a few days or so).
+	  You don't get any response to your patch (even after a few days or so).
 	  Possible reason: your patch might simply get lost, as all core
 	  maintainers were busy at that time and forgot to look at your patch.
 	  Simply send a mail asking if the patch was forgotten or if someone is
@@ -1108,7 +1108,7 @@ $Id&#36;
 	<para>
 	The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
 	Red Hat and Fedora. The process creates a clean build environment in <filename>packaging/rpm/BUILD</filename> every
-	time the RPM is built. The settings controlling the build are in <filename>packaging/rpm/SPECS/wireshark.spec.in</filename>. After editing the settings in this file, <filename>./configure</filename> must be run again in the wireshark direcrory to generate the actual specification script.
+	time the RPM is built. The settings controlling the build are in <filename>packaging/rpm/SPECS/wireshark.spec.in</filename>. After editing the settings in this file, <filename>./configure</filename> must be run again in the wireshark directory to generate the actual specification script.
 	</para>
 	<warning><title>Warn!</title><para>
 	The SPEC file contains settings for the <filename>configure</filename> used to set the RPM build environment. These are

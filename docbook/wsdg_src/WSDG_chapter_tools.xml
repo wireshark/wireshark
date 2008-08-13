@@ -1086,7 +1086,7 @@ Stop.]]>
         available.</para>
         <para>You can get it free of charge at:
         <ulink url="http://www.microsoft.com/whdc/devtools/debugging/default.mspx" /> (as
-        links to microsoft pages change from time to time, search
+        links to Microsoft pages change from time to time, search
         for "Debugging Tools" at their page if this link should be
         outdated).</para>
       </section>
@@ -1153,7 +1153,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <ulink url="http://python.org/download/" />to download the
       latest stable release. You can download a setup there, which
       will install the python system typically into
-      <filename>C:\Python25</filename> or similiar.</para>
+      <filename>C:\Python25</filename> or similar.</para>
       <para>After correct installation, typing at the command
       line prompt (cmd.exe) - this must be entered in the Python
       directory, the installer won't set the PATH:</para>

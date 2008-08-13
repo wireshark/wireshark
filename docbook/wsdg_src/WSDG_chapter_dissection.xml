@@ -908,7 +908,7 @@ static gint *ett[] =
 			You also cannot assume that a TCP packet contains only one application layer message
 			and that the message header is at the start of your TCP payload.
 			More than one messages can be transmitted in one TCP packet,
-			so that a message can start at an abitrary position.
+			so that a message can start at an arbitrary position.
 
 		</para>
 		<para>
@@ -963,7 +963,7 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		<para>
 			The parameters <parameter>tvb</parameter>, <parameter>pinfo</parameter> and <parameter>tree</parameter>
 			are just handed over to <function>tcp_dissect_pdus()</function>.
-			The 4th parameter is a flag to indicate if the data should be reassebled or not. This could be set
+			The 4th parameter is a flag to indicate if the data should be reassembled or not. This could be set
 			according to a dissector preference as well.
 			Parameter 5 indicates how much data has at least to be available to be able to determine the length
 			of the foo message.
@@ -982,7 +982,7 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	<para>
 	A tap is basically a way of allowing other items to see whats happening as
 	a protocol is dissected. A tap is registered with the main program, and
-	then called on each dissection. Some arbritary protocol specific data
+	then called on each dissection. Some arbitrary protocol specific data
 	is provided with the routine that can be used.
 	</para>
 	<para>
@@ -999,7 +999,7 @@ static int foo_tap = -1;
 
 struct FooTap {
 	gint packet_type;
-	gint priorty;
+	gint priority;
 	...
 };
 ...

@@ -40,7 +40,7 @@
 	  finished)
 	  </para></listitem>
 	</itemizedlist>
-	This chapter is focussed on the Wireshark frontend, and especially on
+	This chapter is focused on the Wireshark frontend, and especially on
 	the GTK specific things.
 	</para>
   </section>
@@ -85,7 +85,7 @@
 	</para>
 	<para>
 	GTK 1.x was the first major release. Today there are 1.2.x and 1.3.x
-	versions "in the wild", with only very limitted differences in the API.
+	versions "in the wild", with only very limited differences in the API.
 	</para>
 	<para>
 	Advantages (compared to GTK 2.x):

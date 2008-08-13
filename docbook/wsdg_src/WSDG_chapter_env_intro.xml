@@ -157,7 +157,7 @@
 	<section><title>Open Source Software</title>
     <para>
       Wireshark is an open source software project, and is released under 
-      the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
+      the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL). 
 	  You can freely use Wireshark on any number of computers you like, without 
 	  worrying about license keys or fees or such. In addition, all source 
 	  code is freely available under the GPL. Because of that, it is very easy 
@@ -508,7 +508,7 @@
 	<varlistentry><term><command>wireshark-bugs</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Wireshark developers. Everytime a change to the bug 
+	      This list is for Wireshark developers. Every time a change to the bug 
 		  database occurs, a mail to this mailing list is generated.
 		  If you want to be notified about all the changes to the bug 
 		  database, join this list. Details about the bug database can be 
@@ -519,7 +519,7 @@
 	<varlistentry><term><command>wireshark-commits</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Wireshark developers. Everytime a change to the SVN 
+	      This list is for Wireshark developers. Every time a change to the SVN 
 		  repository is checked in, a mail to this mailing list is generated.
 		  If you want to be notified about all the changes to the SVN 
 		  repository, join this list. Details about the SVN repository can be 
