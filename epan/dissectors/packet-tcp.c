@@ -2273,8 +2273,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_item *tf;
   gchar       flags[64] = "<None>";
   gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV1", "RESV2", "RESV3" };
-  gchar       fstrlen[] = { 4, 6, 6, 4, 4, 5, 5, 5 };
-  gint        fpos = 0, i, bpos;
+  gint        i, bpos;
   guint8      capvector;
   guint8      connid;
 
@@ -2299,21 +2298,18 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
    */
   if (optlen == 4) {
     capvector = tvb_get_guint8(tvb, offset + 2);
+    flags[0] = '\0';
 
     /* Decode the capabilities vector for display */
     for (i = 0; i < 5; i++) {
       bpos = 128 >> i;
       if (capvector & bpos) {
-	if (fpos) {
-	  strcpy(&flags[fpos], ", ");
-	  fpos += 2;
+	if (flags[0]) {
+	  g_strlcat(flags, ", ", 64);
 	}
-	strcpy(&flags[fpos], fstr[i]);
-	fpos += fstrlen[i];
+	g_strlcat(flags, fstr[i], 64);
       }
     }
-
-    flags[fpos] = '\0';
 
     /* If lossless header compression is offered, there will be a
      * single octet connectionId following the capabilities vector
