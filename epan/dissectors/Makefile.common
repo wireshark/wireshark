@@ -682,6 +682,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-rtp-events.c	\
 	packet-rtp.c		\
 	packet-rtps.c		\
+	packet-rtps2.c		\
 	packet-rtsp.c		\
 	packet-rwall.c		\
 	packet-rx.c		\
@@ -1058,6 +1059,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rtcp.h	\
 	packet-rtp.h	\
 	packet-rtps.h   \
+	packet-rtps2.h		\
 	packet-rtp-events.h	\
 	packet-rtse.h	\
 	packet-rwall.h	\
