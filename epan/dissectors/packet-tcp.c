@@ -295,14 +295,14 @@ new_tcp_conversation(packet_info *pinfo)
 
 	/* Create a new conversation. */
 	conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-        tcpd = init_tcp_conversation(pinfo);
+	tcpd = init_tcp_conversation(pinfo);
 	conversation_add_proto_data(conv, proto_tcp, tcpd);
 
 	/* check direction and get ua lists */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
 	/* if the addresses are equal, match the ports instead */
 	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport)*2-1;
+		direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
 	}
 	if(direction>=0){
 		tcpd->fwd=&(tcpd->flow1);
@@ -349,7 +349,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
 	/* if the addresses are equal, match the ports instead */
 	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport)*2-1;
+		direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
 	}
 	if(direction>=0){
 		tcpd->fwd=&(tcpd->flow1);
@@ -368,9 +368,6 @@ static void
 tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
 			struct tcp_per_packet_data_t *tcppd)
 {
-	if( !tcppd )
-		tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
-
 	if( !tcppd ) {
 		tcppd = se_alloc(sizeof(struct tcp_per_packet_data_t));
 		p_add_proto_data(pinfo->fd, proto_tcp, tcppd);
@@ -1474,7 +1471,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_item *item;
 	proto_item *frag_tree_item;
 	proto_item *tcp_tree_item;
-        struct tcp_multisegment_pdu *msp;
+	struct tcp_multisegment_pdu *msp;
 
 again:
 	ipfd_head=NULL;
@@ -2469,9 +2466,9 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint32 ack;
   guint32 hole_start;
   guint32 hole_end;
-  char    null_modifier[10] = "\0";
-  char    relative_modifier[10] = "(relative)";
-  char   *modifier = (char *)&null_modifier;
+  char    null_modifier[] = "\0";
+  char    relative_modifier[] = "(relative)";
+  char   *modifier = null_modifier;
   proto_item *hidden_item;
 
   tcpd = get_tcp_conversation_data(pinfo);
@@ -2499,7 +2496,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   if (tcp_relative_seq == TRUE) {
     ack -= tcpd->rev->base_seq;
-    modifier = (char *)&relative_modifier;
+    modifier = relative_modifier;
   }
 
   /* To aid analysis, we can use a simple but generally effective heuristic
@@ -3021,6 +3018,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Do we need to calculate timestamps relative to the tcp-stream? */
   if (tcp_calculate_ts) {
+    if( !tcppd )
+      tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
 
     /*
      * Calculate the timestamps relative to this conversation (but only on the
@@ -3029,7 +3028,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!(pinfo->fd->flags.visited))
       tcp_calculate_timestamps(pinfo, tcpd, tcppd);
 
-
     /* Fill the conversation timestamp columns */
     if (tcpd && check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
       nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
@@ -3037,9 +3035,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_DELTA_CONV_TIME)) {
-      if( !tcppd )
-	tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
-
       if( tcppd )
         col_set_time(pinfo->cinfo, COL_DELTA_CONV_TIME, &tcppd->ts_del, "tcp.time_delta");
     }
@@ -3440,7 +3435,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * The or protects against broken implementations offering
        * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
        */
-      if((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable)) {
+      if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
 	verify_scps(pinfo, tf_syn, tcpd);
       }
     }
