@@ -1,6 +1,6 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
- * Up to date with http://www.iana.org/assignments/pppoe-parameters (2007-07-10)
+ * Up to date with http://www.iana.org/assignments/pppoe-parameters (2008-04-30)
  *
  * $Id$
  *
@@ -78,10 +78,28 @@ static gint hf_pppoed_tag_service_name_error = -1;
 static gint hf_pppoed_tag_ac_system_error = -1;
 static gint hf_pppoed_tag_generic_error = -1;
 
+/* Session protocol fields */
+static gint hf_pppoes_tags = -1;
+static gint hf_pppoes_tag = -1;
+static gint hf_pppoes_tag_credits = -1;
+static gint hf_pppoes_tag_credits_fcn = -1;
+static gint hf_pppoes_tag_credits_bcn = -1;
+
+/* Session protocol fields */
+
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;
 
 static int proto_pppoes = -1;
+
+static gint ett_pppoes = -1;
+static gint ett_pppoes_tags = -1;
+
+/* PPPoE parent fields */
+
+static int proto_pppoe = -1;
+static gint ett_pppoe = -1;
+
 
 /* Handle for calling for ppp dissector to handle session data */
 static dissector_handle_t ppp_handle;
@@ -453,33 +471,6 @@ void proto_register_pppoed(void)
 {
 	static hf_register_info hf[] =
 	{
-		/* These fields common to discovery and session protocols */
-		{ &hf_pppoe_version,
-			{ "Version", "pppoe.version", FT_UINT8, BASE_DEC,
-				 NULL, 0xf0, "", HFILL
-			}
-		},
-		{ &hf_pppoe_type,
-			{ "Type", "pppoe.type", FT_UINT8, BASE_DEC,
-				 NULL, 0x0f, "", HFILL
-			}
-		},
-		{ &hf_pppoe_code,
-			{ "Code", "pppoe.code", FT_UINT8, BASE_HEX,
-				 VALS(code_vals), 0x0, "", HFILL
-			}
-		},
-		{ &hf_pppoe_session_id,
-			{ "Session ID", "pppoe.session_id", FT_UINT16, BASE_HEX,
-				 NULL, 0x0, "", HFILL
-			}
-		},
-		{ &hf_pppoe_payload_length,
-			{ "Payload Length", "pppoe.payload_length", FT_UINT16, BASE_DEC,
-				 NULL, 0x0, "", HFILL
-			}
-		},
-
 		/* Discovery tag fields */
 		{ &hf_pppoed_tags,
 			{ "PPPoE Tags", "pppoed.tags", FT_NONE, BASE_NONE,
@@ -556,14 +547,14 @@ void proto_register_pppoed(void)
 				 NULL, PPPOE_RCV_ONLY_MASK, "", HFILL
 			}
 		},
-                { &hf_pppoed_tag_mdr_units,
+		{ &hf_pppoed_tag_mdr_units,
 			{ "MDR Units", "pppoed.tags.metrics.mdr_units", FT_UINT16, BASE_HEX,
-                                 VALS(datarate_scale_vals), PPPOE_MDR_MASK, "", HFILL
+				 VALS(datarate_scale_vals), PPPOE_MDR_MASK, "", HFILL
 			}
 		},
-                { &hf_pppoed_tag_cdr_units,
+		{ &hf_pppoed_tag_cdr_units,
 			{ "CDR Units", "pppoed.tags.metrics.cdr_units", FT_UINT16, BASE_HEX,
-                                 VALS(datarate_scale_vals), PPPOE_CDR_MASK, "", HFILL
+				 VALS(datarate_scale_vals), PPPOE_CDR_MASK, "", HFILL
 			}
 		},
 		{ &hf_pppoed_tag_metrics_rlq,
@@ -596,7 +587,7 @@ void proto_register_pppoed(void)
 				 NULL, 0x0, "", HFILL
 			}
 		},
-                { &hf_pppoed_tag_cred_scale,
+		{ &hf_pppoed_tag_cred_scale,
 			{ "Credit Scale Factor", "pppoed.tags.credit_scale", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, "", HFILL
 			}
@@ -640,12 +631,12 @@ void proto_register_pppoed(void)
 			{ "Generic-Error", "pppoed.tags.generic_error", FT_STRING, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
-		},
+		}
 	};
 
 	static gint *ett[] = {
 		&ett_pppoed,
-		&ett_pppoed_tags,
+		&ett_pppoed_tags
 	};
 
 	module_t *pppoed_module;
@@ -679,8 +670,11 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  pppoe_code;
 	guint16 pppoe_session_id;
 	guint16 reported_payload_length;
+	guint16 poe_tag;
+	guint16 poe_tag_length;
 	gint    actual_payload_length;
 	gint    length, reported_length;
+	gint    credit_offset = 0, tagstart = 0;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti = NULL;
@@ -711,15 +705,40 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 	{
 		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, FALSE);
-		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
+		pppoe_tree = proto_item_add_subtree(ti, ett_pppoe);
 
 		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
 		ti = proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
-	}
 
+
+		if (PPPOE_TAG_CREDITS == tvb_get_ntohs(tvb, 6))
+		{
+			tagstart = 6;
+			poe_tag = tvb_get_ntohs(tvb, tagstart);
+			poe_tag_length = tvb_get_ntohs(tvb, tagstart + 2);
+
+			/* Create tags subtree */
+			ti = proto_tree_add_item(pppoe_tree, hf_pppoes_tags, tvb, tagstart, 8, FALSE);
+			pppoe_tree = proto_item_add_subtree(ti, ett_pppoes_tags);
+
+			/* Show tag data */
+			if (poe_tag_length == 4)
+			{
+				proto_tree_add_item(pppoe_tree, hf_pppoes_tag_credits_fcn, tvb,
+					tagstart+4, 2, FALSE);
+				proto_tree_add_item(pppoe_tree, hf_pppoes_tag_credits_bcn, tvb,
+					tagstart+6, 2, FALSE);
+			} else {
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
+					tagstart+4, poe_tag_length, FALSE);
+			}
+
+			credit_offset = 8;
+		}
+	}
 	/*
 	 * The only reason why the payload length from the header
 	 * should differ from the remaining data in the packet
@@ -755,14 +774,98 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		length = reported_payload_length;
 	if ((guint)reported_length > reported_payload_length)
 		reported_length = reported_payload_length;
-	next_tvb = tvb_new_subset(tvb,6,length,reported_length);
+	next_tvb = tvb_new_subset(tvb,(6 + credit_offset),
+				(length - credit_offset),
+				(reported_length - credit_offset));
 	call_dissector(ppp_handle,next_tvb,pinfo,tree);
 }
 
 void proto_register_pppoes(void)
 {
+
+	static hf_register_info hf[] =
+	{
+		{ &hf_pppoes_tags,
+			{ "PPPoE Tags", "pppoes.tags", FT_NONE, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoes_tag,
+			{ "Tag", "pppoes.tag", FT_UINT16, BASE_HEX,
+				 VALS(tag_vals), 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoes_tag_credits,
+			{ "Credits", "pppoes.tags.credits", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoes_tag_credits_fcn,
+			{ "FCN", "pppoes.tags.credits.fcn", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoes_tag_credits_bcn,
+			{ "BCN", "pppoes.tags.credits.bcn", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		}
+	};
+
+	static gint *ett[] = {
+		&ett_pppoes,
+		&ett_pppoes_tags
+	};
+
 	/* Register protocol */
 	proto_pppoes = proto_register_protocol("PPP-over-Ethernet Session", "PPPoES", "pppoes");
+
+	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_pppoes, hf, array_length(hf));
+}
+
+void proto_register_pppoe(void)
+{
+	static hf_register_info hf[] =
+	{
+		/* These fields common to discovery and session protocols */
+		{ &hf_pppoe_version,
+			{ "Version", "pppoe.version", FT_UINT8, BASE_DEC,
+				 NULL, 0xf0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_type,
+			{ "Type", "pppoe.type", FT_UINT8, BASE_DEC,
+				 NULL, 0x0f, "", HFILL
+			}
+		},
+		{ &hf_pppoe_code,
+			{ "Code", "pppoe.code", FT_UINT8, BASE_HEX,
+				 VALS(code_vals), 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_session_id,
+			{ "Session ID", "pppoe.session_id", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoe_payload_length,
+			{ "Payload Length", "pppoe.payload_length", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		}
+	};
+
+	static gint *ett[] = {
+		&ett_pppoe
+	};
+
+	/* Register protocol */
+	proto_pppoe = proto_register_protocol("PPP-over-Ethernet", "PPPoE", "pppoe");
+
+	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_pppoe, hf, array_length(hf));
+
 }
 
 void proto_reg_handoff_pppoes(void)
