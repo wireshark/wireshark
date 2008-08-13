@@ -238,7 +238,7 @@ ws_stdio_stat (const gchar *filename,
       while (len > 0 && G_IS_DIR_SEPARATOR (wfilename[len-1]))
 	len--;
       if (len > 0 &&
-	  (!g_path_is_absolute (filename) || len > g_path_skip_root (filename) - filename))
+	  (!g_path_is_absolute (filename) || len > (size_t) g_path_skip_root (filename) - filename))
 	wfilename[len] = '\0';
 
       retval = _wstat (wfilename, (struct _stat *) buf);
