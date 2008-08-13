@@ -827,7 +827,7 @@ static gboolean dissect_rtps(tvbuff_t *, packet_info *, proto_tree *);
 /***************************************************************************/
 /* Global variables controlled by Wireshark preference panel               */
 /***************************************************************************/
-//static gboolean glob_do_something = TRUE;
+/* static gboolean glob_do_something = TRUE; */
 static guint rtps_max_batch_samples_dissected = 16;
 
 static void reinit_rtps(void) {
