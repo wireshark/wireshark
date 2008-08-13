@@ -1459,7 +1459,7 @@ static guint64 rtps_util_add_seq_number(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         int        little_endian,
-                        const char *label) {
+                        const char *label _U_) {
   guint64 hi = (guint64)NEXT_guint32(tvb, offset, little_endian);
   guint64 lo = (guint64)NEXT_guint32(tvb, offset+4, little_endian);
   guint64 all = (hi << 32) | lo;
@@ -2764,7 +2764,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         int        little_endian,
-                        const char *label) {
+                        const char *label _U_) {
   guint64 seq_base;
   gint32 num_bits;
   guint32 data;
