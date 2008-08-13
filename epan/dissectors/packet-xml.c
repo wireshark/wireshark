@@ -54,44 +54,7 @@
 #include <epan/prefs.h>
 #include <epan/garrayfix.h>
 
-
-typedef struct _xml_ns_t {
-    /* the name of this namespace */
-	gchar* name;
-
-    /* its fully qualified name */
-	gchar* fqn;
-
-	/* the contents of the whole element from <> to </> */
-	int hf_tag;
-
-	/* chunks of cdata from <> to </> excluding sub tags */
-	int hf_cdata;
-
-    /* the subtree for its sub items  */
-	gint ett;
-
-	GHashTable* attributes;
-    /*  key:   the attribute name
-        value: hf_id of what's between quotes */
-
-    /* the namespace's namespaces */
-    GHashTable* elements;
-    /*  key:   the element name
-        value: the child namespace */
-
-	GPtrArray* element_names;
-    /* imported directly from the parser and used while building the namespace */
-
-} xml_ns_t;
-
-typedef struct {
-	proto_tree* tree;
-	proto_item* item;
-	proto_item* last_item;
-	xml_ns_t* ns;
-	int start_offset;
-} xml_frame_t;
+#include "packet-xml.h"
 
 struct _attr_reg_data {
 	GArray* hf;
@@ -182,6 +145,24 @@ static const gchar* default_media_types[] = {
 	"image/svg+xml",
 };
 
+static void insert_xml_frame(xml_frame_t *parent, xml_frame_t *new_child) {
+	new_child->firts_child = NULL;
+	new_child->last_child = NULL;
+
+	new_child->parent = parent;
+	new_child->next_sibling = NULL;
+	new_child->prev_sibling = NULL;
+	if (parent == NULL) return;  /* root */
+
+	if (parent->firts_child == NULL) {  /* the 1st child */
+		parent->firts_child = new_child;
+	} else {  /* following children */
+		parent->last_child->next_sibling = new_child;
+		new_child->prev_sibling = parent->last_child;
+	}
+	parent->last_child = new_child;
+}
+
 static void
 dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -198,6 +179,9 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	stack = g_ptr_array_new();
 	current_frame = ep_alloc(sizeof(xml_frame_t));
+	current_frame->type = XML_FRAME_ROOT;
+	current_frame->name = NULL;
+	insert_xml_frame(NULL, current_frame);
 	g_ptr_array_add(stack,current_frame);
 
 	tt = tvbparse_init(tvb,0,-1,stack,want_ignore);
@@ -226,6 +210,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	current_frame->last_item = current_frame->item;
 
 	while(( tok = tvbparse_get(tt, want) )) ;
+
+	pinfo->private_data = current_frame;  /* pass XML structure to the dissector calling XML */
 }
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -264,8 +250,9 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item* pi;
 	proto_tree* pt;
 	tvbparse_elem_t* name_tok = tok->sub->next;
-	gchar* name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+	const gchar* name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	xml_ns_t* ns = g_hash_table_lookup(xmpli_names,name);
+	xml_frame_t* new_frame;
 
 	int hf_tag;
 	gint ett;
@@ -285,14 +272,17 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 
 	pt = proto_item_add_subtree(pi,ett);
 
-	current_frame = ep_alloc(sizeof(xml_frame_t));
-	current_frame->item = pi;
-	current_frame->last_item = pi;
-	current_frame->tree = pt;
-	current_frame->start_offset = tok->offset;
-	current_frame->ns = ns;
+	new_frame = ep_alloc(sizeof(xml_frame_t));
+	new_frame->type = XML_FRAME_XMPLI;
+	new_frame->name = name;
+	insert_xml_frame(current_frame, new_frame);
+	new_frame->item = pi;
+	new_frame->last_item = pi;
+	new_frame->tree = pt;
+	new_frame->start_offset = tok->offset;
+	new_frame->ns = ns;
 
-	g_ptr_array_add(stack,current_frame);
+	g_ptr_array_add(stack,new_frame);
 
 }
 
@@ -316,7 +306,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 	tvbparse_elem_t* name_tok = tok->sub->next;
     gchar* root_name;
-	gchar* name;
+	const gchar* name = NULL;
 	xml_ns_t* ns;
 	xml_frame_t* new_frame;
 	proto_item* pi;
@@ -364,6 +354,9 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	pt = proto_item_add_subtree(pi,ns->ett);
 
 	new_frame = ep_alloc(sizeof(xml_frame_t));
+	new_frame->type = XML_FRAME_TAG;
+	new_frame->name = name;
+	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = pi;
 	new_frame->last_item = pi;
 	new_frame->tree = pt;
@@ -414,20 +407,24 @@ static void after_untag(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 static void before_dtd_doctype(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok){
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
+	xml_frame_t* new_frame;
 	tvbparse_elem_t* name_tok = tok->sub->next->next->next->sub->sub;
 	proto_tree* dtd_item = proto_tree_add_item(current_frame->tree, hf_doctype,
 											   name_tok->tvb, name_tok->offset, name_tok->len, FALSE);
 
 	proto_item_set_text(dtd_item,"%s",tvb_format_text(tok->tvb,tok->offset,tok->len));
 
-	current_frame = ep_alloc(sizeof(xml_frame_t));
-	current_frame->item = dtd_item;
-	current_frame->last_item = dtd_item;
-	current_frame->tree = proto_item_add_subtree(dtd_item,ett_dtd);
-	current_frame->start_offset = tok->offset;
-	current_frame->ns = NULL;
+	new_frame = ep_alloc(sizeof(xml_frame_t));
+	new_frame->type = XML_FRAME_DTD_DOCTYPE;
+	new_frame->name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+	insert_xml_frame(current_frame, new_frame);
+	new_frame->item = dtd_item;
+	new_frame->last_item = dtd_item;
+	new_frame->tree = proto_item_add_subtree(dtd_item,ett_dtd);
+	new_frame->start_offset = tok->offset;
+	new_frame->ns = NULL;
 
-	g_ptr_array_add(stack,current_frame);
+	g_ptr_array_add(stack,new_frame);
 }
 
 static void pop_stack(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok _U_) {

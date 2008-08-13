@@ -1122,6 +1122,7 @@ DISSECTOR_INCLUDES =	\
 	packet-x509ce.h	\
 	packet-x509if.h	\
 	packet-x509sat.h	\
+	packet-xml.h	\
 	packet-xtp.h	\
 	packet-ypbind.h	\
 	packet-yppasswd.h	\
