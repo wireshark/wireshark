@@ -1085,7 +1085,7 @@ standard libpcap format.
 	<listitem>
 	  <para>
 	    This button deletes the selected profile, including all configuration 
-	    files used in this profile.
+	    files used in this profile.  It is not possible to delete the "Default" profile.
 	  </para>
 	</listitem>
 	</varlistentry>
