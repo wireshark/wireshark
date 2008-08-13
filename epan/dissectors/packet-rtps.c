@@ -1471,7 +1471,7 @@ static guint64 rtps_util_add_seq_number(proto_tree *tree,
                         offset,
                         8,
                         all,
-                        "%s: %" PRIu64, label, all);
+                        "%s: %" G_GINT64_MODIFIER "u", label, all);
   }
   return all;
 }
@@ -2816,7 +2816,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         tvb,
                         original_offset,
                         offset-original_offset,
-                        "%s: %" PRIu64 "/%d:%s",
+                        "%s: %" G_GINT64_MODIFIER "u/%d:%s",
                         label,
                         seq_base,
                         num_bits,
@@ -2826,7 +2826,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         tvb,
                         original_offset,
                         8,
-                        "bitmapBase: %" PRIu64,
+                        "bitmapBase: %" G_GINT64_MODIFIER "u",
                         seq_base);
   proto_tree_add_text(bitmap_tree,
                         tvb,
