@@ -642,6 +642,7 @@ EXTRA_DIST = \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
 	image/libwireshark.rc.in	\
+	image/libwsutil.rc.in	\
 	image/lo16-app-wireshark.png	\
 	image/lo32-app-wireshark.png	\
 	image/lo48-app-wireshark.png	\
