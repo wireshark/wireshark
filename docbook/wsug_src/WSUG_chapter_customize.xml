@@ -944,7 +944,7 @@ standard libpcap format.
     <section id="ChCustInterfaceOptionsSection"><title>Interface Options</title>
     <para>
       In the Capture preferences it is possible to configure several options for the interfaces
-      available on your computer. Select the <command>Capture</command> phane and press the 
+      available on your computer. Select the <command>Capture</command> pane and press the 
       Interfaces: <command>Edit</command> button.  In this window it is possible to change the
       default link-layer header type for the interface, add a comment or choose to hide a 
       interface from other parts of the program.
@@ -1052,7 +1052,7 @@ standard libpcap format.
 	</listitem>
 	<listitem>
 	  <para>
-	    Some recent settings (recent), such as phane sizes in the Main window 
+	    Some recent settings (recent), such as pane sizes in the Main window 
 	    (<xref linkend="ChUseMainWindowSection"/>), column widths in the packet list
 	    (<xref linkend="ChUsePacketListPaneSection"/>), all selections in the "View" menu
 	    (<xref linkend="ChUseViewMenuSection"/>) and the last directory navigated to in the
