@@ -22,10 +22,10 @@ codecs.lib	:  $(CODEC_OBJECTS)
 
 
 G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
-	$(CC) $(CFLAGS) -Fd.\ -c G711a\G711adecode.c -o $@
+	$(CC) $(CFLAGS) -Fd.\ -c G711a\G711adecode.c /Fo%|fF.obj
 
 G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
-	$(CC) $(CFLAGS) -Fd.\ -c G711u\G711udecode.c -o $@
+	$(CC) $(CFLAGS) -Fd.\ -c G711u\G711udecode.c /Fo%|fF.obj
 
 clean:
         rm -f $(CODEC_OBJECTS) codecs.lib *.pdb
