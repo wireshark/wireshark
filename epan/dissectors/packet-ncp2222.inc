@@ -60,6 +60,7 @@ typedef struct {
         guint32         nds_length;
         guint32         nds_frag;
         gboolean        nds_fragmented;
+        guint8          sequence;
 } frag_info;
 
 frag_info           frags[100];
@@ -1468,6 +1469,7 @@ static const value_string nds_reply_errors[] = {
 #define NDS_PTYPE_INTERNAL	0x0000000c
 #define NDS_PTYPE_URL		0x0000000d
 #define NDS_PTYPE_DNS           0x0000000e
+#define NDS_PTYPE_CNT       0x0000000f
 
 static const value_string nds_protocol_type[] = {
         { NDS_PTYPE_IPX,           "(IPX Protocol)" },
@@ -1485,6 +1487,7 @@ static const value_string nds_protocol_type[] = {
         { NDS_PTYPE_INTERNAL,      "(Internal Protocol)" },
         { NDS_PTYPE_URL,           "(URL Protocol)" },
         { NDS_PTYPE_DNS,           "(DNS Protocol)" },
+        { NDS_PTYPE_CNT,           "(Number of protocol types defined)" },
 	{ 0,	NULL }
 };
 
@@ -2044,6 +2047,7 @@ typedef struct {
         guint8          mvtype;
         guint32         vflags;
         guint32         nds_version;
+        guint32         pflags; /* NDS Protocol Flags */
 } nds_val;
 
 
@@ -2847,10 +2851,10 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             }
             /* The following allows for oplock level 1 file opens echoed to expert tap. */
             if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 1 || ncp_rec->subfunc == 30 || ncp_rec->subfunc == 32 || ncp_rec->subfunc == 33)) {
-                char oaction[2]="\0";
+                char oaction[3]="\0";
                 char p_filename[256]="\0";
-                char p_rights[2]="\0";
-                char p_path_count[2]="\0";
+                char p_rights[3]="\0";
+                char p_path_count[3]="\0";
 
                 build_expert_data(ncp_tree, "ncp.open_create_mode", oaction,
                                   sizeof oaction, 0, FALSE);
@@ -2875,7 +2879,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             }
             /* The following allows for oplock ack's and level 2 request echoed to expert tap. */
             if (ncp_rec->func == 87 && ncp_rec->subfunc == 34) {
-                char cc_function[2]="\0";
+                char cc_function[3]="\0";
                 char p_filehandle[15]="\0";
 
                 build_expert_data(ncp_tree, "ncp.cc_file_handle",
@@ -2907,8 +2911,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
         if (ncp_echo_file) { /* Echo File System Data */
             /* The following allows for oplock level 1 file opens echoed to expert tap. */
             if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 32 || ncp_rec->subfunc == 1)) {
-                char oaction[2]="\0";
-                char oplockflg[2]="\0";
+                char oaction[3]="\0";
+                char oplockflg[3]="\0";
                 char p_filehandle[15]="\0";
 
                 build_expert_data(ncp_tree, "ncp.open_create_action",
@@ -2992,10 +2996,10 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         nds_val         temp_values;
 
         voffset = vvalues->voffset;
-        if(tvb_get_guint8(tvb, voffset) == 0x00)
+        /*if(tvb_get_guint8(tvb, voffset) == 0x00)
         {
                 voffset = voffset+2;
-        }
+        }*/
 
         number_of_values = tvb_get_letohl(tvb, voffset);
 
@@ -3232,23 +3236,34 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
 				if (valuestr == NULL)
 				{
                                         valuestr="(Unknown Replica State)";
-				}
-				proto_tree_add_string(nvtree, hf_replica_state, tvb, voffset,
-						      2, valuestr);
-				voffset = voffset+2;
-				value3 = tvb_get_letohl(tvb, voffset); /* Replica number */
-				proto_tree_add_uint_format(nvtree, hf_replica_number, tvb, voffset,
-							   4, value3, "Replica Number %d", value3);
-				voffset = voffset+4;
-				number_of_items = tvb_get_letohl(tvb, voffset);  /* Number of Addresses */
-				aditem = proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-								    4, number_of_items, 
-								    "Number of Addresses: %u", number_of_items);
+                               }
+                               proto_tree_add_string(nvtree, hf_replica_state, tvb, voffset,
+                                        2, valuestr);
+                               voffset = voffset+2;
+                               value3 = tvb_get_letohl(tvb, voffset); /* Replica number */
+                               proto_tree_add_uint_format(nvtree, hf_replica_number, tvb, voffset,
+                                        4, value3, "Replica Number %d", value3);
+                               voffset = voffset+4;
+                               if(vvalues->pflags & 0x8000)
+                               {
+                                   /* If this request flag is set then this is a server. Server structures
+                                    * include the RootID as part of the replica data. */
+                                   proto_tree_add_item(nvtree, hf_nds_partition_root_id, tvb, voffset, 4, FALSE);
+                                   voffset += 4; 
+                               }
+                               number_of_items = tvb_get_letohl(tvb, voffset);  /* Number of Addresses */
+                               aditem = proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
+                                        4, number_of_items, "Number of Addresses: %u", number_of_items);
 
 				adtree = proto_item_add_subtree(aditem, ett_nds);
 				voffset = voffset+4;
 				for (r=1; r <= number_of_items; r++)
 				{
+                                        /* Trap for end of packet */
+                                        if(tvb_length_remaining(tvb, voffset)<12)
+                                        {
+                                               THROW(ReportedBoundsError);
+                                        }
                                         voffset += align_4(tvb, voffset);
                                         value4 = tvb_get_letohl(tvb, voffset); /* type of Protocol */
                                         valuestr = match_strval(value4, nds_protocol_type);
@@ -4800,25 +4815,27 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
                 ioffset += 4;
                 for (i=0; i < number_of_items; i++) {
                     /* Process the attribute tag */
-                    values.vvalue = tvb_get_letohl(tvb, ioffset);
+                    /*values.vvalue = tvb_get_letohl(tvb, ioffset);
                     values.vstring = (char *)match_strval(values.vvalue, nds_tags);
                     if(values.vstring == NULL)
                     {
                         values.vstring = "No Tags Set";
                     }
-                    proto_tree_add_string(it_subtree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);
+                    proto_tree_add_string(it_subtree, hf_nds_tag_string, tvb, ioffset, 4, values.vstring);*/
+
+                    proto_tree_add_item(it_subtree, hf_iter_index, tvb, ioffset, 4, TRUE);
                     ioffset = ioffset + 4;
 
                     /* start of DCWPutAttribute */
-                    values.vvalue = tvb_get_letohl(tvb, ioffset);
+                    /*values.vvalue = tvb_get_letohl(tvb, ioffset);
                     ioffset = ioffset + 4;
                     values.vstring = get_string(tvb, ioffset, values.vvalue);
                     proto_tree_add_string(it_subtree, hf_mv_string, tvb, ioffset,
                             values.vvalue, values.vstring);
-                    ioffset = ioffset + values.vvalue;
+                    ioffset = ioffset + values.vvalue;*/
                     /* end of DCWPutAttribute */
 
-                    ioffset += align_4(tvb, ioffset);
+                    /*ioffset += align_4(tvb, ioffset);*/
                     if (tvb_length_remaining(tvb, ioffset) < 4) {
                         THROW(ReportedBoundsError);
                         return;
@@ -7262,7 +7279,7 @@ dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
  * the last fragment packet number.
  *
  * Also the NDS dissection requires the values of NDS Verb, Version, and Flags.
- * Without this values being remembered from the first request packet then
+ * Without these values being remembered from the first request packet then
  * we will be unable to dissect the reply packet. For this reason we remember
  * these values on the first fragment and then populate the values in the final
  * fragment. We only do this on the first dissection.
@@ -7281,7 +7298,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
 
     for (i = 0; i < 99; i++) {
         if (!frags[i].nds_fragmented)
-	{
+	    {
 	    frags[i].nds_frag = 0xfffffff0;
         }
     }
@@ -7345,6 +7362,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                     frags[i].nds_length = 0;
                     frags[i].nds_frag = nds_frag;
                     frags[i].nds_fragmented = TRUE;
+                    frags[i].sequence = 0;
                 }
             break;
         }
@@ -7393,13 +7411,33 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 frags[frag_count].nds_frag_flags = request_value->req_nds_flags;
                 frags[frag_count].nds_frag_prot_flags = request_value->req_nds_prot_flags;
                 fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, nds_fragment_table, nds_reassembled_table, len, request_value->nds_frag);
+                frags[frag_count].sequence = sequence;
                 frags[frag_count].nds_length = 1;
             }
             else
             {
                 /* Subsequent fragments should be offset by 16 since we do not need */
                 /* the additional fragment handle and size fields in our composite data */
-                fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+                /* Also do not add retransmitted packets, just mark and return */
+                if (!pinfo->fd->flags.visited)
+                {
+                    if (sequence != frags[frag_count].sequence) {
+                        fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+                        frags[frag_count].sequence = sequence;
+                    }
+                    else
+                    {
+                        if (check_col(pinfo->cinfo, COL_INFO)) {
+                            col_add_fstr(pinfo->cinfo, COL_INFO, "[Retransmitted NDS Fragment 0x%08x]", frags[frag_count].nds_frag);
+                        }
+                        return;
+                    }
+                }
+                else
+                {
+                    fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+                    frags[frag_count].sequence = sequence;
+                }
             }
             if (fd_head != NULL)
             {
@@ -7462,10 +7500,10 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                     frag_tvb = tvb_new_subset(tvb, 0, -1, -1);
                     if (check_col(pinfo->cinfo, COL_INFO))
                     {
-                        if (request_value->nds_frag)
-                        {
-                            col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment %08x]", frags[frag_count].nds_frag);
-                        }
+                      if (request_value->nds_frag)
+                      {
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment 0x%08x]", frags[frag_count].nds_frag);
+                      }
                     }
                 }
             }
@@ -7474,10 +7512,10 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
                 /* Fragment from first pass of dissection */
                 if (check_col(pinfo->cinfo, COL_INFO))
                 {
-                    if (request_value->nds_frag)
-                    {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment %08x]", frags[frag_count].nds_frag);
-                    }
+                  if (request_value->nds_frag)
+                  {
+                     col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment 0x%08x]", frags[frag_count].nds_frag);
+                  }
                 }
                 frag_tvb = NULL;
             }
@@ -7508,9 +7546,17 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
     else
     {
         /* This is not any fragment packet */
-        frags[frag_count].nds_length = 0;
         request_value->nds_frag = FALSE;
-        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
+        /* Trap for retransmitted end fragment */
+        if (request_value->nds_end_frag < pinfo->fd->num) {
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "[Retransmitted end of NDS Fragment 0x%08x, see packet #%d for details.]", request_value->nds_frag_num, request_value->nds_end_frag);
+            }
+        }
+        else
+        { 
+            dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
+        }
     }
 }
 
@@ -8466,35 +8512,35 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].vflags = request_value->req_nds_flags;
                                 break;
                         case 0x03:
-                                pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                pvalues[0].vtype = VTYPE_UINT32;
-                                pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-                                pvalues[0].vlength = 4;
-                                pvalues[0].voffset = nds_offset;
-                                pvalues[0].hfname = hf_nds_iteration;
-                                nds_offset = nds_offset+pvalues[0].vlength;
-                                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_info_type);
-                                if(pvalues[1].vstring == NULL)
-                                {
-                                        pvalues[1].vstring = "No Info Type Set";
-                                }
-                                pvalues[1].vtype = VTYPE_STRING;
-                                pvalues[1].vdesc = "Info Type: %s";
-                                pvalues[1].vlength = 4;
-                                pvalues[1].voffset = nds_offset;
-                                pvalues[1].hfname = hf_nds_info_type;
-                                nds_offset = nds_offset+pvalues[1].vlength;
-                                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[2].vdesc = "Number of Attributes: %u";
-                                pvalues[2].vlength = 4;
-                                pvalues[2].voffset = nds_offset;
-                                pvalues[2].hfname = hf_nds_attr;
-                                pvalues[2].mvtype = MVTYPE_ATTR_REPLY;
-                                pvalues[2].vflags = request_value->req_nds_flags;
-                                pvalues[2].nds_version = request_value->nds_version;
-                                break;
+                                        pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                        pvalues[0].vtype = VTYPE_UINT32;
+                                        pvalues[0].vdesc = "Iteration Handle: 0x%08x";
+                                        pvalues[0].vlength = 4;
+                                        pvalues[0].voffset = nds_offset;
+                                        pvalues[0].hfname = hf_nds_iteration;
+                                        nds_offset = nds_offset+pvalues[0].vlength;
+                                        pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                        pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_info_type);
+                                        if(pvalues[1].vstring == NULL)
+                                        {
+                                                pvalues[1].vstring = "No Info Type Set";
+                                        }
+                                        pvalues[1].vtype = VTYPE_STRING;
+                                        pvalues[1].vdesc = "Info Type: %s";
+                                        pvalues[1].vlength = 4;
+                                        pvalues[1].voffset = nds_offset;
+                                        pvalues[1].hfname = hf_nds_info_type;
+                                        nds_offset = nds_offset+pvalues[1].vlength;
+                                        pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                        pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
+                                        pvalues[2].vdesc = "Number of Attributes: %u";
+                                        pvalues[2].vlength = 4;
+                                        pvalues[2].voffset = nds_offset;
+                                        pvalues[2].hfname = hf_nds_attr;
+                                        pvalues[2].mvtype = MVTYPE_ATTR_REPLY;
+                                        pvalues[2].vflags = request_value->req_nds_flags;
+                                        pvalues[2].nds_version = request_value->nds_version;
+                                        pvalues[2].pflags = request_value->req_nds_prot_flags;
                         case 0x04:
                                 pvalues[0].vvalue = tvb_get_guint8(tvb, nds_offset);
                                 if (pvalues[0].vvalue == 0)
@@ -9868,6 +9914,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].voffset = foffset;
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
+                                if (pvalues[0].vvalue == 1) {
+                                    /* Version 1 specifies for this offset value to always be a value of 1*/
+                                    /* No need to display to user */
+                                    foffset += 4; 
+                                }
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
@@ -11673,7 +11724,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         	if (ncp_rec) {
               		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
                         if (nds_frag != 0xffffffff) {
-                                col_add_fstr(pinfo->cinfo, COL_INFO, "C Continue NDS Fragment %08x", nds_frag);
+                                col_add_fstr(pinfo->cinfo, COL_INFO, "C Continue NDS Fragment 0x%08x", nds_frag);
                         }
                         else {
                        		col_add_fstr(pinfo->cinfo, COL_INFO, "C NDS %s", verb_string);
