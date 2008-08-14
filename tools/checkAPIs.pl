@@ -197,6 +197,10 @@ my $SingleQuotedStr = qr{(?:\'(?:\\.|[^\'\\])*\')};
 #    Also: capturing the comment isn't necessary.
 my $commentAndStringRegex = qr{(?:$DoubleQuotedStr|$SingleQuotedStr|$CComment)};
 
+#### Regex for use when searching for value-string definitions
+my $StaticRegex = qr{static\s+};
+my $ConstRegex  = qr{const\s+};
+my $Static_andor_ConstRegex = qr{(?:$StaticRegex$ConstRegex|$StaticRegex|$ConstRegex)};
 #
 # MAIN
 #
@@ -263,11 +267,9 @@ while ($_ = $ARGV[0])
 
 	# Brute force check for value_string arrays which are not NULL terminated
 	if ($check_value_string_array_null_termination) {
-		#  Assumption: definition is of form:
-		#    "... const value_string ... = { ... ;" (possibly over multiple lines) 
-		# ToDo: investigate cases in Wireshark code of value_string definitions such as
-		#        "const value_string ...;".
-		while ($fileContents =~ /( (?: static \s+)? const \s+ value_string [^;*]+ = [^;]+ \{ [^;]+ ; )/xsg) {
+		#  Assumption: definition is of form (pseudo-Regex):
+		#    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines) 
+		while ($fileContents =~ /( $Static_andor_ConstRegex value_string [^;*]+ = [^;]+ \{ [^;]+ ; )/xsg) {
 			# value_string array definition found; check if NULL terminated
 			my $vs = my $vsx = $1;
 			if ($debug_flag) {
