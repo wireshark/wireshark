@@ -4,6 +4,25 @@
  *
  * $Id$
  *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+/*
  * Added support for OSPF restart signaling:
  *       draft-nguyen-ospf-lls-05.txt
  *       draft-nguyen-ospf-oob-resync-05.txt
@@ -26,25 +45,11 @@
  * Added support for decoding the TLVs in a grace-LSA
  *   - (c) 2007 Todd J Martin <todd.martin@acm.org>
  *
+ * Added support for draft-ietf-ospf-manet-or-00
+ * Added support for draft-ietf-ospf-af-alt-06
+ *   - (c) 2008 Cisco Systems
+ *
  * TOS - support is not fully implemented
- *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -64,6 +69,8 @@
 
 #define OSPF_VERSION_2 2
 #define OSPF_VERSION_3 3
+#define OSPF_AF_4 4
+#define OSPF_AF_6 6
 #define OSPF_VERSION_2_HEADER_LENGTH	24
 #define OSPF_VERSION_3_HEADER_LENGTH    16
 
@@ -107,9 +114,19 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_OPTIONS_N		0x08
 #define OSPF_V3_OPTIONS_R		0x10
 #define OSPF_V3_OPTIONS_DC		0x20
+#define OSPF_V3_OPTIONS_AF		0x0100
+#define OSPF_V3_OPTIONS_L		0x0200
+#define OSPF_V3_OPTIONS_I		0x0400
+#define OSPF_V3_OPTIONS_F		0x0800
 
 #define OSPF_LLS_EXT_OPTIONS_LR		0x00000001
 #define OSPF_LLS_EXT_OPTIONS_RS		0x00000002
+
+#define OSPF_V3_LLS_STATE_OPTIONS_R     0x80
+#define OSPF_V3_LLS_STATE_OPTIONS_A     0x40
+#define OSPF_V3_LLS_STATE_OPTIONS_N     0x20
+#define OSPF_V3_LLS_RELAY_OPTIONS_A     0x80
+#define OSPF_V3_LLS_RELAY_OPTIONS_N     0x40
 
 #define OSPF_DBD_FLAG_MS	1
 #define OSPF_DBD_FLAG_M		2
@@ -200,7 +217,7 @@ static const value_string ls_type_vals[] = {
 static const value_string ls_opaque_type_vals[] = {
 	{OSPF_LSA_MPLS_TE, "Traffic Engineering LSA"                },
 	{2,                "Sycamore Optical Topology Descriptions" },
-	{OSPF_LSA_GRACE,                "grace-LSA"               },
+	{OSPF_LSA_GRACE,   "grace-LSA"                              },
 	{0,                NULL                                     }
 };
 
@@ -220,8 +237,28 @@ static const value_string v3_ls_type_vals[] = {
 
 static const value_string lls_tlv_type_vals[] = {
 	{1,                                   "Extended options TLV"         },
-	{2,                                   "Crypo Authentication TLV"     },
+	{2,                                   "Crypto Authentication TLV"    },
 	{0,                                   NULL                           }
+};
+
+/* OSPFv3 LLS TLV Types */
+#define LLS_V3_EXT_OPT       1
+#define LLS_V3_STATE_CHECK   2
+#define LLS_V3_NBR_DROP      3
+#define LLS_V3_RELAYS        4
+#define LLS_V3_WILLING       5
+#define LLS_V3_RQST_FROM     6
+#define LLS_V3_FULL_STATE    7
+
+static const value_string lls_v3_tlv_type_vals[] = {
+    {LLS_V3_EXT_OPT,                      "Extended Options TLV"          },
+    {LLS_V3_STATE_CHECK,                  "State Check Sequence TLV"      },
+    {LLS_V3_NBR_DROP,                     "Neighbor Drop TLV"             },
+    {LLS_V3_RELAYS,                       "Active Overlapping Relays TLV" },
+    {LLS_V3_WILLING,                      "Willingness TLV"               },
+    {LLS_V3_RQST_FROM,                    "Request From LTV"              },
+    {LLS_V3_FULL_STATE,                   "Full State For TLV"            },
+    {0,                                   NULL                            }
 };
 
 static const value_string mpls_link_stlv_ltype_str[] = {
@@ -274,6 +311,19 @@ static gint ett_ospf_dbd = -1;
 static gint ett_ospf_lls_data_block = -1;
 static gint ett_ospf_lls_tlv = -1;
 static gint ett_ospf_lls_ext_options = -1;
+static gint ett_ospf_v3_lls_ext_options_tlv = -1;
+static gint ett_ospf_v3_lls_ext_options = -1;
+static gint ett_ospf_v3_lls_state_tlv = -1;
+static gint ett_ospf_v3_lls_state_scs = -1;
+static gint ett_ospf_v3_lls_state_options = -1;
+static gint ett_ospf_v3_lls_drop_tlv = -1;
+static gint ett_ospf_v3_lls_relay_tlv = -1;
+static gint ett_ospf_v3_lls_relay_added = -1;
+static gint ett_ospf_v3_lls_relay_options = -1;
+static gint ett_ospf_v3_lls_willingness_tlv = -1;
+static gint ett_ospf_v3_lls_willingness = -1;
+static gint ett_ospf_v3_lls_rf_tlv = -1;
+static gint ett_ospf_v3_lls_fsf_tlv = -1;
 static gint ett_ospf_v2_router_lsa_flags = -1;
 static gint ett_ospf_v3_router_lsa_flags = -1;
 static gint ett_ospf_v3_as_external_flags = -1;
@@ -343,6 +393,22 @@ static const true_false_string tfs_v3_options_dc = {
 	"DC is SET",
 	"DC is NOT set"
 };
+static const true_false_string tfs_v3_options_af = {
+	"AF is SET",
+	"AF is NOT set"
+};
+static const true_false_string tfs_v3_options_l = {
+	"L is SET",
+	"L is NOT set"
+};
+static const true_false_string tfs_v3_options_i = {
+	"I is SET",
+	"I is NOT set"
+};
+static const true_false_string tfs_v3_options_f = {
+	"F is SET",
+	"F is NOT set"
+};
 static const true_false_string tfs_dbd_i = {
 	"Init bit is SET",
 	"Init bit is NOT set"
@@ -366,6 +432,26 @@ static const true_false_string tfs_lls_ext_options_lr = {
 static const true_false_string tfs_lls_ext_options_rs = {
 	"Restart Signal (RS-bit) is SET",
 	"Restart Signal (RS-bit) is NOT set"
+};
+static const true_false_string tfs_v3_lls_state_options_r = {
+	"Request (R-bit) is SET",
+	"Request (R-bit) is NOT set",
+};
+static const true_false_string tfs_v3_lls_state_options_a = {
+	"Answer (A-bit) is SET",
+	"Answer (A-bit) is NOT set",
+};
+static const true_false_string tfs_v3_lls_state_options_n = {
+	"Incomplete (N-bit) is SET",
+	"Incomplete (N-bit) is NOT set",
+};
+static const true_false_string tfs_v3_lls_relay_options_a = {
+	"Answer (A-bit) is SET",
+	"Answer (A-bit) is NOT set",
+};
+static const true_false_string tfs_v3_lls_relay_options_n = {
+	"Incomplete (N-bit) is SET",
+	"Incomplete (N-bit) is NOT set",
 };
 static const true_false_string tfs_v2_router_lsa_flags_b = {
 	"Area border router",
@@ -487,14 +573,37 @@ enum {
     OSPFF_V3_OPTIONS_N,
     OSPFF_V3_OPTIONS_R,
     OSPFF_V3_OPTIONS_DC,
+    OSPFF_V3_OPTIONS_AF,
+    OSPFF_V3_OPTIONS_L,
+    OSPFF_V3_OPTIONS_I,
+    OSPFF_V3_OPTIONS_F,
     OSPFF_DBD,
     OSPFF_DBD_R,
     OSPFF_DBD_I,
     OSPFF_DBD_M,
     OSPFF_DBD_MS,
+    OSPFF_LLS_EXT_OPTIONS_TLV,
     OSPFF_LLS_EXT_OPTIONS,
     OSPFF_LLS_EXT_OPTIONS_LR,
     OSPFF_LLS_EXT_OPTIONS_RS,
+    OSPFF_V3_LLS_EXT_OPTIONS_TLV,
+    OSPFF_V3_LLS_EXT_OPTIONS,
+    OSPFF_V3_LLS_STATE_TLV,
+    OSPFF_V3_LLS_STATE_SCS,
+    OSPFF_V3_LLS_STATE_OPTIONS,
+    OSPFF_V3_LLS_STATE_OPTIONS_R,
+    OSPFF_V3_LLS_STATE_OPTIONS_A,
+    OSPFF_V3_LLS_STATE_OPTIONS_N,
+    OSPFF_V3_LLS_DROP_TLV,
+    OSPFF_V3_LLS_RELAY_TLV,
+    OSPFF_V3_LLS_RELAY_ADDED,
+    OSPFF_V3_LLS_RELAY_OPTIONS,
+    OSPFF_V3_LLS_RELAY_OPTIONS_A,
+    OSPFF_V3_LLS_RELAY_OPTIONS_N,
+    OSPFF_V3_LLS_WILLINGNESS_TLV,
+    OSPFF_V3_LLS_WILLINGNESS,
+    OSPFF_V3_LLS_RF_TLV,
+    OSPFF_V3_LLS_FSF_TLV,
     OSPFF_V2_ROUTER_LSA_FLAG,
     OSPFF_V2_ROUTER_LSA_FLAG_B,
     OSPFF_V2_ROUTER_LSA_FLAG_E,
@@ -609,8 +718,8 @@ static hf_register_info ospff_info[] = {
        "", HFILL }},
 
     {&ospf_filter[OSPFF_LS_MPLS_LINKTYPE],
-     { "MPLS/TE Link Type", "ospf.mpls.linktype", FT_UINT8, BASE_DEC, VALS(mpls_link_stlv_ltype_str), 0x0,
-       "MPLS/TE Link Type", HFILL }},
+     { "MPLS/TE Link Type", "ospf.mpls.linktype", FT_UINT8, BASE_DEC,
+       VALS(mpls_link_stlv_ltype_str), 0x0, "", HFILL }},
     {&ospf_filter[OSPFF_LS_MPLS_LINKID],
      { "MPLS/TE Link ID", "ospf.mpls.linkid", FT_IPv4, BASE_NONE, NULL, 0x0,
        "", HFILL }},
@@ -628,11 +737,11 @@ static hf_register_info ospff_info[] = {
        BASE_DEC, NULL, 0x0, "", HFILL }},
     {&ospf_filter[OSPFF_LS_MPLS_LINKCOLOR],
      { "MPLS/TE Link Resource Class/Color", "ospf.mpls.linkcolor", FT_UINT32,
-       BASE_HEX, NULL, 0x0, "MPLS/TE Link Resource Class/Color", HFILL }},
+       BASE_HEX, NULL, 0x0, "", HFILL }},
     {&ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
      { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
        BASE_RANGE_STRING | BASE_DEC, RVALS(&mpls_link_stlv_bcmodel_rvals), 0x0, 
-       "MPLS/DSTE Bandwidth Constraints Model Id", HFILL }},
+       "", HFILL }},
 
     {&ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
      { "Local Node ID", "ospf.oif.local_node_id", FT_IPv4,
@@ -686,6 +795,18 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_V3_OPTIONS_DC],
      { "DC", "ospf.v3.options.dc", FT_BOOLEAN, 24,
        TFS(&tfs_v3_options_dc), OSPF_V3_OPTIONS_DC, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_OPTIONS_AF],
+     { "AF", "ospf.v3.options.af", FT_BOOLEAN, 24,
+       TFS(&tfs_v3_options_af), OSPF_V3_OPTIONS_AF, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_OPTIONS_L],
+     { "L", "ospf.v3.options.l", FT_BOOLEAN, 24,
+       TFS(&tfs_v3_options_l), OSPF_V3_OPTIONS_L, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_OPTIONS_I],
+     { "I", "ospf.v3.options.i", FT_BOOLEAN, 24,
+       TFS(&tfs_v3_options_i), OSPF_V3_OPTIONS_I, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_OPTIONS_F],
+     { "F", "ospf.v3.options.f", FT_BOOLEAN, 24,
+       TFS(&tfs_v3_options_f), OSPF_V3_OPTIONS_F, "", HFILL }},
     {&ospf_filter[OSPFF_DBD],
      { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
        NULL, 0x0, "", HFILL }},
@@ -766,7 +887,8 @@ static hf_register_info ospff_info[] = {
        TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, "", HFILL }},
 
     /* OSPF Restart TLVs  */
-    {&ospf_filter[OSPFF_V2_GRACE_TLV], {"Grace TLV", "ospf.v2.grace", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL}},
+    {&ospf_filter[OSPFF_V2_GRACE_TLV],
+     { "Grace TLV", "ospf.v2.grace", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL}},
     {&ospf_filter[OSPFF_V2_GRACE_PERIOD],
      { "Grace Period", "ospf.v2.grace.period", FT_UINT32, BASE_DEC,
        NULL, 0x0, 
@@ -777,7 +899,63 @@ static hf_register_info ospff_info[] = {
        VALS(restart_reason_vals), 0x0, "The reason the router is restarting", HFILL }},
     {&ospf_filter[OSPFF_V2_GRACE_IP],
      { "Restart IP", "ospf.v2.grace.ip", FT_IPv4, BASE_NONE,
-       NULL, 0x0, "The IP address of the interface originating this LSA", HFILL }}
+       NULL, 0x0, "The IP address of the interface originating this LSA", HFILL }},
+
+    /* OSPFv3 LLS TLVs */
+    {&ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_TLV],
+     { "Extended Options TLV", "ospf.v3.lls.ext.options.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS],
+     { "Options", "ospf.v3.lls.ext.options", FT_UINT32,  BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_TLV],
+     { "State Check Sequence TLV", "ospf.v3.lls.state.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_SCS],
+     { "SCS Number", "ospf.v3.lls.state.scs", FT_UINT16,  BASE_DEC,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS],
+     { "Options", "ospf.v3.lls.state.options", FT_UINT8,  BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_R],
+     { "R", "ospf.v3.lls.state.options.r", FT_BOOLEAN, 8,
+       TFS(&tfs_v3_lls_state_options_r), OSPF_V3_LLS_STATE_OPTIONS_R, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_A],
+     { "A", "ospf.v3.lls.state.options.a", FT_BOOLEAN, 8,
+       TFS(&tfs_v3_lls_state_options_a), OSPF_V3_LLS_STATE_OPTIONS_A , "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_STATE_OPTIONS_N],
+     { "N", "ospf.v3.lls.state.options.n", FT_BOOLEAN, 8,
+       TFS(&tfs_v3_lls_state_options_n), OSPF_V3_LLS_STATE_OPTIONS_N ,"", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_DROP_TLV],
+     { "Neighbor Drop TLV", "ospf.v3.lls.drop.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+     {&ospf_filter[OSPFF_V3_LLS_RELAY_TLV],
+     { "Active Overlapping Relays TLV", "ospf.v3.lls.relay.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_RELAY_ADDED],
+     { "Relays Added", "ospf.v3.lls.relay.added", FT_UINT8,  BASE_DEC,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_RELAY_OPTIONS],
+     { "Options", "ospf.v3.lls.relay.options", FT_UINT8,  BASE_HEX,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_RELAY_OPTIONS_A],
+     { "A", "ospf.v3.lls.relay.options.a", FT_BOOLEAN, 8,
+       TFS(&tfs_v3_lls_relay_options_a), OSPF_V3_LLS_RELAY_OPTIONS_A , "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_RELAY_OPTIONS_N],
+     { "N", "ospf.v3.lls.relay.options.n", FT_BOOLEAN, 8,
+       TFS(&tfs_v3_lls_relay_options_n), OSPF_V3_LLS_RELAY_OPTIONS_N ,"", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_WILLINGNESS_TLV],
+     { "Willingness TLV", "ospf.v3.lls.willingness.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_WILLINGNESS],
+     { "Willingness", "ospf.v3.lls.willingness", FT_UINT8,  BASE_DEC,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_RF_TLV],
+     { "Request From TLV", "ospf.v3.lls.rf.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_FSF_TLV],
+     { "Full State For TLV", "ospf.v3.lls.fsf.tlv", FT_NONE, BASE_NONE,
+       NULL, 0x0, "", HFILL }}
 };
 
 static guint8 ospf_msg_type_to_filter (guint8 msg_type)
@@ -817,6 +995,18 @@ static int bf_lls_ext_options[] = {
     OSPFF_LLS_EXT_OPTIONS_RS,
     OSPFF_LLS_EXT_OPTIONS_LR
 };
+static int bf_v3_lls_ext_options[] = {
+};
+
+static int bf_v3_lls_state_options[] = {
+    OSPFF_V3_LLS_STATE_OPTIONS_R,
+    OSPFF_V3_LLS_STATE_OPTIONS_A,
+    OSPFF_V3_LLS_STATE_OPTIONS_N
+};
+static int bf_v3_lls_relay_options[] = {
+    OSPFF_V3_LLS_RELAY_OPTIONS_A,
+    OSPFF_V3_LLS_RELAY_OPTIONS_N
+};
 static int bf_v2_router_lsa_flags[] = {
     OSPFF_V2_ROUTER_LSA_FLAG_V,
     OSPFF_V2_ROUTER_LSA_FLAG_E,
@@ -843,6 +1033,10 @@ static int bf_v2_options[] = {
     OSPFF_V2_OPTIONS_E
 };
 static int bf_v3_options[] = {
+    OSPFF_V3_OPTIONS_F,
+    OSPFF_V3_OPTIONS_I,
+    OSPFF_V3_OPTIONS_L,
+    OSPFF_V3_OPTIONS_AF,
     OSPFF_V3_OPTIONS_DC,
     OSPFF_V3_OPTIONS_R,
     OSPFF_V3_OPTIONS_N,
@@ -864,6 +1058,18 @@ static bitfield_info bfinfo_dbd = {
 static bitfield_info bfinfo_lls_ext_options = {
     OSPFF_LLS_EXT_OPTIONS, &ett_ospf_lls_ext_options,
     bf_lls_ext_options, array_length(bf_lls_ext_options)
+};
+static bitfield_info bfinfo_v3_lls_ext_options = {
+    OSPFF_V3_LLS_EXT_OPTIONS, &ett_ospf_v3_lls_ext_options,
+    bf_v3_lls_ext_options, array_length(bf_v3_lls_ext_options)
+};
+static bitfield_info bfinfo_v3_lls_state_options = {
+    OSPFF_V3_LLS_STATE_OPTIONS, &ett_ospf_v3_lls_state_options,
+    bf_v3_lls_state_options, array_length(bf_v3_lls_state_options)
+};
+static bitfield_info bfinfo_v3_lls_relay_options = {
+    OSPFF_V3_LLS_RELAY_OPTIONS, &ett_ospf_v3_lls_relay_options,
+    bf_v3_lls_relay_options, array_length(bf_v3_lls_relay_options)
 };
 static bitfield_info bfinfo_v2_router_lsa_flags = {
     OSPFF_V2_ROUTER_LSA_FLAG, &ett_ospf_v2_router_lsa_flags,
@@ -952,10 +1158,10 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 static dissector_handle_t data_handle;
 
 static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8, guint16);
-static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8, guint16, guint8);
 static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8, guint16);
-static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8, guint16);
-static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8, guint16);
+static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8, guint16, guint8);
+static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8, guint16, guint8);
 static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
 
 /* dissect_ospf_v[23]lsa returns the offset of the next LSA
@@ -964,23 +1170,39 @@ static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
  * LSA header
  */
 static int dissect_ospf_v2_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body);
-static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body);
+static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body, 
+                               guint8);
 
-static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *);
+static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *, guint8);
 
 static int
-ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type)
+ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
 {
     guint8 flags;
+    guint32 v3flags;
 
     /* LLS block can be found only in HELLO and DBDESC packets */
     switch (packet_type) {
     case OSPF_HELLO:
-	flags = tvb_get_guint8 (tvb, offset + 6);
-	return flags & OSPF_V2_OPTIONS_L;
+        switch (version) {
+        case OSPF_VERSION_2:
+            flags = tvb_get_guint8 (tvb, offset + 6);
+            return flags & OSPF_V2_OPTIONS_L;
+        case OSPF_VERSION_3:
+            v3flags = tvb_get_ntohl(tvb, offset + 5);
+            v3flags = v3flags >> 8;
+            return v3flags & OSPF_V3_OPTIONS_L;
+        }
     case OSPF_DB_DESC:
-	flags = tvb_get_guint8 (tvb, offset + 2);
-	return flags & OSPF_V2_OPTIONS_L;
+        switch (version) {
+        case OSPF_VERSION_2:
+            flags = tvb_get_guint8 (tvb, offset + 2);
+            return flags & OSPF_V2_OPTIONS_L;
+        case OSPF_VERSION_3:
+            v3flags = tvb_get_ntohl(tvb, offset + 1);
+            v3flags = v3flags >> 8;
+            return v3flags & OSPF_V3_OPTIONS_L;
+        }
     }
 
     return 0;
@@ -1007,7 +1229,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 instance_ID;
     guint8 reserved;
     guint32 areaid;
-
+    guint8  address_family = OSPF_AF_6;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSPF");
@@ -1023,7 +1245,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ospf_header_length = OSPF_VERSION_3_HEADER_LENGTH;
             break;
         default:
-	    ospf_header_length = 14;
+            ospf_header_length = 14;
             break;
     }
 
@@ -1043,7 +1265,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 "OSPF Header");
 	ospf_header_tree = proto_item_add_subtree(ti, ett_ospf_hdr);
 
-        proto_tree_add_text(ospf_header_tree, tvb, 0, 1, "OSPF Version: %u",
+	proto_tree_add_text(ospf_header_tree, tvb, 0, 1, "OSPF Version: %u",
 			    version);
 	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_MSG_TYPE],
 			    tvb, 1, 1, FALSE);
@@ -1202,8 +1424,26 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case OSPF_VERSION_3:
 	    /* Instance ID and "reserved" is OSPFv3-only */
 	    instance_ID = tvb_get_guint8(tvb, 14);
- 	    proto_tree_add_text(ospf_header_tree, tvb, 14, 1, "Instance ID: %u",
+ 	    ti = proto_tree_add_text(ospf_header_tree, tvb, 14, 1, "Instance ID: %u",
 			    instance_ID);
+
+	    if (instance_ID < 32) {
+	        proto_item_append_text(ti, " (IPv6 unicast AF)");
+	        address_family = OSPF_AF_6;
+	    } else if (instance_ID < 64) {
+	        proto_item_append_text(ti, " (IPv6 multicast AF)");
+	        address_family = OSPF_AF_6;
+	    } else if (instance_ID < 96) {
+	        proto_item_append_text(ti, " (IPv4 unicast AF)");
+	        address_family = OSPF_AF_4;
+	    } else if (instance_ID < 128) {
+	        proto_item_append_text(ti, " (IPv4 multicast AF)");
+	        address_family = OSPF_AF_4;
+	    } else {
+	        proto_item_append_text(ti, " (Reserved)");
+	        address_family = OSPF_AF_6;
+	    }
+
  	    reserved = tvb_get_guint8(tvb, 15);
 	    proto_tree_add_text(ospf_header_tree, tvb, 15, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
 				reserved);
@@ -1219,22 +1459,25 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case OSPF_DB_DESC:
 	    dissect_ospf_db_desc(tvb, (int)ospf_header_length, ospf_tree, version,
-			    (guint16)(ospflen - ospf_header_length));
+                                 (guint16)(ospflen - ospf_header_length),
+                                 address_family);
 	    break;
 
 	case OSPF_LS_REQ:
 	    dissect_ospf_ls_req(tvb, (int)ospf_header_length, ospf_tree, version,
-			    (guint16)(ospflen - ospf_header_length));
+                                (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	case OSPF_LS_UPD:
 	    dissect_ospf_ls_upd(tvb, (int)ospf_header_length, ospf_tree, version,
-			    (guint16)(ospflen - ospf_header_length));
+                                (guint16)(ospflen - ospf_header_length),
+                                address_family);
 	    break;
 
 	case OSPF_LS_ACK:
 	    dissect_ospf_ls_ack(tvb, (int)ospf_header_length, ospf_tree, version,
-			    (guint16)(ospflen - ospf_header_length));
+                                (guint16)(ospflen - ospf_header_length),
+                                address_family);
 	    break;
 
 	default:
@@ -1244,14 +1487,15 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* take care of the LLS data block */
-	if (ospf_has_lls_block(tvb, ospf_header_length, packet_type))
+	if (ospf_has_lls_block(tvb, ospf_header_length, packet_type, version)) {
 	    dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree,
 			    version);
+	}
     }
 }
 
 static int
-dissect_ospf_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *ospf_lls_tlv_tree;
@@ -1287,6 +1531,138 @@ dissect_ospf_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     return offset + length + 4;
 }
 
+static int
+dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *ospf_lls_tlv_tree;
+    guint16 type;
+    guint16 length;
+    guint8 relays_added;
+    int orig_offset;
+
+    type = tvb_get_ntohs(tvb, offset);
+    length = tvb_get_ntohs(tvb, offset + 2);
+
+    switch(type) {
+    case LLS_V3_EXT_OPT:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_TLV], tvb,
+                                 offset, length + 4, FALSE);
+       break;
+    case LLS_V3_STATE_CHECK:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_STATE_TLV], tvb,
+                                 offset, length + 4, FALSE);
+        break;
+    case LLS_V3_NBR_DROP:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_DROP_TLV], tvb,
+                                 offset, length + 4, FALSE);
+        break;
+    case LLS_V3_RELAYS:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_RELAY_TLV], tvb,
+                                 offset, length + 4, FALSE);
+        break;
+    case LLS_V3_WILLING:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_WILLINGNESS_TLV], tvb,
+                                 offset, length + 4, FALSE);
+        break;
+    case LLS_V3_RQST_FROM:
+         ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_RF_TLV], tvb,
+                                  offset, length + 4, FALSE);
+         break;
+    case LLS_V3_FULL_STATE:
+        ti = proto_tree_add_item(tree, ospf_filter[OSPFF_V3_LLS_FSF_TLV], tvb,
+                                 offset, length + 4, FALSE);
+        break;
+    default:
+        ti = proto_tree_add_text(tree, tvb, offset, length + 4, 
+                                 val_to_str(type, lls_v3_tlv_type_vals, "Unknown TLV")); 
+    }
+
+    ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
+    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 2,
+                        "Type: %d", type);
+    proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 2, 2,
+                        "Length: %d", length);
+
+    orig_offset = offset;
+
+    switch (type) {
+    case LLS_V3_EXT_OPT:
+        proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset + 4, 4,
+                            "Extended Options: 0x%08x",
+                            tvb_get_ntohl(tvb, offset + 4));
+
+        dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 4, &bfinfo_v3_lls_ext_options);
+        break;
+    case LLS_V3_STATE_CHECK:
+        proto_tree_add_item(ospf_lls_tlv_tree, ospf_filter[OSPFF_V3_LLS_STATE_SCS],
+                            tvb, offset+4, 2, FALSE);
+
+        dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 6,
+                              &bfinfo_v3_lls_state_options);
+        break;
+    case LLS_V3_NBR_DROP:
+        offset += 4;
+        while (orig_offset + length >= offset) {
+            proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
+                                "Dropped Neighbor: %s",
+                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            offset += 4;
+        }
+        offset = orig_offset;
+        break;
+    case LLS_V3_RELAYS:
+        relays_added = tvb_get_guint8(tvb, offset+4);
+        proto_tree_add_item(ospf_lls_tlv_tree, ospf_filter[OSPFF_V3_LLS_RELAY_ADDED],
+                            tvb, offset+4, 1, FALSE);
+        dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 5,
+                              &bfinfo_v3_lls_relay_options);
+        offset += 8;
+        while (orig_offset + length >= offset) {
+            ti = proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
+                                "Neighbor: %s",
+                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            if (relays_added > 0) {
+                proto_item_append_text(ti, " Added");
+            } else {
+                proto_item_append_text(ti, " Deleted");
+            }
+
+            relays_added--;
+            offset += 4;
+        }
+        break;
+    case LLS_V3_WILLING:
+        proto_tree_add_item(ospf_lls_tlv_tree, ospf_filter[OSPFF_V3_LLS_WILLINGNESS],
+                            tvb, offset+4, 1, FALSE);
+
+        break;
+    case LLS_V3_RQST_FROM:
+        offset += 4;
+        while (orig_offset + length >= offset) {
+            proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
+                                "Request From: %s",
+                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            offset += 4;
+        }
+        offset = orig_offset;
+        break;
+    case LLS_V3_FULL_STATE:
+           offset += 4;
+        while (orig_offset + length >= offset) {
+            proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
+                                "Full State For: %s",
+                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            offset += 4;
+        }
+        offset = orig_offset;
+        break;
+    }
+
+    return offset + length + 4;
+}
+
+
 static void
 dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
 		guint8 version)
@@ -1301,9 +1677,6 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
     ospf_lls_data_block_tree = proto_item_add_subtree(ti,
 		    ett_ospf_lls_data_block);
 
-    if (version != OSPF_VERSION_2)
-	    return;
-
     /* TODO: verify checksum */
     proto_tree_add_text(ospf_lls_data_block_tree, tvb, offset, 2,
 		    "Checksum: 0x%04x", tvb_get_ntohs(tvb, offset));
@@ -1311,8 +1684,16 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    "LLS Data Length: %d bytes", ospf_lls_len * 4);
 
     offset += 4;
-    while (orig_offset + ospf_lls_len * 4 > offset)
-	offset = dissect_ospf_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
+    while (orig_offset + ospf_lls_len * 4 > offset) {
+        switch (version) {
+        case OSPF_VERSION_2:
+            offset = dissect_ospfv2_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
+            break;
+        case OSPF_VERSION_3:
+            offset = dissect_ospfv3_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
+            break;
+        }
+    }
 }
 
 static void
@@ -1381,7 +1762,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 
 static void
 dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree,
-		guint8 version, guint16 length)
+                     guint8 version, guint16 length, guint8 address_family)
 {
     proto_tree *ospf_db_desc_tree=NULL;
     proto_item *ti;
@@ -1439,14 +1820,14 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree,
           offset = dissect_ospf_v2_lsa(tvb, offset, tree, FALSE);
       else
 	  if ( version == OSPF_VERSION_3)
-              offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE);
+              offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE, address_family);
     }
 
 }
 
 static void
 dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
-		guint16 length)
+                    guint16 length)
 {
     proto_tree *ospf_lsr_tree;
     proto_item *ti;
@@ -1491,7 +1872,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 
 static void
 dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
-		guint16 length)
+                    guint16 length, guint8 address_family)
 {
     proto_tree *ospf_lsa_upd_tree=NULL;
     proto_item *ti;
@@ -1512,7 +1893,8 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
         if ( version == OSPF_VERSION_2)
 	    offset = dissect_ospf_v2_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE);
         else if ( version == OSPF_VERSION_3)
-	        offset = dissect_ospf_v3_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE);
+            offset = dissect_ospf_v3_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE, 
+                                         address_family);
         else
             /* We could potentially waste CPU cycles looping */
             lsa_counter = lsa_nr;
@@ -1523,7 +1905,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 
 static void
 dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
-		guint16 length)
+                    guint16 length, guint8 address_family)
 {
     int orig_offset = offset;
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
@@ -1532,7 +1914,8 @@ dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 	    offset = dissect_ospf_v2_lsa(tvb, offset, tree, FALSE);
         else
 	    if ( version == OSPF_VERSION_3)
-	      offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE);
+                offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE, 
+                                             address_family);
     }
 }
 
@@ -2508,7 +2891,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 static int
 dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
-		 gboolean disassemble_body)
+                    gboolean disassemble_body, guint8 address_family)
 {
     proto_tree *ospf_lsa_tree;
     proto_item *ti;
@@ -2700,7 +3083,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         offset+=8;
 
         /* address_prefix */
-        dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
+        dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree, address_family);
 
         offset+=(prefix_length+31)/32*4;
 
@@ -2761,14 +3144,19 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         offset+=8;
 
         /* address_prefix */
-        dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
+        dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree, address_family);
 
         offset+=(prefix_length+31)/32*4;
 
         /* Forwarding Address (optional - only if F-flag is on) */
         if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_F) ) {
+            if (address_family == OSPF_AF_6) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
               ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
+            } else {
+                proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
+                                    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+            }
 
 	    offset+=16;
         }
@@ -2801,9 +3189,13 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 1, &bfinfo_v3_options);
 
         /* Link-local Interface Address */
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
-           ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, 16)));
-
+        if (address_family == OSPF_AF_6) {
+            proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
+                                ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, 16)));
+        } else {
+            proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
+                                ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+        }
         /* Number prefixes */
         number_prefixes=tvb_get_ntohl(tvb, offset + 20);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+20, 4, "# prefixes: %d",number_prefixes);
@@ -2827,7 +3219,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             offset+=4;
 
             /* address_prefix */
-            dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
+            dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree, address_family);
 
             offset+=(prefix_length+31)/32*4;
 
@@ -2874,7 +3266,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             offset+=4;
 
             /* address_prefix */
-            dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
+            dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree, address_family);
 
             offset+=(prefix_length+31)/32*4;
 
@@ -2893,7 +3285,8 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     return offset;
 }
 
-static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix_length, proto_tree *tree)
+static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix_length, proto_tree *tree,
+                                           guint8 address_family)
 {
 
     int bytes_to_process;
@@ -2916,8 +3309,13 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
                 ((0xff00 >> (prefix_length % 8)) & 0xff);
         }
     }
-    proto_tree_add_text(tree, tvb, offset, bytes_to_process,
-        "Address Prefix: %s", ip6_to_str(&prefix));
+    if (address_family == OSPF_AF_6) {
+        proto_tree_add_text(tree, tvb, offset, bytes_to_process,
+                            "Address Prefix: %s", ip6_to_str(&prefix)); 
+    } else {
+        proto_tree_add_text(tree, tvb, offset, bytes_to_process,
+                            "Address Prefix: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+    }
 
 }
 
@@ -2932,26 +3330,39 @@ proto_register_ospf(void)
 	&ett_ospf_desc,
 	&ett_ospf_lsr,
 	&ett_ospf_lsa,
-        &ett_ospf_lsa_router_link,
+	&ett_ospf_lsa_router_link,
 	&ett_ospf_lsa_upd,
 	&ett_ospf_lsa_mpls,
 	&ett_ospf_lsa_mpls_router,
 	&ett_ospf_lsa_mpls_link,
 	&ett_ospf_lsa_mpls_link_stlv,
 	&ett_ospf_lsa_mpls_link_stlv_admingrp,
-        &ett_ospf_lsa_oif_tna,
-        &ett_ospf_lsa_oif_tna_stlv,
-        &ett_ospf_lsa_grace_tlv,
-        &ett_ospf_v2_options,
-        &ett_ospf_v3_options,
-        &ett_ospf_dbd,
+	&ett_ospf_lsa_oif_tna,
+	&ett_ospf_lsa_oif_tna_stlv,
+	&ett_ospf_lsa_grace_tlv,
+	&ett_ospf_v2_options,
+	&ett_ospf_v3_options,
+	&ett_ospf_dbd,
 	&ett_ospf_lls_data_block,
 	&ett_ospf_lls_tlv,
 	&ett_ospf_lls_ext_options,
+	&ett_ospf_v3_lls_ext_options_tlv,
+	&ett_ospf_v3_lls_ext_options,
+	&ett_ospf_v3_lls_state_tlv,
+	&ett_ospf_v3_lls_state_scs,
+	&ett_ospf_v3_lls_state_options,
+	&ett_ospf_v3_lls_drop_tlv,
+	&ett_ospf_v3_lls_relay_tlv,
+	&ett_ospf_v3_lls_relay_added,
+	&ett_ospf_v3_lls_relay_options,
+	&ett_ospf_v3_lls_willingness_tlv,
+	&ett_ospf_v3_lls_willingness,
+	&ett_ospf_v3_lls_rf_tlv,
+	&ett_ospf_v3_lls_fsf_tlv,
 	&ett_ospf_v2_router_lsa_flags,
 	&ett_ospf_v3_router_lsa_flags,
 	&ett_ospf_v3_as_external_flags,
-        &ett_ospf_v3_prefix_options
+	&ett_ospf_v3_prefix_options
     };
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
