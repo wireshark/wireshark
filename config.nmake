@@ -3,9 +3,12 @@
 # Some more informations about the settings in this file, can be found
 # in the file README.win32 and the Developer's Guide (available online).
 
-##### Platform #####
+##### Target platform #####
 # Only "win32" is valid (for now).
+# This can be defined in the system environment.
+!IFNDEF PLATFORM
 PLATFORM=win32
+!ENDIF
 
 ##### Versions #####
 
@@ -40,6 +43,18 @@ WIRESHARK_LIBS=C:\wireshark-$(PLATFORM)-libs
 #
 PROGRAM_FILES=C:/Program Files
 
+#
+# Machine type for the compiler and linker
+# TARGET_MACHINE (Used for link /MACHINE) should be one of "X86" or "X64"
+# (sorry ARM, Alpha, MIPS, and Itanium fans).
+# CPU (Used by win32.mak) should be one of "i386" or "AMD64".
+!if "$(PLATFORM)" == "win32"
+TARGET_MACHINE=X86
+CPU=i386
+!else if "$(PLATFORM)" == "win64"
+TARGET_MACHINE=X64
+CPU=AMD64
+!endif
 
 
 ##### Microsoft Visual C / Studio Variant #####
@@ -446,9 +461,9 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE 
 # /DEFAULTLIB:xxx use xxx as the standard C library
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
 #
-LOCAL_LDFLAGS=/DEBUG
+LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
 
-PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
 #
 # According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403
