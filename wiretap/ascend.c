@@ -92,7 +92,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
 {
   int byte;
   gint64 date_off = -1, cur_off, packet_off;
-  guint string_level[ASCEND_MAGIC_STRINGS];
+  size_t string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
   guint excessive_read_count = 262144;
 
@@ -107,7 +107,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
 
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
-      guint len           = strlen(strptr);
+      size_t len          = strlen(strptr);
 
       if (byte == *(strptr + string_level[string_i])) {
         string_level[string_i]++;
