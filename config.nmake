@@ -3,7 +3,9 @@
 # Some more informations about the settings in this file, can be found
 # in the file README.win32 and the Developer's Guide (available online).
 
-
+##### Platform #####
+# Only "win32" is valid (for now).
+PLATFORM=win32
 
 ##### Versions #####
 
@@ -30,7 +32,7 @@ WTAP_VERSION_MICRO=1
 # Base directory, where your libraries reside, which are needed to
 # compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-win32-libs
+WIRESHARK_LIBS=C:\wireshark-$(PLATFORM)-libs
 
 #
 # Base directory, where your programs reside.

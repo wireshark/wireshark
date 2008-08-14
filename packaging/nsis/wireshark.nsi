@@ -19,18 +19,23 @@ InstType "un.All (remove all)"
 !define SHCNF_IDLIST 0
 
 ; Used to add associations between file extensions and Wireshark
-!define WIRESHARK_ASSOC "wireshark-file"
+!define WIRESHARK_ASSOC "wireshark-capture-file"
 
 ; ============================================================================
 ; Header configuration
 ; ============================================================================
 ; The name of the installer
 !define PROGRAM_NAME "Wireshark"
+!if ${PLATFORM} == "win32"
+!define BITS 32
+!else
+!define BITS 64
+!endif
 
-Name "${PROGRAM_NAME} ${VERSION}"
+Name "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 
 ; The file to write
-OutFile "wireshark-setup-${VERSION}.exe"
+OutFile "wireshark-${PLATFORM}-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
 Icon "..\..\image\wireshark.ico"
@@ -577,7 +582,7 @@ SecRequired_skip_QuickLaunchIcon:
 ; Create File Extensions (depending on additional tasks page)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
 StrCmp $0 "0" SecRequired_skip_FileExtensions
-WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark file"
+WriteRegStr HKCR ${WIRESHARK_ASSOC} "" "Wireshark capture file"
 WriteRegStr HKCR "${WIRESHARK_ASSOC}\Shell\open\command" "" '"$INSTDIR\wireshark.exe" "%1"'
 WriteRegStr HKCR "${WIRESHARK_ASSOC}\DefaultIcon" "" '"$INSTDIR\wireshark.exe",1'
 push $R0
@@ -1096,27 +1101,23 @@ SectionEnd
 ; Callback functions
 ; ============================================================================
 !ifdef GTK_DIR
-; Disable FileExtension if Wireshark isn't selected
+; Disable File extensions if Wireshark isn't selected
 Function .onSelChange
 	Push $0
 	SectionGetFlags ${SecWireshark} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
-	SectionGetFlags ${SecFileExtensions} $0
-	IntOp  $0 $0 & 16
-	IntCmp $0 16 onSelChange.unreadonly
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 1
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
 	Goto onSelChange.end
+
 onSelChange.unselect:
-	SectionGetFlags ${SecFileExtensions} $0
-	IntOp $0 $0 & 0xFFFFFFFE
-	IntOp $0 $0 | 0x10
-	SectionSetFlags ${SecFileExtensions} $0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
 	Goto onSelChange.end
-onSelChange.unreadonly:
-	SectionGetFlags ${SecFileExtensions} $0
-	IntOp $0 $0 & 0xFFFFFFEF
-	SectionSetFlags ${SecFileExtensions} $0
-	Goto onSelChange.end
+
 onSelChange.end:
 	Pop $0
 FunctionEnd
