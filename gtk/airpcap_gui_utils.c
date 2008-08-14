@@ -815,7 +815,7 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info)
     if(!KeysCollection)
     {
 	/* Simple dialog ERROR */
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed mamory allocation for KeysCollection!");
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed memory allocation for KeysCollection!");
 	return;
     }
 
@@ -914,7 +914,7 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
     if(!KeysCollection)
     {
 	/* Simple dialog ERROR */
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed mamory allocation for KeysCollection!");
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed memory allocation for KeysCollection!");
 	return;
     }
 
