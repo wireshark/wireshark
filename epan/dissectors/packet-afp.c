@@ -5350,7 +5350,7 @@ proto_register_afp(void)
     { &hf_afp_dir_ar_o_write,
       { "Owner has write access",       "afp.dir_ar.o_write",
 		FT_BOOLEAN, 32, NULL, AR_O_WRITE,
-      	"Gwner has write access", HFILL }},
+      	"Owner has write access", HFILL }},
 
     { &hf_afp_dir_ar_g_search,
       { "Group has search access",      "afp.dir_ar.g_search",
@@ -5628,7 +5628,7 @@ proto_register_afp(void)
     { &hf_afp_extattr_data,
       { "Data",         "afp.extattr.data",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
-      	"Extendend attribute data", HFILL }},
+      	"Extended attribute data", HFILL }},
 
     { &hf_afp_extattr_req_count,
       { "Request Count",         "afp.extattr.req_count",

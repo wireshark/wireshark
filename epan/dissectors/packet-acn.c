@@ -301,7 +301,7 @@ static const value_string acn_dmp_reason_code_vals[] = {
   { ACN_DMP_REASON_CODE_DATA_ERROR, "Data Error" },
   { ACN_DMP_REASON_CODE_MAPS_NOT_SUPPORTED, "Maps not Supported" },
   { ACN_DMP_REASON_CODE_SPACE_NOT_AVAILABLE, "Space not Available" },
-  { ACN_DMP_REASON_CODE_PROP_NOT_MAPABLE, "Property not Mapable"},
+  { ACN_DMP_REASON_CODE_PROP_NOT_MAPPABLE, "Property not Mappable"},
   { ACN_DMP_REASON_CODE_MAP_NOT_ALLOCATED, "Map not Allocated"},
   { ACN_DMP_REASON_CODE_SUBSCRIPTION_NOT_SUPPORTED, "Subscription not Supported"},
   { ACN_DMP_REASON_CODE_NO_SUBSCRIPTIONS_SUPPORTED, "No Subscriptions Supported"},
