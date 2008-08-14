@@ -122,6 +122,9 @@ static const value_string auth_vals[] = {
 #define OSPF_LLS_EXT_OPTIONS_LR		0x00000001
 #define OSPF_LLS_EXT_OPTIONS_RS		0x00000002
 
+#define OSPF_V3_LLS_EXT_OPTIONS_LR	0x00000001
+#define OSPF_V3_LLS_EXT_OPTIONS_RS	0x00000002
+
 #define OSPF_V3_LLS_STATE_OPTIONS_R     0x80
 #define OSPF_V3_LLS_STATE_OPTIONS_A     0x40
 #define OSPF_V3_LLS_STATE_OPTIONS_N     0x20
@@ -433,6 +436,14 @@ static const true_false_string tfs_lls_ext_options_rs = {
 	"Restart Signal (RS-bit) is SET",
 	"Restart Signal (RS-bit) is NOT set"
 };
+static const true_false_string tfs_v3_lls_ext_options_lr = {
+	"LSDB Resynchrinization (LR-bit) is SET",
+	"LSDB Resynchrinization (LR-bit) is NOT set"
+};
+static const true_false_string tfs_v3_lls_ext_options_rs = {
+	"Restart Signal (RS-bit) is SET",
+	"Restart Signal (RS-bit) is NOT set"
+};
 static const true_false_string tfs_v3_lls_state_options_r = {
 	"Request (R-bit) is SET",
 	"Request (R-bit) is NOT set",
@@ -588,6 +599,8 @@ enum {
     OSPFF_LLS_EXT_OPTIONS_RS,
     OSPFF_V3_LLS_EXT_OPTIONS_TLV,
     OSPFF_V3_LLS_EXT_OPTIONS,
+    OSPFF_V3_LLS_EXT_OPTIONS_LR,
+    OSPFF_V3_LLS_EXT_OPTIONS_RS,
     OSPFF_V3_LLS_STATE_TLV,
     OSPFF_V3_LLS_STATE_SCS,
     OSPFF_V3_LLS_STATE_OPTIONS,
@@ -908,6 +921,12 @@ static hf_register_info ospff_info[] = {
     {&ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS],
      { "Options", "ospf.v3.lls.ext.options", FT_UINT32,  BASE_HEX,
        NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_LR],
+     { "LR", "ospf.v3.lls.ext.options.lr", FT_BOOLEAN, 32,
+       TFS(&tfs_v3_lls_ext_options_lr), OSPF_V3_LLS_EXT_OPTIONS_LR, "", HFILL }},
+    {&ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_RS],
+     { "RS", "ospf.v3.lls.ext.options.rs", FT_BOOLEAN, 32,
+       TFS(&tfs_v3_lls_ext_options_rs), OSPF_V3_LLS_EXT_OPTIONS_RS, "", HFILL }},
     {&ospf_filter[OSPFF_V3_LLS_STATE_TLV],
      { "State Check Sequence TLV", "ospf.v3.lls.state.tlv", FT_NONE, BASE_NONE,
        NULL, 0x0, "", HFILL }},
@@ -996,6 +1015,8 @@ static int bf_lls_ext_options[] = {
     OSPFF_LLS_EXT_OPTIONS_LR
 };
 static int bf_v3_lls_ext_options[] = {
+    OSPFF_V3_LLS_EXT_OPTIONS_LR,
+    OSPFF_V3_LLS_EXT_OPTIONS_RS
 };
 
 static int bf_v3_lls_state_options[] = {
