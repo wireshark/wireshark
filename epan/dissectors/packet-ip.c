@@ -1577,7 +1577,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #define ICMP_MIP_PREFIX_LENGTHS	19
 #define ICMP_MIP_CHALLENGE	24
 
-static value_string mip_extensions[] = {
+static const value_string mip_extensions[] = {
   { ICMP_MIP_EXTENSION_PAD, "One byte padding extension"},  /* RFC 2002 */
   { ICMP_MIP_MOB_AGENT_ADV, "Mobility Agent Advertisement Extension"},
 							    /* RFC 2002 */

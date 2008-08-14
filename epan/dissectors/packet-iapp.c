@@ -114,14 +114,14 @@ typedef struct _e_pduhdr {
 	guint8 pdu_len_l;
 } e_pduhdr;
 
-static value_string iapp_vals[] = {
+static const value_string iapp_vals[] = {
   {IAPP_ANNOUNCE_REQUEST, "Announce Request"},
   {IAPP_ANNOUNCE_RESPONSE, "Announce Response"},
   {IAPP_HANDOVER_REQUEST, "Handover Request"},
   {IAPP_HANDOVER_RESPONSE, "Handover Response"},
   {0, NULL}};
 
-static value_string iapp_pdu_type_vals[] = {
+static const value_string iapp_pdu_type_vals[] = {
   {IAPP_PDU_SSID, "Network Name"},
   {IAPP_PDU_BSSID, "BSSID"},
   {IAPP_PDU_OLDBSSID, "Old BSSID"},
@@ -138,12 +138,12 @@ static value_string iapp_pdu_type_vals[] = {
   {IAPP_PDU_AUTHINFO, "ELSA Authentication Info"},
   {0, NULL}};
 
-static value_string iapp_cap_vals[] = {
+static const value_string iapp_cap_vals[] = {
   {IAPP_CAP_FORWARDING, "Forwarding"},
   {IAPP_CAP_WEP, "WEP"},
   {0, NULL}};
 
-static value_string iapp_phy_vals[] = {
+static const value_string iapp_phy_vals[] = {
   {IAPP_PHY_PROP, "Proprietary"},
   {IAPP_PHY_FHSS, "FHSS"},
   {IAPP_PHY_DSSS, "DSSS"},
@@ -151,7 +151,7 @@ static value_string iapp_phy_vals[] = {
   {IAPP_PHY_OFDM, "OFDM"},
   {0, NULL}};
 
-static value_string iapp_dom_vals[] = {
+static const value_string iapp_dom_vals[] = {
   {IAPP_DOM_FCC, "FCC (USA)"},
   {IAPP_DOM_IC, "IC (Canada)"},
   {IAPP_DOM_ETSI, "ETSI (Europe)"},
@@ -160,7 +160,7 @@ static value_string iapp_dom_vals[] = {
   {IAPP_DOM_MKK, "MKK (Japan)"},
   {0, NULL}};
 
-static value_string iapp_auth_type_vals[] = {
+static const value_string iapp_auth_type_vals[] = {
   {IAPP_AUTH_STATUS, "Status"},
   {IAPP_AUTH_USERNAME, "User Name"},
   {IAPP_AUTH_PROVNAME, "Provider Name"},

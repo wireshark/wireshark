@@ -64,7 +64,7 @@ static gint ett_icp_payload = -1;
 #define CODE_ICP_OP_DENIED 22
 #define CODE_ICP_OP_HIT_OBJ 23
 
-static value_string opcode_vals[] = {
+static const value_string opcode_vals[] = {
 { CODE_ICP_OP_INVALID ,    "ICP_INVALID" },
 { CODE_ICP_OP_QUERY ,    "ICP_QUERY" },
 { CODE_ICP_OP_HIT ,    "ICP_HIT" },

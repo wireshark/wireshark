@@ -117,7 +117,7 @@ typedef enum {
     LMP_MSG_DISCOVERY_RESP_NACK
 } lmp_message_types;
 
-static value_string message_type_vals[] = {
+static const value_string message_type_vals[] = {
     {LMP_MSG_CONFIG,              "Config Message. "},
     {LMP_MSG_CONFIG_ACK,          "ConfigAck Message. "},
     {LMP_MSG_CONFIG_NACK,         "ConfigNack Message. "},
@@ -186,7 +186,7 @@ static value_string message_type_vals[] = {
 #define LMP_CLASS_LOCAL_LAD_INFO               249
 #define	LMP_CLASS_MAX                          250
 
-static value_string lmp_class_vals[] = {
+static const value_string lmp_class_vals[] = {
 
     {LMP_CLASS_CCID, "CCID"},
     {LMP_CLASS_NODE_ID, "NODE_ID"},

@@ -147,7 +147,7 @@ static guint32 packetcable_qos_desc_mask[] =
 	PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK
 };
 
-static value_string radius_vendor_packetcable_event_message_vals[] =
+static const value_string radius_vendor_packetcable_event_message_vals[] =
 {
 	{0,  "Reserved"},
 	{1,  "Signaling_Start"},
@@ -175,7 +175,7 @@ static value_string radius_vendor_packetcable_event_message_vals[] =
 	{0, NULL}
 };
 
-static value_string packetcable_em_header_element_type_vals[] =
+static const value_string packetcable_em_header_element_type_vals[] =
 {
 	{0,  "Reserved"},
 	{1,  "CMS"},
@@ -185,7 +185,7 @@ static value_string packetcable_em_header_element_type_vals[] =
 	{0, NULL}
 };
 
-static value_string packetcable_em_header_status_error_indicator_vals[] =
+static const value_string packetcable_em_header_status_error_indicator_vals[] =
 {
 	{0,  "No Error"},
 	{1,  "Possible Error"},
@@ -194,21 +194,21 @@ static value_string packetcable_em_header_status_error_indicator_vals[] =
 	{0, NULL}
 };
 
-static value_string packetcable_em_header_status_event_origin_vals[] =
+static const value_string packetcable_em_header_status_event_origin_vals[] =
 {
 	{0,  "Trusted Element"},
 	{1,  "Untrusted Element"},
 	{0, NULL}
 };
 
-static value_string packetcable_em_header_status_event_message_proxied_vals[] =
+static const value_string packetcable_em_header_status_event_message_proxied_vals[] =
 {
 	{0,  "Not proxied"},
 	{1,  "Proxied"},
 	{0, NULL}
 };
 
-static value_string packetcable_call_termination_cause_vals[] =
+static const value_string packetcable_call_termination_cause_vals[] =
 {
 	{0,  "Reserved"},
 	{1,  "BAF"},
@@ -216,7 +216,7 @@ static value_string packetcable_call_termination_cause_vals[] =
 	{0, NULL}
 };
 
-static value_string packetcable_trunk_type_vals[] =
+static const value_string packetcable_trunk_type_vals[] =
 {
 	{1,  "Not Used"},
 	{2,  "Not Used"},
@@ -228,7 +228,7 @@ static value_string packetcable_trunk_type_vals[] =
 	{0, NULL}
 };
 
-static value_string packetcable_state_indication_vals[] =
+static const value_string packetcable_state_indication_vals[] =
 {
 	{0,  "Illegal Value"},
 	{1,  "Resource Reserved but not Activated"},

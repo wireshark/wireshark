@@ -93,7 +93,7 @@
 #define AUTHDES_NAMEKIND_FULLNAME 0
 #define AUTHDES_NAMEKIND_NICKNAME 1
 
-extern value_string rpc_authgss_svc[];
+extern const value_string rpc_authgss_svc[];
 typedef enum {
 	FLAVOR_UNKNOWN,		/* authentication flavor unknown */
 	FLAVOR_NOT_GSSAPI,	/* flavor isn't GSSAPI */

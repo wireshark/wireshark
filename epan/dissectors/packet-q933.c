@@ -1144,7 +1144,7 @@ dissect_q933_link_integrity_verf_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a PVC status information element.
  */
-static value_string q933_pvc_status_vals[] = {
+static const value_string q933_pvc_status_vals[] = {
     {0x00, "Inactive"},
     {0x02, "Active"},
     {0x08, "New"},

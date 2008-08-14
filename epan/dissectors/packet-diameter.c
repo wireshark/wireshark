@@ -174,7 +174,7 @@ typedef struct _proto_avp_t {
 
 static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
-static value_string no_vs[] = {{0, NULL} };
+static const value_string no_vs[] = {{0, NULL} };
 static GArray no_garr = { (void*)no_vs, 1 };
 static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_garr };
 static diam_vnd_t no_vnd = { 0, NULL, NULL };
@@ -182,7 +182,7 @@ static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1,
 static GArray* all_cmds;
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
-static value_string* vnd_short_vs;
+static const value_string* vnd_short_vs;
 static dissector_handle_t data_handle;
 
 static const true_false_string reserved_set = {

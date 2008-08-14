@@ -132,7 +132,7 @@ static const value_string rpc_authgssapi_proc[] = {
 	{ 0, NULL }
 };
 
-value_string rpc_authgss_svc[] = {
+const value_string rpc_authgss_svc[] = {
 	{ RPCSEC_GSS_SVC_NONE, "rpcsec_gss_svc_none" },
 	{ RPCSEC_GSS_SVC_INTEGRITY, "rpcsec_gss_svc_integrity" },
 	{ RPCSEC_GSS_SVC_PRIVACY, "rpcsec_gss_svc_privacy" },

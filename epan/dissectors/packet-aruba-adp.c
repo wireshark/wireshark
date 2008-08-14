@@ -47,7 +47,7 @@ static int hf_adp_id       = -1;
 static int hf_adp_mac      = -1;
 static int hf_adp_switchip = -1;
 
-static value_string adp_type_val[] =
+static const value_string adp_type_val[] =
 {
   {1, "Request"},
   {2, "Response"},

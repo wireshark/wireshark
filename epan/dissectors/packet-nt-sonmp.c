@@ -50,7 +50,7 @@
   
 /* chassis types */
 /* From  synro199.mib - SnpxChassisType */
-static value_string sonmp_chassis_val[] =
+static const value_string sonmp_chassis_val[] =
 {
 	{2, "m3000"},
 	{3, "m3030"},
@@ -163,7 +163,7 @@ static value_string sonmp_chassis_val[] =
 };
 
 /* from synro179.mib - SnpxBackplaneType */
-static value_string sonmp_backplane_val[] =
+static const value_string sonmp_backplane_val[] =
 {
 	{1, "Other"},
 	{2, "ethernet"},
@@ -180,7 +180,7 @@ static value_string sonmp_backplane_val[] =
 	{0, NULL}
 };
 
-static value_string sonmp_nmm_state_val[] =
+static const value_string sonmp_nmm_state_val[] =
 {
 	{1, "Topology Change"},
 	{2, "Heartbeat"},

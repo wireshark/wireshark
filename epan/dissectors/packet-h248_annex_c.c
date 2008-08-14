@@ -175,7 +175,7 @@ static gint ett_annexc = -1;
 static gint ett_vpvc = -1;
 static gint ett_codec = -1;
 
-static value_string h248_annexc_package_properties_vals[] = {
+static const value_string h248_annexc_package_properties_vals[] = {
 	{ 0x1001, "media" },
 	{ 0x1002, "transmission mode" },
 	{ 0x1003, "num_of_channels" },

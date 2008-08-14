@@ -301,7 +301,7 @@ typedef enum {
     							/* [SBM] is Subnet Bandwidth Manager ID from July 1997 */
 } rsvp_message_types;
 
-static value_string message_type_vals[] = {
+static const value_string message_type_vals[] = {
     {RSVP_MSG_PATH,			"PATH Message. "},
     {RSVP_MSG_RESV,			"RESV Message. "},
     {RSVP_MSG_PERR,			"PATH ERROR Message. "},
@@ -421,7 +421,7 @@ enum rsvp_classes {
 
 };
 
-static value_string rsvp_class_vals[] = {
+static const value_string rsvp_class_vals[] = {
     {RSVP_CLASS_NULL, "NULL object"},
     {RSVP_CLASS_SESSION, "SESSION object"},
     {RSVP_CLASS_HOP, "HOP object"},
@@ -558,7 +558,7 @@ enum {
     RSVP_DSTE_ERROR_INCONSISTENCY_PHB_CT
 };
 
-static value_string rsvp_error_codes[] = {
+static const value_string rsvp_error_codes[] = {
     {RSVP_ERROR_CONFIRM, "Confirmation"},
     {RSVP_ERROR_ADMISSION, "Admission Control Failure "},
     {RSVP_ERROR_POLICY, "Policy Control Failure"},
@@ -581,14 +581,14 @@ static value_string rsvp_error_codes[] = {
     {0, NULL}
 };
 
-static value_string rsvp_admission_control_error_vals[] = {
+static const value_string rsvp_admission_control_error_vals[] = {
     {RSVP_AC_ERROR_DELAY_BOUND_ERROR, "Delay bound cannot be met"},
     {RSVP_AC_ERROR_BANDWITH_UNAVAILABLE, "Requested bandwidth unavailable"},
     {RSVP_AC_ERROR_LARGE_MTU, "MTU in flowspec larger than interface MTU"},
     {0, NULL}
 };
 
-static value_string rsvp_traffic_control_error_vals[] = {
+static const value_string rsvp_traffic_control_error_vals[] = {
     {RSVP_TRAFFIC_CONTROL_ERROR_SERVICE_CONFLICT, "Service conflict"},
     {RSVP_TRAFFIC_CONTROL_ERROR_SERVIEC_UNSUPPORTED, "Service unsupported"},
     {RSVP_TRAFFIC_CONTROL_ERROR_BAD_FLOWSPEC, "Bad Flowspec value"},
@@ -597,7 +597,7 @@ static value_string rsvp_traffic_control_error_vals[] = {
     {0, NULL}
 };
 
-static value_string rsvp_routing_error_vals[] = {
+static const value_string rsvp_routing_error_vals[] = {
     {RSVP_ROUTING_ERROR_BAD_ERO, "Bad EXPLICIT_ROUTE object"},
     {RSVP_ROUTING_ERROR_BAD_STRICT, "Bad strict node"},
     {RSVP_ROUTING_ERROR_BAD_LOOSE, "Bad loose node"},
@@ -611,7 +611,7 @@ static value_string rsvp_routing_error_vals[] = {
     {0, NULL}
 };
 
-static value_string rsvp_notify_error_vals[] = {
+static const value_string rsvp_notify_error_vals[] = {
     {RSVP_NOTIFY_ERROR_RRO_TOO_LARGE, "RRO too large for MTU"},
     {RSVP_NOTIFY_ERROR_RRO_NOTIFICATION, "RRO Notification"},
     {RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED, "Tunnel locally repaired"},
@@ -623,7 +623,7 @@ static value_string rsvp_notify_error_vals[] = {
     {0, NULL}
 };
 
-static value_string rsvp_diffserv_error_vals[] = {
+static const value_string rsvp_diffserv_error_vals[] = {
     {RSVP_DIFFSERV_ERROR_UNEXPECTED_DIFFSERVOBJ, "Unexpected DIFFSERV object"},
     {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PHB, "Unsupported PHB"},
     {RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING, "Invalid `EXP<->PHB mapping'"},
@@ -633,7 +633,7 @@ static value_string rsvp_diffserv_error_vals[] = {
 };
 
 /* FF: RFC4124 */
-static value_string rsvp_diffserv_aware_te_error_vals[] = {
+static const value_string rsvp_diffserv_aware_te_error_vals[] = {
     {RSVP_DSTE_ERROR_UNEXPECTED_CLASSTYPEOBJ, "Unexpected CLASSTYPE object"},
     {RSVP_DSTE_ERROR_UNSUPPORTED_CLASSTYPE, "Unsupported Class-Type"},
     {RSVP_DSTE_ERROR_INVALID_CLASSTYPE_VALUE, "Invalid Class-Type value"},
@@ -662,7 +662,7 @@ static value_string rsvp_diffserv_aware_te_error_vals[] = {
 #define RSVP_FF (RSVP_DISTINCT | RSVP_SCOPE_EXPLICIT)
 #define RSVP_SE (RSVP_SHARED | RSVP_SCOPE_EXPLICIT)
 
-static value_string style_vals[] = {
+static const value_string style_vals[] = {
     { RSVP_WF, "Wildcard Filter" },
     { RSVP_FF, "Fixed Filter" },
     { RSVP_SE, "Shared-Explicit" },
@@ -694,7 +694,7 @@ enum    qos_service_type {
     QOS_TSPEC =             1		/* Traffic specification */
     };
 
-static value_string qos_vals[] = {
+static const value_string qos_vals[] = {
     { QOS_QUALITATIVE, "Qualitative QoS" },
     { QOS_NULL, "Null-Service QoS" },
     { QOS_CONTROLLED_LOAD, "Controlled-load QoS" },
@@ -703,7 +703,7 @@ static value_string qos_vals[] = {
     { 0, NULL }
 };
 
-static value_string svc_vals[] = {
+static const value_string svc_vals[] = {
     { 126, "Compression Hint" },
     { 127, "Token bucket" },
     { 128, "Null Service" },
@@ -721,7 +721,7 @@ enum intsrv_services {
 	INTSRV_QUALITATIVE = 128
 };
 
-static value_string intsrv_services_str[] = {
+static const value_string intsrv_services_str[] = {
     {INTSRV_GENERAL, "Default General Parameters"},
     {INTSRV_GTD, "Guaranteed Rate"},
     {INTSRV_CLOAD, "Controlled Load"},
@@ -751,7 +751,7 @@ enum intsrv_field_name {
 };
 #endif
 
-static value_string adspec_params[] = {
+static const value_string adspec_params[] = {
     {4, "IS Hop Count"},
     {6, "Path b/w estimate"},
     {8, "Minimum path latency"},
@@ -2117,7 +2117,7 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
                           int offset, guint8 error_code)
 {
     guint16 error_val;
-    value_string *rsvp_error_vals = NULL;
+    const value_string *rsvp_error_vals = NULL;
 
     error_val = tvb_get_ntohs(tvb, offset);
     switch (error_code) {
@@ -3564,7 +3564,7 @@ dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
     guint8 label_type;
     int len, i;
 
-    static value_string action_type_vals[] = {
+    static const value_string action_type_vals[] = {
       {0, "Inclusive list"},
       {1, "Exclusive list"},
       {2, "Inclusive range"},
@@ -4356,7 +4356,7 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     guint16 association_type;
     guint16 association_id;
-    static value_string association_type_vals[] = {
+    static const value_string association_type_vals[] = {
       {0, "Reserved"},
       {1, "Recovery"},
       { 0, NULL}
@@ -5000,7 +5000,7 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
     int offset2 = offset + 4;
     int offset3, offset4, len;
 
-    static value_string address_type_vals[] = {
+    static const value_string address_type_vals[] = {
       {1, "1 (IPv4)"},
       {2, "2 (IPv6)"},
       {3, "3 (NSAP)"},

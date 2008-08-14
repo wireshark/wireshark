@@ -2810,7 +2810,7 @@ static const value_string Instruction_indicator_for_pass_on_not_possible_vals[] 
   { 3,     "reserved (interpreted as 00)"},
   { 0,     NULL}};
 
-static value_string bat_ase_action_indicator_field_vals[] = {
+static const value_string bat_ase_action_indicator_field_vals[] = {
 
 	{ 0x00,	"no indication"},
 	{ 0x01,	"connect backward"},
@@ -2845,7 +2845,7 @@ static const true_false_string BCTP_BVEI_value  = {
   "No indication"
 };
 
-static value_string BCTP_Tunnelled_Protocol_Indicator_vals[] = {
+static const value_string BCTP_Tunnelled_Protocol_Indicator_vals[] = {
 
 	{ 0x20,	"IPBCP (text encoded)"},
 	{ 0x21,	"spare (text encoded protocol)"},

@@ -2708,7 +2708,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 	return (0);
 }
 
-static value_string v9_template_types[] = {
+static const value_string v9_template_types[] = {
 	{ 1, "BYTES" },
 	{ 2, "PKTS" },
 	{ 3, "FLOWS" },
@@ -2910,7 +2910,7 @@ static value_string v9_template_types[] = {
 	{ 0, NULL }
 };
 
-static value_string v9_scope_field_types[] = {
+static const value_string v9_scope_field_types[] = {
 	{ 1, "System" },
 	{ 2, "Interface" },
 	{ 3, "Line Card" },
@@ -2925,18 +2925,18 @@ decode_v9_template_types(int type) {
 	return ((v==NULL)?"Unknown" : v);
 }
 
-static value_string v9_sampler_mode[] = {
+static const value_string v9_sampler_mode[] = {
 	{ 0, "Determinist" },
 	{ 1, "Unknown" },
 	{ 2, "Random" },
 	{ 0, NULL }
 };
-static value_string v9_direction[] = {
+static const value_string v9_direction[] = {
 	{ 0, "Ingress" },
 	{ 1, "Egress" },
 	{ 0, NULL }
 };
-static value_string v9_forwarding_status[] = {
+static const value_string v9_forwarding_status[] = {
 	{ 0, "Unknown"},  /* Observed on IOS-XR 3.2 */
 	{ 1, "Forward"},  /* Observed on 7200 12.4(9)T */
 	{ 2, "Drop"},     /* Observed on 7200 12.4(9)T */

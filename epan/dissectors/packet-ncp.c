@@ -173,7 +173,7 @@ static const value_string burst_command[] = {
 
 */
 
-static value_string ncp_type_vals[] = {
+static const value_string ncp_type_vals[] = {
 	{ NCP_ALLOCATE_SLOT,	"Create a service connection" },
 	{ NCP_SERVICE_REQUEST,	"Service request" },
 	{ NCP_SERVICE_REPLY,	"Service reply" },
@@ -186,7 +186,7 @@ static value_string ncp_type_vals[] = {
 	{ 0,			NULL }
 };
 
-static value_string ncp_oplock_vals[] = {
+static const value_string ncp_oplock_vals[] = {
     { 0x21, "Message Waiting" },
     { 0x24, "Clear Op-lock" },
     { 0, NULL }

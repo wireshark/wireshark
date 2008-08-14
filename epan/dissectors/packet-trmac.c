@@ -57,7 +57,7 @@ static gint ett_tr_ierr_cnt = -1;
 static gint ett_tr_nerr_cnt = -1;
 
 /* Major Vector */
-static value_string major_vector_vs[] = {
+static const value_string major_vector_vs[] = {
 		{ 0x00, "Response" },
 		{ 0x02, "Beacon" },
 		{ 0x03, "Claim Token" },
@@ -86,7 +86,7 @@ static value_string major_vector_vs[] = {
 };
 
 /* Src. and Dest. Classes */
-static value_string classes_vs[] = {
+static const value_string classes_vs[] = {
 	{ 0x00, "Ring Station" },
 	{ 0x01, "LLC Manager" },
 	{ 0x04, "Configuration Report Server" },

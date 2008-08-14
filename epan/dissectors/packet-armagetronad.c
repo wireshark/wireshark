@@ -59,7 +59,7 @@ static gint ett_message = -1;
  * The numbers and names were retrieved at runtime using the
  * 'nDescriptor* descriptors[MAXDESCRIPTORS]' array
  */
-static value_string descriptors[] = {
+static const value_string descriptors[] = {
 	{1, "ack"},
 	{2, "req_info"},
 	{3, "login_deny"},
