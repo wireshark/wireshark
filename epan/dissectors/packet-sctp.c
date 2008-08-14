@@ -656,6 +656,11 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 						plurality(t->retransmit_count, "", "s"),
 						ds);
 		PROTO_ITEM_SET_GENERATED(pi);
+
+		if (t->retransmit_count > 2)
+			expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
+					       "This TSN was retransmitted more than 2 times");
+
 		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
 
 		r = &t->retransmit;
