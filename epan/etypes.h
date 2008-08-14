@@ -353,8 +353,12 @@
 					/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_LLTD
-#define ETHERTYPE_LLTD		0x88d9  /* Link Layer Topology Discovery (LLTD) */
+#define ETHERTYPE_LLTD			0x88d9  /* Link Layer Topology Discovery (LLTD) */
 #endif
+
+#ifndef ETHERTYPE_WSMP					/* Wireless Access in a Vehicle Environment */
+#define ETHERTYPE_WSMP			0x88dc	/*(WAVE) Short Message Protocol (WSM) as defined */
+#endif									/* in IEEE P1609.3. */
 
 #ifndef ETHERTYPE_MRP
 #define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
