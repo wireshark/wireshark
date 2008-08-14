@@ -1503,7 +1503,7 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
     gint data;
     proto_item *ti = NULL;
     proto_tree *tree = NULL;
-    gint len, lastbit, rui, mode, sub_len;
+    gint len, lastbit, rui, mode, sub_len, pad;
 
     bit = NIB_TO_BIT(offset);
 
@@ -1566,6 +1566,13 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
         }
         bit += NIB_TO_BIT(sub_len);
     }
+
+    pad = NIB_TO_BIT(offset) + length - bit;
+    if (pad) {
+        proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits",pad);
+        bit += pad;
+    }
+    
     return BIT_TO_NIB(bit);
 }
 
@@ -2406,7 +2413,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
         if (INC_CID)
         {
             n_cid = NIB_BYTE(nibble, bufptr);
-            proto_tree_add_item(tree, hf_dlmap_ie_ncid, tvb, NIBHI(nibble,2), FALSE);
+            proto_tree_add_uint(tree, hf_dlmap_ie_ncid, tvb, NIBHI(nibble, 2), n_cid);
             nibble += 2;
 
             for (i = 0; i < n_cid; i++)
@@ -2416,7 +2423,8 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
                     /* RCID_Type comes from 6.3.2.3.43.2 [2] Format_configuration_IE in Compact_DL-MAP_IE */
                     nibble += RCID_IE(tree, bufptr, nibble*4, length, tvb, RCID_Type) / 4;
                 } else {
-                    proto_tree_add_item(tree, hf_dlmap_ie_cid, tvb, NIBHI(nibble,4), FALSE);
+                    data = NIB_WORD(nibble, bufptr);
+                    proto_tree_add_uint(tree, hf_dlmap_ie_cid, tvb, NIBHI(nibble, 4), data);
                     nibble += 4;
                 }
             }
