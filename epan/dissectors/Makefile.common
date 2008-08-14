@@ -797,6 +797,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-wlccp.c		\
 	packet-wol.c		\
 	packet-wps.c		\
+	packet-wsmp.c		\
 	packet-wsp.c		\
 	packet-wtls.c		\
 	packet-wtp.c		\
