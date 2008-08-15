@@ -656,7 +656,8 @@ capture_input_closed(capture_options *capture_opts)
 /**
  * Fetch the interface list from a child process (dumpcap).
  *
- * @return A GList containing if_info_t structs if successful, NULL otherwise.
+ * @return A GList containing if_info_t structs if successful, NULL (with err and possibly err_str set) otherwise.
+ *
  */
 
 /* XXX - We parse simple text output to get our interface list.  Should
@@ -679,10 +680,7 @@ capture_interface_list(int *err, char **err_str)
     if (*err != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
         if (err_str) {
-            if (*err_str)
-                *err_str = msg;
-            else
-                g_free(msg);
+            *err_str = msg;
         } else {
             g_free(msg);
         }
@@ -744,9 +742,9 @@ capture_interface_list(int *err, char **err_str)
 
     /* Check to see if we built a list */
     if (if_list == NULL) {
-        if (err_str && *err_str)
-            *err_str = g_strdup("No interfaces found");
         *err = NO_INTERFACES_FOUND;
+        if (err_str)
+            *err_str = g_strdup("No interfaces found");
     }
     return if_list;
 }
