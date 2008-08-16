@@ -347,7 +347,7 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 	return 0;
 }
 
-WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
+static int wslua_Dir__gc(lua_State* L) {
 	Dir dir = checkDir(L,1);
 	
 	if (dir->dir) {
@@ -368,13 +368,13 @@ WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
 static const luaL_reg Dir_methods[] = {
     {"open", Dir_open},
     {"close", Dir_close},
-    {0, 0}
+    { NULL, NULL }
 };
 
 static const luaL_reg Dir_meta[] = {
     {"__call", Dir__call},
     {"__gc", wslua_Dir__gc},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Dir_register(lua_State* L) {

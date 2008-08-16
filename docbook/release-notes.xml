@@ -70,6 +70,24 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect wslua function names.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
+          2448</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory corruption in wslua.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
+          2453</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Unknown PPPoE TAGs which are present in a PPPoE discovery packet are not displayed under "PPPoE Tags" subtree/section.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
+          2458</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Following a TCP stream could incorrectly reassemble packets.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2606">Bug
           2606</ulink>)
@@ -106,7 +124,9 @@ There are no new protocols in this release.
 AIM,
 ERF,
 PPP BCP,
+PPPoE
 Redback LI,
+TCP
 
     </para>
     </section>

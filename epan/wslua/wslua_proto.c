@@ -906,13 +906,13 @@ static const luaL_reg ProtoField_methods[] = {
     {"ubytes",ProtoField_ubytes},
     {"guid",ProtoField_guid},
     {"oid",ProtoField_oid},
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg ProtoField_meta[] = {
     {"__gc", ProtoField_gc },
     {"__tostring", ProtoField_tostring },
-    {0, 0}
+    { NULL, NULL }
 };
 
 int ProtoField_register(lua_State* L) {
@@ -1215,7 +1215,7 @@ static const luaL_reg Proto_meta[] = {
     {"__tostring", Proto_tostring},
     {"__index", Proto_index},
     {"__newindex", Proto_newindex},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Proto_register(lua_State* L) {
@@ -1317,7 +1317,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     if (! ( d && tvb && pinfo) ) return 0;
     
     TRY {
-        call_dissector(d, tvb, pinfo, ti->tree);
+        call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
         proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
@@ -1340,12 +1340,12 @@ WSLUA_METAMETHOD Dissector_tostring(lua_State* L) {
 static const luaL_reg Dissector_methods[] = {
     {"get", Dissector_get },
     {"call", Dissector_call },
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg Dissector_meta[] = {
     {"__tostring", Dissector_tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Dissector_register(lua_State* L) {
@@ -1516,7 +1516,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     ftenum_t type;
     gchar* error = NULL;
 	
-    if (! (dt && tvb && pinfo && ti) ) return 0;
+    if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
     
     type = get_dissector_table_selector_type(dt->name);
     
@@ -1527,20 +1527,20 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 			
 			if (!pattern) return 0;
 			
-			if (dissector_try_string(dt->table,pattern,tvb,pinfo,ti->tree))
+			if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
 				return 0;
 			
 		} else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
 			int port = luaL_checkint(L, 2);
 		
-			if (dissector_try_port(dt->table,port,tvb,pinfo,ti->tree)) 
+			if (dissector_try_port(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree)) 
 				return 0;
 			
 		} else {
 			luaL_error(L,"No such type of dissector_table");
 		}
 		
-		call_dissector(lua_data_handle,tvb,pinfo,ti->tree);
+		call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
 	
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
 	} CATCH(ReportedBoundsError) {
@@ -1632,12 +1632,12 @@ static const luaL_reg DissectorTable_methods[] = {
     {"remove", DissectorTable_remove },
     {"try", DissectorTable_try },
     {"get_dissector", DissectorTable_get_dissector },
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg DissectorTable_meta[] = {
     {"__tostring", DissectorTable_tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int DissectorTable_register(lua_State* L) {

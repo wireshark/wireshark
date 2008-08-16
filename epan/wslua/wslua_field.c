@@ -154,8 +154,9 @@ int FieldInfo_get_range(lua_State* L) {
 	/* the TvbRange covering this field */
 	FieldInfo fi = checkFieldInfo(L,1);
 	TvbRange r = ep_alloc(sizeof(struct _wslua_tvbrange));
+	r->tvb = ep_alloc(sizeof(struct _wslua_tvb));
 
-	r->tvb = fi->ds_tvb;
+	r->tvb->ws_tvb = fi->ds_tvb;
 	r->offset = fi->start;
 	r->len = fi->length;
 
@@ -193,7 +194,7 @@ static const luaL_reg FieldInfo_get[] = {
     {"len", FieldInfo__len},
 	/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
     {"offset", FieldInfo__unm},
-    {0, 0}
+    { NULL, NULL }
 };
 
 static int FieldInfo__index(lua_State* L) {
@@ -272,7 +273,7 @@ static const luaL_reg FieldInfo_meta[] = {
     {"__eq", FieldInfo__eq},
     {"__le", FieldInfo__le},
     {"__lt", FieldInfo__lt},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int FieldInfo_register(lua_State* L) {
@@ -440,13 +441,13 @@ WSLUA_METAMETHOD Field_tostring(lua_State* L) {
 
 static const luaL_reg Field_methods[] = {
     {"new", Field_new},
-    {0, 0}
+    { NULL, NULL }
 };
 
 static const luaL_reg Field_meta[] = {
     {"__tostring", Field_tostring},
     {"__call", Field__call},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Field_register(lua_State* L) {

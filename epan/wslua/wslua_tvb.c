@@ -4,6 +4,7 @@
  * Wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
  *
  * $Id$
  *
@@ -284,7 +285,7 @@ static const luaL_reg ByteArray_methods[] = {
     {"tvb", Tvb_new_real},
     {"get_index", ByteArray_get_index},
     {"set_index", ByteArray_set_index},
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg ByteArray_meta[] = {
@@ -292,7 +293,7 @@ static const luaL_reg ByteArray_meta[] = {
     {"__gc",       ByteArray_gc},
     {"__concat", ByteArray__concat},
     {"__call",ByteArray_subset},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int ByteArray_register(lua_State* L) {
@@ -310,14 +311,18 @@ int ByteArray_register(lua_State* L) {
  *            not already done by the TVB itself. In lua's terms is necessary to avoid abusing TRY{}CATCH(){}
  *            via preemptive bounds checking.
  *
- * These lua objects have to be "NULLified after use", that is, we cannot leave pointers in the
- * lua machine to a tvb or a tvbr that might exist anymore.
+ * These lua objects refers to structures in wireshak that are freed independently from Lua's garbage collector.
+ * To avoid using a pointer from Lua to Wireshark's that is already freed, we maintain a list of the pointers with
+ * a marker that track's it's expiry. 
  *
- * To do so we are going to keep a pointer to every "box" in which lua has placed a pointer to our object
- * and then NULLify the object lua points to.
+ * All pointers are marked as expired when the dissection of the current frame is finished of when the garbage
+ * collector tries to free the object referring to the pointer, whichever comes first.
+ * 
+ * All allocated memory chunks used for tracking the pointers' state are freed after marking the pointer as expired
+ * by the garbage collector or by the end of the dissection of the current frame, whichever comes second.
  *
- * Other than that we are going to check every instance of a potentialy NULLified object before using it
- * and report an error to the lua machine if it happens to be NULLified.
+ * We check the expiry state of the pointer before each acces.
+ *
  */
 
 WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL("expired tvb"),NOP);
@@ -327,22 +332,21 @@ listener or dissector call and are destroyed as soon as the listener/dissector r
 to them are unusable once the function has returned.
 To create a tvbrange the tvb must be called with offset and length as optional arguments ( the offset defaults to 0 and the length to tvb:len() )*/
 
-static GPtrArray* outstanding_stuff = NULL;
+static GPtrArray* outstanding_Tvb = NULL;
+static GPtrArray* outstanding_TvbRange = NULL;
 
-#define PUSH_TVB(L,t) g_ptr_array_add(outstanding_stuff,pushTvb(L,t))
-#define PUSH_TVBRANGE(L,t) g_ptr_array_add(outstanding_stuff,pushTvbRange(L,t))
+#define PUSH_TVB(L,t) {g_ptr_array_add(outstanding_Tvb,t);pushTvb(L,t);}
+#define PUSH_TVBRANGE(L,t) {g_ptr_array_add(outstanding_TvbRange,t);pushTvbRange(L,t);}
 
-void clear_outstanding_tvbs(void) {
-    while (outstanding_stuff->len) {
-        void** p = (void**)g_ptr_array_remove_index_fast(outstanding_stuff,0);
-        *p = NULL;
-    }
-}
+CLEAR_OUTSTANDING(Tvb,expired, TRUE)
 
-void* push_Tvb(lua_State* L, Tvb tvb) {
-    void** p = (void**)pushTvb(L,tvb);
-    g_ptr_array_add(outstanding_stuff,p);
-	return p;
+
+Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
+    Tvb tvb = g_malloc(sizeof(struct _wslua_tvb));
+    tvb->ws_tvb = ws_tvb;
+    tvb->expired = FALSE;
+    g_ptr_array_add(outstanding_Tvb,tvb);
+    return pushTvb(L,tvb);
 }
 
 
@@ -368,24 +372,34 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
 
     data = g_memdup(ba->data, ba->len);
 
-    tvb = tvb_new_real_data(data, ba->len,ba->len);
-    tvb_set_free_cb(tvb, g_free);
+    tvb = g_malloc(sizeof(struct _wslua_tvb));
+    tvb->ws_tvb = tvb_new_real_data(data, ba->len,ba->len);
+    tvb->expired = FALSE;
+    tvb_set_free_cb(tvb->ws_tvb, g_free);
 
-    add_new_data_source(lua_pinfo, tvb, name);
+    add_new_data_source(lua_pinfo, tvb->ws_tvb, name);
     PUSH_TVB(L,tvb);
     WSLUA_RETURN(1); /* the created Tvb. */
 }
 
-WSLUA_CONSTRUCTOR Tvb_new_subset (lua_State *L) {
+WSLUA_CONSTRUCTOR Tvb_tvb (lua_State *L) {
 	/* creates a (sub)Tvb from using a TvbRange */
 #define WSLUA_ARG_Tvb_new_subset_RANGE 2 /* the TvbRange from which to create the new Tvb. */
 
     TvbRange tvbr = checkTvbRange(L,1);
+    Tvb tvb;
 
-    if (! tvbr) return 0;
+    if (! (tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    if (tvb_offset_exists(tvbr->tvb,  tvbr->offset + tvbr->len -1 )) {
-        PUSH_TVB(L, tvb_new_subset(tvbr->tvb,tvbr->offset,tvbr->len, tvbr->len) );
+    if (tvb_offset_exists(tvbr->tvb->ws_tvb,  tvbr->offset + tvbr->len -1 )) {
+        tvb = g_malloc(sizeof(struct _wslua_tvb));
+        tvb->expired = FALSE;
+        tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
+        PUSH_TVB(L, tvb);
         return 1;
     } else {
         luaL_error(L,"Out Of Bounds");
@@ -400,21 +414,42 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     gchar* str;
 
     if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    len = tvb_length(tvb);
-    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb,0,len));
+    len = tvb_length(tvb->ws_tvb);
+    str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_str(tvb->ws_tvb,0,len));
     lua_pushstring(L,str);
     WSLUA_RETURN(1); /* the string. */
 }
 
+static int Tvb__gc(lua_State* L) {
+    Tvb tvb = checkTvb(L,1);
+
+    if (!tvb) return 0;
+    
+    if (!tvb->expired)
+        tvb->expired = TRUE;
+    else
+        g_free(tvb);
+
+    return 0;
+
+}
 
 WSLUA_METHOD Tvb_len(lua_State* L) {
 	/* obtain the length of a TVB */
     Tvb tvb = checkTvb(L,1);
 
     if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    lua_pushnumber(L,tvb_length(tvb));
+    lua_pushnumber(L,tvb_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* the length of the Tvb. */
 }
 
@@ -423,8 +458,12 @@ WSLUA_METHOD Tvb_offset(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
 
     if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    lua_pushnumber(L,TVB_RAW_OFFSET(tvb));
+    lua_pushnumber(L,TVB_RAW_OFFSET(tvb->ws_tvb));
     WSLUA_RETURN(1); /* the raw offset of the Tvb. */
 }
 
@@ -442,22 +481,30 @@ WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
  * TvbRanges are created by calling a tvb (e.g. tvb(offset,length)). If the TvbRange span is outside the Tvb's range the creation will cause a runtime error.
  */
 
-TvbRange new_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len) {
+TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     TvbRange tvbr;
 
+    
+    if (!ws_tvb) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
     if (len == -1) {
-        len = tvb_length_remaining(tvb,offset);
+        len = tvb_length_remaining(ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
             return 0;
         }
-    } else if ( (guint)(len + offset) > tvb_length(tvb)) {
+    } else if ( (guint)(len + offset) > tvb_length(ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return NULL;
     }
 
     tvbr = ep_alloc(sizeof(struct _wslua_tvbrange));
-    tvbr->tvb = tvb;
+    tvbr->tvb = g_malloc(sizeof(struct _wslua_tvb));
+    tvbr->tvb->ws_tvb = ws_tvb;
+    tvbr->tvb->expired = FALSE;
     tvbr->offset = offset;
     tvbr->len = len;
 
@@ -476,8 +523,12 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     TvbRange tvbr;
 
     if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    if ((tvbr = new_TvbRange(L,tvb,offset,len))) {
+    if ((tvbr = new_TvbRange(L,tvb->ws_tvb,offset,len))) {
         PUSH_TVBRANGE(L,tvbr);
 		WSLUA_RETURN(1); /* the TvbRange */
     }
@@ -489,7 +540,7 @@ static const luaL_reg Tvb_methods[] = {
     {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
-    {0,0}
+    { NULL, NULL }
 };
 
 static int Tvb_range(lua_State* L);
@@ -497,7 +548,8 @@ static int Tvb_range(lua_State* L);
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
-    {0, 0}
+    {"__gc", Tvb__gc},
+    { NULL, NULL }
 };
 
 int Tvb_register(lua_State* L) {
@@ -508,15 +560,20 @@ int Tvb_register(lua_State* L) {
 /*
  *  read access to tvbr's data
  */
-static int TvbRange_get_index(lua_State* L) {
+static int TvbRange_index(lua_State* L) {
 	/* WSLUA_ATTRIBUTE TvbRange_tvb RO The Tvb from which this TvbRange was generated */
 	/* WSLUA_ATTRIBUTE TvbRange_len RW The length (in octets) of this TvbRange */
 	/* WSLUA_ATTRIBUTE TvbRange_offset RW The offset (in octets) of this TvbRange */
 
     TvbRange tvbr = checkTvbRange(L,1);
+    Tvb tvb;
     const gchar* index = luaL_checkstring(L,2);
 
-    if (!(tvbr && index)) return 0;
+    if (!(tvbr && index && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     if (g_str_equal(index,"offset")) {
         lua_pushnumber(L,(lua_Number)tvbr->offset);
@@ -525,6 +582,9 @@ static int TvbRange_get_index(lua_State* L) {
         lua_pushnumber(L,(lua_Number)tvbr->len);
         return 1;
     } else if (g_str_equal(index,"tvb")) {
+        tvb = g_malloc(sizeof(struct _wslua_tvb));
+        tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
+        tvb->expired = FALSE;
         PUSH_TVB(L,tvbr->tvb);
         return 1;
     } else {
@@ -537,16 +597,20 @@ static int TvbRange_get_index(lua_State* L) {
 /*
  *  write access to tvbr's data
  */
-static int TvbRange_set_index(lua_State* L) {
+static int TvbRange_newindex(lua_State* L) {
     TvbRange tvbr = checkTvbRange(L,1);
     const gchar* index = luaL_checkstring(L,2);
 
-    if (!tvbr) return 0;
+    if (!(tvbr && !tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     if (g_str_equal(index,"offset")) {
         int offset = (int)lua_tonumber(L,3);
 
-        if ( (guint)(tvbr->len + offset) > tvb_length(tvbr->tvb)) {
+        if ( (guint)(tvbr->len + offset) > tvb_length(tvbr->tvb->ws_tvb)) {
             luaL_error(L,"out of bounds");
             return 0;
         } else {
@@ -557,7 +621,7 @@ static int TvbRange_set_index(lua_State* L) {
     } else if (g_str_equal(index,"len")) {
         int len = (int)lua_tonumber(L,3);
 
-        if ( (guint)(tvbr->offset + len) > tvb_length(tvbr->tvb)) {
+        if ( (guint)(tvbr->offset + len) > tvb_length(tvbr->tvb->ws_tvb)) {
             luaL_error(L,"out of bounds");
             return 0;
         } else {
@@ -576,24 +640,28 @@ static int TvbRange_set_index(lua_State* L) {
 /*
  *  get a Blefuscuoan unsigned integer from a tvb
  */
-WSLUA_METHOD TvbRange_get_uint(lua_State* L) {
+WSLUA_METHOD TvbRange_uint(lua_State* L) {
 	/* get a Big Endian (network order) unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
 	There's no support yet for 64 bit integers*/
     TvbRange tvbr = checkTvbRange(L,1);
-    if (!tvbr) return 0;
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     switch (tvbr->len) {
         case 1:
-            lua_pushnumber(L,tvb_get_guint8(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_ntohs(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_ntoh24(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_ntoh24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_ntohl(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
 			WSLUA_RETURN(1); /* the unsigned integer value */
             /*
              * XXX:
@@ -611,25 +679,29 @@ WSLUA_METHOD TvbRange_get_uint(lua_State* L) {
 /*
  *  get a Lilliputian unsigned integer from a tvb
  */
-WSLUA_METHOD TvbRange_get_le_uint(lua_State* L) {
+WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
 	/* get a Little Endian unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
 	There's no support yet for 64 bit integers*/
     TvbRange tvbr = checkTvbRange(L,1);
-    if (!tvbr) return 0;
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     switch (tvbr->len) {
         case 1:
             /* XXX unsigned anyway */
-            lua_pushnumber(L,(lua_Number)tvb_get_guint8(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,(lua_Number)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
-            lua_pushnumber(L,tvb_get_letohs(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 3:
-            lua_pushnumber(L,tvb_get_letoh24(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_letoh24(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 4:
-            lua_pushnumber(L,tvb_get_letohl(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
 			WSLUA_RETURN(1); /* the unsigned integer value */
         default:
             luaL_error(L,"TvbRange:get_le_uint() does not handle %d byte integers",tvbr->len);
@@ -640,17 +712,21 @@ WSLUA_METHOD TvbRange_get_le_uint(lua_State* L) {
 /*
  *  get a Blefuscuoan float
  */
-WSLUA_METHOD TvbRange_get_float(lua_State* L) {
+WSLUA_METHOD TvbRange_float(lua_State* L) {
 	/* get a Big Endian (network order) floating point number from a TvbRange. The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
-    if (!tvbr) return 0;
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     switch (tvbr->len) {
         case 4:
-            lua_pushnumber(L,(double)tvb_get_ntohieee_float(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,(double)tvb_get_ntohieee_float(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 8:
-            lua_pushnumber(L,tvb_get_ntohieee_double(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_ntohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
 			WSLUA_RETURN(1); /* the flaoting point value */
         default:
             luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
@@ -661,17 +737,17 @@ WSLUA_METHOD TvbRange_get_float(lua_State* L) {
 /*
  * get a Lilliputian float
  */
-WSLUA_METHOD TvbRange_get_le_float(lua_State* L) {
+WSLUA_METHOD TvbRange_le_float(lua_State* L) {
 	/* get a Little Endian floating point number from a TvbRange. The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
-    if (!tvbr) return 0;
+    if (!(tvbr && tvbr->tvb)) return 0;
 
     switch (tvbr->len) {
         case 4:
-            lua_pushnumber(L,tvb_get_letohieee_float(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_letohieee_float(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 8:
-            lua_pushnumber(L,tvb_get_letohieee_double(tvbr->tvb,tvbr->offset));
+            lua_pushnumber(L,tvb_get_letohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
 			WSLUA_RETURN(1); /* the flaoting point value */
         default:
             luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
@@ -679,22 +755,26 @@ WSLUA_METHOD TvbRange_get_le_float(lua_State* L) {
     }
 }
 
-WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
+WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 	/* get an IPv4 Address from a TvbRange. */
 
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32* ip_addr;
 
-    if ( !tvbr ) return 0;
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
 	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_get_ipv4,"The range must be 4 octets long");
+		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
     addr = g_malloc(sizeof(address));
 
     ip_addr = g_malloc(sizeof(guint32));
-    *ip_addr = tvb_get_ipv4(tvbr->tvb,tvbr->offset);
+    *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
 
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
@@ -702,22 +782,26 @@ WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
-WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
+WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
 	/* get an Little Endian IPv4 Address from a TvbRange. */
 	
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32* ip_addr;
 	
-    if ( !tvbr ) return 0;
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 	
 	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_get_ipv4,"The range must be 4 octets long");
+		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 	
     addr = g_malloc(sizeof(address));
 	
     ip_addr = g_malloc(sizeof(guint32));
-    *ip_addr = tvb_get_ipv4(tvbr->tvb,tvbr->offset);
+    *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
     *((guint32 *)ip_addr) = GUINT32_SWAP_LE_BE(*((guint32 *)ip_addr));
 	
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
@@ -726,20 +810,24 @@ WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
-WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
+WSLUA_METHOD TvbRange_ether(lua_State* L) {
 	/* get an Ethernet Address from a TvbRange. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint8* buff;
 
-    if ( !tvbr ) return 0;
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     addr = g_malloc(sizeof(address));
 
 	if (tvbr->len != 6)
-		WSLUA_ERROR(TvbRange_get_ether,"The range must be 6 bytes long");
+		WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
 
-    buff = tvb_memdup(tvbr->tvb,tvbr->offset,tvbr->len);
+    buff = tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     SET_ADDRESS(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);
@@ -748,26 +836,34 @@ WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
 }
 
 
-WSLUA_METHOD TvbRange_get_string(lua_State* L) {
+WSLUA_METHOD TvbRange_string(lua_State* L) {
 	/* obtain a string from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
 
-    if ( !tvbr ) return 0;
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    lua_pushstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb,tvbr->offset,tvbr->len) );
+    lua_pushstring(L, (gchar*)tvb_get_ephemeral_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len) );
 
 	WSLUA_RETURN(1); /* the string */
 }
 
-WSLUA_METHOD TvbRange_get_bytes(lua_State* L) {
+WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 	/* obtain a ByteArray */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
 
-    if ( !tvbr ) return 0;
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     ba = g_byte_array_new();
-    g_byte_array_append(ba,ep_tvb_memdup(tvbr->tvb,tvbr->offset,tvbr->len),tvbr->len);
+    g_byte_array_append(ba,ep_tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
 
     pushByteArray(L,ba);
 
@@ -780,35 +876,40 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 	   or if what you want is to have a truncated string in the format 67:89:AB:... */
     TvbRange tvbr = checkTvbRange(L,1);
 
-    if (!tvbr) return 0;
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
-    lua_pushstring(L,tvb_bytes_to_str(tvbr->tvb,tvbr->offset,tvbr->len));
+    lua_pushstring(L,tvb_bytes_to_str(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len));
     return 1;
 }
 
 static const luaL_reg TvbRange_methods[] = {
-    {"uint", TvbRange_get_uint},
-    {"le_uint", TvbRange_get_le_uint},
-    {"float", TvbRange_get_float},
-    {"le_float", TvbRange_get_le_float},
-    {"ether", TvbRange_get_ether},
-    {"ipv4", TvbRange_get_ipv4},
-	{"le_ipv4", TvbRange_get_le_ipv4},
-    {"string", TvbRange_get_string},
-    {"bytes", TvbRange_get_bytes},
-    {"tvb", Tvb_new_subset},
-    {0, 0}
+    {"uint", TvbRange_uint},
+    {"le_uint", TvbRange_le_uint},
+    {"float", TvbRange_float},
+    {"le_float", TvbRange_le_float},
+    {"ether", TvbRange_ether},
+    {"ipv4", TvbRange_ipv4},
+	{"le_ipv4", TvbRange_le_ipv4},
+    {"string", TvbRange_string},
+    {"bytes", TvbRange_bytes},
+    {"tvb", Tvb_tvb},
+    { NULL, NULL }
 };
 
 static const luaL_reg TvbRange_meta[] = {
-    {"__index", TvbRange_get_index},
-    {"__newindex", TvbRange_set_index},
+    {"__index", TvbRange_index},
+    {"__newindex", TvbRange_newindex},
     {"__tostring", TvbRange__tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int TvbRange_register(lua_State* L) {
-    outstanding_stuff = g_ptr_array_new();
+    outstanding_Tvb = g_ptr_array_new();
+    outstanding_TvbRange = g_ptr_array_new();
     WSLUA_REGISTER_CLASS(TvbRange);
     return 1;
 }
