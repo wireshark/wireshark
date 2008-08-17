@@ -35,14 +35,14 @@
         <listitem>
           <para>C compiler:
           <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">
-          Download</ulink>(474MB) and install "Visual C++ 2005
-          Express Edition"</para>
+          Download</ulink>(474MB) and install "Microsoft Visual C++ 
+		  2005 Express Edition"</para>
         </listitem>
         <listitem>
           <para>Platform SDK :
           <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en">
-          Download</ulink>(420MB) and install Platform SDK Server
-          2003 R2</para>
+          Download</ulink>(420MB) and install "Microsoft Platform 
+		  SDK Server 2003 R2"</para>
         </listitem>
       </orderedlist></para>
       <para>Install MSVC the usual way. Don't forget to install
