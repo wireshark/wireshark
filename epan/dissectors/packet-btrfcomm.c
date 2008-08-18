@@ -7,7 +7,7 @@
  *
  * For now all this is decoded just as "data".
  * It might be enough to just check
- * If the first byte of payload is the 0x7e delimeter and if so just
+ * If the first byte of payload is the 0x7e delimiter and if so just
  * de escape it into a ep_alloc() buffer and then pass it to the ppp
  * dissector.
  */
@@ -356,9 +356,9 @@ static void stream_buf_append(rfcomm_packet_state *rps,
 
 		if (byte == 0x7e) {
 			if (ds->current == 0)
-				continue; /* was start delimeter */
+				continue; /* was start delimiter */
 
-			/* end delimeter*/
+			/* end delimiter*/
 
 			add_ppp_frame(rps, ds->stream_buf, ds->current);
 
@@ -727,7 +727,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * ppp over rfcomm
 	 *
 	 * it might be sufficient to just check if the first byte is the 0x7e
-	 * delimeter and if so just unescape it all into an ep_alloc() buffer
+	 * delimiter and if so just unescape it all into an ep_alloc() buffer
 	 * and pass it to ppp.
 	 */
 	if(dlci&&frame_len){

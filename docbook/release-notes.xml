@@ -37,11 +37,34 @@ Wireshark Info
 
         <listitem>
           <para>
+            The NCP dissector was susceptible to a number of problems, including
+            buffer overflows and an infinite loop.
+            <!-- Fixed in r25600, r25682, r25683, r25807, r25892, r25911, r25913, r25914, r26012 -->
+          </para>
+          <para>Versions affected: 0.9.7 to 1.0.2</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             Wireshark could crash while uncompressing zlib-compressed packet data.
             <!-- Fixed in r25677 -->
 	    <!-- (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2649">2649</ulink>) -->
           </para>
           <para>Versions affected: 0.10.14 to 1.0.2</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark could crash while reading a Tektronix .rf5 file.
+            <!-- Fixed in r25923, r25924 -->
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.2</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -56,6 +79,12 @@ Wireshark Info
     The following bugs have been fixed:
 
       <itemizedlist>
+
+        <listitem><para>
+          802.11 WPA/WPA2-PSK Unable to decode Group Keys.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
+          1420</ulink>)
+        </para></listitem>
 
         <listitem><para>
           Packets could wrongly be dissected as "Redback Lawful Intercept"
@@ -94,6 +123,36 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          SIP decode shows fully expanded "Content-Length" header instead of compact form.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2635">Bug
+          2635</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Segmentation fault loading trace containing NCP packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2675">Bug
+          2675</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SIP packets might incorrectly be displayed as malformed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2729">Bug
+          2729</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RTCP BYE padding interpreted incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2778">Bug
+          2778</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Reversed RTP stream is saved as silent .au file, forward stream saves correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2780">Bug
+          2780</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Setting a duration on a capture file would capture for an extra second.
         </para></listitem>
 
@@ -122,10 +181,16 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 AIM,
+Bluetooth RFCOMM,
 ERF,
+K12,
+NCP,
 PPP BCP,
 PPPoE
 Redback LI,
+RTCP,
+RTP,
+SIP,
 TCP
 
     </para>
@@ -195,12 +260,6 @@ Endace ERF.
       Dumpcap might not quit if Wireshark or TShark crashes.
       (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
       1419</ulink>)
-    </para>
-
-    <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
     </para>
 
     <para>

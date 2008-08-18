@@ -89,6 +89,8 @@ void print_debug_line(CHAR *function, CHAR *msg, INT level);
 #endif
 #endif
 
+#define DEBUG_DUMP(x,y,z) g_warning("%s: %s", x, bytes_to_str(y, (z)))
+
 #else	/* !defined _DEBUG	*/
 
 #define	AIRPDCAP_DEBUG_LEVEL_1
@@ -99,6 +101,8 @@ void print_debug_line(CHAR *function, CHAR *msg, INT level);
 
 #define	AIRPDCAP_DEBUG_TRACE_START(function)
 #define	AIRPDCAP_DEBUG_TRACE_END(function)
+
+#define DEBUG_DUMP(x,y,z)
 
 #endif	/* ?defined _DEBUG	*/
 

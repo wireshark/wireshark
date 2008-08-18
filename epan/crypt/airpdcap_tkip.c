@@ -216,17 +216,23 @@ INT AirPDcapTkipDecrypt(
 	UCHAR TA[AIRPDCAP_MAC_LEN],
 	UCHAR TK[AIRPDCAP_TK_LEN])
 {
+	UINT64 TSC64;
 	UINT32 TSC;
 	UINT16 TSC16;
 	UINT8 *IV;
 	UINT16 TTAK[AIRPDCAP_TTAK_LEN];
 	UINT8 wep_seed[AIRPDCAP_WEP_128_KEY_LEN];
 
+	/* DEBUG_DUMP("TA", TA, 6); */
+
 	IV = tkip_mpdu;
 
-	TSC16 = (UINT16)READ_6(IV[2], IV[0], IV[4], IV[5], IV[6], IV[7]);
+	TSC64 = READ_6(IV[2], IV[0], IV[4], IV[5], IV[6], IV[7]);
+	TSC16 = (UINT16)TSC64;
 
-	TSC = (UINT32)TSC16 >> 16;
+	/* The original code made no sense!!  We were shifting a 16-bit number 16 bits to the right. */
+	/* We instead have to have READ_6() be returned to a UINT64 and shift *that* value. */
+	TSC = (UINT32)(TSC64 >> 16);
 
 	AirPDcapTkipMixingPhase1(TTAK, TK, TA, TSC);
 

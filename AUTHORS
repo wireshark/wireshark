@@ -2737,6 +2737,10 @@ Stephen Donnelly <stephen [AT] endace.com> {
 	Infiniband support
 }
 
+Brian Stormont		<nospam [AT] stormyprods.com> {
+	WPA group key decryption
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

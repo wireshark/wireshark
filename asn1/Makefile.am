@@ -102,7 +102,9 @@ SUBDIRS = \
 	x721
 
 EXTRA_DIST = \
-	Makefile.nmake
+	Makefile.nmake	\
+	Makefile.inc.nmake	\
+	Makefile.preinc.nmake
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

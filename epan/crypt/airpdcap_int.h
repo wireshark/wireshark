@@ -78,6 +78,8 @@
  */
 #define	AIRPDCAP_EXTIV(KeyID)	((KeyID >> 5) & 0x1)
 
+#define	AIRPDCAP_KEY_INDEX(KeyID)	((KeyID >> 6) & 0x3)  /* Used to determine TKIP group key from unicast (group = 1, unicast = 0) */
+
 /* Macros to get various bits of an EAPOL frame				*/
 #define	AIRPDCAP_EAP_KEY_DESCR_VER(KeyInfo_1)	((UCHAR)(KeyInfo_1 & 0x3))
 #define	AIRPDCAP_EAP_KEY(KeyInfo_1)		((KeyInfo_1 >> 3) & 0x1)
