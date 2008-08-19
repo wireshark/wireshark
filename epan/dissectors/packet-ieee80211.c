@@ -1209,6 +1209,9 @@ static int hf_tag_power_capability_min = -1;
 static int hf_tag_power_capability_max = -1;
 /*** End: Power Capability Tag - Dustin Johnson ***/
 
+static int hf_tag_tpc_report_trsmt_pow = -1;
+static int hf_tag_tpc_report_link_mrg = -1;
+
 /*** Begin: Power Capability Tag - Dustin Johnson ***/
 static int hf_tag_supported_channels = -1;
 static int hf_tag_supported_channels_first = -1;
@@ -4689,7 +4692,24 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         break;
       }
     /*** End: Power Capability Tag - Dustin Johnson ***/
-
+	  /* 
+	   * 7.3.2.18 TPC Report element
+	   *
+	   */
+	case TAG_TPC_REPORT:
+		if(tag_len !=2)
+	        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+	            "TPC Report: Error: Tag length must be 2 bytes long");
+		/* Transmit Power field
+		 * The field is coded as a signed integer in units of decibels relative to 1 mW
+		 */
+		offset += 2;
+		proto_tree_add_item(tree, hf_tag_tpc_report_trsmt_pow, tvb, offset, 1, TRUE);
+		offset++;
+		/* Link Margin */
+		proto_tree_add_item(tree, hf_tag_tpc_report_link_mrg, tvb, offset, 1, TRUE);
+		offset++;
+		break;
     /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     case TAG_SUPPORTED_CHANNELS:
       {
@@ -4907,11 +4927,15 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     /* End: Measure Request Tag - Dustin Johnson */
     /* Begin: Measure Report Tag - Dustin Johnson */
+	/* 7.3.2.22 Measurement Report element
+	 * The Length field is variable and depends on the length of the 
+	 * Measurement Report field. The minimum value of the Length field is 3.
+	 */
     case TAG_MEASURE_REP:
-      if (tag_len < 5)
+      if (tag_len < 3)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Measurement Report: Error: Tag length must be at least 5 bytes long");
+            "Measurement Report: Error: Tag length must be at least 3 bytes long");
       } else {
         guint8 info, report_type, channel_number;
         guint16 duration;
@@ -4940,8 +4964,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         report_type = tvb_get_guint8 (tvb, offset);
         parent_item = proto_tree_add_uint(tree, hf_tag_measure_report_type, tvb, offset, 1, report_type);
         sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-
         offset++;
+
+		if (tag_len == 3)
+			break;
         switch (report_type) {
           case 0: /* Basic Report */
           {
@@ -10201,7 +10227,12 @@ proto_register_ieee80211 (void)
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
       FT_UINT8, BASE_HEX, NULL, 0, "Maximum Transmit Power", HFILL }},
     /*** End: Power Capability Tag - Dustin Johnson ***/
-
+    {&hf_tag_tpc_report_trsmt_pow,
+     {"Transmit Power", "wlan_mgt.tcprep.trsmt_pow",
+      FT_INT8, BASE_DEC, NULL, 0, "Transmit Power", HFILL }},
+    {&hf_tag_tpc_report_link_mrg,
+     {"Link Margin", "wlan_mgt.tcprep.link_mrg",
+      FT_INT8, BASE_DEC, NULL, 0, "Link Margin", HFILL }},
     /*** Begin: Supported Channels Tag - Dustin Johnson ***/
     {&hf_tag_supported_channels,
      {"Supported Channels Set", "wlan_mgt.supchan",
