@@ -1992,6 +1992,9 @@ struct val_80211 {
  * for the Prism II cards (although the NetBSD code has an XXX comment
  * for the #define for WI_PRISM_DBM_OFFSET) and 149 (with no XXX comment)
  * for the Orinoco cards.
+ *
+ * XXX - what about other drivers that supply Prism headers, such as
+ * old versions of the MadWifi driver?
  */
 struct prism_hdr {
     unsigned int msgcode, msglen;
