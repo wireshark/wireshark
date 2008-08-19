@@ -56,6 +56,7 @@
 #define OUI_SONY_ERICSSON_7	0x001813	/* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_8	0x001963	/* Sony Ericsson Mobile Communications AB */
 #define OUI_CISCOWL			0x004096	/* Cisco Wireless (Aironet) */
+#define	OUI_MARVELL			0x005043	/* Marvell Semiconductor */
 #define OUI_ERICSSON_2		0x008037	/* Ericsson Group */	
 #define OUI_BRIDGED			0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 										/* and Bridged ATM, RFC 2684 */
