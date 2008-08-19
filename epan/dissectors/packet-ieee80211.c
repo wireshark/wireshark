@@ -522,10 +522,12 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_QOS_CAPABILITY        0x2E
 #define TAG_ERP_INFO_OLD          0x2F  /* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE                0x30
+/* Reserved 49 */
 #define TAG_EXT_SUPP_RATES        0x32
 #define TAG_NEIGHBOR_REPORT       0x34
 #define TAG_HT_INFO               0x3D  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_WSIE	              0x45   /* tag of the Wave Service Information (802.11p) */
 #define TAG_EXTENDED_CAPABILITIES 0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY     0x80
 #define TAG_CISCO_UNKNOWN_1       0x85  /* Cisco Compatible eXtensions */
@@ -4605,6 +4607,18 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           col_append_fstr(pinfo->cinfo, COL_INFO, ", Name=\"%s\"", out_buff);
       }
       break;
+
+/* Std 802.11-2007
+ * 7.3.2.26 Vendor Specific information element 
+ * The
+ * information element is in the format shown in Figure 7-75 and requires that the first 3 octets of the
+ * information field contain the OUI of the entity that has defined the content of the particular Vendor Specific
+ * information element. The length of the information field (n) is 3 >= n =< 255. The OUI field shall be a public
+ * OUI assigned by the IEEE. It is 3 octets in length. The length of the vendor-specific content is n–3 octets.
+ *
+ *          Element ID Length OUI Vendor-specific content
+ * Octets   1          1      3    n-3
+ */
 
     case TAG_VENDOR_SPECIFIC_IE:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
