@@ -26,10 +26,24 @@
 #ifndef __PACKET_GSM_A_COMMON_H__
 #define __PACKET_GSM_A_COMMON_H__
 
+#include "packet-sccp.h"
 
 /* PROTOTYPES/FORWARDS */
 typedef guint8 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+
+typedef struct dgt_set_t
+{
+	unsigned char out[15];
+}
+dgt_set_t;
+
+int my_dgt_tbcd_unpack( 
+	char	*out,		/* ASCII pattern out */
+	guchar	*in,		/* packed pattern in */
+	int		num_octs,	/* Number of octets to unpack */
+	dgt_set_t	*dgt		/* Digit definitions */
+	);
 
 /* globals needed as a result of spltting the packet-gsm_a.c into several files
  * until further restructuring can take place to make them more modular
@@ -37,7 +51,7 @@ typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /* common PD values */
 extern const value_string protocol_discriminator_vals[];
-/**extern const value_string gsm_a_pd_short_str_vals[];***/
+extern const value_string gsm_a_pd_short_str_vals[];
 
 extern guint8 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
@@ -57,14 +71,31 @@ extern gint ett_gsm_rp_elem[];
 extern elem_fcn rp_elem_fcn[];
 extern int hf_gsm_a_rp_elem_id;
 
+extern const value_string gsm_rr_elem_strings[];
+extern gint ett_gsm_rr_elem[];
+extern elem_fcn rr_elem_fcn[];
+extern int hf_gsm_a_rr_elem_id;
+extern void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
+
+extern const value_string gsm_common_elem_strings[];
+extern gint ett_gsm_common_elem[];
+extern elem_fcn common_elem_fcn[];
+extern int hf_gsm_a_common_elem_id;
+
+extern sccp_msg_info_t* sccp_msg;
+extern sccp_assoc_info_t* sccp_assoc;
+
+extern int gsm_a_tap;
 extern gboolean lower_nibble;
 
 /* common field values */
 extern int hf_gsm_a_length;
-/***extern int hf_gsm_a_extension;***/
+extern int hf_gsm_a_extension;
 extern int hf_gsm_a_tmsi;
 extern int hf_gsm_a_L3_protocol_discriminator;
 extern int hf_gsm_a_b8spare;
+extern int hf_gsm_a_skip_ind;
+extern int hf_gsm_a_rr_chnl_needed_ch1;
 
 /* for the nasty hack below */
 #define GSM_BSSMAP_APDU_IE	0x49
@@ -73,6 +104,10 @@ extern int hf_gsm_a_b8spare;
 #define GSM_A_PDU_TYPE_BSSMAP	BSSAP_PDU_TYPE_BSSMAP /* i.e. 0 - until split complete at least! */
 #define GSM_A_PDU_TYPE_DTAP		BSSAP_PDU_TYPE_DTAP   /* i.e. 1 - until split complete at least! */
 #define GSM_A_PDU_TYPE_RP		2
+#define GSM_A_PDU_TYPE_RR		3
+#define GSM_A_PDU_TYPE_COMMON	4
+
+extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
 /*
  * this should be set on a per message basis, if possible
@@ -125,12 +160,12 @@ extern int hf_gsm_a_b8spare;
 #define	SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names, SEV_elem_ett, SEV_elem_funcs) \
     switch (SEV_pdu_type) \
     { \
-    case BSSAP_PDU_TYPE_BSSMAP: \
+    case GSM_A_PDU_TYPE_BSSMAP: \
 	SEV_elem_names = gsm_bssmap_elem_strings; \
 	SEV_elem_ett = ett_gsm_bssmap_elem; \
 	SEV_elem_funcs = bssmap_elem_fcn; \
 	break; \
-    case BSSAP_PDU_TYPE_DTAP: \
+    case GSM_A_PDU_TYPE_DTAP: \
 	SEV_elem_names = gsm_dtap_elem_strings; \
 	SEV_elem_ett = ett_gsm_dtap_elem; \
 	SEV_elem_funcs = dtap_elem_fcn; \
@@ -139,6 +174,16 @@ extern int hf_gsm_a_b8spare;
 	SEV_elem_names = gsm_rp_elem_strings; \
 	SEV_elem_ett = ett_gsm_rp_elem; \
 	SEV_elem_funcs = rp_elem_fcn; \
+	break; \
+    case GSM_A_PDU_TYPE_RR: \
+	SEV_elem_names = gsm_rr_elem_strings; \
+	SEV_elem_ett = ett_gsm_rr_elem; \
+	SEV_elem_funcs = rr_elem_fcn; \
+	break; \
+    case GSM_A_PDU_TYPE_COMMON: \
+	SEV_elem_names = gsm_common_elem_strings; \
+	SEV_elem_ett = ett_gsm_common_elem; \
+	SEV_elem_funcs = common_elem_fcn; \
 	break; \
     default: \
 	proto_tree_add_text(tree, \
@@ -212,8 +257,7 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
 		EMT_iei, \
-		(EMT_pdu_type == BSSAP_PDU_TYPE_BSSMAP) ? \
-		    gsm_bssmap_elem_strings[EMT_elem_idx].strptr : gsm_dtap_elem_strings[EMT_elem_idx].strptr, \
+		get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
 		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
 	    ); \
 	} \
@@ -243,8 +287,7 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
 		EMT_iei, \
-		(EMT_pdu_type == BSSAP_PDU_TYPE_BSSMAP) ? \
-		    gsm_bssmap_elem_strings[EMT_elem_idx].strptr : gsm_dtap_elem_strings[EMT_elem_idx].strptr, \
+		get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
 		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
 	    ); \
 	} \
@@ -423,5 +466,156 @@ extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 
 extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[]; 
+
+typedef enum
+{
+	/* Common Information Elements 10.5.1 */
+	/* Pos 0 */
+	DE_CELL_ID,				/* Cell Identity */
+	DE_CIPH_KEY_SEQ_NUM,	/* Ciphering Key Sequence Number */
+	DE_LAI,					/* Location Area Identification */
+	DE_MID,					/* Mobile Identity */
+	DE_MS_CM_1,				/* Mobile Station Classmark 1 */
+	DE_MS_CM_2,				/* Mobile Station Classmark 2 */
+	DE_MS_CM_3,				/* Mobile Station Classmark 3 */
+	DE_SPARE_NIBBLE,			/* Spare Half Octet */
+	DE_D_GB_CALL_REF,		/* Descriptive group or broadcast call reference */
+	DE_G_CIPH_KEY_NUM,		/* Group Cipher Key Number */
+	DE_PD_SAPI,				/* PD and SAPI $(CCBS)$ */
+	/* Pos 10 */
+	DE_PRIO,				/* Priority Level */
+	DE_PLMN_LIST,			/* PLMN List */
+
+	DE_COMMON_NONE							/* NONE */
+}
+common_elem_idx_t;
+
+typedef enum
+{
+	/* Mobility Management Information Elements 10.5.3 */
+	DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
+	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
+	DE_AUTH_RESP_PARAM,				/* Authentication Response Parameter */
+	DE_AUTH_RESP_PARAM_EXT,			/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
+	DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS authentication challenge only) */
+	DE_CM_SRVC_TYPE,				/* CM Service Type */
+	DE_ID_TYPE,						/* Identity Type */
+	/* Pos 50 */
+	DE_LOC_UPD_TYPE,				/* Location Updating Type */
+	DE_NETWORK_NAME,				/* Network Name */
+	DE_REJ_CAUSE,					/* Reject Cause */
+	DE_FOP,							/* Follow-on Proceed */
+	DE_TIME_ZONE,					/* Time Zone */
+	DE_TIME_ZONE_TIME,				/* Time Zone and Time */
+	DE_CTS_PERM,					/* CTS Permission */
+	DE_LSA_ID,						/* LSA Identifier */
+	DE_DAY_SAVING_TIME,				/* Daylight Saving Time */
+	DE_EMERGENCY_NUM_LIST,			/* Emergency Number List */
+	/* Call Control Information Elements 10.5.4 */
+	/* Pos 60 */
+	DE_AUX_STATES,					/* Auxiliary States */
+	DE_BEARER_CAP,					/* Bearer Capability */
+	DE_CC_CAP,						/* Call Control Capabilities */
+	DE_CALL_STATE,					/* Call State */
+	DE_CLD_PARTY_BCD_NUM,			/* Called Party BCD Number */
+	DE_CLD_PARTY_SUB_ADDR,			/* Called Party Subaddress */
+	DE_CLG_PARTY_BCD_NUM,			/* Calling Party BCD Number */
+	DE_CLG_PARTY_SUB_ADDR,			/* Calling Party Subaddress */
+	DE_CAUSE,						/* Cause */
+	DE_CLIR_SUP,					/* CLIR Suppression */
+	DE_CLIR_INV,					/* CLIR Invocation */
+	DE_CONGESTION,					/* Congestion Level */
+	DE_CONN_NUM,					/* Connected Number */
+	DE_CONN_SUB_ADDR,				/* Connected Subaddress */
+	DE_FACILITY,					/* Facility */
+	DE_HLC,							/* High Layer Compatibility */
+	DE_KEYPAD_FACILITY,				/* Keypad Facility */
+	DE_LLC,							/* Low Layer Compatibility */
+	DE_MORE_DATA,					/* More Data */
+	DE_NOT_IND,						/* Notification Indicator */
+	DE_PROG_IND,					/* Progress Indicator */
+	DE_RECALL_TYPE,					/* Recall type $(CCBS)$ */
+	DE_RED_PARTY_BCD_NUM,			/* Redirecting Party BCD Number */
+	DE_RED_PARTY_SUB_ADDR,			/* Redirecting Party Subaddress */
+	DE_REPEAT_IND,					/* Repeat Indicator */
+	DE_REV_CALL_SETUP_DIR,			/* Reverse Call Setup Direction */
+	DE_SETUP_CONTAINER,				/* SETUP Container $(CCBS)$ */
+	DE_SIGNAL,						/* Signal */
+	DE_SS_VER_IND,					/* SS Version Indicator */
+	DE_USER_USER,					/* User-user */
+	DE_ALERT_PATTERN,				/* Alerting Pattern $(NIA)$ */
+	DE_ALLOWED_ACTIONS,				/* Allowed Actions $(CCBS)$ */
+	DE_SI,							/* Stream Identifier */
+	DE_NET_CC_CAP,					/* Network Call Control Capabilities */
+	DE_CAUSE_NO_CLI,				/* Cause of No CLI */
+	DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
+	DE_SUP_CODEC_LIST,				/* Supported Codec List */
+	DE_SRVC_CAT,					/* Service Category */
+	/* GPRS Mobility Management Information Elements 10.5.5 */
+	DE_ATTACH_RES,					/* [7] 10.5.1 Attach Result*/
+	DE_ATTACH_TYPE,					/* [7] 10.5.2 Attach Type */
+	DE_CIPH_ALG,					/* [7] 10.5.3 Cipher Algorithm */
+	DE_TMSI_STAT,					/* [7] 10.5.4 TMSI Status */
+	DE_DETACH_TYPE,					/* [7] 10.5.5 Detach Type */
+	DE_DRX_PARAM,					/* [7] 10.5.6 DRX Parameter */
+	DE_FORCE_TO_STAND,				/* [7] 10.5.7 Force to Standby */
+	DE_FORCE_TO_STAND_H,			/* [7] 10.5.8 Force to Standby - Info is in the high nibble */
+	DE_P_TMSI_SIG,					/* [7] 10.5.9 P-TMSI Signature */
+	DE_P_TMSI_SIG_2,				/* [7] 10.5.10 P-TMSI Signature 2 */
+	DE_ID_TYPE_2,					/* [7] 10.5.11 Identity Type 2 */
+	DE_IMEISV_REQ,					/* [7] 10.5.12 IMEISV Request */
+	DE_REC_N_PDU_NUM_LIST,			/* [7] 10.5.13 Receive N-PDU Numbers List */
+	DE_MS_NET_CAP,					/* [7] 10.5.14 MS Network Capability */
+	DE_MS_RAD_ACC_CAP,				/* [7] 10.5.15 MS Radio Access Capability */
+	DE_GMM_CAUSE,					/* [7] 10.5.16 GMM Cause */
+	DE_RAI,							/* [7] 10.5.17 Routing Area Identification */
+	DE_UPD_RES,						/* [7] 10.5.18 Update Result */
+	DE_UPD_TYPE,					/* [7] 10.5.19 Update Type */
+	DE_AC_REF_NUM,					/* [7] 10.5.20 A&C Reference Number */
+	DE_AC_REF_NUM_H,				/* A&C Reference Number - Info is in the high nibble */
+	DE_SRVC_TYPE,					/* [7] 10.5.20 Service Type */
+	DE_CELL_NOT,					/* [7] 10.5.21 Cell Notification */
+	DE_PS_LCS_CAP,					/* [7] 10.5.22 PS LCS Capability */
+	DE_NET_FEAT_SUP,				/* [7] 10.5.23 Network Feature Support */
+	DE_RAT_INFO_CONTAINER,			/* [7] 10.5.24 Inter RAT information container */
+	/* [7] 10.5.25 Requested MS information */
+
+	/* Short Message Service Information Elements [5] 8.1.4 */
+	DE_CP_USER_DATA,				/* CP-User Data */
+	DE_CP_CAUSE,					/* CP-Cause */
+	/* Session Management Information Elements 10.5.6 */
+	DE_ACC_POINT_NAME,				/* Access Point Name */
+	DE_NET_SAPI,					/* Network Service Access Point Identifier */
+	DE_PRO_CONF_OPT,				/* Protocol Configuration Options */
+	DE_PD_PRO_ADDR,					/* Packet Data Protocol Address */
+	DE_QOS,							/* Quality Of Service */
+	DE_SM_CAUSE,					/* SM Cause */
+	DE_LINKED_TI,					/* Linked TI */
+	DE_LLC_SAPI,					/* LLC Service Access Point Identifier */
+	DE_TEAR_DOWN_IND,				/* Tear Down Indicator */
+	DE_PACKET_FLOW_ID,				/* Packet Flow Identifier */
+	DE_TRAFFIC_FLOW_TEMPLATE,		/* Traffic Flow Template */
+	/* GPRS Common Information Elements 10.5.7 */
+	DE_PDP_CONTEXT_STAT,			/* [8] 10.5.7.1		PDP Context Status */
+	DE_RAD_PRIO,					/* [8] 10.5.7.2		Radio Priority */
+	DE_GPRS_TIMER,					/* [8] 10.5.7.3		GPRS Timer */
+	DE_GPRS_TIMER_2,				/* [8] 10.5.7.4		GPRS Timer 2 */
+	DE_RAD_PRIO_2,					/* [8] 10.5.7.5		Radio Priority 2 */
+	DE_MBMS_CTX_STATUS,				/* [8] 10.5.7.6		MBMS context status */
+    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+    DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
+    DE_TP_ACK,			/* Open Loop Cmd Ack */
+    DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
+    DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
+    DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
+    DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
+    DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
+    DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+    DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
+    DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
+    DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
+	DE_NONE							/* NONE */
+}
+dtap_elem_idx_t;
 
 #endif /* __PACKET_GSM_A_COMMON_H__ */

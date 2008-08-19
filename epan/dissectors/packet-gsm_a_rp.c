@@ -45,6 +45,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 
+#include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 
 /* PROTOTYPES/FORWARDS */
@@ -78,8 +79,6 @@ int hf_gsm_a_rp_elem_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_rp_msg = -1;
-static gint ett_elems = -1;
-static gint ett_elem = -1;
 
 static char a_bigbuf[1024];
 
@@ -104,7 +103,7 @@ typedef enum
 	DE_RP_USER_DATA,				/* RP-User Data */
 	DE_RP_CAUSE,					/* RP-Cause */
 
-	DE_NONE							/* NONE */
+	DE_RP_NONE							/* NONE */
 }
 rp_elem_idx_t;
 
@@ -575,13 +574,11 @@ proto_register_gsm_a_rp(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	3
+#define	NUM_INDIVIDUAL_ELEMS	1
 	static gint *ett[NUM_INDIVIDUAL_ELEMS +
 			NUM_GSM_RP_MSG];
 
 	ett[0] = &ett_rp_msg;
-	ett[1] = &ett_elems;
-	ett[2] = &ett_elem;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

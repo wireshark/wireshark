@@ -12,7 +12,7 @@
  *   Layer 3 specification
  *   (GSM 08.08 version 7.7.0 Release 1998)	TS 100 590 v7.7.0
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -48,8 +48,8 @@
 #include <epan/emem.h>
 
 #include "packet-bssap.h"
-#include "packet-gsm_a_common.h"
 #include "packet-sccp.h"
+#include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
 /* PROTOTYPES/FORWARDS */
@@ -249,8 +249,6 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
 
-static int gsm_a_tap = -1;
-
 static int hf_gsm_a_bssmap_msg_type = -1;
 int hf_gsm_a_length = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
@@ -262,7 +260,6 @@ static int hf_gsm_a_dlci_sapi = -1;
 static int hf_gsm_a_bssmap_cause = -1;
 static int hf_gsm_a_be_cell_id_disc = -1;
 static int hf_gsm_a_be_rnc_id = -1;
-static int hf_gsm_a_rr_chnl_needed_ch1 = -1;
 static int hf_gsm_a_apdu_protocol_id = -1;
 
 /* Initialize the subtree pointers */
@@ -279,9 +276,6 @@ static dissector_handle_t dtap_handle;
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-
-static sccp_msg_info_t* sccp_msg;
-static sccp_assoc_info_t* sccp_assoc;
 
 /*
  * this should be set on a per message basis, if possible
@@ -3203,14 +3197,11 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*bssmap_item = NULL;
 	proto_tree	*bssmap_tree = NULL;
 	const gchar	*str;
-
+	sccp_msg_info_t* sccp_msg;
 
 	sccp_msg = pinfo->sccp_info;
 
-	if (sccp_msg && sccp_msg->data.co.assoc) {
-		sccp_assoc = sccp_msg->data.co.assoc;
-	} else {
-		sccp_assoc = NULL;
+	if (!(sccp_msg && sccp_msg->data.co.assoc)) {
 		sccp_msg = NULL;
 	}
 
@@ -3377,11 +3368,6 @@ proto_register_gsm_a_bssmap(void)
 		FT_UINT8, BASE_DEC, VALS(gsm_a_apdu_protocol_id_strings), 0x0,
 		"APDU embedded protocol id", HFILL }
 	},
-	{ &hf_gsm_a_rr_chnl_needed_ch1,
-		{ "Channel 1","gsm_a.rr_chnl_needed_ch1",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x03,          
-		"Channel 1", HFILL }
-	},
 	};
 
 	/* Setup protocol subtree array */
@@ -3415,8 +3401,6 @@ proto_register_gsm_a_bssmap(void)
 	proto_register_field_array(proto_a_bssmap, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
-
-	gsm_a_tap = register_tap("gsm_a");
 
 	register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }

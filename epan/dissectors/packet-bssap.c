@@ -54,9 +54,9 @@
 #include <epan/emem.h>
 
 #include "packet-bssap.h"
+#include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
-#include "packet-sccp.h"
 
 static void init_bssap(void);
 
@@ -601,12 +601,6 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* 
  * BSSAP+ Routines
  */
-
-typedef struct dgt_set_t
-{
-    unsigned char out[15];
-}
-dgt_set_t;
 
 #ifdef REMOVED
 static dgt_set_t Dgt_tbcd = {
