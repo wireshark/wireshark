@@ -2075,19 +2075,19 @@ report_counts_siginfo(int signum _U_)
 
 /* capture child detected any packet drops? */
 void
-capture_input_drops(capture_options *capture_opts _U_, int dropped)
+capture_input_drops(capture_options *capture_opts _U_, guint32 dropped)
 {
-	if (print_packet_counts) {
-	/* We're printing packet counts to stderr.
-	   Send a newline so that we move to the line after the packet count. */
-	  fprintf(stderr, "\n");
-	}
+  if (print_packet_counts) {
+    /* We're printing packet counts to stderr.
+       Send a newline so that we move to the line after the packet count. */
+    fprintf(stderr, "\n");
+  }
 
-	if(dropped != 0) {
-		/* We're printing packet counts to stderr.
-		   Send a newline so that we move to the line after the packet count. */
-		  fprintf(stderr, "%u packet%s dropped\n", dropped, plurality(dropped, "", "s"));
-	}
+  if (dropped != 0) {
+    /* We're printing packet counts to stderr.
+       Send a newline so that we move to the line after the packet count. */
+    fprintf(stderr, "%u packet%s dropped\n", dropped, plurality(dropped, "", "s"));
+  }
 }
 
 

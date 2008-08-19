@@ -259,7 +259,7 @@ static void exit_main(int err);
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(int packet_count);
-static void report_packet_drops(int drops);
+static void report_packet_drops(guint32 drops);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(const char *cfilter, const char *errmsg);
 
@@ -460,10 +460,10 @@ print_statistics_loop(gboolean machine_readable)
             pcap_stats(if_stat->pch, &ps);
 
             if (!machine_readable) {
-                printf("%-15s  %10d  %10d\n", if_stat->name,
+                printf("%-15s  %10u  %10u\n", if_stat->name,
                     ps.ps_recv, ps.ps_drop);
             } else {
-                printf("%s\t%d\t%d\n", if_stat->name,
+                printf("%s\t%u\t%u\n", if_stat->name,
                     ps.ps_recv, ps.ps_drop);
                 fflush(stdout);
             }
@@ -2869,11 +2869,11 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 }
 
 void
-report_packet_drops(int drops)
+report_packet_drops(guint32 drops)
 {
     char tmp[SP_DECISIZE+1+1];
 
-    g_snprintf(tmp, sizeof(tmp), "%d", drops);
+    g_snprintf(tmp, sizeof(tmp), "%u", drops);
 
     if(capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);

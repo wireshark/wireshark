@@ -1227,7 +1227,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* the capture child will close the sync_pipe, nothing to do for now */
     break;
   case SP_DROPS:
-    capture_input_drops(capture_opts, atoi(buffer));
+    capture_input_drops(capture_opts, (guint32)strtoul(buffer, NULL, 10));
     break;
   default:
     g_assert_not_reached();

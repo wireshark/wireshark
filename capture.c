@@ -446,9 +446,9 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 /* Capture child told us how many dropped packets it counted.
  */
 void
-capture_input_drops(capture_options *capture_opts, int dropped)
+capture_input_drops(capture_options *capture_opts, guint32 dropped)
 {
-  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%d packet%s dropped", dropped, plurality(dropped, "", "s"));
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%u packet%s dropped", dropped, plurality(dropped, "", "s"));
 
   g_assert(capture_opts->state == CAPTURE_RUNNING);
 

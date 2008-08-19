@@ -83,7 +83,7 @@ extern void capture_input_new_packets(capture_options *capture_opts, int to_read
 /**
  * Capture child told us how many dropped packets it counted.
  */
-extern void capture_input_drops(capture_options *capture_opts, int dropped);
+extern void capture_input_drops(capture_options *capture_opts, guint32 dropped);
 
 /**
  * Capture child told us that an error has occurred while starting the capture.
