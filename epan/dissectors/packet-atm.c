@@ -1183,9 +1183,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                pinfo->pseudo_header->atm.vci,
                                pinfo->pseudo_header->atm.aal2_cid);
 
-        next_tvb = tvb_new_subset(tvb, 4,
-                                  tvb_length_remaining(tvb, 4),
-                                  tvb_length_remaining(tvb, 4));
+        next_tvb = tvb_new_subset(tvb, 4, -1, -1);
         call_dissector(fp_handle, next_tvb, pinfo, tree);
         break;
 
