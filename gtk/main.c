@@ -2844,7 +2844,7 @@ void main_widgets_rearrange(void) {
     /* be a bit faster */
     gtk_widget_hide(main_vbox);
 
-    /* be sure, we don't loose a widget while rearranging */
+    /* be sure we don't lose a widget while rearranging */
     gtk_widget_ref(menubar);
     gtk_widget_ref(main_tb);
     gtk_widget_ref(filter_tb);
