@@ -344,8 +344,8 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                 parserNodes[fieldIndex], 1);
             break;
         case DIS_FIELDTYPE_TIMESTAMP:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
+            offset = parseField_Timestamp(tvb, tree, offset,
+                parserNodes[fieldIndex]);
             break;
         case DIS_FIELDTYPE_WARHEAD:
             offset = parseField_UInt(tvb, tree, offset,

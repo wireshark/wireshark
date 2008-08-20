@@ -161,6 +161,8 @@ gint parseField_Float(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNo
 
 gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode);
 
+gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode);
+
 extern guint32 pduType;
 extern guint32 entityKind;
 extern guint32 entityDomain;

@@ -503,3 +503,58 @@ gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserN
 
     return offset;
 }
+
+/* Parse the Timestamp */
+gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode)
+{
+   /* some consts */
+   static double MSEC_PER_SECOND = 1000.0;
+   static double MSEC_PER_MINUTE = 60.0 * 1000.0 ;
+   static double MSEC_PER_HOUR = 60.0 * 60.0 * 1000.0;
+   static double FSV = 0x7fffffff;
+   /* variables */
+   guint isAbsolute = 0;
+   guint32 uintVal;
+   guint minutes;
+   guint seconds;
+   guint milliseconds;
+   double ms;
+
+   offset = alignOffset(offset, 4);
+   
+   /* convert to host value */
+   uintVal = tvb_get_ntohl(tvb, offset);
+   /* determine absolute vis sim time */
+   if( uintVal & 1 )
+      isAbsolute = 1;
+
+   /* convert TS to MS */
+   ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+   ms += 0.5;
+
+   /* calc minutes and reduce ms */
+   minutes = (guint) (ms / MSEC_PER_MINUTE);
+   ms -= (minutes * MSEC_PER_MINUTE);
+
+   /* calc seconds and reduce ms */
+   seconds = (guint) (ms / MSEC_PER_SECOND);
+   ms -= (seconds * MSEC_PER_SECOND);
+
+   /* truncate milliseconds */
+   milliseconds = (guint) ms;
+
+   /* push out the values */
+   if( isAbsolute )
+   {
+      proto_tree_add_text(tree, tvb, offset, 4, "%s = %02d:%02d %03d absolute (UTM)",
+            parserNode.fieldLabel, minutes, seconds, milliseconds);
+   }
+   else
+   {
+      proto_tree_add_text(tree, tvb, offset, 4, "%s = %02d:%02d %03d relative",
+            parserNode.fieldLabel, minutes, seconds, milliseconds);
+   }
+
+   offset += 4;
+   return offset;
+}
