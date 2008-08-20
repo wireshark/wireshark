@@ -2649,7 +2649,7 @@ static const ip_tcp_opt tcpopts[] = {
   },
   {
     TCPOPT_SNACK,
-    "Selective Negative Acknowledgment",
+    "Selective Negative Acknowledgement",
     NULL,
     FIXED_LENGTH,
     TCPOLEN_SNACK,
@@ -3178,7 +3178,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       /* Verify that the ACK field is zero */
       if(tvb_get_ntohl(tvb, offset+8) != 0){
-	proto_tree_add_text(tcp_tree, tvb, offset+8, 4,"Acknowledgment number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
+	proto_tree_add_text(tcp_tree, tvb, offset+8, 4,"Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
       }
     }
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
@@ -3601,7 +3601,7 @@ proto_register_tcp(void)
 			"", HFILL }},
 
 		{ &hf_tcp_flags_ack,
-		{ "Acknowledgment",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
+		{ "Acknowledgement",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
 			"", HFILL }},
 
 		{ &hf_tcp_flags_push,
