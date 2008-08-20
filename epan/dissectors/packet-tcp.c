@@ -2267,7 +2267,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_tree *field_tree = NULL;
   tcp_flow_t *flow;
   int         direction;
-  proto_item *tf;
+  proto_item *tf = NULL, *hidden_item;
   gchar       flags[64] = "<None>";
   gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV1", "RESV2", "RESV3" };
   gint        i, bpos;
@@ -2320,6 +2320,9 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 				    offset, optlen, capvector,
 				    "%s: 0x%02x (%s)",
 				    optp->name, capvector, flags);
+    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_scps,
+					tvb, offset, optlen, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     field_tree = proto_item_add_subtree(tf, ett_tcp_option_scps);
 
