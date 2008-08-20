@@ -1385,12 +1385,13 @@ static int hf_aironet_ie_qos_unk1 = -1;
 static int hf_aironet_ie_qos_paramset = -1;
 static int hf_aironet_ie_qos_val = -1;
 
-static int hf_marvell_ie_mesh_type = -1;
+static int hf_marvell_ie_type = -1;
 static int hf_marvell_ie_mesh_subtype = -1;
 static int hf_marvell_ie_mesh_version = -1;
 static int hf_marvell_ie_mesh_active_proto_id = -1;
 static int hf_marvell_ie_mesh_active_metric_id = -1;
 static int hf_marvell_ie_mesh_cap = -1;
+static int hf_marvell_ie_data = -1;
 
 /*QBSS - Version 1,2,802.11e*/
 
@@ -3156,7 +3157,7 @@ static const value_string wpa_keymgmt_vals[] =
 
 
 static void
-dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   gint tag_off = 0;
   gint tag_len = tvb_length(tag_tvb);
@@ -3229,7 +3230,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
     if (tag_off < tag_len)
       proto_tree_add_string(tree, tag_interpretation, tag_tvb,
         tag_off, tag_len - tag_off, "Not interpreted");
-      proto_item_append_text(ietree, ": WPA");
+      proto_item_append_text(item, ": WPA");
   } else if (tag_off + 7 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WME_OUI"\x02\x00", 5)) {
     /* Wireless Multimedia Enhancements (WME) Information Element */
     g_snprintf(out_buff, SHORT_STR,
@@ -3238,7 +3239,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
       tvb_get_guint8(tag_tvb, tag_off+5), tvb_get_guint8(tag_tvb, tag_off+6));
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 7,
       out_buff);
-    proto_item_append_text(ietree, ": WME");
+    proto_item_append_text(item, ": WME");
   } else if (tag_off + 24 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WME_OUI"\x02\x01", 5)) {
     /* Wireless Multimedia Enhancements (WME) Parameter Element */
     g_snprintf(out_buff, SHORT_STR,
@@ -3261,7 +3262,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
         out_buff);
       tag_off += 4;
     }
-    proto_item_append_text(ietree, ": WME");
+    proto_item_append_text(item, ": WME");
   } else if (tag_off + 56 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WME_OUI"\x02\x02", 5)) {
     /* Wireless Multimedia Enhancements (WME) TSPEC Element */
     guint16 ts_info, msdu_size, surplus_bandwidth;
@@ -3338,15 +3339,15 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 2,
       out_buff);
     tag_off += 2;
-    proto_item_append_text(ietree, ": WME");
+    proto_item_append_text(item, ": WME");
   } else if (tag_off + 6 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WPA_OUI"\x04", 4)) {
-    dissect_wps_tlvs(ietree, tag_tvb, tag_off+4, tag_len-4, NULL);
-    proto_item_append_text(ietree, ": WPS");
+    dissect_wps_tlvs(item, tag_tvb, tag_off+4, tag_len-4, NULL);
+    proto_item_append_text(item, ": WPS");
   }
 }
 
 static void
-dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   guint tag_off = 0;
   guint tag_len = tvb_length(tag_tvb);
@@ -3365,21 +3366,21 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, 0,
       tag_len, out_buff);
   }
-  proto_item_append_text(ietree, ": RSN");
+  proto_item_append_text(item, ": RSN");
 }
- typedef enum {
+
+typedef enum {
   MARVELL_IE_MESH = 4
 } marvell_ie_type_t;
 
 static void
-dissect_vendor_ie_marvell(proto_item * item, proto_tree * ietree,
+dissect_vendor_ie_marvell(proto_item * item _U_, proto_tree * ietree,
                           tvbuff_t * tvb, int offset, guint32 tag_len)
 {
   guint8 type;
-  gboolean dont_change = FALSE; /* Don't change the IE item text to default */
 
   type = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item (ietree, hf_marvell_ie_mesh_type, tvb, offset, 1, TRUE);
+  proto_tree_add_item (ietree, hf_marvell_ie_type, tvb, offset, 1, TRUE);
   offset += 1;
 
   switch (type) {
@@ -3394,6 +3395,11 @@ dissect_vendor_ie_marvell(proto_item * item, proto_tree * ietree,
                          offset++, 1, TRUE );
     proto_tree_add_item (ietree, hf_marvell_ie_mesh_cap, tvb,
                          offset++, 1, TRUE );
+    break;
+
+  default:
+    proto_tree_add_item(ietree, hf_marvell_ie_data, tvb, offset,
+      tag_len - 1, FALSE);
     break;
   }
 }
@@ -4153,7 +4159,7 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
 }
 
 static void
-dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_vendor_ie_ht(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   gint tag_len = tvb_length(tag_tvb);
   gchar out_buff[SHORT_STR];
@@ -4166,7 +4172,7 @@ dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
 
     dissect_ht_capability_ie(tree, tag_tvb, 4, tag_len - 4, TRUE);
-    proto_item_append_text(ietree, ": HT Capabilities (802.11n D1.10)");
+    proto_item_append_text(item, ": HT Capabilities (802.11n D1.10)");
   }
   else {
     if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x34", 4)) {
@@ -4174,12 +4180,12 @@ dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
       proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
 
       dissect_ht_info_ie_1_0(tree, tag_tvb, 4, tag_len - 4);
-      proto_item_append_text(ietree, ": HT Additional Capabilities (802.11n D1.00)");
+      proto_item_append_text(item, ": HT Additional Capabilities (802.11n D1.00)");
     }
     else {
         g_snprintf(out_buff, SHORT_STR, "Unknown type");
         proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
-        proto_item_append_text(ietree, ": 802.11n (pre) Unknown type");
+        proto_item_append_text(item, ": 802.11n (pre) Unknown type");
         proto_tree_add_string(tree, tag_interpretation, tag_tvb, 4,
                   tag_len - 4, "Not interpreted");
     }
@@ -10841,7 +10847,8 @@ proto_register_ieee80211 (void)
      {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
       FT_STRING, BASE_NONE, NULL, 0, "Alternate Regulatory Classes", HFILL }},
     /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
-    {&hf_marvell_ie_mesh_type,
+
+    {&hf_marvell_ie_type,
      {"Type", "wlan_mgt.marvell.ie.type",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
     
@@ -10864,6 +10871,10 @@ proto_register_ieee80211 (void)
     {&hf_marvell_ie_mesh_cap,
      {"Mesh Capabilities", "wlan_mgt.marvell.ie.cap",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+    {&hf_marvell_ie_data,
+      { "Marvell IE data", "wlan_mgt.marvell.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0, "Marvell IE data", HFILL }},
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
