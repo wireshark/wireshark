@@ -672,6 +672,15 @@ static const char *wme_acs[4] = {
 #define HT_ACTION_MIMO_COMPRESSED_BEAMFORMING 6
 #define HT_ACTION_ANT_SEL_FEEDBACK            7
 #define HT_ACTION_HT_INFO_EXCHANGE            8
+/* Vendor actions */
+/* MARVELL */
+#define MRVL_ACTION_MESH_MANAGEMENT     1
+
+#define MRVL_MESH_MGMT_ACTION_RREQ      0
+#define MRVL_MESH_MGMT_ACTION_RREP      1
+#define MRVL_MESH_MGMT_ACTION_RERR      2
+#define MRVL_MESH_MGMT_ACTION_PLDM      3
+
 /*** End: Action Fixed Parameter ***/
 
 static int proto_wlan = -1;
@@ -871,6 +880,24 @@ static int ff_dls_action_code = -1;
 static int ff_dst_mac_addr = -1;  /* DLS destination MAC addressi */
 static int ff_src_mac_addr = -1;  /* DLS source MAC addressi */
 static int ff_dls_timeout = -1;    /* DLS timeout value */
+
+/* Vendor specific */
+static int ff_marvell_action_type = -1;
+static int ff_marvell_mesh_mgt_action_code = -1;
+static int ff_mesh_mgt_length = -1;     /* Mesh Management length */
+static int ff_mesh_mgt_mode = -1;       /* Mesh Management mode */
+static int ff_mesh_mgt_ttl = -1;        /* Mesh Management TTL */
+static int ff_mesh_mgt_dstcount = -1;   /* Mesh Management dst count */
+static int ff_mesh_mgt_hopcount = -1;   /* Mesh Management hop count */
+static int ff_mesh_mgt_rreqid = -1;     /* Mesh Management RREQ ID */
+static int ff_mesh_mgt_sa = -1;         /* Mesh Management src addr */
+static int ff_mesh_mgt_ssn = -1;        /* Mesh Management src sequence number */
+static int ff_mesh_mgt_metric = -1;     /* Mesh Management metric */
+static int ff_mesh_mgt_flags = -1;      /* Mesh Management RREQ flags */
+static int ff_mesh_mgt_da = -1;         /* Mesh Management dst addr */
+static int ff_mesh_mgt_dsn = -1;        /* Mesh Management dst sequence number */
+static int ff_mesh_mgt_lifetime = -1;   /* Mesh Management lifetime */
+
 
 /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
 static int ff_ba_action = -1;
@@ -1357,6 +1384,13 @@ static int hf_aironet_ie_data = -1;
 static int hf_aironet_ie_qos_unk1 = -1;
 static int hf_aironet_ie_qos_paramset = -1;
 static int hf_aironet_ie_qos_val = -1;
+
+static int hf_marvell_ie_mesh_type = -1;
+static int hf_marvell_ie_mesh_subtype = -1;
+static int hf_marvell_ie_mesh_version = -1;
+static int hf_marvell_ie_mesh_active_proto_id = -1;
+static int hf_marvell_ie_mesh_active_metric_id = -1;
+static int hf_marvell_ie_mesh_cap = -1;
 
 /*QBSS - Version 1,2,802.11e*/
 
@@ -2908,6 +2942,112 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 break;
               }
 
+          case CAT_VENDOR_SPECIFIC:/* Vendor Specific Category */
+		  {
+			  guint start = 0;
+			  guint32 oui;
+			  const guint8 *tag_data_ptr;
+			  guint8 octet;
+
+			  start = offset;
+
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+			  oui = tvb_get_ntoh24(tvb, offset);
+			  tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
+			  proto_tree_add_bytes_format (action_tree, tag_oui, tvb, offset, 3,
+				  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+			  offset+=3;
+			  switch(oui){
+				  case OUI_MARVELL:
+					  octet = tvb_get_guint8(tvb, offset);
+					  proto_tree_add_item (action_tree, ff_marvell_action_type, tvb, offset, 1, TRUE);
+					  offset++;
+					  switch (octet){
+						  case MRVL_ACTION_MESH_MANAGEMENT:
+							  octet = tvb_get_guint8(tvb, offset);
+							  proto_tree_add_item (action_tree, ff_marvell_mesh_mgt_action_code, tvb, offset, 1, TRUE);
+							  offset++;
+							  switch (octet){
+								  case MRVL_MESH_MGMT_ACTION_RREQ:
+									  proto_tree_add_item (action_tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (action_tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_rreqid, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+									  offset+= 6;
+									  proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+									  offset+= 6;
+									  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  length = offset - start;  /* Size of fixed fields */
+									  break;
+								  case MRVL_MESH_MGMT_ACTION_RREP:
+									  proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+									  offset+= 6;
+									  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  proto_tree_add_item (tree, ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+									  offset+= 6;
+									  proto_tree_add_item (tree, ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  length = offset - start;  /* Size of fixed fields */
+									  break;
+								  case MRVL_MESH_MGMT_ACTION_RERR:
+									  proto_tree_add_item (tree, ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+									  offset++;
+									  proto_tree_add_item (tree, ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+									  offset+= 6;
+									  proto_tree_add_item (tree, ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+									  offset+= 4;
+									  length = offset - start;  /* Size of fixed fields */
+									  break;
+								  default:
+									  break;
+							  }
+							  break;
+						  default:
+							  break;
+					  }
+					  break;
+				  default:
+					  /* Don't know how to handle this vendor */
+					  break;
+			  }/* switch(oui) */
+			  break;
+		  }/* Case vendor specific */
+
             case CAT_HT:
               {
                 guint start = 0;
@@ -3226,6 +3366,36 @@ dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb
       tag_len, out_buff);
   }
   proto_item_append_text(ietree, ": RSN");
+}
+ typedef enum {
+  MARVELL_IE_MESH = 4
+} marvell_ie_type_t;
+
+static void
+dissect_vendor_ie_marvell(proto_item * item, proto_tree * ietree,
+                          tvbuff_t * tvb, int offset, guint32 tag_len)
+{
+  guint8 type;
+  gboolean dont_change = FALSE; /* Don't change the IE item text to default */
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item (ietree, hf_marvell_ie_mesh_type, tvb, offset, 1, TRUE);
+  offset += 1;
+
+  switch (type) {
+  case MARVELL_IE_MESH:
+    proto_tree_add_item (ietree, hf_marvell_ie_mesh_subtype, tvb,
+                         offset++, 1, TRUE );
+    proto_tree_add_item (ietree, hf_marvell_ie_mesh_version, tvb,
+                         offset++, 1, TRUE );
+    proto_tree_add_item (ietree, hf_marvell_ie_mesh_active_proto_id, tvb,
+                         offset++, 1, TRUE );
+    proto_tree_add_item (ietree, hf_marvell_ie_mesh_active_metric_id, tvb,
+                         offset++, 1, TRUE );
+    proto_tree_add_item (ietree, hf_marvell_ie_mesh_cap, tvb,
+                         offset++, 1, TRUE );
+    break;
+  }
 }
 
 typedef enum {
@@ -4645,6 +4815,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           break;
         case PRE11N_OUI:
           dissect_vendor_ie_ht(ti, tree, tag_tvb);
+          break;
+        case OUI_MARVELL:
+          dissect_vendor_ie_marvell(ti, tree, tvb, offset + 5, tag_len - 3);
           break;
         default:
           tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
@@ -7757,9 +7930,10 @@ proto_register_ieee80211 (void)
   /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
   /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
-  static const true_false_string ff_channel_width_flag = {
-      "Channel of any width supported",
-      "20 MHz channel width only"
+  static const value_string  ff_channel_width_vals[] = {
+	 {0x00, "20 MHz channel width only"},
+     {0x01, "Channel of any width supported"},    
+    {0, NULL}
   };
   /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
@@ -8053,6 +8227,29 @@ proto_register_ieee80211 (void)
     {SM_ACTION_TPC_REQUEST, "TPC Request"},
     {SM_ACTION_TPC_REPORT, "TPC Report"},
     {SM_ACTION_CHAN_SWITCH_ANNC, "Channel Switch Announcement"},
+    {0, NULL}
+  };
+
+  static const value_string vendor_action_types_mrvl[] ={
+    {MRVL_ACTION_MESH_MANAGEMENT, "Mesh Management"},
+    {0, NULL}
+  };
+
+  static const value_string mesh_mgt_action_codes_mrvl[] ={
+    {MRVL_MESH_MGMT_ACTION_RREQ, "Route Request"},
+    {MRVL_MESH_MGMT_ACTION_RREP, "Route Response"},
+    {MRVL_MESH_MGMT_ACTION_RERR, "Route Error"},
+    {MRVL_MESH_MGMT_ACTION_PLDM, "Peer Link Down"},
+    {0, NULL}
+  };
+  
+  static const value_string mesh_path_selection_codes[] ={
+    {0x0, "Hybrid Wireless Mesh Protocol"},
+    {0, NULL}
+  };
+  
+  static const value_string mesh_metric_codes[] ={
+    {0x0, "Airtime Link Metric"},
     {0, NULL}
   };
 
@@ -9245,7 +9442,7 @@ proto_register_ieee80211 (void)
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     {&ff_channel_width,
      {"Supported Channel Width", "wlan_mgt.fixed.chanwidth",
-      FT_UINT8, BASE_HEX, TFS (&ff_channel_width_flag), 0, "Supported Channel Width", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, "Supported Channel Width", HFILL }},
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
@@ -9607,6 +9804,68 @@ proto_register_ieee80211 (void)
     {&ff_dialog_token,
      {"Dialog token", "wlan_mgt.fixed.dialog_token",
       FT_UINT8, BASE_HEX, NULL, 0, "Management action dialog token", HFILL }},
+
+    {&ff_marvell_action_type,
+     {"Marvell Action type", "wlan_mgt.fixed.mrvl_action_type",
+      FT_UINT8, BASE_DEC, VALS (&vendor_action_types_mrvl), 0,
+      "Vendor Specific Action Type (Marvell)", HFILL }},
+
+    {&ff_marvell_mesh_mgt_action_code,
+     {"Mesh action(Marvell)", "wlan_mgt.fixed.mrvl_mesh_action",
+      FT_UINT8, BASE_HEX, VALS (&mesh_mgt_action_codes_mrvl), 0,
+      "Mesh action code(Marvell)", HFILL }},
+
+    {&ff_mesh_mgt_length,
+     {"Message Length", "wlan_mgt.fixed.length",
+      FT_UINT8, BASE_DEC, NULL, 0, "Message Length", HFILL }},
+    
+    {&ff_mesh_mgt_mode,
+     {"Message Mode", "wlan_mgt.fixed.mode",
+      FT_UINT8, BASE_HEX, NULL, 0, "Message Mode", HFILL }},
+    
+    {&ff_mesh_mgt_ttl,
+     {"Message TTL", "wlan_mgt.fixed.ttl",
+      FT_UINT8, BASE_DEC, NULL, 0, "Message TTL", HFILL }},
+    
+    {&ff_mesh_mgt_dstcount,
+     {"Destination Count", "wlan_mgt.fixed.dstcount",
+      FT_UINT8, BASE_DEC, NULL, 0, "Destination Count", HFILL }},
+
+    {&ff_mesh_mgt_hopcount,
+     {"Hop Count", "wlan_mgt.fixed.hopcount",
+      FT_UINT8, BASE_DEC, NULL, 0, "Hop Count", HFILL }},
+    
+    {&ff_mesh_mgt_rreqid,
+     {"RREQ ID", "wlan_mgt.fixed.rreqid",
+      FT_UINT32, BASE_DEC, NULL, 0, "RREQ ID", HFILL }},
+    
+    {&ff_mesh_mgt_sa,
+     {"Source Address", "wlan_mgt.fixed.sa",
+      FT_ETHER, BASE_NONE, NULL, 0, "Source MAC address", HFILL }},
+    
+    {&ff_mesh_mgt_ssn,
+     {"SSN", "wlan_mgt.fixed.ssn",
+      FT_UINT32, BASE_DEC, NULL, 0, "Source Sequence Number", HFILL }},
+
+    {&ff_mesh_mgt_metric,
+     {"Metric", "wlan_mgt.fixed.metric",
+      FT_UINT32, BASE_DEC, NULL, 0, "Route Metric", HFILL }},
+    
+    {&ff_mesh_mgt_flags,
+     {"RREQ Flags", "wlan_mgt.fixed.hopcount",
+      FT_UINT8, BASE_HEX, NULL, 0, "RREQ Flags", HFILL }},
+    
+    {&ff_mesh_mgt_da,
+     {"Destination Address", "wlan_mgt.fixed.da",
+      FT_ETHER, BASE_NONE, NULL, 0, "Destination MAC address", HFILL }},
+    
+    {&ff_mesh_mgt_dsn,
+     {"DSN", "wlan_mgt.fixed.dsn",
+      FT_UINT32, BASE_DEC, NULL, 0, "Destination Sequence Number", HFILL }},
+
+    {&ff_mesh_mgt_lifetime,
+     {"Lifetime", "wlan_mgt.fixed.lifetime",
+      FT_UINT32, BASE_DEC, NULL, 0, "Route Lifetime", HFILL }},
 
     {&ff_wme_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
@@ -10582,6 +10841,29 @@ proto_register_ieee80211 (void)
      {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
       FT_STRING, BASE_NONE, NULL, 0, "Alternate Regulatory Classes", HFILL }},
     /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
+    {&hf_marvell_ie_mesh_type,
+     {"Type", "wlan_mgt.marvell.ie.type",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+    
+    {&hf_marvell_ie_mesh_subtype,
+     {"Subtype", "wlan_mgt.marvell.ie.subtype",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+    
+    {&hf_marvell_ie_mesh_version,
+     {"Version", "wlan_mgt.marvell.ie.version",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+    {&hf_marvell_ie_mesh_active_proto_id,
+     {"Path Selection Protocol", "wlan_mgt.marvell.ie.proto_id",
+      FT_UINT8, BASE_HEX, VALS(mesh_path_selection_codes), 0, "", HFILL }},
+
+    {&hf_marvell_ie_mesh_active_metric_id,
+     {"Path Selection Metric", "wlan_mgt.marvell.ie.metric_id",
+      FT_UINT8, BASE_HEX, VALS(mesh_metric_codes), 0, "", HFILL }},
+
+    {&hf_marvell_ie_mesh_cap,
+     {"Mesh Capabilities", "wlan_mgt.marvell.ie.cap",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
