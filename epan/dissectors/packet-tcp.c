@@ -39,10 +39,8 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-tcp.h"
-#include "packet-ip.h"
 #include "packet-frame.h"
 #include <epan/conversation.h>
-#include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/slab.h>
@@ -1395,21 +1393,21 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 
 
 /* Minimum TCP header length. */
-#define	TCPH_MIN_LEN	20
+#define TCPH_MIN_LEN            20
 
 /*
  *	TCP option
  */
 
-#define TCPOPT_NOP		1	/* Padding */
-#define TCPOPT_EOL		0	/* End of options */
-#define TCPOPT_MSS		2	/* Segment size negotiating */
-#define TCPOPT_WINDOW		3	/* Window scaling */
+#define TCPOPT_NOP              1       /* Padding */
+#define TCPOPT_EOL              0       /* End of options */
+#define TCPOPT_MSS              2       /* Segment size negotiating */
+#define TCPOPT_WINDOW           3       /* Window scaling */
 #define TCPOPT_SACK_PERM        4       /* SACK Permitted */
 #define TCPOPT_SACK             5       /* SACK Block */
 #define TCPOPT_ECHO             6
 #define TCPOPT_ECHOREPLY        7
-#define TCPOPT_TIMESTAMP	8	/* Better RTT estimations/PAWS */
+#define TCPOPT_TIMESTAMP        8       /* Better RTT estimations/PAWS */
 #define TCPOPT_CC               11
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
@@ -2016,7 +2014,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     length = length_remaining;
     if (length > plen)
-	length = plen;
+        length = plen;
     next_tvb = tvb_new_subset(tvb, offset, length, plen);
 
     /*
@@ -2269,7 +2267,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   int         direction;
   proto_item *tf = NULL, *hidden_item;
   gchar       flags[64] = "<None>";
-  gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV1", "RESV2", "RESV3" };
+  gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV1", "RESV2", "RESV3"};
   gint        i, bpos;
   guint8      capvector;
   guint8      connid;
@@ -2281,7 +2279,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   /* if the addresses are equal, match the ports instead */
   if(direction==0) {
-    direction= (pinfo->srcport > pinfo->destport)*2-1;
+    direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
   }
 
   if(direction>=0)
@@ -2301,10 +2299,10 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     for (i = 0; i < 5; i++) {
       bpos = 128 >> i;
       if (capvector & bpos) {
-	if (flags[0]) {
-	  g_strlcat(flags, ", ", 64);
-	}
-	g_strlcat(flags, fstr[i], 64);
+		if (flags[0]) {
+		  g_strlcat(flags, ", ", 64);
+		}
+		g_strlcat(flags, fstr[i], 64);
       }
     }
 
@@ -2497,7 +2495,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   ack   = tvb_get_ntohl(tvb, 8);
 
-  if (tcp_relative_seq == TRUE) {
+  if (tcp_relative_seq) {
     ack -= tcpd->rev->base_seq;
     modifier = relative_modifier;
   }
@@ -2512,7 +2510,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   base_mss = tcpd->fwd->maxsizeacked;
 
   if (base_mss) {
-	  proto_item *hidden_item;
+    proto_item *hidden_item;
     /* Scale the reported offset and hole size by the largest segment acked */
     hole_start = ack + (base_mss * relative_hole_offset);
     hole_end   = hole_start + (base_mss * relative_hole_size);
@@ -2829,7 +2827,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 					if(seq || nxtseq){
 						pdu_store_sequencenumber_of_next_pdu(
 						    pinfo,
-                	                            seq,
+						    seq,
 						    nxtseq+pinfo->bytes_until_next_pdu,
 						    tcpd->fwd->multisegment_pdus);
 					}
@@ -2858,7 +2856,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			if(tcpd && (!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking){
 				if(seq || nxtseq){
 					pdu_store_sequencenumber_of_next_pdu(pinfo,
-        	                            seq,
+					    seq,
 					    nxtseq+pinfo->bytes_until_next_pdu,
 					    tcpd->fwd->multisegment_pdus);
 				}
@@ -2904,7 +2902,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti = NULL, *tf, *hidden_item;
   int        offset = 0;
   gchar      *flags = "<None>";
-  const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+  const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR"};
   size_t     fpos = 0, returned_length;
   gint       i;
   guint      bpos;
@@ -2979,7 +2977,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        *  g_str_has_suffix in glib2.2
        */
       if (strstr(pinfo->layer_names->str, "icmp:ip") != NULL)
-	proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, FALSE);
+		proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, FALSE);
     }
   }
 
@@ -3021,8 +3019,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Do we need to calculate timestamps relative to the tcp-stream? */
   if (tcp_calculate_ts) {
-    if( !tcppd )
-      tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
+    tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
 
     /*
      * Calculate the timestamps relative to this conversation (but only on the
@@ -3252,7 +3249,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       cksum_vec[0].len = pinfo->src.len;
       cksum_vec[1].ptr = pinfo->dst.data;
       cksum_vec[1].len = pinfo->dst.len;
-      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      cksum_vec[2].ptr = (const guint8 *)phdr;
       switch (pinfo->src.type) {
 
       case AT_IPv4:
@@ -3273,7 +3270,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, reported_len);
       cksum_vec[3].len = reported_len;
-      computed_cksum = in_cksum(&cksum_vec[0], 4);
+      computed_cksum = in_cksum(cksum_vec, 4);
       if (computed_cksum == 0 && th_sum == 0xffff) {
         item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th_sum,
@@ -3382,10 +3379,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcp_desegment) {
       /* Yes - is this segment being returned in an error packet? */
       if (!pinfo->in_error_pkt) {
-	/* No - indicate that we will desegment.
-	   We do NOT want to desegment segments returned in error
-	   packets, as they're not part of a TCP connection. */
-	pinfo->can_desegment = 2;
+		/* No - indicate that we will desegment.
+		   We do NOT want to desegment segments returned in error
+		   packets, as they're not part of a TCP connection. */
+		pinfo->can_desegment = 2;
       }
     }
   }
@@ -3431,7 +3428,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * then we should just forget about the windowscaling completely.
        */
       if(tcp_analyze_seq && tcp_relative_seq){
-	verify_tcp_window_scaling(tcpd);
+		verify_tcp_window_scaling(tcpd);
       }
       /* If the SYN or the SYN+ACK offered SCPS capabilities,
        * validate the flow's bidirectional scps capabilities.
@@ -3439,7 +3436,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
        */
       if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
-	verify_scps(pinfo, tf_syn, tcpd);
+		verify_scps(pinfo, tf_syn, tcpd);
       }
     }
   }
@@ -3511,7 +3508,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* call the payload dissector
          * but make sure we don't offer desegmentation any more
          */
-	pinfo->can_desegment = 0;
+        pinfo->can_desegment = 0;
 
         process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq, nxtseq, FALSE, tcpd);
 
@@ -3956,7 +3953,7 @@ proto_register_tcp(void)
 		&ett_tcp_timestamps,
 		&ett_tcp_segments,
 		&ett_tcp_segment,
-                &ett_tcp_checksum
+		&ett_tcp_checksum
 	};
 	module_t *tcp_module;
 
