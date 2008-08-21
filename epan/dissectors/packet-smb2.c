@@ -33,7 +33,6 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
@@ -510,7 +509,7 @@ smb2_sesid_info_hash(gconstpointer k)
 	smb2_sesid_info_t *key = (smb2_sesid_info_t *)k;
 	guint32 hash;
 
-	hash=((key->sesid>>32)&&0xffffffff)+((key->sesid)&&0xffffffff);
+	hash=(guint32)( ((key->sesid>>32)&0xffffffff)+((key->sesid)&0xffffffff) );
 	return hash;
 }
 
