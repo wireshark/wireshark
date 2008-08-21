@@ -117,7 +117,13 @@ int
 register_tap(const char *name)
 {
 	tap_dissector_t *td, *tdl;
-	int i;
+	int i, tap_id;
+
+	if(tap_dissector_list){
+		tap_id=find_tap_id(name);
+		if (tap_id)
+			return tap_id;
+	}
 
 	td=g_malloc(sizeof(tap_dissector_t));
 	td->next=NULL;
