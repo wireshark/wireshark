@@ -2274,7 +2274,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 	int offset = 0;
 	guint length = tvb_reported_length(parameter_tvb);
 
-	coding_standard = (tvb_get_guint8(parameter_tvb, offset)&&0x60)>>5;
+	coding_standard = (tvb_get_guint8(parameter_tvb, offset)&0x60)>>5;
 
 	switch (coding_standard) {
 	case 0:
