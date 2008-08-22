@@ -403,7 +403,7 @@ README.malloc) such as
    ...
    #define MAX_BUFFER 1024
    buffer=ep_alloc(MAX_BUFFER);
-   buffer[0]=0;
+   buffer[0]='\0';
    ...
    g_snprintf(buffer, MAX_BUFFER, ...
 
@@ -937,11 +937,15 @@ proto_reg_handoff_PROTOABBREV(void)
           If you perform registration functions which are dependent upon
           prefs the you should de-register everything which was associated
           with the previous settings and re-register using the new prefs
-	  settings here. In general this means you need to keep track of what
-	  value the preference had at the time you registered using a local
-	  static in this function. ie.
+	  settings here. In general this means you need to keep track of 
+	  the PROTOABBREV_handle and the value the preference had at the time 
+	  you registered.  The PROTOABBREV_handle value and the value of the preference 
+	  can be saved using local statics in this function (proto_reg_handoff). ie.
 
+          static PROTOABBREV_handle;
           static int currentPort = -1;
+
+          ...
 
           if (currentPort != -1) {
               dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
@@ -3234,7 +3238,7 @@ module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
 
 Where: proto_id   - the value returned by "proto_register_protocol()" when
 		    the protocol was registered
-       apply_cb   - Callback routine that is call when preferences are applied
+       apply_cb   - Callback routine that is called when preferences are applied
 
 
 Then you can register the fields that can be configured by the user with these
