@@ -112,7 +112,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     byte1 = tvb_get_guint8(tvb, 1);
 
-    if ((byte0 & 0x01) != 0x00 && (byte1 && 0x01) != 0x01)
+    if ( ((byte0 & 0x01) != 0x00) && ((byte1 & 0x01) != 0x01) )
     {
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid V.120 frame");
