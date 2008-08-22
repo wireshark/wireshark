@@ -399,7 +399,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* First, make sure we have enough data to do the check. */
 	if (len < MIN_HDR_LEN)
-		return FALSE;
+		return 0;
 
 	msg_type = tvb_get_ntohs(tvb, 0);
 	msg_length = tvb_get_ntohs(tvb, 2);
@@ -408,19 +408,20 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* two first bits not NULL => should be a channel-data message */
 		if (msg_type == 0xFFFF)
-			return FALSE;
-                /* padding is only mandtory over streaming protocols */
+			return 0;
+                /* note that padding is only mandatory over streaming 
+                   protocols */
 		msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4) ;
 
                 /* check if payload enough */
                 if (len != msg_total_len) {
                   if (pinfo->ipproto != IP_PROTO_UDP) {
-                        return FALSE;
+                        return 0;
                   }
                   /* recalculate the total length without padding */
                   msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
                   if (len != msg_total_len) 
-                        return FALSE;
+                        return 0;
                 }
 	}
 	else 
@@ -428,14 +429,14 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Normal STUN message */
 		msg_total_len = (guint) msg_length + STUN2_HDR_LEN;
 		if (len < STUN2_HDR_LEN)
-			return FALSE;
+			return 0;
 		/* Check if it is really a STUN2 message */
 		if ( tvb_get_ntohl(tvb, 4) != 0x2112a442)
-			return FALSE;
+			return 0;
 
                 /* check if payload enough */
                 if (len != msg_total_len)
-                        return FALSE;
+                        return 0;
 	}
 
 	/* The message seems to be a valid STUN2 message! */
@@ -455,7 +456,8 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo,COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
 		}
-		if (!tree) return TRUE;
+		if (!tree)
+			return tvb_length(tvb);
 		ti = proto_tree_add_item(
 			tree, proto_stun2, tvb, 0, 
 			CHANNEL_DATA_HDR_LEN, 
@@ -482,7 +484,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   call_dissector_only(data_handle,next_tvb, pinfo, tree);
                 }
 
-		return TRUE;
+		return tvb_length(tvb);
 	}
 	/* END of CHANNEL-DATA specific section */
 
@@ -579,7 +581,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			msg_method_str, msg_class_str);
 
 	if (!tree)
-		return TRUE;
+		return tvb_length(tvb);
 
 	ti = proto_tree_add_item(tree, proto_stun2, tvb, 0, -1, FALSE);
 
@@ -1078,7 +1080,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	return TRUE;
+	return tvb_length(tvb);
 }
 
 static int
@@ -1103,53 +1105,13 @@ dissect_stun2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_stun2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint16 msg_type;
-	guint16 msg_length;
-	guint msg_total_len;
-	guint len;
-
-	/* First, make sure we have enough data to do the check. */
-	len = tvb_length(tvb);
-	if (len < MIN_HDR_LEN)
+	if (dissect_stun2_message(tvb, pinfo, tree) == 0) {
+		/*
+		 * It wasn't a valid STUN2 message, and wasn't
+		 * dissected as such.
+		 */
 		return FALSE;
-
-	msg_type = tvb_get_ntohs(tvb, 0);
-	msg_length = tvb_get_ntohs(tvb, 2);
-
-	if (msg_type & 0xC000)
-	{
-		/* two first bits not NULL => should be a channel-data message */
-		if (msg_type == 0xFFFF)
-			return FALSE;
-                /* note that padding is only mandatory over streaming 
-                   protocols */
-                msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4);
-                /* check if payload enough */
-                if (len != msg_total_len) {
-                  if (pinfo->ipproto != IP_PROTO_UDP) {
-                        return FALSE;
-                  }
-                  /* recalculate the total length without padding */
-                  msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
-                  if (len != msg_total_len) 
-                        return FALSE;
-                }
 	}
-	else
-	{
-		/* Normal STUN message */
-		msg_total_len = (guint) msg_length + STUN2_HDR_LEN;
-		if (len < STUN2_HDR_LEN)
-			return FALSE;
-		/* Check if it is really a STUN2 message */
-		if (tvb_get_ntohl(tvb, 4) != 0x2112a442)
-                        return FALSE;
-                /* check if payload enough */
-                if (len != msg_total_len) 
-                        return FALSE;
-	}
-
-	dissect_stun2_message(tvb, pinfo, tree);
 	return TRUE;
 }
 
