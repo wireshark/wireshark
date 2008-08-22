@@ -156,8 +156,7 @@ static dissector_handle_t p_mul_handle = NULL;
 typedef struct _p_mul_id_key {
   guint32 id;
   guint16 seq;
-  address src;
-  address dst;
+  address addr;
 } p_mul_id_key;
 
 typedef struct _p_mul_id_val {
@@ -289,8 +288,7 @@ static gint p_mul_id_hash_equal (gconstpointer k1, gconstpointer k2)
   if (p_mul1->seq != p_mul2->seq)
     return 0;
   
-  return (ADDRESSES_EQUAL (&p_mul1->src, &p_mul2->src) &&
-          ADDRESSES_EQUAL (&p_mul1->dst, &p_mul2->dst));
+  return (ADDRESSES_EQUAL (&p_mul1->addr, &p_mul2->addr));
 }
 
 static p_mul_id_val *register_p_mul_id (packet_info *pinfo, guint8 pdu_type,
@@ -317,8 +315,7 @@ static p_mul_id_val *register_p_mul_id (packet_info *pinfo, guint8 pdu_type,
     /* Try to match corresponding address PDU */
     p_mul_key->id = message_id;
     p_mul_key->seq = 0;
-    SE_COPY_ADDRESS(&p_mul_key->src, &(pinfo->src));
-    SE_COPY_ADDRESS(&p_mul_key->dst, &(pinfo->dst));
+    SE_COPY_ADDRESS(&p_mul_key->addr, &(pinfo->src));
     set_address = TRUE;
 
     p_mul_data = (p_mul_id_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
@@ -360,11 +357,9 @@ static p_mul_id_val *register_p_mul_id (packet_info *pinfo, guint8 pdu_type,
   p_mul_key->id = message_id;
   p_mul_key->seq = seq_no;
   if (pdu_type == Ack_PDU) {
-    SE_COPY_ADDRESS(&p_mul_key->src, &(pinfo->dst));
-    SE_COPY_ADDRESS(&p_mul_key->dst, &(pinfo->src));
+    SE_COPY_ADDRESS(&p_mul_key->addr, &(pinfo->dst));
   } else if (!set_address) {
-    SE_COPY_ADDRESS(&p_mul_key->src, &(pinfo->src));
-    SE_COPY_ADDRESS(&p_mul_key->dst, &(pinfo->dst));
+    SE_COPY_ADDRESS(&p_mul_key->addr, &(pinfo->src));
   }
 
   p_mul_data = (p_mul_id_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
@@ -839,7 +834,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     for (i = 0; i < no_dest; i++) {
       /* Destination Entry */
       en = proto_tree_add_none_format (p_mul_tree, hf_dest_entry, tvb,
-                                       offset, no_dest * (8 + len),
+                                       offset, 8 + len,
                                        "Destination Entry #%d", i + 1);
       field_tree = proto_item_add_subtree (en, ett_dest_entry);
 
@@ -881,7 +876,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       len = tvb_get_ntohs (tvb, offset);
 
       en = proto_tree_add_none_format (p_mul_tree, hf_ack_entry, tvb,
-                                       offset, count * len,
+                                       offset, len,
                                        "Ack Info Entry #%d", i + 1);
       field_tree = proto_item_add_subtree (en, ett_ack_entry);
 
@@ -902,13 +897,6 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
       /* Message Id */
       message_id = tvb_get_ntohl (tvb, offset);
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (i == 0) {
-          g_string_printf (message_id_list, "%d", message_id);
-        } else {
-          g_string_append_printf (message_id_list, ",%d", message_id);
-        }
-      }
       if (use_relative_msgid) {
         if (message_id_offset == 0) {
           /* First P_Mul package - initialize message_id_offset */
@@ -922,6 +910,14 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, FALSE);
       }
       offset += 4;
+
+      if (check_col (pinfo->cinfo, COL_INFO)) {
+        if (i == 0) {
+          g_string_printf (message_id_list, "%d", message_id);
+        } else {
+          g_string_append_printf (message_id_list, ",%d", message_id);
+        }
+      }
 
       if (len > 10) {
         gint num_seq_no = (len - 10) / 2;
@@ -1055,10 +1051,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       }
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Ack: %u", count);
     }
-    if (pdu_type != Ack_PDU || count == 1) {
+    if (pdu_type != Ack_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %d", message_id);
-    } else if (count == 1) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
+    } else {
+      if (count > 0) {
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
+      }
       g_string_free (message_id_list, TRUE);
     }
   }
