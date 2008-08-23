@@ -438,7 +438,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		/*
 		 * XXX - get "version" on any other platforms?
 		 *
-		 * On Digital/Tru65 UNIX, it's something unknown.
+		 * On Digital/Tru64 UNIX, it's something unknown.
 		 * On Solaris, it's some kind of build information.
 		 * On HP-UX, it appears to be some sort of subrevision
 		 * thing.
