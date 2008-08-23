@@ -2542,9 +2542,9 @@
 	<title>The Statusbar with a display filter message</title>
 	<graphic entityref="WiresharkStatusbarFilter" format="PNG"/>
       </figure>
-      This is displayed if you are trying to use a display filter with
-      unexpected results.  For a detailed description of the display filter,
-      see <xref linkend="ChWorkBuildDisplayFilterSection"/>.
+      This is displayed if you are trying to use a display filter which
+      may have unexpected results.  For a detailed description, see
+      <xref linkend="ChWorkBuildDisplayFilterMistake"/>.
     </para>
 
   </section>

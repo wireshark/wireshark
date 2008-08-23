@@ -947,7 +947,7 @@ eth.src[1-2] == 00:83
 	  </tgroup>
 	</table>
       </section>
-      <section><title>A common mistake</title>
+      <section id="ChWorkBuildDisplayFilterMistake"><title>A common mistake</title>
 	  <warning><title>Warning!</title>
 	  <para>
 	  Using the != operator on combined expressions like: eth.addr, ip.addr, 
