@@ -2,7 +2,7 @@
 
 	<application id="1" name="NASREQ Application" uri="http://www.ietf.org/rfc/rfc4005.txt">
 
-		<command name="AA-Answer" code="265" vendor-id="None"/>
+		<command name="AA" code="265" vendor-id="None"/>
 		<command name="Diameter-EAP" code="268" vendor-id="None"/>
 
 		<avp name="Accounting-Input-Octets" code="363">
