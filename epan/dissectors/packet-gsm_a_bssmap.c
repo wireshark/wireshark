@@ -277,11 +277,6 @@ static dissector_handle_t dtap_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
-/*
- * this should be set on a per message basis, if possible
- */
-static gint is_uplink;
-
 typedef enum
 {
 	BE_CIC,	 /* Circuit Identity Code */
@@ -2084,8 +2079,6 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CHAN_TYPE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHAN_TYPE, "");
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_L3_HEADER_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_HEADER_INFO, "");
@@ -2122,8 +2115,6 @@ bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_RR_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_RR_CAUSE, "");
 
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
@@ -2156,8 +2147,6 @@ bssmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_RR_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_RR_CAUSE, "");
@@ -2182,8 +2171,6 @@ bssmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
@@ -2206,8 +2193,6 @@ bssmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2225,8 +2210,6 @@ bssmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
@@ -2248,8 +2231,6 @@ bssmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2267,8 +2248,6 @@ bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CHAN_TYPE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHAN_TYPE, "");
 
@@ -2328,8 +2307,6 @@ bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	ELEM_OPT_T(gsm_bssmap_elem_strings[BE_RESP_REQ].value, BSSAP_PDU_TYPE_BSSMAP, BE_RESP_REQ, "");
@@ -2362,8 +2339,6 @@ bssmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_L3_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_INFO, "");
 
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_CHAN].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, "");
@@ -2394,8 +2369,6 @@ bssmap_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_L3_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_INFO, "");
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
@@ -2416,8 +2389,6 @@ bssmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_RR_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_RR_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2435,8 +2406,6 @@ bssmap_ho_cand_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_NUM_MS].value, BSSAP_PDU_TYPE_BSSMAP, BE_NUM_MS, "");
 
@@ -2460,8 +2429,6 @@ bssmap_ho_cand_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_NUM_MS].value, BSSAP_PDU_TYPE_BSSMAP, BE_NUM_MS, "");
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
@@ -2481,8 +2448,6 @@ bssmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
@@ -2507,8 +2472,6 @@ bssmap_paging(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_IMSI].value, BSSAP_PDU_TYPE_BSSMAP, BE_IMSI, "");
 
@@ -2536,8 +2499,6 @@ bssmap_clear_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2555,8 +2516,6 @@ bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_L3_HEADER_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_HEADER_INFO, "");
 
@@ -2578,8 +2537,6 @@ bssmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_UNKNOWN;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2597,8 +2554,6 @@ bssmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
@@ -2628,8 +2583,6 @@ bssmap_overload(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
@@ -2650,8 +2603,6 @@ bssmap_cm_upd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_2].value, BSSAP_PDU_TYPE_BSSMAP, BE_CM_INFO_2, "");
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_3].value, BSSAP_PDU_TYPE_BSSMAP, BE_CM_INFO_3, "");
@@ -2671,8 +2622,6 @@ bssmap_ciph_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_L3_HEADER_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_HEADER_INFO, "");
 
@@ -2696,8 +2645,6 @@ bssmap_ciph_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_L3_MSG].value, BSSAP_PDU_TYPE_BSSMAP, BE_L3_MSG, "");
 
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_ENC_ALG].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHOSEN_ENC_ALG, "");
@@ -2717,8 +2664,6 @@ bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 
@@ -2746,8 +2691,6 @@ bssmap_sapi_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_DLCI].value, BSSAP_PDU_TYPE_BSSMAP, BE_DLCI, "");
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
@@ -2768,8 +2711,6 @@ bssmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2787,8 +2728,6 @@ bssmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
@@ -2810,8 +2749,6 @@ bssmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2829,8 +2766,6 @@ bssmap_cct_group_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
@@ -2854,8 +2789,6 @@ bssmap_cct_group_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC_LIST].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC_LIST, "");
@@ -2875,8 +2808,6 @@ bssmap_cct_group_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
@@ -2898,8 +2829,6 @@ bssmap_cct_group_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC_LIST].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC_LIST, "");
@@ -2919,8 +2848,6 @@ bssmap_confusion(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
@@ -2942,8 +2869,6 @@ bssmap_unequipped_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CIC_LIST].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC_LIST, "");
@@ -2964,8 +2889,6 @@ bssmap_ciph_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2983,8 +2906,6 @@ bssmap_load_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_TIME_IND].value, BSSAP_PDU_TYPE_BSSMAP, BE_TIME_IND, "");
 
@@ -3012,8 +2933,6 @@ bssmap_change_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_CAUSE, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -3031,8 +2950,6 @@ bssmap_change_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, BSSAP_PDU_TYPE_BSSMAP, BE_CIC, "");
 
@@ -3052,8 +2969,6 @@ bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_IMSI].value, BSSAP_PDU_TYPE_BSSMAP, BE_IMSI, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -3072,8 +2987,6 @@ bssmap_lsa_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
-
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_LSA_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_LSA_INFO, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -3091,8 +3004,6 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_APDU].value, BSSAP_PDU_TYPE_BSSMAP, BE_APDU, "");
 

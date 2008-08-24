@@ -89,11 +89,6 @@ static dissector_table_t sms_dissector_table;	/* SMS TPDU */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
-/*
- * this should be set on a per message basis, if possible
- */
-static gint is_uplink;
-
 typedef enum
 {
 	/* Short Message Service Information Elements [5] 8.2 */
@@ -286,7 +281,6 @@ rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
@@ -313,7 +307,6 @@ rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
@@ -340,8 +333,6 @@ rp_smma(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -360,7 +351,6 @@ rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
@@ -383,7 +373,6 @@ rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
@@ -406,7 +395,6 @@ rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_FALSE;
 	g_pinfo->p2p_dir = P2P_DIR_SENT;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);
@@ -431,7 +419,6 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
 	g_pinfo->p2p_dir = P2P_DIR_RECV;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF);

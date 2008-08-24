@@ -82,11 +82,19 @@ extern gint ett_gsm_common_elem[];
 extern elem_fcn common_elem_fcn[];
 extern int hf_gsm_a_common_elem_id;
 
+extern const value_string gsm_gm_elem_strings[];
+extern gint ett_gsm_gm_elem[];
+extern elem_fcn gm_elem_fcn[];
+extern int hf_gsm_a_gm_elem_id;
+extern void get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
+extern void get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
 extern gboolean lower_nibble;
+extern packet_info *gsm_a_dtap_pinfo;
 
 /* common field values */
 extern int hf_gsm_a_length;
@@ -106,6 +114,7 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_A_PDU_TYPE_RP		2
 #define GSM_A_PDU_TYPE_RR		3
 #define GSM_A_PDU_TYPE_COMMON	4
+#define GSM_A_PDU_TYPE_GM		5
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -184,6 +193,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 	SEV_elem_names = gsm_common_elem_strings; \
 	SEV_elem_ett = ett_gsm_common_elem; \
 	SEV_elem_funcs = common_elem_fcn; \
+	break; \
+    case GSM_A_PDU_TYPE_GM: \
+	SEV_elem_names = gsm_gm_elem_strings; \
+	SEV_elem_ett = ett_gsm_gm_elem; \
+	SEV_elem_funcs = gm_elem_fcn; \
 	break; \
     default: \
 	proto_tree_add_text(tree, \
@@ -500,7 +514,6 @@ typedef enum
 	DE_AUTH_FAIL_PARAM,				/* Authentication Failure Parameter (UMTS authentication challenge only) */
 	DE_CM_SRVC_TYPE,				/* CM Service Type */
 	DE_ID_TYPE,						/* Identity Type */
-	/* Pos 50 */
 	DE_LOC_UPD_TYPE,				/* Location Updating Type */
 	DE_NETWORK_NAME,				/* Network Name */
 	DE_REJ_CAUSE,					/* Reject Cause */
@@ -512,7 +525,6 @@ typedef enum
 	DE_DAY_SAVING_TIME,				/* Daylight Saving Time */
 	DE_EMERGENCY_NUM_LIST,			/* Emergency Number List */
 	/* Call Control Information Elements 10.5.4 */
-	/* Pos 60 */
 	DE_AUX_STATES,					/* Auxiliary States */
 	DE_BEARER_CAP,					/* Bearer Capability */
 	DE_CC_CAP,						/* Call Control Capabilities */
@@ -551,6 +563,27 @@ typedef enum
 	DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
 	DE_SUP_CODEC_LIST,				/* Supported Codec List */
 	DE_SRVC_CAT,					/* Service Category */
+	/* Short Message Service Information Elements [5] 8.1.4 */
+	DE_CP_USER_DATA,				/* CP-User Data */
+	DE_CP_CAUSE,					/* CP-Cause */
+    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+    DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
+    DE_TP_ACK,			/* Open Loop Cmd Ack */
+    DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
+    DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
+    DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
+    DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
+    DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
+    DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+    DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
+    DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
+    DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
+	DE_NONE							/* NONE */
+}
+dtap_elem_idx_t;
+
+typedef enum
+{
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	DE_ATTACH_RES,					/* [7] 10.5.1 Attach Result*/
 	DE_ATTACH_TYPE,					/* [7] 10.5.2 Attach Type */
@@ -579,10 +612,6 @@ typedef enum
 	DE_NET_FEAT_SUP,				/* [7] 10.5.23 Network Feature Support */
 	DE_RAT_INFO_CONTAINER,			/* [7] 10.5.24 Inter RAT information container */
 	/* [7] 10.5.25 Requested MS information */
-
-	/* Short Message Service Information Elements [5] 8.1.4 */
-	DE_CP_USER_DATA,				/* CP-User Data */
-	DE_CP_CAUSE,					/* CP-Cause */
 	/* Session Management Information Elements 10.5.6 */
 	DE_ACC_POINT_NAME,				/* Access Point Name */
 	DE_NET_SAPI,					/* Network Service Access Point Identifier */
@@ -602,20 +631,8 @@ typedef enum
 	DE_GPRS_TIMER_2,				/* [8] 10.5.7.4		GPRS Timer 2 */
 	DE_RAD_PRIO_2,					/* [8] 10.5.7.5		Radio Priority 2 */
 	DE_MBMS_CTX_STATUS,				/* [8] 10.5.7.6		MBMS context status */
-    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
-    DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
-    DE_TP_ACK,			/* Open Loop Cmd Ack */
-    DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
-    DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
-    DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
-    DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
-    DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
-    DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
-    DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
-    DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
-    DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
-	DE_NONE							/* NONE */
+	DE_GM_NONE							/* NONE */
 }
-dtap_elem_idx_t;
+gm_elem_idx_t;
 
 #endif /* __PACKET_GSM_A_COMMON_H__ */

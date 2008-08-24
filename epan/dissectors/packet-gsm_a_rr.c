@@ -459,15 +459,6 @@ static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
 
-static packet_info *g_pinfo;
-static proto_tree *g_tree;
-
-/*
- * this should be set on a per message basis, if possible
- */
-static gint is_uplink;
-
-
 typedef enum
 {
 	/* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1	*/
@@ -3488,7 +3479,7 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
 
 	/* Routeing Area Identification		10.5.5.15	M V 6 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_RAI);
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI);
 	/* Suspension cause					10.5.2.47	M V 1 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SUS_CAU);
 
@@ -3852,8 +3843,6 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	is_uplink = IS_UPLINK_TRUE;
-
 	/*
 	 * special dissection for Cipher Key Sequence Number
 	 */
@@ -3922,8 +3911,6 @@ dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	is_uplink = IS_UPLINK_TRUE;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
 
@@ -4186,7 +4173,7 @@ void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 {
 	gint			idx;
 
-		*msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
+	*msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
 	*ett_tree = ett_gsm_dtap_msg_rr[idx];
 	*hf_idx = hf_gsm_a_dtap_msg_rr_type;
 	*msg_fcn = dtap_msg_rr_fcn[idx];
@@ -4212,8 +4199,8 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32			offset, saved_offset;
 	guint32			len;
 	guint32			oct_1, oct_2;
-	proto_item			*dtap_item = NULL;
-	proto_tree			*dtap_tree = NULL;
+	proto_item			*ccch_item = NULL;
+	proto_tree			*ccch_tree = NULL;
 	proto_item			*oct_1_item = NULL;
 	proto_tree			*pd_tree = NULL;
 	proto_tree			*saved_tree = NULL;
@@ -4255,9 +4242,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = 0;
 	oct_2 = 0;
-
-	g_pinfo = pinfo;
-	g_tree = tree;
 
 	/* Skip pseeudo hdr here */
 	offset = 1;
@@ -4306,16 +4290,16 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * create the protocol tree
 	 */
 	if (msg_str == NULL){
-		dtap_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, len,
+		ccch_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, len,
 			"GSM CCCH - Message Type (0x%02x)",
 		oct);
 
-		dtap_tree = proto_item_add_subtree(dtap_item, ett_ccch_msg);
+		ccch_tree = proto_item_add_subtree(ccch_item, ett_ccch_msg);
 	}else{
-		dtap_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, -1,
+		ccch_item = proto_tree_add_protocol_format(tree, proto_a_ccch, tvb, 0, -1,
 			"GSM CCCH - %s", msg_str);
 
-		dtap_tree = proto_item_add_subtree(dtap_item, ett_tree);
+		ccch_tree = proto_item_add_subtree(ccch_item, ett_tree);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -4334,13 +4318,13 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pseudo_len = tvb_get_guint8(tvb,offset)>>2;
 
 	saved_tree = tree;
-	tree = dtap_tree;
+	tree = ccch_tree;
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN);
 	tree = saved_tree;
 	offset = saved_offset;
 
 	oct_1_item =
-	proto_tree_add_text(dtap_tree,
+	proto_tree_add_text(ccch_tree,
 	    tvb, 1, 1,
 	    "Protocol Discriminator: %s",
 	    val_to_str(pd, protocol_discriminator_vals, "Unknown (%u)"));
@@ -4390,7 +4374,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * add DTAP message name
 	 */
-	proto_tree_add_uint_format(dtap_tree, hf_idx, tvb, offset, 1, oct,
+	proto_tree_add_uint_format(ccch_tree, hf_idx, tvb, offset, 1, oct,
 		"Message Type: %s",msg_str ? msg_str : "(Unknown)");
 
 	offset++;
@@ -4411,10 +4395,10 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * decode elements
 	 */
 	if (msg_fcn == NULL){
-		proto_tree_add_text(dtap_tree, tvb, offset, len - offset,
+		proto_tree_add_text(ccch_tree, tvb, offset, len - offset,
 			"Message Elements");
 	}else{
-		(*msg_fcn)(tvb, dtap_tree, offset, len - offset);
+		(*msg_fcn)(tvb, ccch_tree, offset, len - offset);
 	}
 }
 
@@ -4435,7 +4419,7 @@ proto_register_gsm_a_rr(void)
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_rr_elem_id,
-	    { "Element ID",	"gsm_a_dtap.elem_id",
+	    { "Element ID",	"gsm_a_rr.elem_id",
 	    FT_UINT8, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
