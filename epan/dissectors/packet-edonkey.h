@@ -2,12 +2,14 @@
  * Declarations for edonkey dissection
  * Copyright 2003, Xuan Zhang <xz@aemail4u.com>
  * Copyright 2007, Stefano Picerno <stefano.picerno@gmail.com>
+ * Copyright 2008, Stefan Monhof <stefan.monhof@stud.uni-due.de>
  *
  * eDonkey dissector based on protocol descriptions from mldonkey:
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt 
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
  *
  * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
+ * Modified and added on the basis of information and names from the eMule 0.49a source code
  *
  * $Id$
  *
@@ -406,4 +408,10 @@ void proto_register_edonkey(void);
 #define KADEMLIA_TAG_SOURCEIP                   0xFE    /* <uint32> */
 #define KADEMLIA_TAG_SOURCETYPE                 0xFF    /* <uint8> */
 
-
+/* KADEMLIA (version) */
+#define KADEMLIA_VERSION1_46c			0x01   /*45b - 46c*/
+#define KADEMLIA_VERSION2_47a			0x02   /*47a*/
+#define KADEMLIA_VERSION3_47b			0x03   /*47b*/
+#define KADEMLIA_VERSION5_48a			0x05   /* -0.48a */
+#define KADEMLIA_VERSION6_49aBETA		0x06   /* -0.49aBETA1 */
+#define KADEMLIA_VERSION7_49a			0x07   /* -0.49a */

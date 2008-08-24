@@ -2,11 +2,14 @@
  * Routines for edonkey dissection
  * Copyright 2003, Xuan Zhang <xz@aemail4u.com>
  * Copyright 2007, Stefano Picerno <stefano.picerno@gmail.com>
+ * Copyright 2008, Stefan Monhof <stefan.monhof@stud.uni-due.de>
+ *
  * eDonkey dissector based on protocol descriptions from mldonkey:
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
  *
  * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
+ * Modified and added on the basis of information and names from the eMule 0.49a source code
  *
  * $Id$
  *
@@ -93,12 +96,20 @@ static int hf_kademlia_search_condition_argument_uint32 = -1;
 static int hf_kademlia_search_condition_argument_uint64 = -1;
 static int hf_kademlia_unparsed_data_length = -1;
 static int hf_kademlia_peer = -1;
-static int hf_kademlia_peer_hash = -1;
+static int hf_kademlia_peer_id = -1;
 static int hf_kademlia_hash = -1;
+static int hf_kademlia_file_id = -1;
+static int hf_kademlia_keyword_hash = -1;
+static int hf_kademlia_recipients_id = -1;
+static int hf_kademlia_sender_id = -1;
+static int hf_kademlia_target_id = -1;
+static int hf_kademlia_distance = -1;
+static int hf_kademlia_version = -1;
 static int hf_kademlia_peertype = -1;
 static int hf_kademlia_tag_float = -1;
 static int hf_kademlia_tag_uint64 = -1;
 static int hf_kademlia_tag_uint32 = -1;
+static int hf_kademlia_tag_ipv4 = -1;
 static int hf_kademlia_tag_uint16 = -1;
 static int hf_kademlia_tag_uint8 = -1;
 static int hf_kademlia_tag_hash = -1;
@@ -110,6 +121,7 @@ static int hf_kademlia_ip = -1;
 static int hf_kademlia_tag_name = -1;
 static int hf_kademlia_tag_name_length = -1;
 static int hf_kademlia_tag_type = -1;
+static int hf_kademlia_request_type = -1;
 
 static gint ett_kademlia_tag = -1;
 static gint ett_edonkey_listitem = -1;
@@ -451,6 +463,51 @@ static const value_string kademlia_search_conds[] = {
     { 4, "<=" },
     { 5, "<>" },
     { 0, NULL }
+};
+
+static const value_string kademlia_versions[] = {
+    { KADEMLIA_VERSION1_46c,     " (eMule <= 0.46c or compatibles)"   },
+    { KADEMLIA_VERSION2_47a,     " (eMule 0.47a or compatibles)"      },
+    { KADEMLIA_VERSION3_47b,     " (eMule 0.47b or compatibles)"      },
+    { KADEMLIA_VERSION5_48a,     " (eMule 0.48a or compatibles)"      },
+    { KADEMLIA_VERSION6_49aBETA, " (eMule 0.49aBETA1 or compatibles)" },
+    { KADEMLIA_VERSION7_49a,     " (eMule 0.49a or compatibles)"      },
+    { 0,                         NULL                                 }
+};
+
+static const value_string kademlia_parameter[] = {
+    { KADEMLIA_FIND_VALUE,       " (Find Value)"   },
+    { KADEMLIA_STORE,            " (Store)"        },
+    { KADEMLIA_FIND_NODE,        " (Find Node)"    },
+    { 0,                         NULL              }
+};
+
+static const value_string kademlia_tag_sourcetype[] = {
+    { 1,                         "HighID Source"                                          },
+    { 3,                         "Firewalled Kad Source"                                  },
+    { 4,                         ">4GB file HighID Source"                                },
+    { 5,                         ">4GB file Firewalled Kad Source"                        },
+    { 6,                         "Firewalled Source with Direct Callback (supports >4GB)" },
+    { 0,                         NULL                                                     }
+};
+
+static const value_string kademlia_tag_encryption[] = {
+    { 1,                         "Supports Crypt Layer"                                              },
+    { 2,                         "Requests Crypt Layer"                                              },
+    { 3,                         "Supports & Requests Crypt Layer"                                   },
+    { 4,                         "Requires Crypt Layer"                                              },
+    { 5,                         "Supports & Requires Crypt Layer"                                   },
+    { 6,                         "Requests & Requires Crypt Layer"                                   },
+    { 7,                         "Supports, Requests & Requires Crypt Layer"                         },
+    { 8,                         "Direct UDP Callback"                                               },
+    { 9,                         "Supports Crypt Layer; Direct UDP Callback"                         },
+    { 10,                        "Requests Crypt Layer; Direct UDP Callback"                         },
+    { 11,                        "Supports & Requests Crypt Layer; Direct UDP Callback"              },
+    { 12,                        "Requires Crypt Layer; Direct UDP Callback"                         },
+    { 13,                        "Supports & Requires Crypt Layer; Direct UDP Callback"              },
+    { 14,                        "Requests & Requires Crypt Layer; Direct UDP Callback"              },
+    { 15,                        "Supports, Requests & Requires Crypt Layer; Direct UDP Callback"    },
+    { 0,                         NULL                                                                }
 };
 
 /* Dissects a generic eDonkey list */
@@ -850,6 +907,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <String> ::= <String length (guint16)> DATA */
     const gchar * tagname;
     const gchar * tag_full_name = NULL;
+    guint8 tagname_value;
     proto_item *ti, *hidden_item;
 
     guint16 string_length = tvb_get_letohs(tvb, offset);
@@ -863,8 +921,8 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     tag_full_name = "UnknownTagName";
 
+    tagname_value = *(guint8*)tagname;
     if ( tagname && string_length == 1 ) {
-        guint8 tagname_value = *(guint8*)tagname;
         /* lookup tagname */
         tag_full_name = val_to_str( tagname_value, kademlia_tags, tag_full_name );
     }
@@ -946,41 +1004,95 @@ static int dissect_edonkey_signature(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset + length;
 }
 
-/* Dissects the Kademlia hash*/
-static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, proto_tree *tree)
-{
+
+static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                        int offset, proto_tree *tree) {
+    proto_item *hidden_item;
+    char *hash = ep_alloc(33);
+    char hash_part[9];
+    int i = 0;
+
+    for (i=0; i<=12; i+=4) {
+      if (i == 0)
+        g_snprintf(hash, 33, "%08X", tvb_get_letohl(tvb, offset));
+      else {
+        g_snprintf(hash_part, sizeof(hash_part), "%08X", tvb_get_letohl(tvb, offset + i));
+        hash = g_strconcat(hash, hash_part, NULL);
+      }       
+    }
+
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    proto_tree_add_item(tree, hf_kademlia_hash, tvb, offset, 16, FALSE);
+    hidden_item = proto_tree_add_string_format_value(tree, hf_kademlia_hash, tvb, offset, 16, hash, "%s", hash);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     return offset+16;
 }
 
-static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, proto_tree *tree)
-{
-    proto_item *hidden_item;
+/* Dissects the Kademlia hash*/
+static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 int offset, proto_tree *tree, int *value_ptr) {
+    char *hash = ep_alloc(33);
+    char hash_part[9];
+    int i = 0;
+
+    for (i=0; i<=12; i+=4) {
+      if (i == 0)
+        g_snprintf(hash, 33, "%08X", tvb_get_letohl(tvb, offset));
+      else {
+        g_snprintf(hash_part, sizeof(hash_part), "%08X", tvb_get_letohl(tvb, offset + i));
+        hash = g_strconcat(hash, hash_part, NULL);
+      }       
+    }
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    hidden_item = proto_tree_add_item(tree, hf_kademlia_hash, tvb, offset, 16, FALSE);
+    proto_tree_add_string_format_value(tree, *value_ptr, tvb, offset, 16, hash, "%s", hash);
+
+    return dissect_kademlia_hash_hidden(tvb, pinfo, offset, tree);
+}
+
+static int dissect_kademlia_tag_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                        int offset, proto_tree *tree) {
+    proto_item *hidden_item;
+    char *hash = ep_alloc(33);
+    char hash_part[9];
+    int i = 0;
+
+    for (i=0; i<=12; i+=4) {
+      if (i == 0)
+        g_snprintf(hash, 33, "%08X", tvb_get_letohl(tvb, offset));
+      else {
+        g_snprintf(hash_part, sizeof(hash_part), "%08X", tvb_get_letohl(tvb, offset + i));
+        hash = g_strconcat(hash, hash_part, NULL);
+      }       
+    }
+
+    /* <File hash> ::= HASH (16 word MD4 digest) */
+    hidden_item = proto_tree_add_string_format_value(tree, hf_kademlia_tag_hash, tvb, offset, 16, hash, "%s", hash);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     return offset+16;
 }
 
 static int dissect_kademlia_tag_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, proto_tree *tree)
-{
+                                 int offset, proto_tree *tree) {
+    char *hash = ep_alloc(33);
+    char hash_part[9];
+    int i = 0;
 
-    proto_tree_add_item(tree, hf_kademlia_tag_hash, tvb, offset, 16, FALSE);
-    return dissect_kademlia_hash_hidden( tvb, pinfo, offset, tree );
+    for (i=0; i<=12; i+=4) {
+      if (i == 0)
+        g_snprintf(hash, 33, "%08X", tvb_get_letohl(tvb, offset));
+      else {
+        g_snprintf(hash_part, sizeof(hash_part), "%08X", tvb_get_letohl(tvb, offset + i));
+        hash = g_strconcat(hash, hash_part, NULL);
+      }       
+    }
+
+    /* <File hash> ::= HASH (16 word MD4 digest) */
+    proto_tree_add_string_format_value(tree, hf_kademlia_hash, tvb, offset, 16, hash, "%s", hash);
+    return dissect_kademlia_tag_hash_hidden( tvb, pinfo, offset, tree );
 }
 
-static int dissect_kademlia_peer_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, proto_tree *tree)
-{
-
-    proto_tree_add_item(tree, hf_kademlia_peer_hash, tvb, offset, 16, FALSE);
-    return dissect_kademlia_hash_hidden( tvb, pinfo, offset, tree );
-}
 
 static gchar int2hex[16]="0123456789ABCDEF";
 
@@ -1503,13 +1615,40 @@ static int dissect_kademlia_peer(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Peer> ::= <Hash> <Address> <Peer type> */
     proto_item *ti;
     proto_tree *peer_tree;
+    int kad_version;
 
     ti = proto_tree_add_item(tree, hf_kademlia_peer, tvb, offset, 16 + 4 + 4  + 1, FALSE);
 
     peer_tree = proto_item_add_subtree(ti, ett_overnet_peer);
 
     /* 16 */
-    offset = dissect_kademlia_peer_hash(tvb, pinfo, offset, peer_tree);
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, peer_tree, &hf_kademlia_peer_id);
+
+    /* 8 ( 4 ip + 2 tcp port + 2 udp port ) */
+    offset = dissect_kademlia_address(tvb, pinfo, offset, peer_tree);
+
+    /* 1 */
+    /* offset = dissect_kademlia_peertype(tvb, pinfo, offset, peer_tree); */
+    kad_version = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_item(peer_tree, hf_kademlia_version, tvb, offset, 1, FALSE);
+    proto_item_append_text(ti, val_to_str(kad_version, kademlia_versions, " Unknown"));
+    return offset + 1;
+}
+
+/* Dissects the Kademlia2 peer */
+static int dissect_kademlia2_peer(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 int offset, proto_tree *tree)
+{
+    /* <Peer> ::= <Hash> <Address> <Peer type> */
+    proto_item *ti;
+    proto_tree *peer_tree;
+
+    ti = proto_tree_add_item(tree, hf_kademlia_peer, tvb, offset, 16 + 4 + 4  + 1, FALSE);
+
+    peer_tree = proto_item_add_subtree(ti, ett_overnet_peer);
+
+    /* 16 */
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, peer_tree, &hf_kademlia_peer_id);
 
     /* 8 ( 4 ip + 2 tcp port + 2 udp port ) */
     offset = dissect_kademlia_address(tvb, pinfo, offset, peer_tree);
@@ -2216,17 +2355,32 @@ static int dissect_kademlia_peer_list_2byte(tvbuff_t *tvb, packet_info *pinfo _U
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Peer", dissect_kademlia_peer );
 }
 
+
 static int dissect_kademlia_peer_list_1byte(tvbuff_t *tvb, packet_info *pinfo _U_,
                                       int offset, proto_tree *tree)
 {
     return dissect_edonkey_list(tvb, pinfo, offset, tree, 1, "Peer", dissect_kademlia_peer );
 }
 
+static int dissect_kademlia2_peer_list_2byte(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                      int offset, proto_tree *tree)
+{
+    return dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Peer", dissect_kademlia2_peer );
+}
+
+static int dissect_kademlia2_peer_list_1byte(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                      int offset, proto_tree *tree)
+{
+    return dissect_edonkey_list(tvb, pinfo, offset, tree, 1, "Peer", dissect_kademlia2_peer );
+}
+
 static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 int offset, proto_tree *tree)
 {
     guint8 type;
+    guint8 tag_type;
     const gchar *str_type;
+    proto_item *ti;
     proto_item* tag_node;
     proto_tree *subtree;
     int item_start_offset;
@@ -2252,6 +2406,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         const gchar *tagname_extended_string;
 
         /* Read tagname */
+        tag_type = tvb_get_guint8( tvb, offset+2 );
         offset = dissect_kademlia_tagname( tvb, pinfo, offset, subtree, &tagname_string, &tagname_extended_string );
         if ( strlen( tagname_string ) == 1 ) {
             const guint8 tagname_guint = *(guint8*)tagname_string;
@@ -2261,7 +2416,6 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         else
             proto_item_append_text( tag_node, " \"%s\" [%s] = ", tagname_string, tagname_extended_string );
     }
-
 
     /* Switch on type */
     switch( type )
@@ -2281,18 +2435,27 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_UINT8:
             {
                 guint8 value;
-                proto_tree_add_item( subtree, hf_kademlia_tag_uint8, tvb, offset, 1, TRUE);
+                ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint8, tvb, offset, 1, TRUE);
 
                 value = tvb_get_guint8( tvb, offset );
                 proto_item_append_text( tag_node, "%u (0x%02X)", value, value );
-
+                switch (tag_type) {
+                    case KADEMLIA_TAG_SOURCETYPE:
+                        {
+                            proto_item_append_text(ti," (%s)", val_to_str(value, kademlia_tag_sourcetype, "Unknown"));
+                        }
+                        break;
+                    case KADEMLIA_TAG_ENCRYPTION:
+                        proto_item_append_text(ti, " (%s)", val_to_str(value, kademlia_tag_encryption, "Unknown"));
+                        break;
+                }
                 offset += 1;
             }
             break;
         case KADEMLIA_TAGTYPE_UINT16:
             {
                 guint16 value;
-                proto_tree_add_item( subtree, hf_kademlia_tag_uint16, tvb, offset, 2, TRUE);
+                ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint16, tvb, offset, 2, TRUE);
 
                 value = tvb_get_letohs( tvb, offset );
                 proto_item_append_text( tag_node, "%u (0x%04X)", value, value );
@@ -2303,7 +2466,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_UINT64:
             {
                 guint64 value;
-                proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, TRUE);
+                ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, TRUE);
 
                 value = tvb_get_letoh64( tvb, offset );
                 proto_item_append_text( tag_node, "%" G_GINT64_MODIFIER "u (0x%08" G_GINT64_MODIFIER "X)", value, value );
@@ -2312,12 +2475,28 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
             }
             break;
         case KADEMLIA_TAGTYPE_UINT32:
-            {
+           { 
                 guint32 value;
-                proto_tree_add_item( subtree, hf_kademlia_tag_uint32, tvb, offset, 4, TRUE);
-
-                value = tvb_get_letohl( tvb, offset );
-                proto_item_append_text( tag_node, "%u (0x%02X)", value, value );
+                /* show ip as dotted decimal */
+                switch( tag_type) {
+                    case KADEMLIA_TAG_SERVERIP:
+                    case KADEMLIA_TAG_SOURCEIP:
+                    {
+                        int ipa = 0, ipb = 0, ipc = 0, ipd = 0;
+                        proto_tree_add_item( subtree, hf_kademlia_tag_ipv4, tvb, offset, 4, TRUE);
+                        value = tvb_get_letohl( tvb, offset );
+                        ipa = (value / (256*256*256)) % 256;
+                        ipb = (value / (256*256)) % 256;
+                        ipc = (value / 256) % 256;
+                        ipd = value % 256;
+                        proto_item_append_text( tag_node, "%u.%u.%u.%u (0x%02X) ", ipa, ipb, ipc, ipd, value );
+                    }
+                    break;
+                    default:
+                        ti = proto_tree_add_item( subtree, hf_kademlia_tag_uint32, tvb, offset, 4, TRUE);
+                        value = tvb_get_letohl( tvb, offset );
+                        proto_item_append_text( tag_node, "%u (0x%02X) ", value, value );
+                }
 
                 offset += 4;
             }
@@ -2325,7 +2504,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case KADEMLIA_TAGTYPE_FLOAT32:
             {
                 float value;
-                proto_tree_add_item( subtree, hf_kademlia_tag_float, tvb, offset, 4, TRUE);
+                ti = proto_tree_add_item( subtree, hf_kademlia_tag_float, tvb, offset, 4, TRUE);
 
                 value = tvb_get_letohieee_float( tvb, offset );
                 proto_item_append_text( tag_node, "%f", value );
@@ -2341,7 +2520,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
             }
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Tag value not decoded for type: 0x%02X", type );
+            ti = proto_tree_add_text(tree, tvb, offset, 1, "Tag value not decoded for type: 0x%02X", type );
     }
 
     proto_item_append_text( tag_node, " (Type: %s)", str_type );
@@ -2358,11 +2537,20 @@ static int dissect_kademlia_taglist(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 
-static int dissect_kademlia_publish_req_entry(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_kademlia_publish_req_entry_file(tvbuff_t *tvb, packet_info *pinfo _U_,
                                           int offset, proto_tree *tree)
 {
     /* Get the hash */
-    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_file_id);
+    /* Read all the kad tags */
+    return dissect_kademlia_taglist( tvb, pinfo, offset, tree );
+}
+
+static int dissect_kademlia_publish_req_entry_peer(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                          int offset, proto_tree *tree)
+{
+    /* Get the hash */
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_peer_id);
     /* Read all the kad tags */
     return dissect_kademlia_taglist( tvb, pinfo, offset, tree );
 }
@@ -2372,7 +2560,7 @@ static int dissect_kademlia_search_result(tvbuff_t *tvb, packet_info *pinfo _U_,
                                           int offset, proto_tree *tree)
 {
     /* Get the hash */
-    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_hash);
     /* Read all the kad tags */
     return dissect_kademlia_taglist( tvb, pinfo, offset, tree );
 }
@@ -2458,11 +2646,15 @@ static int dissect_kademlia2_prolog( tvbuff_t *tvb, packet_info *pinfo _U_,
                                          int offset, proto_tree *tree)
 {
     int kad_version;
-    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+    proto_item* ti;
+ 
+    offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_peer_id);
     offset = dissect_kademlia_tcp_port(tvb, pinfo, offset, tree);
 
     kad_version = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 1, "Kademlia Version: %d", kad_version );
+    /* ti = proto_tree_add_text(tree, tvb, offset, 1, "Kad Version: %d", kad_version ); */
+    ti = proto_tree_add_item(tree, hf_kademlia_version, tvb, offset, 1, FALSE);
+    proto_item_append_text(ti, val_to_str(kad_version, kademlia_versions, " Unknown"));
     offset++;
 
     return offset;
@@ -2484,12 +2676,12 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
     int msg_start, msg_end, bytes_remaining;
     proto_item *hidden_item;
 
-    hidden_item = proto_tree_add_item(tree, hf_kademlia, tvb, offset, 1, FALSE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-
     bytes_remaining = tvb_reported_length_remaining(tvb, offset);
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;
     if (length <= 0) return offset;
+
+    hidden_item = proto_tree_add_item(tree, hf_kademlia, tvb, offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     msg_start = offset;
     msg_end = offset + length;
@@ -2514,14 +2706,14 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
             break;
         case KADEMLIA2_BOOTSTRAP_RES:
             offset = dissect_kademlia2_prolog( tvb, pinfo, offset, tree );
-            offset = dissect_kademlia_peer_list_2byte( tvb, pinfo, offset, tree );
+            offset = dissect_kademlia2_peer_list_2byte( tvb, pinfo, offset, tree );
             break;
 
         case KADEMLIA2_SEARCH_SOURCE_REQ:
             {
                 guint16 startPos;
                 guint64 filesize;
-                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
                 /* start pos */
                 startPos = tvb_get_letohs( tvb, offset );
                 proto_tree_add_text(tree, tvb, offset, 2, "Start position: %d", startPos );
@@ -2534,20 +2726,29 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
             break;
 
         case KADEMLIA_SEARCH_NOTES_REQ: /* <HASH (key) [16]> */
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_hash);
             break;
 
         case KADEMLIA2_SEARCH_KEY_REQ:
+            {
+              guint16 startPos;
+              offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
+              /* start pos */
+              startPos = tvb_get_letohs( tvb, offset );
+              proto_tree_add_text(tree, tvb, offset, 2, "Start position: %d", startPos );
+              offset += 2;
+            }
+            break;
         case KADEMLIA2_SEARCH_NOTES_REQ:
 
         case KADEMLIA_PUBLISH_RES:
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
             if (offset<msg_end) {
                 offset = dissect_kademlia_uload( tvb, pinfo, offset, tree );
             }
             break;
         case KADEMLIA2_PUBLISH_RES:
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
             offset = dissect_kademlia_uload( tvb, pinfo, offset, tree );
             break;
 
@@ -2555,18 +2756,63 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
         case KADEMLIA2_REQ:
             {
                 int type;
+                guint8 target_id[16];
+                guint8 recipients_id[16];
+                proto_item *ti;
+                int i, j, k, l;
+                char binarray[129];
+
                 type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 1, "Type: %x", type );
+                ti = proto_tree_add_uint_format_value(tree, hf_kademlia_request_type, tvb, offset, 1, type, "0x%02x", type );
+                proto_item_append_text(ti, val_to_str(type, kademlia_parameter, " Unknown"));
                 offset +=1;
-                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
-                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+
+                /* get target id */
+                for (i=0; i<4; i++) {
+                  for (j=3; j>=0; j--) {
+                    l = (j+4*i);
+                    target_id[l] = tvb_get_guint8(tvb, offset + abs(8*i-(l-3)));
+                  }
+                }
+
+                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
+
+                /* get recipient's id */
+                for (i=0; i<4; i++) {
+                  for (j=3; j>=0; j--) {
+                    l = (j+4*i);
+                    recipients_id[l] = tvb_get_guint8(tvb, offset + abs(8*i-(l-3)));
+                  }
+                }
+
+                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_recipients_id);
+
+                /* target_id XOR recipients_id */
+                for (i=0; i<16; i++) {
+                  k = 128;
+                  l = target_id[i]^recipients_id[i];
+                  for(j=8*i; j<8*i+8; j++) {
+                    if (l >= k) {
+                      binarray[j] = '1';
+                      l = l-k;
+                    }
+                    else
+                      binarray[j] = '0';  
+                    k = k/2;
+                  }
+                }
+                binarray[128] = '\0';
+                proto_tree_add_string_format_value(tree, hf_kademlia_distance, tvb, offset, 0, binarray, "%s", binarray);
             }
             break;
 
         case KADEMLIA_RES:     /* <HASH (target) [16]> <CNT> <PEER [25]>*(CNT) */
-        case KADEMLIA2_RES:
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
             offset = dissect_kademlia_peer_list_1byte( tvb, pinfo, offset, tree );
+            break;
+        case KADEMLIA2_RES:
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
+            offset = dissect_kademlia2_peer_list_1byte( tvb, pinfo, offset, tree );
             break;
 
         case KADEMLIA_FIREWALLED_RES: /* <IP (sender) [4]> */
@@ -2580,21 +2826,21 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
         case KADEMLIA_FINDBUDDY_REQ:
         case KADEMLIA_FINDBUDDY_RES:
             /* buddy id */
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_hash);
             /* userid */
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_hash);
             offset = dissect_kademlia_tcp_port( tvb, pinfo, offset, tree );
             break;
         case KADEMLIA2_PUBLISH_SOURCE_REQ:
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
-            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_file_id);
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_peer_id);
             offset = dissect_kademlia_taglist( tvb, pinfo, offset, tree );
             break;
         case KADEMLIA_SEARCH_REQ:
             {
                 int restrictive;
                 /* Target (16bytes) */
-                offset = dissect_kademlia_hash( tvb, pinfo, offset, tree );
+                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
                 /* Restrictive (1 byte) 0/1 */
                 restrictive = tvb_get_guint8(tvb, offset);
                 proto_tree_add_text(tree, tvb, offset, 1, "Restrictive: %x", restrictive );
@@ -2606,18 +2852,92 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
             break;
         case KADEMLIA_SEARCH_RES:
             /* Target */
-            offset = dissect_kademlia_hash( tvb, pinfo, offset, tree );
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
+            /* Results list */
+            offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Result", dissect_kademlia_search_result );
+            break;
+        case KADEMLIA2_SEARCH_RES:
+            /* Sender */
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_sender_id);
+            /* Target */
+            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_target_id);
             /* Results list */
             offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "Result", dissect_kademlia_search_result );
             break;
         case KADEMLIA2_PUBLISH_KEY_REQ:
+            {
+                /* Keyword Hash */
+                offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_keyword_hash);
+                /* Results list */
+                offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "StuffToPublish", dissect_kademlia_publish_req_entry_file );
+                break;
+            }
         case KADEMLIA_PUBLISH_REQ: /*   0x40    // <HASH (key) [16]> <CNT1 [2]> (<HASH (target) [16]> <CNT2 [2]> <META>*(CNT2))*(CNT1) */
             {
-                /* Target */
-                offset = dissect_kademlia_hash( tvb, pinfo, offset, tree );
-                /* Results list */
-                offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "StuffToPublish", dissect_kademlia_publish_req_entry );
-                break;
+                guint8 tagname_value=0, taglist_size, type;
+                int i=1, j=34;
+
+                /* check if TAG_SOURCETYPE is set */
+                taglist_size = tvb_get_guint8(tvb, offset + j);
+                j++;
+
+                while(i <= taglist_size) {
+                  type = tvb_get_guint8(tvb, offset + j);
+                  j +=3;
+                  tagname_value = tvb_get_guint8(tvb, offset + j);
+                  if (tagname_value == 0xff)
+                    i = taglist_size;
+                  j++;
+                  switch(type) {
+                    case KADEMLIA_TAGTYPE_HASH: 
+                        j += 16;
+                        break;
+                    case KADEMLIA_TAGTYPE_STRING:
+                    {
+                        guint16 string_length = tvb_get_letohs(tvb, offset+j);
+                        j += 2 + string_length;
+                        break;
+                    }
+                    case KADEMLIA_TAGTYPE_UINT8:
+                        j += 1;
+                        break;
+                    case KADEMLIA_TAGTYPE_UINT16:
+                        j += 2;
+                        break;
+                    case KADEMLIA_TAGTYPE_UINT32:
+                    case KADEMLIA_TAGTYPE_FLOAT32:
+                        j += 4;
+                        break;
+                    case KADEMLIA_TAGTYPE_UINT64:
+                        j += 8;
+                        break;
+                    case KADEMLIA_TAGTYPE_BSOB:
+                    {
+                      guint16 bsob_length = tvb_get_guint8(tvb, offset);
+                      j += 1 + bsob_length;
+                      break;
+                    }
+                  }
+                  i++;
+                }
+
+                switch (tagname_value) {
+                    case KADEMLIA_TAG_SOURCETYPE:
+                        {
+                            /* Target */
+                            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_file_id);
+                            /* Results list */
+                            offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "StuffToPublish", dissect_kademlia_publish_req_entry_peer);
+                        }
+                        break;
+                    default:
+                        {
+                            /* Target */
+                            offset = dissect_kademlia_hash(tvb, pinfo, offset, tree, &hf_kademlia_keyword_hash);
+                            /* Results list */
+                            offset = dissect_edonkey_list(tvb, pinfo, offset, tree, 2, "StuffToPublish", dissect_kademlia_publish_req_entry_file);
+                        }
+                }
             }
     }
 
@@ -2633,19 +2953,13 @@ static int dissect_kademlia_udp_compressed_message(guint8 msg_type,
     tvbraw = tvb_uncompress(tvb, offset, length);
 
     if (tvbraw) {
-        proto_item *ti;
-        proto_tree *emule_zlib_tree;
         guint32 raw_length;
 
-        ti = proto_tree_add_item( tree, hf_emule_zlib, tvb, offset, length, FALSE);
         raw_length = tvb_length( tvbraw );
-        proto_item_set_text( ti, "Compressed Data ( PackedLen: %d UnpackedLen: %d )", length, raw_length );
-
-        emule_zlib_tree = proto_item_add_subtree(ti, ett_emule_zlib);
         tvb_set_child_real_data_tvbuff(tvb, tvbraw);
         add_new_data_source(pinfo, tvbraw, "Decompressed Data");
 
-        dissect_kademlia_udp_message( msg_type, tvbraw, pinfo, 0, raw_length, emule_zlib_tree );
+        dissect_kademlia_udp_message( msg_type, tvbraw, pinfo, 0, raw_length, tree );
         offset += length;
     } else {
         proto_tree_add_text( tree, tvb, offset, length, "Broken Compressed data (%d bytes)", length);
@@ -3003,17 +3317,38 @@ void proto_register_edonkey(void) {
             { "Kademlia Packet", "edonkey.kademlia",
                 FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Packet Type", HFILL } },
         { &hf_kademlia_peertype,
-            { "Kademlia PeerType", "edonkey.kademlia.peer.type",
+            { "Peer Type", "edonkey.kademlia.peer.type",
                 FT_UINT8, BASE_DEC_HEX, NULL, 0, "Kademlia Peer Type", HFILL } },
         { &hf_kademlia_peer,
             { "Kademlia Peer", "edonkey.kademlia.peer",
                 FT_NONE, BASE_NONE, NULL, 0, "Kademlia Peer", HFILL } },
-        { &hf_kademlia_peer_hash,
-            { "Peer Hash", "edonkey.kademlia.peer.hash",
-                FT_BYTES, BASE_HEX, NULL, 0, "Kademlia Peer Hash", HFILL } },
+        { &hf_kademlia_peer_id,
+            { "Peer ID", "edonkey.kademlia.peer.id",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Peer ID", HFILL } },
         { &hf_kademlia_hash,
             { "Kademlia Hash", "edonkey.kademlia.hash",
-                FT_BYTES, BASE_HEX, NULL, 0, "Kademlia Hash", HFILL } },
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Hash", HFILL } },
+        { &hf_kademlia_file_id,
+            { "File ID", "edonkey.kademlia.file.id",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia File ID", HFILL } },
+        { &hf_kademlia_keyword_hash,
+            { "Keyword Hash", "edonkey.kademlia.keyword.hash",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Keyword Hash", HFILL } },
+        { &hf_kademlia_recipients_id,
+            { "Recipient's ID", "edonkey.kademlia.recipients.id",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Recipient's ID", HFILL } },
+        { &hf_kademlia_sender_id,
+            { "Sender ID", "edonkey.kademlia.sender.id",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Sender ID", HFILL } },
+        { &hf_kademlia_target_id,
+            { "Target ID", "edonkey.kademlia.target.id",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Target ID", HFILL } },
+        { &hf_kademlia_distance,
+            { "XOR Distance", "edonkey.kademlia.distance",
+                FT_STRING, BASE_HEX, NULL, 0, "Kademlia XOR Distance", HFILL } },
+        { &hf_kademlia_version,
+            { "Kad Version", "edonkey.kademlia.version",
+                FT_UINT8, BASE_DEC_HEX, NULL, 0, "Kad Version", HFILL } },
         { &hf_kademlia_tag_float,
             { "Tag Value (Float)", "edonkey.kademlia.tag.value.float",
                 FT_FLOAT, BASE_NONE, NULL, 0, "Float Tag Value", HFILL } },
@@ -3023,6 +3358,9 @@ void proto_register_edonkey(void) {
         { &hf_kademlia_tag_uint32,
             { "Tag Value (UINT32)", "edonkey.kademlia.tag.value.uint32",
                 FT_UINT32, BASE_DEC_HEX, NULL, 0, "UINT32 Tag Value", HFILL } },
+        { &hf_kademlia_tag_ipv4,
+            { "Tag Value (IPv4)", "edonkey.kademlia.tag.value.ipv4",
+                FT_IPv4, BASE_DEC, NULL, 0, "UINT32 Tag Value (IPv4)", HFILL } },
         { &hf_kademlia_tag_uint16,
             { "Tag Value (UINT16)", "edonkey.kademlia.tag.value.uint16",
                 FT_UINT16, BASE_DEC_HEX, NULL, 0, "UINT16 Tag Value", HFILL } },
@@ -3052,13 +3390,16 @@ void proto_register_edonkey(void) {
                 FT_UINT16, BASE_DEC, NULL, 0, "Kademlia trailing data length", HFILL } },
         { &hf_kademlia_tag_name,
             { "Tag Name", "edonkey.kademlia.tag.name",
-                FT_STRING, BASE_HEX, NULL, 0, "Kademlia Tag Name String", HFILL } },
+                FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Tag Name String", HFILL } },
         { &hf_kademlia_tag_name_length,
             { "Tag Name Length", "edonkey.kademlia.tag.name.length",
                 FT_UINT16, BASE_DEC, NULL, 0, "Kademlia Tag Name String Length", HFILL } },
         { &hf_kademlia_tag_type,
             { "Tag Type", "edonkey.kademlia.tag.type",
                 FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Tag Type", HFILL } },
+        { &hf_kademlia_request_type,
+            { "Request Type", "edonkey.kademlia.request.type",
+                FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Request Type", HFILL } },
         { &hf_kademlia_search_condition,
             { "Search Condition", "edonkey.kademlia.search.condition",
                 FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Search Condition", HFILL } },
