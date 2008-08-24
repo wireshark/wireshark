@@ -921,8 +921,8 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     tag_full_name = "UnknownTagName";
 
-    tagname_value = *(guint8*)tagname;
     if ( tagname && string_length == 1 ) {
+        tagname_value = *(guint8*)tagname;
         /* lookup tagname */
         tag_full_name = val_to_str( tagname_value, kademlia_tags, tag_full_name );
     }
