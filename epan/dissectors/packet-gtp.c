@@ -4700,10 +4700,10 @@ decode_gtp_add_rab_setup_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	offset = offset +2;
 	/* Upgrade QoS Supported */
 	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup, tvb, offset, 1, FALSE);
-	/* No QoS negotiation */
-	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg, tvb, offset, 1, FALSE);
 	/* NRSN bit field */
 	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn, tvb, offset, 1, FALSE);
+	/* No QoS negotiation */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg, tvb, offset, 1, FALSE);
 	/* MBMS Counting Information bi */ 
 	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf, tvb, offset, 1, FALSE);
 	/* RAN Procedures Ready */
@@ -6316,14 +6316,14 @@ proto_register_gtp(void)
 			{ "MBMS Counting Information", "gtp.cmn_flg.mbs_cnt_inf",
 			FT_BOOLEAN, 8, NULL, 0x08,
 			"MBMS Counting Information", HFILL}},
-		{ &hf_gtp_cmn_flg_nrsn,
-			{ "NRSN bit field", "gtp.cmn_flg.nrsn",
-			FT_BOOLEAN, 8, NULL, 0x10,
-			"NRSN bit field", HFILL}},
 		{ &hf_gtp_cmn_flg_no_qos_neg,
 			{ "No QoS negotiation", "gtp.cmn_flg.no_qos_neg",
-			FT_BOOLEAN, 8, NULL, 0x20,
+			FT_BOOLEAN, 8, NULL, 0x10,
 			"No QoS negotiation", HFILL}},
+		{ &hf_gtp_cmn_flg_nrsn,
+			{ "NRSN bit field", "gtp.cmn_flg.nrsn",
+			FT_BOOLEAN, 8, NULL, 0x20,
+			"NRSN bit field", HFILL}},
 		{ &hf_gtp_cmn_flg_upgrd_qos_sup,
 			{ "Upgrade QoS Supported", "gtp.cmn_flg.ran_pcd_rd",
 			FT_BOOLEAN, 8, NULL, 0x40,
