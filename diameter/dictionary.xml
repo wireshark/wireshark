@@ -1344,7 +1344,6 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Stop Record" code="4"/>
 		</avp>
 <!-- 481-482    Unallocated -->
-		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 
 		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
