@@ -164,4 +164,7 @@
 		<avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+<!--
+Note: The AVP codes from 915 to 999 are reserved for TS 29.061
+-->
 	</application>

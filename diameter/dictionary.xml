@@ -1370,6 +1370,7 @@ http://www.iana.org/assignments/radius-types
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
 <!--
 3GPP TS 29.230 version 7.7.0 Release 7  Table 7.1: 3GPP specific AVP codes
+100 3GPP-WLAN-APN-Id OctetString 29.234 [6]
 Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor
 Specific Attributes (See TS 29.061 [13])
 Note: The AVP codes from 256 to 299 are reserved for future use.
@@ -1391,8 +1392,7 @@ Note: The AVP codes from 256 to 299 are reserved for future use.
 315 Charging-Nodes Grouped
 316 Primary-OCS-Charging-Function-Name DiameterIdentity
 317 Secondary-OCS-Charging-Function-Name DiameterIdentity
-318 3GPP-AAA-Server-Name DiameterIdentity
-29.234 [6]
+318 3GPP-AAA-Server-Name DiameterIdentity 29.234 [6]
 319 Maximum-Number-Accesses Unsigned32
 Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 -->
@@ -1508,6 +1508,7 @@ Note: The AVP codes from 634 to 699 are reserved for TS 29.229.
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
  **************************	  700 - 711         **************************
+Note: The AVP codes from 711 to799 are reserved for TS 29.329.
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
@@ -2552,7 +2553,15 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="Alternate-Charged-Party-Address" code="1280" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-Note: The AVP codes from 1281 to 1299 are reserved for TS 32.299
+1281 IMS-Communication-Service-Identifier UTF8String
+1282 Number-Of-Received-Talk-Bursts Unsigned32
+1283 Number-Of-Talk-Bursts Unsigned32
+1284 Received-Talk-Burst-Time Unsigned32
+1285 Received-Talk-Burst-Volume Unsigned32
+1286 Talk-Burst-Time Unsigned32
+1287 Talk-Burst-Volume Unsigned32
+1288 Media-Initiator-Party UTF8String
+Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 -->
 <!--- 3GPP2 AVP's X.S0013-014-0 
 http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
