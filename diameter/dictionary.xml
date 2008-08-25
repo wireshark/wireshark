@@ -12,6 +12,7 @@
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
 	<!ENTITY TGPPGmb SYSTEM "TGPPGmb.xml">
 	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
+	<!ENTITY TGPPRx SYSTEM "TGPPRx.xml">
 	<!ENTITY sip SYSTEM "sip.xml">
 	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
 	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
@@ -1439,6 +1440,7 @@ Note: TThe AVP codes from 410 to 499 are reserved for TS 29.109
 -->
 <!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6 
  NOTE AVP 500 - 523 is in gqpolicy.xml
+      AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 -->
 <!--
@@ -2668,6 +2670,7 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	&imscxdx;
 	&TGPPGmb;
 	&TGPPSh;
+	&TGPPRx;
 	&sip;
 	&gqpolicy;
 	&etsie2e4;
