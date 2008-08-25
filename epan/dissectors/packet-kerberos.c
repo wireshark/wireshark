@@ -101,6 +101,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <epan/dissectors/packet-gssapi.h>
+#include <epan/dissectors/packet-smb-common.h>
 
 #include <wsutil/file_util.h>
 
@@ -121,6 +122,13 @@ static gint hf_krb_pac_signature_signature = -1;
 static gint hf_krb_pac_clientid = -1;
 static gint hf_krb_pac_namelen = -1;
 static gint hf_krb_pac_clientname = -1;
+static gint hf_krb_pac_upn_flags = -1;
+static gint hf_krb_pac_upn_upn_name = -1;
+static gint hf_krb_pac_upn_dns_name = -1;
+static gint hf_krb_pac_upn_dns_offset = -1;
+static gint hf_krb_pac_upn_dns_len = -1;
+static gint hf_krb_pac_upn_upn_offset = -1;
+static gint hf_krb_pac_upn_upn_len = -1;
 static gint hf_krb_w2k_pac_entries = -1;
 static gint hf_krb_w2k_pac_version = -1;
 static gint hf_krb_w2k_pac_type = -1;
@@ -142,6 +150,7 @@ static gint hf_krb_PAC_SERVER_CHECKSUM = -1;
 static gint hf_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint hf_krb_PAC_CLIENT_INFO_TYPE = -1;
 static gint hf_krb_PAC_CONSTRAINED_DELEGATION = -1;
+static gint hf_krb_PAC_UPN_DNS_INFO = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
 static gint hf_krb_encrypted_enc_authorization_data = -1;
 static gint hf_krb_encrypted_EncKrbCredPart = -1;
@@ -338,6 +347,7 @@ static gint ett_krb_PRIV_enc = -1;
 static gint ett_krb_e_checksum = -1;
 static gint ett_krb_PAC_MIDL_BLOB = -1;
 static gint ett_krb_PAC_DREP = -1;
+static gint ett_krb_PAC_UPN_DNS_INFO = -1;
 
 guint32 krb5_errorcode;
 
@@ -1188,6 +1198,7 @@ static const value_string krb5_error_codes[] = {
 #define PAC_PRIVSVR_CHECKSUM	7
 #define PAC_CLIENT_INFO_TYPE	10
 #define PAC_CONSTRAINED_DELEGATION 11
+#define PAC_UPN_DNS_INFO        12
 static const value_string w2k_pac_types[] = {
     { PAC_LOGON_INFO		, "Logon Info" },
     { PAC_CREDENTIAL_TYPE	, "Credential Type" },
@@ -1195,6 +1206,7 @@ static const value_string w2k_pac_types[] = {
     { PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
     { PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
     { PAC_CONSTRAINED_DELEGATION, "Constrained Delegation" },
+    { PAC_UPN_DNS_INFO		, "UPN DNS Info" },
     { 0, NULL },
 };
 
@@ -2594,6 +2606,60 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
 }
 
 static int
+dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint16 dns_offset, dns_len;
+	guint16 upn_offset, upn_len;
+	const char *dn;
+	int dn_len;
+	guint16 bc;
+
+	item=proto_tree_add_item(parent_tree, hf_krb_PAC_UPN_DNS_INFO, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+	if(parent_tree){
+		tree=proto_item_add_subtree(item, ett_krb_PAC_UPN_DNS_INFO);
+	}
+
+	/* upn */
+	upn_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, TRUE);
+	offset+=2;
+	upn_offset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	/* dns */
+	dns_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, TRUE);
+	offset+=2;
+	dns_offset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	/* flags */	
+	proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, TRUE);	
+
+	/* upn */
+	offset = upn_offset;
+	dn_len = upn_len;
+	bc = tvb_length_remaining(tvb, offset);
+	dn = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &dn_len, TRUE, TRUE, &bc);
+	proto_tree_add_string(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, dn);
+
+	/* dns */
+	offset = dns_offset;
+	dn_len = dns_len;
+	bc = tvb_length_remaining(tvb, offset);
+	dn = get_unicode_or_ascii_string(tvb, &offset,
+			TRUE, &dn_len, TRUE, TRUE, &bc);
+	proto_tree_add_string(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, dn);
+
+	return offset;
+}
+
+static int
 dissect_krb5_PAC_CREDENTIAL_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	proto_item *item=NULL;
@@ -2730,6 +2796,10 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
 	case PAC_CONSTRAINED_DELEGATION:
 		dissect_krb5_PAC_CONSTRAINED_DELEGATION(tr, next_tvb, 0, actx);
 		break;
+	case PAC_UPN_DNS_INFO:
+		dissect_krb5_PAC_UPN_DNS_INFO(tr, next_tvb, 0, actx);
+		break;
+
 	default:;
 /*qqq*/
 	}
@@ -4938,6 +5008,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_PAC_CONSTRAINED_DELEGATION, {
 	    "PAC_CONSTRAINED_DELEGATION", "kerberos.PAC_CONSTRAINED_DELEGATION", FT_BYTES, BASE_HEX,
 	    NULL, 0, "PAC_CONSTRAINED_DELEGATION structure", HFILL }},
+	{ &hf_krb_PAC_UPN_DNS_INFO, {
+	    "UPN_DNS_INFO", "kerberos.PAC_UPN_DNS_INFO", FT_BYTES, BASE_HEX,
+	    NULL, 0, "UPN_DNS_INFO structure", HFILL }},
 	{ &hf_krb_checksum_checksum, {
 	    "checksum", "kerberos.checksum.checksum", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Kerberos Checksum", HFILL }},
@@ -5109,6 +5182,27 @@ proto_register_kerberos(void)
 	{ &hf_krb_pac_namelen, {
 	    "Name Length", "kerberos.pac.namelen", FT_UINT16, BASE_DEC,
 	    NULL, 0, "Length of client name", HFILL }},
+	{ &hf_krb_pac_upn_flags, {
+	    "Flags", "kerberos.pac.upn.flags", FT_UINT32, BASE_HEX,
+	    NULL, 0, "UPN flags", HFILL }},
+	{ &hf_krb_pac_upn_dns_offset, {
+	    "DNS Offset", "kerberos.pac.upn.dns_offset", FT_UINT16, BASE_DEC,
+	    NULL, 0, "", HFILL }},
+	{ &hf_krb_pac_upn_dns_len, {
+	    "DNS Len", "kerberos.pac.upn.dns_len", FT_UINT16, BASE_DEC,
+	    NULL, 0, "", HFILL }},
+	{ &hf_krb_pac_upn_upn_offset, {
+	    "UPN Offset", "kerberos.pac.upn.upn_offset", FT_UINT16, BASE_DEC,
+	    NULL, 0, "", HFILL }},
+	{ &hf_krb_pac_upn_upn_len, {
+	    "UPN Len", "kerberos.pac.upn.upn_len", FT_UINT16, BASE_DEC,
+	    NULL, 0, "", HFILL }},
+	{ &hf_krb_pac_upn_upn_name, {
+	    "UPN Name", "kerberos.pac.upn.upn_name", FT_STRING, BASE_NONE,
+	    NULL, 0, "", HFILL }},
+	{ &hf_krb_pac_upn_dns_name, {
+	    "DNS Name", "kerberos.pac.upn.dns_name", FT_STRING, BASE_NONE,
+	    NULL, 0, "", HFILL }},
 	{ &hf_krb_e_checksum, {
 	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_DEC,
 	    NULL, 0, "This is a Kerberos e-checksum", HFILL }},
@@ -5221,7 +5315,8 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_CONSTRAINED_DELEGATION,
 	&ett_krb_e_checksum,
 	&ett_krb_PAC_MIDL_BLOB,
-	&ett_krb_PAC_DREP
+	&ett_krb_PAC_DREP,
+	&ett_krb_PAC_UPN_DNS_INFO
     };
     module_t *krb_module;
 
