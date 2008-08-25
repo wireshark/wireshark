@@ -459,6 +459,7 @@ AirPDcapGetSaPtr(
 	return &ctx->sa[sa_index];
 }
 
+#define GROUP_KEY_PAYLOAD_LEN (8+4+sizeof(EAPOL_RSN_KEY))
 INT AirPDcapScanForGroupKey(
     PAIRPDCAP_CONTEXT ctx,
     const guint8 *data,
@@ -486,6 +487,11 @@ INT AirPDcapScanForGroupKey(
 #endif
 
 	AIRPDCAP_DEBUG_TRACE_START("AirPDcapScanForGroupKey");
+
+        if (mac_header_len + GROUP_KEY_PAYLOAD_LEN < tot_len) {
+            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForGroupKey", "Message too short", AIRPDCAP_DEBUG_LEVEL_3);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+        }
 
 	/* cache offset in the packet data */
 	offset = mac_header_len;
