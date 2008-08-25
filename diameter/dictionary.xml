@@ -975,8 +975,11 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Diameter Common Messages" code="0"/>
 			<enum name="Diameter NASREQ Application" code="1"/>
 			<enum name="Diameter Mobile IPv4 Application" code="2"/>
-			<enum name="Diameter Base Accounting" code="3"/>
-			<enum name="3GPP CX/DX" code="16777216"/>
+      <enum name="Diameter Base Accounting" code="3"/>
+      <enum name="Diameter Credit Control" code="4"/>
+      <enum name="Diameter EAP" code="5"/>
+      <enum name="Diameter Session Initiation Protocol (SIP) Application" code="6"/>
+      <enum name="3GPP CX/DX" code="16777216"/>
 			<enum name="3GPP Sh" code="16777217"/>
 			<enum name="3GPP Re/Rf" code="16777218"/>
 			<enum name="3GPP Wx" code="16777219"/>
@@ -1005,8 +1008,15 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Covergence-specific SIP routing" code="16777242"/>   
 			<enum name="Policy Processing" code="16777243"/>   
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
-			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
-			<enum name="Relay" code="4294967295"/>
+			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 -->
+      <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP STaMIP" code="16777250"/>
+      <enum name="3GPP S6a" code="16777251"/>
+      <enum name="3GPP S13" code="16777252"/>
+      <enum name="Relay" code="4294967295"/>
 
 		</avp>		
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1015,7 +1025,10 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Diameter NASREQ Application" code="1"/>
 			<enum name="Diameter Mobile IPv4 Application" code="2"/>
 			<enum name="Diameter Base Accounting" code="3"/>
-			<enum name="3GPP CX/DX" code="16777216"/>
+      <enum name="Diameter Credit Control" code="4"/>
+      <enum name="Diameter EAP" code="5"/>
+      <enum name="Diameter Session Initiation Protocol (SIP) Application" code="6"/>
+      <enum name="3GPP CX/DX" code="16777216"/>
 			<enum name="3GPP Sh" code="16777217"/>
 			<enum name="3GPP Re/Rf" code="16777218"/>
 			<enum name="3GPP Wx" code="16777219"/>
@@ -1046,7 +1059,14 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
-		</avp>
+      <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP STaMIP" code="16777250"/>
+      <enum name="3GPP S6a" code="16777251"/>
+      <enum name="3GPP S13" code="16777252"/>
+    </avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
 				<gavp name="Vendor-Id"/>
@@ -1324,6 +1344,8 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Stop Record" code="4"/>
 		</avp>
 <!-- 481-482    Unallocated -->
+		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+
 		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="Reserved" code="0"/>
@@ -1584,8 +1606,11 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 		<avp name="GPRS-Charging-ID" code="846" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
 		</avp>
+    <!--
+    ETSI TS 132 299 V7.6.0 (2007-06) GGSN-Address 847 X - X - Address
+    -->  
 		<avp name="GGSN-Address" code="847" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
-			<type type-name="UTF8String"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Served-Party-IP-Address" code="848" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="IPAddress"/>

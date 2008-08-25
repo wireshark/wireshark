@@ -10,13 +10,61 @@
 		<avp name="3GPP-IMSI" code="1" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="3GPP-SGSNAddress" code="6" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-Charging ID" code="2" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="3GPP-PDP type" code="3" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Integer32"/>
+    </avp>
+    <avp name="3GPP-Charging Gateway address" code="4" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPAddress"/>
+    </avp>
+    <avp name="3GPP-GPRS Negotiated QoS profile" code="5" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-SGSNAddress" code="6" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+    <avp name="3GPP-GGSN address" code="7" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="IPAddress"/>
+    </avp>
+    <avp name="3GPP-IMSI MCC-MNC" code="8" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-GGSN MCC-MNC" code="9" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-NSAPI" code="10" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-Session Stop Indicator" code="11" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-Selection-Mode" code="12" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-Charging-Characteristics" code="13" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-Charging Gateway IPv6 address" code="14" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-SGSN-IPv6-Address" code="15" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="3GPP-SGSN-IPv6-Address" code="15" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="3GPP-IMEISV" code="20" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-GGSN IPv6 address" code="16" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-IPv6-DNS-Server" code="17" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-SGSN MCC-MNC" code="18" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="3GPP-Teardown Indicator" code="19" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-IMEISV" code="20" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="3GPP-RAT-Type" code="21" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -28,7 +76,16 @@
 		<avp name="3GPP-MSTimeZone" code="23" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-Camel-Charging-Info" code="24" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-Packet-Filter" code="25" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="3GPP-Negotiated-DSCP" code="26" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 
