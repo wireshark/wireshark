@@ -119,7 +119,6 @@ static gint outhdr_values_found = 0;
 extern int proto_fp;
 
 
-void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(char *protocol_name);
@@ -1733,8 +1732,7 @@ void proto_register_catapult_dct2000(void)
     register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
 
     /* Preferences */
-    catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000,
-                                                      proto_reg_handoff_catapult_dct2000);
+    catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000, NULL);
 
     /* This preference no longer supported (introduces linkage dependency between
        dissectors and wiretap) */
