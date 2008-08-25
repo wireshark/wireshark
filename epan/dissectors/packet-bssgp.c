@@ -58,13 +58,11 @@
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
-static dissector_handle_t bssgp_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
 
 module_t *bssgp_module;
-void proto_reg_handoff_bssgp(void);
 
 /* Initialize the protocol and registered fields */
 static int hf_bssgp_iei_nacc_cause = -1;
@@ -6202,7 +6200,7 @@ proto_register_bssgp(void)
   register_dissector("bssgp", dissect_bssgp, proto_bssgp);
 
   /* Register configuration options */
-  bssgp_module = prefs_register_protocol(proto_bssgp, proto_reg_handoff_bssgp);
+  bssgp_module = prefs_register_protocol(proto_bssgp, NULL);
   prefs_register_bool_preference(bssgp_module, "decode_nri",
 				 "Decode NRI",
 				 "Decode NRI (for use with SGSN in Pool)",
@@ -6217,7 +6215,6 @@ proto_register_bssgp(void)
 void
 proto_reg_handoff_bssgp(void)
 {
-  bssgp_handle = create_dissector_handle(dissect_bssgp, proto_bssgp);
   llc_handle = find_dissector("llcgprs");
   rrlp_handle = find_dissector("rrlp");
   data_handle = find_dissector("data");

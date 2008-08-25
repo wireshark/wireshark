@@ -45,7 +45,6 @@
 #define EXEC_PORT 512
 
 /* Forward declaration we need below */
-void proto_reg_handoff_exec(void);
 static gboolean exec_isprint_string(guchar *string);
 static gboolean exec_isdigit_string(guchar *string);
 
@@ -401,7 +400,7 @@ proto_register_exec(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register preferences module */
-	exec_module = prefs_register_protocol(proto_exec, proto_reg_handoff_exec);
+	exec_module = prefs_register_protocol(proto_exec, NULL);
 
 	/* Register our preferences */
 	prefs_register_bool_preference(exec_module, "info_show_username",
