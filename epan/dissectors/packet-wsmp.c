@@ -34,11 +34,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/etypes.h>
-
-/* Forward declaration we need below */
-void proto_reg_handoff_wsmp(void); 
 
 static dissector_handle_t data_handle;
 
@@ -66,7 +62,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Set up structures needed to add the protocol subtree and manage it */
         proto_item *ti, *wsmdata_item;
         proto_tree *wsmp_tree, *wsmdata_tree;
-		tvbuff_t *wsmdata_tvb;
+        tvbuff_t *wsmdata_tvb;
         guint16 acmlength, wsmlength, offset;
         char* acm;        
 
@@ -114,7 +110,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hf_wsmp_acmlength, tvb, offset, 1, FALSE);
                 offset ++;
 				
-				acm = tvb_get_ephemeral_string(tvb, offset, acmlength);
+                acm = tvb_get_ephemeral_string(tvb, offset, acmlength);
                 proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, FALSE);
                 offset +=acmlength;
 
@@ -122,16 +118,16 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_wsmlength, tvb, offset, 2, TRUE);
                 offset += 2; 
+                
+                wsmdata_item = proto_tree_add_text (wsmp_tree, tvb, offset, wsmlength,
+                                                    "Wave Short Message");
+                wsmdata_tree = proto_item_add_subtree(wsmdata_item, ett_wsmdata);
 
-				wsmdata_item = proto_tree_add_text (wsmp_tree, tvb, offset, wsmlength,
-					"Wave Short Message");
-				wsmdata_tree = proto_item_add_subtree(wsmdata_item, ett_wsmdata);
-
-				/* TODO: Branch on the application context and display accordingly 
-				 * Default call the data dissector
-				 */
-				wsmdata_tvb = tvb_new_subset(tvb, offset,wsmlength, wsmlength);
-				call_dissector(data_handle, wsmdata_tvb, pinfo, wsmdata_tree);
+                /* TODO: Branch on the application context and display accordingly 
+                 * Default call the data dissector
+                 */
+                wsmdata_tvb = tvb_new_subset(tvb, offset,wsmlength, wsmlength);
+                call_dissector(data_handle, wsmdata_tvb, pinfo, wsmdata_tree);
         }
 
 }
@@ -143,11 +139,9 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    that calls all the protocol registration.
  */
 
-        void
+void
 proto_register_wsmp(void)
 {                 
-        module_t *wsmp_module;
-
         /* Setup list of header fields  See Section 1.6.1 for details*/
         static hf_register_info hf[] = {
                 { &hf_wsmp_version,
@@ -200,33 +194,20 @@ proto_register_wsmp(void)
         proto_register_field_array(proto_wsmp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
-        /* Register preferences module (See Section 2.6 for more on preferences) */       
-        wsmp_module = prefs_register_protocol(proto_wsmp, proto_reg_handoff_wsmp);
-
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
    This exact format is required because a script is used to find these routines 
    and create the code that calls these routines.
-
-   This function is also called by preferences whenever "Apply" is pressed 
-   (see prefs_register_protocol above) so it should accommodate being called 
-   more than once.
  */
-        void
+
+void
 proto_reg_handoff_wsmp(void)
 {
-        static gboolean inited = FALSE;
-        if( !inited ) {
+        dissector_handle_t wsmp_handle;
 
-                dissector_handle_t wsmp_handle;
-
-                wsmp_handle = create_dissector_handle(dissect_wsmp,
-                                proto_wsmp);
-                dissector_add("ethertype", ETHERTYPE_WSMP, wsmp_handle);
-				data_handle = find_dissector("data");
-                inited = TRUE;
-        }
+        wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
+        dissector_add("ethertype", ETHERTYPE_WSMP, wsmp_handle);
+        data_handle = find_dissector("data");
         return;
-
 }

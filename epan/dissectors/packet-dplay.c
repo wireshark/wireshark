@@ -30,19 +30,16 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/aftypes.h>
 #include <string.h>
 
 /* function declarations */
-void proto_reg_handoff_dplay(void);
 static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset);
 
 static int proto_dplay = -1;
-static dissector_handle_t dplay_handle;
 
 /* Common data fields */
 static int hf_dplay_size = -1;              /* Size of the whole data */
@@ -1759,7 +1756,6 @@ void proto_register_dplay()
         &ett_dplay_type05_flags,
         &ett_dplay_type29_spp,
     };
-    module_t *dplay_module;
 
     if(proto_dplay == -1)
     {
@@ -1770,20 +1766,12 @@ void proto_register_dplay()
                 );
         proto_register_field_array(proto_dplay, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
-        dplay_module = prefs_register_protocol(proto_dplay, proto_reg_handoff_dplay);
     }
 }
 
 void proto_reg_handoff_dplay(void)
 {
-    static int initialized = FALSE;
-
-    if(!initialized)
-    {
-        initialized = TRUE;
-        heur_dissector_add("udp", heur_dissect_dplay, proto_dplay);
-        heur_dissector_add("tcp", heur_dissect_dplay, proto_dplay);
-        dplay_handle = create_dissector_handle(dissect_dplay, proto_dplay);
-    }
+    heur_dissector_add("udp", heur_dissect_dplay, proto_dplay);
+    heur_dissector_add("tcp", heur_dissect_dplay, proto_dplay);
 }
 
