@@ -3803,6 +3803,9 @@ dissect_krb5_encrypted_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, i
 static int
 dissect_krb5_enc_authorization_data_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
+#ifndef HAVE_KERBEROS
+	guint32 enc_authorization_data_etype;
+#endif
 	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &enc_authorization_data_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
