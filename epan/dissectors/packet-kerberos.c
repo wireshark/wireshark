@@ -143,6 +143,7 @@ static gint hf_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint hf_krb_PAC_CLIENT_INFO_TYPE = -1;
 static gint hf_krb_PAC_CONSTRAINED_DELEGATION = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
+static gint hf_krb_encrypted_enc_authorization_data = -1;
 static gint hf_krb_encrypted_EncKrbCredPart = -1;
 static gint hf_krb_checksum_checksum = -1;
 static gint hf_krb_encrypted_PRIV = -1;
@@ -3676,6 +3677,86 @@ dissect_krb5_SAFE(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
 	return offset;
 }
 
+#ifdef HAVE_KERBEROS
+static guint32 enc_authorization_data_etype;
+
+static int
+dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	guint8 *plaintext=NULL;
+	int length;
+
+	length=tvb_length_remaining(tvb, offset);
+
+	/*
+	RFC 4120 : 5.4.1
+	The key usage value used when encrypting is 5
+	if a sub-session key is used, or 4 if the session key is used.
+	*/
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 4, length, tvb_get_ptr(tvb, offset, length), enc_authorization_data_etype);
+	}
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 5, length, tvb_get_ptr(tvb, offset, length), enc_authorization_data_etype);
+	}
+
+	if(plaintext){
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_real_data (plaintext,
+                                          length,
+                                          length);
+		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+
+
+		proto_tree_add_text(tree, next_tvb, 0, length, "AtuhorizationData for TGS_REQ not implemented yet");
+
+	}
+	return offset;
+}
+#endif
+
+static int
+dissect_krb5_encrypted_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+#ifdef HAVE_KERBEROS
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_enc_authorization_data, dissect_krb5_decrypt_enc_authorization_data);
+#else
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_enc_authorization_data, NULL);
+#endif
+	return offset;
+}
+
+static int
+dissect_krb5_enc_authorization_data_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &enc_authorization_data_etype);
+	if(tree){
+		proto_item_append_text(tree, " %s",
+			val_to_str(enc_authorization_data_etype, krb5_encryption_types,
+			"%#x"));
+	}
+	return offset;
+}
+static ber_old_sequence_t enc_authorization_data_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_enc_authorization_data_etype },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
+		dissect_krb5_kvno },
+	{ BER_CLASS_CON, 2, 0,
+		dissect_krb5_encrypted_enc_authorization_data },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, enc_authorization_data_sequence, -1, -1);
+
+	return offset;
+}
 
 /*
  * KDC-REQ-BODY ::=   SEQUENCE {
@@ -3724,7 +3805,8 @@ static ber_old_sequence_t KDC_REQ_BODY_sequence[] = {
 		dissect_krb5_etype_sequence_of },
 	{ BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL,
 		dissect_krb5_HostAddresses },
-/* XXX [10] enc-authorization-data should be added */
+	{ BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL,
+		dissect_krb5_enc_authorization_data },
 	{ BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL,
 		dissect_krb5_sq_tickets },
 	{ 0, 0, 0, NULL }
@@ -4835,6 +4917,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_encrypted_PA_ENC_TIMESTAMP, {
 	    "enc PA_ENC_TIMESTAMP", "kerberos.PA_ENC_TIMESTAMP.encrypted", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Encrypted PA-ENC-TIMESTAMP blob", HFILL }},
+	{ &hf_krb_encrypted_enc_authorization_data, {
+	    "enc-authorization-data", "kerberos.enc_authorization_data.encrypted", FT_BYTES, BASE_HEX,
+	    NULL, 0, "", HFILL }},
 	{ &hf_krb_PAC_LOGON_INFO, {
 	    "PAC_LOGON_INFO", "kerberos.PAC_LOGON_INFO", FT_BYTES, BASE_HEX,
 	    NULL, 0, "PAC_LOGON_INFO structure", HFILL }},
