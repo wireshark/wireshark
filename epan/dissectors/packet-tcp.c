@@ -90,6 +90,7 @@ static int hf_tcp_checksum_good = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
 static int hf_tcp_analysis_flags = -1;
+static int hf_tcp_analysis_bytes_in_flight = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
 static int hf_tcp_analysis_rto = -1;
@@ -201,6 +202,7 @@ static dissector_handle_t data_handle;
  * **************************************************************************/
 static gboolean tcp_analyze_seq = TRUE;
 static gboolean tcp_relative_seq = TRUE;
+static gboolean tcp_track_bytes_in_flight = TRUE;
 static gboolean tcp_calculate_ts = FALSE;
 
 /* SLAB allocator for tcp_unacked structures
@@ -795,6 +797,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	}
 
 
+
 finished_fwd:
 	/* If this was NOT a dupack we must reset the dupack counters */
 	if( (!tcpd->ta) || !(tcpd->ta->flags&TCP_A_DUPLICATE_ACK) ){
@@ -987,6 +990,34 @@ finished_checking_retransmission_type:
 		TCP_UNACKED_FREE(ual->next);
 		ual->next=tmpual;
 		ual=ual->next;
+	}
+
+	/* how many bytes of data are there in flight after this frame
+	 * was sent
+	 */
+	ual=tcpd->fwd->segments;
+	if (tcp_track_bytes_in_flight && seglen!=0 && ual) {
+		guint32 first_seq, last_seq, in_flight;
+
+		first_seq = ual->seq - tcpd->fwd->base_seq;
+		last_seq = ual->nextseq - tcpd->fwd->base_seq;
+		while (ual) {
+			if ((ual->nextseq-tcpd->fwd->base_seq)>last_seq) {
+				last_seq = ual->nextseq-tcpd->fwd->base_seq;
+			}
+			if ((ual->seq-tcpd->fwd->base_seq)<first_seq) {
+				first_seq = ual->seq-tcpd->fwd->base_seq;
+			}
+			ual = ual->next;
+		}
+		in_flight = last_seq-first_seq;
+
+		if (in_flight>0 && in_flight<2000000000) {
+			if(!tcpd->ta){
+				tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+			}
+			tcpd->ta->bytes_in_flight = in_flight;
+		}
 	}
 
 }
@@ -1319,6 +1350,25 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 }
 
 
+/* Prints results of the sequence number analysis concerning how many bytes of data are in flight */
+static void
+tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
+					      tvbuff_t * tvb _U_,
+					      proto_tree * flags_tree _U_,
+					      struct tcp_acked *ta
+					    )
+{
+  proto_item * flags_item;
+
+  if (tcp_track_bytes_in_flight) {
+    flags_item=proto_tree_add_uint(flags_tree,
+				hf_tcp_analysis_bytes_in_flight,
+				tvb, 0, 0, ta->bytes_in_flight);
+
+    PROTO_ITEM_SET_GENERATED(flags_item);
+  }
+}
+
 static void
 tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct tcp_analysis *tcpd)
 {
@@ -1357,6 +1407,11 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		}
 	}
 
+	if(ta->bytes_in_flight) {
+		/* print results for amount of data in flight */
+		tcp_sequence_number_analysis_print_bytes_in_flight(pinfo, tvb, tree, ta);
+	}
+
 	if(ta->flags){
 		item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
 		PROTO_ITEM_SET_GENERATED(item);
@@ -1382,6 +1437,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 
 		/* print results for tcp zero window  */
 		tcp_sequence_number_analysis_print_zero_window(pinfo, tvb, flags_tree, ta);
+
 	}
 
 }
@@ -3717,6 +3773,10 @@ proto_register_tcp(void)
 		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    "Which previous segment is this an ACK for", HFILL}},
 
+		{ &hf_tcp_analysis_bytes_in_flight,
+		  { "Number of bytes in flight",            "tcp.analysis.bytes_in_flight", FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "How many bytes are now in flight for this connection", HFILL}},
+
 		{ &hf_tcp_analysis_ack_rtt,
 		  { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "How long time it took to ACK the segment (RTT)", HFILL}},
@@ -3991,6 +4051,12 @@ proto_register_tcp(void)
 	    "To use this option you must also enable \"Analyze TCP sequence numbers\". "
 	    "This option will also try to track and adjust the window field according to any TCP window scaling options seen.",
 	    &tcp_relative_seq);
+	prefs_register_bool_preference(tcp_module, "track_bytes_in_flight",
+	    "Track number of bytes in flight",
+	    "Make the TCP dissector track the number on un-ACKed bytes of data are in flight per packet. "
+	    "To use this option you must also enable \"Analyze TCP sequence numbers\". "
+	    "This takes a lot of memory but allows you to track how much data are in flight at a time and graphing it in io-graphs",
+	    &tcp_track_bytes_in_flight);
 	prefs_register_bool_preference(tcp_module, "calculate_timestamps",
 	    "Calculate conversation timestamps",
 	    "Calculate timestamps relative to the first frame and the previous frame in the tcp conversation",

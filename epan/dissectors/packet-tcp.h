@@ -114,6 +114,7 @@ struct tcp_acked {
 	guint16 flags;
 	guint32 dupack_num;	/* dup ack number */
 	guint32 dupack_frame;	/* dup ack to frame # */
+	guint32 bytes_in_flight; /* number of bytes in flight */
 };
 
 /* One instance of this structure is created for each pdu that spans across
