@@ -355,6 +355,9 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
 		memcpy(&key_len, pEAPKey->key_data_len, 2);  /* get the key length as a UINT16 */
 	}
 	key_len = ntohs(key_len); /* Convert to proper endianess */
+    if (key_len > sizeof(RSN_IE)) { /* Don't read past the end of pEAPKey->ie */
+        return;
+    }
 
 	/* Encrypted key is in the information element field of the EAPOL key packet */
 	szEncryptedKey = g_memdup(pEAPKey->ie, key_len);
