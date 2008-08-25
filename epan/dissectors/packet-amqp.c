@@ -36,7 +36,6 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/prefs.h>
 
 /*  Generic data  */
 
@@ -168,14 +167,6 @@ static int amqp_port = 5672;
 #define AMQP_METHOD_DTX_START_OK                                  21
 
 #define AMQP_METHOD_TUNNEL_REQUEST                                10
-
-/*  Registration functions for the dissector  */
-
-void
-proto_register_amqp(void);
-
-void
-proto_reg_handoff_amqp(void);
 
 /*  Private functions  */
 
@@ -5249,7 +5240,6 @@ proto_register_amqp(void)
         "Advanced Message Queueing Protocol", "AMQP", "amqp");
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
 }
 
 void
