@@ -79,8 +79,6 @@ static guint32 dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto
 static guint32 dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets);
 static int dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gboolean is_acn(tvbuff_t *tvb);
-void proto_register_acn(void);
-void proto_reg_handoff_acn(void);
 
 /* Global variables */
 static int proto_acn = -1;
@@ -3046,13 +3044,14 @@ void proto_register_acn(void)
     proto_acn = proto_register_protocol (
       "Architecture for Control Networks", /* name */
       "ACN",                               /* short name */
-      "acn"                               /* abbrev */
+      "acn"                                /* abbrev */
       );
   }
 
-  acn_module = prefs_register_protocol(proto_acn, proto_reg_handoff_acn);
   proto_register_field_array(proto_acn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  acn_module = prefs_register_protocol(proto_acn, NULL);
   prefs_register_bool_preference(acn_module, "heuristic_acn",
                                  "Decode ACN",
                                  "Enable Architecture for Control Networks dissector (ANSI BSR E1.17)",
@@ -3094,14 +3093,9 @@ void proto_register_acn(void)
 void
 proto_reg_handoff_acn(void)
 {
-  static guint initialized = FALSE;
-  /* static dissector_handle_t acn_handle; */
-
-  if (!initialized) {
-    /* acn_handle = new_create_dissector_handle(dissect_acn, proto_acn); */
-    /* dissector_add("udp.port", 0, acn_handle);                         */
-    heur_dissector_add("udp", dissect_acn_heur, proto_acn);
-    initialized = TRUE;
-  }
+  /* dissector_handle_t acn_handle; */
+  /* acn_handle = new_create_dissector_handle(dissect_acn, proto_acn); */
+  /* dissector_add_handle("udp.port", acn_handle);                         */
+  heur_dissector_add("udp", dissect_acn_heur, proto_acn);
 }
 
