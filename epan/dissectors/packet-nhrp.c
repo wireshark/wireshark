@@ -43,7 +43,6 @@
 #include <epan/ipproto.h>
 #include <epan/greproto.h>
 #include <epan/sminmpec.h>
-#include <epan/prefs.h>
 
 #include <epan/in_cksum.h>
 #include "packet-nhrp.h"

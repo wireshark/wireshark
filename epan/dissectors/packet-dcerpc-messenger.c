@@ -28,7 +28,6 @@
 #endif
 
 #include <glib.h>
-#include <epan/prefs.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"

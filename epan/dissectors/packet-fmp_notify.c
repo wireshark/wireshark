@@ -35,7 +35,6 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include <epan/prefs.h>
 #include <epan/strutil.h>
 
 #include "packet-rpc.h"

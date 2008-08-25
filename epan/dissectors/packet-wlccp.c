@@ -70,7 +70,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include "packet-llc.h"

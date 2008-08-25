@@ -34,7 +34,6 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-per.h>

@@ -42,8 +42,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "prefs.h"
-
 #include "packet-h263.h"
 
 static int proto_h263_data		= -1;

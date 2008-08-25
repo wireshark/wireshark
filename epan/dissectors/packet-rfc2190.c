@@ -48,8 +48,6 @@
 #include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
 
-#include "prefs.h"
-
 #include "packet-h263.h"
 
 /* H.263 header fields             */

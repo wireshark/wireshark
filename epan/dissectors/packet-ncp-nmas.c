@@ -31,7 +31,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"

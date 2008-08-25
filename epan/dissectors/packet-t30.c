@@ -34,7 +34,6 @@
 #include <string.h>
 
 #include "packet-t38.h"
-#include <epan/prefs.h>
 #include <epan/emem.h>
 
 #include "packet-t30.h"

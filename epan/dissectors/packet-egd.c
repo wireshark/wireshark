@@ -32,7 +32,6 @@
 
 #include <string.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 /* forward reference */
 void proto_register_egd();

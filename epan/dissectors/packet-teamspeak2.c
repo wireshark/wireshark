@@ -29,7 +29,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/crc32.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>

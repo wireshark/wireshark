@@ -41,7 +41,6 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 
-#include <epan/prefs.h>
 #include "packet-frame.h"
 
 /*differents types of objects*/

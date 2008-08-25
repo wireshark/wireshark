@@ -35,9 +35,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
-
-
 
 void proto_reg_handoff_synergy(void);
 

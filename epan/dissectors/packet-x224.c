@@ -34,7 +34,6 @@
 #include "packet-tpkt.h"
 #include "packet-frame.h"
 #include <epan/conversation.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 
 /* X.224 header fields             */

@@ -37,7 +37,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 /* Pre definitions */
 void   proto_reg_handoff_xcsl(void);
