@@ -95,8 +95,6 @@ static const value_string fcoe_sof_vals[] = {
     {0, NULL}
 };
 
-void proto_reg_handoff_fcoe(void);
-
 static int proto_fcoe          = -1;
 static int hf_fcoe_ver         = -1;
 static int hf_fcoe_len         = -1;
@@ -326,7 +324,7 @@ proto_register_fcoe(void)
     proto_register_field_array(proto_fcoe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    fcoe_module = prefs_register_protocol(proto_fcoe, proto_reg_handoff_fcoe);
+    fcoe_module = prefs_register_protocol(proto_fcoe, NULL);
 
     prefs_register_obsolete_preference(fcoe_module, "ethertype");
 }
