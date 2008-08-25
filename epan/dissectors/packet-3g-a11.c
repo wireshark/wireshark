@@ -434,8 +434,8 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
     guint8 msid_start_offset =  0;
     guint8 msid_num_digits = 0;
     guint8 msid_index = 0;
-    char msid_digits[A11_MSG_MSID_LEN_MAX+2];
-    const char* p_msid = 0;
+    char  *msid_digits;
+    const char* p_msid;
     gboolean odd_even_ind = 0;
 
     /* Decode Protocol Type */
@@ -510,6 +510,7 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
         return;
     }
 
+    msid_digits = ep_alloc(A11_MSG_MSID_LEN_MAX+2);
     msid_start_offset = offset;
 
     if(msid_len > A11_MSG_MSID_ELEM_LEN_MAX)
@@ -552,8 +553,6 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
 
     return;
 }
-
-static void dissect_a11_radius( tvbuff_t *, int, proto_tree *, int);
 
 /* RADIUS attributed */
 static void
@@ -1654,9 +1653,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 } /* dissect_a11 */
 
 /* Register the protocol with Wireshark */
-void proto_register_a11(void);
-
-void proto_register_a11(void)
+void
+proto_register_a11(void)
 {
 
 /* Setup list of header fields */
@@ -2074,8 +2072,6 @@ void proto_register_a11(void)
 	proto_register_field_array(proto_a11, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-
-void proto_reg_handoff_a11(void);
 
 void
 proto_reg_handoff_a11(void)
