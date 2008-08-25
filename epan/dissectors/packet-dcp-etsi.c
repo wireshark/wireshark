@@ -32,7 +32,6 @@
 
 #include <gmodule.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/crcdrm.h>
 #include <epan/reedsolomon.h>
@@ -54,9 +53,6 @@ static int proto_dcp_etsi = -1;
 static int proto_af = -1;
 static int proto_pft = -1;
 static int proto_tpl = -1;
-static dissector_handle_t af_handle;
-static dissector_handle_t pft_handle;
-static dissector_handle_t tpl_handle;
 static int hf_edcp_sync = -1;
 static int hf_edcp_len = -1;
 static int hf_edcp_seq = -1;
@@ -645,24 +641,23 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 void
 proto_reg_handoff_dcp_etsi (void)
 {
-  static int Initialized = FALSE;
+  dissector_handle_t af_handle;
+  dissector_handle_t pft_handle;
+  dissector_handle_t tpl_handle;
 
-  if (!Initialized) {
- 	af_handle = create_dissector_handle(dissect_af, proto_af);
-	pft_handle = create_dissector_handle(dissect_pft, proto_pft);
-	tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
-	heur_dissector_add("udp", dissect_dcp_etsi, proto_dcp_etsi);
-     dissector_add_string("dcp-etsi.sync", "AF", af_handle);
-    dissector_add_string("dcp-etsi.sync", "PF", pft_handle);
-    /* if there are ever other payload types ...*/
-    dissector_add("dcp-af.pt", 'T', tpl_handle);
-  }
+  af_handle = create_dissector_handle(dissect_af, proto_af);
+  pft_handle = create_dissector_handle(dissect_pft, proto_pft);
+  tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
+  heur_dissector_add("udp", dissect_dcp_etsi, proto_dcp_etsi);
+  dissector_add_string("dcp-etsi.sync", "AF", af_handle);
+  dissector_add_string("dcp-etsi.sync", "PF", pft_handle);
+  /* if there are ever other payload types ...*/
+  dissector_add("dcp-af.pt", 'T', tpl_handle);
 }
 
 void
 proto_register_dcp_etsi (void)
 {
-  module_t *dcp_module;
   static hf_register_info hf_edcp[] = {
     {&hf_edcp_sync,
      {"sync", "dcp-etsi.sync",
@@ -866,7 +861,6 @@ proto_register_dcp_etsi (void)
 
 
   }
-  dcp_module = prefs_register_protocol (proto_dcp_etsi, proto_reg_handoff_dcp_etsi);
   proto_register_field_array (proto_dcp_etsi, hf_edcp, array_length (hf_edcp));
   proto_register_field_array (proto_af, hf_af, array_length (hf_af));
   proto_register_field_array (proto_pft, hf_pft, array_length (hf_pft));
