@@ -35,7 +35,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
@@ -46,8 +45,6 @@
 static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_cfm = -1;
-static dissector_handle_t cfm_handle;
-
 
 static const value_string opcodetypenames[] = {
 	{ IEE8021, 	"Reserved for IEE 802.1" },
@@ -809,11 +806,9 @@ void proto_register_cfm(void)
 /* Register CFM OEAM protocol handler */
 void proto_reg_handoff_cfm(void)
 {
-	static int initialized=FALSE;
-	if (!initialized) {
-		cfm_handle = create_dissector_handle(dissect_cfm, proto_cfm);
-		dissector_add("ethertype", ETHERTYPE_CFM, cfm_handle);
-	}
+	dissector_handle_t cfm_handle;
+	cfm_handle = create_dissector_handle(dissect_cfm, proto_cfm);
+	dissector_add("ethertype", ETHERTYPE_CFM, cfm_handle);
 }
 
 /* CFM EOAM sub-protocol dissectors: CCM, LBM, LBR, LTM, LTR */
