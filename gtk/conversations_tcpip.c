@@ -34,7 +34,6 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-tcp.h>

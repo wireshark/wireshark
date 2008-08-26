@@ -36,7 +36,6 @@
 #include <epan/dissectors/packet-dcm.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/tap.h>
 
 #include "gtk/export_object.h"

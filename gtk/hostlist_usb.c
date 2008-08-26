@@ -36,7 +36,6 @@
 #include "epan/packet.h"
 #include <epan/stat_cmd_args.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-usb.h>
 
 #include "../stat_menu.h"

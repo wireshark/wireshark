@@ -37,7 +37,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/strutil.h>
 

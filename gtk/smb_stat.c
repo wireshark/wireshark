@@ -37,7 +37,6 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-smb.h>
 
 #include "../register.h"

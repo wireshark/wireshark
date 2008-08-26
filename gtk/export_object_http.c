@@ -33,7 +33,6 @@
 #include <gtk/gtk.h>
 
 #include <epan/dissectors/packet-http.h>
-#include <epan/emem.h>
 #include <epan/tap.h>
 
 #include "gtk/export_object.h"

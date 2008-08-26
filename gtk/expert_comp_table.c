@@ -38,7 +38,6 @@
 
 #include "epan/packet_info.h"
 #include <epan/expert.h>
-#include <epan/emem.h>
 
 #include "../simple_dialog.h"
 #include "../globals.h"
