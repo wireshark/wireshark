@@ -69,8 +69,6 @@ void prefs_register_p7(void); /* forward declaration for use in preferences regi
 /* Initialize the protocol and registered fields */
 int proto_p7 = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 
 /*--- Included file: packet-p7-hf.c ---*/
 #line 1 "packet-p7-hf.c"
@@ -441,7 +439,7 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed = -1;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class = -1;
 
 /*--- End of included file: packet-p7-hf.c ---*/
-#line 67 "packet-p7-template.c"
+#line 65 "packet-p7-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
@@ -583,7 +581,7 @@ static gint ett_p7_RTSE_apdus = -1;
 static gint ett_p7_RTABapdu = -1;
 
 /*--- End of included file: packet-p7-ett.c ---*/
-#line 71 "packet-p7-template.c"
+#line 69 "packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-val.h ---*/
@@ -615,7 +613,7 @@ static gint ett_p7_RTABapdu = -1;
 #define err_entry_class_error          34
 
 /*--- End of included file: packet-p7-val.h ---*/
-#line 73 "packet-p7-template.c"
+#line 71 "packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table.c ---*/
@@ -658,7 +656,7 @@ static const value_string p7_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p7-table.c ---*/
-#line 75 "packet-p7-template.c"
+#line 73 "packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-fn.c ---*/
@@ -4060,7 +4058,7 @@ static void dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 77 "packet-p7-template.c"
+#line 75 "packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table11.c ---*/
@@ -4092,7 +4090,7 @@ static const ros_opr_t p7_opr_tab[] = {
 
 
 /*--- End of included file: packet-p7-table11.c ---*/
-#line 79 "packet-p7-template.c"
+#line 77 "packet-p7-template.c"
 
 /*--- Included file: packet-p7-table21.c ---*/
 #line 1 "packet-p7-table21.c"
@@ -4131,7 +4129,7 @@ static const ros_err_t p7_err_tab[] = {
 
 
 /*--- End of included file: packet-p7-table21.c ---*/
-#line 80 "packet-p7-template.c"
+#line 78 "packet-p7-template.c"
 
 static const ros_info_t p7_ros_info = {
   "P7",
@@ -5611,7 +5609,7 @@ void proto_register_p7(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 99 "packet-p7-template.c"
+#line 97 "packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5755,7 +5753,7 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 105 "packet-p7-template.c"
+#line 103 "packet-p7-template.c"
   };
   module_t *p7_module;
 
@@ -5814,7 +5812,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/
-#line 131 "packet-p7-template.c"
+#line 129 "packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 

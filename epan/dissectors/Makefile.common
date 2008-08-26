@@ -45,8 +45,9 @@ GENERATED_C_FILES = \
 # All the generated files.
 GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
-# pidl dissectors
-
+#
+# PIDL-generated DCE RPC dissectors with warnings.
+#
 PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-atsvc.c \
 	packet-dcerpc-budb.c	\
@@ -78,7 +79,15 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-wkssvc.h	\
 	packet-dcerpc-wzcsvc.h
 
-# the dissector sources (without any helpers)
+#
+# asn2wrs-generated ASN.1 dissectors without warnings.
+#
+CLEAN_ASN1_DISSECTOR_SRC = \
+	packet-p7.c
+
+#
+# asn2wrs-generated ASN.1 dissectors with warnings.
+#
 ASN_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
@@ -118,7 +127,6 @@ ASN_DISSECTOR_SRC = \
 	packet-nbap.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
-	packet-p7.c \
 	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pkcs1.c \
@@ -157,6 +165,9 @@ ASN_DISSECTOR_SRC = \
 	packet-x509if.c \
 	packet-x509sat.c 
 
+#
+# Dissectors without warnings.
+#
 CLEAN_DISSECTOR_SRC = \
 	packet-2dparityfec.c 	\
 	packet-3com-njack.c	\
@@ -820,6 +831,9 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ypxfr.c		\
 	packet-zebra.c 
 
+#
+# Dissectors with warnings.
+#
 DISSECTOR_SRC =	\
 	packet-ieee802154.c	\
 	packet-k12.c 		\
@@ -829,7 +843,9 @@ DISSECTOR_SRC =	\
 	packet-sctp.c		\
 	packet-user_encap.c
 
-# corresponding headers
+#
+# Headers for dissectors.
+#
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
 	packet-acn.h	\
@@ -1159,7 +1175,9 @@ noinst_HEADERS =	\
 	$(DISSECTOR_INCLUDES)
 
 ALL_DISSECTORS_SRC = \
-  $(DISSECTOR_SRC) \
-  $(CLEAN_DISSECTOR_SRC) \
-  $(PIDL_DISSECTOR_SRC) \
-  $(ASN_DISSECTOR_SRC)
+	$(DISSECTOR_SRC) \
+	$(CLEAN_DISSECTOR_SRC) \
+	$(PIDL_DISSECTOR_SRC) \
+	$(ASN_DISSECTOR_SRC) \
+	$(CLEAN_ASN_DISSECTOR_SRC)
+

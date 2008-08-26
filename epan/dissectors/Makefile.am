@@ -22,13 +22,10 @@
 
 noinst_LTLIBRARIES = libdissectors.la libcleandissectors.la libasndissectors.la libpidldissectors.la
 
-
-
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 include Makefile.common
-
 
 libasndissectors_la_SOURCES = \
 	$(ASN_DISSECTOR_SRC)
@@ -37,15 +34,16 @@ libpidldissectors_la_SOURCES = \
 	$(PIDL_DISSECTOR_SRC)
 
 libdissectors_la_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(DISSECTOR_SUPPORT_SRC)
+	$(DISSECTOR_SRC)
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
 libcleandissectors_la_SOURCES = \
-	$(CLEAN_DISSECTOR_SRC)
+	$(CLEAN_DISSECTOR_SRC) \
+	$(CLEAN_ASN1_DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC)
 libcleandissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 
