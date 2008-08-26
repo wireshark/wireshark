@@ -46,26 +46,34 @@ GENERATED_C_FILES = \
 GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
 #
-# PIDL-generated DCE RPC dissectors with warnings.
+# PIDL-generated DCE RPC dissectors without warnings.
 #
 PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-atsvc.c \
 	packet-dcerpc-budb.c	\
 	packet-dcerpc-butc.c	\
 	packet-dcerpc-dfs.c \
-	packet-dcerpc-dnsserver.c 	\
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
-	packet-dcerpc-eventlog.c \
 	packet-dcerpc-initshutdown.c \
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-nspi.c \
-	packet-dcerpc-srvsvc.c \
-	packet-dcerpc-winreg.c \
 	packet-dcerpc-wkssvc.c \
 	packet-dcerpc-wzcsvc.c
 
+#
+# PIDL-generated DCE RPC dissectors with warnings.
+#
+DIRTY_PIDL_DISSECTOR_SRC = \
+	packet-dcerpc-dnsserver.c 	\
+	packet-dcerpc-eventlog.c \
+	packet-dcerpc-srvsvc.c \
+	packet-dcerpc-winreg.c
+
+#
+# Headers for PIDL-generated dissectors.
+#
 PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-atsvc.h	\
 	packet-dcerpc-dfs.h	\
@@ -82,16 +90,9 @@ PIDL_DISSECTOR_INCLUDES = \
 #
 # asn2wrs-generated ASN.1 dissectors without warnings.
 #
-CLEAN_ASN1_DISSECTOR_SRC = \
-	packet-p7.c
-
-#
-# asn2wrs-generated ASN.1 dissectors with warnings.
-#
 ASN1_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
-	packet-ansi_map.c \
 	packet-ansi_tcap.c \
 	packet-camel.c \
 	packet-cdt.c \
@@ -105,8 +106,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-dsp.c \
 	packet-ess.c \
 	packet-ftam.c \
-	packet-gnm.c \
-	packet-gsm_map.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -118,17 +117,13 @@ ASN1_DISSECTOR_SRC = \
 	packet-h450-ros.c \
 	packet-h460.c \
 	packet-h501.c \
-	packet-inap.c \
-	packet-ldap.c \
 	packet-logotypecertextn.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
-	packet-nbap.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
-	packet-pcap.c \
-	packet-pkcs12.c \
+	packet-p7.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
 	packet-pkix1explicit.c \
@@ -141,34 +136,47 @@ ASN1_DISSECTOR_SRC = \
 	packet-q932-ros.c \
 	packet-qsig.c \
 	packet-ranap.c \
-	packet-rnsap.c \
 	packet-ros.c \
-	packet-rrc.c \
-	packet-rrlp.c \
 	packet-rtse.c \
-	packet-s1ap.c \
 	packet-s4406.c \
 	packet-sabp.c \
 	packet-smrse.c \
-	packet-snmp.c \
 	packet-spnego.c \
-	packet-t125.c \
-	packet-tcap.c \
 	packet-ulp.c \
 	packet-wlancertextn.c \
-	packet-x2ap.c \
 	packet-x224.c \
+	packet-x509af.c \
+	packet-x509ce.c
+
+#
+# asn2wrs-generated ASN.1 dissectors with warnings.
+#
+DIRTY_ASN1_DISSECTOR_SRC = \
+	packet-ansi_map.c \
+	packet-gnm.c \
+	packet-gsm_map.c \
+	packet-inap.c \
+	packet-ldap.c \
+	packet-nbap.c \
+	packet-pcap.c \
+	packet-pkcs12.c \
+	packet-rnsap.c \
+	packet-rrc.c \
+	packet-rrlp.c \
+	packet-s1ap.c \
+	packet-snmp.c \
+	packet-t125.c \
+	packet-tcap.c \
+	packet-x2ap.c \
 	packet-x411.c \
 	packet-x420.c \
-	packet-x509af.c \
-	packet-x509ce.c \
 	packet-x509if.c \
 	packet-x509sat.c 
 
 #
 # Dissectors without warnings.
 #
-CLEAN_DISSECTOR_SRC = \
+DISSECTOR_SRC = \
 	packet-2dparityfec.c 	\
 	packet-3com-njack.c	\
 	packet-3com-xns.c	\
@@ -479,6 +487,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-icq.c		\
 	packet-idp.c		\
 	packet-ieee80211.c	\
+	packet-ieee802154.c	\
 	packet-ieee8021ah.c	\
 	packet-ieee8023.c	\
 	packet-ieee802a.c	\
@@ -834,8 +843,7 @@ CLEAN_DISSECTOR_SRC = \
 #
 # Dissectors with warnings.
 #
-DISSECTOR_SRC =	\
-	packet-ieee802154.c	\
+DIRTY_DISSECTOR_SRC =	\
 	packet-k12.c 		\
 	packet-nbd.c		\
 	packet-sccp.c		\
@@ -1176,8 +1184,8 @@ noinst_HEADERS =	\
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \
-	$(CLEAN_DISSECTOR_SRC) \
+	$(DIRTY_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
+	$(DIRTY_PIDL_DISSECTOR_SRC) \
 	$(ASN1_DISSECTOR_SRC) \
-	$(CLEAN_ASN1_DISSECTOR_SRC)
-
+	$(DIRTY_ASN1_DISSECTOR_SRC)

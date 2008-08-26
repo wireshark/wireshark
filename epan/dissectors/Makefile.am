@@ -20,31 +20,28 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-noinst_LTLIBRARIES = libdissectors.la libcleandissectors.la libasndissectors.la libpidldissectors.la
+noinst_LTLIBRARIES = libdirtydissectors.la libdissectors.la
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 include Makefile.common
 
-libasndissectors_la_SOURCES = \
-	$(ASN1_DISSECTOR_SRC)
-
-libpidldissectors_la_SOURCES = \
-	$(PIDL_DISSECTOR_SRC)
-
-libdissectors_la_SOURCES = \
-	$(DISSECTOR_SRC)
+libdirtydissectors_la_SOURCES = \
+	$(DIRTY_DISSECTOR_SRC) \
+	$(DIRTY_ASN1_DISSECTOR_SRC) \
+	$(DIRTY_PIDL_DISSECTOR_SRC)
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
-libcleandissectors_la_SOURCES = \
-	$(CLEAN_DISSECTOR_SRC) \
-	$(CLEAN_ASN1_DISSECTOR_SRC) \
+libdissectors_la_SOURCES = \
+	$(DISSECTOR_SRC) \
+	$(ASN1_DISSECTOR_SRC) \
+	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
-libcleandissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
+libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 
 EXTRA_DIST = \
@@ -82,7 +79,7 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# ALL_DISSECTORS_SRC is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -132,15 +129,11 @@ register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissect
 # XXX - We may want to add register-cache.pkl to the distribution at
 # some point.  It should be portable across architectures.
 CLEANFILES = \
-	libcleandissectors.a \
-	libcleandissectors.la \
-	libdissectors.a		\
-	libdissectors.la	\
-	libasndissectors.la \
-	libasndissectors.a \
-	libpidldissectors.la \
-	libpidldissectors.a \
-	register.c-tmp		\
+	libdissectors.a			\
+	libdissectors.la		\
+	libdirtydissectors.a		\
+	libdirtydissectors.la		\
+	register.c-tmp			\
 	register-cache.pkl		\
 	$(GENERATED_HEADER_FILES)	\
 	*~
