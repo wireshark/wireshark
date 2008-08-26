@@ -73,7 +73,6 @@
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>

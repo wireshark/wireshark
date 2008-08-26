@@ -42,7 +42,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* magic num used for heuristic */
 static const guint8 pktgen_magic[] = { 0xbe, 0x9b, 0xe9, 0x55 };

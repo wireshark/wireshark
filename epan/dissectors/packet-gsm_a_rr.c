@@ -49,7 +49,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 
 #include "packet-bssap.h"

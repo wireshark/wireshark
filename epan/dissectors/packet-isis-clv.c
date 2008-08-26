@@ -32,7 +32,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"

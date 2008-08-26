@@ -36,7 +36,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include <epan/prefs.h>

@@ -48,7 +48,6 @@
 #include "packet-wap.h"
 #include "packet-wsp.h"
 /* #include "packet-mmse.h" */		/* We autoregister	*/
-#include <epan/emem.h>
 
 #define	MM_QUOTE		0x7F	/* Quoted string	*/
 

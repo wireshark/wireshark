@@ -72,7 +72,6 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-e212.h"
-#include <epan/emem.h>
 #include "packet-tcp.h"
 
 /* Length field is 2 bytes and comes first */

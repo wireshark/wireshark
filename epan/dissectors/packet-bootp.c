@@ -82,7 +82,6 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
-#include <epan/emem.h>
 #include <epan/sminmpec.h>
 
 static int bootp_dhcp_tap = -1;

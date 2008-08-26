@@ -44,7 +44,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <epan/emem.h>
 #include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
 

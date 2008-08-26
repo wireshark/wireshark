@@ -26,7 +26,6 @@
 #ifndef __PACKET_SMB_H__
 #define __PACKET_SMB_H__
 
-#include <epan/emem.h>
 
 WS_VAR_IMPORT gboolean sid_name_snooping;
 

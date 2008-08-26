@@ -38,7 +38,6 @@ Specs:
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* protocol handles */
 static int proto_tapa = -1;

@@ -42,7 +42,6 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 
 #include "packet-windows-common.h"
 #include "packet-netbios.h"

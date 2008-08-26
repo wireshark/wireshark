@@ -36,7 +36,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* MSDP message types. The messages are TLV (Type-Length-Value) encoded */
 enum { MSDP_SA     = 1,

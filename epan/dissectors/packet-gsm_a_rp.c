@@ -43,7 +43,6 @@
 
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"

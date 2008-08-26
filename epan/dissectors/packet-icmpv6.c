@@ -48,7 +48,6 @@
 #include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 

@@ -50,7 +50,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/ptvcursor.h>
 
 static int proto_omapi = -1;

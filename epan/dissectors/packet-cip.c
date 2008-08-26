@@ -43,7 +43,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"
 

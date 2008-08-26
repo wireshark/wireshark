@@ -44,7 +44,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"

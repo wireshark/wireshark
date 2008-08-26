@@ -43,7 +43,6 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "strutil.h"
-#include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>

@@ -40,7 +40,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 /* Forward declaration */
 void proto_reg_handoff_cigi(void);

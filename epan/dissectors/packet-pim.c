@@ -32,7 +32,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/ipproto.h>
 #include <epan/afn.h>
 #include "packet-ipv6.h"

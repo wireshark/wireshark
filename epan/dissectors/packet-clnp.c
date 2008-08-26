@@ -34,7 +34,6 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/emem.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"

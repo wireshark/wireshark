@@ -35,7 +35,6 @@
 
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include "packet-gnutella.h"
 #include "packet-tcp.h"
 

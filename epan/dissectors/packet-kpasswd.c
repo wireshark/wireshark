@@ -30,7 +30,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 #include "packet-tcp.h"
 #include "packet-kerberos.h"

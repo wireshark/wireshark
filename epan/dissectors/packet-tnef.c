@@ -38,7 +38,6 @@
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nspi.h"

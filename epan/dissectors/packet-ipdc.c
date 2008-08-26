@@ -38,7 +38,6 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include "packet-ipdc.h"
 #include "packet-tcp.h"
 #include <epan/ipproto.h>
