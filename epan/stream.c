@@ -34,7 +34,6 @@
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/tvbuff.h>
-#include "emem.h"
 
 /* number of streams to allocate memory for at once */
 #define MEMCHUNK_STREAM_COUNT 20

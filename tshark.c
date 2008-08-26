@@ -96,7 +96,6 @@
 #endif /* _WIN32 */
 #include "capture_sync.h"
 #endif /* HAVE_LIBPCAP */
-#include "epan/emem.h"
 #include "log.h"
 #include <epan/funnel.h>
 

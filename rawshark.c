@@ -114,7 +114,6 @@
 #include "capture_errs.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-#include "epan/emem.h"
 #include "log.h"
 
 /*

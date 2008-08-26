@@ -77,7 +77,6 @@
 #include <wsutil/file_util.h>
 #include <epan/column-utils.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
