@@ -81,7 +81,6 @@
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/oids.h>
 #include <plugins/asn1/asn1.h>

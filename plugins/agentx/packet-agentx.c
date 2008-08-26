@@ -38,7 +38,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 #include <epan/dissectors/packet-tcp.h>
 
