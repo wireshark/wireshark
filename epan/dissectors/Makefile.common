@@ -88,7 +88,7 @@ CLEAN_ASN1_DISSECTOR_SRC = \
 #
 # asn2wrs-generated ASN.1 dissectors with warnings.
 #
-ASN_DISSECTOR_SRC = \
+ASN1_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
 	packet-ansi_map.c \
@@ -1178,6 +1178,6 @@ ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \
 	$(CLEAN_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
-	$(ASN_DISSECTOR_SRC) \
-	$(CLEAN_ASN_DISSECTOR_SRC)
+	$(ASN1_DISSECTOR_SRC) \
+	$(CLEAN_ASN1_DISSECTOR_SRC)
 

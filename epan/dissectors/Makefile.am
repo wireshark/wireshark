@@ -28,7 +28,7 @@ INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. \
 include Makefile.common
 
 libasndissectors_la_SOURCES = \
-	$(ASN_DISSECTOR_SRC)
+	$(ASN1_DISSECTOR_SRC)
 
 libpidldissectors_la_SOURCES = \
 	$(PIDL_DISSECTOR_SRC)
