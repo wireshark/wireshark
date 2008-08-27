@@ -167,7 +167,7 @@ void
 proto_reg_handoff_tcpencap(void)
 {
 	static dissector_handle_t tcpencap_handle;
-	static initialized = FALSE;
+	static gboolean initialized = FALSE;
 	static guint tcpencap_tcp_port;
 
 	if (!initialized) {
