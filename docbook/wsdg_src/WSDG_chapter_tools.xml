@@ -1545,12 +1545,13 @@ written by Larry Wall and Paul Eggert]]>
     available as a Cygwin package), you can get it at:
     <ulink url="http://www.gnu.org/software/wget/wget.html" />.</para>
     <para>If wget is trying to download files but fails to do so,
-    your Internet connection might use a HTTP proxy. Some Internet
-    providers use such a proxy and it is common for company
-    networks today. In this case, you must set the environment
-    variable HTTP_PROXY before using wget. For example, if you are
-    behind proxy.com which is listening on port 8080, you have to
-    set it to something like:</para>
+    your Internet connection might use an HTTP proxy. Some Internet
+    providers use such a proxy and it is common in many company
+    networks today. Wireshark's setup script will try to discover
+    your proxy settings automatically, but you you may need to set
+    the environment variable HTTP_PROXY by hand before using wget.
+    For example, if you are behind proxy.com which is listening on
+    port 8080, you have to set it to something like:</para>
     <para>
       <programlisting>set
       HTTP_PROXY=http://proxy.com:8080/</programlisting>

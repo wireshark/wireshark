@@ -349,8 +349,8 @@
         </listitem>
         <listitem>
           <para>If the download fails you may be behind a
-          restrictive firewall, see the wget manual for ways to use
-          a proxy</para>
+          restrictive firewall, see the proxy comment in
+          <xref linkend="ChToolsWget"/>.</para>
         </listitem>
       </orderedlist>
     </section>
