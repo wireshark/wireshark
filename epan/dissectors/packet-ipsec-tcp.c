@@ -166,12 +166,20 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_tcpencap(void)
 {
-	dissector_handle_t tcpencap_handle;
+	static dissector_handle_t tcpencap_handle;
+	static initialized = FALSE;
+	static guint tcpencap_tcp_port;
 
-	esp_handle = find_dissector("esp");
-	udp_handle = find_dissector("udp");
+	if (!initialized) {
+		tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+		esp_handle = find_dissector("esp");
+		udp_handle = find_dissector("udp");
+		initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", tcpencap_tcp_port, tcpencap_handle);
+	}
 
-	tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+	tcpencap_tcp_port = global_tcpencap_tcp_port;
 	dissector_add("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
 }
 
