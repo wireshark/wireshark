@@ -30,12 +30,12 @@ void
 time_stat_init(timestat_t *stats)
 {
 	stats->num = 0;
-	stats->min.secs = 0;
-	stats->min.nsecs = 0;
-	stats->max.secs = 0;
-	stats->max.nsecs = 0;
-	stats->tot.secs = 0;
-	stats->tot.nsecs = 0;
+	stats->min_num = 0;
+	stats->max_num = 0;
+	nstime_set_zero(&stats->min);
+	nstime_set_zero(&stats->max);
+	nstime_set_zero(&stats->tot);
+	stats->variance = 0.0;
 }
 
 /* Update a timestat_t struct with a new sample */
