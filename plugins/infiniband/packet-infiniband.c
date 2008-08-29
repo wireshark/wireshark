@@ -28,7 +28,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/proto.h>
 #include <string.h>
 #include <epan/dissectors/packet-frame.h>

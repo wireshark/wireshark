@@ -33,7 +33,6 @@
 #include <glib.h>
 #include <gmodule.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/conversation.h>
 
 /* Number of entries in the memeory chunk array (for conversation)*/

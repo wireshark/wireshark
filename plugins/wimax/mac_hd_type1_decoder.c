@@ -45,7 +45,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 extern gint proto_mac_header_generic_decoder;
 

@@ -35,7 +35,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 extern gint proto_wimax;
 

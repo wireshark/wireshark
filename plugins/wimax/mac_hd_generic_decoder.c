@@ -46,7 +46,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/address.h>
 #include <epan/reassemble.h>
 #include "crc.h"

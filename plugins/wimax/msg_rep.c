@@ -39,7 +39,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
