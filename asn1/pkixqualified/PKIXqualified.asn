@@ -215,6 +215,10 @@ Printablestring ::= PrintableString
 --       qcStatement-1 |
 --       qcStatement-2 , ... }
 
+-- RFC 3920 added
+
+   XmppAddr ::= UTF8String
+
    END
 
 

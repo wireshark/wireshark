@@ -64,6 +64,7 @@ static int hf_pkixqualified_Printablestring_PDU = -1;  /* Printablestring */
 static int hf_pkixqualified_BiometricSyntax_PDU = -1;  /* BiometricSyntax */
 static int hf_pkixqualified_QCStatements_PDU = -1;  /* QCStatements */
 static int hf_pkixqualified_SemanticsInformation_PDU = -1;  /* SemanticsInformation */
+static int hf_pkixqualified_XmppAddr_PDU = -1;    /* XmppAddr */
 static int hf_pkixqualified_BiometricSyntax_item = -1;  /* BiometricData */
 static int hf_pkixqualified_typeOfBiometricData = -1;  /* TypeOfBiometricData */
 static int hf_pkixqualified_hashAlgorithm = -1;   /* AlgorithmIdentifier */
@@ -141,7 +142,7 @@ static const value_string pkixqualified_PredefinedBiometricType_vals[] = {
 static int
 dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -241,7 +242,7 @@ dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "pkixqualified.cnf"
+#line 34 "pkixqualified.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -305,6 +306,17 @@ dissect_pkixqualified_SemanticsInformation(gboolean implicit_tag _U_, tvbuff_t *
   return offset;
 }
 
+
+
+static int
+dissect_pkixqualified_XmppAddr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_Generalizedtime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -336,6 +348,11 @@ static void dissect_SemanticsInformation_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkixqualified_SemanticsInformation(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixqualified_SemanticsInformation_PDU);
+}
+static void dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkixqualified_XmppAddr(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkixqualified_XmppAddr_PDU);
 }
 
 
@@ -375,6 +392,10 @@ void proto_register_pkixqualified(void) {
       { "SemanticsInformation", "pkixqualified.SemanticsInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkixqualified.SemanticsInformation", HFILL }},
+    { &hf_pkixqualified_XmppAddr_PDU,
+      { "XmppAddr", "pkixqualified.XmppAddr",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "pkixqualified.XmppAddr", HFILL }},
     { &hf_pkixqualified_BiometricSyntax_item,
       { "Item", "pkixqualified.BiometricSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -468,6 +489,7 @@ void proto_reg_handoff_pkixqualified(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.3", dissect_QCStatements_PDU, proto_pkixqualified, "id-pe-qcStatements");
   register_ber_oid_dissector("1.3.6.1.5.5.7.11.1", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v1");
   register_ber_oid_dissector("1.3.6.1.5.5.7.11.2", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v2");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.8.5", dissect_XmppAddr_PDU, proto_pkixqualified, "id-on-xmppAddr");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.1", dissect_Generalizedtime_PDU, proto_pkixqualified, "id-pda-dateOfBirth");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.2", dissect_Directorystring_PDU, proto_pkixqualified, "id-pda-placeOfBirth");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-gender");
