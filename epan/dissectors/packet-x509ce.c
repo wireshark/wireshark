@@ -87,6 +87,10 @@ static int hf_x509ce_DeltaInformation_PDU = -1;   /* DeltaInformation */
 static int hf_x509ce_CRLDistPointsSyntax_PDU = -1;  /* CRLDistPointsSyntax */
 static int hf_x509ce_IssuingDistPointSyntax_PDU = -1;  /* IssuingDistPointSyntax */
 static int hf_x509ce_BaseCRLNumber_PDU = -1;      /* BaseCRLNumber */
+static int hf_x509ce_ToBeRevokedSyntax_PDU = -1;  /* ToBeRevokedSyntax */
+static int hf_x509ce_RevokedGroupsSyntax_PDU = -1;  /* RevokedGroupsSyntax */
+static int hf_x509ce_ExpiredCertsOnCRL_PDU = -1;  /* ExpiredCertsOnCRL */
+static int hf_x509ce_AAIssuingDistPointSyntax_PDU = -1;  /* AAIssuingDistPointSyntax */
 static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
@@ -98,8 +102,8 @@ static int hf_x509ce_CertificatePoliciesSyntax_item = -1;  /* PolicyInformation 
 static int hf_x509ce_policyIdentifier = -1;       /* CertPolicyId */
 static int hf_x509ce_policyQualifiers = -1;       /* SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo */
 static int hf_x509ce_policyQualifiers_item = -1;  /* PolicyQualifierInfo */
-static int hf_x509ce_policyQualifierId = -1;      /* PolicyQualifierId */
-static int hf_x509ce_qualifier = -1;              /* PolicyQualifierValue */
+static int hf_x509ce_policyQualifierId = -1;      /* T_policyQualifierId */
+static int hf_x509ce_qualifier = -1;              /* T_qualifier */
 static int hf_x509ce_PolicyMappingsSyntax_item = -1;  /* PolicyMappingsSyntax_item */
 static int hf_x509ce_issuerDomainPolicy = -1;     /* CertPolicyId */
 static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
@@ -119,7 +123,7 @@ static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
 static int hf_x509ce_partyName = -1;              /* DirectoryString */
 static int hf_x509ce_AttributesSyntax_item = -1;  /* Attribute */
 static int hf_x509ce_cA = -1;                     /* BOOLEAN */
-static int hf_x509ce_pathLenConstraint = -1;      /* INTEGER */
+static int hf_x509ce_pathLenConstraint = -1;      /* INTEGER_0_MAX */
 static int hf_x509ce_permittedSubtrees = -1;      /* GeneralSubtrees */
 static int hf_x509ce_excludedSubtrees = -1;       /* GeneralSubtrees */
 static int hf_x509ce_GeneralSubtrees_item = -1;   /* GeneralSubtree */
@@ -159,9 +163,23 @@ static int hf_x509ce_reasons = -1;                /* ReasonFlags */
 static int hf_x509ce_cRLIssuer = -1;              /* GeneralNames */
 static int hf_x509ce_fullName = -1;               /* GeneralNames */
 static int hf_x509ce_nameRelativeToCRLIssuer = -1;  /* RelativeDistinguishedName */
-static int hf_x509ce_containsUserPublicKeyCerts = -1;  /* BOOLEAN */
-static int hf_x509ce_containsCACerts = -1;        /* BOOLEAN */
+static int hf_x509ce_onlyContainsUserPublicKeyCerts = -1;  /* BOOLEAN */
+static int hf_x509ce_onlyContainsCACerts = -1;    /* BOOLEAN */
 static int hf_x509ce_indirectCRL = -1;            /* BOOLEAN */
+static int hf_x509ce_ToBeRevokedSyntax_item = -1;  /* ToBeRevokedGroup */
+static int hf_x509ce_certificateIssuer = -1;      /* GeneralName */
+static int hf_x509ce_reasonInfo = -1;             /* ReasonInfo */
+static int hf_x509ce_revocationTime = -1;         /* GeneralizedTime */
+static int hf_x509ce_certificateGroup = -1;       /* CertificateGroup */
+static int hf_x509ce_reasonCode = -1;             /* CRLReason */
+static int hf_x509ce_holdInstructionCode = -1;    /* HoldInstruction */
+static int hf_x509ce_serialNumbers = -1;          /* CertificateSerialNumbers */
+static int hf_x509ce_serialNumberRange_01 = -1;   /* CertificateGroupNumberRange */
+static int hf_x509ce_nameSubtree = -1;            /* GeneralName */
+static int hf_x509ce_CertificateSerialNumbers_item = -1;  /* CertificateSerialNumber */
+static int hf_x509ce_RevokedGroupsSyntax_item = -1;  /* RevokedGroup */
+static int hf_x509ce_invalidityDate = -1;         /* GeneralizedTime */
+static int hf_x509ce_revokedcertificateGroup = -1;  /* RevokedCertificateGroup */
 static int hf_x509ce_containsUserAttributeCerts = -1;  /* BOOLEAN */
 static int hf_x509ce_containsAACerts = -1;        /* BOOLEAN */
 static int hf_x509ce_containsSOAPublicKeyCerts = -1;  /* BOOLEAN */
@@ -169,6 +187,7 @@ static int hf_x509ce_serialNumber = -1;           /* CertificateSerialNumber */
 static int hf_x509ce_issuer = -1;                 /* Name */
 static int hf_x509ce_subjectKeyIdentifier = -1;   /* SubjectKeyIdentifier */
 static int hf_x509ce_authorityKeyIdentifier = -1;  /* AuthorityKeyIdentifier */
+static int hf_x509ce_certificateValid = -1;       /* Time */
 static int hf_x509ce_privateKeyValid = -1;        /* GeneralizedTime */
 static int hf_x509ce_subjectPublicKeyAlgID = -1;  /* OBJECT_IDENTIFIER */
 static int hf_x509ce_keyUsage = -1;               /* KeyUsage */
@@ -184,17 +203,23 @@ static int hf_x509ce_cpea_issuedToThisCAAssertion = -1;  /* CertificateExactAsse
 static int hf_x509ce_cpea_issuedByThisCAAssertion = -1;  /* CertificateExactAssertion */
 static int hf_x509ce_issuedToThisCAAssertion = -1;  /* CertificateAssertion */
 static int hf_x509ce_issuedByThisCAAssertion = -1;  /* CertificateAssertion */
+static int hf_x509ce_thisUpdate = -1;             /* Time */
 static int hf_x509ce_minCRLNumber = -1;           /* CRLNumber */
 static int hf_x509ce_maxCRLNumber = -1;           /* CRLNumber */
 static int hf_x509ce_reasonFlags = -1;            /* ReasonFlags */
+static int hf_x509ce_dateAndTime = -1;            /* Time */
 static int hf_x509ce_firstIssuer = -1;            /* Name */
 static int hf_x509ce_lastSubject = -1;            /* Name */
+static int hf_x509ce_subjectAltName_01 = -1;      /* AltName */
+static int hf_x509ce_pathToName_01 = -1;          /* GeneralNames */
+static int hf_x509ce_altnameType = -1;            /* AltNameType */
+static int hf_x509ce_altNameValue = -1;           /* GeneralName */
 static int hf_x509ce_templateID = -1;             /* OBJECT_IDENTIFIER */
 static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
 static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
 /* named bits */
 static int hf_x509ce_KeyUsage_digitalSignature = -1;
-static int hf_x509ce_KeyUsage_nonRepudiation = -1;
+static int hf_x509ce_KeyUsage_contentCommitment = -1;
 static int hf_x509ce_KeyUsage_keyEncipherment = -1;
 static int hf_x509ce_KeyUsage_dataEncipherment = -1;
 static int hf_x509ce_KeyUsage_keyAgreement = -1;
@@ -202,11 +227,9 @@ static int hf_x509ce_KeyUsage_keyCertSign = -1;
 static int hf_x509ce_KeyUsage_cRLSign = -1;
 static int hf_x509ce_KeyUsage_encipherOnly = -1;
 static int hf_x509ce_KeyUsage_decipherOnly = -1;
-static int hf_x509ce_OnlyCertificateTypes_userPublicKey = -1;
-static int hf_x509ce_OnlyCertificateTypes_cA = -1;
-static int hf_x509ce_OnlyCertificateTypes_userAttribute = -1;
-static int hf_x509ce_OnlyCertificateTypes_aA = -1;
-static int hf_x509ce_OnlyCertificateTypes_sOAPublicKey = -1;
+static int hf_x509ce_OnlyCertificateTypes_user = -1;
+static int hf_x509ce_OnlyCertificateTypes_authority = -1;
+static int hf_x509ce_OnlyCertificateTypes_attribute = -1;
 static int hf_x509ce_ReasonFlags_unused = -1;
 static int hf_x509ce_ReasonFlags_keyCompromise = -1;
 static int hf_x509ce_ReasonFlags_cACompromise = -1;
@@ -259,6 +282,16 @@ static gint ett_x509ce_DistributionPoint = -1;
 static gint ett_x509ce_DistributionPointName = -1;
 static gint ett_x509ce_ReasonFlags = -1;
 static gint ett_x509ce_IssuingDistPointSyntax = -1;
+static gint ett_x509ce_ToBeRevokedSyntax = -1;
+static gint ett_x509ce_ToBeRevokedGroup = -1;
+static gint ett_x509ce_ReasonInfo = -1;
+static gint ett_x509ce_CertificateGroup = -1;
+static gint ett_x509ce_CertificateGroupNumberRange = -1;
+static gint ett_x509ce_CertificateSerialNumbers = -1;
+static gint ett_x509ce_RevokedGroupsSyntax = -1;
+static gint ett_x509ce_RevokedGroup = -1;
+static gint ett_x509ce_RevokedCertificateGroup = -1;
+static gint ett_x509ce_AAIssuingDistPointSyntax = -1;
 static gint ett_x509ce_CertificateExactAssertion = -1;
 static gint ett_x509ce_CertificateAssertion = -1;
 static gint ett_x509ce_AltNameType = -1;
@@ -268,6 +301,8 @@ static gint ett_x509ce_CertificatePairAssertion = -1;
 static gint ett_x509ce_CertificateListExactAssertion = -1;
 static gint ett_x509ce_CertificateListAssertion = -1;
 static gint ett_x509ce_PkiPathMatchSyntax = -1;
+static gint ett_x509ce_EnhancedCertificateAssertion = -1;
+static gint ett_x509ce_AltName = -1;
 static gint ett_x509ce_CertificateTemplate = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
@@ -301,7 +336,7 @@ dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 124 "x509ce.cnf"
+#line 161 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -358,7 +393,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 127 "x509ce.cnf"
+#line 164 "x509ce.cnf"
   
 	PROTO_ITEM_SET_URL(actx->created_item);
 
@@ -370,7 +405,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "x509ce.cnf"
+#line 154 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -465,7 +500,7 @@ dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static const asn_namedbit KeyUsage_bits[] = {
   {  0, &hf_x509ce_KeyUsage_digitalSignature, -1, -1, "digitalSignature", NULL },
-  {  1, &hf_x509ce_KeyUsage_nonRepudiation, -1, -1, "nonRepudiation", NULL },
+  {  1, &hf_x509ce_KeyUsage_contentCommitment, -1, -1, "contentCommitment", NULL },
   {  2, &hf_x509ce_KeyUsage_keyEncipherment, -1, -1, "keyEncipherment", NULL },
   {  3, &hf_x509ce_KeyUsage_dataEncipherment, -1, -1, "dataEncipherment", NULL },
   {  4, &hf_x509ce_KeyUsage_keyAgreement, -1, -1, "keyAgreement", NULL },
@@ -543,7 +578,7 @@ dissect_x509ce_CertPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_x509ce_PolicyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x509ce_T_policyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509ce_object_identifier_id, &object_identifier_id);
 
   return offset;
@@ -552,8 +587,8 @@ dissect_x509ce_PolicyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
-dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 114 "x509ce.cnf"
+dissect_x509ce_T_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 151 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -563,8 +598,8 @@ dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t PolicyQualifierInfo_sequence[] = {
-  { &hf_x509ce_policyQualifierId, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509ce_PolicyQualifierId },
-  { &hf_x509ce_qualifier    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_PolicyQualifierValue },
+  { &hf_x509ce_policyQualifierId, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509ce_T_policyQualifierId },
+  { &hf_x509ce_qualifier    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_T_qualifier },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -670,9 +705,9 @@ dissect_x509ce_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x509ce_INTEGER_0_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -680,7 +715,7 @@ dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static const ber_sequence_t BasicConstraintsSyntax_sequence[] = {
   { &hf_x509ce_cA           , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_BOOLEAN },
-  { &hf_x509ce_pathLenConstraint, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER },
+  { &hf_x509ce_pathLenConstraint, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER_0_MAX },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -697,7 +732,7 @@ dissect_x509ce_BasicConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int
 dissect_x509ce_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -751,7 +786,7 @@ dissect_x509ce_NameConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 int
 dissect_x509ce_SkipCerts(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -776,7 +811,7 @@ dissect_x509ce_PolicyConstraintsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb 
 int
 dissect_x509ce_CRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -838,11 +873,9 @@ dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const asn_namedbit OnlyCertificateTypes_bits[] = {
-  {  0, &hf_x509ce_OnlyCertificateTypes_userPublicKey, -1, -1, "userPublicKey", NULL },
-  {  1, &hf_x509ce_OnlyCertificateTypes_cA, -1, -1, "cA", NULL },
-  {  2, &hf_x509ce_OnlyCertificateTypes_userAttribute, -1, -1, "userAttribute", NULL },
-  {  3, &hf_x509ce_OnlyCertificateTypes_aA, -1, -1, "aA", NULL },
-  {  4, &hf_x509ce_OnlyCertificateTypes_sOAPublicKey, -1, -1, "sOAPublicKey", NULL },
+  {  0, &hf_x509ce_OnlyCertificateTypes_user, -1, -1, "user", NULL },
+  {  1, &hf_x509ce_OnlyCertificateTypes_authority, -1, -1, "authority", NULL },
+  {  2, &hf_x509ce_OnlyCertificateTypes_attribute, -1, -1, "attribute", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -879,6 +912,16 @@ dissect_x509ce_ReasonFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
+
+static int
+dissect_x509ce_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t NumberRange_sequence[] = {
   { &hf_x509ce_startingNumber, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_INTEGER },
   { &hf_x509ce_endingNumber , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_INTEGER },
@@ -899,7 +942,7 @@ dissect_x509ce_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 int
 dissect_x509ce_CRLStreamIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1084,13 +1127,10 @@ dissect_x509ce_CRLDistPointsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static const ber_sequence_t IssuingDistPointSyntax_sequence[] = {
   { &hf_x509ce_distributionPoint, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_DistributionPointName },
-  { &hf_x509ce_containsUserPublicKeyCerts, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
-  { &hf_x509ce_containsCACerts, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { &hf_x509ce_onlyContainsUserPublicKeyCerts, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { &hf_x509ce_onlyContainsCACerts, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
   { &hf_x509ce_onlySomeReasons, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_ReasonFlags },
   { &hf_x509ce_indirectCRL  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
-  { &hf_x509ce_containsUserAttributeCerts, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
-  { &hf_x509ce_containsAACerts, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
-  { &hf_x509ce_containsSOAPublicKeyCerts, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1107,6 +1147,183 @@ dissect_x509ce_IssuingDistPointSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int
 dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_x509ce_CRLNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ReasonInfo_sequence[] = {
+  { &hf_x509ce_reasonCode   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_x509ce_CRLReason },
+  { &hf_x509ce_holdInstructionCode, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_HoldInstruction },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_ReasonInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReasonInfo_sequence, hf_index, ett_x509ce_ReasonInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CertificateSerialNumbers_sequence_of[1] = {
+  { &hf_x509ce_CertificateSerialNumbers_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509af_CertificateSerialNumber },
+};
+
+static int
+dissect_x509ce_CertificateSerialNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CertificateSerialNumbers_sequence_of, hf_index, ett_x509ce_CertificateSerialNumbers);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CertificateGroupNumberRange_sequence[] = {
+  { &hf_x509ce_startingNumber, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x509ce_INTEGER },
+  { &hf_x509ce_endingNumber , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x509ce_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_CertificateGroupNumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CertificateGroupNumberRange_sequence, hf_index, ett_x509ce_CertificateGroupNumberRange);
+
+  return offset;
+}
+
+
+static const value_string x509ce_CertificateGroup_vals[] = {
+  {   0, "serialNumbers" },
+  {   1, "serialNumberRange" },
+  {   2, "nameSubtree" },
+  { 0, NULL }
+};
+
+static const ber_choice_t CertificateGroup_choice[] = {
+  {   0, &hf_x509ce_serialNumbers, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x509ce_CertificateSerialNumbers },
+  {   1, &hf_x509ce_serialNumberRange_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x509ce_CertificateGroupNumberRange },
+  {   2, &hf_x509ce_nameSubtree  , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_x509ce_GeneralName },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_CertificateGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CertificateGroup_choice, hf_index, ett_x509ce_CertificateGroup,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ToBeRevokedGroup_sequence[] = {
+  { &hf_x509ce_certificateIssuer, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_GeneralName },
+  { &hf_x509ce_reasonInfo   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_ReasonInfo },
+  { &hf_x509ce_revocationTime, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralizedTime },
+  { &hf_x509ce_certificateGroup, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_CertificateGroup },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_ToBeRevokedGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ToBeRevokedGroup_sequence, hf_index, ett_x509ce_ToBeRevokedGroup);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ToBeRevokedSyntax_sequence_of[1] = {
+  { &hf_x509ce_ToBeRevokedSyntax_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509ce_ToBeRevokedGroup },
+};
+
+static int
+dissect_x509ce_ToBeRevokedSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ToBeRevokedSyntax_sequence_of, hf_index, ett_x509ce_ToBeRevokedSyntax);
+
+  return offset;
+}
+
+
+static const value_string x509ce_RevokedCertificateGroup_vals[] = {
+  {   0, "serialNumberRange" },
+  {   1, "nameSubtree" },
+  { 0, NULL }
+};
+
+static const ber_choice_t RevokedCertificateGroup_choice[] = {
+  {   0, &hf_x509ce_serialNumberRange, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509ce_NumberRange },
+  {   1, &hf_x509ce_nameSubtree  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_RevokedCertificateGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RevokedCertificateGroup_choice, hf_index, ett_x509ce_RevokedCertificateGroup,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RevokedGroup_sequence[] = {
+  { &hf_x509ce_certificateIssuer, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_GeneralName },
+  { &hf_x509ce_reasonInfo   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_ReasonInfo },
+  { &hf_x509ce_invalidityDate, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_GeneralizedTime },
+  { &hf_x509ce_revokedcertificateGroup, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_RevokedCertificateGroup },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_RevokedGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RevokedGroup_sequence, hf_index, ett_x509ce_RevokedGroup);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RevokedGroupsSyntax_sequence_of[1] = {
+  { &hf_x509ce_RevokedGroupsSyntax_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509ce_RevokedGroup },
+};
+
+static int
+dissect_x509ce_RevokedGroupsSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      RevokedGroupsSyntax_sequence_of, hf_index, ett_x509ce_RevokedGroupsSyntax);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509ce_ExpiredCertsOnCRL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AAIssuingDistPointSyntax_sequence[] = {
+  { &hf_x509ce_distributionPoint, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_DistributionPointName },
+  { &hf_x509ce_onlySomeReasons, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_ReasonFlags },
+  { &hf_x509ce_indirectCRL  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { &hf_x509ce_containsUserAttributeCerts, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { &hf_x509ce_containsAACerts, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { &hf_x509ce_containsSOAPublicKeyCerts, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_AAIssuingDistPointSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AAIssuingDistPointSyntax_sequence, hf_index, ett_x509ce_AAIssuingDistPointSyntax);
 
   return offset;
 }
@@ -1189,6 +1406,7 @@ static const ber_sequence_t CertificateAssertion_sequence[] = {
   { &hf_x509ce_issuer       , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509if_Name },
   { &hf_x509ce_subjectKeyIdentifier, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_SubjectKeyIdentifier },
   { &hf_x509ce_authorityKeyIdentifier, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_AuthorityKeyIdentifier },
+  { &hf_x509ce_certificateValid, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509af_Time },
   { &hf_x509ce_privateKeyValid, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_GeneralizedTime },
   { &hf_x509ce_subjectPublicKeyAlgID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_OBJECT_IDENTIFIER },
   { &hf_x509ce_keyUsage     , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_KeyUsage },
@@ -1241,6 +1459,7 @@ dissect_x509ce_CertificatePairAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static const ber_sequence_t CertificateListExactAssertion_sequence[] = {
   { &hf_x509ce_issuer       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509if_Name },
+  { &hf_x509ce_thisUpdate   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509af_Time },
   { &hf_x509ce_distributionPoint, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_DistributionPointName },
   { NULL, 0, 0, 0, NULL }
 };
@@ -1259,6 +1478,7 @@ static const ber_sequence_t CertificateListAssertion_sequence[] = {
   { &hf_x509ce_minCRLNumber , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CRLNumber },
   { &hf_x509ce_maxCRLNumber , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CRLNumber },
   { &hf_x509ce_reasonFlags  , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_ReasonFlags },
+  { &hf_x509ce_dateAndTime  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509af_Time },
   { &hf_x509ce_distributionPoint, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_DistributionPointName },
   { &hf_x509ce_authorityKeyIdentifier, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_AuthorityKeyIdentifier },
   { NULL, 0, 0, 0, NULL }
@@ -1283,6 +1503,47 @@ int
 dissect_x509ce_PkiPathMatchSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PkiPathMatchSyntax_sequence, hf_index, ett_x509ce_PkiPathMatchSyntax);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AltName_sequence[] = {
+  { &hf_x509ce_altnameType  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_AltNameType },
+  { &hf_x509ce_altNameValue , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509ce_GeneralName },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_AltName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AltName_sequence, hf_index, ett_x509ce_AltName);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EnhancedCertificateAssertion_sequence[] = {
+  { &hf_x509ce_serialNumber , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509af_CertificateSerialNumber },
+  { &hf_x509ce_issuer       , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509if_Name },
+  { &hf_x509ce_subjectKeyIdentifier, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_SubjectKeyIdentifier },
+  { &hf_x509ce_authorityKeyIdentifier, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_AuthorityKeyIdentifier },
+  { &hf_x509ce_certificateValid, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509af_Time },
+  { &hf_x509ce_privateKeyValid, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_GeneralizedTime },
+  { &hf_x509ce_subjectPublicKeyAlgID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_OBJECT_IDENTIFIER },
+  { &hf_x509ce_keyUsage     , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_KeyUsage },
+  { &hf_x509ce_subjectAltName_01, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_AltName },
+  { &hf_x509ce_policy       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CertPolicySet },
+  { &hf_x509ce_pathToName_01, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_GeneralNames },
+  { &hf_x509ce_subject      , BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509if_Name },
+  { &hf_x509ce_nameConstraints, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_NameConstraintsSyntax },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_EnhancedCertificateAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EnhancedCertificateAssertion_sequence, hf_index, ett_x509ce_EnhancedCertificateAssertion);
 
   return offset;
 }
@@ -1424,6 +1685,26 @@ static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509ce_BaseCRLNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_BaseCRLNumber_PDU);
+}
+static void dissect_ToBeRevokedSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_ToBeRevokedSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_ToBeRevokedSyntax_PDU);
+}
+static void dissect_RevokedGroupsSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_RevokedGroupsSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_RevokedGroupsSyntax_PDU);
+}
+static void dissect_ExpiredCertsOnCRL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_ExpiredCertsOnCRL(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_ExpiredCertsOnCRL_PDU);
+}
+static void dissect_AAIssuingDistPointSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_AAIssuingDistPointSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_AAIssuingDistPointSyntax_PDU);
 }
 static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1572,6 +1853,22 @@ void proto_register_x509ce(void) {
       { "BaseCRLNumber", "x509ce.BaseCRLNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.BaseCRLNumber", HFILL }},
+    { &hf_x509ce_ToBeRevokedSyntax_PDU,
+      { "ToBeRevokedSyntax", "x509ce.ToBeRevokedSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509ce.ToBeRevokedSyntax", HFILL }},
+    { &hf_x509ce_RevokedGroupsSyntax_PDU,
+      { "RevokedGroupsSyntax", "x509ce.RevokedGroupsSyntax",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509ce.RevokedGroupsSyntax", HFILL }},
+    { &hf_x509ce_ExpiredCertsOnCRL_PDU,
+      { "ExpiredCertsOnCRL", "x509ce.ExpiredCertsOnCRL",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "x509ce.ExpiredCertsOnCRL", HFILL }},
+    { &hf_x509ce_AAIssuingDistPointSyntax_PDU,
+      { "AAIssuingDistPointSyntax", "x509ce.AAIssuingDistPointSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.AAIssuingDistPointSyntax", HFILL }},
     { &hf_x509ce_CertificateTemplate_PDU,
       { "CertificateTemplate", "x509ce.CertificateTemplate",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1619,11 +1916,11 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_policyQualifierId,
       { "policyQualifierId", "x509ce.policyQualifierId",
         FT_OID, BASE_NONE, NULL, 0,
-        "x509ce.PolicyQualifierId", HFILL }},
+        "x509ce.T_policyQualifierId", HFILL }},
     { &hf_x509ce_qualifier,
       { "qualifier", "x509ce.qualifier",
         FT_NONE, BASE_NONE, NULL, 0,
-        "x509ce.PolicyQualifierValue", HFILL }},
+        "x509ce.T_qualifier", HFILL }},
     { &hf_x509ce_PolicyMappingsSyntax_item,
       { "Item", "x509ce.PolicyMappingsSyntax_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1702,8 +1999,8 @@ void proto_register_x509ce(void) {
         "x509ce.BOOLEAN", HFILL }},
     { &hf_x509ce_pathLenConstraint,
       { "pathLenConstraint", "x509ce.pathLenConstraint",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "x509ce.INTEGER", HFILL }},
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509ce.INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_permittedSubtrees,
       { "permittedSubtrees", "x509ce.permittedSubtrees",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1860,18 +2157,74 @@ void proto_register_x509ce(void) {
       { "nameRelativeToCRLIssuer", "x509ce.nameRelativeToCRLIssuer",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509if.RelativeDistinguishedName", HFILL }},
-    { &hf_x509ce_containsUserPublicKeyCerts,
-      { "containsUserPublicKeyCerts", "x509ce.containsUserPublicKeyCerts",
+    { &hf_x509ce_onlyContainsUserPublicKeyCerts,
+      { "onlyContainsUserPublicKeyCerts", "x509ce.onlyContainsUserPublicKeyCerts",
         FT_BOOLEAN, 8, NULL, 0,
         "x509ce.BOOLEAN", HFILL }},
-    { &hf_x509ce_containsCACerts,
-      { "containsCACerts", "x509ce.containsCACerts",
+    { &hf_x509ce_onlyContainsCACerts,
+      { "onlyContainsCACerts", "x509ce.onlyContainsCACerts",
         FT_BOOLEAN, 8, NULL, 0,
         "x509ce.BOOLEAN", HFILL }},
     { &hf_x509ce_indirectCRL,
       { "indirectCRL", "x509ce.indirectCRL",
         FT_BOOLEAN, 8, NULL, 0,
         "x509ce.BOOLEAN", HFILL }},
+    { &hf_x509ce_ToBeRevokedSyntax_item,
+      { "Item", "x509ce.ToBeRevokedSyntax_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.ToBeRevokedGroup", HFILL }},
+    { &hf_x509ce_certificateIssuer,
+      { "certificateIssuer", "x509ce.certificateIssuer",
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
+        "x509ce.GeneralName", HFILL }},
+    { &hf_x509ce_reasonInfo,
+      { "reasonInfo", "x509ce.reasonInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.ReasonInfo", HFILL }},
+    { &hf_x509ce_revocationTime,
+      { "revocationTime", "x509ce.revocationTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "x509ce.GeneralizedTime", HFILL }},
+    { &hf_x509ce_certificateGroup,
+      { "certificateGroup", "x509ce.certificateGroup",
+        FT_UINT32, BASE_DEC, VALS(x509ce_CertificateGroup_vals), 0,
+        "x509ce.CertificateGroup", HFILL }},
+    { &hf_x509ce_reasonCode,
+      { "reasonCode", "x509ce.reasonCode",
+        FT_UINT32, BASE_DEC, VALS(x509ce_CRLReason_vals), 0,
+        "x509ce.CRLReason", HFILL }},
+    { &hf_x509ce_holdInstructionCode,
+      { "holdInstructionCode", "x509ce.holdInstructionCode",
+        FT_OID, BASE_NONE, NULL, 0,
+        "x509ce.HoldInstruction", HFILL }},
+    { &hf_x509ce_serialNumbers,
+      { "serialNumbers", "x509ce.serialNumbers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509ce.CertificateSerialNumbers", HFILL }},
+    { &hf_x509ce_serialNumberRange_01,
+      { "serialNumberRange", "x509ce.serialNumberRange",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificateGroupNumberRange", HFILL }},
+    { &hf_x509ce_nameSubtree,
+      { "nameSubtree", "x509ce.nameSubtree",
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
+        "x509ce.GeneralName", HFILL }},
+    { &hf_x509ce_CertificateSerialNumbers_item,
+      { "Item", "x509ce.CertificateSerialNumbers_item",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "x509af.CertificateSerialNumber", HFILL }},
+    { &hf_x509ce_RevokedGroupsSyntax_item,
+      { "Item", "x509ce.RevokedGroupsSyntax_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.RevokedGroup", HFILL }},
+    { &hf_x509ce_invalidityDate,
+      { "invalidityDate", "x509ce.invalidityDate",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "x509ce.GeneralizedTime", HFILL }},
+    { &hf_x509ce_revokedcertificateGroup,
+      { "revokedcertificateGroup", "x509ce.revokedcertificateGroup",
+        FT_UINT32, BASE_DEC, VALS(x509ce_RevokedCertificateGroup_vals), 0,
+        "x509ce.RevokedCertificateGroup", HFILL }},
     { &hf_x509ce_containsUserAttributeCerts,
       { "containsUserAttributeCerts", "x509ce.containsUserAttributeCerts",
         FT_BOOLEAN, 8, NULL, 0,
@@ -1900,6 +2253,10 @@ void proto_register_x509ce(void) {
       { "authorityKeyIdentifier", "x509ce.authorityKeyIdentifier",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.AuthorityKeyIdentifier", HFILL }},
+    { &hf_x509ce_certificateValid,
+      { "certificateValid", "x509ce.certificateValid",
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        "x509af.Time", HFILL }},
     { &hf_x509ce_privateKeyValid,
       { "privateKeyValid", "x509ce.privateKeyValid",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1960,6 +2317,10 @@ void proto_register_x509ce(void) {
       { "issuedByThisCAAssertion", "x509ce.issuedByThisCAAssertion",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.CertificateAssertion", HFILL }},
+    { &hf_x509ce_thisUpdate,
+      { "thisUpdate", "x509ce.thisUpdate",
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        "x509af.Time", HFILL }},
     { &hf_x509ce_minCRLNumber,
       { "minCRLNumber", "x509ce.minCRLNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1972,6 +2333,10 @@ void proto_register_x509ce(void) {
       { "reasonFlags", "x509ce.reasonFlags",
         FT_BYTES, BASE_HEX, NULL, 0,
         "x509ce.ReasonFlags", HFILL }},
+    { &hf_x509ce_dateAndTime,
+      { "dateAndTime", "x509ce.dateAndTime",
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        "x509af.Time", HFILL }},
     { &hf_x509ce_firstIssuer,
       { "firstIssuer", "x509ce.firstIssuer",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -1980,6 +2345,22 @@ void proto_register_x509ce(void) {
       { "lastSubject", "x509ce.lastSubject",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "x509if.Name", HFILL }},
+    { &hf_x509ce_subjectAltName_01,
+      { "subjectAltName", "x509ce.subjectAltName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.AltName", HFILL }},
+    { &hf_x509ce_pathToName_01,
+      { "pathToName", "x509ce.pathToName",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509ce.GeneralNames", HFILL }},
+    { &hf_x509ce_altnameType,
+      { "altnameType", "x509ce.altnameType",
+        FT_UINT32, BASE_DEC, VALS(x509ce_AltNameType_vals), 0,
+        "x509ce.AltNameType", HFILL }},
+    { &hf_x509ce_altNameValue,
+      { "altNameValue", "x509ce.altNameValue",
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
+        "x509ce.GeneralName", HFILL }},
     { &hf_x509ce_templateID,
       { "templateID", "x509ce.templateID",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1996,8 +2377,8 @@ void proto_register_x509ce(void) {
       { "digitalSignature", "x509ce.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_x509ce_KeyUsage_nonRepudiation,
-      { "nonRepudiation", "x509ce.nonRepudiation",
+    { &hf_x509ce_KeyUsage_contentCommitment,
+      { "contentCommitment", "x509ce.contentCommitment",
         FT_BOOLEAN, 8, NULL, 0x40,
         "", HFILL }},
     { &hf_x509ce_KeyUsage_keyEncipherment,
@@ -2028,25 +2409,17 @@ void proto_register_x509ce(void) {
       { "decipherOnly", "x509ce.decipherOnly",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_x509ce_OnlyCertificateTypes_userPublicKey,
-      { "userPublicKey", "x509ce.userPublicKey",
+    { &hf_x509ce_OnlyCertificateTypes_user,
+      { "user", "x509ce.user",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_x509ce_OnlyCertificateTypes_cA,
-      { "cA", "x509ce.cA",
+    { &hf_x509ce_OnlyCertificateTypes_authority,
+      { "authority", "x509ce.authority",
         FT_BOOLEAN, 8, NULL, 0x40,
         "", HFILL }},
-    { &hf_x509ce_OnlyCertificateTypes_userAttribute,
-      { "userAttribute", "x509ce.userAttribute",
+    { &hf_x509ce_OnlyCertificateTypes_attribute,
+      { "attribute", "x509ce.attribute",
         FT_BOOLEAN, 8, NULL, 0x20,
-        "", HFILL }},
-    { &hf_x509ce_OnlyCertificateTypes_aA,
-      { "aA", "x509ce.aA",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        "", HFILL }},
-    { &hf_x509ce_OnlyCertificateTypes_sOAPublicKey,
-      { "sOAPublicKey", "x509ce.sOAPublicKey",
-        FT_BOOLEAN, 8, NULL, 0x08,
         "", HFILL }},
     { &hf_x509ce_ReasonFlags_unused,
       { "unused", "x509ce.unused",
@@ -2129,6 +2502,16 @@ void proto_register_x509ce(void) {
     &ett_x509ce_DistributionPointName,
     &ett_x509ce_ReasonFlags,
     &ett_x509ce_IssuingDistPointSyntax,
+    &ett_x509ce_ToBeRevokedSyntax,
+    &ett_x509ce_ToBeRevokedGroup,
+    &ett_x509ce_ReasonInfo,
+    &ett_x509ce_CertificateGroup,
+    &ett_x509ce_CertificateGroupNumberRange,
+    &ett_x509ce_CertificateSerialNumbers,
+    &ett_x509ce_RevokedGroupsSyntax,
+    &ett_x509ce_RevokedGroup,
+    &ett_x509ce_RevokedCertificateGroup,
+    &ett_x509ce_AAIssuingDistPointSyntax,
     &ett_x509ce_CertificateExactAssertion,
     &ett_x509ce_CertificateAssertion,
     &ett_x509ce_AltNameType,
@@ -2138,6 +2521,8 @@ void proto_register_x509ce(void) {
     &ett_x509ce_CertificateListExactAssertion,
     &ett_x509ce_CertificateListAssertion,
     &ett_x509ce_PkiPathMatchSyntax,
+    &ett_x509ce_EnhancedCertificateAssertion,
+    &ett_x509ce_AltName,
     &ett_x509ce_CertificateTemplate,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
@@ -2186,6 +2571,10 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.29.47", dissect_OrderedListSyntax_PDU, proto_x509ce, "id-ce-orderedList");
   register_ber_oid_dissector("2.5.29.53", dissect_DeltaInformation_PDU, proto_x509ce, "id-ce-deltaInfo");
   register_ber_oid_dissector("2.5.29.54", dissect_SkipCerts_PDU, proto_x509ce, "id-ce-inhibitAnyPolicy");
+  register_ber_oid_dissector("2.5.29.58", dissect_ToBeRevokedSyntax_PDU, proto_x509ce, "id-ce-toBeRevoked");
+  register_ber_oid_dissector("2.5.29.59", dissect_RevokedGroupsSyntax_PDU, proto_x509ce, "id-ce-RevokedGroups");
+  register_ber_oid_dissector("2.5.29.60", dissect_ExpiredCertsOnCRL_PDU, proto_x509ce, "id-ce-expiredCertsOnCRL");
+  register_ber_oid_dissector("2.5.29.61", dissect_AAIssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-aAissuingDistributionPoint");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.7", dissect_CertificateTemplate_PDU, proto_x509ce, "id-ms-certificate-template");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
 
