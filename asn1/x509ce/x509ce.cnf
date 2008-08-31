@@ -92,7 +92,6 @@ StatusReferrals
 SubjectKeyIdentifier
 
 #.REGISTER
-PolicyInformationOld      B "2.5.29.3"  "id-ce-certificatePolicies(Depreciated)"
 AttributesSyntax          B "2.5.29.9"  "id-ce-subjectDirectoryAttributes"
 SubjectKeyIdentifier      B "2.5.29.14" "id-ce-subjectKeyIdentifier"
 KeyUsage                  B "2.5.29.15" "id-ce-keyUsage"
