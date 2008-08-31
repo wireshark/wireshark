@@ -91,6 +91,13 @@ static int hf_x509ce_ToBeRevokedSyntax_PDU = -1;  /* ToBeRevokedSyntax */
 static int hf_x509ce_RevokedGroupsSyntax_PDU = -1;  /* RevokedGroupsSyntax */
 static int hf_x509ce_ExpiredCertsOnCRL_PDU = -1;  /* ExpiredCertsOnCRL */
 static int hf_x509ce_AAIssuingDistPointSyntax_PDU = -1;  /* AAIssuingDistPointSyntax */
+static int hf_x509ce_CertificateAssertion_PDU = -1;  /* CertificateAssertion */
+static int hf_x509ce_CertificatePairExactAssertion_PDU = -1;  /* CertificatePairExactAssertion */
+static int hf_x509ce_CertificatePairAssertion_PDU = -1;  /* CertificatePairAssertion */
+static int hf_x509ce_CertificateListExactAssertion_PDU = -1;  /* CertificateListExactAssertion */
+static int hf_x509ce_CertificateListAssertion_PDU = -1;  /* CertificateListAssertion */
+static int hf_x509ce_PkiPathMatchSyntax_PDU = -1;  /* PkiPathMatchSyntax */
+static int hf_x509ce_EnhancedCertificateAssertion_PDU = -1;  /* EnhancedCertificateAssertion */
 static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
@@ -336,7 +343,7 @@ dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "x509ce.cnf"
+#line 168 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -393,7 +400,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 163 "x509ce.cnf"
+#line 171 "x509ce.cnf"
   
 	PROTO_ITEM_SET_URL(actx->created_item);
 
@@ -405,7 +412,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 153 "x509ce.cnf"
+#line 161 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -588,7 +595,7 @@ dissect_x509ce_T_policyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x509ce_T_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 150 "x509ce.cnf"
+#line 158 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1706,6 +1713,41 @@ static void dissect_AAIssuingDistPointSyntax_PDU(tvbuff_t *tvb _U_, packet_info 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509ce_AAIssuingDistPointSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_AAIssuingDistPointSyntax_PDU);
 }
+static void dissect_CertificateAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CertificateAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificateAssertion_PDU);
+}
+static void dissect_CertificatePairExactAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CertificatePairExactAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificatePairExactAssertion_PDU);
+}
+static void dissect_CertificatePairAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CertificatePairAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificatePairAssertion_PDU);
+}
+static void dissect_CertificateListExactAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CertificateListExactAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificateListExactAssertion_PDU);
+}
+static void dissect_CertificateListAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CertificateListAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CertificateListAssertion_PDU);
+}
+static void dissect_PkiPathMatchSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_PkiPathMatchSyntax(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_PkiPathMatchSyntax_PDU);
+}
+static void dissect_EnhancedCertificateAssertion_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_EnhancedCertificateAssertion(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_EnhancedCertificateAssertion_PDU);
+}
 static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -1869,6 +1911,34 @@ void proto_register_x509ce(void) {
       { "AAIssuingDistPointSyntax", "x509ce.AAIssuingDistPointSyntax",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.AAIssuingDistPointSyntax", HFILL }},
+    { &hf_x509ce_CertificateAssertion_PDU,
+      { "CertificateAssertion", "x509ce.CertificateAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificateAssertion", HFILL }},
+    { &hf_x509ce_CertificatePairExactAssertion_PDU,
+      { "CertificatePairExactAssertion", "x509ce.CertificatePairExactAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificatePairExactAssertion", HFILL }},
+    { &hf_x509ce_CertificatePairAssertion_PDU,
+      { "CertificatePairAssertion", "x509ce.CertificatePairAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificatePairAssertion", HFILL }},
+    { &hf_x509ce_CertificateListExactAssertion_PDU,
+      { "CertificateListExactAssertion", "x509ce.CertificateListExactAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificateListExactAssertion", HFILL }},
+    { &hf_x509ce_CertificateListAssertion_PDU,
+      { "CertificateListAssertion", "x509ce.CertificateListAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificateListAssertion", HFILL }},
+    { &hf_x509ce_PkiPathMatchSyntax_PDU,
+      { "PkiPathMatchSyntax", "x509ce.PkiPathMatchSyntax",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.PkiPathMatchSyntax", HFILL }},
+    { &hf_x509ce_EnhancedCertificateAssertion_PDU,
+      { "EnhancedCertificateAssertion", "x509ce.EnhancedCertificateAssertion",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.EnhancedCertificateAssertion", HFILL }},
     { &hf_x509ce_CertificateTemplate_PDU,
       { "CertificateTemplate", "x509ce.CertificateTemplate",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2575,6 +2645,13 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.29.59", dissect_RevokedGroupsSyntax_PDU, proto_x509ce, "id-ce-RevokedGroups");
   register_ber_oid_dissector("2.5.29.60", dissect_ExpiredCertsOnCRL_PDU, proto_x509ce, "id-ce-expiredCertsOnCRL");
   register_ber_oid_dissector("2.5.29.61", dissect_AAIssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-aAissuingDistributionPoint");
+  register_ber_oid_dissector("2.5.13.35", dissect_CertificateAssertion_PDU, proto_x509ce, "id-mr-certificateMatch");
+  register_ber_oid_dissector("2.5.13.36", dissect_CertificatePairExactAssertion_PDU, proto_x509ce, "id-mr-certificatePairExactMatch");
+  register_ber_oid_dissector("2.5.13.37", dissect_CertificatePairAssertion_PDU, proto_x509ce, "id-mr-certificatePairMatch");
+  register_ber_oid_dissector("2.5.13.38", dissect_CertificateListExactAssertion_PDU, proto_x509ce, "id-mr-certificateListExactMatch");
+  register_ber_oid_dissector("2.5.13.39", dissect_CertificateListAssertion_PDU, proto_x509ce, "id-mr-certificateListMatch");
+  register_ber_oid_dissector("2.5.13.62", dissect_PkiPathMatchSyntax_PDU, proto_x509ce, "id-mr-pkiPathMatch");
+  register_ber_oid_dissector("2.5.13.65", dissect_EnhancedCertificateAssertion_PDU, proto_x509ce, "id-mr-enhancedCertificateMatch");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.7", dissect_CertificateTemplate_PDU, proto_x509ce, "id-ms-certificate-template");
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
 

@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
 -- Module CertificateExtensions (X.509:08/2005)
 CertificateExtensions {joint-iso-itu-t ds(5) module(1)
   certificateExtensions(26) 5} DEFINITIONS IMPLICIT TAGS ::=

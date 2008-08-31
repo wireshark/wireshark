@@ -124,6 +124,14 @@ RevokedGroupsSyntax		  B "2.5.29.59" "id-ce-RevokedGroups"
 ExpiredCertsOnCRL		  B "2.5.29.60" "id-ce-expiredCertsOnCRL"
 AAIssuingDistPointSyntax  B "2.5.29.61" "id-ce-aAissuingDistributionPoint"
 
+CertificateAssertion			B "2.5.13.35" "id-mr-certificateMatch"
+CertificatePairExactAssertion	B "2.5.13.36" "id-mr-certificatePairExactMatch"
+CertificatePairAssertion		B "2.5.13.37" "id-mr-certificatePairMatch"
+CertificateListExactAssertion	B "2.5.13.38" "id-mr-certificateListExactMatch"
+CertificateListAssertion		B "2.5.13.39" "id-mr-certificateListMatch"
+PkiPathMatchSyntax				B "2.5.13.62" "id-mr-pkiPathMatch"
+EnhancedCertificateAssertion	B "2.5.13.65" "id-mr-enhancedCertificateMatch"
+
 # These are obsolete???
 # The following OBJECT IDENTIFIERS are not used by this Specification:
 # {id-ce 2}, {id-ce 3}, {id-ce 4}, {id-ce 5}, {id-ce 6}, {id-ce 7},
