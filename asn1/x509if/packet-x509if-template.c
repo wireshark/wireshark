@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-dap.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
 #include <epan/emem.h>

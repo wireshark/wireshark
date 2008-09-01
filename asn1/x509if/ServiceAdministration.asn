@@ -1,0 +1,240 @@
+-- $Id:$
+-- Module ServiceAdministration (X.501:08/2005)
+ServiceAdministration {joint-iso-itu-t ds(5) module(1)
+  serviceAdministration(33) 5} DEFINITIONS ::=
+BEGIN
+
+-- EXPORTS All 
+-- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
+-- within the Directory Specifications, and for the use of other applications which will use them to access 
+-- Directory services. Other applications may use them for their own purposes, but this will not constrain
+-- extensions and modifications needed to maintain or improve the Directory service.
+IMPORTS
+  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
+  directoryAbstractService, informationFramework
+    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
+      usefulDefinitions(0) 5}
+  ATTRIBUTE, AttributeType, CONTEXT, MATCHING-RULE, OBJECT-CLASS,
+    SupportedAttributes, SupportedContexts
+    FROM InformationFramework informationFramework
+  -- from ITU-T Rec. X.511 | ISO/IEC 9594-3
+  FamilyGrouping, FamilyReturn, HierarchySelections, SearchControlOptions,
+    ServiceControlOptions
+    FROM DirectoryAbstractService directoryAbstractService;
+
+-- types 
+SearchRule ::= SEQUENCE {
+  COMPONENTS OF SearchRuleId,
+  serviceType           [1]  OBJECT IDENTIFIER OPTIONAL,
+  userClass             [2]  INTEGER OPTIONAL,
+  inputAttributeTypes
+    [3]  SEQUENCE SIZE (0..MAX) OF RequestAttribute OPTIONAL,
+  attributeCombination  [4]  AttributeCombination DEFAULT and:{},
+  outputAttributeTypes  [5]  SEQUENCE SIZE (1..MAX) OF ResultAttribute OPTIONAL,
+  defaultControls       [6]  ControlOptions OPTIONAL,
+  mandatoryControls     [7]  ControlOptions OPTIONAL,
+  searchRuleControls    [8]  ControlOptions OPTIONAL,
+  familyGrouping        [9]  FamilyGrouping OPTIONAL,
+  familyReturn          [10]  FamilyReturn OPTIONAL,
+  relaxation            [11]  RelaxationPolicy OPTIONAL,
+  additionalControl     [12]  SEQUENCE SIZE (1..MAX) OF AttributeType OPTIONAL,
+  allowedSubset         [13]  AllowedSubset DEFAULT '111'B,
+  imposedSubset         [14]  ImposedSubset OPTIONAL,
+  entryLimit            [15]  EntryLimit OPTIONAL
+}
+
+SearchRuleId ::= SEQUENCE {id     INTEGER,
+                           dmdId  [0]  OBJECT IDENTIFIER
+}
+
+AllowedSubset ::= BIT STRING {baseObject(0), oneLevel(1), wholeSubtree(2)}
+
+ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
+
+RequestAttribute ::= SEQUENCE {
+  attributeType       ATTRIBUTE.&id({SupportedAttributes}),
+  includeSubtypes     [0]  BOOLEAN DEFAULT FALSE,
+  selectedValues
+    [1]  SEQUENCE SIZE (0..MAX) OF
+           ATTRIBUTE.&Type({SupportedAttributes}{@attributeType}) OPTIONAL,
+  defaultValues
+    [2]  SEQUENCE SIZE (0..MAX) OF
+           SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
+                     values
+                       SEQUENCE OF
+                         ATTRIBUTE.&Type({SupportedAttributes}{@attributeType})
+           } OPTIONAL,
+  contexts            [3]  SEQUENCE SIZE (0..MAX) OF ContextProfile OPTIONAL,
+  contextCombination  [4]  ContextCombination DEFAULT and:{},
+  matchingUse         [5]  SEQUENCE SIZE (1..MAX) OF MatchingUse OPTIONAL
+}
+
+ContextProfile ::= SEQUENCE {
+  contextType   CONTEXT.&id({SupportedContexts}),
+  contextValue
+    SEQUENCE SIZE (1..MAX) OF
+      CONTEXT.&Assertion({SupportedContexts}{@contextType}) OPTIONAL
+}
+
+ContextCombination ::= CHOICE {
+  context  [0]  CONTEXT.&id({SupportedContexts}),
+  and      [1]  SEQUENCE OF ContextCombination,
+  or       [2]  SEQUENCE OF ContextCombination,
+  not      [3]  ContextCombination
+}
+
+MatchingUse ::= SEQUENCE {
+  restrictionType   MATCHING-RESTRICTION.&id({SupportedMatchingRestrictions}),
+  restrictionValue
+    MATCHING-RESTRICTION.&Restriction
+      ({SupportedMatchingRestrictions}{@restrictionType})
+}
+
+-- Definition of the following information object set is deferred, perhaps to standardized
+-- profiles or to protocol implementation conformance statements. The set is required to
+-- specify a table constraint on the components of SupportedMatchingRestrictions
+SupportedMatchingRestrictions MATCHING-RESTRICTION ::=
+  {...}
+
+AttributeCombination ::= CHOICE {
+  attribute  [0]  AttributeType,
+  and        [1]  SEQUENCE OF AttributeCombination,
+  or         [2]  SEQUENCE OF AttributeCombination,
+  not        [3]  AttributeCombination
+}
+
+ResultAttribute ::= SEQUENCE {
+  attributeType  ATTRIBUTE.&id({SupportedAttributes}),
+  outputValues
+    CHOICE {selectedValues
+              SEQUENCE OF
+                ATTRIBUTE.&Type({SupportedAttributes}{@attributeType}),
+            matchedValuesOnly  NULL} OPTIONAL,
+  contexts       [0]  SEQUENCE SIZE (1..MAX) OF ContextProfile OPTIONAL
+}
+
+ControlOptions ::= SEQUENCE {
+  serviceControls   [0]  ServiceControlOptions DEFAULT {},
+  searchOptions     [1]  SearchControlOptions DEFAULT {searchAliases},
+  hierarchyOptions  [2]  HierarchySelections OPTIONAL
+}
+
+EntryLimit ::= SEQUENCE {default  INTEGER,
+                         max      INTEGER
+}
+
+RelaxationPolicy ::= SEQUENCE {
+  basic        [0]  MRMapping DEFAULT {},
+  tightenings  [1]  SEQUENCE SIZE (1..MAX) OF MRMapping OPTIONAL,
+  relaxations  [2]  SEQUENCE SIZE (1..MAX) OF MRMapping OPTIONAL,
+  maximum      [3]  INTEGER OPTIONAL, -- mandatory if tightenings is present
+  minimum      [4]  INTEGER DEFAULT 1
+}
+
+MRMapping ::= SEQUENCE {
+  mapping       [0]  SEQUENCE SIZE (1..MAX) OF Mapping OPTIONAL,
+  substitution  [1]  SEQUENCE SIZE (1..MAX) OF MRSubstitution OPTIONAL
+}
+
+Mapping ::= SEQUENCE {
+  mappingFunction
+    OBJECT IDENTIFIER
+      (CONSTRAINED BY {-- shall be an--
+         
+         -- object identifier of a mapping-based matching algorithm -- }),
+  level            INTEGER DEFAULT 0
+}
+
+MRSubstitution ::= SEQUENCE {
+  attribute        AttributeType,
+  oldMatchingRule  [0]  MATCHING-RULE.&id OPTIONAL,
+  newMatchingRule  [1]  MATCHING-RULE.&id OPTIONAL
+}
+
+-- ASN.1 information object classes 
+SEARCH-RULE ::= CLASS {
+  &dmdId                 OBJECT IDENTIFIER,
+  &serviceType           OBJECT IDENTIFIER OPTIONAL,
+  &userClass             INTEGER OPTIONAL,
+  &InputAttributeTypes   REQUEST-ATTRIBUTE OPTIONAL,
+  &combination           AttributeCombination OPTIONAL,
+  &OutputAttributeTypes  RESULT-ATTRIBUTE OPTIONAL,
+  &defaultControls       ControlOptions OPTIONAL,
+  &mandatoryControls     ControlOptions OPTIONAL,
+  &searchRuleControls    ControlOptions OPTIONAL,
+  &familyGrouping        FamilyGrouping OPTIONAL,
+  &familyReturn          FamilyReturn OPTIONAL,
+  &additionalControl     AttributeType OPTIONAL,
+  &relaxation            RelaxationPolicy OPTIONAL,
+  &allowedSubset         AllowedSubset DEFAULT '111'B,
+  &imposedSubset         ImposedSubset OPTIONAL,
+  &entryLimit            EntryLimit OPTIONAL,
+  &id                    INTEGER UNIQUE
+}
+WITH SYNTAX {
+  DMD ID &dmdId
+  [SERVICE-TYPE &serviceType]
+  [USER-CLASS &userClass]
+  [INPUT ATTRIBUTES &InputAttributeTypes]
+  [COMBINATION &combination]
+  [OUTPUT ATTRIBUTES &OutputAttributeTypes]
+  [DEFAULT CONTROL &defaultControls]
+  [MANDATORY CONTROL &mandatoryControls]
+  [SEARCH-RULE CONTROL &searchRuleControls]
+  [FAMILY-GROUPING &familyGrouping]
+  [FAMILY-RETURN &familyReturn]
+  [ADDITIONAL CONTROL &additionalControl]
+  [RELAXATION &relaxation]
+  [ALLOWED SUBSET &allowedSubset]
+  [IMPOSED SUBSET &imposedSubset]
+  [ENTRY LIMIT &entryLimit]
+  ID &id
+}
+
+REQUEST-ATTRIBUTE ::= CLASS {
+  &attributeType       ATTRIBUTE.&id,
+  &SelectedValues      ATTRIBUTE.&Type OPTIONAL,
+  &DefaultValues       SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
+                                 values     SEQUENCE OF ATTRIBUTE.&Type
+  } OPTIONAL,
+  &contexts            SEQUENCE OF ContextProfile OPTIONAL,
+  &contextCombination  ContextCombination OPTIONAL,
+  &MatchingUse         MatchingUse OPTIONAL,
+  &includeSubtypes     BOOLEAN DEFAULT FALSE
+}
+WITH SYNTAX {
+  ATTRIBUTE TYPE &attributeType
+  [SELECTED VALUES &SelectedValues]
+  [DEFAULT VALUES &DefaultValues]
+  [CONTEXTS &contexts]
+  [CONTEXT COMBINATION &contextCombination]
+  [MATCHING USE &MatchingUse]
+  [INCLUDE SUBTYPES &includeSubtypes]
+}
+
+RESULT-ATTRIBUTE ::= CLASS {
+  &attributeType  ATTRIBUTE.&id,
+  &outputValues   CHOICE {selectedValues     SEQUENCE OF ATTRIBUTE.&Type,
+                          matchedValuesOnly  NULL
+  } OPTIONAL,
+  &contexts       ContextProfile OPTIONAL
+}
+WITH SYNTAX {
+  ATTRIBUTE TYPE &attributeType
+  [OUTPUT VALUES &outputValues]
+  [CONTEXTS &contexts]
+}
+
+MATCHING-RESTRICTION ::= CLASS {
+  &Restriction  ,
+  &Rules        MATCHING-RULE.&id,
+  &id           OBJECT IDENTIFIER UNIQUE
+}WITH SYNTAX {RESTRICTION &Restriction
+              RULES &Rules
+              ID &id
+}
+
+END -- ServiceAdministration
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

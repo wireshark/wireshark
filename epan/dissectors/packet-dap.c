@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dap.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -L -p dap -c ./dap.cnf -s ./packet-dap-template -D . dap.asn DirectoryAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
 
 /* Input file: packet-dap-template.c */
 
@@ -741,7 +741,7 @@ static int dissect_dap_SearchResultData(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 
-static const value_string dap_FamilyGrouping_vals[] = {
+const value_string dap_FamilyGrouping_vals[] = {
   {   1, "entryOnly" },
   {   2, "compoundEntry" },
   {   3, "strands" },
@@ -750,7 +750,7 @@ static const value_string dap_FamilyGrouping_vals[] = {
 };
 
 
-static int
+int
 dissect_dap_FamilyGrouping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
@@ -775,7 +775,7 @@ static const asn_namedbit ServiceControlOptions_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_dap_ServiceControlOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ServiceControlOptions_bits, hf_index, ett_dap_ServiceControlOptions,
@@ -1141,7 +1141,7 @@ static const ber_sequence_t FamilyReturn_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_dap_FamilyReturn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FamilyReturn_sequence, hf_index, ett_dap_FamilyReturn);
@@ -2996,7 +2996,7 @@ static const asn_namedbit HierarchySelections_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_dap_HierarchySelections(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     HierarchySelections_bits, hf_index, ett_dap_HierarchySelections,
@@ -3022,7 +3022,7 @@ static const asn_namedbit SearchControlOptions_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_dap_SearchControlOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     SearchControlOptions_bits, hf_index, ett_dap_SearchControlOptions,
