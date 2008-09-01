@@ -8,6 +8,9 @@
 #.MODULE_IMPORT
 DirectoryAbstractService  dap
 
+#.OMIT_ASSIGNMENT
+ObjectClassKind
+#.END
 #.CLASS ATTRIBUTE
 &derivation            ClassReference ATTRIBUTE
 &Type                  
@@ -99,7 +102,6 @@ SubtreeSpecification
 
 #.PDU
 DistinguishedName
-Name
 
 #.NO_EMIT
 
@@ -151,7 +153,8 @@ DistinguishedName	B	"2.5.18.10"	"id-oa-subschemaSubentry"
 DistinguishedName	B	"2.5.18.11"	"id-oa-accessControlSubentry"
 DistinguishedName	B	"2.5.18.12"	"id-oa-collectiveAttributeSubentry"
 DistinguishedName	B	"2.5.18.13"	"id-oa-contextDefaultSubentry"
-
+HierarchyLevel		B	"2.5.18.17"	"id-oa-hierarchyLevel"
+HierarchyBelow		B	"2.5.18.18"	"iid-oa-hierarchyBelow"
 # X402 - see master list in acp133.cnf
 DistinguishedName B "2.6.5.2.5" "id-at-mhs-message-store-dn"
 DistinguishedName B "2.6.5.2.14" "id-at-mhs-dl-related-lists"

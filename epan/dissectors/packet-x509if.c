@@ -62,9 +62,10 @@ static int hf_x509if_any_string = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 #line 1 "packet-x509if-hf.c"
-static int hf_x509if_Name_PDU = -1;               /* Name */
 static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
 static int hf_x509if_SubtreeSpecification_PDU = -1;  /* SubtreeSpecification */
+static int hf_x509if_HierarchyLevel_PDU = -1;     /* HierarchyLevel */
+static int hf_x509if_HierarchyBelow_PDU = -1;     /* HierarchyBelow */
 static int hf_x509if_type = -1;                   /* T_type */
 static int hf_x509if_values = -1;                 /* T_values */
 static int hf_x509if_values_item = -1;            /* T_values_item */
@@ -344,7 +345,7 @@ int dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 187 "x509if.cnf"
+#line 190 "x509if.cnf"
   const char *fmt; 
   const char *name;
 
@@ -389,7 +390,7 @@ dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_x509if_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "x509if.cnf"
+#line 225 "x509if.cnf"
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char  	*value = NULL;
@@ -454,7 +455,7 @@ dissect_x509if_T_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x509if_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 277 "x509if.cnf"
+#line 280 "x509if.cnf"
   offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree);
 
 
@@ -475,7 +476,7 @@ dissect_x509if_T_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509if_T_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 289 "x509if.cnf"
+#line 292 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -572,7 +573,7 @@ static const ber_sequence_t Attribute_sequence[] = {
 
 int
 dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 408 "x509if.cnf"
+#line 411 "x509if.cnf"
 	doing_attr = TRUE;
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -598,7 +599,7 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 int
 dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 295 "x509if.cnf"
+#line 298 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -619,7 +620,7 @@ dissect_x509if_T_type_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_x509if_T_assertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 301 "x509if.cnf"
+#line 304 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -649,7 +650,7 @@ dissect_x509if_T_ca_contextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509if_T_ca_contextValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 181 "x509if.cnf"
+#line 184 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -730,7 +731,7 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 399 "x509if.cnf"
+#line 402 "x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
@@ -796,7 +797,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 307 "x509if.cnf"
+#line 310 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -808,7 +809,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509if_T_distingAttrValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 322 "x509if.cnf"
+#line 325 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -865,7 +866,7 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 353 "x509if.cnf"
+#line 356 "x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
@@ -893,7 +894,7 @@ static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 int
 dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 325 "x509if.cnf"
+#line 328 "x509if.cnf"
   char *temp_dn;
 
   rdn_one_value = FALSE;
@@ -932,7 +933,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 388 "x509if.cnf"
+#line 391 "x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -956,7 +957,7 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 368 "x509if.cnf"
+#line 371 "x509if.cnf"
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
@@ -1175,23 +1176,6 @@ dissect_x509if_ChopSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const value_string x509if_ObjectClassKind_vals[] = {
-  {   0, "abstract" },
-  {   1, "structural" },
-  {   2, "auxiliary" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_x509if_ObjectClassKind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 const value_string x509if_AttributeUsage_vals[] = {
   {   0, "userApplications" },
   {   1, "directoryOperation" },
@@ -1383,7 +1367,7 @@ dissect_x509if_T_attributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x509if_T_ra_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "x509if.cnf"
+#line 271 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1417,7 +1401,7 @@ dissect_x509if_T_entryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x509if_T_ra_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 274 "x509if.cnf"
+#line 277 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1479,7 +1463,7 @@ dissect_x509if_T_contextType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509if_T_contextValue_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 313 "x509if.cnf"
+#line 316 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1580,7 +1564,7 @@ dissect_x509if_T_restrictionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x509if_T_restrictionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 319 "x509if.cnf"
+#line 322 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1701,7 +1685,7 @@ dissect_x509if_T_attributeType_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x509if_T_selectedValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 283 "x509if.cnf"
+#line 286 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -2078,11 +2062,6 @@ dissect_x509if_SearchRuleId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 /*--- PDUs ---*/
 
-static void dissect_Name_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509if_Name(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_Name_PDU);
-}
 static void dissect_DistinguishedName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -2092,6 +2071,16 @@ static void dissect_SubtreeSpecification_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509if_SubtreeSpecification(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_SubtreeSpecification_PDU);
+}
+static void dissect_HierarchyLevel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509if_HierarchyLevel(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_HierarchyLevel_PDU);
+}
+static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509if_HierarchyBelow(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509if_HierarchyBelow_PDU);
 }
 
 
@@ -2144,10 +2133,6 @@ void proto_register_x509if(void) {
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 #line 1 "packet-x509if-hfarr.c"
-    { &hf_x509if_Name_PDU,
-      { "Name", "x509if.Name",
-        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
-        "x509if.Name", HFILL }},
     { &hf_x509if_DistinguishedName_PDU,
       { "DistinguishedName", "x509if.DistinguishedName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2156,6 +2141,14 @@ void proto_register_x509if(void) {
       { "SubtreeSpecification", "x509if.SubtreeSpecification",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.SubtreeSpecification", HFILL }},
+    { &hf_x509if_HierarchyLevel_PDU,
+      { "HierarchyLevel", "x509if.HierarchyLevel",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "x509if.HierarchyLevel", HFILL }},
+    { &hf_x509if_HierarchyBelow_PDU,
+      { "HierarchyBelow", "x509if.HierarchyBelow",
+        FT_BOOLEAN, 8, NULL, 0,
+        "x509if.HierarchyBelow", HFILL }},
     { &hf_x509if_type,
       { "type", "x509if.type",
         FT_OID, BASE_NONE, NULL, 0,
@@ -2876,6 +2869,8 @@ void proto_reg_handoff_x509if(void) {
   register_ber_oid_dissector("2.5.18.11", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-accessControlSubentry");
   register_ber_oid_dissector("2.5.18.12", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-collectiveAttributeSubentry");
   register_ber_oid_dissector("2.5.18.13", dissect_DistinguishedName_PDU, proto_x509if, "id-oa-contextDefaultSubentry");
+  register_ber_oid_dissector("2.5.18.17", dissect_HierarchyLevel_PDU, proto_x509if, "id-oa-hierarchyLevel");
+  register_ber_oid_dissector("2.5.18.18", dissect_HierarchyBelow_PDU, proto_x509if, "iid-oa-hierarchyBelow");
   register_ber_oid_dissector("2.6.5.2.5", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-message-store-dn");
   register_ber_oid_dissector("2.6.5.2.14", dissect_DistinguishedName_PDU, proto_x509if, "id-at-mhs-dl-related-lists");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.3", dissect_DistinguishedName_PDU, proto_x509if, "id-at-alternateRecipient");
