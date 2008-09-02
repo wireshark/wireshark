@@ -322,6 +322,16 @@ static const value_string pt_types[] = {
 #define GTP_SNN_MASK		0x01
 #define GTP_PN_MASK			0x01
 
+static const value_string next_extension_header_fieldvals[] = {
+	{ 0, "No more extension headers" },
+	{ 1, "MBMS support indication" },
+	{ 2, "MS Info Change Reporting support indication" },
+	{ 0xc0, "PDCP PDU number" },
+	{ 0xc1, "Suspend Request" },
+	{ 0xc2, "Suspend Response" },
+	{ 0, NULL }
+};
+
 /* Definition of 3G charging characteristics masks */
 #define GTP_MASK_CHRG_CHAR_S	0xF000
 #define GTP_MASK_CHRG_CHAR_N	0x0800
@@ -6001,6 +6011,45 @@ dissect_gtp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 		if (gtp_hdr.message != GTP_MSG_TPDU) {
+			/* TODO: This code should be cleaned up to handle more than one
+			 * header and possibly display the header content */
+			if (next_hdr){
+				offset++;
+				switch(next_hdr){
+					case 1:
+						/* MBMS support indication */
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
+						offset+=3;
+						break;
+					case 2:
+						/* MS Info Change Reporting support indication */
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
+						offset+=3;
+						break;
+					case 0xc0:
+						/* PDCP PDU number */
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
+						offset+=3;
+						break;
+					case 0xc1:
+						/* Suspend Request */
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
+						offset+=3;
+						break;
+					case 0xc2:
+						/* Suspend Response */
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
+						offset+=3;
+						break;
+					default:
+						proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
+						offset+=3;
+						break;
+				}
+				next_hdr = tvb_get_guint8 (tvb, offset);
+				proto_tree_add_uint (gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+				offset++;
+			}
 			proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");
 			length = tvb_length (tvb);
 			mandatory = 0;		/* check order of GTP fields against ETSI */
@@ -6149,7 +6198,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_ms_reason, { "MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, "MS Not Reachable Reason", HFILL }},
 		{ &hf_gtp_ms_valid, { "MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE,NULL, 0, "MS validated", HFILL }},
 		{ &hf_gtp_msisdn, { "MSISDN", "gtp.msisdn", FT_STRING, BASE_DEC, NULL, 0, "MS international PSTN/ISDN number", HFILL }},
-		{ &hf_gtp_next, { "Next extension header type",	"gtp.next", FT_UINT8, BASE_HEX, NULL, 0, "Next Extension Header Type", HFILL }},
+		{ &hf_gtp_next, { "Next extension header type",	"gtp.next", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, "Next Extension Header Type", HFILL }},
 		{ &hf_gtp_node_ipv4, { "Node address IPv4", "gtp.node_ipv4", FT_IPv4, BASE_DEC, NULL, 0, "Recommended node address IPv4", HFILL }},
 		{ &hf_gtp_node_ipv6, { "Node address IPv6", "gtp.node_ipv6", FT_IPv6, BASE_HEX, NULL, 0, "Recommended node address IPv6", HFILL }},
 		{ &hf_gtp_npdu_number, { "N-PDU Number", "gtp.npdu_number", FT_UINT8, BASE_HEX, NULL, 0, "N-PDU Number", HFILL }},
