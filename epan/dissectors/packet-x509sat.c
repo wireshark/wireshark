@@ -75,7 +75,6 @@ static int hf_x509sat_PresentationAddress_PDU = -1;  /* PresentationAddress */
 static int hf_x509sat_ProtocolInformation_PDU = -1;  /* ProtocolInformation */
 static int hf_x509sat_NameAndOptionalUID_PDU = -1;  /* NameAndOptionalUID */
 static int hf_x509sat_CaseIgnoreListMatch_PDU = -1;  /* CaseIgnoreListMatch */
-static int hf_x509sat_DayTime_PDU = -1;           /* DayTime */
 static int hf_x509sat_ObjectIdentifier_PDU = -1;  /* ObjectIdentifier */
 static int hf_x509sat_OctetString_PDU = -1;       /* OctetString */
 static int hf_x509sat_BitString_PDU = -1;         /* BitString */
@@ -1504,7 +1503,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 303 "x509sat.cnf"
+#line 300 "x509sat.cnf"
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 
@@ -1512,7 +1511,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 308 "x509sat.cnf"
+#line 305 "x509sat.cnf"
 	if (! wide_tvb) {
 		return offset;
 	}
@@ -1549,7 +1548,7 @@ dissect_x509sat_SyntaxGraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 317 "x509sat.cnf"
+#line 314 "x509sat.cnf"
   gint8 class;
   gboolean pc;
   gint32 tag;
@@ -1657,11 +1656,6 @@ static void dissect_CaseIgnoreListMatch_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_CaseIgnoreListMatch(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_CaseIgnoreListMatch_PDU);
-}
-static void dissect_DayTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509sat_DayTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_DayTime_PDU);
 }
 static void dissect_ObjectIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1815,10 +1809,6 @@ void proto_register_x509sat(void) {
       { "CaseIgnoreListMatch", "x509sat.CaseIgnoreListMatch",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509sat.CaseIgnoreListMatch", HFILL }},
-    { &hf_x509sat_DayTime_PDU,
-      { "DayTime", "x509sat.DayTime",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x509sat.DayTime", HFILL }},
     { &hf_x509sat_ObjectIdentifier_PDU,
       { "ObjectIdentifier", "x509sat.ObjectIdentifier",
         FT_OID, BASE_NONE, NULL, 0,

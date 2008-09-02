@@ -47,7 +47,6 @@ ZonalSelect
 #.PDU
 CaseIgnoreListMatch
 CountryName
-DayTime
 DestinationIndicator
 DirectoryString
 EnhancedGuide
@@ -62,8 +61,6 @@ TelephoneNumber
 TelexNumber
 UniqueIdentifier
 X121Address
-
-
 
 #.REGISTER
 ObjectIdentifier        B "2.5.4.0"   "id-at-objectClass"
