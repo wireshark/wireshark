@@ -22,7 +22,7 @@
  */
 
 /* Put version in Welcome screen, can be useful in custom builds.
-#define VERSION_IN_WELOCME_PAGE  1
+#define VERSION_IN_WELCOME_PAGE  1
 */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -58,7 +58,7 @@
 #include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
 #include "../image/wssplash-dev.xpm"
-#ifdef VERSION_IN_WELOCME_PAGE
+#ifdef VERSION_IN_WELCOME_PAGE
 #include "../version_info.h"
 #endif
 
@@ -280,7 +280,7 @@ welcome_header_new(void)
         message = g_strdup_printf(
 			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" 
 			"The World's Most Popular Network Protocol Analyzer" 
-#ifdef VERSION_IN_WELOCME_PAGE
+#ifdef VERSION_IN_WELCOME_PAGE
 			"</span>\n<span size=\"large\">"
 			"Version " VERSION "%s"
 			"</span>",wireshark_svnversion);
@@ -290,7 +290,7 @@ welcome_header_new(void)
     }
     w = gtk_label_new(message);
     gtk_label_set_markup(GTK_LABEL(w), message);
-	g_free(message);
+    g_free(message);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
