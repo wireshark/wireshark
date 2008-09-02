@@ -582,7 +582,7 @@ get_os_major_version()
  * Local Variables:
  * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=8 tabstop=8 noexpandtab

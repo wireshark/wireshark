@@ -1676,7 +1676,7 @@ cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
  * Local Variables:
  * c-basic-offset: 4
  * tab-width: 4
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=4 tabstop=4 noexpandtab

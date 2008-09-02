@@ -1980,7 +1980,7 @@ get_key_string(decryption_key_t* dk)
  * Local Variables:
  * c-basic-offset: 4
  * tab-width: 8
- * set-tabs-mode: nil
+ * indent-tabs-mode: nil
  * End:
  *
  * ex: set shiftwidth=4 tabstop=8 expandtab

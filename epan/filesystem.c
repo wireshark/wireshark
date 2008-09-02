@@ -1558,7 +1558,7 @@ files_identical(const char *fname1, const char *fname2)
  * Local Variables:
  * c-basic-offset: 4
  * tab-width: 4
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=4 tabstop=4 noexpandtab

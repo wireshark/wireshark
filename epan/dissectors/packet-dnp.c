@@ -3053,7 +3053,7 @@ proto_reg_handoff_dnp3(void)
  * Local Variables:
  * c-basic-offset: 2
  * tab-width: 8
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=2 tabstop=8 noexpandtab

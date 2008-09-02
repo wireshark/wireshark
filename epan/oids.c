@@ -1164,7 +1164,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
  * Local Variables:
  * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=8 tabstop=8 noexpandtab
