@@ -738,6 +738,7 @@ tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
 }
 
 
+#if 0
 static const guint8*
 first_real_data_ptr(tvbuff_t *tvb)
 {
@@ -757,6 +758,7 @@ first_real_data_ptr(tvbuff_t *tvb)
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return NULL;
 }
+#endif
 
 int
 offset_from_real_beginning(tvbuff_t *tvb, int counter)
@@ -1527,6 +1529,7 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
 	if(tot_no_bits<=8){
+		/* Read one octet, mask off bit_offset bits and left shift out the unused bits */
 		value = tvb_get_guint8(tvb,offset) & bit_mask8[bit_offset];
 		value = value >> (8-tot_no_bits);
 	}else{
@@ -1557,7 +1560,8 @@ guint16
 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_endian)
 {
 	gint	offset;
-	guint32	value = 0;
+	guint16	value = 0;
+	guint16	tempval = 0;
 	guint8	tot_no_bits;
 
 	if ((no_of_bits<8)||(no_of_bits>16)) {
@@ -1578,33 +1582,41 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
+	/* Read two octets and mask off bit_offset bits */
+	value = tvb_get_ntohs(tvb,offset) & bit_mask16[bit_offset];
+	if(tot_no_bits < 16){
+		/* Left shift out the unused bits */
+		value = value >> (16 - tot_no_bits);
+	}else if(tot_no_bits > 16){
+		/* Spans three octets, read next octet and shift as needed */
+		value = value << (tot_no_bits - 16);
+		tempval = tvb_get_guint8(tvb,offset+2);
+		tempval = tempval >> (24-tot_no_bits);
+		value = value | tempval;
+	}
 
-	/* Read four octets, mask off bit_offset bits and left shift out the unused bits */
-	value = tvb_get_ntohl(tvb,offset) & bit_mask32[bit_offset];
-	value = value >> (32 - tot_no_bits);
-
-	return (guint16)value;
+	return value;
 
 }
 
-/* Get 9 - 16 bits */
 /* Bit offset mask for number of bits = 32 - 64 */
 static const guint64 bit_mask64[] = {
-    G_GINT64_CONSTANT(0xffffffffffffffU),
-    G_GINT64_CONSTANT(0x7fffffffffffffU),
-    G_GINT64_CONSTANT(0x3fffffffffffffU),
-    G_GINT64_CONSTANT(0x1fffffffffffffU),
-    G_GINT64_CONSTANT(0x0fffffffffffffU),
-    G_GINT64_CONSTANT(0x07ffffffffffffU),
-    G_GINT64_CONSTANT(0x03ffffffffffffU),
-    G_GINT64_CONSTANT(0x01ffffffffffffU)
+    G_GINT64_CONSTANT(0xffffffffffffffffU),
+    G_GINT64_CONSTANT(0x7fffffffffffffffU),
+    G_GINT64_CONSTANT(0x3fffffffffffffffU),
+    G_GINT64_CONSTANT(0x1fffffffffffffffU),
+    G_GINT64_CONSTANT(0x0fffffffffffffffU),
+    G_GINT64_CONSTANT(0x07ffffffffffffffU),
+    G_GINT64_CONSTANT(0x03ffffffffffffffU),
+    G_GINT64_CONSTANT(0x01ffffffffffffffU)
 };
 
 guint32
 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
 	gint	offset;
-	guint64	value = 0;
+	guint32	value = 0;
+	guint32	tempval = 0;
 	guint8	tot_no_bits;
 
 	if ((no_of_bits<17)||(no_of_bits>32)) {
@@ -1625,11 +1637,20 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-	/* Read eighth octets, mask off bit_offset bits and left shift out the unused bits */
-	value = tvb_get_ntoh64(tvb,offset) & bit_mask64[bit_offset];
-	value = value >> (64 - tot_no_bits);
+	/* Read four octets and mask off bit_offset bits */
+	value = tvb_get_ntohl(tvb,offset) & bit_mask32[bit_offset];
+	if(tot_no_bits < 32){
+		/* Left shift out the unused bits */
+		value = value >> (32 - tot_no_bits);
+	}else if(tot_no_bits > 32){
+		/* Spans five octets, read next octet and shift as needed */
+		value = value << (tot_no_bits - 32);
+		tempval = tvb_get_guint8(tvb,offset+4);
+		tempval = tempval >> (40-tot_no_bits);
+		value = value | tempval;
+	}
 
-	return (guint32)value;
+	return value;
 
 }
 guint64
@@ -1659,18 +1680,18 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-	/* Read eighth octets, mask off bit_offset bits and left shift out the unused bits */
-	if (tot_no_bits < 65){
-		value = tvb_get_ntoh64(tvb,offset) & bit_mask64[bit_offset];
+	/* Read eight octets and mask off bit_offset bits */
+	value = tvb_get_ntoh64(tvb,offset) & bit_mask64[bit_offset];
+	if (tot_no_bits < 64){
+		/* Left shift out the unused bits */
 		value = value >> (64 - tot_no_bits);
-	}else{
-		value = tvb_get_ntoh64(tvb,offset) & bit_mask64[bit_offset];
-		value = value << bit_offset;
+	}else if (tot_no_bits > 64){
+		/* Spans nine octets, read next octet and shift as needed */
+		value = value << (tot_no_bits - 64);
 		tempval = tvb_get_guint8(tvb,offset+8);
-		tempval = tempval >> (8-bit_offset);
+		tempval = tempval >> (72-tot_no_bits);
 		value = value | tempval;
 	}
-
 
 	return value;
 
@@ -2876,7 +2897,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & (1 << 3)) {
 				/* A null terminated filename */
 
-				while (*c != '\0') {
+				while ((c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
@@ -2886,7 +2907,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & (1 << 4)) {
 				/* A null terminated comment */
 
-				while (*c != '\0') {
+				while ((c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
