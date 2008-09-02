@@ -99,6 +99,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          tvb_get_bits{16|32} could read past the end of a tvbuff
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2439">Bug
+          2439</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Incorrect wslua function names.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
           2448</ulink>)
@@ -153,6 +159,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Fix some lint warnings.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2822">Bug
+          2822</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Setting a duration on a capture file would capture for an extra second.
         </para></listitem>
 
@@ -186,12 +198,16 @@ ERF,
 K12,
 NCP,
 PPP BCP,
-PPPoE
+PPPoE,
+Q.933,
 Redback LI,
 RTCP,
 RTP,
 SIP,
-TCP
+SNMP,
+TCP,
+V.120,
+WiMAX
 
     </para>
     </section>

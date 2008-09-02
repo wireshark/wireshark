@@ -1313,6 +1313,10 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len, UC
 	gint16 i, j, n;
 	rijndael_ctx  ctx;
 
+	if (! kek || cipher_len < 16 || ! cipher_text || ! output) {
+		return 1; /* We don't do anything with the return value */
+	}
+
 	/* Initialize variables */
 
 	n = (cipher_len/8)-1;  /* the algorithm works on 64-bits at a time */

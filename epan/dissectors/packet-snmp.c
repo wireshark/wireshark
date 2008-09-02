@@ -979,7 +979,7 @@ int dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len) 
 
     /* first bit: engine id conformance */
     if (len_remain<4) return offset;
-    conformance = ((tvb_get_guint8(tvb, offset)>>7) && 0x01);
+    conformance = ((tvb_get_guint8(tvb, offset)>>7) & 0x01);
     proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
 
     /* 4-byte enterprise number/name */

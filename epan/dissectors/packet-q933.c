@@ -1149,6 +1149,7 @@ static value_string q933_pvc_status_vals[] = {
     {0x02, "Active"},
     {0x08, "New"},
     {0x0a, "New, Active"},
+    {0, NULL}
 };
 
 static void
