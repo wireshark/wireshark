@@ -134,8 +134,7 @@ static gint ett_dtpt_blob = -1;
 
 
 static dissector_handle_t	dtpt_conversation_handle;
-static dissector_handle_t	dtpt_data_handle;
-static dissector_handle_t	dtpt_handle;
+/** static dissector_handle_t	dtpt_data_handle;  **/
 static dissector_handle_t	data_handle;
 
 
@@ -845,13 +844,19 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_dtpt(void)
 {
-	static int Initialized=FALSE;
+	static dissector_handle_t	dtpt_handle;
+	static gboolean Initialized=FALSE;
 	static int ServerPort=0;
 
-	if (Initialized) {
-		dissector_delete("tcp.port", ServerPort, dtpt_handle);
-	} else {
+	if (!Initialized) {
+		dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);
+		dtpt_conversation_handle = new_create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
+/**		dtpt_data_handle = new_create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
+
+		data_handle = find_dissector("data");
 		Initialized=TRUE;
+	} else {
+		dissector_delete("tcp.port", ServerPort, dtpt_handle);
 	}
 
 	/* set port for future deletes */
@@ -1183,11 +1188,6 @@ proto_register_dtpt(void)
 					"DTPT", "dtpt");
 	proto_register_field_array(proto_dtpt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	dtpt_conversation_handle = new_create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
-	dtpt_data_handle = new_create_dissector_handle(dissect_dtpt_data, proto_dtpt);
-	dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);
-	data_handle = find_dissector("data");
 
 	/* Register a configuration option for port */
 	dtpt_module = prefs_register_protocol(proto_dtpt,

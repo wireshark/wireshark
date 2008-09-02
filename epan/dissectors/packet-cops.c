@@ -88,12 +88,6 @@ static guint global_cops_tcp_port = TCP_PORT_COPS;
 /* Preference: desegmentation of COPS */
 static gboolean cops_desegment = TRUE;
 
-/* Variable to allow for proper deletion of dissector registration
- * when the user changes port from the gui
- */
-
-static guint cops_tcp_port = 0;
-
 #define COPS_OBJECT_HDR_SIZE 4
 
 /* Null string of type "guchar[]". */
@@ -2431,21 +2425,21 @@ void proto_register_cops(void)
 
 void proto_reg_handoff_cops(void)
 {
-  static int cops_prefs_initialized = FALSE;
+  static gboolean cops_prefs_initialized = FALSE;
   static dissector_handle_t cops_handle;
+  static guint cops_tcp_port;
 
   if (!cops_prefs_initialized) {
-    cops_handle = create_dissector_handle(dissect_cops, proto_cops);
+    cops_handle = find_dissector("cops");
+    dissector_add("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
+    dissector_add("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
     cops_prefs_initialized = TRUE;
-  } else
+  } else {
     dissector_delete("tcp.port",cops_tcp_port,cops_handle);
-
-  /* Set our port numbers for future use */
+  }
   cops_tcp_port = global_cops_tcp_port;
 
   dissector_add("tcp.port", cops_tcp_port, cops_handle);
-  dissector_add("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
-  dissector_add("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
 }
 
 

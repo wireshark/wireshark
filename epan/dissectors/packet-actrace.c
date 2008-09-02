@@ -434,12 +434,6 @@ static actrace_info_t *actrace_pi;
  */
 static guint global_actrace_udp_port = UDP_PORT_ACTRACE;
 
-/*
- * Variables to allow for proper deletion of dissector registration when
- * the user changes port from the gui.
- */
-static guint actrace_udp_port = 0;
-
 /* Some basic utility functions that are specific to this dissector */
 static int is_actrace(tvbuff_t *tvb, gint offset);
 
@@ -807,15 +801,15 @@ void proto_register_actrace(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_actrace(void)
 {
-	static int actrace_prefs_initialized = FALSE;
+	static gboolean actrace_prefs_initialized = FALSE;
 	static dissector_handle_t actrace_handle;
-
-	/* Get a handle for the lapd dissector. */
-	lapd_handle = find_dissector("lapd");
+	static guint actrace_udp_port = 0;
 
 	if (!actrace_prefs_initialized)
 	{
 		actrace_handle = new_create_dissector_handle(dissect_actrace, proto_actrace);
+		/* Get a handle for the lapd dissector. */
+		lapd_handle = find_dissector("lapd");
 		actrace_prefs_initialized = TRUE;
 	}
 	else

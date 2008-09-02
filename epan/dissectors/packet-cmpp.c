@@ -45,9 +45,6 @@
 #define CMPP_ISMG_LONG_PORT 7930
 #define CMPP_ISMG_SHORT_PORT 9168
 
-/* Forward declaration we need below */
-void proto_reg_handoff_cmpp(void);
-
 /* Initialize the protocol and registered fields */
 static gint proto_cmpp = -1;
 
@@ -632,8 +629,6 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* Register the protocol with Wireshark */
-
 /* Get the CMPP PDU Length */
 static guint
 get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
@@ -676,6 +671,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+/* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
@@ -991,18 +987,11 @@ proto_register_cmpp(void) {
 void
 proto_reg_handoff_cmpp(void)
 {
-	static gboolean inited = FALSE;
+	dissector_handle_t cmpp_handle;
 
-	if (!inited)
-	{
-	    dissector_handle_t cmpp_handle;
-
-	    cmpp_handle = new_create_dissector_handle(dissect_cmpp, proto_cmpp);
-	    dissector_add("tcp.port", CMPP_SP_LONG_PORT, cmpp_handle);
-	    dissector_add("tcp.port", CMPP_SP_SHORT_PORT, cmpp_handle);
-	    dissector_add("tcp.port", CMPP_ISMG_LONG_PORT, cmpp_handle);
-	    dissector_add("tcp.port", CMPP_ISMG_SHORT_PORT, cmpp_handle);
-
-	    inited = TRUE;
-	}
+	cmpp_handle = new_create_dissector_handle(dissect_cmpp, proto_cmpp);
+	dissector_add("tcp.port", CMPP_SP_LONG_PORT, cmpp_handle);
+	dissector_add("tcp.port", CMPP_SP_SHORT_PORT, cmpp_handle);
+	dissector_add("tcp.port", CMPP_ISMG_LONG_PORT, cmpp_handle);
+	dissector_add("tcp.port", CMPP_ISMG_SHORT_PORT, cmpp_handle);
 }

@@ -53,7 +53,7 @@
 /*
  * IOS 4, probably most common
  */
-gint a_global_variant = A_VARIANT_IOS401;
+gint global_a_variant = A_VARIANT_IOS401;
 
 
 /* PROTOTYPES/FORWARDS */
@@ -694,15 +694,8 @@ static gint ett_adds_user_part = -1;
 static gint ett_scr = -1;
 static gint ett_srvc_con_rec = -1;
 
-/*
- * Variables to allow for proper deletion of dissector registration when
- * the user changes values
- */
-static gint a_variant = 0;
-
 static char a_bigbuf[1024];
 static dissector_handle_t data_handle;
-static dissector_handle_t bsmap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
@@ -931,7 +924,7 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	proto_tree_add_text(tree,
@@ -3399,7 +3392,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch (a_variant)
+	switch (global_a_variant)
 	{
 	case A_VARIANT_IOS401:
 	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
@@ -3473,7 +3466,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	    a_bigbuf,
 	    value);
 
-	switch (a_variant)
+	switch (global_a_variant)
 	{
 	case A_VARIANT_IOS401:
 	    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
@@ -4826,7 +4819,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
@@ -5830,7 +5823,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
@@ -6793,7 +6786,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	a_bigbuf,
 	(oct & 0xf0) >> 4);
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
@@ -8924,7 +8917,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
@@ -8995,7 +8988,7 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
@@ -9060,7 +9053,7 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
@@ -9199,7 +9192,7 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
@@ -9238,7 +9231,7 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_SO, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
@@ -10218,7 +10211,7 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	ELEM_OPT_TV(ANSI_A_E_LAI, "");
@@ -10251,7 +10244,7 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_V(ANSI_A_E_REJ_CAUSE);
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
@@ -10445,7 +10438,7 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
@@ -10530,7 +10523,7 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
 	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
@@ -10543,7 +10536,7 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
@@ -10606,7 +10599,7 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
@@ -10679,7 +10672,7 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
@@ -11316,7 +11309,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
     /* 0x14 PDSN IP Address */
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
         ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
@@ -11583,7 +11576,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * octet 2
      */
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IS634:
 	other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
@@ -11904,7 +11897,7 @@ proto_register_ansi_a(void)
 	"global_variant",
 	"Dissect PDU as",
 	"(if other than the default of IOS 4.0.1)",
-	&a_global_variant,
+	&global_a_variant,
 	a_variant_options,
 	FALSE);
 
@@ -11915,28 +11908,22 @@ proto_register_ansi_a(void)
 void
 proto_reg_handoff_ansi_a(void)
 {
-    static int			ansi_a_prefs_initialized = FALSE;
-
+    static gboolean			ansi_a_prefs_initialized = FALSE;
+    static dissector_handle_t           bsmap_handle;
 
     if (!ansi_a_prefs_initialized)
     {
 	bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
 	dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
+	data_handle = find_dissector("data");
+
+	dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
+	dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
 
 	ansi_a_prefs_initialized = TRUE;
     }
-    else
-    {
-	dissector_delete("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
-	dissector_delete("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
-    }
 
-    if (a_variant != a_global_variant)
-    {
-	a_variant = a_global_variant;
-    }
-
-    switch (a_variant)
+    switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
 	ansi_a_bsmap_strings = ansi_a_ios501_bsmap_strings;
@@ -11951,8 +11938,4 @@ proto_reg_handoff_ansi_a(void)
 	break;
     }
 
-    dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
-    dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
-
-    data_handle = find_dissector("data");
 }

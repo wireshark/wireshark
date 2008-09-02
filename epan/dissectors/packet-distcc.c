@@ -419,24 +419,23 @@ proto_reg_handoff_distcc(void)
 	static int distcc_tcp_port;
 	static dissector_handle_t distcc_handle;
 
-	if (registered_dissector) {
-		/*
-		 * We've registered the dissector with a TCP port number
-		 * of "distcc_tcp_port"; we might be changing the TCP port
-		 * number, so remove that registration.
-		 */
-		dissector_delete("tcp.port", distcc_tcp_port, distcc_handle);
-	} else {
+	if (!registered_dissector) {
 		/*
 		 * We haven't registered the dissector yet; get a handle
 		 * for it.
 		 */
 		distcc_handle = create_dissector_handle(dissect_distcc,
 		    proto_distcc);
+		data_handle = find_dissector("data");
 		registered_dissector = TRUE;
+	} else {
+		/*
+		 * We've registered the dissector with a TCP port number
+		 * of "distcc_tcp_port"; we might be changing the TCP port
+		 * number, so remove that registration.
+		 */
+		dissector_delete("tcp.port", distcc_tcp_port, distcc_handle);
 	}
 	distcc_tcp_port = glb_distcc_tcp_port;
 	dissector_add("tcp.port", distcc_tcp_port, distcc_handle);
-
-	data_handle = find_dissector("data");
 }
