@@ -21,6 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Put version in Welcome screen, can be useful in custom builds.
+#define VERSION_IN_WELOCME_PAGE  1
+*/
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -55,6 +58,9 @@
 #include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
 #include "../image/wssplash-dev.xpm"
+#ifdef VERSION_IN_WELOCME_PAGE
+#include "../version_info.h"
+#endif
 
 
 /* XXX */
@@ -266,12 +272,25 @@ welcome_header_new(void)
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
     if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
-        message = "<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" "Sniffing the glue that holds the Internet together" "</span>";
+        message = g_strdup_printf(
+			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" 
+			"Sniffing the glue that holds the Internet together" 
+			"</span>");
     } else {
-        message = "<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
+        message = g_strdup_printf(
+			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" 
+			"The World's Most Popular Network Protocol Analyzer" 
+#ifdef VERSION_IN_WELOCME_PAGE
+			"</span>\n<span size=\"large\">"
+			"Version " VERSION "%s"
+			"</span>",wireshark_svnversion);
+#else
+			"</span>");
+#endif
     }
     w = gtk_label_new(message);
     gtk_label_set_markup(GTK_LABEL(w), message);
+	g_free(message);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
