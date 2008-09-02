@@ -339,7 +339,7 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
 	guint8  new_key[32];
 	guint8 key_version;
 	guint8  *szEncryptedKey;
-	guint16 key_len;
+	guint16 key_len = 0;
 	static AIRPDCAP_KEY_ITEM dummy_key; /* needed in case AirPDcapRsnaMng() wants the key structure */
 
 	/* We skip verifying the MIC of the key. If we were implementing a WPA supplicant we'd want to verify, but for a sniffer it's not needed. */
@@ -349,13 +349,12 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
 	key_version = AIRPDCAP_EAP_KEY_DESCR_VER(pEAPKey->key_information[1]);
 	if (key_version == AIRPDCAP_WPA_KEY_VER_NOT_CCMP){
 		/* TKIP */
-		memcpy(&key_len, pEAPKey->key_length, 2);  /* get the key length as a UINT16 */
+		key_len = pntohs(pEAPKey->key_length);
 	}else if (key_version == AIRPDCAP_WPA_KEY_VER_AES_CCMP){
 		/* AES */
-		memcpy(&key_len, pEAPKey->key_data_len, 2);  /* get the key length as a UINT16 */
+		key_len = pntohs(pEAPKey->key_data_len);
 	}
-	key_len = ntohs(key_len); /* Convert to proper endianess */
-    if (key_len > sizeof(RSN_IE)) { /* Don't read past the end of pEAPKey->ie */
+    if (key_len > sizeof(RSN_IE) || key_len == 0) { /* Don't read past the end of pEAPKey->ie */
         return;
     }
 
