@@ -16,7 +16,10 @@ ContentIntegrityAlgorithmIdentifier
 MessageOriginAuthenticationAlgorithmIdentifier
 ProbeOriginAuthenticationAlgorithmIdentifier
 ReportOriginAuthenticationAlgorithmIdentifier
-
+# Currently not used
+MTSBindArgument
+MTSBindResult
+MTSBindError
 #.END
 
 #.EXPORTS
@@ -174,10 +177,6 @@ TokenData/type						token-data-type
 CertificateSelectors/content-integrity-check		selectors-content-integrity-check
 
 #.PDU
-MTABindArgument
-MTABindResult
-MTABindError
-MTS-APDU
 
 #.REGISTER
 RecipientReassignmentProhibited				N x411.extension 1

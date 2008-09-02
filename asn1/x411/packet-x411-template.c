@@ -78,6 +78,11 @@ static proto_item *address_item = NULL;
 
 static proto_tree *top_tree=NULL;
 
+static int hf_x411_MTS_APDU_PDU = -1;
+static int hf_x411_MTABindArgument_PDU = -1;
+static int hf_x411_MTABindResult_PDU = -1;
+static int hf_x411_MTABindError_PDU = -1;
+
 #include "packet-x411-hf.c"
 
 /* Initialize the subtree pointers */
@@ -94,6 +99,7 @@ static gint ett_x411_unknown_tokendata_type = -1;
 static dissector_table_t x411_extension_dissector_table;
 static dissector_table_t x411_extension_attribute_dissector_table;
 static dissector_table_t x411_tokendata_dissector_table;
+
 
 #include "packet-x411-fn.c"
 
@@ -212,6 +218,24 @@ void proto_register_x411(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
+	  /* "Created by defining PDU in .cnf */
+    { &hf_x411_MTABindArgument_PDU,
+      { "MTABindArgument", "x411.MTABindArgument",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindArgument_vals), 0,
+        "x411.MTABindArgument", HFILL }},
+    { &hf_x411_MTABindResult_PDU,
+      { "MTABindResult", "x411.MTABindResult",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindResult_vals), 0,
+        "x411.MTABindResult", HFILL }},
+    { &hf_x411_MTABindError_PDU,
+      { "MTABindError", "x411.MTABindError",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindError_vals), 0,
+        "x411.MTABindError", HFILL }},
+    { &hf_x411_MTS_APDU_PDU,
+      { "MTS-APDU", "x411.MTS_APDU",
+        FT_UINT32, BASE_DEC, VALS(x411_MTS_APDU_vals), 0,
+        "x411.MTS_APDU", HFILL }},
+
 #include "packet-x411-hfarr.c"
   };
 
