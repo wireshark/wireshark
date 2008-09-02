@@ -2233,17 +2233,8 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="Additional-Type-Information" code="1205" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-		<avp name="Content-Size" code="1206" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Content-Size" code="1206" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Content-Size" code="1205" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="PDP-Address" code="1227" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="IPAddress"/>
-		</avp>
-		<avp name="SGSN-Address" code="1228" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Priority" code="1209" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -2348,7 +2339,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="SGSN-Address" code="1228" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
-		<avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+    <avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Deferred-Location-Even-Type" code="1230" mandatory="must"  may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
