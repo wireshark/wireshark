@@ -47,7 +47,6 @@
 #define TCP_PORT_BEEP 10288
 void proto_reg_handoff_beep(void);
 
-
 static guint global_beep_tcp_port = TCP_PORT_BEEP;
 static int global_beep_strict_term = TRUE;
 
@@ -1093,7 +1092,7 @@ proto_register_beep(void)
 void
 proto_reg_handoff_beep(void)
 {
-  static int beep_prefs_initialized = FALSE;
+  static gboolean beep_prefs_initialized = FALSE;
   static dissector_handle_t beep_handle;
 
   if (!beep_prefs_initialized) {

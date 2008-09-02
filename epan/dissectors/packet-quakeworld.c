@@ -771,13 +771,14 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_quakeworld(void)
 {
-	static int Initialized=FALSE;
+	static gboolean Initialized=FALSE;
 	static dissector_handle_t quakeworld_handle;
 	static int ServerPort=0;
 
 	if (!Initialized) {
 		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
 				proto_quakeworld);
+		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
 		dissector_delete("udp.port", ServerPort, quakeworld_handle);
@@ -787,7 +788,6 @@ proto_reg_handoff_quakeworld(void)
         ServerPort=gbl_quakeworldServerPort;
 
 	dissector_add("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
-	data_handle = find_dissector("data");
 }
 
 

@@ -1009,11 +1009,11 @@ proto_reg_handoff_etheric(void)
 
 	static int tcp_port1 = 1806;
 	static int tcp_port2 = 10002;
-	static int Initialized=FALSE;
-
+	static gboolean Initialized=FALSE;
 
 	if (!Initialized) {
 		etheric_handle = find_dissector("etheric");
+		q931_ie_handle = find_dissector("q931.ie");
 		Initialized=TRUE;
 	}else{
 		dissector_delete("udp.port", tcp_port1, etheric_handle);
@@ -1025,8 +1025,6 @@ proto_reg_handoff_etheric(void)
 
 	dissector_add("tcp.port", ethericTCPport1, etheric_handle);
 	dissector_add("tcp.port", ethericTCPport2, etheric_handle);
-	q931_ie_handle = find_dissector("q931.ie");
-
 }
 
 void
@@ -1198,7 +1196,7 @@ proto_register_etheric(void)
 
 	/* Register a configuration option for port */
 	etheric_module = prefs_register_protocol(proto_etheric,
-											  proto_reg_handoff_etheric);
+								  proto_reg_handoff_etheric);
 
 	prefs_register_uint_preference(etheric_module, "tcp.port1",
 								   "etheric TCP Port 1",

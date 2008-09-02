@@ -88,8 +88,6 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-void proto_register_3com_xns(void);
-
 void
 proto_register_3com_xns(void)
 {
@@ -113,8 +111,6 @@ proto_register_3com_xns(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-void proto_reg_handoff_3com_xns(void);
-
 void
 proto_reg_handoff_3com_xns(void)
 {
@@ -122,7 +118,6 @@ proto_reg_handoff_3com_xns(void)
 
 	retix_bpdu_handle = find_dissector("rbpdu");
 
-	our_xns_handle = create_dissector_handle(dissect_3com_xns,
-	    proto_3com_xns);
+	our_xns_handle = create_dissector_handle(dissect_3com_xns, proto_3com_xns);
 	dissector_add("llc.dsap", 0x80, our_xns_handle);
 }

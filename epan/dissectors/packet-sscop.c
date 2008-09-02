@@ -403,7 +403,7 @@ gboolean sscop_allowed_subdissector(dissector_handle_t handle)
 void
 proto_reg_handoff_sscop(void)
 {
-  static int prefs_initialized = FALSE;
+  static gboolean prefs_initialized = FALSE;
 
   if (!prefs_initialized) {
     initialize_handles_once();

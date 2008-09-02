@@ -1492,24 +1492,21 @@ proto_register_sflow(void)
 void
 proto_reg_handoff_sflow(void)
 {
-	static int sflow_prefs_initialized = FALSE;
+	static gboolean sflow_prefs_initialized = FALSE;
+
 	if (!sflow_prefs_initialized) {
 		sflow_handle = new_create_dissector_handle(dissect_sflow,
 							   proto_sflow);
+		data_handle = find_dissector("data");
 
 		sflow_prefs_initialized = TRUE;
 	}
 
-
 	sflow_reinit();
-
-	/*dissector_handle_t sflow_handle;*/
 
 	/*
 	 * XXX - should this be done with a dissector table?
 	 */
-	data_handle = find_dissector("data");
-
 	if (global_dissect_samp_headers) {
 	    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	    tr_handle = find_dissector("tr");
