@@ -5,23 +5,23 @@
  *
  *  User Accessible Tables GUI
  *  Mantain an array of user accessible data strucures
- *  
+ *
  * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -94,7 +94,7 @@ struct _uat_rep_t {
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeSelection  *selection;
 #endif
-	
+
 };
 
 struct _str_pair {
@@ -158,14 +158,14 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 		case PT_TXTMOD_HEXBYTES: {
 			GString* s = g_string_sized_new( len*2 + 1 );
 			guint i;
-			
+
 			for (i=0; i<len;i++) g_string_sprintfa(s,"%.2X",((guint8*)ptr)[i]);
-			
+
 			out = ep_strdup_printf(s->str);
-			
+
 			g_string_free(s,TRUE);
 			break;
-		} 
+		}
 		default:
 			g_assert_not_reached();
 			out = NULL;
@@ -207,11 +207,11 @@ static void reset_row(uat_t* uat, guint idx) {
 	if (! uat->rep) return;
 
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
-	
+
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, fld_tostr(rec,&(f[colnum])));
 	}
-	
+
 	gtk_clist_thaw(GTK_CLIST(uat->rep->clist));
 
 }
@@ -269,7 +269,7 @@ static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** 
 
 	*err = NULL;
 	return buf;
-	
+
 on_error:
 	*err = "Error parsing hex string";
 	return NULL;
@@ -346,7 +346,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 		g_free(rec_tmp);
 	}
-	
+
 	dd->uat->changed = TRUE;
 
 	set_buttons(dd->uat,-1);
@@ -398,7 +398,7 @@ struct _fld_menu_item_data_t {
 
 static void fld_menu_item_cb(GtkMenuItem *menuitem _U_, gpointer user_data) {
 	struct _fld_menu_item_data_t* md = user_data;
-	
+
 	*(md->valptr) = md->text;
 }
 
@@ -414,7 +414,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	GtkTooltips *tooltips;
 
 	tooltips = gtk_tooltips_new();
-	
+
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
 	dd->uat = uat;
@@ -480,12 +480,12 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 					struct _fld_menu_item_data_t* md = g_malloc(sizeof(struct _fld_menu_item_data_t));
 					const char* str = enum_vals[index].strptr;
 					GtkWidget* menu_item = gtk_menu_item_new_with_label(str);
-					
+
 					md->text = str;
 					md->valptr = valptr;
-					
+
 					gtk_menu_append(GTK_MENU(menu), menu_item);
-					
+
 					if ( g_str_equal(str, text) ) {
 						menu_index = index;
 						*((char const**)valptr) = str;
@@ -515,7 +515,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				return;
 		}
 	}
-	
+
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
@@ -573,7 +573,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	ud->uat = uat;
 	ud->idx = idx;
 	ud->win = win = dlg_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
-	
+
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
@@ -599,7 +599,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 		label = gtk_label_new(f[colnum].name);
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
-		
+
 		label = gtk_label_new(text);
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
@@ -644,7 +644,7 @@ static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
 
 static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	uat_t* uat = u;
-	
+
 	if (uat->rep) {
 		void* rep = uat->rep;
 
@@ -919,12 +919,13 @@ static GtkWidget* uat_window(void* u) {
 	}
 
 	gtk_clist_thaw(GTK_CLIST(rep->clist));
-	
+
 #if GTK_MAJOR_VERSION < 2
 	gtk_clist_set_selection_mode(GTK_CLIST(rep->clist),GTK_SELECTION_SINGLE);
 #else
-	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist));
+	/* rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist));
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
+	*/
 #endif
 
 #if (GLIB_MAJOR_VERSION >= 2)
@@ -937,7 +938,7 @@ static GtkWidget* uat_window(void* u) {
 #endif
 		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 #if (GLIB_MAJOR_VERSION >= 2)
-	}	
+	}
 #endif
 
 	move_hbox = gtk_vbutton_box_new();
@@ -979,7 +980,7 @@ static GtkWidget* uat_window(void* u) {
 	SIGNAL_CONNECT(rep->clist, "select_row", remember_selected_row, uat);
 	SIGNAL_CONNECT(rep->clist, "unselect_row", unremember_selected_row, uat);
 #else
-	SIGNAL_CONNECT(selection, "changed", remember_selected_row, uat);
+	/* SIGNAL_CONNECT(selection, "changed", remember_selected_row, uat); */
 #endif
 
 	SIGNAL_CONNECT(rep->bt_new, "clicked", uat_new_cb, uat);
@@ -1002,7 +1003,7 @@ static GtkWidget* uat_window(void* u) {
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "destroy", uat_window_delete_event_cb, uat);
 	}
-	
+
 	gtk_widget_grab_focus(rep->clist);
 
 	gtk_widget_show_all(rep->window);

@@ -322,8 +322,9 @@ gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned le
  */
 #define UAT_CSTRING_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+    char* new_buf = g_strndup(buf,len); \
 	if ((((rec_t*)rec)->field_name)) g_free((((rec_t*)rec)->field_name)); \
-	(((rec_t*)rec)->field_name) = g_strndup(buf,len); } \
+	(((rec_t*)rec)->field_name) = new_buf; } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = (((rec_t*)rec)->field_name); *out_len = strlen((((rec_t*)rec)->field_name)); \
@@ -344,8 +345,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_LSTRING_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
-	if ((((rec_t*)rec)->ptr_element)) g_free((((rec_t*)rec)->ptr_element)); \
-	(((rec_t*)rec)->ptr_element) = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); }\
+	const char* new_val = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); \
+    if ((((rec_t*)rec)->ptr_element)) g_free((((rec_t*)rec)->ptr_element)); \
+	(((rec_t*)rec)->ptr_element) = new_val; }\
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if (((rec_t*)rec)->ptr_element ) { \
 		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
@@ -361,12 +363,13 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  * BUFFER macros,
  *    a buffer_ptr contained in (((rec_t*)rec)->(field_name))
  *    and its len in (((rec_t*)rec)->(len_name))
- *  XXX: UNTESTED
+ *  XXX: UNTESTED and probably BROKEN
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+        const char* new_buf = len ? g_memdup(buf,len) : NULL; \
 		if ((((rec_t*)rec)->ptr_element) ) g_free((((rec_t*)rec)->ptr_element)); \
-			(((rec_t*)rec)->ptr_element) = len ? g_memdup(buf,len) : NULL; \
+			(((rec_t*)rec)->ptr_element) = new_buf; \
 			(((rec_t*)rec)->len_element) = len; } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
