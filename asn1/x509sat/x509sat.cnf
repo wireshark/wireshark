@@ -7,6 +7,10 @@
 GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.IMPORT ../x509if/x509if-exp.cnf
+#.IMPORT ../x411/x411-exp.cnf
+
+#.MODULE_IMPORT
+MTSAbstractService x411
 
 #.EXPORTS
 CaseIgnoreListMatch
@@ -59,26 +63,7 @@ TelexNumber
 UniqueIdentifier
 X121Address
 
-ObjectIdentifier
-OctetString
-BitString
-Integer
-Boolean
-SyntaxGeneralizedTime
-#SyntaxUTCTime
-#SyntaxNumericString
-SyntaxPrintableString
-SyntaxIA5String
-SyntaxBMPString
-#SyntaxUniversalString
-SyntaxUTF8String
-#SyntaxTeletexString
-#SyntaxT61String
-#SyntaxVideotexString
-SyntaxGraphicString
-#SyntaxISO646String
-#SyntaxVisibleString
-#SyntaxGeneralString
+
 
 #.REGISTER
 ObjectIdentifier        B "2.5.4.0"   "id-at-objectClass"
@@ -162,10 +147,10 @@ DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
 ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
 ObjectIdentifier       B "2.5.4.67" "id-at-communuicationsNetwork"
 
-NumericString		   B "2.5.13.8" "id-mr-numericStringMatch"
+SyntaxNumericString	   B "2.5.13.8" "id-mr-numericStringMatch"
 CaseIgnoreListMatch	   B "2.5.13.11" "id-mr-caseIgnoreListMatch"
 BitString			   B "2.5.13.16" "id-mr-bitStringMatch"
-UTCTime				   B "2.5.13.26" "id-mr-uTCTimeOrderingMatch"
+SyntaxUTCTime		   B "2.5.13.26" "id-mr-uTCTimeOrderingMatch"
 
 SyntaxGeneralizedTime  B "2.5.18.1" "id-oa-createTimeStamp"	
 SyntaxGeneralizedTime  B "2.5.18.2" "id-oa-modifyTimeStamp"	
