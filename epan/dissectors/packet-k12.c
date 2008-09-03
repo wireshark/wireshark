@@ -38,6 +38,7 @@
 #include <epan/emem.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include "packet-sscop.h"
 #include "packet-umts_fp.h"
 
