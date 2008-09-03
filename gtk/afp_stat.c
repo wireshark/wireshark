@@ -167,7 +167,7 @@ gtk_afpstat_init(const char *optarg, void *userdata _U_)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(ss->win);
 
-	init_srt_table(&ss->afp_srt_table, 256, vbox, "afp.cmd");
+	init_srt_table(&ss->afp_srt_table, 256, vbox, "afp.command");
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->afp_srt_table, i, val_to_str(i, CommandCode_vals, "Unknown(%u)"));
 	}
