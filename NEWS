@@ -1,4 +1,4 @@
-Wireshark 1.0.2 Release Notes
+Wireshark 1.0.3 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,14 +15,61 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Wireshark could crash while reassembling packets.
+     o The NCP dissector was susceptible to a number of problems,
+       including buffer overflows and an infinite loop.
 
-       Versions affected: 0.8.19 to 1.0.1
+       Versions affected: 0.9.7 to 1.0.2
+
+     o Wireshark could crash while uncompressing zlib-compressed
+       packet data.
+
+       Versions affected: 0.10.14 to 1.0.2
+
+     o Wireshark could crash while reading a Tektronix .rf5 file.
+
+       Versions affected: 0.99.6 to 1.0.2
 
    The following bugs have been fixed:
 
-     o Dumpcap could crash on some versions of Windows (primarily
-       Vista). (Bug 2677)
+     o 802.11 WPA/WPA2-PSK Unable to decode Group Keys. (Bug 1420)
+
+     o Packets could wrongly be dissected as "Redback Lawful
+       Intercept" (Bug 2376)
+
+     o MIKEY dissector improvements (Bug 2400)
+
+     o tvb_get_bits{16|32} could read past the end of a tvbuff (Bug
+       2439)
+
+     o Incorrect wslua function names. (Bug 2448)
+
+     o Memory corruption in wslua. (Bug 2453)
+
+     o Unknown PPPoE TAGs which are present in a PPPoE discovery
+       packet are not displayed under "PPPoE Tags" subtree/section.
+       (Bug 2458)
+
+     o Following a TCP stream could incorrectly reassemble packets.
+       (Bug 2606)
+
+     o SIP decode shows fully expanded "Content-Length" header
+       instead of compact form. (Bug 2635)
+
+     o Segmentation fault loading trace containing NCP packets. (Bug
+       2675)
+
+     o SIP packets might incorrectly be displayed as malformed. (Bug
+       2729)
+
+     o RTCP BYE padding interpreted incorrectly. (Bug 2778)
+
+     o Reversed RTP stream is saved as silent .au file, forward
+       stream saves correctly. (Bug 2780)
+
+     o Fix some lint warnings. (Bug 2822)
+
+     o Setting a duration on a capture file would capture for an
+       extra second.
 
   New and Updated Features
 
@@ -34,11 +81,12 @@ What's New
 
   Updated Protocol Support
 
-   There are no updated protocols in this release.
+   AIM, Bluetooth RFCOMM, ERF, K12, NCP, PPP BCP, PPPoE, Q.933,
+   Redback LI, RTCP, RTP, SIP, SNMP, TCP, V.120, WiMAX
 
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   Endace ERF.
 
 Getting Wireshark
 
@@ -69,8 +117,6 @@ Known Problems
    network on OS X. (Bug 1315)
 
    Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
-
-   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
 
    The BER dissector might infinitely loop. (Bug 1516)
 

@@ -116,3 +116,785 @@ we've been passed "-i -", since it clobbers stdio.
 ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
+r25698 | gerald | 2008-07-10 10:31:23 -0700 (Thu, 10 Jul 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/version.conf
+
+Build version 1.0.2.
+
+------------------------------------------------------------------------
+r25760 | gerald | 2008-07-17 10:05:09 -0700 (Thu, 17 Jul 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/Makefile.nmake
+   M /trunk-1.0/tools/win32-setup.sh
+
+Use the latest Win32 libs tag (fixed zlib version).
+
+------------------------------------------------------------------------
+r25836 | gerald | 2008-07-25 17:01:46 -0700 (Fri, 25 Jul 2008) | 49 lines
+Changed paths:
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/configure.in
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-mikey.c
+   M /trunk-1.0/epan/dissectors/packet-redbackli.c
+   M /trunk-1.0/epan/follow.c
+   M /trunk-1.0/epan/libwireshark.def
+   M /trunk-1.0/packaging/rpm/SPECS/wireshark.spec.in
+   M /trunk-1.0/version.conf
+
+Bump the version to 1.0.3. Update the release notes. Copy over revisions
+from the trunk:
+
+------------------------------------------------------------------------
+r24833 | jake | 2008-04-06 23:36:10 -0700 (Sun, 06 Apr 2008) | 10 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-mikey.c
+
+From David Bernard:
+This patch improves MIKEY support in Wireshark. 
+
+The payload types "Error" and "General Extension" are now supported.
+
+The "KEMAC" payload type now support dissecting its sub-payloads "Key Data" and
+"Key Validity", but only for PSK (Pre-Shared key) mode with NULL encryption. So
+this will dissects properly the TGK and SALT keys for example.
+
+No decrypting is performed, only decoding.
+------------------------------------------------------------------------
+r24878 | morriss | 2008-04-10 12:35:07 -0700 (Thu, 10 Apr 2008) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-redbackli.c
+
+From Florian Lohoff: fix http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2376 (and hopefully the other complaints about RedbackLI grabbing packets that aren't RedbackLI) by strengthening the heuristics.
+------------------------------------------------------------------------
+r25033 | jmayer | 2008-04-14 18:26:02 -0700 (Mon, 14 Apr 2008) | 1 line
+Changed paths:
+   M /trunk/packaging/rpm/SPECS/wireshark.spec.in
+
+configure seems to install the manpages into .../share/man/, not .../man/
+------------------------------------------------------------------------
+r25289 | sake | 2008-05-13 15:45:04 -0700 (Tue, 13 May 2008) | 7 lines
+Changed paths:
+   M /trunk/epan/follow.c
+
+Fix the tcp reassembly routine in epan/follow.c :
+
+- Don't do '<gulongvar>-<gulongvar> > 0' as it will always be true :-)
+- Handle the case where a segment is partially retransmitted
+
+------------------------------------------------------------------------
+r25322 | jake | 2008-05-19 23:29:11 -0700 (Mon, 19 May 2008) | 1 line
+Changed paths:
+   M /trunk/epan/libwireshark.def
+
+Add PTV cursor API to Win32 exported functions
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r25877 | gerald | 2008-07-30 11:25:59 -0700 (Wed, 30 Jul 2008) | 141 lines
+Changed paths:
+   M /trunk-1.0/capture_stop_conditions.c
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-aim.c
+   M /trunk-1.0/epan/dissectors/packet-erf.c
+   M /trunk-1.0/epan/dissectors/packet-ppp.c
+   M /trunk-1.0/epan/ppptypes.h
+   M /trunk-1.0/epan/prefs.c
+
+Copy over r25677 by hand:
+
+------------------------------------------------------------------------
+r25677 | morriss | 2008-07-08 13:04:11 -0700 (Tue, 08 Jul 2008) | 1 line
+Changed paths:
+   M /trunk/epan/tvbuff.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2649 by adding some length checks to two while loops in tvb_uncompress()
+------------------------------------------------------------------------
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r25719 | guy | 2008-07-11 19:36:32 -0700 (Fri, 11 Jul 2008) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+   M /trunk/epan/prefs.c
+
+ERF Ethernet records always contain Ethernet packets, as the name
+indicates; replace the "erf.eth" preference with an "erf.ethfcs"
+preference, specifying whether the FCS is present in Ethernet frames,
+and offer the options "present", "not present", and "maybe present" -
+for "maybe present", call the regular Ethernet dissector, which tries to
+figure out whether there's an FCS at the end of the packet or not.
+
+------------------------------------------------------------------------
+r25720 | guy | 2008-07-11 19:42:33 -0700 (Fri, 11 Jul 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+   M /trunk/epan/prefs.c
+
+Rename the preference values to something that leaves out the "eth" (as
+it's redundant).
+
+------------------------------------------------------------------------
+r25722 | sake | 2008-07-12 10:23:18 -0700 (Sat, 12 Jul 2008) | 5 lines
+Changed paths:
+   M /trunk/capture_stop_conditions.c
+
+Fix an off-by-one error which caused capturing with
+a duration limit of X seconds per file to actually
+save X+1 seconds per file
+
+------------------------------------------------------------------------
+r25724 | guy | 2008-07-12 11:26:47 -0700 (Sat, 12 Jul 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+   M /trunk/epan/prefs.c
+
+Make erf.ethfcs a Boolean, with "FCS present" and "FCS not present" the
+only options, and default to "FCS present".
+
+------------------------------------------------------------------------
+r25729 | guy | 2008-07-13 10:11:02 -0700 (Sun, 13 Jul 2008) | 10 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ppp.c
+
+Dissect the PPP Bridge Control Protocol header.  Hand Ethernet packets
+to the "no FCS" dissector if the "FCS present" flag isn't set.  Strip
+off padding.  Don't hand non-Ethernet packets to the Ethernet dissector.
+
+Update the RFC number for the PPP Multilink protocol.  Add a preference
+for short sequence numbers.  Check only the "first fragment" and "last
+fragment" flags when constructing the summary description for the flags
+field.  Use the global "tfs_yes_no" true_false_string structure rather
+than defining our own "Yes"/"No" true_false_string structure.
+
+------------------------------------------------------------------------
+r25732 | guy | 2008-07-13 12:04:53 -0700 (Sun, 13 Jul 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ppp.c
+   M /trunk/epan/ppptypes.h
+
+The PPP protocol type of 0031 is for the PPP Bridging Control Protocol;
+it's not the "Bridge Control Protocol", and the packets aren't "BPDU"s
+in the sense of Spanning Tree Protocol packets.
+
+------------------------------------------------------------------------
+r25736 | guy | 2008-07-14 11:56:25 -0700 (Mon, 14 Jul 2008) | 14 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+   M /trunk/epan/prefs.c
+
+Replace the old "erfatm" preference for the ERF dissector with an
+"aal5_type" dissector, which offers only "guess the traffic type" and
+"LLC multiplexed" as options, defaulting to "guess the type".
+
+Add a separate preference to control whether to treat single ATM cells
+as raw data or as the first cell of an AAL5 PDU (and dissecting them as
+short AAL5 PDUs).
+
+Don't reach inside the tvbuff to get the data and the length; use
+tvb_length() and tvb_get_ptr().
+
+Pass the data *after* the AAL5 header to the "guess the traffic type"
+routine.
+
+------------------------------------------------------------------------
+r25737 | guy | 2008-07-14 12:28:19 -0700 (Mon, 14 Jul 2008) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+   M /trunk/epan/prefs.c
+
+Rename the ERF "erfhdlc" preference to "hdlc_type" ("erf" is redundant,
+and "hdlc" doesn't indicate that it's a protocol type), and, instead of
+a "raw" option, have a "try to guess the traffic type" option - for now,
+if the first byte is 0x0f or 0x8f, treat it as Cisco HDLC, otherwise
+treat it as PPP.
+
+------------------------------------------------------------------------
+r25739 | guy | 2008-07-14 13:26:58 -0700 (Mon, 14 Jul 2008) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+
+Just have a scalar handle_t for the Infiniband handle, for now.  (The
+old code had the type value past the end of the array.)
+
+Rename the handle variables.
+
+------------------------------------------------------------------------
+r25751 | jake | 2008-07-15 22:17:32 -0700 (Tue, 15 Jul 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-aim.c
+
+From Alex Turbov:
+AIM 'New Connection' packet dissector have incorrect size for details pane of
+TLV 0x14. Actual size is 4 (not 2).
+
+------------------------------------------------------------------------
+r25752 | jake | 2008-07-15 22:33:25 -0700 (Tue, 15 Jul 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-aim.c
+
+From Alex Turbov:
+Function dissect_aim_tlv_value_uint32 have consumed 24 bits instead of 32 to
+obtain a value.
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r26033 | gerald | 2008-08-15 17:17:09 -0700 (Fri, 15 Aug 2008) | 111 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-pppoe.c
+   M /trunk-1.0/epan/dissectors/packet-tcp.c
+   M /trunk-1.0/epan/wslua/init_wslua.c
+   M /trunk-1.0/epan/wslua/wslua.h
+   M /trunk-1.0/epan/wslua/wslua_field.c
+   M /trunk-1.0/epan/wslua/wslua_listener.c
+   M /trunk-1.0/epan/wslua/wslua_pinfo.c
+   M /trunk-1.0/epan/wslua/wslua_proto.c
+   M /trunk-1.0/epan/wslua/wslua_tree.c
+   M /trunk-1.0/epan/wslua/wslua_tvb.c
+   M /trunk-1.0/epan/wslua/wslua_util.c
+   M /trunk-1.0/gtk/airpcap_dlg.c
+   M /trunk-1.0/rawshark.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r25766 | jake | 2008-07-18 12:31:01 -0700 (Fri, 18 Jul 2008) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-pppoe.c
+
+From Edward J. Paradise:
+The #defines for PADG, PADC, and PADQ are incorrect and these packets are
+showing up as unknown.
+I would be happy to fix this bug as I would like to enhance the current support
+for rfc4938 and rfc4938bis to include filtering and inband credit grant decoding.
+
+------------------------------------------------------------------------
+r25781 | gerald | 2008-07-21 11:51:05 -0700 (Mon, 21 Jul 2008) | 3 lines
+Changed paths:
+   M /trunk/gtk/airpcap_dlg.c
+
+From Dustin Johnson: Don't pop up a warning dialog every time we can't save
+our AirPcap configuration. Just print out a warning to the console instead.
+
+------------------------------------------------------------------------
+r25814 | kukosa | 2008-07-23 23:33:23 -0700 (Wed, 23 Jul 2008) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-tcp.c
+
+Fix TCP desegmentation when minimal header spans multiple segments.
+------------------------------------------------------------------------
+r25831 | gerald | 2008-07-25 11:51:44 -0700 (Fri, 25 Jul 2008) | 2 lines
+Changed paths:
+   M /trunk/rawshark.c
+
+Remove dead code found in Coverity CID 271.
+
+------------------------------------------------------------------------
+r24887 | lego | 2008-04-10 16:59:19 -0700 (Thu, 10 Apr 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua_tvb.c
+
+ fix http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2448
+Tvb:xxx() functions are unpropperly named Tvb:get_xxx in the wsluarm
+
+------------------------------------------------------------------------
+r25175 | jake | 2008-04-25 11:59:20 -0700 (Fri, 25 Apr 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua_field.c
+   M /trunk/epan/wslua/wslua_listener.c
+   M /trunk/epan/wslua/wslua_pinfo.c
+   M /trunk/epan/wslua/wslua_proto.c
+   M /trunk/epan/wslua/wslua_tree.c
+   M /trunk/epan/wslua/wslua_tvb.c
+   M /trunk/epan/wslua/wslua_util.c
+
+From: Márton Németh:
+The luaL_reg structure consists of two pointers: char* and a pointer to a function. 
+The last entry should also reflect this: it should be { NULL, NULL } instead of { 0, 0 }.
+------------------------------------------------------------------------
+r25857 | lego | 2008-07-28 17:23:58 -0700 (Mon, 28 Jul 2008) | 5 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua_pinfo.c
+   M /trunk/epan/wslua/wslua_tree.c
+   M /trunk/epan/wslua/wslua_tvb.c
+   M /trunk/epan/wslua/wslua_util.c
+
+Try to get the docbook buildbot runnig.
+
+Do not generate doc items for wslua garbage collectors (they are transparet)
+
+------------------------------------------------------------------------
+
+
+
+Copy over revisions by hand, which were required for r25766 and r25845:
+------------------------------------------------------------------------
+r25031 | jake | 2008-04-14 15:32:17 -0700 (Mon, 14 Apr 2008) | 2 lines
+
+Fix for bug 2458:
+Adding dissection for more recent PPPoE tags.
+------------------------------------------------------------------------
+r25079 | morriss | 2008-04-16 07:15:04 -0700 (Wed, 16 Apr 2008) | 1 line
+
+Remove (no longer needed) forward declaration of handoff function
+------------------------------------------------------------------------
+r25845 | lego | 2008-07-26 16:41:31 -0700 (Sat, 26 Jul 2008) | 22 lines
+
+From Balint Reczey
+
+Fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2453
+
+The patch fixes the problem by extending the original "outstanding stuff"
+approach.
+
+Now the pointer itself won't be NULLified, instead we track the pointers with
+their expiry state in structs in the outstanding_stuff list.
+The Lua objects refers to those structs instead of the actual pointers and
+checks the expiry state of the pointers before accessing them.
+The pointers are marked expired when the dissection of the frame is finished
+and the allocated struct is freed by Lua's garbage collector.
+
+If the garbage collector hits the struct when it holds a not expired pointer,
+it marks it as expired (that means we don't have any object in Lua referring to
+the pointer) and the struct will be freed at the end of the dissection of the
+frame.
+
+this is for the 1.0 branch
+
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r26035 | gerald | 2008-08-18 10:57:57 -0700 (Mon, 18 Aug 2008) | 211 lines
+Changed paths:
+   M /trunk-1.0/AUTHORS
+   M /trunk-1.0/asn1/Makefile.am
+   M /trunk-1.0/asn1/ldap/packet-ldap-template.c
+   M /trunk-1.0/asn1/ldap/packet-ldap-template.h
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/crypt/airpdcap.c
+   M /trunk-1.0/epan/crypt/airpdcap_debug.h
+   M /trunk-1.0/epan/crypt/airpdcap_int.h
+   M /trunk-1.0/epan/crypt/airpdcap_rijndael.c
+   M /trunk-1.0/epan/crypt/airpdcap_rijndael.h
+   M /trunk-1.0/epan/crypt/airpdcap_tkip.c
+   M /trunk-1.0/epan/dissectors/ncp2222.py
+   M /trunk-1.0/epan/dissectors/packet-btrfcomm.c
+   M /trunk-1.0/epan/dissectors/packet-k12.c
+   M /trunk-1.0/epan/dissectors/packet-ldap.c
+   M /trunk-1.0/epan/dissectors/packet-ldap.h
+   M /trunk-1.0/epan/dissectors/packet-ncp-int.h
+   M /trunk-1.0/epan/dissectors/packet-ncp2222.inc
+   M /trunk-1.0/epan/dissectors/packet-rtcp.c
+   M /trunk-1.0/epan/dissectors/packet-sip.c
+   M /trunk-1.0/gtk/rtp_analysis.c
+   M /trunk-1.0/manuf
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r25531 | martinm | 2008-06-23 07:58:17 -0700 (Mon, 23 Jun 2008) | 16 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-sip.c
+
+Show short version of Content-Length header.
+Fixes but 2635.
+
+------------------------------------------------------------------------
+r25862 | etxrab | 2008-07-29 11:02:09 -0700 (Tue, 29 Jul 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-sip.c
+
+Handle malformed SIP headers (empty header line missing) and add an expert
+item explaining the fault.
+Fixes bug
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2729
+------------------------------------------------------------------------
+r25551 | guy | 2008-06-23 14:06:42 -0700 (Mon, 23 Jun 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+
+Rename a variable to avoid collisions with the old V7 index() function,
+still declared by <string.h> on some platforms (at least the way we
+compile, with all sorts of non-ANSI C/non-POSIX stuff added).
+
+------------------------------------------------------------------------
+r25581 | guy | 2008-06-24 11:10:57 -0700 (Tue, 24 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+
+Fix another variable named "index".
+
+------------------------------------------------------------------------
+r25879 | gerald | 2008-07-30 15:32:21 -0700 (Wed, 30 Jul 2008) | 42 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/epan/crypt/airpdcap.c
+   M /trunk/epan/crypt/airpdcap_debug.h
+   M /trunk/epan/crypt/airpdcap_int.h
+   M /trunk/epan/crypt/airpdcap_rijndael.c
+   M /trunk/epan/crypt/airpdcap_rijndael.h
+   M /trunk/epan/crypt/airpdcap_tkip.c
+
+Add WPA group key decryption from Brian Stormont, via bug 1420:
+
+Although this patch successfully recognizes group keys and decrypts packets
+properly using the group key, there is a limitation.  If an AP is using key
+rotation, clicking on individual packets in a trace may not properly decrypt a
+packet encrypted with a group key.  This is because the current structure used
+in Wireshark only supports one active unicast and one active group key.  If a
+new key has been seen, but you are looking at a packet encrypted with an older
+key, it will not decrypt.  The summary lines, however, do show the packets
+properly decrypted.
+
+I've written up a much longer and more detailed explanation in a comment in the
+code, along with a proposed idea for a solution, plus a clunky work-around in
+the GUI when using the current code.
+
+I also suspect there might still be a problem with decrypting TKIP groups keys
+that are sent using WPA2 authentication.  In the most common operation, if you
+are using WPA2, you'll also be using AES keys. It's not a common AP
+configuration to use WPA2 with TKIP. In fact, most APs don't seem to support
+it.  Since it is an uncommon setup, I haven't put aside the time to test this
+patch against such an AP.   I do have access to an AP that supports this, so
+when I have the time I'll test it and if needed, will submit another patch to
+handle that odd-ball condition.
+
+From me:
+
+Remove the decrypt element of s_rijndael_ctx (which was unused, as indicated
+in the comments).
+Preserve the GPL licensing text in several files (which the patch shouldn't
+have removed).
+Remove changes that added whitespace.
+Convert C++-style comments to C-style.
+Update to include recent SVN changes (e.g. renaming variables named "index").
+Remove extraneous printf's.
+Define DEBUG_DUMP in airpdcap_debug.h.
+Comment out some instances of DEBUG_DUMP.
+Change malloc/free to g_malloc/g_free.
+Use g_memdup instead of allocating and copying.
+Use gint16 instead of INT16 in airpdcap_rijndael.c.
+Add Brian to AUTHORS.
+
+------------------------------------------------------------------------
+r25890 | etxrab | 2008-08-01 04:20:50 -0700 (Fri, 01 Aug 2008) | 3 lines
+Changed paths:
+   M /trunk/asn1/ldap/packet-ldap-template.c
+   M /trunk/asn1/ldap/packet-ldap-template.h
+   M /trunk/epan/dissectors/packet-ldap.c
+   M /trunk/epan/dissectors/packet-ldap.h
+
+From   Yaniv Kaul:
+( I edited the template files)
+Failure to dissect long SASL wrapped LDAP response.
+------------------------------------------------------------------------
+r25923 | lego | 2008-08-04 16:15:54 -0700 (Mon, 04 Aug 2008) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-k12.c
+
+Fix an ep memory corruption due to passing ep blocks into a se allocated structure.
+
+far away from UAT...
+
+------------------------------------------------------------------------
+r25924 | lego | 2008-08-04 16:25:07 -0700 (Mon, 04 Aug 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-k12.c
+
+if it's se allocated it needs to be filled only once.
+
+------------------------------------------------------------------------
+r25956 | kukosa | 2008-08-08 04:37:29 -0700 (Fri, 08 Aug 2008) | 1 line
+Changed paths:
+   M /trunk/asn1/Makefile.am
+
+Include asn1/Makefile.inc.nmake and asn1/Makefile.preinc.nmake into the distribution package
+------------------------------------------------------------------------
+r25961 | jake | 2008-08-08 12:57:50 -0700 (Fri, 08 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/gtk/rtp_analysis.c
+
+Fix for bug 2780:
+Correct reverse direction payload save.
+------------------------------------------------------------------------
+r25964 | jake | 2008-08-08 14:22:33 -0700 (Fri, 08 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rtcp.c
+
+Fix for bug 2778:
+Bye string is "null padded", not "null terminated". Change code to test for that fact.
+------------------------------------------------------------------------
+r25600 | guy | 2008-06-25 02:10:50 -0700 (Wed, 25 Jun 2008) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Clean up indentation.
+
+Make build_expert_data() take the size of "buffer" as an argument, and
+use that when doing g_snprintf() into the buffer, to ensure we don't
+overflow the buffer.  Also, don't just assign to "buffer", as that
+doesn't put anything *in* the buffer.
+
+------------------------------------------------------------------------
+r25682 | wmeier | 2008-07-08 18:30:30 -0700 (Tue, 08 Jul 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-btrfcomm.c
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Fix some mis-spellings
+
+------------------------------------------------------------------------
+r25683 | wmeier | 2008-07-08 19:30:39 -0700 (Tue, 08 Jul 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Fix some spacing .....
+
+------------------------------------------------------------------------
+r25807 | morriss | 2008-07-23 13:35:28 -0700 (Wed, 23 Jul 2008) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Don't use proto_tree_add_uint_hidden() any more: it's deprecated.
+------------------------------------------------------------------------
+r25892 | etxrab | 2008-08-01 04:56:57 -0700 (Fri, 01 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+From Bill Meier:
+segmentation fault loading trace containing NCP packets.
+------------------------------------------------------------------------
+r25911 | wmeier | 2008-08-03 19:27:20 -0700 (Sun, 03 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp-int.h
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Adjust various indentation/spacing; Do some minor reformatting
+
+------------------------------------------------------------------------
+r25913 | wmeier | 2008-08-03 19:56:47 -0700 (Sun, 03 Aug 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Fix 2 bugs:
+- Misplaced } resulted in incorrect program flow in switch statement;
+- Invalid input caused "Dissector bug: infinite loop";
+
+------------------------------------------------------------------------
+r25914 | wmeier | 2008-08-03 20:46:49 -0700 (Sun, 03 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Print various uints with %u ...
+
+------------------------------------------------------------------------
+r26012 | gmorris | 2008-08-14 04:40:12 -0700 (Thu, 14 Aug 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/ncp2222.py
+   M /trunk/epan/dissectors/packet-ncp2222.inc
+
+Fix for retransmission of fragmented NDS reply packets.
+Fix for crash in expert file information.
+Fix for malformed NDS iteration packets.
+Fix indention on NDS read attribute definition verb.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r26038 | jake | 2008-08-18 22:53:47 -0700 (Mon, 18 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/debian/changelog
+
+Update version info in Debian changelog entry.
+
+------------------------------------------------------------------------
+r26114 | gerald | 2008-09-02 10:17:41 -0700 (Tue, 02 Sep 2008) | 33 lines
+Changed paths:
+   M /trunk-1.0/epan/tvbuff.c
+
+Copy over tvbuff fixes from the trunk:
+
+------------------------------------------------------------------------
+r24726 | ashokn | 2008-03-25 11:53:17 -0700 (Tue, 25 Mar 2008) | 6 lines
+Changed paths:
+   M /trunk/epan/tvbuff.c
+
+Fixed bug with tvb_get_bits64(); the mask array had one less "ff" than
+it needs. This manifests itself in calls to tvb_get_bits64() and in
+calls to proto_tree_add_bits_xxx() for >32 bits.
+
+------------------------------------------------------------------------
+r24942 | etxrab | 2008-04-12 10:00:41 -0700 (Sat, 12 Apr 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/tvbuff.c
+
+From   Michael McCartney:
+patch for tvb_get_bits16 not to read past end of buffer
+http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2439
+------------------------------------------------------------------------
+r25028 | jmayer | 2008-04-14 14:31:19 -0700 (Mon, 14 Apr 2008) | 1 line
+Changed paths:
+   M /trunk/epan/tvbuff.c
+
+Get rid of some unsued code: The warning causes a failure due to -Werror
+------------------------------------------------------------------------
+r25677 | morriss | 2008-07-08 13:04:11 -0700 (Tue, 08 Jul 2008) | 1 line
+Changed paths:
+   M /trunk/epan/tvbuff.c
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2649 by adding some length checks to two while loops in tvb_uncompress()
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r26116 | gerald | 2008-09-02 10:38:49 -0700 (Tue, 02 Sep 2008) | 28 lines
+Changed paths:
+   M /trunk-1.0/epan/uat.c
+   M /trunk-1.0/epan/uat.h
+   M /trunk-1.0/gtk/uat_gui.c
+
+Copy over UAT fixes from the trunk:
+
+------------------------------------------------------------------------
+r25928 | lego | 2008-08-05 04:16:24 -0700 (Tue, 05 Aug 2008) | 6 lines
+Changed paths:
+   M /trunk/epan/uat.h
+
+Have some UAT helper functions copying the passed buffer before
+freeing the contained buffer ( The client might have passed the
+contained buffer to avoid read-after-free )
+------------------------------------------------------------------------
+r25950 | lego | 2008-08-07 09:40:56 -0700 (Thu, 07 Aug 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/uat.c
+
+remove a degug printf
+------------------------------------------------------------------------
+
+
+Copy over revisions by hand:
+------------------------------------------------------------------------
+r25940 | lego | 2008-08-05 17:43:01 -0700 (Tue, 05 Aug 2008) | 3 lines
+Changed paths:
+   M /trunk/gtk/uat_gui.c
+Make the buttons of the UAT dialog usable again, and get rid of some gtk warnings.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r26123 | gerald | 2008-09-02 13:22:43 -0700 (Tue, 02 Sep 2008) | 67 lines
+Changed paths:
+   M /trunk-1.0/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/crypt/airpdcap.c
+   M /trunk-1.0/epan/crypt/airpdcap_rijndael.c
+   M /trunk-1.0/epan/dissectors/packet-isup.c
+   M /trunk-1.0/epan/dissectors/packet-q933.c
+   M /trunk-1.0/epan/dissectors/packet-smb2.c
+   M /trunk-1.0/epan/dissectors/packet-snmp.c
+   M /trunk-1.0/epan/dissectors/packet-v120.c
+   M /trunk-1.0/plugins/wimax/msg_dlmap.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r26024 | stig | 2008-08-14 14:06:28 -0700 (Thu, 14 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-q933.c
+
+Added a missing {0,NULL} as noted by Christopher.
+------------------------------------------------------------------------
+r26053 | wmeier | 2008-08-21 11:48:26 -0700 (Thu, 21 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-isup.c
+
+Fix from  christopher maynard as reported in bug 2822
+------------------------------------------------------------------------
+r26054 | wmeier | 2008-08-21 11:51:17 -0700 (Thu, 21 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-smb2.c
+
+Modified version of a fix from Christopher Maynard as reported in bug 2822.
+------------------------------------------------------------------------
+r26057 | wmeier | 2008-08-22 07:02:05 -0700 (Fri, 22 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-v120.c
+
+Fix a case of && which should be &; add some parentheses for clarity
+------------------------------------------------------------------------
+r26058 | wmeier | 2008-08-22 07:28:03 -0700 (Fri, 22 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/asn1/snmp/packet-snmp-template.c
+   M /trunk/epan/dissectors/packet-snmp.c
+
+Fix a (probably benign) case where it appears that && should be &
+------------------------------------------------------------------------
+r26070 | gerald | 2008-08-25 08:22:48 -0700 (Mon, 25 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+   M /trunk/epan/crypt/airpdcap_rijndael.c
+
+Fix a couple of crashes in WPA group key decryption.
+------------------------------------------------------------------------
+r26071 | gerald | 2008-08-25 08:26:15 -0700 (Mon, 25 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+
+Add another buffer length check to group key decryption.
+------------------------------------------------------------------------
+r26115 | gerald | 2008-09-02 10:26:24 -0700 (Tue, 02 Sep 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+
+Fetch the key length using pntohs. Initialize and check its length.
+------------------------------------------------------------------------
+
+
+Copy over revisions by hand:
+------------------------------------------------------------------------
+r26020 | jake | 2008-08-14 11:05:18 -0700 (Thu, 14 Aug 2008) | 2 lines
+Changed paths:
+   M /trunk/plugins/wimax/msg_dlmap.c
+
+From Frank Wang:
+dl-map decoder error when decode HARQ_DLMAP_IE and normal IE.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r26127 | gerald | 2008-09-03 09:09:22 -0700 (Wed, 03 Sep 2008) | 17 lines
+Changed paths:
+   M /trunk-1.0/epan/uat.h
+   M /trunk-1.0/gtk/afp_stat.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r25935 | morriss | 2008-08-05 13:38:22 -0700 (Tue, 05 Aug 2008) | 1 line
+Changed paths:
+   M /trunk/epan/uat.h
+
+(Temporary?) fix to get the Windows buildbot going again: remove constness from a couple of variables.
+------------------------------------------------------------------------
+r26126 | guy | 2008-09-03 03:24:38 -0700 (Wed, 03 Sep 2008) | 3 lines
+Changed paths:
+   M /trunk/gtk/afp_stat.c
+
+The AFP field containing the command is "afp.command", not "afp.cmd". 
+Fixes bug 2847.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
