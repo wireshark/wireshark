@@ -49,7 +49,6 @@ static dissector_handle_t data_handle;
 #define TCP_PORT_KISMET	2501
 
 static guint global_kismet_tcp_port = TCP_PORT_KISMET;
-static guint tcp_port = 0;
 
 static gboolean response_is_continuation(const guchar * data);
 void proto_reg_handoff_kismet(void);
@@ -323,11 +322,13 @@ proto_register_kismet(void)
 void
 proto_reg_handoff_kismet(void)
 {
-	static int kismet_prefs_initialized = FALSE;
+	static gboolean kismet_prefs_initialized = FALSE;
 	static dissector_handle_t kismet_handle;
+	static guint tcp_port;
 
 	if (!kismet_prefs_initialized) {
 		kismet_handle = new_create_dissector_handle(dissect_kismet, proto_kismet);
+		data_handle = find_dissector("data");
 		kismet_prefs_initialized = TRUE;
 	} else {
 		dissector_delete("tcp.port", tcp_port, kismet_handle);
@@ -337,5 +338,4 @@ proto_reg_handoff_kismet(void)
 	tcp_port = global_kismet_tcp_port;
 
 	dissector_add("tcp.port", global_kismet_tcp_port, kismet_handle);
-	data_handle = find_dissector("data");
 }

@@ -66,10 +66,6 @@
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
 
-/* Dissectors */
-static dissector_handle_t sip_handle = NULL;
-static dissector_handle_t sip_tcp_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static gint proto_sip				= -1;
 static gint proto_raw_sip			= -1;
@@ -551,10 +547,6 @@ static gboolean sip_desegment_headers = TRUE;
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
 static gboolean sip_desegment_body = TRUE;
-
-/* Gloabl variables */
-static guint saved_sip_tcp_port;
-static guint saved_sip_tls_port;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
@@ -2751,28 +2743,28 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 static void
 tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-    proto_tree *raw_tree = NULL;
-    proto_item *ti = NULL;
-    int next_offset, linelen, end_offset;
+	proto_tree *raw_tree = NULL;
+	proto_item *ti = NULL;
+	int next_offset, linelen, end_offset;
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
-        raw_tree = proto_item_add_subtree(ti, ett_raw_text);
-    }
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
+		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+	}
 
-    end_offset = offset + length;
+	end_offset = offset + length;
 
-    while (offset < end_offset) {
-        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-        linelen = next_offset - offset;
-        if (raw_tree) {
-            proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
-                                         tvb_format_text(tvb, offset, linelen),
-                                         "%s",
-                                         tvb_format_text(tvb, offset, linelen));
-        }
-        offset = next_offset;
-    }
+	while (offset < end_offset) {
+		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		linelen = next_offset - offset;
+		if (raw_tree) {
+			proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
+						     tvb_format_text(tvb, offset, linelen),
+						     "%s",
+						     tvb_format_text(tvb, offset, linelen));
+		}
+		offset = next_offset;
+	}
 }
 
 /* Check to see if this packet is a resent request.  Return value is the frame number
@@ -3418,7 +3410,7 @@ void proto_register_sip(void)
 			   "RFC 3327: Path Header", HFILL }
 		},
 
-        { &hf_header_array[POS_PRIORITY],
+		{ &hf_header_array[POS_PRIORITY],
 		       { "Priority", 		"sip.Priority",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Priority Header", HFILL }
@@ -3429,7 +3421,7 @@ void proto_register_sip(void)
 			"Privacy Header", HFILL }
 		},
 
-        { &hf_header_array[POS_PROXY_AUTHENTICATE],
+		{ &hf_header_array[POS_PROXY_AUTHENTICATE],
 		       { "Proxy-Authenticate", 		"sip.Proxy-Authenticate",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Proxy-Authenticate Header", HFILL }
@@ -3440,7 +3432,7 @@ void proto_register_sip(void)
 			"RFC 3261: Proxy-Authorization Header", HFILL }
 		},
 
-        { &hf_header_array[POS_PROXY_REQUIRE],
+		{ &hf_header_array[POS_PROXY_REQUIRE],
 		       { "Proxy-Require", 		"sip.Proxy-Require",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Proxy-Require Header", HFILL }
@@ -3510,7 +3502,7 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Route Header", HFILL }
 		},
-        { &hf_header_array[POS_RSEQ],
+		{ &hf_header_array[POS_RSEQ],
 		       { "RSeq", 		"sip.RSeq",
 		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"RFC 3262: RSeq Header", HFILL }
@@ -3865,9 +3857,7 @@ void proto_register_sip(void)
 	proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
 	                                        "Raw_SIP", "raw_sip");
 	new_register_dissector("sip", dissect_sip, proto_sip);
-	sip_handle = find_dissector("sip");
 	register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
-	sip_tcp_handle = find_dissector("sip.tcp");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_sip, hf, array_length(hf));
@@ -3877,16 +3867,13 @@ void proto_register_sip(void)
 	/* Register raw_sip field(s) */
 	proto_register_field_array(proto_raw_sip, raw_hf, array_length(raw_hf));
 
-	/* SIP content type and internet media type used by other dissectors are the same */
-	media_type_dissector_table = find_dissector_table("media_type");
-
 	sip_module = prefs_register_protocol(proto_sip, proto_reg_handoff_sip);
 
-  prefs_register_uint_preference(sip_module, "tcp.port",
+	prefs_register_uint_preference(sip_module, "tcp.port",
                                  "SIP TCP Port",
                                  "SIP Server TCP Port",
                                  10, &sip_tcp_port);
-  prefs_register_uint_preference(sip_module, "tls.port",
+	prefs_register_uint_preference(sip_module, "tls.port",
                                  "SIP TLS Port",
                                  "SIP Server TLS Port",
                                  10, &sip_tls_port);
@@ -3921,7 +3908,7 @@ void proto_register_sip(void)
 	    &sip_desegment_body);
 
 	register_init_routine(&sip_init_protocol);
-    register_heur_dissector_list("sip", &heur_subdissector_list);
+	register_heur_dissector_list("sip", &heur_subdissector_list);
 	/* Register for tapping */
 	sip_tap = register_tap("sip");
 }
@@ -3929,26 +3916,35 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-  static gboolean sip_prefs_initialized = FALSE;
+	static dissector_handle_t sip_handle;
+	static dissector_handle_t sip_tcp_handle;
+	static guint saved_sip_tcp_port;
+	static guint saved_sip_tls_port;
+	static gboolean sip_prefs_initialized = FALSE;
 
-  if (sip_prefs_initialized) {
-    dissector_delete("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
-    ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
-  } else {
-    sip_prefs_initialized = TRUE;
-  }
-  /* Set our port number for future use */
-  saved_sip_tcp_port = sip_tcp_port;
-  dissector_add("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
-  saved_sip_tls_port = sip_tls_port;
-  ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
+	if (!sip_prefs_initialized) {
+		sip_handle = find_dissector("sip");
+		sip_tcp_handle = find_dissector("sip.tcp");
+		sigcomp_handle = find_dissector("sigcomp");
+		/* SIP content type and internet media type used by other dissectors are the same */
+		media_type_dissector_table = find_dissector_table("media_type");
 
-	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
-	dissector_add_string("media_type", "message/sip", sip_handle);
-	sigcomp_handle = find_dissector("sigcomp");
+		dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
+		dissector_add_string("media_type", "message/sip", sip_handle);
 
-	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
-	heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
-	heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
-	heur_dissector_add("stun2", dissect_sip_heur, proto_sip);
+		heur_dissector_add("udp", dissect_sip_heur, proto_sip);
+		heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
+		heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
+		heur_dissector_add("stun2", dissect_sip_heur, proto_sip);
+		sip_prefs_initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
+		ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
+	}
+	/* Set our port number for future use */
+	saved_sip_tcp_port = sip_tcp_port;
+	saved_sip_tls_port = sip_tls_port;
+	dissector_add("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
+	ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
+
 }

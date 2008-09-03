@@ -52,8 +52,6 @@
 static int proto_tipc = -1;
 
 /* dissector handles */
-static dissector_handle_t tipc_handle;
-static dissector_handle_t tipc_tcp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t ip_handle;
 
@@ -186,7 +184,6 @@ static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
 
 /* protocol preferences */
-static gboolean inited = FALSE;
 static gboolean tipc_defragment = TRUE;
 static gboolean dissect_tipc_data = TRUE;
 static gboolean try_heuristic_first = FALSE;
@@ -195,7 +192,6 @@ static gboolean try_heuristic_first = FALSE;
 #define V2_AS_1_7  0x4
 static gint     handle_v2_as = V2_AS_ALL;
 static guint tipc_alternate_tcp_port = 0;
-static guint tipc_alternate_tcp_port_prev = 0;
 static gboolean tipc_tcp_desegment = TRUE;
 
 /* this is used to find encapsulated protocols */
@@ -2969,6 +2965,11 @@ proto_register_tipc(void)
 void
 proto_reg_handoff_tipc(void)
 {
+	static gboolean inited = FALSE;
+	static dissector_handle_t tipc_handle;
+	static dissector_handle_t tipc_tcp_handle;
+	static guint tipc_alternate_tcp_port_prev = 0;
+
 	if (!inited) {
 		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 		tipc_tcp_handle = new_create_dissector_handle(dissect_tipc_tcp, proto_tipc);

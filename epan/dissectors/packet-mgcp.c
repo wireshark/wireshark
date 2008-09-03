@@ -254,15 +254,6 @@ static guint global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
 static gboolean global_mgcp_raw_text = FALSE;
 static gboolean global_mgcp_message_count = FALSE;
 
-/*
- * Variables to allow for proper deletion of dissector registration when
- * the user changes port from the gui.
- */
-static int gateway_tcp_port = 0;
-static int gateway_udp_port = 0;
-static int callagent_tcp_port = 0;
-static int callagent_udp_port = 0;
-
 /* Some basic utility functions that are specific to this dissector */
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name);
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength);
@@ -949,13 +940,21 @@ void proto_register_mgcp(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_mgcp(void)
 {
-	static int mgcp_prefs_initialized = FALSE;
+	static gboolean mgcp_prefs_initialized = FALSE;
 	static dissector_handle_t mgcp_tpkt_handle;
-	/* Get a handle for the SDP dissector. */
-	sdp_handle = find_dissector("sdp");
+	/*
+	 * Variables to allow for proper deletion of dissector registration when
+	 * the user changes port from the gui.
+	 */
+	static int gateway_tcp_port;
+	static int gateway_udp_port;
+	static int callagent_tcp_port;
+	static int callagent_udp_port;
 
 	if (!mgcp_prefs_initialized)
 	{
+		/* Get a handle for the SDP dissector. */
+		sdp_handle = find_dissector("sdp");
 		mgcp_handle = new_create_dissector_handle(dissect_mgcp, proto_mgcp);
 		mgcp_tpkt_handle = new_create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
 		mgcp_prefs_initialized = TRUE;

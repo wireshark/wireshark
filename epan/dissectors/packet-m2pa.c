@@ -44,7 +44,6 @@
 #define SCTP_PORT_M2PA              3565
 
 static guint global_sctp_port       = SCTP_PORT_M2PA;
-static guint sctp_port              = 0;
 
 void proto_reg_handoff_m2pa(void);
 
@@ -76,7 +75,6 @@ static int hf_pri_spare    = -1;
 static gint ett_m2pa       = -1;
 static gint ett_m2pa_li    = -1;
 
-static int mtp3_proto_id;
 static dissector_handle_t mtp3_handle;
 
 typedef enum {
@@ -596,14 +594,14 @@ proto_register_m2pa(void)
 void
 proto_reg_handoff_m2pa(void)
 {
-  static int prefs_initialized = FALSE;
+  static gboolean prefs_initialized = FALSE;
   static dissector_handle_t m2pa_handle;
+  static guint sctp_port;
 
   /* Port preferences code shamelessly copied from packet-beep.c */
   if (!prefs_initialized) {
+    m2pa_handle   = find_dissector("m2pa");
     mtp3_handle   = find_dissector("mtp3");
-    mtp3_proto_id = proto_get_id_by_filter_name("mtp3");
-    m2pa_handle   = create_dissector_handle(dissect_m2pa, proto_m2pa);
 
     dissector_add("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
 

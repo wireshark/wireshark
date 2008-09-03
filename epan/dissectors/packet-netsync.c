@@ -161,10 +161,7 @@ static int ett_netsync = -1;
  * for monotone netsync
  */
 
-static dissector_handle_t netsync_handle;
-
 static guint global_tcp_port_netsync = TCP_PORT_NETSYNC;
-static guint tcp_port_netsync = TCP_PORT_NETSYNC;
 static gboolean netsync_desegment = TRUE;
 
 static gint dissect_uleb128( tvbuff_t *tvb, gint offset, guint* size)
@@ -757,8 +754,6 @@ proto_register_netsync(void)
 	proto_register_field_array(proto_netsync, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
-
 	netsync_module = prefs_register_protocol(proto_netsync,
 						proto_reg_handoff_netsync);
 
@@ -779,12 +774,15 @@ proto_register_netsync(void)
 void
 proto_reg_handoff_netsync(void)
 {
-	static gint initialized = 0;
+	static dissector_handle_t netsync_handle;
+	static guint tcp_port_netsync;
+	static gboolean initialized = FALSE;
 
-	if (initialized) {
-		dissector_delete("tcp.port", tcp_port_netsync, netsync_handle);
+	if (!initialized) {
+		netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
+		initialized = TRUE;
 	} else {
-		initialized = 1;
+		dissector_delete("tcp.port", tcp_port_netsync, netsync_handle);
 	}
 
 	tcp_port_netsync = global_tcp_port_netsync;

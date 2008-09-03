@@ -45,7 +45,6 @@ void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
 /* ethertype for 802.1ah tag - encapsulating an Ethernet packet */
 static unsigned int ieee8021ah_ethertype = ETHERTYPE_IEEE_802_1AH;
-static unsigned int old_ieee8021ah_ethertype;
 
 static int proto_ieee8021ah = -1;
 static int proto_ieee8021ad = -1;
@@ -434,6 +433,7 @@ proto_reg_handoff_ieee8021ah(void)
     static gboolean prefs_initialized = FALSE;
     static dissector_handle_t ieee8021ah_handle;
     static dissector_handle_t ieee8021ad_handle;
+    static unsigned int old_ieee8021ah_ethertype;
 
     if (!prefs_initialized){
 	ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah, 
@@ -441,6 +441,7 @@ proto_reg_handoff_ieee8021ah(void)
 
 	ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
 						    proto_ieee8021ad);
+	dissector_add("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
 
 	prefs_initialized = TRUE;
     }
@@ -451,5 +452,4 @@ proto_reg_handoff_ieee8021ah(void)
     old_ieee8021ah_ethertype = ieee8021ah_ethertype;
     dissector_add("ethertype", ieee8021ah_ethertype, ieee8021ah_handle);
 
-    dissector_add("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
 }

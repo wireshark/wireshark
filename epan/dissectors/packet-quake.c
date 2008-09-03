@@ -516,20 +516,21 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_quake(void)
 {
-	static int Initialized=FALSE;
-	static int ServerPort=0;
+	static gboolean Initialized=FALSE;
+	static int ServerPort;
 
-	if (Initialized) {
-		dissector_delete("udp.port", ServerPort, quake_handle);
-	} else {
+	if (!Initialized) {
+		quake_handle = create_dissector_handle(dissect_quake, proto_quake);
+		data_handle = find_dissector("data");
 		Initialized=TRUE;
+	} else {
+		dissector_delete("udp.port", ServerPort, quake_handle);
 	}
 
 	/* set port for future deletes */
 	ServerPort=gbl_quakeServerPort;
 
 	dissector_add("udp.port", gbl_quakeServerPort, quake_handle);
-	data_handle = find_dissector("data");
 }
 
 
@@ -654,8 +655,6 @@ proto_register_quake(void)
 					"QUAKE", "quake");
 	proto_register_field_array(proto_quake, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	quake_handle = create_dissector_handle(dissect_quake, proto_quake);
 
 	/* Register a configuration option for port */
 	quake_module = prefs_register_protocol(proto_quake,

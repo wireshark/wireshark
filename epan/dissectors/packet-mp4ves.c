@@ -56,8 +56,7 @@ static int ett_mp4ves_config = -1;
 
 /* The dynamic payload type which will be dissected as MP4V-ES */
 
-static guint dynamic_payload_type = 0;
-static guint temp_dynamic_payload_type = 0;
+static guint global_dynamic_payload_type = 0;
 
 
 static const range_string mp4ves_startcode_vals[] = {
@@ -220,25 +219,23 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_mp4ves(void)
 {
-	dissector_handle_t mp4ves_handle;
-	static int mp4ves_prefs_initialized = FALSE;
-
-	mp4ves_handle = create_dissector_handle(dissect_mp4ves, proto_mp4ves);
+	static dissector_handle_t mp4ves_handle;
+	static guint dynamic_payload_type;
+	static gboolean mp4ves_prefs_initialized = FALSE;
 
 	if (!mp4ves_prefs_initialized) {
+		mp4ves_handle = find_dissector("mp4ves");
+		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 		mp4ves_prefs_initialized = TRUE;
 	}else{
 		if ( dynamic_payload_type > 95 )
 			dissector_delete("rtp.pt", dynamic_payload_type, mp4ves_handle);
 	}
-	dynamic_payload_type = temp_dynamic_payload_type;
+	dynamic_payload_type = global_dynamic_payload_type;
 
 	if ( dynamic_payload_type > 95 ){
 		dissector_add("rtp.pt", dynamic_payload_type, mp4ves_handle);
 	}
-
-	dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
-
 }
 
 void
@@ -295,6 +292,6 @@ proto_register_mp4ves(void)
 								   "MP4V-ES dynamic payload type",
 								   "The dynamic payload type which will be interpreted as MP4V-ES",
 								   10,
-								   &temp_dynamic_payload_type);
+								   &global_dynamic_payload_type);
 
 }

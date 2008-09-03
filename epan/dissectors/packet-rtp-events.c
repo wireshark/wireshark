@@ -46,12 +46,8 @@
 
 /*  rtp_event_payload_type_value is the value used globally
 	to set the appropriate payload type
-    saved_pt_value is a temporary place to save the value
-    	so we can properly reinitialize when the settings
-    	get changed
 */
 static guint rtp_event_payload_type_value = 101;
-static guint saved_payload_type_value;
 
 
 /* RTP Event Fields */
@@ -87,9 +83,9 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint8      octet;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-	  {
+	{
 	    col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP EVENT" );
-	  }
+	}
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -109,23 +105,23 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 
 	if ( check_col( pinfo->cinfo, COL_INFO) )
-	  {
+	{
 		col_add_fstr( pinfo->cinfo, COL_INFO,
 		    "Payload type=RTP Event, %s",
 		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
-	  }
+	}
 
-    ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
-    rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
+	ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
+	rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
 
-    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
+	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
 
-    octet = tvb_get_guint8(tvb, offset +1 );
-    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset+1, 1, octet);
-    proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset+1, 1, octet);
-    proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
+	octet = tvb_get_guint8(tvb, offset +1 );
+	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_end, tvb, offset+1, 1, octet);
+	proto_tree_add_boolean (rtp_events_tree, hf_rtp_events_reserved, tvb, offset+1, 1, octet);
+	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_volume, tvb, offset+1, 1, octet);
 
-    proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
+	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset+2, 2, FALSE);
 
 	/* set the end info for the tap */
 	if (octet & 0x80)
@@ -136,11 +132,11 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_event_info.info_end = FALSE;
 	}
 
-    /* Make end-of-event packets obvious in the info column */
-    if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
-    {
-	    col_append_str(pinfo->cinfo, COL_INFO, " (end)");
-    }
+	/* Make end-of-event packets obvious in the info column */
+	if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, " (end)");
+	}
 
 	tap_queue_packet(rtp_event_tap, pinfo, &rtp_event_info);
 }
@@ -229,9 +225,9 @@ proto_register_rtp_events(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 
-    /* Register preferences */
-    rtp_events_module = prefs_register_protocol (proto_rtp_events, proto_reg_handoff_rtp_events);
-    prefs_register_uint_preference (rtp_events_module,
+	/* Register preferences */
+	rtp_events_module = prefs_register_protocol (proto_rtp_events, proto_reg_handoff_rtp_events);
+	prefs_register_uint_preference (rtp_events_module,
                                     "event_payload_type_value", "Payload Type for RFC2833 RTP Events",
                                     "This is the value of the Payload Type field"
                                     "that specifies RTP Events", 10,
@@ -246,10 +242,15 @@ void
 proto_reg_handoff_rtp_events(void)
 {
 	static dissector_handle_t rtp_events_handle;
-	static int rtp_events_prefs_initialized = FALSE;
+	/* saved_payload_type_value is a temporary place to save */
+	/* the value so we can properly reinitialize when the    */
+    	/* settings get changed.                                 */
+	static guint saved_payload_type_value;
+	static gboolean rtp_events_prefs_initialized = FALSE;
 
   	if (!rtp_events_prefs_initialized) {
-		rtp_events_handle = create_dissector_handle(dissect_rtp_events, proto_rtp_events);
+		rtp_events_handle = find_dissector("rtpevent");
+		dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
 		rtp_events_prefs_initialized = TRUE;
 	}
 	else {
@@ -259,6 +260,5 @@ proto_reg_handoff_rtp_events(void)
 	saved_payload_type_value = rtp_event_payload_type_value;
 	/* rtp_event_payload_type_value is set from preferences */
 
-    dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
-	dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
+	dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
 }

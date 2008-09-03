@@ -238,12 +238,6 @@ static guint8 vnc_get_bytes_per_pixel(packet_info *pinfo);
 /* Variables for our preferences */
 static guint vnc_preference_alternate_port = 0;
 
-/* This is a behind the scenes variable that is not changed by the user.
- * This stores last setting of the vnc_preference_alternate_port.  Used to keep
- * track of when the user has changed the setting so that we can delete
- * and re-register with the new port number. */
-static guint vnc_preference_alternate_port_last = 0;
-
 /* Initialize the protocol and registered fields */
 static int proto_vnc = -1; /* Protocol subtree */
 static int hf_vnc_padding = -1;
@@ -410,8 +404,6 @@ static gint ett_vnc_hextile_subrect = -1;
 static gint ett_vnc_zrle_subencoding = -1;
 static gint ett_vnc_colormap_num_groups = -1;
 static gint ett_vnc_colormap_color_group = -1;
-
-static dissector_handle_t vnc_handle;
 
 guint8 vnc_bytes_per_pixel; /* Global so it keeps its value between packets */
 
@@ -2397,11 +2389,16 @@ proto_register_vnc(void)
 void
 proto_reg_handoff_vnc(void)
 {
-        static gboolean inited = FALSE;
+	static gboolean inited = FALSE;
+	static dissector_handle_t vnc_handle;
+	/* This is a behind the scenes variable that is not changed by the user.
+	 * This stores last setting of the vnc_preference_alternate_port.  Used to keep
+	 * track of when the user has changed the setting so that we can delete
+	 * and re-register with the new port number. */
+	static guint vnc_preference_alternate_port_last = 0;
 
-        if(!inited) {
-		vnc_handle = create_dissector_handle(dissect_vnc,
-						     proto_vnc);
+	if(!inited) {
+		vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
 
 		dissector_add("tcp.port", 5500, vnc_handle);
 		dissector_add("tcp.port", 5501, vnc_handle);
@@ -2414,26 +2411,27 @@ proto_reg_handoff_vnc(void)
 		 * VNC port. */
 
 		inited = TRUE;
+	} else {  /* only after preferences have been read/changed */
+		if(vnc_preference_alternate_port != vnc_preference_alternate_port_last &&
+		   vnc_preference_alternate_port != 5500 &&
+		   vnc_preference_alternate_port != 5501 &&
+		   vnc_preference_alternate_port != 5900 &&
+		   vnc_preference_alternate_port != 5901) {
+			if (vnc_preference_alternate_port_last != 0) {
+				dissector_delete("tcp.port",
+						 vnc_preference_alternate_port_last,
+						 vnc_handle);
+			}
+			/* Save this setting to see if has changed later */
+	      		vnc_preference_alternate_port_last =
+				vnc_preference_alternate_port;
+
+			/* Register the new port setting */
+			if (vnc_preference_alternate_port != 0) {
+				dissector_add("tcp.port", 
+					      vnc_preference_alternate_port,
+					      vnc_handle);
+			}
+		}
 	}
-
-	if(vnc_preference_alternate_port != 5500 &&
-	   vnc_preference_alternate_port != 5501 &&
-	   vnc_preference_alternate_port != 5900 &&
-	   vnc_preference_alternate_port != 5901 &&
-	   vnc_preference_alternate_port != 0) {
-
-		dissector_delete("tcp.port",
-				 vnc_preference_alternate_port_last,
-				 vnc_handle);
-
-		/* Save this setting to see if has changed later */
-      		vnc_preference_alternate_port_last =
-			vnc_preference_alternate_port;
-
-		/* Register the new port setting */
-       		dissector_add("tcp.port", vnc_preference_alternate_port,
-			      vnc_handle);
-		
-	}
-
 }

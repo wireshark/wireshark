@@ -48,9 +48,6 @@ void proto_reg_handoff_llt(void);
 /* Variables for our preferences */
 static guint preference_alternate_ethertype = 0x0;
 
-/* Behind the scenes variable to keep track of the last preference setting */
-static guint preference_alternate_ethertype_last;
-
 /* Initialize the protocol and registered fields */
 static int proto_llt = -1;
 
@@ -62,8 +59,6 @@ static int hf_llt_message_time = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_llt = -1;
-
-static dissector_handle_t llt_handle; /* Declaring this here allows us to use it for re-registration throughout the handoff function */
 
 /* Code to actually dissect the packets */
 static void
@@ -153,13 +148,25 @@ proto_register_llt(void)
 void
 proto_reg_handoff_llt(void)
 {
-	llt_handle = create_dissector_handle(dissect_llt, proto_llt);
-	dissector_add("ethertype", ETHERTYPE_LLT, llt_handle);
+	static gboolean initialized = FALSE;
+	static dissector_handle_t llt_handle;
+	static guint preference_alternate_ethertype_last = 0x0;
 
-	if((preference_alternate_ethertype != ETHERTYPE_LLT)
-	&& (preference_alternate_ethertype != 0x0)){
-		dissector_delete("ethertype", preference_alternate_ethertype_last, llt_handle);
-		preference_alternate_ethertype_last = preference_alternate_ethertype; /* Save the setting to see if it has changed later */
-		dissector_add("ethertype", preference_alternate_ethertype, llt_handle); /* Register the new ethertype setting */
+	if (!initialized) {
+		llt_handle = create_dissector_handle(dissect_llt, proto_llt);
+		dissector_add("ethertype", ETHERTYPE_LLT, llt_handle);
+		initialized = TRUE;
+	} else {
+		if (preference_alternate_ethertype_last != 0x0) {
+			dissector_delete("ethertype", preference_alternate_ethertype_last, llt_handle);
+		}
+	}
+
+	/* Save the setting to see if it has changed later */
+	preference_alternate_ethertype_last = preference_alternate_ethertype;
+
+	if (preference_alternate_ethertype != 0x0) {
+ 		/* Register the new ethertype setting */
+		dissector_add("ethertype", preference_alternate_ethertype, llt_handle);
 	}
 }
