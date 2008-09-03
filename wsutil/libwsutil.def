@@ -39,3 +39,7 @@ ws_stdio_unlink
 ws_stdio_remove
 ws_stdio_fopen
 ws_stdio_freopen
+
+; str_util.c
+ascii_strdown_inplace
+ascii_strup_inplace
