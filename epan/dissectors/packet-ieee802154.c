@@ -486,7 +486,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_item          *ti;
 
     guint               offset = 0;
-    gboolean            fcs_ok = TRUE;
+    volatile gboolean   fcs_ok = TRUE;
     const char          *saved_proto;
     ieee802154_packet   *packet = ep_alloc(sizeof(ieee802154_packet));
 
@@ -700,13 +700,13 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     if (tvb_bytes_exist(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN, IEEE802154_FCS_LEN)) {
         /* The FCS is in the last two bytes of the packet. */
         guint16     fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
-        gboolean    fcs_ok;
         /* Check if we are expecting a CC2420-style FCS*/
         if (options & DISSECT_IEEE802154_OPTION_CC24xx) {
             fcs_ok = (fcs & IEEE802154_CC24xx_CRC_OK);
         }
         else {
-            fcs_ok = (fcs == ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN));
+            guint16 fcs_calc = ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
+            fcs_ok = (fcs == fcs_calc);
         }
     }
 
