@@ -74,6 +74,70 @@ static proto_tree *top_tree;
 
 #include "packet-rrc-fn.c"
 
+/* 
+TODO: Remove the dummy function when these functions are taken into use
+
+ These functions are not referenced from the ASN1 specifications
+ as this generates a lot of unsued code warings from GCC this dummy function
+ is introduced to reduce the number of warnings until the proper use is discovered
+ */
+
+static void
+dissect_rrc_dymmy_remove_unused_code_warnings(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_){
+
+	/* Dummy code to keep GCC happy */
+	switch(hf_index){
+		case 0:
+			dissect_rrc_HandoverToUTRANCommand( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_InterRATHandoverInfo( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_UE_RadioAccessCapabilityInfo( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_UL_PhysChCapabilityFDD_r6( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_UE_Positioning_GANSS_Data( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_MasterInformationBlock( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType1( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType2( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType3( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType4( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType5bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType6( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType7( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType8( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType9( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType10( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType11( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType11bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType12( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType13( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType13_1( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType13_2( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType13_3( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType13_4( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType14( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_1( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_1bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_2( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_2bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_3( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_3bis( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_4( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_5( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_6( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_7( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType15_8( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType16( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType17( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoType18( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoTypeSB1( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_SysInfoTypeSB2( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_ToTargetRNC_Container( tvb, offset, actx , tree, hf_index);
+			dissect_rrc_TargetRNC_ToSourceRNC_Container( tvb, offset, actx , tree, hf_index);
+			break;
+		default:
+			break;
+	}
+}
 
 static void
 dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
