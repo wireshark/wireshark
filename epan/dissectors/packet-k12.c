@@ -9,7 +9,6 @@
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998
 *
-*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
@@ -32,13 +31,13 @@
 #include <errno.h>
 #include <glib.h>
 #include <string.h>
+#include <wsutil/str_util.h>
 #include <epan/packet.h>
 #include <prefs.h>
 #include <epan/report_err.h>
 #include <epan/emem.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 #include "packet-sscop.h"
 #include "packet-umts_fp.h"
 
@@ -369,7 +368,7 @@ protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1 _U_, void* u2 _
 	guint num_protos, i;
 
 	g_strstrip(line);
-	g_ascii_strdown(line,len);
+	ascii_strdown_inplace(line);
 
 	protos = ep_strsplit(line,":",0);
 

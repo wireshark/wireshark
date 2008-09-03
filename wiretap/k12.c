@@ -32,11 +32,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
 #include "wtap-int.h"
 #include "wtap.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "k12.h"
+
+#include <wsutil/str_util.h>
 
 /*#define DEBUG_K12*/
 #ifdef DEBUG_K12
@@ -681,10 +684,13 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
                     rec->input_type = K12_PORT_ATMPVC;
             }
 
+            /* XXX - this is assumed, in a number of places (not just in the
+               ascii_strdown_inplace() call below) to be null-terminated;
+               is that guaranteed (even with a corrupt file)? */
             rec->input_name = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
             rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 
-            g_ascii_strdown (rec->stack_file,stack_len);
+            ascii_strdown_inplace (rec->stack_file);
 
             g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
             g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);

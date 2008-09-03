@@ -123,6 +123,8 @@
 #include <ctype.h>
 #include <errno.h>
 
+#include <wsutil/str_util.h>
+
 #define ISERIES_HDR_MAGIC_STR	" COMMUNICATIONS TRACE"
 #define ISERIES_HDR_MAGIC_LEN   21
 #define ISERIES_PKT_MAGIC_STR   "ETHV2"
@@ -275,7 +277,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	    {
              iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
-	  g_ascii_strup(buf,ISERIES_LINE_LENGTH);
+	  ascii_strup_inplace(buf);
 	  num_items_scanned = sscanf (buf,
 				      "   OBJECT PROTOCOL  . . . . . . :  %8s",
 				      protocol);

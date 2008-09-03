@@ -38,12 +38,15 @@
 #include <stdarg.h>
 
 #include <glib.h>
+
+#include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
+
 #include <epan/emem.h>
 #include <epan/report_err.h>
 #include <epan/filesystem.h>
 #include <epan/packet.h>
 #include <epan/range.h>
-#include <wsutil/file_util.h>
 
 #include "uat-int.h"
 
@@ -381,7 +384,7 @@ gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, voi
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) {
 	if (len) {
 		char* name = ep_strndup(strptr,len);
-		g_ascii_strdown(name,len);
+		ascii_strdown_inplace(name);
 		g_strchug(name);
 
 		if (find_dissector(name)) {

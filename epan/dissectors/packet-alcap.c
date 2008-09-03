@@ -36,13 +36,14 @@
 #include <string.h>
 #include <glib.h>
 
+#include <wsutil/str_util.h>
+
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include "packet-alcap.h"
 #include <epan/dissectors/packet-isup.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 
 #define	ALCAP_MSG_HEADER_LEN	6
 #define	ALCAP_PARM_HEADER_LEN	3
@@ -592,7 +593,7 @@ static const gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
     msg_info->dest_nsap = tvb_bytes_to_str(tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, FALSE);
-	dissect_nsap(tvb, offset,20, tree);
+    dissect_nsap(tvb, offset,20, tree);
     
     return NULL;
 }
@@ -613,7 +614,7 @@ static const gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
     msg_info->orig_nsap = tvb_bytes_to_str(tvb,offset,20);
     
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, FALSE);
-	dissect_nsap(tvb, offset,20, tree);
+    dissect_nsap(tvb, offset,20, tree);
     
     return NULL;
 }
@@ -1364,22 +1365,22 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  g
 #define GET_MSG_TYPE(id) ( array_length(msg_types) <= id ? &(msg_types[0]) : &(msg_types[id]) )
 
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    proto_tree	*alcap_tree = NULL;
+    proto_tree *alcap_tree = NULL;
     alcap_message_info_t* msg_info = ep_alloc0(sizeof(alcap_message_info_t));
-    int	len = tvb_length(tvb);
+    int len = tvb_length(tvb);
     int offset;
     proto_item* pi;
     proto_tree* compat_tree;
     const alcap_msg_type_info_t* msg_type;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
     
     if (tree) {
-		proto_item	*alcap_item = proto_tree_add_item(tree, proto_alcap, tvb, 0, -1, FALSE);
-		alcap_tree = proto_item_add_subtree(alcap_item, ett_alcap);
+        proto_item *alcap_item = proto_tree_add_item(tree, proto_alcap, tvb, 0, -1, FALSE);
+        alcap_tree = proto_item_add_subtree(alcap_item, ett_alcap);
     }
-	
+
     proto_tree_add_item(alcap_tree,hf_alcap_dsaid,tvb,0,4,FALSE);
     pi = proto_tree_add_item(alcap_tree,hf_alcap_msg_id,tvb,4,1,FALSE);
     
@@ -1391,7 +1392,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
     
     if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
+        col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
     
     
     pi = proto_tree_add_item(alcap_tree,hf_alcap_compat,tvb,5,1,FALSE);
@@ -1433,7 +1434,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         len -= 3 + param_len;
         offset += 3 + param_len;
     }
-	
+
     if (keep_persistent_info) {
         alcap_leg_info_t* leg = NULL;
         switch (msg_info->msg_type) {
@@ -1446,26 +1447,26 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     leg->pathid = msg_info->pathid;
                     leg->cid = msg_info->cid;
                     leg->sugr = msg_info->sugr;
-					leg->orig_nsap = NULL;
-					leg->dest_nsap = NULL;
-					
-					if (msg_info->orig_nsap) {
+                    leg->orig_nsap = NULL;
+                    leg->dest_nsap = NULL;
+
+                    if (msg_info->orig_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
-                        g_ascii_strdown(key,strlen(key));
-						
+			ascii_strdown_inplace(key);
+
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
                         
                         if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
                             se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
-					}
-					
+                    }
+
                     if (msg_info->dest_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
-                        g_ascii_strdown(key,strlen(key));
-						
+			ascii_strdown_inplace(key);
+
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
-						
+
                         if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
                             se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
@@ -1480,7 +1481,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             case 4: /* ECF */
                 if(( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) { 
                     leg->dsaid = msg_info->osaid;
-                    se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);	
+                    se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
                 }
                 break;
             case 6: /* RLC */
@@ -1505,7 +1506,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 }
                     break;
             default:
-                break;			
+                break;
         }
         
         if (leg && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
@@ -1721,15 +1722,15 @@ proto_register_alcap(void)
     { &hf_alcap_vbwt_size_fw, { "Forward CPS Packet Size", "alcap.vbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_vbwt_size_bw, { "Backwards CPS Packet Size", "alcap.vbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
         
-	{ &hf_alcap_leg_osaid, { "Leg's ERQ OSA id",	"alcap.leg.osaid", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_dsaid, { "Leg's ECF OSA id",	"alcap.leg.dsaid", FT_UINT32, BASE_HEX, NULL, 0,"", HFILL } },
-	{ &hf_alcap_leg_pathid, { "Leg's path id",	"alcap.leg.pathid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_cid, { "Leg's channel id",	"alcap.leg.cid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_sugr, { "Leg's SUGR",	"alcap.leg.sugr", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_dnsea, { "Leg's destination NSAP",	"alcap.leg.dnsea", FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_onsea, { "Leg's originating NSAP",	"alcap.leg.onsea", FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
-	{ &hf_alcap_leg_frame, { "a message of this leg",	"alcap.leg.msg", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL } },
-    { &hf_alcap_leg_release_cause, { "Leg's cause value in REL",	"alcap.leg.cause", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0, "", HFILL }},
+    { &hf_alcap_leg_osaid, { "Leg's ERQ OSA id",    "alcap.leg.osaid", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_dsaid, { "Leg's ECF OSA id",    "alcap.leg.dsaid", FT_UINT32, BASE_HEX, NULL, 0,"", HFILL } },
+    { &hf_alcap_leg_pathid, { "Leg's path id",    "alcap.leg.pathid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_cid, { "Leg's channel id",    "alcap.leg.cid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_sugr, { "Leg's SUGR",    "alcap.leg.sugr", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_dnsea, { "Leg's destination NSAP",    "alcap.leg.dnsea", FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_onsea, { "Leg's originating NSAP",    "alcap.leg.onsea", FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_frame, { "a message of this leg",    "alcap.leg.msg", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL } },
+    { &hf_alcap_leg_release_cause, { "Leg's cause value in REL",    "alcap.leg.cause", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0, "", HFILL }},
         
     };
     
@@ -1778,11 +1779,11 @@ proto_register_alcap(void)
     
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
     
-	register_dissector("alcap", dissect_alcap, proto_alcap);
-	
+    register_dissector("alcap", dissect_alcap, proto_alcap);
+
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-	
+
     alcap_module = prefs_register_protocol(proto_alcap, NULL);
     
     prefs_register_bool_preference(alcap_module, "leg_info",
@@ -1790,16 +1791,16 @@ proto_register_alcap(void)
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
     
-	legs_by_dsaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
-	legs_by_osaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
-	legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
-	
+    legs_by_dsaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
+    legs_by_osaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
+    legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
 }
 
 
 void
 proto_reg_handoff_alcap(void)
 {
-    dissector_handle_t	alcap_handle = create_dissector_handle(dissect_alcap, proto_alcap);
+    dissector_handle_t alcap_handle = create_dissector_handle(dissect_alcap, proto_alcap);
+
     dissector_add("mtp3.service_indicator", ALCAP_SI, alcap_handle);
 }

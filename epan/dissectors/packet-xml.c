@@ -44,9 +44,11 @@
 #include <stdio.h>
 
 #include <glib.h>
+
+#include <wsutil/str_util.h>
+
 #include <epan/emem.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/tvbparse.h>
 #include <epan/dtd.h>
 #include <epan/report_err.h>
@@ -197,7 +199,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		colinfo_str = "/XML";
 	} else {
 		colinfo_str = ep_strdup_printf("/%s",root_ns->name);
-		g_ascii_strup(colinfo_str,strlen(colinfo_str));
+		ascii_strup_inplace(colinfo_str);
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -250,14 +252,14 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item* pi;
 	proto_tree* pt;
 	tvbparse_elem_t* name_tok = tok->sub->next;
-	const gchar* name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+	gchar* name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	xml_ns_t* ns = g_hash_table_lookup(xmpli_names,name);
 	xml_frame_t* new_frame;
 
 	int hf_tag;
 	gint ett;
 
-	g_ascii_strdown(name,strlen(name));
+	ascii_strdown_inplace(name);
 	if (!ns) {
 		hf_tag = hf_xmlpi;
 		ett = ett_xmpli;
@@ -302,17 +304,17 @@ static void after_xmlpi(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 }
 
 static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
-	GPtrArray* stack = tvbparse_data;
-	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
-	tvbparse_elem_t* name_tok = tok->sub->next;
+    GPtrArray* stack = tvbparse_data;
+    xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
+    tvbparse_elem_t* name_tok = tok->sub->next;
     gchar* root_name;
-	const gchar* name = NULL;
-	xml_ns_t* ns;
-	xml_frame_t* new_frame;
-	proto_item* pi;
-	proto_tree* pt;
+    gchar* name = NULL;
+    xml_ns_t* ns;
+    xml_frame_t* new_frame;
+    proto_item* pi;
+    proto_tree* pt;
 
-	if (name_tok->sub->id == XML_SCOPED_NAME) {
+    if (name_tok->sub->id == XML_SCOPED_NAME) {
         tvbparse_elem_t* root_tok = name_tok->sub->sub;
         tvbparse_elem_t* leaf_tok = name_tok->sub->sub->next->next;
         xml_ns_t* nameroot_ns;
@@ -332,38 +334,38 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
         }
 
     } else {
-        name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
-        g_ascii_strdown(name,strlen(name));
+        name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+        ascii_strdown_inplace(name);
 
         if(current_frame->ns) {
-			ns = g_hash_table_lookup(current_frame->ns->elements,name);
+            ns = g_hash_table_lookup(current_frame->ns->elements,name);
 
-			if (!ns) {
-				if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
-					ns = &unknown_ns;
-				}
-			}
-		} else {
-			ns = &unknown_ns;
-		}
+            if (!ns) {
+                if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
+                    ns = &unknown_ns;
+                }
+            }
+        } else {
+            ns = &unknown_ns;
+        }
     }
 
     pi = proto_tree_add_item(current_frame->tree,ns->hf_tag,tok->tvb,tok->offset,tok->len,FALSE);
-	proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,tok->offset,(name_tok->offset - tok->offset) + name_tok->len));
+    proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,tok->offset,(name_tok->offset - tok->offset) + name_tok->len));
 
-	pt = proto_item_add_subtree(pi,ns->ett);
+    pt = proto_item_add_subtree(pi,ns->ett);
 
-	new_frame = ep_alloc(sizeof(xml_frame_t));
-	new_frame->type = XML_FRAME_TAG;
-	new_frame->name = name;
-	insert_xml_frame(current_frame, new_frame);
-	new_frame->item = pi;
-	new_frame->last_item = pi;
-	new_frame->tree = pt;
-	new_frame->start_offset = tok->offset;
-	new_frame->ns = ns;
+    new_frame = ep_alloc(sizeof(xml_frame_t));
+    new_frame->type = XML_FRAME_TAG;
+    new_frame->name = name;
+    insert_xml_frame(current_frame, new_frame);
+    new_frame->item = pi;
+    new_frame->last_item = pi;
+    new_frame->tree = pt;
+    new_frame->start_offset = tok->offset;
+    new_frame->ns = ns;
 
-	g_ptr_array_add(stack,new_frame);
+    g_ptr_array_add(stack,new_frame);
 
 }
 
@@ -464,7 +466,7 @@ static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	int* hfidp;
 	int hfid;
 
-	g_ascii_strdown(name,strlen(name));
+	ascii_strdown_inplace(name);
 	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,name) )) {
 		hfid = *hfidp;
 	} else {
