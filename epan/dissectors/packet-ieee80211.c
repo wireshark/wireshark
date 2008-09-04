@@ -3781,10 +3781,11 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
        tag_len + tag_val_init_off - offset, "Unparsed Extra Data");
   }
 }
+
 /***  WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 static void
-dissect_wise_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len){
-
+dissect_wise_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _U_)
+{
 	proto_item *pst_item, *cap_item, *chan_noc_item, *chnl_item;
 	proto_tree *pst_tree, *cap_tree, *chan_noc_tree, *chnl_tree;
 
