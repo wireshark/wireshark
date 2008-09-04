@@ -47,6 +47,9 @@
  *
  * Dutin Johnson - 802.11n and portions of 802.11k and 802.11ma
  * dustin@dustinj.us & dustin.johnson@cacetech.com
+ *
+ * 04/21/2008 - Added dissection for 802.11p 
+ * Arada Systems <http://www.aradasystems.com>
  */
 
 /*
@@ -548,6 +551,17 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define PMKID_LEN 16
 
 /* ************************************************************************* */
+/*              Wireless Access in Vehicular Environment  IEEE 802.11p       */
+/* ************************************************************************* */
+#define WAVE_ACID       0x0001
+#define WAVE_ACM        0x0002
+#define WAVE_ACF        0x0004
+#define WAVE_PRIORITY   0x0008
+#define WAVE_CHANNEL    0x0010
+#define WAVE_IPV6ADDR   0x0020
+#define WAVE_PEERMAC    0x0040
+
+/* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
 static const value_string frame_type_subtype_vals[] = {
@@ -858,6 +872,35 @@ static int hf_reassembled_in = -1;
 
 
 static int proto_wlan_mgt = -1;
+
+/* ************************************************************************* */
+/*                   Header values for WAVE                                  */
+/* ************************************************************************* */
+static int hf_pst_timingquality = -1;
+static int hf_pst_providercount = -1;
+static int hf_pst_length = -1;
+static int hf_pst_contents = -1;
+
+static int hf_pst_acid =        -1;
+static int hf_pst_acm_length =  -1;
+static int hf_pst_acm = -1;
+static int hf_pst_acm_contents =-1;
+static int hf_pst_acf =         -1;
+static int hf_pst_priority =    -1;
+static int hf_pst_ipv6addr =    -1;
+static int hf_pst_serviceport = -1;
+static int hf_pst_addressing =  -1;
+static int hf_pst_macaddr =     -1;
+static int hf_pst_channel =     -1;
+
+static int hf_chan_noc = -1;
+static int hf_chan_length = -1;
+static int hf_chan_content =	-1;
+static int hf_chan_channel =	-1;
+static int hf_chan_adapt   =	-1;
+static int hf_chan_rate    =	-1;
+static int hf_chan_tx_pow  =	-1;
+
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
@@ -1555,6 +1598,14 @@ static gint ett_ff_psmp_sta_info = -1;
 static gint ett_msdu_aggregation_parent_tree = -1;
 static gint ett_msdu_aggregation_subframe_tree = -1;
 /*** End: A-MSDU Dissection - Dustin Johnson ***/
+
+/***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+static gint ett_pst_tree = -1;
+static gint ett_pst_cap_tree = -1;
+static gint ett_chan_noc_tree = -1;
+static gint ett_wave_chnl_tree = -1;
+
+/***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
@@ -3730,6 +3781,100 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
        tag_len + tag_val_init_off - offset, "Unparsed Extra Data");
   }
 }
+/***  WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+static void
+dissect_wise_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len){
+
+	proto_item *pst_item, *cap_item, *chan_noc_item, *chnl_item;
+	proto_tree *pst_tree, *cap_tree, *chan_noc_tree, *chnl_tree;
+
+	guint8 providercount, pst_contents, pst_acm_length;
+	int i;
+	guint16 pst_length = 0;
+	guint16 chan_noc;
+	guint8 chan_length = 0;
+	int local_offset;
+
+	proto_tree_add_item(tree, hf_pst_timingquality, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	providercount = tvb_get_guint8 (tvb, offset);
+	pst_item = proto_tree_add_item(tree, hf_pst_providercount, tvb, offset, 1, TRUE);
+	pst_tree = proto_item_add_subtree(pst_item,ett_pst_tree);
+	offset++;
+
+	for (i=0;i<providercount;i++) {
+
+		local_offset = offset;
+		cap_item = proto_tree_add_text (pst_tree, tvb, local_offset, pst_length, "Capabilities of Provider :%u", i+1);
+		cap_tree = proto_item_add_subtree(cap_item, ett_pst_cap_tree);
+
+		pst_length = tvb_get_letohl(tvb, local_offset);
+		proto_tree_add_item(cap_tree, hf_pst_length, tvb, local_offset, 2, TRUE);
+		local_offset+=2;
+
+		pst_contents = tvb_get_guint8 (tvb, local_offset);
+		proto_tree_add_item(cap_tree, hf_pst_contents, tvb, local_offset, 1, TRUE);
+		local_offset++;
+
+		if (pst_contents & WAVE_ACID) {
+			proto_tree_add_item(cap_tree, hf_pst_acid, tvb, local_offset, 1, TRUE);
+			local_offset++;
+		}
+
+		if (pst_contents & WAVE_ACM) {
+			pst_acm_length = tvb_get_guint8 (tvb, local_offset);
+			proto_tree_add_item(cap_tree, hf_pst_acm_length, tvb, local_offset, 1, TRUE);
+			local_offset++;
+			proto_tree_add_item(cap_tree, hf_pst_acm, tvb, local_offset, pst_acm_length, FALSE);
+		}
+		if (pst_contents & WAVE_ACF) {
+			local_offset +=32;
+		}
+		if (pst_contents & WAVE_PRIORITY) {
+			proto_tree_add_item(cap_tree, hf_pst_priority, tvb, local_offset, 1, TRUE);
+			local_offset++;
+		}
+		if (pst_contents & WAVE_IPV6ADDR) {
+			proto_tree_add_item(cap_tree, hf_pst_ipv6addr, tvb, local_offset, 16, FALSE);
+			local_offset +=16;
+			proto_tree_add_item(cap_tree, hf_pst_serviceport, tvb, local_offset, 2, FALSE);
+			local_offset +=2;
+			proto_tree_add_item(cap_tree, hf_pst_addressing, tvb, local_offset, 1, FALSE);
+			local_offset++;
+		}
+		if (pst_contents & WAVE_PEERMAC) {
+			proto_tree_add_item(cap_tree, hf_pst_macaddr, tvb, local_offset, 6, FALSE);
+			local_offset +=6;
+		}
+		if (pst_contents & WAVE_CHANNEL) {
+			proto_tree_add_item(cap_tree, hf_pst_channel, tvb, local_offset, 1, FALSE);
+			local_offset++;
+		}
+
+		offset = offset + pst_length;
+	}
+
+	chan_noc = tvb_get_guint8 (tvb, offset);
+	chan_noc_item = proto_tree_add_item(tree, hf_chan_noc, tvb, offset, 1, TRUE);
+	chan_noc_tree = proto_item_add_subtree(chan_noc_item,ett_chan_noc_tree);
+	offset++;
+
+	if (chan_noc != 0){
+		for (i=0;i<chan_noc;i++) {
+			chan_length = tvb_get_guint8 (tvb, offset);
+			chnl_item = proto_tree_add_text (chan_noc_tree, tvb, offset, chan_length, "Channel :%u Information ", i+1);
+			chnl_tree = proto_item_add_subtree(chnl_item, ett_wave_chnl_tree);
+			proto_tree_add_item(chnl_tree, hf_chan_length, tvb, offset, 1, TRUE);
+			proto_tree_add_item(chnl_tree, hf_chan_content, tvb, offset+1, 1, TRUE);
+			proto_tree_add_item(chnl_tree, hf_chan_channel, tvb, offset+2, 1, TRUE);
+			proto_tree_add_item(chnl_tree, hf_chan_adapt, tvb, offset+3, 1, TRUE);
+			proto_tree_add_item(chnl_tree, hf_chan_rate, tvb, offset+4, 1, TRUE);
+			proto_tree_add_item(chnl_tree, hf_chan_tx_pow, tvb, offset+5, 1, TRUE);
+			offset = offset + chan_length;
+		}
+	}
+}
 
 /*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
 static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
@@ -4218,29 +4363,30 @@ static const value_string tag_num_vals[] = {
   { TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
   { TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
   { TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
-  { TAG_REQUEST,          "Request"},
-  { TAG_QBSS_LOAD,        "QBSS Load Element"},
-  { TAG_EDCA_PARAM_SET,      "EDCA Parameter Set"},
-  { TAG_TSPEC,          "Traffic Specification"},
-  { TAG_TCLAS,          "Traffic Classification"},
-  { TAG_SCHEDULE,          "Schedule"},
-  { TAG_TS_DELAY,          "TS Delay"},
-  { TAG_TCLAS_PROCESS,      "TCLAS Processing"},
-  { TAG_HT_CAPABILITY,    "HT Capabilities (802.11n D1.10)"},
+  { TAG_REQUEST,              "Request"},
+  { TAG_QBSS_LOAD,            "QBSS Load Element"},
+  { TAG_EDCA_PARAM_SET,       "EDCA Parameter Set"},
+  { TAG_TSPEC,                "Traffic Specification"},
+  { TAG_TCLAS,                "Traffic Classification"},
+  { TAG_SCHEDULE,             "Schedule"},
+  { TAG_TS_DELAY,             "TS Delay"},
+  { TAG_TCLAS_PROCESS,        "TCLAS Processing"},
+  { TAG_HT_CAPABILITY,        "HT Capabilities (802.11n D1.10)"},
   { TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
-  { TAG_HT_INFO,           "HT Information (802.11n D1.10)"},
+  { TAG_HT_INFO,              "HT Information (802.11n D1.10)"},
   { TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
-  { TAG_QOS_CAPABILITY,      "QoS Capability"},
-  { TAG_POWER_CONSTRAINT,      "Power Constraint"},
-  { TAG_POWER_CAPABILITY,      "Power Capability"},
-  { TAG_TPC_REQUEST,        "TPC Request"},
-  { TAG_TPC_REPORT,        "TPC Report"},
-  { TAG_SUPPORTED_CHANNELS,   "Supported Channels"},
-  { TAG_CHANNEL_SWITCH_ANN,   "Channel Switch Announcement"},
-  { TAG_MEASURE_REQ,        "Measurement Request"},
-  { TAG_MEASURE_REP,        "Measurement Report"},
-  { TAG_QUIET,          "Quiet"},
-  { TAG_IBSS_DFS,          "IBSS DFS"},
+  { TAG_WSIE,                     "Wave Service Information"}, /* www.aradasystems.com */
+  { TAG_QOS_CAPABILITY,           "QoS Capability"},
+  { TAG_POWER_CONSTRAINT,         "Power Constraint"},
+  { TAG_POWER_CAPABILITY,         "Power Capability"},
+  { TAG_TPC_REQUEST,              "TPC Request"},
+  { TAG_TPC_REPORT,               "TPC Report"},
+  { TAG_SUPPORTED_CHANNELS,       "Supported Channels"},
+  { TAG_CHANNEL_SWITCH_ANN,       "Channel Switch Announcement"},
+  { TAG_MEASURE_REQ,              "Measurement Request"},
+  { TAG_MEASURE_REP,              "Measurement Report"},
+  { TAG_QUIET,                    "Quiet"},
+  { TAG_IBSS_DFS,                 "IBSS DFS"},
   { TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
   #if 0 /*Not yet assigned tag numbers by ANA */
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
@@ -4270,11 +4416,18 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   char print_buff[SHORT_STR];
   proto_tree * orig_tree=tree;
   proto_item *ti, *en;
+  guint8 tag_len_len; /* The length of the length parameter in bytes*/
 
   tag_no = tvb_get_guint8(tvb, offset);
-  tag_len = tvb_get_guint8(tvb, offset + 1);
+  if(tag_no == TAG_WSIE){
+	  tag_len_len = 2;
+	  tag_len = tvb_get_letohl(tvb, offset + 1);
+  }else{
+	  tag_len_len = 1;
+	  tag_len = tvb_get_guint8(tvb, offset + 1);
+  }
 
-  ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+2,"%s",
+  ti=proto_tree_add_text(orig_tree,tvb,offset,tag_len+1+tag_len_len,"%s",
                          val_to_str(tag_no, tag_num_vals,
                          (tag_no >= 17 && tag_no <= 31) ?
                          "Reserved for challenge text" : "Reserved tag number" ));
@@ -4287,7 +4440,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                        (tag_no >= 17 && tag_no <= 31) ?
                        "Reserved for challenge text" :
                        "Reserved tag number"));
-  proto_tree_add_uint (tree, (tag_no==TAG_TIM ? tim_length : tag_length), tvb, offset + 1, 1, tag_len);
+  proto_tree_add_uint (tree, (tag_no==TAG_TIM ? tim_length : tag_length), tvb, offset + 1, tag_len_len, tag_len);
 
   switch (tag_no)
   {
@@ -4856,7 +5009,13 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     /*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
 
-    /*** Begin: Power Capability Tag - Dustin Johnson ***/
+    /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+	case TAG_WSIE:
+		dissect_wise_ie(tree, tvb, offset + 3, tag_len);
+		break;
+    /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+
+	/*** Begin: Power Capability Tag - Dustin Johnson ***/
     case TAG_POWER_CAPABILITY:
       {
         offset += 2;
@@ -5531,13 +5690,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 #endif
     default:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1 + tag_len_len,
           tag_len, "Not interpreted");
       proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
+	  proto_tree_add_text (tree, tvb, offset, tag_len + 1 + tag_len_len, "Here ?");
       break;
   }
 
-  return tag_len + 2;
+  return tag_len + 1 + tag_len_len;
 }
 
 void
@@ -7938,7 +8098,7 @@ proto_register_ieee80211 (void)
   /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
   static const value_string  ff_channel_width_vals[] = {
 	 {0x00, "20 MHz channel width only"},
-     {0x01, "Channel of any width supported"},    
+     {0x01, "Any channel width in the STA’s Supported Channel Width Set"},    
     {0, NULL}
   };
   /*** End: Channel Width Fixed Field - Dustin Johnson ***/
@@ -8685,6 +8845,94 @@ proto_register_ieee80211 (void)
     {&hf_wep_icv,
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       "WEP ICV", HFILL }},
+	/***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+    {&hf_pst_timingquality,
+     {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
+      "PST Timing Quality", HFILL }},
+
+    {&hf_pst_providercount,
+     {"No. of Providers announcing their Services", "pst.providerCount", FT_UINT8, BASE_DEC, NULL, 0,
+      "Provider Count", HFILL }},
+
+    {&hf_pst_length,
+     {"Provider Service Table Length ", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
+      "PST Length", HFILL }},
+
+    {&hf_pst_contents,
+     {"Provider Service Table Contents ", "pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
+      "PST Contents", HFILL }},
+
+    {&hf_pst_acid,
+     {"Application Class ID (ACID) ", "pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
+      "PST ACID", HFILL }},
+
+    {&hf_pst_acm_length,
+     {"Application Context Mask (ACM) Length", "pst.ACM.length", FT_UINT8, BASE_DEC, NULL, 0,
+      "PST ACM Length", HFILL }},
+
+    {&hf_pst_acm,
+     {"Application Context Mask", "pst.ACM", FT_STRING, BASE_NONE, NULL, 0,
+      "PST ACM", HFILL }},
+
+    {&hf_pst_acm_contents,
+     {"Application Context Mask Contents (ACM)", "pst.ACM.contents", FT_UINT32, BASE_DEC, NULL, 0,
+      "PST ACM Contents", HFILL }},
+
+    {&hf_pst_acf,
+     {"Application Contents Field (ACF)", "pst.ACF", FT_UINT32, BASE_DEC, NULL, 0,
+      "PST ACF", HFILL }},
+
+    {&hf_pst_priority,
+     {"Application Priority", "pst.priority", FT_UINT8, BASE_DEC, NULL, 0,
+      "PST Priority", HFILL }},
+
+    {&hf_pst_ipv6addr,
+     {"Internet Protocol V6 Address", "pst.ipv6addr", FT_IPv6, BASE_NONE, NULL, 0,
+      "IP v6 Addr", HFILL }},
+
+    {&hf_pst_macaddr,
+     {"Medium Access Control Address (MAC addr)", "pst.macaddr", FT_ETHER, BASE_NONE, NULL, 0,
+      "MAC Address", HFILL }},
+
+    {&hf_pst_serviceport,
+     {"Service Port ", "pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
+      "PST Service Port", HFILL }},
+
+    {&hf_pst_addressing,
+     {"Addressing ", "pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
+      "PST Addressing", HFILL }},
+
+    {&hf_pst_channel,
+     {"Service (IEE802.11) Channel", "pst.channel", FT_UINT8, BASE_DEC, NULL, 0,
+      "PST Service Channel", HFILL }},
+
+    {&hf_chan_noc,
+     {"Number of Channels", "chan.chan_uknown", FT_UINT8, BASE_DEC, NULL, 0,
+      "Number of Channels", HFILL }},
+
+    {&hf_chan_length,
+     {"Length", "chan.chan_length", FT_UINT8, BASE_DEC, NULL, 0,
+      "Length", HFILL }},
+
+    {&hf_chan_content,
+     {"Contents", "chan.chan_content", FT_UINT8, BASE_DEC, NULL, 0,
+      "Contents", HFILL }},
+
+    {&hf_chan_channel,
+     {"channel", "chan.chan_channel", FT_UINT8, BASE_DEC, NULL, 0,
+      "channel", HFILL }},
+
+    {&hf_chan_adapt,
+     {"Adaptable", "chan.chan_adapt", FT_UINT8, BASE_DEC, NULL, 0,
+      "Adaptable", HFILL }},
+
+    {&hf_chan_rate,
+     {"Rate", "chan.chan_rate", FT_UINT8, BASE_DEC, NULL, 0,
+      "Rate", HFILL }},
+
+    {&hf_chan_tx_pow,
+     {"Tx Power", "chan.chan_tx_pow", FT_UINT8, BASE_DEC, NULL, 0,
+      "Tx Power", HFILL }},
 
     /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
     {&hf_block_ack_request_control,
@@ -9919,7 +10167,7 @@ proto_register_ieee80211 (void)
 
     {&tag_length,
      {"Tag length", "wlan_mgt.tag.length",
-      FT_UINT8, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
 
     {&tag_interpretation,
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
@@ -11240,7 +11488,11 @@ proto_register_ieee80211 (void)
     &ett_tsinfo_tree,
     &ett_sched_tree,
     &ett_fcs,
-    &ett_radio
+    &ett_radio,
+	&ett_pst_tree,
+	&ett_pst_cap_tree,
+	&ett_chan_noc_tree,
+	&ett_wave_chnl_tree,
   };
   module_t *wlan_module;
 
