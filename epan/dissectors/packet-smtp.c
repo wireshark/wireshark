@@ -205,16 +205,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     request = pinfo -> destport == pinfo -> match_port;
 
-    /*
-     * Get the first line from the buffer.
-     *
-     * Note that "tvb_find_line_end()" will, if it doesn't return
-     * -1, return a value that is not longer than what's in the buffer,
-     * and "tvb_find_line_end()" will always return a value that is not
-     * longer than what's in the buffer, so the "tvb_get_ptr()" call
-     * won't throw an exception.
-     */
-
     frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
 
     if (!frame_data) {
@@ -259,6 +249,15 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       }
 
+      /*
+       * Get the first line from the buffer.
+       *
+       * Note that "tvb_find_line_end()" will, if it doesn't return
+       * -1, return a value that is not longer than what's in the buffer,
+       * and "tvb_find_line_end()" will always return a value that is not
+       * longer than what's in the buffer, so the "tvb_get_ptr()" call
+       * won't throw an exception.
+       */
       loffset = offset;
       while (tvb_offset_exists(tvb, loffset)) {
 
