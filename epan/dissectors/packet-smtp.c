@@ -220,10 +220,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!frame_data) {
 
       conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				       pinfo->srcport, pinfo->destport, 0);
+                                       pinfo->srcport, pinfo->destport, 0);
       if (conversation == NULL) { /* No conversation, create one */
-	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-					pinfo->srcport, pinfo->destport, 0);
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
 
       }
 
@@ -237,242 +237,242 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * No - create one and attach it.
          */
-	request_val = se_alloc(sizeof(struct smtp_request_val));
-	request_val->reading_data = FALSE;
-	request_val->crlf_seen = FALSE;
-	request_val->data_seen = FALSE;
-	request_val->msg_read_len = 0;
-	request_val->msg_tot_len = 0;
-	request_val->msg_last = TRUE;
+        request_val = se_alloc(sizeof(struct smtp_request_val));
+        request_val->reading_data = FALSE;
+        request_val->crlf_seen = FALSE;
+        request_val->data_seen = FALSE;
+        request_val->msg_read_len = 0;
+        request_val->msg_tot_len = 0;
+        request_val->msg_last = TRUE;
 
-	conversation_add_proto_data(conversation, proto_smtp, request_val);
+        conversation_add_proto_data(conversation, proto_smtp, request_val);
 
       }
 
       if(request) {
-	frame_data = se_alloc(sizeof(struct smtp_proto_data));
+        frame_data = se_alloc(sizeof(struct smtp_proto_data));
 
-	frame_data->conversation_id = conversation->index;
-	frame_data->more_frags = TRUE;
+        frame_data->conversation_id = conversation->index;
+        frame_data->more_frags = TRUE;
 
-	p_add_proto_data(pinfo->fd, proto_smtp, frame_data);	
+        p_add_proto_data(pinfo->fd, proto_smtp, frame_data);        
 
       }
 
-    loffset = offset;
-    while (tvb_offset_exists(tvb, loffset)) {
+      loffset = offset;
+      while (tvb_offset_exists(tvb, loffset)) {
 
-    linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset,
-      smtp_desegment && pinfo->can_desegment);
-    if (linelen == -1) {
+        linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset,
+                                    smtp_desegment && pinfo->can_desegment);
+        if (linelen == -1) {
 
-      if(offset == loffset) {
-      /*
-       * We didn't find a line ending, and we're doing desegmentation;
-       * tell the TCP dissector where the data for this message starts
-       * in the data it handed us, and tell it we need one more byte
-       * (we may need more, but we'll try again if what we get next
-       * isn't enough), and return.
-       */
-      pinfo->desegment_offset = loffset;
-      pinfo->desegment_len = 1;
-      return;
-      }
-      else {
-	linelen = tvb_length_remaining(tvb, loffset);
-	next_offset = loffset + linelen;
-      }
-    }
-    line = tvb_get_ptr(tvb, loffset, linelen);
+          if(offset == loffset) {
+            /*
+             * We didn't find a line ending, and we're doing desegmentation;
+             * tell the TCP dissector where the data for this message starts
+             * in the data it handed us, and tell it we need one more byte
+             * (we may need more, but we'll try again if what we get next
+             * isn't enough), and return.
+             */
+            pinfo->desegment_offset = loffset;
+            pinfo->desegment_len = 1;
+            return;
+          }
+          else {
+            linelen = tvb_length_remaining(tvb, loffset);
+            next_offset = loffset + linelen;
+          }
+        }
+        line = tvb_get_ptr(tvb, loffset, linelen);
 
-      /*
-       * Check whether or not this packet is an end of message packet
-       * We should look for CRLF.CRLF and they may be split.
-       * We have to keep in mind that we may see what we want on
-       * two passes through here ...
-       */
+        /*
+         * Check whether or not this packet is an end of message packet
+         * We should look for CRLF.CRLF and they may be split.
+         * We have to keep in mind that we may see what we want on
+         * two passes through here ...
+         */
 
-      if (request_val->reading_data) {
+        if (request_val->reading_data) {
 
-	/*
-	 * The order of these is important ... We want to avoid
-	 * cases where there is a CRLF at the end of a packet and a
-	 * .CRLF at the begining of the same packet.
-	 */
+          /*
+           * The order of these is important ... We want to avoid
+           * cases where there is a CRLF at the end of a packet and a
+           * .CRLF at the begining of the same packet.
+           */
 
-	if ((request_val->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
-	    tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0) {
+          if ((request_val->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
+               tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0) {
 
-	  eom_seen = TRUE;
+            eom_seen = TRUE;
 
-	} 
+          }
 
-	length_remaining = tvb_length_remaining(tvb, loffset);
-	if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
-	    tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0) {
+          length_remaining = tvb_length_remaining(tvb, loffset);
+          if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
+              tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0) {
 
-	  request_val->crlf_seen = TRUE;
+            request_val->crlf_seen = TRUE;
 
-	}
-	else {
+          }
+          else {
 
-	  request_val->crlf_seen = FALSE;
+            request_val->crlf_seen = FALSE;
 
-	}
-      }
+          }
+        }
 
-    /*
-     * OK, Check if we have seen a DATA request. We do it here for
-     * simplicity, but we have to be careful below.
-     */
+        /*
+         * OK, Check if we have seen a DATA request. We do it here for
+         * simplicity, but we have to be careful below.
+         */
 
-      if (request) {
+        if (request) {
 
-	if (request_val->reading_data) {
-	  /*
-	   * This is message data.
-	   */
-	  if (eom_seen) { /* Seen the EOM */
-	    /*
-	     * EOM.
-	     * Everything that comes after it is commands.
-	     *
-	     * XXX - what if the EOM isn't at the beginning of
-	     * the TCP segment?  It can occur anywhere....
-	     */
-	    frame_data->pdu_type = SMTP_PDU_EOM;
-	    request_val->reading_data = FALSE;
-	    
-	    break;
-	    
-	  } else {
-	    /*
-	     * Message data with no EOM.
-	     */
-	    frame_data->pdu_type = SMTP_PDU_MESSAGE;
+          if (request_val->reading_data) {
+            /*
+             * This is message data.
+             */
+            if (eom_seen) { /* Seen the EOM */
+              /*
+               * EOM.
+               * Everything that comes after it is commands.
+               *
+               * XXX - what if the EOM isn't at the beginning of
+               * the TCP segment?  It can occur anywhere....
+               */
+              frame_data->pdu_type = SMTP_PDU_EOM;
+              request_val->reading_data = FALSE;
+            
+              break;
+            
+            } else {
+              /*
+               * Message data with no EOM.
+               */
+              frame_data->pdu_type = SMTP_PDU_MESSAGE;
 
-	    if (request_val->msg_tot_len > 0) {
-	      /* 
-	       * We are handling a BDAT message.
-	       * Check if we have reached end of the data chunk.
-	       */
-	      request_val->msg_read_len += tvb_length_remaining(tvb, loffset);
+              if (request_val->msg_tot_len > 0) {
+                /* 
+                 * We are handling a BDAT message.
+                 * Check if we have reached end of the data chunk.
+                 */
+                request_val->msg_read_len += tvb_length_remaining(tvb, loffset);
 
-              if (request_val->msg_read_len == request_val->msg_tot_len) {
-		/* 
-		 * We have reached end of BDAT data chunk.
-		 * Everything that comes after this is commands.
-		 */
-		request_val->reading_data = FALSE;
+                if (request_val->msg_read_len == request_val->msg_tot_len) {
+                  /* 
+                   * We have reached end of BDAT data chunk.
+                   * Everything that comes after this is commands.
+                   */
+                  request_val->reading_data = FALSE;
 
-		if (request_val->msg_last) {
-		  /* 
-		   * We have found the LAST data chunk.
-		   * The message can now be reassembled.
-		   */
-		  frame_data->more_frags = FALSE;
-		}
-		
-		break; /* no need to go through the remaining lines */
-	      }
-	    }
-	  }
-	} else {
-	  /*
-	   * This is commands - unless the capture started in the
-	   * middle of a session, and we're in the middle of data.
-	   * To quote RFC 821, "Command codes are four alphabetic
-	   * characters"; if we don't see four alphabetic characters
-	   * and, if there's anything else in the line, a space, we
-	   * assume it's not a command.
-	   * (We treat only A-Z and a-z as alphabetic.)
-	   */
+                  if (request_val->msg_last) {
+                    /* 
+                     * We have found the LAST data chunk.
+                     * The message can now be reassembled.
+                     */
+                    frame_data->more_frags = FALSE;
+                  }
+                
+                  break; /* no need to go through the remaining lines */
+                }
+              }
+            }
+          } else {
+            /*
+             * This is commands - unless the capture started in the
+             * middle of a session, and we're in the middle of data.
+             * To quote RFC 821, "Command codes are four alphabetic
+             * characters"; if we don't see four alphabetic characters
+             * and, if there's anything else in the line, a space, we
+             * assume it's not a command.
+             * (We treat only A-Z and a-z as alphabetic.)
+             */
 #define	ISALPHA(c)	(((c) >= 'A' && (c) <= 'Z') || \
 			 ((c) >= 'a' && (c) <= 'z'))
-	  if (linelen >= 4 && ISALPHA(line[0]) && ISALPHA(line[1]) &&
-	      ISALPHA(line[2]) && ISALPHA(line[3]) &&
-	      (linelen == 4 || line[4] == ' ')) {
-	    if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
+            if (linelen >= 4 && ISALPHA(line[0]) && ISALPHA(line[1]) &&
+                ISALPHA(line[2]) && ISALPHA(line[3]) &&
+                (linelen == 4 || line[4] == ' ')) {
+              if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
 
-	      /*
-	       * DATA command.
-	       * This is a command, but everything that comes after it,
-	       * until an EOM, is data.
-	       */
-	      frame_data->pdu_type = SMTP_PDU_CMD;
-	      request_val->reading_data = TRUE;
-	      request_val->data_seen = TRUE;
+                /*
+                 * DATA command.
+                 * This is a command, but everything that comes after it,
+                 * until an EOM, is data.
+                 */
+                frame_data->pdu_type = SMTP_PDU_CMD;
+                request_val->reading_data = TRUE;
+                request_val->data_seen = TRUE;
 
-	    } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
+              } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
 
-	      /*
-	       * BDAT command.
-	       * This is a command, but everything that comes after it,
-	       * until given length is received, is data.
-	       */
-	      guint32 msg_len;
+                /*
+                 * BDAT command.
+                 * This is a command, but everything that comes after it,
+                 * until given length is received, is data.
+                 */
+                guint32 msg_len;
 
-	      msg_len = strtoul (line+5, NULL, 10);
+                msg_len = strtoul (line+5, NULL, 10);
 
-	      frame_data->pdu_type = SMTP_PDU_CMD;
-	      request_val->data_seen = TRUE;
-	      request_val->msg_tot_len += msg_len;
+                frame_data->pdu_type = SMTP_PDU_CMD;
+                request_val->data_seen = TRUE;
+                request_val->msg_tot_len += msg_len;
 
-	      if (msg_len == 0) {
-		/* No data to read, next will be a command */
-		request_val->reading_data = FALSE;
-	      } else {
-		request_val->reading_data = TRUE;
-	      }
+                if (msg_len == 0) {
+                  /* No data to read, next will be a command */
+                  request_val->reading_data = FALSE;
+                } else {
+                  request_val->reading_data = TRUE;
+                }
 
-	      if (g_ascii_strncasecmp(line+linelen-4, "LAST", 4) == 0) {
-		/*
-		 * This is the last data chunk.
-		 */
-	        request_val->msg_last = TRUE;
+                if (g_ascii_strncasecmp(line+linelen-4, "LAST", 4) == 0) {
+                  /*
+                   * This is the last data chunk.
+                   */
+                  request_val->msg_last = TRUE;
 
-		if (msg_len == 0) {
-		  /* 
-		   * No more data to expect.
-		   * The message can now be reassembled.
-		   */
-		  frame_data->more_frags = FALSE;
-		}
-	      } else {
-	        request_val->msg_last = FALSE;
-	      }
+                  if (msg_len == 0) {
+                    /* 
+                     * No more data to expect.
+                     * The message can now be reassembled.
+                     */
+                    frame_data->more_frags = FALSE;
+                  }
+                } else {
+                  request_val->msg_last = FALSE;
+                }
 
-	    } else {
+              } else {
 
-	      /*
-	       * Regular command.
-	       */
-	      frame_data->pdu_type = SMTP_PDU_CMD;
+                /*
+                 * Regular command.
+                 */
+                frame_data->pdu_type = SMTP_PDU_CMD;
 
-	    }
-	  } else {
-		if ((linelen >= 7) && line[0] == 'X' && ( (g_ascii_strncasecmp(line, "X-EXPS ", 7) == 0) ||
-			((linelen >=13) && (g_ascii_strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
-			((linelen >= 8) && (g_ascii_strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
-				frame_data->pdu_type = SMTP_PDU_CMD;
-		else
-	    /*
-	     * Assume it's message data.
-	     */
+              }
+            } else {
+              if ((linelen >= 7) && line[0] == 'X' && ( (g_ascii_strncasecmp(line, "X-EXPS ", 7) == 0) ||
+                  ((linelen >=13) && (g_ascii_strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
+                  ((linelen >= 8) && (g_ascii_strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
+                frame_data->pdu_type = SMTP_PDU_CMD;
+              else
+                /*
+                 * Assume it's message data.
+                 */
 
-		  
-	    frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
 
-	  }
-	}
+                frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
+
+            }
+          }
+        }
+
+        /*
+         * Step past this line.
+         */
+        loffset = next_offset;
+
       }
-
-      /*
-       * Step past this line.
-       */
-      loffset = next_offset;
-
-    }
     }
 
     /*
@@ -493,69 +493,69 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (request) {
 
-	/* We must have frame_data here ... */
+        /* We must have frame_data here ... */
 
-	switch (frame_data->pdu_type) {
-	case SMTP_PDU_MESSAGE:
+        switch (frame_data->pdu_type) {
+        case SMTP_PDU_MESSAGE:
 
-	  length_remaining = tvb_length_remaining(tvb, offset);
-	  col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "C: DATA fragment" : "C: Message Body");
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", length_remaining,
-			  plurality (length_remaining, "", "s"));
-	  break;
+          length_remaining = tvb_length_remaining(tvb, offset);
+          col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "C: DATA fragment" : "C: Message Body");
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", length_remaining,
+                          plurality (length_remaining, "", "s"));
+          break;
 
-	case SMTP_PDU_EOM:
+        case SMTP_PDU_EOM:
 
-	  col_set_str(pinfo->cinfo, COL_INFO, "C: .");
+          col_set_str(pinfo->cinfo, COL_INFO, "C: .");
 
-	  break;
+          break;
 
-	case SMTP_PDU_CMD:
+        case SMTP_PDU_CMD:
 
-	  loffset = offset;
-	  while (tvb_offset_exists(tvb, loffset)) {
-	    /*
-	     * Find the end of the line.
-	     */
-	    linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
-	    line = tvb_get_ptr(tvb, loffset, linelen);
+          loffset = offset;
+          while (tvb_offset_exists(tvb, loffset)) {
+            /*
+             * Find the end of the line.
+             */
+            linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
+            line = tvb_get_ptr(tvb, loffset, linelen);
 
-	    if(loffset == offset) 
-	      col_append_fstr(pinfo->cinfo, COL_INFO, "C: %s",
-			   format_text(line, linelen));
-	    else {
-	      col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
-			   format_text(line, linelen));
-	    }
+            if(loffset == offset) 
+              col_append_fstr(pinfo->cinfo, COL_INFO, "C: %s",
+                           format_text(line, linelen));
+            else {
+              col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
+                           format_text(line, linelen));
+            }
 
-	    loffset = next_offset;
+            loffset = next_offset;
 
-	  }
-	  break;
+          }
+          break;
 
-	}
+        }
 
       }
       else {
 
-	  loffset = offset;
-	  while (tvb_offset_exists(tvb, loffset)) {
-	    /*
-	     * Find the end of the line.
-	     */
-	    linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
-	    line = tvb_get_ptr(tvb, loffset, linelen);
+          loffset = offset;
+          while (tvb_offset_exists(tvb, loffset)) {
+            /*
+             * Find the end of the line.
+             */
+            linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
+            line = tvb_get_ptr(tvb, loffset, linelen);
 
-	    if(loffset == offset) 
-	      col_append_fstr(pinfo->cinfo, COL_INFO, "S: %s",
-			   format_text(line, linelen));
-	    else {
-	      col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
-			   format_text(line, linelen));
-	    }
+            if(loffset == offset) 
+              col_append_fstr(pinfo->cinfo, COL_INFO, "S: %s",
+                           format_text(line, linelen));
+            else {
+              col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
+                           format_text(line, linelen));
+            }
 
-	    loffset = next_offset;
-	  }
+            loffset = next_offset;
+          }
       }
     }
 
@@ -565,205 +565,205 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
       if (request) {
 
-	/*
-	 * Check out whether or not we can see a command in there ...
-	 * What we are looking for is not data_seen and the word DATA
-	 * and not eom_seen.
-	 *
-	 * We will see DATA and request_val->data_seen when we process the
-	 * tree view after we have seen a DATA packet when processing
-	 * the packet list pane.
-	 *
-	 * On the first pass, we will not have any info on the packets
-	 * On second and subsequent passes, we will.
-	 */
+        /*
+         * Check out whether or not we can see a command in there ...
+         * What we are looking for is not data_seen and the word DATA
+         * and not eom_seen.
+         *
+         * We will see DATA and request_val->data_seen when we process the
+         * tree view after we have seen a DATA packet when processing
+         * the packet list pane.
+         *
+         * On the first pass, we will not have any info on the packets
+         * On second and subsequent passes, we will.
+         */
 
-	switch (frame_data->pdu_type) {
+        switch (frame_data->pdu_type) {
 
-	case SMTP_PDU_MESSAGE:
+        case SMTP_PDU_MESSAGE:
 
-	  if(smtp_data_desegment) {
+          if(smtp_data_desegment) {
 
-	    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, frame_data->conversation_id, 
-					      smtp_data_segment_table, smtp_data_reassembled_table, 
-					      tvb_length(tvb), frame_data->more_frags);
-	  } else {
-	    
-	    /*
-	     * Message body.
-	     * Put its lines into the protocol tree, a line at a time.
-	     */
+            frag_msg = fragment_add_seq_next (tvb, 0, pinfo, frame_data->conversation_id, 
+                                              smtp_data_segment_table, smtp_data_reassembled_table, 
+                                              tvb_length(tvb), frame_data->more_frags);
+          } else {
+            
+            /*
+             * Message body.
+             * Put its lines into the protocol tree, a line at a time.
+             */
 
-	    dissect_smtp_data(tvb, offset, smtp_tree);
-	    
-	  }
+            dissect_smtp_data(tvb, offset, smtp_tree);
+            
+          }
 
-	  break;
+          break;
 
-	case SMTP_PDU_EOM:
+        case SMTP_PDU_EOM:
 
-	  /*
-	   * End-of-message-body indicator.
-	   *
-	   * XXX - what about stuff after the first line?
-	   * Unlikely, as the client should wait for a response to the
-	   * DATA command this terminates before sending another
-	   * request, but we should probably handle it.
-	   */
-	  proto_tree_add_text(smtp_tree, tvb, offset, linelen, "C: .");
+          /*
+           * End-of-message-body indicator.
+           *
+           * XXX - what about stuff after the first line?
+           * Unlikely, as the client should wait for a response to the
+           * DATA command this terminates before sending another
+           * request, but we should probably handle it.
+           */
+          proto_tree_add_text(smtp_tree, tvb, offset, linelen, "C: .");
 
-	  if(smtp_data_desegment) {
+          if(smtp_data_desegment) {
 
-	    /* terminate the desegmentation */
-	    frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
-					      smtp_data_reassembled_table);
-	  }
+            /* terminate the desegmentation */
+            frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
+                                              smtp_data_reassembled_table);
+          }
 
-	  break;
+          break;
 
-	case SMTP_PDU_CMD:
+        case SMTP_PDU_CMD:
 
-	  /*
-	   * Command.
-	   *
-	   * XXX - what about stuff after the first line?
-	   * Unlikely, as the client should wait for a response to the
-	   * previous command before sending another request, but we
-	   * should probably handle it.
-	   */
+          /*
+           * Command.
+           *
+           * XXX - what about stuff after the first line?
+           * Unlikely, as the client should wait for a response to the
+           * previous command before sending another request, but we
+           * should probably handle it.
+           */
 
-	  loffset = offset;
-	while (tvb_offset_exists(tvb, loffset)) {
+          loffset = offset;
+          while (tvb_offset_exists(tvb, loffset)) {
 
-	  /*
-	   * Find the end of the line.
-	   */
-	  linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
+            /*
+             * Find the end of the line.
+             */
+            linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
 
-	  if (linelen >= 4)
-	    cmdlen = 4;
-	  else
-	    cmdlen = linelen;
-	  hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_req, tvb,
-					0, 0, TRUE);
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
-	  /*
-	   * Put the command line into the protocol tree.
-	   */
-	  ti = proto_tree_add_text(smtp_tree, tvb, loffset, next_offset - loffset,
-	        "Command: %s",
-		tvb_format_text(tvb, loffset, next_offset - loffset));
-	  cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+            if (linelen >= 4)
+              cmdlen = 4;
+            else
+              cmdlen = linelen;
+            hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_req, tvb,
+                                                 0, 0, TRUE);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            /*
+             * Put the command line into the protocol tree.
+             */
+            ti = proto_tree_add_text(smtp_tree, tvb, loffset, next_offset - loffset,
+                "Command: %s",
+                tvb_format_text(tvb, loffset, next_offset - loffset));
+            cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
-	  proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
-			      loffset, cmdlen, FALSE);
-	  if (linelen > 5) {
-	    proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-				loffset + 5, linelen - 5, FALSE);
-	  }
+            proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
+                                loffset, cmdlen, FALSE);
+            if (linelen > 5) {
+              proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
+                                  loffset + 5, linelen - 5, FALSE);
+            }
 
-	  if (smtp_data_desegment && !frame_data->more_frags) {
+            if (smtp_data_desegment && !frame_data->more_frags) {
 
-	    /* terminate the desegmentation */
-	    frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
-					      smtp_data_reassembled_table);
-	  }
+              /* terminate the desegmentation */
+              frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
+                                                smtp_data_reassembled_table);
+            }
 
-	  /*
-	   * Step past this line.
-	   */
-	  loffset = next_offset;
-	  
-	}
-	}
+            /*
+             * Step past this line.
+             */
+            loffset = next_offset;
+          
+          }
+        }
 
-	if (smtp_data_desegment) {
-	  next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA",
-					       frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
-	  if (next_tvb) {
-	    /* XXX: this is presumptious - we may have negotiated something else */
-	    if(imf_handle) {
-	      call_dissector(imf_handle, next_tvb, pinfo, tree);
-	    } else {
-	      
-	      /*
-	       * Message body.
-	       * Put its lines into the protocol tree, a line at a time.
-	       */
-	      
-	      dissect_smtp_data(tvb, offset, smtp_tree);
-	      
-	    }
-	    
-	    pinfo->fragmented = FALSE;
-	  } else {
-	    pinfo->fragmented = TRUE;
-	  }
-	}
+        if (smtp_data_desegment) {
+          next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA",
+                                               frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
+          if (next_tvb) {
+            /* XXX: this is presumptious - we may have negotiated something else */
+            if(imf_handle) {
+              call_dissector(imf_handle, next_tvb, pinfo, tree);
+            } else {
+              
+              /*
+               * Message body.
+               * Put its lines into the protocol tree, a line at a time.
+               */
+              
+              dissect_smtp_data(tvb, offset, smtp_tree);
+              
+            }
+            
+            pinfo->fragmented = FALSE;
+          } else {
+            pinfo->fragmented = TRUE;
+          }
+        }
       }
       else {
 
         /*
-	 * Process the response, a line at a time, until we hit a line
-	 * that doesn't have a continuation indication on it.
-	 */
-	hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
-					0, 0, TRUE);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+         * Process the response, a line at a time, until we hit a line
+         * that doesn't have a continuation indication on it.
+         */
+        hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
+                                        0, 0, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	while (tvb_offset_exists(tvb, offset)) {
+        while (tvb_offset_exists(tvb, offset)) {
 
-	  /*
-	   * Find the end of the line.
-	   */
-	  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+          /*
+           * Find the end of the line.
+           */
+          linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-	  /*
-	   * Put it into the protocol tree.
-	   */
-	  ti = proto_tree_add_text(smtp_tree, tvb, offset,
-				   next_offset - offset, "Response: %s",
-				   tvb_format_text(tvb, offset,
-						   next_offset - offset));
-	  cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+          /*
+           * Put it into the protocol tree.
+           */
+          ti = proto_tree_add_text(smtp_tree, tvb, offset,
+                                   next_offset - offset, "Response: %s",
+                                   tvb_format_text(tvb, offset,
+                                                   next_offset - offset));
+          cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
-	  /*
-	   * Is it a continuation line?
-	   */
-	  is_continuation_line =
-	      (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
+          /*
+           * Is it a continuation line?
+           */
+          is_continuation_line =
+              (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
 
-	  /*
-	   * Put the response code and parameters into the protocol tree.
-	   */
-	  line = tvb_get_ptr(tvb, offset, linelen);
-	  if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
-	 		   && isdigit(line[2])) {
-	    /*
-	     * We have a 3-digit response code.
-	     */
-	    code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
-	    proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3,
-				code);
+          /*
+           * Put the response code and parameters into the protocol tree.
+           */
+          line = tvb_get_ptr(tvb, offset, linelen);
+          if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
+                            && isdigit(line[2])) {
+            /*
+             * We have a 3-digit response code.
+             */
+            code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
+            proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3,
+                                code);
 
-	    if (linelen >= 4) {
-	      proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-				  offset + 4, linelen - 4, FALSE);
-	    }
-	  }
+            if (linelen >= 4) {
+              proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
+                                  offset + 4, linelen - 4, FALSE);
+            }
+          }
 
-	  /*
-	   * Step past this line.
-	   */
-	  offset = next_offset;
+          /*
+           * Step past this line.
+           */
+          offset = next_offset;
 
-	  /*
-	   * If it's not a continuation line, quit.
-	   */
-	  /* if (!is_continuation_line)
-	     break; */
+          /*
+           * If it's not a continuation line, quit.
+           */
+          /* if (!is_continuation_line)
+             break; */
 
-	}
+        }
 
       }
     }
