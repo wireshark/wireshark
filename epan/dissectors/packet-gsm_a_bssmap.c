@@ -365,34 +365,33 @@ gint ett_gsm_bssmap_elem[NUM_GSM_BSSMAP_ELEM];
  * [2] 3.2.2.2
  */
 static guint8
-be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
 	guint32	value;
 
-	len = len;
 	curr_offset = offset;
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %u",
-	a_bigbuf,
-	(value & 0xffe0) >> 5);
+		tvb, curr_offset, 2,
+		"%s :  PCM Multiplexer: %u",
+		a_bigbuf,
+		(value & 0xffe0) >> 5);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Timeslot: %u",
-	a_bigbuf,
-	value & 0x001f);
+		tvb, curr_offset, 2,
+		"%s :  Timeslot: %u",
+		a_bigbuf,
+		value & 0x001f);
 
 	curr_offset += 2;
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
+		g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
 
 	/* no length check possible */
 
@@ -416,154 +415,154 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension: %s",
-	a_bigbuf,
-	(oct & 0x80) ? "extended" : "not extended");
+		tvb, curr_offset, 1,
+		"%s :  Extension: %s",
+		a_bigbuf,
+		(oct & 0x80) ? "extended" : "not extended");
 
 	if (oct & 0x80)
 	{
-	/* 2 octet cause */
+		/* 2 octet cause */
 
-	if ((oct & 0x0f) == 0x00)
-	{
-	    /* national cause */
-	    switch ((oct & 0x70) >> 4)
-	    {
-	    case 0: str = "Normal Event"; break;
-	    case 1: str = "Normal Event"; break;
-	    case 2: str = "Resource Unavailable"; break;
-	    case 3: str = "Service or option not available"; break;
-	    case 4: str = "Service or option not implemented"; break;
-	    case 5: str = "Invalid message (e.g., parameter out of range)"; break;
-	    case 6: str = "Protocol error"; break;
-	    default:
-		str = "Interworking";
-		break;
-	    }
+		if ((oct & 0x0f) == 0x00)
+		{
+			/* national cause */
+			switch ((oct & 0x70) >> 4)
+			{
+			case 0: str = "Normal Event"; break;
+			case 1: str = "Normal Event"; break;
+			case 2: str = "Resource Unavailable"; break;
+			case 3: str = "Service or option not available"; break;
+			case 4: str = "Service or option not implemented"; break;
+			case 5: str = "Invalid message (e.g., parameter out of range)"; break;
+			case 6: str = "Protocol error"; break;
+			default:
+				str = "Interworking";
+				break;
+			}
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Cause Class: %s",
-		a_bigbuf,
-		str);
+			other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Cause Class: %s",
+				a_bigbuf,
+				str);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  National Cause",
-		a_bigbuf);
+			other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  National Cause",
+				a_bigbuf);
 
-	    curr_offset++;
+			curr_offset++;
 
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"Cause Value");
+			proto_tree_add_text(tree, tvb, curr_offset, 1,
+				"Cause Value");
 
-	    curr_offset++;
+			curr_offset++;
 
-	    if (add_string)
-		g_snprintf(add_string, string_len, " - (National Cause)");
+			if (add_string)
+				g_snprintf(add_string, string_len, " - (National Cause)");
+		}
+		else
+		{
+			value = tvb_get_guint8(tvb, curr_offset + 1);
+
+			other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Cause (MSB): %u",
+				a_bigbuf,
+				((oct & 0x7f) << 8) | value);
+
+			curr_offset++;
+
+			other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
+			proto_tree_add_text(tree, tvb, curr_offset, 1,
+				"%s :  Cause (LSB)",
+				a_bigbuf);
+
+			curr_offset++;
+		}
 	}
 	else
 	{
-	    value = tvb_get_guint8(tvb, curr_offset + 1);
+		switch (oct)
+		{
+		case 0x00: str = "Radio interface message failure"; break;
+		case 0x01: str = "Radio interface failure"; break;
+		case 0x02: str = "Uplink quality"; break;
+		case 0x03: str = "Uplink strength"; break;
+		case 0x04: str = "Downlink quality"; break;
+		case 0x05: str = "Downlink strength"; break;
+		case 0x06: str = "Distance"; break;
+		case 0x07: str = "O and M intervention"; break;
+		case 0x08: str = "Response to MSC invocation"; break;
+		case 0x09: str = "Call control"; break;
+		case 0x0a: str = "Radio interface failure, reversion to old channel"; break;
+		case 0x0b: str = "Handover successful"; break;
+		case 0x0c: str = "Better Cell"; break;
+		case 0x0d: str = "Directed Retry"; break;
+		case 0x0e: str = "Joined group call channel"; break;
+		case 0x0f: str = "Traffic"; break;
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Cause (MSB): %u",
-		a_bigbuf,
-		((oct & 0x7f) << 8) | value);
+		case 0x20: str = "Equipment failure"; break;
+		case 0x21: str = "No radio resource available"; break;
+		case 0x22: str = "Requested terrestrial resource unavailable"; break;
+		case 0x23: str = "CCCH overload"; break;
+		case 0x24: str = "Processor overload"; break;
+		case 0x25: str = "BSS not equipped"; break;
+		case 0x26: str = "MS not equipped"; break;
+		case 0x27: str = "Invalid cell"; break;
+		case 0x28: str = "Traffic Load"; break;
+		case 0x29: str = "Preemption"; break;
 
-	    curr_offset++;
+		case 0x30: str = "Requested transcoding/rate adaption unavailable"; break;
+		case 0x31: str = "Circuit pool mismatch"; break;
+		case 0x32: str = "Switch circuit pool"; break;
+		case 0x33: str = "Requested speech version unavailable"; break;
+		case 0x34: str = "LSA not allowed"; break;
 
-	    other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Cause (LSB)",
-		a_bigbuf);
+		case 0x40: str = "Ciphering algorithm not supported"; break;
 
-	    curr_offset++;
-	}
-	}
-	else
-	{
-	switch (oct)
-	{
-	case 0x00: str = "Radio interface message failure"; break;
-	case 0x01: str = "Radio interface failure"; break;
-	case 0x02: str = "Uplink quality"; break;
-	case 0x03: str = "Uplink strength"; break;
-	case 0x04: str = "Downlink quality"; break;
-	case 0x05: str = "Downlink strength"; break;
-	case 0x06: str = "Distance"; break;
-	case 0x07: str = "O and M intervention"; break;
-	case 0x08: str = "Response to MSC invocation"; break;
-	case 0x09: str = "Call control"; break;
-	case 0x0a: str = "Radio interface failure, reversion to old channel"; break;
-	case 0x0b: str = "Handover successful"; break;
-	case 0x0c: str = "Better Cell"; break;
-	case 0x0d: str = "Directed Retry"; break;
-	case 0x0e: str = "Joined group call channel"; break;
-	case 0x0f: str = "Traffic"; break;
+		case 0x50: str = "Terrestrial circuit already allocated"; break;
+		case 0x51: str = "Invalid message contents"; break;
+		case 0x52: str = "Information element or field missing"; break;
+		case 0x53: str = "Incorrect value"; break;
+		case 0x54: str = "Unknown Message type"; break;
+		case 0x55: str = "Unknown Information Element"; break;
 
-	case 0x20: str = "Equipment failure"; break;
-	case 0x21: str = "No radio resource available"; break;
-	case 0x22: str = "Requested terrestrial resource unavailable"; break;
-	case 0x23: str = "CCCH overload"; break;
-	case 0x24: str = "Processor overload"; break;
-	case 0x25: str = "BSS not equipped"; break;
-	case 0x26: str = "MS not equipped"; break;
-	case 0x27: str = "Invalid cell"; break;
-	case 0x28: str = "Traffic Load"; break;
-	case 0x29: str = "Preemption"; break;
+		case 0x60: str = "Protocol Error between BSS and MSC"; break;
+		case 0x61: str = "VGCS/VBS call non existent"; break;
 
-	case 0x30: str = "Requested transcoding/rate adaption unavailable"; break;
-	case 0x31: str = "Circuit pool mismatch"; break;
-	case 0x32: str = "Switch circuit pool"; break;
-	case 0x33: str = "Requested speech version unavailable"; break;
-	case 0x34: str = "LSA not allowed"; break;
+		default:
+			if ((oct >= 0x10) && (oct <= 0x17)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x18) && (oct <= 0x1f)) { str = "Reserved for national use"; }
+			else if ((oct >= 0x2a) && (oct <= 0x2f)) { str = "Reserved for national use"; }
+			else if ((oct >= 0x35) && (oct <= 0x3f)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x41) && (oct <= 0x47)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x48) && (oct <= 0x4f)) { str = "Reserved for national use"; }
+			else if ((oct >= 0x56) && (oct <= 0x57)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x58) && (oct <= 0x5f)) { str = "Reserved for national use"; }
+			else if ((oct >= 0x62) && (oct <= 0x67)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x68) && (oct <= 0x6f)) { str = "Reserved for national use"; }
+			else if ((oct >= 0x70) && (oct <= 0x77)) { str = "Reserved for international use"; }
+			else if ((oct >= 0x78) && (oct <= 0x7f)) { str = "Reserved for national use"; }
+			break;
+		}
 
-	case 0x40: str = "Ciphering algorithm not supported"; break;
+		other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+		proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_cause,
+			tvb, curr_offset, 1, oct & 0x7f,
+			"%s :  Cause: (%u) %s",
+			a_bigbuf,
+			oct & 0x7f,
+			str);
 
-	case 0x50: str = "Terrestrial circuit already allocated"; break;
-	case 0x51: str = "Invalid message contents"; break;
-	case 0x52: str = "Information element or field missing"; break;
-	case 0x53: str = "Incorrect value"; break;
-	case 0x54: str = "Unknown Message type"; break;
-	case 0x55: str = "Unknown Information Element"; break;
+		curr_offset++;
 
-	case 0x60: str = "Protocol Error between BSS and MSC"; break;
-	case 0x61: str = "VGCS/VBS call non existent"; break;
-
-	default:
-	    if ((oct >= 0x10) && (oct <= 0x17)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x18) && (oct <= 0x1f)) { str = "Reserved for national use"; }
-	    else if ((oct >= 0x2a) && (oct <= 0x2f)) { str = "Reserved for national use"; }
-	    else if ((oct >= 0x35) && (oct <= 0x3f)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x41) && (oct <= 0x47)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x48) && (oct <= 0x4f)) { str = "Reserved for national use"; }
-	    else if ((oct >= 0x56) && (oct <= 0x57)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x58) && (oct <= 0x5f)) { str = "Reserved for national use"; }
-	    else if ((oct >= 0x62) && (oct <= 0x67)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x68) && (oct <= 0x6f)) { str = "Reserved for national use"; }
-	    else if ((oct >= 0x70) && (oct <= 0x77)) { str = "Reserved for international use"; }
-	    else if ((oct >= 0x78) && (oct <= 0x7f)) { str = "Reserved for national use"; }
-	    break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_cause,
-	    tvb, curr_offset, 1, oct & 0x7f,
-	    "%s :  Cause: (%u) %s",
-	    a_bigbuf,
-	    oct & 0x7f,
-	    str);
-
-	curr_offset++;
-
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
 	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -585,8 +584,8 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	value = tvb_get_ntohl(tvb, curr_offset);
 
 	proto_tree_add_uint(tree, hf_gsm_a_tmsi,
-	tvb, curr_offset, 4,
-	value);
+		tvb, curr_offset, 4,
+		value);
 
 	if (add_string)
 	g_snprintf(add_string, string_len, " - (0x%04x)", value);
@@ -612,13 +611,12 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
-
 
 	curr_offset++;
 
@@ -628,23 +626,23 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  TI flag: %s",
-	a_bigbuf,
-	((oct & 0x08) ?  "allocated by receiver" : "allocated by sender"));
+		tvb, curr_offset, 1,
+		"%s :  TI flag: %s",
+		a_bigbuf,
+		((oct & 0x08) ?  "allocated by receiver" : "allocated by sender"));
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  TIO: %u",
-	a_bigbuf,
-	oct & 0x07);
+		tvb, curr_offset, 1,
+		"%s :  TIO: %u",
+		a_bigbuf,
+		oct & 0x07);
 
 	curr_offset++;
 
@@ -673,34 +671,34 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
 	do
 	{
-	other_decode_bitfield_value(a_bigbuf, oct, mask, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  GSM A5/%u: %spermitted",
-	    a_bigbuf,
-	    alg_id,
-	    (mask & oct) ? "" : "not ");
+		other_decode_bitfield_value(a_bigbuf, oct, mask, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  GSM A5/%u: %spermitted",
+			a_bigbuf,
+			alg_id,
+			(mask & oct) ? "" : "not ");
 
-	mask >>= 1;
-	alg_id--;
+		mask >>= 1;
+		alg_id--;
 	}
 	while (mask != 0x01);
 
 	other_decode_bitfield_value(a_bigbuf, oct, mask, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  No encryption: %spermitted",
-	a_bigbuf,
-	(mask & oct) ? "" : "not ");
+		tvb, curr_offset, 1,
+		"%s :  No encryption: %spermitted",
+		a_bigbuf,
+		(mask & oct) ? "" : "not ");
 
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, len - (curr_offset - offset),
-			"Key: %s",
-			tvb_bytes_to_str(tvb, curr_offset, len-(curr_offset-offset) ));
+		tvb, curr_offset, len - (curr_offset - offset),
+		"Key: %s",
+		tvb_bytes_to_str(tvb, curr_offset, len-(curr_offset-offset) ));
 
 	curr_offset += len - (curr_offset - offset);
 
@@ -727,9 +725,9 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	sdi = oct & 0x0f;
 	switch (sdi)
@@ -738,19 +736,19 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	case 2: str = "Data"; break;
 	case 3: str = "Signalling"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Speech/Data Indicator: %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Speech/Data Indicator: %s",
+		a_bigbuf,
+		str);
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%s)", str);
+		g_snprintf(add_string, string_len, " - (%s)", str);
 
 	curr_offset++;
 
@@ -760,344 +758,342 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	if (sdi == 0x01)
 	{
-	/* speech */
+		/* speech */
 
-	switch (oct)
-	{
-	case 0x08: str = "Full rate TCH channel Bm.  Prefer full rate TCH"; break;
-	case 0x09: str = "Half rate TCH channel Lm.  Prefer half rate TCH"; break;
-	case 0x0a: str = "Full or Half rate channel, Full rate preferred changes allowed after first allocation"; break;
-	case 0x0b: str = "Full or Half rate channel, Half rate preferred changes allowed after first allocation"; break;
-	case 0x1a: str = "Full or Half rate channel, Full rate preferred changes between full and half rate not allowed after first allocation"; break;
-	case 0x1b: str = "Full or Half rate channel, Half rate preferred changes between full and half rate not allowed after first allocation"; break;
-	case 0x0f: str = "Full or Half rate channel, changes allowed after first allocation"; break;
-	case 0x1f: str = "Full or Half rate channel, changes between full and half rate not allowed after first allocation"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+		switch (oct)
+		{
+		case 0x08: str = "Full rate TCH channel Bm.  Prefer full rate TCH"; break;
+		case 0x09: str = "Half rate TCH channel Lm.  Prefer half rate TCH"; break;
+		case 0x0a: str = "Full or Half rate channel, Full rate preferred changes allowed after first allocation"; break;
+		case 0x0b: str = "Full or Half rate channel, Half rate preferred changes allowed after first allocation"; break;
+		case 0x1a: str = "Full or Half rate channel, Full rate preferred changes between full and half rate not allowed after first allocation"; break;
+		case 0x1b: str = "Full or Half rate channel, Half rate preferred changes between full and half rate not allowed after first allocation"; break;
+		case 0x0f: str = "Full or Half rate channel, changes allowed after first allocation"; break;
+		case 0x1f: str = "Full or Half rate channel, changes between full and half rate not allowed after first allocation"; break;
+		default:
+			str = "Reserved";
+			break;
+		}
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Channel Rate and Type: %s",
-	    str);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Channel Rate and Type: %s",
+			str);
 
-	curr_offset++;
+		curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+		NO_MORE_DATA_CHECK(len);
 
-	do
-	{
-	    oct = tvb_get_guint8(tvb, curr_offset);
+		do
+		{
+			oct = tvb_get_guint8(tvb, curr_offset);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Extension: %s",
-		a_bigbuf,
-		(oct & 0x80) ? "extended" : "not extended");
+			other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Extension: %s",
+				a_bigbuf,
+				(oct & 0x80) ? "extended" : "not extended");
 
-	    switch (oct & 0x7f)
-	    {
-	    case 0x01: str = "GSM speech full rate version 1"; break;
-	    case 0x11: str = "GSM speech full rate version 2"; break;
-	    case 0x21: str = "GSM speech full rate version 3 (AMR)"; break;
+			switch (oct & 0x7f)
+			{
+			case 0x01: str = "GSM speech full rate version 1"; break;
+			case 0x11: str = "GSM speech full rate version 2"; break;
+			case 0x21: str = "GSM speech full rate version 3 (AMR)"; break;
 
-	    case 0x05: str = "GSM speech half rate version 1"; break;
-	    case 0x15: str = "GSM speech half rate version 2"; break;
-	    case 0x25: str = "GSM speech half rate version 3 (AMR)"; break;
+			case 0x05: str = "GSM speech half rate version 1"; break;
+			case 0x15: str = "GSM speech half rate version 2"; break;
+			case 0x25: str = "GSM speech half rate version 3 (AMR)"; break;
 
-	    default:
-		str = "Reserved";
-		break;
-	    }
+			default:
+				str = "Reserved";
+				break;
+			}
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Speech version identifier: %s",
-		a_bigbuf,
-		str);
+			other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Speech version identifier: %s",
+				a_bigbuf,
+				str);
 
-	    curr_offset++;
-	}
-	while ((len - (curr_offset - offset)) > 0);
+			curr_offset++;
+		}
+		while ((len - (curr_offset - offset)) > 0);
 	}
 	else if (sdi == 0x02)
 	{
-	/* data */
+		/* data */
 
-	num_chan = 0;
+		num_chan = 0;
 
-	switch (oct)
-	{
-	case 0x08: str = "Full rate TCH channel Bm"; break;
-	case 0x09: str = "Half rate TCH channel Lm"; break;
-	case 0x0a: str = "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
-	case 0x0b: str = "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
-	case 0x1a: str = "Full or Half rate TCH channel, Full rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
-	case 0x1b: str = "Full or Half rate TCH channel. Half rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
-	default:
-	    if ((oct >= 0x20) && (oct <= 0x27))
-	    {
-		str = "Full rate TCH channels in a multislot configuration, changes by the BSS of the the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request";
-
-		num_chan = (oct - 0x20) + 1;
-	    }
-	    else if ((oct >= 0x30) && (oct <= 0x37))
-	    {
-		str = "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs or the used radio interface rate per channel not allowed after first channel allocation as a result of the request";
-
-		num_chan = (oct - 0x30) + 1;
-	    }
-	    else
-	    {
-		str = "Reserved";
-	    }
-	    break;
-	}
-
-	if (num_chan > 0)
-	{
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Channel Rate and Type: Max channels %u, %s",
-		num_chan,
-		str);
-	}
-	else
-	{
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Channel Rate and Type: %s",
-		str);
-	}
-
-	curr_offset++;
-
-	NO_MORE_DATA_CHECK(len);
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Extension: %s",
-	    a_bigbuf,
-	    (oct & 0x80) ? "extended" : "not extended");
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  %sTransparent service",
-	    a_bigbuf,
-	    (oct & 0x40) ? "Non-" : "");
-
-	if (num_chan == 0)
-	{
-	    if (oct & 0x40)
-	    {
-		/* non-transparent */
-
-		switch (oct & 0x3f)
+		switch (oct)
 		{
-		case 0x00: str = "12 kbit/s if the channel is a full rate TCH, or 6 kbit/s if the channel is a half rate TCH"; break;
-		case 0x18: str = "14.5 kbit/s"; break;
-		case 0x10: str = "12 kbits/s"; break;
-		case 0x11: str = "6 kbits/s"; break;
+		case 0x08: str = "Full rate TCH channel Bm"; break;
+		case 0x09: str = "Half rate TCH channel Lm"; break;
+		case 0x0a: str = "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
+		case 0x0b: str = "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
+		case 0x1a: str = "Full or Half rate TCH channel, Full rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
+		case 0x1b: str = "Full or Half rate TCH channel. Half rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
 		default:
-		    str = "Reserved";
-		    break;
+			if ((oct >= 0x20) && (oct <= 0x27))
+			{
+				str = "Full rate TCH channels in a multislot configuration, changes by the BSS of the the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request";
+				num_chan = (oct - 0x20) + 1;
+			}
+			else if ((oct >= 0x30) && (oct <= 0x37))
+			{
+				str = "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs or the used radio interface rate per channel not allowed after first channel allocation as a result of the request";
+				num_chan = (oct - 0x30) + 1;
+			}
+			else
+			{
+				str = "Reserved";
+			}
+			break;
 		}
-	    }
-	    else
-	    {
-		switch (oct & 0x3f)
+
+		if (num_chan > 0)
 		{
-		case 0x18: str = "14.4 kbit/s"; break;
-		case 0x10: str = "9.6kbit/s"; break;
-		case 0x11: str = "4.8kbit/s"; break;
-		case 0x12: str = "2.4kbit/s"; break;
-		case 0x13: str = "1.2Kbit/s"; break;
-		case 0x14: str = "600 bit/s"; break;
-		case 0x15: str = "1200/75 bit/s (1200 network-to-MS / 75 MS-to-network)"; break;
-		default:
-		    str = "Reserved";
-		    break;
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"Channel Rate and Type: Max channels %u, %s",
+				num_chan,
+				str);
 		}
-	    }
-	}
-	else
-	{
-	    if (oct & 0x40)
-	    {
-		/* non-transparent */
-
-		switch (oct & 0x3f)
+		else
 		{
-		case 0x16: str = "58 kbit/s (4x14.5 kbit/s)"; break;
-		case 0x14: str = "48.0 / 43.5 kbit/s (4x12 kbit/s or 3x14.5 kbit/s)"; break;
-		case 0x13: str = "36.0 / 29.0 kbit/s (3x12 kbit/s or 2x14.5 kbit/s)"; break;
-		case 0x12: str = "24.0 / 24.0 (4x6 kbit/s or 2x12 kbit/s)"; break;
-		case 0x11: str = "18.0 / 14.5 kbit/s (3x6 kbit/s or 1x14.5 kbit/s)"; break;
-		case 0x10: str = "12.0 / 12.0 kbit/s (2x6 kbit/s or 1x12 kbit/s)"; break;
-		default:
-		    str = "Reserved";
-		    break;
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"Channel Rate and Type: %s",
+				str);
 		}
-	    }
-	    else
-	    {
-		switch (oct & 0x3f)
+
+		curr_offset++;
+
+		NO_MORE_DATA_CHECK(len);
+
+		oct = tvb_get_guint8(tvb, curr_offset);
+
+		other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Extension: %s",
+			a_bigbuf,
+			(oct & 0x80) ? "extended" : "not extended");
+
+		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  %sTransparent service",
+			a_bigbuf,
+			(oct & 0x40) ? "Non-" : "");
+
+		if (num_chan == 0)
 		{
-		case 0x1f: str = "64 kbit/s, bit transparent"; break;
-		case 0x1e: str = "56 kbit/s, bit transparent"; break;
-		case 0x1d: str = "56 kbit/s"; break;
-		case 0x1c: str = "48 kbit/s"; break;
-		case 0x1b: str = "38.4 kbit/s"; break;
-		case 0x1a: str = "28.8 kbit/s"; break;
-		case 0x19: str = "19.2 kbit/s"; break;
-		case 0x18: str = "14.4 kbit/s"; break;
-		case 0x10: str = "9.6 kbit/s"; break;
-		default:
-		    str = "Reserved";
-		    break;
+			if (oct & 0x40)
+			{
+				/* non-transparent */
+
+				switch (oct & 0x3f)
+				{
+				case 0x00: str = "12 kbit/s if the channel is a full rate TCH, or 6 kbit/s if the channel is a half rate TCH"; break;
+				case 0x18: str = "14.5 kbit/s"; break;
+				case 0x10: str = "12 kbits/s"; break;
+				case 0x11: str = "6 kbits/s"; break;
+				default:
+					str = "Reserved";
+					break;
+				}
+			}
+			else
+			{
+				switch (oct & 0x3f)
+				{
+				case 0x18: str = "14.4 kbit/s"; break;
+				case 0x10: str = "9.6kbit/s"; break;
+				case 0x11: str = "4.8kbit/s"; break;
+				case 0x12: str = "2.4kbit/s"; break;
+				case 0x13: str = "1.2Kbit/s"; break;
+				case 0x14: str = "600 bit/s"; break;
+				case 0x15: str = "1200/75 bit/s (1200 network-to-MS / 75 MS-to-network)"; break;
+				default:
+					str = "Reserved";
+					break;
+				}
+			}
 		}
-	    }
-	}
+		else
+		{
+			if (oct & 0x40)
+			{
+				/* non-transparent */
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Rate: %s",
-	    a_bigbuf,
-	    str);
+				switch (oct & 0x3f)
+				{
+				case 0x16: str = "58 kbit/s (4x14.5 kbit/s)"; break;
+				case 0x14: str = "48.0 / 43.5 kbit/s (4x12 kbit/s or 3x14.5 kbit/s)"; break;
+				case 0x13: str = "36.0 / 29.0 kbit/s (3x12 kbit/s or 2x14.5 kbit/s)"; break;
+				case 0x12: str = "24.0 / 24.0 (4x6 kbit/s or 2x12 kbit/s)"; break;
+				case 0x11: str = "18.0 / 14.5 kbit/s (3x6 kbit/s or 1x14.5 kbit/s)"; break;
+				case 0x10: str = "12.0 / 12.0 kbit/s (2x6 kbit/s or 1x12 kbit/s)"; break;
+				default:
+					str = "Reserved";
+					break;
+				}
+			}
+			else
+			{
+				switch (oct & 0x3f)
+				{
+				case 0x1f: str = "64 kbit/s, bit transparent"; break;
+				case 0x1e: str = "56 kbit/s, bit transparent"; break;
+				case 0x1d: str = "56 kbit/s"; break;
+				case 0x1c: str = "48 kbit/s"; break;
+				case 0x1b: str = "38.4 kbit/s"; break;
+				case 0x1a: str = "28.8 kbit/s"; break;
+				case 0x19: str = "19.2 kbit/s"; break;
+				case 0x18: str = "14.4 kbit/s"; break;
+				case 0x10: str = "9.6 kbit/s"; break;
+				default:
+					str = "Reserved";
+					break;
+				}
+			}
+		}
 
-	curr_offset++;
+		other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Rate: %s",
+			a_bigbuf,
+			str);
 
-	NO_MORE_DATA_CHECK(len);
+		curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+		NO_MORE_DATA_CHECK(len);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Extension: %s",
-	    a_bigbuf,
-	    (oct & 0x80) ? "extended" : "not extended");
+		oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Spare",
-	    a_bigbuf);
+		other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Extension: %s",
+			a_bigbuf,
+			(oct & 0x80) ? "extended" : "not extended");
 
-	if (num_chan == 0)
-	{
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  14.5 kbit/s (TCH/F14.4) %sallowed",
-		a_bigbuf,
-		(oct & 0x08) ? "" : "not ");
+		other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Spare",
+			a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+		if (num_chan == 0)
+		{
+			other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  14.5 kbit/s (TCH/F14.4) %sallowed",
+				a_bigbuf,
+				(oct & 0x08) ? "" : "not ");
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  12.0 kbit/s (TCH F/9.6) %sallowed",
-		a_bigbuf,
-		(oct & 0x02) ? "" : "not ");
+			other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Spare",
+				a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  6.0 kbit/s (TCH F/4.8) %sallowed",
-		a_bigbuf,
-		(oct & 0x01) ? "" : "not ");
-	}
-	else
-	{
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  14.5/14.4 kbit/s (TCH/F14.4) %sallowed",
-		a_bigbuf,
-		(oct & 0x08) ? "" : "not ");
+			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  12.0 kbit/s (TCH F/9.6) %sallowed",
+				a_bigbuf,
+				(oct & 0x02) ? "" : "not ");
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Spare",
-		a_bigbuf);
+			other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  6.0 kbit/s (TCH F/4.8) %sallowed",
+				a_bigbuf,
+				(oct & 0x01) ? "" : "not ");
+		}
+		else
+		{
+			other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  14.5/14.4 kbit/s (TCH/F14.4) %sallowed",
+				a_bigbuf,
+				(oct & 0x08) ? "" : "not ");
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  12.0/9.6 kbit/s (TCH F/9.6) %sallowed",
-		a_bigbuf,
-		(oct & 0x02) ? "" : "not ");
+			other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  Spare",
+				a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  6.0/4.8 kbit/s (TCH F/4.8) %sallowed",
-		a_bigbuf,
-		(oct & 0x01) ? "" : "not ");
-	}
+			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  12.0/9.6 kbit/s (TCH F/9.6) %sallowed",
+				a_bigbuf,
+				(oct & 0x02) ? "" : "not ");
 
-	curr_offset++;
+			other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 1,
+				"%s :  6.0/4.8 kbit/s (TCH F/4.8) %sallowed",
+				a_bigbuf,
+				(oct & 0x01) ? "" : "not ");
+		}
+
+		curr_offset++;
 	}
 	else if (sdi == 0x03)
 	{
-	/* signalling */
+		/* signalling */
 
-	switch (oct)
-	{
-	case 0x00: str = "SDCCH or Full rate TCH channel Bm or Half rate TCH channel Lm"; break;
-	case 0x01: str = "SDCCH"; break;
-	case 0x02: str = "SDCCH or Full rate TCH channel Bm"; break;
-	case 0x03: str = "SDCCH or Half rate TCH channel Lm"; break;
-	case 0x08: str = "Full rate TCH channel Bm"; break;
-	case 0x09: str = "Half rate TCH channel Lm"; break;
-	case 0x0a: str = "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
-	case 0x0b: str = "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
-	case 0x1a: str = "Full or Half rate TCH channel, Full rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
-	case 0x1b: str = "Full or Half rate TCH channel. Half rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+		switch (oct)
+		{
+		case 0x00: str = "SDCCH or Full rate TCH channel Bm or Half rate TCH channel Lm"; break;
+		case 0x01: str = "SDCCH"; break;
+		case 0x02: str = "SDCCH or Full rate TCH channel Bm"; break;
+		case 0x03: str = "SDCCH or Half rate TCH channel Lm"; break;
+		case 0x08: str = "Full rate TCH channel Bm"; break;
+		case 0x09: str = "Half rate TCH channel Lm"; break;
+		case 0x0a: str = "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
+		case 0x0b: str = "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request"; break;
+		case 0x1a: str = "Full or Half rate TCH channel, Full rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
+		case 0x1b: str = "Full or Half rate TCH channel. Half rate preferred, changes not allowed after first channel allocation as a result of the request"; break;
+		default:
+			str = "Reserved";
+			break;
+		}
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Channel Rate and Type: %s",
-	    str);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Channel Rate and Type: %s",
+			str);
 
-	curr_offset++;
+		curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+		NO_MORE_DATA_CHECK(len);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, len - (curr_offset - offset),
-	    "Spare");
+		proto_tree_add_text(tree,
+			tvb, curr_offset, len - (curr_offset - offset),
+			"Spare");
 
-	curr_offset += len - (curr_offset - offset);
+		curr_offset += len - (curr_offset - offset);
 	}
 	else
 	{
-	/* unknown format */
+		/* unknown format */
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, len - (curr_offset - offset),
-	    "Unknown format");
+		proto_tree_add_text(tree,
+			tvb, curr_offset, len - (curr_offset - offset),
+			"Unknown format");
 
-	curr_offset += len - (curr_offset - offset);
+		curr_offset += len - (curr_offset - offset);
 	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1122,111 +1118,101 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	switch (disc)
 	{
 	case 0x00:
-	/* FALLTHRU */
+		/* FALLTHRU */
 
 	case 0x04:
-	/* FALLTHRU */
+		/* FALLTHRU */
 
 	case 0x08:  /* For intersystem handover from GSM to UMTS or cdma2000: */
-
-	curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
-
-	/* FALLTHRU */
+		curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+		/* FALLTHRU */
 
 	case 0x01:
 	case 0x05:
 	case 0x0a: /*For intersystem handover from GSM to UMTS or cdma2000: */
+		/* LAC */
+		value = tvb_get_ntohs(tvb, curr_offset);
+		proto_tree_add_item(tree, hf_gsm_a_cell_lac, tvb, curr_offset, 2, FALSE);
+		curr_offset += 2;
 
-	/* LAC */
-
-	value = tvb_get_ntohs(tvb, curr_offset);
-
-	proto_tree_add_item(tree, hf_gsm_a_cell_lac, tvb, curr_offset, 2, FALSE);
-	
-	curr_offset += 2;
-
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
-
-	/* FALLTHRU */
+		if (add_string)
+			g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
+		/* FALLTHRU */
 
 	case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
 
-	if ((disc == 0x08) ||(disc == 0x09) || (disc == 0x0a)){
-		/* RNC-ID */
+		if ((disc == 0x08) ||(disc == 0x09) || (disc == 0x0a)){
+			/* RNC-ID */
+			value = tvb_get_ntohs(tvb, curr_offset);
+			proto_tree_add_item(tree, hf_gsm_a_be_rnc_id, tvb, curr_offset, 2, FALSE);
+
+			if (add_string)
+			{
+				if (add_string[0] == '\0')
+				{
+					g_snprintf(add_string, string_len, " - RNC-ID (%u)", value);
+				}
+				else
+				{
+					g_snprintf(add_string, string_len, "%s/RNC-ID (%u)", add_string, value);
+				}
+			}
+			break;
+		}
+
+		if ((disc == 0x04) || (disc == 0x05) || (disc == 0x08)) break;
+
+		/* FALLTHRU */
+
+	case 0x02:
+		/* CI */
+
 		value = tvb_get_ntohs(tvb, curr_offset);
-		proto_tree_add_item(tree, hf_gsm_a_be_rnc_id, tvb, curr_offset, 2, FALSE);
+		proto_tree_add_uint(tree, hf_gsm_a_cell_ci, tvb,
+			curr_offset, 2, value);
+
+		curr_offset += 2;
 
 		if (add_string)
 		{
-		    if (add_string[0] == '\0')
-		    {
-			g_snprintf(add_string, string_len, " - RNC-ID (%u)", value);
-		    }
-		    else
-		    {
-			g_snprintf(add_string, string_len, "%s/RNC-ID (%u)", add_string, value);
-		    }
+			if (add_string[0] == '\0')
+			{
+				g_snprintf(add_string, string_len, " - CI (%u)", value);
+			}
+			else
+			{
+				g_snprintf(add_string, string_len, "%s/CI (%u)", add_string, value);
+			}
 		}
 		break;
-	}
-
-	if ((disc == 0x04) || (disc == 0x05) || (disc == 0x08)) break;
-
-	/* FALLTHRU */
-
-	case 0x02:
-
-	/* CI */
-
-	value = tvb_get_ntohs(tvb, curr_offset);
-
-	proto_tree_add_uint(tree, hf_gsm_a_cell_ci, tvb,
-	    curr_offset, 2, value);
-
-	curr_offset += 2;
-
-	if (add_string)
-	{
-	    if (add_string[0] == '\0')
-	    {
-		g_snprintf(add_string, string_len, " - CI (%u)", value);
-	    }
-	    else
-	    {
-		g_snprintf(add_string, string_len, "%s/CI (%u)", add_string, value);
-	    }
-	}
-	break;
 
 	default:
-	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    "Cell ID - Unknown format");
+		proto_tree_add_text(tree, tvb, curr_offset, len,
+			"Cell ID - Unknown format");
 
-	curr_offset += (len);
-	break;
+		curr_offset += (len);
+		break;
 	}
 
 	return(curr_offset - offset);
 }
 
 static guint8
-be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint8	disc;
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
 	disc = oct&0x0f;
@@ -1246,13 +1232,12 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.18
  */
 static guint8
-be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -1261,44 +1246,44 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Preemption Capability Indicator (PCI): this allocation request %s preempt an existing connection",
-	a_bigbuf,
-	(oct & 0x40) ? "may" : "shall not");
+		tvb, curr_offset, 1,
+		"%s :  Preemption Capability Indicator (PCI): this allocation request %s preempt an existing connection",
+		a_bigbuf,
+		(oct & 0x40) ? "may" : "shall not");
 
 	switch ((oct & 0x3c) >> 2)
 	{
 	case 0x00: str = "Spare"; break;
 	case 0x0f: str = "priority not used"; break;
 	default:
-	str = "1 is highest";
-	break;
+		str = "1 is highest";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x3c, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Priority Level: (%u) %s",
-	a_bigbuf,
-	(oct & 0x3c) >> 2,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Priority Level: (%u) %s",
+		a_bigbuf,
+		(oct & 0x3c) >> 2,
+		str);
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
+		g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Queuing Allowed Indicator (QA): queuing %sallowed",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+		tvb, curr_offset, 1,
+		"%s :  Queuing Allowed Indicator (QA): queuing %sallowed",
+		a_bigbuf,
+		(oct & 0x02) ? "" : "not ");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Preemption Vulnerability Indicator (PVI): this connection %s be preempted by another allocation request",
-	a_bigbuf,
-	(oct & 0x01) ? "might" : "shall not");
+		tvb, curr_offset, 1,
+		"%s :  Preemption Vulnerability Indicator (PVI): this connection %s be preempted by another allocation request",
+		a_bigbuf,
+		(oct & 0x01) ? "might" : "shall not");
 
 	curr_offset++;
 
@@ -1319,7 +1304,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len,
-	"Layer 3 Information value");
+		"Layer 3 Information value");
 
 	/*
 	 * dissect the embedded DTAP message
@@ -1339,19 +1324,18 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.25
  */
 static guint8
-be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	proto_item	*item = NULL;
 	proto_tree	*subtree = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	item =
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "Data Link Connection Identifier");
+		"Data Link Connection Identifier");
 
 	subtree = proto_item_add_subtree(item, ett_dlci);
 
@@ -1372,28 +1356,27 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * [2] 3.2.2.26
  */
 static guint8
-be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint	oct;
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  BSS is %s to activate DTX in the downlink direction",
-	a_bigbuf,
-	(oct & 0x01) ? "forbidden" : "allowed");
+		tvb, curr_offset, 1,
+		"%s :  BSS is %s to activate DTX in the downlink direction",
+		a_bigbuf,
+		(oct & 0x01) ? "forbidden" : "allowed");
 
 	curr_offset++;
 
@@ -1422,9 +1405,9 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	disc = oct & 0x0f;
 	proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
@@ -1435,35 +1418,36 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	num_cells = 0;
 	do
 	{
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Cell %u",
-		num_cells + 1);
+		item =
+		proto_tree_add_text(tree,
+			tvb, curr_offset, -1,
+			"Cell %u",
+			num_cells + 1);
 
-	subtree = proto_item_add_subtree(item, ett_cell_list);
+		subtree = proto_item_add_subtree(item, ett_cell_list);
 
-	if (add_string)
-	    add_string[0] = '\0';
-	consumed =
-	    be_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
+		if (add_string)
+			add_string[0] = '\0';
 
-	if (add_string && add_string[0] != '\0')
-	{
-	    proto_item_append_text(item, "%s", add_string ? add_string : "");
-	}
+		consumed =
+			be_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
 
-	proto_item_set_len(item, consumed);
+		if (add_string && add_string[0] != '\0')
+		{
+			proto_item_append_text(item, "%s", add_string ? add_string : "");
+		}
 
-	curr_offset += consumed;
+		proto_item_set_len(item, consumed);
 
-	num_cells++;
+		curr_offset += consumed;
+
+		num_cells++;
 	}
 	while ((len - (curr_offset - offset)) > 0 && consumed > 0);
 
 	if (add_string) {
-	g_snprintf(add_string, string_len, " - %u cell%s",
-	    num_cells, plurality(num_cells, "", "s"));
+		g_snprintf(add_string, string_len, " - %u cell%s",
+			num_cells, plurality(num_cells, "", "s"));
 	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1475,13 +1459,12 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [2] 3.2.2.33
  */
 static guint8
-be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -1496,16 +1479,16 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	case 13: str = "Data, 3.6 kbit/s radio interface rate"; break;
 	case 8: str = "Signalling only"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Channel mode: %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Channel mode: %s",
+		a_bigbuf,
+		str);
 
 	switch (oct & 0x0f)
 	{
@@ -1521,16 +1504,16 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	case 15: str = "7 Full Rate TCHs"; break;
 	case 4: str = "8 Full Rate TCHs"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Channel: %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Channel: %s",
+		a_bigbuf,
+		str);
 
 	curr_offset++;
 
@@ -1543,28 +1526,27 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [2] 3.2.2.34
  */
 static guint8
-be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  IMEISV must %sbe included by the mobile station",
-	a_bigbuf,
-	(oct & 0x01) ? "" : "not ");
+		tvb, curr_offset, 1,
+		"%s :  IMEISV must %sbe included by the mobile station",
+		a_bigbuf,
+		(oct & 0x01) ? "" : "not ");
 
 	curr_offset++;
 
@@ -1586,7 +1568,7 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len,
-	"Layer 3 Message Contents");
+		"Layer 3 Message Contents");
 
 	/*
 	 * dissect the embedded DTAP message
@@ -1606,56 +1588,55 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [2] 3.2.2.36 Channel Needed
  */
 static guint8
-be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	/* no length check possible */
-   	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-		curr_offset++;
+	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
+
+	curr_offset++;
+
 	return(curr_offset - offset);
 }
-
 
 /*
  * [2] 3.2.2.43
  */
 static guint8
-be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	switch (oct & 0x0f)
 	{
 	case 1: str = "forward to subsequent BSS, no trace at MSC"; break;
 	case 2: str = "forward to subsequent BSS, and trace at MSC"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  %s",
+		a_bigbuf,
+		str);
 
 	curr_offset++;
 
@@ -1668,13 +1649,12 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.44
  */
 static guint8
-be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -1690,19 +1670,19 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	case 0x07: str = "GSM A5/6"; break;
 	case 0x08: str = "GSM A5/7"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Algorithm Identifier: %s",
-	str);
+		tvb, curr_offset, 1,
+		"Algorithm Identifier: %s",
+		str);
 
 	curr_offset++;
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - %s", str);
+		g_snprintf(add_string, string_len, " - %s", str);
 
 	/* no length check possible */
 
@@ -1713,40 +1693,39 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [2] 3.2.2.45
  */
 static guint8
-be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	if (oct <= 32)
 	{
-	str = "";
+		str = "";
 	}
 	else if ((oct >= 0x80) && (oct <= 0x8f))
 	{
-	str = ", for national/local use";
+		str = ", for national/local use";
 	}
 	else
 	{
-	str = ", reserved for future international use";
+		str = ", reserved for future international use";
 	}
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Circuit pool number: %u%s",
-	oct,
-	str);
+		tvb, curr_offset, 1,
+		"Circuit pool number: %u%s",
+		oct,
+		str);
 
 	curr_offset++;
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%u)", oct);
+		g_snprintf(add_string, string_len, " - (%u)", oct);
 
 	/* no length check possible */
 
@@ -1757,13 +1736,12 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [2] 3.2.2.49
  */
 static guint8
-be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -1777,16 +1755,16 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	case 0x04: str = "Data, 6.0 kbit/s radio interface rate"; break;
 	case 0x05: str = "Data, 3.6 kbit/s radio interface rate"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Channel Mode: %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Channel Mode: %s",
+		a_bigbuf,
+		str);
 
 	switch (oct & 0x0f)
 	{
@@ -1801,17 +1779,17 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	case 0x0f: str = "7 Full Rate TCHs"; break;
 	case 0x04: str = "8 Full Rate TCHs"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Channel: (%u) %s",
-	a_bigbuf,
-	oct & 0x0f,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Channel: (%u) %s",
+		a_bigbuf,
+		oct & 0x0f,
+		str);
 
 	curr_offset++;
 
@@ -1824,34 +1802,33 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [2] 3.2.2.50
  */
 static guint8
-be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  qri: it is recommended %sto allow queuing",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+		tvb, curr_offset, 1,
+		"%s :  qri: it is recommended %sto allow queuing",
+		a_bigbuf,
+		(oct & 0x02) ? "" : "not ");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		tvb, curr_offset, 1,
+		"%s :  Spare",
+		a_bigbuf);
 
 	curr_offset++;
 
@@ -1864,14 +1841,13 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.51
  */
 static guint8
-be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str = NULL;
 	const gchar	*short_str = NULL;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -1889,22 +1865,22 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	case 0x25: str = "GSM speech half rate version 3 (AMR)"; short_str = "HR3 (AMR)"; break;
 
 	default:
-	str = "Reserved";
-	short_str = str;
+		str = "Reserved";
+		short_str = str;
 	break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Speech version identifier: %s",
-	a_bigbuf,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Speech version identifier: %s",
+		a_bigbuf,
+		str);
 
 	curr_offset++;
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%s)", short_str);
+		g_snprintf(add_string, string_len, " - (%s)", short_str);
 
 	/* no length check possible */
 
@@ -1938,8 +1914,8 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	curr_offset = offset;
 
 	/* curr_offset + 1 is a hack, the length part here is 2 octets and we are off by one */
-    proto_tree_add_text(tree, tvb, curr_offset+1, len,
-	"APDU");
+	proto_tree_add_text(tree, tvb, curr_offset+1, len,
+		"APDU");
 
 	/*
 	 * dissect the embedded APDU message
@@ -3117,7 +3093,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-	col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP) ");
+		col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP) ");
 	}
 
 	/*
@@ -3126,7 +3102,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tap_current++;
 	if (tap_current >= 4)
 	{
-	tap_current = 0;
+		tap_current = 0;
 	}
 	tap_p = &tap_rec[tap_current];
 
@@ -3155,32 +3131,32 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (str == NULL)
 	{
-	bssmap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, len,
-		"GSM A-I/F BSSMAP - Unknown BSSMAP Message Type (0x%02x)",
-		oct);
+		bssmap_item =
+		proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, len,
+			"GSM A-I/F BSSMAP - Unknown BSSMAP Message Type (0x%02x)",
+			oct);
 
-	bssmap_tree = proto_item_add_subtree(bssmap_item, ett_bssmap_msg);
+		bssmap_tree = proto_item_add_subtree(bssmap_item, ett_bssmap_msg);
 	}
 	else
 	{
-	bssmap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, -1,
-		"GSM A-I/F BSSMAP - %s",
-		str);
+		bssmap_item =
+		proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, -1,
+			"GSM A-I/F BSSMAP - %s",
+			str);
 
-	bssmap_tree = proto_item_add_subtree(bssmap_item, ett_gsm_bssmap_msg[idx]);
+		bssmap_tree = proto_item_add_subtree(bssmap_item, ett_gsm_bssmap_msg[idx]);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
-	}
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
+		}
 
-	/*
-	 * add BSSMAP message name
-	 */
-	proto_tree_add_uint_format(bssmap_tree, hf_gsm_a_bssmap_msg_type,
-	tvb, saved_offset, 1, oct, "Message Type %s",str);
+		/*
+		 * add BSSMAP message name
+		 */
+		proto_tree_add_uint_format(bssmap_tree, hf_gsm_a_bssmap_msg_type,
+		tvb, saved_offset, 1, oct, "Message Type %s",str);
 	}
 
 	tap_p->pdu_type = BSSAP_PDU_TYPE_BSSMAP;
@@ -3197,13 +3173,13 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (bssmap_msg_fcn[idx] == NULL)
 	{
-	proto_tree_add_text(bssmap_tree,
-	    tvb, offset, len - offset,
-	    "Message Elements");
+		proto_tree_add_text(bssmap_tree,
+			tvb, offset, len - offset,
+			"Message Elements");
 	}
 	else
 	{
-	(*bssmap_msg_fcn[idx])(tvb, bssmap_tree, offset, len - offset);
+		(*bssmap_msg_fcn[idx])(tvb, bssmap_tree, offset, len - offset);
 	}
 }
 
@@ -3219,49 +3195,49 @@ proto_register_gsm_a_bssmap(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_gsm_a_bssmap_msg_type,
-	    { "BSSMAP Message Type",	"gsm_a.bssmap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_msg_strings), 0x0,
-	    "", HFILL }
+		{ "BSSMAP Message Type",	"gsm_a.bssmap_msgtype",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_msg_strings), 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_bssmap_elem_id,
-	    { "Element ID",	"gsm_a_bssmap.elem_id",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+		{ "Element ID",	"gsm_a_bssmap.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_length,
-	    { "Length",		"gsm_a.len",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "", HFILL }
+		{ "Length",		"gsm_a.len",
+		FT_UINT16, BASE_DEC, NULL, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_cell_ci,
-	    { "Cell CI",	"gsm_a.cell_ci",
-	    FT_UINT16, BASE_HEX_DEC, 0, 0x0,
-	    "", HFILL }
+		{ "Cell CI",	"gsm_a.cell_ci",
+		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_cell_lac,
-	    { "Cell LAC",	"gsm_a.cell_lac",
-	    FT_UINT16, BASE_HEX_DEC, 0, 0x0,
-	    "", HFILL }
+		{ "Cell LAC",	"gsm_a.cell_lac",
+		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_dlci_cc,
-	    { "Control Channel", "bssap.dlci.cc",
-	    FT_UINT8, BASE_HEX, VALS(bssap_cc_values), 0xc0,
-	    "", HFILL}
+		{ "Control Channel", "bssap.dlci.cc",
+		FT_UINT8, BASE_HEX, VALS(bssap_cc_values), 0xc0,
+		"", HFILL}
 	},
 	{ &hf_gsm_a_dlci_spare,
-	    { "Spare", "bssap.dlci.spare",
-	    FT_UINT8, BASE_HEX, NULL, 0x38,
-	    "", HFILL}
+		{ "Spare", "bssap.dlci.spare",
+		FT_UINT8, BASE_HEX, NULL, 0x38,
+		"", HFILL}
 	},
 	{ &hf_gsm_a_dlci_sapi,
-	    { "SAPI", "bssap.dlci.sapi",
-	    FT_UINT8, BASE_HEX, VALS(bssap_sapi_values), 0x07,
-	    "", HFILL}
+		{ "SAPI", "bssap.dlci.sapi",
+		FT_UINT8, BASE_HEX, VALS(bssap_sapi_values), 0x07,
+		"", HFILL}
 	},
 	{ &hf_gsm_a_bssmap_cause,
-	    { "BSSMAP Cause",	"gsm_a_bssmap.cause",
-	    FT_UINT8, BASE_HEX, 0, 0x0,
-	    "", HFILL }
+		{ "BSSMAP Cause",	"gsm_a_bssmap.cause",
+		FT_UINT8, BASE_HEX, 0, 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_be_cell_id_disc,
 		{ "Cell identification discriminator","gsm_a.be.cell_id_disc",
@@ -3293,20 +3269,20 @@ proto_register_gsm_a_bssmap(void)
 
 	for (i=0; i < NUM_GSM_BSSMAP_MSG; i++, last_offset++)
 	{
-	ett_gsm_bssmap_msg[i] = -1;
-	ett[last_offset] = &ett_gsm_bssmap_msg[i];
+		ett_gsm_bssmap_msg[i] = -1;
+		ett[last_offset] = &ett_gsm_bssmap_msg[i];
 	}
 
 	for (i=0; i < NUM_GSM_BSSMAP_ELEM; i++, last_offset++)
 	{
-	ett_gsm_bssmap_elem[i] = -1;
-	ett[last_offset] = &ett_gsm_bssmap_elem[i];
+		ett_gsm_bssmap_elem[i] = -1;
+		ett[last_offset] = &ett_gsm_bssmap_elem[i];
 	}
 
 	/* Register the protocol name and description */
 
 	proto_a_bssmap =
-	proto_register_protocol("GSM A-I/F BSSMAP", "GSM BSSMAP", "gsm_a_bssmap");
+		proto_register_protocol("GSM A-I/F BSSMAP", "GSM BSSMAP", "gsm_a_bssmap");
 
 	proto_register_field_array(proto_a_bssmap, hf, array_length(hf));
 

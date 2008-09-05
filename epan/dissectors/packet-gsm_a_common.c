@@ -60,7 +60,6 @@ const value_string gsm_common_elem_strings[] = {
 	{ 0x00,	"Descriptive group or broadcast call reference" },
 	{ 0x00,	"Group Cipher Key Number" },
 	{ 0x00,	"PD and SAPI $(CCBS)$" },
-	/* Pos 10 */
 	{ 0x00,	"Priority Level" },
 	{ 0x00,	"PLMN List" },
 	{ 0, NULL }
@@ -73,130 +72,130 @@ const value_string gsm_common_elem_strings[] = {
  * Revision level
  */
 static const value_string gsm_a_msc_rev_vals[] = {
-	{ 0,		"Reserved for GSM phase 1"},
-	{ 1,		"Used by GSM phase 2 mobile stations"},
-	{ 2,		"Used by mobile stations supporting R99 or later versions of the protocol"},
-	{ 3,		"Reserved for future use"},
+	{ 0,	"Reserved for GSM phase 1"},
+	{ 1,	"Used by GSM phase 2 mobile stations"},
+	{ 2,	"Used by mobile stations supporting R99 or later versions of the protocol"},
+	{ 3,	"Reserved for future use"},
 	{ 0,	NULL }
 };
 
 /* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
 static const value_string ES_IND_vals[] = {
-	{ 0,		"Controlled Early Classmark Sending option is not implemented in the MS"},
-	{ 1,		"Controlled Early Classmark Sending option is implemented in the MS"},
+	{ 0,	"Controlled Early Classmark Sending option is not implemented in the MS"},
+	{ 1,	"Controlled Early Classmark Sending option is implemented in the MS"},
 	{ 0,	NULL }
 };
 /* A5/1 algorithm supported (octet 3, bit 4 */
 static const value_string A5_1_algorithm_sup_vals[] = {
-	{ 0,		"encryption algorithm A5/1 available"},
-	{ 1,		"encryption algorithm A5/1 not available"},
+	{ 0,	"encryption algorithm A5/1 available"},
+	{ 1,	"encryption algorithm A5/1 not available"},
 	{ 0,	NULL }
 };
 /* RF Power Capability (Octet 3) */
 static const value_string RF_power_capability_vals[] = {
-	{ 0,		"class 1"},
-	{ 1,		"class 2"},
-	{ 2,		"class 3"},
-	{ 3,		"class 4"},
-	{ 4,		"class 5"},
-	{ 7,		"RF Power capability is irrelevant in this information element"},
+	{ 0,	"class 1"},
+	{ 1,	"class 2"},
+	{ 2,	"class 3"},
+	{ 3,	"class 4"},
+	{ 4,	"class 5"},
+	{ 7,	"RF Power capability is irrelevant in this information element"},
 	{ 0,	NULL }
 };
 /* PS capability (pseudo-synchronization capability) (octet 4) */
 static const value_string ps_sup_cap_vals[] = {
-	{ 0,		"PS capability not present"},
-	{ 1,		"PS capability present"},
+	{ 0,	"PS capability not present"},
+	{ 1,	"PS capability present"},
 	{ 0,	NULL }
 };
 /* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
 static const value_string SS_screening_indicator_vals[] = {
-	{ 0,		"Default value of phase 1"},
-	{ 1,		"Capability of handling of ellipsis notation and phase 2 error handling "},
-	{ 2,		"For future use"},
-	{ 3,		"For future use"},
+	{ 0,	"Default value of phase 1"},
+	{ 1,	"Capability of handling of ellipsis notation and phase 2 error handling "},
+	{ 2,	"For future use"},
+	{ 3,	"For future use"},
 	{ 0,	NULL }
 };
 /* SM capability (MT SMS pt to pt capability) (octet 4)*/
 static const value_string SM_capability_vals[] = {
-	{ 0,		"Mobile station does not support mobile terminated point to point SMS"},
-	{ 1,		"Mobile station supports mobile terminated point to point SMS"},
+	{ 0,	"Mobile station does not support mobile terminated point to point SMS"},
+	{ 1,	"Mobile station supports mobile terminated point to point SMS"},
 	{ 0,	NULL }
 };
 /* VBS notification reception (octet 4) */
 static const value_string VBS_notification_rec_vals[] = {
-	{ 0,		"no VBS capability or no notifications wanted"},
-	{ 1,		"VBS capability and notifications wanted"},
+	{ 0,	"no VBS capability or no notifications wanted"},
+	{ 1,	"VBS capability and notifications wanted"},
 	{ 0,	NULL }
 };
 /* VGCS notification reception (octet 4) */
 static const value_string VGCS_notification_rec_vals[] = {
-	{ 0,		"no VGCS capability or no notifications wanted"},
-	{ 1,		"VGCS capability and notifications wanted"},
+	{ 0,	"no VGCS capability or no notifications wanted"},
+	{ 1,	"VGCS capability and notifications wanted"},
 	{ 0,	NULL }
 };
 /* FC Frequency Capability (octet 4 ) */
 static const value_string FC_frequency_cap_vals[] = {
-	{ 0,		"The MS does not support the E-GSM or R-GSM band"},
-	{ 1,		"The MS does support the E-GSM or R-GSM "},
+	{ 0,	"The MS does not support the E-GSM or R-GSM band"},
+	{ 1,	"The MS does support the E-GSM or R-GSM "},
 	{ 0,	NULL }
 };
 /* CM3 (octet 5, bit 8) */
 static const value_string CM3_vals[] = {
-	{ 0,		"The MS does not support any options that are indicated in CM3"},
-	{ 1,		"The MS supports options that are indicated in classmark 3 IE"},
+	{ 0,	"The MS does not support any options that are indicated in CM3"},
+	{ 1,	"The MS supports options that are indicated in classmark 3 IE"},
 	{ 0,	NULL }
 };
 /* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
 static const value_string LCS_VA_cap_vals[] = {
-	{ 0,		"LCS value added location request notification capability not supported"},
-	{ 1,		"LCS value added location request notification capability supported"},
+	{ 0,	"LCS value added location request notification capability not supported"},
+	{ 1,	"LCS value added location request notification capability supported"},
 	{ 0,	NULL }
 };
 /* UCS2 treatment (octet 5, bit 5) */
 static const value_string UCS2_treatment_vals[] = {
-	{ 0,		"the ME has a preference for the default alphabet"},
-	{ 1,		"the ME has no preference between the use of the default alphabet and the use of UCS2"},
+	{ 0,	"the ME has a preference for the default alphabet"},
+	{ 1,	"the ME has no preference between the use of the default alphabet and the use of UCS2"},
 	{ 0,	NULL }
 };
 /* SoLSA (octet 5, bit 4) */
 static const value_string SoLSA_vals[] = {
-	{ 0,		"The ME does not support SoLSA"},
-	{ 1,		"The ME supports SoLSA"},
+	{ 0,	"The ME does not support SoLSA"},
+	{ 1,	"The ME supports SoLSA"},
 	{ 0,	NULL }
 };
 /* CMSP: CM Service Prompt (octet 5, bit 3) */
 static const value_string CMSP_vals[] = {
-	{ 0,		"Network initiated MO CM connection request not supported"},
-	{ 1,		"Network initiated MO CM connection request supported for at least one CM protocol"},
+	{ 0,	"Network initiated MO CM connection request not supported"},
+	{ 1,	"Network initiated MO CM connection request supported for at least one CM protocol"},
 	{ 0,	NULL }
 };
 /* A5/3 algorithm supported (octet 5, bit 2) */
 static const value_string A5_3_algorithm_sup_vals[] = {
-	{ 0,		"encryption algorithm A5/3 not available"},
-	{ 1,		"encryption algorithm A5/3 available"},
+	{ 0,	"encryption algorithm A5/3 not available"},
+	{ 1,	"encryption algorithm A5/3 available"},
 	{ 0,	NULL }
 };
 
 /* A5/2 algorithm supported (octet 5, bit 1) */
 static const value_string A5_2_algorithm_sup_vals[] = {
-	{ 0,		"encryption algorithm A5/2 not available"},
-	{ 1,		"encryption algorithm A5/2 available"},
+	{ 0,	"encryption algorithm A5/2 not available"},
+	{ 1,	"encryption algorithm A5/2 available"},
 	{ 0,	NULL }
 };
 
 static const value_string mobile_identity_type_vals[] = {
-	{ 1,		"IMSI"},
-	{ 2,		"IMEI"},
-	{ 3,		"IMEISV"},
-	{ 4,		"TMSI/P-TMSI"},
-	{ 5,		"TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
-	{ 0,		"No Identity"},
+	{ 1,	"IMSI"},
+	{ 2,	"IMEI"},
+	{ 3,	"IMEISV"},
+	{ 4,	"TMSI/P-TMSI"},
+	{ 5,	"TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
+	{ 0,	"No Identity"},
 	{ 0,	NULL }
 };
 
 static const value_string oddevenind_vals[] = {
-	{ 0,		"Even number of identity digits"},
-	{ 1,		"Odd number of identity digits"},
+	{ 0,	"Even number of identity digits"},
+	{ 1,	"Odd number of identity digits"},
 	{ 0,	NULL }
 };
 
@@ -312,9 +311,9 @@ static int get_hf_elem_id(int pdu_type)
 /*
  * Type Length Value (TLV) element dissector
  */
-guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
+guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
-    guint8		oct;
+	guint8		oct;
 	guint16		parm_len;
 	guint8		lengt_length = 1;
 	guint8		consumed;
@@ -325,7 +324,6 @@ guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int 
 	gint		*elem_ett;
 	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
-	len = len;
 	curr_offset = offset;
 	consumed = 0;
 
@@ -333,7 +331,7 @@ guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int 
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == iei){
+	if (oct == iei){
 		if (oct == GSM_BSSMAP_APDU_IE){
 			/* This elements length is in two octets (a bit of a hack here)*/
 			lengt_length = 2;
@@ -344,53 +342,53 @@ guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int 
 				DISSECTOR_ASSERT_NOT_REACHED();
 			}
 		}else{
-	parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+			parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 		}
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, parm_len + 1 + lengt_length,
-		"%s%s",
-		elem_names[idx].strptr,
-		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+		item =
+		proto_tree_add_text(tree,
+			tvb, curr_offset, parm_len + 1 + lengt_length,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	subtree = proto_item_add_subtree(item, elem_ett[idx]);
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-	proto_tree_add_uint(subtree,
-	    get_hf_elem_id(pdu_type), tvb,
-	    curr_offset, 1, oct);
+		proto_tree_add_uint(subtree,
+			get_hf_elem_id(pdu_type), tvb,
+			curr_offset, 1, oct);
 
-	proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
-	    curr_offset + 1, lengt_length, parm_len);
+		proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
+			curr_offset + 1, lengt_length, parm_len);
 
-	if (parm_len > 0)
-	{
-	    if (elem_funcs[idx] == NULL)
-	    {
-		proto_tree_add_text(subtree,
-		    tvb, curr_offset + 1 + lengt_length, parm_len,
-		    "Element Value");
-		/* See ASSERT above */
-		consumed = (guint8)parm_len;
-	    }
-	    else
-	    {
+		if (parm_len > 0)
+		{
+			if (elem_funcs[idx] == NULL)
+			{
+				proto_tree_add_text(subtree,
+					tvb, curr_offset + 1 + lengt_length, parm_len,
+					"Element Value");
+				/* See ASSERT above */
+				consumed = (guint8)parm_len;
+			}
+			else
+			{
 				gchar *a_add_string;
 
-		a_add_string=ep_alloc(1024);
-		a_add_string[0] = '\0';
-		consumed =
-		    (*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
-			parm_len, a_add_string, 1024);
+				a_add_string=ep_alloc(1024);
+				a_add_string[0] = '\0';
+				consumed =
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
+					parm_len, a_add_string, 1024);
 
-		if (a_add_string[0] != '\0')
-		{
-		    proto_item_append_text(item, "%s", a_add_string);
+				if (a_add_string[0] != '\0')
+				{
+					proto_item_append_text(item, "%s", a_add_string);
+				}
+			}
 		}
-	    }
-	}
 
-	consumed += 1 + lengt_length;
+		consumed += 1 + lengt_length;
 	}
 
 	return(consumed);
@@ -422,46 +420,46 @@ guint8 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int i
 
 	if (oct == iei)
 	{
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"%s%s",
-		elem_names[idx].strptr,
-		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+		item =
+			proto_tree_add_text(tree,
+			tvb, curr_offset, -1,
+			"%s%s",
+			elem_names[idx].strptr,
+				(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	subtree = proto_item_add_subtree(item, elem_ett[idx]);
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-	proto_tree_add_uint(subtree,
-	    get_hf_elem_id(pdu_type), tvb,
-	    curr_offset, 1, oct);
+		proto_tree_add_uint(subtree,
+			get_hf_elem_id(pdu_type), tvb,
+			curr_offset, 1, oct);
 
-	if (elem_funcs[idx] == NULL)
-	{
-	    /* BAD THING, CANNOT DETERMINE LENGTH */
+		if (elem_funcs[idx] == NULL)
+		{
+			/* BAD THING, CANNOT DETERMINE LENGTH */
 
-	    proto_tree_add_text(subtree,
-		tvb, curr_offset + 1, 1,
-		"No element dissector, rest of dissection may be incorrect");
+			proto_tree_add_text(subtree,
+				tvb, curr_offset + 1, 1,
+				"No element dissector, rest of dissection may be incorrect");
 
-	    consumed = 1;
-	}
-	else
-	{
+			consumed = 1;
+		}
+		else
+		{
 			gchar *a_add_string;
 
-	    a_add_string=ep_alloc(1024);
-	    a_add_string[0] = '\0';
-	    consumed = (*elem_funcs[idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
+			a_add_string=ep_alloc(1024);
+			a_add_string[0] = '\0';
+			consumed = (*elem_funcs[idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
-	    if (a_add_string[0] != '\0')
-	    {
-		proto_item_append_text(item, "%s", a_add_string);
-	    }
-	}
+			if (a_add_string[0] != '\0')
+			{
+				proto_item_append_text(item, "%s", a_add_string);
+			}
+		}
 
-	consumed++;
+		consumed++;
 
-	proto_item_set_len(item, consumed);
+		proto_item_set_len(item, consumed);
 	}
 
 	return(consumed);
@@ -495,46 +493,46 @@ guint8 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type,
 
 	if ((oct & 0xf0) == (iei & 0xf0))
 	{
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"%s%s",
-		elem_names[idx].strptr,
-		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+		item =
+			proto_tree_add_text(tree,
+				tvb, curr_offset, -1,
+				"%s%s",
+				elem_names[idx].strptr,
+				(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	subtree = proto_item_add_subtree(item, elem_ett[idx]);
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-	other_decode_bitfield_value(buf, oct, 0xf0, 8);
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 1,
-	    "%s :  Element ID",
-	    buf);
+		other_decode_bitfield_value(buf, oct, 0xf0, 8);
+		proto_tree_add_text(subtree,
+			tvb, curr_offset, 1,
+			"%s :  Element ID",
+			buf);
 
-	if (elem_funcs[idx] == NULL)
-	{
-	    /* BAD THING, CANNOT DETERMINE LENGTH */
+		if (elem_funcs[idx] == NULL)
+		{
+			/* BAD THING, CANNOT DETERMINE LENGTH */
 
-	    proto_tree_add_text(subtree,
-		tvb, curr_offset, 1,
-		"No element dissector, rest of dissection may be incorrect");
+			proto_tree_add_text(subtree,
+				tvb, curr_offset, 1,
+				"No element dissector, rest of dissection may be incorrect");
 
-	    consumed++;
-	}
-	else
-	{
+			consumed++;
+		}
+		else
+		{
 			gchar *a_add_string;
 
-	    a_add_string=ep_alloc(1024);
-	    a_add_string[0] = '\0';
-	    consumed = (*elem_funcs[idx])(tvb, subtree, curr_offset, -1, a_add_string, 1024);
+			a_add_string=ep_alloc(1024);
+			a_add_string[0] = '\0';
+			consumed = (*elem_funcs[idx])(tvb, subtree, curr_offset, -1, a_add_string, 1024);
 
-	    if (a_add_string[0] != '\0')
-	    {
-		proto_item_append_text(item, "%s", a_add_string);
-	    }
-	}
+			if (a_add_string[0] != '\0')
+			{
+				proto_item_append_text(item, "%s", a_add_string);
+			}
+		}
 
-	proto_item_set_len(item, consumed);
+		proto_item_set_len(item, consumed);
 	}
 
 	return(consumed);
@@ -561,14 +559,14 @@ guint8 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int id
 
 	if (oct == iei)
 	{
-	proto_tree_add_uint_format(tree,
-	    get_hf_elem_id(pdu_type), tvb,
-	    curr_offset, 1, oct,
-	    "%s%s",
-	    elem_names[idx].strptr,
-	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+		proto_tree_add_uint_format(tree,
+			get_hf_elem_id(pdu_type), tvb,
+			curr_offset, 1, oct,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	consumed = 1;
+		consumed = 1;
 	}
 
 	return(consumed);
@@ -577,7 +575,7 @@ guint8 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int id
 /*
  * Length Value (LV) element dissector
  */
-guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
+guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
 	guint8		parm_len;
 	guint8		consumed;
@@ -588,7 +586,6 @@ guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 	gint		*elem_ett;
 	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
-	len = len;
 	curr_offset = offset;
 	consumed = 0;
 
@@ -597,42 +594,42 @@ guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 	parm_len = tvb_get_guint8(tvb, curr_offset);
 
 	item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, parm_len + 1,
-	    "%s%s",
-	    elem_names[idx].strptr,
-	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, parm_len + 1,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
 	proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
-	curr_offset, 1, parm_len);
+		curr_offset, 1, parm_len);
 
 	if (parm_len > 0)
 	{
-	if (elem_funcs[idx] == NULL)
-	{
-	    proto_tree_add_text(subtree,
-		tvb, curr_offset + 1, parm_len,
-		"Element Value");
+		if (elem_funcs[idx] == NULL)
+		{
+			proto_tree_add_text(subtree,
+				tvb, curr_offset + 1, parm_len,
+				"Element Value");
 
-	    consumed = parm_len;
-	}
-	else
-	{
+			consumed = parm_len;
+		}
+		else
+		{
 			gchar *a_add_string;
 
-	    a_add_string=ep_alloc(1024);
-	    a_add_string[0] = '\0';
-	    consumed =
-		(*elem_funcs[idx])(tvb, subtree, curr_offset + 1,
-		    parm_len, a_add_string, 1024);
+			a_add_string=ep_alloc(1024);
+			a_add_string[0] = '\0';
+			consumed =
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 1,
+					parm_len, a_add_string, 1024);
 
-	    if (a_add_string[0] != '\0')
-	    {
-		proto_item_append_text(item, "%s", a_add_string);
-	    }
-	}
+			if (a_add_string[0] != '\0')
+			{
+				proto_item_append_text(item, "%s", a_add_string);
+			}
+		}
 	}
 
 	return(consumed + 1);
@@ -659,21 +656,21 @@ guint8 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 o
 
 	if (elem_funcs[idx] == NULL)
 	{
-	/* BAD THING, CANNOT DETERMINE LENGTH */
+		/* BAD THING, CANNOT DETERMINE LENGTH */
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "No element dissector, rest of dissection may be incorrect");
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"No element dissector, rest of dissection may be incorrect");
 
-	consumed = 1;
+		consumed = 1;
 	}
 	else
 	{
 		gchar *a_add_string;
 
-	a_add_string=ep_alloc(1024);
-	a_add_string[0] = '\0';
-	consumed = (*elem_funcs[idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
+		a_add_string=ep_alloc(1024);
+		a_add_string[0] = '\0';
+		consumed = (*elem_funcs[idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
 	}
 
 	return(consumed);
@@ -702,13 +699,13 @@ guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, gui
 
 	if (elem_funcs[idx] == NULL)
 	{
-	/* NOT A BAD THING - LENGTH IS HALF NIBBLE */
+		/* NOT A BAD THING - LENGTH IS HALF NIBBLE */
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "No element dissector");
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"No element dissector");
 
-	consumed = 1;
+		consumed = 1;
 	}
 	else
 	{
@@ -766,24 +763,24 @@ my_dgt_tbcd_unpack(
 
 	while (num_octs)
 	{
-	/*
-	 * unpack first value in byte
-	 */
-	i = *in++;
-	*out++ = dgt->out[i & 0x0f];
-	cnt++;
+		/*
+		 * unpack first value in byte
+		 */
+		i = *in++;
+		*out++ = dgt->out[i & 0x0f];
+		cnt++;
 
-	/*
-	 * unpack second value in byte
-	 */
-	i >>= 4;
+		/*
+		 * unpack second value in byte
+		 */
+		i >>= 4;
 
-	if (i == 0x0f)	/* odd number bytes - hit filler */
-	    break;
+		if (i == 0x0f)	/* odd number bytes - hit filler */
+			break;
 
-	*out++ = dgt->out[i];
-	cnt++;
-	num_octs--;
+		*out++ = dgt->out[i];
+		cnt++;
+		num_octs--;
 	}
 
 	*out = '\0';
@@ -799,77 +796,77 @@ mcc_mnc_aux(guint8 *octs, gchar *mcc, gchar *mnc)
 {
 	if ((octs[0] & 0x0f) <= 9)
 	{
-	mcc[0] = Dgt_tbcd.out[octs[0] & 0x0f];
+		mcc[0] = Dgt_tbcd.out[octs[0] & 0x0f];
 	}
 	else
 	{
-	mcc[0] = (octs[0] & 0x0f) + 55;
+		mcc[0] = (octs[0] & 0x0f) + 55;
 	}
 
 	if (((octs[0] & 0xf0) >> 4) <= 9)
 	{
-	mcc[1] = Dgt_tbcd.out[(octs[0] & 0xf0) >> 4];
+		mcc[1] = Dgt_tbcd.out[(octs[0] & 0xf0) >> 4];
 	}
 	else
 	{
-	mcc[1] = ((octs[0] & 0xf0) >> 4) + 55;
+		mcc[1] = ((octs[0] & 0xf0) >> 4) + 55;
 	}
 
 	if ((octs[1] & 0x0f) <= 9)
 	{
-	mcc[2] = Dgt_tbcd.out[octs[1] & 0x0f];
+		mcc[2] = Dgt_tbcd.out[octs[1] & 0x0f];
 	}
 	else
 	{
-	mcc[2] = (octs[1] & 0x0f) + 55;
+		mcc[2] = (octs[1] & 0x0f) + 55;
 	}
 
 	mcc[3] = '\0';
 
 	if (((octs[1] & 0xf0) >> 4) <= 9)
 	{
-	mnc[2] = Dgt_tbcd.out[(octs[1] & 0xf0) >> 4];
+		mnc[2] = Dgt_tbcd.out[(octs[1] & 0xf0) >> 4];
 	}
 	else
 	{
-	mnc[2] = ((octs[1] & 0xf0) >> 4) + 55;
+		mnc[2] = ((octs[1] & 0xf0) >> 4) + 55;
 	}
 
 	if ((octs[2] & 0x0f) <= 9)
 	{
-	mnc[0] = Dgt_tbcd.out[octs[2] & 0x0f];
+		mnc[0] = Dgt_tbcd.out[octs[2] & 0x0f];
 	}
 	else
 	{
-	mnc[0] = (octs[2] & 0x0f) + 55;
+		mnc[0] = (octs[2] & 0x0f) + 55;
 	}
 
 	if (((octs[2] & 0xf0) >> 4) <= 9)
 	{
-	mnc[1] = Dgt_tbcd.out[(octs[2] & 0xf0) >> 4];
+		mnc[1] = Dgt_tbcd.out[(octs[2] & 0xf0) >> 4];
 	}
 	else
 	{
-	mnc[1] = ((octs[2] & 0xf0) >> 4) + 55;
+		mnc[1] = ((octs[2] & 0xf0) >> 4) + 55;
 	}
 
 	if (mnc[1] == 'F')
 	{
-	/*
-	 * only a 1 digit MNC (very old)
-	 */
-	mnc[1] = '\0';
+		/*
+		 * only a 1 digit MNC (very old)
+		 */
+		mnc[1] = '\0';
 	}
 	else if (mnc[2] == 'F')
 	{
-	/*
-	 * only a 2 digit MNC
-	 */
-	mnc[2] = '\0';
+		/*
+		 * only a 2 digit MNC
+		 */
+		mnc[2] = '\0';
 	}
 	else
 	{
-	mnc[3] = '\0';
+		mnc[3] = '\0';
 	}
 }
 
@@ -896,7 +893,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.3
  */
 guint8
-de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	octs[3];
 	guint16	value;
@@ -906,13 +903,12 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	gchar	mcc[4];
 	gchar	mnc[4];
 
-	len = len;
 	curr_offset = offset;
 
 	item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 5,
-	    gsm_common_elem_strings[DE_LAI].strptr);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 5,
+			gsm_common_elem_strings[DE_LAI].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_LAI]);
 
@@ -924,20 +920,20 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 
 
 	proto_tree_add_text(subtree,
-	tvb, curr_offset, 3,
-	"Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
-	mcc,
-	mnc);
+		tvb, curr_offset, 3,
+		"Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
+		mcc,
+		mnc);
 
 	curr_offset += 3;
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
 	proto_tree_add_text(subtree,
-	tvb, curr_offset, 2,
-	"Location Area Code (LAC): 0x%04x (%u)",
-	value,
-	value);
+		tvb, curr_offset, 2,
+		"Location Area Code (LAC): 0x%04x (%u)",
+		value,
+		value);
 
 	proto_item_append_text(item, " - LAC (0x%04x)", value);
 
@@ -974,149 +970,144 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	switch (oct & 0x07)
 	{
 	case 0:	/* No Identity */
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Unused",
+			a_bigbuf);
 
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - No Identity Code");
+		if (add_string)
+			g_snprintf(add_string, string_len, " - No Identity Code");
 
-	curr_offset++;
+		curr_offset++;
 
-	if (len > 1)
-	{
-	    proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-		"Format not supported");
-	}
+		if (len > 1)
+		{
+			proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+				"Format not supported");
+		}
 
-	curr_offset += len - 1;
-	break;
+		curr_offset += len - 1;
+		break;
 
 	case 3:	/* IMEISV */
-
-	/* FALLTHRU */
+		/* FALLTHRU */
 
 	case 1:	/* IMSI */
+		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Identity Digit 1: %c",
+			a_bigbuf,
+			Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Identity Digit 1: %c",
-	    a_bigbuf,
-	    Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
+		odd = oct & 0x08;
 
-	odd = oct & 0x08;
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
+		curr_offset++;
 
+		poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
-	a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
-	curr_offset++;
+		my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
+			&Dgt1_9_bcd);
 
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+		proto_tree_add_string_format(tree,
+			((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
+			tvb, curr_offset, len - (curr_offset - offset),
+			a_bigbuf,
+			"BCD Digits: %s",
+			a_bigbuf);
 
-	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-	    &Dgt1_9_bcd);
+		if (sccp_assoc && ! sccp_assoc->calling_party) {
+			sccp_assoc->calling_party = se_strdup_printf(
+				((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
+				a_bigbuf );
+		}
 
-	proto_tree_add_string_format(tree,
-	    ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
-	    tvb, curr_offset, len - (curr_offset - offset),
-	    a_bigbuf,
-	    "BCD Digits: %s",
-		a_bigbuf);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - %s (%s)",
+				((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
+				a_bigbuf);
 
-	if (sccp_assoc && ! sccp_assoc->calling_party) {
-		sccp_assoc->calling_party = se_strdup_printf(
-			((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
-			a_bigbuf );
-	}
+		curr_offset += len - (curr_offset - offset);
 
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - %s (%s)",
-		((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
-		a_bigbuf);
+		if (!odd)
+		{
+			oct = tvb_get_guint8(tvb, curr_offset - 1);
 
-	curr_offset += len - (curr_offset - offset);
-
-	if (!odd)
-	{
-	    oct = tvb_get_guint8(tvb, curr_offset - 1);
-
-	    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset - 1, 1,
-		"%s :  Filler",
-		a_bigbuf);
-	}
-	break;
+			other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+			proto_tree_add_text(tree,
+				tvb, curr_offset - 1, 1,
+				"%s :  Filler",
+				a_bigbuf);
+		}
+		break;
 
 	case 2:	/* IMEI */
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Identity Digit 1: %c",
-	    a_bigbuf,
-	    Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
+		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Identity Digit 1: %c",
+			a_bigbuf,
+			Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
+		a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
+		curr_offset++;
 
-	a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
-	curr_offset++;
+		poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+		my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
+			&Dgt1_9_bcd);
 
-	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-	    &Dgt1_9_bcd);
+		proto_tree_add_string_format(tree,
+			hf_gsm_a_imei,
+			tvb, curr_offset, len - (curr_offset - offset),
+			a_bigbuf,
+			"BCD Digits: %s",
+			a_bigbuf);
 
-	proto_tree_add_string_format(tree,
-	    hf_gsm_a_imei,
-	    tvb, curr_offset, len - (curr_offset - offset),
-	    a_bigbuf,
-	    "BCD Digits: %s",
-	    a_bigbuf);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - IMEI (%s)", a_bigbuf);
 
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - IMEI (%s)", a_bigbuf);
-
-	curr_offset += len - (curr_offset - offset);
-	break;
+		curr_offset += len - (curr_offset - offset);
+		break;
 
 	case 4:	/* TMSI/P-TMSI */
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"%s :  Unused",
+			a_bigbuf);
 
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
+		curr_offset++;
 
-	curr_offset++;
+		value = tvb_get_ntohl(tvb, curr_offset);
 
-	value = tvb_get_ntohl(tvb, curr_offset);
+		proto_tree_add_uint(tree, hf_gsm_a_tmsi,
+			tvb, curr_offset, 4,
+			value);
 
-	proto_tree_add_uint(tree, hf_gsm_a_tmsi,
-	    tvb, curr_offset, 4,
-	    value);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - TMSI/P-TMSI (0x%04x)", value);
 
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - TMSI/P-TMSI (0x%04x)", value);
-
-	curr_offset += 4;
-	break;
+		curr_offset += 4;
+		break;
 
 	case 5: /* TMGI and optional MBMS Session Identity */
 		/* MBMS Session Identity indication (octet 3) Bit 6 */
@@ -1145,16 +1136,16 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		break;
 
 	default:	/* Reserved */
-	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
- 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    "Mobile station identity Format %u, Format Unknown",(oct & 0x07));
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_text(tree, tvb, curr_offset, len,
+			"Mobile station identity Format %u, Format Unknown",(oct & 0x07));
 
-	if (add_string)
-	    g_snprintf(add_string, string_len, " - Format Unknown");
+		if (add_string)
+			g_snprintf(add_string, string_len, " - Format Unknown");
 
-	curr_offset += len;
-	break;
+		curr_offset += len;
+		break;
 	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1166,21 +1157,21 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
  * [3] 10.5.1.5
  */
 guint8
-de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 	proto_tree	*subtree;
 	proto_item	*item;
-	len = len;
+
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	item =
 	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    gsm_common_elem_strings[DE_MS_CM_1].strptr);
+		tvb, curr_offset, 1,
+		gsm_common_elem_strings[DE_MS_CM_1].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
 
@@ -1209,7 +1200,6 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 {
 	guint32	curr_offset;
 	curr_offset = offset;
-
 
 	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
@@ -1271,16 +1261,15 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.8
  */
 static guint8
-de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Spare Nibble");
+		tvb, curr_offset, 1,
+		"Spare Nibble");
 
 	curr_offset++;
 
@@ -1293,37 +1282,36 @@ de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [3] 10.5.1.9
  */
 guint8
-de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	value;
 	guint32	curr_offset;
 	const gchar *str;
 
-	len = len;
 	curr_offset = offset;
 
 	value = tvb_get_ntohl(tvb, curr_offset);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0xffffffe0, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-	"%s :  Group or Broadcast call reference: %u (0x%04x)",
-	a_bigbuf,
-	(value & 0xffffffe0) >> 5,
-	(value & 0xffffffe0) >> 5);
+		"%s :  Group or Broadcast call reference: %u (0x%04x)",
+		a_bigbuf,
+		(value & 0xffffffe0) >> 5,
+		(value & 0xffffffe0) >> 5);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000010, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-	"%s :  SF Service Flag: %s",
-	a_bigbuf,
-	(value & 0x00000010) ?
-	    "VGCS (Group call reference)" : "VBS (Broadcast call reference)");
+		"%s :  SF Service Flag: %s",
+		a_bigbuf,
+		(value & 0x00000010) ?
+		"VGCS (Group call reference)" : "VBS (Broadcast call reference)");
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000008, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-	"%s :  AF Acknowledgement Flag: acknowledgment is %srequired",
-	a_bigbuf,
-	(value & 0x00000008) ? "" : "not ");
+		"%s :  AF Acknowledgement Flag: acknowledgment is %srequired",
+		a_bigbuf,
+		(value & 0x00000008) ? "" : "not ");
 
 	switch (value & 0x00000007)
 	{
@@ -1341,9 +1329,9 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000007, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-	"%s :  Call Priority: %s",
-	a_bigbuf,
-	str);
+		"%s :  Call Priority: %s",
+		a_bigbuf,
+		str);
 
 	curr_offset += 4;
 
@@ -1351,13 +1339,13 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Ciphering Information",
-	a_bigbuf);
+		"%s :  Ciphering Information",
+		a_bigbuf);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		"%s :  Spare",
+		a_bigbuf);
 
 	curr_offset++;
 
@@ -1370,7 +1358,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [3] 10.5.1.10a
  */
 static guint8
-de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
@@ -1378,22 +1366,21 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	proto_item	*item;
 	const gchar *str;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	item =
 	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    gsm_dtap_elem_strings[DE_PD_SAPI].strptr);
+		tvb, curr_offset, 1,
+		gsm_dtap_elem_strings[DE_PD_SAPI].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
 	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+		"%s :  Spare",
+		a_bigbuf);
 
 	switch ((oct & 0x30) >> 4)
 	{
@@ -1406,9 +1393,9 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
 	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  SAPI (Sevice Access Point Identifier): %s",
-	a_bigbuf,
-	str);
+		"%s :  SAPI (Sevice Access Point Identifier): %s",
+		a_bigbuf,
+		str);
 
 	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
 
@@ -1423,23 +1410,22 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.11
  */
 static const value_string gsm_a_call_prio_vals[] = {
-	{  0x00,	"no priority applied" },
-	{  0x01,	"call priority level 4" },
-	{  0x02,	"call priority level 3" },
-	{  0x03,	"call priority level 2" },
-	{  0x04,	"call priority level 1" },
-	{  0x05,	"call priority level 0" },
-	{  0x06,	"call priority level B" },
-	{  0x07,	"call priority level A" },
+	{ 0x00,	"no priority applied" },
+	{ 0x01,	"call priority level 4" },
+	{ 0x02,	"call priority level 3" },
+	{ 0x03,	"call priority level 2" },
+	{ 0x04,	"call priority level 1" },
+	{ 0x05,	"call priority level 0" },
+	{ 0x06,	"call priority level B" },
+	{ 0x07,	"call priority level A" },
 	{ 0,			NULL }
 };
 
 static guint8
-de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
@@ -1475,11 +1461,11 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	mcc_mnc_aux(octs, mcc, mnc);
 
 	proto_tree_add_text(tree,
-	    tvb, curr_offset, 3,
-	    "PLMN[%u]  Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
-	    num_plmn + 1,
-	    mcc,
-	    mnc);
+		tvb, curr_offset, 3,
+		"PLMN[%u]  Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
+		num_plmn + 1,
+		mcc,
+		mnc);
 
 	curr_offset += 3;
 
@@ -1488,7 +1474,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	if (add_string)
 	g_snprintf(add_string, string_len, " - %u PLMN%s",
-	    num_plmn, plurality(num_plmn, "", "s"));
+		num_plmn, plurality(num_plmn, "", "s"));
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -1518,120 +1504,120 @@ guint8 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 void
 proto_register_gsm_a_common(void)
 {
-	guint		i;
-	guint		last_offset;
+	guint	i;
+	guint	last_offset;
 
 	/* Setup list of header fields */
 	static hf_register_info hf[] =
 	{
 	{ &hf_gsm_a_common_elem_id,
-	    { "Element ID",	"gsm_a_common.elem_id",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+		{ "Element ID",	"gsm_a_common.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_imsi,
-	    { "IMSI",	"gsm_a.imsi",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
+		{ "IMSI",	"gsm_a.imsi",
+		FT_STRING, BASE_DEC, 0, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_tmsi,
-	    { "TMSI/P-TMSI",	"gsm_a.tmsi",
-	    FT_UINT32, BASE_HEX, 0, 0x0,
-	    "", HFILL }
+		{ "TMSI/P-TMSI",	"gsm_a.tmsi",
+		FT_UINT32, BASE_HEX, 0, 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_imei,
-	    { "IMEI",	"gsm_a.imei",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
+		{ "IMEI",	"gsm_a.imei",
+		FT_STRING, BASE_DEC, 0, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_imeisv,
-	    { "IMEISV",	"gsm_a.imeisv",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
+		{ "IMEISV",	"gsm_a.imeisv",
+		FT_STRING, BASE_DEC, 0, 0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_MSC_rev,
 		{ "Revision Level","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_msc_rev_vals), 0x60,
+		FT_UINT8,BASE_DEC, VALS(gsm_a_msc_rev_vals), 0x60,
 		"Revision level", HFILL }
 	},
 	{ &hf_gsm_a_ES_IND,
 		{ "ES IND","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x10,
+		FT_UINT8,BASE_DEC, VALS(ES_IND_vals), 0x10,
 			"ES IND", HFILL }
 	},
 	{ &hf_gsm_a_A5_1_algorithm_sup,
 		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x08,
+		FT_UINT8,BASE_DEC, VALS(A5_1_algorithm_sup_vals), 0x08,
 		"A5/1 algorithm supported ", HFILL }
 	},
 	{ &hf_gsm_a_RF_power_capability,
 		{ "RF Power Capability","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(RF_power_capability_vals), 0x07,
+		FT_UINT8,BASE_DEC, VALS(RF_power_capability_vals), 0x07,
 		"RF Power Capability", HFILL }
 	},
 	{ &hf_gsm_a_ps_sup_cap,
 		{ "PS capability (pseudo-synchronization capability)","gsm_a.ps_sup_cap",
-		FT_UINT8,BASE_DEC,  VALS(ps_sup_cap_vals), 0x40,
+		FT_UINT8,BASE_DEC, VALS(ps_sup_cap_vals), 0x40,
 		"PS capability (pseudo-synchronization capability)", HFILL }
 	},
 	{ &hf_gsm_a_SS_screening_indicator,
 		{ "SS Screening Indicator","gsm_a.SS_screening_indicator",
-		FT_UINT8,BASE_DEC,  VALS(SS_screening_indicator_vals), 0x30,
+		FT_UINT8,BASE_DEC, VALS(SS_screening_indicator_vals), 0x30,
 		"SS Screening Indicator", HFILL }
 	},
 	{ &hf_gsm_a_SM_capability,
 		{ "SM capability (MT SMS pt to pt capability)","gsm_a.SM_cap",
-		FT_UINT8,BASE_DEC,  VALS(SM_capability_vals), 0x08,
+		FT_UINT8,BASE_DEC, VALS(SM_capability_vals), 0x08,
 		"SM capability (MT SMS pt to pt capability)", HFILL }
 	},
 	{ &hf_gsm_a_VBS_notification_rec,
 		{ "VBS notification reception ","gsm_a.VBS_notification_rec",
-		FT_UINT8,BASE_DEC,  VALS(VBS_notification_rec_vals), 0x04,
+		FT_UINT8,BASE_DEC, VALS(VBS_notification_rec_vals), 0x04,
 		"VBS notification reception ", HFILL }
 	},
 	{ &hf_gsm_a_VGCS_notification_rec,
 		{ "VGCS notification reception ","gsm_a.VGCS_notification_rec",
-		FT_UINT8,BASE_DEC,  VALS(VGCS_notification_rec_vals), 0x02,
+		FT_UINT8,BASE_DEC, VALS(VGCS_notification_rec_vals), 0x02,
 		"VGCS notification reception", HFILL }
 	},
 	{ &hf_gsm_a_FC_frequency_cap,
 		{ "FC Frequency Capability","gsm_a.FC_frequency_cap",
-		FT_UINT8,BASE_DEC,  VALS(FC_frequency_cap_vals), 0x01,
+		FT_UINT8,BASE_DEC, VALS(FC_frequency_cap_vals), 0x01,
 		"FC Frequency Capability", HFILL }
 	},
 	{ &hf_gsm_a_CM3,
 		{ "CM3","gsm_a.CM3",
-		FT_UINT8,BASE_DEC,  VALS(CM3_vals), 0x80,
+		FT_UINT8,BASE_DEC, VALS(CM3_vals), 0x80,
 		"CM3", HFILL }
 	},
 	{ &hf_gsm_a_LCS_VA_cap,
 		{ "LCS VA capability (LCS value added location request notification capability) ","gsm_a.LCS_VA_cap",
-		FT_UINT8,BASE_DEC,  VALS(LCS_VA_cap_vals), 0x20,
+		FT_UINT8,BASE_DEC, VALS(LCS_VA_cap_vals), 0x20,
 		"LCS VA capability (LCS value added location request notification capability) ", HFILL }
 	},
 	{ &hf_gsm_a_UCS2_treatment,
 		{ "UCS2 treatment ","gsm_a.UCS2_treatment",
-		FT_UINT8,BASE_DEC,  VALS(UCS2_treatment_vals), 0x10,
+		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x10,
 		"UCS2 treatment ", HFILL }
 	},
 	{ &hf_gsm_a_SoLSA,
 		{ "SoLSA","gsm_a.SoLSA",
-		FT_UINT8,BASE_DEC,  VALS(SoLSA_vals), 0x08,
+		FT_UINT8,BASE_DEC, VALS(SoLSA_vals), 0x08,
 		"SoLSA", HFILL }
 	},
 	{ &hf_gsm_a_CMSP,
 		{ "CMSP: CM Service Prompt","gsm_a.CMSP",
-		FT_UINT8,BASE_DEC,  VALS(CMSP_vals), 0x04,
+		FT_UINT8,BASE_DEC, VALS(CMSP_vals), 0x04,
 		"CMSP: CM Service Prompt", HFILL }
 	},
 	{ &hf_gsm_a_A5_3_algorithm_sup,
 		{ "A5/3 algorithm supported","gsm_a.A5_3_algorithm_sup",
-		FT_UINT8,BASE_DEC,  VALS(A5_3_algorithm_sup_vals), 0x02,
+		FT_UINT8,BASE_DEC, VALS(A5_3_algorithm_sup_vals), 0x02,
 		"A5/3 algorithm supported", HFILL }
 	},
 	{ &hf_gsm_a_A5_2_algorithm_sup,
 		{ "A5/2 algorithm supported","gsm_a.A5_2_algorithm_sup",
-		FT_UINT8,BASE_DEC,  VALS(A5_2_algorithm_sup_vals), 0x01,
+		FT_UINT8,BASE_DEC, VALS(A5_2_algorithm_sup_vals), 0x01,
 		"A5/2 algorithm supported", HFILL }
 	},
 	{ &hf_gsm_a_mobile_identity_type,
@@ -1647,42 +1633,41 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_tmgi_mcc_mnc_ind,
 		{ "MCC/MNC indication", "gsm_a.tmgi_mcc_mnc_ind",
 		FT_BOOLEAN, 8, TFS(&gsm_a_present_vals), 0x10,
-		"MCC/MNC indication", HFILL}},
-
+		"MCC/MNC indication", HFILL}
+	},
 	{ &hf_gsm_a_mbs_ses_id_ind,
 		{ "MBMS Session Identity indication", "gsm_a.tmgi_mcc_mnc_ind",
 		FT_BOOLEAN, 8, TFS(&gsm_a_present_vals), 0x20,
-		"MBMS Session Identity indication", HFILL}},
-
+		"MBMS Session Identity indication", HFILL}
+	},
 	{ &hf_gsm_a_mbs_service_id,
-		{ "MBMS Service ID",           "gsm_a.mbs_service_id",
+		{ "MBMS Service ID", "gsm_a.mbs_service_id",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"MBMS Service ID", HFILL }
 	},
-
 	{ &hf_gsm_a_L3_protocol_discriminator,
 		{ "Protocol discriminator","gsm_a.L3_protocol_discriminator",
-		FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,
+		FT_UINT8,BASE_DEC, VALS(protocol_discriminator_vals), 0x0f,
 		"Protocol discriminator", HFILL }
 	},
 	{ &hf_gsm_a_call_prio,
-		{ "Call priority",           "gsm_a.call_prio",
+		{ "Call priority", "gsm_a.call_prio",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x07,
 		"Call priority", HFILL }
 	},
 	{ &hf_gsm_a_skip_ind,
-		{ "Skip Indicator",           "gsm_a.skip.ind",
+		{ "Skip Indicator", "gsm_a.skip.ind",
 		FT_UINT8, BASE_DEC, NULL, 0xf0,
 		"Skip Indicator", HFILL }
 	},
 	{ &hf_gsm_a_b7spare,
-	        { "Spare","gsm_a.spareb7",
-	        FT_UINT8,BASE_DEC,  NULL, 0x40,
-	        "Spare", HFILL }
+		{ "Spare","gsm_a.spareb7",
+		FT_UINT8,BASE_DEC, NULL, 0x40,
+		"Spare", HFILL }
 	},
 	{ &hf_gsm_a_b8spare,
 		{ "Spare","gsm_a.spareb8",
-		FT_UINT8,BASE_DEC,  NULL, 0x80,          
+		FT_UINT8,BASE_DEC, NULL, 0x80,
 		"Spare", HFILL }
 	},
 	};
@@ -1696,8 +1681,8 @@ proto_register_gsm_a_common(void)
 
 	for (i=0; i < NUM_GSM_COMMON_ELEM; i++, last_offset++)
 	{
-	ett_gsm_common_elem[i] = -1;
-	ett[last_offset] = &ett_gsm_common_elem[i];
+		ett_gsm_common_elem[i] = -1;
+		ett[last_offset] = &ett_gsm_common_elem[i];
 	}
 
 	/* Register the protocol name and description */

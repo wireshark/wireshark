@@ -2,6 +2,31 @@
  *
  * $Id$
  *
+ *   Reference [3]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 4.7.0 Release 4)
+ *   (ETSI TS 124 008 V6.8.0 (2005-03))
+ *
+ *   Reference [5]
+ *   Point-to-Point (PP) Short Message Service (SMS)
+ *   support on mobile radio interface
+ *   (3GPP TS 24.011 version 4.1.1 Release 4)
+ *
+ *   Reference [7]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 5.9.0 Release 5)
+ *
+ *   Reference [8]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 6.7.0 Release 6)
+ *	 (3GPP TS 24.008 version 6.8.0 Release 6)
+ *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
@@ -130,8 +155,8 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
  * changed here to unsigned integer as it wouldn't compile (Warnings on Ubuntu)
  * uggly hack...
  */
-#define UPPER_NIBBLE    (2)
-#define LOWER_NIBBLE    (1)
+#define UPPER_NIBBLE	(2)
+#define LOWER_NIBBLE	(1)
 
 /* FUNCTIONS */
 
@@ -140,72 +165,71 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
 	if (((edc_len) > (edc_max_len))||lower_nibble) \
 	{ \
-	proto_tree_add_text(tree, tvb, \
-	    curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
-	curr_offset += ((edc_len) - (edc_max_len)); \
+		proto_tree_add_text(tree, tvb, \
+			curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
+		curr_offset += ((edc_len) - (edc_max_len)); \
 	}
 
 #define	SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
 	if ((sdc_len) < (sdc_min_len)) \
 	{ \
-	proto_tree_add_text(tree, tvb, \
-	    curr_offset, (sdc_len), "Short Data (?)"); \
-	curr_offset += (sdc_len); \
-	return(curr_offset - offset); \
+		proto_tree_add_text(tree, tvb, \
+			curr_offset, (sdc_len), "Short Data (?)"); \
+		curr_offset += (sdc_len); \
+		return(curr_offset - offset); \
 	}
 
 #define	EXACT_DATA_CHECK(edc_len, edc_eq_len) \
 	if ((edc_len) != (edc_eq_len)) \
 	{ \
-	proto_tree_add_text(tree, tvb, \
-	    curr_offset, (edc_len), "Unexpected Data Length"); \
-	curr_offset += (edc_len); \
-	return(curr_offset - offset); \
+		proto_tree_add_text(tree, tvb, \
+			curr_offset, (edc_len), "Unexpected Data Length"); \
+		curr_offset += (edc_len); \
+		return(curr_offset - offset); \
 	}
 
 #define	NO_MORE_DATA_CHECK(nmdc_len) \
 	if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
 
 #define	SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names, SEV_elem_ett, SEV_elem_funcs) \
-    switch (SEV_pdu_type) \
-    { \
-    case GSM_A_PDU_TYPE_BSSMAP: \
-	SEV_elem_names = gsm_bssmap_elem_strings; \
-	SEV_elem_ett = ett_gsm_bssmap_elem; \
-	SEV_elem_funcs = bssmap_elem_fcn; \
-	break; \
-    case GSM_A_PDU_TYPE_DTAP: \
-	SEV_elem_names = gsm_dtap_elem_strings; \
-	SEV_elem_ett = ett_gsm_dtap_elem; \
-	SEV_elem_funcs = dtap_elem_fcn; \
-	break; \
-    case GSM_A_PDU_TYPE_RP: \
-	SEV_elem_names = gsm_rp_elem_strings; \
-	SEV_elem_ett = ett_gsm_rp_elem; \
-	SEV_elem_funcs = rp_elem_fcn; \
-	break; \
-    case GSM_A_PDU_TYPE_RR: \
-	SEV_elem_names = gsm_rr_elem_strings; \
-	SEV_elem_ett = ett_gsm_rr_elem; \
-	SEV_elem_funcs = rr_elem_fcn; \
-	break; \
-    case GSM_A_PDU_TYPE_COMMON: \
-	SEV_elem_names = gsm_common_elem_strings; \
-	SEV_elem_ett = ett_gsm_common_elem; \
-	SEV_elem_funcs = common_elem_fcn; \
-	break; \
-    case GSM_A_PDU_TYPE_GM: \
-	SEV_elem_names = gsm_gm_elem_strings; \
-	SEV_elem_ett = ett_gsm_gm_elem; \
-	SEV_elem_funcs = gm_elem_fcn; \
-	break; \
-    default: \
-	proto_tree_add_text(tree, \
-	    tvb, curr_offset, -1, \
-	    "Unknown PDU type (%u)", SEV_pdu_type); \
-	return(consumed); \
-    }
-
+	switch (SEV_pdu_type) \
+	{ \
+	case GSM_A_PDU_TYPE_BSSMAP: \
+		SEV_elem_names = gsm_bssmap_elem_strings; \
+		SEV_elem_ett = ett_gsm_bssmap_elem; \
+		SEV_elem_funcs = bssmap_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_DTAP: \
+		SEV_elem_names = gsm_dtap_elem_strings; \
+		SEV_elem_ett = ett_gsm_dtap_elem; \
+		SEV_elem_funcs = dtap_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_RP: \
+		SEV_elem_names = gsm_rp_elem_strings; \
+		SEV_elem_ett = ett_gsm_rp_elem; \
+		SEV_elem_funcs = rp_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_RR: \
+		SEV_elem_names = gsm_rr_elem_strings; \
+		SEV_elem_ett = ett_gsm_rr_elem; \
+		SEV_elem_funcs = rr_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_COMMON: \
+		SEV_elem_names = gsm_common_elem_strings; \
+		SEV_elem_ett = ett_gsm_common_elem; \
+		SEV_elem_funcs = common_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_GM: \
+		SEV_elem_names = gsm_gm_elem_strings; \
+		SEV_elem_ett = ett_gsm_gm_elem; \
+		SEV_elem_funcs = gm_elem_fcn; \
+		break; \
+	default: \
+		proto_tree_add_text(tree, \
+			tvb, curr_offset, -1, \
+			"Unknown PDU type (%u)", SEV_pdu_type); \
+		return(consumed); \
+	}
 
 /*
  * Type Length Value (TLV) element dissector
@@ -262,18 +286,18 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_tlv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	else \
 	{ \
-	proto_tree_add_text(tree, \
-	    tvb, curr_offset, 0, \
-	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		EMT_iei, \
-		get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
-		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
-	    ); \
+		proto_tree_add_text(tree, \
+			tvb, curr_offset, 0, \
+			"Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+			EMT_iei, \
+			get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+			(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
+			); \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -282,8 +306,8 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_tlv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -292,18 +316,18 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_tv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	else \
 	{ \
-	proto_tree_add_text(tree, \
-	    tvb, curr_offset, 0, \
-	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		EMT_iei, \
-		get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
-		(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
-	    ); \
+		proto_tree_add_text(tree, \
+			tvb, curr_offset, 0, \
+			"Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+			EMT_iei, \
+			get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+			(EMT_elem_name_addition == NULL) || (EMT_elem_name_addition[0] == '\0') ? "" : EMT_elem_name_addition \
+		); \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -312,8 +336,8 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_tv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -322,8 +346,8 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_tv_short(tvb, tree, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -332,8 +356,8 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_t(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -342,12 +366,12 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_lv(tvb, tree, EML_pdu_type, EML_elem_idx, curr_offset, curr_len, EML_elem_name_addition)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	else \
 	{ \
-	/* Mandatory, but nothing we can do */ \
+		/* Mandatory, but nothing we can do */ \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -356,12 +380,12 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_v(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	else \
 	{ \
-	/* Mandatory, but nothing we can do */ \
+		/* Mandatory, but nothing we can do */ \
 	} \
 	if (curr_len <= 0) return; \
 }
@@ -370,16 +394,15 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
 {\
 	if ((consumed = elem_v_short(tvb, tree, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
 	{ \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
 	} \
 	else \
 	{ \
-	/* Mandatory, but nothing we can do */ \
+		/* Mandatory, but nothing we can do */ \
 	} \
 	if (curr_len <= 0) return; \
 }
-
 
 /*
  * this enum must be kept in-sync with 'gsm_a_pd_str'
@@ -387,32 +410,32 @@ extern guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int i
  */
 typedef enum
 {
-    PD_GCC = 0,
-    PD_BCC,
-    PD_RSVD_1,
-    PD_CC,
-    PD_GTTP,
-    PD_MM,
-    PD_RR,
-    PD_UNK_1,
-    PD_GMM,
-    PD_SMS,
-    PD_SM,
-    PD_SS,
-    PD_LCS,
-    PD_UNK_2,
-    PD_RSVD_EXT,
-    PD_RSVD_TEST
+	PD_GCC = 0,
+	PD_BCC,
+	PD_RSVD_1,
+	PD_CC,
+	PD_GTTP,
+	PD_MM,
+	PD_RR,
+	PD_UNK_1,
+	PD_GMM,
+	PD_SMS,
+	PD_SM,
+	PD_SS,
+	PD_LCS,
+	PD_UNK_2,
+	PD_RSVD_EXT,
+	PD_RSVD_TEST
 }
 gsm_a_pd_str_e;
 
 typedef struct _gsm_a_tap_rec_t {
-    /*
-     * value from packet-bssap.h
-     */
-    guint8		pdu_type;
-    guint8		message_type;
-    gsm_a_pd_str_e	protocol_disc;
+	/*
+	 * value from packet-bssap.h
+	 */
+	guint8		pdu_type;
+	guint8		message_type;
+	gsm_a_pd_str_e	protocol_disc;
 } gsm_a_tap_rec_t;
 
 void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -483,8 +506,7 @@ extern const value_string gsm_a_numbering_plan_id_values[];
 
 typedef enum
 {
-	/* Common Information Elements 10.5.1 */
-	/* Pos 0 */
+	/* Common Information Elements [3] 10.5.1 */
 	DE_CELL_ID,				/* Cell Identity */
 	DE_CIPH_KEY_SEQ_NUM,	/* Ciphering Key Sequence Number */
 	DE_LAI,					/* Location Area Identification */
@@ -496,7 +518,6 @@ typedef enum
 	DE_D_GB_CALL_REF,		/* Descriptive group or broadcast call reference */
 	DE_G_CIPH_KEY_NUM,		/* Group Cipher Key Number */
 	DE_PD_SAPI,				/* PD and SAPI $(CCBS)$ */
-	/* Pos 10 */
 	DE_PRIO,				/* Priority Level */
 	DE_PLMN_LIST,			/* PLMN List */
 
@@ -506,7 +527,7 @@ common_elem_idx_t;
 
 typedef enum
 {
-	/* Mobility Management Information Elements 10.5.3 */
+	/* Mobility Management Information Elements [3] 10.5.3 */
 	DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
 	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
 	DE_AUTH_RESP_PARAM,				/* Authentication Response Parameter */
@@ -566,25 +587,25 @@ typedef enum
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	DE_CP_USER_DATA,				/* CP-User Data */
 	DE_CP_CAUSE,					/* CP-Cause */
-    /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
-    DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
-    DE_TP_ACK,			/* Open Loop Cmd Ack */
-    DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
-    DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
-    DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
-    DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
-    DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
-    DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
-    DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
-    DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
-    DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
+	/* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+	DE_TP_SUB_CHANNEL,			/* Close TCH Loop Cmd Sub-channel */
+	DE_TP_ACK,			/* Open Loop Cmd Ack */
+	DE_TP_LOOP_TYPE,			/* Close Multi-slot Loop Cmd Loop type*/
+	DE_TP_LOOP_ACK,			/* Close Multi-slot Loop Ack Result */
+	DE_TP_TESTED_DEVICE,			/* Test Interface Tested device */
+	DE_TP_PDU_DESCRIPTION,			/* GPRS Test Mode Cmd PDU description */
+	DE_TP_MODE_FLAG,			/* GPRS Test Mode Cmd Mode flag */
+	DE_TP_EGPRS_MODE_FLAG,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+	DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
+	DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
+	DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
 	DE_NONE							/* NONE */
 }
 dtap_elem_idx_t;
 
 typedef enum
 {
-	/* GPRS Mobility Management Information Elements 10.5.5 */
+	/* GPRS Mobility Management Information Elements [3] 10.5.5 */
 	DE_ATTACH_RES,					/* [7] 10.5.1 Attach Result*/
 	DE_ATTACH_TYPE,					/* [7] 10.5.2 Attach Type */
 	DE_CIPH_ALG,					/* [7] 10.5.3 Cipher Algorithm */
@@ -612,7 +633,7 @@ typedef enum
 	DE_NET_FEAT_SUP,				/* [7] 10.5.23 Network Feature Support */
 	DE_RAT_INFO_CONTAINER,			/* [7] 10.5.24 Inter RAT information container */
 	/* [7] 10.5.25 Requested MS information */
-	/* Session Management Information Elements 10.5.6 */
+	/* Session Management Information Elements [3] 10.5.6 */
 	DE_ACC_POINT_NAME,				/* Access Point Name */
 	DE_NET_SAPI,					/* Network Service Access Point Identifier */
 	DE_PRO_CONF_OPT,				/* Protocol Configuration Options */
@@ -624,7 +645,7 @@ typedef enum
 	DE_TEAR_DOWN_IND,				/* Tear Down Indicator */
 	DE_PACKET_FLOW_ID,				/* Packet Flow Identifier */
 	DE_TRAFFIC_FLOW_TEMPLATE,		/* Traffic Flow Template */
-	/* GPRS Common Information Elements 10.5.7 */
+	/* GPRS Common Information Elements [8] 10.5.7 */
 	DE_PDP_CONTEXT_STAT,			/* [8] 10.5.7.1		PDP Context Status */
 	DE_RAD_PRIO,					/* [8] 10.5.7.2		Radio Priority */
 	DE_GPRS_TIMER,					/* [8] 10.5.7.3		GPRS Timer */

@@ -96,7 +96,6 @@ typedef enum
 	DE_RP_DEST_ADDR,				/* RP-Destination Address */
 	DE_RP_USER_DATA,				/* RP-User Data */
 	DE_RP_CAUSE,					/* RP-Cause */
-
 	DE_RP_NONE							/* NONE */
 }
 rp_elem_idx_t;
@@ -108,21 +107,20 @@ gint ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
  * [5] 8.2.3
  */
 static guint8
-de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint32	curr_offset;
 
-	len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"RP-Message Reference: 0x%02x (%u)",
-	oct,
-	oct);
+		tvb, curr_offset, 1,
+		"RP-Message Reference: 0x%02x (%u)",
+		oct,
+		oct);
 
 	curr_offset++;
 
@@ -161,7 +159,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len,
-	"TPDU (not displayed)");
+		"TPDU (not displayed)");
 
 	/*
 	 * dissect the embedded TPDU message
@@ -193,10 +191,10 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension: %s",
-	a_bigbuf,
-	(oct & 0x80) ? "extended" : "not extended");
+		tvb, curr_offset, 1,
+		"%s :  Extension: %s",
+		a_bigbuf,
+		(oct & 0x80) ? "extended" : "not extended");
 
 	switch (oct & 0x7f)
 	{
@@ -225,28 +223,28 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	case 111: str = "Protocol error, unspecified"; break;
 	case 127: str = "Interworking, unspecified"; break;
 	default:
-	str = "Reserved";
-	break;
+		str = "Reserved";
+		break;
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Cause: (%u) %s",
-	a_bigbuf,
-	oct & 0x7f,
-	str);
+		tvb, curr_offset, 1,
+		"%s :  Cause: (%u) %s",
+		a_bigbuf,
+		oct & 0x7f,
+		str);
 
 	curr_offset++;
 
 	if (add_string)
-	g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+		g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
 
 	NO_MORE_DATA_CHECK(len);
 
 	proto_tree_add_text(tree,
-	tvb, curr_offset, len - (curr_offset - offset),
-	"Diagnostic field");
+		tvb, curr_offset, len - (curr_offset - offset),
+		"Diagnostic field");
 
 	curr_offset += len - (curr_offset - offset);
 
@@ -457,7 +455,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
+		col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
 	}
 
 	/*
@@ -466,7 +464,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!tree)
 	{
-	return;
+		return;
 	}
 
 	offset = 0;
@@ -489,26 +487,26 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (str == NULL)
 	{
-	rp_item =
-	    proto_tree_add_protocol_format(tree, proto_a_rp, tvb, 0, len,
-		"GSM A-I/F RP - Unknown RP Message Type (0x%02x)",
-		oct);
+		rp_item =
+			proto_tree_add_protocol_format(tree, proto_a_rp, tvb, 0, len,
+				"GSM A-I/F RP - Unknown RP Message Type (0x%02x)",
+				oct);
 
-	rp_tree = proto_item_add_subtree(rp_item, ett_rp_msg);
+		rp_tree = proto_item_add_subtree(rp_item, ett_rp_msg);
 	}
 	else
 	{
-	rp_item =
-	    proto_tree_add_protocol_format(tree, proto_a_rp, tvb, 0, -1,
-		"GSM A-I/F RP - %s",
-		str);
+		rp_item =
+			proto_tree_add_protocol_format(tree, proto_a_rp, tvb, 0, -1,
+				"GSM A-I/F RP - %s",
+				str);
 
-	rp_tree = proto_item_add_subtree(rp_item, ett_gsm_rp_msg[idx]);
+		rp_tree = proto_item_add_subtree(rp_item, ett_gsm_rp_msg[idx]);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
-	}
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
+		}
 	}
 
 	/*
@@ -526,13 +524,13 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (rp_msg_fcn[idx] == NULL)
 	{
-	proto_tree_add_text(rp_tree,
-	    tvb, offset, len - offset,
-	    "Message Elements");
+		proto_tree_add_text(rp_tree,
+			tvb, offset, len - offset,
+		"Message Elements");
 	}
 	else
 	{
-	(*rp_msg_fcn[idx])(tvb, rp_tree, offset, len - offset);
+		(*rp_msg_fcn[idx])(tvb, rp_tree, offset, len - offset);
 	}
 }
 
@@ -548,14 +546,14 @@ proto_register_gsm_a_rp(void)
 	static hf_register_info hf[] =
 	{
 	{ &hf_gsm_a_rp_msg_type,
-	    { "RP Message Type",	"gsm_a.rp_msg_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
-	    "", HFILL }
+		{ "RP Message Type",	"gsm_a.rp_msg_type",
+		FT_UINT8, BASE_HEX, VALS(gsm_rp_msg_strings), 0x0,
+		"", HFILL }
 	},
 	{ &hf_gsm_a_rp_elem_id,
-	    { "Element ID",	"gsm_a_rp.elem_id",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
+		{ "Element ID",	"gsm_a_rp.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
 	},
 	};
 
@@ -570,27 +568,26 @@ proto_register_gsm_a_rp(void)
 
 	for (i=0; i < NUM_GSM_RP_MSG; i++, last_offset++)
 	{
-	ett_gsm_rp_msg[i] = -1;
-	ett[last_offset] = &ett_gsm_rp_msg[i];
+		ett_gsm_rp_msg[i] = -1;
+		ett[last_offset] = &ett_gsm_rp_msg[i];
 	}
 
 	for (i=0; i < NUM_GSM_RP_ELEM; i++, last_offset++)
 	{
-	ett_gsm_rp_elem[i] = -1;
-	ett[last_offset] = &ett_gsm_rp_elem[i];
+		ett_gsm_rp_elem[i] = -1;
+		ett[last_offset] = &ett_gsm_rp_elem[i];
 	}
-
 
 	/* Register the protocol name and description */
 
 	proto_a_rp =
-	proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a_rp");
+		proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a_rp");
 
 	proto_register_field_array(proto_a_rp, hf, array_length(hf));
 
 	sms_dissector_table =
-	register_dissector_table("gsm_a.sms_tpdu", "GSM SMS TPDU",
-	FT_UINT8, BASE_DEC);
+		register_dissector_table("gsm_a.sms_tpdu", "GSM SMS TPDU",
+		FT_UINT8, BASE_DEC);
 
 	proto_register_subtree_array(ett, array_length(ett));
 
