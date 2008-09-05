@@ -530,14 +530,17 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_NEIGHBOR_REPORT       0x34
 #define TAG_HT_INFO               0x3D  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E  /* IEEE Stc 802.11n/D1.10/D2.0 */
-#define TAG_WSIE	              0x45   /* tag of the Wave Service Information (802.11p) */
-#define TAG_EXTENDED_CAPABILITIES 0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
-#define TAG_AGERE_PROPRIETARY     0x80
-#define TAG_CISCO_UNKNOWN_1       0x85  /* Cisco Compatible eXtensions */
-#define TAG_CISCO_UNKNOWN_2       0x88  /* Cisco Compatible eXtensions? */
-#define TAG_CISCO_UNKNOWN_3       0x95  /* Cisco Compatible eXtensions */
-#define TAG_VENDOR_SPECIFIC_IE    0xDD
-#define TAG_SYMBOL_PROPRIETARY    0xAD
+#define TAG_WSIE	                 0x45   /* tag of the Wave Service Information (802.11p) */
+#define TAG_20_40_BSS_CO_EX          0x48   /* IEEE P802.11n/D6.0 */
+#define TAG_20_40_BSS_INTOL_CH_REP   0x49   /* IEEE P802.11n/D6.0 */
+#define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
+#define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_AGERE_PROPRIETARY        0x80
+#define TAG_CISCO_UNKNOWN_1          0x85  /* Cisco Compatible eXtensions */
+#define TAG_CISCO_UNKNOWN_2          0x88  /* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_3          0x95  /* Cisco Compatible eXtensions */
+#define TAG_VENDOR_SPECIFIC_IE       0xDD
+#define TAG_SYMBOL_PROPRIETARY       0xAD
 #if 0 /* Not yet assigned tag numbers by ANA */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    0xFF
 #define TAG_SUPPORTED_REGULATORY_CLASSES            0xFE
@@ -1352,6 +1355,10 @@ static int hf_tag_measure_report_parent_tsf = -1;
 
 /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
 static int hf_tag_extended_capabilities = -1;
+static int hf_tag_extended_capabilities_b0 = -1;
+static int hf_tag_extended_capabilities_b1 = -1;
+static int hf_tag_extended_capabilities_b2 = -1;
+static int hf_tag_extended_capabilities_b3 = -1;
 /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
 /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
@@ -1538,6 +1545,8 @@ static gint ett_ht_info_delimiter3_tree = -1;
 /*** Start: 802.11n D1.10 - Tag Measure Request IE - Dustin Johnson ***/
 static gint ett_tag_measure_request_tree = -1;
 /*** End: 802.11n D1.10 - Tag Measure Request IE  - Dustin Johnson ***/
+
+static gint ett_tag_ex_cap = -1;
 
 /*** Begin: Supported Channels Tag - Dustin Johnson ***/
 static gint ett_tag_supported_channels = -1;
@@ -3784,7 +3793,7 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
 
 /***  WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 static void
-dissect_wise_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _U_)
+dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _U_)
 {
 	proto_item *pst_item, *cap_item, *chan_noc_item, *chnl_item;
 	proto_tree *pst_tree, *cap_tree, *chan_noc_tree, *chnl_tree;
@@ -4377,6 +4386,9 @@ static const value_string tag_num_vals[] = {
   { TAG_HT_INFO,              "HT Information (802.11n D1.10)"},
   { TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
   { TAG_WSIE,                     "Wave Service Information"}, /* www.aradasystems.com */
+  { TAG_20_40_BSS_CO_EX,          "20/40 BSS Coexistence"},
+  { TAG_20_40_BSS_INTOL_CH_REP,   "20/40 BSS Intolerant Channel Report"},   /* IEEE P802.11n/D6.0 */
+  { TAG_OVERLAP_BSS_SCAN_PAR,     "Overlapping BSS Scan Parameters"},       /* IEEE P802.11n/D6.0 */
   { TAG_QOS_CAPABILITY,           "QoS Capability"},
   { TAG_POWER_CONSTRAINT,         "Power Constraint"},
   { TAG_POWER_CAPABILITY,         "Power Capability"},
@@ -5012,7 +5024,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 	case TAG_WSIE:
-		dissect_wise_ie(tree, tvb, offset + 3, tag_len);
+		dissect_wsie_ie(tree, tvb, offset + 3, tag_len);
 		break;
     /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 
@@ -5487,10 +5499,15 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     /*** End: Measure Report Tag - Dustin Johnson ***/
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
+    /* The Capabilities field is a bit field indicating the capabilities being advertised 
+	 * by the STA transmitting the information element
+	 */
     case TAG_EXTENDED_CAPABILITIES:
     {
       guint tag_offset;
       guint8 info_exchange;
+	  proto_item *ti;
+	  proto_tree *ex_cap_tree;
 
       if (tag_len < 1)
       {
@@ -5502,7 +5519,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       tag_offset = offset;
 
       info_exchange = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint(tree, hf_tag_extended_capabilities, tvb, offset, 1, info_exchange);
+	  ti = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
+	  ex_cap_tree = proto_item_add_subtree (ti, ett_tag_ex_cap);
+	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b0, tvb, offset, 1, FALSE);
+	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
+	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
+	  proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b3, tvb, offset, 1, FALSE);
 
       if (tag_len > (offset - tag_offset))
       {
@@ -5694,7 +5716,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 1 + tag_len_len,
           tag_len, "Not interpreted");
       proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
-	  proto_tree_add_text (tree, tvb, offset, tag_len + 1 + tag_len_len, "Here ?");
       break;
   }
 
@@ -9560,8 +9581,8 @@ proto_register_ieee80211 (void)
   };
 
   static const true_false_string hf_tag_extended_capabilities_flag = {
-    "True - HT Information Exchange management frame type supported",
-    "False -  HT Information Exchange management frame type not supported"
+    "Supported",
+    "Not Supported"
   };
 
   /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
@@ -10994,10 +11015,31 @@ proto_register_ieee80211 (void)
     /*** End: Measurement Report Tag  - Dustin Johnson***/
 
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
+	/* Table 7-35a—Capabilities field */
     {&hf_tag_extended_capabilities,
-     {"HT Information Exchange Support", "wlan_mgt.extcap.infoexchange",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0, "HT Information Exchange Support", HFILL }},
-    /*** End: Extended Capabilities Tag - Dustin Johnson ***/
+     {"Extended Capabilities", "wlan_mgt.extcap",
+      FT_UINT8, BASE_HEX, NULL, 0, "Extended Capabilities", HFILL }},
+
+	  /* P802.11n/D6.0 */
+	  {&hf_tag_extended_capabilities_b0,
+	 {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
+      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0001, "HT Information Exchange Support", HFILL }},
+
+	/* P802.11p/D4.0 */
+	{&hf_tag_extended_capabilities_b1,
+	 {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
+      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0002, "On-demand beacon", HFILL }},
+
+	{&hf_tag_extended_capabilities_b2,
+	 {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
+      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0004, "Extended Channel Switching", HFILL }},
+
+	{&hf_tag_extended_capabilities_b3,
+	 {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
+      FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0008, "WAVE indication", HFILL }},
+	/*End: P802.11p/D4.0 */
+
+	  /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
     /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
     {&hf_tag_neighbor_report_bssid,
@@ -11471,6 +11513,7 @@ proto_register_ieee80211 (void)
     &ett_msdu_aggregation_parent_tree,
     &ett_msdu_aggregation_subframe_tree,
     &ett_tag_measure_request_tree,
+	&ett_tag_ex_cap,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
