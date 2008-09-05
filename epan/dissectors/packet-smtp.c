@@ -196,14 +196,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * pass, so we figure it out on the first pass.
      */
 
+    /* SMTP messages have a simple format ... */
+
+    request = pinfo -> destport == pinfo -> match_port;
+
     /* Find out what conversation this packet is part of ... but only
      * if we have no information on this packet, so find the per-frame
      * info first.
      */
-
-    /* SMTP messages have a simple format ... */
-
-    request = pinfo -> destport == pinfo -> match_port;
 
     frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
 
