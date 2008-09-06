@@ -30,6 +30,16 @@
 #include <wsutil/file_util.h>
 
 /***************************************************************************
+*  ADDRDIFF
+***************************************************************************
+* This is a macro that computes the difference between the raw address
+* values of two pointers (rather than the difference between the pointers)
+* as a ptrdiff_t.
+***************************************************************************/
+#define ADDRDIFF(p,q)	(((char *)(void *)(p)) - ((char *)(void *)(q)))
+
+
+/***************************************************************************
 *  dbg_print
 ***************************************************************************
 * This is the debug facility of the thing.
@@ -815,7 +825,7 @@ extern gchar* avpl_to_dotstr(AVPL* avpl) {
 extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 	AVPN* cd = NULL;
 	AVPN* cs = NULL;
-	gint c;
+	ptrdiff_t c;
 	AVP* copy;
 
 #ifdef _AVP_DEBUGGING
@@ -828,7 +838,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 	while(cs->avp) {
 
 		if(cd->avp) {
-			c = (guint) cd->avp->n - (guint) cs->avp->n;
+			c = ADDRDIFF(cd->avp->n,cs->avp->n);
 		} else {
 			c = -1;
 		}
@@ -1094,7 +1104,7 @@ extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboole
 	AVPL* newavpl;
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
-	gint c;
+	ptrdiff_t c;
 	AVP* m;
 	AVP* copy;
 	gboolean matches;
@@ -1123,7 +1133,7 @@ extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboole
 			break;
 		}
 
-		c = (guint) co->avp->n - (guint) cs->avp->n;
+		c = ADDRDIFF(co->avp->n,cs->avp->n);
 
 		if ( c > 0 ) {
 			delete_avpl(newavpl,TRUE);
@@ -1185,9 +1195,9 @@ extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolea
 	AVPL* newavpl = new_avpl(name);
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
-	gint c;
+	ptrdiff_t c;
 	AVP* m;
-    AVP* copy;
+	AVP* copy;
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
@@ -1205,7 +1215,7 @@ extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolea
 	co = op->null.next;
 	while(1) {
 
-		c = (guint) co->avp->n - (guint) cs->avp->n;
+		c = ADDRDIFF(co->avp->n,cs->avp->n);
 
 		if ( c > 0 ) {
 			delete_avpl(newavpl,TRUE);
