@@ -126,6 +126,59 @@ struct smtp_request_val {
   gboolean msg_last;     /* Is this the last BDAT chunk */
 };
 
+/*
+ * See
+ *
+ *	http://support.microsoft.com/default.aspx?scid=kb;[LN];812455
+ *
+ * for the Exchange extensions.
+ */
+static const struct {
+  const char *command;
+  int len;
+} commands[] = {
+  { "STARTTLS", 8 },		/* RFC 2487 */
+  { "X-EXPS", 6 },		/* Microsoft Exchange */
+  { "X-LINK2STATE", 12 },	/* Microsoft Exchange */
+  { "XEXCH50", 7 }		/* Microsoft Exchange */
+};
+
+#define NCOMMANDS	(sizeof commands / sizeof commands[0])
+
+static gboolean
+line_is_smtp_command(const guchar *command, int commandlen)
+{
+  size_t i;
+
+  /*
+   * To quote RFC 821, "Command codes are four alphabetic
+   * characters".  (We treat only A-Z and a-z as alphabetic.)
+   *
+   * However, there are some SMTP extensions that involve commands
+   * longer than 4 characters and/or that contain non-alphabetic
+   * characters; we treat them specially.
+   *
+   * XXX - should we just have a table of known commands?  Or would
+   * that fail to catch some extensions we don't know about?
+   */
+#define	ISALPHA(c)	(((c) >= 'A' && (c) <= 'Z') || \
+			 ((c) >= 'a' && (c) <= 'z'))
+  if (commandlen == 4 && ISALPHA(command[0]) && ISALPHA(command[1]) &&
+      ISALPHA(command[2]) && ISALPHA(command[3])) {
+    /* standard 4-alphabetic command */
+    return TRUE;
+  }
+
+  /*
+   * Check the list of non-4-alphabetic commands.
+   */
+  for (i = 0; i < NCOMMANDS; i++) {
+    if (commandlen == commands[i].len &&
+        g_ascii_strncasecmp(command, commands[i].command, commands[i].len) == 0)
+      return TRUE;
+  }
+  return FALSE;
+}
 
 static void dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
 {
@@ -165,7 +218,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                     request = 0;
     conversation_t          *conversation;
     struct smtp_request_val *request_val;
-    const guchar            *line;
+    const guchar            *line, *linep, *lineend;
+    guchar                  c;
     guint32                 code;
     int                     linelen = 0;
     gint                    length_remaining;
@@ -388,17 +442,17 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * This is commands - unless the capture started in the
              * middle of a session, and we're in the middle of data.
-             * To quote RFC 821, "Command codes are four alphabetic
-             * characters"; if we don't see four alphabetic characters
-             * and, if there's anything else in the line, a space, we
-             * assume it's not a command.
-             * (We treat only A-Z and a-z as alphabetic.)
+             *
+             * Commands are not necessarily 4 characters; look
+             * for a space or the end of the line to see where
+             * the putative command ends.
              */
-#define	ISALPHA(c)	(((c) >= 'A' && (c) <= 'Z') || \
-			 ((c) >= 'a' && (c) <= 'z'))
-            if (linelen >= 4 && ISALPHA(line[0]) && ISALPHA(line[1]) &&
-                ISALPHA(line[2]) && ISALPHA(line[3]) &&
-                (linelen == 4 || line[4] == ' ')) {
+            linep = line;
+            lineend = line + linelen;
+            while (linep < lineend && (c = *linep) != ' ')
+              linep++;
+            cmdlen = linep - line;
+            if (line_is_smtp_command(line, cmdlen)) {
               if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
 
                 /*
@@ -458,17 +512,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               }
             } else {
-              if ((linelen >= 7) && line[0] == 'X' && ( (g_ascii_strncasecmp(line, "X-EXPS ", 7) == 0) ||
-                  ((linelen >=13) && (g_ascii_strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
-                  ((linelen >= 8) && (g_ascii_strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
-                frame_data->pdu_type = SMTP_PDU_CMD;
-              else
-                /*
-                 * Assume it's message data.
-                 */
+              /*
+               * Assume it's message data.
+               */
 
 
-                frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
+              frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
 
             }
           }
