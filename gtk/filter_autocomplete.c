@@ -226,6 +226,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   GtkWidget *treeview;
   GtkTreeModel *model;
   GtkTreeSelection *selection;
+/*  GtkListStore *store; */
   GtkTreeIter iter;
   const gchar *filter_te_str = "";
   gchar* prefix = "";
@@ -374,7 +375,11 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       gchar* updated_str;
 
       updated_str = g_strconcat(prefix, event->string, NULL);
-      autocompletion_list_lookup(popup_win, treeview, updated_str);
+      if( !autocompletion_list_lookup(popup_win, treeview, updated_str) ) {
+        /* function returned false, ie the list is empty -> close popup  */
+        gtk_widget_destroy(popup_win);
+        g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+      }
 
       if(updated_str)
         g_free(updated_str);
@@ -407,6 +412,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
   GtkSortType order;
   GtkRequisition requisition;
   GtkWidget *w_toplevel;
+  GtkListStore *store;
+  GtkTreeIter iter;
 
   w_toplevel = gtk_widget_get_toplevel(filter_te);
 
@@ -457,8 +464,14 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
     }
   }
 
-  gtk_widget_size_request(treeview, &requisition);
+  /* Don't show an empty autocompletion-list */
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+  if( !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+    gtk_widget_destroy(popup_win);
+    return NULL;
+  }
 
+  gtk_widget_size_request(treeview, &requisition);
 
   /* sort treeview */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
