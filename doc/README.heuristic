@@ -1,0 +1,200 @@
+$Revision: 25920 $
+$Date: 2008-08-04 22:41:43 +0200 (Mo, 04 Aug 2008) $
+$Author: ulfl $
+
+
+This file is a HOWTO for Wireshark developers. It describes how Wireshark 
+heuristic protocol dissectors works and how to write them.
+
+This file is compiled to give in depth information on Wireshark.
+It is by no means all inclusive and complete. Please feel free to send
+remarks and patches to the developer mailing list.
+
+
+Prerequisites
+-------------
+As this file is an addition to README.developer, it is essential to read 
+and understand that document first.
+
+
+Why heuristic dissectors?
+-------------------------
+When Wireshark "receives" a packet, it has to find the right dissector to 
+start decoding the packet data. Often this can be done by known conventions, 
+e.g. the Ethernet type 0x800 means "IP on top of Ethernet" - an easy and 
+reliable match for Wireshark.
+
+Unfortunately, these conventions are not always available, or (accidentially 
+or knowingly) some protocols don't care about those conventions and "reuse" 
+existing "magic numbers / tokens".
+
+For example TCP defines port 80 only for the use of HTTP traffic. But, this 
+convention doesn't prevent anyone from using TCP port 80 for some different 
+protocol, or on the other hand using HTTP on a port number different than 80.
+
+To solve this problem, Wireshark introduced the so called heuristic dissector 
+mechanism to try to deal with these problems.
+
+
+How Wireshark uses heuristic dissectors?
+----------------------------------------
+While Wireshark starts, heuristic dissectors (HD) register themselves slightly 
+different than "normal" dissectors, e.g. a HD can ask for any TCP packet, as 
+it *may* contain interesting packet data for this dissector. In reality more 
+than one HD will exist for e.g. TCP packet data.
+
+So if Wireshark has to decode TCP packet data, it will first try to find a 
+dissector registered directly for the TCP port used in that packet. If it 
+finds such a registered dissector it will just hand over the packet data to it.
+
+In case there is no such "normal" dissector, WS will hand over the packet data 
+to the first matching HD. Now the HD will look into the data and decide if that 
+data looks like the dissector "is interested in". The return value signals WS 
+if the HD processed the data (so WS can stop working on that packet) or the 
+heuristic didn't matched (so WS tries the next HD until one matches - or the 
+data simply can't be processed).
+
+XXX - mention "use heuristic sub dissectors first"
+
+
+How do these heuristics work?
+-----------------------------
+Difficult to give a general answer here. The usual heuristic works as follows:
+
+A HD looks into the first few packet bytes and searches for common patterns that 
+are specific to the protocol in question. Most protocols starts with a 
+specific header, so a specific pattern may look like (synthetic example):
+
+1) first byte must be 0x42
+2) second byte is a type field and only can contain values between 0x20 - 0x33
+3) third byte is a flag field, where the lower 4 bits always contain the value 0
+4) fourth and fifth bytes contains a 16 length field, where the value can't be 
+   longer than 10000 bytes
+
+So the heuristic dissector will check incoming packet data for all of the 
+4 above conditions, and only if all of the four conditions are true there is a 
+good chance that the packet really contains the expected protocol - and the 
+dissector continues to decode the packet data. If one condition fails, it's 
+very certainly not the protocol in question and the dissector returns to WS 
+immediately "this is not my protocol" - maybe some other heuristic dissector 
+is interested!
+
+Obviously, this is *not* 100% bullet proof, but the best WS can offer to its 
+users here - and improving the heuristic is always possible if it turns out 
+that it's not good enough to distinguish between two given protocols.
+
+
+Heuristic Code Example
+----------------------
+You can find a lot of code examples in the wireshark sources, e.g.:
+grep -l heur_dissector_add epan/dissectors/*.c
+returns (currently) 69 files.
+
+For the above example criteria, the following code example might do the work 
+(combine this with the dissector skeleton in README.developer):
+
+XXX - please note: The following code examples were not tried in reality, 
+please report problems to the dev-list!
+
+static gboolean dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+...
+
+/* 1) first byte must be 0x42 */
+if ( tvb_get_guint8(tvb, 0) != 0x42 )
+    return (FALSE);
+
+/* 2) second byte is a type field and only can contain values between 0x20-0x33 */
+if ( tvb_get_guint8(tvb, 1) < 0x20 || tvb_get_guint8(tvb, 1) > 0x33 )
+    return (FALSE);
+ 
+/* 3) third byte is a flag field, where the lower 4 bits always contain the value 0 */
+if ( tvb_get_guint8(tvb, 2) & 0x0f )
+    return (FALSE);
+
+/* 4) fourth and fifth bytes contains a 16 length field, where the value can't be longer than 10000 bytes */
+/* Assumes network byte order */
+if ( tvb_get_ntohs(tvb, 3) > 10000 )
+    return (FALSE);
+ 
+/* Assume it’s your packet and do dissection */
+...
+
+return (TRUE);
+}
+
+
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+    static int PROTOABBREV_inited = FALSE;
+ 
+    if ( !PROTOABBREV_inited )
+    {
+	    /* register as heuristic dissector for both TCP and UDP */
+        heur_dissector_add("tcp", dissect_PROTOABBREV, proto_PROTOABBREV);
+        heur_dissector_add("udp", dissect_PROTOABBREV, proto_PROTOABBREV);
+    }
+}
+
+
+Please note, that registering a heuristic dissector is only possible for a 
+small variety of protocols. In most cases an heuristic is not needed, and 
+adding the support would only add unused code to the dissector.
+
+TCP and UDP are prominent examples that support HDs, as there 
+seems to be a tendency to reuse known port numbers for new protocols.
+XXX - what to grep for, if a protocol provides HD support or not?
+
+It's possible to write a dissector to be a dual heuristic/normal dissector.
+In that the case, dissect_PROTOABBREV should return an int with the number of 
+bytes dissected by your protocol rather than simply returning TRUE. If 
+heuristics fail, still just return 0.
+
+
+static int dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+...
+
+/* 1) first byte must be 0x42 */
+if ( tvb_get_guint8(tvb, 0) != 0x42 )
+    return 0;
+
+/* 2) second byte is a type field and only can contain values between 0x20-0x33 */
+if ( tvb_get_guint8(tvb, 1) < 0x20 || tvb_get_guint8(tvb, 1) > 0x33 )
+    return 0;
+ 
+/* 3) third byte is a flag field, where the lower 4 bits always contain the value 0 */
+if ( tvb_get_guint8(tvb, 2) & 0x0f )
+    return 0;
+
+/* 4) fourth and fifth bytes contains a 16 length field, where the value can't be longer than 10000 bytes */
+/* Assumes network byte order */
+if ( tvb_get_ntohs(tvb, 3) > 10000 )
+    return 0;
+ 
+/* Assume it’s your packet and do dissection */
+...
+
+return number_of_bytes_dissected;
+}
+
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+    static int PROTOABBREV_inited = FALSE;
+    dissector_handle_t PROTOABBREV_handle;
+ 
+    if ( !PROTOABBREV_inited )
+    {
+	    /* register as heuristic dissector for both TCP and UDP */
+        heur_dissector_add("tcp", dissect_PROTOABBREV, proto_PROTOABBREV);
+        heur_dissector_add("udp", dissect_PROTOABBREV, proto_PROTOABBREV);
+		
+		/* register as normal dissector for IP as well */
+        PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV, proto_PROTOABBREV);
+        dissector_add("ip.proto", IP_PROTO_PROTOABBREV, PROTOABBREV_handle);
+        PROTOABBREV_inited = TRUE;
+    }
+}
+

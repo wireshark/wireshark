@@ -44,6 +44,7 @@ You'll find additional dissector related information in the following README
 files:
 
 - README.binarytrees - fast access to large data collections
+- README.heuristic - what are heuristic dissectors and how to write them
 - README.malloc - how to obtain "memory leak free" memory
 - README.plugins - how to "pluginize" a dissector
 - README.request_response_tracking - how to track req./resp. times and such
