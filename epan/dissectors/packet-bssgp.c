@@ -1530,7 +1530,7 @@ bssgp_pi_append_queuing_delay(proto_item *pi, tvbuff_t *tvb, int offset) {
 static void
 bssgp_pi_append_bucket_leak_rate(proto_item *pi, tvbuff_t *tvb, int offset) {
   guint16 value = tvb_get_ntohs(tvb, offset);
-  proto_item_append_text(pi, ": %u bytes", value * 100);
+  proto_item_append_text(pi, ": %u bits", value * 100);
 }
 
 static void
