@@ -300,6 +300,7 @@ File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
 File "..\..\epan\libwireshark.dll"
 !endif
 File "..\..\wsutil\libwsutil.dll"
+File "${GLIB_DIR}\bin\libgio-2.0-0.dll"
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
@@ -701,10 +702,8 @@ SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
-File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\immodules
-File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\immodules\im-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
+File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 # Not needed with pango 1.14.5
 #SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
 #File "${GTK_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"

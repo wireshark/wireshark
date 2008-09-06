@@ -700,16 +700,16 @@ process_libs:
     @$(SH) tools\win32-setup.sh --checktag "$(WIRESHARK_LIBS)"
 !ENDIF
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
-!IF "$(GTK_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.14"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.12/glib_2.18.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.12/glib-dev_2.18.0-1_win32.zip
-!ELSEIF "$(GTK_INST_VERSION)" == "2.10"
+!ELSEIF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-2.12.13.zip
+		glib gtk2.12/glib_2.18.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-dev-2.12.13.zip
+		glib gtk2.12/glib-dev_2.18.0-1_win32.zip
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
@@ -768,7 +768,26 @@ process_libs:
 !ENDIF
 
 !IFDEF GTK_DIR
-!IF "$(GTK_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.14"
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/gtk+_2.14.1-1_win32.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/gtk+-dev_2.14.1-1_win32.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/cairo-1.6.4-2.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/cairo-dev-1.6.4-2.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/atk-1.22.0.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/atk-dev-1.22.0.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/libpng-1.2.29.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/tiff-3.8.2-1-bin.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		gtk2 gtk2.14/jpeg-6b-4-bin.zip
+!ELSEIF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/gtk+-2.12.11.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -787,21 +806,6 @@ process_libs:
 		gtk2 gtk2.12/tiff-3.8.2-1-bin.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/jpeg-6b-4-bin.zip
-!ELSEIF "$(GTK_INST_VERSION)" == "2.10"
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-2.10.14.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-dev-2.10.14.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-1.4.8.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-dev-1.4.8.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/atk-1.18.0.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/atk-dev-1.18.0.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/libpng-1.2.8-bin.zip
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
@@ -810,11 +814,6 @@ process_libs:
 		gtk2 gtk2.12/pango-1.20.5.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/pango-dev-1.20.5.zip
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/pango-1.16.4.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/pango-dev-1.16.4.zip
 !ELSE
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
@@ -1015,8 +1014,9 @@ install-all: install-generated-files
 #	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
 	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
-	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
-	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
+#	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
+	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
+#	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
 #	xcopy $(GTK_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
 !IFDEF NEED_LIBPNG_DLL
 #	xcopy $(GTK_DIR)\bin\libpng13.dll $(INSTALL_DIR) /d
@@ -1036,9 +1036,10 @@ install-all: install-generated-files
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
 	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
+	xcopy $(GLIB_DIR)\bin\libgio-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 !IFDEF ICONV_DIR
 	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
 !ENDIF
