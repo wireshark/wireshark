@@ -209,6 +209,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!frame_data) {
 
+      /*
+       * No frame data, so this is probably the first pass; find
+       * the conversation for this.
+       */
       conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                        pinfo->srcport, pinfo->destport, 0);
       if (conversation == NULL) { /* No conversation, create one */
@@ -240,6 +244,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       if(request) {
+
+        /*
+         * Create a frame data structure and attach it to the packet.
+         */
         frame_data = se_alloc(sizeof(struct smtp_proto_data));
 
         frame_data->conversation_id = conversation->index;
