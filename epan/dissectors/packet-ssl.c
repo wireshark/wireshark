@@ -1384,9 +1384,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     } else {
 
-    /* if we don't have a valid content_type, there's no sense
-     * continuing any further
-     */
+        /* if we don't have a valid content_type, there's no sense
+         * continuing any further
+         */
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
@@ -1400,7 +1400,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /*
-     * If GUI, fill in record layer part of tree
+     * If building a protocol tree, fill in record layer part of tree
      */
     if (tree)
     {
@@ -1410,9 +1410,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         ti = proto_tree_add_item(tree, hf_ssl_record, tvb,
                                  offset, 5 + record_length, 0);
         ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
-    }
-    if (ssl_record_tree)
-    {
 
         /* show the one-byte content type */
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
@@ -1431,7 +1428,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     }
     else
     {
-        /* if no GUI tree, then just skip over those fields */
+        /* if no protocol tree, then just skip over those fields */
         offset += 5;
     }
 
