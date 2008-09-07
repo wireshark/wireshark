@@ -247,6 +247,7 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 
 /*
  * The following define all the TLV types I know about
+ * http://www.iana.org/assignments/ldp-namespaces
  */
 
 #define TLV_FEC                    0x0100
@@ -271,8 +272,9 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
 #define TLV_FT_SESSION             0x0503
 #define TLV_FT_ACK                 0x0504
-#define TLV_FT_CORK                0x0505
-#define TLV_LABEL_REQUEST_MESSAGE_ID 0x0600
+#define TLV_FT_CORK                0x0505    
+#define TLV_LABEL_REQUEST_MESSAGE_ID 0x0600  /* RFC5036 */
+#define TLV_MTU                    0x0601    /* RFC3988 */
 #define TLV_ER                     0x0800
 #define TLV_ER_HOP_IPV4            0x0801
 #define TLV_ER_HOP_IPV6            0x0802
@@ -283,6 +285,29 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_LSPID                  0x0821
 #define TLV_RESOURCE_CLASS         0x0822
 #define TLV_ROUTE_PINNING          0x0823
+/*
+0x0824             Generalized Label Request TLV        [RFC3472]
+0x0825             Generalized Label TLV                [RFC3472]
+0x0826             Upstream Label TLV                   [RFC3472]
+0x0827             Label Set TLV                        [RFC3472]
+0x0828             Waveband Label TLV                   [RFC3472]
+0x0829             ER-Hop TLV                           [RFC3472]
+0x082a             Acceptable Label Set TLV             [RFC3472]
+0x082b             Admin Status TLV                     [RFC3472]
+0x082c             Interface ID TLV                     [RFC3472]
+0x082d             IPV4 Interface ID TLV                [RFC3472]
+0x082e             IPV6 Interface ID TLV                [RFC3472]
+0x082f             IPv4 IF_ID Status TLV                [RFC3472]
+0x0830             IPv6 IF_ID Status TLV                [RFC3472]
+0x0831             Op-Sp Call ID TLV                    [RFC3475]
+0x0832             GU Call ID TLV                       [RFC3475]
+0x0833             Call Capability TLV                  [RFC3475]
+0x0834             Crankback TLV                        [RFC3475]
+0x0835             Protection TLV                       [RFC3472]
+0x0836             LSP_TUNNEL_INTERFACE_ID TLV          [RFC3480]
+0x0837             Unnumbered Interface ID TLV          [RFC3480]
+0x0838             SONET/SDH Traffic Parameters TLV     [RFC4606]
+*/
 #define TLV_DIFFSERV               0x0901
 #define TLV_VENDOR_PRIVATE_START   0x3E00
 #define TLV_VENDOR_PRIVATE_END     0x3EFF
@@ -314,6 +339,7 @@ static const value_string tlv_type_names[] = {
   { TLV_FT_ACK,                    "FT ACK TLV"},
   { TLV_FT_CORK,                   "FT Cork TLV"},
   { TLV_LABEL_REQUEST_MESSAGE_ID,  "Label Request Message ID TLV"},
+  { TLV_MTU,                       "MTU TLV"},		
   { TLV_LSPID,                     "LSP ID TLV"},
   { TLV_ER,                        "Explicit route TLV"},
   { TLV_ER_HOP_IPV4,               "ER hop IPv4 prefix TLV"},
@@ -324,9 +350,45 @@ static const value_string tlv_type_names[] = {
   { TLV_ER_HOP_LSPID,              "ER hop LSPID prefix TLV"},
   { TLV_RESOURCE_CLASS,            "Resource Class (Color) TLV"},
   { TLV_ROUTE_PINNING,             "Route Pinning TLV"},
-  { TLV_DIFFSERV,                  "Diff-Serv TLV"},
-  { TLV_VENDOR_PRIVATE_START,	"Vendor Private TLV"},
-  { TLV_EXPERIMENTAL_START,	"Experimental TLV"},
+  { 0x0824,                       "Generalized Label Request TLV"},        /* RFC3472 */
+  { 0x0825,                       "Generalized Label TLV"},                /* RFC3472 */
+  { 0x0826,                       "Upstream Label TLV"},                   /* RFC3472 */
+  { 0x0827,                       "Label Set TLV"},                        /* RFC3472 */
+  { 0x0828,                       "Waveband Label TLV"},                   /* RFC3472 */
+  { 0x0829,                       "ER-Hop TLV"},                           /* RFC3472 */
+  { 0x082a,                       "Acceptable Label Set TLV"},             /* RFC3472 */
+  { 0x082b,                       "Admin Status TLV"},                     /* RFC3472 */
+  { 0x082c,                       "Interface ID TLV"},                     /* RFC3472 */
+  { 0x082d,                       "IPV4 Interface ID TLV"},                /* RFC3472 */
+  { 0x082e,                       "IPV6 Interface ID TLV"},                /* RFC3472 */
+  { 0x082f,                       "IPv4 IF_ID Status TLV"},                /* RFC3472 */
+  { 0x0830,                       "IPv6 IF_ID Status TLV"},                /* RFC3472 */
+  { 0x0831,                       "Op-Sp Call ID TLV"},                    /* RFC3475 */
+  { 0x0832,                       "GU Call ID TLV"},                       /* RFC3475 */
+  { 0x0833,                       "Call Capability TLV"},                  /* RFC3475 */
+  { 0x0834,                       "Crankback TLV"},                        /* RFC3475 */
+  { 0x0835,                       "Protection TLV"},                       /* RFC3472 */
+  { 0x0836,                       "LSP_TUNNEL_INTERFACE_ID TLV"},          /* RFC3480 */
+  { 0x0837,                       "Unnumbered Interface ID TLV"},          /* RFC3480 */
+  { 0x0838,                       "SONET/SDH Traffic Parameters TLV"},     /* RFC4606]*/
+  { 0x0960,                       "IPv4 Source ID TLV"},                   /*[RFC3476]*/
+  { 0x0961,                       "IPv6 Source ID TLV"},                   /*[RFC3476]*/
+  { 0x0962,                       "NSAP Source ID TLV"},                   /*[RFC3476]*/
+  { 0x0963,                       "IPv4 Destination ID TLV"},              /*[RFC3476]*/
+  { 0x0964,                       "IPv6 Destination ID TLV"},              /*[RFC3476]*/
+  { 0x0965,                       "NSAP Destination ID TLV"},              /*[RFC3476]*/
+  { 0x0966,                       "Egress Label TLV"},                     /*[RFC3476]*/
+  { 0x0967,                       "Local Connection ID TLV"},              /*[RFC3476]*/
+  { 0x0968,                       "Diversity TLV"},                        /*[RFC3476]*/
+  { 0x0969,                       "Contract ID TLV"},                      /*[RFC3476]*/
+  { 0x096A,                       "PW Status TLV"},                        /*[RFC4447]*/
+  { 0x096B,                       "PW Interface Parameters TLV"},          /*[RFC4447]*/
+  { 0x096C,                       "Group ID TLV"},                         /*[RFC4447]*/
+  { 0x096E,                       "Bandwidth TLV"},                        /*[draft-ietf-pwe3-dynamic-ms-pw](TEMPORARY - Expires 2008-11-21)*/
+  { 0x0970,                       "UNI Service Level TLV"},                /*[RFC3476]*/
+  { TLV_DIFFSERV,                 "Diff-Serv TLV"},
+  { TLV_VENDOR_PRIVATE_START,	  "Vendor Private TLV"},
+  { TLV_EXPERIMENTAL_START,	      "Experimental TLV"},
   { 0, NULL}
 };
 
