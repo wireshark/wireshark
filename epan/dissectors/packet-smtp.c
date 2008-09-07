@@ -98,13 +98,12 @@ static const fragment_items smtp_data_frag_items = {
 };
 
 static  dissector_handle_t ssl_handle;
-static  dissector_handle_t imf_handle = NULL;
+static  dissector_handle_t imf_handle;
 
 /*
  * A CMD is an SMTP command, MESSAGE is the message portion, and EOM is the
  * last part of a message
  */
-
 #define SMTP_PDU_CMD     0
 #define SMTP_PDU_MESSAGE 1
 #define SMTP_PDU_EOM     2
@@ -160,7 +159,7 @@ line_is_smtp_command(const guchar *command, int commandlen)
 
   /*
    * To quote RFC 821, "Command codes are four alphabetic
-   * characters".  (We treat only A-Z and a-z as alphabetic.)
+   * characters".
    *
    * However, there are some SMTP extensions that involve commands
    * longer than 4 characters and/or that contain non-alphabetic
@@ -169,10 +168,9 @@ line_is_smtp_command(const guchar *command, int commandlen)
    * XXX - should we just have a table of known commands?  Or would
    * that fail to catch some extensions we don't know about?
    */
-#define	ISALPHA(c)	(((c) >= 'A' && (c) <= 'Z') || \
-			 ((c) >= 'a' && (c) <= 'z'))
-  if (commandlen == 4 && ISALPHA(command[0]) && ISALPHA(command[1]) &&
-      ISALPHA(command[2]) && ISALPHA(command[3])) {
+  if (commandlen == 4 && g_ascii_isalpha(command[0]) &&
+      g_ascii_isalpha(command[1]) && g_ascii_isalpha(command[2]) &&
+      g_ascii_isalpha(command[3])) {
     /* standard 4-alphabetic command */
     return TRUE;
   }
@@ -188,12 +186,12 @@ line_is_smtp_command(const guchar *command, int commandlen)
   return FALSE;
 }
 
-static void dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
+static void
+dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
 {
   gint next_offset;
 
   while (tvb_offset_exists(tvb, offset)) {
-
     /*
      * Find the end of the line.
      */
@@ -210,9 +208,7 @@ static void dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
      * Step to the next line.
      */
     offset = next_offset;
-	      
   }
-
 }
 
 static void
@@ -326,12 +322,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       loffset = offset;
       while (tvb_offset_exists(tvb, loffset)) {
-
         linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset,
                                     smtp_desegment && pinfo->can_desegment);
         if (linelen == -1) {
-
-          if(offset == loffset) {
+          if (offset == loffset) {
             /*
              * We didn't find a line ending, and we're doing desegmentation;
              * tell the TCP dissector where the data for this message starts
@@ -342,8 +336,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pinfo->desegment_offset = loffset;
             pinfo->desegment_len = 1;
             return;
-          }
-          else {
+          } else {
             linelen = tvb_length_remaining(tvb, loffset);
             next_offset = loffset + linelen;
           }
@@ -357,41 +350,28 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * two passes through here ...
          */
         if (session_state->smtp_state == READING_DATA) {
-
           /*
            * The order of these is important ... We want to avoid
            * cases where there is a CRLF at the end of a packet and a
            * .CRLF at the begining of the same packet.
            */
-
           if ((session_state->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
-               tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0) {
-
+               tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0)
             eom_seen = TRUE;
-
-          }
 
           length_remaining = tvb_length_remaining(tvb, loffset);
           if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
-              tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0) {
-
+              tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0)
             session_state->crlf_seen = TRUE;
-
-          }
-          else {
-
+          else
             session_state->crlf_seen = FALSE;
-
-          }
         }
 
         /*
          * OK, Check if we have seen a DATA request. We do it here for
          * simplicity, but we have to be careful below.
          */
-
         if (request) {
-
           if (session_state->smtp_state == READING_DATA) {
             /*
              * This is message data.
@@ -406,9 +386,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                */
               frame_data->pdu_type = SMTP_PDU_EOM;
               session_state->smtp_state = READING_CMDS;
-            
               break;
-            
             } else {
               /*
                * Message data with no EOM.
@@ -457,7 +435,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cmdlen = linep - line;
             if (line_is_smtp_command(line, cmdlen)) {
               if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
-
                 /*
                  * DATA command.
                  * This is a command, but everything that comes after it,
@@ -466,9 +443,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 frame_data->pdu_type = SMTP_PDU_CMD;
                 session_state->smtp_state = READING_DATA;
                 session_state->data_seen = TRUE;
-
               } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
-
                 /*
                  * BDAT command.
                  * This is a command, but everything that comes after it,
@@ -505,32 +480,24 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                   session_state->msg_last = FALSE;
                 }
-
               } else if (strncasecmp(line, "STARTTLS", 7) == 0) {
-
                 /*
                  * STARTTLS command.
                  * This is a command, but if the response is 220,
                  * everything after the response is TLS.
                  */
                 session_state->smtp_state = AWAITING_STARTTLS_RESPONSE;
-
               } else {
-
                 /*
                  * Regular command.
                  */
                 frame_data->pdu_type = SMTP_PDU_CMD;
-
               }
             } else {
-
               /*
                * Assume it's message data.
                */
-
               frame_data->pdu_type = session_state->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
-
             }
           }
         }
@@ -539,7 +506,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Step past this line.
          */
         loffset = next_offset;
-
       }
     }
 
@@ -568,9 +534,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
 
       if (request) {
-
         /* We must have frame_data here ... */
-
         switch (frame_data->pdu_type) {
         case SMTP_PDU_MESSAGE:
 
@@ -581,13 +545,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           break;
 
         case SMTP_PDU_EOM:
-
           col_set_str(pinfo->cinfo, COL_INFO, "C: .");
-
           break;
 
         case SMTP_PDU_CMD:
-
           loffset = offset;
           while (tvb_offset_exists(tvb, loffset)) {
             /*
@@ -605,46 +566,38 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             loffset = next_offset;
-
           }
           break;
-
         }
+      } else {
+        loffset = offset;
+        while (tvb_offset_exists(tvb, loffset)) {
+          /*
+           * Find the end of the line.
+           */
+          linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
+          line = tvb_get_ptr(tvb, loffset, linelen);
 
-      }
-      else {
-
-          loffset = offset;
-          while (tvb_offset_exists(tvb, loffset)) {
-            /*
-             * Find the end of the line.
-             */
-            linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
-            line = tvb_get_ptr(tvb, loffset, linelen);
-
-            if(loffset == offset) 
-              col_append_fstr(pinfo->cinfo, COL_INFO, "S: %s",
-                           format_text(line, linelen));
-            else {
-              col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
-                           format_text(line, linelen));
-            }
-
-            loffset = next_offset;
+          if (loffset == offset) 
+            col_append_fstr(pinfo->cinfo, COL_INFO, "S: %s",
+                            format_text(line, linelen));
+          else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " | %s",
+                            format_text(line, linelen));
           }
+
+          loffset = next_offset;
+        }
       }
     }
 
     if (tree) { /* Build the tree info ... */
-
       ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, -1, FALSE);
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
     }
 
     if (request) {
-
       if (tree) {
-
         /*
          * Check out whether or not we can see a command in there ...
          * What we are looking for is not data_seen and the word DATA
@@ -657,31 +610,23 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * On the first pass, we will not have any info on the packets
          * On second and subsequent passes, we will.
          */
-
         switch (frame_data->pdu_type) {
 
         case SMTP_PDU_MESSAGE:
-
-          if(smtp_data_desegment) {
-
-            frag_msg = fragment_add_seq_next (tvb, 0, pinfo, frame_data->conversation_id, 
-                                              smtp_data_segment_table, smtp_data_reassembled_table, 
-                                              tvb_length(tvb), frame_data->more_frags);
+          if (smtp_data_desegment) {
+            frag_msg = fragment_add_seq_next(tvb, 0, pinfo, frame_data->conversation_id, 
+                                             smtp_data_segment_table, smtp_data_reassembled_table, 
+                                             tvb_length(tvb), frame_data->more_frags);
           } else {
-            
             /*
              * Message body.
              * Put its lines into the protocol tree, a line at a time.
              */
-
             dissect_smtp_data(tvb, offset, smtp_tree);
-            
           }
-
           break;
 
         case SMTP_PDU_EOM:
-
           /*
            * End-of-message-body indicator.
            *
@@ -692,17 +637,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            */
           proto_tree_add_text(smtp_tree, tvb, offset, linelen, "C: .");
 
-          if(smtp_data_desegment) {
-
+          if (smtp_data_desegment) {
             /* terminate the desegmentation */
             frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
                                               smtp_data_reassembled_table);
           }
-
           break;
 
         case SMTP_PDU_CMD:
-
           /*
            * Command.
            *
@@ -714,7 +656,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           loffset = offset;
           while (tvb_offset_exists(tvb, loffset)) {
-
             /*
              * Find the end of the line.
              */
@@ -727,6 +668,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_req, tvb,
                                                  0, 0, TRUE);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+
             /*
              * Put the command line into the protocol tree.
              */
@@ -743,7 +685,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if (smtp_data_desegment && !frame_data->more_frags) {
-
               /* terminate the desegmentation */
               frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
                                                 smtp_data_reassembled_table);
@@ -753,26 +694,22 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Step past this line.
              */
             loffset = next_offset;
-          
           }
         }
 
         if (smtp_data_desegment) {
-          next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA",
-                                               frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
+          next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled DATA",
+                                              frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
           if (next_tvb) {
             /* XXX: this is presumptious - we may have negotiated something else */
-            if(imf_handle) {
+            if (imf_handle) {
               call_dissector(imf_handle, next_tvb, pinfo, tree);
             } else {
-              
               /*
                * Message body.
                * Put its lines into the protocol tree, a line at a time.
                */
-              
               dissect_smtp_data(tvb, offset, smtp_tree);
-              
             }
             
             pinfo->fragmented = FALSE;
@@ -781,9 +718,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
         }
       }
-    }
-    else {
-
+    } else {
       /*
        * Process the response, a line at a time, until we hit a line
        * that doesn't have a continuation indication on it.
@@ -795,7 +730,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       while (tvb_offset_exists(tvb, offset)) {
-
         /*
          * Find the end of the line.
          */
@@ -866,7 +800,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              break; */
 
         }
-
       }
     }
 }
