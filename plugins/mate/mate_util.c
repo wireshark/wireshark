@@ -1030,7 +1030,7 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 	AVPL* newavpl = new_avpl(scs_subscribe(avp_strings, name));
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
-	gint  c;
+	ptrdiff_t c;
 	AVP* m;
 	AVP* copy;
 
@@ -1052,7 +1052,7 @@ extern AVPL* new_avpl_loose_match(const gchar* name,
 		}
 
 
-		c = (guint) co->avp->n - (guint) cs->avp->n;
+		c = ADDRDIFF(co->avp->n, cs->avp->n);
 
 		if ( c > 0 ) {
 			if (co->avp) co = co->next;
