@@ -97,6 +97,7 @@ static const fragment_items smtp_data_frag_items = {
 	"DATA fragments"
 };
 
+static  dissector_handle_t ssl_handle;
 static  dissector_handle_t imf_handle = NULL;
 
 /*
@@ -117,13 +118,20 @@ struct smtp_proto_data {
 /*
  * State information stored with a conversation.
  */
-struct smtp_request_val {
-  gboolean reading_data; /* Reading message data, not commands */
-  gboolean crlf_seen;    /* Have we seen a CRLF on the end of a packet */
-  gboolean data_seen;    /* Have we seen a DATA command yet */
-  guint32 msg_read_len;  /* Length of BDAT message read so far */
-  guint32 msg_tot_len;   /* Total length of BDAT message */
-  gboolean msg_last;     /* Is this the last BDAT chunk */
+typedef enum {
+  READING_CMDS,              /* reading commands */
+  READING_DATA,              /* reading message data */
+  AWAITING_STARTTLS_RESPONSE /* sent STARTTLS, awaiting response */
+} smtp_state_t;
+
+struct smtp_session_state {
+  smtp_state_t smtp_state;   /* Current state */
+  gboolean crlf_seen;        /* Have we seen a CRLF on the end of a packet */
+  gboolean data_seen;        /* Have we seen a DATA command yet */
+  guint32 msg_read_len;      /* Length of BDAT message read so far */
+  guint32 msg_tot_len;       /* Total length of BDAT message */
+  gboolean msg_last;         /* Is this the last BDAT chunk */
+  guint32 last_nontls_frame; /* last non-TLS frame; 0 if not known or no TLS */
 };
 
 /*
@@ -210,26 +218,26 @@ static void dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
 static void
 dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    struct smtp_proto_data  *frame_data;
-    proto_tree              *smtp_tree;
-    proto_tree              *cmdresp_tree;
-    proto_item              *ti, *hidden_item;
-    int                     offset = 0;
-    int                     request = 0;
-    conversation_t          *conversation;
-    struct smtp_request_val *request_val;
-    const guchar            *line, *linep, *lineend;
-    guchar                  c;
-    guint32                 code;
-    int                     linelen = 0;
-    gint                    length_remaining;
-    gboolean                eom_seen = FALSE;
-    gint                    next_offset;
-    gint                    loffset;
-    gboolean                is_continuation_line;
-    int                     cmdlen;
-    fragment_data           *frag_msg = NULL;
-    tvbuff_t                *next_tvb;
+    struct smtp_proto_data    *frame_data;
+    proto_tree                *smtp_tree = NULL;
+    proto_tree                *cmdresp_tree;
+    proto_item                *ti, *hidden_item;
+    int                       offset = 0;
+    int                       request = 0;
+    conversation_t            *conversation;
+    struct smtp_session_state *session_state;
+    const guchar              *line, *linep, *lineend;
+    guchar                    c;
+    guint32                   code;
+    int                       linelen = 0;
+    gint                      length_remaining;
+    gboolean                  eom_seen = FALSE;
+    gint                      next_offset;
+    gint                      loffset;
+    gboolean                  is_continuation_line;
+    int                       cmdlen;
+    fragment_data             *frag_msg = NULL;
+    tvbuff_t                  *next_tvb;
 
     /* As there is no guarantee that we will only see frames in the
      * the SMTP conversation once, and that we will see them in
@@ -250,53 +258,49 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * pass, so we figure it out on the first pass.
      */
 
-    /* SMTP messages have a simple format ... */
-
-    request = pinfo -> destport == pinfo -> match_port;
-
-    /* Find out what conversation this packet is part of ... but only
-     * if we have no information on this packet, so find the per-frame
-     * info first.
+    /*
+     * Find the conversation for this.
      */
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+                                     pinfo->srcport, pinfo->destport, 0);
+    if (conversation == NULL) { /* No conversation, create one */
+      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+                                      pinfo->srcport, pinfo->destport, 0);
+    }
 
+    /*
+     * Is there a request structure attached to this conversation?
+     */
+    session_state = conversation_get_proto_data(conversation, proto_smtp);
+    if (!session_state) {
+      /*
+       * No - create one and attach it.
+       */
+      session_state = se_alloc(sizeof(struct smtp_session_state));
+      session_state->smtp_state = READING_CMDS;
+      session_state->crlf_seen = FALSE;
+      session_state->data_seen = FALSE;
+      session_state->msg_read_len = 0;
+      session_state->msg_tot_len = 0;
+      session_state->msg_last = TRUE;
+      session_state->last_nontls_frame = 0;
+
+      conversation_add_proto_data(conversation, proto_smtp, session_state);
+    }
+
+    /* Is this a request or a response? */
+    request = pinfo->destport == pinfo->match_port;
+
+    /*
+     * Is there any data attached to this frame?
+     */
     frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
 
     if (!frame_data) {
 
       /*
-       * No frame data, so this is probably the first pass; find
-       * the conversation for this.
+       * No frame data.
        */
-      conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                       pinfo->srcport, pinfo->destport, 0);
-      if (conversation == NULL) { /* No conversation, create one */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
-
-      }
-
-      /*
-       * Is there a request structure attached to this conversation?
-       */
-      request_val = conversation_get_proto_data(conversation, proto_smtp);
-
-      if (!request_val) {
-
-        /*
-         * No - create one and attach it.
-         */
-        request_val = se_alloc(sizeof(struct smtp_request_val));
-        request_val->reading_data = FALSE;
-        request_val->crlf_seen = FALSE;
-        request_val->data_seen = FALSE;
-        request_val->msg_read_len = 0;
-        request_val->msg_tot_len = 0;
-        request_val->msg_last = TRUE;
-
-        conversation_add_proto_data(conversation, proto_smtp, request_val);
-
-      }
-
       if(request) {
 
         /*
@@ -352,8 +356,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * We have to keep in mind that we may see what we want on
          * two passes through here ...
          */
-
-        if (request_val->reading_data) {
+        if (session_state->smtp_state == READING_DATA) {
 
           /*
            * The order of these is important ... We want to avoid
@@ -361,7 +364,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            * .CRLF at the begining of the same packet.
            */
 
-          if ((request_val->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
+          if ((session_state->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
                tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0) {
 
             eom_seen = TRUE;
@@ -372,12 +375,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
               tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0) {
 
-            request_val->crlf_seen = TRUE;
+            session_state->crlf_seen = TRUE;
 
           }
           else {
 
-            request_val->crlf_seen = FALSE;
+            session_state->crlf_seen = FALSE;
 
           }
         }
@@ -389,7 +392,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (request) {
 
-          if (request_val->reading_data) {
+          if (session_state->smtp_state == READING_DATA) {
             /*
              * This is message data.
              */
@@ -402,7 +405,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                * the TCP segment?  It can occur anywhere....
                */
               frame_data->pdu_type = SMTP_PDU_EOM;
-              request_val->reading_data = FALSE;
+              session_state->smtp_state = READING_CMDS;
             
               break;
             
@@ -412,21 +415,21 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                */
               frame_data->pdu_type = SMTP_PDU_MESSAGE;
 
-              if (request_val->msg_tot_len > 0) {
+              if (session_state->msg_tot_len > 0) {
                 /* 
                  * We are handling a BDAT message.
                  * Check if we have reached end of the data chunk.
                  */
-                request_val->msg_read_len += tvb_length_remaining(tvb, loffset);
+                session_state->msg_read_len += tvb_length_remaining(tvb, loffset);
 
-                if (request_val->msg_read_len == request_val->msg_tot_len) {
+                if (session_state->msg_read_len == session_state->msg_tot_len) {
                   /* 
                    * We have reached end of BDAT data chunk.
                    * Everything that comes after this is commands.
                    */
-                  request_val->reading_data = FALSE;
+                  session_state->smtp_state = READING_CMDS;
 
-                  if (request_val->msg_last) {
+                  if (session_state->msg_last) {
                     /* 
                      * We have found the LAST data chunk.
                      * The message can now be reassembled.
@@ -461,8 +464,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * until an EOM, is data.
                  */
                 frame_data->pdu_type = SMTP_PDU_CMD;
-                request_val->reading_data = TRUE;
-                request_val->data_seen = TRUE;
+                session_state->smtp_state = READING_DATA;
+                session_state->data_seen = TRUE;
 
               } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
 
@@ -476,21 +479,21 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 msg_len = strtoul (line+5, NULL, 10);
 
                 frame_data->pdu_type = SMTP_PDU_CMD;
-                request_val->data_seen = TRUE;
-                request_val->msg_tot_len += msg_len;
+                session_state->data_seen = TRUE;
+                session_state->msg_tot_len += msg_len;
 
                 if (msg_len == 0) {
                   /* No data to read, next will be a command */
-                  request_val->reading_data = FALSE;
+                  session_state->smtp_state = READING_CMDS;
                 } else {
-                  request_val->reading_data = TRUE;
+                  session_state->smtp_state = READING_DATA;
                 }
 
                 if (g_ascii_strncasecmp(line+linelen-4, "LAST", 4) == 0) {
                   /*
                    * This is the last data chunk.
                    */
-                  request_val->msg_last = TRUE;
+                  session_state->msg_last = TRUE;
 
                   if (msg_len == 0) {
                     /* 
@@ -500,8 +503,17 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     frame_data->more_frags = FALSE;
                   }
                 } else {
-                  request_val->msg_last = FALSE;
+                  session_state->msg_last = FALSE;
                 }
+
+              } else if (strncasecmp(line, "STARTTLS", 7) == 0) {
+
+                /*
+                 * STARTTLS command.
+                 * This is a command, but if the response is 220,
+                 * everything after the response is TLS.
+                 */
+                session_state->smtp_state = AWAITING_STARTTLS_RESPONSE;
 
               } else {
 
@@ -512,12 +524,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               }
             } else {
+
               /*
                * Assume it's message data.
                */
 
-
-              frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
+              frame_data->pdu_type = session_state->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
 
             }
           }
@@ -529,6 +541,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         loffset = next_offset;
 
       }
+    }
+
+    /* Are we doing TLS? */
+    if (session_state->last_nontls_frame != 0 &&
+        pinfo->fd->num > session_state->last_nontls_frame) {
+      /* This is TLS, not raw SMTP. */
+      call_dissector(ssl_handle, tvb, pinfo, tree);
+      return;
     }
 
     /*
@@ -619,14 +639,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, -1, FALSE);
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
-      if (request) {
+    }
+
+    if (request) {
+
+      if (tree) {
 
         /*
          * Check out whether or not we can see a command in there ...
          * What we are looking for is not data_seen and the word DATA
          * and not eom_seen.
          *
-         * We will see DATA and request_val->data_seen when we process the
+         * We will see DATA and session_state->data_seen when we process the
          * tree view after we have seen a DATA packet when processing
          * the packet list pane.
          *
@@ -757,23 +781,27 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
         }
       }
-      else {
+    }
+    else {
+
+      /*
+       * Process the response, a line at a time, until we hit a line
+       * that doesn't have a continuation indication on it.
+       */
+      if (tree) {
+        hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
+                                             0, 0, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+      }
+
+      while (tvb_offset_exists(tvb, offset)) {
 
         /*
-         * Process the response, a line at a time, until we hit a line
-         * that doesn't have a continuation indication on it.
+         * Find the end of the line.
          */
-        hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
-                                        0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-        while (tvb_offset_exists(tvb, offset)) {
-
-          /*
-           * Find the end of the line.
-           */
-          linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-
+	if (tree) {
           /*
            * Put it into the protocol tree.
            */
@@ -782,23 +810,41 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    tvb_format_text(tvb, offset,
                                                    next_offset - offset));
           cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
+        } else
+          cmdresp_tree = NULL;
+
+        /*
+         * Is it a continuation line?
+         */
+        is_continuation_line =
+            (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
+
+        line = tvb_get_ptr(tvb, offset, linelen);
+        if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
+                         && isdigit(line[2])) {
+          /*
+           * We have a 3-digit response code.
+           */
+          code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
 
           /*
-           * Is it a continuation line?
+           * If we're awaiting the response to a STARTTLS code, this
+           * is it - if it's 220, all subsequent traffic will
+           * be TLS, otherwise we're back to boring old SMTP.
            */
-          is_continuation_line =
-              (linelen >= 4 && tvb_get_guint8(tvb, offset + 3) == '-');
+          if (session_state->smtp_state == AWAITING_STARTTLS_RESPONSE) {
+            if (code == 220) {
+              /* This is the last non-TLS frame. */
+              session_state->last_nontls_frame = pinfo->fd->num;
+              session_state->smtp_state = READING_DATA;
+            } else
+              session_state->smtp_state = READING_CMDS;
+          }
 
-          /*
-           * Put the response code and parameters into the protocol tree.
-           */
-          line = tvb_get_ptr(tvb, offset, linelen);
-          if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
-                            && isdigit(line[2])) {
+	  if (tree) {
             /*
-             * We have a 3-digit response code.
+             * Put the response code and parameters into the protocol tree.
              */
-            code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
             proto_tree_add_uint(cmdresp_tree, hf_smtp_rsp_code, tvb, offset, 3,
                                 code);
 
@@ -937,4 +983,6 @@ proto_reg_handoff_smtp(void)
   /* find the IMF dissector */
   imf_handle = find_dissector("imf");
 
+  /* find the SSL dissector */
+  ssl_handle = find_dissector("ssl");
 }
