@@ -787,19 +787,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                   offset + 4, linelen - 4, FALSE);
             }
           }
-
-          /*
-           * Step past this line.
-           */
-          offset = next_offset;
-
-          /*
-           * If it's not a continuation line, quit.
-           */
-          /* if (!is_continuation_line)
-             break; */
-
         }
+
+        /*
+         * Step past this line.
+         */
+        offset = next_offset;
+
+        /*
+         * If it's not a continuation line, quit.
+         */
+        /* if (!is_continuation_line)
+           break; */
       }
     }
 }
