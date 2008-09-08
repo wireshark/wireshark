@@ -62,6 +62,7 @@ static int hf_nsip_max_num_ns_vc = -1;
 static int hf_nsip_num_ip4_endpoints = -1;
 static int hf_nsip_num_ip6_endpoints = -1;
 static int hf_nsip_reset_flag = -1;
+static int hf_nsip_ip_address_type = -1;
 static int hf_nsip_ip_address_ipv4 = -1;
 static int hf_nsip_ip_address_ipv6 = -1;
 static int hf_nsip_end_flag = -1;
@@ -211,6 +212,14 @@ static const value_string tab_nsip_cause_values[] = {
 #define NSIP_IP_ADDRESS_TYPE_IPV6 2
 #define NSIP_IP_VERSION_4 4
 #define NSIP_IP_VERSION_6 6
+
+static const value_string ip_address_type_vals[] = {
+  { 0,                         "Reserved" },
+  { NSIP_IP_ADDRESS_TYPE_IPV4, "IPv4 Address" },
+  { NSIP_IP_ADDRESS_TYPE_IPV6, "IPv6 Address" },
+  { 0,                            NULL },
+};
+
 
 #define NSIP_MASK_CONTROL_BITS_R 0x01
 #define NSIP_MASK_CONTROL_BITS_C 0x02
@@ -520,10 +529,12 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   struct e_in6_addr ip6_addr;
 
   address_type = tvb_get_guint8(bi->tvb, bi->offset);
+  proto_tree_add_item(bi->nsip_tree, hf_nsip_ip_address_type,
+			  bi->tvb, bi->offset, 1, FALSE);
   switch (address_type) {
   case NSIP_IP_ADDRESS_TYPE_IPV4:
     ie->total_length = 2 + ipv4_element.address_length;
-    ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset);
+    ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset+1);
     if (bi->nsip_tree) {
       proto_tree_add_ipv4(bi->nsip_tree, hf_nsip_ip_address_ipv4, 
 			  bi->tvb, ie_start_offset, ie->total_length, 
@@ -532,7 +543,7 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     break;
   case NSIP_IP_ADDRESS_TYPE_IPV6:
     ie->total_length = 2 + ipv6_element.address_length;
-    tvb_get_ipv6(bi->tvb, bi->offset, &ip6_addr);
+    tvb_get_ipv6(bi->tvb, bi->offset+1, &ip6_addr);
     if (bi->nsip_tree) {
       proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv4, 
 			  bi->tvb, ie_start_offset, ie->total_length, 
@@ -1019,6 +1030,11 @@ proto_register_nsip(void)
     { &hf_nsip_reset_flag,
       { "Reset flag", "nsip.reset_flag",
 	FT_BOOLEAN, 8, TFS(&set_unset), NSIP_MASK_RESET_FLAG,          
+	"", HFILL }
+    },
+    { &hf_nsip_ip_address_type,
+      { "IP Address Type", "nsip.ip_address_type",
+	FT_UINT8, BASE_DEC, VALS(ip_address_type_vals), 0x0,
 	"", HFILL }
     },
     { &hf_nsip_ip_address_ipv4,
