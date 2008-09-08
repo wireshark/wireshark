@@ -704,6 +704,8 @@ SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\modules
+File "${GTK_DIR}\lib\gtk-2.0\modules\libgail.dll"
 # Not needed with pango 1.14.5
 #SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
 #File "${GTK_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
