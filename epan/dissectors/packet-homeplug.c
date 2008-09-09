@@ -37,42 +37,6 @@
 #include <epan/proto.h>
 #include <epan/ptvcursor.h>
 
-
-/* METYPE Values */
-#define HOMEPLUG_MME_RCE      0x00
-#define HOMEPLUG_MME_CER      0x01
-#define HOMEPLUG_MME_RPS      0x07
-#define HOMEPLUG_MME_PSR      0x08
-#define HOMEPLUG_MME_NS	      0x1A
-
-/* Bit mask Operation */
-#define HOMEPLUG_MCTRL_RSVD   0x80
-#define HOMEPLUG_MCTRL_NE     0x7F
-
-#define HOMEPLUG_MEHDR_MEV    0xE0
-#define HOMEPLUG_MEHDR_METYPE 0x1F
-
-#define HOMEPLUG_NS_AC	      0x80
-#define HOMEPLUG_NS_ICID      0x7F
-
-#define HOMEPLUG_RCE_CEV      0xF0
-#define HOMEPLUG_RCE_RSVD     0x0F
-
-#define HOMEPLUG_CER_CERV     0xF0
-#define HOMEPLUG_CER_RSVD     0x0FE0
-#define HOMEPLUG_CER_RXTMI    0x1F
-#define HOMEPLUG_CER_RATE     0x80
-#define HOMEPLUG_CER_BP	      0x40
-#define HOMEPLUG_CER_VT11     0x0F
-#define HOMEPLUG_CER_RSVD2    0x80
-#define HOMEPLUG_CER_NBDAS    0x7F
-
-
-/*  Length of Network Statistics Response defines whether it is the Basic or
- *  the Extended Response */
-#define HOMEPLUG_NS_BASIC_LEN 187
-#define HOMEPLUG_NS_EXT_LEN   199
-
 /* forward reference */
 void proto_reg_handoff_homeplug(void);
 
@@ -136,6 +100,7 @@ static int hf_homeplug_mme		= -1;
       /* Extended */
     /* array of 6 elements */
 /*    static int hf_homeplug_ns_tx_bfr_0_state = -1;*/
+static int hf_homeplug_data      = -1;
 
 static gint ett_homeplug		= -1;
 static gint ett_homeplug_mctrl		= -1;
@@ -147,11 +112,78 @@ static gint ett_homeplug_psr		= -1;
 static gint ett_homeplug_ns		= -1;
 static gint ett_homeplug_tone		= -1;
 
+
 static guint8 homeplug_ne = 0;
 static guint8 homeplug_melen = 0;
 static guint8 homeplug_metype = 0;
 
 static guint32	homeplug_offset = 0;
+
+
+/* METYPE Values */
+#define HOMEPLUG_MME_RCE      0x00
+#define HOMEPLUG_MME_CER      0x01
+#define HOMEPLUG_MME_VS       0x02
+#define HOMEPLUG_MME_RBA      0x03
+#define HOMEPLUG_MME_SNK      0x04
+#define HOMEPLUG_MME_MWR      0x05
+#define HOMEPLUG_MME_CNK      0x06
+#define HOMEPLUG_MME_RPS      0x07
+#define HOMEPLUG_MME_PSR      0x08
+#define HOMEPLUG_MME_SLP      0x19
+#define HOMEPLUG_MME_NS	      0x1A
+#define HOMEPLUG_MME_RES      0x1B
+#define HOMEPLUG_MME_PS       0x1C
+#define HOMEPLUG_MME_SLO      0x1D
+#define HOMEPLUG_MME_BC       0x1E
+#define HOMEPLUG_MME_STC      0x1F
+static const value_string homeplug_metype_vals[] = {
+    { HOMEPLUG_MME_RCE, "Request Channel Estimation" },
+    { HOMEPLUG_MME_CER, "Channel Estimation Response" },
+    { HOMEPLUG_MME_VS , "Vendor Specific" },
+    { HOMEPLUG_MME_RBA, "Replace Bridge Address" },
+    { HOMEPLUG_MME_SNK, "Set Network Encryption Key" },
+    { HOMEPLUG_MME_MWR, "Multicast With Response" },
+    { HOMEPLUG_MME_CNK, "Confirm Network Encryption Key" },
+    { HOMEPLUG_MME_RPS, "Request Parameters and Statistics" },
+    { HOMEPLUG_MME_PSR, "Parameters and Statistics Response" },
+    { HOMEPLUG_MME_SLP, "Set Local Parameters" },
+    { HOMEPLUG_MME_NS , "Network Statistics" },
+    { HOMEPLUG_MME_RES, "Reserved" },
+    { HOMEPLUG_MME_PS , "Performance Statistics" },
+    { HOMEPLUG_MME_SLO, "Set Local Overrides" },
+    { HOMEPLUG_MME_BC , "Bridging Characteristics" },
+    { HOMEPLUG_MME_STC, "Set Transmit Characteristics" },
+    { 0, NULL }
+};
+
+/* Bit mask Operation */
+#define HOMEPLUG_MCTRL_RSVD   0x80
+#define HOMEPLUG_MCTRL_NE     0x7F
+
+#define HOMEPLUG_MEHDR_MEV    0xE0
+#define HOMEPLUG_MEHDR_METYPE 0x1F
+
+#define HOMEPLUG_NS_AC	      0x80
+#define HOMEPLUG_NS_ICID      0x7F
+
+#define HOMEPLUG_RCE_CEV      0xF0
+#define HOMEPLUG_RCE_RSVD     0x0F
+
+#define HOMEPLUG_CER_CERV     0xF0
+#define HOMEPLUG_CER_RSVD     0x0FE0
+#define HOMEPLUG_CER_RXTMI    0x1F
+#define HOMEPLUG_CER_RATE     0x80
+#define HOMEPLUG_CER_BP	      0x40
+#define HOMEPLUG_CER_VT11     0x0F
+#define HOMEPLUG_CER_RSVD2    0x80
+#define HOMEPLUG_CER_NBDAS    0x7F
+
+
+/*  Length of Network Statistics Response defines whether it is the Basic or
+ *  the Extended Response */
+#define HOMEPLUG_NS_BASIC_LEN 187
+#define HOMEPLUG_NS_EXT_LEN   199
 
 /* IC_ID Values */
 #define HOMEPLUG_NS_ICID5130A1		0x00
@@ -232,7 +264,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_mehdr_metype,
       { "MAC Entry Type", "homeplug.mehdr.metype",
-      FT_UINT8, BASE_HEX, NULL, HOMEPLUG_MEHDR_METYPE, "MAC Entry Type", HFILL }
+      FT_UINT8, BASE_HEX, VALS(homeplug_metype_vals), HOMEPLUG_MEHDR_METYPE, "MAC Entry Type", HFILL }
     },
 
     /* MAC Entry Len */
@@ -442,9 +474,14 @@ proto_register_homeplug(void)
     { &hf_homeplug_ns_drops,
       { "Frame Drops", "homeplug.ns.drops",
       FT_UINT16, BASE_DEC, NULL, 0x0, "Frame Drops", HFILL }
-    }
+    },
 
     /* TODO Network Statistics Extended */
+
+    { &hf_homeplug_data,
+      { "Data", "homeplug.data",
+      FT_BYTES, BASE_NONE, NULL, 0x0, "Data", HFILL }
+    }
   };
 
   /* Setup protocol subtree array */
@@ -460,11 +497,7 @@ proto_register_homeplug(void)
     &ett_homeplug_tone
   };
 
-  proto_homeplug = proto_register_protocol(
-					  "HomePlug protocol",  /* Name */
-					  "HomePlug",		/* Short Name */
-					  "homeplug"		/* Abbrev */
-					  );
+  proto_homeplug = proto_register_protocol("HomePlug protocol", "HomePlug", "homeplug");
 
   proto_register_field_array(proto_homeplug, hf, array_length(hf));
 
@@ -481,7 +514,7 @@ static void dissect_homeplug_mctrl(ptvcursor_t * cursor)
 
   it = ptvcursor_add_no_advance(cursor, hf_homeplug_mctrl, 1, FALSE);
   homeplug_ne = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
-	    ptvcursor_current_offset(cursor)) & HOMEPLUG_MCTRL_NE;
+      ptvcursor_current_offset(cursor)) & HOMEPLUG_MCTRL_NE;
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_mctrl);
     ptvcursor_add_no_advance(cursor, hf_homeplug_mctrl_reserved, 1, FALSE);
@@ -498,7 +531,7 @@ static void dissect_homeplug_mehdr(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor)) 
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_mehdr, 0, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_mehdr, 1, FALSE);
   homeplug_metype = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
       ptvcursor_current_offset(cursor)) & HOMEPLUG_MEHDR_METYPE;
 
@@ -562,18 +595,18 @@ static void dissect_homeplug_cer(ptvcursor_t * cursor)
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_rate, 1, FALSE);
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_bp, 1, FALSE);
     BP = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
-	      ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_BP;
+        ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_BP;
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_mod, 1, FALSE);
     ptvcursor_add(cursor, hf_homeplug_cer_vt11, 1, FALSE);
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_rsvd2, 1, FALSE);
 
     if (BP) {
       iNBDA = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
-		ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_NBDAS;
+          ptvcursor_current_offset(cursor)) & HOMEPLUG_CER_NBDAS;
       ptvcursor_add(cursor, hf_homeplug_cer_nbdas, 1, FALSE);
       /* TODO : Check on iNBDA! INT51X1 up to 16 dba. But up to 32 for INT51X1 (Host/DTE) */
       for (;iNBDA > 0; iNBDA--) {
-	ptvcursor_add(cursor, hf_homeplug_cer_bda, 6, FALSE);
+        ptvcursor_add(cursor, hf_homeplug_cer_bda, 6, FALSE);
       }
     }
   ptvcursor_pop_subtree(cursor);
@@ -635,7 +668,7 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor)
   ptvcursor_push_subtree(cursor, it, ett_homeplug_ns);*/
     ptvcursor_add_no_advance(cursor, hf_homeplug_ns_netw_ctrl_ac, 1, FALSE);
     homeplug_ns_icid_rsvd = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
-	    ptvcursor_current_offset(cursor)) & HOMEPLUG_NS_ICID_RSVD_MASK; 
+        ptvcursor_current_offset(cursor)) & HOMEPLUG_NS_ICID_RSVD_MASK;
     if (homeplug_ns_icid_rsvd)
       ptvcursor_add(cursor, hf_homeplug_ns_netw_ctrl_icid_rsvd, 1, FALSE);
     else
@@ -643,83 +676,77 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor)
 
     ptvcursor_add_no_advance(cursor, hf_homeplug_ns_bytes40_robo, 2, TRUE);
     ns_bytes40 = tvb_get_letohs(ptvcursor_tvbuff(cursor),
-	  ptvcursor_current_offset(cursor));
+        ptvcursor_current_offset(cursor));
     proto_tree_add_text(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), 
-	    ptvcursor_current_offset(cursor), 2, "MHz :  %.3f", (float)(ns_bytes40)/42);
+        ptvcursor_current_offset(cursor), 2, "MHz :  %.3f", (float)(ns_bytes40)/42);
     ptvcursor_advance(cursor, 2);
 
     ptvcursor_add(cursor, hf_homeplug_ns_fails_robo, 2, TRUE);
     ptvcursor_add(cursor, hf_homeplug_ns_drops_robo, 2, TRUE);
 
-    while (iTone < 15) { 
+    while (iTone < 15) {
       newt_da = ((gint64)tvb_get_ntoh24(ptvcursor_tvbuff(cursor),
-	ptvcursor_current_offset(cursor))) << 24;
+      ptvcursor_current_offset(cursor))) << 24;
       newt_da |= tvb_get_ntoh24(ptvcursor_tvbuff(cursor),
-	ptvcursor_current_offset(cursor)+3);
+      ptvcursor_current_offset(cursor)+3);
 
       if (newt_da != NEWT_DA_INEXISTANT) {
-	ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
-	    ett_homeplug_tone, "Tone Map #%d", iTone+1);
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+            ett_homeplug_tone, "Tone Map #%d", iTone+1);
 
-	ptvcursor_add(cursor, hf_homeplug_ns_netw_da, 6, FALSE);
+        ptvcursor_add(cursor, hf_homeplug_ns_netw_da, 6, FALSE);
 
-	ptvcursor_add_no_advance(cursor, hf_homeplug_ns_bytes40, 2, TRUE);
-	ns_bytes40 = tvb_get_letohs(ptvcursor_tvbuff(cursor),
-	  ptvcursor_current_offset(cursor));
-	proto_tree_add_text(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), 
-	    ptvcursor_current_offset(cursor), 2, "MHz :  %.3f", (float)(ns_bytes40)/42);
-	ptvcursor_advance(cursor, 2);
+        ptvcursor_add_no_advance(cursor, hf_homeplug_ns_bytes40, 2, TRUE);
+        ns_bytes40 = tvb_get_letohs(ptvcursor_tvbuff(cursor),
+            ptvcursor_current_offset(cursor));
+        proto_tree_add_text(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor),
+            ptvcursor_current_offset(cursor), 2, "MHz :  %.3f", (float)(ns_bytes40)/42);
+        ptvcursor_advance(cursor, 2);
 
-	ptvcursor_add(cursor, hf_homeplug_ns_fails, 2, TRUE);
-	ptvcursor_add(cursor, hf_homeplug_ns_drops, 2, TRUE);
+        ptvcursor_add(cursor, hf_homeplug_ns_fails, 2, TRUE);
+        ptvcursor_add(cursor, hf_homeplug_ns_drops, 2, TRUE);
 
-	ptvcursor_pop_subtree(cursor);
-      } else
-	proto_tree_add_text(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor), 
-		  ptvcursor_current_offset(cursor), 12, "Tone Map #%d does not exist", iTone+1);
+        ptvcursor_pop_subtree(cursor);
+      } else {
+        proto_tree_add_text(ptvcursor_tree(cursor), ptvcursor_tvbuff(cursor),
+            ptvcursor_current_offset(cursor), 12, "Tone Map #%d does not exist", iTone+1);
+      }
 
       iTone++;
     }
   ptvcursor_pop_subtree(cursor);
 }
 
+/* Dissection of unknown tags */
+static void dissect_homeplug_unknown(ptvcursor_t * cursor)
+{
+  ptvcursor_add(cursor, hf_homeplug_data, homeplug_melen, FALSE);
+}
+
 static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(homeplug_metype, homeplug_metype_vals, "Unknown %u"));
+  }
+
   switch(homeplug_metype) {
     case HOMEPLUG_MME_RCE:
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_set_str(pinfo->cinfo, COL_INFO, "Request Channel Estimation");
-      }
       dissect_homeplug_rce(cursor);
       break;
     case HOMEPLUG_MME_CER:
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_set_str(pinfo->cinfo, COL_INFO, "Channel Estimation Response");
-      }
       dissect_homeplug_cer(cursor);
       break;
     case HOMEPLUG_MME_RPS:
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_set_str(pinfo->cinfo, COL_INFO, "Request Parameters and Statistics");
-      } 
       dissect_homeplug_rps(cursor);
       break;
     case HOMEPLUG_MME_PSR:
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_set_str(pinfo->cinfo, COL_INFO, "Parameters and Statistics Response");
-      }
       dissect_homeplug_psr(cursor);
       break;
     case HOMEPLUG_MME_NS:
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-	col_set_str(pinfo->cinfo, COL_INFO, "Network Statistics");
-      }
       dissect_homeplug_ns(cursor);
+      break;
+    default:
+      dissect_homeplug_unknown(cursor);
       break;
   }
 }
@@ -770,6 +797,9 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /** homeplug_ne indicates the number of MME entries. This field is fetched
      *  from MCTRL. 
      */
+    if ((homeplug_ne > 0) && check_col(pinfo->cinfo, COL_INFO)) {
+      col_clear(pinfo->cinfo, COL_INFO);
+    }
     for (; homeplug_ne > 0; homeplug_ne--) {
 
       /* Check we have enough data in tvb to read MEHDR */
