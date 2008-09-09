@@ -123,6 +123,7 @@ diameter_DATA = \
 	diameter/sip.xml \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
+	diameter/TGPPRx.xml \
 	diameter/TGPPSh.xml
 
 #

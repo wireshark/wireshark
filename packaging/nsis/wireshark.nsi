@@ -407,6 +407,7 @@ File "..\..\diameter\nasreq.xml"
 File "..\..\diameter\sip.xml"
 File "..\..\diameter\sunping.xml"
 File "..\..\diameter\TGPPGmb.xml"
+File "..\..\diameter\TGPPRx.xml"
 File "..\..\diameter\TGPPSh.xml"
 SetOutPath $INSTDIR
 
