@@ -4,21 +4,25 @@
 #
 
 # These are the known directories in the distribution and where they should live on a U3 device
-my %u3locs = qw($INSTDIR device
-		$INSTDIR\plugins\${VERSION} device
-		$INSTDIR\help device
-		$INSTDIR\snmp\mibs device
-		$INSTDIR\diameter device
-		$INSTDIR\dtds device
-		$INSTDIR\radius device
-		$INSTDIR\wimaxasncp device
-		$INSTDIR\tpncp device
-		$INSTDIR\${GTK_WIMP_RCDST_DIR} host
-		$INSTDIR\etc\gtk-2.0 host
-		$INSTDIR\etc\pango host
-		$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders host
-		$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\immodules host
-		$INSTDIR\${GTK_WIMP_DLLDST_DIR} host);
+my %u3locs = qw(
+	$INSTDIR device
+	$INSTDIR\${GTK_WIMP_DLLDST_DIR} host
+	$INSTDIR\${GTK_WIMP_RCDST_DIR} host
+	$INSTDIR\diameter device
+	$INSTDIR\dtds device
+	$INSTDIR\etc\gtk-2.0 host
+	$INSTDIR\etc\pango host
+	$INSTDIR\help device
+	$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines host
+	$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\immodules host
+	$INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders host
+	$INSTDIR\lib\gtk-2.0\modules host
+	$INSTDIR\plugins\${VERSION} device
+	$INSTDIR\radius device
+	$INSTDIR\snmp\mibs device
+	$INSTDIR\tpncp device
+	$INSTDIR\wimaxasncp device
+	);
 
 my @dirs; # the directories in the manifest
 my @defines; # stack of defines
