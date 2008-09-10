@@ -7478,6 +7478,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             pinfo->pseudo_header->ieee_802_11.signal_level);
   }
 
+  pinfo->current_proto = "IEEE 802.11";
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE);
 }
