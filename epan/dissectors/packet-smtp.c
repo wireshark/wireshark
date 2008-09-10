@@ -480,7 +480,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                   session_state->msg_last = FALSE;
                 }
-              } else if (strncasecmp(line, "STARTTLS", 7) == 0) {
+              } else if (g_ascii_strncasecmp(line, "STARTTLS", 7) == 0) {
                 /*
                  * STARTTLS command.
                  * This is a command, but if the response is 220,
