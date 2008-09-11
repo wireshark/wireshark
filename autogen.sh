@@ -32,8 +32,7 @@ fi
 
 ACVER=`$AUTOCONF --version | grep '^autoconf' | sed 's/.*) *//'`
 case "$ACVER" in
-'' | 0.* | 1.* | 2.[0-4]* | \
-2.5[0-1] | 2.5[0-1][a-z]* )
+'' | 0.* | 1.* | 2.[0-5]* )
   cat >&2 <<_EOF_
 
 	You must have autoconf 2.52 or later installed to compile $PROJECT.
