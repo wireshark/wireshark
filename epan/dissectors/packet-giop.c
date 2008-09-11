@@ -471,13 +471,23 @@ static const value_string giop_endianess_vals[] = {
   { 0x1, "Little Endian" },
   { 0, NULL}
 };
-
+/*
 static const value_string sync_scope[] = {
 	{ 0x0, "SYNC_NONE" },
 	{ 0x1, "SYNC_WITH_TRANSPORT"},
 	{ 0x2, "SYNC_WITH_SERVER"},
 	{ 0x3, "SYNC_WITH_TARGET"},
 	{ 0, NULL}
+};
+Bug fix:
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2800
+http://ethereal.netmirror.org/lists/ethereal-users/200303/msg00135.html
+*/
+static const value_string response_flags_vals[] = {
+    { 0x0, "SyncScope NONE or WITH_TRANSPORT" },
+    { 0x1, "SyncScope WITH_SERVER"},
+    { 0x3, "SyncScope WITH_TARGET"},
+    { 0, NULL}
 };
 
 /* Profile ID's */
@@ -3519,7 +3529,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     {
       proto_tree_add_text (request_tree, tvb, offset-1, 1,
 			   "Response flags: %s (%u)",
-			        val_to_str(response_flags, sync_scope, "(0x%x)"),
+			        val_to_str(response_flags, response_flags_vals, "(0x%x)"),
 			        response_flags);
     }
 
