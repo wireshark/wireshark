@@ -773,7 +773,7 @@ proto_reg_handoff_quakeworld(void)
 {
 	static gboolean Initialized=FALSE;
 	static dissector_handle_t quakeworld_handle;
-	static int ServerPort=0;
+	static int ServerPort;
 
 	if (!Initialized) {
 		quakeworld_handle = create_dissector_handle(dissect_quakeworld,

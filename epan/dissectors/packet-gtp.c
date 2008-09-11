@@ -1391,7 +1391,7 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
-static dissector_table_t bssap_pdu_type_table=NULL;
+static dissector_table_t bssap_pdu_type_table;
 
 static int decode_gtp_cause		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_imsi		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);

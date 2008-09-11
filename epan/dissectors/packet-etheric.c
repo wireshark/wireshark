@@ -99,7 +99,7 @@ static gint ett_etheric_circuit_state_ind	= -1;
 static guint ethericTCPport1 =1806;
 static guint ethericTCPport2 =10002;
 
-static dissector_handle_t	q931_ie_handle = NULL;
+static dissector_handle_t	q931_ie_handle;
 /* Value strings */
 static const value_string protocol_version_vals[] = {
 	{ 0x00,	"Etheric 1.0" },
@@ -1006,9 +1006,8 @@ void
 proto_reg_handoff_etheric(void)
 {
 	static dissector_handle_t etheric_handle;
-
-	static int tcp_port1 = 1806;
-	static int tcp_port2 = 10002;
+	static int tcp_port1;
+	static int tcp_port2;
 	static gboolean Initialized=FALSE;
 
 	if (!Initialized) {

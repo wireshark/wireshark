@@ -803,7 +803,7 @@ void proto_reg_handoff_actrace(void)
 {
 	static gboolean actrace_prefs_initialized = FALSE;
 	static dissector_handle_t actrace_handle;
-	static guint actrace_udp_port = 0;
+	static guint actrace_udp_port;
 
 	if (!actrace_prefs_initialized)
 	{

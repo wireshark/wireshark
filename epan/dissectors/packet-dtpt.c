@@ -846,7 +846,7 @@ proto_reg_handoff_dtpt(void)
 {
 	static dissector_handle_t	dtpt_handle;
 	static gboolean Initialized=FALSE;
-	static int ServerPort=0;
+	static int ServerPort;
 
 	if (!Initialized) {
 		dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);

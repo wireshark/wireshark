@@ -409,7 +409,7 @@ static gint ett_checksum = -1;
 
 static gint ett_analysis = -1;
 
-static dissector_handle_t dmp_handle = NULL;
+static dissector_handle_t dmp_handle;
 
 typedef struct _dmp_id_key {
   guint   id;
@@ -4414,7 +4414,7 @@ static void range_add_callback (guint32 port)
 
 void proto_reg_handoff_dmp (void)
 {
-  static int dmp_prefs_initialized = FALSE;
+  static gboolean dmp_prefs_initialized = FALSE;
 
   if (!dmp_prefs_initialized) {
     dmp_handle = create_dissector_handle (dissect_dmp, proto_dmp);

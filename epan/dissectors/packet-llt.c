@@ -150,7 +150,7 @@ proto_reg_handoff_llt(void)
 {
 	static gboolean initialized = FALSE;
 	static dissector_handle_t llt_handle;
-	static guint preference_alternate_ethertype_last = 0x0;
+	static guint preference_alternate_ethertype_last;
 
 	if (!initialized) {
 		llt_handle = create_dissector_handle(dissect_llt, proto_llt);

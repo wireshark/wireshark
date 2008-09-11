@@ -96,8 +96,6 @@ static int ett_mime_header = -1;
 static int ett_header = -1;
 static int ett_trailer = -1;
 
-static guint tcp_port = 0;
-
 /* Get the state of the more flag ... */
 
 #define BEEP_VIOL         0
@@ -486,7 +484,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
   if (!request_val) return; /* Nothing to do ??? */
 
-  if (pinfo->destport == tcp_port) { /* Going to the server ... client */
+  if (pinfo->destport == global_beep_tcp_port) { /* Going to the server ... client */
 
     if (request_val->c_mime_hdr) {
 
@@ -1094,6 +1092,7 @@ proto_reg_handoff_beep(void)
 {
   static gboolean beep_prefs_initialized = FALSE;
   static dissector_handle_t beep_handle;
+  static guint beep_tcp_port;
 
   if (!beep_prefs_initialized) {
 
@@ -1104,13 +1103,13 @@ proto_reg_handoff_beep(void)
   }
   else {
 
-    dissector_delete("tcp.port", tcp_port, beep_handle);
+    dissector_delete("tcp.port", beep_tcp_port, beep_handle);
 
   }
 
   /* Set our port number for future use */
 
-  tcp_port = global_beep_tcp_port;
+  beep_tcp_port = global_beep_tcp_port;
 
   dissector_add("tcp.port", global_beep_tcp_port, beep_handle);
 

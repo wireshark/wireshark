@@ -766,7 +766,7 @@ proto_reg_handoff_quake2(void)
 {
 	static gboolean Initialized=FALSE;
 	static dissector_handle_t quake2_handle;
-	static int ServerPort=0;
+	static int ServerPort;
 
 	if (!Initialized) {
 		quake2_handle = create_dissector_handle(dissect_quake2,
