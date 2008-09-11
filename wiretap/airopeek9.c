@@ -52,7 +52,13 @@ typedef struct airopeek_section_header {
 	guint32 section_const;
 } airopeek_section_header_t;
 
-/* network subtype values */
+/*
+ * Network subtype values.
+ *
+ * XXX - do different network subtype values for 802.11 indicate different
+ * network adapter types, with some adapters supplying the FCS and others
+ * not supplying the FCS?
+ */
 #define AIROPEEK_V9_NST_ETHERNET		0
 #define AIROPEEK_V9_NST_802_11			1	/* 802.11 with 0's at the end */
 #define AIROPEEK_V9_NST_802_11_2		2	/* 802.11 with 0's at the end */
