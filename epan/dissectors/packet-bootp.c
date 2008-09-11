@@ -23,6 +23,7 @@
  * RFC 3442: Classless Static Route Option for DHCP version 4
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
+ * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
@@ -141,7 +142,7 @@ static const value_string civic_address_what_values[] = {
 	{ 0, NULL}
 };
 
-/* Civic Address Type field (RFC 4119, RFC 4776, draft-ietf-geopriv-revised-civic-lo-07) */
+/* Civic Address Type field (RFC 4119, RFC 4776, RFC 5139) */
 static const value_string civic_address_type_values[] = {
 	{ 0,	"Language" },
 	{ 1,	"A1" },
@@ -500,7 +501,7 @@ static struct opt_info bootp_opt[] = {
 /* 134 */ { "Private",					opaque, NULL },
 /* 135 */ { "Private",					opaque, NULL },
 /* 136 */ { "Private",					opaque, NULL },
-/* 137 */ { "Private",					opaque, NULL },
+/* 137 */ { "LoST Server Domain Name",			string, NULL },
 /* 138 */ { "Private",					opaque, NULL },
 /* 139 */ { "Private",					opaque, NULL },
 /* 140 */ { "Private",					opaque, NULL },
