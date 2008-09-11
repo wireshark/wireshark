@@ -424,8 +424,7 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 			proto_item_append_text(avp_item, "[unhandled integer length(%u)]", len);
 			return;
 	}
-
-	proto_tree_add_uint(tree,a->hf,tvb,offset,len,uint);
+	proto_tree_add_item(tree,a->hf,tvb, offset, len, FALSE);
 
 	if (a->vs) {
 		proto_item_append_text(avp_item, "%s(%u)", val_to_str(uint, a->vs, "Unknown"),uint);
