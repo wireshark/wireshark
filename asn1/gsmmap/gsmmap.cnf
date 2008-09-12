@@ -44,6 +44,10 @@ Remote-Operations-Information-Objects ROS
 Code
 Priority
 CommonComponentId
+SubscriberId
+GuidanceInfo
+SS-InfoList
+SubscriberData
 #.END
 #.EXPORTS
 AddressString

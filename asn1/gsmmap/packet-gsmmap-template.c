@@ -154,6 +154,7 @@ static int hf_gsm_map_cbs_coding_grp4_7_char_set = -1;
 static int hf_gsm_map_cbs_coding_grp4_7_class = -1;
 static int hf_gsm_map_cbs_coding_grp15_mess_code = -1;
 static int hf_gsm_map_cbs_coding_grp15_class = -1;
+static int hf_gsm_map_tmsi = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -2619,7 +2620,10 @@ void proto_register_gsm_map(void) {
 		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,          
 		"Message Class", HFILL }
 	},
-
+    { &hf_gsm_map_tmsi,
+      { "tmsi", "gsm_map.tmsi",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "gsm_map.TMSI", HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };
