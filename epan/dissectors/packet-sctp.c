@@ -11,7 +11,7 @@
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctpstrrst-01.txt
  * - http://www.ietf.org/internet-drafts/draft-ladha-sctp-nonce-02.txt
- *
+ * -  http://www.ietf.org/internet-drafts/draft-tuexen-tsvwg-sctp-sack-immediately-00.txt
  *
  * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
@@ -109,6 +109,7 @@ static int hf_data_chunk_payload_proto_id = -1;
 static int hf_data_chunk_e_bit = -1;
 static int hf_data_chunk_b_bit = -1;
 static int hf_data_chunk_u_bit = -1;
+static int hf_data_chunk_i_bit = -1;
 
 static int hf_sack_chunk_ns = -1;
 static int hf_sack_chunk_cumulative_tsn_ack = -1;
@@ -1962,7 +1963,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 #define SCTP_DATA_CHUNK_E_BIT 0x01
 #define SCTP_DATA_CHUNK_B_BIT 0x02
 #define SCTP_DATA_CHUNK_U_BIT 0x04
-
+#define SCTP_DATA_CHUNK_I_BIT 0x08
 
 /* table to hold fragmented SCTP messages */
 static GHashTable *frag_table = NULL;
@@ -2593,6 +2594,11 @@ static const true_false_string sctp_data_chunk_u_bit_value = {
   "Ordered deliviery"
 };
 
+static const true_false_string sctp_data_chunk_i_bit_value = {
+  "Send SACK immediately",
+  "Possibly delay SACK"
+};
+
 static gboolean
 dissect_data_chunk(tvbuff_t *chunk_tvb,
 				   guint16 chunk_length,
@@ -2641,6 +2647,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     proto_tree_add_item(flags_tree, hf_data_chunk_e_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
     proto_tree_add_item(flags_tree, hf_data_chunk_b_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
     proto_tree_add_item(flags_tree, hf_data_chunk_u_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
+    proto_tree_add_item(flags_tree, hf_data_chunk_i_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    NETWORK_BYTE_ORDER);
     tsn_item = proto_tree_add_item(chunk_tree, hf_data_chunk_tsn,    chunk_tvb, DATA_CHUNK_TSN_OFFSET,                 DATA_CHUNK_TSN_LENGTH,                 NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_id,         chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET,           DATA_CHUNK_STREAM_ID_LENGTH,           NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_seq_number, chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET,   DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,   NETWORK_BYTE_ORDER);
@@ -3701,6 +3708,7 @@ proto_register_sctp(void)
     { &hf_data_chunk_e_bit,                         { "E-Bit",                                       "sctp.data_e_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_e_bit_value),              SCTP_DATA_CHUNK_E_BIT,              "", HFILL } },
     { &hf_data_chunk_b_bit,                         { "B-Bit",                                       "sctp.data_b_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_b_bit_value),              SCTP_DATA_CHUNK_B_BIT,              "", HFILL } },
     { &hf_data_chunk_u_bit,                         { "U-Bit",                                       "sctp.data_u_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_u_bit_value),              SCTP_DATA_CHUNK_U_BIT,              "", HFILL } },
+    { &hf_data_chunk_i_bit,                         { "I-Bit",                                       "sctp.data_i_bit",                                      FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_i_bit_value),              SCTP_DATA_CHUNK_I_BIT,              "", HFILL } },
     { &hf_sack_chunk_ns,                            { "Nounce sum",                                  "sctp.sack_nounce_sum",                                 FT_UINT8,   BASE_DEC,  NULL,                                           SCTP_SACK_CHUNK_NS_BIT,             "", HFILL } },
     { &hf_sack_chunk_cumulative_tsn_ack,            { "Cumulative TSN ACK",                          "sctp.sack_cumulative_tsn_ack",                         FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_adv_rec_window_credit,         { "Advertised receiver window credit (a_rwnd)",  "sctp.sack_a_rwnd",                                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
