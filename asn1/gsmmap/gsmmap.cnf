@@ -47,7 +47,6 @@ CommonComponentId
 SubscriberId
 GuidanceInfo
 SS-InfoList
-SubscriberData
 #.END
 #.EXPORTS
 AddressString
