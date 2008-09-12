@@ -40,7 +40,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 
-void proto_reg_handoff_redbackli(void);
 static int proto_redbackli = -1;
 
 static int hf_redbackli_seqno = -1;		/* Sequence No */
@@ -53,7 +52,6 @@ static int hf_redbackli_unknownavp = -1;	/* Unknown AVP */
 static int ett_redbackli = -1;
 
 static dissector_handle_t ip_handle;
-static dissector_handle_t redbackli_handle;
 
 #define RB_AVP_SEQNO	1
 #define RB_AVP_LIID	2
@@ -261,6 +259,8 @@ void proto_register_redbackli(void) {
 }
 
 void proto_reg_handoff_redbackli(void) {
+	dissector_handle_t redbackli_handle;
+
 	ip_handle = find_dissector("ip");
 
 	redbackli_handle = find_dissector("redbackli");

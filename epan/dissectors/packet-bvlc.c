@@ -48,7 +48,7 @@
  * configured locally to a different value without it being considered
  * a violation of this protocol.
  */
-static guint additional_bvlc_udp_port = 0;
+static guint global_additional_bvlc_udp_port = 0;
 
 static int proto_bvlc = -1;
 static int hf_bvlc_type = -1;
@@ -415,7 +415,7 @@ proto_register_bvlc(void)
 	prefs_register_uint_preference(bvlc_module, "additional_udp_port",
 					"Additional UDP port", "Set an additional UDP port, "
 					"besides the standard X'BAC0' (47808) port.",
-					10, &additional_bvlc_udp_port);
+					10, &global_additional_bvlc_udp_port);
 
 	new_register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
@@ -428,21 +428,24 @@ proto_reg_handoff_bvlc(void)
 {
 	static int bvlc_initialized = FALSE;
 	static dissector_handle_t bvlc_handle;
-	static guint bvlc_udp_port;
+	static guint additional_bvlc_udp_port;
 	
 	if (!bvlc_initialized)
 	{
 		bvlc_handle = find_dissector("bvlc");
 		dissector_add("udp.port", 0xBAC0, bvlc_handle);
+		data_handle = find_dissector("data");
 		bvlc_initialized = TRUE;
 	}
 	else
 	{
-		dissector_delete("udp.port", bvlc_udp_port, bvlc_handle);
+		if (additional_bvlc_udp_port != 0) {
+			dissector_delete("udp.port", additional_bvlc_udp_port, bvlc_handle);
+		}
 	}
 
-	bvlc_udp_port = additional_bvlc_udp_port;
-	dissector_add("udp.port", bvlc_udp_port, bvlc_handle);
-
-	data_handle = find_dissector("data");
+	if (global_additional_bvlc_udp_port != 0) {
+		dissector_add("udp.port", global_additional_bvlc_udp_port, bvlc_handle);
+	}
+	additional_bvlc_udp_port = global_additional_bvlc_udp_port;
 }

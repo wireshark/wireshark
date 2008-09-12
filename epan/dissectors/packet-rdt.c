@@ -174,10 +174,6 @@ static gint    ett_rdt_bw_probing_flags         = -1;
 static gboolean global_rdt_register_udp_port = FALSE;
 static guint    global_rdt_udp_port = 6970;
 
-/* Also store this so can delete registered setting properly */
-static gboolean  rdt_register_udp_port = FALSE;
-static guint     rdt_udp_port = 0;
-
 void proto_register_rdt(void);
 void proto_reg_handoff_rdt(void);
 
@@ -2251,22 +2247,23 @@ void proto_register_rdt(void)
 
 void proto_reg_handoff_rdt(void)
 {
-    static int rdt_prefs_initialized = FALSE;
-
-    /* Register this dissector as one that can be selected by a
-       UDP port number. */
-    rdt_handle = find_dissector("rdt");
-    dissector_add_handle("udp.port", rdt_handle);
-
+    static gboolean rdt_prefs_initialized = FALSE;
+    /* Also store this so can delete registered setting properly */
+    static gboolean  rdt_register_udp_port;
+    static guint     rdt_udp_port;
 
     if (!rdt_prefs_initialized)
     {
+        /* Register this dissector as one that can be selected by a
+           UDP port number. */
+        rdt_handle = find_dissector("rdt");
+        dissector_add_handle("udp.port", rdt_handle);
         rdt_prefs_initialized = TRUE;
     }
     else
     {
         /* Undo any current port registrations */
-        if (rdt_register_udp_port || global_rdt_register_udp_port)
+        if (rdt_register_udp_port)
         {
             dissector_delete("udp.port", rdt_udp_port, rdt_handle);
         }

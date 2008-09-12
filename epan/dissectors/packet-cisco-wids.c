@@ -55,7 +55,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-static guint udp_port = 0;
+static guint global_udp_port = 0;
 
 static int proto_cwids = -1;
 static int hf_cwids_version = -1;
@@ -190,18 +190,30 @@ proto_register_cwids(void)
 	prefs_register_uint_preference(cwids_module, "udp.port",
 		"CWIDS port",
 		"Set the destination UDP port Cisco wireless IDS messages",
-		10, &udp_port);
+		10, &global_udp_port);
 
 }
 
 void
 proto_reg_handoff_cwids(void)
 {
-	dissector_handle_t cwids_handle;
+	static dissector_handle_t cwids_handle;
+	static guint saved_udp_port;
+	static gboolean initialized = FALSE;
 
-	ieee80211_handle = find_dissector("wlan");
-
-	cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
-	dissector_add("udp.port", udp_port, cwids_handle);
+	if (!initialized) {
+		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
+		dissector_add_handle("udp.port", cwids_handle);
+		ieee80211_handle = find_dissector("wlan");
+		initialized = TRUE;
+	} else {
+		if (saved_udp_port != 0) {
+			dissector_delete("udp.port", saved_udp_port, cwids_handle);
+		}
+	}
+	if (global_udp_port != 0) {
+		dissector_add("udp.port", global_udp_port, cwids_handle);
+	}
+	saved_udp_port = global_udp_port;
 }
 
