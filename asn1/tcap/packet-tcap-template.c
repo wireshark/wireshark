@@ -104,7 +104,6 @@ static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
-static int dissect_tcap_ANSI_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 
 static GHashTable* ansi_sub_dissectors = NULL;
@@ -650,57 +649,6 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   return offset;
 }
 
-/*
- * Call ANSI Subdissector to decode the Tcap Component
- */
-static int
-dissect_tcap_ANSI_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
-{
-  dissector_handle_t subdissector_handle;
-  gboolean is_subdissector=FALSE;
-  struct tcaphash_context_t * p_tcap_context=NULL;
-
-  gchar str[20];
-
-
-  /*
-   * Handle The TCAP Service Response Time
-   */
-  if ( gtcap_HandleSRT ) {
-    if (!tcap_subdissector_used) {
-      p_tcap_context=tcapsrt_call_matching(tvb, actx->pinfo, tcap_stat_tree, gp_tcapsrt_info);
-      tcap_subdissector_used=TRUE;
-      gp_tcap_context=p_tcap_context;
-      tcap_private.context=p_tcap_context;
-    } else {
-      /* Take the last TCAP context */
-      p_tcap_context = gp_tcap_context;
-      tcap_private.context=p_tcap_context;
-    }
-  }
-
-  if (p_tcap_context) {
-    /* tcap_private.TransactionID_str =  bytes_to_str(&(p_tcap_context->session_id),4); */
-    g_snprintf(str, sizeof(str), "(%d)",p_tcap_context->session_id);
-    tcap_private.TransactionID_str = str;
-  }
-
-  if ( (subdissector_handle
-	= get_ansi_tcap_subdissector(actx->pinfo->match_port))) {
-    /* Found according to SSN */
-    is_subdissector=TRUE;
-  } else {
-    /* Nothing found, take the Data handler */
-    subdissector_handle = data_handle;
-    is_subdissector=TRUE;
-  } /* SSN */
-
-  /* Call the sub dissector if present, and not already called */
-  if (is_subdissector)
-    call_dissector(subdissector_handle, tvb, actx->pinfo, tree);
-
-  return offset;
-}
 
 static int
 dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)

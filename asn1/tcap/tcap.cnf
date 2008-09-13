@@ -140,38 +140,6 @@ dissect_tcap_TheExternUserInfo(implicit_tag, next_tvb, 0, actx, tcap_top_tree, h
 return comp_offset+len;
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY ANSIParameters
-/* we are doing the ParamSet here so need to look at the tags*/
-	guint32 len;
-len = tvb_length_remaining(tvb, offset);
-if (len > 2)  /* arghhh I dont know whether this is constructed or not! */
-		offset = dissect_tcap_param(actx,tree,tvb,offset);
-else
-offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, 0, hf_index,
-                                    NULL);
-
-#----------------------------------------------------------------------------------------
-#.FN_BODY ComponentPDU
-tvbuff_t	*next_tvb;
-gint8 class;
-gboolean pc;
-gint tag;
-guint32 len, comp_offset;
-gint ind_field;
-
-comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
-/* we can believe the length now */
-next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
-
-if (!next_tvb)
-  return offset;
-
-%(DEFAULT_BODY)s
-
-dissect_tcap_ANSI_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
-
-#----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len, i;
@@ -279,14 +247,6 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 #.FN_HDR Abort
 gp_tcapsrt_info->ope=TC_ABORT;
-
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
-#.END
-
-
-#.FN_HDR AbortPDU
-gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
