@@ -43,6 +43,10 @@ EXTRA_DIST = \
 SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
+	DialoguePDUs.asn \
+	TCAPMessages.asn \
+	TC-Notation-Extensions.asn \
+	UnidialoguePDUs.asn
 
 A2W_FLAGS= -b 
 
