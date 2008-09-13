@@ -43,14 +43,14 @@ Applicationcontext ::= OBJECT IDENTIFIER
 AARQ-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE { 
 	protocol-versionrq				[0] IMPLICIT BIT STRING { version1 (0) }
 											DEFAULT { version1 },
-	application-context-name		[1] Applicationcontext,
-	user-information				[30] IMPLICIT User-information
-								OPTIONAL }
+	application-context-name		[1] OBJECT IDENTIFIER,
+  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
+}
 
 AARE-apdu ::= [APPLICATION 1]		IMPLICIT SEQUENCE {
 	protocol-versionre				[0] IMPLICIT BIT STRING { version1 (0) }
 								DEFAULT { version1 },
-	application-context-name		[1] Applicationcontext,
+	application-context-name		[1] OBJECT IDENTIFIER,
 	result							[2] Associate-result,
 	result-source-diagnostic		[3] Associate-source-diagnostic,
 	user-information				[30] IMPLICIT  User-information
@@ -111,31 +111,6 @@ Release-request-reason ::= INTEGER {	normal (0),
 Release-response-reason ::= INTEGER { normal (0),
 						not-finished (1),
 						user-defined (30) }
---END 
-
-
---UnidialoguePDUs { ccitt recommendation q 773 modules (2) unidialoguePDUs (3) version1 (1) }
-
---DEFINITIONS ::=
-
---BEGIN
-
---EXPORTS							uniDialogue-as-id, UniDialoguePDU;
-
--- Abstract syntax name for unstructured dialogue APDUs
-
-uniDialogue-as-id OBJECT IDENTIFIER	::=	{ ccitt recommendation q 773 as (1)
-										   unidialogue-as (2) version1 (1) }
-
-UniDialoguePDU ::= CHOICE { unidialoguePDU		AUDT-apdu }
-
-AUDT-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE {
-	protocol-version3					[0] IMPLICIT BIT STRING {version1 (0) }
-										DEFAULT { version1 },
-	application-context-name				[1] Applicationcontext,
-	user-information					[30] IMPLICIT User-information
-										OPTIONAL }
-
 END 
 
 

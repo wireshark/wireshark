@@ -5,6 +5,8 @@
 #.OMIT_ASSIGNMENT
 RLRQ-apdu
 RLRE-apdu
+Release-request-reason
+Release-response-reason
 #.END
 
 #.MODULE_IMPORT
@@ -23,8 +25,26 @@ UniDialoguePDU B "0.0.17.773.1.2.1"  "uniDialogue-as-id"
 #.NO_EMIT
 
 #.TYPE_RENAME
+AARE-apdu/_untag/application-context-name AARE_application_context_name
+AARQ-apdu/_untag/application-context-name AARQ_application_context_name
+AUDT-apdu/_untag/application-context-name AUDT_application_context_name
+
+AARQ-apdu/_untag/user-information AARQ_user_information
+AARE-apdu/_untag/user-information AARE_user_information
+ABRT-apdu/_untag/user-information ABRT_user_information
+AUDT-apdu/_untag/user-information AUDT_user_information
 
 #.FIELD_RENAME
+AARQ-apdu/_untag/application-context-name aarq_application_context_name
+AARE-apdu/_untag/application-context-name aare_application_context_name
+AUDT-apdu/_untag/application-context-name audt_application_context_name
+
+AARQ-apdu/_untag/user-information aarq_user_information
+AARE-apdu/_untag/user-information aare_user_information
+AUDT-apdu/_untag/user-information audt_user_information
+ABRT-apdu/_untag/user-information abrt_user_information
+#.END
+
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY DialogueOC
@@ -75,11 +95,21 @@ if (!next_tvb)
 /* return comp_offset+len; or return offset (will be automatically added */
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
+#.FN_BODY AUDT-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
 	tcap_private.oid= (void*) cur_oid;
 	tcap_private.acv=TRUE;
-
+#----------------------------------------------------------------------------------------
+#.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
+%(DEFAULT_BODY)s
+	tcap_private.oid= (void*) cur_oid;
+	tcap_private.acv=TRUE;
+#----------------------------------------------------------------------------------------
+#.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
+%(DEFAULT_BODY)s
+	tcap_private.oid= (void*) cur_oid;
+	tcap_private.acv=TRUE;
+#----------------------------------------------------------------------------------------
 # Do not overwrite the ApplicationContext with the UserInfoOID !
 #
 #----------------------------------------------------------------------------------------
