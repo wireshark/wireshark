@@ -25,6 +25,10 @@ UniDialoguePDU B "0.0.17.773.1.2.1"  "uniDialogue-as-id"
 #.NO_EMIT
 
 #.TYPE_RENAME
+AUDT-apdu/_untag/protocol-version AUDT_protocol_version
+AARQ-apdu/_untag/protocol-version AARQ_protocol_version
+AARE-apdu/_untag/protocol-version AARE_protocol_version
+
 AARE-apdu/_untag/application-context-name AARE_application_context_name
 AARQ-apdu/_untag/application-context-name AARQ_application_context_name
 AUDT-apdu/_untag/application-context-name AUDT_application_context_name
@@ -35,6 +39,10 @@ ABRT-apdu/_untag/user-information ABRT_user_information
 AUDT-apdu/_untag/user-information AUDT_user_information
 
 #.FIELD_RENAME
+AUDT-apdu/_untag/protocol-version audt_protocol_version
+AARQ-apdu/_untag/protocol-version aarq_protocol_version
+AARE-apdu/_untag/protocol-version aare_protocol_version
+
 AARQ-apdu/_untag/application-context-name aarq_application_context_name
 AARE-apdu/_untag/application-context-name aare_application_context_name
 AUDT-apdu/_untag/application-context-name audt_application_context_name

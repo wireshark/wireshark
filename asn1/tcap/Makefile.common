@@ -30,7 +30,8 @@ NEED_PACKET_PROTO_H = 1
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn\
-	UnidialoguePDUs.asn
+	UnidialoguePDUs.asn \
+	DialoguePDUs.asn 
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -44,7 +45,6 @@ EXTRA_DIST = \
 SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST) \
-	DialoguePDUs.asn \
 	TCAPMessages.asn \
 	TC-Notation-Extensions.asn
 

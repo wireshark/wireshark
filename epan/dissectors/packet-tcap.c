@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tcap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn UnidialoguePDUs.asn */
+/* ../../tools/asn2wrs.py -b -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
 
 /* Input file: packet-tcap-template.c */
 
@@ -72,28 +72,10 @@ int hf_tcapsrt_SessionTime=-1;
 
 /*--- Included file: packet-tcap-hf.c ---*/
 #line 1 "packet-tcap-hf.c"
-static int hf_tcap_DialoguePDU_PDU = -1;          /* DialoguePDU */
 static int hf_tcap_UniDialoguePDU_PDU = -1;       /* UniDialoguePDU */
-static int hf_tcap_dialogueRequest = -1;          /* AARQ_apdu */
-static int hf_tcap_dialogueResponse = -1;         /* AARE_apdu */
-static int hf_tcap_dialogueAbort = -1;            /* ABRT_apdu */
+static int hf_tcap_DialoguePDU_PDU = -1;          /* DialoguePDU */
 static int hf_tcap_oid = -1;                      /* OBJECT_IDENTIFIER */
 static int hf_tcap_dialog = -1;                   /* Dialog1 */
-static int hf_tcap_protocol_versionrq = -1;       /* T_protocol_versionrq */
-static int hf_tcap_aarq_application_context_name = -1;  /* AARQ_application_context_name */
-static int hf_tcap_aarq_user_information = -1;    /* AARQ_user_information */
-static int hf_tcap_aarq_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_protocol_versionre = -1;       /* T_protocol_versionre */
-static int hf_tcap_aare_application_context_name = -1;  /* AARE_application_context_name */
-static int hf_tcap_result = -1;                   /* Associate_result */
-static int hf_tcap_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
-static int hf_tcap_aare_user_information = -1;    /* AARE_user_information */
-static int hf_tcap_aare_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_abort_source = -1;             /* ABRT_source */
-static int hf_tcap_abrt_user_information = -1;    /* ABRT_user_information */
-static int hf_tcap_abrt_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_dialogue_service_user = -1;    /* T_dialogue_service_user */
-static int hf_tcap_dialogue_service_provider = -1;  /* T_dialogue_service_provider */
 static int hf_tcap_unidirectional = -1;           /* Unidirectional */
 static int hf_tcap_begin = -1;                    /* Begin */
 static int hf_tcap_end = -1;                      /* End */
@@ -131,14 +113,32 @@ static int hf_tcap_globalValue = -1;              /* OBJECT_IDENTIFIER */
 static int hf_tcap_nationaler = -1;               /* INTEGER_M32768_32767 */
 static int hf_tcap_privateer = -1;                /* INTEGER */
 static int hf_tcap_unidialoguePDU = -1;           /* AUDT_apdu */
-static int hf_tcap_protocol_version = -1;         /* T_protocol_version */
+static int hf_tcap_audt_protocol_version = -1;    /* AUDT_protocol_version */
 static int hf_tcap_audt_application_context_name = -1;  /* AUDT_application_context_name */
 static int hf_tcap_audt_user_information = -1;    /* AUDT_user_information */
 static int hf_tcap_audt_user_information_item = -1;  /* EXTERNAL */
+static int hf_tcap_dialogueRequest = -1;          /* AARQ_apdu */
+static int hf_tcap_dialogueResponse = -1;         /* AARE_apdu */
+static int hf_tcap_dialogueAbort = -1;            /* ABRT_apdu */
+static int hf_tcap_aarq_protocol_version = -1;    /* AARQ_protocol_version */
+static int hf_tcap_aarq_application_context_name = -1;  /* AARQ_application_context_name */
+static int hf_tcap_aarq_user_information = -1;    /* AARQ_user_information */
+static int hf_tcap_aarq_user_information_item = -1;  /* EXTERNAL */
+static int hf_tcap_aare_protocol_version = -1;    /* AARE_protocol_version */
+static int hf_tcap_aare_application_context_name = -1;  /* AARE_application_context_name */
+static int hf_tcap_result = -1;                   /* Associate_result */
+static int hf_tcap_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
+static int hf_tcap_aare_user_information = -1;    /* AARE_user_information */
+static int hf_tcap_aare_user_information_item = -1;  /* EXTERNAL */
+static int hf_tcap_abort_source = -1;             /* ABRT_source */
+static int hf_tcap_abrt_user_information = -1;    /* ABRT_user_information */
+static int hf_tcap_abrt_user_information_item = -1;  /* EXTERNAL */
+static int hf_tcap_dialogue_service_user = -1;    /* T_dialogue_service_user */
+static int hf_tcap_dialogue_service_provider = -1;  /* T_dialogue_service_provider */
 /* named bits */
-static int hf_tcap_T_protocol_versionrq_version1 = -1;
-static int hf_tcap_T_protocol_versionre_version1 = -1;
-static int hf_tcap_T_protocol_version_version1 = -1;
+static int hf_tcap_AUDT_protocol_version_version1 = -1;
+static int hf_tcap_AARQ_protocol_version_version1 = -1;
+static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
 #line 65 "packet-tcap-template.c"
@@ -160,17 +160,7 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 
 /*--- Included file: packet-tcap-ett.c ---*/
 #line 1 "packet-tcap-ett.c"
-static gint ett_tcap_DialoguePDU = -1;
 static gint ett_tcap_ExternalPDU_U = -1;
-static gint ett_tcap_AARQ_apdu_U = -1;
-static gint ett_tcap_T_protocol_versionrq = -1;
-static gint ett_tcap_AARQ_user_information = -1;
-static gint ett_tcap_AARE_apdu_U = -1;
-static gint ett_tcap_T_protocol_versionre = -1;
-static gint ett_tcap_AARE_user_information = -1;
-static gint ett_tcap_ABRT_apdu_U = -1;
-static gint ett_tcap_ABRT_user_information = -1;
-static gint ett_tcap_Associate_source_diagnostic = -1;
 static gint ett_tcap_TCMessage = -1;
 static gint ett_tcap_Unidirectional = -1;
 static gint ett_tcap_Begin = -1;
@@ -192,8 +182,18 @@ static gint ett_tcap_ERROR = -1;
 static gint ett_tcap_ErrorCode = -1;
 static gint ett_tcap_UniDialoguePDU = -1;
 static gint ett_tcap_AUDT_apdu_U = -1;
-static gint ett_tcap_T_protocol_version = -1;
+static gint ett_tcap_AUDT_protocol_version = -1;
 static gint ett_tcap_AUDT_user_information = -1;
+static gint ett_tcap_DialoguePDU = -1;
+static gint ett_tcap_AARQ_apdu_U = -1;
+static gint ett_tcap_AARQ_protocol_version = -1;
+static gint ett_tcap_AARQ_user_information = -1;
+static gint ett_tcap_AARE_apdu_U = -1;
+static gint ett_tcap_AARE_protocol_version = -1;
+static gint ett_tcap_AARE_user_information = -1;
+static gint ett_tcap_ABRT_apdu_U = -1;
+static gint ett_tcap_ABRT_user_information = -1;
+static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
 #line 81 "packet-tcap-template.c"
@@ -263,303 +263,6 @@ dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
 /*--- Included file: packet-tcap-fn.c ---*/
 #line 1 "packet-tcap-fn.c"
 
-static const asn_namedbit T_protocol_versionrq_bits[] = {
-  {  0, &hf_tcap_T_protocol_versionrq_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
-};
-
-static int
-dissect_tcap_T_protocol_versionrq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_protocol_versionrq_bits, hf_index, ett_tcap_T_protocol_versionrq,
-                                    NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "tcap.cnf"
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
-
-	tcap_private.oid= (void*) cur_oid;
-	tcap_private.acv=TRUE;
-
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AARQ_user_information_sequence_of[1] = {
-  { &hf_tcap_aarq_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
-};
-
-static int
-dissect_tcap_AARQ_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AARQ_user_information_sequence_of, hf_index, ett_tcap_AARQ_user_information);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AARQ_apdu_U_sequence[] = {
-  { &hf_tcap_protocol_versionrq, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_versionrq },
-  { &hf_tcap_aarq_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_AARQ_application_context_name },
-  { &hf_tcap_aarq_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARQ_user_information },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_AARQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AARQ_apdu_U_sequence, hf_index, ett_tcap_AARQ_apdu_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AARQ_apdu_U);
-
-  return offset;
-}
-
-
-static const asn_namedbit T_protocol_versionre_bits[] = {
-  {  0, &hf_tcap_T_protocol_versionre_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
-};
-
-static int
-dissect_tcap_T_protocol_versionre(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_protocol_versionre_bits, hf_index, ett_tcap_T_protocol_versionre,
-                                    NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "tcap.cnf"
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
-
-	tcap_private.oid= (void*) cur_oid;
-	tcap_private.acv=TRUE;
-
-
-  return offset;
-}
-
-
-static const value_string tcap_Associate_result_vals[] = {
-  {   0, "accepted" },
-  {   1, "reject-permanent" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tcap_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const value_string tcap_T_dialogue_service_user_vals[] = {
-  {   0, "null" },
-  {   1, "no-reason-given" },
-  {   2, "application-context-name-not-supported" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tcap_T_dialogue_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const value_string tcap_T_dialogue_service_provider_vals[] = {
-  {   0, "null" },
-  {   1, "no-reason-given" },
-  {   2, "no-common-dialogue-portion" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tcap_T_dialogue_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const value_string tcap_Associate_source_diagnostic_vals[] = {
-  {   1, "dialogue-service-user" },
-  {   2, "dialogue-service-provider" },
-  { 0, NULL }
-};
-
-static const ber_choice_t Associate_source_diagnostic_choice[] = {
-  {   1, &hf_tcap_dialogue_service_user, BER_CLASS_CON, 1, 0, dissect_tcap_T_dialogue_service_user },
-  {   2, &hf_tcap_dialogue_service_provider, BER_CLASS_CON, 2, 0, dissect_tcap_T_dialogue_service_provider },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Associate_source_diagnostic_choice, hf_index, ett_tcap_Associate_source_diagnostic,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AARE_user_information_sequence_of[1] = {
-  { &hf_tcap_aare_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
-};
-
-static int
-dissect_tcap_AARE_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AARE_user_information_sequence_of, hf_index, ett_tcap_AARE_user_information);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AARE_apdu_U_sequence[] = {
-  { &hf_tcap_protocol_versionre, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_versionre },
-  { &hf_tcap_aare_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_AARE_application_context_name },
-  { &hf_tcap_result         , BER_CLASS_CON, 2, 0, dissect_tcap_Associate_result },
-  { &hf_tcap_result_source_diagnostic, BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_tcap_Associate_source_diagnostic },
-  { &hf_tcap_aare_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARE_user_information },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_AARE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AARE_apdu_U_sequence, hf_index, ett_tcap_AARE_apdu_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_tcap_AARE_apdu_U);
-
-  return offset;
-}
-
-
-static const value_string tcap_ABRT_source_vals[] = {
-  {   0, "dialogue-service-user" },
-  {   1, "dialogue-service-provider" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tcap_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ABRT_user_information_sequence_of[1] = {
-  { &hf_tcap_abrt_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
-};
-
-static int
-dissect_tcap_ABRT_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ABRT_user_information_sequence_of, hf_index, ett_tcap_ABRT_user_information);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ABRT_apdu_U_sequence[] = {
-  { &hf_tcap_abort_source   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_ABRT_source },
-  { &hf_tcap_abrt_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_ABRT_user_information },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ABRT_apdu_U_sequence, hf_index, ett_tcap_ABRT_apdu_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_tcap_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_tcap_ABRT_apdu_U);
-
-  return offset;
-}
-
-
-const value_string tcap_DialoguePDU_vals[] = {
-  {   0, "dialogueRequest" },
-  {   1, "dialogueResponse" },
-  {   4, "dialogueAbort" },
-  { 0, NULL }
-};
-
-static const ber_choice_t DialoguePDU_choice[] = {
-  {   0, &hf_tcap_dialogueRequest, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_tcap_AARQ_apdu },
-  {   1, &hf_tcap_dialogueResponse, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_tcap_AARE_apdu },
-  {   4, &hf_tcap_dialogueAbort  , BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_tcap_ABRT_apdu },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-int
-dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 DialoguePDU_choice, hf_index, ett_tcap_DialoguePDU,
-                                 NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -572,7 +275,7 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "tcap.cnf"
+#line 69 "tcap.cnf"
 
 return dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 
@@ -600,7 +303,7 @@ dissect_tcap_ExternalPDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "tcap.cnf"
+#line 64 "tcap.cnf"
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_ExternalPDU_U);
@@ -614,17 +317,8 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "tcap.cnf"
+#line 59 "tcap.cnf"
 
 return dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
@@ -689,7 +383,7 @@ dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "tcap.cnf"
+#line 74 "tcap.cnf"
 
 return dissect_tcap_param(actx,tree,tvb,offset);
 
@@ -961,7 +655,7 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "tcap.cnf"
+#line 79 "tcap.cnf"
 tvbuff_t	*next_tvb;
 gint8 class;
 gboolean pc;
@@ -1043,7 +737,7 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "tcap.cnf"
+#line 117 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len, i;
 proto_item *tid_item;
@@ -1096,7 +790,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "tcap.cnf"
+#line 191 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -1119,7 +813,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 148 "tcap.cnf"
+#line 156 "tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 proto_item *tid_item;
@@ -1169,7 +863,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 198 "tcap.cnf"
+#line 206 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1192,7 +886,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 206 "tcap.cnf"
+#line 214 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1264,7 +958,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 214 "tcap.cnf"
+#line 222 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1327,15 +1021,15 @@ dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const asn_namedbit T_protocol_version_bits[] = {
-  {  0, &hf_tcap_T_protocol_version_version1, -1, -1, "version1", NULL },
+static const asn_namedbit AUDT_protocol_version_bits[] = {
+  {  0, &hf_tcap_AUDT_protocol_version_version1, -1, -1, "version1", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
 static int
-dissect_tcap_T_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcap_AUDT_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_protocol_version_bits, hf_index, ett_tcap_T_protocol_version,
+                                    AUDT_protocol_version_bits, hf_index, ett_tcap_AUDT_protocol_version,
                                     NULL);
 
   return offset;
@@ -1345,12 +1039,21 @@ dissect_tcap_T_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_tcap_AUDT_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "tcap.cnf"
+#line 102 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
 	tcap_private.oid= (void*) cur_oid;
 	tcap_private.acv=TRUE;
 
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
 
   return offset;
 }
@@ -1370,7 +1073,7 @@ dissect_tcap_AUDT_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static const ber_sequence_t AUDT_apdu_U_sequence[] = {
-  { &hf_tcap_protocol_version, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_version },
+  { &hf_tcap_audt_protocol_version, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AUDT_protocol_version },
   { &hf_tcap_audt_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_AUDT_application_context_name },
   { &hf_tcap_audt_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AUDT_user_information },
   { NULL, 0, 0, 0, NULL }
@@ -1414,17 +1117,305 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   return offset;
 }
 
+
+static const asn_namedbit AARQ_protocol_version_bits[] = {
+  {  0, &hf_tcap_AARQ_protocol_version_version1, -1, -1, "version1", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_tcap_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    AARQ_protocol_version_bits, hf_index, ett_tcap_AARQ_protocol_version,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 107 "tcap.cnf"
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
+
+	tcap_private.oid= (void*) cur_oid;
+	tcap_private.acv=TRUE;
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t AARQ_user_information_sequence_of[1] = {
+  { &hf_tcap_aarq_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
+};
+
+static int
+dissect_tcap_AARQ_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AARQ_user_information_sequence_of, hf_index, ett_tcap_AARQ_user_information);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AARQ_apdu_U_sequence[] = {
+  { &hf_tcap_aarq_protocol_version, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARQ_protocol_version },
+  { &hf_tcap_aarq_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_AARQ_application_context_name },
+  { &hf_tcap_aarq_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARQ_user_information },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_tcap_AARQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AARQ_apdu_U_sequence, hf_index, ett_tcap_AARQ_apdu_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AARQ_apdu_U);
+
+  return offset;
+}
+
+
+static const asn_namedbit AARE_protocol_version_bits[] = {
+  {  0, &hf_tcap_AARE_protocol_version_version1, -1, -1, "version1", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_tcap_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    AARE_protocol_version_bits, hf_index, ett_tcap_AARE_protocol_version,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 112 "tcap.cnf"
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
+
+	tcap_private.oid= (void*) cur_oid;
+	tcap_private.acv=TRUE;
+
+
+  return offset;
+}
+
+
+static const value_string tcap_Associate_result_vals[] = {
+  {   0, "accepted" },
+  {   1, "reject-permanent" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_tcap_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string tcap_T_dialogue_service_user_vals[] = {
+  {   0, "null" },
+  {   1, "no-reason-given" },
+  {   2, "application-context-name-not-supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_tcap_T_dialogue_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string tcap_T_dialogue_service_provider_vals[] = {
+  {   0, "null" },
+  {   1, "no-reason-given" },
+  {   2, "no-common-dialogue-portion" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_tcap_T_dialogue_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string tcap_Associate_source_diagnostic_vals[] = {
+  {   1, "dialogue-service-user" },
+  {   2, "dialogue-service-provider" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Associate_source_diagnostic_choice[] = {
+  {   1, &hf_tcap_dialogue_service_user, BER_CLASS_CON, 1, 0, dissect_tcap_T_dialogue_service_user },
+  {   2, &hf_tcap_dialogue_service_provider, BER_CLASS_CON, 2, 0, dissect_tcap_T_dialogue_service_provider },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_tcap_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Associate_source_diagnostic_choice, hf_index, ett_tcap_Associate_source_diagnostic,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AARE_user_information_sequence_of[1] = {
+  { &hf_tcap_aare_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
+};
+
+static int
+dissect_tcap_AARE_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AARE_user_information_sequence_of, hf_index, ett_tcap_AARE_user_information);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AARE_apdu_U_sequence[] = {
+  { &hf_tcap_aare_protocol_version, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARE_protocol_version },
+  { &hf_tcap_aare_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_AARE_application_context_name },
+  { &hf_tcap_result         , BER_CLASS_CON, 2, 0, dissect_tcap_Associate_result },
+  { &hf_tcap_result_source_diagnostic, BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_tcap_Associate_source_diagnostic },
+  { &hf_tcap_aare_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_AARE_user_information },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_tcap_AARE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AARE_apdu_U_sequence, hf_index, ett_tcap_AARE_apdu_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_tcap_AARE_apdu_U);
+
+  return offset;
+}
+
+
+static const value_string tcap_ABRT_source_vals[] = {
+  {   0, "dialogue-service-user" },
+  {   1, "dialogue-service-provider" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_tcap_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ABRT_user_information_sequence_of[1] = {
+  { &hf_tcap_abrt_user_information_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_tcap_EXTERNAL },
+};
+
+static int
+dissect_tcap_ABRT_user_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ABRT_user_information_sequence_of, hf_index, ett_tcap_ABRT_user_information);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ABRT_apdu_U_sequence[] = {
+  { &hf_tcap_abort_source   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_ABRT_source },
+  { &hf_tcap_abrt_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_ABRT_user_information },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_tcap_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ABRT_apdu_U_sequence, hf_index, ett_tcap_ABRT_apdu_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_tcap_ABRT_apdu_U);
+
+  return offset;
+}
+
+
+const value_string tcap_DialoguePDU_vals[] = {
+  {   0, "dialogueRequest" },
+  {   1, "dialogueResponse" },
+  {   4, "dialogueAbort" },
+  { 0, NULL }
+};
+
+static const ber_choice_t DialoguePDU_choice[] = {
+  {   0, &hf_tcap_dialogueRequest, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_tcap_AARQ_apdu },
+  {   1, &hf_tcap_dialogueResponse, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_tcap_AARE_apdu },
+  {   4, &hf_tcap_dialogueAbort  , BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_tcap_ABRT_apdu },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DialoguePDU_choice, hf_index, ett_tcap_DialoguePDU,
+                                 NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
-static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_tcap_DialoguePDU(FALSE, tvb, 0, &asn1_ctx, tree, hf_tcap_DialoguePDU_PDU);
-}
 static void dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_tcap_UniDialoguePDU(FALSE, tvb, 0, &asn1_ctx, tree, hf_tcap_UniDialoguePDU_PDU);
+}
+static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_tcap_DialoguePDU(FALSE, tvb, 0, &asn1_ctx, tree, hf_tcap_DialoguePDU_PDU);
 }
 
 
@@ -1617,26 +1608,14 @@ proto_register_tcap(void)
 
 /*--- Included file: packet-tcap-hfarr.c ---*/
 #line 1 "packet-tcap-hfarr.c"
-    { &hf_tcap_DialoguePDU_PDU,
-      { "DialoguePDU", "tcap.DialoguePDU",
-        FT_UINT32, BASE_DEC, VALS(tcap_DialoguePDU_vals), 0,
-        "tcap.DialoguePDU", HFILL }},
     { &hf_tcap_UniDialoguePDU_PDU,
       { "UniDialoguePDU", "tcap.UniDialoguePDU",
         FT_UINT32, BASE_DEC, VALS(tcap_UniDialoguePDU_vals), 0,
         "tcap.UniDialoguePDU", HFILL }},
-    { &hf_tcap_dialogueRequest,
-      { "dialogueRequest", "tcap.dialogueRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.AARQ_apdu", HFILL }},
-    { &hf_tcap_dialogueResponse,
-      { "dialogueResponse", "tcap.dialogueResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.AARE_apdu", HFILL }},
-    { &hf_tcap_dialogueAbort,
-      { "dialogueAbort", "tcap.dialogueAbort",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.ABRT_apdu", HFILL }},
+    { &hf_tcap_DialoguePDU_PDU,
+      { "DialoguePDU", "tcap.DialoguePDU",
+        FT_UINT32, BASE_DEC, VALS(tcap_DialoguePDU_vals), 0,
+        "tcap.DialoguePDU", HFILL }},
     { &hf_tcap_oid,
       { "oid", "tcap.oid",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1645,66 +1624,6 @@ proto_register_tcap(void)
       { "dialog", "tcap.dialog",
         FT_BYTES, BASE_HEX, NULL, 0,
         "tcap.Dialog1", HFILL }},
-    { &hf_tcap_protocol_versionrq,
-      { "protocol-versionrq", "tcap.protocol_versionrq",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "tcap.T_protocol_versionrq", HFILL }},
-    { &hf_tcap_aarq_application_context_name,
-      { "application-context-name", "tcap.application_context_name",
-        FT_OID, BASE_NONE, NULL, 0,
-        "tcap.AARQ_application_context_name", HFILL }},
-    { &hf_tcap_aarq_user_information,
-      { "user-information", "tcap.user_information",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "tcap.AARQ_user_information", HFILL }},
-    { &hf_tcap_aarq_user_information_item,
-      { "Item", "tcap.user_information_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.EXTERNAL", HFILL }},
-    { &hf_tcap_protocol_versionre,
-      { "protocol-versionre", "tcap.protocol_versionre",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "tcap.T_protocol_versionre", HFILL }},
-    { &hf_tcap_aare_application_context_name,
-      { "application-context-name", "tcap.application_context_name",
-        FT_OID, BASE_NONE, NULL, 0,
-        "tcap.AARE_application_context_name", HFILL }},
-    { &hf_tcap_result,
-      { "result", "tcap.result",
-        FT_INT32, BASE_DEC, VALS(tcap_Associate_result_vals), 0,
-        "tcap.Associate_result", HFILL }},
-    { &hf_tcap_result_source_diagnostic,
-      { "result-source-diagnostic", "tcap.result_source_diagnostic",
-        FT_UINT32, BASE_DEC, VALS(tcap_Associate_source_diagnostic_vals), 0,
-        "tcap.Associate_source_diagnostic", HFILL }},
-    { &hf_tcap_aare_user_information,
-      { "user-information", "tcap.user_information",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "tcap.AARE_user_information", HFILL }},
-    { &hf_tcap_aare_user_information_item,
-      { "Item", "tcap.user_information_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.EXTERNAL", HFILL }},
-    { &hf_tcap_abort_source,
-      { "abort-source", "tcap.abort_source",
-        FT_INT32, BASE_DEC, VALS(tcap_ABRT_source_vals), 0,
-        "tcap.ABRT_source", HFILL }},
-    { &hf_tcap_abrt_user_information,
-      { "user-information", "tcap.user_information",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "tcap.ABRT_user_information", HFILL }},
-    { &hf_tcap_abrt_user_information_item,
-      { "Item", "tcap.user_information_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.EXTERNAL", HFILL }},
-    { &hf_tcap_dialogue_service_user,
-      { "dialogue-service-user", "tcap.dialogue_service_user",
-        FT_INT32, BASE_DEC, VALS(tcap_T_dialogue_service_user_vals), 0,
-        "tcap.T_dialogue_service_user", HFILL }},
-    { &hf_tcap_dialogue_service_provider,
-      { "dialogue-service-provider", "tcap.dialogue_service_provider",
-        FT_INT32, BASE_DEC, VALS(tcap_T_dialogue_service_provider_vals), 0,
-        "tcap.T_dialogue_service_provider", HFILL }},
     { &hf_tcap_unidirectional,
       { "unidirectional", "tcap.unidirectional",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1853,10 +1772,10 @@ proto_register_tcap(void)
       { "unidialoguePDU", "tcap.unidialoguePDU",
         FT_NONE, BASE_NONE, NULL, 0,
         "tcap.AUDT_apdu", HFILL }},
-    { &hf_tcap_protocol_version,
+    { &hf_tcap_audt_protocol_version,
       { "protocol-version", "tcap.protocol_version",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "tcap.T_protocol_version", HFILL }},
+        "tcap.AUDT_protocol_version", HFILL }},
     { &hf_tcap_audt_application_context_name,
       { "application-context-name", "tcap.application_context_name",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1869,15 +1788,87 @@ proto_register_tcap(void)
       { "Item", "tcap.user_information_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "tcap.EXTERNAL", HFILL }},
-    { &hf_tcap_T_protocol_versionrq_version1,
+    { &hf_tcap_dialogueRequest,
+      { "dialogueRequest", "tcap.dialogueRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.AARQ_apdu", HFILL }},
+    { &hf_tcap_dialogueResponse,
+      { "dialogueResponse", "tcap.dialogueResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.AARE_apdu", HFILL }},
+    { &hf_tcap_dialogueAbort,
+      { "dialogueAbort", "tcap.dialogueAbort",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.ABRT_apdu", HFILL }},
+    { &hf_tcap_aarq_protocol_version,
+      { "protocol-version", "tcap.protocol_version",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "tcap.AARQ_protocol_version", HFILL }},
+    { &hf_tcap_aarq_application_context_name,
+      { "application-context-name", "tcap.application_context_name",
+        FT_OID, BASE_NONE, NULL, 0,
+        "tcap.AARQ_application_context_name", HFILL }},
+    { &hf_tcap_aarq_user_information,
+      { "user-information", "tcap.user_information",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "tcap.AARQ_user_information", HFILL }},
+    { &hf_tcap_aarq_user_information_item,
+      { "Item", "tcap.user_information_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.EXTERNAL", HFILL }},
+    { &hf_tcap_aare_protocol_version,
+      { "protocol-version", "tcap.protocol_version",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "tcap.AARE_protocol_version", HFILL }},
+    { &hf_tcap_aare_application_context_name,
+      { "application-context-name", "tcap.application_context_name",
+        FT_OID, BASE_NONE, NULL, 0,
+        "tcap.AARE_application_context_name", HFILL }},
+    { &hf_tcap_result,
+      { "result", "tcap.result",
+        FT_INT32, BASE_DEC, VALS(tcap_Associate_result_vals), 0,
+        "tcap.Associate_result", HFILL }},
+    { &hf_tcap_result_source_diagnostic,
+      { "result-source-diagnostic", "tcap.result_source_diagnostic",
+        FT_UINT32, BASE_DEC, VALS(tcap_Associate_source_diagnostic_vals), 0,
+        "tcap.Associate_source_diagnostic", HFILL }},
+    { &hf_tcap_aare_user_information,
+      { "user-information", "tcap.user_information",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "tcap.AARE_user_information", HFILL }},
+    { &hf_tcap_aare_user_information_item,
+      { "Item", "tcap.user_information_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.EXTERNAL", HFILL }},
+    { &hf_tcap_abort_source,
+      { "abort-source", "tcap.abort_source",
+        FT_INT32, BASE_DEC, VALS(tcap_ABRT_source_vals), 0,
+        "tcap.ABRT_source", HFILL }},
+    { &hf_tcap_abrt_user_information,
+      { "user-information", "tcap.user_information",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "tcap.ABRT_user_information", HFILL }},
+    { &hf_tcap_abrt_user_information_item,
+      { "Item", "tcap.user_information_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "tcap.EXTERNAL", HFILL }},
+    { &hf_tcap_dialogue_service_user,
+      { "dialogue-service-user", "tcap.dialogue_service_user",
+        FT_INT32, BASE_DEC, VALS(tcap_T_dialogue_service_user_vals), 0,
+        "tcap.T_dialogue_service_user", HFILL }},
+    { &hf_tcap_dialogue_service_provider,
+      { "dialogue-service-provider", "tcap.dialogue_service_provider",
+        FT_INT32, BASE_DEC, VALS(tcap_T_dialogue_service_provider_vals), 0,
+        "tcap.T_dialogue_service_provider", HFILL }},
+    { &hf_tcap_AUDT_protocol_version_version1,
       { "version1", "tcap.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_tcap_T_protocol_versionre_version1,
+    { &hf_tcap_AARQ_protocol_version_version1,
       { "version1", "tcap.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
-    { &hf_tcap_T_protocol_version_version1,
+    { &hf_tcap_AARE_protocol_version_version1,
       { "version1", "tcap.version1",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
@@ -1896,17 +1887,7 @@ proto_register_tcap(void)
 
 /*--- Included file: packet-tcap-ettarr.c ---*/
 #line 1 "packet-tcap-ettarr.c"
-    &ett_tcap_DialoguePDU,
     &ett_tcap_ExternalPDU_U,
-    &ett_tcap_AARQ_apdu_U,
-    &ett_tcap_T_protocol_versionrq,
-    &ett_tcap_AARQ_user_information,
-    &ett_tcap_AARE_apdu_U,
-    &ett_tcap_T_protocol_versionre,
-    &ett_tcap_AARE_user_information,
-    &ett_tcap_ABRT_apdu_U,
-    &ett_tcap_ABRT_user_information,
-    &ett_tcap_Associate_source_diagnostic,
     &ett_tcap_TCMessage,
     &ett_tcap_Unidirectional,
     &ett_tcap_Begin,
@@ -1928,8 +1909,18 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
     &ett_tcap_UniDialoguePDU,
     &ett_tcap_AUDT_apdu_U,
-    &ett_tcap_T_protocol_version,
+    &ett_tcap_AUDT_protocol_version,
     &ett_tcap_AUDT_user_information,
+    &ett_tcap_DialoguePDU,
+    &ett_tcap_AARQ_apdu_U,
+    &ett_tcap_AARQ_protocol_version,
+    &ett_tcap_AARQ_user_information,
+    &ett_tcap_AARE_apdu_U,
+    &ett_tcap_AARE_protocol_version,
+    &ett_tcap_AARE_user_information,
+    &ett_tcap_ABRT_apdu_U,
+    &ett_tcap_ABRT_user_information,
+    &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
 #line 331 "packet-tcap-template.c"

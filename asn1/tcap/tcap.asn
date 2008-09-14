@@ -1,25 +1,12 @@
 -- $Id$
-DialoguePDUs { ccitt recommendation q 773 modules (2) dialoguePDUs(2) version1 (1) }
+TCAPMessages {itu-t recommendation q 773 modules(2) messages(1) version3(3)}
 
-DEFINITIONS ::=
+DEFINITIONS  ::=
 
-BEGIN
+BEGIN 
 
-EXPORTS		dialogue-as-id, DialoguePDU;
-
--- abstract syntax name for structured dialogue APDUs
-
-
-
-dialogue-as-id OBJECT IDENTIFIER		::=	{ ccitt recommendation q 773 as (1)
-								  dialogue-as (1) version1 (1) }
-
-DialoguePDU ::= 	CHOICE {
-							dialogueRequest	    AARQ-apdu,
-							dialogueResponse	AARE-apdu,
-							dialogueAbort		ABRT-apdu }
-
-
+--EXPORTS		     OPERATION, ERROR, Component, InvokeId Type;
+-- WS stuff
 ExternalPDU ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
 					{
 					oid OBJECT IDENTIFIER,
@@ -28,91 +15,7 @@ ExternalPDU ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
 					
 							
 Dialog1 ::= OCTET STRING
-
-Applicationcontext ::= OBJECT IDENTIFIER
-
-AARQ-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE { 
-	protocol-versionrq				[0] IMPLICIT BIT STRING { version1 (0) }
-											DEFAULT { version1 },
-	application-context-name		[1] OBJECT IDENTIFIER,
-  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
-}
-
-AARE-apdu ::= [APPLICATION 1]		IMPLICIT SEQUENCE {
-	protocol-versionre				[0] IMPLICIT BIT STRING { version1 (0) }
-								DEFAULT { version1 },
-	application-context-name		[1] OBJECT IDENTIFIER,
-	result							[2] Associate-result,
-	result-source-diagnostic		[3] Associate-source-diagnostic,
-  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
-}
-
--- RLRQ PDU is currently not used.
--- It is included for completeness only.
-
-RLRQ-apdu ::= [APPLICATION 2]		IMPLICIT SEQUENCE {
-	reasonrq						[0] IMPLICIT Release-request-reason OPTIONAL,
-  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
- }
-
--- RLRE PDU is currently not used.
--- It is included for completeness only
-
-RLRE-apdu ::= [APPLICATION 3]		IMPLICIT SEQUENCE {
-	reasonre						[0] IMPLICIT Release-response-reason OPTIONAL,
-  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
- }
-
-ABRT-apdu ::= [APPLICATION 4]		IMPLICIT SEQUENCE {
-	abort-source					[0] IMPLICIT ABRT-source,
-  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
- }
-
-
-ABRT-source ::= INTEGER {			dialogue-service-user (0),
-							dialogue-service-provider (1) }
-
-Associate-result ::= INTEGER {			accepted (0),
-							reject-permanent (1) }
-
- 
-Associate-source-diagnostic ::= CHOICE {
-	dialogue-service-user	[1]	INTEGER {
-						null (0),
-						no-reason-given (1),
-						application-context-name-not-supported (2) },
-	dialogue-service-provider	[2]	INTEGER {
-						null (0),
-						no-reason-given (1),
-						no-common-dialogue-portion (2) }
-						}
-
--- Release-request-reason is currently not used.
--- It is included for completeness only.
-
-Release-request-reason ::= INTEGER {	normal (0),
-						urgent (1),
-						user-defined (30)
-						}
-
--- Release-response-reason is currently not used. 
--- It is included for completeness only.
-
-Release-response-reason ::= INTEGER { normal (0),
-						not-finished (1),
-						user-defined (30) }
-END 
-
-
-
-TCAPMessages {itu-t recommendation q 773 modules(2) messages(1) version3(3)}
-
-DEFINITIONS  ::=
-
-BEGIN 
-
---EXPORTS		     OPERATION, ERROR, Component, InvokeId Type;
-
+-- End WS
 -- Transaction Portion fields
 
 TCMessage ::= CHOICE {
