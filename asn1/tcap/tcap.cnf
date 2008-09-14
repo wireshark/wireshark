@@ -67,11 +67,6 @@ return dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 return dissect_tcap_param(actx,tree,tvb,offset);
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY User-information
-
-return dissect_tcap_UserInformation(FALSE, tvb, offset, actx, tree, -1);
-
-#----------------------------------------------------------------------------------------
 #.FN_BODY Component
 tvbuff_t	*next_tvb;
 gint8 class;
@@ -109,36 +104,6 @@ if (!next_tvb)
 %(DEFAULT_BODY)s
 	tcap_private.oid= (void*) cur_oid;
 	tcap_private.acv=TRUE;
-#----------------------------------------------------------------------------------------
-# Do not overwrite the ApplicationContext with the UserInfoOID !
-#
-#----------------------------------------------------------------------------------------
-#.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
-%(DEFAULT_BODY)s
-
-#----------------------------------------------------------------------------------------
-#.FN_BODY ExternUserInfo
-tvbuff_t	*next_tvb;
-gint8 class;
-gboolean pc;
-gint tag;
-guint32 len, comp_offset;
-gint ind_field;
-
-comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
-/* we can believe the length now */
-next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
-
-if (!next_tvb)
-  return comp_offset;
-
-%(DEFAULT_BODY)s
-
-dissect_tcap_TheExternUserInfo(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
-
-return comp_offset+len;
-
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
@@ -250,57 +215,4 @@ gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
-#.END
-
-
-#.FN_HDR TCMessage/ansiqueryWithPerm
-gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
-#.FN_HDR TCMessage/ansiqueryWithoutPerm
-gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
-#.FN_HDR TCMessage/ansiresponse
-gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "Response ");
-#.FN_HDR TCMessage/ansiconversationWithPerm
-gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
-#.FN_HDR TCMessage/ansiconversationWithoutPerm
-gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
-
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
-
-tvbuff_t *next_tvb;
-guint8 len;
-
-%(DEFAULT_BODY)s
-
-if(next_tvb) {
-	tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
-	len = tvb_length_remaining(next_tvb, 0);
-	switch(len) {
-	case 1:
-		gp_tcapsrt_info->src_tid=tvb_get_guint8(next_tvb, 0);
-		break;
-	case 2:
-		gp_tcapsrt_info->src_tid=tvb_get_ntohs(next_tvb, 0);
-		break;
-	case 4:
-		gp_tcapsrt_info->src_tid=tvb_get_ntohl(next_tvb, 0);
-		break;
-	default:
-		gp_tcapsrt_info->src_tid=0;
-		break;
-	}
-}
-
 #.END

@@ -26,17 +26,8 @@ ExternalPDU ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
 					dialog [0] IMPLICIT Dialog1 
 					}
 					
-UserInformation ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
-					{
-					useroid UserInfoOID,
-					externuserinfo [0] IMPLICIT ExternUserInfo 
-					}
-					
-ExternUserInfo  ::= OCTET STRING					
-				
+							
 Dialog1 ::= OCTET STRING
-
-UserInfoOID ::= OBJECT IDENTIFIER
 
 Applicationcontext ::= OBJECT IDENTIFIER
 
@@ -53,31 +44,30 @@ AARE-apdu ::= [APPLICATION 1]		IMPLICIT SEQUENCE {
 	application-context-name		[1] OBJECT IDENTIFIER,
 	result							[2] Associate-result,
 	result-source-diagnostic		[3] Associate-source-diagnostic,
-	user-information				[30] IMPLICIT  User-information
-								OPTIONAL }
+  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
+}
 
 -- RLRQ PDU is currently not used.
 -- It is included for completeness only.
 
 RLRQ-apdu ::= [APPLICATION 2]		IMPLICIT SEQUENCE {
 	reasonrq						[0] IMPLICIT Release-request-reason OPTIONAL,
-	user-information				[30] IMPLICIT  User-information
-								OPTIONAL }
+  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
+ }
 
 -- RLRE PDU is currently not used.
 -- It is included for completeness only
 
 RLRE-apdu ::= [APPLICATION 3]		IMPLICIT SEQUENCE {
 	reasonre						[0] IMPLICIT Release-response-reason OPTIONAL,
-	user-information				[30] IMPLICIT  User-information
-								OPTIONAL }
+  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
+ }
 
 ABRT-apdu ::= [APPLICATION 4]		IMPLICIT SEQUENCE {
 	abort-source					[0] IMPLICIT ABRT-source,
-	user-information				[30] IMPLICIT  User-information
-								OPTIONAL }
+  user-information          [30] IMPLICIT SEQUENCE OF EXTERNAL OPTIONAL
+ }
 
-User-information ::= OCTET STRING
 
 ABRT-source ::= INTEGER {			dialogue-service-user (0),
 							dialogue-service-provider (1) }
@@ -130,13 +120,7 @@ TCMessage ::= CHOICE {
 				begin						[APPLICATION 2]		IMPLICIT Begin,
 				end							[APPLICATION 4]		IMPLICIT End,
 				continue					[APPLICATION 5]		IMPLICIT Continue,
-				abort						[APPLICATION 7]		IMPLICIT Abort ,
-				-- and we now get clever making this ansi and itu!
-				ansiqueryWithPerm			[ PRIVATE 2 ] IMPLICIT TransactionPDU ,
-				ansiqueryWithoutPerm		[ PRIVATE 3 ] IMPLICIT TransactionPDU ,
-				ansiresponse				[ PRIVATE 4 ] IMPLICIT TransactionPDU ,
-				ansiconversationWithPerm	[ PRIVATE 5 ] IMPLICIT TransactionPDU ,
-				ansiconversationWithoutPerm [ PRIVATE 6 ] IMPLICIT TransactionPDU
+				abort						[APPLICATION 7]		IMPLICIT Abort
 }
 
 Unidirectional ::=	SEQUENCE{ 
@@ -351,53 +335,6 @@ ReturnErrorProblem	::=	INTEGER {		unrecognizedInvokeID (0),
 								mistypedParameter (4) }
 
 
-TransactionPDU ::= SEQUENCE
-	{
-
-		identifier TransactionID ,
-		dialoguePortionansi DialoguePortionANSI OPTIONAL 
-	}
-
---TransactionPDU should include either a Dialogue Portion , a Component Sequence or both
-
-TransactionID ::= [PRIVATE 7 ] IMPLICIT OCTET STRING
-
--- 0 (zero) Octet for Unidirectional,4 Octet for Query , Response And Abort
-
--- 8 Octet for Conversation in the order Originating then Responding TID
-
-DialoguePortionANSI ::= [ PRIVATE 25 ] IMPLICIT SEQUENCE {
-			version ProtocolVersion OPTIONAL ,
-			applicationContext [0] CHOICE {
-					integerApplicationId IntegerApplicationContext ,
-					objectApplicationId ObjectIDApplicationContext
-					} OPTIONAL ,
-		userInformation UserInformation OPTIONAL ,
-		securityContext CHOICE {
-			 integerSecurityId [ 0 ] IMPLICIT INTEGER ,
-			objectSecurityId [ 1 ] IMPLICIT OBJECT IDENTIFIER 
-		} OPTIONAL ,
-		confidentiality [ 2 ] IMPLICIT Confidentiality OPTIONAL ,
- ... }
- 
- 
-ProtocolVersion ::= [ PRIVATE 26 ] IMPLICIT OCTET STRING ( SIZE(1) )
-
-IntegerApplicationContext ::= [ PRIVATE 27 ] IMPLICIT INTEGER
-
-ObjectIDApplicationContext ::= [ PRIVATE 28 ] IMPLICIT OBJECT IDENTIFIER
-
---UserInformation ::= [ PRIVATE 29 ] IMPLICIT SEQUENCE OF EXTERNAL
-
-Confidentiality ::= SEQUENCE {
-		 confidentialityId CHOICE {
-			integerConfidentialityId [ 0 ] IMPLICIT INTEGER ,
-			objectConfidentialityId [ 1 ] IMPLICIT OBJECT IDENTIFIER
- 						} OPTIONAL ,
-		 ... }
-
---UserAbortInformation ::= [ PRIVATE 24 ] EXTERNAL
-			
 ErrorCode ::= CHOICE
 			{
 				nationaler 		[PRIVATE 19] IMPLICIT INTEGER (-32768..32767),

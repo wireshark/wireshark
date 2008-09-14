@@ -102,9 +102,7 @@ static dissector_handle_t ansi_tcap_handle;
 
 static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
-static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
-static int dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 
 static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
@@ -648,25 +646,6 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-
-
-static int
-dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
-{
-  /*
-   * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
-   */
-  ber_oid_dissector_table = find_dissector_table("ber.oid");
-
-  if (ber_oid_dissector_table && tcapext_oid){
-    if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, tvb, actx->pinfo, tree))
-      {
-	return dissect_tcap_param(actx,tree,tvb,0);
-      }
-  }
-  return offset;
-}
-
 
 void call_tcap_dissector(dissector_handle_t handle, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
