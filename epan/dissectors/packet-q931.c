@@ -1200,8 +1200,8 @@ static const value_string q931_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
-dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
+static void
+dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hf_cause_value, guint8 *cause_value)
 {
 	guint8 octet;
@@ -1357,6 +1357,16 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		    "Diagnostics: %s",
 		    tvb_bytes_to_str(tvb, offset, len));
 	}
+}
+
+void
+dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
+{
+  gboolean have_valid_q931_pi_save = have_valid_q931_pi;
+  have_valid_q931_pi = FALSE;
+  dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value);
+  have_valid_q931_pi =  have_valid_q931_pi_save;
 }
 
 /*
@@ -2815,7 +2825,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					break;
 
 				case CS0 | Q931_IE_CAUSE:
-					dissect_q931_cause_ie(tvb,
+					dissect_q931_cause_ie_unsafe(tvb,
 						offset + 2, info_element_len,
 						ie_tree,
 						hf_q931_cause_value, &dummy);
