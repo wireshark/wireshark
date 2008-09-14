@@ -4970,6 +4970,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len >= 3) {
         oui = tvb_get_ntoh24(tvb, offset + 2);
         tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
+		tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
+        proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
+			tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+        proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
 
 #define WPAWME_OUI  0x0050F2
 #define RSNOUI_VAL  0x000FAC
@@ -4992,10 +4996,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           dissect_vendor_ie_marvell(ti, tree, tvb, offset + 5, tag_len - 3);
           break;
         default:
-          tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
-          proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-            tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
-          proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
           proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,
             tag_len - 3, "Not interpreted");
           break;
