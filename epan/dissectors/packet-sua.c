@@ -369,7 +369,7 @@ dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, gui
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *sua_tree)
 {
- 
+
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
@@ -616,7 +616,7 @@ static void
 dissect_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
@@ -625,7 +625,7 @@ static void
 dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
@@ -727,7 +727,7 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
   tvbuff_t *parameters_tvb;
-  
+
   if(parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_source_address_routing_indicator, parameter_tvb, ROUTING_INDICATOR_OFFSET, ROUTING_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
     address_indicator_item = proto_tree_add_text(parameter_tree, parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, "Address Indicator");
@@ -923,7 +923,7 @@ dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
     proto_tree_add_item(parameter_tree, hf_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, NETWORK_BYTE_ORDER);
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", data_length, plurality(data_length, "", "s"));
   }
-  
+
   if(data_tvb)
   {
     *data_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length, data_length);
@@ -1005,7 +1005,7 @@ static void
 dissect_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  
+
   parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
@@ -1169,7 +1169,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 {
   guint16 global_title_length;
 
-  global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - 
+  global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
   proto_tree_add_item(parameter_tree, hf_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_gti,               parameter_tvb, GTI_OFFSET,               GTI_LENGTH,               NETWORK_BYTE_ORDER);
@@ -1366,11 +1366,11 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
   }
 
   /*
-  ** If no tree, only the data and ssn parameters in the source and destination 
+  ** If no tree, only the data and ssn parameters in the source and destination
   ** address need to be dissected. This in order to make dissection of the data
   ** possible when there is no tree.
   */
-  if (!tree && tag != V8_DATA_PARAMETER_TAG 
+  if (!tree && tag != V8_DATA_PARAMETER_TAG
             && tag != V8_SOURCE_ADDRESS_PARAMETER_TAG
             && tag != V8_DESTINATION_ADDRESS_PARAMETER_TAG
             && tag != V8_SUBSYSTEM_NUMBER_PARAMETER_TAG)
@@ -1409,7 +1409,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     break;
   case V8_AFFECTED_POINT_CODE_PARAMETER_TAG:
     dissect_affected_destinations_parameter(parameter_tvb, parameter_tree, parameter_item);
-    break;   
+    break;
   case V8_SS7_HOP_COUNTER_PARAMETER_TAG:
     dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -1642,11 +1642,11 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
   }
 
   /*
-  ** If no tree, only the data and ssn parameters in the source and destination 
+  ** If no tree, only the data and ssn parameters in the source and destination
   ** address need to be dissected. This in order to make dissection of the data
   ** possible when there is no tree.
   */
-  if (!tree && tag != DATA_PARAMETER_TAG 
+  if (!tree && tag != DATA_PARAMETER_TAG
             && tag != SOURCE_ADDRESS_PARAMETER_TAG
             && tag != DESTINATION_ADDRESS_PARAMETER_TAG
             && tag != SUBSYSTEM_NUMBER_PARAMETER_TAG)
@@ -1844,7 +1844,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   message_type = 0;
   drn = 0;
   srn = 0;
-  
+
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
@@ -1852,11 +1852,11 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   dissect_parameters(parameters_tvb, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
 
   if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
-	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */ 
+	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */
 	  sccp_assoc_info_t* assoc;
 	  reset_sccp_assoc();
 	  assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
-	  
+
 	  if (assoc && assoc->curr_msg) {
 		  pinfo->sccp_info = assoc->curr_msg;
 		  tap_queue_packet(sua_tap,pinfo,assoc->curr_msg);
@@ -1866,7 +1866,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   } else {
 	  pinfo->sccp_info = NULL;
   }
-  
+
   /* If there was SUA data it could be dissected */
   if(data_tvb)
   {
@@ -1881,7 +1881,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 			return;
 		}
       /* No sub-dissection occured, treat it as raw data */
-      call_dissector(data_handle, data_tvb, pinfo, sua_tree);
+      call_dissector(data_handle, data_tvb, pinfo, tree);
     }
   }
 }
@@ -1919,7 +1919,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
-  
+
 }
 
 /* Register the protocol with Wireshark */
@@ -2051,7 +2051,7 @@ proto_register_sua(void)
     &ett_sua_assoc
 
   };
-  
+
   module_t *sua_module;
 
   static enum_val_t options[] = {
@@ -2088,5 +2088,5 @@ proto_reg_handoff_sua(void)
 
   data_handle = find_dissector("data");
   sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
- 
+
 }
