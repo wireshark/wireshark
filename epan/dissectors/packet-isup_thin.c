@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 
-static int ISUP_thinTCPPort = 0;
+static guint ISUP_thinTCPPort = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_isup_thin		= -1;
@@ -191,9 +191,9 @@ dissect_isup_thin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_isup_thin(void)
 {
-	static int Initialized=FALSE;
+	static gboolean Initialized=FALSE;
 	static dissector_handle_t isup_thin_handle;
-	static int saved_tcp_port;
+	static guint saved_tcp_port;
 	
 	if (!Initialized) {
 		isup_thin_handle = find_dissector("isup_thin");
