@@ -39,7 +39,6 @@
 #include "prefs.h"
 
 static int ISUP_thinTCPPort = 0;
-static int tcp_port = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_isup_thin		= -1;
@@ -91,7 +90,6 @@ static const value_string isup_thin_mtp_message_name_code_vals[] = {
 	{ 0,	NULL }
 };
 
-static dissector_handle_t isup_thin_handle;
 static dissector_handle_t isup_handle;
 
 
@@ -194,18 +192,24 @@ void
 proto_reg_handoff_isup_thin(void)
 {
 	static int Initialized=FALSE;
+	static dissector_handle_t isup_thin_handle;
+	static int saved_tcp_port;
 	
 	if (!Initialized) {
-		isup_thin_handle = new_create_dissector_handle(dissect_isup_thin, proto_isup_thin);
+		isup_thin_handle = find_dissector("isup_thin");
+		dissector_add_handle("tcp.port", isup_thin_handle); /* enable 'decode-as' */
+		isup_handle = find_dissector("isup");
 		Initialized=TRUE;
-	}else{
-		dissector_delete("tcp.port", tcp_port, isup_thin_handle);
+	} else {
+		if (saved_tcp_port != 0) {
+			dissector_delete("tcp.port", saved_tcp_port, isup_thin_handle);
+		}
 	}
 
-	tcp_port = ISUP_thinTCPPort;
-
-	dissector_add("tcp.port", tcp_port, isup_thin_handle);
-	isup_handle = find_dissector("isup");
+	if (ISUP_thinTCPPort != 0) {
+		dissector_add("tcp.port", ISUP_thinTCPPort, isup_thin_handle);
+	}
+	saved_tcp_port = ISUP_thinTCPPort;
 }
 
 void
@@ -292,15 +296,15 @@ proto_register_isup_thin(void)
 	};
 
 	module_t *isup_thin_module;
-/* Register the protocol name and description */
+	/* Register the protocol name and description */
 	proto_isup_thin = proto_register_protocol("ISUP Thin Protocol","isup_thin", "isup_thin");
 
-/* Required function calls to register the header fields and subtrees used */
+	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_isup_thin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 
-	isup_thin_module = prefs_register_protocol(proto_isup_thin, NULL);
+	isup_thin_module = prefs_register_protocol(proto_isup_thin, proto_reg_handoff_isup_thin);
 
 	prefs_register_uint_preference(isup_thin_module, "tcp.port",
 								   "ISUP Thin TCP Port",
@@ -312,8 +316,7 @@ proto_register_isup_thin(void)
    * Register the dissector by name, so other dissectors can
    * grab it by name rather than just referring to it directly.
    */
-  new_register_dissector("isup_thin", dissect_isup_thin, proto_isup_thin);
+	new_register_dissector("isup_thin", dissect_isup_thin, proto_isup_thin);
 
 }
-
 
