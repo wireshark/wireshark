@@ -129,8 +129,6 @@ static void proto_rereg_pgm(void);
 
 static guint udp_encap_ucast_port = 0;
 static guint udp_encap_mcast_port = 0;
-static guint old_encap_ucast_port = 0;
-static guint old_encap_mcast_port = 0;
 
 static int proto_pgm = -1;
 static int ett_pgm = -1;
@@ -1393,64 +1391,67 @@ proto_register_pgm(void)
 
   /*
    * Register configuration preferences for UDP encapsulation
-   * (Note: Initially the ports are set to zero so the
-   *        dissecting of PGM encapsulated in UPD packets
-   *        is off by default)
+   * (Note: Initially the ports are set to zero and the ports
+   *        are not registered so the dissecting of PGM 
+   *        encapsulated in UDP packets is off by default;
+   *        dissector_add_handle is called so that pgm
+   *        is available for 'decode-as'
    */
-   pgm_module = prefs_register_protocol(proto_pgm, proto_rereg_pgm);
+  pgm_module = prefs_register_protocol(proto_pgm, proto_reg_handoff_pgm);
 
-   prefs_register_bool_preference(pgm_module, "check_checksum",
-	    "Check the validity of the PGM checksum when possible",
+  prefs_register_bool_preference(pgm_module, "check_checksum",
+	        "Check the validity of the PGM checksum when possible",
 		"Whether to check the validity of the PGM checksum",
-	    &pgm_check_checksum);
+	        &pgm_check_checksum);
 
-   prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
+  prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
 		"PGM Encap Unicast Port (standard is 3055)",
 		"PGM Encap is PGM packets encapsulated in UDP packets"
 		" (Note: This option is off, i.e. port is 0, by default)",
 		10, &udp_encap_ucast_port);
-   old_encap_ucast_port = udp_encap_ucast_port;
 
-   prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
+  prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
 		"PGM Encap Multicast Port (standard is 3056)",
 		"PGM Encap is PGM packets encapsulated in UDP packets"
 		" (Note: This option is off, i.e. port is 0, by default)",
 		10, &udp_encap_mcast_port);
 
-   old_encap_mcast_port = udp_encap_mcast_port;
 }
 
-static dissector_handle_t pgm_handle;
-
 /* The registration hand-off routine */
+/*
+ * Set up PGM Encap dissecting, which is off by default for UDP
+ */
+
 void
 proto_reg_handoff_pgm(void)
 {
-  pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
+  static initialized = FALSE;
+  static dissector_handle_t pgm_handle;
+  static guint old_udp_encap_ucast_port;
+  static guint old_udp_encap_mcast_port;
 
-  /*
-   * Set up PGM Encap dissecting, which is off by default
-   */
-  dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
-  dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
+  if (! initialized) {
+    pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
+    dissector_add_handle("udp.port", pgm_handle);  /* for 'decode-as' */
+    dissector_add("ip.proto", IP_PROTO_PGM, pgm_handle);
+    data_handle = find_dissector("data");
+    initialized = TRUE;
+  } else {
+    if (old_udp_encap_ucast_port != 0) {
+      dissector_delete("udp.port", old_udp_encap_ucast_port, pgm_handle);
+    }
+    if (old_udp_encap_mcast_port != 0) {
+      dissector_delete("udp.port", old_udp_encap_mcast_port, pgm_handle);
+    }
+  }
 
-  dissector_add("ip.proto", IP_PROTO_PGM, pgm_handle);
-
-  data_handle = find_dissector("data");
-}
-
-static void
-proto_rereg_pgm(void)
-{
-	/*
-	 * Remove the old ones
-	 */
-	dissector_delete("udp.port", old_encap_ucast_port, pgm_handle);
-	dissector_delete("udp.port", old_encap_mcast_port, pgm_handle);
-
-	/*
-	 * Set the new ones
-	 */
-	dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
-	dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
+  if (udp_encap_ucast_port != 0) {
+    dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
+  }
+  if (udp_encap_mcast_port != 0) {
+    dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
+  }
+  old_udp_encap_ucast_port = udp_encap_ucast_port;
+  old_udp_encap_mcast_port = udp_encap_mcast_port;
 }
