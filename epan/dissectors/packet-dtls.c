@@ -2085,7 +2085,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_handshake_cookie,
       { "Cookie", "dtls.handshake.cookie",
-	FT_NONE, BASE_NONE, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Cookie", HFILL }
     },
     { &hf_dtls_handshake_session_id,
