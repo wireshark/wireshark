@@ -53,12 +53,10 @@
 
 #define TCP_PORT_DHCPFO 519
 
-static unsigned int tcp_port_pref = TCP_PORT_DHCPFO;
+static guint tcp_port_pref = TCP_PORT_DHCPFO;
 
 /* desegmentation of DHCP failover over TCP */
 static gboolean dhcpfo_desegment = TRUE;
-
-static dissector_handle_t dhcpfo_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_dhcpfo = -1;
@@ -958,15 +956,17 @@ void
 proto_reg_handoff_dhcpfo(void)
 {
 	static gboolean initialized = FALSE;
-	static unsigned int port = 0;
+	static dissector_handle_t dhcpfo_handle;
+	static guint saved_tcp_port;
 
-	if (initialized) {
-		dissector_delete("tcp.port", port, dhcpfo_handle);
-	} else {
+	if (!initialized) {
+		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 		initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", saved_tcp_port, dhcpfo_handle);
 	}
-	port = tcp_port_pref;
 	dissector_add("tcp.port", tcp_port_pref, dhcpfo_handle);
+	saved_tcp_port = tcp_port_pref;
 }
 
 /* Register the protocol with Wireshark */
@@ -1200,8 +1200,6 @@ proto_register_dhcpfo(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_dhcpfo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 
 	dhcpfo_module = prefs_register_protocol(proto_dhcpfo, proto_reg_handoff_dhcpfo);
 	prefs_register_uint_preference(dhcpfo_module, "tcp_port",

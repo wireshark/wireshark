@@ -92,13 +92,6 @@ static gboolean rtsp_desegment_body = TRUE;
 static guint global_rtsp_tcp_port = TCP_PORT_RTSP;
 static guint global_rtsp_tcp_alternate_port = TCP_ALTERNATE_PORT_RTSP;
 /*
-* Variables to allow for proper deletion of dissector registration when
-* the user changes port from the gui.
-*/
-static guint tcp_port = 0;
-static guint tcp_alternate_port = 0;
-
-/*
  * Takes an array of bytes, assumed to contain a null-terminated
  * string, as an argument, and returns the length of the string -
  * i.e., the size of the array, minus 1 for the null terminator.
@@ -1255,7 +1248,7 @@ proto_register_rtsp(void)
 	};
 	module_t *rtsp_module;
 
-    proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
+	proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
 		"RTSP", "rtsp");
 	media_type_dissector_table = find_dissector_table("media_type");
 
@@ -1295,27 +1288,31 @@ proto_register_rtsp(void)
 void
 proto_reg_handoff_rtsp(void)
 {
-	dissector_handle_t rtsp_handle;
-	static int rtsp_prefs_initialized = FALSE;
-
-	rtsp_handle = create_dissector_handle(dissect_rtsp, proto_rtsp);
+	static dissector_handle_t rtsp_handle;
+	static gboolean rtsp_prefs_initialized = FALSE;
+	/*
+	 * Variables to allow for proper deletion of dissector registration when
+	 * the user changes port from the gui.
+	 */
+	static guint saved_rtsp_tcp_port;
+	static guint saved_rtsp_tcp_alternate_port;
 
 	if (!rtsp_prefs_initialized) {
+		rtsp_handle = find_dissector("rtsp");
+		rtp_handle = find_dissector("rtp");
+		rtcp_handle = find_dissector("rtcp");
+		rdt_handle = find_dissector("rdt");
 		rtsp_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", tcp_port, rtsp_handle);
-		dissector_delete("tcp.port", tcp_alternate_port, rtsp_handle);
+		dissector_delete("tcp.port", saved_rtsp_tcp_port, rtsp_handle);
+		dissector_delete("tcp.port", saved_rtsp_tcp_alternate_port, rtsp_handle);
 	}
 	/* Set our port number for future use */
+	dissector_add("tcp.port", global_rtsp_tcp_port, rtsp_handle);
+	dissector_add("tcp.port", global_rtsp_tcp_alternate_port, rtsp_handle);
 
-	tcp_port = global_rtsp_tcp_port;
-	tcp_alternate_port = global_rtsp_tcp_alternate_port;
+	saved_rtsp_tcp_port = global_rtsp_tcp_port;
+	saved_rtsp_tcp_alternate_port = global_rtsp_tcp_alternate_port;
 
-	dissector_add("tcp.port", tcp_port, rtsp_handle);
-	dissector_add("tcp.port", tcp_alternate_port, rtsp_handle);
-
-	rtp_handle = find_dissector("rtp");
-	rtcp_handle = find_dissector("rtcp");
-	rdt_handle = find_dissector("rdt");
 }
