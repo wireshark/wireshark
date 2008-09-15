@@ -42,7 +42,7 @@ extern FILE_T file_open(const char *path, const char *mode);
 
 #else /* No zLib */
 
-#define file_open(path, mode) eth_fopen(path, mode)
+#define file_open(path, mode) ws_fopen(path, mode)
 #define filed_open fdopen
 /* XX: file_read and file_write defined to return number of *bytes* to be consistent with gzread & gzwrite */
 #define file_read(buf, bsize, count, file) ((bsize) * fread((buf), (bsize), (count), (file)))

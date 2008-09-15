@@ -1503,10 +1503,15 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	return 0; /* bytes_needed */
 }
 
-
+#ifdef HAVE_LIBZ
 static guint
 vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		  proto_tree *tree, guint16 width, guint16 height)
+#else
+static guint
+vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
+		  proto_tree *tree, guint16 width _U_, guint16 height _U_)
+#endif
 {
 	guint32 data_len;
 #ifdef HAVE_LIBZ

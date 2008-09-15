@@ -1185,6 +1185,7 @@ ssl_create_flow(void)
   return flow;
 }
 
+#ifdef HAVE_LIBZ
 /* memory allocations functions for zlib intialization */
 static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
@@ -1194,6 +1195,7 @@ static void ssl_zfree(void* opaque _U_, void* address)
 {
 	g_free(address);
 }
+#endif
 
 static SslDecompress*
 ssl_create_decompressor(gint compression)
@@ -1713,16 +1715,13 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 }
 #endif
 
-
+#ifdef HAVE_LIBZ
 int
 ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {
-#ifdef HAVE_LIBZ
   gint err;
-#endif
 
   switch (decomp->compression) {
-#ifdef HAVE_LIBZ
     case 1:  /* DEFLATE */
       err = Z_OK;
       if (out_str->data_len < 16384) {  /* maximal plain length */
@@ -1740,13 +1739,20 @@ ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, String
       }
       *outl = out_str->data_len - decomp->istream.avail_out;
       break;
-#endif  /* HAVE_LIBZ */
     default:
       ssl_debug_printf("ssl_decompress_record: unsupported compression method %d\n", decomp->compression);
       return -1;
   }
   return 0;
 }
+#else
+int
+ssl_decompress_record(SslDecompress* decomp _U_, const guchar* in _U_, guint inl _U_, StringInfo* out_str _U_, guint* outl _U_)
+{
+  ssl_debug_printf("ssl_decompress_record: unsupported compression method %d\n", decomp->compression);
+  return -1;
+}
+#endif
 
 int
 ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,

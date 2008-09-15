@@ -688,18 +688,21 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 	return TRUE;
 }
 
+#ifdef HAVE_LIBZ
 gboolean wtap_dump_can_compress(int filetype)
 {
-#ifdef HAVE_LIBZ
 	if (filetype < 0 || filetype >= wtap_num_file_types
 	    || dump_open_table[filetype].can_compress == FALSE)
 		return FALSE;
 
 	return TRUE;
-#else
-	return FALSE;
-#endif
 }
+#else
+gboolean wtap_dump_can_compress(int filetype _U_)
+{
+	return FALSE;
+}
+#endif
 
 
 static gboolean wtap_dump_open_check(int filetype, int encap, gboolean comressed, int *err);
@@ -945,30 +948,38 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 
 
 /* internally open a file for writing (compressed or not) */
+#ifdef HAVE_LIBZ
 static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
-#ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzopen(filename, "wb");
-	} else
-#endif
-	{
+	} else {
 		return ws_fopen(filename, "wb");
 	}
 }
+#else
+static FILE *wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
+{
+	return ws_fopen(filename, "wb");
+}
+#endif
 
 /* internally open a file for writing (compressed or not) */
+#ifdef HAVE_LIBZ
 static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
-#ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzdopen(fd, "wb");
-	} else
-#endif
-	{
+	} else {
 		return fdopen(fd, "wb");
 	}
 }
+#else
+static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
+{
+	return fdopen(fd, "wb");
+}
+#endif
 
 /* internally writing raw bytes (compressed or not) */
 size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize)
