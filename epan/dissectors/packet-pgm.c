@@ -1426,7 +1426,7 @@ proto_register_pgm(void)
 void
 proto_reg_handoff_pgm(void)
 {
-  static initialized = FALSE;
+  static gboolean initialized = FALSE;
   static dissector_handle_t pgm_handle;
   static guint old_udp_encap_ucast_port;
   static guint old_udp_encap_mcast_port;
