@@ -382,6 +382,10 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define is_a_local_network_control_block_addr(addr) \
   ((addr & 0xffffff00) == 0xe0000000) 
 
+/* Return true if the address is in the 224.0.0.0/4 network block */
+#define is_a_multicast_addr(addr) \
+  ((addr & 0xf0000000) == 0xe0000000) 
+
 /*
  * defragmentation of IPv4
  */
@@ -1422,19 +1426,20 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   tap_queue_packet(ip_tap, pinfo, iph);
 
 
-  /* If an IP is destined for a IP address in the Local Network Control Block
+  /* If an IP is destined for an IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would
-   * be expected to be 1.  (see RFC 3171)  So only flag a low TTL if the
-   * packet is not destined to a 224.0.0.0/24 address.  For packets sent to
-   * 224.0.0.0/24, flag a TTL greater than 1.
+   * be expected to be 1.  (see RFC 3171)  Flag a TTL greater than 1.
+   *
+   * Flag a low TTL if the packet is not destined for a multicast address
+   * (e.g. 224.0.0.0/4).
    */
-  if (!is_a_local_network_control_block_addr(dst32)) {
-    if(ttl < 5) {
-      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
+  if (is_a_local_network_control_block_addr(dst32)) {
+    if (ttl != 1) {
+      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, 
+        "\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
     }
-  } else if(ttl > 1) {
-    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, 
-	"\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
+  } else if (!is_a_multicast_addr(dst32) && ttl < 5) {
+    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
   }
 
   if (tree) {
