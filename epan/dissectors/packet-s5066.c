@@ -35,7 +35,6 @@
 
 /* Forward reference */
 /* Register functions */
-void proto_register_s5066(void);
 void proto_reg_handoff_s5066(void);
 /* Main dissectors */
 static void dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -74,7 +73,6 @@ static guint dissect_s5066_26(tvbuff_t *tvb, guint offset, proto_tree *tree);
 static guint dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree);
 
 static gint proto_s5066 = -1;
-static dissector_handle_t s5066_tcp_handle;
 static dissector_handle_t data_handle;
 
 /* Enable desegmentation of S5066 over TCP */
@@ -771,15 +769,13 @@ proto_register_s5066(void)
 
 	module_t *s5066_module;
 
-	if (proto_s5066 == -1) {
-		proto_s5066 = proto_register_protocol (
+	proto_s5066 = proto_register_protocol (
 			"STANAG 5066 (SIS layer)",	/* name */
 			"STANAG 5066",			/* short name*/
 			"s5066"				/* abbrev */
 		);
-		proto_register_field_array(proto_s5066, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_register_field_array(proto_s5066, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	s5066_module = prefs_register_protocol(proto_s5066, proto_reg_handoff_s5066);
 	prefs_register_bool_preference(s5066_module, "desegment_pdus",
@@ -802,15 +798,21 @@ proto_register_s5066(void)
 void
 proto_reg_handoff_s5066(void)
 {
-	static gint Initialized = FALSE;
+	static gboolean Initialized = FALSE;
+	static dissector_handle_t s5066_tcp_handle;
+	static guint saved_s5066_port;
 
 	if (!Initialized) {
 		s5066_tcp_handle = create_dissector_handle(dissect_s5066_tcp, proto_s5066);
-		dissector_add("tcp.port", global_s5066_port, s5066_tcp_handle);
-
 		data_handle = find_dissector("data");
 		Initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", saved_s5066_port, s5066_tcp_handle);
 	}
+
+	dissector_add("tcp.port", global_s5066_port, s5066_tcp_handle);
+	saved_s5066_port = global_s5066_port;
+
 	if (!s5066_edition_one) {
 		s5066_header_size = 5;
 		s5066_size_offset = 3;
