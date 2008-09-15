@@ -51,7 +51,6 @@
 static gboolean pgm_check_checksum = TRUE;
 
 void proto_reg_handoff_pgm(void);
-static void proto_rereg_pgm(void);
 
 /* constants for hdr types */
 #define PGM_SPM_PCKT  0x00
