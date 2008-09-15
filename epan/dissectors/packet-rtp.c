@@ -136,11 +136,8 @@ static const fragment_items rtp_fragment_items = {
 };
 
 static dissector_handle_t rtp_handle;
-static dissector_handle_t rtp_rfc2198_handle;
 static dissector_handle_t stun_handle;
 static dissector_handle_t t38_handle;
-
-static dissector_handle_t pkt_ccc_handle;
 
 static int rtp_tap = -1;
 
@@ -222,6 +219,7 @@ static dissector_handle_t data_handle;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_rtp(void);
+void proto_reg_handoff_pkt_ccc(void);
 
 static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
@@ -241,7 +239,6 @@ static gboolean desegment_rtp = TRUE;
 
 /* RFC2198 Redundant Audio Data */
 static guint rtp_rfc2198_pt = 99;
-static guint rtp_saved_rfc2198_pt = 0;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -1446,7 +1443,6 @@ proto_register_pkt_ccc(void)
 
 	module_t *pkt_ccc_module;
 
-
 	proto_pkt_ccc = proto_register_protocol("PacketCable Call Content Connection",
 	    "PKT CCC", "pkt_ccc");
 	proto_register_field_array(proto_pkt_ccc, hf, array_length(hf));
@@ -1454,7 +1450,7 @@ proto_register_pkt_ccc(void)
 
 	register_dissector("pkt_ccc", dissect_pkt_ccc, proto_pkt_ccc);
 
-	pkt_ccc_module = prefs_register_protocol(proto_pkt_ccc, NULL);
+	pkt_ccc_module = prefs_register_protocol(proto_pkt_ccc, proto_reg_handoff_pkt_ccc);
 
 	prefs_register_uint_preference(pkt_ccc_module, "udp_port",
 	                               "UDP port",
@@ -1469,8 +1465,24 @@ proto_reg_handoff_pkt_ccc(void)
 	 * Register this dissector as one that can be selected by a
 	 * UDP port number.
 	 */
-	pkt_ccc_handle = find_dissector("pkt_ccc");
-	dissector_add_handle("udp.port", pkt_ccc_handle);
+	static gboolean initialized = FALSE;
+	static dissector_handle_t pkt_ccc_handle;
+	static guint saved_pkt_ccc_udp_port;
+
+	if (!initialized) {
+		pkt_ccc_handle = find_dissector("pkt_ccc");
+		dissector_add_handle("udp.port", pkt_ccc_handle);  /* for 'decode-as' */
+		initialized = TRUE;
+	} else {
+		if (saved_pkt_ccc_udp_port != 0) {
+			dissector_delete("udp.port", saved_pkt_ccc_udp_port, pkt_ccc_handle);
+		}
+	}
+
+	if (global_pkt_ccc_udp_port != 0) {
+		dissector_add("udp.port", global_pkt_ccc_udp_port, pkt_ccc_handle);
+	}
+	saved_pkt_ccc_udp_port = global_pkt_ccc_udp_port;
 }
 
 /* Register RTP */
@@ -1915,31 +1927,28 @@ void
 proto_reg_handoff_rtp(void)
 {
 	static gboolean rtp_prefs_initialized = FALSE;
+	static dissector_handle_t rtp_rfc2198_handle;
+	static guint rtp_saved_rfc2198_pt;
 
-	data_handle = find_dissector("data");
-	stun_handle = find_dissector("stun");
-	t38_handle = find_dissector("t38");
-	/*
-	 * Register this dissector as one that can be selected by a
-	 * UDP port number.
-	 */
-	rtp_handle = find_dissector("rtp");
-	rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
+	if (!rtp_prefs_initialized) {
+		rtp_handle = find_dissector("rtp");
+		rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
 
-	dissector_add_handle("udp.port", rtp_handle);
+		dissector_add_handle("udp.port", rtp_handle);  /* for 'decode-as' */
+		dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
+		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
+		heur_dissector_add("stun2", dissect_rtp_heur, proto_rtp);
 
-	dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
+		data_handle = find_dissector("data");
+		stun_handle = find_dissector("stun");
+		t38_handle = find_dissector("t38");
 
-  	if (rtp_prefs_initialized) {
-		dissector_delete("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
-	} else {
 		rtp_prefs_initialized = TRUE;
+	} else {
+		dissector_delete("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
 	}
+	dissector_add("rtp.pt", rtp_rfc2198_pt, rtp_rfc2198_handle);
 	rtp_saved_rfc2198_pt = rtp_rfc2198_pt;
-	dissector_add("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
-
-	heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
-	heur_dissector_add("stun2", dissect_rtp_heur, proto_rtp);
 }
 
 /*
