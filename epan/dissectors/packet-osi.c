@@ -50,7 +50,7 @@ static dissector_handle_t osi_handle;
 
 /* Preferences for OSI over TPKT over TCP */
 static gboolean tpkt_desegment = FALSE;
-static int global_tcp_port_osi_over_tpkt = 0;
+static guint global_tcp_port_osi_over_tpkt = 0;
 
 cksum_status_t
 calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
@@ -239,7 +239,7 @@ static dissector_handle_t data_handle, ppp_handle;
 static void
 dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_handle);
+  dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_handle);
 }
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -253,11 +253,11 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* try lookup with the subdissector tables that includes the nlpid */
   if (dissector_try_port(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
-      return;
+    return;
   /* try lookup with the subdissector tables that excludes the nlpid */
   new_tvb = tvb_new_subset(tvb, 1, -1, -1);
   if (dissector_try_port(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
-      return;
+    return;
 
   switch (nlpid) {
 
@@ -290,71 +290,71 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_osi(void)
 {
-	static gboolean osi_prefs_initialized = FALSE;
-	static dissector_handle_t osi_tpkt_handle;
-	static guint tcp_port_osi_over_tpkt;
+  static gboolean osi_prefs_initialized = FALSE;
+  static dissector_handle_t osi_tpkt_handle;
+  static guint tcp_port_osi_over_tpkt;
 
-	if (!osi_prefs_initialized) {
-		osi_handle = create_dissector_handle(dissect_osi, proto_osi);
-		dissector_add("llc.dsap", SAP_OSINL1, osi_handle);
-		dissector_add("llc.dsap", SAP_OSINL2, osi_handle);
-		dissector_add("llc.dsap", SAP_OSINL3, osi_handle);
-		dissector_add("llc.dsap", SAP_OSINL4, osi_handle);
-		dissector_add("llc.dsap", SAP_OSINL5, osi_handle);
-		dissector_add("ppp.protocol", PPP_OSI, osi_handle);
-		dissector_add("chdlctype", CHDLCTYPE_OSI, osi_handle);
-		dissector_add("null.type", BSD_AF_ISO, osi_handle);
-		dissector_add("gre.proto", SAP_OSINL5, osi_handle);
-		data_handle = find_dissector("data");
-		ppp_handle  = find_dissector("ppp");
+  if (!osi_prefs_initialized) {
+    osi_handle = create_dissector_handle(dissect_osi, proto_osi);
+    dissector_add("llc.dsap", SAP_OSINL1, osi_handle);
+    dissector_add("llc.dsap", SAP_OSINL2, osi_handle);
+    dissector_add("llc.dsap", SAP_OSINL3, osi_handle);
+    dissector_add("llc.dsap", SAP_OSINL4, osi_handle);
+    dissector_add("llc.dsap", SAP_OSINL5, osi_handle);
+    dissector_add("ppp.protocol", PPP_OSI, osi_handle);
+    dissector_add("chdlctype", CHDLCTYPE_OSI, osi_handle);
+    dissector_add("null.type", BSD_AF_ISO, osi_handle);
+    dissector_add("gre.proto", SAP_OSINL5, osi_handle);
+    data_handle = find_dissector("data");
+    ppp_handle  = find_dissector("ppp");
 
-		osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
-		dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
-		osi_prefs_initialized = TRUE;
-        } else {
-		if (tcp_port_osi_over_tpkt != 0) {
-			dissector_delete("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
-		}
-	}
+    osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
+    dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
+    osi_prefs_initialized = TRUE;
+  } else {
+    if (tcp_port_osi_over_tpkt != 0) {
+      dissector_delete("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
+    }
+  }
 
-	if (global_tcp_port_osi_over_tpkt != 0) {
-		dissector_add("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
-	}
-	tcp_port_osi_over_tpkt = global_tcp_port_osi_over_tpkt;
+  if (global_tcp_port_osi_over_tpkt != 0) {
+    dissector_add("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
+  }
+  tcp_port_osi_over_tpkt = global_tcp_port_osi_over_tpkt;
 }
 
 void
 proto_register_osi(void)
 {
-	module_t *osi_module;
+  module_t *osi_module;
 
-	/* There's no "OSI" protocol *per se*, but we do register a
-	   dissector table so various protocols running at the
-	   network layer can register themselves.
-	   all protocols that require inclusion of the NLPID
-	   should register here
-	 */
-	osinl_subdissector_table = register_dissector_table("osinl",
-	    "OSI incl NLPID", FT_UINT8, BASE_HEX);
+  /* There's no "OSI" protocol *per se*, but we do register a
+     dissector table so various protocols running at the
+     network layer can register themselves.
+     all protocols that require inclusion of the NLPID
+     should register here
+  */
+  osinl_subdissector_table = register_dissector_table("osinl",
+                                                      "OSI incl NLPID", FT_UINT8, BASE_HEX);
 
-        /* This dissector table is for those protocols whose PDUs
-         * aren't* defined to begin with an NLPID.
-         * (typically non OSI protocols like IP,IPv6,PPP */
-	osinl_excl_subdissector_table = register_dissector_table("osinl.excl",
-	    "OSI excl NLPID", FT_UINT8, BASE_HEX);
+  /* This dissector table is for those protocols whose PDUs
+   * aren't* defined to begin with an NLPID.
+   * (typically non OSI protocols like IP,IPv6,PPP */
+  osinl_excl_subdissector_table = register_dissector_table("osinl.excl",
+                                                           "OSI excl NLPID", FT_UINT8, BASE_HEX);
 	
-	proto_osi = proto_register_protocol("OSI", "OSI", "osi");
-	/* Preferences how OSI protocols should be dissected */
-	osi_module = prefs_register_protocol(proto_osi, proto_reg_handoff_osi);
+  proto_osi = proto_register_protocol("OSI", "OSI", "osi");
+  /* Preferences how OSI protocols should be dissected */
+  osi_module = prefs_register_protocol(proto_osi, proto_reg_handoff_osi);
 
-	prefs_register_uint_preference(osi_module, "tpkt_port",
-		"TCP port for OSI over TPKT",
-		"TCP port for OSI over TPKT",
-		10, &global_tcp_port_osi_over_tpkt);
-	prefs_register_bool_preference(osi_module, "tpkt_reassemble",
-		"Reassemble segmented TPKT datagrams",
-		"Whether segmented TPKT datagrams should be reassembled",
-		&tpkt_desegment);
+  prefs_register_uint_preference(osi_module, "tpkt_port",
+                                 "TCP port for OSI over TPKT",
+                                 "TCP port for OSI over TPKT",
+                                 10, &global_tcp_port_osi_over_tpkt);
+  prefs_register_bool_preference(osi_module, "tpkt_reassemble",
+                                 "Reassemble segmented TPKT datagrams",
+                                 "Whether segmented TPKT datagrams should be reassembled",
+                                 &tpkt_desegment);
 
 }
 
