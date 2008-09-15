@@ -53,7 +53,6 @@ static int ett_lge_monitor = -1;
 
 
 static guint LGEMonitorUDPPort = 0;
-static guint udp_port = 0;
 static dissector_handle_t mtp3_handle, m3ua_handle, sccp_handle, sctp_handle;
 
 static const value_string lge_monitor_dir_vals[] = {
@@ -126,24 +125,29 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_lge_monitor(void)
 {
-	dissector_handle_t lge_monitor_handle;
-	static int lge_monitor_prefs_initialized = FALSE;
-	
-	lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
+	static dissector_handle_t lge_monitor_handle;
+	static guint saved_udp_port;
+	static gboolean lge_monitor_prefs_initialized = FALSE;
 
 	if (!lge_monitor_prefs_initialized) {
+		lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
+		dissector_add_handle("udp.port", lge_monitor_handle);  /* for 'decode-as' */
+		mtp3_handle  = find_dissector("mtp3");
+		m3ua_handle  = find_dissector("m3ua");
+		sccp_handle  = find_dissector("sccp");
+		sctp_handle  = find_dissector("sctp");
 		lge_monitor_prefs_initialized = TRUE;
 	  }
 	else {
-		dissector_delete("udp.port", udp_port, lge_monitor_handle);
+		if (saved_udp_port != 0) {
+			dissector_delete("udp.port", saved_udp_port, lge_monitor_handle);
+		}
 	}
 
-	udp_port = LGEMonitorUDPPort;
-	dissector_add("udp.port", LGEMonitorUDPPort, lge_monitor_handle);
-	mtp3_handle  = find_dissector("mtp3");
-	m3ua_handle  = find_dissector("m3ua");
-	sccp_handle  = find_dissector("sccp");
-	sctp_handle  = find_dissector("sctp");
+	if (LGEMonitorUDPPort != 0) {
+		dissector_add("udp.port", LGEMonitorUDPPort, lge_monitor_handle);
+	}
+	saved_udp_port = LGEMonitorUDPPort;
 }
 
 void

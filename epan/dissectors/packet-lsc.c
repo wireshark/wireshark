@@ -135,8 +135,6 @@ static int hf_lsc_mode = -1;
 
 /* Preferences */
 static guint global_lsc_port = 0;
-static guint lsc_port = 0;
-
 
 /* Initialize the subtree pointers */
 static gint ett_lsc = -1;
@@ -441,15 +439,28 @@ proto_register_lsc(void)
 void
 proto_reg_handoff_lsc(void)
 {
-  dissector_handle_t lsc_udp_handle;
-  dissector_handle_t lsc_tcp_handle;
+  static gboolean initialized = FALSE;
+  static dissector_handle_t lsc_udp_handle;
+  static dissector_handle_t lsc_tcp_handle;
+  static guint saved_lsc_port;
 
-  lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
-  lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
+  if (!initialized) {
+    lsc_udp_handle = create_dissector_handle(dissect_lsc_udp, proto_lsc);
+    lsc_tcp_handle = create_dissector_handle(dissect_lsc_tcp, proto_lsc);
+    dissector_add_handle("udp.port", lsc_udp_handle);   /* for 'decode-as' */
+    dissector_add_handle("tcp.port", lsc_tcp_handle);   /* ...             */
+    initialized = TRUE;
+  } else {
+    if (saved_lsc_port != 0) {
+      dissector_delete("udp.port", saved_lsc_port, lsc_udp_handle);
+      dissector_delete("tcp.port", saved_lsc_port, lsc_tcp_handle);
+    }
+  }
 
   /* Set the port number */
-  lsc_port = global_lsc_port;
-
-  dissector_add("udp.port", lsc_port, lsc_udp_handle);
-  dissector_add("tcp.port", lsc_port, lsc_tcp_handle);
+  if (global_lsc_port != 0) {
+    dissector_add("udp.port", global_lsc_port, lsc_udp_handle);
+    dissector_add("tcp.port", global_lsc_port, lsc_tcp_handle);
+  }
+  saved_lsc_port = global_lsc_port;
 }

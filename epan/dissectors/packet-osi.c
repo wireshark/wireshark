@@ -47,12 +47,10 @@
 
 static int  proto_osi         = -1;
 static dissector_handle_t osi_handle;
-static dissector_handle_t osi_tpkt_handle;
 
 /* Preferences for OSI over TPKT over TCP */
 static gboolean tpkt_desegment = FALSE;
-int global_tcp_port_osi_over_tpkt = 0;
-int tcp_port_osi_over_tpkt = 0;
+static int global_tcp_port_osi_over_tpkt = 0;
 
 cksum_status_t
 calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
@@ -292,7 +290,10 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_osi(void)
 {
-	static int osi_prefs_initialized = FALSE;
+	static gboolean osi_prefs_initialized = FALSE;
+	static dissector_handle_t osi_tpkt_handle;
+	static guint tcp_port_osi_over_tpkt;
+
 	if (!osi_prefs_initialized) {
 		osi_handle = create_dissector_handle(dissect_osi, proto_osi);
 		dissector_add("llc.dsap", SAP_OSINL1, osi_handle);
@@ -300,20 +301,26 @@ proto_reg_handoff_osi(void)
 		dissector_add("llc.dsap", SAP_OSINL3, osi_handle);
 		dissector_add("llc.dsap", SAP_OSINL4, osi_handle);
 		dissector_add("llc.dsap", SAP_OSINL5, osi_handle);
-	    dissector_add("ppp.protocol", PPP_OSI, osi_handle);
+		dissector_add("ppp.protocol", PPP_OSI, osi_handle);
 		dissector_add("chdlctype", CHDLCTYPE_OSI, osi_handle);
 		dissector_add("null.type", BSD_AF_ISO, osi_handle);
 		dissector_add("gre.proto", SAP_OSINL5, osi_handle);
 		data_handle = find_dissector("data");
 		ppp_handle  = find_dissector("ppp");
+
 		osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
+		dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
 		osi_prefs_initialized = TRUE;
-	}else{
-		dissector_delete("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
+        } else {
+		if (tcp_port_osi_over_tpkt != 0) {
+			dissector_delete("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
+		}
 	}
 
+	if (global_tcp_port_osi_over_tpkt != 0) {
+		dissector_add("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
+	}
 	tcp_port_osi_over_tpkt = global_tcp_port_osi_over_tpkt;
-	dissector_add("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
 }
 
 void
@@ -343,7 +350,7 @@ proto_register_osi(void)
 	prefs_register_uint_preference(osi_module, "tpkt_port",
 		"TCP port for OSI over TPKT",
 		"TCP port for OSI over TPKT",
-       	10, &global_tcp_port_osi_over_tpkt);
+		10, &global_tcp_port_osi_over_tpkt);
 	prefs_register_bool_preference(osi_module, "tpkt_reassemble",
 		"Reassemble segmented TPKT datagrams",
 		"Whether segmented TPKT datagrams should be reassembled",

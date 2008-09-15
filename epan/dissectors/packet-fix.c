@@ -6439,14 +6439,11 @@ proto_register_fix(void)
 void
 proto_reg_handoff_fix(void)
 {
-	static dissector_handle_t fix_handle;
-    /*
-     * The first time the function is called let the tcp dissector
-     * know that we're interested in traffic
-     */
+    dissector_handle_t fix_handle;
+    /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix, proto_fix);
-	/* Register fix to TCP port 0 to be able to do "dissect as"*/
-	fix_handle = new_create_dissector_handle(dissect_fix, proto_fix);
-	dissector_add("tcp.port", 0, fix_handle);
+    /* Register a fix handle to "tcp.port" to be able to do 'decode-as' */
+    fix_handle = new_create_dissector_handle(dissect_fix, proto_fix);
+    dissector_add_handle("tcp.port", fix_handle);
 }
 
