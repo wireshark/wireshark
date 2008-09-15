@@ -1265,7 +1265,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      if (decode_mtp3_standard == ITU_STANDARD) {
+      if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
 
 	proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
 					      : hf_sccp_calling_itu_pc,
@@ -1307,8 +1307,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-				 ADDRESS_SSN_LENGTH, ssn);
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					ADDRESS_SSN_LENGTH, ssn);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
 
@@ -1388,7 +1388,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
 				 ADDRESS_SSN_LENGTH, ssn);
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
     }
