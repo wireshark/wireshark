@@ -148,7 +148,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
         return 0;
     }
 
-    if (ba->len >= (uint)siz) { /* truncate */
+    if (ba->len >= (guint)siz) { /* truncate */
         g_byte_array_set_size(ba,siz);
     } else { /* fill */
         padding = g_malloc0(sizeof(guint8)*(siz - ba->len));
@@ -324,11 +324,11 @@ int ByteArray_register(lua_State* L) {
  *
  * These lua objects refers to structures in wireshak that are freed independently from Lua's garbage collector.
  * To avoid using a pointer from Lua to Wireshark's that is already freed, we maintain a list of the pointers with
- * a marker that track's it's expiry. 
+ * a marker that track's it's expiry.
  *
  * All pointers are marked as expired when the dissection of the current frame is finished of when the garbage
  * collector tries to free the object referring to the pointer, whichever comes first.
- * 
+ *
  * All allocated memory chunks used for tracking the pointers' state are freed after marking the pointer as expired
  * by the garbage collector or by the end of the dissection of the current frame, whichever comes second.
  *
@@ -440,7 +440,7 @@ static int Tvb__gc(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
 
     if (!tvb) return 0;
-    
+
     if (!tvb->expired)
         tvb->expired = TRUE;
     else
@@ -495,7 +495,7 @@ WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
 TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     TvbRange tvbr;
 
-    
+
     if (!ws_tvb) {
         luaL_error(L,"expired tvb");
         return 0;
@@ -857,29 +857,29 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 
 WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
 	/* get an Little Endian IPv4 Address from a TvbRange. */
-	
+
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
     guint32* ip_addr;
-	
+
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
-	
+
 	if (tvbr->len != 4)
 		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
-	
+
     addr = g_malloc(sizeof(address));
-	
+
     ip_addr = g_malloc(sizeof(guint32));
     *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
     *((guint32 *)ip_addr) = GUINT32_SWAP_LE_BE(*((guint32 *)ip_addr));
-	
+
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
-	
+
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
@@ -992,7 +992,7 @@ int TvbRange_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(Int64,NOP,NOP);
 /*
  * Int64 represents a 64 bit integer.
- * Lua uses one single number representation which can be chosen at compile time and since 
+ * Lua uses one single number representation which can be chosen at compile time and since
  * it is often set to IEEE 754 double precision floating point, we cannot store a 64 bit integer
  * with full precision.
  * For details, see: http://lua-users.org/wiki/FloatingPoint
