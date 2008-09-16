@@ -214,6 +214,8 @@ typedef struct _wslua_cols* Columns;
 typedef struct _wslua_pinfo* Pinfo;
 typedef struct _wslua_treeitem* TreeItem;
 typedef address* Address;
+typedef gint64* Int64;
+typedef guint64* UInt64;
 typedef header_field_info** Field;
 typedef field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;

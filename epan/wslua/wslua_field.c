@@ -80,13 +80,18 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 		case FT_DOUBLE:
 			lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
 			return 1;
-		case FT_INT64:
-		case FT_UINT64:
-			/*
-			 * XXX: double has 53 bits integer precision, n > 2^22 will cause a loss in precision
-			 */
-			lua_pushnumber(L,(lua_Number)(gint64)fvalue_get_integer64(&(fi->value)));
+		case FT_INT64: {
+			Int64 num = g_malloc(sizeof(Int64));
+			*num = fvalue_get_integer64(&(fi->value));
+			pushInt64(L,num);
 			return 1;
+		}
+		case FT_UINT64: {
+			UInt64 num = g_malloc(sizeof(UInt64));
+			*num = fvalue_get_integer64(&(fi->value));
+			pushUInt64(L,num);
+			return 1;
+		}
 		case FT_ETHER: {
 			Address eth = g_malloc(sizeof(address));
 			eth->type = AT_ETHER;

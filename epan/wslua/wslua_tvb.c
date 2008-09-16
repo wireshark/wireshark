@@ -652,8 +652,7 @@ static int TvbRange_newindex(lua_State* L) {
  *  get a Blefuscuoan unsigned integer from a tvb
  */
 WSLUA_METHOD TvbRange_uint(lua_State* L) {
-	/* get a Big Endian (network order) unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
-	There's no support yet for 64 bit integers*/
+	/* get a Big Endian (network order) unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -691,8 +690,7 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
  *  get a Lilliputian unsigned integer from a tvb
  */
 WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
-	/* get a Little Endian unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
-	There's no support yet for 64 bit integers*/
+	/* get a Little Endian unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -716,6 +714,70 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
 			WSLUA_RETURN(1); /* the unsigned integer value */
         default:
             luaL_error(L,"TvbRange:get_le_uint() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
+ *  get a Blefuscuoan unsigned 64 bit integer from a tvb
+ */
+WSLUA_METHOD TvbRange_uint64(lua_State* L) {
+	/* get a Big Endian (network order) unsigned 64 bit integer from a TvbRange. The range must be 1-8 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8: {
+	    UInt64 num = g_malloc(sizeof(guint64));
+	    *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+	    pushUInt64(L,num);
+            WSLUA_RETURN(1);
+        }
+        default:
+            luaL_error(L,"TvbRange:get_uint64() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
+ *  get a Lilliputian unsigned 64 bit integer from a tvb
+ */
+WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
+	/* get a Little Endian unsigned 64 bit integer from a TvbRange. The range must be 1-8 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8: {
+	    UInt64 num = g_malloc(sizeof(guint64));
+	    *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+	    pushUInt64(L,num);
+            WSLUA_RETURN(1);
+        }
+        default:
+            luaL_error(L,"TvbRange:get_le_uint64() does not handle %d byte integers",tvbr->len);
             return 0;
     }
 }
@@ -900,6 +962,8 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 static const luaL_reg TvbRange_methods[] = {
     {"uint", TvbRange_uint},
     {"le_uint", TvbRange_le_uint},
+    {"uint64", TvbRange_uint64},
+    {"le_uint64", TvbRange_le_uint64},
     {"float", TvbRange_float},
     {"le_float", TvbRange_le_float},
     {"ether", TvbRange_ether},
@@ -924,3 +988,60 @@ int TvbRange_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(TvbRange);
     return 1;
 }
+
+WSLUA_CLASS_DEFINE(Int64,NOP,NOP);
+/*
+ * Int64 represents a 64 bit integer.
+ * Lua uses one single number representation which can be chosen at compile time and since 
+ * it is often set to IEEE 754 double precision floating point, we cannot store a 64 bit integer
+ * with full precision.
+ * For details, see: http://lua-users.org/wiki/FloatingPoint
+ */
+
+WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
+	/* converts the Int64 into a string */
+    Int64 num = checkInt64(L,1);
+    lua_pushstring(L,g_strdup_printf("%ld",(long int)*(num)));
+    return 1;
+}
+
+static const luaL_reg Int64_methods[] = {
+    { NULL, NULL }
+};
+
+static const luaL_reg Int64_meta[] = {
+   {"__tostring", Int64__tostring},
+    { NULL, NULL }
+};
+
+int Int64_register(lua_State* L) {
+    WSLUA_REGISTER_CLASS(Int64);
+    return 1;
+}
+
+WSLUA_CLASS_DEFINE(UInt64,NOP,NOP);
+/*
+ * Int64 represents a 64 bit integer.
+ */
+
+WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
+	/* converts the UInt64 into a string */
+    UInt64 num = checkUInt64(L,1);
+    lua_pushstring(L,g_strdup_printf("%ld",(unsigned long int)*(num)));
+    return 1;
+}
+
+static const luaL_reg UInt64_methods[] = {
+    { NULL, NULL }
+};
+
+static const luaL_reg UInt64_meta[] = {
+    {"__tostring", UInt64__tostring},
+    { NULL, NULL }
+};
+
+int UInt64_register(lua_State* L) {
+    WSLUA_REGISTER_CLASS(UInt64);
+    return 1;
+}
+

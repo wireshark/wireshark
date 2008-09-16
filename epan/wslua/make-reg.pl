@@ -31,8 +31,8 @@ my @classes = ();
 my @functions = ();
 
 while (<>) {
-	push @classes, $1 if /WSLUA_CLASS_DEFINE\050\s*([A-Za-z]+)/;
-	push @functions, $1 if  /WSLUA_FUNCTION\s+wslua_([a-z_]+)/;
+	push @classes, $1 if /WSLUA_CLASS_DEFINE\050\s*([A-Za-z0-9]+)/;
+	push @functions, $1 if  /WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)/;
 }
 
 open C, ">register_wslua.c";
