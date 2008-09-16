@@ -29,7 +29,7 @@ libgcrypt-11.dll libgpg-error-0.dll: $(GNUTLS_DIR)\bin\$@
 	$(COPY) $(GNUTLS_DIR)\bin\$@ $@
 	
 clean:
-	rm -rf utest.exe *.obj  
+	rm -rf utest.exe *.obj *.manifest
 	rm -rf libgcrypt-11.dll libgpg-error-0.dll
 	rm -rf state nodeid
    	rm -rf *~ *.*~

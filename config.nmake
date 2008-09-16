@@ -205,7 +205,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.3ws
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -446,11 +446,12 @@ MSC_VER_REQUIRED=1500
 # /MD  use "Multithreading Debug" libraries
 # /D_CRT_SECURE_NO_DEPRECATE don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
 # /D_CRT_NONSTDC_NO_DEPRECATE don't warn for "Deprecated CRT Functions" as MSDN calls this
+# /D_BIND_TO_CURRENT_CRT_VERSION=1 Make sure our CRT and manifest versions match (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
 #
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE"
-LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
+LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) /D_BIND_TO_CURRENT_CRT_VERSION=1
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF

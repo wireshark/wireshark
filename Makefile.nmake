@@ -3,6 +3,9 @@
 #
 # $Id$
 
+# We "Deploy using XCopy," which is described at
+# http://msdn.microsoft.com/en-us/library/ms235291.aspx
+
 include config.nmake
 include <win32.mak>
 
@@ -551,7 +554,7 @@ $(ADNS_DLL):
 	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
 	cd adns.tmp\adns_win32\adns_dll
 	set CFG=adns_dll - Win32 Release
-	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
+	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="$(LOCAL_CFLAGS)"
 	cd ..\lib
 !IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
@@ -572,7 +575,7 @@ $(ADNS_DLL):
 $(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="$(LOCAL_CFLAGS)"
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
@@ -584,7 +587,7 @@ $(ZLIB_DLL):
 	copy zconf.h $(ZLIB_DIR)\include
 	copy zlib.h $(ZLIB_DIR)\include
 	cd ..
-    rm -r -f zlib.tmp
+	rm -r -f zlib.tmp
 !ENDIF
 
 wsutil::
@@ -733,7 +736,7 @@ process_libs:
 !ENDIF
 !IFDEF C_ARES_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. c-ares-1.5.2ws.zip
+		. c-ares-1.5.3ws.zip
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -842,7 +845,7 @@ process_libs:
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05ws
-    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.2ws
+    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.3ws
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
