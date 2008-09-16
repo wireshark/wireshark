@@ -126,9 +126,9 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
     ByteArray ba2 = checkByteArray(L,2);
 
 	if (! (ba  && ba2) )
-		WSLUA_ERROR(ByteArray_prepend,"both arguments must be ByteArrays");
+		WSLUA_ERROR(ByteArray_append,"both arguments must be ByteArrays");
 
-    g_byte_array_prepend(ba,ba2->data,ba2->len);
+    g_byte_array_append(ba,ba2->data,ba2->len);
 
     pushByteArray(L,ba);
     return 1;
@@ -140,10 +140,21 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 
     ByteArray ba = checkByteArray(L,1);
     int siz = luaL_checkint(L,2);
+    guint8* padding;
 
     if (!ba) return 0;
+    if (siz < 0) {
+        WSLUA_ERROR(ByteArray_set_size,"ByteArray size must be non-negative");
+        return 0;
+    }
 
-    g_byte_array_set_size(ba,siz);
+    if (ba->len >= (uint)siz) { /* truncate */
+        g_byte_array_set_size(ba,siz);
+    } else { /* fill */
+        padding = g_malloc0(sizeof(guint8)*(siz - ba->len));
+        g_byte_array_append(ba,padding,siz - ba->len);
+        g_free(padding);
+    }
     return 0;
 }
 
