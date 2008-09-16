@@ -310,7 +310,6 @@ wireshark_LDADD = \
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
-	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@INET_NTOP_LO@			\
 	@SSL_LIBS@ 			\
@@ -338,7 +337,6 @@ tshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
-	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
@@ -367,7 +365,6 @@ rawshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
-	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
@@ -393,31 +390,26 @@ text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
 text2pcap_LDADD = \
 	$(text2pcap_optional_objects)	\
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm
 
 # Libraries with which to link mergecap.
 mergecap_LDADD = \
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
@@ -429,7 +421,6 @@ randpkt_LDADD = \
 dftest_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
@@ -448,7 +439,6 @@ dftest_LDADD = \
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
 	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
