@@ -1090,7 +1090,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_SELECTED_REGISTRAR:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_selected_registrar;
 
       break;
@@ -1715,7 +1715,7 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_selected_registrar, 
       { "Selected Registrar", "wps.selected_registrar", 
-	FT_UINT16, BASE_HEX, NULL, 0x0, "Selected Registrar", HFILL }},
+	FT_UINT8, BASE_HEX, NULL, 0x0, "Selected Registrar", HFILL }},
 
     { &hf_eapwps_tlv_serial_number, 
       { "Serial Number", "wps.serial_number", 
