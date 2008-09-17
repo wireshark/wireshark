@@ -1243,6 +1243,9 @@ else
 fi
 AC_SUBST(C_ARES_LIBS)
 
+dnl ADNS Check
+ADNS_LIBS=''
+AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
 
 AC_ARG_WITH(adns,
   AC_HELP_STRING( [--with-adns@<:@=DIR@:>@],
