@@ -709,6 +709,18 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 
 	framenum = pinfo->fd->num;
 
+	/*  If we're dissecting for a read filter in the GUI [tshark assigns
+	 *  frame numbers before running the read filter], don't do the TSN
+	 *  analysis.  (We can't anyway because we don't have a valid frame
+	 *  number...)
+	 *
+	 *  Without this check if you load a capture file in the
+	 *  GUI while using a read filter, every SCTP TSN is marked as a
+	 *  retransmission of that in frame 0.
+	 */
+	if (framenum == 0)
+		return;
+
 	/* we have not seen any tsn yet in this half assoc set the ground */
 	if (! h->started) {
 		h->first_tsn = tsn;
@@ -1895,22 +1907,22 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
       if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
          return TRUE;
     }
-  
+
     /* Do lookups with the subdissector table.
-  
+
        When trying port numbers, we try the port number with the lower value
        first, followed by the port number with the higher value.  This means
        that, for packets where a dissector is registered for *both* port
        numbers, and where there's no match on the PPI:
-  
+
     1) we pick the same dissector for traffic going in both directions;
-  
+
     2) we prefer the port number that's more likely to be the right
        one (as that prefers well-known ports to reserved ports);
-  
+
        although there is, of course, no guarantee that any such strategy
        will always pick the right port number.
-  
+
        XXX - we ignore port numbers of 0, as some dissectors use a port
        number of 0 to disable the port. */
     if (dissector_try_port(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
@@ -1928,7 +1940,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     if (high_port != 0 &&
         dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
       return TRUE;
-  
+
     if (!try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
       if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
@@ -2867,7 +2879,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   a_rwnd = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
   if (a_rwnd == 0)
       expert_add_info_format(pinfo, a_rwnd_item, PI_SEQUENCE, PI_NOTE, "Zero Advertised Receiver Window Credit");
-    
+
 
   /* handle the gap acknowledgement blocks */
   number_of_gap_blocks = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
