@@ -769,8 +769,8 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 static void
 dissect_source_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
- 	srn = tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET);
- proto_tree_add_item(parameter_tree, hf_source_reference_number, parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET, SOURCE_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
+  srn = tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET);
+  proto_tree_add_item(parameter_tree, hf_source_reference_number, parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET, SOURCE_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET));
 }
 
@@ -780,7 +780,7 @@ dissect_source_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 static void
 dissect_destination_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-	drn = tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET);
+  drn = tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET);
   proto_tree_add_item(parameter_tree, hf_destination_reference_number, parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET, DESTINATION_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET));
 }
