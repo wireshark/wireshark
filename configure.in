@@ -1343,17 +1343,23 @@ fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
-AC_CHECK_FUNC(inet_aton,
-  [INET_ATON_O=""
-   INET_ATON_LO=""],
-  [INET_ATON_O="inet_aton.o"
-   INET_ATON_LO="inet_aton.lo"
-])
-if test "$ac_cv_func_inet_aton" = no ; then
+#
+# XXX - if inet_aton isn't found, the build fails, with a complaint from
+# libtool about inet_aton.lo not being a valid libtool object.  We
+# probably have to handle it - and all the other replacement functions that
+# get built into libwireshark - differently.
+#
+AC_SEARCH_LIBS(inet_aton, [socket nsl], have_inet_aton=yes,
+    have_inet_aton=no)
+if test "$have_inet_aton" = no; then
   INET_ATON_C="inet_aton.c"
   INET_ATON_O="inet_aton.o"
   INET_ATON_LO="inet_aton.lo"
   AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
+else
+  INET_ATON_C=""
+  INET_ATON_O=""
+  INET_ATON_LO=""
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
