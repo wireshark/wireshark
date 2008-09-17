@@ -164,22 +164,11 @@ static int megaco_tap = -1;
 static guint global_megaco_txt_tcp_port = PORT_MEGACO_TXT;
 static guint global_megaco_txt_udp_port = PORT_MEGACO_TXT;
 #if 0
-static int global_megaco_bin_tcp_port = PORT_MEGACO_BIN;
-static int global_megaco_bin_udp_port = PORT_MEGACO_BIN;
+static guint global_megaco_bin_tcp_port = PORT_MEGACO_BIN;
+static guint global_megaco_bin_udp_port = PORT_MEGACO_BIN;
 #endif
 static gboolean global_megaco_raw_text = TRUE;
 static gboolean global_megaco_dissect_tree = TRUE;
-
-/*
-* Variables to allow for proper deletion of dissector registration when
-* the user changes port from the gui.
-*/
-static int txt_tcp_port = 0;
-static int txt_udp_port = 0;
-#if 0
-static int bin_tcp_port = 0;
-static int bin_udp_port = 0;
-#endif
 
 /* Some basic utility functions that are specific to this dissector */
 static gint megaco_tvb_skip_wsp(tvbuff_t* tvb, gint offset);
@@ -694,7 +683,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
 			megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 			proto_tree_add_text(megaco_tree, tvb, 0, -1,
-		    "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
+			"Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                          tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
 			return;
 		} /* end switch */
@@ -3330,20 +3319,30 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 void
 proto_reg_handoff_megaco(void)
 {
-	static int megaco_prefs_initialized = FALSE;
+	static gboolean megaco_prefs_initialized = FALSE;
 	static dissector_handle_t megaco_text_tcp_handle;
-
-	sdp_handle = find_dissector("sdp");
-	h245_handle = find_dissector("h245dg");
-	h248_handle = find_dissector("h248");
-	h248_otp_handle = find_dissector("h248_otp");
-	data_handle = find_dissector("data");
+	/*
+	* Variables to allow for proper deletion of dissector registration when
+	* the user changes port from the gui.
+	*/
+	static guint txt_tcp_port;
+	static guint txt_udp_port;
+	#if 0
+	static guint bin_tcp_port;
+	static guint bin_udp_port;
+	#endif
 
 	if (!megaco_prefs_initialized) {
-		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
-			proto_megaco);
-		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp,
-			proto_megaco);
+		sdp_handle = find_dissector("sdp");
+		h245_handle = find_dissector("h245dg");
+		h248_handle = find_dissector("h248");
+		h248_otp_handle = find_dissector("h248_otp");
+		data_handle = find_dissector("data");
+
+		megaco_text_handle = find_dissector("megaco");
+		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
+
+		dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 
 		megaco_prefs_initialized = TRUE;
 	}
@@ -3359,8 +3358,6 @@ proto_reg_handoff_megaco(void)
 
 	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
 	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
-
-	dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 
 }
 
@@ -3488,10 +3485,9 @@ proto_register_megaco(void)
 		{ &hf_megaco_h245,
 		{ "h245", "megaco.h245", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Embedded H.245 message", HFILL }},
-		    { &hf_megaco_h223Capability,
-      { "h223Capability", "megaco.h245.h223Capability",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "megaco.h245.H223Capability", HFILL }},
+		{ &hf_megaco_h223Capability,
+ 		{ "h223Capability", "megaco.h245.h223Capability", FT_NONE, BASE_NONE, NULL, 0,
+		"megaco.h245.H223Capability", HFILL }},
 
 		GCP_HF_ARR_ELEMS("megaco",megaco_ctx_ids),
 
@@ -3573,16 +3569,14 @@ proto_register_megaco(void)
 		"raw text",
 		&global_megaco_dissect_tree);
 	prefs_register_bool_preference(megaco_module, "ctx_info",
-								   "Track Context",
-								   "Mantain relationships between transactions and contexts and display an extra tree showing context data",
-								   &keep_persistent_data);
+		"Track Context",
+		"Mantain relationships between transactions and contexts "
+		"and display an extra tree showing context data",
+		&keep_persistent_data);
 
 	megaco_tap = register_tap("megaco");
 
 }
-
-
-
 
 
 /*
