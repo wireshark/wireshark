@@ -3327,10 +3327,10 @@ proto_reg_handoff_megaco(void)
 	*/
 	static guint txt_tcp_port;
 	static guint txt_udp_port;
-	#if 0
+#if 0
 	static guint bin_tcp_port;
 	static guint bin_udp_port;
-	#endif
+#endif
 
 	if (!megaco_prefs_initialized) {
 		sdp_handle = find_dissector("sdp");
