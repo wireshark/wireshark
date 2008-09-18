@@ -2300,7 +2300,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 				severity = PI_CHAT;
 			} else {
 				gchar* calc_auth_str = bytestring_to_str(calc_auth,calc_auth_len,' ');
-				proto_item_append_text(authen_item, " calcuated = %s", calc_auth_str);
+				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				fmt = "SNMP Authentication Error";
 				severity = PI_WARN;
 			}

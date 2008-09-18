@@ -196,7 +196,7 @@ gint pdu_type=-1;
 				severity = PI_CHAT;
 			} else {
 				gchar* calc_auth_str = bytestring_to_str(calc_auth,calc_auth_len,' ');
-				proto_item_append_text(authen_item, " calcuated = %s", calc_auth_str);
+				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
 				fmt = "SNMP Authentication Error";
 				severity = PI_WARN;
 			}
