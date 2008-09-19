@@ -1659,13 +1659,11 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 					      sccp_parameter_values, "Unknown"));
   param_tree = proto_item_add_subtree(param_item, ett_sccp_segmentation);
 
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_first, tvb, 0, length,
-		      first);
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_class, tvb, 0, length,
-		      class);
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_remaining, tvb, 0,
-		      length, remaining);
-  proto_tree_add_uint(param_tree, hf_sccp_segmentation_slr, tvb, 1, length,
+  proto_tree_add_uint(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, first);
+  proto_tree_add_uint(param_tree, hf_sccp_segmentation_class, tvb, 0, 1, class);
+  proto_tree_add_uint(param_tree, hf_sccp_segmentation_remaining, tvb, 0, 1,
+		      remaining);
+  proto_tree_add_uint(param_tree, hf_sccp_segmentation_slr, tvb, 1, length-1,
 		      slrx);
 }
 
