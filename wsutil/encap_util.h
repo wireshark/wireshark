@@ -1,7 +1,7 @@
 /* encap_util.h
  * Data Link Type (DLT) encapsulation utility definitions
  *
- * $Id: str_util.h 26131 2008-09-03 19:14:52Z guy $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
