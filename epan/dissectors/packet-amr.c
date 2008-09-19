@@ -85,20 +85,19 @@ static int ett_amr_toc = -1;
 
 /* The dynamic payload type which will be dissected as AMR */
 
-static guint dynamic_payload_type = 0;
-static guint temp_dynamic_payload_type = 0;
-gint amr_encoding_type = 0;
-gint amr_mode = AMR_NB;
+static guint global_dynamic_payload_type = 0;
+static gint amr_encoding_type = 0;
+static gint amr_mode = AMR_NB;
 
 
 /* Currently only octet aligned works */
 /* static gboolean octet_aligned = TRUE; */
 
 static const value_string amr_encoding_type_value[] = {
-	{0,			"RFC 3267"}, 
-	{1,			"RFC 3267 bandwidth-efficient mode"}, 
-	{2,			"AMR IF 1"},
-	{3,			"AMR IF 2"},
+	{0,		"RFC 3267"}, 
+	{1,		"RFC 3267 bandwidth-efficient mode"}, 
+	{2,		"AMR IF 1"},
+	{3,		"AMR IF 2"},
 	{ 0,	NULL }
 };
 
@@ -114,32 +113,32 @@ static const value_string amr_nb_codec_mode_vals[] = {
 	{6,		"AMR 10,2 kbit/s"},
 	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
 	{AMR_NB_SID,	"AMR SID (Comfort Noise Frame)"},
-	{9,				"GSM-EFR SID"},
-	{10,			"TDMA-EFR SID "},
-	{11,			"PDC-EFR SID"},
-	{12,			"Illegal Frametype - for future use"},
-	{13,			"Illegal Frametype - for future use"},
-	{14,			"Illegal Frametype - for future use"},
+	{9,		"GSM-EFR SID"},
+	{10,		"TDMA-EFR SID "},
+	{11,		"PDC-EFR SID"},
+	{12,		"Illegal Frametype - for future use"},
+	{13,		"Illegal Frametype - for future use"},
+	{14,		"Illegal Frametype - for future use"},
 	{AMR_NO_TRANS,	"No Data (No transmission/No reception)"},
 	{ 0,	NULL }
 };
 
 static const value_string amr_wb_codec_mode_vals[] = {
-	{0, "AMR-WB 6.60 kbit/s"},
-	{1, "AMR-WB 8.85 kbit/s"},
-	{2, "AMR-WB 12.65 kbit/s"},
-	{3, "AMR-WB 14.25 kbit/s"},
-	{4, "AMR-WB 15.85 kbit/s"},
-	{5, "AMR-WB 18.25 kbit/s"},
-	{6, "AMR-WB 19.85 kbit/s"},
-	{7, "AMR-WB 23.05 kbit/s"},
-	{8, "AMR-WB 23.85 kbit/s"},
+	{0, 		"AMR-WB 6.60 kbit/s"},
+	{1, 		"AMR-WB 8.85 kbit/s"},
+	{2, 		"AMR-WB 12.65 kbit/s"},
+	{3, 		"AMR-WB 14.25 kbit/s"},
+	{4, 		"AMR-WB 15.85 kbit/s"},
+	{5, 		"AMR-WB 18.25 kbit/s"},
+	{6, 		"AMR-WB 19.85 kbit/s"},
+	{7, 		"AMR-WB 23.05 kbit/s"},
+	{8, 		"AMR-WB 23.85 kbit/s"},
 	{AMR_WB_SID,	"AMR-WB SID (Comfort Noise Frame)"},
-	{10,			"Illegal Frametype"},
-	{11,			"Illegal Frametype"},
-	{12,			"Illegal Frametype"},
-	{13,			"Illegal Frametype"},
-	{14,			"Speech lost"},
+	{10,		"Illegal Frametype"},
+	{11,		"Illegal Frametype"},
+	{12,		"Illegal Frametype"},
+	{13,		"Illegal Frametype"},
+	{14,		"Speech lost"},
 	{AMR_NO_TRANS,	"No Data (No transmission/No reception)"},
 	{ 0,	NULL }
 };
@@ -156,16 +155,16 @@ CMR (4 bits): Indicates a codec mode request sent to the speech
       mode request is present, and other values are for future use.
 */
 static const value_string amr_nb_codec_mode_request_vals[] = {
-	{0,			"AMR 4,75 kbit/s"},
-	{1,			"AMR 5,15 kbit/s"},
-	{2,			"AMR 5,90 kbit/s"},
-	{3,			"AMR 6,70 kbit/s (PDC-EFR)"},
-	{4,			"AMR 7,40 kbit/s (TDMA-EFR)"},
-	{5,			"AMR 7,95 kbit/s"},
-	{6,			"AMR 10,2 kbit/s"},
-	{7,			"AMR 12,2 kbit/s (GSM-EFR)"},
-	{8,			"Illegal Frametype - For future us"},
-	{8,			"Illegal Frametype - For future us"},
+	{0,		"AMR 4,75 kbit/s"},
+	{1,		"AMR 5,15 kbit/s"},
+	{2,		"AMR 5,90 kbit/s"},
+	{3,		"AMR 6,70 kbit/s (PDC-EFR)"},
+	{4,		"AMR 7,40 kbit/s (TDMA-EFR)"},
+	{5,		"AMR 7,95 kbit/s"},
+	{6,		"AMR 10,2 kbit/s"},
+	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
+	{8,		"Illegal Frametype - For future us"},
+	{8,		"Illegal Frametype - For future us"},
 	{10,		"Illegal Frametype - For future us"},
 	{11,		"Illegal Frametype - For future us"},
 	{12,		"Illegal Frametype - For future use"},
@@ -177,22 +176,22 @@ static const value_string amr_nb_codec_mode_request_vals[] = {
 
 /* Ref 3GPP TS 26.201 table 1a for AMR-WB*/
 static const value_string amr_wb_codec_mode_request_vals[] = {
-	{0, "AMR-WB 6.60 kbit/s"},
-	{1, "AMR-WB 8.85 kbit/s"},
-	{2, "AMR-WB 12.65 kbit/s"},
-	{3, "AMR-WB 14.25 kbit/s"},
-	{4, "AMR-WB 15.85 kbit/s"},
-	{5, "AMR-WB 18.25 kbit/s"},
-	{6, "AMR-WB 19.85 kbit/s"},
-	{7, "AMR-WB 23.05 kbit/s"},
-	{8, "AMR-WB 23.85 kbit/s"},
-	{9, "Illegal Frametype - For future use"},
-	{10,"Illegal Frametype - For future use"},
-	{11,"Illegal Frametype - For future use"},
-	{12,"Illegal Frametype - For future use"},
-	{13,"Illegal Frametype - For future use"},
-	{14,"Illegal Frametype - For future us"},
-	{15,"No mode request"}, 
+	{0, 		"AMR-WB 6.60 kbit/s"},
+	{1, 		"AMR-WB 8.85 kbit/s"},
+	{2, 		"AMR-WB 12.65 kbit/s"},
+	{3, 		"AMR-WB 14.25 kbit/s"},
+	{4, 		"AMR-WB 15.85 kbit/s"},
+	{5, 		"AMR-WB 18.25 kbit/s"},
+	{6, 		"AMR-WB 19.85 kbit/s"},
+	{7, 		"AMR-WB 23.05 kbit/s"},
+	{8, 		"AMR-WB 23.85 kbit/s"},
+	{9, 		"Illegal Frametype - For future use"},
+	{10,		"Illegal Frametype - For future use"},
+	{11,		"Illegal Frametype - For future use"},
+	{12,		"Illegal Frametype - For future use"},
+	{13,		"Illegal Frametype - For future use"},
+	{14,		"Illegal Frametype - For future us"},
+	{15,		"No mode request"}, 
 	{ 0,	NULL }
 };
 
@@ -214,7 +213,7 @@ static const true_false_string amr_sti_vals = {
 /* See 3GPP TS 26.101 chapter 4 for AMR-NB IF1 */
 static void
 dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
-	int offset =0;
+	int offset = 0;
 	guint8 octet;
 
 	proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, FALSE);
@@ -223,7 +222,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	if (octet == AMR_NB_SID){
 		proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, FALSE);
 		if (tvb_get_guint8(tvb,offset+1) & 0x1f)
-		    proto_tree_add_text(tree, tvb, offset+1, 1, "Error:Spare bits not 0");
+			proto_tree_add_text(tree, tvb, offset+1, 1, "Error:Spare bits not 0");
 		proto_tree_add_text(tree, tvb, offset+2, 5, "Speech data");
 		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, FALSE);
 		proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, FALSE);
@@ -243,12 +242,12 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 /* See 3GPP TS 26.201 for AMR-WB */
 static void
 dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
-	int offset =0;
+	int offset = 0;
 	guint8 octet;
 	proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, FALSE);
 	if (tvb_get_guint8(tvb,offset) & 0x03)
-	    proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
+		proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 	if (octet == AMR_WB_SID){
 		proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, FALSE);
@@ -269,7 +268,7 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 static void
 dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset =0;
+	int offset = 0;
 	guint8 octet;
 	
 	proto_tree_add_item(tree, hf_amr_nb_if2_ft, tvb, offset, 1, FALSE);
@@ -287,12 +286,12 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(octet, amr_nb_codec_mode_request_vals, "Unknown (%d)" ));
+				val_to_str(octet, amr_nb_codec_mode_request_vals, "Unknown (%d)" ));
 }
 
 static void
 dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset =0;
+	int offset = 0;
 	guint8 octet;
 	
 	proto_tree_add_item(tree, hf_amr_wb_if2_ft, tvb, offset, 1, FALSE);
@@ -310,7 +309,7 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(octet, amr_wb_codec_mode_request_vals, "Unknown (%d)" ));
+				val_to_str(octet, amr_wb_codec_mode_request_vals, "Unknown (%d)" ));
 }
 
 static void
@@ -318,12 +317,12 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	proto_item *item;
 	int ft;
 	int bitcount; /*bitcounter, MSB = bit 0, over bytes*/
-	int bits_used_for_frames =0;
+	int bits_used_for_frames = 0;
 	int bytes_needed_for_frames;
 	gboolean frame_following;
 	guint16 unit16val;
 	
-    /* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
+	/* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
 	/* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
 
 	/*               Frame type     0   1   2   3   4   5   6   7  8  9  10 11 12 13 14 15 */
@@ -335,73 +334,73 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 	
 	/* Chapter 4.3 */
-	bitcount =3;
+	bitcount = 3;
 	if (amr_mode==AMR_NB)
-	    item = proto_tree_add_item(tree, hf_amr_nb_cmr, tvb, bitcount/8, 1, FALSE);
+		item = proto_tree_add_item(tree, hf_amr_nb_cmr, tvb, bitcount/8, 1, FALSE);
 	else    
-	    item = proto_tree_add_item(tree, hf_amr_wb_cmr, tvb, bitcount/8, 1, FALSE);	
+		item = proto_tree_add_item(tree, hf_amr_wb_cmr, tvb, bitcount/8, 1, FALSE);	
 	    
 	do {
 		/* Check F bit */
-		bitcount +=1;
+		bitcount += 1;
 		frame_following = tvb_get_guint8(tvb,bitcount/8) & 0x80 >> (bitcount % 8);
 		unit16val = tvb_get_ntohs(tvb,bitcount/8);
 		ft = (unit16val >> (11 - (bitcount % 8)))  &0x000F;
 		if (amr_mode==AMR_NB)
-		    item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-			    amr_nb_codec_mode_request_vals[ft].strptr);
+			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
+						   amr_nb_codec_mode_request_vals[ft].strptr);
 		else
-		    item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-			    amr_wb_codec_mode_request_vals[ft].strptr);
+			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
+						   amr_wb_codec_mode_request_vals[ft].strptr);
 		    	    
-		bitcount +=4;
+		bitcount += 4;
 		if (amr_mode==AMR_NB)
-		    bits_used_for_frames +=Framebits_NB[ft];
+			bits_used_for_frames +=Framebits_NB[ft];
 		else    
-		    bits_used_for_frames +=Framebits_WB[ft];
+			bits_used_for_frames +=Framebits_WB[ft];
 		/* Check Q bit */
-		bitcount +=1;
+		bitcount += 1;
 		if (tvb_get_guint8(tvb,bitcount/8) & 0x80 >> (bitcount %8))
-		    proto_item_append_text(item, " / Frame OK");
+			proto_item_append_text(item, " / Frame OK");
 		else    
-		    proto_item_append_text(item, " / Frame damaged");
+			proto_item_append_text(item, " / Frame damaged");
 	} while ((frame_following) && (tvb_reported_length_remaining(tvb, bitcount/8)>2));
 	
 	if (bits_used_for_frames>0)
-    	    bytes_needed_for_frames = 1 + (bitcount+bits_used_for_frames)/8-bitcount/8;
+		bytes_needed_for_frames = 1 + (bitcount+bits_used_for_frames)/8-bitcount/8;
 	else     
-	    bytes_needed_for_frames = 0;
+		bytes_needed_for_frames = 0;
 
 	/* Check if we have enough data available for our frames */    
 	if (tvb_reported_length_remaining(tvb, bitcount/8)<bytes_needed_for_frames)	{
-	    item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Error:");
-	    proto_item_append_text(item, " %d Bytes available, %d would be needed!",
-				    tvb_reported_length_remaining(tvb, bitcount/8),
-				    bytes_needed_for_frames);
-	    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Not enough data for the frames according to TOC");
+		item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Error:");
+		proto_item_append_text(item, " %d Bytes available, %d would be needed!",
+				       tvb_reported_length_remaining(tvb, bitcount/8),
+				       bytes_needed_for_frames);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Not enough data for the frames according to TOC");
 	}			    
 	else {
-	    item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Frame Data");
-	    proto_item_append_text(item, " (%d Bytes)",bytes_needed_for_frames);
+		item = proto_tree_add_text(tree, tvb, bitcount/8, bytes_needed_for_frames, "Frame Data");
+		proto_item_append_text(item, " (%d Bytes)",bytes_needed_for_frames);
 	}    
 	
 	bitcount+=bits_used_for_frames;
 	
 	if (tvb_reported_length_remaining(tvb, (bitcount+8)/8)>0)	{
-	    item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8), "Error:");
-	    proto_item_append_text(item, " %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
-	    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Superflous data remaining");
+		item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8), "Error:");
+		proto_item_append_text(item, " %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Superflous data remaining");
 
-	    /* Now check the paddings */
-	    if (bitcount%8 !=0)	{
-		if ( (1 << (8 -(bitcount%8)-1)) & tvb_get_guint8(tvb,bitcount/8) )
-		    item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits correct");
-		else	{
-		    item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits error");
-		    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0");
-		}    
+		/* Now check the paddings */
+		if (bitcount%8 != 0)	{
+			if ( (1 << (8 -(bitcount%8)-1)) & tvb_get_guint8(tvb,bitcount/8) )
+				item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits correct");
+			else	{
+				item = proto_tree_add_text(tree, tvb, bitcount/8, 1, "Padding bits error");
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0");
+			}    
 
-	    }	    
+		}	    
 	}    
 	
 }
@@ -453,9 +452,9 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		
 		if (amr_mode==AMR_NB)
-		    proto_tree_add_item(amr_tree, hf_amr_nb_cmr, tvb, offset, 1, FALSE);
+			proto_tree_add_item(amr_tree, hf_amr_nb_cmr, tvb, offset, 1, FALSE);
 		else
-		    proto_tree_add_item(amr_tree, hf_amr_wb_cmr, tvb, offset, 1, FALSE);    
+			proto_tree_add_item(amr_tree, hf_amr_wb_cmr, tvb, offset, 1, FALSE);    
 		    
 		octet = tvb_get_guint8(tvb,offset) & 0x0f;
 		if ( octet != 0  ){
@@ -494,9 +493,9 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			octet = tvb_get_guint8(tvb,offset);	
 			proto_tree_add_item(amr_tree, hf_amr_toc_f, tvb, offset, 1, FALSE);
 			if (amr_mode==AMR_NB)
-			    proto_tree_add_item(amr_tree, hf_amr_nb_toc_ft, tvb, offset, 1, FALSE);
+				proto_tree_add_item(amr_tree, hf_amr_nb_toc_ft, tvb, offset, 1, FALSE);
 			else
-			    proto_tree_add_item(amr_tree, hf_amr_wb_toc_ft, tvb, offset, 1, FALSE);    
+				proto_tree_add_item(amr_tree, hf_amr_wb_toc_ft, tvb, offset, 1, FALSE);    
 			proto_tree_add_item(amr_tree, hf_amr_toc_q, tvb, offset, 1, FALSE);
 			offset++;
 		}
@@ -524,32 +523,32 @@ static amr_capability_t amr_capability_tab[] = {
 };      
 
 static amr_capability_t *find_cap(const gchar *id) {
-  amr_capability_t *ftr = NULL;
-  amr_capability_t *f;
+	amr_capability_t *ftr = NULL;
+	amr_capability_t *f;
 
-  for (f=amr_capability_tab; f->id; f++) {
-    if (!strcmp(id, f->id)) { ftr = f; break; }
-  }
-  return ftr;
+	for (f=amr_capability_tab; f->id; f++) {
+		if (!strcmp(id, f->id)) { ftr = f; break; }
+	}
+	return ftr;
 }
 
 static void
 dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) 
 {
-  asn1_ctx_t *actx;
-  amr_capability_t *ftr = NULL; 
+	asn1_ctx_t *actx;
+	amr_capability_t *ftr = NULL; 
 
-  actx = get_asn1_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(actx);
-  if (tree) {
-    ftr = find_cap(pinfo->match_string);
-    if (ftr) {
-      proto_item_append_text(actx->created_item, " - %s", ftr->name);
-      proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", ftr->name);
-    } else {
-      proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
-    }
-  }
+	actx = get_asn1_ctx(pinfo->private_data);
+	DISSECTOR_ASSERT(actx);
+	if (tree) {
+		ftr = find_cap(pinfo->match_string);
+		if (ftr) {
+			proto_item_append_text(actx->created_item, " - %s", ftr->name);
+			proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", ftr->name);
+		} else {
+			proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
+		}
+	}
 }
 
 /* Register the protocol with Wireshark */
@@ -560,42 +559,39 @@ dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_amr(void)
 {
-	dissector_handle_t amr_handle;
-	dissector_handle_t amr_name_handle;
-	amr_capability_t *ftr = NULL; 
-	static int amr_prefs_initialized = FALSE;
-	
-	amr_handle = create_dissector_handle(dissect_amr, proto_amr);
-	amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
+	static dissector_handle_t amr_handle;
+	static dissector_handle_t amr_name_handle;
+	static guint saved_dynamic_payload_type;
+	static gboolean amr_prefs_initialized = FALSE;
+	amr_capability_t *ftr; 
 
 	if (!amr_prefs_initialized) {
+		amr_handle = find_dissector("amr");
+		amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
+		dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
+		/* 
+		 * Register H.245 Generic parameter name(s)
+		 */
+		for (ftr=amr_capability_tab; ftr->id; ftr++) {
+			if (ftr->name) 
+				dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
+			if (ftr->content_pdu)
+				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_amr));
+		}
+		/*	Activate the next line for testing with the randpkt tool
+			dissector_add("udp.port", 55555, amr_handle); 
+		*/
 		amr_prefs_initialized = TRUE;
-	  }
-	else {
-			if ( dynamic_payload_type > 95 )
-				dissector_delete("rtp.pt", dynamic_payload_type, amr_handle);
+	} else {
+		if ( saved_dynamic_payload_type > 95 )
+			dissector_delete("rtp.pt", saved_dynamic_payload_type, amr_handle);
 	}
-	dynamic_payload_type = temp_dynamic_payload_type;
 
-	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, amr_handle);
+	if ( global_dynamic_payload_type > 95 ){
+		dissector_add("rtp.pt", global_dynamic_payload_type, amr_handle);
 	}
-	dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
+	saved_dynamic_payload_type = global_dynamic_payload_type;
 	
-/*	Activate the next line for testing with the randpkt tool
-	dissector_add("udp.port", 55555, amr_handle); 
-*/
-
-	/* 
-	 * Register H.245 Generic parameter name(s)
-	 */
-	for (ftr=amr_capability_tab; ftr->id; ftr++) {
-		if (ftr->name) 
-			dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
-		if (ftr->content_pdu)
-			dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_amr));
-  }
-
 }
 
 /* this format is require because a script is used to build the C function
@@ -608,7 +604,7 @@ proto_register_amr(void)
 
 	module_t *amr_module;
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
+ /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_amr_nb_cmr,
 			{ "CMR",           "amr.nb.cmr",
@@ -727,19 +723,19 @@ proto_register_amr(void)
 		&ett_amr,
 		&ett_amr_toc,
 	};
-    static enum_val_t encoding_types[] = {
-	{"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
-	{"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1}, 
-	{"AMR IF1", "AMR IF1", 2},
-	{"AMR IF2", "AMR IF2", 3},
-	{NULL, NULL, -1}
-    };
+	static enum_val_t encoding_types[] = {
+		{"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
+		{"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1}, 
+		{"AMR IF1", "AMR IF1", 2},
+		{"AMR IF2", "AMR IF2", 3},
+		{NULL, NULL, -1}
+	};
 
-    static enum_val_t modes[] = {
-	{"AMR-NB", "Narrowband AMR", AMR_NB},
-	{"AMR-WB", "Wideband AMR", AMR_WB}, 
-	{NULL, NULL, -1}
-    };
+	static enum_val_t modes[] = {
+		{"AMR-NB", "Narrowband AMR", AMR_NB},
+		{"AMR-WB", "Wideband AMR", AMR_WB}, 
+		{NULL, NULL, -1}
+	};
 
 /* Register the protocol name and description */
 	proto_amr = proto_register_protocol("Adaptive Multi-Rate","AMR", "amr");
@@ -748,25 +744,25 @@ proto_register_amr(void)
 	proto_register_field_array(proto_amr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	/* Register a configuration option for port */
-
 	
 	amr_module = prefs_register_protocol(proto_amr, proto_reg_handoff_amr);
 
 	prefs_register_uint_preference(amr_module, "dynamic.payload.type",
-								   "AMR dynamic payload type",
-								   "The dynamic payload type which will be interpreted as AMR",
-								   10,
-								   &temp_dynamic_payload_type);
+				       "AMR dynamic payload type",
+				       "The dynamic payload type which will be interpreted as AMR" 
+				       "; The value must be greater than 95",
+				       10,
+				       &global_dynamic_payload_type);
 
-    prefs_register_enum_preference(amr_module, "encoding.version",
-      "Type of AMR encoding of the payload",
-      "Type of AMR encoding of the payload",
-      &amr_encoding_type, encoding_types, FALSE);
+	prefs_register_enum_preference(amr_module, "encoding.version",
+				       "Type of AMR encoding of the payload",
+				       "Type of AMR encoding of the payload",
+				       &amr_encoding_type, encoding_types, FALSE);
 
-    prefs_register_enum_preference(amr_module, "mode",
-      "The AMR mode",
-      "The AMR mode",
-      &amr_mode, modes, AMR_NB);
+	prefs_register_enum_preference(amr_module, "mode",
+				       "The AMR mode",
+				       "The AMR mode",
+				       &amr_mode, modes, AMR_NB);
 	
 	register_dissector("amr", dissect_amr, proto_amr);
 	register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
