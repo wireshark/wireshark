@@ -60,9 +60,7 @@
 #include <epan/range.h>
 #include <epan/frequency-utils.h>
 
-/* Needed for wtap_pcap_encap_to_wtap_encap().  Should we move it somewhere
- * else? */
-#include <wiretap/libpcap.h>
+#include <wsutil/encap_util.h>
 
 #include "packet-frame.h"
 #include "packet-eth.h"
@@ -709,13 +707,13 @@ static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     ptvcursor_add_no_advance(csr, hf_8023_extension_flags_flag2, 4, TRUE);
     ptvcursor_add(csr, hf_8023_extension_flags_flag3, 4, TRUE);
     ptvcursor_pop_subtree(csr);
-    
+
     ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, TRUE, ett_8023_extension_errors);
     ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error1, 4, TRUE);
     ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error2, 4, TRUE);
     ptvcursor_add(csr, hf_8023_extension_errors_error3, 4, TRUE);
     ptvcursor_pop_subtree(csr);
-    
+
     ptvcursor_free(csr);
 }
 
@@ -820,11 +818,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case PPI_CAPTURE_INFO:
                 ADD_BASIC_TAG(hf_capture_info);
                 break;
-                
+
             case PPI_AGGREGATION_EXTENSION:
                 dissect_aggregation_extension(tvb, pinfo, ppi_tree, offset, data_len);
                 break;
-                
+
             case PPI_8023_EXTENSION:
                 dissect_8023_extension(tvb, pinfo, ppi_tree, offset, data_len);
                 break;
@@ -1235,7 +1233,7 @@ proto_register_ppi(void)
     { &hf_aggregation_extension_interface_id,
        { "Interface ID", "ppi.aggregation_extension.interface_id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "Zero-based index of the physical interface the packet was captured from", HFILL } },
-    
+
     /* 802.3 Extension */
     { &hf_8023_extension_flags,
        { "Flags", "ppi.8023_extension.flags",
@@ -1261,7 +1259,7 @@ proto_register_ppi(void)
     { &hf_8023_extension_errors_error3,
        { "Error 3", "ppi.8023_extension.errors.error3",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004, "Debug Error 3", HFILL } },
-    
+
     };
 
     static gint *ett[] = {

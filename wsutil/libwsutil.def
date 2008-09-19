@@ -9,14 +9,19 @@
 ;
 EXPORTS
 
-; privileges.c
-get_credential_info
-get_cur_groupname
-get_cur_username
-npf_sys_is_running
-relinquish_special_privs_perm
-running_with_special_privs
-started_with_special_privs
+; encap_util.c
+wtap_pcap_encap_to_wtap_encap
+wtap_wtap_encap_to_pcap_encap
+
+; file_util.c
+ws_stdio_fopen
+ws_stdio_freopen
+ws_stdio_mkdir
+ws_stdio_open
+ws_stdio_remove
+ws_stdio_rename
+ws_stdio_stat
+ws_stdio_unlink
 
 ; mpeg-audio.c
 mpa_bitrate
@@ -26,20 +31,20 @@ mpa_padding
 mpa_samples
 mpa_version
 
-; unicode-utils.c
-utf_16to8
-utf_8to16
-
-; file_util.c
-ws_stdio_open
-ws_stdio_rename
-ws_stdio_mkdir
-ws_stdio_stat
-ws_stdio_unlink
-ws_stdio_remove
-ws_stdio_fopen
-ws_stdio_freopen
+; privileges.c
+get_credential_info
+get_cur_groupname
+get_cur_username
+npf_sys_is_running
+relinquish_special_privs_perm
+running_with_special_privs
+started_with_special_privs
 
 ; str_util.c
 ascii_strdown_inplace
 ascii_strup_inplace
+
+; unicode-utils.c
+utf_16to8
+utf_8to16
+
