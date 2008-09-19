@@ -46,8 +46,7 @@
 void proto_reg_handoff_newmail(void);
 
 /* Variables for preferences */
-guint preference_default_port = 0;
-guint preference_default_port_last = 0;
+static guint preference_default_port = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_newmail = -1;
@@ -129,28 +128,21 @@ void
 proto_reg_handoff_newmail(void)
 {
 	static gboolean inited = FALSE;
-
-	dissector_handle_t newmail_handle;
-
-	newmail_handle = find_dissector("newmail");
+	static dissector_handle_t newmail_handle;
+        static guint preference_default_port_last;
 
 	if(!inited) {
-		dissector_add("udp.port", preference_default_port, newmail_handle);
-		preference_default_port_last = preference_default_port;
+		newmail_handle = find_dissector("newmail");
+		dissector_add_handle("udp.port", newmail_handle); /* for 'decode-as' */
 		inited = TRUE;
-	}
-	
-	if(preference_default_port != preference_default_port_last) {	
-		/* Unregister the last setting */
-		dissector_delete("udp.port", preference_default_port_last,
-				 newmail_handle);
-		
-		/* Save the last setting so we can unregister it later */
-		preference_default_port_last = preference_default_port;
-		
-		/* Register the new setting */
+	} else {
+                if (preference_default_port_last != 0) {
+                        dissector_delete("udp.port", preference_default_port_last, newmail_handle);
+                }
+        }	
+
+	if(preference_default_port != 0) {	
 		dissector_add("udp.port", preference_default_port, newmail_handle);
 	}
-	
-
+        preference_default_port_last = preference_default_port;
 }

@@ -4417,7 +4417,7 @@ void proto_reg_handoff_dmp (void)
   static gboolean dmp_prefs_initialized = FALSE;
 
   if (!dmp_prefs_initialized) {
-    dmp_handle = create_dissector_handle (dissect_dmp, proto_dmp);
+    dmp_handle = find_dissector(PFNAME);
     dmp_prefs_initialized = TRUE;
   } else {
     range_foreach (dmp_port_range, range_delete_callback);

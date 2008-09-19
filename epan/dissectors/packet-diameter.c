@@ -263,7 +263,7 @@ static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 static dissector_handle_t diameter_tcp_handle;
 static range_t *global_diameter_tcp_port_range;
 static range_t *diameter_tcp_port_range;
-#define DEFAULT_DIAMETER_PORT_RANGE "3868,3868"
+#define DEFAULT_DIAMETER_PORT_RANGE "3868"
 
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
@@ -711,7 +711,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
 			     cmd_str,
-				 ((flags_bits>>4)&0x08) ? "Request" : "Answer",
+			     ((flags_bits>>4)&0x08) ? "Request" : "Answer",
 			     cmd,
 			     msgflags_str[((flags_bits>>4)&0x0f)],
 			     c->version_rfc ? "appl" : "vend",
@@ -1248,17 +1248,19 @@ range_add_callback(guint32 port)
 void
 proto_reg_handoff_diameter(void)
 {
-	static int Initialized=FALSE;
-	static int SctpPort=0;
+	static gboolean Initialized=FALSE;
+	static guint SctpPort;
 	static dissector_handle_t diameter_handle;
 
-	data_handle = find_dissector("data");
-
 	if (!Initialized) {
+		diameter_handle = find_dissector("diameter");
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
-		diameter_handle = new_create_dissector_handle(dissect_diameter,
-							      proto_diameter);
+		data_handle = find_dissector("data");
+		/* Register special decoding for some AVP:s */
+		/* AVP Code: 266 Vendor-Id */
+		dissector_add("diameter.base", 266, 
+				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
 		Initialized=TRUE;
 	} else {
 		range_foreach(diameter_tcp_port_range, range_delete_callback);
@@ -1275,9 +1277,6 @@ proto_reg_handoff_diameter(void)
 
 	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
 
-	/* Register special decoding for some AVP:s */
-	/* AVP Code: 266 Vendor-Id */
-	dissector_add("diameter.base", 266, new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
 
 }
 

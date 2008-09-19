@@ -2279,15 +2279,16 @@ proto_reg_handoff_sigcomp(void)
 {
 	static dissector_handle_t sigcomp_handle;
 	static dissector_handle_t sigcomp_tcp_handle;
-	static int Initialized=FALSE;
-	static int udp_port1 = 5555;
-	static int udp_port2 = 6666;
-	static int tcp_port1 = 5555;
-	static int tcp_port2 = 6666;
+	static gboolean Initialized=FALSE;
+	static guint udp_port1;
+	static guint udp_port2;
+	static guint tcp_port1;
+	static guint tcp_port2;
 
 	if (!Initialized) {
-		sigcomp_handle = new_create_dissector_handle(dissect_sigcomp,proto_sigcomp);
+		sigcomp_handle = find_dissector("sigcomp");
 		sigcomp_tcp_handle = new_create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
+		sip_handle = find_dissector("sip");
 		Initialized=TRUE;
 	}else{
 		dissector_delete("udp.port", udp_port1, sigcomp_handle);
@@ -2306,9 +2307,6 @@ proto_reg_handoff_sigcomp(void)
 	dissector_add("udp.port", SigCompUDPPort2, sigcomp_handle);
 	dissector_add("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
 	dissector_add("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
-
-	sip_handle = find_dissector("sip");
-
 
 }
 
@@ -2706,7 +2704,8 @@ proto_register_sigcomp(void)
 
 	prefs_register_bool_preference(sigcomp_module, "display.bytecode",
 								   "Display the bytecode of operands",
-								   "preference whether to display the bytecode in UDVM operands or not",
+								   "preference whether to display the bytecode in "
+                                                                   "UDVM operands or not",
 								   &display_udvm_bytecode);
 	prefs_register_bool_preference(sigcomp_module, "decomp.msg",
 								   "Decompress message",
@@ -2714,12 +2713,15 @@ proto_register_sigcomp(void)
 								   &decompress);
 	prefs_register_bool_preference(sigcomp_module, "display.decomp.msg.as.txt",
 								   "Displays the decompressed message as text",
-								   "preference whether to display the decompressed message as raw text or not",
+								   "preference whether to display the decompressed message "
+                                                                   "as raw text or not",
 								   &display_raw_txt);
-    prefs_register_enum_preference(sigcomp_module, "show.udvm.execution",
-      "Level of detail of UDVM execution",
-      "0 = UDVM executes silently, then increasing detail about execution of UDVM instructions, Warning! CPU intense at high detail",
-      &udvm_print_detail_level, udvm_detail_vals, FALSE);
+        prefs_register_enum_preference(sigcomp_module, "show.udvm.execution",
+                                                                   "Level of detail of UDVM execution:",
+                                                                   "'No-Printout' = UDVM executes silently, then increasing detail "
+                                                                   "about execution of UDVM instructions; "
+                                                                   "Warning! CPU intense at high detail",
+                                                                   &udvm_print_detail_level, udvm_detail_vals, FALSE);
 
 	register_init_routine(&sigcomp_init_protocol);
 

@@ -54,7 +54,7 @@ static module_t *hilscher_module;
  *  This is done separately from the disabled protocols list mainly so
  *  we can disable it by default.  XXX Maybe there's a better way.
  */
-static int  hilscher_enable_dissector = FALSE;
+static gboolean  hilscher_enable_dissector = FALSE;
 
 void proto_reg_handoff_hilscher(void);
 
@@ -182,7 +182,7 @@ dissect_hilscher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void proto_register_hilscher(void)
 {
-  static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
 	{ &hf_information_type,
 	  { "Hilscher information block type", "hilscher.information_type",
 	    FT_UINT8, BASE_HEX, VALS(information_type), 0x0, "", HFILL }
@@ -195,20 +195,17 @@ void proto_register_hilscher(void)
 		{ "Event type", "hilscher.net_analyzer.gpio_edge", FT_UINT8,
 		  BASE_HEX, VALS(gpio_edge), 0x0, "", HFILL }
 	},
-  };
+    };
 
-  static gint *ett[] = {
+    static gint *ett[] = {
 	&ett_information_type,
 	&ett_gpio_number,
 	&ett_gpio_edge,
-  };
+    };
 
-    if (proto_hilscher == -1)
-    {
- 	proto_hilscher = proto_register_protocol ("Hilscher analyzer dissector",	/* name */
-						  "Hilscher",		/* short name */
-						  "hilscher");		/* abbrev */
-    }
+    proto_hilscher = proto_register_protocol ("Hilscher analyzer dissector",	/* name */
+                                              "Hilscher",		/* short name */
+                                              "hilscher");		/* abbrev */
 
     hilscher_module = prefs_register_protocol(proto_hilscher, proto_reg_handoff_hilscher);
 
@@ -223,11 +220,12 @@ void proto_register_hilscher(void)
 
 void proto_reg_handoff_hilscher(void)
 {
-    static int prefs_initialized = FALSE;
+    static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
 	/* add heuristic dissector */
 	heur_dissector_add("eth", dissect_hilscher_heur, proto_hilscher);
+        prefs_initialized = TRUE;
     }
 
     proto_set_decoding(proto_hilscher, hilscher_enable_dissector);

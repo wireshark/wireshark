@@ -1393,10 +1393,10 @@ static void range_add_callback (guint32 port)
 
 void proto_reg_handoff_p_mul (void)
 {
-  static int p_mul_prefs_initialized = FALSE;
+  static gboolean p_mul_prefs_initialized = FALSE;
 
   if (!p_mul_prefs_initialized) {
-    p_mul_handle = create_dissector_handle (dissect_p_mul, proto_p_mul);
+    p_mul_handle = find_dissector(PFNAME);
     p_mul_prefs_initialized = TRUE;
   } else {
     range_foreach (p_mul_port_range, range_delete_callback);
