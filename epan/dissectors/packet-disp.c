@@ -1603,7 +1603,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    disp_op_name = "Coordinate-Shadow-Update-Result";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP opcode");
+	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP opcode (%d)",
+				session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
@@ -1614,7 +1615,8 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    disp_op_name = "Shadow-Error";
 	    break;
 	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP errcode");
+	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DISP errcode (%d)",
+				session->ros_op & ROS_OP_OPCODE_MASK);
 	    break;
 	  }
 	  break;
