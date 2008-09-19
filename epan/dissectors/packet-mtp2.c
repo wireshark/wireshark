@@ -56,7 +56,7 @@ static int hf_mtp2_ext_li    = -1;
 static int hf_mtp2_spare     = -1;
 static int hf_mtp2_ext_spare = -1;
 static int hf_mtp2_sf        = -1;
-static int hf_mtp2_long_sf   = -1;
+static int hf_mtp2_sf_extra  = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mtp2       = -1;
@@ -239,27 +239,34 @@ static const value_string status_field_acro_vals[] = {
 #define SF_OFFSET          (LI_OFFSET + LI_LENGTH)
 #define EXTENDED_SF_OFFSET (EXTENDED_LI_OFFSET + EXTENDED_LI_LENGTH)
 
-#define SF_LENGTH          1
-#define LONG_SF_LENGTH     2
+#define SF_LENGTH			1
+#define SF_EXTRA_OFFSET			(SF_OFFSET + SF_LENGTH)
+#define EXTENDED_SF_EXTRA_OFFSET	(EXTENDED_SF_OFFSET + SF_LENGTH)
+#define SF_EXTRA_LENGTH			1
 
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
 {
   guint8 sf = 0xFF;
+  guint8 sf_offset, sf_extra_offset;
   
   if (use_extended_sequence_numbers) {
-    if ((tvb_get_letohs(su_tvb, EXTENDED_LI_OFFSET) & EXTENDED_LI_MASK) == 1) {
-      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, EXTENDED_SF_OFFSET, SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
-      sf = tvb_get_guint8(su_tvb, EXTENDED_SF_OFFSET);
-    } else
-      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, EXTENDED_SF_OFFSET, LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
+    sf_offset = EXTENDED_SF_OFFSET;
+    sf_extra_offset = EXTENDED_SF_EXTRA_OFFSET;
   } else {
-    if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 1) {
-      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, SF_OFFSET,          SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
-      sf = tvb_get_guint8(su_tvb, SF_OFFSET);
-    } else
-      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, SF_OFFSET,          LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
+    sf_offset = SF_OFFSET;
+    sf_extra_offset = SF_EXTRA_OFFSET;
   }
+
+  proto_tree_add_item(mtp2_tree, hf_mtp2_sf, su_tvb, sf_offset, SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
+  sf = tvb_get_guint8(su_tvb, SF_OFFSET);
+
+  /*  If the LI is 2 then there is an extra octet following the standard SF
+   *  field but it is not defined what this octet is.
+   *  (In any case the first byte of the SF always has the same meaning.)
+   */
+  if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 2)
+    proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(sf, status_field_acro_vals, "Unknown"));
@@ -367,21 +374,21 @@ proto_register_mtp2(void)
 {
 
   static hf_register_info hf[] = {
-    { &hf_mtp2_bsn,       { "Backward sequence number", "mtp2.bsn",   FT_UINT8,  BASE_DEC, NULL,                    BSN_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_bsn,   { "Backward sequence number", "mtp2.bsn",   FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BSN_MASK,   "", HFILL } },
-    { &hf_mtp2_ext_res,   { "Reserved",                 "mtp2.res",   FT_UINT16, BASE_DEC, NULL,                    EXTENDED_RES_MASK,   "", HFILL } },
-    { &hf_mtp2_bib,       { "Backward indicator bit",   "mtp2.bib",   FT_UINT8,  BASE_DEC, NULL,                    BIB_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_bib,   { "Backward indicator bit",   "mtp2.bib",   FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BIB_MASK,   "", HFILL } },
-    { &hf_mtp2_fsn,       { "Forward sequence number",  "mtp2.fsn",   FT_UINT8,  BASE_DEC, NULL,                    FSN_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_fsn,   { "Forward sequence number",  "mtp2.fsn",   FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FSN_MASK,   "", HFILL } },
-    { &hf_mtp2_fib,       { "Forward indicator bit",    "mtp2.fib",   FT_UINT8,  BASE_DEC, NULL,                    FIB_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_fib,   { "Forward indicator bit",    "mtp2.fib",   FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FIB_MASK,   "", HFILL } },
-    { &hf_mtp2_li,        { "Length Indicator",         "mtp2.li",    FT_UINT8,  BASE_DEC, NULL,                    LI_MASK,             "", HFILL } },
-    { &hf_mtp2_ext_li,    { "Length Indicator",         "mtp2.li",    FT_UINT16, BASE_DEC, NULL,                    EXTENDED_LI_MASK,    "", HFILL } },
-    { &hf_mtp2_spare,     { "Spare",                    "mtp2.spare", FT_UINT8,  BASE_DEC, NULL,                    SPARE_MASK,          "", HFILL } },
-    { &hf_mtp2_ext_spare, { "Spare",                    "mtp2.spare", FT_UINT16, BASE_DEC, NULL,                    EXTENDED_SPARE_MASK, "", HFILL } },
-    { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",    FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 "", HFILL } },
-    { &hf_mtp2_long_sf,   { "Status field",             "mtp2.sf",    FT_UINT16, BASE_HEX, NULL,                    0x0,                 "", HFILL } }
+    { &hf_mtp2_bsn,       { "Backward sequence number", "mtp2.bsn",      FT_UINT8,  BASE_DEC, NULL,                    BSN_MASK,            "", HFILL } },
+    { &hf_mtp2_ext_bsn,   { "Backward sequence number", "mtp2.bsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BSN_MASK,   "", HFILL } },
+    { &hf_mtp2_ext_res,   { "Reserved",                 "mtp2.res",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_RES_MASK,   "", HFILL } },
+    { &hf_mtp2_bib,       { "Backward indicator bit",   "mtp2.bib",      FT_UINT8,  BASE_DEC, NULL,                    BIB_MASK,            "", HFILL } },
+    { &hf_mtp2_ext_bib,   { "Backward indicator bit",   "mtp2.bib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BIB_MASK,   "", HFILL } },
+    { &hf_mtp2_fsn,       { "Forward sequence number",  "mtp2.fsn",      FT_UINT8,  BASE_DEC, NULL,                    FSN_MASK,            "", HFILL } },
+    { &hf_mtp2_ext_fsn,   { "Forward sequence number",  "mtp2.fsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FSN_MASK,   "", HFILL } },
+    { &hf_mtp2_fib,       { "Forward indicator bit",    "mtp2.fib",      FT_UINT8,  BASE_DEC, NULL,                    FIB_MASK,            "", HFILL } },
+    { &hf_mtp2_ext_fib,   { "Forward indicator bit",    "mtp2.fib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FIB_MASK,   "", HFILL } },
+    { &hf_mtp2_li,        { "Length Indicator",         "mtp2.li",       FT_UINT8,  BASE_DEC, NULL,                    LI_MASK,             "", HFILL } },
+    { &hf_mtp2_ext_li,    { "Length Indicator",         "mtp2.li",       FT_UINT16, BASE_DEC, NULL,                    EXTENDED_LI_MASK,    "", HFILL } },
+    { &hf_mtp2_spare,     { "Spare",                    "mtp2.spare",    FT_UINT8,  BASE_DEC, NULL,                    SPARE_MASK,          "", HFILL } },
+    { &hf_mtp2_ext_spare, { "Spare",                    "mtp2.spare",    FT_UINT16, BASE_DEC, NULL,                    EXTENDED_SPARE_MASK, "", HFILL } },
+    { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",       FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 "", HFILL } },
+    { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 "", HFILL } }
   };
 
   static gint *ett[] = {
