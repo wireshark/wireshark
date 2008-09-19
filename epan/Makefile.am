@@ -131,6 +131,13 @@ libwireshark_la_LIBADD = \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ \
 	${top_builddir}/wsutil/libwsutil.la -lm
 
+libwireshark_la_DEPENDENCIES = \
+	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
+	libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la \
+	dfilter/libdfilter.la dissectors/libdissectors.la \
+	dissectors/libdirtydissectors.la $(wslua_lib) \
+	${top_builddir}/wsutil/libwsutil.la
+
 #EXTRA_PROGRAMS = reassemble_test
 #reassemble_test_LDADD = $(GLIB_LIBS)
 
