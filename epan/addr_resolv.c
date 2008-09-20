@@ -483,7 +483,7 @@ static void parse_service_line (char *line)
 
   cb_service = service;
   range_foreach(port_rng, add_serv_port_cb);
-
+  g_free (port_rng);
 } /* parse_service_line */
 
 
