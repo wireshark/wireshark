@@ -213,6 +213,7 @@ static gint hf_krb_LastReqs = -1;
 static gint hf_krb_IF_RELEVANT = -1;
 static gint hf_krb_addr_type = -1;
 static gint hf_krb_address_ip = -1;
+static gint hf_krb_address_ipv6 = -1;
 static gint hf_krb_address_netbios = -1;
 static gint hf_krb_msg_type = -1;
 static gint hf_krb_pvno = -1;
@@ -879,7 +880,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
 
-
+#define	INET6_ADDRLEN	16
 
 /* TCP Record Mark */
 #define	KRB_RM_RESERVED	0x80000000L
@@ -1749,6 +1750,10 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
 		g_snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
+		break;
+	case KRB5_ADDR_IPv6:
+		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
+		g_snprintf(address_str, 256, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
@@ -4771,6 +4776,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_address_ip, {
 	    "IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
 	    NULL, 0, "IP Address", HFILL }},
+	{ &hf_krb_address_ipv6, {
+	    "IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
+	    NULL, 0, "IPv6 Address", HFILL }},
 	{ &hf_krb_address_netbios, {
 	    "NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
 	    NULL, 0, "NetBIOS Address and type", HFILL }},
