@@ -12,6 +12,29 @@ GUID			TYPE = FT_GUID  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.MODULE_IMPORT
 MTSAbstractService x411
 
+#.CLASS CONTEXT
+&Type       
+&Assertion  
+&id         ObjectIdentifierType
+#.END
+#.CLASS ATTRIBUTE
+&derivation            ClassReference ATTRIBUTE
+&Type                  
+&equality-match        ClassReference MATCHING-RULE
+&ordering-match        ClassReference MATCHING-RULE
+&substrings-match      ClassReference MATCHING-RULE
+&single-valued         BooleanType
+&collective            BooleanType
+&no-user-modification  BooleanType
+&usage                 TypeReference AttributeUsage
+&id                    ObjectIdentifierType
+#.END
+#.CLASS MATCHING-RULE
+&ParentMatchingRules   ClassReference MATCHING-RULE
+&AssertionType         
+&uniqueMatchIndicator  ClassReference ATTRIBUTE
+&id                    ObjectIdentifierType
+#.END
 #.EXPORTS
 CaseIgnoreListMatch
 CountryName
