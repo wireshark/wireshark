@@ -194,7 +194,7 @@ static unsigned long num_packets_read = 0;
 static unsigned long num_packets_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static gint32 ts_sec  = 0;
+static time_t ts_sec  = 0;
 static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 static struct tm timecode_default;
@@ -339,7 +339,7 @@ struct pcap_hdr {
 
 /* "libpcap" record header. */
 struct pcaprec_hdr {
-    gint32	ts_sec;		/* timestamp seconds */
+    guint32	ts_sec;		/* timestamp seconds */
     guint32	ts_usec;	/* timestamp microseconds */
     guint32	incl_len;	/* number of octets of packet saved in file */
     guint32	orig_len;	/* actual length of packet */
@@ -565,8 +565,8 @@ write_current_packet (void)
             }
         }
 
-        /* Write PCap header */
-        ph.ts_sec = ts_sec;
+        /* Write PCAP header */
+        ph.ts_sec = (guint32)ts_sec;
         ph.ts_usec = ts_usec;
         if (ts_fmt == NULL) { ts_usec++; }	/* fake packet counter */
         ph.incl_len = length;
@@ -774,7 +774,7 @@ parse_preamble (void)
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
                         /*  (will return -1 if failure)            */
-			ts_sec  = (gint32)mktime( &timecode );
+			ts_sec  = mktime( &timecode );
 		} else
 			ts_sec = -1;	/* we failed to parse it */
 
@@ -830,7 +830,7 @@ parse_preamble (void)
 		char *c;
 		while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
 		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, ts_sec, ts_usec);
+		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
 	}
 
 
@@ -1320,8 +1320,8 @@ parse_options (int argc, char *argv[])
         output_filename = "Standard output";
     }
 
-    ts_sec = (gint32) time(0);		/* initialize to current time */
-    timecode_default = *localtime((time_t *)&ts_sec);
+    ts_sec = time(0);		/* initialize to current time */
+    timecode_default = *localtime(&ts_sec);
 
     /* Display summary of our state */
     if (!quiet) {
