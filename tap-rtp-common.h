@@ -40,10 +40,4 @@ void rtp_write_header(rtp_stream_info_t*, FILE*);
 void rtp_write_sample(rtp_sample_t*, FILE*);
 int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
 
-/* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
- */ 
-static rtpstream_tapinfo_t the_tapinfo_struct = 
-        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE}; 
-
-
 #endif /*TAP_RTP_COMMON_H_INCLUDED*/

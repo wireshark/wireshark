@@ -54,7 +54,10 @@
 #include "register.h"
 #include "tap-rtp-common.h"
 
-
+/* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
+ */ 
+static rtpstream_tapinfo_t the_tapinfo_struct = 
+        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE}; 
 
 static void
 rtp_streams_stat_draw(void *arg _U_)

@@ -56,6 +56,11 @@
 #include "gtk/rtp_stream_dlg.h"
 #include "gtk/main.h"
 
+/* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
+ */ 
+static rtpstream_tapinfo_t the_tapinfo_struct = 
+        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE}; 
+
 
 /****************************************************************************/
 /* redraw the output */
