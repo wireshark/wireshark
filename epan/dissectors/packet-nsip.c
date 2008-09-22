@@ -43,7 +43,6 @@
 #define NSIP_LITTLE_ENDIAN 0
 
 static range_t *global_nsip_udp_port_range;
-static range_t *nsip_udp_port_range;
 #define DEFAULT_NSIP_PORT_RANGE "2157,19999"
 
 void proto_reg_handoff_nsip(void);
@@ -1117,7 +1116,6 @@ proto_register_nsip(void)
 
   /* Set default UDP ports */
   range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);
-  nsip_udp_port_range = range_empty();
 
   /* Register configuration options */
   nsip_module = prefs_register_protocol(proto_nsip, proto_reg_handoff_nsip);
@@ -1143,19 +1141,20 @@ range_add_callback(guint32 port)
 
 void
 proto_reg_handoff_nsip(void) {
-  static int nsip_prefs_initialized = FALSE;
+  static gboolean nsip_prefs_initialized = FALSE;
+  static range_t *nsip_udp_port_range;
 
   if (!nsip_prefs_initialized) {
-    nsip_handle = create_dissector_handle(dissect_nsip, proto_nsip);
+    nsip_handle = find_dissector("nsip");
+    bssgp_handle = find_dissector("bssgp");
     nsip_prefs_initialized = TRUE;
   } else {
     range_foreach(nsip_udp_port_range, range_delete_callback);
+    g_free(nsip_udp_port_range);
   }
 
-  g_free(nsip_udp_port_range);
   nsip_udp_port_range = range_copy(global_nsip_udp_port_range);
 
   range_foreach(nsip_udp_port_range, range_add_callback);
   
-  bssgp_handle = find_dissector("bssgp");
 }

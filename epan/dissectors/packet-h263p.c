@@ -68,7 +68,6 @@ static gint ett_h263P_data = -1;
 
 /* The dynamic payload type which will be dissected as H.263-1998/H263-2000 */
 
-static guint dynamic_payload_type = 0;
 static guint temp_dynamic_payload_type = 0;
 
 /* RFC 4629 */
@@ -211,12 +210,14 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 void
 proto_reg_handoff_h263P(void)
 {
-	dissector_handle_t h263P_handle;
-	static int h263P_prefs_initialized = FALSE;
-
-	h263P_handle = create_dissector_handle(dissect_h263P, proto_h263P);
+	static dissector_handle_t h263P_handle;
+	static guint dynamic_payload_type;
+	static gboolean h263P_prefs_initialized = FALSE;
 
 	if (!h263P_prefs_initialized) {
+		h263P_handle = find_dissector("h263P");
+		dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
+		dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
 		h263P_prefs_initialized = TRUE;
 	  }
 	else {
@@ -228,9 +229,6 @@ proto_reg_handoff_h263P(void)
 	if ( dynamic_payload_type > 95 ){
 		dissector_add("rtp.pt", dynamic_payload_type, h263P_handle);
 	}
-
-	dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
-	dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
 }
 
 
@@ -408,10 +406,11 @@ proto_register_h263P(void)
 	h263P_module = prefs_register_protocol(proto_h263P, proto_reg_handoff_h263P);
 
 	prefs_register_uint_preference(h263P_module, "dynamic.payload.type",
-								   "H263-1998 and H263-2000 dynamic payload type",
-								   "The dynamic payload type which will be interpreted as H264",
-								   10,
-								   &temp_dynamic_payload_type);
+                                                     "H263-1998 and H263-2000 dynamic payload type",
+                                                     "The dynamic payload type which will be interpreted as H264"
+                                                     "; The value must be greater than 95",
+                                                     10,
+                                                     &temp_dynamic_payload_type);
 
 	register_dissector("h263P", dissect_h263P, proto_h263P);
 

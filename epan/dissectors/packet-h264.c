@@ -187,7 +187,6 @@ static int ett_h264_par_ProfileIOP				 = -1;
 
 /* The dynamic payload type which will be dissected as H.264 */
 
-static guint dynamic_payload_type = 0;
 static guint temp_dynamic_payload_type = 0;
 
 /* syntax tables in subclause 7.3 is equal to
@@ -1752,36 +1751,35 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_h264(void)
 {
-	dissector_handle_t h264_handle;
-	dissector_handle_t h264_name_handle;
-	h264_capability_t *ftr;
-
+	static dissector_handle_t h264_handle;
+	static guint dynamic_payload_type;
 	static int h264_prefs_initialized = FALSE;
-	
-	h264_handle = create_dissector_handle(dissect_h264, proto_h264);
 
 	if (!h264_prefs_initialized) {
+		dissector_handle_t h264_name_handle;
+		h264_capability_t *ftr;
+
+		h264_handle = find_dissector("h264");
+		dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
+
+		h264_name_handle = create_dissector_handle(dissect_h264_name, proto_h264);
+		for (ftr=h264_capability_tab; ftr->id; ftr++) {
+		    if (ftr->name) 
+				dissector_add_string("h245.gef.name", ftr->id, h264_name_handle);
+			if (ftr->content_pdu)
+				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_h264));
+		}
 		h264_prefs_initialized = TRUE;
 	  }
 	else {
-			if ( dynamic_payload_type > 95 )
-				dissector_delete("rtp.pt", dynamic_payload_type, h264_handle);
+		if ( dynamic_payload_type > 95 )
+			dissector_delete("rtp.pt", dynamic_payload_type, h264_handle);
 	}
-	dynamic_payload_type = temp_dynamic_payload_type;
 
+	dynamic_payload_type = temp_dynamic_payload_type;
 	if ( dynamic_payload_type > 95 ){
 		dissector_add("rtp.pt", dynamic_payload_type, h264_handle);
 	}
-	dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
-
-  h264_name_handle = create_dissector_handle(dissect_h264_name, proto_h264);
-  for (ftr=h264_capability_tab; ftr->id; ftr++) {
-    if (ftr->name) 
-      dissector_add_string("h245.gef.name", ftr->id, h264_name_handle);
-    if (ftr->content_pdu)
-      dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_h264));
-  }
-
 }
 
 /* this format is require because a script is used to build the C function
@@ -2342,67 +2340,66 @@ proto_register_h264(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			"frame_num", HFILL }
 		},
-
-    { &hf_h264_par_profile,
-      { "Profile", "h264.profile",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_b,
-      { "Baseline Profile", "h264.profile.base",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_m,
-      { "Main Profile", "h264.profile.main",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_e,
-      { "Extended Profile.", "h264.profile.ext",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_h,
-      { "High Profile", "h264.profile.high",
-        FT_BOOLEAN, 8, NULL, 0x08,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_h10,
-      { "High 10 Profile", "h264.profile.high10",
-        FT_BOOLEAN, 8, NULL, 0x04,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_h4_2_2,
-      { "High 4:2:2 Profile", "h264.profile.high4_2_2",
-        FT_BOOLEAN, 8, NULL, 0x02,
-        NULL, HFILL}},
-    { &hf_h264_par_profile_h4_4_4,
-      { "High 4:4:4 Profile", "h264.profile.high4_4_4",
-        FT_BOOLEAN, 8, NULL, 0x01,
-        NULL, HFILL}},
-	{ &hf_h264_par_AdditionalModesSupported,
-      { "AdditionalModesSupported", "h264.AdditionalModesSupported",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL}},
-	{ &hf_h264_par_add_mode_sup,
-      { "Additional Modes Supported", "h264.add_mode_sup",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL}},
-	{ &hf_h264_par_add_mode_sup_rcdo,
-      { "Reduced Complexity Decoding Operation (RCDO) support", "h264.add_mode_sup.rcdo",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL}},
-	{ &hf_h264_par_ProfileIOP,
-      { "ProfileIOP", "h264.ProfileIOP",
-        FT_UINT8, BASE_HEX, NULL, 0x00,
-        NULL, HFILL}},
-	{ &hf_h264_par_constraint_set0_flag,
-      { "constraint_set0_flag", "h264.par.constraint_set0_flag",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        NULL, HFILL}},
-	{ &hf_h264_par_constraint_set1_flag,
-      { "constraint_set1_flag", "h264.par.constraint_set1_flag",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL}},
-	{ &hf_h264_par_constraint_set2_flag,
-      { "constraint_set2_flag", "h264.par.constraint_set2_flag",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL}},
+		{ &hf_h264_par_profile,
+		        { "Profile", "h264.profile",
+		        FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_b,
+		        { "Baseline Profile", "h264.profile.base",
+			FT_BOOLEAN, 8, NULL, 0x40,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_m,
+		        { "Main Profile", "h264.profile.main",
+			FT_BOOLEAN, 8, NULL, 0x20,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_e,
+		        { "Extended Profile.", "h264.profile.ext",
+			FT_BOOLEAN, 8, NULL, 0x10,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_h,
+		        { "High Profile", "h264.profile.high",
+			FT_BOOLEAN, 8, NULL, 0x08,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_h10,
+		        { "High 10 Profile", "h264.profile.high10",
+			FT_BOOLEAN, 8, NULL, 0x04,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_h4_2_2,
+		        { "High 4:2:2 Profile", "h264.profile.high4_2_2",
+			FT_BOOLEAN, 8, NULL, 0x02,
+			NULL, HFILL}},
+		{ &hf_h264_par_profile_h4_4_4,
+		        { "High 4:4:4 Profile", "h264.profile.high4_4_4",
+			FT_BOOLEAN, 8, NULL, 0x01,
+			NULL, HFILL}},
+		{ &hf_h264_par_AdditionalModesSupported,
+		        { "AdditionalModesSupported", "h264.AdditionalModesSupported",
+			FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL}},
+		{ &hf_h264_par_add_mode_sup,
+		        { "Additional Modes Supported", "h264.add_mode_sup",
+			FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL}},
+		{ &hf_h264_par_add_mode_sup_rcdo,
+		        { "Reduced Complexity Decoding Operation (RCDO) support", "h264.add_mode_sup.rcdo",
+			FT_BOOLEAN, 8, NULL, 0x40,
+			NULL, HFILL}},
+		{ &hf_h264_par_ProfileIOP,
+		        { "ProfileIOP", "h264.ProfileIOP",
+			FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL}},
+		{ &hf_h264_par_constraint_set0_flag,
+		        { "constraint_set0_flag", "h264.par.constraint_set0_flag",
+			FT_BOOLEAN, 8, NULL, 0x80,
+			NULL, HFILL}},
+		{ &hf_h264_par_constraint_set1_flag,
+		        { "constraint_set1_flag", "h264.par.constraint_set1_flag",
+			FT_BOOLEAN, 8, NULL, 0x40,
+			NULL, HFILL}},
+		{ &hf_h264_par_constraint_set2_flag,
+		        { "constraint_set2_flag", "h264.par.constraint_set2_flag",
+			FT_BOOLEAN, 8, NULL, 0x20,
+			NULL, HFILL}},
 	};
 
 /* Setup protocol subtree array */
@@ -2429,10 +2426,11 @@ proto_register_h264(void)
 	h264_module = prefs_register_protocol(proto_h264, proto_reg_handoff_h264);
 
 	prefs_register_uint_preference(h264_module, "dynamic.payload.type",
-								   "H264 dynamic payload type",
-								   "The dynamic payload type which will be interpreted as H264",
-								   10,
-								   &temp_dynamic_payload_type);
+				                    "H264 dynamic payload type",
+						    "The dynamic payload type which will be interpreted as H264"
+				                    "; The value must be greater than 95",
+						    10,
+						    &temp_dynamic_payload_type);
 
 	
 	register_dissector("h264", dissect_h264, proto_h264);

@@ -85,7 +85,7 @@ static int ett_amr_toc = -1;
 
 /* The dynamic payload type which will be dissected as AMR */
 
-static guint global_dynamic_payload_type = 0;
+static guint temp_dynamic_payload_type = 0;
 static gint amr_encoding_type = 0;
 static gint amr_mode = AMR_NB;
 
@@ -560,18 +560,20 @@ void
 proto_reg_handoff_amr(void)
 {
 	static dissector_handle_t amr_handle;
-	static dissector_handle_t amr_name_handle;
-	static guint saved_dynamic_payload_type;
+	static guint dynamic_payload_type;
 	static gboolean amr_prefs_initialized = FALSE;
-	amr_capability_t *ftr; 
 
 	if (!amr_prefs_initialized) {
+		dissector_handle_t amr_name_handle;
+		amr_capability_t *ftr; 
+
 		amr_handle = find_dissector("amr");
-		amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
 		dissector_add_string("rtp_dyn_payload_type","AMR", amr_handle);
+
 		/* 
 		 * Register H.245 Generic parameter name(s)
 		 */
+		amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
 		for (ftr=amr_capability_tab; ftr->id; ftr++) {
 			if (ftr->name) 
 				dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
@@ -583,14 +585,15 @@ proto_reg_handoff_amr(void)
 		*/
 		amr_prefs_initialized = TRUE;
 	} else {
-		if ( saved_dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", saved_dynamic_payload_type, amr_handle);
+		if ( dynamic_payload_type > 95 )
+			dissector_delete("rtp.pt", dynamic_payload_type, amr_handle);
 	}
 
-	if ( global_dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", global_dynamic_payload_type, amr_handle);
+	dynamic_payload_type = temp_dynamic_payload_type;
+
+	if ( dynamic_payload_type > 95 ){
+		dissector_add("rtp.pt", dynamic_payload_type, amr_handle);
 	}
-	saved_dynamic_payload_type = global_dynamic_payload_type;
 	
 }
 
@@ -752,7 +755,7 @@ proto_register_amr(void)
 				       "The dynamic payload type which will be interpreted as AMR" 
 				       "; The value must be greater than 95",
 				       10,
-				       &global_dynamic_payload_type);
+				       &temp_dynamic_payload_type);
 
 	prefs_register_enum_preference(amr_module, "encoding.version",
 				       "Type of AMR encoding of the payload",

@@ -360,7 +360,7 @@ void proto_register_prp(void)
 
 void proto_reg_handoff_prp(void)
 {
-    static int prefs_initialized = FALSE;
+    static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
         dissector_handle_t prp_supervision_frame_handle;

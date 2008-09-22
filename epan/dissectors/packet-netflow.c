@@ -85,19 +85,9 @@ static dissector_handle_t netflow_handle;
  */
 static range_t *global_netflow_ports = NULL;
 /*
- *	netflow_ports : holds the currently used range of ports for netflow
- */
-static range_t *netflow_ports = NULL;
-
-/*
  *	global_ipfix_ports : holds the configured range of ports for IPFIX
  */
 static range_t *global_ipfix_ports = NULL;
-/*
- *	ipfix_ports : holds the currently used range of ports for IPFIX
- */
-static range_t *ipfix_ports = NULL;
-
 
 /*
  * pdu identifiers & sizes
@@ -3176,6 +3166,19 @@ ipfix_add_callback(guint32 port)
 static void
 netflow_reinit(void)
 {
+	/* XXX: registered as an "init" routine and also called whenever a netflow pref  */
+        /*      is changed. The result thus appears to be that netflow_reinit is called  */
+        /*      twice whenever a netflow pref is changed.                                */
+
+	/*
+	 *	netflow_ports : holds the currently used range of ports for netflow
+	 */
+	static range_t *netflow_ports = NULL;
+	/*
+	 *	ipfix_ports : holds the currently used range of ports for IPFIX
+	 */
+	static range_t *ipfix_ports = NULL;
+
 	int i;
 
 	/*
@@ -4326,7 +4329,7 @@ proto_register_netflow(void)
 void
 proto_reg_handoff_netflow(void)
 {
-	static int netflow_prefs_initialized = FALSE;
+	static gboolean netflow_prefs_initialized = FALSE;
 
 	if (!netflow_prefs_initialized) {
 		netflow_handle = new_create_dissector_handle(dissect_netflow,
