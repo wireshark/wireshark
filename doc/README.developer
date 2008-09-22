@@ -987,8 +987,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC,
-		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
-		FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
+		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
+		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
 		BASE_HEX_DEC, BASE_RANGE_STRING, BASE_CUSTOM
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
@@ -1548,6 +1548,11 @@ The type of value this field holds. The current field types are:
 				Ethernet-address format.
 	FT_BYTES		A string of bytes with arbitrary values;
 				used for raw binary data.
+	FT_UINT_BYTES		A counted string of bytes, consisting
+				of a count (represented as an integral value,
+				of width given in the proto_tree_add_item()
+				call) followed immediately by that number of
+				arbitrary values; used for raw binary data.
 	FT_IPv4			A version 4 IP address (4 bytes) displayed
 				in dotted-quad IP address format (4
 				decimal numbers separated by dots).
