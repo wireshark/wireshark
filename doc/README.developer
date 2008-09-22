@@ -2358,6 +2358,7 @@ matched string from that value_string will be printed on the expansion line as w
 Example: (from the scsi dissector)
 	static int hf_scsi_inq_peripheral        = -1;
 	static int hf_scsi_inq_qualifier         = -1;
+	static int hf_scsi_inq_devtype           = -1;
 	static gint ett_scsi_inq_peripheral = -1;
 	...
 	static const int *peripheal_fields[] = {
@@ -2376,9 +2377,16 @@ Example: (from the scsi dissector)
         { &hf_scsi_inq_qualifier,
           {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
            VALS (scsi_qualifier_val), 0xE0, NULL, HFILL}},
+        { &hf_scsi_inq_devtype,
+          {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
+           VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
 	...
 
 Which provides very pretty dissection of this one byte bitmask.
+
+    Peripheral: 0x05, Qualifier: Device type is connected to logical unit, Device Type: CD-ROM
+        000. .... = Qualifier: Device type is connected to logical unit (0x00)
+        ...0 0101 = Device Type: CD-ROM (0x05)
 
 PROTO_ITEM_SET_HIDDEN()
 -----------------------
