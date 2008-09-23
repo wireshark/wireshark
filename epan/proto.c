@@ -2524,7 +2524,11 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		}
 		col_custom_set_fstr(fi->hfinfo, "%s", integer ? tfstring->true_string : tfstring->false_string);
 	} else if (hfinfo->strings) {
-		col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+		if (hfinfo->display & BASE_RANGE_STRING) {
+			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
+		} else {
+			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+		}
 	} else if (IS_BASE_DUAL(hfinfo->display)) {
 		col_custom_set_fstr(fi->hfinfo, hfinfo_uint_value_format(hfinfo), integer, integer);
 	} else {
@@ -2681,7 +2685,11 @@ proto_tree_set_int(field_info *fi, gint32 value)
 	}
 
 	if (hfinfo->strings) {
-		col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+		if (hfinfo->display & BASE_RANGE_STRING) {
+			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
+		} else {
+			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+		}
 	} else if (IS_BASE_DUAL(hfinfo->display)) {
 		col_custom_set_fstr(fi->hfinfo, hfinfo_int_value_format(hfinfo), integer, integer);
 	} else {
@@ -4228,9 +4236,15 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
-		ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
-				format,  hfinfo->name,
-				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		if (hfinfo->display & BASE_RANGE_STRING) {
+			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+					 format,  hfinfo->name,
+					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
+		} else {
+			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+					 format,  hfinfo->name,
+					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		}
 	}
 	else {
 		format = hfinfo_uint_format(hfinfo);
@@ -4267,9 +4281,15 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name,
-				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		if (hfinfo->display & BASE_RANGE_STRING) {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					 format,  hfinfo->name,
+					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
+		} else {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					 format,  hfinfo->name,
+					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		}
 	}
 	else {
 		format = hfinfo_uint_format(hfinfo);
@@ -4330,9 +4350,15 @@ fill_label_int(field_info *fi, gchar *label_str)
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_int_vals_format(hfinfo);
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				format,  hfinfo->name,
-				val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		if (hfinfo->display & BASE_RANGE_STRING) {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					 format,  hfinfo->name,
+					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
+		} else {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					 format,  hfinfo->name,
+					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+		}
 	}
 	else {
 		format = hfinfo_int_format(hfinfo);
@@ -5763,8 +5789,13 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len
 				first = FALSE;
 			}
 			else if (hf->strings) {
-				proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-						hf->name, val_to_str(tmpval, hf->strings, "Unknown"));
+				if (hf->display & BASE_RANGE_STRING) {
+					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+							       hf->name, rval_to_str(tmpval, hf->strings, "Unknown"));
+				} else {
+					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
+							       hf->name, val_to_str(tmpval, cVALS(hf->strings), "Unknown"));
+				}
 				first = FALSE;
 			}
 			else if (!(flags & BMT_NO_INT)) {
@@ -6003,10 +6034,13 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		/* 1 - 32 bits field */
 		if (hf_field->strings) {
 			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-						  "%s: %s (%u)",
-						  str,
-						  val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
-						  (guint32)value);
+							  "%s: %s (%u)",
+							  str, (hf_field->display & BASE_RANGE_STRING) ?
+							  
+							  
+							  rval_to_str((guint32)value, hf_field->strings, "Unknown ") :
+							  val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
+							  (guint32)value);
 			break;
 		}
 		switch(hf_field->display){
