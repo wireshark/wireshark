@@ -262,7 +262,6 @@ static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 
 static dissector_handle_t diameter_tcp_handle;
 static range_t *global_diameter_tcp_port_range;
-static range_t *diameter_tcp_port_range;
 #define DEFAULT_DIAMETER_PORT_RANGE "3868"
 
 /* desegmentation of Diameter over TCP */
@@ -1251,6 +1250,7 @@ proto_reg_handoff_diameter(void)
 	static gboolean Initialized=FALSE;
 	static guint SctpPort;
 	static dissector_handle_t diameter_handle;
+	static range_t *diameter_tcp_port_range;
 
 	if (!Initialized) {
 		diameter_handle = find_dissector("diameter");
@@ -1264,20 +1264,16 @@ proto_reg_handoff_diameter(void)
 		Initialized=TRUE;
 	} else {
 		range_foreach(diameter_tcp_port_range, range_delete_callback);
+		g_free(diameter_tcp_port_range);
 		dissector_delete("sctp.port", SctpPort, diameter_handle);
 	}
 
 	/* set port for future deletes */
-	g_free(diameter_tcp_port_range);
 	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
-
 	range_foreach(diameter_tcp_port_range, range_add_callback);
 
 	SctpPort=gbl_diameterSctpPort;
-
 	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
-
-
 }
 
 /* registration with the filtering engine */
@@ -1416,7 +1412,6 @@ proto_register_diameter(void)
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
-	diameter_tcp_port_range = range_empty();
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter,

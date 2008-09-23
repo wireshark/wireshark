@@ -58,6 +58,7 @@
 #define PFNAME "dmp"
 
 /* Recommended UDP Port Numbers */
+/* Default disabled */
 #define DEFAULT_DMP_PORT_RANGE ""
 
 /* Version supported */
@@ -456,8 +457,7 @@ static struct dmp_data {
 } dmp;
 
 /* User definable values */
-static range_t *global_dmp_port_range = NULL;          /* Default disabled */
-static range_t *dmp_port_range = NULL;
+static range_t *global_dmp_port_range;
 static gboolean use_seq_ack_analysis = TRUE;
 static gboolean dmp_align = FALSE;
 static gboolean dmp_subject_as_id = FALSE;
@@ -4356,7 +4356,6 @@ void proto_register_dmp (void)
   /* Set default UDP ports */
   range_convert_str (&global_dmp_port_range, DEFAULT_DMP_PORT_RANGE,
 		     MAX_UDP_PORT);
-  dmp_port_range = range_empty ();
 
   /* Register our configuration options */
   dmp_module = prefs_register_protocol (proto_dmp, proto_reg_handoff_dmp);
@@ -4414,6 +4413,7 @@ static void range_add_callback (guint32 port)
 
 void proto_reg_handoff_dmp (void)
 {
+  static range_t *dmp_port_range;
   static gboolean dmp_prefs_initialized = FALSE;
 
   if (!dmp_prefs_initialized) {
@@ -4421,10 +4421,10 @@ void proto_reg_handoff_dmp (void)
     dmp_prefs_initialized = TRUE;
   } else {
     range_foreach (dmp_port_range, range_delete_callback);
+    g_free (dmp_port_range);
   }
 
   /* Save port number for later deletion */
-  g_free (dmp_port_range);
   dmp_port_range = range_copy (global_dmp_port_range);
     
   range_foreach (dmp_port_range, range_add_callback);

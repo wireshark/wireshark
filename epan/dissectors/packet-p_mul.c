@@ -179,8 +179,7 @@ typedef struct _p_mul_id_val {
 static GHashTable *p_mul_id_hash_table = NULL;
 
 /* User definable values to use for dissection */
-static range_t *global_p_mul_port_range = NULL;
-static range_t *p_mul_port_range = NULL;
+static range_t *global_p_mul_port_range;
 static gboolean p_mul_reassemble = TRUE;
 static gint decode_option = DECODE_NONE;
 static gboolean use_relative_msgid = TRUE;
@@ -1347,7 +1346,6 @@ void proto_register_p_mul (void)
   /* Set default UDP ports */
   range_convert_str (&global_p_mul_port_range, DEFAULT_P_MUL_PORT_RANGE, 
                      MAX_UDP_PORT);
-  p_mul_port_range = range_empty ();
 
   /* Register our configuration options */
   p_mul_module = prefs_register_protocol (proto_p_mul,
@@ -1394,16 +1392,17 @@ static void range_add_callback (guint32 port)
 void proto_reg_handoff_p_mul (void)
 {
   static gboolean p_mul_prefs_initialized = FALSE;
+  static range_t *p_mul_port_range;
 
   if (!p_mul_prefs_initialized) {
     p_mul_handle = find_dissector(PFNAME);
     p_mul_prefs_initialized = TRUE;
   } else {
     range_foreach (p_mul_port_range, range_delete_callback);
+    g_free (p_mul_port_range);
   }
 
   /* Save port number for later deletion */
-  g_free (p_mul_port_range);
   p_mul_port_range = range_copy (global_p_mul_port_range);
     
   range_foreach (p_mul_port_range, range_add_callback);

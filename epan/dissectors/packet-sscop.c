@@ -58,7 +58,6 @@ static dissector_handle_t nbap_handle;
 static module_t *sscop_module;
 
 static range_t *global_udp_port_range;
-static range_t *udp_port_range;
 
 static dissector_handle_t sscop_handle;
 
@@ -404,6 +403,7 @@ void
 proto_reg_handoff_sscop(void)
 {
   static gboolean prefs_initialized = FALSE;
+  static range_t *udp_port_range;
 
   if (!prefs_initialized) {
     initialize_handles_once();
@@ -412,10 +412,10 @@ proto_reg_handoff_sscop(void)
   } else {
 
     range_foreach(udp_port_range, range_delete_callback);
+    g_free(udp_port_range);
 
   }
 
-  g_free(udp_port_range);
   udp_port_range = range_copy(global_udp_port_range);
 
   range_foreach(udp_port_range, range_add_callback);
@@ -457,7 +457,6 @@ proto_register_sscop(void)
   sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
 
   global_udp_port_range = range_empty();
-  udp_port_range = range_empty();
 
   prefs_register_range_preference(sscop_module, "udp.ports",
 				 "SSCOP UDP port range",
