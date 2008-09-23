@@ -1015,8 +1015,8 @@ proto_reg_handoff_etheric(void)
 		q931_ie_handle = find_dissector("q931.ie");
 		Initialized=TRUE;
 	}else{
-		dissector_delete("udp.port", tcp_port1, etheric_handle);
-		dissector_delete("udp.port", tcp_port2, etheric_handle);
+		dissector_delete("tcp.port", tcp_port1, etheric_handle);
+		dissector_delete("tcp.port", tcp_port2, etheric_handle);
 	}
 
 	tcp_port1 = ethericTCPport1;
