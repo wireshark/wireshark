@@ -77,8 +77,8 @@ static dissector_handle_t data_handle;
 
 #define QUAKE3_SERVER_PORT 27960
 #define QUAKE3_MASTER_PORT 27950
-static unsigned int gbl_quake3_server_port=QUAKE3_SERVER_PORT;
-static unsigned int gbl_quake3_master_port=QUAKE3_MASTER_PORT;
+static guint gbl_quake3_server_port=QUAKE3_SERVER_PORT;
+static guint gbl_quake3_master_port=QUAKE3_MASTER_PORT;
 
 
 static const value_string names_direction[] = {
@@ -546,8 +546,8 @@ proto_reg_handoff_quake3(void)
 {
 	static gboolean initialized=FALSE;
 	static dissector_handle_t quake3_handle;
-	static int server_port;
-	static int master_port;
+	static guint server_port;
+	static guint master_port;
 	int i;
 
 	if (!initialized) {

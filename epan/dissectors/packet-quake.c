@@ -79,7 +79,7 @@ static dissector_handle_t data_handle;
 #define NETFLAG_LENGTH_MASK 0x0000ffff
 #define NET_HEADERSIZE 8
 #define DEFAULTnet_hostport 26000
-static unsigned int gbl_quakeServerPort=DEFAULTnet_hostport;
+static guint gbl_quakeServerPort=DEFAULTnet_hostport;
 
 #define NETFLAG_LENGTH_MASK     0x0000ffff
 #define NETFLAG_DATA            0x00010000
@@ -517,7 +517,7 @@ void
 proto_reg_handoff_quake(void)
 {
 	static gboolean Initialized=FALSE;
-	static int ServerPort;
+	static guint ServerPort;
 
 	if (!Initialized) {
 		quake_handle = create_dissector_handle(dissect_quake, proto_quake);

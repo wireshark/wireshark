@@ -330,7 +330,7 @@ static const value_string names_direction[] = {
 
 /* I took this name and value directly out of the QW source. */
 #define PORT_MASTER 27500
-static unsigned int gbl_quakeworldServerPort=PORT_MASTER;
+static guint gbl_quakeworldServerPort=PORT_MASTER;
 
 
 /* out of band message id bytes (taken out of quakeworldsource/client/protocol.h */
@@ -773,7 +773,7 @@ proto_reg_handoff_quakeworld(void)
 {
 	static gboolean Initialized=FALSE;
 	static dissector_handle_t quakeworld_handle;
-	static int ServerPort;
+	static guint ServerPort;
 
 	if (!Initialized) {
 		quakeworld_handle = create_dissector_handle(dissect_quakeworld,

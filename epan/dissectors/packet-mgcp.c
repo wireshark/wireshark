@@ -946,10 +946,10 @@ void proto_reg_handoff_mgcp(void)
 	 * Variables to allow for proper deletion of dissector registration when
 	 * the user changes port from the gui.
 	 */
-	static int gateway_tcp_port;
-	static int gateway_udp_port;
-	static int callagent_tcp_port;
-	static int callagent_udp_port;
+	static guint gateway_tcp_port;
+	static guint gateway_udp_port;
+	static guint callagent_tcp_port;
+	static guint callagent_udp_port;
 
 	if (!mgcp_prefs_initialized)
 	{

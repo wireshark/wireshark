@@ -83,7 +83,7 @@ static gint ett_quake2_game_clc_cmd_move_moves = -1;
 static dissector_handle_t data_handle;
 
 #define PORT_MASTER 27910
-static unsigned int gbl_quake2ServerPort=PORT_MASTER;
+static guint gbl_quake2ServerPort=PORT_MASTER;
 
 
 static void
@@ -766,7 +766,7 @@ proto_reg_handoff_quake2(void)
 {
 	static gboolean Initialized=FALSE;
 	static dissector_handle_t quake2_handle;
-	static int ServerPort;
+	static guint ServerPort;
 
 	if (!Initialized) {
 		quake2_handle = create_dissector_handle(dissect_quake2,
