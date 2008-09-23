@@ -264,7 +264,7 @@ void proto_reg_handoff_redbackli(void) {
 	ip_handle = find_dissector("ip");
 
 	redbackli_handle = find_dissector("redbackli");
-	dissector_add_handle("udp.port", redbackli_handle);
+	dissector_add_handle("udp.port", redbackli_handle);  /* for 'decode-as' */
 
 	heur_dissector_add("udp", redbackli_dissect_heur, proto_redbackli);
 }

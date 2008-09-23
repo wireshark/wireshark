@@ -1770,8 +1770,7 @@ proto_reg_handoff_h264(void)
 				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_h264));
 		}
 		h264_prefs_initialized = TRUE;
-	  }
-	else {
+	} else {
 		if ( dynamic_payload_type > 95 )
 			dissector_delete("rtp.pt", dynamic_payload_type, h264_handle);
 	}
