@@ -432,17 +432,15 @@ proto_reg_handoff_ieee8021ah(void)
 {
     static gboolean prefs_initialized = FALSE;
     static dissector_handle_t ieee8021ah_handle;
-    static dissector_handle_t ieee8021ad_handle;
     static unsigned int old_ieee8021ah_ethertype;
 
     if (!prefs_initialized){
+	dissector_handle_t ieee8021ad_handle;
 	ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah, 
 						    proto_ieee8021ah);	
-
 	ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
 						    proto_ieee8021ad);
 	dissector_add("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
-
 	prefs_initialized = TRUE;
     }
     else {

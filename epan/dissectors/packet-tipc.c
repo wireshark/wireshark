@@ -2966,11 +2966,11 @@ void
 proto_reg_handoff_tipc(void)
 {
 	static gboolean inited = FALSE;
-	static dissector_handle_t tipc_handle;
 	static dissector_handle_t tipc_tcp_handle;
 	static guint tipc_alternate_tcp_port_prev = 0;
 
 	if (!inited) {
+		dissector_handle_t tipc_handle;
 		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 		tipc_tcp_handle = new_create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");

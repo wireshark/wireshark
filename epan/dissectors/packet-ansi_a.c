@@ -11908,11 +11908,11 @@ proto_register_ansi_a(void)
 void
 proto_reg_handoff_ansi_a(void)
 {
-    static gboolean			ansi_a_prefs_initialized = FALSE;
-    static dissector_handle_t           bsmap_handle;
+    static gboolean ansi_a_prefs_initialized = FALSE;
 
     if (!ansi_a_prefs_initialized)
     {
+	dissector_handle_t bsmap_handle;
 	bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
 	dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
 	data_handle = find_dissector("data");

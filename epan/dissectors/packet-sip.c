@@ -3916,13 +3916,13 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-	static dissector_handle_t sip_handle;
 	static dissector_handle_t sip_tcp_handle;
 	static guint saved_sip_tcp_port;
 	static guint saved_sip_tls_port;
 	static gboolean sip_prefs_initialized = FALSE;
 
 	if (!sip_prefs_initialized) {
+		dissector_handle_t sip_handle;
 		sip_handle = find_dissector("sip");
 		sip_tcp_handle = find_dissector("sip.tcp");
 		sigcomp_handle = find_dissector("sigcomp");
