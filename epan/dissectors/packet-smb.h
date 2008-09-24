@@ -210,7 +210,8 @@ typedef enum {
 	SMB_EI_UID,		/* smb_uid_t */
 	SMB_EI_RWINFO,		/* read/write offset/count info */ 
 	SMB_EI_LOCKDATA,	/* locking and x data */
-	SMB_EI_RENAMEDATA	/* renaame data */
+	SMB_EI_RENAMEDATA,	/* rename data */
+	SMB_EI_DIALECTS		/* negprot dialects */
 } smb_extra_info_t;
 typedef struct _smb_fid_into_t smb_fid_info_t;
 typedef struct {

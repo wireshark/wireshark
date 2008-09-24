@@ -2092,6 +2092,12 @@ dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	return offset;
 }
 
+#define MAX_DIALECTS 20
+struct negprot_dialects {
+       int num;
+       char *name[MAX_DIALECTS+1];
+};
+
 static int
 dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
@@ -2099,6 +2105,11 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree *tr = NULL;
 	guint16 bc;
 	guint8 wc;
+	struct negprot_dialects *dialects = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
 
@@ -2109,6 +2120,13 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		it = proto_tree_add_text(tree, tvb, offset, bc,
 				"Requested Dialects");
 		tr = proto_item_add_subtree(it, ett_smb_dialects);
+	}
+
+	if (!pinfo->fd->flags.visited && si->sip) {
+		dialects = se_alloc(sizeof(struct negprot_dialects));
+		dialects->num = 0;
+		si->sip->extra_info_type = SMB_EI_DIALECTS;
+		si->sip->extra_info = dialects;
 	}
 
 	while(bc){
@@ -2139,7 +2157,12 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_string(dtr, hf_smb_dialect_name, tvb, offset,
 			len, str);
 		COUNT_BYTES(len);
+
+		if (!pinfo->fd->flags.visited && dialects && dialects->num<MAX_DIALECTS) {
+			dialects->name[dialects->num++] = se_strdup(str);
+		}
 	}
+
 
 	END_OF_SMB
 
@@ -2158,13 +2181,26 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	guint16 ekl=0;
 	guint32 caps=0;
 	gint16 tz;
+	struct negprot_dialects *dialects = NULL;
+	const char *dialect_name = NULL;
 
 	DISSECTOR_ASSERT(si);
-
+	
 	WORD_COUNT;
 
 	/* Dialect Index */
 	dialect = tvb_get_letohs(tvb, offset);
+
+	if (si->sip && si->sip->extra_info_type==SMB_EI_DIALECTS) {
+		dialects = si->sip->extra_info;
+		if (dialect <= dialects->num) {
+			dialect_name = dialects->name[dialect];
+		}
+	}
+	if (!dialect_name) {
+		dialect_name = "unknown";
+	}
+
 	switch(wc){
 	case 1:
 		if(dialect==0xffff){
@@ -2184,7 +2220,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	case 17:
 		proto_tree_add_uint_format(tree, hf_smb_dialect_index,
 			tvb, offset, 2, dialect,
-			"Dialect Index: %u, greater than LANMAN2.1", dialect);
+			"Dialect Index: %u: %s", dialect, dialect_name);
 		break;
 	default:
 		tvb_ensure_bytes_exist(tvb, offset, wc*2);
