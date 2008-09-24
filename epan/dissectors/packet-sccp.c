@@ -311,12 +311,7 @@ static const value_string sccp_oe_values[] = {
   { GT_OE_ODD,	"Odd number of address signals" },
   { 0,		NULL } };
 
-#define GT_SIGNAL_LENGTH     1
-#define GT_ODD_SIGNAL_MASK   0x0f
-#define GT_EVEN_SIGNAL_MASK  0xf0
-#define GT_EVEN_SIGNAL_SHIFT 4
-#define GT_MAX_SIGNALS (32*7)	/* its a bit big, but it allows for adding a lot of "(spare)" and "Unknown" values (7 chars) if there are errors - e.g. ANSI vs ITU wrongly selected */
-static const value_string sccp_address_signal_values[] = {
+const value_string sccp_address_signal_values[] = {
   { 0,  "0" },
   { 1,  "1" },
   { 2,  "2" },
@@ -1003,7 +998,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 				    gboolean called)
 {
   guint offset = 0;
-  guint8 odd_signal, even_signal = 0x0f;
+  guint8 odd_signal, even_signal;
   proto_item *digits_item, *hidden_item;
   char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
 

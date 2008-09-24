@@ -102,4 +102,11 @@ typedef struct _sccp_assoc_info_t {
 extern void reset_sccp_assoc(void);
 extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type);
 
+#define GT_SIGNAL_LENGTH     1
+#define GT_ODD_SIGNAL_MASK   0x0f
+#define GT_EVEN_SIGNAL_MASK  0xf0
+#define GT_EVEN_SIGNAL_SHIFT 4
+#define GT_MAX_SIGNALS (32*7)	/* its a bit big, but it allows for adding a lot of "(spare)" and "Unknown" values (7 chars) if there are errors - e.g. ANSI vs ITU wrongly selected */
+WS_VAR_IMPORT const value_string sccp_address_signal_values[];
+
 #endif

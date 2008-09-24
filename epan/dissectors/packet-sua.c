@@ -323,7 +323,7 @@ static int hf_number_of_digits = -1;
 static int hf_translation_type = -1;
 static int hf_numbering_plan = -1;
 static int hf_nature_of_address = -1;
-static int hf_global_title = -1;
+static int hf_global_title_digits = -1;
 static int hf_point_code_dpc = -1;
 static int hf_ssn_reserved = -1;
 static int hf_ssn_number = -1;
@@ -1168,6 +1168,11 @@ static void
 dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   guint16 global_title_length;
+  guint16 offset;
+  gboolean even_length;
+  guint8 odd_signal, even_signal;
+  guint8 number_of_digits;
+  char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
@@ -1177,7 +1182,31 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   proto_tree_add_item(parameter_tree, hf_translation_type,  parameter_tvb, TRANSLATION_TYPE_OFFSET,  TRANSLATION_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_numbering_plan,    parameter_tvb, NUMBERING_PLAN_OFFSET,    NUMBERING_PLAN_LENGTH,    NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_nature_of_address, parameter_tvb, NATURE_OF_ADDRESS_OFFSET, NATURE_OF_ADDRESS_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_global_title,      parameter_tvb, GLOBAL_TITLE_OFFSET,      global_title_length,      NETWORK_BYTE_ORDER);
+
+  number_of_digits = tvb_get_guint8(parameter_tvb, NO_OF_DIGITS_OFFSET);
+  even_length = !(number_of_digits % 2);
+  offset = GLOBAL_TITLE_OFFSET;
+
+  while(offset < GLOBAL_TITLE_OFFSET + global_title_length) {
+    odd_signal = tvb_get_guint8(parameter_tvb, offset) & GT_ODD_SIGNAL_MASK;
+    even_signal = tvb_get_guint8(parameter_tvb, offset) & GT_EVEN_SIGNAL_MASK;
+    even_signal >>= GT_EVEN_SIGNAL_SHIFT;
+
+    g_strlcat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
+				    "Unknown"), GT_MAX_SIGNALS+1);
+
+    /* If the last signal is NOT filler */
+    if (offset != (GLOBAL_TITLE_OFFSET + global_title_length - 1) || even_length == TRUE)
+      g_strlcat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
+				   "Unknown"), GT_MAX_SIGNALS+1);
+
+    offset += GT_SIGNAL_LENGTH;
+  }
+
+  proto_tree_add_string_format(parameter_tree, hf_global_title_digits,
+			       parameter_tvb, GLOBAL_TITLE_OFFSET,
+			       global_title_length, gt_digits,
+			       "Address information (digits): %s", gt_digits);
 }
 
 #define POINT_CODE_LENGTH 4
@@ -2019,7 +2048,7 @@ proto_register_sua(void)
     { &hf_translation_type,                      { "Translation Type",             "sua.global_title_translation_type",             FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      "", HFILL } },
     { &hf_numbering_plan,                        { "Numbering Plan",               "sua.global_title_numbering_plan",               FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      "", HFILL } },
     { &hf_nature_of_address,                     { "Nature of Address",            "sua.global_title_nature_of_address",            FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      "", HFILL } },
-    { &hf_global_title,                          { "Global Title",                 "sua.global_title_signals",                      FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
+    { &hf_global_title_digits,                   { "Global Title Digits",          "sua.global_title_digits",                       FT_STRING,  BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_point_code_dpc,                        { "Point Code",                   "sua.point_code",                                FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_ssn_reserved,                          { "Reserved",                     "sua.ssn_reserved",                              FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_ssn_number,                            { "Subsystem Number",             "sua.ssn",                                       FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
