@@ -174,8 +174,6 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	xml_frame_t* current_frame;
 	char* colinfo_str;
 	
-	if(!tree) return;
-
 	if (stack != NULL)
 		g_ptr_array_free(stack,TRUE);
 
@@ -277,6 +275,7 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	new_frame = ep_alloc(sizeof(xml_frame_t));
 	new_frame->type = XML_FRAME_XMPLI;
 	new_frame->name = name;
+	new_frame->name_orig_case = name;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = pi;
 	new_frame->last_item = pi;
@@ -308,7 +307,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 	tvbparse_elem_t* name_tok = tok->sub->next;
 	gchar* root_name;
-	gchar* name = NULL;
+	gchar *name = NULL, *name_orig_case = NULL;
 	xml_ns_t* ns;
 	xml_frame_t* new_frame;
 	proto_item* pi;
@@ -321,6 +320,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 
 		root_name = (gchar*)tvb_get_ephemeral_string(root_tok->tvb,root_tok->offset,root_tok->len);
 		name = (gchar*)tvb_get_ephemeral_string(leaf_tok->tvb,leaf_tok->offset,leaf_tok->len);
+		name_orig_case = name;
 
 		nameroot_ns = g_hash_table_lookup(xml_ns.elements,root_name);
 
@@ -335,6 +335,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 
 	} else {
 		name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+		name_orig_case = ep_strdup(name);
 		ascii_strdown_inplace(name);
 
 		if(current_frame->ns) {
@@ -358,6 +359,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	new_frame = ep_alloc(sizeof(xml_frame_t));
 	new_frame->type = XML_FRAME_TAG;
 	new_frame->name = name;
+	new_frame->name_orig_case = name_orig_case;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = pi;
 	new_frame->last_item = pi;
@@ -419,6 +421,7 @@ static void before_dtd_doctype(void* tvbparse_data, const void* wanted_data _U_,
 	new_frame = ep_alloc(sizeof(xml_frame_t));
 	new_frame->type = XML_FRAME_DTD_DOCTYPE;
 	new_frame->name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+	new_frame->name_orig_case = new_frame->name;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = dtd_item;
 	new_frame->last_item = dtd_item;

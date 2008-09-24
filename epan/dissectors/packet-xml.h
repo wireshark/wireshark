@@ -67,6 +67,7 @@ typedef struct _xml_frame_t {
 	struct _xml_frame_t* prev_sibling;
 	struct _xml_frame_t* next_sibling;
 	const gchar *name;
+	const gchar *name_orig_case;
 	proto_tree* tree;
 	proto_item* item;
 	proto_item* last_item;
