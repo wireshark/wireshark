@@ -31,7 +31,7 @@ extern void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
     proto_tree *);
 
 extern void dissect_q931_cause_ie(tvbuff_t *, int, int,
-    proto_tree *, int, guint8 *);
+    proto_tree *, int, guint8 *,const value_string *);
 
 extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
     proto_tree *);

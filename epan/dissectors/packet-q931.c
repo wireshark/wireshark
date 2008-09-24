@@ -1202,7 +1202,7 @@ static const value_string q931_rejection_reason_vals[] = {
 
 static void
 dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
+    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
 {
 	guint8 octet;
 	guint8 coding_standard;
@@ -1303,14 +1303,14 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		case Q931_REJ_IE_MISSING:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Missing information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
+			    val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
 			      "Unknown (0x%02X)"));
 			break;
 
 		case Q931_REJ_IE_INSUFFICIENT:
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Insufficient information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
+			    val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
 			      "Unknown (0x%02X)"));
 			break;
 
@@ -1330,7 +1330,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		do {
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Information element: %s",
-			    val_to_str(tvb_get_guint8(tvb, offset), q931_info_element_vals0,
+			    val_to_str(tvb_get_guint8(tvb, offset), ie_vals,
 			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
@@ -1361,11 +1361,11 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 
 void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
+    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
 {
   gboolean have_valid_q931_pi_save = have_valid_q931_pi;
   have_valid_q931_pi = FALSE;
-  dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value);
+  dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals);
   have_valid_q931_pi =  have_valid_q931_pi_save;
 }
 
@@ -2828,7 +2828,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					dissect_q931_cause_ie_unsafe(tvb,
 						offset + 2, info_element_len,
 						ie_tree,
-						hf_q931_cause_value, &dummy);
+						hf_q931_cause_value, &dummy, q931_info_element_vals0);
 					break;
 
 				case CS0 | Q931_IE_CALL_STATE:
