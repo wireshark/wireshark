@@ -70,10 +70,8 @@ my %version_pref = (
 	"enable"     => 1,
 	"svn_client" => 0,
 	"format"     => "SVN %Y%m%d%H%M%S",
-	#"pkg_enable" => 1,
-	#"pkg_format" => "-SVN-%#",
-	"pkg_enable" => 0,
-	"pkg_format" => "",
+	"pkg_enable" => 1,
+	"pkg_format" => "-SVN-%#",
 	);
 my $srcdir = ".";
 
