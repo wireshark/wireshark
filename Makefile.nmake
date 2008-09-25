@@ -773,19 +773,19 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.14"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+_2.14.2-1_win32.zip
+		gtk2 gtk2.14/gtk+_2.14.3-2_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+-dev_2.14.2-1_win32.zip
+		gtk2 gtk2.14/gtk+-dev_2.14.3-2_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/cairo-1.6.4-2.zip
+		gtk2 gtk2.14/cairo_1.7.6-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/cairo-dev-1.6.4-2.zip
+		gtk2 gtk2.14/cairo-dev_1.7.6-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/atk-1.22.0.zip
+		gtk2 gtk2.14/atk_1.24.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/atk-dev-1.22.0.zip
+		gtk2 gtk2.14/atk-dev_1.24.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/libpng-1.2.29.zip
+		gtk2 gtk2.14/libpng_1.2.32-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.14/tiff-3.8.2-1-bin.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -812,11 +812,11 @@ process_libs:
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.20"
+!IF "$(PANGO_INST_VERSION)" == "1.22"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-1.20.5.zip
+		gtk2 gtk2.14/pango_1.22.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-dev-1.20.5.zip
+		gtk2 gtk2.14/pango-dev_1.22.0-1_win32.zip
 !ELSE
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF

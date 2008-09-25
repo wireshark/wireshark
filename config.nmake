@@ -41,7 +41,7 @@ WIRESHARK_LIBS=C:\wireshark-$(PLATFORM)-libs
 # Base directory, where your programs reside.
 # This setting is used only inside this file.
 #
-PROGRAM_FILES=C:/Program Files
+PROGRAM_FILES=$(PROGRAMFILES)
 
 #
 # Machine type for the compiler and linker
@@ -146,7 +146,7 @@ GTK_DIR=$(WIRESHARK_LIBS)\gtk2
 #
 # GTK 2.12 is the mainline since Wireshark 0.99.7
 GTK_INST_VERSION=2.14
-PANGO_INST_VERSION=1.20
+PANGO_INST_VERSION=1.22
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -649,7 +649,7 @@ GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
 
-!IF "$(PANGO_INST_VERSION)" == "1.20"
+!IF "$(PANGO_INST_VERSION)" == "1.22"
 PANGO_LIB_DIR=1.5.0
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.18"
 PANGO_LIB_DIR=1.5.0
