@@ -1711,7 +1711,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto this_was_not_sasl;
 	}
 
-	if( sasl_len>65535 ){
+	if( sasl_len>LDAP_SASL_MAX_BUF ){
 		goto this_was_not_sasl;
 	}
 		
