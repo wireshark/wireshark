@@ -77,8 +77,6 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
-#include "log.h"
-
 /* uncomment this to enable debugging of fragment reassembly */
 /* #define DEBUG_FRAGMENTS   1 */
 
@@ -138,6 +136,7 @@ static const fragment_items rtp_fragment_items = {
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
 static dissector_handle_t t38_handle;
+static dissector_handle_t zrtp_handle;
 
 static int rtp_tap = -1;
 
@@ -208,7 +207,7 @@ static guint global_pkt_ccc_udp_port = 0;
 #define RTP0_T38     2
 
 static enum_val_t rtp_version0_types[] = {
-	{ "invalid", "Invalid RTP packets", RTP0_INVALID },
+	{ "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
 	{ "stun", "STUN packets", RTP0_STUN },
 	{ "t38", "T.38 packets", RTP0_T38 },
 	{ NULL, NULL, 0 }
@@ -480,19 +479,25 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	version = RTP_VERSION( octet1 );
 
 	if (version == 0) {
-		switch (global_rtp_version0_type) {
+		if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
+		{
+			call_dissector(zrtp_handle, tvb, pinfo, tree);
+			return TRUE;
+		} else {
+			switch (global_rtp_version0_type) {
 			case RTP0_STUN:
 				call_dissector(stun_handle, tvb, pinfo, tree);
 				return TRUE;
-
+				
 			case RTP0_T38:
 				call_dissector(t38_handle, tvb, pinfo, tree);
 				return TRUE;
-
+				
 			case RTP0_INVALID:
-
+				
 			default:
 				return FALSE; /* Unknown or unsupported version */
+			}
 		}
 	} else if (version != 2) {
 		/* Unknown or unsupported version */
@@ -967,8 +972,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			return;
 
 		case RTP0_INVALID:
+			if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
+			{
+				call_dissector(zrtp_handle,tvb,pinfo,tree);
+				return;
+			}
 		default:
-			; /* Unknown or unsupported version (let it fall through */
+			; /* Unknown or unsupported version (let it fall through) */
 		}
 	}
 
@@ -1911,7 +1921,7 @@ proto_register_rtp(void)
 
 	prefs_register_enum_preference(rtp_module, "version0_type",
 	                               "Treat RTP version 0 packets as",
-	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet, a STUN packet, or a T.38 packet",
+	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid or ZRTP packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
 	prefs_register_uint_preference(rtp_module,
@@ -1942,6 +1952,7 @@ proto_reg_handoff_rtp(void)
 		data_handle = find_dissector("data");
 		stun_handle = find_dissector("stun");
 		t38_handle = find_dissector("t38");
+		zrtp_handle = find_dissector("zrtp");
 
 		rtp_prefs_initialized = TRUE;
 	} else {

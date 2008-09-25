@@ -838,7 +838,8 @@ DISSECTOR_SRC = \
 	packet-yppasswd.c	\
 	packet-ypserv.c		\
 	packet-ypxfr.c		\
-	packet-zebra.c 
+	packet-zebra.c		\
+	packet-zrtp.c
 
 #
 # Dissectors with warnings.
