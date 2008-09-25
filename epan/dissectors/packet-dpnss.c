@@ -1494,9 +1494,6 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_dpnss(void)
 {
-	dissector_handle_t dpnss_handle;
-	
-	dpnss_handle = create_dissector_handle(dissect_dpnss, proto_dpnss);
 }
 
 void

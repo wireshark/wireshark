@@ -359,10 +359,6 @@ dissect_gsm_bsslap_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_gsm_bsslap(void)
 {
-	dissector_handle_t gsm_bsslap_handle;
-	
-	gsm_bsslap_handle = create_dissector_handle(dissect_gsm_bsslap_apdu, proto_gsm_bsslap);
-
 }
 
 void

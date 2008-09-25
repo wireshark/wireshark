@@ -574,8 +574,6 @@ proto_register_fcsp (void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    data_handle = find_dissector("data");
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -585,10 +583,6 @@ proto_register_fcsp (void)
 void
 proto_reg_handoff_fcsp (void)
 {
-    dissector_handle_t fcsp_handle;
-
-    fcsp_handle = create_dissector_handle (dissect_fcsp, proto_fcsp);
-
     data_handle = find_dissector ("data");
 }
 

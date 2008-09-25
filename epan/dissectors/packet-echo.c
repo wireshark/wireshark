@@ -117,7 +117,7 @@ void proto_register_echo(void)
 void proto_reg_handoff_echo(void) 
 {
 
-  dissector_handle_t echo_handle = NULL;
+  dissector_handle_t echo_handle;
 
   echo_handle = create_dissector_handle(dissect_echo, proto_echo);
 

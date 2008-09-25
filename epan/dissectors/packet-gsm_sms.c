@@ -118,7 +118,6 @@ static gint hf_gsm_sms_coding_group_bits2 = -1;
 static gint hf_gsm_sms_coding_group_bits4 = -1;
 
 static char bigbuf[1024];
-static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
@@ -2740,6 +2739,4 @@ proto_reg_handoff_gsm_sms(void)
 
     dissector_add("gsm_a.sms_tpdu", 0, gsm_sms_handle);
     dissector_add("gsm_map.sms_tpdu", 0, gsm_sms_handle);
-
-    data_handle = find_dissector("data");
 }

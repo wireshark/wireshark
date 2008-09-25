@@ -81,8 +81,6 @@ static gint ett_rp_msg = -1;
 
 static char a_bigbuf[1024];
 
-static dissector_handle_t rp_handle;
-
 static dissector_table_t sms_dissector_table;	/* SMS TPDU */
 
 static packet_info *g_pinfo;
@@ -597,5 +595,4 @@ proto_register_gsm_a_rp(void)
 void
 proto_reg_handoff_gsm_a_rp(void)
 {
-	rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
 }

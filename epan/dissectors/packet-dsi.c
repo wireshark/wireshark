@@ -861,7 +861,7 @@ proto_register_dsi(void)
 void
 proto_reg_handoff_dsi(void)
 {
-  static dissector_handle_t dsi_handle;
+  dissector_handle_t dsi_handle;
 
   dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
   dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
