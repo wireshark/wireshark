@@ -1414,6 +1414,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
 	gint tokennum, tokenlen;
+	proto_item* hidden_item;
 	char *transid = NULL;
 	char *code = NULL;
 	char *endpointId = NULL;
@@ -1551,7 +1552,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		switch (mgcp_type)
 		{
 			case MGCP_RESPONSE:
-				PROTO_ITEM_SET_HIDDEN(proto_tree_add_boolean(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE));
+				hidden_item = proto_tree_add_boolean(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				/* Check for MGCP response.  A response must match a call that
 				   we've seen, and the response must be sent to the same
 				   port and address that the call came from, and must
@@ -1656,7 +1658,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				}
 				break;
 			case MGCP_REQUEST:
-				PROTO_ITEM_SET_HIDDEN(proto_tree_add_boolean(tree, hf_mgcp_req, tvb, 0, 0, TRUE));
+				hidden_item = proto_tree_add_boolean(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				/* Keep track of the address and port whence the call came,
 				 * and the port to which the call is being sent, so that
 				 * we can match up calls with replies.
