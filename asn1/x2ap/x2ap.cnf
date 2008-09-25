@@ -8,6 +8,11 @@ PER
 ALIGNED
 #.END
 
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+PrivateMessage
+#.END
+
 #.PDU
 X2AP-PDU
 
@@ -74,19 +79,23 @@ ProtocolIE-ContainerPairList
 #.END
 
 # Handle 64 bit constraint
-#.FN_PARS SAE-Bearer-BitRate FN_VARIANT = _64b
+#.FN_PARS BitRate FN_VARIANT = _64b
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-handoverPreparation		ProcedureCode
-id-handoverCancel			ProcedureCode
-id-loadIndication			ProcedureCode
-id-errorIndication			ProcedureCode
-id-snStatusTransfer			ProcedureCode
-id-releaseResource			ProcedureCode
-id-x2Setup					ProcedureCode
-id-reset					ProcedureCode
+id-handoverPreparation				ProcedureCode
+id-handoverCancel					ProcedureCode
+id-loadIndication					ProcedureCode
+id-errorIndication					ProcedureCode
+id-snStatusTransfer					ProcedureCode
+id-uEContextRelease					ProcedureCode
+id-x2Setup							ProcedureCode
+id-reset							ProcedureCode
+id-eNBConfigurationUpdate			ProcedureCode
+id-resourceStatusUpdateInitiation	ProcedureCode
+id-resourceStatusReporting			ProcedureCode
+
 
 # ProtocolIE-ID
 
@@ -111,9 +120,21 @@ id-CriticalityDiagnostics													ProtocolIE-ID
 id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID
 id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID
 id-ServedCells																ProtocolIE-ID
+id-GlobalENB-ID																ProtocolIE-ID
 id-TimeToWait																ProtocolIE-ID
 id-GUMMEI-ID																ProtocolIE-ID
-
+id-GUGroupIDList															ProtocolIE-ID
+id-ServedCellsToAdd															ProtocolIE-ID
+id-ServedCellsToModify														ProtocolIE-ID
+id-ServedCellsToDelete														ProtocolIE-ID
+id-Registration-Request														ProtocolIE-ID
+id-CellToReport																ProtocolIE-ID
+id-ReportingPeriodicity														ProtocolIE-ID
+id-CellToReport-Item														ProtocolIE-ID
+id-CellMeasurementResult													ProtocolIE-ID
+id-CellMeasurementResult-Item												ProtocolIE-ID
+id-GUGroupIDListToAdd														ProtocolIE-ID
+id-GUGroupIDListToDelete													ProtocolIE-ID
 
 #.REGISTER_NEW
 
@@ -129,7 +150,7 @@ CellInformation-Item						N x2ap.ies id-CellInformation-Item
 InterfacesToTrace-Item						N x2ap.ies id-InterfacesToTrace-Item
 UE-X2AP-ID									N x2ap.ies id-New-eNB-UE-X2AP-ID
 UE-X2AP-ID									N x2ap.ies id-Old-eNB-UE-X2AP-ID
-CGI											N x2ap.ies id-TargetCell-ID
+ECGI										N x2ap.ies id-TargetCell-ID
 TargeteNBtoSource-eNBTransparentContainer	N x2ap.ies id-TargeteNBtoSource-eNBTransparentContainer
 TraceActivation								N x2ap.ies id-TraceActivation
 UE-ContextInformation						N x2ap.ies id-UE-ContextInformation
@@ -139,9 +160,21 @@ CriticalityDiagnostics						N x2ap.ies id-CriticalityDiagnostics
 Bearers-SubjectToStatusTransfer-List		N x2ap.ies id-Bearers-SubjectToStatusTransfer-List
 Bearers-SubjectToStatusTransfer-Item		N x2ap.ies id-Bearers-SubjectToStatusTransfer-Item
 ServedCells									N x2ap.ies id-ServedCells
+GlobalENB-ID								N x2ap.ies id-GlobalENB-ID
 TimeToWait									N x2ap.ies id-TimeToWait
 GUMMEI										N x2ap.ies id-GUMMEI-ID
-
+GUGroupIDList								N x2ap.ies id-GUGroupIDList
+ServedCells									N x2ap.ies id-ServedCellsToAdd
+ServedCellsToModify							N x2ap.ies id-ServedCellsToModify
+Old-ECGIs									N x2ap.ies id-ServedCellsToDelete
+Registration-Request						N x2ap.ies id-Registration-Request
+CellToReport-List							N x2ap.ies id-CellToReport
+ReportingPeriod								N x2ap.ies id-ReportingPeriodicity
+CellToReport-Item							N x2ap.ies id-CellToReport-Item
+CellMeasurementResult-List					N x2ap.ies id-CellMeasurementResult
+CellMeasurementResult-Item					N x2ap.ies id-CellMeasurementResult-Item
+GUGroupIDList								N x2ap.ies id-GUGroupIDListToAdd
+GUGroupIDList								N x2ap.ies id-GUGroupIDListToDelete
 
 #X2AP-PROTOCOL-EXTENSION
 # this is from rnsap MessageStructure                   N x2ap.extension id-MessageStructure
@@ -154,7 +187,7 @@ HandoverPreparationFailure			S x2ap.proc.uout "id-handoverPreparation"
 
 SNStatusTransfer					S x2ap.proc.imsg "id-snStatusTransfer"
 
-ReleaseResource						S x2ap.proc.imsg "id-releaseResource"
+UEContextRelease					S x2ap.proc.imsg "id-uEContextRelease"
 
 HandoverCancel						S x2ap.proc.imsg "id-handoverCancel"
 
@@ -167,5 +200,15 @@ X2SetupRequest						S x2ap.proc.imsg "id-x2Setup"
 X2SetupResponse						S x2ap.proc.sout "id-x2Setup"
 X2SetupFailure						S x2ap.proc.uout "id-x2Setup"
 
-LoadInformation						S x2ap.proc.imsg "LoadInformation"
+LoadInformation						S x2ap.proc.imsg "id-loadIndication"
+
+ENBConfigurationUpdate				S x2ap.proc.imsg "id-eNBConfigurationUpdate"
+ENBConfigurationUpdateAcknowledge	S x2ap.proc.sout "id-eNBConfigurationUpdate"
+ENBConfigurationUpdateFailure		S x2ap.proc.uout "id-eNBConfigurationUpdate"
+
+ResourceStatusRequest				S x2ap.proc.imsg "id-resourceStatusUpdateInitiation"
+ResourceStatusResponse				S x2ap.proc.sout "id-resourceStatusUpdateInitiation"
+ResourceStatusFailure				S x2ap.proc.uout "id-resourceStatusUpdateInitiation"
+
+ResourceStatusUpdate				S x2ap.proc.imsg "id-resourceStatusReporting"
 #.END

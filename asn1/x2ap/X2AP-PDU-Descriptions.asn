@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 3GPP TS 36.423 V8.3.0 (2008-09)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -27,30 +27,47 @@ IMPORTS
 FROM X2AP-CommonDataTypes
 
 
+	ENBConfigurationUpdate,
+	ENBConfigurationUpdateAcknowledge,
+	ENBConfigurationUpdateFailure,
 	ErrorIndication,
-	HandoverRequest,
-	HandoverRequestAcknowledge,
-	HandoverPreparationFailure,
-	SNStatusTransfer,
-	ReleaseResource,
 	HandoverCancel,
-	LoadInformation,
+	HandoverPreparationFailure,	HandoverRequest,
+	HandoverRequestAcknowledge,
+	
+	
+		LoadInformation,
 	ResetRequest,
 	ResetResponse,
-	X2SetupRequest,
-	X2SetupResponse,
-	X2SetupFailure
+	ResourceStatusFailure,
+	ResourceStatusRequest,
+	ResourceStatusResponse,
+	ResourceStatusUpdate,
+	SNStatusTransfer,
+	UEContextRelease,
+	X2SetupFailure,	X2SetupRequest,
+	X2SetupResponse
+	
+
+
 
 FROM X2AP-PDU-Contents
 
+	id-eNBConfigurationUpdate,
 	id-errorIndication,
-	id-handoverPreparation,
-	id-snStatusTransfer,
-	id-releaseResource,
 	id-handoverCancel,
+	id-handoverPreparation,
+	
 	id-loadIndication,
 	id-reset,
+	
+	id-resourceStatusReporting,
+	id-resourceStatusUpdateInitiation,
+	id-snStatusTransfer,
+	id-uEContextRelease,
 	id-x2Setup
+
+
 
 
 FROM X2AP-Constants;
@@ -91,20 +108,20 @@ X2AP-PDU ::= CHOICE {
 
 InitiatingMessage ::= SEQUENCE {
 	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
-	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		X2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality		X2AP-ELEMENTARY-PROCEDURE.&criticality			({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			X2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 SuccessfulOutcome ::= SEQUENCE {
 	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
-	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		X2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality		X2AP-ELEMENTARY-PROCEDURE.&criticality			({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			X2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 UnsuccessfulOutcome ::= SEQUENCE {
 	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
-	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		X2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	criticality		X2AP-ELEMENTARY-PROCEDURE.&criticality			({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			X2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 
@@ -123,15 +140,18 @@ X2AP-ELEMENTARY-PROCEDURES X2AP-ELEMENTARY-PROCEDURE ::= {
 X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	handoverPreparation										|
 	reset													|
-	x2Setup													,
+	x2Setup													|
+	resourceStatusUpdateInitiation							|
+	eNBConfigurationUpdate								    ,
 	...
 }
 
 X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	snStatusTransfer						|
-	releaseResource							|
+	uEContextRelease						|
 	handoverCancel							|
 	errorIndication							|
+	resourceStatusReporting					|	
 	loadIndication							,
 	...
 
@@ -158,9 +178,9 @@ snStatusTransfer X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
-releaseResource X2AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		ReleaseResource
-	PROCEDURE CODE			id-releaseResource
+uEContextRelease X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextRelease
+	PROCEDURE CODE			id-uEContextRelease
 	CRITICALITY				ignore
 }
 
@@ -187,7 +207,7 @@ reset	X2AP-ELEMENTARY-PROCEDURE ::= {
 x2Setup	X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		X2SetupRequest
 	SUCCESSFUL OUTCOME		X2SetupResponse
-	UNSUCCESSFUL OUTCOME		X2SetupFailure
+	UNSUCCESSFUL OUTCOME	X2SetupFailure
 	PROCEDURE CODE			id-x2Setup
 	CRITICALITY				reject
 }
@@ -199,5 +219,26 @@ loadIndication X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+eNBConfigurationUpdate		X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBConfigurationUpdate
+	SUCCESSFUL OUTCOME		ENBConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	ENBConfigurationUpdateFailure
+	PROCEDURE CODE			id-eNBConfigurationUpdate
+	CRITICALITY				reject
+}
+
+resourceStatusUpdateInitiation	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusRequest
+	SUCCESSFUL OUTCOME		ResourceStatusResponse
+	UNSUCCESSFUL OUTCOME	ResourceStatusFailure
+	PROCEDURE CODE			id-resourceStatusUpdateInitiation
+	CRITICALITY				reject
+}
+
+resourceStatusReporting X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusUpdate
+	PROCEDURE CODE			id-resourceStatusReporting
+	CRITICALITY				ignore
+}
 
 END

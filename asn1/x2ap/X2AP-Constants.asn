@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 3GPP TS 36.423 V8.3.0 (2008-09)
 -- 9.3.7	Constant Definitions
 -- **************************************************************
 --
@@ -31,9 +31,14 @@ id-handoverCancel												ProcedureCode ::= 1
 id-loadIndication												ProcedureCode ::= 2
 id-errorIndication												ProcedureCode ::= 3
 id-snStatusTransfer												ProcedureCode ::= 4
-id-releaseResource												ProcedureCode ::= 5
+id-uEContextRelease									ProcedureCode ::= 5
 id-x2Setup														ProcedureCode ::= 6
 id-reset														ProcedureCode ::= 7
+id-eNBConfigurationUpdate										ProcedureCode ::= 8
+id-resourceStatusUpdateInitiation								ProcedureCode ::= 9
+id-resourceStatusReporting										ProcedureCode ::= 10
+
+
 
 
 
@@ -43,17 +48,20 @@ id-reset														ProcedureCode ::= 7
 --
 -- **************************************************************
 
+maxEARFCN									INTEGER ::= 32767	-- FFS Value to be checked
 maxInterfaces								INTEGER ::= 16		-- FFS Value to be checked
-maxCellineNB								INTEGER ::= 256		-- FFS Value to be checked
+maxCellineNB								INTEGER ::= 256		
 maxnoofCells								INTEGER ::= 16		-- FFS Value to be checked
-maxnoofBearers								INTEGER ::= 16		-- FFS Value to be checked
+maxnoofBearers								INTEGER ::= 256		
 maxNrOfErrors								INTEGER ::= 256		-- FFS Value to be checked
 maxnoofPDCP-SN								INTEGER ::= 16		-- FFS Value to be checked
 maxnoofEPLMNs								INTEGER ::= 15		
 maxnoofEPLMNsPlusOne						INTEGER ::= 16		
-maxnoofForbLACs								INTEGER ::= 256		-- FFS Value to be checked
-maxnoofForbTAIs								INTEGER ::= 256		-- FFS Value to be checked
+maxnoofForbLACs								INTEGER ::= 4096		
+maxnoofForbTACs							    INTEGER ::= 4096	
 maxnoofBPLMNs								INTEGER ::= 6
+maxnoofPRBs									INTEGER ::= 110		-- FFS Value to be checked
+maxPools									INTEGER ::= 16		-- FFS Value to be checked
 
 
 
@@ -85,9 +93,21 @@ id-CriticalityDiagnostics													ProtocolIE-ID ::= 17
 id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID ::= 18
 id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID ::= 19
 id-ServedCells																ProtocolIE-ID ::= 20
-id-ENB-Global-ID															ProtocolIE-ID ::= 21
+id-GlobalENB-ID																ProtocolIE-ID ::= 21
 id-TimeToWait																ProtocolIE-ID ::= 22
 id-GUMMEI-ID																ProtocolIE-ID ::= 23
+id-GUGroupIDList															ProtocolIE-ID ::= 24
+id-ServedCellsToAdd															ProtocolIE-ID ::= 25
+id-ServedCellsToModify														ProtocolIE-ID ::= 26
+id-ServedCellsToDelete														ProtocolIE-ID ::= 27
+id-Registration-Request														ProtocolIE-ID ::= 28
+id-CellToReport																ProtocolIE-ID ::= 29
+id-ReportingPeriodicity														ProtocolIE-ID ::= 30
+id-CellToReport-Item														ProtocolIE-ID ::= 31
+id-CellMeasurementResult													ProtocolIE-ID ::= 32
+id-CellMeasurementResult-Item												ProtocolIE-ID ::= 33
+id-GUGroupIDListToAdd														ProtocolIE-ID ::= 34
+id-GUGroupIDListToDelete													ProtocolIE-ID ::= 35
 
 
 END

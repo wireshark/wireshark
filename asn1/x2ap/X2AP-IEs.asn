@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 3GPP TS 36.423 V8.3.0 (2008-09
 -- 9.3.5	Information Element Definitions
 -- **************************************************************
 --
@@ -17,15 +17,21 @@ BEGIN
 
 IMPORTS
 	id-InterfacesToTrace-Item,
+
+	maxCellineNB,
+	maxEARFCN,
 	maxInterfaces,
-	maxNrOfErrors,
+	
 	maxnoofCells,
+	maxnoofBPLMNs,
 	maxnoofEPLMNs,
 	maxnoofEPLMNsPlusOne,
 	maxnoofForbLACs,
-	maxnoofForbTAIs,
-	maxCellineNB,
-	maxnoofBPLMNs
+	maxnoofForbTACs,
+	
+	maxnoofPRBs,
+	maxNrOfErrors,
+	maxPools
 
 FROM X2AP-Constants
 
@@ -35,27 +41,24 @@ FROM X2AP-Constants
 	TriggeringMessage
 FROM X2AP-CommonDataTypes
 
-	ProtocolIE-Single-Container{},
 	ProtocolExtensionContainer{},
-	X2AP-PROTOCOL-IES,
-	X2AP-PROTOCOL-EXTENSION
+	ProtocolIE-Single-Container{},
+	
+	X2AP-PROTOCOL-EXTENSION,
+	X2AP-PROTOCOL-IES
 FROM X2AP-Containers;
 
 -- A
 
-AggregateMaximumBitRate ::= SEQUENCE {
-	aggregateMaximumBitRateDownlink		SAE-Bearer-BitRate,
-	aggregateMaximumBitRateUplink		SAE-Bearer-BitRate,
-	...
-}
 
-AllocationAndRetentionPriority ::= OCTET STRING
+AllocationAndRetentionPriority ::= INTEGER (0..15)
 
 
 -- B
 
-Bearer-ID ::= BIT STRING (SIZE (8))  -- To be checked, FFS
+Bearer-ID ::= INTEGER (0..15, ...)  
 
+BitRate ::= INTEGER (0..10000000000)
 BroadcastPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
 
 
@@ -90,10 +93,21 @@ CauseProtocol ::= ENUMERATED {
 }
 
 CauseRadioNetwork ::= ENUMERATED {
-	normal-ho,
-	emergency-ho,
-	load-balancing,
-	overload,
+	handover-desirable-for-radio-reasons,
+	time-critical-handover,
+	resource-optimisation-handover,
+	reduce-load-in-serving-cell,
+	partial-handover,
+	unknown-new-eNB-UE-X2AP-ID, 
+	unknown-old-eNB-UE-X2AP-ID, 
+	unknown-pair-of-UE-X2AP-ID,
+	ho-target-not-allowed,
+	tx2relocoverall-expiry,
+	trelocprep-expiry,
+	cell-not-available,
+	no-radio-resources-available-in-target-cell,
+	invalid-MME-GroupID,
+	unknown-MME-Code,
 	unspecified,
 	...
 
@@ -113,22 +127,30 @@ CellType ::= ENUMERATED{
 	...
 }
 
-CellId ::= OCTET STRING
 
-
-
-CGI ::= SEQUENCE {
-	pLMN-Identity			PLMN-Identity,
-	lAC						LAC,
-	cI						CI,
-	iE-Extensions			ProtocolExtensionContainer { {CGI-ExtIEs} } OPTIONAL
+Cell-Transmission-Bandwidth ::= ENUMERATED {
+		bw6,
+	 	bw15,
+		bw25,
+	 	bw50,
+		bw75,
+		bw100,
+		...
 }
 
-CGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+
+
+COUNTvalue ::= SEQUENCE {
+	pDCP-SN					PDCP-SN,
+	hFN						HFN,
+	iE-Extensions			ProtocolExtensionContainer { { COUNTvalue-ExtIEs} } OPTIONAL,
 	...
 }
 
-CI					::= OCTET STRING (SIZE (2))
+COUNTvalue-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 CriticalityDiagnostics ::= SEQUENCE {
 	procedureCode					ProcedureCode					OPTIONAL,
@@ -139,11 +161,6 @@ CriticalityDiagnostics ::= SEQUENCE {
 	...
 }
 
-COUNTvalue ::= SEQUENCE {
-	pDCP-SN			PDCP-SN,
-	hFN				HFN,
-	...
-}
 
 CriticalityDiagnostics-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
@@ -156,7 +173,7 @@ CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
 		typeOfError				TypeOfError,
 		iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-IE-List-ExtIEs} } OPTIONAL,
 		...
-	}
+}
 
 CriticalityDiagnostics-IE-List-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
@@ -166,7 +183,6 @@ CriticalityDiagnostics-IE-List-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- D
 
-DL-data-received ::= INTEGER
 
 DL-Forwarding ::= ENUMERATED {
 	dL-forwardingProposed,
@@ -175,10 +191,33 @@ DL-Forwarding ::= ENUMERATED {
 
 -- E
 
-ENB-Global-ID		::= INTEGER (0..65535)  -- Value to be checked FFS
+EARFCN ::= INTEGER (0..maxEARFCN)
+
+ECGI ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	eUTRANcellIdentifier		EUTRANCellIdentifier,
+	iE-Extensions				ProtocolExtensionContainer { {ECGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+ECGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ENB-ID ::= CHOICE {
+	macro-eNB-ID	BIT STRING (SIZE (20)),
+	home-eNB-ID		BIT STRING (SIZE (28)),
+	...
+}
 
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMN-Identity
 
+EventType ::= ENUMERATED{
+	change-of-serving-cell,
+	...
+}
+
+EUTRANCellIdentifier ::= BIT STRING (SIZE (28))
 
 -- F
 
@@ -193,10 +232,10 @@ ForbiddenTAs ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF ForbiddenTAs-Item
 
 ForbiddenTAs-Item ::= SEQUENCE {
 	pLMN-Identity		PLMN-Identity,
-	forbiddenTAIs		ForbiddenTAIs
+	forbiddenTACs		ForbiddenTACs
 }
 
-ForbiddenTAIs ::= SEQUENCE (SIZE(1..maxnoofForbTAIs)) OF TAI
+ForbiddenTACs ::= SEQUENCE (SIZE(1..maxnoofForbTACs)) OF TAC
 
 ForbiddenLAs ::= SEQUENCE (SIZE(1..maxnoofEPLMNsPlusOne)) OF ForbiddenLAs-Item
 
@@ -207,12 +246,33 @@ ForbiddenLAs-Item ::= SEQUENCE {
 
 ForbiddenLACs ::= SEQUENCE (SIZE(1..maxnoofForbLACs)) OF LAC
 
-Frequency ::= OCTET STRING
 
 
 -- G
 
+GBR-QosInformation ::= SEQUENCE {
+	sAE-Bearer-MaximumBitrateDL			BitRate,
+	sAE-Bearer-MaximumBitrateUL			BitRate,
+	sAE-Bearer-GuaranteedBitrateDL		BitRate,
+	sAE-Bearer-GuaranteedBitrateUL		BitRate,
+	iE-Extensions						ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	...
+}
 
+GBR-QosInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GlobalENB-ID ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	eNB-ID					ENB-ID,
+	iE-Extensions			ProtocolExtensionContainer { {GlobalENB-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalENB-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 GTPtunnelEndpoint ::= SEQUENCE {
 	transportLayerAddress			TransportLayerAddress,
 	gTP-TEID						GTP-TEI,
@@ -226,9 +286,24 @@ GTPtunnelEndpoint-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 GTP-TEI					::= OCTET STRING (SIZE (4))
 
-GUMMEI			::= SEQUENCE {
+GUGroupIDList		::= SEQUENCE (SIZE (1..maxPools)) OF GU-Group-ID
+
+
+GU-Group-ID			::= SEQUENCE {
 	pLMN-Identity		PLMN-Identity,
 	mME-Group-ID		MME-Group-ID,
+	iE-Extensions		ProtocolExtensionContainer { {GU-Group-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GU-Group-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+GUMMEI			::= SEQUENCE {
+	
+	gU-Group-ID		GU-Group-ID,
 	mMME-Code			MME-Code,
 	iE-Extensions					ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
 	...
@@ -243,6 +318,7 @@ GUMMEI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 -- H
 
 HandoverRestrictionList ::= SEQUENCE {
+	servingPLMN					PLMN-Identity,
 	equivalentPLMNs				EPLMNs					OPTIONAL,
 	forbiddenTAs				ForbiddenTAs			OPTIONAL,
 	forbiddenLAs				ForbiddenLAs			OPTIONAL,
@@ -262,7 +338,7 @@ HFN ::= INTEGER (0..1048575)
 -- I
 
 
-InterfacesToTrace ::= SEQUENCE (SIZE(0..maxInterfaces)) OF ProtocolIE-Single-Container {{InterfacesToTrace-ItemIEs} }
+InterfacesToTrace ::= SEQUENCE (SIZE(1..maxInterfaces)) OF ProtocolIE-Single-Container {{InterfacesToTrace-ItemIEs} }
 
 InterfacesToTrace-ItemIEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-InterfacesToTrace-Item	CRITICALITY ignore	TYPE InterfacesToTrace-Item 	PRESENCE mandatory	}
@@ -279,18 +355,16 @@ InterfacesToTrace-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-InterferenceOverloadIndication ::= OCTET STRING  -- FFS
 
 -- J
 -- K
 -- L
 
-Label ::= INTEGER (1..256)
 
 LAC					::= OCTET STRING (SIZE (2)) --(EXCEPT ('0000'H|'FFFE'H))
 
 LastVisitedCell-Item ::= SEQUENCE {
-	global-Cell-ID					CGI,
+	global-Cell-ID					ECGI,
 	cellType						CellType,
 	time-UE-StayedInCell			Time-UE-StayedInCell	OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {LastVisitedCell-Item-ExtIEs} } OPTIONAL,
@@ -301,8 +375,19 @@ LastVisitedCell-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+LocationReportingInformation ::= SEQUENCE {
+	eventType		EventType,
+	reportArea		ReportArea,
+	iE-Extensions		ProtocolExtensionContainer { {LocationReportingInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+LocationReportingInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
+	...
+}
 
 -- M
+
 
 MME-Group-ID	::= OCTET STRING (SIZE (2))
 
@@ -316,67 +401,89 @@ MME-Code		::= OCTET STRING (SIZE (1))
 
 PDCP-SN ::= INTEGER (0..4095)  
 
-PhyCID ::= OCTET STRING
+PhyCID ::= INTEGER (1..504, ...)
 
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
 -- Q
+
+QCI ::= INTEGER (1..256)
+
 -- R
 
-RB-type ::= INTEGER
--- Editors note: FFS To be replaced by other QCI definition, ENUMERATED??
 
-ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(256)) 
+ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(4096))
+
+Registration-Request	::= ENUMERATED {
+	start,
+	stop,
+	...
+}
+ 
+RelativeNarrowbandTxPower ::= SEQUENCE {
+
+	rNTP-PerPRB							BIT STRING (SIZE(6..110, ...)),
+	rNTP-Threshold						RNTP-Threshold,
+	numberOfCellSpecificAntennaPorts	ENUMERATED {one, two, four, ...},
+	p-B									INTEGER (0..3,...),
+	pDCCH-InterferenceImpact			INTEGER (0..4,...),
+	iE-Extensions						ProtocolExtensionContainer { { RelativeNarrowbandTxPower-ExtIEs} } OPTIONAL,
+	...
+}
+
+RelativeNarrowbandTxPower-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ReportArea ::= ENUMERATED{
+	ecgi,
+	...
+}
+
+RNTP-Threshold ::= ENUMERATED {
+	minusInfinity,
+	minusEleven,
+	minusTen,
+	minusNine,
+	minusEight,
+	minusSeven,
+	minusSix,
+	minusFive,
+	minusFour,
+	minusThree,
+	minusTwo,
+	minusOne,
+	zero,
+	one,
+	two,
+	three,
+	...
+}
 
 RRC-Context ::= OCTET STRING
 
+ResourceStatus			::= INTEGER
+
+
 -- S
 
-SAE-Bearer-BitRate ::= INTEGER (0..210000000000)
 
 SAE-BearerLevel-QoS-Parameters ::= SEQUENCE {
-	label				Label,
-	allocationAndRetentionPriority	AllocationAndRetentionPriority,  --FFS
-	sAE-BearerType			SAE-BearerType,
+	qCI				QCI,
+	allocationAndRetentionPriority	AllocationAndRetentionPriority,
+	
+	gbrQosInformation				GBR-QosInformation			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { SAE-BearerLevel-QoS-Parameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+SAE-BearerLevel-QoS-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 
-SAE-BearerType ::= CHOICE {
-	sAE-GBR-bearer		SAE-GBR-Bearer,
-	sAE-non-GBR-bearer		SAE-Non-GBR-Bearer,
-	...
-}
 
-SAE-GBR-Bearer ::= SEQUENCE {
-	sAE-Bearer-MaximumBitrateDL			SAE-Bearer-BitRate,
-	sAE-Bearer-MaximumBitrateUL			SAE-Bearer-BitRate,
-	sAE-Bearer-GuaranteedBitrateDL		SAE-Bearer-BitRate,
-	sAE-Bearer-GuaranteedBitrateUL		SAE-Bearer-BitRate,
-	iE-Extensions						ProtocolExtensionContainer { {SAE-GBR-Bearer-Parameters-ExtIEs} } OPTIONAL,
-	...
-}
-
-SAE-GBR-Bearer-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-
-SAE-Non-GBR-Bearer ::= SEQUENCE {
-	sAE-non-GBR-Bearer-Type			SAE-Non-GBR-Bearer-Type,
-	iE-Extensions						ProtocolExtensionContainer { {SAE-non-GBR-Bearer-Parameters-ExtIEs} } OPTIONAL,
-	...
-}
-
-SAE-non-GBR-Bearer-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-SAE-Non-GBR-Bearer-Type ::= ENUMERATED {
-	non-GBR-Bearer,
-	...
-}
 
 
 ServedCells		::= SEQUENCE (SIZE (1..maxCellineNB)) OF ServedCell-Information
@@ -384,10 +491,12 @@ ServedCells		::= SEQUENCE (SIZE (1..maxCellineNB)) OF ServedCell-Information
 
 ServedCell-Information ::= SEQUENCE {
 	phyCID				PhyCID,
-	cellId				CellId,
-	tAI					TAI,
+	cellId				ECGI,
+	tAC					TAC,
 	broadcastPLMNs		BroadcastPLMNs-Item,
-	frequency			Frequency,
+	uL-EARFCN			EARFCN,
+	dL-EARFCN			EARFCN,
+	cell-Transmission-Bandwidth		Cell-Transmission-Bandwidth,
 	iE-Extensions		ProtocolExtensionContainer { {ServedCell-Information-ExtIEs} } OPTIONAL,
 	...
 }
@@ -396,10 +505,12 @@ ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SubscriberProfileIDforRFP ::= INTEGER (1..256) 
+
 
 -- T
 
-TAI ::= OCTET STRING 	-- FFS
+TAC ::= OCTET STRING 	-- FFS
 
 TargeteNBtoSource-eNBTransparentContainer	::= OCTET STRING
 
@@ -438,7 +549,7 @@ TraceInterface		::= ENUMERATED {
 	...
 }
 
-TraceReference					::= OCTET STRING (SIZE (3))
+TraceReference					::= OCTET STRING (SIZE (8))
 
 
 TransportLayerAddress			::= BIT STRING (SIZE(1..160, ...))
@@ -455,11 +566,45 @@ TypeOfError ::= ENUMERATED {
 UE-HistoryInformation ::= SEQUENCE (SIZE(1..maxnoofCells)) OF LastVisitedCell-Item
 
 
-UE-S1AP-ID					::= INTEGER (0..4095) -- Value FFS
+UE-S1AP-ID					::= INTEGER (0.. 4294967295)
 
 UE-X2AP-ID					::= INTEGER (0..4095) -- Value FFS
 
+UEAggregateMaximumBitRate ::= SEQUENCE {
+	uEaggregateMaximumBitRateDownlink	BitRate,
+	uEaggregateMaximumBitRateUplink		BitRate,
+	iE-Extensions						ProtocolExtensionContainer { {UEAggregate-MaximumBitrate-ExtIEs} } OPTIONAL,
+	...
+}
 
+UEAggregate-MaximumBitrate-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UL-InterferenceOverloadIndication ::= SEQUENCE (SIZE(1..maxnoofPRBs)) OF UL-InterferenceOverloadIndication-Item
+
+UL-InterferenceOverloadIndication-Item ::= ENUMERATED {
+	high-interference,
+	medium-interference,
+	low-interference,
+	...
+}
+
+UL-HighInterferenceIndicationInfo ::= SEQUENCE (SIZE(1..maxCellineNB)) OF UL-HighInterferenceIndicationInfo-Item
+
+UL-HighInterferenceIndicationInfo-Item ::= SEQUENCE {
+	ul-interferenceindication		UL-HighInterferenceIndication,
+	target-Cell-ID					ECGI,
+	iE-Extensions					ProtocolExtensionContainer { { UL-HighInterferenceIndicationInfo-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+UL-HighInterferenceIndicationInfo-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+UL-HighInterferenceIndication ::= BIT STRING (SIZE(1..110, ...))
 
 
 -- V

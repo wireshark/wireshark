@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 3GPP TS 36.423 V8.3.0 (2008-09
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -22,42 +22,60 @@ BEGIN
 -- **************************************************************
 
 IMPORTS
-	AggregateMaximumBitRate,
+	
 	Bearer-ID,
 	Cause,
-	CGI,
+	
 	COUNTvalue,
 	CriticalityDiagnostics,
 	DL-Forwarding,
-	ENB-Global-ID,
+	ECGI,
+	GlobalENB-ID,
+	GTPtunnelEndpoint,
+	GUGroupIDList,
 	GUMMEI,
 	HandoverRestrictionList,
-	InterferenceOverloadIndication,
+	
+	
+	LocationReportingInformation,
 	PDCP-SN,
 	PLMN-Identity,
-	UE-S1AP-ID,
-	RB-type,
+	
 	ReceiveStatusofULPDCPSDUs,
+	Registration-Request,
+	RelativeNarrowbandTxPower,
+	ResourceStatus,
 	RRC-Context,
 	SAE-BearerLevel-QoS-Parameters,
+	ServedCell-Information,
 	ServedCells,
+	SubscriberProfileIDforRFP,
+	TargeteNBtoSource-eNBTransparentContainer,
 	TimeToWait,
 	TraceActivation,
-	TargeteNBtoSource-eNBTransparentContainer,
+	
 	TraceDepth,
 	TraceReference,
 	TransportLayerAddress,
+	UEAggregateMaximumBitRate,
 	UE-HistoryInformation,
-	GTPtunnelEndpoint,
-	UE-X2AP-ID
+	UE-S1AP-ID,
+	UE-X2AP-ID,
+	
+	UL-HighInterferenceIndicationInfo,
+	UL-InterferenceOverloadIndication
+	
+	
+	
 FROM X2AP-IEs
 
 	PrivateIE-Container{},
 	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
 	ProtocolIE-ContainerList{},
 	ProtocolIE-ContainerPair{},
 	ProtocolIE-ContainerPairList{},
-	ProtocolIE-Container{},
+	
 	ProtocolIE-Single-Container{},
 	X2AP-PRIVATE-IES,
 	X2AP-PROTOCOL-EXTENSION,
@@ -71,27 +89,42 @@ FROM X2AP-Containers
 	id-Bearers-NotAdmitted-List,
 	id-Bearers-SubjectToStatusTransfer-List,
 	id-Bearers-SubjectToStatusTransfer-Item,
-	id-Cause,
+	id-Bearers-ToBeSetup-Item,	id-Cause,
 	id-CellInformation,
-	id-CellInformation-Item,
+	id-CellInformation-Item,	
+	id-CellMeasurementResult,
+	id-CellMeasurementResult-Item,
+	id-CellToReport,
+	id-CellToReport-Item,
+	
 	id-CriticalityDiagnostics,
-	id-ENB-Global-ID,
+	id-GlobalENB-ID,
+	id-GUGroupIDList,
+	id-GUGroupIDListToAdd,
+	id-GUGroupIDListToDelete,
 	id-GUMMEI-ID,
-	id-UE-ContextInformation,
-	id-Bearers-ToBeSetup-Item,
-	id-New-eNB-UE-X2AP-ID,
+			id-New-eNB-UE-X2AP-ID,
 	id-Old-eNB-UE-X2AP-ID,
+	id-Registration-Request,
+	id-ReportingPeriodicity,
 	id-ServedCells,
+	id-ServedCellsToAdd,
+	id-ServedCellsToModify,
+	id-ServedCellsToDelete,
 	id-TargetCell-ID,
 	id-TargeteNBtoSource-eNBTransparentContainer,
 	id-TimeToWait,
 	id-TraceActivation,
+	id-UE-ContextInformation,
 	id-UE-HistoryInformation,
 	id-UE-X2AP-ID,
+	
 
+
+	maxCellineNB,	
 	maxnoofBearers,
-	maxnoofPDCP-SN,
-	maxCellineNB
+	maxnoofPDCP-SN
+	
 FROM X2AP-Constants;
 
 -- **************************************************************
@@ -108,7 +141,7 @@ HandoverRequest ::= SEQUENCE {
 HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Old-eNB-UE-X2AP-ID				CRITICALITY reject	TYPE UE-X2AP-ID 				PRESENCE mandatory } |
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause 						PRESENCE mandatory } |
-	{ ID id-TargetCell-ID					CRITICALITY reject	TYPE CGI 						PRESENCE mandatory } |
+	{ ID id-TargetCell-ID					CRITICALITY reject	TYPE ECGI 						PRESENCE mandatory } |
 	{ ID id-GUMMEI-ID						CRITICALITY reject	TYPE GUMMEI  					PRESENCE mandatory } |
 	{ ID id-UE-ContextInformation			CRITICALITY reject	TYPE UE-ContextInformation 		PRESENCE mandatory } |
 	{ ID id-UE-HistoryInformation			CRITICALITY ignore	TYPE UE-HistoryInformation 		PRESENCE optional } |
@@ -118,11 +151,12 @@ HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 
 UE-ContextInformation ::= SEQUENCE {
 	mME-UE-S1AP-ID						UE-S1AP-ID,
-	aggregateMaximumBitRate				AggregateMaximumBitRate,
-	bearers-ToBeSetup-List				Bearers-ToBeSetup-List,
+	uEaggregateMaximumBitRate			UEAggregateMaximumBitRate,
+	subscriberProfileIDforRFP			SubscriberProfileIDforRFP		OPTIONAL,
+bearers-ToBeSetup-List				Bearers-ToBeSetup-List,
 	rRC-Context							RRC-Context, 
-	servingPLMN							PLMN-Identity				OPTIONAL,
-	handoverRestrictionList				HandoverRestrictionList		OPTIONAL,
+		handoverRestrictionList				HandoverRestrictionList		OPTIONAL,
+	locationReportingInformation		LocationReportingInformation	OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { {UE-ContextInformation-ExtIEs} } OPTIONAL,
 	...
 }
@@ -131,7 +165,7 @@ UE-ContextInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-Bearers-ToBeSetup-List ::= SEQUENCE (SIZE(0..maxnoofBearers)) OF ProtocolIE-Single-Container { {Bearers-ToBeSetup-ItemIEs} }
+Bearers-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {Bearers-ToBeSetup-ItemIEs} }
 
 Bearers-ToBeSetup-ItemIEs 	X2AP-PROTOCOL-IES ::= {
 	{ ID id-Bearers-ToBeSetup-Item	 CRITICALITY ignore 	TYPE Bearers-ToBeSetup-Item 	PRESENCE mandatory },
@@ -141,9 +175,8 @@ Bearers-ToBeSetup-ItemIEs 	X2AP-PROTOCOL-IES ::= {
 Bearers-ToBeSetup-Item ::= SEQUENCE {
 	sAE-Bearer-ID					Bearer-ID,
 	sAE-BearerLevel-QoS-Parameters		SAE-BearerLevel-QoS-Parameters,
-	dL-Forwarding					DL-Forwarding,
+	dL-Forwarding					DL-Forwarding													OPTIONAL,
 	uL-GTPtunnelEndpoint			GTPtunnelEndpoint,
-	rB-type 						RB-type,
 	iE-Extensions					ProtocolExtensionContainer { {Bearers-ToBeSetup-ItemExtIEs} } OPTIONAL,
 	...
 }
@@ -166,11 +199,13 @@ HandoverRequestAcknowledge ::= SEQUENCE {
 }
 
 HandoverRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-Old-eNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID							PRESENCE mandatory} |
-	{ ID id-New-eNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID							PRESENCE mandatory} |
-	{ ID id-Bearers-Admitted-List						CRITICALITY ignore	TYPE Bearers-Admitted-List			PRESENCE optional	} |
-	{ ID id-Bearers-NotAdmitted-List					CRITICALITY ignore	TYPE Bearers-NotAdmitted-List		PRESENCE optional	} |
-	{ ID id-TargeteNBtoSource-eNBTransparentContainer	CRITICALITY ignore	TYPE TargeteNBtoSource-eNBTransparentContainer			PRESENCE mandatory },
+	{ ID id-Old-eNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID													PRESENCE mandatory} |
+	{ ID id-New-eNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID													PRESENCE mandatory} |
+	{ ID id-Bearers-Admitted-List						CRITICALITY ignore	TYPE Bearers-Admitted-List									PRESENCE optional	} |
+	{ ID id-Bearers-NotAdmitted-List					CRITICALITY ignore	TYPE Bearers-NotAdmitted-List								PRESENCE optional	} |
+	{ ID id-TargeteNBtoSource-eNBTransparentContainer	CRITICALITY ignore	TYPE TargeteNBtoSource-eNBTransparentContainer		PRESENCE mandatory }|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional },
+
 	...
 }
 
@@ -223,7 +258,9 @@ HandoverPreparationFailure ::= SEQUENCE {
 
 HandoverPreparationFailure-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Old-eNB-UE-X2AP-ID			CRITICALITY reject	TYPE UE-X2AP-ID				PRESENCE mandatory} |
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause					PRESENCE mandatory} ,
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause					PRESENCE mandatory} |
+	{ ID id-CriticalityDiagnostics	    CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional },
+
 	...
 }
 
@@ -271,16 +308,16 @@ Bearers-SubjectToStatusTransfer-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Release Resource
+-- UE Context Release 
 --
 -- **************************************************************
 
-ReleaseResource ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{ReleaseResource-IEs}},
+UEContextRelease ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{UEContextRelease-IEs}},
 	...
 }
 
-ReleaseResource-IEs X2AP-PROTOCOL-IES ::= {
+UEContextRelease-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Old-eNB-UE-X2AP-ID			CRITICALITY reject	TYPE UE-X2AP-ID				PRESENCE mandatory} |
 	{ ID id-New-eNB-UE-X2AP-ID			CRITICALITY reject	TYPE UE-X2AP-ID				PRESENCE mandatory} ,
 	...
@@ -336,6 +373,7 @@ ResetRequest ::= SEQUENCE {
 }
 
 ResetRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
 	...
 }
 
@@ -351,6 +389,7 @@ ResetResponse ::= SEQUENCE {
 }
 
 ResetResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
 	...
 }
 
@@ -366,9 +405,10 @@ X2SetupRequest ::= SEQUENCE {
 }
 
 X2SetupRequest-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-ENB-Global-ID				CRITICALITY reject	TYPE ENB-Global-ID				PRESENCE mandatory} |
-	{ ID id-ServedCells			CRITICALITY reject	TYPE ServedCells		PRESENCE mandatory} ,
-	...
+	{ ID id-GlobalENB-ID				CRITICALITY reject	TYPE GlobalENB-ID				PRESENCE mandatory} |
+	{ ID id-ServedCells						CRITICALITY reject	TYPE ServedCells						PRESENCE mandatory} |
+	{ ID id-GUGroupIDList					CRITICALITY reject  TYPE GUGroupIDList						PRESENCE optional},
+...
 }
 
 
@@ -385,8 +425,11 @@ X2SetupResponse ::= SEQUENCE {
 }
 
 X2SetupResponse-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-ENB-Global-ID				CRITICALITY reject	TYPE ENB-Global-ID				PRESENCE mandatory} |
-	{ ID id-ServedCells			CRITICALITY reject	TYPE ServedCells		PRESENCE mandatory} ,
+	{ ID id-GlobalENB-ID				CRITICALITY reject	TYPE GlobalENB-ID				 PRESENCE mandatory} |
+	{ ID id-ServedCells						CRITICALITY reject	TYPE ServedCells				   	PRESENCE mandatory} |
+	{ ID id-GUGroupIDList					CRITICALITY reject  TYPE GUGroupIDList				    	PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics	    	CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional },
+
 	...
 }
 
@@ -404,8 +447,10 @@ X2SetupFailure ::= SEQUENCE {
 }
 
 X2SetupFailure-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-Cause				CRITICALITY ignore	TYPE Cause			PRESENCE mandatory} |
-	{ ID id-TimeToWait			CRITICALITY ignore	TYPE TimeToWait		PRESENCE optional} ,
+	{ ID id-Cause					CRITICALITY ignore		TYPE Cause								PRESENCE mandatory} |
+	{ ID id-TimeToWait				CRITICALITY ignore		TYPE TimeToWait							PRESENCE optional} |
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore		TYPE CriticalityDiagnostics				PRESENCE optional },
+
 	...
 }
 
@@ -434,8 +479,10 @@ CellInformation-ItemIEs X2AP-PROTOCOL-IES ::= {
 }
 
 CellInformation-Item ::= SEQUENCE {
-	global-Cell-ID							CGI,
-	interferenceOverloadIndication			InterferenceOverloadIndication		OPTIONAL,
+	cell-ID							ECGI,
+	ul-InterferenceOverloadIndication		UL-InterferenceOverloadIndication		OPTIONAL,
+	ul-HighInterferenceIndicationInfo		UL-HighInterferenceIndicationInfo		OPTIONAL,
+	relativeNarrowbandTxPower				RelativeNarrowbandTxPower				OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer { {CellInformation-Item-ExtIEs} } OPTIONAL,
 	...
 }
@@ -443,6 +490,189 @@ CellInformation-Item ::= SEQUENCE {
 CellInformation-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE
+--
+-- **************************************************************
+
+ENBConfigurationUpdate ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ENBConfigurationUpdate-IEs}},
+	...
+}
+
+ENBConfigurationUpdate-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ServedCellsToAdd    	CRITICALITY reject	TYPE ServedCells				PRESENCE optional} |
+	{ ID id-ServedCellsToModify 	CRITICALITY reject	TYPE ServedCellsToModify		PRESENCE optional} |
+	{ ID id-ServedCellsToDelete 	CRITICALITY reject	TYPE Old-ECGIs					PRESENCE optional} |
+	{ ID id-GUGroupIDListToAdd 		CRITICALITY reject	TYPE GUGroupIDList			    PRESENCE optional} |
+	{ ID id-GUGroupIDListToDelete 	CRITICALITY reject	TYPE GUGroupIDList		        PRESENCE optional},
+	...
+}
+
+ServedCellsToModify::= SEQUENCE (SIZE (1..maxCellineNB)) OF ServedCellsToModify-Item
+ 
+ServedCellsToModify-Item::= SEQUENCE {
+	old-ecgi						ECGI,
+	served-cells                    ServedCell-Information,
+	iE-Extensions					ProtocolExtensionContainer { { ServedCellsToModify-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ServedCellsToModify-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Old-ECGIs::= SEQUENCE (SIZE (1..maxCellineNB)) OF ECGI
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+
+ENBConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ENBConfigurationUpdateAcknowledge-IEs}},
+	...
+}
+
+ENBConfigurationUpdateAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+...
+}
+
+-- **************************************************************
+--
+-- ENB CONFIGURATION UPDATE FAIURE
+--
+-- **************************************************************
+
+ENBConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ENBConfigurationUpdateFailure-IEs}},
+	...
+}
+
+ENBConfigurationUpdateFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+
+-- **************************************************************
+--
+-- Resource Status Request
+--
+-- **************************************************************
+
+ResourceStatusRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ResourceStatusRequest-IEs}},
+	...
+}
+
+ResourceStatusRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Registration-Request	CRITICALITY reject	TYPE Registration-Request			PRESENCE mandatory} |
+	{ ID id-CellToReport			CRITICALITY ignore	TYPE CellToReport-List				PRESENCE optional} |
+	{ ID id-ReportingPeriodicity	CRITICALITY ignore	TYPE ReportingPeriod				PRESENCE optional} ,
+	...
+}
+
+
+CellToReport-List 		::= SEQUENCE (SIZE (1..maxCellineNB)) OF ProtocolIE-Single-Container { {CellToReport-ItemIEs} }
+
+CellToReport-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellToReport-Item	CRITICALITY ignore	TYPE CellToReport-Item 	PRESENCE mandatory	}
+}
+
+CellToReport-Item ::= SEQUENCE {
+	cell-ID									ECGI,
+	iE-Extensions							ProtocolExtensionContainer { {CellToReport-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellToReport-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+ReportingPeriod ::= ENUMERATED {ffs,...}
+-- The Report Period gives the reporting periodicity in number of ffs ms periods.
+-- E.g. value ffs means ffs ms 
+-- Unit ms, Step ffs ms
+
+-- **************************************************************
+--
+-- Resource Status Response
+--
+-- **************************************************************
+
+ResourceStatusResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ResourceStatusResponse-IEs}},
+	...
+}
+
+ResourceStatusResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Resource Status Failure
+--
+-- **************************************************************
+
+ResourceStatusFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ResourceStatusFailure-IEs}},
+	...
+}
+
+ResourceStatusFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause				CRITICALITY ignore	TYPE Cause			PRESENCE mandatory} |
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Resource Status Update
+--
+-- **************************************************************
+
+ResourceStatusUpdate ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ResourceStatusUpdate-IEs}},
+	...
+}
+
+ResourceStatusUpdate-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellMeasurementResult	CRITICALITY ignore	TYPE CellMeasurementResult-List		PRESENCE mandatory},
+	...
+}
+
+CellMeasurementResult-List 		::= SEQUENCE (SIZE (1..maxCellineNB)) OF ProtocolIE-Single-Container { {CellMeasurementResult-ItemIEs} }
+
+CellMeasurementResult-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellMeasurementResult-Item	CRITICALITY ignore	TYPE CellMeasurementResult-Item 	PRESENCE mandatory	}
+}
+
+CellMeasurementResult-Item ::= SEQUENCE {
+	cell-ID							ECGI,
+	resoureStatus					ResourceStatus			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CellMeasurementResult-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellMeasurementResult-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 -- **************************************************************
 --
 -- PRIVATE MESSAGE
