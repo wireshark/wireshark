@@ -312,7 +312,7 @@ proto_tree *subtree;
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_cause);
 
- dissect_q931_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value);
+ dissect_q931_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value, isup_parameter_type_value);
 #.END
 
 #----------------------------------------------------------------------------------------
