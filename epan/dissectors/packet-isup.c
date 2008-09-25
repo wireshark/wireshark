@@ -2561,8 +2561,8 @@ static const value_string iana_icp_values[] = {
 void
 dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree)
 {
-	guint8 afi, cc_length = 0;
-	guint8 length = 0, address_digit_pair = 0;
+	guint8 afi;
+	guint8 length = 0;
 	guint icp, cc_offset;
 
 	afi = tvb_get_guint8(parameter_tvb, offset);
