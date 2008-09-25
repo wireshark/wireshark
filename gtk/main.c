@@ -2083,6 +2083,9 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
+
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -2379,9 +2382,6 @@ main(int argc, char *argv[])
     status = capture_opts_list_link_layer_types(&global_capture_opts, FALSE);
     exit(status);
   }
-
-  /* Fill in capture options with values from the preferences */
-  prefs_to_capture_opts();
 
   capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
   capture_opts_trim_ring_num_files(&global_capture_opts);
