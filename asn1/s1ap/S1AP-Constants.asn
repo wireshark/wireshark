@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.2.0 (2008-06)
+-- 3GPP TS 36.413 V8.3.0 (2008-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -68,6 +68,8 @@ id-MMEConfigurationUpdate			ProcedureCode ::= 30
 id-LocationReportingControl			ProcedureCode ::= 31
 id-LocationReportingFailureIndication	ProcedureCode ::= 32
 id-LocationReport					ProcedureCode ::= 33
+id-OverloadStart					ProcedureCode ::= 34
+id-OverloadStop						ProcedureCode ::= 35
 
 -- **************************************************************
 --
@@ -93,9 +95,10 @@ maxnoofBPLMNs							INTEGER ::= 6
 maxnoofPLMNsPerMME						INTEGER ::= 32 -- FFS
 maxnoofEPLMNs							INTEGER ::= 15
 maxnoofEPLMNsPlusOne					INTEGER ::= 16
-maxnoofForbLACs							INTEGER ::= 256		-- FFS Value to be checked
-maxnoofForbTACs							INTEGER ::= 256		-- FFS Value to be checked
+maxnoofForbLACs							INTEGER ::= 4096		
+maxnoofForbTACs							INTEGER ::= 4096		
 maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
+maxnoofGUMMEIs							INTEGER ::= 256 -- FFS
 
 
 
@@ -159,18 +162,16 @@ id-SAEBearerSetupItemCtxtSURes					ProtocolIE-ID ::= 50
 id-SAEBearerSetupListCtxtSURes					ProtocolIE-ID ::= 51
 id-SAEBearerToBeSetupItemCtxtSUReq				ProtocolIE-ID ::= 52
 id-SAEBearerToBeSetupListHOReq					ProtocolIE-ID ::= 53
-id-GERANtoLTEHOInformationReq					ProtocolIE-ID ::= 54
 id-GERANtoLTEHOInformationRes					ProtocolIE-ID ::= 55
-id-UTRANtoLTEHOInformationReq					ProtocolIE-ID ::= 56
 id-UTRANtoLTEHOInformationRes					ProtocolIE-ID ::= 57
 id-CriticalityDiagnostics 						ProtocolIE-ID ::= 58
-id-ENB-Global-ID								ProtocolIE-ID ::= 59
+id-Global-ENB-ID								ProtocolIE-ID ::= 59
 id-eNBname										ProtocolIE-ID ::= 60
 id-MMEname										ProtocolIE-ID ::= 61
 id-ServedPLMNs									ProtocolIE-ID ::= 63
 id-SupportedTAs									ProtocolIE-ID ::= 64
 id-TimeToWait									ProtocolIE-ID ::= 65
-id-aggregateMaximumBitrate						ProtocolIE-ID ::= 66
+id-uEaggregateMaximumBitrate						ProtocolIE-ID ::= 66
 id-TAI											ProtocolIE-ID ::= 67
 id-SAEBearerReleaseListBearerRelComp			ProtocolIE-ID ::= 69
 id-cdma2000PDU									ProtocolIE-ID ::= 70
@@ -184,7 +185,6 @@ id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
 id-cdma2000HOStatus								ProtocolIE-ID ::= 83
 id-cdma2000HORequiredIndication					ProtocolIE-ID ::= 84
-id-cdma2000OneXMEID								ProtocolIE-ID ::= 85
 id-TraceReference								ProtocolIE-ID ::= 86
 id-RelativeMMECapacity							ProtocolIE-ID ::= 87
 id-SourceMME-UE-S1AP-ID							ProtocolIE-ID ::= 88
@@ -199,8 +199,14 @@ id-S-TMSI										ProtocolIE-ID ::= 96
 id-cdma2000OneXRAND								ProtocolIE-ID ::= 97
 id-RequestType									ProtocolIE-ID ::= 98
 id-UE-S1AP-IDs									ProtocolIE-ID ::= 99
-id-EUTRAN-CGI-ID								ProtocolIE-ID ::= 100
-
+id-EUTRAN-CGI								ProtocolIE-ID ::= 100
+id-OverloadResponse								ProtocolIE-ID ::= 101
+id-cdma2000OneXSRVCCInfo						ProtocolIE-ID ::= 102
+id-SAEBearerFailedToSwitchDLList				ProtocolIE-ID ::= 103
+id-SourceeNodeB-ToTargeteNodeB-TransparentContainer	ProtocolIE-ID ::= 104
+id-ServedGUMMEIs								ProtocolIE-ID ::= 105
+id-SubscriberProfileIDforRFP					ProtocolIE-ID ::= 106
 END
+
 
 

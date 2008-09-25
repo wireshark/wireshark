@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.2.0 (2008-06)
+-- 3GPP TS 36.413 V8.3.0 (2008-09)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -50,12 +50,13 @@ FROM S1AP-CommonDataTypes
 	LocationReportingControl,
 	LocationReportingFailureIndication,
 	LocationReport,
-
 	MMEConfigurationUpdate,
 	MMEConfigurationUpdateAcknowledge,
 	MMEConfigurationUpdateFailure,
 	MMEStatusTransfer,
 	NASNonDeliveryIndication,
+	OverloadStart,
+	OverloadStop,
 	Paging,
 	PathSwitchRequest,
 	PathSwitchRequestAcknowledge,
@@ -104,6 +105,8 @@ FROM S1AP-PDU-Contents
 	id-MMEConfigurationUpdate,
 	id-MMEStatusTransfer,
 	id-NASNonDeliveryIndication,
+	id-OverloadStart,
+	id-OverloadStop,
 	id-Paging,
 	id-PathSwitchRequest,
 	id-Reset,
@@ -226,7 +229,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	traceFailureIndication			|
 	locationReportingControl		|
 	locationReportingFailureIndication		|
-	locationReport					,
+	locationReport					|
+	overloadStart					|
+	overloadStop					,
 	...
 }
 
@@ -461,4 +466,18 @@ locationReport S1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-LocationReport
 	CRITICALITY				ignore
 }
+
+overloadStart S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	OverloadStart
+	PROCEDURE CODE		id-OverloadStart
+	CRITICALITY		ignore
+}
+
+overloadStop S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	OverloadStop
+	PROCEDURE CODE		id-OverloadStop
+	CRITICALITY		reject
+}
+
 END
+

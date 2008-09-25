@@ -22,6 +22,7 @@ TBCD-STRING
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+ProtocolIE-FieldPair 
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
@@ -62,8 +63,9 @@ ProtocolIE-Field/value ie_field_value
 
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
-#.FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue 
-#.FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue 
+# Currently not used
+# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue 
+# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue 
 
 #.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
@@ -146,6 +148,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
 # END
 
+# Handle 64 bit constraint
+#.FN_PARS BitRate FN_VARIANT = _64b
 
 # following construction is not supported by asn2wrs
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
@@ -228,12 +232,13 @@ id-MMEConfigurationUpdate				ProcedureCode
 id-LocationReportingControl				ProcedureCode
 id-LocationReportingFailureIndication	ProcedureCode
 id-LocationReport						ProcedureCode
+id-OverloadStart						ProcedureCode
+id-OverloadStop							ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
 id-HandoverType										ProtocolIE-ID
 id-Cause											ProtocolIE-ID
-id-SourceID											ProtocolIE-ID
 id-TargetID											ProtocolIE-ID
 id-Intra-LTEHOInformationReq						ProtocolIE-ID
 id-LTEtoUTRANHOInformationReq						ProtocolIE-ID
@@ -282,18 +287,16 @@ id-SAEBearerSetupItemCtxtSURes						ProtocolIE-ID
 id-SAEBearerSetupListCtxtSURes						ProtocolIE-ID
 id-SAEBearerToBeSetupItemCtxtSUReq					ProtocolIE-ID
 id-SAEBearerToBeSetupListHOReq						ProtocolIE-ID
-id-GERANtoLTEHOInformationReq						ProtocolIE-ID
 id-GERANtoLTEHOInformationRes						ProtocolIE-ID
-id-UTRANtoLTEHOInformationReq						ProtocolIE-ID
 id-UTRANtoLTEHOInformationRes						ProtocolIE-ID
 id-CriticalityDiagnostics 							ProtocolIE-ID
 id-eNBname											ProtocolIE-ID
 id-MMEname											ProtocolIE-ID
-id-ENB-Global-ID									ProtocolIE-ID
+id-Global-ENB-ID									ProtocolIE-ID
 id-ServedPLMNs										ProtocolIE-ID
 id-SupportedTAs										ProtocolIE-ID
 id-TimeToWait										ProtocolIE-ID
-id-aggregateMaximumBitrate							ProtocolIE-ID
+id-uEaggregateMaximumBitrate						ProtocolIE-ID
 id-TAI												ProtocolIE-ID
 id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
 id-cdma2000PDU										ProtocolIE-ID
@@ -307,7 +310,6 @@ id-Direct-Forwarding-Path-Availability				ProtocolIE-ID
 id-UEIdentityIndexValue								ProtocolIE-ID
 id-cdma2000HOStatus									ProtocolIE-ID
 id-cdma2000HORequiredIndication						ProtocolIE-ID
-id-cdma2000OneXMEID									ProtocolIE-ID
 id-TraceReference									ProtocolIE-ID
 id-RelativeMMECapacity								ProtocolIE-ID
 id-SourceMME-UE-S1AP-ID								ProtocolIE-ID
@@ -322,8 +324,13 @@ id-S-TMSI											ProtocolIE-ID
 id-cdma2000OneXRAND									ProtocolIE-ID
 id-RequestType										ProtocolIE-ID
 id-UE-S1AP-IDs										ProtocolIE-ID
-id-EUTRAN-CGI-ID									ProtocolIE-ID 
-
+id-EUTRAN-CGI										ProtocolIE-ID
+id-OverloadResponse									ProtocolIE-ID
+id-cdma2000OneXSRVCCInfo							ProtocolIE-ID
+id-SAEBearerFailedToSwitchDLList					ProtocolIE-ID
+id-SourceeNodeB-ToTargeteNodeB-TransparentContainer	ProtocolIE-ID
+id-ServedGUMMEIs									ProtocolIE-ID
+id-SubscriberProfileIDforRFP						ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -332,7 +339,6 @@ id-EUTRAN-CGI-ID									ProtocolIE-ID
 MME-UE-S1AP-ID							N s1ap.ies id-MME-UE-S1AP-ID
 HandoverType							N s1ap.ies id-HandoverType
 Cause									N s1ap.ies id-Cause
-SourceID								N s1ap.ies id-SourceID
 TargetID								N s1ap.ies id-TargetID
 Intra-LTEHOInformationReq				N s1ap.ies id-Intra-LTEHOInformationReq
 LTEtoUTRANHOInformationReq				N s1ap.ies id-LTEtoUTRANHOInformationReq
@@ -381,18 +387,16 @@ SAEBearerSetupItemCtxtSURes				N s1ap.ies id-SAEBearerSetupItemCtxtSURes
 SAEBearerSetupListCtxtSURes				N s1ap.ies id-SAEBearerSetupListCtxtSURes
 SAEBearerToBeSetupItemCtxtSUReq			N s1ap.ies id-SAEBearerToBeSetupItemCtxtSUReq
 SAEBearerToBeSetupListHOReq				N s1ap.ies id-SAEBearerToBeSetupListHOReq
-GERANtoLTEHOInformationReq				N s1ap.ies id-GERANtoLTEHOInformationReq
 GERANtoLTEHOInformationRes				N s1ap.ies id-GERANtoLTEHOInformationRes
-UTRANtoLTEHOInformationReq				N s1ap.ies id-UTRANtoLTEHOInformationReq
 UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
 CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
-ENB-Global-ID							N s1ap.ies id-ENB-Global-ID
+Global-ENB-ID							N s1ap.ies id-Global-ENB-ID
 ENBname									N s1ap.ies id-eNBname
 MMEname									N s1ap.ies id-MMEname
 ServedPLMNs								N s1ap.ies id-ServedPLMNs
 SupportedTAs							N s1ap.ies id-SupportedTAs
 TimeToWait								N s1ap.ies id-TimeToWait
-AggregateMaximumBitrate					N s1ap.ies id-aggregateMaximumBitrate
+UEAggregateMaximumBitrate				N s1ap.ies id-uEaggregateMaximumBitrate
 TAI										N s1ap.ies id-TAI
 SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp				
 Cdma2000PDU								N s1ap.ies id-cdma2000PDU										
@@ -406,7 +410,6 @@ Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availa
 UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
 Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
 Cdma2000HORequiredIndication			N s1ap.ies id-cdma2000HORequiredIndication
-Cdma2000OneXMEID						N s1ap.ies id-cdma2000OneXMEID
 TraceReference							N s1ap.ies id-TraceReference
 RelativeMMECapacity						N s1ap.ies id-RelativeMMECapacity
 MME-UE-S1AP-ID							N s1ap.ies id-SourceMME-UE-S1AP-ID
@@ -421,7 +424,13 @@ S-TMSI									N s1ap.ies id-S-TMSI
 Cdma2000OneXRAND						N s1ap.ies id-cdma2000OneXRAND
 RequestType								N s1ap.ies id-RequestType
 UE-S1AP-IDs								N s1ap.ies id-UE-S1AP-IDs
-EUTRAN-CGI-ID							N s1ap.ies id-EUTRAN-CGI-ID 
+EUTRAN-CGI								N s1ap.ies id-EUTRAN-CGI
+OverloadResponse						N s1ap.ies id-OverloadResponse
+Cdma2000OneXSRVCCInfo					N s1ap.ies id-cdma2000OneXSRVCCInfo
+SAEBearerList							N s1ap.ies id-SAEBearerFailedToSwitchDLList
+SourceeNodeB-ToTargeteNodeB-TransparentContainer	N s1ap.ies id-SourceeNodeB-ToTargeteNodeB-TransparentContainer
+ServedGUMMEIs							N s1ap.ies id-ServedGUMMEIs
+SubscriberProfileIDforRFP				N s1ap.ies id-SubscriberProfileIDforRFP
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -521,4 +530,8 @@ LocationReportingControl				N s1ap.proc.imsg id-LocationReportingControl
 LocationReportingFailureIndication		N s1ap.proc.imsg id-LocationReportingFailureIndication
 
 LocationReport							N s1ap.proc.imsg id-LocationReport
+
+OverloadStart							N s1ap.proc.imsg id-OverloadStart
+
+OverloadStop							N s1ap.proc.imsg id-OverloadStop
 #.END
