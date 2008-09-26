@@ -62,8 +62,6 @@ static int proto_msnms = -1;
 
 static gint ett_msnms = -1;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_MSNMS			1863
 
 static void
@@ -145,7 +143,6 @@ proto_reg_handoff_msnms(void)
 
   msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
   dissector_add("tcp.port", TCP_PORT_MSNMS, msnms_handle);
-  data_handle = find_dissector("data");
   /*
    * For MSN Messenger Protocol over HTTP
    */

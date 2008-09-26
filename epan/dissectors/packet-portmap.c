@@ -69,7 +69,6 @@ static gint ett_portmap_rpcb = -1;
 static gint ett_portmap_entry = -1;
 
 static dissector_handle_t rpc_handle;
-static dissector_handle_t rpc_tcp_handle;
 
 /* Dissect a getport call */
 static int
@@ -661,5 +660,4 @@ proto_reg_handoff_portmap(void)
 	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc, hf_portmap_procedure_v3);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc, hf_portmap_procedure_v4);
 	rpc_handle = find_dissector("rpc");
-	rpc_tcp_handle = find_dissector("rpc-tcp");
 }

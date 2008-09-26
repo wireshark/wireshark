@@ -39,7 +39,6 @@ static int proto_sscf = -1;
 static gint ett_sscf = -1;
 
 static dissector_handle_t mtp3_handle;
-static dissector_handle_t data_handle;
 
 #define SSCF_PDU_LENGTH 4
 #define SSCF_STATUS_OFFSET 3
@@ -137,12 +136,5 @@ proto_register_sscf(void)
 void
 proto_reg_handoff_sscf(void)
 {
-  static dissector_handle_t sscf_handle; 	 
-
-
-  sscf_handle = create_dissector_handle(dissect_sscf_nni, proto_sscf); 	 
-
   mtp3_handle = find_dissector("mtp3");
-  data_handle = find_dissector("data");
-
 }

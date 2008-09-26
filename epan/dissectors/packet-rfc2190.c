@@ -77,7 +77,7 @@ static int hf_rfc2190_hmv2 = -1;
 static int hf_rfc2190_vmv2 = -1;
 
 static gint ett_rfc2190			= -1;
-static dissector_handle_t h263_handle = NULL;
+static dissector_handle_t h263_handle;
 
 
 static void

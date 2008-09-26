@@ -189,8 +189,6 @@ static gint ett_x11_same_screen_focus = -1;
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_X11			6000
 #define TCP_PORT_X11_2			6001
 #define TCP_PORT_X11_3			6002
@@ -5366,6 +5364,5 @@ proto_reg_handoff_x11(void)
   dissector_add("tcp.port", TCP_PORT_X11, x11_handle);
   dissector_add("tcp.port", TCP_PORT_X11_2, x11_handle);
   dissector_add("tcp.port", TCP_PORT_X11_3, x11_handle);
-  data_handle = find_dissector("data");
 }
 

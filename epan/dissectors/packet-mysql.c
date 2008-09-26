@@ -539,8 +539,6 @@ typedef struct my_stmt_data
 
 
 /* function prototypes */
-void proto_reg_handoff_mysql(void);
-void proto_register_mysql(void);
 static void mysql_dissect_init(void);
 static void dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);

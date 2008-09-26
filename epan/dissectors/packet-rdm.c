@@ -273,5 +273,4 @@ proto_register_rdm(void)
 void
 proto_reg_handoff_rdm(void)
 {
-	create_dissector_handle(dissect_rdm, proto_rdm);
 }

@@ -175,8 +175,8 @@ static int ett_ie_message_id = -1;
 static int ett_ie_sys_info_type = -1;
 
 proto_tree *top_tree;
-dissector_handle_t gsm_a_ccch_handle = NULL;
-dissector_handle_t gsm_a_dtap_handle = NULL;
+dissector_handle_t gsm_a_ccch_handle;
+dissector_handle_t gsm_a_dtap_handle;
 
 static gboolean is_si2q = FALSE;
 

@@ -1165,7 +1165,6 @@ static gint ett_skinny_softKeyMap = -1;
 /* desegmentation of SCCP */
 static gboolean skinny_desegment = TRUE;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t rtp_handle=NULL;
 
 /* Get the length of a single SCCP PDU */
@@ -4259,7 +4258,6 @@ proto_reg_handoff_skinny(void)
 {
   dissector_handle_t skinny_handle;
 
-  data_handle = find_dissector("data");
   rtp_handle = find_dissector("rtp");
   skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);

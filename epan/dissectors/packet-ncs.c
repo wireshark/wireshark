@@ -93,11 +93,6 @@ void
 proto_reg_handoff_ncs(void)
 {
   dissector_handle_t ncs_handle;
-  dissector_handle_t ip_handle;
-  /*
-   * Get handle for the IP dissector.
-   */
-  ip_handle = find_dissector("ip");
 
   ncs_handle = create_dissector_handle(dissect_ncs, proto_ncs);
   dissector_add("ip.proto", IP_PROTO_NCS_HEARTBEAT, ncs_handle);

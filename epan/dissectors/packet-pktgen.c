@@ -60,7 +60,7 @@ static int hf_pktgen_timestamp = -1;
 static gint ett_pktgen = -1;
 
 /* data dissector handle */
-static dissector_handle_t data_handle = NULL;
+static dissector_handle_t data_handle;
 
 /* entry point */
 static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

@@ -97,9 +97,9 @@ static gint ett_msdu_aggregation_parent_tree = -1;
 static gint ett_msdu_aggregation_subframe_tree = -1;
 
 /* The ethernet dissector we hand off to */
-static dissector_handle_t eth_handle=NULL;
+static dissector_handle_t eth_handle;
 
-static dissector_handle_t data_handle=NULL;
+static dissector_handle_t data_handle;
 
 static const value_string turbocell_type_values[] = {
     { TURBOCELL_TYPE_BEACON_NON_POLLING, "Beacon (Non-Polling Base Station)" },
@@ -365,11 +365,7 @@ void proto_register_turbocell(void)
 
 void proto_reg_handoff_turbocell(void)
 {
-    dissector_handle_t turbocell_handle;
-
     eth_handle = find_dissector("eth_withoutfcs");
     data_handle = find_dissector("data");
-
-    turbocell_handle = create_dissector_handle(dissect_turbocell, proto_turbocell);
 }
 

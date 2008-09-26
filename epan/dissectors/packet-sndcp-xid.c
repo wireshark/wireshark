@@ -156,10 +156,6 @@ static gint ett_sndcp_xid                = -1;
 static gint ett_sndcp_xid_version_field  = -1;
 static gint ett_sndcp_comp_field        = -1;
 
-/* dissectors for the data portion of this protocol
- */
-static dissector_handle_t data_handle;
-
 static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboolean dcomp);
 /******************************************************/
 /* Compression algorithms element dissector functions */
@@ -895,7 +891,4 @@ proto_register_sndcp_xid(void)
 void
 proto_reg_handoff_sndcp_xid(void)
 {
-  /* Find data handle for upper layer dissectors 
-   */
-  data_handle = find_dissector("data");
 }
