@@ -36,14 +36,14 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 
-#define	SOH		(0x01)
-#define	STX		(0x02)
-#define	ETX		(0x03)
-#define	EOT		(0x04)
-#define	ENQ		(0x05)
-#define	BEL		(0x07)
-#define	NAK		(0x15)
-#define	DLE		(0x10)
+#define	SOH	(0x01)
+#define	STX	(0x02)
+#define	ETX	(0x03)
+#define	EOT	(0x04)
+#define	ENQ	(0x05)
+#define	BEL	(0x07)
+#define	NAK	(0x15)
+#define	DLE	(0x10)
 
 #define GRID	(0x20)
 #define GSID	(0x50)
@@ -51,27 +51,27 @@
 
 #define MAX_POLL_TYPE_MSG_SIZE	(50)
 
-static int		proto_uts			= -1;
-static gint		ett_uts				= -1;
-static gint		ett_header_uts		= -1;
-static gint		ett_trailer_uts		= -1;
-static int		hf_rid				= -1;
-static int		hf_sid				= -1;
-static int		hf_did				= -1;
-static int		hf_retxrequest		= -1;
-static int		hf_ack				= -1;
-static int		hf_replyrequest		= -1;
-static int		hf_busy				= -1;
-static int		hf_notbusy			= -1;
-static int		hf_msgwaiting		= -1;
-static int		hf_function			= -1;
-static int		hf_data				= -1;
+static int	proto_uts	= -1;
+static gint	ett_uts		= -1;
+static gint	ett_header_uts	= -1;
+static gint	ett_trailer_uts	= -1;
+static int	hf_rid		= -1;
+static int	hf_sid		= -1;
+static int	hf_did		= -1;
+static int	hf_retxrequest	= -1;
+static int	hf_ack		= -1;
+static int	hf_replyrequest	= -1;
+static int	hf_busy		= -1;
+static int	hf_notbusy	= -1;
+static int	hf_msgwaiting	= -1;
+static int	hf_function	= -1;
+static int	hf_data		= -1;
 
 #define MATCH	(1)
 #define FETCH	(2)
 
-#define SRC		(1)
-#define DST		(2)
+#define SRC	(1)
+#define DST	(2)
 
 static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, gchar match, gchar *storage)
 {
@@ -80,7 +80,8 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 	if (tvb_length_remaining(tvb, offset)) {
 		temp = tvb_get_guint8(tvb, offset) & 0x7f;
 		if (op == FETCH || (op == MATCH && temp == match)) {
-			if (storage != NULL) *storage = temp;
+			if (storage != NULL)
+				*storage = temp;
 			return 1;
 		} else {
 			return 0;
@@ -96,34 +97,36 @@ static void
 set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did) 
 {
 	if (field == SRC) {
-		if (check_col(pinfo->cinfo, COL_DEF_SRC)) col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
+		if (check_col(pinfo->cinfo, COL_DEF_SRC)) 
+			col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	} else {
-		if (check_col(pinfo->cinfo, COL_DEF_DST)) col_append_fstr(pinfo->cinfo, COL_DEF_DST, " %2.2X:%2.2X:%2.2X", rid, sid, did);
+		if (check_col(pinfo->cinfo, COL_DEF_DST)) 
+			col_append_fstr(pinfo->cinfo, COL_DEF_DST, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	}
 }
 
 static void
 dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 {
-	proto_tree	*uts_tree			= NULL;
+	proto_tree	*uts_tree		= NULL;
 	proto_tree	*uts_header_tree	= NULL;
 	proto_tree	*uts_trailer_tree	= NULL;
 	proto_item	*ti;
-	int			length;
+	int		length;
 	gchar		rid, sid, did;
 	gchar		*msg_msg;
-	int			offset				= 0;
-	int			header_length		= -1;
-	int			ack_start			= 0;
-	int			busy_start			= 0;
-	int			notbusy_start		= 0;
-	int			replyrequest_start	= 0;
-	int			function_start		= 0;
-	int			msgwaiting_start	= 0;
-	int			nak_start			= 0;
-	int			etx_start			= 0;
-	int			bcc_start			= 0;
-	int			stx_start			= 0;
+	int		offset			= 0;
+	int		header_length		= -1;
+	int		ack_start		= 0;
+	int		busy_start		= 0;
+	int		notbusy_start		= 0;
+	int		replyrequest_start	= 0;
+	int		function_start		= 0;
+	int		msgwaiting_start	= 0;
+	int		nak_start		= 0;
+	int		etx_start		= 0;
+	int		bcc_start		= 0;
+	int		stx_start		= 0;
 	gchar		function_code;
 	guint8		*data_ptr;
 
@@ -132,126 +135,127 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	msg_msg		= ep_alloc(MAX_POLL_TYPE_MSG_SIZE);
 	msg_msg[0]	= 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))                      /* set the protocol column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) /* set the protocol column on summary display */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UTS");
 
-	if (testchar(tvb, pinfo, 0, MATCH, EOT, NULL)	&&
-		testchar(tvb, pinfo, 1, MATCH, EOT, NULL)	&&
+	if (testchar(tvb, pinfo, 0, MATCH, EOT, NULL)	  &&
+		testchar(tvb, pinfo, 1, MATCH, EOT, NULL) &&
 		testchar(tvb, pinfo, 2, MATCH, ETX, NULL)) {
 		msg_type = NOTRAFFIC;
 		g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "No Traffic");
 	} else {
-		if (testchar(tvb, pinfo, 0, MATCH, SOH, NULL)	&&
-			testchar(tvb, pinfo, 1, FETCH, 0, (gchar *)&rid)	&&
-			testchar(tvb, pinfo, 2, FETCH, 0, (gchar *)&sid)	&&
-			testchar(tvb, pinfo, 3, FETCH, 0, (gchar *)&did)) {
-				offset = 4;
-				if (testchar(tvb, pinfo, offset, MATCH, ETX, NULL)) {
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll");
+		if (testchar(tvb, pinfo, 0, MATCH, SOH, NULL)		&&
+		    testchar(tvb, pinfo, 1, FETCH, 0, (gchar *)&rid)	&&
+		    testchar(tvb, pinfo, 2, FETCH, 0, (gchar *)&sid)	&&
+		    testchar(tvb, pinfo, 3, FETCH, 0, (gchar *)&did)) {
+			offset = 4;
+			if (testchar(tvb, pinfo, offset, MATCH, ETX, NULL)) {
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll");
+				set_addr(pinfo, DST, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
+				ack_start = offset;
+				if (sid == GSID && did == GDID) {
+					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll + ACK");
 					set_addr(pinfo, DST, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
-							testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
-								ack_start = offset;
-								if (sid == GSID && did == GDID) {
-									g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll + ACK");
-									set_addr(pinfo, DST, rid, sid, did);
-								} else if (sid != GSID && did == GDID) {
-									g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Specific Poll + ACK");
-									set_addr(pinfo, DST, rid, sid, did);
-								} else if (sid != GSID && did != GDID) {
-									g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "No Traffic + ACK");
-									set_addr(pinfo, SRC, rid, sid, did);
-								} else {
-									g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Unknown Message Format");
-									if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
-										set_addr(pinfo, DST, rid, sid, did);	/* if the ACN sent it, the address is of the destination... the terminal */
-									} else {
-										set_addr(pinfo, SRC, rid, sid, did);	/* if the ACN received it, the address if of the source... the terminal */
-									}
-								}
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, NAK, NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)	&&
-							sid != GSID && did == GDID) {
-								nak_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Retransmit Request");
-								set_addr(pinfo, DST, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, BEL, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, STX, NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
-								header_length = offset+2;
-								msgwaiting_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Message Waiting");
-								set_addr(pinfo, DST, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, STX, NULL)) {
-								ack_start = offset;
-								header_length = offset+3;		
-								stx_start = offset+2;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text + ACK");
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, STX, NULL)) {
-					header_length = offset+1;
-					stx_start = offset;
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text");
+				} else if (sid != GSID && did == GDID) {
+					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Specific Poll + ACK");
+					set_addr(pinfo, DST, rid, sid, did);
+				} else if (sid != GSID && did != GDID) {
+					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "No Traffic + ACK");
+					set_addr(pinfo, SRC, rid, sid, did);
+				} else {
+					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Unknown Message Format");
 					if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
-						set_addr(pinfo, DST, rid, sid, did);		/* if the ACN sent it, the address is of the destination... the terminal */
+						set_addr(pinfo, DST, rid, sid, did);	/* if the ACN sent it, the address is of the destination... the terminal */
 					} else {
-						set_addr(pinfo, SRC, rid, sid, did);		/* if the ACN received it, the address if of the source... the terminal */
+						set_addr(pinfo, SRC, rid, sid, did);	/* if the ACN received it, the address if of the source... the terminal */
 					}
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, ENQ, NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
-								replyrequest_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Reply Request");
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, '?', NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
-								busy_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Busy");
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, ';', NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
-								notbusy_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy");
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
-							testchar(tvb, pinfo, offset+2, MATCH, DLE, NULL)	&&
-							testchar(tvb, pinfo, offset+3, MATCH, ';', NULL)	&&
-							testchar(tvb, pinfo, offset+4, MATCH, ETX, NULL)) {
-								notbusy_start = offset+2;
-								ack_start = offset;
-								g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy + ACK");
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)				&&
-							testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)			&&
-							testchar(tvb, pinfo, offset+2, FETCH, 0, &function_code)	&&
-							testchar(tvb, pinfo, offset+3, MATCH, ETX, NULL)) {
-								ack_start = offset;
-								function_start = offset + 2;
-								if (check_col(pinfo->cinfo, COL_INFO))
-									col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
-								set_addr(pinfo, SRC, rid, sid, did);
-				} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)		&&
-							testchar(tvb, pinfo, offset+1, MATCH, ETX, NULL)) {
-								function_start = offset;
-								if (check_col(pinfo->cinfo, COL_INFO))
-									col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
-								set_addr(pinfo, SRC, rid, sid, did);
 				}
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, NAK, NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)	&&
+				   sid != GSID && did == GDID) {
+				nak_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Retransmit Request");
+				set_addr(pinfo, DST, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, BEL, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, STX, NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
+				header_length = offset+2;
+				msgwaiting_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Message Waiting");
+				set_addr(pinfo, DST, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, STX, NULL)) {
+				ack_start = offset;
+				header_length = offset+3;		
+				stx_start = offset+2;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text + ACK");
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, STX, NULL)) {
+				header_length = offset+1;
+				stx_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text");
+				if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
+					set_addr(pinfo, DST, rid, sid, did);		/* if the ACN sent it, the address is of the destination... the terminal */
+				} else {
+					set_addr(pinfo, SRC, rid, sid, did);		/* if the ACN received it, the address if of the source... the terminal */
+				}
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, ENQ, NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
+				replyrequest_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Reply Request");
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '?', NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
+				busy_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Busy");
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, ';', NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
+				notbusy_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy");
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
+				   testchar(tvb, pinfo, offset+2, MATCH, DLE, NULL)	&&
+				   testchar(tvb, pinfo, offset+3, MATCH, ';', NULL)	&&
+				   testchar(tvb, pinfo, offset+4, MATCH, ETX, NULL)) {
+				notbusy_start = offset+2;
+				ack_start = offset;
+				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy + ACK");
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)				&&
+				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)			&&
+				   testchar(tvb, pinfo, offset+2, FETCH, 0, &function_code)	&&
+				   testchar(tvb, pinfo, offset+3, MATCH, ETX, NULL)) {
+				ack_start = offset;
+				function_start = offset + 2;
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
+				set_addr(pinfo, SRC, rid, sid, did);
+			} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)		&&
+				   testchar(tvb, pinfo, offset+1, MATCH, ETX, NULL)) {
+				function_start = offset;
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
+				set_addr(pinfo, SRC, rid, sid, did);
 			}
+		}
 	}
 	if ((check_col(pinfo->cinfo, COL_INFO)) && strlen(msg_msg))
 		col_add_str(pinfo->cinfo, COL_INFO, msg_msg);
 
 	while (tvb_length_remaining(tvb, offset)) {					/* now look for the ETX */
 		if ((tvb_get_guint8(tvb, offset) & 0x7f) == ETX) {
-			if (header_length == -1) header_length = offset;	/* the header ends at an STX, or if not found, the ETX */
+			if (header_length == -1)
+				header_length = offset;	/* the header ends at an STX, or if not found, the ETX */
 			etx_start = offset;
 			offset++;
 			break;
@@ -274,35 +278,59 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 			proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, 0, 1, "SOH");
 
-			if (rid == GRID)		proto_tree_add_uint_format(uts_header_tree, hf_rid, tvb, 1, 1, rid, "RID (%02X) (General)",	rid	);
-			else					proto_tree_add_uint_format(uts_header_tree, hf_rid, tvb, 1, 1, rid, "RID (%02X)",			rid	);
-			if (sid == GSID)		proto_tree_add_uint_format(uts_header_tree, hf_sid, tvb, 2, 1, sid, "SID (%02X) (General)",	sid	);
-			else					proto_tree_add_uint_format(uts_header_tree, hf_sid, tvb, 2, 1, sid, "SID (%02X)",			sid	);
-			if (sid == GDID)		proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X) (General)",	did	);
-			else					proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X)",			did	);
+			if (rid == GRID)
+				proto_tree_add_uint_format(uts_header_tree, hf_rid, tvb, 1, 1, rid, "RID (%02X) (General)", rid);
+			else
+				proto_tree_add_uint_format(uts_header_tree, hf_rid, tvb, 1, 1, rid, "RID (%02X)", rid);
 
-			if (nak_start)			proto_tree_add_boolean_format(uts_header_tree, hf_retxrequest,	tvb, nak_start,				2, 1, "Re-transmit Request");
-			if (ack_start)			proto_tree_add_boolean_format(uts_header_tree, hf_ack,			tvb, ack_start,				2, 1, "Ack");
-			if (replyrequest_start)	proto_tree_add_boolean_format(uts_header_tree, hf_replyrequest,	tvb, replyrequest_start,	2, 1, "Reply Request");
-			if (busy_start)			proto_tree_add_boolean_format(uts_header_tree, hf_busy,			tvb, busy_start,			2, 1, "Busy");
-			if (notbusy_start)		proto_tree_add_boolean_format(uts_header_tree, hf_notbusy,		tvb, notbusy_start,			2, 1, "Not Busy");
-			if (msgwaiting_start)	proto_tree_add_boolean_format(uts_header_tree, hf_msgwaiting,	tvb, msgwaiting_start,		1, 1, "Message Waiting");
+			if (sid == GSID)
+				proto_tree_add_uint_format(uts_header_tree, hf_sid, tvb, 2, 1, sid, "SID (%02X) (General)", sid);
+			else
+				proto_tree_add_uint_format(uts_header_tree, hf_sid, tvb, 2, 1, sid, "SID (%02X)", sid);
+
+			if (sid == GDID)
+				proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X) (General)", did);
+			else
+				proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X)", did);
+
+			if (nak_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_retxrequest,	tvb, nak_start,	2, 1, "Re-transmit Request");
+			if (ack_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_ack, tvb, ack_start, 2, 1, "Ack");
+
+			if (replyrequest_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_replyrequest,	tvb, replyrequest_start, 2, 1, "Reply Request");
+			if (busy_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_busy,	tvb, busy_start, 2, 1, "Busy");
+
+			if (notbusy_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_notbusy, tvb, notbusy_start, 2, 1, "Not Busy");
+
+			if (msgwaiting_start)
+				proto_tree_add_boolean_format(uts_header_tree, hf_msgwaiting, tvb, msgwaiting_start, 1, 1, "Message Waiting");
+
 			if (function_start)
 				proto_tree_add_uint_format(uts_header_tree, hf_function, tvb, function_start, 1, function_code, "Function '%c'", function_code	);
 
 			if (stx_start) {
-				proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, stx_start,			1, "Start of Text"			);
-				length = tvb_length_remaining(tvb, stx_start+1);					/* find out how much message remains */
-				if (etx_start) length = (etx_start - stx_start - 1);				/* and the data part is the rest... whatever preceeds the ETX if it exists */
+				proto_tree_add_protocol_format(uts_header_tree, proto_uts, tvb, stx_start, 1, "Start of Text");
+				length = tvb_length_remaining(tvb, stx_start+1);    /* find out how much message remains      */
+				if (etx_start)
+					length = (etx_start - stx_start - 1);       /* and the data part is the rest...       */
+                                                                                    /* whatever preceeds the ETX if it exists */
 				data_ptr = tvb_get_ephemeral_string(tvb, stx_start+1, length);	/* copy the string for dissecting */
-				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr, "Text (%d byte%s)", length, plurality(length, "", "s"));
+				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr, 
+							     "Text (%d byte%s)", length, plurality(length, "", "s"));
 			}
+
 			if (etx_start) {
 				ti = proto_tree_add_text(uts_tree, tvb, etx_start, -1, "Trailer");
 				uts_trailer_tree = proto_item_add_subtree(ti, ett_trailer_uts);
 
-				if (etx_start)	proto_tree_add_protocol_format(uts_trailer_tree, proto_uts, tvb, etx_start,	1, "ETX"				);
-				if (bcc_start)	proto_tree_add_protocol_format(uts_trailer_tree, proto_uts, tvb, bcc_start,	-1, "CCC + padding"		);
+				if (etx_start)
+					proto_tree_add_protocol_format(uts_trailer_tree, proto_uts, tvb, etx_start, 1, "ETX");
+				if (bcc_start)
+					proto_tree_add_protocol_format(uts_trailer_tree, proto_uts, tvb, bcc_start, -1, "CCC + padding");
 			}
 		}
 	}
@@ -312,17 +340,39 @@ void
 proto_register_uts(void)
 {
    static hf_register_info hf[] = {
-        { &hf_rid,			{ "RID",			"uts.rid",			FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }}, 
-        { &hf_sid,			{ "SID",			"uts.sid",			FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",		HFILL }}, 
-        { &hf_did,			{ "DID",			"uts.did",			FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }}, 
-		{ &hf_retxrequest,	{ "ReTxRequst",		"uts.retxrequst",	FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Re-transmit Request",	HFILL }}, 
-		{ &hf_ack,			{ "Ack",			"uts.ack",			FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Ack",					HFILL }}, 
-		{ &hf_replyrequest,	{ "ReplyRequst",	"uts.replyrequest",	FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Reply Request",		HFILL }},
-		{ &hf_busy,			{ "Busy",			"uts.busy",			FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Busy",				HFILL }},
-		{ &hf_notbusy,		{ "NotBusy",		"uts.notbusy",		FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Not Busy",			HFILL }},
-		{ &hf_msgwaiting,	{ "MsgWaiting",		"uts.msgwaiting",	FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Message Waiting",		HFILL }},
-        { &hf_function,		{ "Function",		"uts.function",		FT_UINT8,	BASE_HEX,	NULL, 0, "Function Code value",			HFILL }},
-		{ &hf_data,			{ "Data",			"uts.data",			FT_STRING,	BASE_NONE,	NULL, 0, "User Data Message",			HFILL }},
+        { &hf_rid,      
+	  { "RID",	   "uts.rid",
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }}, 
+        { &hf_sid,
+	  { "SID",	   "uts.sid",
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",	HFILL }}, 
+        { &hf_did,
+	  { "DID",	   "uts.did",
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }}, 
+	{ &hf_retxrequest,
+	  { "ReTxRequst",  "uts.retxrequst",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Re-transmit Request",	HFILL }}, 
+	{ &hf_ack,
+	  { "Ack",	   "uts.ack",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Ack",			HFILL }}, 
+	{ &hf_replyrequest,
+	  { "ReplyRequst", "uts.replyrequest",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Reply Request",	HFILL }},
+	{ &hf_busy,
+	  { "Busy",	   "uts.busy",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Busy",		HFILL }},
+	{ &hf_notbusy,
+	  { "NotBusy",	   "uts.notbusy",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Not Busy",		HFILL }},
+	{ &hf_msgwaiting,
+	  { "MsgWaiting",  "uts.msgwaiting",
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0, "TRUE if Message Waiting",	HFILL }},
+        { &hf_function,
+	  { "Function",    "uts.function",
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Function Code value",		HFILL }},
+	{ &hf_data,
+	  { "Data",	   "uts.data",
+	    FT_STRING,	BASE_NONE,	NULL, 0, "User Data Message",		HFILL }},
     };
 
 	static gint *ett[] = {
