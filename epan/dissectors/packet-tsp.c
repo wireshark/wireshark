@@ -49,9 +49,6 @@ static int hf_tsp_name = -1;
 
 static gint ett_tsp = -1;
 
-static dissector_handle_t	tsp_handle;
-
-
 /* timed port from /etc/services */
 #define UDP_PORT_TIMED	525
 
@@ -176,6 +173,9 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_tsp(void)
 {
+	dissector_handle_t	tsp_handle;
+
+	tsp_handle = create_dissector_handle(dissect_tsp, proto_tsp);
 	dissector_add("udp.port", UDP_PORT_TIMED, tsp_handle);
 }
 
@@ -221,7 +221,5 @@ proto_register_tsp(void)
 					"TSP", "tsp");
 	proto_register_field_array(proto_tsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	tsp_handle = create_dissector_handle(dissect_tsp, proto_tsp);
 }
 

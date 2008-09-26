@@ -136,10 +136,9 @@ UAT_DEC_CB_DEF(user_encap, trailer_size, user_encap_t)
 UAT_PROTO_DEF(user_encap, header_proto, header_proto, header_proto_name, user_encap_t)
 UAT_PROTO_DEF(user_encap, trailer_proto, trailer_proto, trailer_proto_name, user_encap_t)
 
-static dissector_handle_t user_encap_handle;
-
 void proto_reg_handoff_user_encap(void)
 {
+	dissector_handle_t user_encap_handle;
 	guint i;
 	
 	user_encap_handle = find_dissector("user_dlt");
@@ -184,10 +183,10 @@ void proto_register_user_encap(void)
 						 user_flds );
 	
 	prefs_register_uat_preference(module,
-								  "encaps_table",
-								  "Encapsulations Table",
-								  "A table that enumerates the various protocols to be used against a cartain user DLT",
-								  encaps_uat);
+				      "encaps_table",
+				      "Encapsulations Table",
+				      "A table that enumerates the various protocols to be used against a cartain user DLT",
+				      encaps_uat);
 	
 	
 	register_dissector("user_dlt",dissect_user,proto_user_encap);

@@ -411,8 +411,6 @@ static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
 static dissector_handle_t gsm_map_handle;
-static dissector_handle_t gsm_bsslap_handle = NULL;
-static dissector_handle_t dtap_handle;
 static dissector_handle_t rp_handle;
 
 packet_info *gsm_a_dtap_pinfo;
@@ -5724,15 +5722,15 @@ proto_register_gsm_a_dtap(void)
 void
 proto_reg_handoff_gsm_a_dtap(void)
 {
+	dissector_handle_t dtap_handle;
 
 	dtap_handle = find_dissector("gsm_a_dtap");
-	rp_handle = find_dissector("gsm_a_rp");
-
 	dissector_add("bssap.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
 	dissector_add("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
 	dissector_add("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
 	dissector_add("llcgprs.sapi", 7 , dtap_handle); /* SMS */
+
 	data_handle = find_dissector("data");
 	gsm_map_handle = find_dissector("gsm_map");
-	gsm_bsslap_handle = find_dissector("gsm_bsslap");
+	rp_handle = find_dissector("gsm_a_rp");
 }

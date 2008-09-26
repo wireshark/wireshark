@@ -106,8 +106,6 @@ static gint ett_winsrepl_send_reply = -1;
 
 static gint ett_winsrepl_flags = -1;
 
-static dissector_handle_t winsrepl_handle;
-
 #define WINS_REPLICATION_PORT	( 42 )
 #define WREPL_OPCODE_BITS	( 0x7800 )
 
@@ -916,6 +914,8 @@ proto_register_winsrepl(void)
 void
 proto_reg_handoff_winsrepl(void)
 {
+	dissector_handle_t winsrepl_handle;
+
 	winsrepl_handle = create_dissector_handle(dissect_winsrepl, proto_winsrepl);
 	dissector_add("tcp.port", glb_winsrepl_tcp_port, winsrepl_handle);
 }

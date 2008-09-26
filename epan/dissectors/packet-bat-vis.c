@@ -43,7 +43,6 @@ static int hf_bat_vis_tq_v23 = -1;
 static int hf_bat_vis_data_ip = -1;
 
 static guint global_bat_vis_udp_port = BAT_VIS_PORT;
-static guint udp_port = 0;
 
 static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -132,6 +131,7 @@ void reg_handoff_bat_vis(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t vis_handle;
+	static guint udp_port;
 
 	if (!inited) {
 		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_plugin);

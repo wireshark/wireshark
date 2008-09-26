@@ -54,7 +54,6 @@ static int hf_bat_batman_flags_directlink = -1;
 /* unknown */
 
 static guint global_bat_batman_udp_port = BAT_BATMAN_PORT;
-static guint udp_port = 0;
 
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -158,6 +157,7 @@ void reg_handoff_bat_batman(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t batman_handle;
+	static guint udp_port;
 
 	if (!inited) {
 		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);

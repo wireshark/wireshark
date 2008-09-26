@@ -850,17 +850,14 @@ proto_register_dcp_etsi (void)
     &ett_edcp_fragments
   };
 
-  if (proto_dcp_etsi == -1) {
-    proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",	/* name */
-					 "DCP (ETSI)",	/* short name */
-					 "dcp-etsi"	/* abbrev */
-      );
-    proto_af = proto_register_protocol ("DCP Application Framing Layer", "DCP-AF", "dcp-af");
-    proto_pft = proto_register_protocol ("DCP Protection, Fragmentation & Transport Layer", "DCP-PFT", "dcp-pft");
-    proto_tpl = proto_register_protocol ("DCP Tag Packet Layer", "DCP-TPL", "dcp-tpl");
+  proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",	/* name */
+                                            "DCP (ETSI)",	/* short name */
+                                            "dcp-etsi"	/* abbrev */
+    );
+  proto_af = proto_register_protocol ("DCP Application Framing Layer", "DCP-AF", "dcp-af");
+  proto_pft = proto_register_protocol ("DCP Protection, Fragmentation & Transport Layer", "DCP-PFT", "dcp-pft");
+  proto_tpl = proto_register_protocol ("DCP Tag Packet Layer", "DCP-TPL", "dcp-tpl");
 
-
-  }
   proto_register_field_array (proto_dcp_etsi, hf_edcp, array_length (hf_edcp));
   proto_register_field_array (proto_af, hf_af, array_length (hf_af));
   proto_register_field_array (proto_pft, hf_pft, array_length (hf_pft));

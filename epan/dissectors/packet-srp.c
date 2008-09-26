@@ -54,9 +54,8 @@ static int hf_ccsrl_ls = -1;
 static gint ett_srp = -1;
 static gint ett_ccsrl = -1;
 
-static dissector_handle_t data_handle=NULL;
-static dissector_handle_t ccsrl_handle=NULL;
-static dissector_handle_t h245dg_handle=NULL;
+static dissector_handle_t ccsrl_handle;
+static dissector_handle_t h245dg_handle;
 
 /*****************************************************************************/
 #define SRP_SRP_COMMAND 249
@@ -188,14 +187,10 @@ void proto_register_ccsrl (void)
 	&ett_ccsrl,
     };
 
-    if (proto_ccsrl == -1) { /* execute protocol initialization only once */
-	proto_ccsrl =
-	    proto_register_protocol ("H.324/CCSRL", "CCSRL", "ccsrl");
-
-	proto_register_field_array (proto_ccsrl, hf, array_length (hf));
-	proto_register_subtree_array (ett, array_length (ett));
-	register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
-    }
+    proto_ccsrl = proto_register_protocol ("H.324/CCSRL", "CCSRL", "ccsrl");
+    proto_register_field_array (proto_ccsrl, hf, array_length (hf));
+    proto_register_subtree_array (ett, array_length (ett));
+    register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
 }
 
 void proto_register_srp (void)
@@ -219,24 +214,19 @@ void proto_register_srp (void)
 	&ett_srp,
     };
 
-    if (proto_srp == -1) { /* execute protocol initialization only once */
-	proto_srp =
-	    proto_register_protocol ("H.324/SRP", "SRP", "srp");
+    proto_srp = proto_register_protocol ("H.324/SRP", "SRP", "srp");
+    proto_register_field_array (proto_srp, hf, array_length (hf));
+    proto_register_subtree_array (ett, array_length (ett));
+    register_dissector("srp", dissect_srp, proto_srp);
 
-	proto_register_field_array (proto_srp, hf, array_length (hf));
-	proto_register_subtree_array (ett, array_length (ett));
-	register_dissector("srp", dissect_srp, proto_srp);
+    /* register our init routine to be called at the start of a capture,
+       to clear out our hash tables etc */
+    /* register_init_routine(&srp_init_protocol); */
 
-	/* register our init routine to be called at the start of a capture,
-	   to clear out our hash tables etc */
-	/* register_init_routine(&srp_init_protocol); */
-
-    }
 }
 
 
 void proto_reg_handoff_srp(void) {
-    data_handle = find_dissector("data");
     ccsrl_handle = find_dissector("ccsrl");
     h245dg_handle = find_dissector("h245dg");
 }

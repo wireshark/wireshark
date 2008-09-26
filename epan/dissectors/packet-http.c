@@ -203,8 +203,8 @@ static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
-static dissector_handle_t ntlmssp_handle=NULL;
-static dissector_handle_t gssapi_handle=NULL;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t gssapi_handle;
 
 static const value_string vals_status_code[] = {
 	{ 100, "Continue" },
@@ -2364,7 +2364,6 @@ proto_reg_handoff_http(void)
 
 static gint proto_message_http = -1;
 static gint ett_message_http = -1;
-static dissector_handle_t message_http_handle;
 
 static void
 dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2411,6 +2410,8 @@ proto_register_message_http(void)
 void
 proto_reg_handoff_message_http(void)
 {
+	dissector_handle_t message_http_handle;
+
 	message_http_handle = create_dissector_handle(dissect_message_http,
 			proto_message_http);
 

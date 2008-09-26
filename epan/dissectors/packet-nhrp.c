@@ -770,14 +770,12 @@ proto_register_nhrp(void)
 		&ett_nhrp_indication
 	};
 	
-	if (proto_nhrp == -1) {
-		proto_nhrp = proto_register_protocol(
-			"NBMA Next Hop Resolution Protocol",
-			"NHRP",
-			"nhrp");
-		proto_register_field_array(proto_nhrp, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_nhrp = proto_register_protocol(
+		"NBMA Next Hop Resolution Protocol",
+		"NHRP",
+		"nhrp");
+	proto_register_field_array(proto_nhrp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void

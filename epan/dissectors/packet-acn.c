@@ -3039,14 +3039,12 @@ void proto_register_acn(void)
   };
 
   module_t *acn_module;
-  if (proto_acn == -1) {
-    proto_acn = proto_register_protocol (
-      "Architecture for Control Networks", /* name */
-      "ACN",                               /* short name */
-      "acn"                                /* abbrev */
-      );
-  }
-
+  proto_acn = proto_register_protocol (
+    "Architecture for Control Networks", /* name */
+    "ACN",                               /* short name */
+    "acn"                                /* abbrev */
+    );
+  
   proto_register_field_array(proto_acn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

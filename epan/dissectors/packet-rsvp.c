@@ -101,7 +101,6 @@
 static int proto_rsvp = -1;
 
 static dissector_table_t rsvp_dissector_table;
-static dissector_handle_t data_handle;
 
 static int rsvp_tap = -1;
 
@@ -5946,6 +5945,5 @@ proto_reg_handoff_rsvp(void)
 	dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
 	dissector_add("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
 	dissector_add("udp.port", UDP_PORT_PRSVP, rsvp_handle);
-	data_handle = find_dissector("data");
 	rsvp_tap = register_tap("rsvp");
 }

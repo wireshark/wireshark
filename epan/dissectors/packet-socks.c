@@ -1194,10 +1194,6 @@ proto_register_socks( void){
 
 	proto_register_field_array(proto_socks, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	socks_udp_handle = create_dissector_handle(socks_udp_dissector,
-	    proto_socks);
-	socks_handle = create_dissector_handle(dissect_socks, proto_socks);
 }
 
 
@@ -1205,6 +1201,8 @@ void
 proto_reg_handoff_socks(void) {
 
 	/* dissector install routine */
+	socks_udp_handle = create_dissector_handle(socks_udp_dissector, proto_socks);
+	socks_handle = create_dissector_handle(dissect_socks, proto_socks);
 
  	dissector_add("tcp.port", TCP_PORT_SOCKS, socks_handle);
 }

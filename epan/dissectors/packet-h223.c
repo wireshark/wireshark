@@ -122,9 +122,8 @@ static gint ett_h223_al2 = -1;
 static gint ett_h223_al_payload = -1;
 
 /* These are the handles of our subdissectors */
-static dissector_handle_t data_handle=NULL;
-static dissector_handle_t srp_handle=NULL;
-static dissector_handle_t h245dg_handle=NULL;
+static dissector_handle_t data_handle;
+static dissector_handle_t srp_handle;
 
 static const fragment_items h223_mux_frag_items _U_ = {
 	&ett_h223_mux_fragment,
@@ -1549,7 +1548,6 @@ void proto_register_h223 (void)
 	&ett_h223_al_payload
     };
 
-    if (proto_h223 == -1) { /* execute protocol initialization only once */
     proto_h223 =
 	proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
     proto_h223_bitswapped =
@@ -1563,7 +1561,6 @@ void proto_register_h223 (void)
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
     register_init_routine(&h223_init_protocol);
-    }
 
     h245_set_h223_set_mc_handle( &h223_set_mc );
     h245_set_h223_add_lc_handle( &h223_add_lc );
@@ -1574,7 +1571,6 @@ void proto_reg_handoff_h223(void)
     dissector_handle_t h223_bitswapped = find_dissector("h223_bitswapped");
     dissector_handle_t h223 = find_dissector("h223");
     data_handle = find_dissector("data");
-    h245dg_handle = find_dissector("h245dg");
     srp_handle = find_dissector("srp");
 
     dissector_add_handle("tcp.port", h223);

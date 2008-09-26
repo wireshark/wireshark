@@ -730,13 +730,11 @@ proto_register_linx(void)
 		&ett_linx_ack
 	};
 
-	if (proto_linx == -1) {
-		proto_linx = proto_register_protocol (
-			"ENEA LINX",	/* name */
-			"LINX",		/* short name */
-			"linx"		/* abbrev */
-			);
-	}
+	proto_linx = proto_register_protocol (
+		"ENEA LINX",	/* name */
+		"LINX",		/* short name */
+		"linx"		/* abbrev */
+		);
 
 	/* Protocol Registering data structures. */
 	proto_register_field_array(proto_linx, hf, array_length(hf));

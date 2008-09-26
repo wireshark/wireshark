@@ -203,13 +203,12 @@ proto_register_xyplex(void)
   proto_xyplex = proto_register_protocol("Xyplex", "XYPLEX", "xyplex");
   proto_register_field_array(proto_xyplex, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  xyplex_handle = create_dissector_handle(dissect_xyplex, proto_xyplex);
 }
 
 void
 proto_reg_handoff_xyplex(void)
 {
+  xyplex_handle = create_dissector_handle(dissect_xyplex, proto_xyplex);
   dissector_add("udp.port", UDP_PORT_XYPLEX, xyplex_handle);
 }
 

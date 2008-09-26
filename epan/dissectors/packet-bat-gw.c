@@ -35,7 +35,6 @@ static int hf_bat_gw_type = -1;
 static int hf_bat_gw_ip = -1;
 
 static guint global_bat_gw_udp_port = BAT_GW_PORT;
-static guint udp_port = 0;
 
 static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -81,6 +80,7 @@ void reg_handoff_bat_gw(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t gw_handle;
+	static guint udp_port;
 
 	if (!inited) {
 		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_plugin);

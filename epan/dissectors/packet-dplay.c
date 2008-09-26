@@ -1757,16 +1757,13 @@ void proto_register_dplay()
         &ett_dplay_type29_spp,
     };
 
-    if(proto_dplay == -1)
-    {
-        proto_dplay = proto_register_protocol (
-                "DirectPlay Protocol",
-                "DPLAY",
-                "dplay"
-                );
-        proto_register_field_array(proto_dplay, hf, array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));
-    }
+    proto_dplay = proto_register_protocol (
+        "DirectPlay Protocol",
+        "DPLAY",
+        "dplay"
+        );
+    proto_register_field_array(proto_dplay, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_reg_handoff_dplay(void)
