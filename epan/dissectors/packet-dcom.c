@@ -96,7 +96,6 @@
 
 
 static int proto_dcom = -1;
-void proto_reg_handoff_dcom(void);
 
 gboolean dcom_prefs_display_unmarshalling_details = FALSE;
 
@@ -2237,28 +2236,28 @@ proto_register_dcom (void)
 		{ &hf_dcom_sa_low_bound,
 		{ "LowBound", "dcom.sa.low_bound", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
-        { &hf_dcom_sa_features_auto,
-        { "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_AUTO, "", HFILL }},
-        { &hf_dcom_sa_features_static,
-        { "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_STATIC, "", HFILL }},
-        { &hf_dcom_sa_features_embedded,
-        { "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_EMBEDDED, "", HFILL }},
-        { &hf_dcom_sa_features_fixedsize,
-        { "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_FIXEDSIZE, "", HFILL }},
-        { &hf_dcom_sa_features_record,
-        { "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_RECORD, "", HFILL }},
-        { &hf_dcom_sa_features_have_iid,
-        { "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEIID, "", HFILL }},
-        { &hf_dcom_sa_features_have_vartype,
-        { "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEVARTYPE, "", HFILL }},
-        { &hf_dcom_sa_features_bstr,
-        { "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_BSTR, "", HFILL }},
-        { &hf_dcom_sa_features_unknown,
-        { "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_UNKNOWN, "", HFILL }},
-        { &hf_dcom_sa_features_dispatch,
-        { "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_DISPATCH, "", HFILL }},
-        { &hf_dcom_sa_features_variant,
-        { "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_VARIANT, "", HFILL }}
+		{ &hf_dcom_sa_features_auto,
+		{ "AUTO", "dcom.sa.features_auto", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_AUTO, "", HFILL }},
+		{ &hf_dcom_sa_features_static,
+		{ "STATIC", "dcom.sa.features_static", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_STATIC, "", HFILL }},
+		{ &hf_dcom_sa_features_embedded,
+		{ "EMBEDDED", "dcom.sa.features_embedded", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_EMBEDDED, "", HFILL }},
+		{ &hf_dcom_sa_features_fixedsize,
+		{ "FIXEDSIZE", "dcom.sa.features_fixedsize", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_FIXEDSIZE, "", HFILL }},
+		{ &hf_dcom_sa_features_record,
+		{ "RECORD", "dcom.sa.features_record", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_RECORD, "", HFILL }},
+		{ &hf_dcom_sa_features_have_iid,
+		{ "HAVEIID", "dcom.sa.features_have_iid", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEIID, "", HFILL }},
+		{ &hf_dcom_sa_features_have_vartype,
+		{ "HAVEVARTYPE", "dcom.sa.features_have_vartype", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_HAVEVARTYPE, "", HFILL }},
+		{ &hf_dcom_sa_features_bstr,
+		{ "BSTR", "dcom.sa.features_bstr", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_BSTR, "", HFILL }},
+		{ &hf_dcom_sa_features_unknown,
+		{ "UNKNOWN", "dcom.sa.features_unknown", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_UNKNOWN, "", HFILL }},
+		{ &hf_dcom_sa_features_dispatch,
+		{ "DISPATCH", "dcom.sa.features_dispatch", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_DISPATCH, "", HFILL }},
+		{ &hf_dcom_sa_features_variant,
+		{ "VARIANT", "dcom.sa.features_variant", FT_BOOLEAN, 16, TFS (&flags_set_truth), WIRESHARK_FADF_VARIANT, "", HFILL }}
 	};
 
 	static gint *ett_dcom[] = {
@@ -2278,20 +2277,19 @@ proto_register_dcom (void)
 
 	module_t *dcom_module; 
 
-
 	/* currently, the DCOM protocol "itself" has no real protocol dissector */
 	/* we only need this, to register some generic elements */
 	proto_dcom = proto_register_protocol ("DCOM", "DCOM", "dcom");
-    proto_register_field_array(proto_dcom, hf_dcom_this_array, array_length(hf_dcom_this_array));
-    proto_register_field_array(proto_dcom, hf_dcom_that_array, array_length(hf_dcom_that_array));
-    proto_register_field_array(proto_dcom, hf_dcom_extent_array, array_length(hf_dcom_extent_array));
-    proto_register_field_array(proto_dcom, hf_dcom_array, array_length(hf_dcom_array));
-    proto_register_field_array(proto_dcom, hf_dcom_objref_array, array_length(hf_dcom_objref_array));
-    proto_register_field_array(proto_dcom, hf_dcom_stdobjref_array, array_length(hf_dcom_stdobjref_array));
-    proto_register_field_array(proto_dcom, hf_dcom_dualstringarray_array, array_length(hf_dcom_dualstringarray_array));
-    proto_register_field_array(proto_dcom, hf_dcom_interface_pointer_array, array_length(hf_dcom_interface_pointer_array));
-    proto_register_field_array(proto_dcom, hf_dcom_vt_array, array_length(hf_dcom_vt_array));
-    proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
+	proto_register_field_array(proto_dcom, hf_dcom_this_array, array_length(hf_dcom_this_array));
+	proto_register_field_array(proto_dcom, hf_dcom_that_array, array_length(hf_dcom_that_array));
+	proto_register_field_array(proto_dcom, hf_dcom_extent_array, array_length(hf_dcom_extent_array));
+	proto_register_field_array(proto_dcom, hf_dcom_array, array_length(hf_dcom_array));
+	proto_register_field_array(proto_dcom, hf_dcom_objref_array, array_length(hf_dcom_objref_array));
+	proto_register_field_array(proto_dcom, hf_dcom_stdobjref_array, array_length(hf_dcom_stdobjref_array));
+	proto_register_field_array(proto_dcom, hf_dcom_dualstringarray_array, array_length(hf_dcom_dualstringarray_array));
+	proto_register_field_array(proto_dcom, hf_dcom_interface_pointer_array, array_length(hf_dcom_interface_pointer_array));
+	proto_register_field_array(proto_dcom, hf_dcom_vt_array, array_length(hf_dcom_vt_array));
+	proto_register_field_array(proto_dcom, hf_dcom_sa_array, array_length(hf_dcom_sa_array));
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
 
 	/* preferences */
@@ -2303,22 +2301,21 @@ proto_register_dcom (void)
 		"usually hidden",
 		&dcom_prefs_display_unmarshalling_details);
 
-    register_init_routine(dcom_reinit);
+	register_init_routine(dcom_reinit);
 }
 
 
 void
 proto_reg_handoff_dcom (void)
 {
+	/* register some "well known" UUID's */
+	guids_add_uuid(&uuid_debug_ext, "Debug Information Body Extension");
+	guids_add_uuid(&uuid_ext_error_ext, "Extended Error Info Body Extension");
+	guids_add_uuid(&ipid_rem_unknown, "IRemUnknown");
+	guids_add_uuid(&iid_unknown, "IUnknown");
+	guids_add_uuid(&uuid_null, "NULL");
+	guids_add_uuid(&iid_class_factory, "IClassFactory");
 
-    /* register some "well known" UUID's */
-    guids_add_uuid(&uuid_debug_ext, "Debug Information Body Extension");
-    guids_add_uuid(&uuid_ext_error_ext, "Extended Error Info Body Extension");
-    guids_add_uuid(&ipid_rem_unknown, "IRemUnknown");
-    guids_add_uuid(&iid_unknown, "IUnknown");
-    guids_add_uuid(&uuid_null, "NULL");
-    guids_add_uuid(&iid_class_factory, "IClassFactory");
-
-    /* Currently, we have nothing to register for DCOM */
+	/* Currently, we have nothing to register for DCOM */
 }
 
