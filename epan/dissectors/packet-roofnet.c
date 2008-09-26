@@ -354,7 +354,7 @@ void proto_register_roofnet(void)
 
 void proto_reg_handoff_roofnet(void)
 {
-  static dissector_handle_t roofnet_handle;
+  dissector_handle_t roofnet_handle;
 
   /* Until now there is no other option than having an IPv4 payload (maybe
    * extended one day to IPv6 or other?) */
