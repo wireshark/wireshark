@@ -98,7 +98,7 @@
 static int proto_dcom = -1;
 void proto_reg_handoff_dcom(void);
 
-int dcom_prefs_display_unmarshalling_details = FALSE;
+gboolean dcom_prefs_display_unmarshalling_details = FALSE;
 
 
 gint ett_dcom_this = -1;
@@ -2295,7 +2295,7 @@ proto_register_dcom (void)
 	proto_register_subtree_array (ett_dcom, array_length (ett_dcom));
 
 	/* preferences */
-	dcom_module = prefs_register_protocol(proto_dcom, proto_reg_handoff_dcom);
+	dcom_module = prefs_register_protocol(proto_dcom, NULL);
 
 	prefs_register_bool_preference(dcom_module, "display_unmarshalling_details", 
 		"Display DCOM unmarshalling details", 
