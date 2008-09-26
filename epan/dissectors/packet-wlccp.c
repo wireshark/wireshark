@@ -411,8 +411,6 @@ struct subdissector_returns_t
 
 
 /* Forward declarations we need below */
-void proto_reg_handoff_wlccp(void);
-
 static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
 static guint dissect_wlccp_sec_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
 static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offset, guint8 _base_message_type);
@@ -433,11 +431,6 @@ static void set_mic_flag(gboolean flag);
 static void set_tlv_flag(gboolean flag);
 static gboolean get_tlv_flag(void);
 static gboolean get_mic_flag(void);
-
-/* Initialize external dissector handles */
-/* We'll try to use the EAP dissector when necessary */
-static dissector_handle_t eap_handle;
-
 
 /* Initialize some utlity variables */
 static gboolean mic_flag=0, tlv_flag=0;
@@ -3874,29 +3867,20 @@ proto_register_wlccp(void)
 	proto_register_field_array(proto_wlccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-
 } 
 
 
 void
 proto_reg_handoff_wlccp(void)
 {
-        static gboolean inited = FALSE;
-        
-        if( !inited ) {
+	dissector_handle_t wlccp_handle;
 
-		dissector_handle_t wlccp_handle;
-  		eap_handle = find_dissector("eap");
+	wlccp_handle = create_dissector_handle(dissect_wlccp, proto_wlccp);
 
-		wlccp_handle = create_dissector_handle(dissect_wlccp,
-						       proto_wlccp);
+	dissector_add("ethertype", ETHERTYPE_WLCCP, wlccp_handle);
+	dissector_add("udp.port", WLCCP_UDP_PORT, wlccp_handle);
+	dissector_add("llc.wlccp_pid", 0x0000, wlccp_handle);
 
-		dissector_add("ethertype", ETHERTYPE_WLCCP, wlccp_handle);
-		dissector_add("udp.port", WLCCP_UDP_PORT, wlccp_handle);
-		dissector_add("llc.wlccp_pid", 0x0000, wlccp_handle);
-
-		inited = TRUE;
-	}
 }
 
 
@@ -3912,4 +3896,5 @@ proto_register_wlccp_oui(void)
 	};
 	
 	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "Cisco WLCCP OUI PID", hf);
+
 }

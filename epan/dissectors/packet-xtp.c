@@ -111,9 +111,6 @@ static const value_string diag_val_vals[] = {
 	{ 0, NULL }
 };
 
-/* Forward declaration we need below */
-void proto_reg_handoff_xtp(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_xtp = -1;
 /* common header */
@@ -1322,13 +1319,8 @@ proto_register_xtp(void)
 void
 proto_reg_handoff_xtp(void)
 {
-	static gboolean inited = FALSE;
+	dissector_handle_t xtp_handle;
 
-	if (!inited) {
-		dissector_handle_t xtp_handle;
-
-		xtp_handle = new_create_dissector_handle(dissect_xtp, proto_xtp);
-		dissector_add("ip.proto", IP_PROTO_XTP, xtp_handle);
-		inited = TRUE;
-	}
+	xtp_handle = new_create_dissector_handle(dissect_xtp, proto_xtp);
+	dissector_add("ip.proto", IP_PROTO_XTP, xtp_handle);
 }

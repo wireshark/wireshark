@@ -34,9 +34,9 @@
 #include <epan/packet.h>
 
 /* forward reference */
-void proto_register_egd();
-void proto_reg_handoff_egd();
 static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+#define EGD_PORT 18246 /* 0x4746 */
 
 #define EGD_ST_NONEW        0
 #define EGD_ST_NOERROR      1
@@ -75,7 +75,7 @@ static const value_string egd_stat_vals[] = {
 };
 
 static int proto_egd = -1;
-static int global_egd_port = 18246; /* 0x4746 */
+
 static dissector_handle_t egd_handle;
 static dissector_handle_t data_handle;
 
@@ -167,32 +167,23 @@ static gint *ett[] =
 
 void proto_register_egd(void)
 {
-  if (proto_egd == -1)
-  {
-    proto_egd = proto_register_protocol (
-                    "Ethernet Global Data",  /* name */
-                    "EGD",                   /* short name */
-                    "egd"                    /* abbrev */
-                    );
-    proto_register_field_array(proto_egd, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-  }
+  proto_egd = proto_register_protocol (
+    "Ethernet Global Data",  /* name */
+    "EGD",                   /* short name */
+    "egd"                    /* abbrev */
+    );
+  proto_register_field_array(proto_egd, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 
 void proto_reg_handoff_egd(void)
 {
-  static int initialized = FALSE;
+  /* find data dissector */
+  data_handle = find_dissector("data");
 
-  if (!initialized)
-  {
-    /* find data dissector */
-    data_handle = find_dissector("data");
-
-    egd_handle = create_dissector_handle(dissect_egd, proto_egd);
-    dissector_add("udp.port", global_egd_port, egd_handle);
-    initialized = TRUE;
-  }
+  egd_handle = create_dissector_handle(dissect_egd, proto_egd);
+  dissector_add("udp.port", EGD_PORT, egd_handle);
 }
 
 

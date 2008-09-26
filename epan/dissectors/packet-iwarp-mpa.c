@@ -119,7 +119,6 @@ static gint ett_mpa_marker = -1;
 
 /* handles of our subdissectors */
 static dissector_handle_t ddp_rdmap_handle = NULL;
-static gboolean initialized = FALSE;
 
 static const value_string mpa_messages[] = {
 		{ MPA_REQUEST_FRAME, "MPA Request Frame" },
@@ -1001,11 +1000,9 @@ void proto_register_mpa(void)
 	};
 
 	/* register the protocol name and description */
-	if (proto_iwarp_mpa == -1) {
-		proto_iwarp_mpa = proto_register_protocol(
-				"iWARP Marker Protocol data unit Aligned framing",
-				"IWARP_MPA", "iwarp_mpa");
-	}
+	proto_iwarp_mpa = proto_register_protocol(
+		"iWARP Marker Protocol data unit Aligned framing",
+		"IWARP_MPA", "iwarp_mpa");
 
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_mpa, hf, array_length(hf));
@@ -1016,13 +1013,10 @@ void proto_register_mpa(void)
 void
 proto_reg_handoff_mpa(void)
 {
-	if (!initialized) {
-		/*
-		 * MPA does not use any specific TCP port so, when not on a specific
-		 * port, try this one whenever there is TCP traffic.
-		 */
-		heur_dissector_add("tcp", dissect_iwarp_mpa, proto_iwarp_mpa);
-		ddp_rdmap_handle = find_dissector("iwarp_ddp_rdmap");
-		initialized = TRUE;
-	}
+	/*
+	 * MPA does not use any specific TCP port so, when not on a specific
+	 * port, try this dissector whenever there is TCP traffic.
+	 */
+	heur_dissector_add("tcp", dissect_iwarp_mpa, proto_iwarp_mpa);
+	ddp_rdmap_handle = find_dissector("iwarp_ddp_rdmap");
 }

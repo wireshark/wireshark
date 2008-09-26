@@ -66,15 +66,11 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/etypes.h>
 
 /* IF PROTO exposes code to other dissectors, then it must be exported
    in a header file. If not, a header file is not needed at all. */
 /* #include "packet-wol.h" */
-
-/* Forward declaration we need below */
-void proto_reg_handoff_wol(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_wol = -1;
@@ -330,37 +326,28 @@ proto_register_wol(void)
    This exact format is required because a script is used to find these
    routines and create the code that calls these routines.
 
-   This function is also called by preferences whenever "Apply" is pressed
-   (see prefs_register_protocol above) so it should accommodate being called
-   more than once.
 */
 void
 proto_reg_handoff_wol(void)
 {
-    static gboolean inited = FALSE;
-
-    if ( !inited )
-    {
-        dissector_handle_t wol_handle;
+    dissector_handle_t wol_handle;
 
 /*  Use new_create_dissector_handle() to indicate that dissect_wol()
  *  returns the number of bytes it dissected (or 0 if it thinks the packet
  *  does not belong to PROTONAME).
  */
-        wol_handle = new_create_dissector_handle(dissect_wol, proto_wol);
+    wol_handle = new_create_dissector_handle(dissect_wol, proto_wol);
 
-        /* We don't really want to register with EVERY possible dissector,
-         * do we?  I know that the AMD white paper specifies that the
-         * MagicPacket could be present in any frame, but are we seriously
-         * going to register WOL with every other dissector!?  I think not.
-         *
-         * Unless anyone has a better idea, just register with only those that
-         * are in "common usage" and grow this list as needed.  Yeah, I'm sure
-         * we'll miss some, but how else to do this ... add a thousand of
-         * these dissector_add()'s and heur_dissector_add()'s??? */
-        dissector_add("ethertype", ETHERTYPE_WOL, wol_handle);
-        heur_dissector_add("udp", dissect_wol, proto_wol);
-        inited = TRUE;
-    }
+    /* We don't really want to register with EVERY possible dissector,
+     * do we?  I know that the AMD white paper specifies that the
+     * MagicPacket could be present in any frame, but are we seriously
+     * going to register WOL with every other dissector!?  I think not.
+     *
+     * Unless anyone has a better idea, just register with only those that
+     * are in "common usage" and grow this list as needed.  Yeah, I'm sure
+     * we'll miss some, but how else to do this ... add a thousand of
+     * these dissector_add()'s and heur_dissector_add()'s??? */
+    dissector_add("ethertype", ETHERTYPE_WOL, wol_handle);
+    heur_dissector_add("udp", dissect_wol, proto_wol);
 }
 

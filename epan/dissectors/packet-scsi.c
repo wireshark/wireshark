@@ -5539,7 +5539,6 @@ proto_register_scsi (void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_scsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    data_handle = find_dissector ("data");
 
     /* add preferences to decode SCSI message */
     scsi_module = prefs_register_protocol (proto_scsi, NULL);
@@ -5561,5 +5560,5 @@ void
 proto_reg_handoff_scsi(void)
 {
     scsi_tap = register_tap("scsi");
-
+    data_handle = find_dissector ("data");
 }

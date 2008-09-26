@@ -354,20 +354,16 @@ void proto_register_roofnet(void)
 
 void proto_reg_handoff_roofnet(void)
 {
-  static gboolean initalised= FALSE;
   static dissector_handle_t roofnet_handle;
 
-  if (!initalised) {
-    /* Until now there is no other option than having an IPv4 payload (maybe
-     * extended one day to IPv6 or other?) */
-    ip_handle = find_dissector("ip");
-    roofnet_handle = create_dissector_handle(dissect_roofnet, proto_roofnet);
-    /* I did not put the type numbers in the ethertypes.h as they only are
-     * experimental and not official */
-    dissector_add("ethertype", 0x0641, roofnet_handle);
-    dissector_add("ethertype", 0x0643, roofnet_handle);
-    dissector_add("ethertype", 0x0644, roofnet_handle);
-    dissector_add("ethertype", 0x0645, roofnet_handle);
-    initalised= TRUE;
-  }
+  /* Until now there is no other option than having an IPv4 payload (maybe
+   * extended one day to IPv6 or other?) */
+  ip_handle = find_dissector("ip");
+  roofnet_handle = create_dissector_handle(dissect_roofnet, proto_roofnet);
+  /* I did not put the type numbers in the ethertypes.h as they only are
+   * experimental and not official */
+  dissector_add("ethertype", 0x0641, roofnet_handle);
+  dissector_add("ethertype", 0x0643, roofnet_handle);
+  dissector_add("ethertype", 0x0644, roofnet_handle);
+  dissector_add("ethertype", 0x0645, roofnet_handle);
 }

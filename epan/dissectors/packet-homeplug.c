@@ -820,16 +820,12 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     ptvcursor_free(cursor);
 }
 
-static dissector_handle_t homeplug_handle;
 
 void
 proto_reg_handoff_homeplug(void)
 {
-  static gboolean initialised = FALSE;
+  dissector_handle_t homeplug_handle;
 
-  if (!initialised) {
-    homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
-    dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
-    initialised = TRUE;
-  }
+  homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
+  dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
 }

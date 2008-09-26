@@ -293,14 +293,10 @@ proto_register_i2c(void)
 void
 proto_reg_handoff_i2c(void)
 {
-	static gboolean inited = FALSE;
-	if (!inited) {
-		dissector_handle_t i2c_handle;
+	dissector_handle_t i2c_handle;
 
-		sub_handles[SUB_DATA] = find_dissector("data");
-		sub_handles[SUB_IPMB] = find_dissector("ipmi");
-		i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
-		dissector_add("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
-		inited = TRUE;
-	}
+	sub_handles[SUB_DATA] = find_dissector("data");
+	sub_handles[SUB_IPMB] = find_dissector("ipmi");
+	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
+	dissector_add("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
 }
