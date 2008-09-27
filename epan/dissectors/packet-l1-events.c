@@ -51,9 +51,6 @@ static gint proto_l1_events = -1;
 /* Subtrees */
 static gint ett_l1_events = -1;
 
-/* Dissector handles */
-static dissector_handle_t l1_events_handle;
-
 static void
 dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -138,15 +135,14 @@ proto_register_l1_events(void)
 			"Layer 1 Event Messages", /* Long name */
 			"Layer 1 Events",	  /* Short name */
 			"data-l1-events");		/* Filter name */
-	register_dissector("data-l1-events", dissect_l1_events, 
-			   proto_l1_events);
+	register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
 }
 
 void
 proto_reg_handoff_l1_events(void)
 {
-	l1_events_handle = create_dissector_handle(
-					dissect_l1_events, proto_l1_events);
+	dissector_handle_t l1_events_handle;
 
+	l1_events_handle = find_dissector("data-l1-events");
         dissector_add("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
 }

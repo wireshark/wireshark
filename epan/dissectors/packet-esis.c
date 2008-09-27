@@ -439,6 +439,7 @@ proto_register_esis(void) {
   proto_esis = proto_register_protocol( PROTO_STRING_ESIS, "ESIS", "esis");
   proto_register_field_array(proto_esis, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_dissector("esis", dissect_esis, proto_esis);
 }
 
 void
@@ -446,7 +447,6 @@ proto_reg_handoff_esis(void)
 {
   dissector_handle_t esis_handle;
 
-  esis_handle = create_dissector_handle(dissect_esis, proto_esis);
-  register_dissector("esis", dissect_esis, proto_esis);
+  esis_handle = find_dissector("esis");
   dissector_add("osinl", NLPID_ISO9542_ESIS, esis_handle);
 }

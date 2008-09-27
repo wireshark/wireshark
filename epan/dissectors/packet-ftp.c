@@ -735,17 +735,15 @@ proto_register_ftp(void)
   register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  ftpdata_handle = create_dissector_handle(dissect_ftpdata, proto_ftp_data);
 }
 
 void
 proto_reg_handoff_ftp(void)
 {
-  dissector_handle_t ftpdata_handle, ftp_handle;
+  dissector_handle_t ftp_handle;
 
-  ftpdata_handle = create_dissector_handle(dissect_ftpdata, proto_ftp_data);
+  ftpdata_handle = find_dissector("ftp-data");
   dissector_add("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
-  ftp_handle = create_dissector_handle(dissect_ftp, proto_ftp);
+  ftp_handle = find_dissector("ftp");
   dissector_add("tcp.port", TCP_PORT_FTP, ftp_handle);
 }

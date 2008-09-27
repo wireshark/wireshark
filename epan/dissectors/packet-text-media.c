@@ -56,9 +56,6 @@ static gint proto_text_lines = -1;
 /* Subtrees */
 static gint ett_text_lines = -1;
 
-/* Dissector handles */
-static dissector_handle_t text_lines_handle;
-
 static void
 dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -140,8 +137,9 @@ proto_register_text_lines(void)
 void
 proto_reg_handoff_text_lines(void)
 {
-	text_lines_handle = create_dissector_handle(
-					dissect_text_lines, proto_text_lines);
+	dissector_handle_t text_lines_handle;
+
+	text_lines_handle = find_dissector("data-text-lines");
 
 	dissector_add_string("media_type", "text/plain", text_lines_handle); /* RFC 2046 */
 	dissector_add_string("media_type", "text/richtext", text_lines_handle);  /* RFC 1341 */

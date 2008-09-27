@@ -111,7 +111,7 @@ gssapi_reassembly_init(void)
  * Subdissectors
  */
 
-static dissector_handle_t ntlmssp_handle = NULL;
+static dissector_handle_t ntlmssp_handle;
 
 static GHashTable *gssapi_oids;
 
@@ -629,6 +629,6 @@ proto_reg_handoff_gssapi(void)
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
 					  &gssapi_auth_fns);
 
-	gssapi_handle = create_dissector_handle(dissect_gssapi,	proto_gssapi);
+	gssapi_handle = find_dissector("gssapi");
 	dissector_add_string("dns.tsig.mac", "gss.microsoft.com", gssapi_handle);
 }

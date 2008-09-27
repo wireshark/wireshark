@@ -753,8 +753,8 @@ static gint ett_smb_posix_ace_perms = -1;
 
 static int smb_tap = -1;
 
-static dissector_handle_t gssapi_handle = NULL;
-static dissector_handle_t ntlmssp_handle = NULL;
+static dissector_handle_t gssapi_handle;
+static dissector_handle_t ntlmssp_handle;
 
 static const fragment_items smb_frag_items = {
 	&ett_smb_segment,
@@ -19233,10 +19233,10 @@ proto_reg_handoff_smb(void)
 	heur_dissector_add("netbios", dissect_smb_heur, proto_smb);
 	heur_dissector_add("cotp", dissect_smb_heur, proto_smb);
 	heur_dissector_add("vines_spp", dissect_smb_heur, proto_smb);
-	smb_handle = create_dissector_handle(dissect_smb, proto_smb);
+
+	smb_handle = find_dissector("smb");
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER,
-	    smb_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER, smb_handle);
 	dissector_add("spp.socket", IDP_SOCKET_SMB, smb_handle);
 }
