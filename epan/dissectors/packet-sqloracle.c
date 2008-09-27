@@ -90,8 +90,6 @@ static int hf_sqloracle_itemNum = -1;
 static int hf_sqloracle_numItersThisTime = -1;
 static int hf_sqloracle_uacBufLength = -1;
 
-static dissector_handle_t data_handle;
-static	dissector_handle_t sqloracle_handle;
 static char m_pCurQuery[2025];
 
 static int m_numOfUpdate =0;
@@ -779,9 +777,9 @@ proto_register_sqloracle(void)
 void
 proto_reg_handoff_sqloracle(void)
 {
+	dissector_handle_t sqloracle_handle;
 
-	sqloracle_handle = create_dissector_handle(dissect_sqloracle, proto_sqloracle);
+	sqloracle_handle = find_dissector("sqloracle");
 	dissector_add("tns.port", TCP_PORT_TNS, sqloracle_handle);
-	data_handle = find_dissector("data");
 }
 

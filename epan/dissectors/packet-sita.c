@@ -280,30 +280,23 @@ proto_register_sita(void)
 void
 proto_reg_handoff_sita(void)
 {
-	static gboolean				inited = FALSE;
-	static dissector_handle_t	lapb_handle;
-	static dissector_handle_t	frame_relay_handle;
-	static dissector_handle_t	uts_handle;
-	static dissector_handle_t	ipars_handle;
+	dissector_handle_t	lapb_handle;
+	dissector_handle_t	frame_relay_handle;
+	dissector_handle_t	uts_handle;
+	dissector_handle_t	ipars_handle;
+	dissector_handle_t	sita_handle;
 
-	if (!inited) {
-		dissector_handle_t sita_handle;
+	lapb_handle		= find_dissector("lapb");
+	frame_relay_handle	= find_dissector("fr");
+	uts_handle		= find_dissector("uts");
+	ipars_handle		= find_dissector("ipars");
+	sita_handle 		= find_dissector("sita");
+	data_handle		= find_dissector("data");
 
-		lapb_handle			= find_dissector("lapb");
-		frame_relay_handle	= find_dissector("fr");
-		uts_handle			= find_dissector("uts");
-		ipars_handle		= find_dissector("ipars");
-		data_handle			= find_dissector("data");
-
-		sita_handle = create_dissector_handle(dissect_sita, proto_sita);
-		dissector_add("wtap_encap", WTAP_ENCAP_SITA,		sita_handle);
-
-		dissector_add("sita.proto", SITA_PROTO_ALC,			ipars_handle);
-		dissector_add("sita.proto", SITA_PROTO_UTS,			uts_handle);
-		dissector_add("sita.proto", SITA_PROTO_BOP_LAPB,	lapb_handle);
-		dissector_add("sita.proto", SITA_PROTO_BOP_FRL,		frame_relay_handle);
-
-		inited = TRUE;
-	}
+	dissector_add("sita.proto", SITA_PROTO_BOP_LAPB,	lapb_handle);
+	dissector_add("sita.proto", SITA_PROTO_BOP_FRL,		frame_relay_handle);
+	dissector_add("sita.proto", SITA_PROTO_UTS,		uts_handle);
+	dissector_add("sita.proto", SITA_PROTO_ALC,		ipars_handle);
+	dissector_add("wtap_encap", WTAP_ENCAP_SITA,		sita_handle);
 }
 

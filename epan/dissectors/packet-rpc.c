@@ -3824,9 +3824,7 @@ proto_register_rpc(void)
 		&rpc_find_fragment_start);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
-	rpc_handle = find_dissector("rpc");
 	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
-	rpc_tcp_handle = find_dissector("rpc-tcp");
 	rpc_tap = register_tap("rpc");
 
 	/*
@@ -3847,9 +3845,6 @@ proto_register_rpc(void)
 void
 proto_reg_handoff_rpc(void)
 {
-	dissector_handle_t rpc_tcp_handle;
-	dissector_handle_t rpc_udp_handle;
-
 	/* tcp/udp port 111 is used by portmapper which is an onc-rpc service.
 	   we register onc-rpc on this port so that we can choose RPC in
 	   the list offered by DecodeAs, and so that traffic to or from
@@ -3858,10 +3853,10 @@ proto_reg_handoff_rpc(void)
 	   probably RPC traffic from some randomly-chosen port that happens
 	   to match some port for which we have a dissector)
 	*/
-	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
+	rpc_tcp_handle = find_dissector("rpc-tcp");
 	dissector_add("tcp.port", 111, rpc_tcp_handle);
-	rpc_udp_handle = create_dissector_handle(dissect_rpc, proto_rpc);
-	dissector_add("udp.port", 111, rpc_udp_handle);
+	rpc_handle = find_dissector("rpc");
+	dissector_add("udp.port", 111, rpc_handle);
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);

@@ -268,9 +268,7 @@ static gint ett_dlci = -1;
 
 static char a_bigbuf[1024];
 
-static dissector_handle_t data_handle;
 static dissector_handle_t gsm_bsslap_handle = NULL;
-static dissector_handle_t bssmap_handle;
 static dissector_handle_t dtap_handle;
 
 static packet_info *g_pinfo;
@@ -3295,12 +3293,12 @@ proto_register_gsm_a_bssmap(void)
 void
 proto_reg_handoff_gsm_a_bssmap(void)
 {
+	dissector_handle_t bssmap_handle;
 
-	bssmap_handle = create_dissector_handle(dissect_bssmap, proto_a_bssmap);
-	dtap_handle = find_dissector("gsm_a_dtap");
-
+	bssmap_handle = find_dissector("gsm_a_bssmap");
 	dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
-	data_handle = find_dissector("data");
+
+	dtap_handle = find_dissector("gsm_a_dtap");
 	gsm_bsslap_handle = find_dissector("gsm_bsslap");
 }
 

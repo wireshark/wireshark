@@ -51,7 +51,6 @@
 #define X25_MBIT_MOD128			0x01
 
 static dissector_handle_t x25_handle;
-static dissector_handle_t xot_handle;
 
 static gint proto_xot = -1;
 static gint ett_xot = -1;
@@ -303,25 +302,10 @@ proto_register_xot(void)
 void
 proto_reg_handoff_xot(void)
 {
-   static gboolean initialized = FALSE;
-   static int currentPort = -1;
+  dissector_handle_t xot_handle;
 
-   if(!initialized) {
+  xot_handle = find_dissector("xot");
+  dissector_add("tcp.port", TCP_PORT_XOT, xot_handle);
 
-	/*
-	 * Get a handle for the X.25 dissector.
-	 */
-	x25_handle = find_dissector("x.25");
-
-	xot_handle = new_create_dissector_handle(dissect_xot_tcp_heur, proto_xot);
- 
-        initialized = TRUE;
-   }
-
-   if (currentPort != -1) {
-      dissector_delete("tcp.port", currentPort, xot_handle);
-   }
-   currentPort = TCP_PORT_XOT;
-
-   dissector_add("tcp.port", currentPort, xot_handle);
+  x25_handle = find_dissector("x.25");
 }

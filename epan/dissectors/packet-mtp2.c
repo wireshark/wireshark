@@ -62,7 +62,6 @@ static int hf_mtp2_sf_extra  = -1;
 static gint ett_mtp2       = -1;
 
 static dissector_handle_t mtp3_handle;
-static int mtp3_proto_id;
 static gboolean use_extended_sequence_numbers_default = FALSE;
 static gboolean use_extended_sequence_numbers         = FALSE;
 
@@ -418,11 +417,9 @@ proto_reg_handoff_mtp2(void)
 {
   dissector_handle_t mtp2_handle;
 
-  mtp2_handle = create_dissector_handle(dissect_mtp2, proto_mtp2);
-
+  mtp2_handle = find_dissector("mtp2");
   dissector_add("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR, mtp2_handle);
 
   mtp3_handle   = find_dissector("mtp3");
-  mtp3_proto_id = proto_get_id_by_filter_name("mtp3");
 }
