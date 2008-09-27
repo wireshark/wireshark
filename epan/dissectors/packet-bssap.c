@@ -58,7 +58,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
-static void init_bssap(void);
+void proto_reg_handoff_bssap(void);
 
 #define BSSAP 0
 #define BSAP  1
@@ -104,7 +104,6 @@ static const value_string bsap_pdu_type_acro_values[] = {
 #define SAPI_MASK		0x07
 
 static guint global_bssap_ssn = 98;
-static guint global_bssap_old_ssn = 98;
 
 static const value_string bssap_cc_values[] = {
     { 0x00,		"not further specified" },
@@ -358,7 +357,6 @@ static gint ett_bssap_plmn = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_handle;
-static dissector_handle_t bssap_plus_handle;
 
 static dissector_table_t bssap_dissector_table;
 static dissector_table_t bsap_dissector_table;
@@ -400,12 +398,14 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
 		if (bssap_or_bsap_global == BSSAP)
 		{
 			/* BSSAP */
-			if (dissector_try_port(bssap_dissector_table, pdu_type, tvb, pinfo, tree)) return;
+			if (dissector_try_port(bssap_dissector_table, pdu_type, tvb, pinfo, tree))
+				return;
 		}
 		else
 		{
 			/* BSAP */
-			if (dissector_try_port(bsap_dissector_table, pdu_type, tvb, pinfo, tree)) return;
+			if (dissector_try_port(bsap_dissector_table, pdu_type, tvb, pinfo, tree))
+				return;
 		}
 	}
 
@@ -2488,12 +2488,14 @@ proto_register_bssap(void)
 	proto_register_field_array(proto_bssap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	bssap_module = prefs_register_protocol(proto_bssap, NULL);
+	bssap_module = prefs_register_protocol(proto_bssap, proto_reg_handoff_bssap);
 
 	prefs_register_enum_preference(bssap_module,
 				       "bsap_or_bssap",
 				       "Identify to sub-dissector as",
-				       "For the sake of sub-dissectors registering to accept data from the BSSAP/BSAP dissector, this defines whether it is identified as BSSAP or BSAP.",
+				       "For the sake of sub-dissectors registering to accept data "
+				       "from the BSSAP/BSAP dissector, this defines whether it is "
+				       "identified as BSSAP or BSAP.",
 				       &bssap_or_bsap_global,
 				       bssap_or_bsap_options,
 				       FALSE);
@@ -2502,29 +2504,30 @@ proto_register_bssap(void)
 				       "Subsystem number used for BSSAP",
 				       "Set Subsystem number used for BSSAP/BSSAP+",
 				       10, &global_bssap_ssn);
-	global_bssap_old_ssn=global_bssap_ssn;
 	bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", FT_UINT8, BASE_DEC);
 	bsap_dissector_table = register_dissector_table("bsap.pdu_type", "BSAP Message Type", FT_UINT8, BASE_DEC);
-	register_init_routine(&init_bssap);
-}
-
-static void init_bssap(void) {
-	dissector_delete("sccp.ssn", global_bssap_old_ssn, bssap_plus_handle); 
-	dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
-	global_bssap_old_ssn=global_bssap_ssn;
 }
 
 void
 proto_reg_handoff_bssap(void)
 {
+	static gboolean initialized = FALSE;
+	static dissector_handle_t bssap_plus_handle;
+	static guint old_bssap_ssn;
 
-	heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
-	heur_dissector_add("sua", dissect_bssap_heur, proto_bssap);
-	/* BSSAP+ */
-	bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
+	if (!initialized) {
+		heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
+		heur_dissector_add("sua", dissect_bssap_heur, proto_bssap);
+		/* BSSAP+ */
+		bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
+
+		data_handle = find_dissector("data");
+		rrlp_handle = find_dissector("rrlp");
+		initialized = TRUE;
+	} else {
+		dissector_delete("sccp.ssn", old_bssap_ssn, bssap_plus_handle); 
+	}
+
 	dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
-
-	data_handle = find_dissector("data");
-	rrlp_handle = find_dissector("rrlp");
-
+	old_bssap_ssn = global_bssap_ssn;
 }
