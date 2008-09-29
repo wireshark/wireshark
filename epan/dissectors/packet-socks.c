@@ -1,6 +1,7 @@
 /* packet-socks.c
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
+ * Copyright 2008, Jelmer Vernooij <jelmer@samba.org>
  *
  * $Id$
  *
@@ -123,6 +124,9 @@ static int hf_socks_ver = -1;
 static int hf_socks_ip_dst = -1;
 static int hf_socks_ip6_dst = -1;
 static int hf_user_name = -1;
+static int hf_gssapi_payload = -1;
+static int hf_gssapi_command = -1;
+static int hf_gssapi_length = -1;
 static int hf_v4a_dns_name = -1;
 static int hf_socks_dstport = -1;
 static int hf_socks_cmd = -1;
@@ -149,7 +153,7 @@ enum SockState {
 	UserNameAuth,
 	UserNameAuthReply,
 	GssApiAuth,
-	AuthReply,
+	GssApiAuthReply,
 	Done
 };
 
@@ -174,6 +178,9 @@ typedef struct {
 	row_pointer_type 	auth_method_row;
 	row_pointer_type	user_name_auth_row;
 	row_pointer_type	auth_version;
+	row_pointer_type	gssapi_auth_row;
+	row_pointer_type	gssapi_auth_reply_row;
+	row_pointer_type	gssapi_auth_failure_row;
 	guint32 start_done_row;
 
 	guint32	dst_addr;	/* this needs to handle IPv6 */
@@ -225,6 +232,12 @@ static const value_string cmd_strings[] = {
 	{0x80, "Ping"},
 	{0x81, "Traceroute"},
 	{0, NULL}
+};
+
+static const value_string gssapi_command_table[] = {
+	{ 1, "Authentication" },
+	{ 0xFF, "Failure" },
+	{ 0, NULL }
 };
 
 
@@ -614,6 +627,25 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree_add_text( tree, tvb, offset, 1, "Status: success");
 		offset ++;
 	}
+	else if (compare_packet( hash_info->gssapi_auth_row)) {
+		guint16 len;
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
+		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
+		len = tvb_get_ntohs(tvb, offset+1);
+		if (len > 0)
+			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, FALSE);
+	}
+	else if (compare_packet( hash_info->gssapi_auth_failure_row)) {
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
+	}
+	else if (compare_packet( hash_info->gssapi_auth_reply_row)) {
+		guint16 len;
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
+		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
+		len = tvb_get_ntohs(tvb, offset+1);
+		if (len > 0) 
+			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, FALSE);
+	}
 	else if ((compare_packet( hash_info->command_row)) ||
 	         (compare_packet( hash_info->cmd_reply_row)) ||
 	         (compare_packet( hash_info->bind_reply_row))){
@@ -784,8 +816,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			hash_info->state = UserNameAuth;
 
 		else if ( AuthMethod == GSS_API_AUTHENTICATION)
-/*XXX should be this 		hash_info->state = GssApiAuth; */
-			hash_info->state = Done;
+			hash_info->state = GssApiAuth;
 
 		else	hash_info->state = Done;	/*Auth failed or error*/
 
@@ -856,16 +887,39 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 		hash_info->state = Done;
 	}
 	else if ( hash_info->state == UserNameAuth) {	/* Handle V5 User Auth*/
-		hash_info->auth_version = get_packet_ptr;
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO,
 				" User authentication request");
 
 		hash_info->user_name_auth_row = get_packet_ptr;
-		hash_info->state = AuthReply;
+		hash_info->state = UserNameAuthReply;
 
 	}
-	else if ( hash_info->state == AuthReply){	/* V5 User Auth reply */
+	else if ( hash_info->state == GssApiAuth) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO,
+						   " GSSAPI Authentication request");
+		hash_info->gssapi_auth_row = get_packet_ptr;
+		hash_info->state = GssApiAuthReply;
+	}
+	else if ( hash_info->state == GssApiAuthReply) {
+		if (tvb_get_guint8(tvb, offset+1) == 0xFF) {
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+							   " GSSAPI Authentication failure");
+			hash_info->gssapi_auth_failure_row = get_packet_ptr;
+		} else {
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+							   " GSSAPI Authentication reply");
+			if (tvb_get_ntohs(tvb, offset+2) == 0)
+				hash_info->state = V5Command;
+			else 
+				hash_info->state = GssApiAuth;
+			hash_info->gssapi_auth_reply_row = get_packet_ptr;
+		}
+	}
+	else if ( hash_info->state == UserNameAuthReply){	/* V5 User Auth reply */
 		hash_info->auth_version = get_packet_ptr;
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
@@ -1149,12 +1203,26 @@ proto_register_socks( void){
 				0x0, "", HFILL
 			}
 		},
-
-                { &hf_user_name,
-                	{ "User Name", "socks.username", FT_STRINGZ, BASE_NONE,
-                		 NULL, 0x0, "", HFILL
-                	}
-                },
+		{ &hf_user_name,
+			{ "User Name", "socks.username", FT_STRINGZ, BASE_NONE, NULL,
+				0x0, "", HFILL
+			}
+		},
+		{ &hf_gssapi_payload,
+			{ "GSSAPI data", "socks.gssapi.data", FT_BYTES, BASE_NONE, NULL,
+				0x0, "", HFILL
+			}
+		},
+		{ &hf_gssapi_command,
+			{ "SOCKS/GSSAPI command", "socks.gssapi.command", FT_UINT8, BASE_DEC,
+				VALS(gssapi_command_table), 0x0, "", HFILL
+			}
+		},
+		{ &hf_gssapi_length,
+			{ "SOCKS/GSSAPI data length", "socks.gssapi.length", FT_UINT16, BASE_DEC, NULL,
+				0x0, "", HFILL
+			}
+		},
 		{ &hf_v4a_dns_name,
 			{ "SOCKS v4a Remote Domain Name", "socks.v4a_dns_name", FT_STRINGZ, BASE_NONE,
 				NULL, 0x0, "", HFILL
