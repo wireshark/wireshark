@@ -373,6 +373,7 @@ static int proto_a_dtap = -1;
 
 static int hf_gsm_a_dtap_msg_mm_type = -1;
 static int hf_gsm_a_dtap_msg_cc_type = -1;
+static int hf_gsm_a_seq_no = -1;
 static int hf_gsm_a_dtap_msg_sms_type = -1;
 static int hf_gsm_a_dtap_msg_ss_type = -1;
 static int hf_gsm_a_dtap_msg_tp_type = -1;
@@ -5528,14 +5529,16 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* XXX */
 	}
-
+	/* In case of Mobility Management and Call Control and Call related SS messages
+	 * bit 7 and 8 is sequence number
+	 */
+	if((pd==5)||(pd==3)){
+		proto_tree_add_item(dtap_tree, hf_gsm_a_seq_no, tvb, offset, 1, FALSE);
+	}
 	/*
 	 * add DTAP message name
 	 */
-	proto_tree_add_uint_format(dtap_tree, hf_idx,
-		tvb, offset, 1, oct,
-		"Message Type %s",msg_str ? msg_str : "(Unknown)");
-
+	proto_tree_add_item(dtap_tree, hf_idx, tvb, offset, 1, FALSE);
 	offset++;
 
 	tap_p->pdu_type = GSM_A_PDU_TYPE_DTAP;
@@ -5575,14 +5578,19 @@ proto_register_gsm_a_dtap(void)
 
 	static hf_register_info hf[] =
 	{
+	{ &hf_gsm_a_seq_no,
+		{ "Sequence number", "gsm_a.dtap_seq_no",
+		FT_UINT8, BASE_DEC, NULL, 0xc0,
+		"", HFILL }
+	},
 	{ &hf_gsm_a_dtap_msg_mm_type,
 		{ "DTAP Mobility Management Message Type", "gsm_a.dtap_msg_mm_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_mm_strings), 0x0,
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_mm_strings), 0x3f,
 		"", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_cc_type,
 		{ "DTAP Call Control Message Type", "gsm_a.dtap_msg_cc_type",
-		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_cc_strings), 0x0,
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_cc_strings), 0x3f,
 		"", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_sms_type,

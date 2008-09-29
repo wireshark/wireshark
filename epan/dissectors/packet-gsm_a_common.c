@@ -1175,7 +1175,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
 
-	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
 	proto_tree_add_item(subtree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
 
