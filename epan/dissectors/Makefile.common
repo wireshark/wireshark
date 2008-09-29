@@ -487,6 +487,7 @@ DISSECTOR_SRC = \
 	packet-icp.c		\
 	packet-icq.c		\
 	packet-idp.c		\
+	packet-iec104.c		\
 	packet-ieee80211.c	\
 	packet-ieee802154.c	\
 	packet-ieee8021ah.c	\
