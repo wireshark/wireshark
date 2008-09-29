@@ -235,6 +235,7 @@ DISSECTOR_SRC = \
 	packet-atm.c		\
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
+	packet-ayiya.c		\
 	packet-bacapp.c		\
 	packet-bacnet.c		\
 	packet-bat-batman.c	\
