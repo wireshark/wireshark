@@ -1444,6 +1444,60 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     break;
 
   case T_DNSKEY:  
+    {
+      int rr_len = data_len;
+      guint16 flags;
+      proto_item *tf;
+      proto_tree *flags_tree;
+      guint8 algo;
+      guint16 key_id;
+
+      if (dns_tree != NULL) {
+	if (rr_len < 2)
+	  goto bad_rr;
+        flags = tvb_get_ntohs(tvb, cur_offset);
+	tf = proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Flags: 0x%04X", flags);
+	flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
+	proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0100,
+		  2*8, "This is the zone key for the specified zone",
+		       "This is not a zone key"));
+	proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0080, 
+		  2*8, "Key is revoked",
+		       "Key is not revoked"));
+	proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0001, 
+		  2*8, "Key is a Key Signing Key",
+		       "Key is a Zone Signing Key"));
+	
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (rr_len < 1)
+	  goto bad_rr;
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %u",
+		tvb_get_guint8(tvb, cur_offset));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	if (rr_len < 1)
+	  goto bad_rr;
+	algo = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
+		val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
+	proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+
+	if (rr_len != 0)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+      }
+    }
+    break;
+
   case T_KEY:
     {
       int rr_len = data_len;
@@ -1482,10 +1536,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		  2*8, "Key is associated with the named entity",
 		       "Key is not associated with the named entity"));
 	  proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-		decode_boolean_bitfield(flags, 0x0100,
-		  2*8, "This is the zone key for the specified zone",
-		       "This is not a zone key"));
-	  proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
 		decode_boolean_bitfield(flags, 0x0080,
 		  2*8, "Key is valid for use with IPSEC",
 		       "Key is not valid for use with IPSEC"));
@@ -1493,14 +1543,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		decode_boolean_bitfield(flags, 0x0040,
 		  2*8, "Key is valid for use with MIME security multiparts",
 		       "Key is not valid for use with MIME security multiparts"));
-	  if( type != T_DNSKEY )
-	        proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
-		    decode_numeric_bitfield(flags, 0x000F,
-		       2*8, "Signatory = %u"));
-	    else proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
- 	            decode_boolean_bitfield(flags, 0x0001, 
-		       2*8, "Key is a Key Signing Key",
-		            "Key is a Zone Signing Key") );
+	  proto_tree_add_text(flags_tree, tvb, cur_offset, 2, "%s",
+		decode_numeric_bitfield(flags, 0x000F,
+		  2*8, "Signatory = %u"));
 	}
 	cur_offset += 2;
 	rr_len -= 2;
