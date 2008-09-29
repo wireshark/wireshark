@@ -685,10 +685,12 @@ check_libs:
 #  (or dummy file doesn't exist because of 'make clean' or whatever)
 # (To disable library verification when Makefile.nmake changes,
 #  comment out the commands for the following target).
-# touch is only called if libverify succeeds
+# touch is only called if libverify succeeds.
+#  (One microsec is added to the makefile.nmake time since the time set by [cygwin ?] 'touch --reference' 
+#   apparently has the nanosecs truncated from the reference file time [at least on Windows Vista]).
 $(LIBS_CHECK): Makefile.nmake
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN32_SETUP_OPT=--libverify process_libs
-	@touch --reference=Makefile.nmake $@
+	@touch --reference=Makefile.nmake -d "+0.000001 sec" $@
 
 # Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
 # A clean_setup is done first to ensure that the target dirs don't
