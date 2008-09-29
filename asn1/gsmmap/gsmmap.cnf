@@ -152,6 +152,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 %(DEFAULT_BODY)s 
   if (check_col(actx->pinfo->cinfo, COL_INFO)){
     col_append_str(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   }
 
 #.FN_PARS  GSMMAPLocalErrorcode
