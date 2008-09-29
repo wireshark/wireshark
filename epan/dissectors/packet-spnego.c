@@ -79,6 +79,14 @@ static int hf_spnego_krb5_seal_alg = -1;
 static int hf_spnego_krb5_snd_seq = -1;
 static int hf_spnego_krb5_sgn_cksum = -1;
 static int hf_spnego_krb5_confounder = -1;
+static int hf_spnego_krb5_filler = -1;
+static int hf_spnego_krb5_cfx_flags = -1;
+static int hf_spnego_krb5_cfx_flags_01 = -1;
+static int hf_spnego_krb5_cfx_flags_02 = -1;
+static int hf_spnego_krb5_cfx_flags_04 = -1;
+static int hf_spnego_krb5_cfx_ec = -1;
+static int hf_spnego_krb5_cfx_rrc = -1;
+static int hf_spnego_krb5_cfx_seq = -1;
 
 
 /*--- Included file: packet-spnego-hf.c ---*/
@@ -107,7 +115,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 76 "packet-spnego-template.c"
+#line 84 "packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -119,6 +127,7 @@ gboolean saw_mechanism = FALSE;
 static gint ett_spnego;
 static gint ett_spnego_wraptoken;
 static gint ett_spnego_krb5 = -1;
+static gint ett_spnego_krb5_cfx_flags = -1;
 
 
 /*--- Included file: packet-spnego-ett.c ---*/
@@ -132,7 +141,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 89 "packet-spnego-template.c"
+#line 98 "packet-spnego-template.c"
 
 static dissector_handle_t data_handle;
 
@@ -597,7 +606,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 102 "packet-spnego-template.c"
+#line 111 "packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -610,6 +619,8 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 #define KRB_TOKEN_GETMIC		0x0101
 #define KRB_TOKEN_WRAP			0x0102
 #define KRB_TOKEN_DELETE_SEC_CONTEXT	0x0201
+#define KRB_TOKEN_CFX_GETMIC		0x0404
+#define KRB_TOKEN_CFX_WRAP		0x0405
 
 static const value_string spnego_krb5_tok_id_vals[] = {
   { KRB_TOKEN_AP_REQ,             "KRB5_AP_REQ"},
@@ -618,6 +629,8 @@ static const value_string spnego_krb5_tok_id_vals[] = {
   { KRB_TOKEN_GETMIC,             "KRB5_GSS_GetMIC" },
   { KRB_TOKEN_WRAP,               "KRB5_GSS_Wrap" },
   { KRB_TOKEN_DELETE_SEC_CONTEXT, "KRB5_GSS_Delete_sec_context" },
+  { KRB_TOKEN_CFX_GETMIC,         "KRB_TOKEN_CFX_GetMic" },
+  { KRB_TOKEN_CFX_WRAP,	          "KRB_TOKEN_CFX_WRAP" },
   { 0, NULL}
 };
 
@@ -656,6 +669,10 @@ static int
 dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int
 dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id);
+static int
+dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+static int
+dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id);
 
 static void
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -783,12 +800,21 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  break;
 
+	case KRB_TOKEN_CFX_GETMIC:
+	  offset = dissect_spnego_krb5_cfx_getmic_base(tvb, offset, pinfo, subtree);
+	  break;
+
+	case KRB_TOKEN_CFX_WRAP:
+          offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id);
+	  break;
+
 	default:
 
 	  break;
 	}
 
  done:
+	proto_item_set_len(item, offset);
 	return;
 }
 
@@ -1324,6 +1350,192 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	return offset;
 }
 
+static int
+dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
+			      proto_tree *spnego_krb5_tree,
+			      guint8 cfx_flags)
+{
+	proto_tree *cfx_flags_tree = NULL;
+	proto_item *tf = NULL;
+
+	if (spnego_krb5_tree) {
+		tf = proto_tree_add_uint(spnego_krb5_tree,
+					 hf_spnego_krb5_cfx_flags,
+					 tvb, offset, 1, cfx_flags);
+		cfx_flags_tree = proto_item_add_subtree(tf, ett_spnego_krb5_cfx_flags);
+	}
+
+	proto_tree_add_boolean(cfx_flags_tree,
+			       hf_spnego_krb5_cfx_flags_04,
+			       tvb, offset, 1, cfx_flags);
+	proto_tree_add_boolean(cfx_flags_tree,
+			       hf_spnego_krb5_cfx_flags_02,
+			       tvb, offset, 1, cfx_flags);
+	proto_tree_add_boolean(cfx_flags_tree,
+			       hf_spnego_krb5_cfx_flags_01,
+			       tvb, offset, 1, cfx_flags);
+
+	return (offset + 1);
+}
+
+/*
+ * XXX - This is for GSSAPI CFX Wrap tokens ...
+ */
+static int
+dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
+#ifndef HAVE_KERBEROS
+	_U_
+#endif
+    , proto_tree *tree, guint16 token_id _U_
+    )
+{
+	guint8 flags;
+	guint16 ec;
+	guint16 rrc;
+	int checksum_size;
+#ifdef HAVE_KERBEROS
+	int start_offset=offset;
+#endif
+
+	/*
+	 * The KRB5 blob conforms to RFC4121:
+	 *   USHORT (0x0504)
+	 *   and so on }
+	 */
+
+	/* Now, the sign and seal algorithms ... */
+
+	flags = tvb_get_guint8(tvb, offset);
+	offset = dissect_spnego_krb5_cfx_flags(tvb, offset, tree, flags);
+
+	pinfo->gssapi_data_encrypted=(flags & 2);
+
+	/* Skip the filler */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_filler, tvb, offset, 1,
+			    FALSE);
+	offset += 1;
+
+	/* EC */
+	ec = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_spnego_krb5_cfx_ec, tvb, offset, 2,
+			    FALSE);
+	offset += 2;
+
+	/* RRC */
+	rrc = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_spnego_krb5_cfx_rrc, tvb, offset, 2,
+			    FALSE);
+	offset += 2;
+
+	/* sequence number */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8,
+			    FALSE);
+	offset += 8;
+
+	/* Checksum of plaintext padded data */
+
+	if (pinfo->gssapi_data_encrypted) {
+		checksum_size = 44 + ec;
+	} else {
+		checksum_size = 12;
+	}
+
+	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
+			    checksum_size, FALSE);
+	offset += checksum_size;
+
+	if(pinfo->decrypt_gssapi_tvb){
+		/* if the caller did not provide a tvb, then we just use
+		   whatever is left of our current tvb.
+		*/
+		if(!pinfo->gssapi_encrypted_tvb){
+			int len;
+			len=tvb_reported_length_remaining(tvb,offset);
+			if(len>tvb_length_remaining(tvb, offset)){
+				/* no point in trying to decrypt,
+				   we dont have the full pdu.
+				*/
+				return offset;
+			}
+			pinfo->gssapi_encrypted_tvb = tvb_new_subset(
+					tvb, offset, len, len);
+		}
+
+		if (pinfo->gssapi_data_encrypted) {
+			/* do we need to create a tvb for the wrapper
+			   as well ?
+			*/
+			if(!pinfo->gssapi_wrap_tvb){
+				pinfo->gssapi_wrap_tvb = tvb_new_subset(
+					tvb, start_offset-2,
+					offset - (start_offset-2),
+					offset - (start_offset-2));
+			}
+		}
+	}
+
+	/*
+	 * Return the offset past the checksum, so that we know where
+	 * the data we're wrapped around starts.  Also, set the length
+	 * of our top-level item to that offset, so it doesn't cover
+	 * the data we're wrapped around.
+	 *
+	 * Note that for DCERPC the GSSAPI blobs comes after the data it wraps,
+	 * not before.
+	 */
+	return offset;
+}
+
+/*
+ * XXX - This is for GSSAPI CFX GetMIC tokens ...
+ */
+static int
+dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 flags;
+	int checksum_size;
+
+	/*
+	 * The KRB5 blob conforms to RFC4121:
+	 *   USHORT (0x0404 == GSS_GetMIC)
+	 *   and so on }
+	 */
+
+	flags = tvb_get_guint8(tvb, offset);
+	offset = dissect_spnego_krb5_cfx_flags(tvb, offset, tree, flags);
+
+	/* Skip the filler */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_filler, tvb, offset, 5,
+			    FALSE);
+	offset += 5;
+
+	/* sequence number */
+
+	proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8,
+			    FALSE);
+	offset += 8;
+
+	/* Checksum of plaintext padded data */
+
+	checksum_size = tvb_length_remaining(tvb, offset);
+
+	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
+			    checksum_size, FALSE);
+	offset += checksum_size;
+
+	/*
+	 * Return the offset past the checksum, so that we know where
+	 * the data we're wrapped around starts.  Also, set the length
+	 * of our top-level item to that offset, so it doesn't cover
+	 * the data we're wrapped around.
+	 */
+
+	return offset;
+}
+
 /*
  * XXX - is this for SPNEGO or just GSS-API?
  * RFC 1964 is "The Kerberos Version 5 GSS-API Mechanism"; presumably one
@@ -1357,7 +1569,27 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	offset += 2;
 
-        offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id);
+	switch (token_id) {
+	case KRB_TOKEN_GETMIC:
+	  offset = dissect_spnego_krb5_getmic_base(tvb, offset, pinfo, subtree);
+	  break;
+
+	case KRB_TOKEN_WRAP:
+          offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id);
+	  break;
+
+	case KRB_TOKEN_CFX_GETMIC:
+	  offset = dissect_spnego_krb5_cfx_getmic_base(tvb, offset, pinfo, subtree);
+	  break;
+
+	case KRB_TOKEN_CFX_WRAP:
+          offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id);
+	  break;
+
+	default:
+
+	  break;
+	}
 
         /*
 	 * Return the offset past the checksum, so that we know where
@@ -1514,6 +1746,30 @@ void proto_register_spnego(void) {
 		{ &hf_spnego_krb5_confounder,
 		  { "krb5_confounder", "spnego.krb5.confounder", FT_BYTES, BASE_NONE,
 		    NULL, 0, "KRB5 Confounder", HFILL}},
+		{ &hf_spnego_krb5_filler,
+		  { "krb5_filler", "spnego.krb5.filler", FT_BYTES, BASE_HEX,
+		    NULL, 0, "KRB5 Filler", HFILL}},
+		{ &hf_spnego_krb5_cfx_flags,
+		  { "krb5_cfx_flags", "spnego.krb5.cfx_flags", FT_UINT8, BASE_HEX,
+		    NULL, 0, "KRB5 CFX Flags", HFILL}},
+		{ &hf_spnego_krb5_cfx_flags_01,
+		  { "SendByAcceptor", "spnego.krb5.send_by_acceptor", FT_BOOLEAN, 8,
+		    TFS (&flags_set_truth), 0x01, "", HFILL}},
+		{ &hf_spnego_krb5_cfx_flags_02,
+		  { "Sealed", "spnego.krb5.sealed", FT_BOOLEAN, 8,
+		    TFS (&flags_set_truth), 0x02, "", HFILL}},
+		{ &hf_spnego_krb5_cfx_flags_04,
+		  { "AcceptorSubkey", "spnego.krb5.acceptor_subkey", FT_BOOLEAN, 8,
+		    TFS (&flags_set_truth), 0x04, "", HFILL}},
+		{ &hf_spnego_krb5_cfx_ec,
+		  { "krb5_cfx_ec", "spnego.krb5.cfx_ec", FT_UINT16, BASE_DEC,
+		    NULL, 0, "KRB5 CFX Extra Count", HFILL}},
+		{ &hf_spnego_krb5_cfx_rrc,
+		  { "krb5_cfx_rrc", "spnego.krb5.cfx_rrc", FT_UINT16, BASE_DEC,
+		    NULL, 0, "KRB5 CFX Right Rotation Count", HFILL}},
+		{ &hf_spnego_krb5_cfx_seq,
+		  { "krb5_cfx_seq", "spnego.krb5.cfx_seq", FT_UINT64, BASE_DEC,
+		    NULL, 0, "KRB5 Sequence Number", HFILL}},
 
 
 /*--- Included file: packet-spnego-hfarr.c ---*/
@@ -1604,7 +1860,7 @@ void proto_register_spnego(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1020 "packet-spnego-template.c"
+#line 1276 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1612,6 +1868,7 @@ void proto_register_spnego(void) {
 		&ett_spnego,
 		&ett_spnego_wraptoken,
 		&ett_spnego_krb5,
+		&ett_spnego_krb5_cfx_flags,
 
 
 /*--- Included file: packet-spnego-ettarr.c ---*/
@@ -1625,7 +1882,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1029 "packet-spnego-template.c"
+#line 1286 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */
@@ -1636,6 +1893,10 @@ void proto_register_spnego(void) {
 	proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5",
 						    "SPNEGO-KRB5",
 						    "spnego-krb5");
+
+	register_dissector("spnego-krb5", dissect_spnego_krb5, proto_spnego_krb5);
+	new_register_dissector("spnego-krb5-wrap", dissect_spnego_krb5_wrap, proto_spnego_krb5);
+
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
