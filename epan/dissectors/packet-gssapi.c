@@ -112,6 +112,7 @@ gssapi_reassembly_init(void)
  */
 
 static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t spnego_krb5_wrap_handle;
 
 static GHashTable *gssapi_oids;
 
@@ -309,8 +310,19 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  /* It could be NTLMSSP, with no OID.  This can happen 
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
 		  if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
-		    call_dissector(ntlmssp_handle, tvb_new_subset(gss_tvb, start_offset, -1, -1), pinfo, subtree);
-		    return_offset = tvb_length(gss_tvb);
+		    return_offset = call_dissector(ntlmssp_handle,
+						   tvb_new_subset(gss_tvb, start_offset, -1, -1),
+						   pinfo, subtree);
+		    goto done;
+		  }
+
+		  /* Maybe it's new GSSKRB5 CFX Wrapping */
+		  if ((tvb_length_remaining(gss_tvb, start_offset)>2) &&
+		      ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
+		       (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
+		    return_offset = call_dissector(spnego_krb5_wrap_handle,
+						   tvb_new_subset(gss_tvb, start_offset, -1, -1),
+						   pinfo, subtree);
 		    goto done;
 		  }
 
@@ -618,6 +630,7 @@ proto_reg_handoff_gssapi(void)
 	dissector_handle_t gssapi_handle;
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
