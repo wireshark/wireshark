@@ -7140,22 +7140,62 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	char *universal_ip_address = NULL;
 	char *protocol = NULL;
 	char *end;
-	guint32 test;
+#define MAX_ADDR_WORDS 6
+	guint16 words[MAX_ADDR_WORDS];
 	guint16 port;
-	
+	int addr_offset;
+	int cnt;
+
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_netid, offset, &protocol);
+	addr_offset = offset;
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_addr, offset, &universal_ip_address);
 	
 	if(strlen(protocol) == 3 && strncmp(protocol,"tcp",3) == 0) {
-		test = strtol(universal_ip_address, &end, 10);
-		test = strtol(end+1, &end, 10);
-		test = strtol(end+1, &end, 10);
-		test = strtol(end+1, &end, 10);
-		*end = '\0';
-		port = (((guint16)strtol(end+1, &end, 10)) << 8) | ((guint16)strtol(end+1, &end, 10));
-		
-		proto_tree_add_text(tree,tvb,0,0,"[callback ip address %s, protocol=%s, port=%u]",
-							universal_ip_address, protocol, port);
+		cnt = 0;
+		end = universal_ip_address;
+
+		while(1){
+			char *old_end;
+			if(cnt>=MAX_ADDR_WORDS){
+				break;
+			}
+			old_end = end;
+			words[cnt]=strtol(end, &end, 10);
+			if (end == old_end) {
+			   	/* initial '.' */
+				end++;
+				continue;
+			}
+			if(end==NULL){
+				break;
+			}
+			if(*end==0){
+				cnt++;
+				break;
+			}
+			cnt++;
+			end++;
+		}
+
+		switch (cnt) {
+		case 6:
+		     port = (words[4]<<8) | words[5];
+		     proto_tree_add_text(tree, tvb, addr_offset, offset,
+		     	"[callback ip address %d.%d.%d.%d, protocol=%s, port=%u]",
+				words[0], words[1], words[2], words[3],
+				protocol, port);
+		     break;
+		case 2:
+		     /* Some clients (linux) sometimes send only the port. */
+		     port = (words[0]<<8) | words[1];
+		     proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[callback ip address NOT SPECIFIED, protocol=%s, port=%u]",
+		     		protocol,
+				port);
+		     break;
+		default:
+			proto_tree_add_text(tree, tvb, addr_offset, offset-addr_offset, "[Invalid address]");
+
+		}
 	}
 
 	return offset;
