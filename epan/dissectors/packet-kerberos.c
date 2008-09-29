@@ -5372,10 +5372,30 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
+static dcerpc_auth_subdissector_fns gss_kerb_auth_connect_fns = {
 	wrap_dissect_gss_kerb,		        /* Bind */
 	wrap_dissect_gss_kerb,	 	        /* Bind ACK */
-	NULL,					/* AUTH3 */
+	wrap_dissect_gss_kerb,			/* AUTH3 */
+	NULL,					/* Request verifier */
+	NULL,					/* Response verifier */
+	NULL,					/* Request data */
+	NULL			        	/* Response data */
+};
+
+static dcerpc_auth_subdissector_fns gss_kerb_auth_sign_fns = {
+	wrap_dissect_gss_kerb,		        /* Bind */
+	wrap_dissect_gss_kerb,	 	        /* Bind ACK */
+	wrap_dissect_gss_kerb,			/* AUTH3 */
+	wrap_dissect_gssapi_verf, 		/* Request verifier */
+	wrap_dissect_gssapi_verf,		/* Response verifier */
+	NULL,					/* Request data */
+	NULL			        	/* Response data */
+};
+
+static dcerpc_auth_subdissector_fns gss_kerb_auth_seal_fns = {
+	wrap_dissect_gss_kerb,		        /* Bind */
+	wrap_dissect_gss_kerb,	 	        /* Bind ACK */
+	wrap_dissect_gss_kerb,			/* AUTH3 */
 	wrap_dissect_gssapi_verf, 		/* Request verifier */
 	wrap_dissect_gssapi_verf,		/* Response verifier */
 	wrap_dissect_gssapi_payload,            /* Request data */
@@ -5397,13 +5417,17 @@ proto_reg_handoff_kerberos(void)
     dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
 
+    register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
+				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
+				      &gss_kerb_auth_connect_fns);
+
     register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
 				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
-				      &gss_kerb_auth_fns);
+				      &gss_kerb_auth_sign_fns);
 
     register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
 				      DCE_C_RPC_AUTHN_PROTOCOL_GSS_KERBEROS,
-				      &gss_kerb_auth_fns);
+				      &gss_kerb_auth_seal_fns);
 
 }
 
