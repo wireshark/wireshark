@@ -2510,11 +2510,42 @@ lsa_dissect_LSA_TRANSLATED_SID2(tvbuff_t *tvb, int offset,
 }
 
 static int
+lsa_dissect_LSA_TRANSLATED_SID3(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	/* sid type */
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_sid_type, NULL);
+
+	/* sid */
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_index, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	return offset;
+}
+
+static int
 lsa_dissect_LSA_TRANSLATED_SIDS2_array(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_TRANSLATED_SID2);
+
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_SIDS3_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SID3);
 
 	return offset;
 }
@@ -2546,14 +2577,37 @@ lsa_dissect_LSA_TRANSLATED_SIDS2(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
 static int
-lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+lsa_dissect_LSA_TRANSLATED_SIDS3(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
 {
-	/* [in] LSA_HANDLE hnd */
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_TRANSLATED_SIDS:");
+		tree = proto_item_add_subtree(item, ett_LSA_TRANSLATED_SIDS);
+	}
+
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+	/* settings */
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS3_array, NDR_POINTER_UNIQUE,
+		"Translated SIDS", -1);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
+packet_info *pinfo, proto_tree *tree, guint8 *drep) { /* [in]
+LSA_HANDLE hnd */ offset = dissect_nt_policy_hnd(tvb, offset, pinfo,
+tree, drep, hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] ULONG count */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3460,6 +3514,71 @@ lsa_dissect_lsarlookupnames2_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsarlookupnames3_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
+
+	/* [in] ULONG count */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_count, NULL);
+
+	/* [in, size_is(count), ref] LSA_UNICODE_STRING *names */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_REF,
+		"Account pointer: names", hf_lsa_acct);
+
+	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS3, NDR_POINTER_REF,
+		"LSA_TRANSLATED_SIDS pointer: rids", -1);
+
+	/* [in] USHORT level */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_level, NULL);
+
+	/* [in, out, ref] ULONG *num_mapped */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsarlookupnames3_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	/* [out] LSA_REFERENCED_DOMAIN_LIST *domains */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_UNIQUE,
+		"LSA_REFERENCED_DOMAIN_LIST pointer: domains", -1);
+
+	/* [in, out, ref] LSA_TRANSLATED_SIDS *rids */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_SIDS3, NDR_POINTER_REF,
+		"LSA_TRANSLATED_SIDS pointer: rids", -1);
+
+	/* [in, out, ref] ULONG *num_mapped */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
+
+	return offset;
+}
 
 static int
 lsa_dissect_lsarcreateaccount_rqst(tvbuff_t *tvb, int offset,
@@ -4159,7 +4278,9 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_CREDRDELETE, "CredrDelete", NULL, NULL },
 	{ LSA_CREDRGETTARGETINFO, "CredrGetTargetInfo", NULL, NULL },
 	{ LSA_CREDRPROFILELOADED, "CredrProfileLoaded", NULL, NULL },
-	{ LSA_LSARLOOKUPNAMES3, "LsarLookupNames3", NULL, NULL },
+	{ LSA_LSARLOOKUPNAMES3, "LsarLookupNames3",
+		lsa_dissect_lsarlookupnames3_rqst,
+		lsa_dissect_lsarlookupnames3_reply },
 	{ LSA_CREDRGETSESSIONTYPES, "CredrGetSessionTypes", NULL, NULL },
 	{ LSA_LSARREGISTERAUDITEVENT, "LsarRegisterAuditEvent", NULL, NULL },
 	{ LSA_LSARGENAUDITEVENT, "LsarGenAuditEvent", NULL, NULL },
