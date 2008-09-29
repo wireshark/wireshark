@@ -648,12 +648,17 @@ struct erf_phdr {
   guint16 wlen;
 };
 
+struct erf_ehdr {
+  guint64 ehdr;
+};
+
 /*
  * ERF pseudo header with optional subheader
  * (Multichannel or Ethernet)
  */
 struct erf_mc_phdr {
   struct erf_phdr phdr;
+  struct erf_ehdr ehdr_list[8];
   union
   {
     guint16 eth_hdr;

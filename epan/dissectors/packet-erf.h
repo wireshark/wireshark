@@ -24,6 +24,10 @@
 #ifndef __PACKET_ERF_H_
 #define __PACKET_ERF_H_
 
+#define EXT_HDR_TYPE_CLASSIFICATION 3
+#define EXT_HDR_TYPE_INTERCEPTID 4 
+#define EXT_HDR_TYPE_RAW_LINK   5 
+
 void proto_reg_handoff_erf(void);
 void proto_register_erf(void);
 

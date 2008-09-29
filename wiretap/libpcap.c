@@ -166,6 +166,8 @@ static gboolean libpcap_get_erf_subheader(const guint8 *erf_subhdr,
     union wtap_pseudo_header *pseudo_header, guint * size);
 static gboolean libpcap_read_erf_subheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_, guint * size);
+static gboolean libpcap_read_erf_exheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_, guint * size);
 static gboolean libpcap_get_i2c_pseudoheader(const struct i2c_file_hdr *i2c_hdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_i2c_pseudoheader(FILE_T fh,
@@ -620,6 +622,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * pcaprec_ss990915_hdr is the largest header type.
 	 */
 	struct pcaprec_ss990915_hdr first_rec_hdr, second_rec_hdr;
+	
 
 	/*
 	 * Attempt to read the first record's header.
@@ -990,9 +993,19 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		packet_size -= sizeof(struct erf_phdr);
 		wth->data_offset += sizeof(struct erf_phdr);
 
-		if (!libpcap_read_erf_subheader(wth->fh, &wth->pseudo_header,
+		if (!libpcap_read_erf_exheader(wth->fh, &wth->pseudo_header,
 					       err, err_info, &size))
 		  return FALSE;	/* Read error */
+
+		/* Do not count also the extension headers as part of the packet */
+		orig_size -= size;
+		packet_size -= size;
+		wth->data_offset += size;
+
+		if (!libpcap_read_erf_subheader(wth->fh, &wth->pseudo_header,
+					       err, err_info, &size)){
+		  return FALSE;	/* Read error */
+		}
 
 		/*
 		 * Don't count the optional mc-header as part of the packet.
@@ -1000,6 +1013,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		orig_size -= size;
 		packet_size -= size;
 		wth->data_offset += size;
+		
 		break;
 
 	case WTAP_ENCAP_I2C:
@@ -1079,7 +1093,6 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info)
 {
   guint size;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -1173,9 +1186,17 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	case WTAP_ENCAP_ERF:
 	  if (!libpcap_read_erf_pseudoheader(wth->random_fh, NULL, pseudo_header,
 					     err, err_info)) {
-	    /* Read error */
 	    return FALSE;
 	  }
+
+	  /* check the optional Extension header */
+	  if (!libpcap_read_erf_exheader(wth->random_fh, pseudo_header,
+					       err, err_info, &size)){
+
+		  /* Read error */
+		  return FALSE;	
+	  }
+
 	  /* check the optional Multi Channel header */
 	  if (!libpcap_read_erf_subheader(wth->random_fh, pseudo_header,
 					 err, err_info, &size)) {
@@ -1710,7 +1731,7 @@ libpcap_get_erf_subheader(const guint8 *erf_subhdr,
 			  union wtap_pseudo_header *pseudo_header, guint * psize)
 {
   *psize=0;
-  switch(pseudo_header->erf.phdr.type) {
+  switch(pseudo_header->erf.phdr.type & 0x7F) {
   case ERF_TYPE_MC_HDLC:
   case ERF_TYPE_MC_RAW:
   case ERF_TYPE_MC_ATM:
@@ -1737,6 +1758,41 @@ libpcap_get_erf_subheader(const guint8 *erf_subhdr,
 }
 
 /*
+ * If the type of record given in the pseudo header indicate the presence of an extension
+ * header then, read all the extension headers
+ */
+static gboolean
+libpcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+			   int *err, gchar **err_info _U_, guint * psize)
+{
+  int bytes_read = 0;
+  guint8 erf_exhdr[8];
+  guint64 erf_exhdr_sw;
+  int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+  guint8 type = pseudo_header->erf.phdr.type;
+  *psize = 0;
+  if (pseudo_header->erf.phdr.type & 0x80){
+    do{
+      errno = WTAP_ERR_CANT_READ;
+      bytes_read = file_read(erf_exhdr, 1, 8, fh);
+      if (bytes_read != 8 ) {
+	*err = file_error(fh);
+	if (*err == 0)
+	  *err = WTAP_ERR_SHORT_READ;
+	return FALSE;
+      }
+      type = erf_exhdr[0];
+      erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
+      if (i < max) 
+	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
+      *psize += 8;
+      i++;
+    } while (type & 0x80);
+  }
+  return TRUE;
+}
+
+/*
  * If the type of record given in the pseudo header indicate the precense of a subheader
  * then, read this optional subheader
  */
@@ -1748,7 +1804,7 @@ libpcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
   int    bytes_read;
 
   *psize=0;
-  switch(pseudo_header->erf.phdr.type) {
+  switch(pseudo_header->erf.phdr.type & 0x7F) {
   case ERF_TYPE_MC_HDLC:
   case ERF_TYPE_MC_RAW:
   case ERF_TYPE_MC_ATM:
@@ -1983,7 +2039,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_ERF:
 	        hdrsize = sizeof (struct erf_phdr);
-		switch(pseudo_header->erf.phdr.type) {
+		if (pseudo_header->erf.phdr.type & 0x80) hdrsize += 8;
+		switch(pseudo_header->erf.phdr.type & 0x7F) {
 		case ERF_TYPE_MC_HDLC:
 		case ERF_TYPE_MC_RAW:
 		case ERF_TYPE_MC_ATM:
@@ -2251,7 +2308,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
 		size = sizeof(struct erf_phdr);
 
-		switch(pseudo_header->erf.phdr.type) {
+		switch(pseudo_header->erf.phdr.type & 0x7F) {
 		case ERF_TYPE_MC_HDLC:
 		case ERF_TYPE_MC_RAW:
 		case ERF_TYPE_MC_ATM:

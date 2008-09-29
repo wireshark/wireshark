@@ -84,6 +84,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
   guint16 eth_hdr;
   guint32 packet_size;
   guint16 rlen,wlen;
+  guint64 erf_ext_header;
+  guint8 type;
   size_t r;
   gchar * buffer;
 
@@ -142,7 +144,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     /* Skip PAD records, timestamps may not be set */
-    if (header.type == ERF_TYPE_PAD) {
+    if ((header.type & 0x7F) == ERF_TYPE_PAD) {
       if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
 	return -1;
       }
@@ -151,12 +153,12 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
     /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
     /* Not all types within this range are decoded, but it is a first filter */
-    if (header.type == 0 || header.type > ERF_TYPE_MAX ) {
+    if ((header.type & 0x7F) == 0 || (header.type & 0x7F) > ERF_TYPE_MAX ) {
       return 0;
     }
     
-    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_INFINIBAND */
-    if (header.type > ERF_TYPE_INFINIBAND) {
+    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_RAW_LINK */
+    if ((header.type & 0x7F) > ERF_TYPE_RAW_LINK) {
       return 0;
     }
     
@@ -174,8 +176,20 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     
     memcpy(&prevts, &ts, sizeof(prevts));
 
+    /* Read over the extension headers */
+    type = header.type;
+    while (type & 0x80){
+	    if (file_read(&erf_ext_header, 1, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
+		    *err = file_error(wth->fh);
+		    return -1;
+	    }
+	    packet_size -= sizeof(erf_ext_header);
+	    memcpy(&type, &erf_ext_header, sizeof(type));
+    }
+    
+
     /* Read over MC or ETH subheader */
-    switch(header.type) {
+    switch(header.type & 0x7F) {
     case ERF_TYPE_MC_HDLC:
     case ERF_TYPE_MC_RAW:
     case ERF_TYPE_MC_ATM:
@@ -298,7 +312,12 @@ static int erf_read_header(FILE_T fh,
 			   guint32 *packet_size)
 {
   guint32 mc_hdr;
+  guint8 erf_exhdr[8];
+  guint64 erf_exhdr_sw;
+  guint8 type = 0;
   guint16 eth_hdr,skiplen=0;
+  int i = 0 , max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+;
 
   wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err);
   if (bytes_read != NULL) {
@@ -339,8 +358,25 @@ static int erf_read_header(FILE_T fh,
   pseudo_header->erf.phdr.lctr = g_ntohs(erf_header->lctr);
   pseudo_header->erf.phdr.wlen = g_ntohs(erf_header->wlen);
 
-  switch (erf_header->type) {
-  
+  /* Copy the ERF extension header into the pseudo header */
+  type = erf_header->type;
+  while (type & 0x80){
+	  wtap_file_read_expected_bytes(&erf_exhdr, sizeof(erf_exhdr), fh, err);
+	  if (bytes_read != NULL)
+		  *bytes_read += sizeof(erf_exhdr);
+	  *packet_size -=  sizeof(erf_exhdr);
+	  skiplen += sizeof(erf_exhdr);
+	  erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
+	  if (i < max)
+	    memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
+	  type = erf_exhdr[0];
+	  i++;
+  }
+
+  switch (erf_header->type & 0x7F) {
+  case ERF_TYPE_IPV4:
+  case ERF_TYPE_IPV6:
+  case ERF_TYPE_RAW_LINK:
   case ERF_TYPE_INFINIBAND:
     /***
     if (phdr != NULL) {
@@ -366,7 +402,7 @@ static int erf_read_header(FILE_T fh,
     if (bytes_read != NULL)
       *bytes_read += sizeof(eth_hdr);
     *packet_size -=  sizeof(eth_hdr);
-    skiplen = sizeof(eth_hdr);
+    skiplen += sizeof(eth_hdr);
     pseudo_header->erf.subhdr.eth_hdr = g_htons(eth_hdr);
     break;
 
@@ -381,7 +417,7 @@ static int erf_read_header(FILE_T fh,
     if (bytes_read != NULL)
       *bytes_read += sizeof(mc_hdr);
     *packet_size -=  sizeof(mc_hdr);
-    skiplen = sizeof(mc_hdr);
+    skiplen += sizeof(mc_hdr);
     pseudo_header->erf.subhdr.mc_hdr = g_htonl(mc_hdr);
     break;
 

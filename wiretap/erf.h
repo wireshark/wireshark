@@ -59,6 +59,9 @@
 #define ERF_TYPE_COLOR_MC_HDLC_POS  17
 #define ERF_TYPE_AAL2               18
 #define ERF_TYPE_INFINIBAND         21
+#define ERF_TYPE_IPV4		    				22
+#define ERF_TYPE_IPV6		    				23
+#define ERF_TYPE_RAW_LINK	    			24
 
 #define ERF_TYPE_PAD                48
 

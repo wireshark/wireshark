@@ -31,6 +31,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
+
 /*
 #include "wiretap/atm.h"
 */
@@ -42,7 +44,10 @@
 static int proto_erf        = -1;
 
 static int hf_erf_ts   = -1;
+static int hf_erf_types     = -1;
 static int hf_erf_type      = -1;
+static int hf_erf_ehdr      = -1;
+static int hf_erf_ehdr_t      = -1;
 static int hf_erf_flags     = -1;
 static int hf_erf_flags_cap     = -1;
 static int hf_erf_flags_vlen     = -1;
@@ -54,6 +59,33 @@ static int hf_erf_flags_res     = -1;
 static int hf_erf_rlen      = -1;
 static int hf_erf_lctr      = -1;
 static int hf_erf_wlen      = -1;
+
+/* Classification extension header */
+
+/* InterceptID extension header */
+static int hf_erf_ehdr_int_res1 = -1;
+static int hf_erf_ehdr_int_id = -1;
+static int hf_erf_ehdr_int_res2 = -1;
+ 
+/* Raw Link extension header */
+static int hf_erf_ehdr_raw_link_res = -1;
+static int hf_erf_ehdr_raw_link_seqnum = -1;
+static int hf_erf_ehdr_raw_link_rate = -1;
+static int hf_erf_ehdr_raw_link_type = -1;
+
+/* Classification extension header */
+static int hf_erf_ehdr_class_flags = -1;
+static int hf_erf_ehdr_class_flags_sh = -1;
+static int hf_erf_ehdr_class_flags_shm = -1;
+static int hf_erf_ehdr_class_flags_res1 = -1;
+static int hf_erf_ehdr_class_flags_user = -1;
+static int hf_erf_ehdr_class_flags_res2 = -1;
+static int hf_erf_ehdr_class_flags_drop = -1;
+static int hf_erf_ehdr_class_flags_str = -1;
+static int hf_erf_ehdr_class_seqnum = -1;
+
+/* Unknown extension header */
+static int hf_erf_ehdr_unk = -1;
 
 /* MC HDLC Header */
 static int hf_erf_mc_hdlc_cn     = -1;
@@ -131,6 +163,7 @@ static int hf_erf_eth_res1 = -1;
 /* Initialize the subtree pointers */
 static gint ett_erf = -1;
 static gint ett_erf_pseudo_hdr = -1;
+static gint ett_erf_types = -1;
 static gint ett_erf_flags = -1;
 static gint ett_erf_mc_hdlc = -1;
 static gint ett_erf_mc_raw = -1;
@@ -142,6 +175,10 @@ static gint ett_erf_eth = -1;
 
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
+
+/* IPv4 and IPv6 subdissectors */
+static dissector_handle_t ipv4_handle;
+static dissector_handle_t ipv6_handle;
 
 static dissector_handle_t infiniband_handle;
 
@@ -167,6 +204,15 @@ static dissector_handle_t atm_untruncated_handle;
 
 static gboolean erf_ethfcs = TRUE;
 static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
+
+/* Classification */
+#define EHDR_CLASS_SH_MASK  0x800000
+#define EHDR_CLASS_SHM_MASK 0x400000
+#define EHDR_CLASS_RES1_MASK 0x300000
+#define EHDR_CLASS_USER_MASK 0x0FFFF0
+#define EHDR_CLASS_RES2_MASK 0x08
+#define EHDR_CLASS_DROP_MASK 0x04
+#define EHDR_CLASS_STER_MASK 0x03
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
@@ -267,8 +313,37 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_AAL2,"AAL2"},
   { ERF_TYPE_PAD,"PAD"},
   { ERF_TYPE_INFINIBAND, "INFINIBAND"},
+  { ERF_TYPE_IPV4, "IPV4"},
+  { ERF_TYPE_IPV6, "IPV6"},
+  { ERF_TYPE_RAW_LINK, "RAW_LINK"},
   {0, NULL}
 };
+
+/* Extended headers type defines */
+static const value_string ehdr_type_vals[] = {
+  { EXT_HDR_TYPE_CLASSIFICATION, "Classification"},
+	{ EXT_HDR_TYPE_INTERCEPTID, "InterceptID"},
+  { EXT_HDR_TYPE_RAW_LINK, "Raw Link"},
+	{ 0, NULL }
+};
+
+
+static const value_string raw_link_types[] = {
+  { 0x00, "sonet"},
+  { 0x01, "sdh"},
+  { 0, NULL },
+};
+
+static const value_string raw_link_rates[] = {
+  { 0x00, "reserved"},
+  { 0x01, "oc3/stm1"},
+  { 0x02, "oc12/stm4"},
+  { 0x03, "oc48/stm16"},
+  { 0x04, "oc192/stm64"},
+  { 0, NULL },
+};
+
+
 
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
@@ -372,6 +447,90 @@ erf_atm_guess_traffic_type(const guint8 *pd, guint len,
 		*/
 	       pseudo_header->atm.aal = AAL_SIGNALLING;
 	}
+}
+
+static void
+dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item= NULL, *flags_item = NULL;
+  proto_tree *int_tree = NULL, *flags_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  guint32 value = hdr >> 32;
+  
+  if (pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Classification");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    PROTO_ITEM_SET_GENERATED(int_item);
+    
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    flags_item=proto_tree_add_uint(int_tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value & 0xFFFFFF);
+    flags_tree = proto_item_add_subtree(flags_item, hf_erf_ehdr_class_flags);
+
+    
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_sh, tvb, 0, 0, value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_shm, tvb, 0, 0,  value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res1, tvb, 0, 0, value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_user, tvb, 0, 0, value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res2, tvb, 0, 0, value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_drop, tvb, 0, 0, value);
+    proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_str, tvb, 0, 0, value);
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_class_seqnum, tvb, 0, 0, (guint32)hdr);
+  }
+}
+
+static void
+dissect_intercept_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item= NULL;
+  proto_tree *int_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  if (pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "InterceptID");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    PROTO_ITEM_SET_GENERATED(int_item);
+    
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF)); 
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF)); 
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr); 
+  }
+}
+
+static void
+dissect_raw_link_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item= NULL;
+  proto_tree *int_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  
+  if (pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Raw Link");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    PROTO_ITEM_SET_GENERATED(int_item);
+    
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_res , tvb, 0, 0,  (guint32)((hdr >> 32) & 0xFFFFFF)); 
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_rate, tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
+		proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_type, tvb, 0, 0, (guint32)(hdr & 0x00ff));
+  }
+}
+
+static void
+dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *unk_item= NULL;
+  proto_tree *unk_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  
+  if (pseudo_hdr_tree){
+    unk_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Unknown");
+    unk_tree = proto_item_add_subtree(unk_item, ett_erf_pseudo_hdr);  
+    PROTO_ITEM_SET_GENERATED(unk_item);
+
+    proto_tree_add_uint(unk_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_uint64(unk_tree, hf_erf_ehdr_unk, tvb, 0, 0, hdr);
+  }
 }
 
 static void
@@ -554,15 +713,22 @@ static void
 dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {  
   proto_item *pi;
-  proto_item *pseudo_hdr_item = NULL, *flags_item = NULL;
-  proto_tree *pseudo_hdr_tree = NULL, *flags_tree = NULL;
+  proto_item *pseudo_hdr_item = NULL, *flags_item = NULL, *types_item = NULL;
+  proto_tree *pseudo_hdr_tree = NULL, *flags_tree = NULL, *types_tree = NULL;
 
   pseudo_hdr_item = proto_tree_add_text(tree, tvb, 0, 0, "ERF Header");
   pseudo_hdr_tree = proto_item_add_subtree(pseudo_hdr_item, ett_erf_pseudo_hdr);
   PROTO_ITEM_SET_GENERATED( pseudo_hdr_item);
 
   pi=proto_tree_add_uint64(pseudo_hdr_tree, hf_erf_ts, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.ts);
-  pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_type, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
+
+  types_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Header type");
+  PROTO_ITEM_SET_GENERATED(types_item);
+
+  types_tree = proto_item_add_subtree(types_item, ett_erf_types);
+  pi=proto_tree_add_uint(types_tree, hf_erf_type, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
+  pi=proto_tree_add_uint(types_tree, hf_erf_ehdr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.type);
+
   flags_item=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_flags, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
   
@@ -575,7 +741,52 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_rlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.rlen);
   pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_lctr, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.lctr);
+  if (pinfo->pseudo_header->erf.phdr.lctr > 0)
+	  expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet");
+
   pi=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_wlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.wlen);
+}
+
+static void
+dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{  
+  proto_item *pi;
+  proto_item *pseudo_hdr_item = NULL;
+  proto_tree *pseudo_hdr_tree = NULL;
+  guint8 type;
+  guint8 has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
+  int i = 0;
+  int max = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+
+  pseudo_hdr_item = proto_tree_add_text(tree, tvb, 0, 0, "ERF Extension Headers");
+  pseudo_hdr_tree = proto_item_add_subtree(pseudo_hdr_item, ett_erf_pseudo_hdr);
+  PROTO_ITEM_SET_GENERATED(pseudo_hdr_item);
+
+  while(has_more && i < max){
+    type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
+    
+    switch(type & 0x7f){
+    case EXT_HDR_TYPE_CLASSIFICATION: 
+      dissect_classification_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
+    case EXT_HDR_TYPE_INTERCEPTID: 
+      dissect_intercept_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
+    case EXT_HDR_TYPE_RAW_LINK:
+      dissect_raw_link_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
+    default:
+			dissect_unknown_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
+    }
+    has_more = type & 0x80;
+    i++;
+  }
+  if (has_more){
+    pi = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "More extension header present");
+    expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Some of the extension headers are not shown");
+  }
+
 }
 
 static void
@@ -592,7 +803,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 first_byte;
   tvbuff_t *new_tvb;
 
-  erf_type=pinfo->pseudo_header->erf.phdr.type;
+  erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
@@ -607,6 +818,9 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     erf_tree = proto_item_add_subtree(erf_item, ett_erf);
   
     dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
+    if (pinfo->pseudo_header->erf.phdr.type & 0x80){
+	dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
+    }
   }
   
   flags = pinfo->pseudo_header->erf.phdr.flags;
@@ -623,6 +837,24 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->p2p_dir = ( (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT);
   
   switch(erf_type) {
+
+  case ERF_TYPE_RAW_LINK:
+	call_dissector(data_handle, tvb, pinfo, erf_tree);
+	break;
+
+  case ERF_TYPE_IPV4:
+    if (ipv4_handle)
+      call_dissector(ipv4_handle, tvb, pinfo, erf_tree);
+    else
+      call_dissector(data_handle, tvb, pinfo, erf_tree);
+    break;
+
+  case ERF_TYPE_IPV6:
+    if (ipv6_handle)
+      call_dissector(ipv6_handle, tvb, pinfo, erf_tree);
+    else
+      call_dissector(data_handle, tvb, pinfo, erf_tree);
+    break;
 
   case ERF_TYPE_INFINIBAND:
     if (infiniband_handle)
@@ -815,7 +1047,9 @@ proto_register_erf(void)
   static hf_register_info hf[] = {
     /* ERF Header */ 
     { &hf_erf_ts, { "Timestamp", "erf.ts", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL } },
-    { &hf_erf_type, { "type", "erf.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), 0x0, "", HFILL } },
+    { &hf_erf_types, { "types", "erf.types", FT_UINT8, BASE_DEC,  NULL, 0xFF, "", HFILL } },
+    { &hf_erf_type, { "type", "erf.types.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), 0x7F, "", HFILL } },
+    { &hf_erf_ehdr, { "Extension header present", "erf.types.ext_header", FT_UINT8, BASE_DEC,  NULL, 0x80, "", HFILL } },
     { &hf_erf_flags,{ "flags", "erf.flags", FT_UINT8, BASE_DEC, NULL, 0xFF, "", HFILL } },
     { &hf_erf_flags_cap,{ "capture interface", "erf.flags.cap", FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL } },
     { &hf_erf_flags_vlen,{ "varying record length", "erf.flags.vlen", FT_UINT8, BASE_DEC, NULL, 0x04, "", HFILL } },
@@ -826,7 +1060,34 @@ proto_register_erf(void)
     { &hf_erf_rlen, { "record length", "erf.rlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_erf_lctr, { "loss counter", "erf.lctr", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_erf_wlen, { "wire length", "erf.wlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
-    
+
+		{ &hf_erf_ehdr_t, { "Extension Type", "erf.ehdr.types", FT_UINT8, BASE_DEC,  VALS(ehdr_type_vals), 0x0, "", HFILL } },
+
+    /* Intercept ID Extension Header */
+    { &hf_erf_ehdr_int_res1, { "Reserved", "erf.ehdr.int.res1", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_erf_ehdr_int_id, { "Intercept ID", "erf.ehdr.int.intid", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_erf_ehdr_int_res2, { "Reserved", "erf.ehdr.int.res2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+
+    /* Raw Link Extension Header */
+    { &hf_erf_ehdr_raw_link_res, { "Reserved", "erf.ehdr.raw.res", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
+    { &hf_erf_ehdr_raw_link_seqnum, { "Sequence number", "erf.ehdr.raw.seqnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_erf_ehdr_raw_link_rate, { "Rate", "erf.ehdr.raw.rate", FT_UINT8, BASE_DEC, VALS(raw_link_rates), 0x0, "", HFILL } },
+    { &hf_erf_ehdr_raw_link_type, { "Link Type", "erf.ehdr.raw.link_type", FT_UINT8, BASE_DEC, VALS(raw_link_types), 0x0, "", HFILL } },
+
+    /* Classification Extension Header */
+    { &hf_erf_ehdr_class_flags, { "Flags", "erf.ehdr.class.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_sh, { "Search hit", "erf.ehdr.class.flags.sh", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_SH_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_shm, { "Multiple search hits", "erf.ehdr.class.flags.shm", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_SHM_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_res1, { "Reserved", "erf.ehdr.class.flags.res1", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_RES1_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_user, { "User classification", "erf.ehdr.class.flags.user", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_USER_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_res2, { "Reserved", "erf.ehdr.class.flags.res2", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_RES2_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_drop, { "Drop Steering Bit", "erf.ehdr.class.flags.drop", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_DROP_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_flags_str, { "Stream Steering Bits", "erf.ehdr.class.flags.str", FT_UINT32, BASE_DEC, NULL, EHDR_CLASS_STER_MASK, "", HFILL } },
+    { &hf_erf_ehdr_class_seqnum, { "Sequence number", "erf.ehdr.class.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+
+		/* Unknown Extension Header */
+		{ &hf_erf_ehdr_unk, { "Data", "erf.ehdr.unknown.data", FT_UINT64, BASE_HEX, NULL, 0x0, "", HFILL } },
+
     /* MC HDLC Header */
     { &hf_erf_mc_hdlc_cn,   { "connection number", "erf.mchdlc.cn", FT_UINT16, BASE_DEC, NULL, MC_HDLC_CN_MASK, "", HFILL } },
     { &hf_erf_mc_hdlc_res1, { "reserved", "erf.mchdlc.res1", FT_UINT16, BASE_DEC, NULL, MC_HDLC_RES1_MASK, "", HFILL } },
@@ -905,6 +1166,7 @@ proto_register_erf(void)
   static gint *ett[] = {
     &ett_erf,
     &ett_erf_pseudo_hdr,
+    &ett_erf_types,
     &ett_erf_flags,
     &ett_erf_mc_hdlc,
     &ett_erf_mc_raw,
@@ -971,6 +1233,11 @@ proto_reg_handoff_erf(void)
 
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
+
+  /* Get handle for IP dissectors) */
+  ipv4_handle = find_dissector("ip");
+  ipv6_handle = find_dissector("ipv6");
+
 	
   /* Get handle for Infiniband dissector */
   infiniband_handle = find_dissector("infiniband");
