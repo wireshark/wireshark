@@ -455,7 +455,7 @@ dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree 
   proto_item *int_item= NULL, *flags_item = NULL;
   proto_tree *int_tree = NULL, *flags_tree = NULL;
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  guint32 value = hdr >> 32;
+  guint32 value = (guint32)(hdr >> 32);
   
   if (pseudo_hdr_tree){
     int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Classification");
