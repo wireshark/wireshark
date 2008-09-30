@@ -38,7 +38,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/value_string.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
@@ -94,8 +93,7 @@ static int hf_pana_response_in = -1;
 static int hf_pana_response_to = -1;
 static int hf_pana_time = -1;
 
-static dissector_handle_t pana_handle = NULL;
-static dissector_handle_t eap_handle = NULL;
+static dissector_handle_t eap_handle;
 
 static int hf_pana_flags = -1;
 static int hf_pana_flag_r = -1;
@@ -759,8 +757,6 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_pana(void)
 {
-  module_t *pana_module;
-
        static hf_register_info hf[] = {
                { &hf_pana_response_in,
                        { "Response In", "pana.response_in",
@@ -929,21 +925,20 @@ proto_register_pana(void)
        proto_register_field_array(proto_pana, hf, array_length(hf));
        proto_register_subtree_array(ett, array_length(ett));
 
-       /* Register preferences module */
-       pana_module = prefs_register_protocol(proto_pana, NULL);
-
 }
 
 
 void
 proto_reg_handoff_pana(void)
 {
+    dissector_handle_t pana_handle;
+
     heur_dissector_add("udp", dissect_pana, proto_pana);
 
     pana_handle = new_create_dissector_handle(dissect_pana, proto_pana);
     dissector_add_handle("udp.port", pana_handle);
 
     eap_handle = find_dissector("eap");
-    if(!eap_handle) fprintf(stderr,"PANA warning: EAP dissector not found\n");
+/**    if(!eap_handle) fprintf(stderr,"PANA warning: EAP dissector not found\n"); **/
 
 }

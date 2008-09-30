@@ -66,10 +66,8 @@
 
 #define PORT_MIKEY 2269
 static guint global_mikey_tcp_port = PORT_MIKEY;
-static guint mikey_tcp_port;
 
 static guint global_mikey_udp_port = PORT_MIKEY;
-static guint mikey_udp_port;
 
 
 static const value_string on_off_vals[] = {
@@ -1807,17 +1805,18 @@ proto_reg_handoff_mikey(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t mikey_handle;
+	static guint mikey_tcp_port;
+	static guint mikey_udp_port;
 
 	if (!inited) {
 		mikey_handle = new_create_dissector_handle(dissect_mikey, proto_mikey);
+		dissector_add_string("key_mgmt", "mikey", mikey_handle);
 		inited = TRUE;
 	} else {
-		dissector_delete_string("key_mgmt", "mikey", mikey_handle);
 		dissector_delete("udp.port", mikey_udp_port, mikey_handle);
 		dissector_delete("tcp.port", mikey_tcp_port, mikey_handle);
 	}
 
-	dissector_add_string("key_mgmt", "mikey", mikey_handle);
 	dissector_add("udp.port", global_mikey_udp_port, mikey_handle);
 	dissector_add("tcp.port", global_mikey_tcp_port, mikey_handle);
 

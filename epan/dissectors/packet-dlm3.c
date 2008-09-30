@@ -1236,27 +1236,24 @@ proto_register_dlm3(void)
 }
 
 
-/* Some code copyed from packet-distcc.c and packet-diameter.c. */
 void
 proto_reg_handoff_dlm3(void)
 {
   static gboolean dissector_registered = FALSE;
 
-  static int tcp_port = 0;
-  static int sctp_port = 0;
+  static guint tcp_port;
+  static guint sctp_port;
 
   static dissector_handle_t dlm3_tcp_handle;
   static dissector_handle_t dlm3_sctp_handle;
 
-  if (dissector_registered) {
+  if (!dissector_registered) {
+    dlm3_sctp_handle = new_create_dissector_handle(dissect_dlm3, proto_dlm3);
+    dlm3_tcp_handle = new_create_dissector_handle(dissect_dlm3, proto_dlm3);
+    dissector_registered = TRUE;
+  } else {
     dissector_delete("tcp.port",  tcp_port,  dlm3_tcp_handle);
     dissector_delete("sctp.port", sctp_port, dlm3_sctp_handle);
-  } else {
-    dlm3_sctp_handle = new_create_dissector_handle(dissect_dlm3,
-                                                   proto_dlm3);
-    dlm3_tcp_handle = new_create_dissector_handle(dissect_dlm3,
-                                                  proto_dlm3);
-    dissector_registered = TRUE;
   }
 
   tcp_port  = dlm3_tcp_port;

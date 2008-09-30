@@ -37,7 +37,6 @@
 
 void proto_reg_handoff_vlan(void);
 
-static unsigned int old_q_in_q_ethertype;
 static unsigned int q_in_q_ethertype = 0x9100;
 
 static gboolean vlan_summary_in_tree = TRUE;
@@ -181,8 +180,8 @@ proto_register_vlan(void)
         "Whether the vlan summary line should be shown in the protocol tree",
         &vlan_summary_in_tree);
   prefs_register_uint_preference(vlan_module, "qinq_ethertype",
-        "802.1QinQ Ethertype",
-        "The Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
+        "802.1QinQ (Hex) Ethertype",
+        "The (hexadecimal) Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
         16, &q_in_q_ethertype);
 
 }
@@ -192,6 +191,7 @@ proto_reg_handoff_vlan(void)
 {
   static gboolean prefs_initialized = FALSE;
   static dissector_handle_t vlan_handle;
+  static unsigned int old_q_in_q_ethertype;
 
   if (!prefs_initialized)
   {

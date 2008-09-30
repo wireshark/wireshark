@@ -68,6 +68,8 @@
 
 #include "packet-radius.h"
 
+void proto_reg_handoff_radius(void);
+
 typedef struct _e_radiushdr {
 	guint8 rh_code;
 	guint8 rh_ident;
@@ -129,11 +131,9 @@ radius_vendor_info_t no_vendor = {"Unknown Vendor",0,NULL,-1};
 radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1 };
 
 static dissector_handle_t eap_handle;
-static dissector_handle_t radius_handle;
 
 static const gchar* shared_secret = "";
 static gboolean show_length = FALSE;
-static guint alt_port = 0;
 static guint alt_port_pref = 0;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
@@ -1390,19 +1390,6 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 
 }
 
-static void reinit_radius(void) {
-	if ( alt_port_pref != alt_port ) {
-
-		if (alt_port)
-			dissector_delete("udp.port", alt_port, radius_handle);
-
-		if (alt_port_pref)
-			dissector_add("udp.port", alt_port_pref, radius_handle);
-
-		alt_port = alt_port_pref;
-	}
-}
-
 /* Discard and init any state we've saved */
 static void
 radius_init_protocol(void)
@@ -1563,14 +1550,14 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
 	new_register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
-	radius_module = prefs_register_protocol(proto_radius,reinit_radius);
+	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
                                      "Shared secret used to decode User Passwords",
                                      &shared_secret);
 	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
                                      "Whether to add or not to the tree the AVP's payload length",
                                      &show_length);
-    prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
+	prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
                                    "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius",register_radius_fields);
@@ -1585,19 +1572,31 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
+	static gboolean initialized = FALSE;
+	static dissector_handle_t radius_handle;
+	static guint alt_port;
 
-	eap_handle = find_dissector("eap");
+	if (!initialized) {
+		radius_handle = find_dissector("radius");
+		dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
+		dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
+		dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
+		dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
 
-	radius_handle = new_create_dissector_handle(dissect_radius, proto_radius);
+		eap_handle = find_dissector("eap");
 
-	dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
-	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
-	dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
-	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
-	
-	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
-	radius_register_avp_dissector(0,14,dissect_login_ip_host);
-	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
-	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
+		radius_register_avp_dissector(0,8,dissect_framed_ip_address);
+		radius_register_avp_dissector(0,14,dissect_login_ip_host);
+		radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
+		radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
+		initialized = TRUE;
+	} else {
+		if (alt_port != 0)
+			dissector_delete("udp.port", alt_port, radius_handle);
+	}
 
+	if (alt_port_pref != 0)
+		dissector_add("udp.port", alt_port_pref, radius_handle);
+
+	alt_port = alt_port_pref;
 }

@@ -82,7 +82,6 @@ static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 static gint ett_lapd_checksum = -1;
 static gint pref_lapd_rtp_payload_type = 0;
-static gint lapd_rtp_payload_type;
 
 static dissector_table_t lapd_sapi_dissector_table;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
@@ -91,7 +90,6 @@ static dissector_table_t lapd_gsm_sapi_dissector_table;
 static gboolean global_lapd_gsm_sapis = FALSE;
 
 static dissector_handle_t data_handle;
-static dissector_handle_t tei_handle;
 
 /*
  * Bits in the address field.
@@ -545,22 +543,22 @@ void
 proto_reg_handoff_lapd(void)
 {
 	static gboolean init = FALSE;
-	static dissector_handle_t lapd_handle;
 	static dissector_handle_t lapd_bitstream_handle;
+	static gint lapd_rtp_payload_type;
 
-	if (init) {
-		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-			dissector_delete("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
-	} else {
-		data_handle = find_dissector("data");
-		tei_handle = find_dissector("tei");
+	if (!init) {
+		dissector_handle_t lapd_handle;
 
-		lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
+		lapd_handle = find_dissector("lapd");
 		dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 
 		lapd_bitstream_handle = create_dissector_handle(dissect_lapd_bitstream, proto_lapd);
+		data_handle = find_dissector("data");
 
 		init = TRUE;
+	} else {
+		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
+			dissector_delete("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
 	}
 
 	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
@@ -679,18 +677,18 @@ proto_register_lapd(void)
 
 	module_t *lapd_module;
 
-    proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
+	proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
 					 "LAPD", "lapd");
-    proto_register_field_array (proto_lapd, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array (proto_lapd, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("lapd", dissect_lapd, proto_lapd);
+	register_dissector("lapd", dissect_lapd, proto_lapd);
 
-    lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
-	    "LAPD SAPI", FT_UINT16, BASE_DEC);
+	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
+							     "LAPD SAPI", FT_UINT16, BASE_DEC);
 
-    lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
-	    "LAPD GSM SAPI", FT_UINT16, BASE_DEC);
+	lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
+								 "LAPD GSM SAPI", FT_UINT16, BASE_DEC);
 
 	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
 

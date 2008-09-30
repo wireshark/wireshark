@@ -136,9 +136,7 @@ static gint ett_mpls_echo_tlv_fec = -1;
 static gint ett_mpls_echo_tlv_ds_map = -1;
 static gint ett_mpls_echo_tlv_ilso = -1;
 
-static int mpls_echo_udp_port = 0;
-
-static guint32 global_mpls_echo_udp_port = UDP_PORT_MPLS_ECHO;
+static guint global_mpls_echo_udp_port = UDP_PORT_MPLS_ECHO;
 
 static const value_string mpls_echo_msgtype[] = {
   {1, "MPLS Echo Request"},
@@ -1433,6 +1431,7 @@ proto_reg_handoff_mpls_echo(void)
 {
         static gboolean mpls_echo_prefs_initialized = FALSE;
         static dissector_handle_t mpls_echo_handle;
+        static guint mpls_echo_udp_port;
 
         if(!mpls_echo_prefs_initialized) {
             mpls_echo_handle = create_dissector_handle(dissect_mpls_echo,
