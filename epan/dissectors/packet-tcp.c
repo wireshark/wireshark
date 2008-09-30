@@ -70,6 +70,7 @@ static int proto_tcp = -1;
 static int hf_tcp_srcport = -1;
 static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
+static int hf_tcp_stream = -1;
 static int hf_tcp_seq = -1;
 static int hf_tcp_nxtseq = -1;
 static int hf_tcp_ack = -1;
@@ -239,7 +240,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
 
 struct tcp_analysis *
-init_tcp_conversation(packet_info *pinfo)
+init_tcp_conversation_data(packet_info *pinfo)
 {
 	struct tcp_analysis *tcpd=NULL;
 
@@ -286,59 +287,40 @@ init_tcp_conversation(packet_info *pinfo)
         return tcpd;
 }
 
-struct tcp_analysis *
-new_tcp_conversation(packet_info *pinfo)
+conversation_t *
+get_tcp_conversation(packet_info *pinfo)
 {
-	int direction;
 	conversation_t *conv=NULL;
-	struct tcp_analysis *tcpd=NULL;
-
-	/* Create a new conversation. */
-	conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	tcpd = init_tcp_conversation(pinfo);
-	conversation_add_proto_data(conv, proto_tcp, tcpd);
-
-	/* check direction and get ua lists */
-	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	/* if the addresses are equal, match the ports instead */
-	if(direction==0) {
-		direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
-	}
-	if(direction>=0){
-		tcpd->fwd=&(tcpd->flow1);
-		tcpd->rev=&(tcpd->flow2);
-	} else {
-		tcpd->fwd=&(tcpd->flow2);
-		tcpd->rev=&(tcpd->flow1);
-	}
-
-	tcpd->ta=NULL;
-	return tcpd;
-}
-
-struct tcp_analysis *
-get_tcp_conversation_data(packet_info *pinfo)
-{
-	int direction;
-	conversation_t *conv=NULL;
-	struct tcp_analysis *tcpd=NULL;
 
 	/* Have we seen this conversation before? */
 	if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
 		/* No this is a new conversation. */
-		tcpd=new_tcp_conversation(pinfo);
-	} else {
-		/* Get the data for this conversation */
-		tcpd=conversation_get_proto_data(conv, proto_tcp);
+		conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	return conv;
+}
 
-                /* If the conversation matched a conversation with template
-                 * options, tcpd will not have been initialized. So, initialize
-                 * a new tcpd structure for the conversation.
-                 */
-                if (!tcpd) {
-                        tcpd = init_tcp_conversation(pinfo);
-                        conversation_add_proto_data(conv, proto_tcp, tcpd);
-                }
+struct tcp_analysis *
+get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+	int direction;
+	struct tcp_analysis *tcpd=NULL;
+
+	/* Did the caller supply the conversation pointer? */
+	if( conv==NULL )
+	        conv = get_tcp_conversation(pinfo);
+
+	/* Get the data for this conversation */
+	tcpd=conversation_get_proto_data(conv, proto_tcp);
+
+	/* If the conversation was just created or it matched a
+	 * conversation with template options, tcpd will not 
+	 * have been initialized. So, initialize
+	 * a new tcpd structure for the conversation.
+	 */
+	if (!tcpd) {
+		tcpd = init_tcp_conversation_data(pinfo);
+		conversation_add_proto_data(conv, proto_tcp, tcpd);
 	}
 
 	if (!tcpd) {
@@ -2145,7 +2127,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint8 ws;
   struct tcp_analysis *tcpd=NULL;
 
-  tcpd=get_tcp_conversation_data(pinfo);
+  tcpd=get_tcp_conversation_data(NULL,pinfo);
 
   ws = tvb_get_guint8(tvb, offset + 2);
   hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_wscale, tvb,
@@ -2173,7 +2155,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   if(tcp_analyze_seq && tcp_relative_seq){
     /* find(or create if needed) the conversation for this tcp session */
-    tcpd=get_tcp_conversation_data(pinfo);
+    tcpd=get_tcp_conversation_data(NULL,pinfo);
 
     if (tcpd) {
       base_ack=tcpd->rev->base_seq;
@@ -2328,7 +2310,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint8      capvector;
   guint8      connid;
 
-  tcpd = get_tcp_conversation_data(pinfo);
+  tcpd = get_tcp_conversation_data(NULL,pinfo);
 
   /* check direction and get ua lists */
   direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -2528,7 +2510,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   char   *modifier = null_modifier;
   proto_item *hidden_item;
 
-  tcpd = get_tcp_conversation_data(pinfo);
+  tcpd = get_tcp_conversation_data(NULL,pinfo);
 
   /* The SNACK option reports missing data with a granualarity of segments. */
   relative_hole_offset = tvb_get_ntohs(tvb, offset + 2);
@@ -2974,6 +2956,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct tcpinfo tcpinfo;
   struct tcpheader *tcph;
   proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
+  conversation_t *conv=NULL;
   struct tcp_analysis *tcpd=NULL;
   struct tcp_per_packet_data_t *tcppd=NULL;
   proto_item *item;
@@ -3053,7 +3036,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
   /* find(or create if needed) the conversation for this tcp session */
-  tcpd=get_tcp_conversation_data(pinfo);
+  conv=get_tcp_conversation(pinfo);
+  tcpd=get_tcp_conversation_data(conv,pinfo);
+
+  item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 4, conv->index);
+  PROTO_ITEM_SET_GENERATED(item);
 
   /* If this is a SYN packet, then check if it's seq-nr is different
    * from the base_seq of the retrieved conversation. If this is the
@@ -3065,8 +3052,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
       (tcpd->fwd->base_seq!=0) &&
       (tcph->th_seq!=tcpd->fwd->base_seq) ) {
-    if (!(pinfo->fd->flags.visited))
-      tcpd=new_tcp_conversation(pinfo);
+    if (!(pinfo->fd->flags.visited)) {
+      conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+      tcpd=get_tcp_conversation_data(conv,pinfo);
+    }
     if(!tcpd->ta)
       tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
     tcpd->ta->flags|=TCP_A_REUSED_PORTS;
@@ -3622,6 +3611,10 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_port,
 		{ "Source or Destination Port",	"tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_tcp_stream,
+		{ "Stream index",		"tcp.stream", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_tcp_seq,

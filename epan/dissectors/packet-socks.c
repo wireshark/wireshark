@@ -1001,7 +1001,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 save_can_desegment;
 	struct tcp_analysis *tcpd=NULL;
 
-	tcpd=get_tcp_conversation_data(pinfo);
+	tcpd=get_tcp_conversation_data(NULL,pinfo);
 
  	if (( hash_info->command  == PING_COMMAND) ||
  	    ( hash_info->command  == TRACERT_COMMAND))

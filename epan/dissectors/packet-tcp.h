@@ -24,6 +24,10 @@
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
 
+#ifndef __CONVERSATION_H__
+#include "epan/conversation.h"
+#endif
+
 /* TCP flags */
 #define TH_FIN  0x01
 #define TH_SYN  0x02
@@ -228,7 +232,8 @@ extern void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				proto_tree *tcp_tree,
 				struct tcp_analysis *tcpd);
 
-extern struct tcp_analysis *get_tcp_conversation_data(packet_info *pinfo);
+extern struct tcp_analysis *get_tcp_conversation_data(conversation_t *conv, 
+                                packet_info *pinfo);
 
 extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, struct tcp_analysis *);
 
