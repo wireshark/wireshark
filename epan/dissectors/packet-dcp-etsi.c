@@ -145,6 +145,37 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint8 *sync;
   proto_tree *dcp_tree = NULL;
+
+  /* 6.1 AF packet structure
+   *
+   * AF Header
+   * SYNC		LEN		SEQ		AR		PT
+   * 2 bytes	4 bytes 2 bytes	1 byte	1 byte
+   *
+   * SYNC: two-byte ASCII representation of "AF".
+   * LEN: length of the payload, in bytes.
+   * SEQ: sequence number
+   * AR: AF protocol Revision - a field combining the CF, MAJ and MIN fields
+   * CF: CRC Flag, 0 if the CRC field is not used
+   * MAJ: major revision of the AF protocol in use, see clause 6.2.
+   * MIN: minor revision of the AF protocol in use, see clause 6.2.
+   * Protocol Type (PT): single byte encoding the protocol of the data carried in the payload. For TAG Packets, the value
+   * shall be the ASCII representation of "T".
+   *
+   * 7.1 PFT fragment structure
+   * PFT Header
+   * 14, 16, 18 or 20 bytes (depending on options)										Optional present if FEC=1 Optional present if Addr = 1	
+   * Psync		Pseq		Findex		Fcount		FEC		HCRC		Addr	Plen	| RSk		RSz			| Source	Dest
+   * 16 bits	16 bits		24 bits		24 bits		1 bit	16 bits		1 bit	14 bits | 8 bits	8 bits		| 16 bits	16 bits
+   *
+   * Psync: the ASCII string "PF" is used as the synchronization word for the PFT Layer
+   *
+   * Don't accept this packet unless at least a full AF header present(10 bytes).
+   * It should be possible to strengthen the heuristic further if need be.
+   */
+  if(tvb_length(tvb) < 11)
+	  return FALSE;
+
   sync = tvb_get_ephemeral_string (tvb, 0, 2);
   if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
     return FALSE;
