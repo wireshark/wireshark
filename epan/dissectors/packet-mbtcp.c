@@ -73,6 +73,7 @@
 #define READ_WRITE_REG		23
 #define READ_FIFO_QUEUE		24
 #define PROGRAM_CONCEPT		40
+#define ENCAP_INTERFACE_TRANSP  43
 #define FIRMWARE_REPLACE	125
 #define PROGRAM_584_984_2	126
 #define REPORT_LOCAL_ADDR_MB	127
@@ -141,14 +142,11 @@ classify_packet(packet_info *pinfo)
 {
 	/* see if nature of packets can be derived from src/dst ports */
 	/* if so, return as found */
-	if ( ( 502 == pinfo->srcport && 502 != pinfo->destport ) ||
-		 ( 502 != pinfo->srcport && 502 == pinfo->destport ) ) {
-		/* the slave is receiving queries on port 502 */
-		if ( 502 == pinfo->srcport )
-			return RESPONSE_PACKET;
-		else if ( 502 == pinfo->destport )
-			return QUERY_PACKET;
-	}
+	if (( pinfo->srcport == TCP_PORT_MBTCP ) && ( pinfo->destport != TCP_PORT_MBTCP ))
+		return RESPONSE_PACKET;
+	if (( pinfo->srcport != TCP_PORT_MBTCP ) && ( pinfo->destport == TCP_PORT_MBTCP ))
+		return QUERY_PACKET;
+
 	/* else, cannot classify */
 	return CANNOT_CLASSIFY;
 }
@@ -181,6 +179,7 @@ static const value_string function_code_vals[] = {
 	{ READ_WRITE_REG,		"Read Write Register" },
 	{ READ_FIFO_QUEUE,		"Read FIFO Queue" },
 	{ PROGRAM_CONCEPT,		"Program (ConCept)" },
+	{ ENCAP_INTERFACE_TRANSP,	"Encapsulated Interface Transport" },
 	{ FIRMWARE_REPLACE,		"Firmware replacement" },
 	{ PROGRAM_584_984_2,		"Program (584/984)" },
 	{ REPORT_LOCAL_ADDR_MB,		"Report local address (Modbus)" },
@@ -242,12 +241,8 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Note that function code is only 7 bits.
 	 */
 	fc=mh.mdbs_hdr.function_code&0x7f;
-	if( (fc<1)
-	  ||(fc>127)
-	  ||((fc>24)&&(fc<40))
-	  ||((fc>40)&&(fc<125)) ){
+	if(!match_strval(fc, function_code_vals))
 		return 0;
-	}
 
 
 	/* Make entries in Protocol column on summary display */
@@ -319,7 +314,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 			/* Add items to protocol tree specific to Modbus generic */
-			mf = proto_tree_add_text(mbtcp_tree, tvb, offset + 6, mh.len,
+			mf = proto_tree_add_text(mbtcp_tree, tvb, offset + 7, mh.len - 1,
 					"Modbus");
 	  		modbus_tree = proto_item_add_subtree(mf, ett_modbus_hdr);
 			mi = proto_tree_add_uint(modbus_tree, hf_mbtcp_functioncode, tvb, offset + 7, 1,
