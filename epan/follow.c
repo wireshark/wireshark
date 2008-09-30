@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include "follow.h"
+#include <epan/conversation.h>
 
 #define MAX_IPADDR_LEN  16
 
@@ -84,14 +85,14 @@ char*
 build_follow_filter( packet_info *pi ) {
   char* buf;
   int len;
+  conversation_t *conv=NULL;
+
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == IP_PROTO_TCP ) {
+	&& pi->ipproto == IP_PROTO_TCP 
+        && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+              pi->srcport, pi->destport, 0)) != NULL ) {
     /* TCP over IPv4 */
-    buf = g_strdup_printf(
-	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data),
-	     pi->srcport, pi->destport );
+    buf = g_strdup_printf("tcp.stream eq %d", conv->index);
     len = 4;
     is_ipv6 = FALSE;
   }
@@ -107,13 +108,11 @@ build_follow_filter( packet_info *pi ) {
     is_ipv6 = FALSE;
   }
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == IP_PROTO_TCP ) {
+	&& pi->ipproto == IP_PROTO_TCP 
+        && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+              pi->srcport, pi->destport, 0)) != NULL ) {
     /* TCP over IPv6 */
-    buf = g_strdup_printf(
-	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
-	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
-	     pi->srcport, pi->destport );
+    buf = g_strdup_printf("tcp.stream eq %d", conv->index);
     len = 16;
     is_ipv6 = TRUE;
   }
