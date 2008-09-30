@@ -7149,7 +7149,7 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_netid, offset, &protocol);
 	addr_offset = offset;
 	offset = dissect_rpc_string(tvb, tree, hf_nfs_r_addr, offset, &universal_ip_address);
-	
+
 	if(strlen(protocol) == 3 && strncmp(protocol,"tcp",3) == 0) {
 		cnt = 0;
 		end = universal_ip_address;
@@ -7160,7 +7160,7 @@ dissect_nfs_clientaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
 				break;
 			}
 			old_end = end;
-			words[cnt]=strtol(end, &end, 10);
+			words[cnt]=(guint16)strtol(end, &end, 10);
 			if (end == old_end) {
 			   	/* initial '.' */
 				end++;
