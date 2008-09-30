@@ -548,6 +548,7 @@ DISSECTOR_SRC = \
 	packet-kismet.c		\
 	packet-kpasswd.c	\
 	packet-l2tp.c		\
+	packet-lanforge.c	\
 	packet-lapb.c		\
 	packet-lapbether.c	\
 	packet-lapd.c		\
