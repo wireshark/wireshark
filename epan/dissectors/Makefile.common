@@ -540,6 +540,7 @@ DISSECTOR_SRC = \
 	packet-juniper.c 	\
 	packet-jxta.c		\
 	packet-kadm5.c		\
+	packet-kdp.c		\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
 	packet-klm.c		\
