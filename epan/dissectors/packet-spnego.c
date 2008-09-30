@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-spnego.c                                                            */
-/* ../../tools/asn2wrs.py -b -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
+/* ../../tools/asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
@@ -1393,9 +1393,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	guint16 ec;
 	guint16 rrc;
 	int checksum_size;
-#ifdef HAVE_KERBEROS
 	int start_offset=offset;
-#endif
 
 	/*
 	 * The KRB5 blob conforms to RFC4121:
@@ -1860,7 +1858,7 @@ void proto_register_spnego(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1276 "packet-spnego-template.c"
+#line 1274 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1882,7 +1880,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1286 "packet-spnego-template.c"
+#line 1284 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

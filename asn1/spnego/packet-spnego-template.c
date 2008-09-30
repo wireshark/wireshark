@@ -894,9 +894,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	guint16 ec;
 	guint16 rrc;
 	int checksum_size;
-#ifdef HAVE_KERBEROS
 	int start_offset=offset;
-#endif
 
 	/*
 	 * The KRB5 blob conforms to RFC4121:
