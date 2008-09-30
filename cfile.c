@@ -55,4 +55,5 @@ init_cap_file(capture_file *cf)
   cf->snap		= WTAP_MAX_PACKET_SIZE;
   cf->count		= 0;
   cf->pstats		= NULL;
+  cf->redissecting	= FALSE;
 }

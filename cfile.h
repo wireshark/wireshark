@@ -61,6 +61,7 @@ typedef struct _capture_file {
   wtap        *wth;       /* Wiretap session */
   dfilter_t   *rfcode;    /* Compiled read (display) filter program */
   gchar       *dfilter;   /* Display filter string */
+  gboolean     redissecting; /* TRUE if currently redissecting (cf_redissect_packets) */
   /* search */
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */

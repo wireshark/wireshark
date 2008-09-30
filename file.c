@@ -1122,7 +1122,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset)
     cf->count++;
     cf->f_datalen = offset + phdr->caplen;
     fdata->num = cf->count;
-    row = add_packet_to_packet_list(fdata, cf, dfcode, pseudo_header, buf, TRUE);
+    if (!cf->redissecting) {
+      row = add_packet_to_packet_list(fdata, cf, dfcode, pseudo_header, buf, TRUE);
+    }
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
@@ -1515,6 +1517,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        which might cause the state information to be constructed differently
        by that dissector. */
 
+    /* We might receive new packets while redissecting, and we don't
+       want to dissect those before their time. */
+    cf->redissecting = TRUE;
+
     /* Initialize all data structures used for dissection. */
     init_dissection();
   }
@@ -1660,6 +1666,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     prev_row = row;
     prev_frame = fdata;
   }
+
+  /* We are done redissecting the packet list. */
+  cf->redissecting = FALSE;
 
   /* Re-sort the list using the previously selected order */
   packet_list_set_sort_column();
