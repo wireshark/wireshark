@@ -3425,7 +3425,7 @@ proto_reg_handoff_smpp(void)
      * to specify that a given X.25 circuit is to be dissected as SMPP,
      * however.
      */
-    smpp_handle = create_dissector_handle(dissect_smpp, proto_smpp);
+    smpp_handle = find_dissector("smpp");
     dissector_add_handle("tcp.port", smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, proto_smpp);
     heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);

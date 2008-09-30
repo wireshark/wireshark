@@ -942,7 +942,7 @@ void proto_reg_handoff_fr(void)
 {
   dissector_handle_t fr_handle, fr_phdr_handle;
 
-  fr_handle = create_dissector_handle(dissect_fr, proto_fr);
+  fr_handle = find_dissector("fr");
   dissector_add("gre.proto", ETHERTYPE_RAW_FR, fr_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
 

@@ -1214,7 +1214,7 @@ proto_reg_handoff_jfif(void)
 {
 	dissector_handle_t jfif_handle;
 
-	jfif_handle = create_dissector_handle(dissect_jfif, proto_jfif);
+	jfif_handle = find_dissector("image-jfif");
 
 	/* Register the JPEG media type */
 	dissector_add_string("media_type", "image/jfif", jfif_handle);

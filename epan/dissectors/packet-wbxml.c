@@ -8339,7 +8339,7 @@ proto_reg_handoff_wbxml(void)
 	 * heur_dissector_add("wsp", dissect_wbxml_heur, proto_wbxml);
 	 */
 
-	wbxml_handle = create_dissector_handle(dissect_wbxml, proto_wbxml);
+	wbxml_handle = find_dissector("wbxml");
 
 	/* Register the WSP content types (defined as protocol port)
 	 * for WBXML dissection.

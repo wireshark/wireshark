@@ -768,7 +768,7 @@ proto_reg_handoff_dua(void)
 {
   dissector_handle_t dua_handle;
 
-  dua_handle  = create_dissector_handle(dissect_dua, proto_dua);
+  dua_handle  = find_dissector("dua");
   data_handle = find_dissector("data");
   dpnss_handle = find_dissector("dpnss");
   dissector_add("sctp.ppi", DUA_PAYLOAD_PROTOCOL_ID, dua_handle);

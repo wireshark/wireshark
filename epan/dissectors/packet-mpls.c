@@ -711,7 +711,7 @@ proto_reg_handoff_mpls(void)
         data_handle = find_dissector("data");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
-	mpls_handle = create_dissector_handle(dissect_mpls, proto_mpls);
+	mpls_handle = find_dissector("mpls");
 	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
 	dissector_add("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
 	dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);

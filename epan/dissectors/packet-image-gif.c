@@ -695,7 +695,7 @@ proto_reg_handoff_gif(void)
 {
 	dissector_handle_t gif_handle;
 
-	gif_handle = create_dissector_handle(dissect_gif, proto_gif);
+	gif_handle = find_dissector("image-gif");
 
 	/* Register the GIF media type */
 	dissector_add_string("media_type", "image/gif", gif_handle);

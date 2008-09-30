@@ -1312,7 +1312,7 @@ proto_reg_handoff_llcgprs(void)
 	dissector_handle_t gprs_llc_handle;
 
 	/* make sure that the top level can call this dissector */
-	gprs_llc_handle = create_dissector_handle(dissect_llcgprs, proto_llcgprs);
+	gprs_llc_handle = find_dissector("llcgprs");
 	dissector_add("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
 	data_handle = find_dissector("data");

@@ -1975,8 +1975,7 @@ void proto_register_msmms(void)
 
 void proto_reg_handoff_msmms_command(void)
 {
-    msmms_handle = new_create_dissector_handle(dissect_msmms_pdu, proto_msmms);
-
+    msmms_handle = find_dissector("msmms");
     /* Control commands using TCP port */
     dissector_add("tcp.port", MSMMS_PORT, msmms_handle);
     /* Data command(s) using UDP port */

@@ -1228,7 +1228,7 @@ proto_reg_handoff_erf(void)
 {
   dissector_handle_t erf_handle;
 
-  erf_handle = create_dissector_handle(dissect_erf, proto_erf);
+  erf_handle = find_dissector("erf");
   dissector_add("wtap_encap", WTAP_ENCAP_ERF, erf_handle);
 
   /* Dissector called to dump raw data, or unknown protocol */

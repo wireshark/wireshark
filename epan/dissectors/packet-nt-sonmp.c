@@ -317,7 +317,7 @@ proto_reg_handoff_sonmp(void)
 {
 	dissector_handle_t sonmp_handle;
 	
-	sonmp_handle = create_dissector_handle(dissect_sonmp, proto_sonmp);
+	sonmp_handle = find_dissector("sonmp");
 	
 	dissector_add("llc.nortel_pid", 0x01a1, sonmp_handle); /* flatnet hello */
 	dissector_add("llc.nortel_pid", 0x01a2, sonmp_handle); /* Segment hello */ 

@@ -559,8 +559,7 @@ proto_reg_handoff_eth(void)
 	 */
 	fw1_handle = find_dissector("fw1");
 
-	eth_maybefcs_handle = create_dissector_handle(dissect_eth_maybefcs,
-	    proto_eth);
+	eth_maybefcs_handle = find_dissector("eth");
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");

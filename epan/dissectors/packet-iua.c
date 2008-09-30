@@ -962,7 +962,7 @@ proto_reg_handoff_iua(void)
 {
   dissector_handle_t iua_handle;
 
-  iua_handle  = create_dissector_handle(dissect_iua, proto_iua);
+  iua_handle  = find_dissector("iua");
   q931_handle = find_dissector("q931");
   x25_handle  = find_dissector("x.25");
 

@@ -2111,7 +2111,7 @@ proto_reg_handoff_sua(void)
 {
   dissector_handle_t sua_handle;
 
-  sua_handle = create_dissector_handle(dissect_sua, proto_sua);
+  sua_handle = find_dissector("sua");
   dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
   dissector_add("sctp.port", SCTP_PORT_SUA,           sua_handle);
 

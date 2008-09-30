@@ -902,7 +902,7 @@ proto_reg_handoff_imf(void)
 {
   dissector_handle_t imf_handle;
 
-  imf_handle = create_dissector_handle(dissect_imf, proto_imf);
+  imf_handle = find_dissector(PFNAME);
 
   dissector_add_string("media_type",
 		       "message/rfc822", imf_handle);

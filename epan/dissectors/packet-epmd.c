@@ -316,6 +316,6 @@ void
 proto_reg_handoff_epmd(void)
 {
     dissector_handle_t epmd_handle;
-    epmd_handle = new_create_dissector_handle(dissect_epmd, proto_epmd);
+    epmd_handle = find_dissector("epmd");
     dissector_add("tcp.port", EPMD_PORT, epmd_handle);
 }

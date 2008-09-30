@@ -908,7 +908,7 @@ proto_reg_handoff_smtp(void)
 {
   dissector_handle_t smtp_handle;
 
-  smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
+  smtp_handle = find_dissector("smtp");
   dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
   dissector_add("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 

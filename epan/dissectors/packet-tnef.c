@@ -812,8 +812,7 @@ proto_reg_handoff_tnef(void)
 {
   dissector_handle_t tnef_handle;
 
-  tnef_handle = create_dissector_handle(dissect_tnef, proto_tnef);
-
+  tnef_handle = find_dissector(PFNAME);
   dissector_add_string("media_type", "application/ms-tnef", tnef_handle);
 
   /* X.400 file transfer bodypart */

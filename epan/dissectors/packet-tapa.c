@@ -619,7 +619,7 @@ proto_reg_handoff_tapa(void)
 {
 	dissector_handle_t tapa_handle;
 
-	tapa_handle = new_create_dissector_handle(dissect_tapa_static, proto_tapa);
+	tapa_handle = find_dissector("tapa");
 	dissector_add("udp.port", PORT_TAPA, tapa_handle);
 }
 

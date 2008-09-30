@@ -448,7 +448,7 @@ proto_reg_handoff_usb_ms(void)
     dissector_handle_t usb_ms_bulk_handle;
     dissector_handle_t usb_ms_control_handle;
 
-    usb_ms_bulk_handle = create_dissector_handle(dissect_usb_ms_bulk, proto_usb_ms);
+    usb_ms_bulk_handle = find_dissector("usbms");
     dissector_add("usb.bulk", IF_CLASS_MASSTORAGE, usb_ms_bulk_handle);
 
     usb_ms_control_handle = new_create_dissector_handle(dissect_usb_ms_control, proto_usb_ms);

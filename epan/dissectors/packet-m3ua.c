@@ -2058,7 +2058,7 @@ proto_reg_handoff_m3ua(void)
    */
   mtp3_handle = find_dissector("mtp3");
   data_handle = find_dissector("data");
-  m3ua_handle = create_dissector_handle(dissect_m3ua, proto_m3ua);
+  m3ua_handle = find_dissector("m3ua");
   dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
   dissector_add("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 

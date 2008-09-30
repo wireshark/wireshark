@@ -544,7 +544,7 @@ proto_reg_handoff_udp(void)
 	dissector_handle_t udp_handle;
 	dissector_handle_t udplite_handle;
 
-	udp_handle = create_dissector_handle(dissect_udp, proto_udp);
+	udp_handle = find_dissector("udp");
 	dissector_add("ip.proto", IP_PROTO_UDP, udp_handle);
 	udplite_handle = create_dissector_handle(dissect_udplite, proto_udplite);
 	dissector_add("ip.proto", IP_PROTO_UDPLITE, udplite_handle);

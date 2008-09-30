@@ -1532,7 +1532,7 @@ proto_reg_handoff_mtp3mg(void)
 {
     dissector_handle_t mtp3mg_handle;
 
-    mtp3mg_handle = create_dissector_handle(dissect_mtp3mg, proto_mtp3mg);
+    mtp3mg_handle = find_dissector("mtp3mg");
 
     dissector_add("mtp3.service_indicator", MTP3MG_SI, mtp3mg_handle);
 

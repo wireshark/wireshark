@@ -2771,6 +2771,6 @@ proto_reg_handoff_icmp(void)
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
 
-  icmp_handle = create_dissector_handle(dissect_icmp, proto_icmp);
+  icmp_handle = find_dissector("icmp");
   dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
 }

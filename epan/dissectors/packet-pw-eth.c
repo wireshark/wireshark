@@ -150,9 +150,8 @@ proto_reg_handoff_pw_eth(void)
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-	pw_eth_handle = create_dissector_handle(dissect_pw_eth, proto_pw_eth);
+	pw_eth_handle = find_dissector("pw_eth");
 	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle);
-	pw_eth_handle_nocw = create_dissector_handle(dissect_pw_eth_nocw, 
-						     proto_pw_eth_nocw);
+	pw_eth_handle_nocw = find_dissector("pw_eth_nocw");
 	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_nocw);
 }

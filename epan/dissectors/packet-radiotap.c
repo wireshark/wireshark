@@ -1289,7 +1289,7 @@ proto_reg_handoff_radiotap(void)
     ieee80211_handle = find_dissector("wlan");
     ieee80211_datapad_handle = find_dissector("wlan_datapad");
 
-    radiotap_handle = create_dissector_handle(dissect_radiotap, proto_radiotap);
+    radiotap_handle = find_dissector("radiotap");
 
     dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP, radiotap_handle);
 }

@@ -665,19 +665,19 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
-	dissector_handle_t tpkt_handle;
+	dissector_handle_t tpkt_handle, tpkt_x224_handle;
 
 	osi_tp_handle = find_dissector("ositp");
-	tpkt_handle = create_dissector_handle(dissect_tpkt, proto_tpkt);
+	tpkt_handle = find_dissector("tpkt");
 	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
 
 	x224_handle = find_dissector("x224");
-	tpkt_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
-	dissector_add("tcp.port", TCP_PORT_TPKT_X224, tpkt_handle);
+	tpkt_x224_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
+	dissector_add("tcp.port", TCP_PORT_TPKT_X224, tpkt_x224_handle);
 	
 	/*
-	tpkt_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
-	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
+	tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
+	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_ascii_handle);
 	*/
 	
 }
