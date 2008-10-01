@@ -454,6 +454,10 @@ init_ndr_pointer_list(packet_info *pinfo);
 #define PIDL_POLHND_TYPE_SAMR_GROUP	0x00040000
 #define PIDL_POLHND_TYPE_SAMR_ALIAS	0x00050000
 
+#define PIDL_POLHND_TYPE_LSA_POLICY	0x00060000
+#define PIDL_POLHND_TYPE_LSA_ACCOUNT	0x00070000
+#define PIDL_POLHND_TYPE_LSA_SECRET	0x00080000
+#define PIDL_POLHND_TYPE_LSA_DOMAIN	0x00090000
 
 /* a structure we store for all policy handles we track */
 typedef struct pol_value {
