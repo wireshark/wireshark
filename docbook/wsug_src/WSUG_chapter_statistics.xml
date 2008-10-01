@@ -455,13 +455,13 @@
 	<listitem>
 	<para>
 	<command>Unit</command>: the unit for the y direction (Packets/Tick,
-	Bytes/Tick, Bits/Tick, Advanced...)
+	Bytes/Tick, Bits/Tick, Advanced...) [XXX - describe the Advanced feature.]
 	</para>
 	</listitem>
 	<listitem>
 	<para>
 	<command>Scale</command>: the scale for the y unit
-	(10,20,50,100,200,500,...) [XXX - describe the Advanced feature.]
+	(Logarithmic,Auto,10,20,50,100,200,500,...)
 	</para>
 	</listitem>
 	</itemizedlist>
