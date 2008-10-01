@@ -50,6 +50,11 @@ MANUAL lsarpc_dissect_element_lsa_StringLarge_string__
 ETT_FIELD ett_lsarpc_names
 HF_FIELD hf_lsarpc_names "Names" "lsarpc.lookup.names" FT_NONE BASE_NONE NULL 0 "" "" ""
 
+
+MANUAL lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_
+MANUAL lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__
+HF_FIELD hf_lsarpc_efs_blob_len "EFS blob size" "lsarpc.efs.blob_size" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+
 CODE START
 
 
@@ -349,5 +354,43 @@ lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 
+
+
+static int
+lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	dcerpc_info *di = NULL;
+	tvbuff_t *next_tvb;
+	guint32 len, reported_len;
+	dissector_handle_t efsblob_handle;
+
+	di=pinfo->private_data;
+
+
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_lsarpc_efs_blob_len, &reported_len);
+
+	len = reported_len;
+	if (len > tvb_length_remaining(tvb, offset)) {
+		len = tvb_length_remaining(tvb, offset);
+	}
+
+	next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+
+	efsblob_handle = find_dissector("efsblob");
+	if (efsblob_handle) {
+		call_dissector(efsblob_handle, next_tvb, pinfo, tree);
+	}
+
+	offset += reported_len;
+
+	return offset;
+}
 
 CODE END

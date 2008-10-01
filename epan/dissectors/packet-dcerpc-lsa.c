@@ -189,6 +189,7 @@ static gint hf_lsarpc_lsa_AuditLogInfo_unknown = -1;
 static gint hf_lsarpc_lsa_AuditLogInfo_retention_time = -1;
 static gint hf_lsarpc_lsa_ObjectAttribute_sec_desc = -1;
 static gint hf_lsarpc_lsa_DnsDomainInfo_name = -1;
+static gint hf_lsarpc_efs_blob_len = -1;
 static gint hf_lsarpc_lsa_TranslatedSid2_sid_index = -1;
 static gint hf_lsarpc_lsa_QuerySecret_old_mtime = -1;
 static gint hf_lsarpc_lsa_OpenTrustedDomain_handle = -1;
@@ -1567,6 +1568,32 @@ lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, int offset _U_
 	char *data;
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_lsarpc_String_name, FALSE, &data);
 	proto_item_append_text(tree, ": %s", data);
+	return offset;
+}
+static int
+lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	dcerpc_info *di = NULL;
+	tvbuff_t *next_tvb;
+	guint32 len, reported_len;
+	dissector_handle_t efsblob_handle;
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_lsarpc_efs_blob_len, &reported_len);
+	len = reported_len;
+	if (len > tvb_length_remaining(tvb, offset)) {
+		len = tvb_length_remaining(tvb, offset);
+	}
+	next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+	efsblob_handle = find_dissector("efsblob");
+	if (efsblob_handle) {
+		call_dissector(efsblob_handle, next_tvb, pinfo, tree);
+	}
+	offset += reported_len;
 	return offset;
 }
 
@@ -5319,22 +5346,6 @@ static int
 lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_, NDR_POINTER_UNIQUE, "Pointer to Efs Blob (uint8)",hf_lsarpc_lsa_DomainInfoEfs_efs_blob);
-
-	return offset;
-}
-
-static int
-lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__);
-
-	return offset;
-}
-
-static int
-lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_DomainInfoEfs_efs_blob, 0);
 
 	return offset;
 }
@@ -11896,6 +11907,8 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "Sec Desc", "lsarpc.lsa_ObjectAttribute.sec_desc", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_DnsDomainInfo_name, 
 	  { "Name", "lsarpc.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_lsarpc_efs_blob_len, 
+	  { "EFS blob size", "lsarpc.efs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, " ", HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid2_sid_index, 
 	  { "Sid Index", "lsarpc.lsa_TranslatedSid2.sid_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_QuerySecret_old_mtime, 
