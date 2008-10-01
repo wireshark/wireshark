@@ -334,7 +334,7 @@ File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
 File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
 !endif
 !ifdef LUA_DIR
-File "${LUA_DIR}\lib\dll\lua5.1.dll"
+File "${LUA_DIR}\lua5.1.dll"
 File "..\..\epan\wslua\init.lua"
 File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"

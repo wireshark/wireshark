@@ -756,7 +756,7 @@ process_libs:
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. lua5_1_dll.zip
+		lua5.1.4 lua5_1_4_Win32_dll9_lib.zip
 !ENDIF
 
 !IFDEF GNUTLS_DIR
@@ -1077,7 +1077,7 @@ install-all: install-generated-files
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF LUA_DIR
-	xcopy "$(LUA_DIR)\lib\dll\lua5.1.dll" $(INSTALL_DIR) /d
+	xcopy "$(LUA_DIR)\lua5.1.dll" $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF SMI_DIR
 	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
