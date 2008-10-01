@@ -285,7 +285,9 @@
 		LSA_POLICY_INFO_DB=9,
 		LSA_POLICY_INFO_AUDIT_FULL_SET=10,
 		LSA_POLICY_INFO_AUDIT_FULL_QUERY=11,
-		LSA_POLICY_INFO_DNS=12
+		LSA_POLICY_INFO_DNS=12,
+		LSA_POLICY_INFO_DNS_INT=13,
+		LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN=14
 	} lsa_PolicyInfo;
 
 	typedef [switch_type(uint16)] union {
@@ -872,6 +874,7 @@
 	} lsa_DomainInfoEfs;
 
 	typedef enum {
+		LSA_DOMAIN_INFO_POLICY_QOS=1,
 		LSA_DOMAIN_INFO_POLICY_EFS=2,
 		LSA_DOMAIN_INFO_POLICY_KERBEROS=3
 	} lsa_DomainInfoEnum;
@@ -883,14 +886,14 @@
 
 	NTSTATUS lsa_QueryDomainInformationPolicy(
 		[in]		policy_handle *handle,
-		[in] 			uint16 level,
+		[in] 		lsa_DomainInfoEnum level,
 		[out,unique,switch_is(level)]	lsa_DomainInformationPolicy *info
 		);
 
 	/* Function 0x36 */
 	NTSTATUS lsa_SetDomainInformationPolicy(
 		[in]		policy_handle *handle,
-		[in] 			uint16 level,
+		[in] 		lsa_DomainInfoEnum level,
 		[in,unique,switch_is(level)]	lsa_DomainInformationPolicy *info
 		);
 

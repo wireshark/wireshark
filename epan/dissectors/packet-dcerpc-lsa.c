@@ -764,6 +764,8 @@ const value_string lsarpc_lsa_PolicyInfo_vals[] = {
 	{ LSA_POLICY_INFO_AUDIT_FULL_SET, "LSA_POLICY_INFO_AUDIT_FULL_SET" },
 	{ LSA_POLICY_INFO_AUDIT_FULL_QUERY, "LSA_POLICY_INFO_AUDIT_FULL_QUERY" },
 	{ LSA_POLICY_INFO_DNS, "LSA_POLICY_INFO_DNS" },
+	{ LSA_POLICY_INFO_DNS_INT, "LSA_POLICY_INFO_DNS_INT" },
+	{ LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN, "LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN" },
 { 0, NULL }
 };
 static int lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -929,6 +931,7 @@ static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, 
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string lsarpc_lsa_DomainInfoEnum_vals[] = {
+	{ LSA_DOMAIN_INFO_POLICY_QOS, "LSA_DOMAIN_INFO_POLICY_QOS" },
 	{ LSA_DOMAIN_INFO_POLICY_EFS, "LSA_DOMAIN_INFO_POLICY_EFS" },
 	{ LSA_DOMAIN_INFO_POLICY_KERBEROS, "LSA_DOMAIN_INFO_POLICY_KERBEROS" },
 { 0, NULL }
@@ -3103,6 +3106,8 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: 	LSA_POLICY_INFO_AUDIT_FULL_SET=10, */
 /* IDL: 	LSA_POLICY_INFO_AUDIT_FULL_QUERY=11, */
 /* IDL: 	LSA_POLICY_INFO_DNS=12, */
+/* IDL: 	LSA_POLICY_INFO_DNS_INT=13, */
+/* IDL: 	LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN=14, */
 /* IDL: } */
 
 int
@@ -5350,6 +5355,7 @@ lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packe
 
 
 /* IDL: enum { */
+/* IDL: 	LSA_DOMAIN_INFO_POLICY_QOS=1, */
 /* IDL: 	LSA_DOMAIN_INFO_POLICY_EFS=2, */
 /* IDL: 	LSA_DOMAIN_INFO_POLICY_KERBEROS=3, */
 /* IDL: } */
@@ -9956,7 +9962,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb _U
 static int
 lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_level, 0);
+	offset = lsarpc_dissect_enum_lsa_DomainInfoEnum(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_level, 0);
 
 	return offset;
 }
@@ -9979,7 +9985,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_,
 
 /* IDL: NTSTATUS lsa_QueryDomainInformationPolicy( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] uint16 level, */
+/* IDL: [in] lsa_DomainInfoEnum level, */
 /* IDL: [unique(1)] [out] [switch_is(level)] lsa_DomainInformationPolicy *info */
 /* IDL: ); */
 
@@ -10030,7 +10036,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb _U_,
 static int
 lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_SetDomainInformationPolicy_level, 0);
+	offset = lsarpc_dissect_enum_lsa_DomainInfoEnum(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_SetDomainInformationPolicy_level, 0);
 
 	return offset;
 }
@@ -10053,7 +10059,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb _U_, i
 
 /* IDL: NTSTATUS lsa_SetDomainInformationPolicy( */
 /* IDL: [ref] [in] policy_handle *handle, */
-/* IDL: [in] uint16 level, */
+/* IDL: [in] lsa_DomainInfoEnum level, */
 /* IDL: [unique(1)] [in] [switch_is(level)] lsa_DomainInformationPolicy *info */
 /* IDL: ); */
 
@@ -12017,7 +12023,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_DATA_BUF_size, 
 	  { "Size", "lsarpc.lsa_DATA_BUF.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_QueryDomainInformationPolicy_level, 
-	  { "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "Level", "lsarpc.lsa_QueryDomainInformationPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH, 
 	  { "Lsa Domain Set Auth", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_AUTH", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH_tfs), ( 0x00000020 ), "", HFILL }},
 	{ &hf_lsarpc_lsa_StringLarge_string, 
@@ -12031,7 +12037,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX, 
 	  { "Lsa Domain Set Posix", "lsarpc.lsa_DomainAccessMask.LSA_DOMAIN_SET_POSIX", FT_BOOLEAN, 32, TFS(&lsa_DomainAccessMask_LSA_DOMAIN_SET_POSIX_tfs), ( 0x00000010 ), "", HFILL }},
 	{ &hf_lsarpc_lsa_SetDomainInformationPolicy_level, 
-	  { "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "Level", "lsarpc.lsa_SetDomainInformationPolicy.level", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_DomainInfoEnum_vals), 0, "", HFILL }},
 	{ &hf_lsarpc_account_access_mask, 
 	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, " ", HFILL }},
 	{ &hf_lsarpc_lsa_SetInfoPolicy2_info, 

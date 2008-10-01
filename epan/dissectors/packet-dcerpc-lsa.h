@@ -82,6 +82,8 @@ int lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, p
 #define LSA_POLICY_INFO_AUDIT_FULL_SET (10)
 #define LSA_POLICY_INFO_AUDIT_FULL_QUERY (11)
 #define LSA_POLICY_INFO_DNS (12)
+#define LSA_POLICY_INFO_DNS_INT (13)
+#define LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN (14)
 extern const value_string lsarpc_lsa_PolicyInfo_vals[];
 int lsarpc_dissect_enum_lsa_PolicyInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -145,6 +147,7 @@ int lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, p
 int lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define LSA_DOMAIN_INFO_POLICY_QOS (1)
 #define LSA_DOMAIN_INFO_POLICY_EFS (2)
 #define LSA_DOMAIN_INFO_POLICY_KERBEROS (3)
 extern const value_string lsarpc_lsa_DomainInfoEnum_vals[];
