@@ -57,7 +57,6 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
 	packet-dcerpc-initshutdown.c \
-	packet-dcerpc-lsa.c	\
 	packet-dcerpc-nspi.c \
 	packet-dcerpc-wkssvc.c \
 	packet-dcerpc-wzcsvc.c
@@ -68,6 +67,7 @@ PIDL_DISSECTOR_SRC = \
 DIRTY_PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-dnsserver.c 	\
 	packet-dcerpc-eventlog.c \
+	packet-dcerpc-lsa.c \
 	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-winreg.c
 
@@ -81,6 +81,7 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-efs.h	\
 	packet-dcerpc-eventlog.h	\
 	packet-dcerpc-initshutdown.h	\
+	packet-dcerpc-lsa.h	\
 	packet-dcerpc-nspi.h	\
 	packet-dcerpc-srvsvc.h	\
 	packet-dcerpc-winreg.h \
@@ -912,7 +913,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-drsuapi.h	\
 	packet-dcerpc-frsapi.h	\
 	packet-dcerpc-frsrpc.h	\
-	packet-dcerpc-lsa.h	\
 	packet-dcerpc-mapi.h	\
 	packet-dcerpc-netlogon.h	\
 	packet-dcerpc-nt.h	\
