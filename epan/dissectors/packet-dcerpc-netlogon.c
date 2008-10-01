@@ -257,6 +257,7 @@ static int hf_netlogon_dc_flags_ndnc_flag = -1;
 static int hf_netlogon_dc_flags_dns_controller_flag = -1;
 static int hf_netlogon_dc_flags_dns_domain_flag = -1;
 static int hf_netlogon_dc_flags_dns_forest_flag = -1;
+static int hf_netlogon_dnsdomaininfo = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_group_attrs = -1;
@@ -2139,6 +2140,9 @@ netlogon_dissect_USER_PRIVATE_INFO(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+int
+lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
+
 /*
  * IDL typedef struct {
  * IDL   UNICODESTRING UserName;
@@ -2267,8 +2271,7 @@ netlogon_dissect_DELTA_USER(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2356,8 +2359,7 @@ netlogon_dissect_DELTA_DOMAIN(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2421,8 +2423,7 @@ netlogon_dissect_DELTA_GROUP(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2626,8 +2627,7 @@ netlogon_dissect_DELTA_ALIAS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2822,8 +2822,7 @@ netlogon_dissect_DELTA_POLICY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2911,8 +2910,7 @@ netlogon_dissect_DELTA_TRUSTED_DOMAINS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -3035,8 +3033,7 @@ netlogon_dissect_DELTA_ACCOUNTS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -3172,8 +3169,7 @@ netlogon_dissect_DELTA_SECRET(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_sec_desc_buf(tvb, offset,
-		pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -5129,7 +5125,8 @@ netlogon_dissect_DOMAIN_TRUST_INFO(tvbuff_t *tvb, int offset,
 	}
 
 
-	offset = lsa_dissect_DnsDomainInfo(tvb, offset, pinfo, tree, drep, 0, 0);
+	offset = lsarpc_dissect_struct_lsa_DnsDomainInfo(tvb, offset, pinfo, tree, drep, hf_netlogon_dnsdomaininfo, 0);
+
 
 	/* Guesses at best. */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -7743,6 +7740,10 @@ static hf_register_info hf[] = {
 	        { "Account Disabled", "netlogon.user.account_control.account_disabled",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_account_disabled), 0x00000001,
 		  "The user account control account_disabled flag ", HFILL }},
+
+        { &hf_netlogon_dnsdomaininfo,
+          { "DnsDomainInfo", "netlogon.dnsdomaininfo", FT_NONE, BASE_NONE, 
+	    NULL, 0x0, "", HFILL }},
 
 	};
 
