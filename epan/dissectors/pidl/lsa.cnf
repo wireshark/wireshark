@@ -38,7 +38,10 @@ HF_FIELD hf_lsarpc_domain_access_mask "Access Mask" "lsarpc.policy.access_mask" 
 
 HF_FIELD hf_lsarpc_String_name "String" "lsarpc.lsa.string" FT_STRING BASE_NONE NULL 0 "" "" ""
 
+MANUAL lsarpc_dissect_element_lsa_LookupNames_names
+MANUAL lsarpc_dissect_element_lsa_LookupNames2_names
 MANUAL lsarpc_dissect_element_lsa_LookupNames3_names
+MANUAL lsarpc_dissect_element_lsa_LookupNames4_names
 MANUAL lsarpc_dissect_element_lsa_String_string_
 MANUAL lsarpc_dissect_element_lsa_String_string__
 MANUAL lsarpc_dissect_element_lsa_StringLarge_string_
@@ -259,6 +262,8 @@ cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
+# PIDL cant handle top level arrays so we must explicitely go through a
+# ref pointer here
 static int
 lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_)
 {
@@ -281,7 +286,28 @@ lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
+lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
+
+	return offset;
+}
+static int
+lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
+
+	return offset;
+}
+static int
 lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
+
+	return offset;
+}
+static int
+lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
 
