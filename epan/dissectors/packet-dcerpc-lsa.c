@@ -405,7 +405,6 @@ static gint hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info = -
 static gint hf_lsarpc_lsa_TrustedDomainInfo_posix_offset = -1;
 static gint hf_lsarpc_lsa_DomainInfoKerberos_unknown6 = -1;
 static gint hf_lsarpc_lsa_LookupSids2_unknown1 = -1;
-static gint hf_lsarpc_lsa_ServerRole_unknown = -1;
 static gint hf_lsarpc_lsa_OpenAccount_sid = -1;
 static gint hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle = -1;
 static gint hf_lsarpc_lsa_DnsDomainInfo_domain_guid = -1;
@@ -729,7 +728,11 @@ static int lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb _U_, int off
 static int lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ServerRole_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+const value_string lsarpc_lsa_PolicyServerRole_vals[] = {
+	{ LSA_POLICY_ROLE_BACKUP, "LSA_POLICY_ROLE_BACKUP" },
+	{ LSA_POLICY_ROLE_PRIMARY, "LSA_POLICY_ROLE_PRIMARY" },
+{ 0, NULL }
+};
 static int lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -2673,23 +2676,34 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 
-/* IDL: struct { */
-/* IDL: 	uint16 unknown; */
-/* IDL: 	uint16 role; */
+/* IDL: enum { */
+/* IDL: 	LSA_POLICY_ROLE_BACKUP=2, */
+/* IDL: 	LSA_POLICY_ROLE_PRIMARY=3, */
 /* IDL: } */
 
-static int
-lsarpc_dissect_element_lsa_ServerRole_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+int
+lsarpc_dissect_enum_lsa_PolicyServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_ServerRole_unknown, 0);
-
+	guint16 parameter=0;
+	if(param){
+		parameter=(guint16)*param;
+	}
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
+
+
+/* IDL: struct { */
+/* IDL: 	lsa_PolicyServerRole role; */
+/* IDL: } */
 
 static int
 lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_ServerRole_role, 0);
+	offset = lsarpc_dissect_enum_lsa_PolicyServerRole(tvb, offset, pinfo, tree, drep, hf_lsarpc_lsa_ServerRole_role, 0);
 
 	return offset;
 }
@@ -2710,8 +2724,6 @@ lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ServerRole);
 	}
 	
-	offset = lsarpc_dissect_element_lsa_ServerRole_unknown(tvb, offset, pinfo, tree, drep);
-
 	offset = lsarpc_dissect_element_lsa_ServerRole_role(tvb, offset, pinfo, tree, drep);
 
 
@@ -12316,8 +12328,6 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "Unknown6", "lsarpc.lsa_DomainInfoKerberos.unknown6", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_LookupSids2_unknown1, 
 	  { "Unknown1", "lsarpc.lsa_LookupSids2.unknown1", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_lsarpc_lsa_ServerRole_unknown, 
-	  { "Unknown", "lsarpc.lsa_ServerRole.unknown", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_OpenAccount_sid, 
 	  { "Sid", "lsarpc.lsa_OpenAccount.sid", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle, 
@@ -12435,7 +12445,7 @@ void proto_register_dcerpc_lsarpc(void)
 	{ &hf_lsarpc_lsa_PrivEntry_name, 
 	  { "Name", "lsarpc.lsa_PrivEntry.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_ServerRole_role, 
-	  { "Role", "lsarpc.lsa_ServerRole.role", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	  { "Role", "lsarpc.lsa_ServerRole.role", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_PolicyServerRole_vals), 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_TranslatedSid3_sid_type, 
 	  { "Sid Type", "lsarpc.lsa_TranslatedSid3.sid_type", FT_UINT16, BASE_DEC, VALS(lsarpc_lsa_SidType_vals), 0, "", HFILL }},
 	{ &hf_lsarpc_lsa_LookupNames4_num_names, 

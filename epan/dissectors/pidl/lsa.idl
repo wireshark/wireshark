@@ -225,9 +225,13 @@
 		lsa_String name;
 	} lsa_PDAccountInfo;
 
+	typedef enum {
+		LSA_POLICY_ROLE_BACKUP		= 2,
+		LSA_POLICY_ROLE_PRIMARY		= 3
+	} lsa_PolicyServerRole;
+
 	typedef struct {
-		uint16 unknown; /* an midl padding bug? */
-		uint16 role;
+		lsa_PolicyServerRole role;
 	} lsa_ServerRole;
 
 	typedef struct {
