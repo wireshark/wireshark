@@ -129,7 +129,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->file_type = WTAP_FILE_COMMVIEW;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	
+
 	return 1; /* Our kind of file */
 }
 
@@ -139,9 +139,9 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 	commview_header_t cv_hdr;
 	struct tm tm;
 	int bytes_read;
-	
+
 	*data_offset = wth->data_offset;
-	
+
 	if(!commview_read_header(&cv_hdr, wth->fh, err))
 		return FALSE;
 
@@ -160,6 +160,11 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 	case MEDIUM_TOKEN_RING :
 		wth->phdr.pkt_encap = WTAP_ENCAP_TOKEN_RING;
 		break;
+	default:
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("commview: unsupported encap: %u",
+					    cv_hdr.flags & FLAGS_MEDIUM);
+		return FALSE;
 	}
 
 	buffer_assure_space(wth->frame_buffer, cv_hdr.data_len);
@@ -201,14 +206,14 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	
+
 	if(!commview_read_header(&cv_hdr, wth->random_fh, err)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 
 		return FALSE;
 	}
-	
+
 	if(length != cv_hdr.data_len) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("commview: record length %u doesn't match requested length %d", cv_hdr.data_len, length);
@@ -275,7 +280,7 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
 	return TRUE;
 }
 
-/* Returns 0 if we can write out the specified encapsulatio type
+/* Returns 0 if we can write out the specified encapsulation type
  * into a CommView format file. */
 int commview_dump_can_write_encap(int encap)
 {
@@ -300,10 +305,10 @@ gboolean commview_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_,
 {
 	wdh->subtype_write = commview_dump;
 	wdh->subtype_close = NULL;
-	
+
 	/* There is no file header to write out */
 	wdh->bytes_dumped = 0;
-	
+
 	return TRUE;
 }
 
@@ -395,7 +400,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
-	       
+
 		return FALSE;
 	}
 
