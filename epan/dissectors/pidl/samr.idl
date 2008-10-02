@@ -244,27 +244,37 @@
 		dlong  min_password_age;
 	} samr_DomInfo1;
 
+	typedef [v1_enum] enum {
+		SAMR_DOMAIN_SERVER_ENABLED		= 1,
+		SAMR_DOMAIN_SERVER_DISABLED		= 2
+	} samr_DomainServerEnableState;
+
+
+	typedef struct {
+		samr_DomainServerEnableState state;
+	} samr_DomainStateInformation;
+
 	typedef struct {
 		NTTIME force_logoff_time;
-		lsa_String comment;
+		lsa_String oem_information; /* comment */
 		lsa_String domain_name;
 		lsa_String primary; /* PDC name if this is a BDC */
 		udlong sequence_num;
-		uint32 unknown2;
+		samr_DomainServerEnableState state;
 		samr_Role role;
 		uint32 unknown3;
 		uint32 num_users;
 		uint32 num_groups;
 		uint32 num_aliases;
-	} samr_DomInfo2;
+	} samr_DomGeneralInformation;
 
 	typedef struct {
 		NTTIME force_logoff_time;
 	} samr_DomInfo3;
 
 	typedef struct {
-		lsa_String comment;
-	} samr_DomInfo4;
+		lsa_String oem_information; /* comment */
+	} samr_DomOEMInformation;
 
 	typedef struct {
 		lsa_String domain_name;
@@ -284,15 +294,11 @@
 	} samr_DomInfo8;
 
 	typedef struct {
-		uint32 unknown; /* w2k3 returns 1 */
-	} samr_DomInfo9;
-
-	typedef struct {
-		samr_DomInfo2 info2;
+		samr_DomGeneralInformation general;
 		hyper lockout_duration;
 		hyper lockout_window;
 		uint16 lockout_threshold;
-	} samr_DomInfo11;
+	} samr_DomGeneralInformation2;
 
 	typedef struct {
 		hyper lockout_duration;
@@ -325,15 +331,15 @@
 
 	typedef [switch_type(uint16)] union {
 		[case(SAMR_DOMAIN_PASSWORD_INFO)] samr_DomInfo1 info1;
-		[case(SAMR_DOMAIN_GENERAL_INFO)] samr_DomInfo2 info2;
+		[case(SAMR_DOMAIN_GENERAL_INFO)] samr_DomGeneralInformation general;
 		[case(SAMR_DOMAIN_LOGOFF_INFO)] samr_DomInfo3 info3;
-		[case(SAMR_DOMAIN_OEM_INFO)] samr_DomInfo4 info4;
+		[case(SAMR_DOMAIN_OEM_INFO)] samr_DomOEMInformation oem;
 		[case(SAMR_DOMAIN_NAME_INFO)] samr_DomInfo5 info5;
 		[case(SAMR_DOMAIN_REPLICA_INFO)] samr_DomInfo6 info6;
 		[case(SAMR_DOMAIN_SERVER_ROLE_INFO)] samr_DomInfo7 info7;
 		[case(SAMR_DOMAIN_MODIFIED_INFO)] samr_DomInfo8 info8;
-		[case(SAMR_DOMAIN_STATE_INFO)] samr_DomInfo9 info9;
-		[case(SAMR_DOMAIN_GENERAL_INFO2)] samr_DomInfo11 info11;
+		[case(SAMR_DOMAIN_STATE_INFO)] samr_DomainStateInformation state;
+		[case(SAMR_DOMAIN_GENERAL_INFO2)] samr_DomGeneralInformation2 general2;
 		[case(SAMR_DOMAIN_LOCKOUT_INFO)] samr_DomInfo12 info12;
 		[case(SAMR_DOMAIN_MODIFIED_INFO2)] samr_DomInfo13 info13;
 	} samr_DomainInfo;
@@ -559,15 +565,21 @@
 
 	/************************/
 	/* Function    0x19     */
+	typedef [public,bitmap32bit] bitmap {
+		SE_GROUP_MANDATORY			= 0x00000001,
+		SE_GROUP_ENABLED_BY_DEFAULT		= 0x00000002,
+		SE_GROUP_ENABLED			= 0x00000004
+	} samr_SeGroupAttributes;
+
 	typedef struct {
 		uint32 count;
 		[size_is(count)] uint32 *rids;
-		[size_is(count)] lsa_SidType *types;
-	} samr_RidTypeArray;
+		[size_is(count)] samr_SeGroupAttributes *attributes;
+	} samr_GetMembersBuffer;
 
 	NTSTATUS samr_QueryGroupMember(
 		[in,ref]  policy_handle *group_handle,
-		[out,unique] samr_RidTypeArray *rids
+		[out,unique] samr_GetMembersBuffer *rids
 		);
 
 
@@ -582,8 +594,8 @@
 	*/
 	NTSTATUS samr_SetMemberAttributesOfGroup(
 		[in,ref]  policy_handle *group_handle,
-		[in]      uint32 unknown1,
-		[in]      uint32 unknown2
+		[in]      uint32 rid,
+		[in]      samr_SeGroupAttributes attributes
 		);
 
 
