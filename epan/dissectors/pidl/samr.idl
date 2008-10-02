@@ -309,7 +309,7 @@
 
 	typedef enum {
 		SAMR_DOMAIN_PASSWORD_INFO	= 1,
-		SAMR_DOMAIN_DENERAL_INFO	= 2,
+		SAMR_DOMAIN_GENERAL_INFO	= 2,
 		SAMR_DOMAIN_LOGOFF_INFO		= 3,
 		SAMR_DOMAIN_OEM_INFO		= 4,
 		SAMR_DOMAIN_NAME_INFO		= 5,
@@ -325,7 +325,7 @@
 
 	typedef [switch_type(uint16)] union {
 		[case(SAMR_DOMAIN_PASSWORD_INFO)] samr_DomInfo1 info1;
-		[case(SAMR_DOMAIN_DENERAL_INFO)] samr_DomInfo2 info2;
+		[case(SAMR_DOMAIN_GENERAL_INFO)] samr_DomInfo2 info2;
 		[case(SAMR_DOMAIN_LOGOFF_INFO)] samr_DomInfo3 info3;
 		[case(SAMR_DOMAIN_OEM_INFO)] samr_DomInfo4 info4;
 		[case(SAMR_DOMAIN_NAME_INFO)] samr_DomInfo5 info5;
