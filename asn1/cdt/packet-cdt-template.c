@@ -41,6 +41,12 @@
 
 #include "packet-cdt.h"
 
+#define CDT_UNDEFINED  0
+#define CDT_EXTERNAL   1
+#define CDT_P1         2
+#define CDT_P3         3
+#define CDT_P7         4
+
 #define PNAME  "Compressed Data Type"
 #define PSNAME "CDT"
 #define PFNAME "cdt"
@@ -48,9 +54,13 @@
 static proto_tree *top_tree = NULL;
 static proto_item *cdt_item = NULL;
 
+static guint32 content_type = 0;
+
 /* Initialize the protocol and registered fields */
 int proto_cdt = -1;
 #include "packet-cdt-hf.c"
+
+static dissector_handle_t data_handle = NULL;
 
 /* Initialize the subtree pointers */
 #include "packet-cdt-ett.c"
@@ -108,4 +118,6 @@ void proto_register_cdt (void) {
 /*--- proto_reg_handoff_cdt ---------------------------------------*/
 void proto_reg_handoff_cdt (void) {
 #include "packet-cdt-dis-tab.c"
+
+  data_handle = find_dissector ("data");
 }

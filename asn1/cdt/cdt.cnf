@@ -9,6 +9,11 @@ CompressedData
 #.REGISTER
 CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
+#.FN_BODY CompressedData
+  content_type = 0;
+
+  %(DEFAULT_BODY)s
+
 #.FN_PARS AlgorithmID-ShortForm
   VAL_PTR = &value
 
@@ -26,19 +31,18 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                                  "unknown"));
 
 #.FN_PARS ContentType-ShortForm
-  VAL_PTR = &value
+  VAL_PTR = &content_type
 
 #.FN_BODY ContentType-ShortForm
-  guint32 value;
 
   %(DEFAULT_BODY)s
   proto_item_append_text (cdt_item, ", %%s",
-                          val_to_str (value, cdt_ContentType_ShortForm_vals, 
+                          val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
                                       "unknown"));
 
   if (check_col (actx->pinfo->cinfo, COL_INFO))
     col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ", 
-                     val_to_str (value, cdt_ContentType_ShortForm_vals, 
+                     val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
                                  "unknown"));
 
 #.FN_PARS CompressedContentInfo/contentType/contentType-OID
@@ -97,6 +101,19 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
   tvb_set_child_real_data_tvbuff (tvb, next_tvb);
   add_new_data_source (actx->pinfo, next_tvb, "Uncompressed Content");
 
-  dissect_x411_mts_apdu (next_tvb, actx->pinfo, top_tree);
+   switch (content_type) {
+   case CDT_UNDEFINED:
+     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     break;
+   case CDT_EXTERNAL:
+     dissect_unknown_ber (actx->pinfo, next_tvb, 0, top_tree);
+     break;
+   case CDT_P1:
+     dissect_x411_mts_apdu (next_tvb, actx->pinfo, top_tree);
+     break;
+   default:
+     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     break;
+   }
   
 #.END
