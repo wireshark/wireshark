@@ -77,6 +77,21 @@ int samr_dissect_struct_DomInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 int samr_dissect_struct_DomInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define SAMR_DOMAIN_PASSWORD_INFO (1)
+#define SAMR_DOMAIN_DENERAL_INFO (2)
+#define SAMR_DOMAIN_LOGOFF_INFO (3)
+#define SAMR_DOMAIN_OEM_INFO (4)
+#define SAMR_DOMAIN_NAME_INFO (5)
+#define SAMR_DOMAIN_REPLICA_INFO (6)
+#define SAMR_DOMAIN_SERVER_ROLE_INFO (7)
+#define SAMR_DOMAIN_MODIFIED_INFO (8)
+#define SAMR_DOMAIN_STATE_INFO (9)
+#define SAMR_DOMAIN_UAS_INFO (10)
+#define SAMR_DOMAIN_GENERAL_INFO2 (11)
+#define SAMR_DOMAIN_LOCKOUT_INFO (12)
+#define SAMR_DOMAIN_MODIFIED_INFO2 (13)
+extern const value_string samr_samr_DomainInformationClass_vals[];
+int samr_dissect_enum_DomainInformationClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_Types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -134,6 +149,13 @@ int samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb _U_, int offset _U_, pa
 int samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define SAMR_DOMAIN_DISPLAY_USER (1)
+#define SAMR_DOMAIN_DISPLAY_MACHINE (2)
+#define SAMR_DOMAIN_DISPLAY_GROUP (3)
+#define SAMR_DOMAIN_DISPLAY_OEM_USER (4)
+#define SAMR_DOMAIN_DISPLAY_OEM_GROUP (5)
+extern const value_string samr_samr_DomainDisplayInformation_vals[];
+int samr_dissect_enum_DomainDisplayInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define SAMR_PWD_CHANGE_NO_ERROR (0)
 #define SAMR_PWD_CHANGE_PASSWORD_TOO_SHORT (1)

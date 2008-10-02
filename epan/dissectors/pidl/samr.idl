@@ -307,24 +307,40 @@
 		uint32 unknown2;
 	} samr_DomInfo13;
 
+	typedef enum {
+		SAMR_DOMAIN_PASSWORD_INFO	= 1,
+		SAMR_DOMAIN_DENERAL_INFO	= 2,
+		SAMR_DOMAIN_LOGOFF_INFO		= 3,
+		SAMR_DOMAIN_OEM_INFO		= 4,
+		SAMR_DOMAIN_NAME_INFO		= 5,
+		SAMR_DOMAIN_REPLICA_INFO	= 6,
+		SAMR_DOMAIN_SERVER_ROLE_INFO	= 7,
+		SAMR_DOMAIN_MODIFIED_INFO	= 8,
+		SAMR_DOMAIN_STATE_INFO		= 9,
+		SAMR_DOMAIN_UAS_INFO		= 10,
+		SAMR_DOMAIN_GENERAL_INFO2	= 11,
+		SAMR_DOMAIN_LOCKOUT_INFO	= 12,
+		SAMR_DOMAIN_MODIFIED_INFO2	= 13
+	} samr_DomainInformationClass;
+
 	typedef [switch_type(uint16)] union {
-		[case(1)] samr_DomInfo1 info1;
-		[case(2)] samr_DomInfo2 info2;
-		[case(3)] samr_DomInfo3 info3;
-		[case(4)] samr_DomInfo4 info4;
-		[case(5)] samr_DomInfo5 info5;
-		[case(6)] samr_DomInfo6 info6;
-		[case(7)] samr_DomInfo7 info7;
-		[case(8)] samr_DomInfo8 info8;
-		[case(9)] samr_DomInfo9 info9;
-		[case(11)] samr_DomInfo11 info11;
-		[case(12)] samr_DomInfo12 info12;
-		[case(13)] samr_DomInfo13 info13;
+		[case(SAMR_DOMAIN_PASSWORD_INFO)] samr_DomInfo1 info1;
+		[case(SAMR_DOMAIN_DENERAL_INFO)] samr_DomInfo2 info2;
+		[case(SAMR_DOMAIN_LOGOFF_INFO)] samr_DomInfo3 info3;
+		[case(SAMR_DOMAIN_OEM_INFO)] samr_DomInfo4 info4;
+		[case(SAMR_DOMAIN_NAME_INFO)] samr_DomInfo5 info5;
+		[case(SAMR_DOMAIN_REPLICA_INFO)] samr_DomInfo6 info6;
+		[case(SAMR_DOMAIN_SERVER_ROLE_INFO)] samr_DomInfo7 info7;
+		[case(SAMR_DOMAIN_MODIFIED_INFO)] samr_DomInfo8 info8;
+		[case(SAMR_DOMAIN_STATE_INFO)] samr_DomInfo9 info9;
+		[case(SAMR_DOMAIN_GENERAL_INFO2)] samr_DomInfo11 info11;
+		[case(SAMR_DOMAIN_LOCKOUT_INFO)] samr_DomInfo12 info12;
+		[case(SAMR_DOMAIN_MODIFIED_INFO2)] samr_DomInfo13 info13;
 	} samr_DomainInfo;
 
 	NTSTATUS samr_QueryDomainInfo(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint16 level,
+		[in]          samr_DomainInformationClass level,
 		[out,switch_is(level),unique] samr_DomainInfo *info
 		);
 
@@ -336,7 +352,7 @@
 	*/
 	NTSTATUS samr_SetDomainInfo(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint16 level,
+		[in]          samr_DomainInformationClass level,
 		[in,switch_is(level),ref] samr_DomainInfo *info
 		);
 
@@ -1011,17 +1027,25 @@
 		[size_is(count)] samr_DispEntryAscii *entries;
 	} samr_DispInfoAscii;
 
+	typedef enum {
+		SAMR_DOMAIN_DISPLAY_USER		= 1,
+		SAMR_DOMAIN_DISPLAY_MACHINE		= 2,
+		SAMR_DOMAIN_DISPLAY_GROUP		= 3,
+		SAMR_DOMAIN_DISPLAY_OEM_USER		= 4,
+		SAMR_DOMAIN_DISPLAY_OEM_GROUP		= 5
+	} samr_DomainDisplayInformation;
+
 	typedef [switch_type(uint16)] union {
-		[case(1)] samr_DispInfoGeneral info1;/* users */
-		[case(2)] samr_DispInfoFull info2; /* trust accounts? */
-		[case(3)] samr_DispInfoFullGroups info3; /* groups */
-		[case(4)] samr_DispInfoAscii info4; /* users */
-		[case(5)] samr_DispInfoAscii info5; /* groups */
+		[case(SAMR_DOMAIN_DISPLAY_USER)] samr_DispInfoGeneral info1;/* users */
+		[case(SAMR_DOMAIN_DISPLAY_MACHINE)] samr_DispInfoFull info2; /* trust accounts? */
+		[case(SAMR_DOMAIN_DISPLAY_GROUP)] samr_DispInfoFullGroups info3; /* groups */
+		[case(SAMR_DOMAIN_DISPLAY_OEM_USER)] samr_DispInfoAscii info4; /* users */
+		[case(SAMR_DOMAIN_DISPLAY_OEM_GROUP)] samr_DispInfoAscii info5; /* groups */
 	} samr_DispInfo;
 
 	NTSTATUS samr_QueryDisplayInfo(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        uint16 level,
+		[in]        samr_DomainDisplayInformation level,
 		[in]        uint32 start_idx,
 		[in]        uint32 max_entries,
 		[in]        uint32 buf_size,
@@ -1045,7 +1069,7 @@
 	*/
 	NTSTATUS samr_GetDisplayEnumerationIndex(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        uint16 level,
+		[in]        samr_DomainDisplayInformation level,
 		[in]        lsa_String name,
 		[out]       uint32 idx
 		);
@@ -1102,7 +1126,7 @@
 	*/
 	NTSTATUS samr_QueryDomainInfo2(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint16 level,
+		[in]          samr_DomainInformationClass level,
 		[out,unique,switch_is(level)] samr_DomainInfo *info
 		);
 
@@ -1126,7 +1150,7 @@
 	*/
 	NTSTATUS samr_QueryDisplayInfo2(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        uint16 level,
+		[in]        samr_DomainDisplayInformation level,
 		[in]        uint32 start_idx,
 		[in]        uint32 max_entries,
 		[in]        uint32 buf_size,
@@ -1143,7 +1167,7 @@
 	*/
 	NTSTATUS samr_GetDisplayEnumerationIndex2(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        uint16 level,
+		[in]        samr_DomainDisplayInformation level,
 		[in]        lsa_String name,
 		[out]       uint32 idx
 		);
@@ -1170,7 +1194,7 @@
 	*/
 	NTSTATUS samr_QueryDisplayInfo3(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        uint16 level,
+		[in]        samr_DomainDisplayInformation level,
 		[in]        uint32 start_idx,
 		[in]        uint32 max_entries,
 		[in]        uint32 buf_size,
