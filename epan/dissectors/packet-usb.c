@@ -523,10 +523,9 @@ get_usb_conv_info(conversation_t *conversation)
     usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
     if(!usb_conv_info){
         /* no not yet so create some */
-        usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
+        usb_conv_info = se_alloc0(sizeof(usb_conv_info_t));
         usb_conv_info->interfaceClass=IF_CLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_conv_info->class_data=NULL;
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
@@ -785,10 +784,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     /* save the class so we can access it later in the endpoint descriptor */
     usb_conv_info->interfaceClass=tvb_get_guint8(tvb, offset);
     if(!pinfo->fd->flags.visited){
-        usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
+        usb_trans_info->interface_info=se_alloc0(sizeof(usb_conv_info_t));
         usb_trans_info->interface_info->interfaceClass=tvb_get_guint8(tvb, offset);
         usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_trans_info->interface_info->class_data=NULL;
     }
     offset++;
 
@@ -1226,7 +1224,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint(tree, hf_usb_bus_id, tvb, 0, 0,
                         pinfo->pseudo_header->linux_usb.bus_id);
 
-    /* Right after the pseudo header we always have 
+    /* Right after the pseudo header we always have
      * sizeof(struct usb_device_setup_hdr)=8 bytes. The content of these
      * bytes have only meaning in case setup_flag == 0.
      */
@@ -1259,7 +1257,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     /* Timestamp was already processed by libpcap,
-     * skip it for now: 
+     * skip it for now:
      *   pinfo->pseudo_header->linux_usb.ts_sec
      *   pinfo->pseudo_header->linux_usb.ts_usec
      */
@@ -1270,7 +1268,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 0, 0,
                         pinfo->pseudo_header->linux_usb.urb_len);
 
-    proto_tree_add_uint(tree, hf_usb_data_len, tvb, 
+    proto_tree_add_uint(tree, hf_usb_data_len, tvb,
                         sizeof(struct usb_device_setup_hdr),
                         pinfo->pseudo_header->linux_usb.data_len,
                         pinfo->pseudo_header->linux_usb.data_len);
@@ -1393,12 +1391,9 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         /* this is a request */
         usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if(!usb_trans_info){
-            usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
+            usb_trans_info=se_alloc0(sizeof(usb_trans_info_t));
             usb_trans_info->request_in=pinfo->fd->num;
-            usb_trans_info->response_in=0;
             usb_trans_info->req_time=pinfo->fd->abs_ts;
-            usb_trans_info->requesttype=0;
-            usb_trans_info->request=0;
             se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
         usb_conv_info->usb_trans_info=usb_trans_info;
@@ -1661,7 +1656,7 @@ proto_register_usb(void)
                 "URB bus id", HFILL }},
 
         { &hf_usb_setup_flag,
-        { "Device setup request", "usb.setup_flag", FT_STRING, BASE_NONE, 
+        { "Device setup request", "usb.setup_flag", FT_STRING, BASE_NONE,
                  NULL, 0x0,
                  "USB device setup request is present (0) or not", HFILL }},
 
@@ -1671,7 +1666,7 @@ proto_register_usb(void)
                  "USB data is present (0) or not", HFILL }},
 
         { &hf_usb_urb_status,
-        { "URB status", "usb.urb_status", FT_INT32, BASE_DEC, 
+        { "URB status", "usb.urb_status", FT_INT32, BASE_DEC,
                 VALS(usb_urb_status_vals), 0x0,
                 "URB status", HFILL }},
 

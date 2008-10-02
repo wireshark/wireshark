@@ -284,14 +284,9 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 	if(!pinfo->fd->flags.visited){
 		dlci_state=se_tree_lookup32(dlci_table, dlci);
 		if(!dlci_state){
-			dlci_state=se_alloc(sizeof(dlci_state_t));
-			dlci_state->do_credit_fc=0;
-			dlci_state->direction[0].len=0;
+			dlci_state=se_alloc0(sizeof(dlci_state_t));
 			dlci_state->direction[0].current=-1;
-			dlci_state->direction[0].stream_buf=NULL;
-			dlci_state->direction[1].len=0;
 			dlci_state->direction[1].current=-1;
-			dlci_state->direction[1].stream_buf=NULL;
 			se_tree_insert32(dlci_table, dlci, dlci_state);
 		}
 
@@ -642,14 +637,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dlci_state=se_tree_lookup32(dlci_table, dlci);
 	if(!dlci_state){
-		dlci_state=se_alloc(sizeof(dlci_state_t));
-		dlci_state->do_credit_fc=0;
-		dlci_state->direction[0].len=0;
+		dlci_state=se_alloc0(sizeof(dlci_state_t));
 		dlci_state->direction[0].current=-1;
-		dlci_state->direction[0].stream_buf=NULL;
-		dlci_state->direction[1].len=0;
 		dlci_state->direction[1].current=-1;
-		dlci_state->direction[1].stream_buf=NULL;
 		se_tree_insert32(dlci_table, dlci, dlci_state);
 	}
 
