@@ -12,11 +12,9 @@
 [ uuid("12345778-1234-abcd-ef00-0123456789ac"),
   version(1.0),
   endpoint("ncacn_np:[\\pipe\\samr]","ncacn_ip_tcp:", "ncalrpc:"),
-  pointer_default(unique),
-  pointer_default_top(unique)
+  pointer_default(unique)
 ] interface samr
 {
-	declare bitmap security_secinfo;
 
 	typedef [public,noejs] struct {
 		[value(strlen_m_term(name)*2)] uint16 name_len;
@@ -67,64 +65,78 @@
 	} samr_AcctFlags;
 
 	typedef [bitmap32bit] bitmap {
-		SAMR_ACCESS_CONNECT_TO_SERVER   = 0x00000001,
-		SAMR_ACCESS_SHUTDOWN_SERVER     = 0x00000002,
-		SAMR_ACCESS_INITIALIZE_SERVER   = 0x00000004,
-		SAMR_ACCESS_CREATE_DOMAIN       = 0x00000008,
-		SAMR_ACCESS_ENUM_DOMAINS        = 0x00000010,
-		SAMR_ACCESS_OPEN_DOMAIN         = 0x00000020
-	} samr_ConnectAccessMask;
+		SAMR_SERVER_ACCESS_CONNECT_TO_SERVER   = 0x00000001,
+		SAMR_SERVER_ACCESS_SHUTDOWN_SERVER     = 0x00000002,
+		SAMR_SERVER_ACCESS_INITIALIZE_SERVER   = 0x00000004,
+		SAMR_SERVER_ACCESS_CREATE_DOMAIN       = 0x00000008,
+		SAMR_SERVER_ACCESS_ENUM_DOMAINS        = 0x00000010,
+		SAMR_SERVER_ACCESS_OPEN_DOMAIN         = 0x00000020
+	} samr_ServerAccessMask;
+	// these bits are invalid and return ACCESS_DENIED
+	const int SAMR_SERVER_ACCESS_MASK_INVALID  = 0x0000ffc0; 
+	// generic access
+	const int SAMR_SERVER_ACCESS_ALL_ACCESS	   = 0x000f003f;
+	const int SAMR_SERVER_ACCESS_ALL_READ	   = 0x00020010;
+	const int SAMR_SERVER_ACCESS_ALL_WRITE	   = 0x0002000e;
+	const int SAMR_SERVER_ACCESS_ALL_EXECUTE   = 0x00020021;
 
 	typedef [bitmap32bit] bitmap {
-		USER_ACCESS_GET_NAME_ETC             = 0x00000001,
-		USER_ACCESS_GET_LOCALE               = 0x00000002,
-		USER_ACCESS_SET_LOC_COM              = 0x00000004,
-		USER_ACCESS_GET_LOGONINFO            = 0x00000008,
-		USER_ACCESS_GET_ATTRIBUTES           = 0x00000010,
-		USER_ACCESS_SET_ATTRIBUTES           = 0x00000020,
-		USER_ACCESS_CHANGE_PASSWORD          = 0x00000040,
-		USER_ACCESS_SET_PASSWORD             = 0x00000080,
-		USER_ACCESS_GET_GROUPS               = 0x00000100,
-		USER_ACCESS_GET_GROUP_MEMBERSHIP     = 0x00000200,
-		USER_ACCESS_CHANGE_GROUP_MEMBERSHIP  = 0x00000400
+		SAMR_USER_ACCESS_GET_NAME_ETC             = 0x00000001,
+		SAMR_USER_ACCESS_GET_LOCALE               = 0x00000002,
+		SAMR_USER_ACCESS_SET_LOC_COM              = 0x00000004,
+		SAMR_USER_ACCESS_GET_LOGONINFO            = 0x00000008,
+		SAMR_USER_ACCESS_GET_ATTRIBUTES           = 0x00000010,
+		SAMR_USER_ACCESS_SET_ATTRIBUTES           = 0x00000020,
+		SAMR_USER_ACCESS_CHANGE_PASSWORD          = 0x00000040,
+		SAMR_USER_ACCESS_SET_PASSWORD             = 0x00000080,
+		SAMR_USER_ACCESS_GET_GROUPS               = 0x00000100,
+		SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP     = 0x00000200,
+		SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP  = 0x00000400
 	} samr_UserAccessMask;
 
 	typedef [bitmap32bit] bitmap {
-		DOMAIN_ACCESS_LOOKUP_INFO_1  = 0x00000001,
-		DOMAIN_ACCESS_SET_INFO_1     = 0x00000002,
-		DOMAIN_ACCESS_LOOKUP_INFO_2  = 0x00000004,
-		DOMAIN_ACCESS_SET_INFO_2     = 0x00000008,
-		DOMAIN_ACCESS_CREATE_USER    = 0x00000010,
-		DOMAIN_ACCESS_CREATE_GROUP   = 0x00000020,
-		DOMAIN_ACCESS_CREATE_ALIAS   = 0x00000040,
-		DOMAIN_ACCESS_LOOKUP_ALIAS   = 0x00000080,
-		DOMAIN_ACCESS_ENUM_ACCOUNTS  = 0x00000100,
-		DOMAIN_ACCESS_OPEN_ACCOUNT   = 0x00000200,
-		DOMAIN_ACCESS_SET_INFO_3     = 0x00000400
+		SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1  = 0x00000001,
+		SAMR_DOMAIN_ACCESS_SET_INFO_1     = 0x00000002,
+		SAMR_DOMAIN_ACCESS_LOOKUP_INFO_2  = 0x00000004,
+		SAMR_DOMAIN_ACCESS_SET_INFO_2     = 0x00000008,
+		SAMR_DOMAIN_ACCESS_CREATE_USER    = 0x00000010,
+		SAMR_DOMAIN_ACCESS_CREATE_GROUP   = 0x00000020,
+		SAMR_DOMAIN_ACCESS_CREATE_ALIAS   = 0x00000040,
+		SAMR_DOMAIN_ACCESS_LOOKUP_ALIAS   = 0x00000080,
+		SAMR_DOMAIN_ACCESS_ENUM_ACCOUNTS  = 0x00000100,
+		SAMR_DOMAIN_ACCESS_OPEN_ACCOUNT   = 0x00000200,
+		SAMR_DOMAIN_ACCESS_SET_INFO_3     = 0x00000400
 	} samr_DomainAccessMask;
 
 	typedef [bitmap32bit] bitmap {
-		GROUP_ACCESS_LOOKUP_INFO     = 0x00000001,
-		GROUP_ACCESS_SET_INFO        = 0x00000002,
-		GROUP_ACCESS_ADD_MEMBER      = 0x00000004,
-		GROUP_ACCESS_REMOVE_MEMBER   = 0x00000008,
-		GROUP_ACCESS_GET_MEMBERS     = 0x00000010
+		SAMR_GROUP_ACCESS_LOOKUP_INFO     = 0x00000001,
+		SAMR_GROUP_ACCESS_SET_INFO        = 0x00000002,
+		SAMR_GROUP_ACCESS_ADD_MEMBER      = 0x00000004,
+		SAMR_GROUP_ACCESS_REMOVE_MEMBER   = 0x00000008,
+		SAMR_GROUP_ACCESS_GET_MEMBERS     = 0x00000010
 	} samr_GroupAccessMask;
+	// these bits are invalid and return ACCESS_DENIED
+	const int SAMR_GROUP_ACCESS_MASK_INVALID  = 0x0000ffe0; 
+	// generic access
+	const int SAMR_GROUP_ACCESS_ALL_ACCESS	  = 0x000f001f;
+	const int SAMR_GROUP_ACCESS_ALL_READ	  = 0x00020010;
+	const int SAMR_GROUP_ACCESS_ALL_WRITE	  = 0x0002000e;
+	const int SAMR_GROUP_ACCESS_ALL_EXECUTE	  = 0x00020001;
 
 	typedef [bitmap32bit] bitmap {
-		ALIAS_ACCESS_ADD_MEMBER      = 0x00000001,
-		ALIAS_ACCESS_REMOVE_MEMBER   = 0x00000002,
-		ALIAS_ACCESS_GET_MEMBERS     = 0x00000004,
-		ALIAS_ACCESS_LOOKUP_INFO     = 0x00000008,
-		ALIAS_ACCESS_SET_INFO        = 0x00000010
+		SAMR_ALIAS_ACCESS_ADD_MEMBER      = 0x00000001,
+		SAMR_ALIAS_ACCESS_REMOVE_MEMBER   = 0x00000002,
+		SAMR_ALIAS_ACCESS_GET_MEMBERS     = 0x00000004,
+		SAMR_ALIAS_ACCESS_LOOKUP_INFO     = 0x00000008,
+		SAMR_ALIAS_ACCESS_SET_INFO        = 0x00000010
 	} samr_AliasAccessMask;
 
 	/******************/
 	/* Function: 0x00 */
 	NTSTATUS samr_Connect (
 		/* notice the lack of [string] */
-		[in]       uint16 *system_name,
-		[in]       samr_ConnectAccessMask access_mask,
+		[in,unique] uint16 *system_name,
+		[in]       samr_ServerAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -150,7 +162,7 @@
 	NTSTATUS samr_QuerySecurity (
 		[in,ref]          policy_handle *handle,
 		[in]              security_secinfo sec_info,
-		[out]             sec_desc_buf *sdbuf
+		[out,unique]      sec_desc_buf *sdbuf
 		);
 
 	/******************/
@@ -168,7 +180,7 @@
 	NTSTATUS samr_LookupDomain (
 		[in,ref]  policy_handle *connect_handle,		
 		[in,ref]  lsa_String *domain_name,
-		[out]     dom_sid2 *sid
+		[out,unique] dom_sid2 *sid
 		);
 
 
@@ -189,7 +201,7 @@
 		[in,ref]      policy_handle *connect_handle,
 		[in,out,ref]  uint32 *resume_handle,
 		[in]          uint32 buf_size,
-		[out]         samr_SamArray *sam,
+		[out,unique]  samr_SamArray *sam,
 		[out]         uint32 num_entries
 		);
 
@@ -313,7 +325,7 @@
 	NTSTATUS samr_QueryDomainInfo(
 		[in,ref]      policy_handle *domain_handle,
 		[in]          uint16 level,
-		[out,switch_is(level)] samr_DomainInfo *info
+		[out,switch_is(level),unique] samr_DomainInfo *info
 		);
 
 	/************************/
@@ -346,7 +358,7 @@
 		[in,ref]      policy_handle *domain_handle,
 		[in,out,ref]  uint32 *resume_handle,
 		[in]          uint32 max_size,
-		[out]         samr_SamArray *sam,
+		[out,unique]  samr_SamArray *sam,
 		[out]         uint32 num_entries
 		);
 
@@ -374,18 +386,18 @@
 		[in,out,ref]  uint32 *resume_handle,
 		[in]          samr_AcctFlags acct_flags,
 		[in]          uint32 max_size,
-		[out]         samr_SamArray *sam,
+		[out,unique]  samr_SamArray *sam,
 		[out]         uint32 num_entries
 		);
 
 	/************************/
 	/* Function    0x0e     */
 	NTSTATUS samr_CreateDomAlias(
-		[in,ref]      policy_handle  *domain_handle,
-		[in,ref]      lsa_String     *alias_name,
+		[in,ref]      policy_handle *domain_handle,
+		[in,ref]      lsa_String   *alias_name,
 		[in]          samr_AliasAccessMask access_mask,
-		[out,ref]     policy_handle  *alias_handle,
-		[out,ref]     uint32         *rid
+		[out,ref]     policy_handle *alias_handle,
+		[out,ref]     uint32        *rid
 		);
 
 	/************************/
@@ -394,7 +406,7 @@
 		[in,ref]      policy_handle *domain_handle,
 		[in,out,ref]  uint32 *resume_handle,
 		[in]          samr_AcctFlags acct_flags,
-		[out]         samr_SamArray *sam,
+		[out,unique]  samr_SamArray *sam,
 		[out]         uint32 num_entries
 		);
 
@@ -496,7 +508,7 @@
 	NTSTATUS samr_QueryGroupInfo(
 		[in,ref]                  policy_handle *group_handle,
 		[in]                      samr_GroupInfoEnum level,
-		[out,switch_is(level)]    samr_GroupInfo *info
+		[out,switch_is(level),unique] samr_GroupInfo *info
 		);
 
 	/************************/
@@ -539,7 +551,7 @@
 
 	NTSTATUS samr_QueryGroupMember(
 		[in,ref]  policy_handle *group_handle,
-		[out]     samr_RidTypeArray *rids
+		[out,unique] samr_RidTypeArray *rids
 		);
 
 
@@ -593,7 +605,7 @@
 	NTSTATUS samr_QueryAliasInfo(
 		[in,ref]                  policy_handle  *alias_handle,
 		[in]                      samr_AliasInfoEnum      level,
-		[out,switch_is(level)]    samr_AliasInfo *info
+		[out,switch_is(level),unique] samr_AliasInfo *info
 		);
 
 	/************************/
@@ -601,7 +613,7 @@
 	NTSTATUS samr_SetAliasInfo(
 		[in,ref]                  policy_handle  *alias_handle,
 		[in]                      samr_AliasInfoEnum      level,
-		[in,switch_is(level)] samr_AliasInfo info
+		[in,switch_is(level),ref] samr_AliasInfo *info
 		);
 
 	/************************/
@@ -767,23 +779,36 @@
 
 	/* this defines the bits used for fields_present in info21 */
 	typedef [bitmap32bit] bitmap {
-		SAMR_FIELD_ACCOUNT_NAME   = 0x00000001,
-		SAMR_FIELD_FULL_NAME      = 0x00000002,
-		SAMR_FIELD_PRIMARY_GID    = 0x00000008,
-		SAMR_FIELD_DESCRIPTION    = 0x00000010,
-		SAMR_FIELD_COMMENT        = 0x00000020,
-		SAMR_FIELD_HOME_DIRECTORY = 0x00000040,
-		SAMR_FIELD_HOME_DRIVE     = 0x00000080,
-		SAMR_FIELD_LOGON_SCRIPT   = 0x00000100,
-		SAMR_FIELD_PROFILE_PATH   = 0x00000200,
-		SAMR_FIELD_WORKSTATIONS   = 0x00000400,
-		SAMR_FIELD_LOGON_HOURS    = 0x00002000,
-		SAMR_FIELD_ACCT_FLAGS     = 0x00100000,
-		SAMR_FIELD_PARAMETERS     = 0x00200000,
-		SAMR_FIELD_COUNTRY_CODE   = 0x00400000,
-		SAMR_FIELD_CODE_PAGE      = 0x00800000,
-		SAMR_FIELD_PASSWORD       = 0x01000000, /* either of these */
-		SAMR_FIELD_PASSWORD2      = 0x02000000  /* two bits seems to work */
+		SAMR_FIELD_ACCOUNT_NAME     = 0x00000001,
+		SAMR_FIELD_FULL_NAME        = 0x00000002,
+		SAMR_FIELD_RID              = 0x00000004,
+		SAMR_FIELD_PRIMARY_GID      = 0x00000008,
+		SAMR_FIELD_DESCRIPTION      = 0x00000010,
+		SAMR_FIELD_COMMENT          = 0x00000020,
+		SAMR_FIELD_HOME_DIRECTORY   = 0x00000040,
+		SAMR_FIELD_HOME_DRIVE       = 0x00000080,
+		SAMR_FIELD_LOGON_SCRIPT     = 0x00000100,
+		SAMR_FIELD_PROFILE_PATH     = 0x00000200,
+		SAMR_FIELD_WORKSTATIONS     = 0x00000400,
+		SAMR_FIELD_LAST_LOGON       = 0x00000800,
+		SAMR_FIELD_LAST_LOGOFF      = 0x00001000,
+		SAMR_FIELD_LOGON_HOURS      = 0x00002000,
+		SAMR_FIELD_BAD_PWD_COUNT    = 0x00004000,
+		SAMR_FIELD_NUM_LOGONS       = 0x00008000,
+		SAMR_FIELD_ALLOW_PWD_CHANGE = 0x00010000,
+		SAMR_FIELD_FORCE_PWD_CHANGE = 0x00020000,
+		SAMR_FIELD_LAST_PWD_CHANGE  = 0x00040000,
+		SAMR_FIELD_ACCT_EXPIRY      = 0x00080000,
+		SAMR_FIELD_ACCT_FLAGS       = 0x00100000,
+		SAMR_FIELD_PARAMETERS       = 0x00200000,
+		SAMR_FIELD_COUNTRY_CODE     = 0x00400000,
+		SAMR_FIELD_CODE_PAGE        = 0x00800000,
+		SAMR_FIELD_PASSWORD         = 0x01000000, /* either of these */
+		SAMR_FIELD_PASSWORD2        = 0x02000000, /* two bits seems to work */
+		SAMR_FIELD_PRIVATE_DATA     = 0x04000000,
+		SAMR_FIELD_EXPIRED_FLAG     = 0x08000000,
+		SAMR_FIELD_SEC_DESC         = 0x10000000,
+		SAMR_FIELD_OWF_PWD          = 0x20000000
 	} samr_FieldsPresent;
 
 	typedef struct {
@@ -879,7 +904,7 @@
 	[public] NTSTATUS samr_QueryUserInfo(
 		[in,ref]                  policy_handle *user_handle,
 		[in]                      uint16 level,
-		[out,switch_is(level)]    samr_UserInfo *info
+		[out,unique,switch_is(level)] samr_UserInfo *info
 		);
 
 
@@ -904,15 +929,15 @@
 	NTSTATUS samr_ChangePasswordUser(
 		[in,ref]    policy_handle *user_handle,
 		[in]        boolean8 lm_present,
-		[in]        samr_Password *old_lm_crypted,
-		[in]        samr_Password *new_lm_crypted,
+		[in,unique] samr_Password *old_lm_crypted,
+		[in,unique] samr_Password *new_lm_crypted,
 		[in]        boolean8 nt_present,
-		[in]        samr_Password *old_nt_crypted,
-		[in]        samr_Password *new_nt_crypted,
+		[in,unique] samr_Password *old_nt_crypted,
+		[in,unique] samr_Password *new_nt_crypted,
 		[in]        boolean8 cross1_present,
-		[in]        samr_Password *nt_cross,
+		[in,unique] samr_Password *nt_cross,
 		[in]        boolean8 cross2_present,
-		[in]        samr_Password *lm_cross
+		[in,unique] samr_Password *lm_cross
 		);
 
 	/************************/
@@ -930,7 +955,7 @@
 
 	NTSTATUS samr_GetGroupsForUser(
 		[in,ref]   policy_handle *user_handle,
-		[out]      samr_RidWithAttributeArray  *rids
+		[out,unique] samr_RidWithAttributeArray  *rids
 		);
 
 	/************************/
@@ -941,8 +966,8 @@
 		uint32    rid;
 		samr_AcctFlags acct_flags;
 		lsa_String account_name;
-		lsa_String full_name;
 		lsa_String description;
+		lsa_String full_name;
 	} samr_DispEntryGeneral;
 
 	typedef struct {
@@ -978,7 +1003,7 @@
 
 	typedef struct {
 		uint32    idx;
-		lsa_AsciiString account_name;
+		lsa_AsciiStringLarge account_name;
 	} samr_DispEntryAscii;
 
 	typedef struct {
@@ -1078,7 +1103,7 @@
 	NTSTATUS samr_QueryDomainInfo2(
 		[in,ref]      policy_handle *domain_handle,
 		[in]          uint16 level,
-		[out,switch_is(level)] samr_DomainInfo *info
+		[out,unique,switch_is(level)] samr_DomainInfo *info
 		);
 
 	/************************/
@@ -1090,7 +1115,7 @@
 	NTSTATUS samr_QueryUserInfo2(
 		[in,ref]                  policy_handle *user_handle,
 		[in]                      uint16 level,
-		[out,switch_is(level)]    samr_UserInfo *info
+		[out,unique,switch_is(level)]    samr_UserInfo *info
 		);
 
 	/************************/
@@ -1172,36 +1197,36 @@
 	/* Function    0x36     */
 
 	NTSTATUS samr_OemChangePasswordUser2(
-		[in]              lsa_AsciiString *server,
+		[in,unique]       lsa_AsciiString *server,
 		[in,ref]          lsa_AsciiString *account,
-		[in]              samr_CryptPassword *password,
-		[in]              samr_Password *hash
+		[in,unique]       samr_CryptPassword *password,
+		[in,unique]       samr_Password *hash
 		);
 
 	/************************/
 	/* Function    0x37     */
 	NTSTATUS samr_ChangePasswordUser2(
-		[in]              lsa_String *server,
+		[in,unique]       lsa_String *server,
 		[in,ref]          lsa_String *account,
-		[in]              samr_CryptPassword *nt_password,
-		[in]              samr_Password *nt_verifier,
+		[in,unique]       samr_CryptPassword *nt_password,
+		[in,unique]       samr_Password *nt_verifier,
 		[in]              boolean8 lm_change,
-		[in]              samr_CryptPassword *lm_password,
-		[in]              samr_Password *lm_verifier
+		[in,unique]       samr_CryptPassword *lm_password,
+		[in,unique]       samr_Password *lm_verifier
 		);
 
 	/************************/
 	/* Function    0x38     */
 	NTSTATUS samr_GetDomPwInfo(
-		[in]        lsa_String *domain_name,
+		[in,unique] lsa_String *domain_name,
 		[out]       samr_PwInfo info
 		);
 
 	/************************/
 	/* Function    0x39     */
 	NTSTATUS samr_Connect2(
-		[in,string,charset(UTF16)] uint16 *system_name,
-		[in] samr_ConnectAccessMask access_mask,
+		[in,unique,string,charset(UTF16)] uint16 *system_name,
+		[in] samr_ServerAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -1238,54 +1263,72 @@
 	/************************/
 	/* Function    0x3d     */
 	NTSTATUS samr_Connect3(
-		[in,string,charset(UTF16)] uint16 *system_name,
+		[in,unique,string,charset(UTF16)] uint16 *system_name,
 		/* this unknown value seems to be completely ignored by w2k3 */
 		[in] uint32 unknown,
-		[in] samr_ConnectAccessMask access_mask,
+		[in] samr_ServerAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
 	/************************/
 	/* Function    0x3e     */
 	NTSTATUS samr_Connect4(
-		[in,string,charset(UTF16)] uint16 *system_name,
+		[in,unique,string,charset(UTF16)] uint16 *system_name,
 		[in] uint32 unknown,
-		[in] samr_ConnectAccessMask access_mask,
+		[in] samr_ServerAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
 	/************************/
 	/* Function    0x3f     */
 
-	typedef enum {
-		DUMMY_ENTRY_KEEP_PIDL_HAPPY = 999
-	} samr_RejectReason;
+	typedef [v1_enum] enum {
+		SAMR_PWD_CHANGE_NO_ERROR			= 0,
+		SAMR_PWD_CHANGE_PASSWORD_TOO_SHORT		= 1,
+		SAMR_PWD_CHANGE_PWD_IN_HISTORY			= 2,
+		SAMR_PWD_CHANGE_USERNAME_IN_PASSWORD		= 3,
+		SAMR_PWD_CHANGE_FULLNAME_IN_PASSWORD		= 4,
+		SAMR_PWD_CHANGE_NOT_COMPLEX			= 5,
+		SAMR_PWD_CHANGE_MACHINE_PASSWORD_NOT_DEFAULT	= 6,
+		SAMR_PWD_CHANGE_FAILED_BY_FILTER		= 7,
+		SAMR_PWD_CHANGE_PASSWORD_TOO_LONG		= 8
+	} samr_ExtendedFailureReason;
 
 	typedef struct {
-		samr_RejectReason reason;
+		samr_ExtendedFailureReason reason;
 		uint32 unknown1;
 		uint32 unknown2;
 	} samr_ChangeReject;
 
 	NTSTATUS samr_ChangePasswordUser3(
-		[in]              lsa_String *server,
+		[in,unique]       lsa_String *server,
 		[in,ref]          lsa_String *account,
-		[in]              samr_CryptPassword *nt_password,
-		[in]              samr_Password *nt_verifier,
+		[in,unique]       samr_CryptPassword *nt_password,
+		[in,unique]       samr_Password *nt_verifier,
 		[in]              boolean8 lm_change,
-		[in]              samr_CryptPassword *lm_password,
-		[in]              samr_Password *lm_verifier,
-		[in]              samr_CryptPassword *password3,
-		[out]             samr_DomInfo1 *dominfo,
-		[out]             samr_ChangeReject *reject
+		[in,unique]       samr_CryptPassword *lm_password,
+		[in,unique]       samr_Password *lm_verifier,
+		[in,unique]       samr_CryptPassword *password3,
+		[out,unique]      samr_DomInfo1 *dominfo,
+		[out,unique]      samr_ChangeReject *reject
 		);
 
 	/************************/
 	/* Function    0x40      */
 
+	typedef [v1_enum] enum {
+		CONNECTION_REVISION_PRE_W2K	= 1,
+		CONNECTION_REVISION_W2K		= 2,
+		CONNECTION_REVISION_XP		= 3
+	} samr_ConnectRevision;
+
+	typedef [bitmap32bit] bitmap {
+		SAMR_FEATURES_DONT_CONCAT_RIDS	= 0x00000001
+	} samr_SupportedFeatures;
+
 	typedef struct {
-		uint32         unknown1; /* w2k3 gives 3 */
-		uint32         unknown2; /* w2k3 gives 0 */
+		samr_ConnectRevision	revision;
+		samr_SupportedFeatures	features;
 	} samr_ConnectInfo1;
 
 	typedef union {
@@ -1293,8 +1336,8 @@
 	} samr_ConnectInfo;
 
 	[public] NTSTATUS samr_Connect5(
-		[in,string,charset(UTF16)] uint16 *system_name,
-		[in]       samr_ConnectAccessMask  access_mask,
+		[in,unique,string,charset(UTF16)] uint16 *system_name,
+		[in]       samr_ServerAccessMask  access_mask,
 		[in,out]   uint32             level,
 		[in,out,switch_is(level),ref] samr_ConnectInfo *info,
 		[out,ref]  policy_handle      *connect_handle
@@ -1305,7 +1348,7 @@
 	NTSTATUS samr_RidToSid(
 		[in,ref]    policy_handle *domain_handle,
 		[in]        uint32        rid,
-		[out]       dom_sid2      *sid
+		[out,unique] dom_sid2      *sid
 		);
 
 
@@ -1319,17 +1362,107 @@
 	*/
 
 	NTSTATUS samr_SetDsrmPassword(
-		[in]       lsa_String *name,
+		[in,unique] lsa_String *name,
 		[in]       uint32 unknown,
-		[in]       samr_Password *hash
+		[in,unique] samr_Password *hash
 		);
 
 
 	/************************/
 	/* Function    0x43     */
-	/*
-	  I haven't been able to work out the format of this one yet.
-	  Seems to start with a switch level for a union?
-	*/
-	NTSTATUS samr_ValidatePassword();
+	/************************/
+	typedef [bitmap32bit] bitmap {
+		SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET		= 0x00000001,
+		SAMR_VALIDATE_FIELD_BAD_PASSWORD_TIME		= 0x00000002,
+		SAMR_VALIDATE_FIELD_LOCKOUT_TIME		= 0x00000004,
+		SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT		= 0x00000008,
+		SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH	= 0x00000010,
+		SAMR_VALIDATE_FIELD_PASSWORD_HISTORY		= 0x00000020
+	} samr_ValidateFieldsPresent;
+
+	typedef enum {
+		NetValidateAuthentication = 1,
+		NetValidatePasswordChange= 2,
+		NetValidatePasswordReset = 3
+	} samr_ValidatePasswordLevel;
+
+	/* NetApi maps samr_ValidationStatus errors to WERRORs. Haven't
+	 * identified the mapping of
+	 * - NERR_PasswordFilterError
+	 * - NERR_PasswordExpired and
+	 * - NERR_PasswordCantChange
+	 * yet - Guenther
+	 */
+
+	typedef enum {
+		SAMR_VALIDATION_STATUS_SUCCESS = 0,
+		SAMR_VALIDATION_STATUS_PASSWORD_MUST_CHANGE = 1,
+		SAMR_VALIDATION_STATUS_ACCOUNT_LOCKED_OUT = 2,
+		SAMR_VALIDATION_STATUS_BAD_PASSWORD = 4,
+		SAMR_VALIDATION_STATUS_PWD_HISTORY_CONFLICT = 5,
+		SAMR_VALIDATION_STATUS_PWD_TOO_SHORT = 6,
+		SAMR_VALIDATION_STATUS_PWD_TOO_LONG = 7,
+		SAMR_VALIDATION_STATUS_NOT_COMPLEX_ENOUGH = 8,
+		SAMR_VALIDATION_STATUS_PASSWORD_TOO_RECENT = 9
+	} samr_ValidationStatus;
+
+	typedef struct {
+		uint32 length;
+		[size_is(length)] uint8 *data;
+        } samr_ValidationBlob;
+
+	typedef struct {
+		samr_ValidateFieldsPresent fields_present;
+		NTTIME_hyper last_password_change;
+		NTTIME_hyper bad_password_time;
+		NTTIME_hyper lockout_time;
+		uint32 bad_pwd_count;
+		uint32 pwd_history_len;
+		[size_is(pwd_history_len)] samr_ValidationBlob *pwd_history;
+	} samr_ValidatePasswordInfo;
+
+	typedef struct {
+		samr_ValidatePasswordInfo info;
+		samr_ValidationStatus status;
+	} samr_ValidatePasswordRepCtr;
+
+	typedef [switch_type(uint16)] union {
+		[case(1)] samr_ValidatePasswordRepCtr ctr1;
+		[case(2)] samr_ValidatePasswordRepCtr ctr2;
+		[case(3)] samr_ValidatePasswordRepCtr ctr3;
+	} samr_ValidatePasswordRep;
+
+	typedef struct {
+		samr_ValidatePasswordInfo info;
+		lsa_StringLarge password;
+		lsa_StringLarge account;
+		samr_ValidationBlob hash;
+		boolean8 pwd_must_change_at_next_logon;
+		boolean8 clear_lockout;
+	} samr_ValidatePasswordReq3;
+
+	typedef struct {
+		samr_ValidatePasswordInfo info;
+		lsa_StringLarge password;
+		lsa_StringLarge account;
+		samr_ValidationBlob hash;
+		boolean8 password_matched;
+	} samr_ValidatePasswordReq2;
+
+	typedef struct {
+		samr_ValidatePasswordInfo info;
+		boolean8 password_matched;
+	} samr_ValidatePasswordReq1;
+
+	typedef [switch_type(uint16)] union {
+		[case(1)] samr_ValidatePasswordReq1 req1;
+		[case(2)] samr_ValidatePasswordReq2 req2;
+		[case(3)] samr_ValidatePasswordReq3 req3;
+	} samr_ValidatePasswordReq;
+
+	NTSTATUS samr_ValidatePassword(
+		[in] samr_ValidatePasswordLevel level,
+		[in,switch_is(level)] samr_ValidatePasswordReq req,
+		[out,unique,switch_is(level)] samr_ValidatePasswordRep *rep
+		);
 }

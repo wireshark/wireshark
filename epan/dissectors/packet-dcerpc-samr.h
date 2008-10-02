@@ -14,6 +14,26 @@
 #ifndef __PACKET_DCERPC_SAMR_H
 #define __PACKET_DCERPC_SAMR_H
 
+#define SAMR_SERVER_ACCESS_MASK_INVALID	( 0x0000ffc0 )
+
+#define SAMR_SERVER_ACCESS_ALL_ACCESS	( 0x000f003f )
+
+#define SAMR_SERVER_ACCESS_ALL_READ	( 0x00020010 )
+
+#define SAMR_SERVER_ACCESS_ALL_WRITE	( 0x0002000e )
+
+#define SAMR_SERVER_ACCESS_ALL_EXECUTE	( 0x00020021 )
+
+#define SAMR_GROUP_ACCESS_MASK_INVALID	( 0x0000ffe0 )
+
+#define SAMR_GROUP_ACCESS_ALL_ACCESS	( 0x000f001f )
+
+#define SAMR_GROUP_ACCESS_ALL_READ	( 0x00020010 )
+
+#define SAMR_GROUP_ACCESS_ALL_WRITE	( 0x0002000e )
+
+#define SAMR_GROUP_ACCESS_ALL_EXECUTE	( 0x00020001 )
+
 #define SAMR_ENUM_USERS_MULTIPLIER	( 54 )
 
 int samr_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -31,7 +51,7 @@ int samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_in
 extern const value_string samr_lsa_SidType_vals[];
 int samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-int samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_bitmap_ServerAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -115,9 +135,46 @@ int samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, pa
 int samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
-#define DUMMY_ENTRY_KEEP_PIDL_HAPPY (999)
-extern const value_string samr_samr_RejectReason_vals[];
-int samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
+#define SAMR_PWD_CHANGE_NO_ERROR (0)
+#define SAMR_PWD_CHANGE_PASSWORD_TOO_SHORT (1)
+#define SAMR_PWD_CHANGE_PWD_IN_HISTORY (2)
+#define SAMR_PWD_CHANGE_USERNAME_IN_PASSWORD (3)
+#define SAMR_PWD_CHANGE_FULLNAME_IN_PASSWORD (4)
+#define SAMR_PWD_CHANGE_NOT_COMPLEX (5)
+#define SAMR_PWD_CHANGE_MACHINE_PASSWORD_NOT_DEFAULT (6)
+#define SAMR_PWD_CHANGE_FAILED_BY_FILTER (7)
+#define SAMR_PWD_CHANGE_PASSWORD_TOO_LONG (8)
+extern const value_string samr_samr_ExtendedFailureReason_vals[];
+int samr_dissect_enum_ExtendedFailureReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 int samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define CONNECTION_REVISION_PRE_W2K (1)
+#define CONNECTION_REVISION_W2K (2)
+#define CONNECTION_REVISION_XP (3)
+extern const value_string samr_samr_ConnectRevision_vals[];
+int samr_dissect_enum_ConnectRevision(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
+int samr_dissect_bitmap_SupportedFeatures(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define NetValidateAuthentication (1)
+#define NetValidatePasswordChange (2)
+#define NetValidatePasswordReset (3)
+extern const value_string samr_samr_ValidatePasswordLevel_vals[];
+int samr_dissect_enum_ValidatePasswordLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
+#define SAMR_VALIDATION_STATUS_SUCCESS (0)
+#define SAMR_VALIDATION_STATUS_PASSWORD_MUST_CHANGE (1)
+#define SAMR_VALIDATION_STATUS_ACCOUNT_LOCKED_OUT (2)
+#define SAMR_VALIDATION_STATUS_BAD_PASSWORD (4)
+#define SAMR_VALIDATION_STATUS_PWD_HISTORY_CONFLICT (5)
+#define SAMR_VALIDATION_STATUS_PWD_TOO_SHORT (6)
+#define SAMR_VALIDATION_STATUS_PWD_TOO_LONG (7)
+#define SAMR_VALIDATION_STATUS_NOT_COMPLEX_ENOUGH (8)
+#define SAMR_VALIDATION_STATUS_PASSWORD_TOO_RECENT (9)
+extern const value_string samr_samr_ValidationStatus_vals[];
+int samr_dissect_enum_ValidationStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
+int samr_dissect_struct_ValidationBlob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_ValidatePasswordInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_ValidatePasswordRepCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_ValidatePasswordReq3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_ValidatePasswordReq2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+int samr_dissect_struct_ValidatePasswordReq1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #endif /* __PACKET_DCERPC_SAMR_H */

@@ -157,6 +157,8 @@ PARAM_VALUE samr_dissect_element_CreateUser2_account_name_ 3|PIDL_SET_COL_INFO|P
 
 TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE lsa_StringLarge "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
 
 
@@ -213,12 +215,12 @@ CODE START
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_OPEN_DOMAIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_ENUM_DOMAINS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_OPEN_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_ENUM_DOMAINS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_CREATE_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_INITIALIZE_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_SHUTDOWN_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_CONNECT_TO_SERVER, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_connect_access_mask_info = {
@@ -241,11 +243,11 @@ samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pi
 static void
 samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_ALIAS_ACCESS_ADD_MEMBER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_ALIAS_ACCESS_REMOVE_MEMBER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_ALIAS_ACCESS_GET_MEMBERS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_ALIAS_ACCESS_LOOKUP_INFO, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_ALIAS_ACCESS_SET_INFO, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_ADD_MEMBER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_REMOVE_MEMBER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_LOOKUP_INFO, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_SET_INFO, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_alias_access_mask_info = {
@@ -268,11 +270,11 @@ samr_dissect_bitmap_AliasAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_GROUP_ACCESS_GET_MEMBERS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_GROUP_ACCESS_REMOVE_MEMBER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_GROUP_ACCESS_ADD_MEMBER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_GROUP_ACCESS_SET_INFO, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_GROUP_ACCESS_LOOKUP_INFO, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_GET_MEMBERS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_ADD_MEMBER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_SET_INFO, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_group_access_mask_info = {
@@ -295,17 +297,17 @@ samr_dissect_bitmap_GroupAccessMask(tvbuff_t *tvb, int offset, packet_info *pinf
 static void
 samr_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_LOOKUP_INFO_1, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_SET_INFO_1, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_LOOKUP_INFO_2, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_SET_INFO_2, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_CREATE_USER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_CREATE_GROUP, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_CREATE_ALIAS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_LOOKUP_ALIAS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_ENUM_ACCOUNTS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_OPEN_ACCOUNT, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_DOMAIN_ACCESS_SET_INFO_3, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_1, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_1, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_INFO_2, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_2, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_USER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_GROUP, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_ALIAS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_LOOKUP_ALIAS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_ENUM_ACCOUNTS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_OPEN_ACCOUNT, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_SET_INFO_3, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_domain_access_mask_info = {
@@ -328,17 +330,17 @@ samr_dissect_bitmap_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pin
 static void
 samr_user_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_GROUP_MEMBERSHIP, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_GROUPS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_SET_PASSWORD, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_CHANGE_PASSWORD, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_SET_ATTRIBUTES, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_ATTRIBUTES, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_LOGONINFO, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_SET_LOC_COM, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_LOCALE, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_USER_ACCESS_GET_NAME_ETC, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUPS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_PASSWORD, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_PASSWORD, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_ATTRIBUTES, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_ATTRIBUTES, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOGONINFO, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_LOC_COM, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOCALE, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_NAME_ETC, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_user_access_mask_info = {
