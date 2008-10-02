@@ -54,6 +54,7 @@ static int hf_irc_response = -1;
 static gint ett_irc = -1;
 
 #define TCP_PORT_IRC			6667
+#define TCP_PORT_DIRCPROXY		57000
 	/* good candidate for dynamic port specification */
 
 static void
@@ -157,4 +158,5 @@ proto_reg_handoff_irc(void)
 
 	irc_handle = create_dissector_handle(dissect_irc, proto_irc);
 	dissector_add("tcp.port", TCP_PORT_IRC, irc_handle);
+	dissector_add("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }
