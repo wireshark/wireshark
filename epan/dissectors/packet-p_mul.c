@@ -48,6 +48,7 @@
 #include <string.h>
 
 #include "packet-cdt.h"
+#include "packet-ber.h"
 
 #define PNAME  "P_Mul (ACP142)"
 #define PSNAME "P_MUL"
@@ -71,7 +72,8 @@
 
 /* Type of content to decode from Data_PDU */
 #define DECODE_NONE      0
-#define DECODE_CDT       1
+#define DECODE_BER       1
+#define DECODE_CDT       2
 
 void proto_reg_handoff_p_mul (void);
 
@@ -152,6 +154,7 @@ static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
 static dissector_handle_t p_mul_handle = NULL;
+static dissector_handle_t data_handle = NULL;
 
 typedef struct _p_mul_id_key {
   guint32 id;
@@ -225,6 +228,7 @@ static const value_string pdu_vals[] = {
 
 static enum_val_t decode_options[] = {
   { "none", "No decoding",          DECODE_NONE },
+  { "ber",  "BER encoded ASN.1",    DECODE_BER  },
   { "cdt",  "Compressed Data Type", DECODE_CDT  },
   { NULL,   NULL,                   0           }
 };
@@ -597,8 +601,16 @@ static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo _U_,
     return;
   }
 
-  if (decode_option == DECODE_CDT) {
+  switch(decode_option) {
+  case DECODE_BER:
+    dissect_unknown_ber (pinfo, tvb, 0, tree);
+    break;
+  case DECODE_CDT:
     dissect_cdt (tvb, pinfo, tree);
+    break;
+  default:
+    call_dissector (data_handle, tvb, pinfo, tree);
+    break;
   }
 }
 
@@ -1397,6 +1409,7 @@ void proto_reg_handoff_p_mul (void)
   if (!p_mul_prefs_initialized) {
     p_mul_handle = find_dissector(PFNAME);
     p_mul_prefs_initialized = TRUE;
+    data_handle = find_dissector ("data");
   } else {
     range_foreach (p_mul_port_range, range_delete_callback);
     g_free (p_mul_port_range);
