@@ -101,6 +101,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct gw_packet *gw_packeth;
 	const guint8  *ip_addr;
 	guint32 ip;
+	int ip_pos;
 
 	tvbuff_t *next_tvb;
 	guint length_remaining;
@@ -108,8 +109,16 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	gw_packeth = ep_alloc(sizeof(struct gw_packet));
 	gw_packeth->type = tvb_get_guint8(tvb, 0);
-	ip = tvb_get_ipv4(tvb, 1);
-	ip_addr = tvb_get_ptr(tvb, 1, 4);
+
+	switch (gw_packeth->type) {
+		case TUNNEL_IP_INVALID:
+			ip_pos = 13;
+			break;
+		default:
+			ip_pos = 1;
+	}
+	ip = tvb_get_ipv4(tvb, ip_pos);
+	ip_addr = tvb_get_ptr(tvb, ip_pos, 4);
 
 	/* set protocol name */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -145,15 +154,15 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(bat_gw_entry_tree, hf_bat_gw_type, tvb, offset, 1, FALSE);
 		offset += 1;
 
-		if (ip != 0) {
-			proto_tree_add_ipv4(bat_gw_entry_tree, hf_bat_gw_ip, tvb, offset, 4, ip);
-			offset += 4;
+		if (gw_packeth->type != TUNNEL_DATA && ip != 0) {
+			proto_tree_add_ipv4(bat_gw_entry_tree, hf_bat_gw_ip, tvb, ip_pos, 4, ip);
+			offset = ip_pos + 4;
 		}
 	}
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, length_remaining);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		if (have_tap_listener(bat_follow_tap)) {
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);

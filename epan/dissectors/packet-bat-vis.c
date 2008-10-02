@@ -234,7 +234,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	tap_queue_packet(bat_tap, pinfo, vis_packeth);
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
 	for (i = 0; i < length_remaining; i += VIS_PACKET_V22_DATA_SIZE) {
 		next_tvb = tvb_new_subset(tvb, offset, VIS_PACKET_V22_DATA_SIZE, VIS_PACKET_V22_DATA_SIZE);
@@ -250,9 +250,9 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += VIS_PACKET_V22_DATA_SIZE;
 	}
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, length_remaining);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		if (have_tap_listener(bat_follow_tap)) {
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
@@ -369,7 +369,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	tap_queue_packet(bat_tap, pinfo, vis_packeth);
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
 	for (i = 0; i < length_remaining; i += VIS_PACKET_V23_DATA_SIZE) {
 		next_tvb = tvb_new_subset(tvb, offset, VIS_PACKET_V23_DATA_SIZE, VIS_PACKET_V23_DATA_SIZE);
@@ -385,9 +385,9 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += VIS_PACKET_V23_DATA_SIZE;
 	}
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, length_remaining);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		if (have_tap_listener(bat_follow_tap)) {
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);

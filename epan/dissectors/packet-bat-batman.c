@@ -302,8 +302,6 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	tap_queue_packet(bat_tap, pinfo, batman_packeth);
 
-	length_remaining = tvb_length_remaining(tvb, offset);
-
 	for (i = 0; i < batman_packeth->hna_len; i++) {
 		next_tvb = tvb_new_subset(tvb, offset, 5, 5);
 
@@ -315,9 +313,9 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		offset += 5;
 	}
 
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining != 0) {
-		next_tvb = tvb_new_subset(tvb, offset, length_remaining, length_remaining);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 		if (have_tap_listener(bat_follow_tap)) {
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
