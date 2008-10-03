@@ -470,4 +470,8 @@ cf_status_t
 cf_merge_files(char **out_filename, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append);
 
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+void read_keytab_file(const char *);
+#endif
+
 #endif /* file.h */

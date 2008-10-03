@@ -310,6 +310,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -h                       display this help and exit\n");
   fprintf(output, "  -v                       display version info and exit\n");
   fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
+  fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
 }
 
 /*
@@ -751,7 +752,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -999,6 +1000,11 @@ main(int argc, char *argv[])
         if (!add_decode_as(optarg))
           exit(1);
         break;
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+      case 'K':        /* Kerberos keytab file */
+        read_keytab_file(optarg);
+        break;
+#endif
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
         status = capture_opts_list_interfaces(FALSE);

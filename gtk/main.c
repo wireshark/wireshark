@@ -998,6 +998,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -P <key>:<path>          persconf:path - personal configuration files\n");
   fprintf(output, "                           persdata:path - personal data files\n");
   fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
+  fprintf(output, "  -K <keytab>              keytab file to use for kerberos decryption\n");
 #ifndef _WIN32
   fprintf(output, "  --display=DISPLAY        X display to use\n");
 #endif
@@ -1737,7 +1738,7 @@ main(int argc, char *argv[])
   char			*err_str;
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:klLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2117,6 +2118,12 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+      case 'K':        /* Kerberos keytab file */
+        read_keytab_file(optarg);
+        break;
+#endif
 
       /*** all non capture option specific ***/
       case 'C':

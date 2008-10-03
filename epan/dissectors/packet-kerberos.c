@@ -422,24 +422,36 @@ printf("added key in %u\n",pinfo->fd->num);
 
 #ifdef HAVE_MIT_KERBEROS
 
-static void
-read_keytab_file(const char *filename, krb5_context *context)
+static krb5_context krb5_ctx;
+
+void
+read_keytab_file(const char *filename)
 {
 	krb5_keytab keytab;
-	krb5_keytab_entry key;
 	krb5_error_code ret;
+	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
+	static int first_time=1;
+
+printf("read keytab file %s\n", filename);
+	if(first_time){
+		first_time=0;
+		ret = krb5_init_context(&krb5_ctx);
+		if(ret){
+			return;
+		}
+	}
 
 	/* should use a file in the wireshark users dir */
-	ret = krb5_kt_resolve(*context, filename, &keytab);
+	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
 
 		return;
 	}
 
-	ret = krb5_kt_start_seq_get(*context, keytab, &cursor);
+	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
 		return;
@@ -448,7 +460,7 @@ read_keytab_file(const char *filename, krb5_context *context)
 	do{
 		new_key=g_malloc(sizeof(enc_key_t));
 		new_key->next=enc_key_list;
-		ret = krb5_kt_next_entry(*context, keytab, &key, &cursor);
+		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			int i;
 			char *pos;
@@ -472,9 +484,9 @@ read_keytab_file(const char *filename, krb5_context *context)
 		}
 	}while(ret==0);
 
-	ret = krb5_kt_end_seq_get(*context, keytab, &cursor);
+	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(*context, keytab);
+		krb5_kt_close(krb5_ctx, keytab);
 	}
 
 }
@@ -488,7 +500,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype)
 {
 	static int first_time=1;
-	static krb5_context context;
 	krb5_error_code ret;
 	enc_key_t *ek;
 	static krb5_data data = {0,0,NULL};
@@ -505,11 +516,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	/* should this have a destroy context ?  MIT people would know */
 	if(first_time){
 		first_time=0;
-		ret = krb5_init_context(&context);
-		if(ret){
-			return NULL;
-		}
-		read_keytab_file(keytab_filename, &context);
+		read_keytab_file(keytab_filename);
 	}
 
 	for(ek=enc_key_list;ek;ek=ek->next){
@@ -533,7 +540,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		key.key.enctype=ek->keytype;
 		key.key.length=ek->keylength;
 		key.key.contents=ek->keyvalue;
-		ret = krb5_c_decrypt(context, &(key.key), usage, 0, &input, &data);
+		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
@@ -550,24 +557,36 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 }
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
-static void
-read_keytab_file(const char *filename, krb5_context *context)
+static krb5_context krb5_ctx;
+
+void
+read_keytab_file(const char *filename)
 {
 	krb5_keytab keytab;
+	krb5_error_code ret;
 	krb5_keytab_entry key;
 	krb5_error_code ret;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
+	static int first_time=1;
+
+	if(first_time){
+		first_time=0;
+		ret = krb5_init_context(&krb5_ctx);
+		if(ret){
+			return;
+		}
+	}
 
 	/* should use a file in the wireshark users dir */
-	ret = krb5_kt_resolve(*context, filename, &keytab);
+	ret = krb5_kt_resolve(krb5_ctx, filename, &keytab);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not open keytab file :%s\n",filename);
 
 		return;
 	}
 
-	ret = krb5_kt_start_seq_get(*context, keytab, &cursor);
+	ret = krb5_kt_start_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
 		fprintf(stderr, "KERBEROS ERROR: Could not read from keytab file :%s\n",filename);
 		return;
@@ -576,7 +595,7 @@ read_keytab_file(const char *filename, krb5_context *context)
 	do{
 		new_key=g_malloc(sizeof(enc_key_t));
 		new_key->next=enc_key_list;
-		ret = krb5_kt_next_entry(*context, keytab, &key, &cursor);
+		ret = krb5_kt_next_entry(krb5_ctx, keytab, &key, &cursor);
 		if(ret==0){
 			unsigned int i;
 			char *pos;
@@ -599,9 +618,9 @@ read_keytab_file(const char *filename, krb5_context *context)
 		}
 	}while(ret==0);
 
-	ret = krb5_kt_end_seq_get(*context, keytab, &cursor);
+	ret = krb5_kt_end_seq_get(krb5_ctx, keytab, &cursor);
 	if(ret){
-		krb5_kt_close(*context, keytab);
+		krb5_kt_close(krb5_ctx, keytab);
 	}
 
 }
@@ -615,7 +634,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype)
 {
 	static int first_time=1;
-	static krb5_context context;
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
@@ -631,11 +649,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	/* should this have a destroy context ?  Heimdal people would know */
 	if(first_time){
 		first_time=0;
-		ret = krb5_init_context(&context);
-		if(ret){
-			return NULL;
-		}
-		read_keytab_file(keytab_filename, &context);
+		read_keytab_file(keytab_filename);
 	}
 
 	for(ek=enc_key_list;ek;ek=ek->next){
@@ -651,7 +665,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		key.keyblock.keytype=ek->keytype;
 		key.keyblock.keyvalue.length=ek->keylength;
 		key.keyblock.keyvalue.data=ek->keyvalue;
-		ret = krb5_crypto_init(context, &(key.keyblock), 0, &crypto);
+		ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), 0, &crypto);
 		if(ret){
 			return NULL;
 		}
@@ -664,7 +678,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		*/
 		cryptocopy=g_malloc(length);
 		memcpy(cryptocopy, cryptotext, length);
-		ret = krb5_decrypt_ivec(context, crypto, usage,
+		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
 				cryptocopy, length,
 				&data,
 				NULL);
@@ -674,13 +688,13 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 printf("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
-			krb5_crypto_destroy(context, crypto);
+			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
 			user_data=g_malloc(data.length);
 			memcpy(user_data, data.data, data.length);
 			return user_data;
 		}
-		krb5_crypto_destroy(context, crypto);
+		krb5_crypto_destroy(krb5_ctx, crypto);
 	}
 	return NULL;
 }
