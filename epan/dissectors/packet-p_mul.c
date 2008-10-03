@@ -430,12 +430,12 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       if (pdu_type == Ack_PDU) {
         /* Only save this data if positive ack */
         if (no_missing == 0) {
-          ack_data = g_hash_table_lookup (p_mul_data->ack_data, (gpointer)dstIP);
+          ack_data = g_hash_table_lookup (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP));
           if (!ack_data) {
             /* Only save reference to first ACK */
             ack_data = se_alloc0 (sizeof (p_mul_ack_data));
             ack_data->ack_id = pinfo->fd->num;
-            g_hash_table_insert (p_mul_data->ack_data, (gpointer)dstIP, ack_data);
+            g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
           } else {
             /* Only count when resending */
             ack_data->ack_resend_count++;
@@ -465,7 +465,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
         /* No matching message for this ack */
         ack_data = se_alloc0 (sizeof (p_mul_ack_data));
         ack_data->ack_id = pinfo->fd->num;
-        g_hash_table_insert (p_mul_data->ack_data, (gpointer)dstIP, ack_data);
+        g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
       } else {
         p_mul_data->pdu_id = pinfo->fd->num;
         p_mul_data->pdu_time = pinfo->fd->abs_ts;
@@ -490,10 +490,10 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       pkg_data->ack_data = g_hash_table_new (NULL, NULL);
       g_hash_table_foreach (p_mul_data->ack_data, (GHFunc) copy_hashtable_data, pkg_data->ack_data);
     }
-    g_hash_table_insert (pkg_list, (gpointer)message_id, pkg_data);
+    g_hash_table_insert (pkg_list, GUINT_TO_POINTER(message_id), pkg_data);
   } else {
     /* Fetch last values from data saved in packet */
-    pkg_data = g_hash_table_lookup (pkg_list, (gpointer)message_id);
+    pkg_data = g_hash_table_lookup (pkg_list, GUINT_TO_POINTER(message_id));
   }
 
   DISSECTOR_ASSERT (pkg_data);
@@ -529,7 +529,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       return;
     }
     if (pkg_data->ack_data) {
-      ack_data = g_hash_table_lookup (pkg_data->ack_data, (gpointer)dstIp);
+      ack_data = g_hash_table_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
     }
 
     /* Add reference to Ack_PDU */
@@ -566,7 +566,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       return;
     }
     if (pkg_data->ack_data) {
-      ack_data = g_hash_table_lookup (pkg_data->ack_data, (gpointer)dstIp);
+      ack_data = g_hash_table_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
     }
 
     /* Add reference to Address_PDU */
