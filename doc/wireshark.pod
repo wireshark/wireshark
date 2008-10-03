@@ -19,6 +19,7 @@ S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-k> ]>
+S<[ B<-K> E<lt>keytabE<gt> ]> 
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> E<lt>fontE<gt> ]>
@@ -310,6 +311,13 @@ non-loopback interface if there are any non-loopback interfaces, and
 choosing the first loopback interface if there are no non-loopback
 interfaces; if there are no interfaces, B<Wireshark> reports an error and
 doesn't start the capture.
+
+=item -K  E<lt>keytabE<gt>
+
+Load kerberos crypto keys from the specified keytab file.
+This option can be used multiple times to load keys from several files.
+
+Example: B<-K krb5.keytab>
 
 =item -l
 

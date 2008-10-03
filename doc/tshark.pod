@@ -19,6 +19,7 @@ S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
+S<[ B<-K> E<lt>keytabE<gt> ]> 
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-n> ]>
@@ -288,6 +289,13 @@ standard libpcap format.
 
 Note: the Win32 version of B<TShark> doesn't support capturing from
 pipes!
+
+=item -K  E<lt>keytabE<gt>
+
+Load kerberos crypto keys from the specified keytab file.
+This option can be used multiple times to load keys from several files.
+
+Example: B<-K krb5.keytab>
 
 =item -l
 
