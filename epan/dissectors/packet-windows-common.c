@@ -2280,7 +2280,7 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 
 	mask = tvb_get_letohl(tvb, offset);
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
 					   "SEC INFO: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_nt_security_information);
 	}
