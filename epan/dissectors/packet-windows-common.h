@@ -289,5 +289,8 @@ proto_do_register_windows_common(int proto_smb);
 const char *
 get_well_known_rid_name(guint32);
 
+int
+dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree);
+
 #endif
 

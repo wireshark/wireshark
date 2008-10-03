@@ -1,7 +1,3 @@
-IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_samr_sec_info, NULL);
-HF_FIELD hf_samr_sec_info "SecInfo" "samr.sec_info" FT_UINT32 BASE_HEX NULL 0 "" "" ""
-
-
 #
 # policyhandle tracking
 # This block is to specify where a policyhandle is opened and where it is
@@ -169,6 +165,7 @@ TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, drep);" FT_
 
 TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
+TYPE security_secinfo "offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
 #
 # ConnectX access masks
@@ -503,6 +500,15 @@ static int
 cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_nt_PSID_ARRAY(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+{
+	offset = dissect_nt_security_information(tvb, offset, tree);
 
 	return offset;
 }

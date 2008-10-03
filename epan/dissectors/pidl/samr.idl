@@ -1310,7 +1310,7 @@
 	/* Function    0x3e     */
 	NTSTATUS samr_Connect4(
 		[in,unique,string,charset(UTF16)] uint16 *system_name,
-		[in] uint32 unknown,
+		[in] samr_ConnectRevision revision,
 		[in] samr_ServerAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
