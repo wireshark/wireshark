@@ -122,7 +122,6 @@ static gint ett_samr_samr_ValidatePasswordReq = -1;
 
 
 /* Header field declarations */
-static gint hf_samr_samr_UserInfo21_unknown1 = -1;
 static gint hf_samr_samr_QueryDisplayInfo2_level = -1;
 static gint hf_samr_rid = -1;
 static gint hf_samr_samr_Connect2_system_name = -1;
@@ -197,6 +196,7 @@ static gint hf_samr_samr_UserInfo3_logon_script = -1;
 static gint hf_samr_samr_SetUserInfo_level = -1;
 static gint hf_samr_samr_UserInfo21_last_logon = -1;
 static gint hf_samr_samr_GetBootKeyInformation_domain_handle = -1;
+static gint hf_samr_samr_UserInfo21_lm_password = -1;
 static gint hf_samr_samr_QueryDisplayInfo3_returned_size = -1;
 static gint hf_samr_samr_ValidatePasswordReq3_account = -1;
 static gint hf_samr_samr_UserInfo7_account_name = -1;
@@ -211,6 +211,7 @@ static gint hf_samr_samr_UserInfo3_full_name = -1;
 static gint hf_samr_samr_DispEntryAscii_account_name = -1;
 static gint hf_samr_samr_UserInfo11_logon_script = -1;
 static gint hf_samr_samr_Types_types = -1;
+static gint hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT = -1;
 static gint hf_samr_samr_ChangePasswordUser_lm_present = -1;
 static gint hf_samr_samr_AddMultipleMembersToAlias_sids = -1;
 static gint hf_samr_samr_DomInfo13_sequence_num = -1;
@@ -251,6 +252,7 @@ static gint hf_samr_samr_UserInfo_info8 = -1;
 static gint hf_samr_samr_UserInfo25_info = -1;
 static gint hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP = -1;
 static gint hf_samr_samr_CreateDomainGroup_name = -1;
+static gint hf_samr_samr_UserInfo21_privatedatasensitive = -1;
 static gint hf_samr_samr_DomGeneralInformation_num_groups = -1;
 static gint hf_samr_samr_SetGroupInfo_info = -1;
 static gint hf_samr_lsa_Strings_names = -1;
@@ -268,7 +270,6 @@ static gint hf_samr_samr_DeleteAliasMember_sid = -1;
 static gint hf_samr_samr_ValidatePassword_rep = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_fields_present = -1;
 static gint hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER = -1;
-static gint hf_samr_samr_UserInfo21_unknown3 = -1;
 static gint hf_samr_samr_GetDisplayEnumerationIndex2_level = -1;
 static gint hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED = -1;
 static gint hf_samr_samr_AliasInfo_description = -1;
@@ -300,6 +301,7 @@ static gint hf_samr_samr_DispInfo_info1 = -1;
 static gint hf_samr_samr_SetDomainInfo_level = -1;
 static gint hf_samr_samr_DispInfo_info4 = -1;
 static gint hf_samr_samr_DomInfo8_domain_create_time = -1;
+static gint hf_samr_samr_UserInfo21_private = -1;
 static gint hf_samr_samr_ChangePasswordUser_old_nt_crypted = -1;
 static gint hf_samr_samr_DomGeneralInformation_force_logoff_time = -1;
 static gint hf_samr_samr_DomInfo12_lockout_threshold = -1;
@@ -342,7 +344,6 @@ static gint hf_samr_samr_GetAliasMembership_sids = -1;
 static gint hf_samr_samr_UserInfo_info1 = -1;
 static gint hf_samr_samr_GroupAttrs_SE_GROUP_RESOURCE = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION = -1;
-static gint hf_samr_samr_UserInfo21_unknown2 = -1;
 static gint hf_samr_samr_UserInfo23_password = -1;
 static gint hf_samr_samr_UserInfo21_last_logoff = -1;
 static gint hf_samr_samr_DispInfo_info2 = -1;
@@ -530,7 +531,6 @@ static gint hf_samr_samr_ValidatePasswordRep_ctr1 = -1;
 static gint hf_samr_samr_AcctFlags_ACB_DOMTRUST = -1;
 static gint hf_samr_samr_ChangePasswordUser_lm_cross = -1;
 static gint hf_samr_samr_UserInfo3_profile_path = -1;
-static gint hf_samr_samr_UserInfo21_unknown4 = -1;
 static gint hf_samr_samr_DomInfo13_domain_create_time = -1;
 static gint hf_samr_samr_AcctFlags_ACB_WSTRUST = -1;
 static gint hf_samr_samr_DispEntryAscii_idx = -1;
@@ -583,6 +583,7 @@ static gint hf_samr_samr_ChangePasswordUser2_nt_verifier = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION = -1;
 static gint hf_samr_samr_EnumDomains_connect_handle = -1;
 static gint hf_samr_samr_UserInfo21_force_password_change = -1;
+static gint hf_samr_samr_UserInfo21_nt_password = -1;
 static gint hf_samr_samr_SetBootKeyInformation_unknown3 = -1;
 static gint hf_samr_samr_EnumDomainUsers_num_entries = -1;
 static gint hf_samr_samr_ValidatePasswordReq2_info = -1;
@@ -779,6 +780,10 @@ static const true_false_string samr_AcctFlags_ACB_DONT_REQUIRE_PREAUTH_tfs = {
 static const true_false_string samr_AcctFlags_ACB_PW_EXPIRED_tfs = {
    "ACB_PW_EXPIRED is SET",
    "ACB_PW_EXPIRED is NOT SET",
+};
+static const true_false_string samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT_tfs = {
+   "ACB_TRUST_AUTH_DELEGAT is SET",
+   "ACB_TRUST_AUTH_DELEGAT is NOT SET",
 };
 static const true_false_string samr_AcctFlags_ACB_NO_AUTH_DATA_REQD_tfs = {
    "ACB_NO_AUTH_DATA_REQD is SET",
@@ -1327,9 +1332,9 @@ static int samr_dissect_element_UserInfo21_description(tvbuff_t *tvb _U_, int of
 static int samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1346,7 +1351,7 @@ static int samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offs
 static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_privatedatasensitive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -2371,6 +2376,7 @@ samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: 	ACB_USE_DES_KEY_ONLY =  0x00008000 , */
 /* IDL: 	ACB_DONT_REQUIRE_PREAUTH =  0x00010000 , */
 /* IDL: 	ACB_PW_EXPIRED =  0x00020000 , */
+/* IDL: 	ACB_TRUST_AUTH_DELEGAT =  0x00040000 , */
 /* IDL: 	ACB_NO_AUTH_DATA_REQD =  0x00080000 , */
 /* IDL: } */
 
@@ -2537,6 +2543,14 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 			proto_item_append_text(item, ", ");
 	}
 	flags&=(~( 0x00020000 ));
+
+	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT, tvb, offset-4, 4, flags);
+	if (flags&( 0x00040000 )){
+		proto_item_append_text(item, "ACB_TRUST_AUTH_DELEGAT");
+		if (flags & (~( 0x00040000 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x00040000 ));
 
 	proto_tree_add_boolean(tree, hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD, tvb, offset-4, 4, flags);
 	if (flags&( 0x00080000 )){
@@ -6094,9 +6108,9 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	lsa_String workstations; */
 /* IDL: 	lsa_String comment; */
 /* IDL: 	lsa_String parameters; */
-/* IDL: 	lsa_String unknown1; */
-/* IDL: 	lsa_String unknown2; */
-/* IDL: 	lsa_String unknown3; */
+/* IDL: 	lsa_String lm_password; */
+/* IDL: 	lsa_String nt_password; */
+/* IDL: 	lsa_String private; */
 /* IDL: 	uint32 buf_count; */
 /* IDL: 	[unique(1)] [size_is(buf_count)] uint8 *buffer; */
 /* IDL: 	uint32 rid; */
@@ -6111,7 +6125,7 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	uint8 nt_password_set; */
 /* IDL: 	uint8 lm_password_set; */
 /* IDL: 	uint8 password_expired; */
-/* IDL: 	uint8 unknown4; */
+/* IDL: 	uint8 privatedatasensitive; */
 /* IDL: } */
 
 static int
@@ -6243,25 +6257,25 @@ samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_unknown1);
+	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_lm_password);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_unknown2);
+	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_nt_password);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_unknown3);
+	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_UserInfo21_private);
 
 	return offset;
 }
@@ -6395,9 +6409,9 @@ samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_privatedatasensitive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_unknown4, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_privatedatasensitive, 0);
 
 	return offset;
 }
@@ -6450,11 +6464,11 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = samr_dissect_element_UserInfo21_parameters(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo21_unknown1(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo21_lm_password(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo21_unknown2(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo21_nt_password(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo21_unknown3(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo21_private(tvb, offset, pinfo, tree, drep);
 
 	offset = samr_dissect_element_UserInfo21_buf_count(tvb, offset, pinfo, tree, drep);
 
@@ -6484,7 +6498,7 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = samr_dissect_element_UserInfo21_password_expired(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo21_unknown4(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo21_privatedatasensitive(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -14732,8 +14746,6 @@ static dcerpc_sub_dissector samr_dissectors[] = {
 void proto_register_dcerpc_samr(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_samr_samr_UserInfo21_unknown1, 
-	  { "Unknown1", "samr.samr_UserInfo21.unknown1", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo2_level, 
 	  { "Level", "samr.samr_QueryDisplayInfo2.level", FT_UINT16, BASE_DEC, VALS(samr_samr_DomainDisplayInformation_vals), 0, "", HFILL }},
 	{ &hf_samr_rid, 
@@ -14882,6 +14894,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Last Logon", "samr.samr_UserInfo21.last_logon", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_GetBootKeyInformation_domain_handle, 
 	  { "Domain Handle", "samr.samr_GetBootKeyInformation.domain_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_samr_UserInfo21_lm_password, 
+	  { "Lm Password", "samr.samr_UserInfo21.lm_password", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo3_returned_size, 
 	  { "Returned Size", "samr.samr_QueryDisplayInfo3.returned_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_ValidatePasswordReq3_account, 
@@ -14910,6 +14924,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Logon Script", "samr.samr_UserInfo11.logon_script", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_Types_types, 
 	  { "Types", "samr.samr_Types.types", FT_UINT32, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, "", HFILL }},
+	{ &hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT, 
+	  { "Acb Trust Auth Delegat", "samr.samr_AcctFlags.ACB_TRUST_AUTH_DELEGAT", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT_tfs), ( 0x00040000 ), "", HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_lm_present, 
 	  { "Lm Present", "samr.samr_ChangePasswordUser.lm_present", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_AddMultipleMembersToAlias_sids, 
@@ -14990,6 +15006,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr User Access Get Group Membership", "samr.samr_UserAccessMask.SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP", FT_BOOLEAN, 32, TFS(&samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP_tfs), ( 0x00000200 ), "", HFILL }},
 	{ &hf_samr_samr_CreateDomainGroup_name, 
 	  { "Name", "samr.samr_CreateDomainGroup.name", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_samr_UserInfo21_privatedatasensitive, 
+	  { "Privatedatasensitive", "samr.samr_UserInfo21.privatedatasensitive", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_num_groups, 
 	  { "Num Groups", "samr.samr_DomGeneralInformation.num_groups", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_SetGroupInfo_info, 
@@ -15024,8 +15042,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Fields Present", "samr.samr_ValidatePasswordInfo.fields_present", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER, 
 	  { "Samr Group Access Remove Member", "samr.samr_GroupAccessMask.SAMR_GROUP_ACCESS_REMOVE_MEMBER", FT_BOOLEAN, 32, TFS(&samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER_tfs), ( 0x00000008 ), "", HFILL }},
-	{ &hf_samr_samr_UserInfo21_unknown3, 
-	  { "Unknown3", "samr.samr_UserInfo21.unknown3", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex2_level, 
 	  { "Level", "samr.samr_GetDisplayEnumerationIndex2.level", FT_UINT16, BASE_DEC, VALS(samr_samr_DomainDisplayInformation_vals), 0, "", HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED, 
@@ -15088,6 +15104,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Info4", "samr.samr_DispInfo.info4", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomInfo8_domain_create_time, 
 	  { "Domain Create Time", "samr.samr_DomInfo8.domain_create_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_samr_UserInfo21_private, 
+	  { "Private", "samr.samr_UserInfo21.private", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_old_nt_crypted, 
 	  { "Old Nt Crypted", "samr.samr_ChangePasswordUser.old_nt_crypted", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_force_logoff_time, 
@@ -15172,8 +15190,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Se Group Resource", "samr.samr_GroupAttrs.SE_GROUP_RESOURCE", FT_BOOLEAN, 32, TFS(&samr_GroupAttrs_SE_GROUP_RESOURCE_tfs), ( 0x20000000 ), "", HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION, 
 	  { "Samr Field Description", "samr.samr_FieldsPresent.SAMR_FIELD_DESCRIPTION", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_DESCRIPTION_tfs), ( 0x00000010 ), "", HFILL }},
-	{ &hf_samr_samr_UserInfo21_unknown2, 
-	  { "Unknown2", "samr.samr_UserInfo21.unknown2", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo23_password, 
 	  { "Password", "samr.samr_UserInfo23.password", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo21_last_logoff, 
@@ -15548,8 +15564,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Lm Cross", "samr.samr_ChangePasswordUser.lm_cross", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo3_profile_path, 
 	  { "Profile Path", "samr.samr_UserInfo3.profile_path", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_samr_samr_UserInfo21_unknown4, 
-	  { "Unknown4", "samr.samr_UserInfo21.unknown4", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomInfo13_domain_create_time, 
 	  { "Domain Create Time", "samr.samr_DomInfo13.domain_create_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_WSTRUST, 
@@ -15654,6 +15668,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Connect Handle", "samr.samr_EnumDomains.connect_handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo21_force_password_change, 
 	  { "Force Password Change", "samr.samr_UserInfo21.force_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_samr_UserInfo21_nt_password, 
+	  { "Nt Password", "samr.samr_UserInfo21.nt_password", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_SetBootKeyInformation_unknown3, 
 	  { "Unknown3", "samr.samr_SetBootKeyInformation.unknown3", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_EnumDomainUsers_num_entries, 

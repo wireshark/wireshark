@@ -61,6 +61,7 @@
 		ACB_USE_DES_KEY_ONLY		= 0x00008000,  /* 1 = Use DES key only */
 		ACB_DONT_REQUIRE_PREAUTH	= 0x00010000,  /* 1 = Preauth not required */
 		ACB_PW_EXPIRED                  = 0x00020000,  /* 1 = Password Expired */
+		ACB_TRUST_AUTH_DELEGAT		= 0x00040000,  /* 1 = Trusted to authenticate for delegation */
 		ACB_NO_AUTH_DATA_REQD		= 0x00080000   /* 1 = No authorization data required */
 	} samr_AcctFlags;
 
@@ -856,9 +857,9 @@
 		lsa_String workstations;
 		lsa_String comment;
 		lsa_String parameters;
-		lsa_String unknown1;
-		lsa_String unknown2;
-		lsa_String unknown3;
+		lsa_String lm_password;
+		lsa_String nt_password;
+		lsa_String private;
 		uint32 buf_count;
 		[size_is(buf_count)] uint8 *buffer;
 		uint32 rid;
@@ -873,7 +874,7 @@
 		uint8  nt_password_set;
 		uint8  lm_password_set;
 		uint8  password_expired;
-		uint8  unknown4;
+		uint8  privatedatasensitive;
 	} samr_UserInfo21;
 
 	typedef [public, flag(NDR_PAHEX)] struct {
