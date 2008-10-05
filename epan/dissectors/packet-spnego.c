@@ -1150,7 +1150,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 static int
 rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 {
-	u_char *tmp, buf[256];
+	unsigned char *tmp, buf[256];
 	size_t left;
 
 	if (len == 0)
@@ -1173,11 +1173,11 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 
 	if (unrotate) {
 		memcpy(tmp, data, rrc);
-		memmove(data, (u_char *)data + rrc, left);
-		memcpy((u_char *)data + left, tmp, rrc);
+		memmove(data, (unsigned char *)data + rrc, left);
+		memcpy((unsigned char *)data + left, tmp, rrc);
 	} else {
-		memcpy(tmp, (u_char *)data + left, rrc);
-		memmove((u_char *)data + rrc, data, left);
+		memcpy(tmp, (unsigned char *)data + left, rrc);
+		memmove((unsigned char *)data + rrc, data, left);
 		memcpy(data, tmp, rrc);
 	}
 
