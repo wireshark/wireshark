@@ -212,7 +212,7 @@ proto_reg_handoff_ayiya(void)
 {
   dissector_handle_t ayiya_handle;
 
-  ayiya_handle = create_dissector_handle(dissect_ayiya, proto_ayiya);
+  ayiya_handle = find_dissector("ayiya");
   dissector_add("udp.port", UDP_PORT_AYIYA, ayiya_handle);
   
   ip_dissector_table = find_dissector_table("ip.proto");

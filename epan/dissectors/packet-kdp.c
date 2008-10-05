@@ -343,11 +343,9 @@ void proto_register_kdp(void) {
     &ett_kdp, &ett_kdp_flags
   };
 
-  if (proto_kdp == -1) {
-    proto_kdp = proto_register_protocol("Kontiki Delivery Protocol", /* name */
-					"KDP",		/* short name */
-					"kdp");		/* abbrev */
-  }
+  proto_kdp = proto_register_protocol("Kontiki Delivery Protocol", /* name */
+                                      "KDP",		/* short name */
+                                      "kdp");		/* abbrev */
   proto_register_field_array(proto_kdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

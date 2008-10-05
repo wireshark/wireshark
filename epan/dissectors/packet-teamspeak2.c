@@ -218,10 +218,9 @@ static const value_string codecnames[] =
 	{ 0, NULL }
 };
 
+#define TS2_PORT 8767
 
 static int proto_ts2 = -1;
-static int global_ts2_port = 8767;
-static dissector_handle_t ts2_handle;
 
 static int hf_ts2_type = -1;
 static int hf_ts2_class = -1;
@@ -599,12 +598,11 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree);
 void proto_register_ts2(void)
 {
 	/* Setup protocol subtree array */
-	if (proto_ts2 == -1) {
-		proto_ts2 = proto_register_protocol (
-			"Teamspeak2 Protocol",	/* name */
-			"TeamSpeak2",		/* short name */
-			"ts2"			/* abbrev */
-			);
+	proto_ts2 = proto_register_protocol (
+		"Teamspeak2 Protocol",	/* name */
+		"TeamSpeak2",		/* short name */
+		"ts2"			/* abbrev */
+		);
 	proto_register_field_array(proto_ts2, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	
@@ -613,12 +611,11 @@ void proto_register_ts2(void)
     	if (conv_vals)
 		g_mem_chunk_destroy(conv_vals);
 
-    /* now create memory chunks */
-    conv_vals = g_mem_chunk_new("ts2_conv_vals",
-	    sizeof(ts2_conversation),
-	    my_init_count * sizeof(ts2_conversation),
-	    G_ALLOC_AND_FREE);
-	}
+	/* now create memory chunks */
+	conv_vals = g_mem_chunk_new("ts2_conv_vals",
+				    sizeof(ts2_conversation),
+				    my_init_count * sizeof(ts2_conversation),
+				    G_ALLOC_AND_FREE);
 }
 
 /*
@@ -626,15 +623,10 @@ void proto_register_ts2(void)
  * */
 void proto_reg_handoff_ts2(void)
 {
-	static gboolean initialized = FALSE;
-
-	if (!initialized) {
-		ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
-		dissector_add("udp.port", global_ts2_port, ts2_handle);
-	}
+	dissector_handle_t ts2_handle;
+	ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
+	dissector_add("udp.port", TS2_PORT, ts2_handle);
 }
-
-
 
 /* 
  * Check if a packet is in order and if it is set its fragmentation details into the passed pointers. 
@@ -1152,8 +1144,7 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
 {
 	guint8 *zero;
 	guint32 ocrc32;
-	zero = ep_alloc(4);
-	memset(zero, 0, 4);
+	zero = ep_alloc0(4);
 	ocrc32 = crc32_ccitt_tvb(tvb, offset);
 	ocrc32 = crc32_ccitt_seed(zero, 4, 0xffffffff-ocrc32);
 	ocrc32 = crc32_ccitt_tvb_offset_seed(tvb, offset+4, tvb_reported_length_remaining(tvb, offset+4), 0xffffffff-ocrc32);

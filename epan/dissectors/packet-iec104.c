@@ -86,9 +86,6 @@ struct apciheader {
 
 static guint iec104port = 2404;
 
-void proto_reg_handoff_iec104(void);
-
-
 /* Define the iec104 proto */
 static int proto_iec104apci = -1;
 static int proto_iec104asdu = -1;
@@ -668,33 +665,33 @@ void
 proto_register_iec104apci(void)
 {
 
-static hf_register_info hf_ap[] = {
+	static hf_register_info hf_ap[] = {
 
-    { &hf_apdulen,
-      { "ApduLen", "104apci.apdulen", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "APDU Len", HFILL }},
+		{ &hf_apdulen,
+		  { "ApduLen", "104apci.apdulen", FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "APDU Len", HFILL }},
 
-    { &hf_apcitype,
-      { "ApciType", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x03,
-        "APCI type", HFILL }},
+		{ &hf_apcitype,
+		  { "ApciType", "104apci.type", FT_UINT8, BASE_HEX, VALS(apci_types), 0x03,
+		    "APCI type", HFILL }},
 
-    { &hf_apciutype,
-      { "ApciUType", "104apci.utype", FT_UINT8, BASE_HEX, VALS(u_types), 0xFC,
-        "Apci U type", HFILL }},
+		{ &hf_apciutype,
+		  { "ApciUType", "104apci.utype", FT_UINT8, BASE_HEX, VALS(u_types), 0xFC,
+		    "Apci U type", HFILL }},
 
-  };
+	};
 
-static gint *ett_ap[] = {
-	&ett_apci,
-};
+	static gint *ett_ap[] = {
+		&ett_apci,
+	};
 
-proto_iec104apci = proto_register_protocol(
-				"IEC 60870-5-104,Apci",
-			       	"104apci",
-				"104apci"
-				);
-proto_register_field_array(proto_iec104apci, hf_ap, array_length(hf_ap));
-proto_register_subtree_array(ett_ap, array_length(ett_ap));
+	proto_iec104apci = proto_register_protocol(
+		"IEC 60870-5-104,Apci",
+		"104apci",
+		"104apci"
+		);
+	proto_register_field_array(proto_iec104apci, hf_ap, array_length(hf_ap));
+	proto_register_subtree_array(ett_ap, array_length(ett_ap));
 
 }
 
@@ -704,58 +701,58 @@ void
 proto_register_iec104asdu(void)
 {
 
-static hf_register_info hf_as[] = {
+	static hf_register_info hf_as[] = {
 
-    { &hf_addr,
-      { "Addr", "104asdu.addr", FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Common Address of Asdu", HFILL }},
+		{ &hf_addr,
+		  { "Addr", "104asdu.addr", FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Common Address of Asdu", HFILL }},
 
-    { &hf_oa,
-      { "OA  ", "104asdu.oa", FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Originator Address", HFILL }},
+		{ &hf_oa,
+		  { "OA  ", "104asdu.oa", FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Originator Address", HFILL }},
 
-    { &hf_typeid,
-      { "TypeId ", "104asdu.typeid", FT_UINT8, BASE_DEC, VALS(asdu_types), 0x0,
-        "Asdu Type Id", HFILL }},
+		{ &hf_typeid,
+		  { "TypeId ", "104asdu.typeid", FT_UINT8, BASE_DEC, VALS(asdu_types), 0x0,
+		    "Asdu Type Id", HFILL }},
 
-    { &hf_causetx,
-      { "CauseTx", "104asdu.causetx", FT_UINT8, BASE_DEC, VALS(causetx_types), 0x3F,
-        "Cause of Transmision", HFILL }},
+		{ &hf_causetx,
+		  { "CauseTx", "104asdu.causetx", FT_UINT8, BASE_DEC, VALS(causetx_types), 0x3F,
+		    "Cause of Transmision", HFILL }},
 
-    { &hf_nega,
-      { "Negative", "104asdu.nega", FT_BOOLEAN, 8, NULL, F_NEGA,
-        "Negative", HFILL }},
+		{ &hf_nega,
+		  { "Negative", "104asdu.nega", FT_BOOLEAN, 8, NULL, F_NEGA,
+		    "Negative", HFILL }},
 
-    { &hf_test,
-      { "Test", "104asdu.test", FT_BOOLEAN, 8, NULL, F_TEST,
-        "Test", HFILL }},
+		{ &hf_test,
+		  { "Test", "104asdu.test", FT_BOOLEAN, 8, NULL, F_TEST,
+		    "Test", HFILL }},
 
 
-    { &hf_ioa,
-      { "IOA  ", "104asdu.ioa", FT_UINT24, BASE_DEC, NULL, 0x0,
-        "Information Object Address", HFILL }},
+		{ &hf_ioa,
+		  { "IOA  ", "104asdu.ioa", FT_UINT24, BASE_DEC, NULL, 0x0,
+		    "Information Object Address", HFILL }},
 
-    { &hf_numix,
-      { "NumIx", "104asdu.numix", FT_UINT8, BASE_DEC, NULL, 0x7F,
-        "Number of Information Objects/Elements", HFILL }},
+		{ &hf_numix,
+		  { "NumIx", "104asdu.numix", FT_UINT8, BASE_DEC, NULL, 0x7F,
+		    "Number of Information Objects/Elements", HFILL }},
 
-    { &hf_sq,
-      { "SQ", "104asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
-        "Sequence", HFILL }},
+		{ &hf_sq,
+		  { "SQ", "104asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
+		    "Sequence", HFILL }},
 
-  };
+	};
 
-static gint *ett_as[] = {
-	&ett_asdu,
-};
+	static gint *ett_as[] = {
+		&ett_asdu,
+	};
 
-proto_iec104asdu = proto_register_protocol(
-				"IEC 60870-5-104,Asdu",
-			       	"104asdu",
-				"104asdu"
-				);
-proto_register_field_array(proto_iec104asdu, hf_as, array_length(hf_as));
-proto_register_subtree_array(ett_as, array_length(ett_as));
+	proto_iec104asdu = proto_register_protocol(
+		"IEC 60870-5-104,Asdu",
+		"104asdu",
+		"104asdu"
+		);
+	proto_register_field_array(proto_iec104asdu, hf_as, array_length(hf_as));
+	proto_register_subtree_array(ett_as, array_length(ett_as));
 
 }
 
@@ -765,7 +762,7 @@ proto_register_subtree_array(ett_as, array_length(ett_as));
 void
 proto_reg_handoff_iec104(void)
 {
-	static dissector_handle_t iec104apci_handle;
+	dissector_handle_t iec104apci_handle;
 
         iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
 	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);

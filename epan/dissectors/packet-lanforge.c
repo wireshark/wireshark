@@ -68,7 +68,7 @@ static int hf_lanforge_timestamp = -1;
 static gint ett_lanforge = -1;
 
 /* data dissector handle */
-static dissector_handle_t data_handle = NULL;
+static dissector_handle_t data_handle;
 
 /* entry point */
 static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
