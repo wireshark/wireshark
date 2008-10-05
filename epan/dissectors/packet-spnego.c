@@ -1166,7 +1166,7 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 	if (rrc <= sizeof(buf)) {
 		tmp = buf;
 	} else {
-		tmp = malloc(rrc);
+		tmp = g_malloc(rrc);
 		if (tmp == NULL)
 			return -1;
 	}
@@ -1182,7 +1182,7 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 	}
 
 	if (rrc > sizeof(buf))
-		free(tmp);
+		g_free(tmp);
 
 	return 0;
 }
