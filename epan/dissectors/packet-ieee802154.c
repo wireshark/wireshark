@@ -77,6 +77,7 @@
 #include <epan/crc16.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/prefs.h>
 
 #include "packet-ieee802154.h"
 #include "packet-frame.h"   /* For Exception Handling */
@@ -84,6 +85,9 @@
 /* Dissection Options for dissect_ieee802154_common */
 #define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001  /* FCS field contains a TI CC24xx style FCS. */
 #define DISSECT_IEEE802154_OPTION_LINUX     0x00000002  /* Addressing fields are padded DLT_IEEE802_15_4_LINUX, not implemented. */
+
+/* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
+static unsigned int ieee802154_ethertype = 0x809A;
 
 /*  Function declarations */
 /* Register Functions. Loads the dissector into Wireshark. */
@@ -1662,12 +1666,22 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_bcn_pending
     };
 
+    module_t *ieee802154_module;
+
     /*  Register Protocol name and description. */
     proto_ieee802154 = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN", "IEEE 802.15.4", "wpan");
 
     /*  Register header fields and subtrees. */
     proto_register_field_array(proto_ieee802154, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* add a user preference to set the 802.15.4 ethertype */
+    ieee802154_module = prefs_register_protocol(proto_ieee802154, 
+						proto_reg_handoff_ieee802154);
+    prefs_register_uint_preference(ieee802154_module, "802154_ethertype",
+				   "802.15.4 (Hex) Ethertype",
+				   "(Hexadecimal) Ethertype used to indicate IEEE 802.15.4 frame.",
+				   16, &ieee802154_ethertype);
 
     /* Register the subdissector list */
     register_heur_dissector_list("wpan", &ieee802154_heur_subdissector_list);
@@ -1684,6 +1698,7 @@ void proto_register_ieee802154(void)
  *  DESCRIPTION
  *      Registers the zigbee dissector with Wireshark.
  *      Will be called every time 'apply' is pressed in the preferences menu.
+ *       as well as during Wireshark initialization
  *  PARAMETERS
  *      none
  *  RETURNS
@@ -1692,13 +1707,26 @@ void proto_register_ieee802154(void)
  */
 void proto_reg_handoff_ieee802154(void)
 {
-    dissector_handle_t  ieee802154_handle;
+    static gboolean prefs_initialized = FALSE;
+    static dissector_handle_t  ieee802154_handle;
+    static unsigned int old_ieee802154_ethertype;
 
-    /* Get the dissector handles. */
-    ieee802154_handle   = find_dissector("wpan");
-    data_handle         = find_dissector("data");
+    if (!prefs_initialized){
+        /* Get the dissector handles. */
+        ieee802154_handle   = find_dissector("wpan");
+        data_handle         = find_dissector("data");
 
+        dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
+
+        prefs_initialized = TRUE;
+    } else {
+        dissector_delete("ethertype", old_ieee802154_ethertype, ieee802154_handle);	
+    }
+
+    old_ieee802154_ethertype = ieee802154_ethertype;
+	
     /* Register dissector handles. */
-    dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
+    dissector_add("ethertype", ieee802154_ethertype, ieee802154_handle);
+
 } /* proto_reg_handoff_ieee802154 */
 
