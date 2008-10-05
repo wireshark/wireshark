@@ -646,13 +646,100 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	}
 	return;
 }
+
+/* borrowed from heimdal */
+static int
+rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
+{
+	u_char *tmp, buf[256];
+	size_t left;
+
+	if (len == 0)
+		return 0;
+
+	rrc %= len;
+
+	if (rrc == 0)
+		return 0;
+
+	left = len - rrc;
+
+	if (rrc <= sizeof(buf)) {
+		tmp = buf;
+	} else {
+		tmp = malloc(rrc);
+		if (tmp == NULL)
+			return -1;
+	}
+
+	if (unrotate) {
+		memcpy(tmp, data, rrc);
+		memmove(data, (u_char *)data + rrc, left);
+		memcpy((u_char *)data + left, tmp, rrc);
+	} else {
+		memcpy(tmp, (u_char *)data + left, rrc);
+		memmove((u_char *)data + rrc, data, left);
+		memcpy(data, tmp, rrc);
+	}
+
+	if (rrc > sizeof(buf))
+		free(tmp);
+
+	return 0;
+}
+
+
+#define KRB5_KU_USAGE_ACCEPTOR_SEAL	22
+#define KRB5_KU_USAGE_ACCEPTOR_SIGN	23
+#define KRB5_KU_USAGE_INITIATOR_SEAL	24
+#define KRB5_KU_USAGE_INITIATOR_SIGN	25
+
+static void
+decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff_t *tvb _U_, guint16 ec _U_, guint16 rrc _U_, int keytype, unsigned int usage)
+{
+	int res;
+	char *rotated;
+	char *output;
+	int datalen;
+
+	/* dont do anything if we are not attempting to decrypt data */
+	if(!krb_decrypt){
+		return;
+	}
+
+	rotated = ep_alloc(tvb_length(tvb));
+
+	tvb_memcpy(tvb, rotated, 0, tvb_length(tvb));
+	res = rrc_rotate(rotated, tvb_length(tvb), rrc, TRUE);
+
+	output = decrypt_krb5_data(tree, pinfo, usage, tvb_length(tvb),
+		  rotated, keytype, &datalen);
+
+	if (output) {
+		char *outdata;
+
+		outdata = ep_alloc(tvb_length(tvb));
+		memcpy(outdata, output, tvb_length(tvb));
+		g_free(output);
+
+		pinfo->gssapi_decrypted_tvb=tvb_new_real_data(
+			outdata,
+			datalen-16,
+			datalen-16);
+		tvb_set_child_real_data_tvbuff(tvb, pinfo->gssapi_decrypted_tvb);
+		add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
+		return;
+	}
+	return;
+}
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 
 #endif
 
 /*
- * XXX - This is for GSSAPI Wrap tokens ...
+ * This is for GSSAPI Wrap tokens ...
  */
 static int
 dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
@@ -880,7 +967,7 @@ dissect_spnego_krb5_cfx_flags(tvbuff_t *tvb, int offset,
 }
 
 /*
- * XXX - This is for GSSAPI CFX Wrap tokens ...
+ * This is for GSSAPI CFX Wrap tokens ...
  */
 static int
 dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
@@ -974,6 +1061,24 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			}
 		}
 	}
+
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+	pinfo->gssapi_encrypted_tvb = tvb_new_subset(tvb, 16, -1, -1);
+
+	if (flags & 0x0002) {
+		if(pinfo->gssapi_encrypted_tvb){
+			decrypt_gssapi_krb_cfx_wrap(tree,
+				pinfo,
+				pinfo->gssapi_encrypted_tvb,
+				ec,
+				rrc,
+				-1,
+				(flags & 0x0001)?
+				KRB5_KU_USAGE_ACCEPTOR_SEAL:
+				KRB5_KU_USAGE_INITIATOR_SEAL);
+		}
+	}
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 	/*
 	 * Return the offset past the checksum, so that we know where
