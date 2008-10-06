@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/conversation.h>
 #include <epan/emem.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
@@ -773,13 +774,14 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   gboolean is_extended;
   gboolean is_class_234;
-  guint16  dst_ref;
-  guint16 *prev_dst_ref;
+  guint32  dst_ref;
+  guint32 *prev_dst_ref;
   guint    tpdu_nr;
   gboolean fragment = FALSE;
   guint32  fragment_length = 0;
   tvbuff_t *next_tvb;
   fragment_data *fd_head;
+  conversation_t *conv;
 
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
      (This means we may misdissect this if the packet is bad and
@@ -838,6 +840,12 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       cotp_frame_reset = FALSE;
       cotp_last_fragment = fragment;
       dst_ref = cotp_dst_ref;
+      conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+      if (conv) {
+        /* Found a conversation, also use index for the generated dst_ref */
+        dst_ref += (conv->index << 16);
+      }
       if (!fragment) {
         cotp_dst_ref++;
         register_frame_end_routine(cotp_frame_end);
