@@ -55,6 +55,7 @@ typedef struct airopeek_section_header {
 /* network subtype values */
 #define AIROPEEK_V9_NST_ETHERNET		0
 #define AIROPEEK_V9_NST_802_11			1	/* 802.11 with 0's at the end */
+#define AIROPEEK_V9_NST_802_11_2		2	/* 802.11 with 0's at the end */
 #define AIROPEEK_V9_NST_802_11_WITH_FCS		3	/* 802.11 with FCS at the end */
 
 /* tags for fields in packet header */
@@ -184,7 +185,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     static const int airopeek9_encap[] = {
 	WTAP_ENCAP_ETHERNET,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-	WTAP_ENCAP_UNKNOWN,
+	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
     #define NUM_AIROPEEK9_ENCAPS (sizeof airopeek9_encap / sizeof airopeek9_encap[0])
@@ -308,6 +309,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 
     case AIROPEEK_V9_NST_ETHERNET:
     case AIROPEEK_V9_NST_802_11:
+    case AIROPEEK_V9_NST_802_11_2:
 	wth->capture.airopeek9->has_fcs = FALSE;
 	break;
 

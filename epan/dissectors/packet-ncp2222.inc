@@ -8512,35 +8512,36 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].vflags = request_value->req_nds_flags;
                                 break;
                         case 0x03:
-                                        pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                        pvalues[0].vtype = VTYPE_UINT32;
-                                        pvalues[0].vdesc = "Iteration Handle: 0x%08x";
-                                        pvalues[0].vlength = 4;
-                                        pvalues[0].voffset = nds_offset;
-                                        pvalues[0].hfname = hf_nds_iteration;
-                                        nds_offset = nds_offset+pvalues[0].vlength;
-                                        pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                        pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_info_type);
-                                        if(pvalues[1].vstring == NULL)
-                                        {
-                                                pvalues[1].vstring = "No Info Type Set";
-                                        }
-                                        pvalues[1].vtype = VTYPE_STRING;
-                                        pvalues[1].vdesc = "Info Type: %s";
-                                        pvalues[1].vlength = 4;
-                                        pvalues[1].voffset = nds_offset;
-                                        pvalues[1].hfname = hf_nds_info_type;
-                                        nds_offset = nds_offset+pvalues[1].vlength;
-                                        pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                        pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[2].vdesc = "Number of Attributes: %u";
-                                        pvalues[2].vlength = 4;
-                                        pvalues[2].voffset = nds_offset;
-                                        pvalues[2].hfname = hf_nds_attr;
-                                        pvalues[2].mvtype = MVTYPE_ATTR_REPLY;
-                                        pvalues[2].vflags = request_value->req_nds_flags;
-                                        pvalues[2].nds_version = request_value->nds_version;
-                                        pvalues[2].pflags = request_value->req_nds_prot_flags;
+                                pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                pvalues[0].vtype = VTYPE_UINT32;
+                                pvalues[0].vdesc = "Iteration Handle: 0x%08x";
+                                pvalues[0].vlength = 4;
+                                pvalues[0].voffset = nds_offset;
+                                pvalues[0].hfname = hf_nds_iteration;
+                                nds_offset = nds_offset+pvalues[0].vlength;
+                                pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_info_type);
+                                if(pvalues[1].vstring == NULL)
+                                {
+                                        pvalues[1].vstring = "No Info Type Set";
+                                }
+                                pvalues[1].vtype = VTYPE_STRING;
+                                pvalues[1].vdesc = "Info Type: %s";
+                                pvalues[1].vlength = 4;
+                                pvalues[1].voffset = nds_offset;
+                                pvalues[1].hfname = hf_nds_info_type;
+                                nds_offset = nds_offset+pvalues[1].vlength;
+                                pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
+                                pvalues[2].vdesc = "Number of Attributes: %u";
+                                pvalues[2].vlength = 4;
+                                pvalues[2].voffset = nds_offset;
+                                pvalues[2].hfname = hf_nds_attr;
+                                pvalues[2].mvtype = MVTYPE_ATTR_REPLY;
+                                pvalues[2].vflags = request_value->req_nds_flags;
+                                pvalues[2].nds_version = request_value->nds_version;
+                                pvalues[2].pflags = request_value->req_nds_prot_flags;
+                                break;
                         case 0x04:
                                 pvalues[0].vvalue = tvb_get_guint8(tvb, nds_offset);
                                 if (pvalues[0].vvalue == 0)

@@ -59,6 +59,10 @@
 #include "k12.h"
 #include "k12text_lex.h"
 
+#ifndef HAVE_UNISTD_H
+#define YY_NO_UNISTD_H
+#endif
+
 static guint h;
 static guint m;
 static guint s;

@@ -37,12 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            The NCP dissector was susceptible to a number of problems, including
-            buffer overflows and an infinite loop.
-            <!-- Fixed in r25600, r25682, r25683, r25807, r25892, r25911, r25913, r25914, r26012 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2675">2675</ulink>) -->
+            The Bluetooth ACL dissector could crash or abort.
+            <!-- Fixed in r25195 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513">1513</ulink>) -->
           </para>
-          <para>Versions affected: 0.9.7 to 1.0.2</para>
+          <para>Versions affected: 0.99.2 to 1.0.3</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -50,22 +49,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash while uncompressing zlib-compressed packet data.
-            <!-- Fixed in r25677 -->
-	    <!-- (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2649">2649</ulink>) -->
+            The Q.931 dissector could crash or abort.
+            <!-- Fixed in r26190 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2870">2870</ulink>) -->
           </para>
-          <para>Versions affected: 0.10.14 to 1.0.2</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could crash while reading a Tektronix .rf5 file.
-            <!-- Fixed in r25923, r25924 -->
-          </para>
-          <para>Versions affected: 0.99.6 to 1.0.2</para>
+          <para>Versions affected: 0.10.3 to 1.0.3</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -82,91 +70,15 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          802.11 WPA/WPA2-PSK Unable to decode Group Keys.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-          1420</ulink>)
+          Homeplug dissection bugs
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2859">Bug
+          2859</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Packets could wrongly be dissected as "Redback Lawful Intercept"
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2376">Bug
-          2376</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          MIKEY dissector improvements
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
-          2400</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          tvb_get_bits{16|32} could read past the end of a tvbuff
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2439">Bug
-          2439</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect wslua function names.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
-          2448</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory corruption in wslua.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
-          2453</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Unknown PPPoE TAGs which are present in a PPPoE discovery packet are not displayed under "PPPoE Tags" subtree/section.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2400">Bug
-          2458</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Following a TCP stream could incorrectly reassemble packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2606">Bug
-          2606</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SIP decode shows fully expanded "Content-Length" header instead of compact form.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2635">Bug
-          2635</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Segmentation fault loading trace containing NCP packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2675">Bug
-          2675</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SIP packets might incorrectly be displayed as malformed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2729">Bug
-          2729</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTCP BYE padding interpreted incorrectly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2778">Bug
-          2778</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Reversed RTP stream is saved as silent .au file, forward stream saves correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2780">Bug
-          2780</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fix some lint warnings.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2822">Bug
-          2822</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Setting a duration on a capture file would capture for an extra second.
+          Empty GPRS LLC S frames cause truncated data exception
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2855">Bug
+          2855</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -193,22 +105,15 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-AIM,
-Bluetooth RFCOMM,
-ERF,
-K12,
+AFP,
+Bluetooth ACL,
+GPRS LLC,
+Homeplug,
+IEEE 802.11,
+IP,
+NSIP,
 NCP,
-PPP BCP,
-PPPoE,
-Q.933,
-Redback LI,
-RTCP,
-RTP,
-SIP,
-SNMP,
-TCP,
-V.120,
-WiMAX
+Q.931
 
     </para>
     </section>
@@ -216,7 +121,7 @@ WiMAX
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF.
+Endace ERF, Tektronix .rf5.
 
     </para>
     </section>

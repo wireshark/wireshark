@@ -73,7 +73,7 @@ match_strval_idx(guint32 val, const value_string *vs, gint *idx) {
 /* Like match_strval_idx(), but doesn't return the index. */
 const gchar*
 match_strval(guint32 val, const value_string *vs) {
-    gint ignore_me;
+    gint ignore_me = 0;
     return match_strval_idx(val, vs, &ignore_me);
 }
 
@@ -118,7 +118,7 @@ decode_enumerated_bitfield_shifted(guint32 val, guint32 mask, int width,
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar *rval_to_str(guint32 val, const range_string *rs, const char *fmt) 
+const gchar *rval_to_str(guint32 val, const range_string *rs, const char *fmt)
 {
   const gchar *ret = NULL;
 
