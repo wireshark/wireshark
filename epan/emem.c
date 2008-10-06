@@ -57,8 +57,8 @@
  * Uncomment the defines below to make {ep|se}_alloc() allocate each
  * object individually.
  */
-#define EP_DEBUG_FREE 1
-#define SE_DEBUG_FREE 1
+/* #define EP_DEBUG_FREE 1 */
+/* #define SE_DEBUG_FREE 1 */
 
 /* Do we want to use guardpages? if available */
 #define WANT_GUARD_PAGES 1
@@ -1435,7 +1435,7 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 
 
 /* Strings are stored as an array of uint32 containing the string characters
-   with 4 characters in each uint32.
+   with 4 characters in each uint32. 
    The first byte of the string is stored as the most significant byte.
    If the string is not a multiple of 4 characters in length the last
    uint32 containing the string bytes are padded with 0 bytes.
@@ -1470,7 +1470,7 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 		if (i%4 == 3) {
 			aligned[i/4] = tmp;
 			tmp = 0;
-		}
+		}		
 	}
 	/* add required padding to the last uint32 */
 	if (i%4 != 0) {
@@ -1480,7 +1480,7 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 		}
 		aligned[i/4-1] = tmp;
 	}
-
+	
 	/* add the terminator */
 	aligned[div-1] = 0x00000001;
 
@@ -1523,7 +1523,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 		if (i%4 == 3) {
 			aligned[i/4] = tmp;
 			tmp = 0;
-		}
+		}		
 	}
 	/* add required padding to the last uint32 */
 	if (i%4 != 0) {
@@ -1533,7 +1533,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 		}
 		aligned[i/4-1] = tmp;
 	}
-
+	
 	/* add the terminator */
 	aligned[div-1] = 0x00000001;
 

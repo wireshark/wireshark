@@ -35,8 +35,6 @@ Wireshark Info
 
       <itemizedlist>
 
-      <!-- to_str, NFS -->
-
         <listitem>
           <para>
             The NCP dissector was susceptible to a number of problems, including
