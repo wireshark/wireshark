@@ -273,19 +273,19 @@ welcome_header_new(void)
 
     if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
         message = g_strdup_printf(
-			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" 
-			"Sniffing the glue that holds the Internet together" 
+			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">"
+			"Sniffing the glue that holds the Internet together"
 			"</span>");
     } else {
         message = g_strdup_printf(
-			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" 
-			"The World's Most Popular Network Protocol Analyzer" 
+			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">"
+			"%s"
 #ifdef VERSION_IN_WELCOME_PAGE
 			"</span>\n<span size=\"large\">"
-			"Version " VERSION "%s"
-			"</span>",wireshark_svnversion);
+			"Version " VERSION "%s",
+			prefs.gui_start_title, wireshark_svnversion);
 #else
-			"</span>");
+			"</span>", prefs.gui_start_title);
 #endif
     }
     w = gtk_label_new(message);

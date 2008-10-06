@@ -134,6 +134,7 @@ typedef struct _e_prefs {
   gboolean gui_use_pref_save;
   gchar   *gui_webbrowser;
   gchar   *gui_window_title;
+  gchar   *gui_start_title;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
@@ -206,10 +207,10 @@ extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
  * Register that a protocol has preferences and group it under a single
- * subtree 
+ * subtree
  */
 #define PREFERENCE_GROUPING
-extern module_t *prefs_register_protocol_subtree(const char *subtree, int id, 
+extern module_t *prefs_register_protocol_subtree(const char *subtree, int id,
 						 void (*apply_cb)(void));
 
 /*
@@ -365,7 +366,7 @@ extern guint prefs_pref_foreach(module_t *module, pref_cb callback,
     gpointer user_data);
 
 /* Parse through a list of comma-separated, possibly quoted strings.
- *  Return a list of the string data. 
+ *  Return a list of the string data.
  */
 extern GList *prefs_get_string_list(gchar *str);
 

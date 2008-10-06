@@ -1169,6 +1169,7 @@ init_prefs(void) {
   prefs.gui_use_pref_save          = FALSE;
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
+  prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
   prefs.gui_layout_type            = layout_type_5;
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1221,6 +1222,8 @@ prefs_reset(void)
     g_free(prefs.gui_webbrowser);
   if (prefs.gui_window_title)
     g_free(prefs.gui_window_title);
+  if (prefs.gui_start_title)
+    g_free(prefs.gui_start_title);
   if (prefs.capture_device)
     g_free(prefs.capture_device);
   if (prefs.capture_devices_linktypes)
@@ -1645,6 +1648,7 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
+#define PRS_GUI_START_TITLE              "gui.start_title"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
@@ -2023,6 +2027,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     if (prefs.gui_window_title != NULL)
       g_free(prefs.gui_window_title);
     prefs.gui_window_title = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_START_TITLE) == 0) {
+    if (prefs.gui_start_title != NULL)
+      g_free(prefs.gui_start_title);
+    prefs.gui_start_title = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
     if (prefs.gui_layout_type == layout_unused ||
@@ -2484,8 +2492,8 @@ write_pref(gpointer data, gpointer user_data)
 		return;
 	}
 
-	/* 
-	 * Make multiple line descriptions appear as 
+	/*
+	 * Make multiple line descriptions appear as
 	 * multiple commented lines in prefs file.
 	 */
 	if (g_ascii_strncasecmp(pref->description,"", 2) != 0) {
@@ -2752,6 +2760,10 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
               prefs.gui_window_title);
 
+  fprintf(pf, "\n# Custom start page title.\n");
+  fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
+              prefs.gui_start_title);
+
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
@@ -3012,6 +3024,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
   dest->gui_window_title = g_strdup(src->gui_window_title);
+  dest->gui_start_title = g_strdup(src->gui_start_title);
   dest->console_log_level = src->console_log_level;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
@@ -3054,6 +3067,10 @@ free_prefs(e_prefs *pr)
   if (pr->gui_window_title != NULL) {
     g_free(pr->gui_window_title);
     pr->gui_window_title = NULL;
+  }
+  if (pr->gui_start_title != NULL) {
+    g_free(pr->gui_start_title);
+    pr->gui_start_title = NULL;
   }
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);
