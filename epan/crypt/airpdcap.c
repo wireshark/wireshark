@@ -40,6 +40,7 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
 #include <epan/tvbuff.h>
 #include <epan/crc32.h>
 #include <epan/strutil.h>
@@ -361,6 +362,9 @@ AirPDcapDecryptWPABroadcastKey(P_EAPOL_RSN_KEY pEAPKey, guint8  *decryption_key,
     if (key_len > sizeof(RSN_IE) || key_len == 0) { /* Don't read past the end of pEAPKey->ie */
         return;
     }
+	if (key_len < 16) { /* XXX - Need to verify this */
+            return;
+        }
 
 	/* Encrypted key is in the information element field of the EAPOL key packet */
 	szEncryptedKey = g_memdup(pEAPKey->ie, key_len);
