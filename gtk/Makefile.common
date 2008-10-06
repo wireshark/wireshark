@@ -158,6 +158,7 @@ WIRESHARK_TAP_SRC = \
 	gsm_a_stat.c	\
 	gsm_map_stat.c	\
 	gsm_map_summary.c	\
+	gtp_stat.c	\
 	h225_counter.c	\
 	h225_ras_srt.c	\
 	hostlist_eth.c	\

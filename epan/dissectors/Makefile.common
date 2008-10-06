@@ -585,6 +585,7 @@ DISSECTOR_SRC = \
 	packet-mip6.c		\
 	packet-ms-mms.c		\
 	packet-mmse.c		\
+	packet-mos.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
 	packet-mp4ves.c		\
@@ -974,6 +975,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gsm_map.h	\
 	packet-gsm_sms.h	\
 	packet-gssapi.h	\
+	packet-gtp.h	\
 	packet-h223.h	\
 	packet-h225.h	\
 	packet-h235.h	\
