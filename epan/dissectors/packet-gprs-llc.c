@@ -927,7 +927,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (tree)
 			{
 				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2,
-					2, "Unnumbered Information format - UI, N(U) = %u", nu);
+					2, "Unconfirmed Information format - UI, N(U) = %u", nu);
 				ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_ctrlf);
 				
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_U_fmt, tvb, offset-2,
@@ -1167,13 +1167,13 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_sapi,
 			{ "SAPI", "llcgprs.sapi", FT_UINT8, BASE_DEC, VALS(sapi_abrv), 0x0,"Service Access Point Identifier", HFILL }},
 		{ &hf_llcgprs_pd,
-			{ "Protocol Discriminator_bit", "llcgprs.pd", FT_BOOLEAN,8, TFS(&pd_bit), 0x80, " Protocol Discriminator bit (should be 0)", HFILL }},
+			{ "Protocol Discriminator_bit", "llcgprs.pd", FT_BOOLEAN,8, TFS(&pd_bit), 0x80, "Protocol Discriminator bit (should be 0)", HFILL }},
 		{&hf_llcgprs_sjsd,
 			{ "Supervisory function bits","llcgprs.s1s2", FT_UINT16, BASE_HEX, VALS(cr_formats_ipluss),0x3, "Supervisory functions bits",HFILL }},
 		{ &hf_llcgprs_cr,
-			{ "Command/Response bit", "llcgprs.cr", FT_BOOLEAN, 8, TFS(&cr_bit), 0x40, " Command/Response bit", HFILL}},
+			{ "Command/Response bit", "llcgprs.cr", FT_BOOLEAN, 8, TFS(&cr_bit), 0x40, "Command/Response bit", HFILL}},
 		{ &hf_llcgprs_sapib,
-			{ "SAPI", "llcgprs.sapib", FT_UINT8, BASE_DEC , VALS(sapi_t), 0xf, "Service Access Point Identifier ",HFILL }},
+			{ "SAPI", "llcgprs.sapib", FT_UINT8, BASE_DEC , VALS(sapi_t), 0xf, "Service Access Point Identifier",HFILL }},
 		{ &hf_llcgprs_U_fmt,
 			{ "UI format", "llcgprs.ui", FT_UINT16, BASE_HEX, NULL, UI_MASK_FMT, "UI frame format",HFILL}},
 		{ &hf_llcgprs_Un,
@@ -1181,7 +1181,7 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_sp_bits,
 			{ "Spare bits", "llcgprs.ui_sp_bit", FT_UINT16, BASE_HEX, NULL, UI_MASK_SPB, "Spare bits", HFILL}},
 		{ &hf_llcgprs_NU,
-			{ "N(U)", "llcgprs.nu", FT_UINT16, BASE_DEC, NULL, UI_MASK_NU, "Transmited unconfirmed sequence number", HFILL}},
+			{ "N(U)", "llcgprs.nu", FT_UINT16, BASE_DEC, NULL, UI_MASK_NU, "Transmitted unconfirmed sequence number", HFILL}},
 		{ &hf_llcgprs_E_bit,
 			{ "E bit", "llcgprs.e", FT_BOOLEAN, 16, TFS(&e_bit), UI_MASK_E,"Encryption mode bit",HFILL }},
 		{ &hf_llcgprs_PM_bit,
@@ -1189,7 +1189,7 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_As,
 			{ "Ackn request bit", "llcgprs.as", FT_BOOLEAN, 16, TFS(&a_bit), 0x2000 ,"Acknowledgement request bit A", HFILL}},
 		{ &hf_llcgprs_PF,
-			{ "P/F bit", "llcgprs.pf", FT_BOOLEAN, 8, NULL, 0x10,"Poll /Finall bit", HFILL}},
+			{ "P/F bit", "llcgprs.pf", FT_BOOLEAN, 8, NULL, 0x10,"Poll/Final bit", HFILL}},
 		{ &hf_llcgprs_ucom,
 			{ "Command/Response","llcgprs.ucom", FT_UINT8, BASE_HEX, VALS(cr_formats_unnumb),0xf,"Commands and Responses",HFILL }},
 		{ &hf_llcgprs_NR,
