@@ -1170,6 +1170,7 @@ init_prefs(void) {
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
+  prefs.gui_version_in_start_page  = FALSE;
   prefs.gui_layout_type            = layout_type_5;
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1649,6 +1650,7 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_START_TITLE              "gui.start_title"
+#define PRS_GUI_VERSION_IN_START_PAGE    "gui.version_in_start_page"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
@@ -2031,6 +2033,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     if (prefs.gui_start_title != NULL)
       g_free(prefs.gui_start_title);
     prefs.gui_start_title = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_VERSION_IN_START_PAGE) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+	    prefs.gui_version_in_start_page = TRUE;
+    } else {
+	    prefs.gui_version_in_start_page = FALSE;
+    }
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
     if (prefs.gui_layout_type == layout_unused ||
@@ -2764,6 +2772,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
               prefs.gui_start_title);
 
+  fprintf(pf, "\n# Show version in start page, can be useful in custom builds.\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
+		  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
+
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
@@ -3025,6 +3038,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
   dest->gui_window_title = g_strdup(src->gui_window_title);
   dest->gui_start_title = g_strdup(src->gui_start_title);
+  dest->gui_version_in_start_page = src->gui_version_in_start_page;
   dest->console_log_level = src->console_log_level;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);

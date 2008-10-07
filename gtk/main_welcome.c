@@ -21,9 +21,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Put version in Welcome screen, can be useful in custom builds.
-#define VERSION_IN_WELCOME_PAGE  1
-*/
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -58,9 +55,7 @@
 #include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
 #include "../image/wssplash-dev.xpm"
-#ifdef VERSION_IN_WELCOME_PAGE
 #include "../version_info.h"
-#endif
 
 
 /* XXX */
@@ -253,7 +248,7 @@ welcome_header_new(void)
     GtkWidget *item_hb;
     GtkWidget *eb;
     GtkWidget *icon;
-    gchar *message;
+    GString *message;
     GtkWidget *w;
     time_t secs = time(NULL);
     struct tm *now = localtime(&secs);
@@ -271,26 +266,22 @@ welcome_header_new(void)
     icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
+    message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">");
     if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
-        message = g_strdup_printf(
-			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">"
-			"Sniffing the glue that holds the Internet together"
-			"</span>");
+        g_string_append(message, "Sniffing the glue that holds the Internet together");
     } else {
-        message = g_strdup_printf(
-			"<span weight=\"bold\" size=\"x-large\" foreground=\"black\">"
-			"%s"
-#ifdef VERSION_IN_WELCOME_PAGE
-			"</span>\n<span size=\"large\">"
-			"Version " VERSION "%s</span>",
-			prefs.gui_start_title, wireshark_svnversion);
-#else
-			"</span>", prefs.gui_start_title);
-#endif
+        g_string_append(message, prefs.gui_start_title);
     }
-    w = gtk_label_new(message);
-    gtk_label_set_markup(GTK_LABEL(w), message);
-    g_free(message);
+    g_string_append(message, "</span>");
+
+    if (prefs.gui_version_in_start_page) {
+        g_string_append_printf(message, "\n<span size=\"large\">Version " VERSION "%s</span>",
+                               wireshark_svnversion);
+    }
+
+    w = gtk_label_new(message->str);
+    gtk_label_set_markup(GTK_LABEL(w), message->str);
+    g_string_free(message, TRUE);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
