@@ -37,7 +37,8 @@ Wireshark Info
 
         <listitem>
           <para>
-            The Bluetooth ACL dissector could crash or abort.
+            Florent Drouin and David Maciejak found that the Bluetooth ACL
+            dissector could crash or abort.
             <!-- Fixed in r25195 -->
 	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513">1513</ulink>) -->
           </para>
@@ -59,6 +60,32 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark could abort while reading Tamos CommView capture files.
+            <!-- Fixed in r26327 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2926">2926</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.7 to 1.0.3</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            David Maciejak found that the USB dissector could crash or abort.
+            This led to the disovery of a similar problem in the Bluetooth
+            RFCOMM dissector.
+            <!-- Fixed in r26333 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2922">2922</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.7 to 1.0.3</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -70,15 +97,65 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+           Failure to dissect long SASL wrapped LDAP response
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2687">Bug
+          2687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Homeplug dissection bugs
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2859">Bug
           2859</ulink>)
         </para></listitem>
 
+        <!--
         <listitem><para>
           Empty GPRS LLC S frames cause truncated data exception
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2855">Bug
           2855</ulink>)
+        </para></listitem>
+        -->
+
+        <listitem><para>
+          Malformed Packet DCP ETSI error
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2860">Bug
+          2860</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong size of selected_registrar in WPS dissector
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2865">Bug
+          2865</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissector assertion displaying cookies in DTLS frames
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2876">Bug
+          2876</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Missing field type in documentation
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2889">Bug
+          2889</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark -p switch seems to have no effect to PROMISCUOUS mode
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2891">Bug
+          2891</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Misspelled PPI error vector magnitude filter
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2903">Bug
+          2903</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Modbus Function 43 Encapsulated Interface Transport decoding
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2917">Bug
+          2917</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -107,13 +184,21 @@ There are no new protocols in this release.
 
 AFP,
 Bluetooth ACL,
-GPRS LLC,
+Bluetooth RFCOMM,
+DCP ETSI,
+DTLS,
 Homeplug,
 IEEE 802.11,
 IP,
+Modbus TCP,
 NSIP,
 NCP,
-Q.931
+PPI,
+Q.931,
+SASL,
+SNMP,
+USB,
+WPS
 
     </para>
     </section>
@@ -121,7 +206,7 @@ Q.931
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Tektronix .rf5.
+AiroPeek, CommView
 
     </para>
     </section>

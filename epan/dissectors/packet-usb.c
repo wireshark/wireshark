@@ -242,10 +242,9 @@ get_usb_conv_info(conversation_t *conversation)
     usb_conv_info = conversation_get_proto_data(conversation, proto_usb);
     if(!usb_conv_info){
         /* no not yet so create some */
-        usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
+        usb_conv_info = se_alloc0(sizeof(usb_conv_info_t));
         usb_conv_info->interfaceClass=IF_CLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_conv_info->class_data=NULL;
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
@@ -504,10 +503,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     /* save the class so we can access it later in the endpoint descriptor */
     usb_conv_info->interfaceClass=tvb_get_guint8(tvb, offset);
     if(!pinfo->fd->flags.visited){
-        usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
+        usb_trans_info->interface_info=se_alloc0(sizeof(usb_conv_info_t));
         usb_trans_info->interface_info->interfaceClass=tvb_get_guint8(tvb, offset);
         usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_trans_info->interface_info->class_data=NULL;
     }
     offset++;
 
@@ -1052,12 +1050,9 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         /* this is a request */
         usb_trans_info=se_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if(!usb_trans_info){
-            usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
+            usb_trans_info=se_alloc0(sizeof(usb_trans_info_t));
             usb_trans_info->request_in=pinfo->fd->num;
-            usb_trans_info->response_in=0;
             usb_trans_info->req_time=pinfo->fd->abs_ts;
-            usb_trans_info->requesttype=0;
-            usb_trans_info->request=0;
             se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
         usb_conv_info->usb_trans_info=usb_trans_info;
