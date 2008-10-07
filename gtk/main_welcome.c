@@ -282,7 +282,7 @@ welcome_header_new(void)
 			"%s"
 #ifdef VERSION_IN_WELCOME_PAGE
 			"</span>\n<span size=\"large\">"
-			"Version " VERSION "%s",
+			"Version " VERSION "%s</span>",
 			prefs.gui_start_title, wireshark_svnversion);
 #else
 			"</span>", prefs.gui_start_title);
