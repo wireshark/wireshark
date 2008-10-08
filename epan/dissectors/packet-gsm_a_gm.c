@@ -411,7 +411,7 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 		oct&1,
 		str);
 
-	/* curr_offset++;  - It is encoded in the octed before */
+	curr_offset++;
 
 	/* no length check possible */
 
