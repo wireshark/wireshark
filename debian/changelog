@@ -1,5 +1,5 @@
-wireshark (1.0.3) unstable; urgency=low
+wireshark (1.0.4) unstable; urgency=low
 
   * Self-made package
 
- -- Wireshark Self-made package <wireshark@example.com>  Mon, 1 Sep 2008 00:00:00 +0000
+ -- Wireshark Self-made package <wireshark@example.com>  Fri, 31 Oct 2008 00:00:00 +0000
