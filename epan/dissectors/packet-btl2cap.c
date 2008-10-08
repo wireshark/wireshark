@@ -64,6 +64,7 @@ static int hf_btl2cap_info_type = -1;
 static int hf_btl2cap_info_result = -1;
 static int hf_btl2cap_continuation_flag = -1;
 static int hf_btl2cap_configuration_result = -1;
+static int hf_btl2cap_info_extfeatures = -1;
 static int hf_btl2cap_option = -1;
 static int hf_btl2cap_option_type = -1;
 static int hf_btl2cap_option_length = -1;
@@ -82,11 +83,24 @@ static int hf_btl2cap_option_maxtransmit = -1;
 static int hf_btl2cap_option_retransmittimeout = -1;
 static int hf_btl2cap_option_monitortimeout = -1;
 static int hf_btl2cap_option_mps = -1;
+static int hf_btl2cap_control = -1;
+static int hf_btl2cap_control_sar = -1;
+static int hf_btl2cap_control_reqseq = -1;
+static int hf_btl2cap_control_txseq = -1;
+static int hf_btl2cap_control_retransmissiondisable = -1;
+static int hf_btl2cap_control_supervisory = -1;
+static int hf_btl2cap_control_type = -1;
+static int hf_btl2cap_fcs = -1;
+static int hf_btl2cap_sdulength = -1;
+static int hf_btl2cap_continuation_to = -1;
+static int hf_btl2cap_reassembled_in = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
 static gint ett_btl2cap_cmd = -1;
 static gint ett_btl2cap_option = -1;
+static gint ett_btl2cap_extfeatures = -1;
+static gint ett_btl2cap_control = -1;
 
 
 /* Initialize dissector table */
@@ -97,8 +111,15 @@ dissector_table_t l2cap_psm_dissector_table;
  * For received CIDs we mask the cid with 0x8000 in this table
  */
 static emem_tree_t *cid_to_psm_table = NULL;
+typedef struct _config_data_t {
+	guint8		mode;
+	guint8		txwindow;
+	emem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
+} config_data_t;
 typedef struct _psm_data_t {
-	guint16		psm;
+	guint16			psm;
+	config_data_t	in;
+	config_data_t	out;
 } psm_data_t;
 
 static const value_string command_code_vals[] = {
@@ -198,6 +219,26 @@ static const value_string option_retransmissionmode_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string control_sar_vals[] = {
+	{ 0x00, "Unsegmented" },
+	{ 0x01, "Start" },
+	{ 0x02, "End" },
+	{ 0x03, "Continuation" },
+	{ 0, NULL }
+};
+
+static const value_string control_supervisory_vals[] = {
+	{ 0x00, "RR" },
+	{ 0x01, "REJ" },
+	{ 0, NULL }
+};
+
+static const value_string control_type_vals[] = {
+	{ 0x00, "I-Frame" },
+	{ 0x01, "S-Frame" },
+	{ 0, NULL }
+};
+
 static int 
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -249,6 +290,12 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	if (pinfo->fd->flags.visited == 0) {
 		psm_data=se_alloc(sizeof(psm_data_t));
 		psm_data->psm=psm;
+		psm_data->in.mode=0;
+		psm_data->in.txwindow=0;
+		psm_data->in.start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_l2cap fragment starts");
+		psm_data->out.mode=0;
+		psm_data->out.txwindow=0;
+		psm_data->out.start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_l2cap fragment starts");
 		se_tree_insert32(cid_to_psm_table, scid|((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000), psm_data);
 
 	}
@@ -257,7 +304,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 
 static int
-dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length)
+dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length, psm_data_t *psm_data _U_, config_data_t *config_data)
 {
 	proto_item *ti_option=NULL;
 	proto_tree *ti_option_subtree=NULL;
@@ -318,6 +365,11 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 				break;
 
 			case 0x04: /* Retransmission and Flow Control*/
+				if(config_data) 
+				{
+					config_data->mode = tvb_get_guint8(tvb, offset);
+					config_data->txwindow = tvb_get_guint8(tvb, offset+1);
+				}
 				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmissionmode, tvb, offset, 1, TRUE);
 				offset++;
 
@@ -355,6 +407,12 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 static int
 dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
 {
+	psm_data_t *psm_data;
+	config_data_t *config_data;
+	guint16 dcid;
+
+	dcid = tvb_get_letohs(tvb, offset);
+	psm_data=se_tree_lookup32(cid_to_psm_table, dcid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
 	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
 	offset+=2;
 
@@ -362,7 +420,11 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		offset=dissect_options(tvb, offset, pinfo, tree, length - 4); 
+		if(pinfo->p2p_dir==P2P_DIR_RECV)
+			config_data = &(psm_data->out);
+		else
+			config_data = &(psm_data->in);
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 4, psm_data, config_data);
 	}
 
 	return offset;
@@ -382,6 +444,9 @@ static int
 dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 info_type;
+	proto_item *ti_features=NULL;
+	proto_tree *ti_features_subtree=NULL;
+	guint32 features;
 
 	info_type=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, TRUE);
@@ -398,9 +463,21 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 
 			break;
 		case 0x0002: /* Extended Features */
-			proto_tree_add_item(tree, hf_btl2cap_info_flowcontrol, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_btl2cap_info_retransmission, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_btl2cap_info_bidirqos, tvb, offset, 1, TRUE);
+			ti_features = proto_tree_add_none_format(tree, 
+					hf_btl2cap_info_extfeatures, tvb,
+					offset, 4,
+					"Features: ");
+			ti_features_subtree = proto_item_add_subtree(ti_features, ett_btl2cap_extfeatures);
+			features = tvb_get_letohl(tvb, offset);
+			if(features & 0x1)
+				proto_item_append_text(ti_features, "FlowControl ");
+			if(features & 0x2)
+				proto_item_append_text(ti_features, "Retransmission ");
+			if(features & 0x4)
+				proto_item_append_text(ti_features, "BiDirQOS ");
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flowcontrol, tvb, offset, 1, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_retransmission, tvb, offset, 1, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_bidirqos, tvb, offset, 1, TRUE);
 			offset+=4;
 
 			break;
@@ -418,6 +495,12 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 static int
 dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
 {
+	psm_data_t *psm_data;
+	config_data_t *config_data;
+	guint16 scid;
+
+	scid = tvb_get_letohs(tvb, offset);
+	psm_data=se_tree_lookup32(cid_to_psm_table, scid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
 	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
 	offset+=2;
 
@@ -428,7 +511,11 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		offset=dissect_options(tvb, offset, pinfo, tree, length - 6); 
+		if(pinfo->p2p_dir==P2P_DIR_RECV)
+			config_data = &(psm_data->in);
+		else
+			config_data = &(psm_data->out);
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 6, psm_data, config_data);
 	}
 
 	return offset;
@@ -480,7 +567,202 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	return offset;
 }
 
+static void dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, guint16 psm, guint16 length, int offset)
+{
+	tvbuff_t *next_tvb;
+	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
+	}
+
+	if(psm){
+		proto_item *psm_item;
+
+		psm_item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
+		PROTO_ITEM_SET_GENERATED(psm_item);
+
+		/* call next dissector */
+		if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
+					next_tvb, pinfo, tree)) {
+			/* unknown protocol. declare as data */
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+		}
+		offset+=tvb_length_remaining(tvb, offset);
+	} else {
+		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+		offset+=tvb_length_remaining(tvb, offset);
+	}
+}
+
+typedef struct _sdu_reassembly_t
+{
+	guint8* reassembled;
+	guint8 seq;
+	guint32 first_frame;
+	guint32 last_frame;
+	guint16 tot_len;
+	int cur_off;	/* counter used by reassembly */
+} sdu_reassembly_t;
+
+static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length, int offset, config_data_t *config_data)
+{
+	tvbuff_t *next_tvb = NULL;
+	guint16 control, segment;
+	guint16 sdulen;
+	proto_item* ti_control;
+	proto_tree* ti_control_subtree;
+	sdu_reassembly_t* mfp = NULL;
+	guint16 psm = (psm_data?psm_data->psm:0);
+
+	control = tvb_get_letohs(tvb, offset);
+	segment = (control & 0xC000) >> 14;
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		switch(segment)
+		{
+		case 0:
+			col_append_str(pinfo->cinfo, COL_INFO, "[I] Unsegmented SDU");
+			break;
+		case 1:
+			col_append_str(pinfo->cinfo, COL_INFO, "[I] Start SDU");
+			break;
+		case 2:
+			col_append_str(pinfo->cinfo, COL_INFO, "[I] End SDU");
+			break;
+		case 3:
+			col_append_str(pinfo->cinfo, COL_INFO, "[I] Continuation SDU");
+			break;
+		}
+	}
+	ti_control = proto_tree_add_none_format(btl2cap_tree, hf_btl2cap_control, tvb,
+		offset, 2, "Control: %s reqseq:%d r:%d txseq:%d",
+		val_to_str((control & 0xC000) >> 14, control_sar_vals, "unknown"),
+		(control & 0x3F00) >> 8,
+		(control & 0x0080) >> 7,
+		(control & 0x007E) >> 1);
+	ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/*Segmented frames with SAR = start have an extra SDU length header field*/
+	if(segment == 0x01) {
+		sdulen = tvb_get_letohs(tvb, offset);
+		proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, TRUE);
+		offset += 2;
+		length -= 6; /*Control, SDUlength, FCS*/
+		if(!pinfo->fd->flags.visited){
+			mfp=se_alloc(sizeof(sdu_reassembly_t));
+			mfp->first_frame=pinfo->fd->num;
+			mfp->last_frame=0;
+			mfp->tot_len=sdulen;
+			mfp->reassembled=se_alloc(sdulen);
+			tvb_memcpy(tvb, mfp->reassembled, offset, length);
+			mfp->cur_off=length;
+			se_tree_insert32(config_data->start_fragments, pinfo->fd->num, mfp);
+		} else {
+			mfp=se_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
+		}
+		if(mfp && mfp->last_frame){
+			proto_item *item;
+			item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_reassembled_in, tvb, 0, 0, mfp->last_frame);
+			PROTO_ITEM_SET_GENERATED(item);
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
+			}
+		}
+	} else {
+		length -= 4; /*Control, FCS*/
+	}
+	if(segment == 0x02 || segment == 0x03) {
+		mfp=se_tree_lookup32_le(config_data->start_fragments, pinfo->fd->num);
+		if(!pinfo->fd->flags.visited){
+			if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+length)){
+				tvb_memcpy(tvb, mfp->reassembled+mfp->cur_off, offset, length);
+				mfp->cur_off+=length;
+				if(segment == 0x02){
+					mfp->last_frame=pinfo->fd->num;
+				}
+			}
+		}
+		if(mfp){
+			proto_item *item;
+			item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_continuation_to, tvb, 0, 0, mfp->first_frame);
+			PROTO_ITEM_SET_GENERATED(item);
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
+			}
+		}
+	}
+	if(segment == 0x02 && mfp && mfp->last_frame==pinfo->fd->num){
+		next_tvb = tvb_new_real_data((guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
+	}
+	/*pass up to higher layer if we have a complete packet*/
+	if(segment == 0x00) {
+		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 2, length);
+	}
+	if(next_tvb) {
+		if(psm){
+			proto_item *psm_item;
+
+			psm_item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
+			PROTO_ITEM_SET_GENERATED(psm_item);
+
+			/* call next dissector */
+			if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
+						next_tvb, pinfo, tree)) {
+				/* unknown protocol. declare as data */
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
+			}
+		} else {
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
+		}
+	}
+	offset+=(tvb_length_remaining(tvb, offset) - 2);
+	proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, TRUE);
+	offset += 2;
+}
+
+static void dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *btl2cap_tree, guint16 psm _U_, guint16 length _U_, int offset, config_data_t *config_data _U_)
+{
+	proto_item* ti_control;
+	proto_tree* ti_control_subtree;
+	guint16 control;
+
+	control = tvb_get_letohs(tvb, offset);
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		switch((control & 0x000C) >> 2)
+		{
+		case 0:
+			col_append_str(pinfo->cinfo, COL_INFO, "[S] Receiver Ready");
+			break;
+		case 1:
+			col_append_str(pinfo->cinfo, COL_INFO, "[S] Reject");
+			break;
+		default:
+			col_append_str(pinfo->cinfo, COL_INFO, "[S] Unknown supervisory frame");
+			break;
+		}
+	}
+	ti_control = proto_tree_add_none_format(btl2cap_tree, hf_btl2cap_control, tvb,
+		offset, 2, "Control: %s reqseq:%d r:%d",
+		val_to_str((control & 0x000C) >> 2, control_supervisory_vals, "unknown"),
+		(control & 0x3F00) >> 8,
+		(control & 0x0080) >> 7);
+	ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_supervisory, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+	offset += 2;
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_fcs, tvb, offset, 2, TRUE);
+	offset += 2;
+}
 
 /* Code to actually dissect the packets
  * This dissector will only be called ontop of BTHCI ACL
@@ -494,10 +776,12 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *btl2cap_tree=NULL;
 	guint16 length, cid;
 	guint16 psm;
+	guint16 control;
 	tvbuff_t *next_tvb;
 	psm_data_t *psm_data;
 	bthci_acl_data_t *acl_data;
 	btl2cap_data_t *l2cap_data;
+	config_data_t *config_data;
 
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2CAP");
@@ -666,35 +950,27 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset+=tvb_length_remaining(tvb, offset);
 	} else if(cid >= 0x0040) { /* Connection oriented channel */
-		if(check_col(pinfo->cinfo, COL_INFO)){ 	
-			col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
-		}
-
 		if((psm_data=se_tree_lookup32(cid_to_psm_table, cid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000)))){
 			psm=psm_data->psm;
+			if(pinfo->p2p_dir==P2P_DIR_RECV)
+				config_data = &(psm_data->in);
+			else
+				config_data = &(psm_data->out);
+			if(config_data->mode == 0) {
+				dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset);
+			} else {
+				control = tvb_get_letohs(tvb, offset);
+				if(control & 0x1) {
+					dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset, config_data);
+				} else {
+					dissect_i_frame(tvb, pinfo, tree, btl2cap_tree, psm_data, length, offset, config_data);
+				}
+			}
 		} else {
 			psm=0;
+			dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset);
 		}
 
-		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
-
-		if(psm){
-			proto_item *psm_item;
-
-			psm_item=proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 0, psm);
-			PROTO_ITEM_SET_GENERATED(psm_item);
-
-			/* call next dissector */
-			if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm, 
-						next_tvb, pinfo, tree)) {
-				/* unknown protocol. declare as data */
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
-			}
-			offset+=tvb_length_remaining(tvb, offset);
-		} else {
-			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
-			offset+=tvb_length_remaining(tvb, offset);
-		}
 	} else { /* Something else */
 		if(check_col(pinfo->cinfo, COL_INFO)){
 			col_clear(pinfo->cinfo, COL_INFO);
@@ -818,6 +1094,11 @@ proto_register_btl2cap(void)
 				FT_UINT16, BASE_HEX, VALS(info_result_vals), 0x0,          
 				"Information about the success of the request", HFILL }
 		},
+		{ &hf_btl2cap_info_extfeatures,
+			{ "Extended Features",           "btl2cap.info_extfeatures",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Extended Features Mask", HFILL }
+		},
 		{ &hf_btl2cap_continuation_flag,
 			{ "Continuation Flag",           "btl2cap.continuation",
 				FT_BOOLEAN, BASE_DEC, NULL, 0x0001,          
@@ -918,6 +1199,61 @@ proto_register_btl2cap(void)
 				FT_NONE, BASE_NONE, NULL, 0x0,          
 				"Configuration Parameter Option", HFILL }
 		},
+		{ &hf_btl2cap_control_sar,
+			{ "Segmentation and reassembly",           "btl2cap.control_sar",
+				FT_UINT16, BASE_HEX, VALS(control_sar_vals), 0xC000,
+				"Segmentation and reassembly", HFILL }
+		},
+		{ &hf_btl2cap_control_reqseq,
+			{ "ReqSeq",           "btl2cap.control_reqseq",
+				FT_UINT16, BASE_DEC, NULL, 0x3F00,
+				"Request Sequence Number", HFILL }
+		},
+		{ &hf_btl2cap_control_txseq,
+			{ "TxSeq",           "btl2cap.control_txseq",
+				FT_UINT16, BASE_DEC, NULL, 0x007E,
+				"Transmitted Sequence Number", HFILL }
+		},
+		{ &hf_btl2cap_control_retransmissiondisable,
+			{ "R",           "btl2cap.control_retransmissiondisable",
+				FT_UINT16, BASE_HEX, NULL, 0x0080,
+				"Retransmission Disable", HFILL }
+		},
+		{ &hf_btl2cap_control_supervisory,
+			{ "S",           "btl2cap.control_supervisory",
+				FT_UINT16, BASE_HEX, VALS(control_supervisory_vals), 0x000C,
+				"Supervisory Function", HFILL }
+		},
+		{ &hf_btl2cap_control_type,
+			{ "Frame Type",           "btl2cap.control_type",
+				FT_UINT16, BASE_HEX, VALS(control_type_vals), 0x0001,
+				"Frame Type", HFILL }
+		},
+		{ &hf_btl2cap_control,
+			{ "Control field",           "btl2cap.control",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Control field", HFILL }
+		},
+		{ &hf_btl2cap_fcs,
+			{ "FCS",           "btl2cap.fcs",
+				FT_UINT16, BASE_HEX, NULL, 0,
+				"Frame Check Sequence", HFILL }
+		},
+		{ &hf_btl2cap_sdulength,
+			{ "SDU Length",           "btl2cap.sdulength",
+				FT_UINT16, BASE_DEC, NULL, 0,
+				"SDU Length", HFILL }
+		},
+		{ &hf_btl2cap_reassembled_in,
+			{ "This SDU is reassembled in frame",           "btl2cap.reassembled_in",
+				FT_FRAMENUM, BASE_NONE, NULL, 0,
+				"This SDU is reassembled in frame #", HFILL }
+		},
+		{ &hf_btl2cap_continuation_to,
+			{ "This is a continuation to the SDU in frame",           "btl2cap.continuation_to",
+				FT_FRAMENUM, BASE_NONE, NULL, 0,
+				"This is a continuation to the SDU in frame #", HFILL }
+		}
 	};
 
 	/* Setup protocol subtree array */
@@ -925,6 +1261,8 @@ proto_register_btl2cap(void)
 		&ett_btl2cap,
 		&ett_btl2cap_cmd,
 		&ett_btl2cap_option,
+		&ett_btl2cap_extfeatures,
+		&ett_btl2cap_control
 	};
 
 	/* Register the protocol name and description */
