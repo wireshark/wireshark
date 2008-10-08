@@ -6606,7 +6606,7 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 12, "Read Attribute Definition" },
 	{ 13, "Remove Attribute Definition" },
 	{ 14, "Define Class" },
-	{ 15, "Read Class Definition " },
+	{ 15, "Read Class Definition" },
 	{ 16, "Modify Class Definition" },
 	{ 17, "Remove Class Definition" },
 	{ 18, "List Containable Classes" },
