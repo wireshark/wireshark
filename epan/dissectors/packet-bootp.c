@@ -21,6 +21,7 @@
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
+ * RFC 3825: Dynamic Host Configuration Protocol Option for Coordinate-based Location Configuration Information
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
@@ -85,6 +86,7 @@
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
 
+
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
 static int hf_bootp_type = -1;
@@ -132,6 +134,117 @@ static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_fqdn = -1;
+
+
+
+
+/* RFC3825decoder error codes of the conversion function */
+#define RFC3825_NOERROR                           0
+#define RFC3825_LATITUDE_OUTOFRANGE               1
+#define RFC3825_LATITUDE_UNCERTAINTY_OUTOFRANGE   2
+#define RFC3825_LONGITUDE_OUTOFRANGE              3
+#define RFC3825_LONGITUDE_UNCERTAINTY_OUTOFRANGE  4
+#define RFC3825_ALTITUDE_OUTOFRANGE               5
+#define RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE   6
+#define RFC3825_ALTITUDE_TYPE_OUTOFRANGE          7
+#define RFC3825_DATUM_TYPE_OUTOFRANGE             8
+
+struct rfc3825_location_fixpoint_t {
+
+	gint64 latitude;		/* latitude in degrees, allowed range from -90deg to 90deg.
+							   Fixpoint A(8,25) with 34 bits */
+	guint8 latitude_res;	/* the resolution of the latitude in bits, allowed range is from 0 to 34.
+							   6 bits. */
+	gint64 longitude;		/* longitude in degrees, range from -180deg to 180deg.
+							   Fixpoint A(8,25) with 34 bits */
+	guint8 longitude_res;	/* the resolution of the longitude in bits, allowed range is from 0 to 34.
+							   6 bits. */
+	gint32 altitude;		/* the altitude, 30 bits.
+							   Depending on alt_type this are meters or floors, no range limit.
+							   altitude_type==1: A(13,8) with 22 bits
+							   altitude_type==2: A(13,8) with 22 bits */
+	guint8 altitude_res;	/* the resolution of the altitude in bits, allowed range is from 0 to 30.
+							   6 bits.
+							   altitude_type==1: any value between 0 and 30
+							   altitude_type==2: either 0 (floor unknown) or 30 */
+	guint8 altitude_type;	/* the type of the altitude, 4 bits. allowed values are:
+							   0: unknown
+							   1: altitude in meters
+							   2: altitude in floors */
+	guint8 datum_type;		/* the map datum used for the coordinates. 8 bits.
+							   All values are allowed although currently only the 
+							   following ones are defined: 
+							   1: WGS84
+							   2: NAD83/NAVD88
+							   3: NAD83/MLLW */
+};
+
+/* The rfc3825_location_decimal_t structure holds the location parameters
+ * in decimal (floating point) format.
+ */
+struct rfc3825_location_decimal_t {
+
+	double latitude;		/* latitude in degrees, allowed range from -90deg to 90deg */
+	double latitude_res;	/* the uncertainty of the latitude in grad, "0.01" means +-0.01deg
+							   from the altitude. During conversion this will be rounded to
+							   next smaller value which can be respresented in fixpoint arithmetic */
+	double longitude;		/* longitude in degrees, range from -180deg to 180deg */
+	double longitude_res;	/* the uncertainty of the longitude in grad, "0.01" means +-0.01deg
+							   from the longitude. During conversion this will be rounded to
+							   next smaller value which can be respresented in fixpoint arithmetic */
+	double altitude;		/* the altitude, depending on alt_type this are meters or floors, no range limit */
+	double altitude_res;	/* the uncertainty of the altitude in either:
+							   - altitude-type=meters: "10" means 10 meters which means +-10 meters from the altitude
+							   - altitude-type=floors: either 0 (unknown) or 30 (exact) */
+	int altitude_type;		/* the type of the altitude, allowed values are 
+							   0: unknown
+							   1: altitude in meters
+							   2: altitude in floors */
+	int datum_type;          /* the map datum used for the coordinates.
+							    All values are allowed although currently only the 
+								following ones are defined:
+								1: WGS84
+								2: NAD83/NAVD88
+								3: NAD83/MLLW */
+};
+
+/* converts fixpoint presentation into decimal presentation
+   also converts values which are out of range to allow decoding of received data */
+static int rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct rfc3825_location_decimal_t *decimal);
+
+/* decodes the LCI string received from DHCP into the fixpoint values */
+static void rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fixpoint_t *fixpoint);
+
+
+/* Map Datum Types used for the coordinates (RFC 3825) */
+static const value_string map_datum_type_values[] = {
+	{ 1,	"WGS 84" },
+	{ 2,	"NAD83 (NAVD88)" },
+	{ 3,	"NAD83 (MLLW)" },
+	{ 0,	NULL }
+};
+
+
+/* Altitude Types used for the coordinates (RFC 3825) */
+static const value_string altitude_type_values[] = {
+	{ 1,	"Meters" },
+	{ 2,	"Floors" },
+	{ 0,	NULL }
+};
+
+/* Error Types for RFC 3825 coordinate location decoding */
+static const value_string rfc3825_error_types[] = {
+	{1,	"Latitude is out of range [-90,90]"},
+	{2,	"Latitude Uncertainty is out of range [0,90]"},
+	{3,	"Longitude is out of range [-180,180]"},
+	{4,	"Longitude Uncertainty is out of range [0,180]"},
+	{5,	"Altitude is out of range [-(2^21),(2^21)-1]"},
+	{6,	"Altitude Uncertainty is out of range [0,2^20]"},
+	{7,	"Altitude Type is out of range [0,2]"},
+	{8,	"Datum is out of range [1,3]"},
+	{0,	NULL }
+};
+
 
 
 /* Civic Address What field (RFC 4776) */
@@ -1430,6 +1543,39 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 	}
 
+	case 123: /* coordinate based location RFC 3825 */
+		if (optlen == 16) {
+			int c, i;
+			unsigned char lci[16];
+			struct rfc3825_location_fixpoint_t location_fp;
+			struct rfc3825_location_decimal_t location;
+
+			for (c=0; c < 16;c++)
+				lci[c] = (unsigned char) tvb_get_guint8(tvb, optoff + c);
+
+			/* convert lci encoding into fixpoint location */
+			rfc3825_lci_to_fixpoint(lci, &location_fp);
+
+			/* convert location from decimal to fixpoint */
+			i = rfc3825_fixpoint_to_decimal(&location_fp, &location);
+
+			if (i != RFC3825_NOERROR) {
+				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: %s", val_to_str(i, rfc3825_error_types, "Unknown"));
+			} else {
+				proto_tree_add_text(v_tree, tvb, optoff, 5, "Latitude: %15.10f", location.latitude);
+				proto_tree_add_text(v_tree, tvb, optoff+5, 5, "Longitude: %15.10f", location.longitude);
+				proto_tree_add_text(v_tree, tvb, optoff, 1, "Latitude resolution: %15.10f", location.latitude_res);
+				proto_tree_add_text(v_tree, tvb, optoff+5, 1, "Longitude resolution: %15.10f", location.longitude_res);
+				proto_tree_add_text(v_tree, tvb, optoff+12, 4, "Altitude: %15.10f", location.altitude);
+				proto_tree_add_text(v_tree, tvb, optoff+10, 2, "Altitude resolution: %15.10f", location.altitude_res);
+				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
+				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
+			}
+		} else {
+			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
+		}
+		break;
+
 	case 125: { 	/* V-I Vendor-specific Information */
 	        int enterprise = 0;
 		int s_end = 0;
@@ -1918,6 +2064,131 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	}
 	optoff += (subopt_len + 2);
 	return optoff;
+}
+
+/* RFC3825Decoder: http://www.enum.at/rfc3825encoder.529.0.html */
+static void
+rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fixpoint_t *fixpoint)
+{
+	fixpoint->latitude_res = (lci[0]>>2) & 0x3F; /* make sure that right-shift does not copy sign bit */
+	if (lci[0] & 2) { /* LSB<<1 contains the sign of the latitude */
+		/* Latitude is negative, expand two's complement */
+		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
+		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
+		                            (gint64)lci[4]      | ((gint64)0x3FFFFFFF<<34);
+		
+	} else {
+		/* Latitude is positive */
+		fixpoint->latitude = (((gint64)lci[0] & 3)<<32) | ((gint64)lci[1]<<24) | 
+		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
+		                            (gint64)lci[4];
+	}
+	fixpoint->longitude_res = (lci[0]>>2) & 0x3F;  /* make sure that right-shift does not copy sign bit */
+	if (lci[5] & 2) { /* LSB<<1 contains the sign of the latitude */
+		/* Longitude is negative, expand two's complement */
+		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
+		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  | 
+		                             (gint64)lci[9]      | ((gint64)0x3FFFFFFF<<34);
+		
+	} else {
+		/* Longitude is positive */
+		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
+		                            ((gint64)lci[7]<<16) | ((gint64)lci[8]<<8)  | 
+		                             (gint64)lci[9];
+	}
+	fixpoint->altitude_type = (lci[10]>>4) & 0x0F;  /* make sure that right-shift does not copy sign bit */
+	fixpoint->altitude_res  = ((lci[10] & 0x0F) << 2) | ((lci[11]>>6) & 0x03);
+	if (lci[5] & 32) { /* LSB<<1 contains the sign of the latitude */
+		/* Altitude is negative, expand two's complement */
+		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
+		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]) | 
+		                      ((gint32)0x03<<30);
+		
+	} else {
+		/* Altitudee is positive */
+		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
+		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]);
+	}
+
+	fixpoint->datum_type = lci[15];
+
+}
+
+/* RFC3825Decoder: http://www.enum.at/rfc3825encoder.529.0.html */
+static int
+rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct rfc3825_location_decimal_t *decimal)
+{
+	/* Latitude */
+	decimal->latitude = (double) fixpoint->latitude / (1 << 25);
+	if ((decimal->latitude > 90) || (decimal->latitude < -90)) {
+		return RFC3825_LATITUDE_OUTOFRANGE;
+	}
+
+	/* Latitude Uncertainty */
+	if (fixpoint->latitude_res > 34) {
+		return RFC3825_LATITUDE_UNCERTAINTY_OUTOFRANGE;
+	}
+	if (fixpoint->latitude_res > 8 ) {
+		decimal->latitude_res = (double) 1  / (1 << (fixpoint->latitude_res - 8));
+	} else {
+		decimal->latitude_res = 1 << (8 - fixpoint->latitude_res);
+	}
+
+	/* Longitude */
+	decimal->longitude = (double) fixpoint->longitude / (1 << 25);
+	if ((decimal->longitude > 180) || (decimal->longitude < -180)) {
+		return RFC3825_LONGITUDE_OUTOFRANGE;
+	}
+
+	/* Longitude Uncertainty */
+	if (fixpoint->longitude_res > 34) {
+		return RFC3825_LONGITUDE_UNCERTAINTY_OUTOFRANGE;
+	}
+	if (fixpoint->longitude_res > 8 ) {
+		decimal->longitude_res = (double) 1 / (1 << (fixpoint->longitude_res - 8));
+	} else {
+		decimal->longitude_res = 1 << (8 - fixpoint->longitude_res);
+	}
+
+	/* Altitude Type */
+	decimal->altitude_type = fixpoint->altitude_type;
+	decimal->altitude = 0;
+	decimal->altitude_res = 0;
+
+	if (decimal->altitude_type == 0) { /* Unknown */
+	} else if (decimal->altitude_type == 1) { /* Meters */
+		/* Altitude */
+		decimal->altitude = (double) fixpoint->altitude / (1 << 8);
+		if ((decimal->altitude > ((gint32) 1<<21)-1) || (decimal->altitude < ((gint32) -(1<<21)))) 
+			return RFC3825_ALTITUDE_OUTOFRANGE;
+
+		/* Altitude Uncertainty */
+		if (fixpoint->altitude_res > 30) {
+			return RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE;
+		}
+		if (fixpoint->altitude_res > 21 ) {
+			decimal->altitude_res = (double) 1 / (1 << (fixpoint->altitude_res - 21));
+		} else {
+			decimal->altitude_res = 1 << (21 - fixpoint->altitude_res);
+		}
+	} else if (decimal->altitude_type == 2) { /* Floors */
+		/* Altitude */
+		if ((fixpoint->altitude_res != 30) && (fixpoint->altitude_res != 0)) { 
+			return RFC3825_ALTITUDE_UNCERTAINTY_OUTOFRANGE;
+		}
+		decimal->altitude = (double) fixpoint->altitude / (1 << 8);
+	} else { /* invalid type */
+		return RFC3825_ALTITUDE_TYPE_OUTOFRANGE;
+	}
+
+	/* Datum Type */
+	decimal->datum_type = 0;
+	if ((fixpoint->datum_type > 3) || (fixpoint->datum_type < 1)) {
+		return RFC3825_DATUM_TYPE_OUTOFRANGE;
+	}
+	decimal->datum_type = fixpoint->datum_type;
+
+	return RFC3825_NOERROR;
 }
 
 
