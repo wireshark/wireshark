@@ -2288,12 +2288,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					count++;
 
-					if (user_data->reversed.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(*r_pd);
+					if (user_data->forward.statinfo.pt == PT_PCMU){
+						sample = ulaw2linear(*f_pd);
 						phtons(pd, sample);
 					}
-					else if(user_data->reversed.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(*r_pd);
+					else if(user_data->forward.statinfo.pt == PT_PCMA){
+						sample = alaw2linear(*f_pd);
 						phtons(pd, sample);
 					}
 					else{
@@ -2329,12 +2329,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					count++;
 
-					if (user_data->forward.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(*f_pd);
+					if (user_data->reversed.statinfo.pt == PT_PCMU){
+						sample = ulaw2linear(*r_pd);
 						phtons(pd, sample);
 					}
-					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(*f_pd);
+					else if(user_data->reversed.statinfo.pt == PT_PCMA){
+						sample = alaw2linear(*r_pd);
 						phtons(pd, sample);
 					}
 					else{
