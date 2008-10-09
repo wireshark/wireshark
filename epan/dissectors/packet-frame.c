@@ -351,7 +351,49 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		pinfo->layer_names = NULL;
 	}
 
-	call_all_postdissectors(tvb, pinfo, parent_tree);
+	/*  Call postdissectors if we have any (while trying to avoid another
+	 *  TRY/CATCH)
+	 */
+	if (have_postdissector()) {
+	    TRY {
+#ifdef _MSC_VER
+	    /* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+	    /* (a running debugger will be called before the except part below) */
+	    __try {
+#endif
+		call_all_postdissectors(tvb, pinfo, parent_tree);
+#ifdef _MSC_VER
+	    } __except(TRUE /* handle all exceptions */) {
+		switch(GetExceptionCode()) {
+		case(STATUS_ACCESS_VIOLATION):
+			    show_exception(tvb, pinfo, parent_tree, DissectorError,
+			"STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
+		    break;
+		case(STATUS_INTEGER_DIVIDE_BY_ZERO):
+			    show_exception(tvb, pinfo, parent_tree, DissectorError,
+			"STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
+		    break;
+		case(STATUS_STACK_OVERFLOW):
+			    show_exception(tvb, pinfo, parent_tree, DissectorError,
+			"STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
+		    /* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+		    break;
+		/* XXX - add other hardware exception codes as required */
+		default:
+			    show_exception(tvb, pinfo, parent_tree, DissectorError,
+			g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+		}
+	    }
+#endif
+	    }
+	    CATCH(OutOfMemoryError) {
+		    RETHROW;
+	    }
+	    CATCH_ALL {
+		    show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
+	    }
+	    ENDTRY;
+	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
 

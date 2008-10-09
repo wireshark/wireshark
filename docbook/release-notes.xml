@@ -40,7 +40,7 @@ Wireshark Info
             Florent Drouin and David Maciejak found that the Bluetooth ACL
             dissector could crash or abort.
             <!-- Fixed in r25195 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513">1513</ulink>) -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513">1513</ulink>)
           </para>
           <para>Versions affected: 0.99.2 to 1.0.3</para>
           <para>
@@ -52,7 +52,7 @@ Wireshark Info
           <para>
             The Q.931 dissector could crash or abort.
             <!-- Fixed in r26190 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2870">2870</ulink>) -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2870">2870</ulink>)
           </para>
           <para>Versions affected: 0.10.3 to 1.0.3</para>
           <para>
@@ -64,7 +64,7 @@ Wireshark Info
           <para>
             Wireshark could abort while reading Tamos CommView capture files.
             <!-- Fixed in r26327 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2926">2926</ulink>) -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2926">2926</ulink>)
           </para>
           <para>Versions affected: 0.99.7 to 1.0.3</para>
           <para>
@@ -78,9 +78,21 @@ Wireshark Info
             This led to the disovery of a similar problem in the Bluetooth
             RFCOMM dissector.
             <!-- Fixed in r26333 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2922">2922</ulink>) -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2922">2922</ulink>)
           </para>
           <para>Versions affected: 0.99.7 to 1.0.3</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Vivek Gupta and David Maciejak found that the PRP and MATE dissectors could make Wireshark crash. (Neither PRP nor MATE are enabled by default.)
+            <!-- Fixed in r25339, r25342, r25344, r25347 -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2549">2549</ulink>)
+          </para>
+          <para>Versions affected: 0.99.2 to 1.0.3</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -156,6 +168,12 @@ Wireshark Info
           Modbus Function 43 Encapsulated Interface Transport decoding
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2917">Bug
           2917</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash when printing or exporting some protocol data
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2934">Bug
+          2934</ulink>)
         </para></listitem>
 
       </itemizedlist>
