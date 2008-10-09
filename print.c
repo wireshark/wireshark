@@ -745,6 +745,9 @@ write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi)
 	int i;
 	const guint8 *pd;
 
+	if (!fi->ds_tvb)
+		return;
+
 	if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
 		fprintf(pdata->fh, "field length invalid!");
 		return;
@@ -1549,6 +1552,9 @@ static const gchar*
 get_field_hex_value(GSList* src_list, field_info *fi)
 {
     const guint8 *pd;
+
+    if (!fi->ds_tvb)
+        return NULL;
 
     if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
         return "field length invalid!";
