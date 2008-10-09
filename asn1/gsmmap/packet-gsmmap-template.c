@@ -187,6 +187,7 @@ static gint ett_gsm_map_GeographicalInformation = -1;
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
 static dissector_handle_t	ranap_handle;
+static dissector_handle_t	dtap_handle;
 static dissector_handle_t	map_handle;
 
 /* Preferenc settings default */
@@ -2204,6 +2205,7 @@ void proto_reg_handoff_gsm_map(void) {
     static int map_prefs_initialized = FALSE;
     data_handle = find_dissector("data");
     ranap_handle = find_dissector("ranap");
+	dtap_handle = find_dissector("gsm_a_dtap");
 
     if (!map_prefs_initialized) {
 	map_prefs_initialized = TRUE;

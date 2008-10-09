@@ -626,25 +626,51 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 #.FN_PARS ProtocolId VAL_PTR = &ProtocolId
 
 #.FN_BODY ExternalSignalInfo
+/*
+-- Information about the internal structure is given in
+-- clause 7.6.9.
+7.6.9.4 External Signal Information
+This parameter contains concatenated information elements (including tag and length) which are defined by a common
+protocol version, preceded by the associated protocol ID. It is used to transport information of the indicated protocol via
+MAP interfaces
+*/
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
  proto_tree *subtree;
-
+ 
  ProtocolId = 0xffffffff;
 %(DEFAULT_BODY)s 
 if (!actx->value_ptr)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
  switch (ProtocolId){
-	/* gsm-0408 */
 	case 1:
+	/* gsm-0408 */
+		/* As per comment abowe Individual IE:(s) will be found here in TLV format
+		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * function
+		 */
+		 /* Get tag */
+		 octet = tvb_get_guint8(actx->value_ptr,0);
+		 /* get length */
+		 length = tvb_get_guint8(actx->value_ptr,1);
+		 /* Branch on tag */
+		 switch(octet){
+		 case 4:			
+			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			break;
+		 default:
+			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decdoded send the packet to Wireshark dev");
+			break;
+		}/* switch(octet) */
 		break;
- 	/* gsm-0806 */
 	case 2:
+ 	/* gsm-0806 */
+		proto_tree_add_text(subtree, actx->value_ptr, 0, -1, "If you want this decdoded send the packet to Wireshark dev");
 		break;
-	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
 	case 3:
+	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
 		octet = tvb_get_guint8(actx->value_ptr,0);
 		length = tvb_get_guint8(actx->value_ptr,1);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
@@ -661,7 +687,7 @@ if (!actx->value_ptr)
 		break;
 	default:
 		break;
-}
+	}/*switch (ProtocolId)*/
 
 #.FN_BODY GlobalCellId VAL_PTR = &parameter_tvb 
     tvbuff_t	*parameter_tvb; 

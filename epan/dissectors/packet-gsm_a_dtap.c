@@ -938,7 +938,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 /*
  * [3] 10.5.4.5
  */
-static guint8
+guint8
 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2056,6 +2056,15 @@ bc_octet_7:
 /*
  * [3] 10.5.4.5a
  */
+guint8
+de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	is_uplink = IS_UPLINK_TRUE;
+	return de_bearer_cap(tvb, tree, offset, len, add_string, string_len);
+
+}
+
+
 static guint8
 de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
