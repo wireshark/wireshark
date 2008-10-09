@@ -42,7 +42,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <packet-tcp.h>
 
 /* heuristic subdissectors */
@@ -57,19 +56,7 @@ static int proto_turnchannel = -1;
 static int hf_turnchannel_id = -1;
 static int hf_turnchannel_len = -1;
 
-/* Structure containing conversation specific information */
-typedef struct _turn2_conv_info_t {
-        emem_tree_t *pdus;
-} turn_conv_info_t;
-
-/* Structure containing transaction specific information */
-typedef struct _turnchannel_t {
-        guint16 channelid;
-} turnchannel_t;
-
-
 #define TURNCHANNEL_HDR_LEN	((guint)4)	
-
 
 
 /* Initialize the subtree pointers */
@@ -235,10 +222,10 @@ proto_reg_handoff_turnchannel(void)
 	dissector_handle_t turnchannel_udp_handle;
 
 	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
-	turnchannel_udp_handle = new_create_dissector_handle(dissect_turnchannel_message, proto_turnchannel);
+	turnchannel_udp_handle = find_dissector("turnchannel");
 
-	dissector_add("tcp.port", 0, turnchannel_tcp_handle);
-	dissector_add("udp.port", 0, turnchannel_udp_handle);
+	dissector_add_handle("tcp.port", turnchannel_tcp_handle);   /* for decode-as */
+	dissector_add_handle("udp.port", turnchannel_udp_handle);   /* ...           */
 
 	heur_dissector_add("udp", dissect_turnchannel_heur, proto_turnchannel);
 	heur_dissector_add("tcp", dissect_turnchannel_heur, proto_turnchannel);
