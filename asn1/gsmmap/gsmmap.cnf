@@ -653,12 +653,16 @@ if (!actx->value_ptr)
 		 */
 		 /* Get tag */
 		 octet = tvb_get_guint8(actx->value_ptr,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,FALSE);
 		 /* get length */
 		 length = tvb_get_guint8(actx->value_ptr,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_len, actx->value_ptr, 1,1,FALSE);
 		 /* Branch on tag */
 		 switch(octet){
-		 case 4:			
+		 case 4:
+			/* Dissect the data part */			
 			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			/* TODO: There may be more than one IE */
 			break;
 		 default:
 			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decdoded send the packet to Wireshark dev");
