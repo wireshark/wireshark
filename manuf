@@ -36,7 +36,7 @@
 # <http://www.cavebear.com/CaveBear/Ethernet/>
 # <ftp://ftp.cavebear.com/pub/Ethernet.txt>
 #
-# The Wireshark 'manuf' file, which started out as a subset of Michael
+# This is Wireshark 'manuf' file, which started out as a subset of Michael
 # Patton's list and grew from there.
 #
 # In the event of data set collisions the Wireshark entries have been given
@@ -49,6 +49,8 @@
 # are relevant (the other bits are wildcards).  Also, either ":", "-",
 # or "." can be used to separate the octets.
 #
+# You can get the latest version of this file from
+# <http://anonsvn.wireshark.org/wireshark/trunk/manuf>
 
 00:00:00	00:00:00	# Officially Xerox, but 0:0:0:0:0:0 is more common
 00:00:01	Xerox                  # XEROX CORPORATION
@@ -2616,7 +2618,7 @@
 00:0A:2A	Qsi                    # QSI Systems Inc.
 00:0A:2B	Etherstuff
 00:0A:2C	ActiveTchn             # Active Tchnology Corporation
-00:0A:2D	Private
+00:0A:2D	CabotCommu             # Cabot Communications Limited
 00:0A:2E	MapleNetwo             # MAPLE NETWORKS CO., LTD
 00:0A:2F	Artnix                 # Artnix Inc.
 00:0A:30	JohnsonCon             # Johnson Controls-ASG
@@ -9201,6 +9203,12 @@
 00:23:E4	Ipnect                 # IPnect co. ltd.
 00:23:E5	IpaxiomNet             # IPaXiom Networks
 00:23:E6	Pirkus                 # Pirkus, Inc.
+00:23:E7	Hinke                  # Hinke A/S
+00:23:E8	Demco                  # Demco Corp.
+00:23:E9	F5Networks             # F5 Networks, Inc.
+00:23:EA	Cisco                  # Cisco Systems
+00:23:EB	Cisco                  # Cisco Systems
+00:23:EC	Algorithmi             # Algorithmix GmbH
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12356,6 +12364,10 @@
 00:50:C2:9A:60:00/36	Metodo2
 00:50:C2:9A:70:00/36	ThalesComm             # Thales Communications France
 00:50:C2:9A:80:00/36	DomisSa                # DOMIS SA
+00:50:C2:9A:90:00/36	GeneralDyn             # General Dynamics C4 Systems
+00:50:C2:9A:A0:00/36	TekoTeleco             # TEKO TELECOM SpA
+00:50:C2:9A:B0:00/36	Electrodat             # Electrodata Inc.
+00:50:C2:9A:C0:00/36	QuestekAus             # Questek Australia Pty Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -13625,7 +13637,7 @@
 00:C0:8C	Performanc             # PERFORMANCE TECHNOLOGIES, INC.
 00:C0:8D	TronixProd             # TRONIX PRODUCT DEVELOPMENT
 00:C0:8E	NetworkInf             # NETWORK INFORMATION TECHNOLOGY
-00:C0:8F	Matsushita             # Matsushita Electric Works, Ltd.
+00:C0:8F	PanasonicE             # Panasonic Electric Works Co., Ltd.
 00:C0:90	PraimSRL               # PRAIM S.R.L.
 00:C0:91	JabilCircu             # JABIL CIRCUIT, INC.
 00:C0:92	MennenMedi             # MENNEN MEDICAL INC.
