@@ -123,6 +123,12 @@ typedef struct _io_item_t {
 	gint32 int_max;
 	gint32 int_min;
 	gint32 int_tot;
+	gfloat float_max;
+	gfloat float_min;
+	gfloat float_tot;
+	gdouble double_max;
+	gdouble double_min;
+	gdouble double_tot;
 	nstime_t time_max;
 	nstime_t time_min;
 	nstime_t time_tot;
@@ -207,6 +213,12 @@ io_stat_reset(io_stat_t *io)
 			ioi->int_max=0;
 			ioi->int_min=0;
 			ioi->int_tot=0;
+			ioi->float_max=0;
+			ioi->float_min=0;
+			ioi->float_tot=0;
+			ioi->double_max=0;
+			ioi->double_min=0;
+			ioi->double_tot=0;
 			nstime_set_zero(&ioi->time_max);
 			nstime_set_zero(&ioi->time_min);
 			nstime_set_zero(&ioi->time_tot);
@@ -311,6 +323,8 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 		 */
 		for(i=0;i<gp->len;i++){
 			int new_int;
+			float new_float;
+			double new_double;
 			nstime_t *new_time;
 
 			switch(proto_registrar_get_ftype(git->hf_index)){
@@ -341,6 +355,28 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					it->int_min=new_int;
 				}
 				it->int_tot+=new_int;
+				it->fields++;
+				break;
+			case FT_FLOAT:
+				new_float=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+				if((new_float>it->float_max)||(it->fields==0)){
+					it->float_max=new_float;
+				}
+				if((new_float<it->float_min)||(it->fields==0)){
+					it->float_min=new_float;
+				}
+				it->float_tot+=new_float;
+				it->fields++;
+				break;
+			case FT_DOUBLE:
+				new_double=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+				if((new_double>it->double_max)||(it->fields==0)){
+					it->double_max=new_double;
+				}
+				if((new_double<it->double_min)||(it->fields==0)){
+					it->double_min=new_double;
+				}
+				it->double_tot+=new_double;
 				it->fields++;
 				break;
 			case FT_RELATIVE_TIME:
@@ -449,7 +485,7 @@ get_frame_num(io_stat_t *io, guint32 idx, gboolean first)
 static guint32
 get_it_value(io_stat_t *io, int graph_id, int idx)
 {
-	guint32 value=0;
+	double value=0;
 	int adv_type;
 	io_item_t *it;
 
@@ -500,6 +536,56 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 		case CALC_TYPE_AVG:
 			if(it->fields){
 				value=it->int_tot/it->fields;
+			} else {
+				value=0;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case FT_FLOAT:
+		switch(io->graphs[graph_id].calc_type){
+		case CALC_TYPE_SUM:
+			value=it->float_tot;
+			break;
+		case CALC_TYPE_COUNT:
+			value=it->frames;
+			break;
+		case CALC_TYPE_MAX:
+			value=it->float_max;
+			break;
+		case CALC_TYPE_MIN:
+			value=it->float_min;
+			break;
+		case CALC_TYPE_AVG:
+			if(it->fields){
+				value=it->float_tot/it->fields;
+			} else {
+				value=0;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case FT_DOUBLE:
+		switch(io->graphs[graph_id].calc_type){
+		case CALC_TYPE_SUM:
+			value=it->double_tot;
+			break;
+		case CALC_TYPE_COUNT:
+			value=it->frames;
+			break;
+		case CALC_TYPE_MAX:
+			value=it->double_max;
+			break;
+		case CALC_TYPE_MIN:
+			value=it->double_min;
+			break;
+		case CALC_TYPE_AVG:
+			if(it->fields){
+				value=it->double_tot/it->fields;
 			} else {
 				value=0;
 			}
@@ -1713,6 +1799,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_FLOAT:
+		case FT_DOUBLE:
 			/* these values support all calculations except LOAD */
 			switch(gio->calc_type){
 			case CALC_TYPE_LOAD:
@@ -1761,13 +1849,9 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			}
 			break;
 		default:
-			/*
-			 * XXX - support all operations on floating-point
-			 * numbers?
-			 */
 			if(gio->calc_type!=CALC_TYPE_COUNT){
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				    "%s doesn't have integral values, so %s calculations are not supported on it.",
+				    "%s doesn't have integral or float values, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
 				disable_graph(gio);
