@@ -358,7 +358,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 				it->fields++;
 				break;
 			case FT_FLOAT:
-				new_float=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+				new_float=(gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
 				if((new_float>it->float_max)||(it->fields==0)){
 					it->float_max=new_float;
 				}
