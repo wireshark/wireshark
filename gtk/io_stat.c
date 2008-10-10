@@ -629,7 +629,7 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 	default:
 		break;
 	}
-	return value;
+	return (guint32)value; /* FIXME: loss of precision, visible on the graph for small values */
 }
 
 
