@@ -156,7 +156,9 @@ static int hf_gsm_map_cbs_coding_grp15_mess_code = -1;
 static int hf_gsm_map_cbs_coding_grp15_class = -1;
 static int hf_gsm_map_tmsi = -1;
 static int hf_gsm_map_ie_tag = -1;
-static int hf_gsm_map_ie_len = -1;
+static int hf_gsm_map_len = -1;
+static int hf_gsm_map_disc_par = -1;
+static int hf_gsm_map_dlci = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -239,6 +241,12 @@ const value_string gsm_map_ietf_defined_pdp_vals[] = {
 
 const value_string gsm_map_etsi_defined_pdp_vals[] = {
   {  1, "PPP" },
+  { 0, NULL }
+};
+
+static const value_string gsm_map_disc_par_vals[] = {
+  {  0, "Not Transparent" },
+  {  1, "Transparent" },
   { 0, NULL }
 };
 
@@ -2633,10 +2641,18 @@ void proto_register_gsm_map(void) {
       { "Tag", "gsm_map.ie_tag",
         FT_UINT8, BASE_DEC, NULL, 0,
         "GSM 04.08 tag", HFILL }},
-	{ &hf_gsm_map_ie_len,
-      { "Length", "gsm_map.ie_length",
+	{ &hf_gsm_map_len,
+      { "Length", "gsm_map.length",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Length", HFILL }},
+	{ &hf_gsm_map_disc_par,
+      { "Discrimination parameter", "gsm_map.disc_par",
+        FT_UINT8, BASE_DEC, VALS(gsm_map_disc_par_vals), 0,
+        "Discrimination parameter", HFILL }},
+	{ &hf_gsm_map_dlci,
+      { "DLCI", "gsm_map.disc_par",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Data Link Connection Indicator", HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };

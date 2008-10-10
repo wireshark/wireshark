@@ -624,6 +624,84 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_map_EncryptionInformation);
 
 #.FN_PARS ProtocolId VAL_PTR = &ProtocolId
+#.FN_BODY Bss-APDU
+ guint8		octet;
+ guint8		length;
+ tvbuff_t	*next_tvb;
+ proto_tree *subtree;
+/*
+ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
+5.6.9.1 BSS-apdu
+This parameter includes one or two concatenated complete 08.06 messages, as described in GSM 03.09
+and GSM 09.10. The Protocol ID indicates that the message or messages are according to GSM 08.06.
+For the coding of the messages see GSM 08.06 and GSM 08.08.
+*/
+ ProtocolId = 0xffffffff;
+%(DEFAULT_BODY)s 
+if (!actx->value_ptr)
+	return offset;
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
+ switch (ProtocolId){
+	case 1:
+	/* gsm-0408 */
+		/* As per comment abowe Individual IE:(s) will be found here in TLV format
+		 * Unfortunatly a branch for each IE must be made to call the apropriate
+		 * function
+		 */
+		 /* Get tag */
+		 octet = tvb_get_guint8(actx->value_ptr,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,FALSE);
+		 /* get length */
+		 length = tvb_get_guint8(actx->value_ptr,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+		 /* Branch on tag */
+		 switch(octet){
+		 case 4:
+			/* Dissect the data part */			
+			de_bearer_cap(actx->value_ptr, subtree, 2, length, NULL, 0);
+			/* TODO: There may be more than one IE */
+			break;
+		 default:
+			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decdoded send the packet to Wireshark dev");
+			break;
+		}/* switch(octet) */
+		break;
+	case 2:
+ 		/* gsm-0806 */
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		/* Discrimination parameter */
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,FALSE);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
+			/* Strip off discrimination and length */
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+		}else if(octet==1){
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
+			next_tvb = tvb_new_subset(actx->value_ptr, 3, -1, -1);
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
+		}	
+		break;
+	case 3:
+	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		length = tvb_get_guint8(actx->value_ptr,1);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
+			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+		}
+		break;
+	/* ets-300102-1 (~Q.931 ) */
+	case 4:
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		length = tvb_get_guint8(actx->value_ptr,1);
+		if ( octet == 4 )
+			dissect_q931_bearer_capability_ie(actx->value_ptr, 2, length, subtree);
+		break;
+	default:
+		break;
+	}/*switch (ProtocolId)*/
 
 #.FN_BODY ExternalSignalInfo
 /*
@@ -656,7 +734,7 @@ if (!actx->value_ptr)
 		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,FALSE);
 		 /* get length */
 		 length = tvb_get_guint8(actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_len, actx->value_ptr, 1,1,FALSE);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
@@ -670,8 +748,21 @@ if (!actx->value_ptr)
 		}/* switch(octet) */
 		break;
 	case 2:
- 	/* gsm-0806 */
-		proto_tree_add_text(subtree, actx->value_ptr, 0, -1, "If you want this decdoded send the packet to Wireshark dev");
+ 		/* gsm-0806 */
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		/* Discrimination parameter */
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,FALSE);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
+			/* Strip off discrimination and length */
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+		}else if(octet==1){
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
+			next_tvb = tvb_new_subset(actx->value_ptr, 3, -1, -1);
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
+		}	
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
