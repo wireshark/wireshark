@@ -1955,6 +1955,8 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->calc_field);
 	g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
+	g_object_set_data (G_OBJECT(gio->calc_field), E_FILT_FIELD_NAME_ONLY_KEY, "");
+	g_signal_connect(gio->calc_field, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 }
 
 
