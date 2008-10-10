@@ -1186,7 +1186,7 @@ ssl_create_flow(void)
 }
 
 #ifdef HAVE_LIBZ
-/* memory allocations functions for zlib intialization */
+/* memory allocation functions for zlib initialization */
 static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
 	return g_malloc0(no*size);
