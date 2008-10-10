@@ -631,6 +631,7 @@ profile_exists
 proto_all_finfos
 proto_can_match_selected
 proto_can_toggle_protocol
+proto_check_field_name
 proto_construct_match_selected_string
 proto_data                      DATA
 proto_enable_all
