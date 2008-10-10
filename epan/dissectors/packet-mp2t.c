@@ -187,7 +187,7 @@ static const value_string mp2t_afc_vals[] = {
 };
 
 static gint
-dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree ) 
+dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
 {
 	guint32 header;
 	guint afc;
@@ -434,10 +434,8 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	guint offset = 0;
 
-	if (tree) {
-		while ( tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE ) {
-			offset = dissect_tsp( tvb, offset, pinfo, tree);
-		}
+	while ( tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE ) {
+		offset = dissect_tsp( tvb, offset, pinfo, tree);
 	}
 }
 
