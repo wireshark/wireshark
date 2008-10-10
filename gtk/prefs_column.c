@@ -41,7 +41,7 @@
 #include "gtk/filter_dlg.h"
 
 
-static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_cmb, *up_bt, *dn_bt;
+static GtkWidget *column_l, *del_bt, *title_te, *field_te, *field_lb, *fmt_cmb, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
 
 static void   column_list_select_cb(GtkTreeSelection *, gpointer);
@@ -210,7 +210,7 @@ column_prefs_show() {
   gtk_widget_show(props_fr);
 
   /* Colunm name entry and format selection */
-  tb = gtk_table_new(2, 3, FALSE);
+  tb = gtk_table_new(2, 4, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(tb), 5);
   gtk_container_add(GTK_CONTAINER(props_fr), tb);
   gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
@@ -223,7 +223,7 @@ column_prefs_show() {
   gtk_widget_show(lb);
 
   title_te = gtk_entry_new();
-  gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 3, 0, 1);
+  gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 4, 0, 1);
   gtk_widget_set_sensitive(title_te, FALSE);
   gtk_widget_show(title_te);
 
@@ -237,9 +237,14 @@ column_prefs_show() {
                    GTK_SHRINK, 0, 0);
   gtk_widget_show(props_hb);
 
+  field_lb = gtk_label_new("Field name:");
+  gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 2, 3, 1, 2);
+  gtk_widget_hide(field_lb);
+
   field_te = gtk_entry_new();
   g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-  gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 2, 3, 1, 2);
+  gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 3, 4, 1, 2);
   gtk_widget_set_sensitive(field_te, FALSE);
   gtk_widget_hide(field_te);
 
@@ -296,8 +301,10 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
 
         if (cur_fmt == COL_CUSTOM) {
             gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
+            gtk_widget_show(field_lb);
             gtk_widget_show(field_te);
         } else {
+            gtk_widget_hide(field_lb);
             gtk_widget_hide(field_te);
         }
         g_signal_connect(field_te, "changed", G_CALLBACK(column_field_changed_cb), column_l);
@@ -466,9 +473,11 @@ column_menu_changed_cb(GtkWidget *w, gpointer data _U_) {
           }
           gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
           fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+          gtk_widget_show(field_lb);
           gtk_widget_show(field_te);
         } else {
           fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
+          gtk_widget_hide(field_lb);
           gtk_widget_hide(field_te);
         }
 
