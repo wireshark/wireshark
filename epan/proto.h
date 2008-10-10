@@ -1598,6 +1598,12 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 extern proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian);
 
+/** Check if given string is a valid field name
+ @param field_name the field name to check
+ @return 0 if valid, else first illegal character */
+extern guchar
+proto_check_field_name(const gchar *field_name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

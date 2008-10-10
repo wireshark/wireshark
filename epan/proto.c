@@ -6087,3 +6087,9 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	}
 
 }
+
+guchar
+proto_check_field_name(const gchar *field_name)
+{
+  return wrs_check_charset(fld_abbrev_chars, field_name);
+}

@@ -32,6 +32,7 @@
 
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
+#include <epan/proto.h>
 
 #include "../filters.h"
 #include "../simple_dialog.h"
@@ -1291,13 +1292,21 @@ filter_te_syntax_check_cb(GtkWidget *w)
     dfilter_t   *dfp;
     GPtrArray   *depr = NULL;
     gchar       *msg;
+    guchar       c;
 
     statusbar_pop_filter_msg();
 
     strval = gtk_entry_get_text(GTK_ENTRY(w));
 
     /* colorize filter string entry */
-    if (strval && dfilter_compile(strval, &dfp)) {
+    if (g_object_get_data(G_OBJECT(w), E_FILT_FIELD_NAME_ONLY_KEY) &&
+	strval && (c = proto_check_field_name(strval)) != 0)
+    {
+        colorize_filter_te_as_invalid(w);
+	msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
+	statusbar_push_filter_msg(msg);
+	g_free(msg);
+    } else if (strval && dfilter_compile(strval, &dfp)) {
     	if (dfp != NULL) {
           depr = dfilter_deprecated_tokens(dfp);
           dfilter_free(dfp);

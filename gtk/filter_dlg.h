@@ -121,4 +121,6 @@ void filter_te_syntax_check_cb(GtkWidget *widget);
  */
 #define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
+#define E_FILT_FIELD_NAME_ONLY_KEY  "filter_field_name_only"
+
 #endif /* filter_dlg.h */
