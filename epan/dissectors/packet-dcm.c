@@ -5324,10 +5324,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *tag_pitem = NULL;
     dcm_tag_t  *tag_def   = NULL;
 
-    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", 0, 0};
-    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", 0, 0 };
-    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", 0, 0 };
-    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", 0, 0 };
+    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", "1", 0, 0};
+    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", "1", 0, 0 };
+    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
+    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
 
     /* Remember offsets for tree, since we can create tree header only at the very end
@@ -5759,7 +5759,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Not frist PDV in the given presentation context (Those don't have remaining data to parse :-) */
 	/* And previous PDV has left overs, i.e. this is a continuation PDV */
 
-	if (endpos - offset >= (int)pdv->prev->open_tag.len_remaining) {
+	if (endpos - offset >= (guint32)pdv->prev->open_tag.len_remaining) {
 	    /*
 	       Remaining bytes are equal or more than we expect for the open tag
 	       Finally reach the end of this tag. Don't touch the open_tag structure
@@ -5959,7 +5959,7 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-
+#if 0
 static guint32
 dcm_make_complete_pdu(tvbuff_t *tvb, guint32 offset, gboolean one_pdu_only)
 {
@@ -6048,7 +6048,7 @@ dcm_has_more_fragment(tvbuff_t *tvb, guint32 offset, guint32 pdu_len)
 
     return has_more_fragments;
 }
-
+#endif
 
 static int
 dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean require_assoc_req)
