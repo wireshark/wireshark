@@ -3204,7 +3204,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x50000103, "Data Value Representation", "US", "1", -1, 0},
     { 0x50000104, "Minimum Coordinate Value", "US", "1-n", -1, 0},
     { 0x50000105, "Maximum Coordinate Value", "US", "1-n", -1, 0},
-    { 0x50000106, "Curve Range", "SH", "1-n" , -1},
+    { 0x50000106, "Curve Range", "SH", "1-n" , -1, 0},
     { 0x50000110, "Curve Data Descriptor", "US", "1-n", -1, 0},
     { 0x50000112, "Coordinate Start Value", "US", "1-n", -1, 0},
     { 0x50000114, "Coordinate Step Value", "US", "1-n", -1, 0},
@@ -5324,10 +5324,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *tag_pitem = NULL;
     dcm_tag_t  *tag_def   = NULL;
 
-    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", 0 };
-    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", 0 };
-    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", 0 };
-    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", 0 };
+    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", 0, 0};
+    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", 0, 0 };
+    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", 0, 0 };
+    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", 0, 0 };
 
 
     /* Remember offsets for tree, since we can create tree header only at the very end
@@ -5545,17 +5545,17 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (vl == 0xFFFFFFFF) {
 	/* 'Just' mark header as the length of the item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, "");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, " ");
 	vl_max = 0;	    /* We don't know who long this sequence/item is */
     }
     else if (offset + vl <= endpos) {
 	/* Show real length of item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, "");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, " ");
 	vl_max = vl;
     }
     else {
 	/* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, "");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, " ");
 	vl_max = endpos - offset;
     }
 
