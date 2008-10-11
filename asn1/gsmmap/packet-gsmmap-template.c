@@ -244,6 +244,11 @@ const value_string gsm_map_etsi_defined_pdp_vals[] = {
   { 0, NULL }
 };
 
+static const value_string gsm_map_tag_vals[] = {
+  {  0x4, "Bearer Capability" },
+  { 0, NULL }
+};
+
 static const value_string gsm_map_disc_par_vals[] = {
   {  0, "Not Transparent" },
   {  1, "Transparent" },
@@ -2639,7 +2644,7 @@ void proto_register_gsm_map(void) {
 
     { &hf_gsm_map_ie_tag,
       { "Tag", "gsm_map.ie_tag",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(gsm_map_tag_vals), 0,
         "GSM 04.08 tag", HFILL }},
 	{ &hf_gsm_map_len,
       { "Length", "gsm_map.length",

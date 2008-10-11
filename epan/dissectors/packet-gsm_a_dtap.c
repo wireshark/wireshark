@@ -393,6 +393,7 @@ static gint ett_dtap_msg = -1;
 static gint ett_dtap_oct_1 = -1;
 static gint ett_cm_srvc_type = -1;
 static gint ett_gsm_enc_info = -1;
+static gint ett_bc_oct_3 = -1;
 static gint ett_bc_oct_3a = -1;
 static gint ett_bc_oct_4 = -1;
 static gint ett_bc_oct_5 = -1;
@@ -967,11 +968,17 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	 * warning, bearer cap uses extended values that
 	 * are reversed from other parameters!
 	 */
+    item =
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Octet 3");
+    subtree = proto_item_add_subtree(item, ett_bc_oct_3);
+
 	extended = (oct & 0x80) ? FALSE : TRUE;
 	itc = oct & 0x07;
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
+    proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Extension: %s",
 		a_bigbuf,
@@ -1036,21 +1043,21 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree,
+    proto_tree_add_text(subtree,
 	tvb, curr_offset, 1,
 	"%s :  Radio channel requirement: %s",
 	a_bigbuf,
 	str);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-	proto_tree_add_text(tree,
+    proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Coding standard: %s",
 		a_bigbuf,
 		(oct & 0x10) ? "reserved" : "GSM standardized coding");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
+    proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Transfer mode: %s",
 		a_bigbuf,
@@ -1070,7 +1077,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
+    proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Information transfer capability: %s",
 		a_bigbuf,
@@ -5660,7 +5667,7 @@ proto_register_gsm_a_dtap(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	18
+#define NUM_INDIVIDUAL_ELEMS    19
 	static gint *ett[NUM_INDIVIDUAL_ELEMS +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
@@ -5670,20 +5677,21 @@ proto_register_gsm_a_dtap(void)
 	ett[1] = &ett_dtap_oct_1;
 	ett[2] = &ett_cm_srvc_type;
 	ett[3] = &ett_gsm_enc_info;
-	ett[4] = &ett_bc_oct_3a;
-	ett[5] = &ett_bc_oct_4;
-	ett[6] = &ett_bc_oct_5;
-	ett[7] = &ett_bc_oct_5a;
-	ett[8] = &ett_bc_oct_5b;
-	ett[9] = &ett_bc_oct_6;
-	ett[10] = &ett_bc_oct_6a;
-	ett[11] = &ett_bc_oct_6b;
-	ett[12] = &ett_bc_oct_6c;
-	ett[13] = &ett_bc_oct_6d;
-	ett[14] = &ett_bc_oct_6e;
-	ett[15] = &ett_bc_oct_6f;
-	ett[16] = &ett_bc_oct_6g;
-	ett[17] = &ett_bc_oct_7;
+    ett[4] = &ett_bc_oct_3;
+    ett[5] = &ett_bc_oct_3a;
+    ett[6] = &ett_bc_oct_4;
+    ett[7] = &ett_bc_oct_5;
+    ett[8] = &ett_bc_oct_5a;
+    ett[9] = &ett_bc_oct_5b;
+    ett[10] = &ett_bc_oct_6;
+    ett[11] = &ett_bc_oct_6a;
+    ett[12] = &ett_bc_oct_6b;
+    ett[13] = &ett_bc_oct_6c;
+    ett[14] = &ett_bc_oct_6d;
+    ett[15] = &ett_bc_oct_6e;
+    ett[16] = &ett_bc_oct_6f;
+    ett[17] = &ett_bc_oct_6g;
+    ett[18] = &ett_bc_oct_7;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
