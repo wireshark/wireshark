@@ -243,12 +243,21 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 	/* ts3G-48006 */
 	case 1:
 		octet = tvb_get_guint8(parameter_tvb,0);
-		length = tvb_get_guint8(parameter_tvb,1);
-		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			/* gsm-BSSMAP? */
+		/* Discrimination parameter */
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,FALSE);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
+			/* Strip off discrimination and length */
+			length = tvb_get_guint8(parameter_tvb,0);
+			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,FALSE);
 			next_tvb = tvb_new_subset(parameter_tvb, 2, -1, -1);
-			dissect_bssmap(next_tvb, actx->pinfo, tree);
-		}
+			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+		}else if(octet==1){
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
+			length = tvb_get_guint8(parameter_tvb,0);
+			next_tvb = tvb_new_subset(parameter_tvb, 3, -1, -1);
+			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
+		}	
 		break;
  	/* ts3G-25413 */
 	case 2:
