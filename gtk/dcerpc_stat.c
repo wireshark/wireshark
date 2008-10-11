@@ -638,6 +638,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
+	} else {
+		colorize_filter_te_as_empty(filter_entry);
 	}
 	gtk_widget_show(filter_entry);
 

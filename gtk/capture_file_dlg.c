@@ -501,6 +501,7 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
@@ -807,6 +808,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 

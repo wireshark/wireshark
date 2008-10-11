@@ -220,6 +220,8 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
 		gtk_entry_set_text(GTK_ENTRY(current_dlg->filter_entry), filter);
+	} else {
+		colorize_filter_te_as_empty(current_dlg->filter_entry);
 	}
 	gtk_widget_show(current_dlg->filter_entry);
 

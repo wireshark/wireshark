@@ -1957,6 +1957,7 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
 	g_object_set_data (G_OBJECT(gio->calc_field), E_FILT_FIELD_NAME_ONLY_KEY, "");
 	g_signal_connect(gio->calc_field, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	colorize_filter_te_as_empty(gio->calc_field);
 }
 
 
@@ -2046,6 +2047,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(gio->filter_field);
 	g_signal_connect(gio->filter_field, "activate", G_CALLBACK(filter_callback), gio);
 	g_signal_connect(gio->filter_field, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	colorize_filter_te_as_empty(gio->filter_field);
 
 	create_advanced_box(gio, hbox);
 
