@@ -229,7 +229,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                      length_remaining;
     gboolean                  eom_seen = FALSE;
     gint                      next_offset;
-    gint                      loffset;
+    gint                      loffset = 0;
     gboolean                  is_continuation_line;
     int                       cmdlen;
     fragment_data             *frag_msg = NULL;
@@ -380,9 +380,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               /*
                * EOM.
                * Everything that comes after it is commands.
-               *
-               * XXX - what if the EOM isn't at the beginning of
-               * the TCP segment?  It can occur anywhere....
                */
               frame_data->pdu_type = SMTP_PDU_EOM;
               session_state->smtp_state = READING_CMDS;
@@ -638,6 +635,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_text(smtp_tree, tvb, offset, linelen, "C: .");
 
           if (smtp_data_desegment) {
+            /* add final data segment */
+            if (loffset)
+              fragment_add_seq_next(tvb, 0, pinfo, frame_data->conversation_id,
+                                    smtp_data_segment_table, smtp_data_reassembled_table,
+                                    loffset, frame_data->more_frags);
+
             /* terminate the desegmentation */
             frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
                                               smtp_data_reassembled_table);
