@@ -3,7 +3,6 @@
  * $Id$
  * Routines for DICOM packet dissection
  * Copyright 2008, David Aggeler <david_aggeler@hispeed.ch>
- * This file is generated automatically from part 6 of the standard
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
