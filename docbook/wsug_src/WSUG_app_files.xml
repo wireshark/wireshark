@@ -204,6 +204,12 @@
 		<entry>%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts</entry>
 	      </row>
 	      <row>
+		<entry><command>services</command></entry>
+		<entry>Network services.</entry>
+		<entry>/etc/services, $HOME/.wireshark/services</entry>
+		<entry>%WIRESHARK%\services, %APPDATA%\Wireshark\services</entry>
+	      </row>
+	      <row>
 		<entry><command>subnets</command></entry>
 		<entry>IPv4 subnet name resolution.</entry>
 		<entry>/etc/subnets, $HOME/.wireshark/subnets</entry>
@@ -325,8 +331,7 @@ variable: value
 	      defined and saved. It consists of one or more lines, 
 	      where each line has the following format:
 	      <programlisting>
-@&lt;filter name>@&lt;filter string>
-@[&lt;bg RGB(16-bit)>][&lt;fg RGB(16-bit)>]
+@&lt;filter name>@&lt;filter string>@[&lt;bg RGB(16-bit)>][&lt;fg RGB(16-bit)>]
 	      </programlisting>
 	    </para>
 		<para>
@@ -345,7 +350,7 @@ variable: value
 	      <programlisting>
 tcp
 udp
-		  </programlisting>
+	      </programlisting>
 	    </para>
 		<para>
  		The settings from this file are read in at program start and written 
@@ -426,6 +431,26 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
+	  <term><command>services</command></term>
+	  <listitem>
+	    <para>
+	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
+	      to translate port numbers into names.
+	    </para>
+	    <para>
+	      An example is:
+	      <programlisting>
+mydns       5045/udp     # My own Domain Name Server
+mydns       5045/tcp     # My own Domain Name Server
+	      </programlisting>
+	    </para>
+	    <para>
+	      The settings from this file are read in at program start and never 
+	      written by Wireshark.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
 	  <term><command>subnets</command></term>
 	  <listitem>
 	    <para>
@@ -457,7 +482,8 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 		written by Wireshark.
 		</para>
 	  </listitem>
-	</varlistentry>	<varlistentry>
+	</varlistentry>
+	<varlistentry>
 	  <term><command>ipxnets</command></term>
 	  <listitem>
 	    <para>
