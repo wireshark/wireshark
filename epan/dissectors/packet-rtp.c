@@ -70,6 +70,7 @@
 #include <epan/rtp_pt.h>
 #include "packet-ntp.h"
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 
@@ -1362,8 +1363,8 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Conversation and current data */
 	struct _rtp_conversation_info *p_conv_data = NULL;
-		proto_tree *rtp_setup_tree;
-	proto_item *ti;
+	proto_tree *rtp_setup_tree;
+	proto_item *ti, *cause;
 
 	/* Use existing packet info if available */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
@@ -1387,6 +1388,20 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			item = proto_tree_add_string(rtp_setup_tree, hf_rtp_setup_method,
 			                             tvb, 0, 0, p_conv_data->method);
 			PROTO_ITEM_SET_GENERATED(item);
+			/* If SRC or DST port are equal
+			 * it may cuse problems for applications checking media streams
+			 * like MediaGateways SessionBorderGateways etc.
+			 */
+
+			if(pinfo->destport==pinfo->srcport){
+				cause=proto_tree_add_text(rtp_setup_tree, tvb, 0, 0, "[Destination and Source port are equal]");
+
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, 
+						"Destination and Source port are equal");
+
+			}
+
 		}
 }
 
