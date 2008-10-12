@@ -1246,25 +1246,30 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 static void
 color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
 {
+    static GdkColor black = { 0, 0, 0, 0 };
     GdkColor    bg;
-    GtkStyle    *style;
 
     bg.pixel    = 0;
     bg.red      = red;
     bg.green    = green;
     bg.blue     = blue;
 
-    style = gtk_style_copy(gtk_widget_get_style(w));
-    style->base[GTK_STATE_NORMAL] = bg;
-    gtk_widget_set_style(w, style);
-    gtk_style_unref(style);
+    gtk_widget_modify_text(w, GTK_STATE_NORMAL, &black);
+    gtk_widget_modify_base(w, GTK_STATE_NORMAL, &bg);
+#if GTK_CHECK_VERSION(2,12,0)
+    gtk_widget_modify_cursor(w, &black, &black);
+#endif
 }
 
 void
 colorize_filter_te_as_empty(GtkWidget *w)
 {
-    /* white */
-    color_filter_te(w, 0xFFFF, 0xFFFF, 0xFFFF);
+    /* use defaults */
+    gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);
+#if GTK_CHECK_VERSION(2,12,0)
+    gtk_widget_modify_cursor(w, NULL, NULL);
+#endif
 }
 
 void
