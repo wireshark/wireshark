@@ -50,7 +50,11 @@
  * - Show Association Headers as individual items
  * - Support item 56-59 in Accociation Request
 
- * Oct 3, 2008 - David Aggeler
+ * Oct 12, 2008 - David Aggeler
+ *
+ * - Follow-up checkin 26417
+ *
+ * Oct 3, 2008 - David Aggeler (SVN 26417)
  *
  * - DICOM Tags: Support all tags, except for group 1000, 7Fxx
  *               and tags (0020,3100 to 0020, 31FF).
@@ -5329,20 +5333,16 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
     static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
-
-    /* Remember offsets for tree, since we can create tree header only at the very end
-       We don't have a fixed tag/seq/item len
-    */
-
     gchar   *vr = NULL;
     gchar   *tag_value = NULL;		/* Tag Value converted to a string	*/
+    gchar   *tag_summary;
 
     guint32 vl = 0;
     guint16 vl_1 = 0;
     guint16 vl_2 = 0;
 
-    guint32 offset_tag   = 0;
-    guint32 offset_vr    = 0;
+    guint32 offset_tag   = 0;		/* Remember offsets for tree, since the tree	*/
+    guint32 offset_vr    = 0;		/* header is created pretty late		*/
     guint32 offset_vl    = 0;
 
     guint32 vl_max = 0;			/* Max Value Length to Parse */
@@ -5537,25 +5537,30 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	vl = vl_1;
     }
 
-    /* Now we have most of the information, excpet for sequences and items
-       with undefined length :-/. But, whether we know the lenght or not,
-       we now need to create the tree item and subtree, before we can loop
-       into sequences and items
+    /* Now we have most of the information, excpet for sequences and items with undefined 
+       length :-/. But, whether we know the lenght or not, we now need to create the tree 
+       item and subtree, before we can loop into sequences and items
+
+       Display the information we collected so far. Don't wait until the value is parsed,
+       because that parsing might cause an exception. If that happens within a sequence,
+       the sequence tag would not show up with the value
     */
+
+    tag_summary = dcm_tag_summary(grp, elm, vl, (gchar *)tag_def->description, vr, tag_def->is_retired, is_implicit);
 
     if (vl == 0xFFFFFFFF) {
 	/* 'Just' mark header as the length of the item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, " ");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, tag_summary);
 	vl_max = 0;	    /* We don't know who long this sequence/item is */
     }
     else if (offset + vl <= endpos) {
 	/* Show real length of item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, " ");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, tag_summary);
 	vl_max = vl;
     }
     else {
 	/* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, " ");
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, tag_summary);
 	vl_max = endpos - offset;
     }
 
@@ -5594,6 +5599,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
     }
 
+    /*  ---------------------------------------------------------------
+	Tag details as separate items
+	---------------------------------------------------------------
+    */
 
     proto_tree_add_uint_format(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
         (grp << 16) | elm, "Tag:    %04x,%04x (%s)", grp, elm, tag_def->description);
@@ -5611,14 +5620,6 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add lenght to tag detail */
     proto_tree_add_uint_format(tag_ptree, hf_dcm_tag_vl, tvb, offset_vl, (is_vl_long ? 4 : 2), vl, "%-8.8s%u", "Length:", vl);
-
-    /* Display the information we collected so far. Don't wait until the value is parsed,
-       because that parsing might cause an exception. If that happens within a sequence,
-       the sequence tag would not show up with the value
-    */
-
-    proto_item_append_text(tag_pitem, "%s",
-	dcm_tag_summary(grp, elm, vl, (gchar *)tag_def->description, vr, tag_def->is_retired, is_implicit));
 
 
     /*  ---------------------------------------------------------------
@@ -5759,7 +5760,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Not frist PDV in the given presentation context (Those don't have remaining data to parse :-) */
 	/* And previous PDV has left overs, i.e. this is a continuation PDV */
 
-	if (endpos - offset >= (guint32)pdv->prev->open_tag.len_remaining) {
+	if (endpos - offset >= pdv->prev->open_tag.len_remaining) {
 	    /*
 	       Remaining bytes are equal or more than we expect for the open tag
 	       Finally reach the end of this tag. Don't touch the open_tag structure
