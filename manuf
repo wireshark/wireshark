@@ -5466,7 +5466,7 @@
 00:15:4B	WondeProud             # Wonde Proud Technology Co., Ltd
 00:15:4C	SaundersEl             # Saunders Electronics
 00:15:4D	Netronome              # Netronome Systems, Inc.
-00:15:4E	Hirschmann             # Hirschmann Automation and Control GmbH
+00:15:4E	Iec
 00:15:4F	OneRfTechn             # one RF Technology
 00:15:50	NitsTechno             # Nits Technology Inc
 00:15:51	Radiopulse             # RadioPulse Inc.
@@ -9209,6 +9209,14 @@
 00:23:EA	Cisco                  # Cisco Systems
 00:23:EB	Cisco                  # Cisco Systems
 00:23:EC	Algorithmi             # Algorithmix GmbH
+00:23:ED	MotorolaCh             # Motorola CHS
+00:23:EE	MotorolaCh             # Motorola CHS
+00:23:EF	ZuendSyste             # Zuend Systemtechnik AG
+00:23:F0	ShanghaiJi             # Shanghai Jinghan Weighing Apparatus Co. Ltd.
+00:23:F1	SonyEricss             # Sony Ericsson Mobile Communications
+00:23:F2	Tvlogic
+00:23:F3	Glocom                 # Glocom, Inc.
+00:23:F4	Masternaut
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12368,6 +12376,8 @@
 00:50:C2:9A:A0:00/36	TekoTeleco             # TEKO TELECOM SpA
 00:50:C2:9A:B0:00/36	Electrodat             # Electrodata Inc.
 00:50:C2:9A:C0:00/36	QuestekAus             # Questek Australia Pty Ltd
+00:50:C2:9A:D0:00/36	ChronosTec             # Chronos Technology Ltd.
+00:50:C2:9A:E0:00/36	Esensors               # Esensors, Inc.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
