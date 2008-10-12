@@ -292,6 +292,10 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
      * which would be much faster.
      */
     cf_redissect_packets(&cfile);
+	/* This will bring up the progress bar
+	 * Put our window back in front
+	 */
+	gdk_window_raise(ss->win->window);
 }
 
 void

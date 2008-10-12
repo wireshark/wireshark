@@ -570,6 +570,12 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	window_present(etd->win);
 
     cf_retap_packets(&cfile, FALSE);
+
+	/* This will bring up the progress bar
+	 * Put our window back in front
+	 */
+	gdk_window_raise(etd->win->window);
+
 }
 
 
