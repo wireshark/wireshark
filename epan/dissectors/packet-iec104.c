@@ -465,7 +465,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		asduh->NumIx = Bytex & 0x7F;
 		asduh->SQ = Bytex & F_SQ;
 		/* Build common string for 'Packet List' and 'Packet Details' */
-		g_snprintf(res, MAXS, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "–>" : "<–", asduh->OA);
+		g_snprintf(res, MAXS, "%u,%u%s%u ", asduh->AddrLow, asduh->AddrHigh,  pinfo->srcport == iec104port ? "->" : "<-", asduh->OA);
 		g_strlcat(res, val_to_str(asduh->TypeId, asdu_types, "<TypeId=%u>"), MAXS);
 		g_strlcat(res, " ", MAXS);
 		g_strlcat(res, val_to_str(asduh->TNCause & F_CAUSE, causetx_types, " <CauseTx=%u>"), MAXS);
@@ -588,7 +588,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (Brossa != TcpLen)  {
 		if (apcih->ApduLen <= APDU_MAX_LEN)  {
 			/* APCI in 'Paquet List' */
-			g_snprintf(res+strlen(res), MAXS-strlen(res), "%s%s(", pinfo->srcport == iec104port ? "–>" : "<–", val_to_str(apcih->Type, apci_types, "<ERR>"));
+			g_snprintf(res+strlen(res), MAXS-strlen(res), "%s%s(", pinfo->srcport == iec104port ? "->" : "<-", val_to_str(apcih->Type, apci_types, "<ERR>"));
 			switch(apcih->Type) {  /* APCI in 'Packet List' */
 			case I_TYPE:
 				g_snprintf(res+strlen(res), MAXS-strlen(res), "%d,", apcih->Tx);

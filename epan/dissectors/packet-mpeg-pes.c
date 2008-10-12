@@ -850,9 +850,9 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
 			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
-			 * “A value of 0 indicates that the PES packet length is neither specified nor
+			 * "A value of 0 indicates that the PES packet length is neither specified nor
 			 * bounded and is allowed only in PES packets whose payload is a video elementary
-			 * stream contained in Transport Stream packets.”
+			 * stream contained in Transport Stream packets."
 			 * XXX Some one with access to the spec should check this
 			 */
 			if(length !=0 && stream != STREAM_VIDEO){
