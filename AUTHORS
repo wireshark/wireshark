@@ -2772,6 +2772,11 @@ Brooss			<brooss.teambb [AT] gmail.com> {
 	Teamspeak2 dissector
 }
 
+Joan Ramió		<joan[AT]ramio.cat> {
+	IEC 60870-5-104 dissector
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
