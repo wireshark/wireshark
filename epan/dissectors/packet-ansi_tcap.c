@@ -38,8 +38,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
@@ -121,7 +119,7 @@ static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
 /*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 61 "packet-ansi_tcap-template.c"
+#line 59 "packet-ansi_tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -163,7 +161,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 76 "packet-ansi_tcap-template.c"
+#line 74 "packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -181,7 +179,6 @@ static proto_tree * tcap_top_tree=NULL;
 static proto_tree * tcap_stat_tree=NULL;
 static proto_item * tcap_stat_item=NULL;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t ansi_map_handle;
 
 
@@ -394,7 +391,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 		}
 	}
 	/* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
-	 * Se TODO above.
+	 * See TODO above.
 	 * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
 	 * 6.3.2 Component Portion
 	 * The Operation Code is partitioned into an Operation Family followed by a
@@ -1309,7 +1306,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 320 "packet-ansi_tcap-template.c"
+#line 317 "packet-ansi_tcap-template.c"
 
 
 
@@ -1389,7 +1386,6 @@ void
 proto_reg_handoff_ansi_tcap(void)
 {
 
-	data_handle = find_dissector("data");
 	ansi_map_handle = find_dissector("ansi_map");
 	ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
@@ -1642,7 +1638,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 444 "packet-ansi_tcap-template.c"
+#line 440 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1679,7 +1675,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 454 "packet-ansi_tcap-template.c"
+#line 450 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
