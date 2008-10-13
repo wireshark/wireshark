@@ -336,6 +336,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	window_present(rs->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(rs->win->window);
 }
 
 

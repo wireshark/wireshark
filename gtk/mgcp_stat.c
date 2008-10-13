@@ -301,6 +301,7 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 	window_present(ms->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(ms->win->window);
 }
 
 static tap_dfilter_dlg mgcp_srt_dlg = {

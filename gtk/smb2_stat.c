@@ -198,6 +198,7 @@ gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 	window_present(ss->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(ss->win->window);
 }
 
 static tap_dfilter_dlg smb2_stat_dlg = {

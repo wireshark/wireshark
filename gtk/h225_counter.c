@@ -556,6 +556,7 @@ gtk_h225counter_init(const char *optarg, void *userdata _U_)
 	window_present(hs->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(hs->win->window);
 }
 
 void

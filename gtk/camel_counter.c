@@ -215,6 +215,7 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   window_present(p_camelcounter->win);
 
   cf_retap_packets(&cfile, FALSE);
+  gdk_window_raise(p_camelcounter->win->window);
 }
 
 static tap_dfilter_dlg camel_counter_dlg = {

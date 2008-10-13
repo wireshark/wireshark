@@ -605,6 +605,7 @@ gtk_sctpstat_dlg(void)
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(sctp_stat_dlg_w->window);
 
 }
 

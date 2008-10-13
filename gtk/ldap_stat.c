@@ -234,6 +234,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	window_present(ldap->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(ldap->win->window);
 }
 
 static tap_dfilter_dlg ldap_stat_dlg = {

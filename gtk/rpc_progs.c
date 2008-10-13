@@ -404,6 +404,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	window_present(win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(win->window);
 }
 
 static void
