@@ -127,7 +127,7 @@ static int hf_msg_fragment_error = -1;
 static int hf_msg_reassembled_in = -1;
 
 static int hf_analysis_ack_time = -1;
-static int hf_analysis_total_time = -1;
+static int hf_analysis_trans_time = -1;
 static int hf_analysis_retrans_time = -1;
 static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_last_pdu_num = -1;
@@ -143,6 +143,7 @@ static int hf_analysis_ack_missing = -1;
 static int hf_analysis_ack_dup_no = -1;
 static int hf_analysis_msg_resend_from = -1;
 static int hf_analysis_ack_resend_from = -1;
+static int hf_analysis_total_time = -1;
 
 static gint ett_p_mul = -1;
 static gint ett_pdu_type = -1;
@@ -407,6 +408,9 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
         }
         prev_time = p_mul_data->pdu_time;
       }
+    } else if (pdu_type == Address_PDU) {
+      addr_id = pinfo->fd->num;
+      addr_time = pinfo->fd->abs_ts;
     }
   }
 
@@ -517,7 +521,6 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     return;
   }
 
-  dstIp = *((guint32*) dst->data);
   if (pdu_type == Address_PDU) {
     sa = proto_tree_add_text (p_mul_tree, tvb, 0, 0, "ACK analysis");
     PROTO_ITEM_SET_GENERATED (sa);
@@ -528,28 +531,52 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       /* No need for seq/ack analysis yet */
       return;
     }
-    if (pkg_data->ack_data) {
-      ack_data = g_hash_table_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
-    }
 
-    /* Add reference to Ack_PDU */
-    if (ack_data && ack_data->ack_id) {
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
-                                0, 0, ack_data->ack_id);
-      PROTO_ITEM_SET_GENERATED (en);
-      item_added = TRUE;
-    } else if (!pkg_data->msg_resend_count) {
-      en = proto_tree_add_item (analysis_tree,
-                                hf_analysis_ack_missing,
-                                tvb, offset, 0, FALSE);
-      if (pinfo->fd->flags.visited) {
-        /* We do not know this on first visit and we do not want to
-           add a entry in the "Expert Severity Info" for this note */
+    if (dst == NULL) {
+      /* Ack-Ack */
+      if (pkg_data->addr_id) {
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_addr_pdu_num, tvb,
+                                  0, 0, pkg_data->addr_id);
+        PROTO_ITEM_SET_GENERATED (en);
+      
+        nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->addr_time);
+        en = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
+                                  tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED (en);
+      } else {
+        en = proto_tree_add_item (analysis_tree,
+                                  hf_analysis_addr_pdu_missing,
+                                  tvb, offset, 0, FALSE);
         expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-                                "Ack PDU missing");
+                                "Address PDU missing");
         PROTO_ITEM_SET_GENERATED (en);
       }
       item_added = TRUE;
+    } else {
+      dstIp = *((guint32*) dst->data);
+      if (pkg_data->ack_data) {
+        ack_data = g_hash_table_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
+      }
+
+      /* Add reference to Ack_PDU */
+      if (ack_data && ack_data->ack_id) {
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
+                                  0, 0, ack_data->ack_id);
+        PROTO_ITEM_SET_GENERATED (en);
+        item_added = TRUE;
+      } else if (!pkg_data->msg_resend_count) {
+        en = proto_tree_add_item (analysis_tree,
+                                  hf_analysis_ack_missing,
+                                  tvb, offset, 0, FALSE);
+        if (pinfo->fd->flags.visited) {
+          /* We do not know this on first visit and we do not want to
+             add a entry in the "Expert Severity Info" for this note */
+          expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
+                                  "Ack PDU missing");
+          PROTO_ITEM_SET_GENERATED (en);
+        }
+        item_added = TRUE;
+      }
     }
 
     if (!item_added) {
@@ -561,6 +588,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     analysis_tree = proto_item_add_subtree (sa, ett_seq_ack_analysis);
     
     /* Fetch package data */
+    dstIp = *((guint32*) dst->data);
     if ((pkg_data = register_p_mul_id (pinfo, src, dstIp, pdu_type, message_id, 0, no_missing)) == NULL) {
       /* No need for seq/ack analysis yet */
       return;
@@ -577,7 +605,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
 
       if (no_missing == 0) {
         nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->first_msg_time);
-        en = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
+        en = proto_tree_add_time (analysis_tree, hf_analysis_trans_time,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
       }
@@ -1024,6 +1052,11 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
                           message_id, 0);
       }
     }
+    if (no_dest == 0 && use_seq_ack_analysis) {
+      /* Add Ack-Ack analysis */
+      add_ack_analysis (tvb, pinfo, p_mul_tree, offset, pdu_type, &src, NULL,
+                        message_id, 0);
+    }
 
     proto_item_append_text (ti, ", Count of Dest: %u", no_dest);
     break;
@@ -1465,8 +1498,8 @@ void proto_register_p_mul (void)
     { &hf_analysis_ack_time,
       { "Ack Time", "p_mul.analysis.ack_time", FT_RELATIVE_TIME, BASE_NONE,
         NULL, 0x0, "The time between the Last PDU and the Ack", HFILL } },
-    { &hf_analysis_total_time,
-      { "Total Time", "p_mul.analysis.total_time", FT_RELATIVE_TIME, BASE_NONE,
+    { &hf_analysis_trans_time,
+      { "Transfer Time", "p_mul.analysis.trans_time", FT_RELATIVE_TIME, BASE_NONE,
         NULL, 0x0, "The time between the first Address PDU and the Ack", HFILL } },
     { &hf_analysis_retrans_time,
       { "Retransmission Time", "p_mul.analysis.retrans_time", FT_RELATIVE_TIME, BASE_NONE,
@@ -1515,7 +1548,9 @@ void proto_register_p_mul (void)
       { "Retransmission of Ack in", "p_mul.analysis.ack_first_in", 
         FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This Ack was first sent in this frame", HFILL } },
-
+    { &hf_analysis_total_time,
+      { "Total Time", "p_mul.analysis.total_time", FT_RELATIVE_TIME, BASE_NONE,
+        NULL, 0x0, "The time between the first and the last Address PDU", HFILL } },
   };
 
   static gint *ett[] = {
