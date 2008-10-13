@@ -736,6 +736,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_present(hosttable->win);
 
     cf_retap_packets(&cfile, FALSE);
+    gdk_window_raise(hosttable->win->window);
 
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
 	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
@@ -861,7 +862,7 @@ hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
     int page;
     void ** pages = data;
     gboolean use_filter;
-    hostlist_table *hosttable;
+    hostlist_table *hosttable = NULL;
 
     use_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 
@@ -872,6 +873,9 @@ hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
     }
 
     cf_retap_packets(&cfile, FALSE);
+    if (hosttable) {
+        gdk_window_raise(hosttable->win->window);
+    }
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
@@ -979,6 +983,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_present(win);
 
     cf_retap_packets(&cfile, FALSE);
+    gdk_window_raise(win->window);
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {

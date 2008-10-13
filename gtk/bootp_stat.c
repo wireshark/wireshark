@@ -268,6 +268,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	window_present(sp->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(sp->win->window);
 }
 
 static tap_dfilter_dlg dhcp_stat_dlg = {
