@@ -67,7 +67,6 @@ gint ett_ansi_tcap_stat = -1;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
-static dissector_handle_t requested_subdissector_handle = NULL;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
