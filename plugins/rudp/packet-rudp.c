@@ -76,10 +76,13 @@ static int hf_rudp_flags_0 = -1;
 static int hf_rudp_hlen = -1;
 static int hf_rudp_seq = -1;
 static int hf_rudp_ack = -1;
-/* static int hf_rudp_cksum = -1; */
+static int hf_rudp_cksum = -1;
 
 static gint ett_rudp = -1;
 static gint ett_rudp_flags = -1;
+
+static dissector_handle_t sm_handle = NULL;
+static dissector_handle_t data_handle = NULL;
 
 
 static void
@@ -121,11 +124,23 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, FALSE);
 		proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, FALSE);
 		proto_tree_add_item(rudp_tree, hf_rudp_ack, tvb, 3, 1, FALSE);
+
+		/* If the header is more than 4 bytes the next 2 bytes are the checksum */
+		if (hlen > 4) {
+			proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, FALSE);
+		}
+
+		/* If we have even more bytes their meaning is unknown - we have seen this
+		 * in live captures */
+		if (hlen > 6) {
+			next_tvb = tvb_new_subset(tvb, 6, hlen-6, hlen-6);
+			call_dissector(data_handle, next_tvb, pinfo, rudp_tree);
+		}
 	}
 
 	next_tvb = tvb_new_subset(tvb, hlen, -1, -1);
-	if (tvb_length(next_tvb) && find_dissector("sm"))
-		call_dissector(find_dissector("sm"), next_tvb, pinfo, tree);
+	if (tvb_length(next_tvb) && sm_handle)
+		call_dissector(sm_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -193,16 +208,11 @@ proto_register_rudp(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Acknowledgement Number", HFILL }
 		},
-		/*
-
-		A checksum is specified in the RFC, but Cisco don't use one.
-
 		{ &hf_rudp_cksum,
 			{ "Checksum",           "rudp.cksum",
-			FT_UINT16, 8, NULL, 0x0,
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }
 		},
-		*/
 	};
 
 
@@ -246,4 +256,7 @@ proto_reg_handoff_rudp(void) {
 	}
 
 	dissector_add("udp.port", udp_port, rudp_handle);
+
+	sm_handle = find_dissector("sm");
+	data_handle = find_dissector("data");
 }

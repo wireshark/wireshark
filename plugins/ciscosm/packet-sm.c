@@ -107,8 +107,10 @@ const value_string sm_pdu_type_value[] = {
 };
 
 /* TODO: Change to useful name once known */
+#define SM_PROTOCOL_X100 0x0100
 #define SM_PROTOCOL_X101 0x0101
 #define SM_PROTOCOL_X114 0x0114
+#define SM_PROTOCOL_X122 0x0122
 
 
 /* Initialize the protocol and registered fields */
@@ -130,6 +132,7 @@ static int hf_sm_tag = -1;
 static gint ett_sm = -1;
 
 static dissector_handle_t sdp_handle;
+static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
 static void
@@ -167,6 +170,20 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			protocol = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
 			switch(protocol){
+			case SM_PROTOCOL_X100:
+			case SM_PROTOCOL_X122:
+				/* Protocol 0x100/0x122 only contains a length and then an EISUP packet */
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				length = tvb_get_ntohs(tvb,offset);
+				offset = offset + 2;
+				proto_item_set_len(ti, 8);
+
+				/* This should be the EISUP dissector but we havent got one
+				 * right now - so decode it as data for now ... */
+				next_tvb = tvb_new_subset(tvb, offset, length, length);
+				call_dissector(data_handle, next_tvb, pinfo, sm_tree);
+
+				break;
 			case SM_PROTOCOL_X101:
 				/* XXX Reveres enginered so this may not be correct!!! 
 				 * EISUP - used between Cisco HSI and Cisco PGW devices, 
@@ -189,7 +206,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset + 1;
 				/* XXX Problem are tags 1 or two bytes???*/
 				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-				
+
 				tag = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
 				if (tag== 0x01ac) {
@@ -219,7 +236,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset + 1;
 				/* XXX Problem are tags 1 or two bytes???*/
 				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-				
+
 				tag = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
 				if (tag== 0x01ac) {
@@ -234,10 +251,11 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			default:
 				proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
-				msg_type = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
+				msg_type = tvb_get_ntohs(tvb,offset);
 				proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"), msg_type);
+					"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
+					msg_type);
 				msg_type = tvb_get_ntohs(tvb,offset);
 				offset = offset + 2;
 				proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
@@ -262,6 +280,7 @@ void
 proto_reg_handoff_sm(void)
 {
 	sdp_handle = find_dissector("sdp");
+	data_handle = find_dissector("data");
 }
 
 void
