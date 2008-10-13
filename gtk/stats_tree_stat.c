@@ -1,4 +1,3 @@
-
 /* stats_tree_stat.c
  * GTK Tap implementation of stats_tree
  * 2005, Luis E. G. Ontanon
@@ -328,6 +327,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	window_present(st->pr->win);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(st->pr->win->window);
 }
 
 
