@@ -647,6 +647,7 @@ wlan_filter_toggle_dest(GtkWidget *widget, gpointer data)
 	hs->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(wlanstat_dlg_w->window);
 }
 
 static void
@@ -1312,6 +1313,7 @@ wlanstat_dlg_create (void)
 	window_present (wlanstat_dlg_w);
 
 	cf_retap_packets (&cfile, FALSE);
+	gdk_window_raise(wlanstat_dlg_w->window);
 }
 
 static void
