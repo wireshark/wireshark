@@ -371,6 +371,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define MGT_DEAUTHENTICATION   0x0C  /* Deauthentication           */
 #define MGT_ACTION             0x0D  /* Action                     */
 #define MGT_ACTION_NO_ACK      0x0E  /* Action No Ack              */
+#define MGT_ARUBA_WLAN         0x0F  /* Aruba WLAN Specific        */
 
 /*
  * COMPOSE_FRAME_TYPE() values for control frames.
@@ -543,6 +544,35 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define WAVE_PEERMAC    0x0040
 
 /* ************************************************************************* */
+/*              Aruba GRE Encapulsation ID                                   */
+/* ************************************************************************* */
+#define GRE_ARUBA_8200  0x8200
+#define GRE_ARUBA_8210  0x8210
+#define GRE_ARUBA_8220  0x8220
+#define GRE_ARUBA_8230  0x8230
+#define GRE_ARUBA_8240  0x8240
+#define GRE_ARUBA_8250  0x8250
+#define GRE_ARUBA_8260  0x8260
+#define GRE_ARUBA_8270  0x8270
+#define GRE_ARUBA_8280  0x8280
+#define GRE_ARUBA_8290  0x8290
+#define GRE_ARUBA_82A0  0x82A0
+#define GRE_ARUBA_82B0  0x82B0
+#define GRE_ARUBA_82C0  0x82C0
+#define GRE_ARUBA_82D0  0x82D0
+#define GRE_ARUBA_82E0  0x82E0
+#define GRE_ARUBA_82F0  0x82F0
+#define GRE_ARUBA_8300  0x8300
+#define GRE_ARUBA_8310  0x8310
+#define GRE_ARUBA_8320  0x8320
+#define GRE_ARUBA_8330  0x8330
+#define GRE_ARUBA_8340  0x8340
+#define GRE_ARUBA_8350  0x8350
+#define GRE_ARUBA_8360  0x8360
+#define GRE_ARUBA_8370  0x8370
+
+
+/* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
 static const value_string frame_type_subtype_vals[] = {
@@ -560,6 +590,7 @@ static const value_string frame_type_subtype_vals[] = {
   {MGT_DEAUTHENTICATION, "Deauthentication"},
   {MGT_ACTION,           "Action"},
   {MGT_ACTION_NO_ACK,    "Action No Ack"},
+  {MGT_ARUBA_WLAN,       "Aruba Management"},
 
   {CTRL_CONTROL_WRAPPER, "Control Wrapper"},
   {CTRL_BLOCK_ACK_REQ,   "802.11 Block Ack Req"},
@@ -625,6 +656,26 @@ static const char *wme_acs[4] = {
   "Background",
   "Video",
   "Voice",
+};
+
+/* ************************************************************************* */
+/*                  Aruba Management Type                                    */
+/* ************************************************************************* */
+static const value_string aruba_mgt_typevals[] = {
+  { 0x0001,       "Hello" },
+  { 0x0002,       "Probe" },
+  { 0x0003,       "MTU" },
+  { 0x0004,       "Ageout" },
+  { 0x0005,       "Heartbeat" },
+  { 0x0006,       "Deauth" },
+  { 0x0007,       "Disassoc" },
+  { 0x0008,       "Probe response" },
+  { 0x0009,       "Tunnel update" },
+  { 0x000A,       "Laser beam active" },
+  { 0x000B,       "Client IP" },
+  { 0x000C,       "Laser beam active v2" },
+  { 0x000D,       "AP statistics" },
+  { 0,            NULL }
 };
 
 /*** Begin: Action Fixed Parameter ***/
@@ -1478,6 +1529,9 @@ static int cf_ipv6_src = -1;
 static int cf_ipv6_dst = -1;
 static int cf_flow = -1;
 static int cf_tag_type = -1;
+static int cf_aruba = -1;
+static int cf_aruba_hb_seq = -1;
+static int cf_aruba_mtu = -1;
 
 /* ************************************************************************* */
 /*                               Protocol trees                              */
@@ -5942,6 +5996,30 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
       }
       break;
     }
+    case MGT_ARUBA_WLAN:
+    {
+      proto_item *aruba_hdr;
+      proto_tree *aruba_tree;
+      guint16 type;
+      type = tvb_get_ntohs(tvb, offset);
+
+      aruba_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Aruba Management");
+      aruba_tree = proto_item_add_subtree(aruba_hdr, ett_fixed_parameters);
+
+      proto_tree_add_item(aruba_tree, cf_aruba, tvb, offset, 2, FALSE);
+      offset += 2;
+      /* HeartBeat Sequence */
+      if ( type == 0x0005 )
+      {
+        proto_tree_add_item(aruba_tree, cf_aruba_hb_seq, tvb, offset, 8, FALSE);
+      }
+      /* MTU Size */
+      if ( type == 0x0003 )
+      {
+        proto_tree_add_item(aruba_tree, cf_aruba_mtu, tvb, offset, 2, FALSE);
+      }
+      break;
+    }
   }
 }
 
@@ -8909,7 +8987,7 @@ proto_register_ieee80211 (void)
       "Protocol flags", HFILL }},
 
     {&hf_fc_data_ds,
-     {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, VALS (&tofrom_ds), 0,
+     {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, VALS (&tofrom_ds), (FLAG_FROM_DS|FLAG_TO_DS),
       "Data-frame DS-traversal status", HFILL }},  /* 3 */
 
     {&hf_fc_to_ds,
@@ -11639,6 +11717,18 @@ proto_register_ieee80211 (void)
      {"802.1Q Tag Type", "wlan_mgt.tclas.params.tag_type",
       FT_UINT16, BASE_HEX, NULL, 0, "802.1Q Tag Type", HFILL }},
 
+    {&cf_aruba,
+     {"Aruba Type", "wlan_mgt.aruba_type",
+      FT_UINT16, BASE_DEC, VALS(aruba_mgt_typevals), 0, "Aruba Management", HFILL }},
+
+    {&cf_aruba_hb_seq,
+     {"Aruba Heartbeat Sequence", "wlan_mgt.aruba_heartbeat_sequence",
+      FT_UINT64, BASE_DEC, NULL, 0, "Aruba Heartbeat Sequence", HFILL }},
+
+    {&cf_aruba_mtu,
+     {"Aruba MTU Size", "wlan_mgt.aruba_mtu_size",
+      FT_UINT16, BASE_DEC, NULL, 0, "Aruba MTU Size", HFILL }},
+
     /* Start: HT Control (+HTC) */
     {&hf_htc,
      {"HT Control (+HTC)", "wlan_mgt.htc",
@@ -11928,6 +12018,32 @@ proto_reg_handoff_ieee80211(void)
 
   wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_AVS, wlancap_handle);
+
+  /* Register handoff to Aruba GRE */
+  dissector_add("gre.proto", GRE_ARUBA_8200, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8210, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8220, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8230, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8240, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8250, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8260, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8270, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8280, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8290, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82A0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82B0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82C0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82D0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82E0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_82F0, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8300, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8310, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8320, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8330, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8340, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8350, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8360, ieee80211_handle);
+  dissector_add("gre.proto", GRE_ARUBA_8370, ieee80211_handle);
 }
 
 #ifdef HAVE_AIRPDCAP
