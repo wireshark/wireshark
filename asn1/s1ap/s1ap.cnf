@@ -28,8 +28,10 @@ ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
 PrivateIE-Container
 PrivateIE-Field
+PrivateIE-ID 
 SAEB-IE-ContainerPairList
 
+UEPagingID
 Presence
 #.END
 

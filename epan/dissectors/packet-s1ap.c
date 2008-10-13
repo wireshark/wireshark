@@ -385,8 +385,6 @@ static int hf_s1ap_LocationReport_PDU = -1;       /* LocationReport */
 static int hf_s1ap_OverloadStart_PDU = -1;        /* OverloadStart */
 static int hf_s1ap_OverloadStop_PDU = -1;         /* OverloadStop */
 static int hf_s1ap_S1AP_PDU_PDU = -1;             /* S1AP_PDU */
-static int hf_s1ap_local = -1;                    /* INTEGER_0_65535 */
-static int hf_s1ap_global = -1;                   /* OBJECT_IDENTIFIER */
 static int hf_s1ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_s1ap_id = -1;                       /* ProtocolIE_ID */
 static int hf_s1ap_criticality = -1;              /* Criticality */
@@ -486,8 +484,6 @@ static int hf_s1ap_uEaggregateMaximumBitRateUL = -1;  /* BitRate */
 static int hf_s1ap_uE_S1AP_ID_pair = -1;          /* UE_S1AP_ID_pair */
 static int hf_s1ap_mME_UE_S1AP_ID = -1;           /* MME_UE_S1AP_ID */
 static int hf_s1ap_eNB_UE_S1AP_ID = -1;           /* ENB_UE_S1AP_ID */
-static int hf_s1ap_s_TMSI = -1;                   /* S_TMSI */
-static int hf_s1ap_iMSI = -1;                     /* IMSI */
 static int hf_s1ap_protocolIEs = -1;              /* ProtocolIE_Container */
 static int hf_s1ap_sourceeNodeB_ToTargeteNodeB_TransparentContainer = -1;  /* SourceeNodeB_ToTargeteNodeB_TransparentContainer */
 static int hf_s1ap_sourceRNC_ToTargetRNC_TransparentContainer = -1;  /* SourceRNC_ToTargetRNC_TransparentContainer */
@@ -531,7 +527,6 @@ static int ett_s1ap = -1;
 
 /*--- Included file: packet-s1ap-ett.c ---*/
 #line 1 "packet-s1ap-ett.c"
-static gint ett_s1ap_PrivateIE_ID = -1;
 static gint ett_s1ap_ProtocolIE_Container = -1;
 static gint ett_s1ap_ProtocolIE_Field = -1;
 static gint ett_s1ap_ProtocolIE_ContainerList = -1;
@@ -588,7 +583,6 @@ static gint ett_s1ap_UEAggregateMaximumBitrate = -1;
 static gint ett_s1ap_UE_S1AP_IDs = -1;
 static gint ett_s1ap_UE_S1AP_ID_pair = -1;
 static gint ett_s1ap_UE_associatedLogicalS1_ConnectionItem = -1;
-static gint ett_s1ap_UEPagingID = -1;
 static gint ett_s1ap_HandoverRequired = -1;
 static gint ett_s1ap_Intra_LTEHOInformationReq = -1;
 static gint ett_s1ap_LTEtoUTRANHOInformationReq = -1;
@@ -703,7 +697,6 @@ static dissector_table_t s1ap_extension_dissector_table;
 static dissector_table_t s1ap_proc_imsg_dissector_table;
 static dissector_table_t s1ap_proc_sout_dissector_table;
 static dissector_table_t s1ap_proc_uout_dissector_table;
-static dissector_table_t s1ap_proc_out_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -712,7 +705,6 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
 /*--- Included file: packet-s1ap-fn.c ---*/
@@ -730,47 +722,6 @@ static int
 dissect_s1ap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_s1ap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_s1ap_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const value_string s1ap_PrivateIE_ID_vals[] = {
-  {   0, "local" },
-  {   1, "global" },
-  { 0, NULL }
-};
-
-static const per_choice_t PrivateIE_ID_choice[] = {
-  {   0, &hf_s1ap_local          , ASN1_NO_EXTENSIONS     , dissect_s1ap_INTEGER_0_65535 },
-  {   1, &hf_s1ap_global         , ASN1_NO_EXTENSIONS     , dissect_s1ap_OBJECT_IDENTIFIER },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_s1ap_PrivateIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_s1ap_PrivateIE_ID, PrivateIE_ID_choice,
-                                 NULL);
 
   return offset;
 }
@@ -822,7 +773,7 @@ dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 75 "s1ap.cnf"
+#line 77 "s1ap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
@@ -949,7 +900,7 @@ dissect_s1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 58 "s1ap.cnf"
+#line 60 "s1ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(s1ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -1029,7 +980,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "s1ap.cnf"
+#line 99 "s1ap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1184,7 +1135,7 @@ dissect_s1ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "s1ap.cnf"
+#line 161 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1716,7 +1667,7 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 170 "s1ap.cnf"
+#line 172 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2754,28 +2705,6 @@ dissect_s1ap_UEIdentityIndexValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string s1ap_UEPagingID_vals[] = {
-  {   0, "s-TMSI" },
-  {   1, "iMSI" },
-  { 0, NULL }
-};
-
-static const per_choice_t UEPagingID_choice[] = {
-  {   0, &hf_s1ap_s_TMSI         , ASN1_EXTENSION_ROOT    , dissect_s1ap_S_TMSI },
-  {   1, &hf_s1ap_iMSI           , ASN1_EXTENSION_ROOT    , dissect_s1ap_IMSI },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_s1ap_UEPagingID, UEPagingID_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2789,7 +2718,7 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_SAEB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 124 "s1ap.cnf"
+#line 126 "s1ap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfSAEBs);
@@ -5503,7 +5432,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 103 "packet-s1ap-template.c"
+#line 101 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5540,10 +5469,6 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   return (dissector_try_port(s1ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return (dissector_try_port(s1ap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
-}
 
 static void
 dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -5736,7 +5661,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 178 "packet-s1ap-template.c"
+#line 172 "packet-s1ap-template.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -6337,14 +6262,6 @@ void proto_register_s1ap(void) {
       { "S1AP-PDU", "s1ap.S1AP_PDU",
         FT_UINT32, BASE_DEC, VALS(s1ap_S1AP_PDU_vals), 0,
         "s1ap.S1AP_PDU", HFILL }},
-    { &hf_s1ap_local,
-      { "local", "s1ap.local",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "s1ap.INTEGER_0_65535", HFILL }},
-    { &hf_s1ap_global,
-      { "global", "s1ap.global",
-        FT_OID, BASE_NONE, NULL, 0,
-        "s1ap.OBJECT_IDENTIFIER", HFILL }},
     { &hf_s1ap_ProtocolIE_Container_item,
       { "Item", "s1ap.ProtocolIE_Container_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6741,14 +6658,6 @@ void proto_register_s1ap(void) {
       { "eNB-UE-S1AP-ID", "s1ap.eNB_UE_S1AP_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.ENB_UE_S1AP_ID", HFILL }},
-    { &hf_s1ap_s_TMSI,
-      { "s-TMSI", "s1ap.s_TMSI",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "s1ap.S_TMSI", HFILL }},
-    { &hf_s1ap_iMSI,
-      { "iMSI", "s1ap.iMSI",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "s1ap.IMSI", HFILL }},
     { &hf_s1ap_protocolIEs,
       { "protocolIEs", "s1ap.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6883,7 +6792,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 188 "packet-s1ap-template.c"
+#line 182 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -6892,7 +6801,6 @@ void proto_register_s1ap(void) {
 
 /*--- Included file: packet-s1ap-ettarr.c ---*/
 #line 1 "packet-s1ap-ettarr.c"
-    &ett_s1ap_PrivateIE_ID,
     &ett_s1ap_ProtocolIE_Container,
     &ett_s1ap_ProtocolIE_Field,
     &ett_s1ap_ProtocolIE_ContainerList,
@@ -6949,7 +6857,6 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UE_S1AP_IDs,
     &ett_s1ap_UE_S1AP_ID_pair,
     &ett_s1ap_UE_associatedLogicalS1_ConnectionItem,
-    &ett_s1ap_UEPagingID,
     &ett_s1ap_HandoverRequired,
     &ett_s1ap_Intra_LTEHOInformationReq,
     &ett_s1ap_LTEtoUTRANHOInformationReq,
@@ -7048,7 +6955,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 194 "packet-s1ap-template.c"
+#line 188 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
@@ -7071,8 +6978,7 @@ void proto_register_s1ap(void) {
   s1ap_proc_imsg_dissector_table = register_dissector_table("s1ap.proc.imsg", "S1AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   s1ap_proc_sout_dissector_table = register_dissector_table("s1ap.proc.sout", "S1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
-  s1ap_proc_out_dissector_table = register_dissector_table("s1ap.proc.out", "S1AP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC);
-
+  
 	/* Register configuration options for ports */
 	s1ap_module = prefs_register_protocol(proto_s1ap,
 											  proto_reg_handoff_s1ap);
