@@ -1294,6 +1294,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	init_io_stat_window(io);
 
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(io->window->window);
 	io_stat_redraw(io);
 }
 
@@ -1495,6 +1496,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 
 	io->interval=val;
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(io->window->window);
 	io_stat_redraw(io);
 }
 
@@ -1884,6 +1886,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter, field);
 	cf_retap_packets(&cfile, FALSE);
+	gdk_window_raise(gio->io->window->window);
 	io_stat_redraw(gio->io);
 
 	return 0;
