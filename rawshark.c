@@ -884,7 +884,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
   struct pcap_pkthdr hdr;
   int bytes_read = 0;
   int bytes_needed = sizeof(struct pcap_pkthdr);
-  gchar err_str[1024+1];
+  static gchar err_str[100];
 
   /* Copied from capture_loop.c */
   while (bytes_needed > 0) {
@@ -916,7 +916,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
 #endif
   if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
     *err = WTAP_ERR_BAD_RECORD;
-    g_snprintf(err_str, 1024, "Bad packet length: %d (%04x)", bytes_needed, bytes_needed);
+    g_snprintf(err_str, 100, "Bad packet length: %d (%04x)", bytes_needed, bytes_needed);
     *err_info = err_str;
     return FALSE;
   }
