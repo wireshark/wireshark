@@ -41,6 +41,7 @@ ber: \
 	ess	\
 	ftam	\
 	gnm	\
+	goose	\
 	gsmmap	\
 	h248	\
 	inap	\
@@ -413,6 +414,11 @@ gnm::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+goose::
+	cd goose
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+	
 gsmmap::
 	cd gsmmap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
