@@ -198,8 +198,6 @@ static int hf_x2ap_ResourceStatusUpdate_PDU = -1;  /* ResourceStatusUpdate */
 static int hf_x2ap_CellMeasurementResult_List_PDU = -1;  /* CellMeasurementResult_List */
 static int hf_x2ap_CellMeasurementResult_Item_PDU = -1;  /* CellMeasurementResult_Item */
 static int hf_x2ap_X2AP_PDU_PDU = -1;             /* X2AP_PDU */
-static int hf_x2ap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_x2ap_global = -1;                   /* OBJECT_IDENTIFIER */
 static int hf_x2ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_x2ap_id = -1;                       /* ProtocolIE_ID */
 static int hf_x2ap_criticality = -1;              /* Criticality */
@@ -207,9 +205,6 @@ static int hf_x2ap_protocolIE_Field_value = -1;   /* ProtocolIE_Field_value */
 static int hf_x2ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_x2ap_extension_id = -1;             /* ProtocolIE_ID */
 static int hf_x2ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_x2ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_x2ap_private_id = -1;               /* PrivateIE_ID */
-static int hf_x2ap_privateIE_Field_value = -1;    /* PrivateIE_Field_value */
 static int hf_x2ap_BroadcastPLMNs_Item_item = -1;  /* PLMN_Identity */
 static int hf_x2ap_radioNetwork = -1;             /* CauseRadioNetwork */
 static int hf_x2ap_transport = -1;                /* CauseTransport */
@@ -337,13 +332,10 @@ static int ett_x2ap = -1;
 
 /*--- Included file: packet-x2ap-ett.c ---*/
 #line 1 "packet-x2ap-ett.c"
-static gint ett_x2ap_PrivateIE_ID = -1;
 static gint ett_x2ap_ProtocolIE_Container = -1;
 static gint ett_x2ap_ProtocolIE_Field = -1;
 static gint ett_x2ap_ProtocolExtensionContainer = -1;
 static gint ett_x2ap_ProtocolExtensionField = -1;
-static gint ett_x2ap_PrivateIE_Container = -1;
-static gint ett_x2ap_PrivateIE_Field = -1;
 static gint ett_x2ap_BroadcastPLMNs_Item = -1;
 static gint ett_x2ap_Cause = -1;
 static gint ett_x2ap_COUNTvalue = -1;
@@ -465,47 +457,6 @@ dissect_x2ap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-
-static int
-dissect_x2ap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxPrivateIEs, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x2ap_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const value_string x2ap_PrivateIE_ID_vals[] = {
-  {   0, "local" },
-  {   1, "global" },
-  { 0, NULL }
-};
-
-static const per_choice_t PrivateIE_ID_choice[] = {
-  {   0, &hf_x2ap_local          , ASN1_NO_EXTENSIONS     , dissect_x2ap_INTEGER_0_maxPrivateIEs },
-  {   1, &hf_x2ap_global         , ASN1_NO_EXTENSIONS     , dissect_x2ap_OBJECT_IDENTIFIER },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_x2ap_PrivateIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_x2ap_PrivateIE_ID, PrivateIE_ID_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const value_string x2ap_ProcedureCode_vals[] = {
   { X2AP_ID_HANDOVERPREPARATION, "id-handoverPreparation" },
   { X2AP_ID_HANDOVERCANCEL, "id-handoverCancel" },
@@ -524,13 +475,13 @@ static const value_string x2ap_ProcedureCode_vals[] = {
 
 static int
 dissect_x2ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "x2ap.cnf"
+#line 69 "x2ap.cnf"
   ProcedureCode = 0xFFFF;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 59 "x2ap.cnf"
+#line 62 "x2ap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
@@ -689,45 +640,6 @@ dissect_x2ap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_x2ap_ProtocolExtensionContainer, ProtocolExtensionContainer_sequence_of,
                                                   1, maxProtocolExtensions);
-
-  return offset;
-}
-
-
-
-static int
-dissect_x2ap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t PrivateIE_Field_sequence[] = {
-  { &hf_x2ap_private_id     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_PrivateIE_ID },
-  { &hf_x2ap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_Criticality },
-  { &hf_x2ap_privateIE_Field_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_PrivateIE_Field_value },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_x2ap_PrivateIE_Field(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_x2ap_PrivateIE_Field, PrivateIE_Field_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t PrivateIE_Container_sequence_of[1] = {
-  { &hf_x2ap_PrivateIE_Container_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_x2ap_PrivateIE_Field },
-};
-
-static int
-dissect_x2ap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_x2ap_PrivateIE_Container, PrivateIE_Container_sequence_of,
-                                                  1, maxPrivateIEs);
 
   return offset;
 }
@@ -3308,14 +3220,6 @@ void proto_register_x2ap(void) {
       { "X2AP-PDU", "x2ap.X2AP_PDU",
         FT_UINT32, BASE_DEC, VALS(x2ap_X2AP_PDU_vals), 0,
         "x2ap.X2AP_PDU", HFILL }},
-    { &hf_x2ap_local,
-      { "local", "x2ap.local",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "x2ap.INTEGER_0_maxPrivateIEs", HFILL }},
-    { &hf_x2ap_global,
-      { "global", "x2ap.global",
-        FT_OID, BASE_NONE, NULL, 0,
-        "x2ap.OBJECT_IDENTIFIER", HFILL }},
     { &hf_x2ap_ProtocolIE_Container_item,
       { "Item", "x2ap.ProtocolIE_Container_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3344,18 +3248,6 @@ void proto_register_x2ap(void) {
       { "extensionValue", "x2ap.extensionValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "x2ap.T_extensionValue", HFILL }},
-    { &hf_x2ap_PrivateIE_Container_item,
-      { "Item", "x2ap.PrivateIE_Container_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x2ap.PrivateIE_Field", HFILL }},
-    { &hf_x2ap_private_id,
-      { "id", "x2ap.id",
-        FT_UINT32, BASE_DEC, VALS(x2ap_PrivateIE_ID_vals), 0,
-        "x2ap.PrivateIE_ID", HFILL }},
-    { &hf_x2ap_privateIE_Field_value,
-      { "value", "x2ap.value",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x2ap.PrivateIE_Field_value", HFILL }},
     { &hf_x2ap_BroadcastPLMNs_Item_item,
       { "Item", "x2ap.BroadcastPLMNs_Item_item",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -3835,13 +3727,10 @@ void proto_register_x2ap(void) {
 
 /*--- Included file: packet-x2ap-ettarr.c ---*/
 #line 1 "packet-x2ap-ettarr.c"
-    &ett_x2ap_PrivateIE_ID,
     &ett_x2ap_ProtocolIE_Container,
     &ett_x2ap_ProtocolIE_Field,
     &ett_x2ap_ProtocolExtensionContainer,
     &ett_x2ap_ProtocolExtensionField,
-    &ett_x2ap_PrivateIE_Container,
-    &ett_x2ap_PrivateIE_Field,
     &ett_x2ap_BroadcastPLMNs_Item,
     &ett_x2ap_Cause,
     &ett_x2ap_COUNTvalue,

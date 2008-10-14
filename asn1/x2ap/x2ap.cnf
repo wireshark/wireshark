@@ -11,6 +11,9 @@ ALIGNED
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
 PrivateMessage
+PrivateIE-Container
+PrivateIE-Field
+PrivateIE-ID 
 #.END
 
 #.PDU
@@ -25,7 +28,7 @@ ProtocolIE-ID
 #.TYPE_RENAME
 
 ProtocolIE-Field/value     ProtocolIE_Field_value
-PrivateIE-Field/value      PrivateIE_Field_value
+#PrivateIE-Field/value      PrivateIE_Field_value
 InitiatingMessage/value    InitiatingMessage_value
 SuccessfulOutcome/value    SuccessfulOutcome_value
 UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
@@ -33,12 +36,12 @@ UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
 
 #.FIELD_RENAME
 ProtocolExtensionField/id extension_id
-PrivateIE-Field/id private_id
+#PrivateIE-Field/id private_id
 InitiatingMessage/value initiatingMessage_value 
 
 ProtocolIE-Field/value protocolIE_Field_value 
 SuccessfulOutcome/value successfulOutcome_value 
-PrivateIE-Field/value privateIE_Field_value 
+#PrivateIE-Field/value privateIE_Field_value 
 
 #.OMIT_ASSIGNMENT
 Presence
