@@ -46,6 +46,8 @@ static int hf_redbackli_seqno = -1;		/* Sequence No */
 static int hf_redbackli_liid = -1;		/* LI Id */
 static int hf_redbackli_sessid = -1;		/* Session Id */
 static int hf_redbackli_label = -1;		/* Label */
+static int hf_redbackli_acctid = -1;		/* Accounting Session Id */
+static int hf_redbackli_dir = -1;		/* Direction */
 static int hf_redbackli_eohpad = -1;		/* End Of Header Padding */
 static int hf_redbackli_unknownavp = -1;	/* Unknown AVP */
 
@@ -56,7 +58,9 @@ static dissector_handle_t ip_handle;
 #define RB_AVP_SEQNO	1
 #define RB_AVP_LIID	2
 #define RB_AVP_SESSID	3
+#define RB_AVP_DIR	4
 #define RB_AVP_LABEL	20
+#define RB_AVP_ACCTID	40
 #define RB_AVP_EOH	0
 
 static const value_string avp_names[] = {
@@ -64,73 +68,73 @@ static const value_string avp_names[] = {
 	{RB_AVP_LIID,		"Lawful Intercept Id"},
 	{RB_AVP_SESSID,		"Session Id"},
 	{RB_AVP_LABEL,		"Label"},
+	{RB_AVP_ACCTID,		"Accounting Session Id"},
+	{RB_AVP_DIR,		"Direction"},
 	{RB_AVP_EOH,		"End Of Header"},
-	{0,			NULL},
+	{0,			NULL}
 };
 
-static int
+static void
 redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
-	guint32		avpintval;
-	char		*avpcharval;
 	const char	*avpname;
 	proto_tree	*ti, *st=NULL;
 
 	avpname=val_to_str(avptype, avp_names, "Unknown");
 
-	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, avplen+2, "%s AVP", avpname);
-		st = proto_item_add_subtree(ti, ett_redbackli);
+	ti = proto_tree_add_text(tree, tvb, offset, avplen+2, "%s AVP", avpname);
+	st = proto_item_add_subtree(ti, ett_redbackli);
 
-		proto_tree_add_text(st, tvb, offset, 1, "AVP Type: %d", avptype);
-		proto_tree_add_text(st, tvb, offset+1, 1, "AVP Length: %d", avplen);
-	}
+	proto_tree_add_text(st, tvb, offset, 1, "AVP Type: %d", avptype);
+	proto_tree_add_text(st, tvb, offset+1, 1, "AVP Length: %d", avplen);
+
+	if (!avplen)
+		return;
 
 	switch(avptype) {
 		case(RB_AVP_SEQNO):
-			avpintval=tvb_get_ntohl(tvb, offset+2);
-			if (tree)
-				proto_tree_add_uint(st, hf_redbackli_seqno, tvb,
-						    offset+2, avplen, avpintval);
+			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
+					    offset+2, avplen, FALSE);
 			break;
 		case(RB_AVP_LIID):
-			avpintval=tvb_get_ntohl(tvb, offset+2);
-			if (tree)
-				proto_tree_add_uint(st, hf_redbackli_liid, tvb,
-						    offset+2, avplen, avpintval);
+			proto_tree_add_item(st, hf_redbackli_liid, tvb,
+					    offset+2, avplen, FALSE);
 			break;
 		case(RB_AVP_SESSID):
-			avpintval=tvb_get_ntohl(tvb, offset+2);
-			if (tree)
-				proto_tree_add_uint(st, hf_redbackli_sessid, tvb,
-						    offset+2, avplen, avpintval);
+			proto_tree_add_item(st, hf_redbackli_sessid, tvb,
+					    offset+2, avplen, FALSE);
 			break;
 		case(RB_AVP_LABEL):
-			avpcharval=tvb_get_string(tvb, offset+2, avplen);
-			if (tree)
-				proto_tree_add_string(st, hf_redbackli_label, tvb,
-						    offset+2, avplen, avpcharval);
+			proto_tree_add_item(st, hf_redbackli_label, tvb,
+					    offset+2, avplen, FALSE);
 			break;
 		case(RB_AVP_EOH):
-			if (tree && avplen)
-				proto_tree_add_item(st, hf_redbackli_eohpad, tvb,
-						    offset+2, avplen, FALSE);
-			return 1;
+			proto_tree_add_item(st, hf_redbackli_eohpad, tvb,
+					    offset+2, avplen, FALSE);
+			break;
+		case(RB_AVP_DIR):
+			proto_tree_add_item(st, hf_redbackli_dir, tvb,
+					offset+2, avplen, FALSE);
+			break;
+		case(RB_AVP_ACCTID):
+			proto_tree_add_item(st, hf_redbackli_acctid, tvb,
+					    offset+2, avplen, FALSE);
+			break;
 		default:
-			if (tree && avplen)
-				proto_tree_add_item(st, hf_redbackli_unknownavp, tvb,
-						    offset+2, avplen, FALSE);
-			return 0;
+			proto_tree_add_item(st, hf_redbackli_unknownavp, tvb,
+					    offset+2, avplen, FALSE);
+			break;
 	}
 
-	return 0;
+	return;
 }
 
 static void
 redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8		avptype, avplen;
-	gint		len, offset=0, eoh=0;
+	gint		len, offset=0;
+	gboolean	eoh;
 	proto_tree	*ti, *redbackli_tree=NULL;
 	tvbuff_t	*next_tvb;
 
@@ -145,7 +149,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	len=tvb_length(tvb);
 	offset=0;
-	eoh=0;
+	eoh=FALSE;
 	while(!eoh && len > 2) {
 		avptype = tvb_get_guint8(tvb, offset+0);
 		avplen = tvb_get_guint8(tvb, offset+1);
@@ -153,7 +157,11 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (len < avplen+2)		/* AVP Complete ? */
 			break;
 
-		eoh=redbackli_dissect_avp(avptype, avplen, tvb, offset, redbackli_tree);
+		if (tree)
+			redbackli_dissect_avp(avptype, avplen, tvb, offset, redbackli_tree);
+
+		if (avptype == RB_AVP_EOH)
+			eoh=TRUE;
 
 		offset+=2+avplen;
 		len-=2+avplen;
@@ -171,7 +179,8 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint		len, offset=0, eoh=0;
+	gint		len, offset=0;
+	gboolean	eoh=FALSE;
 	guint8		avptype, avplen;
 	guint32		avpfound=0;
 
@@ -197,13 +206,14 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					return FALSE;
 				avpfound|=1<<avptype;
 				break;
-			case(RB_AVP_LABEL):
-				avpfound|=1<<avptype;
-				break;
 			case(RB_AVP_EOH):
 				if (avplen > 1 || offset == 0)
 					return FALSE;
-				eoh=1;
+				eoh=TRUE;
+				break;
+			case(RB_AVP_LABEL):
+			case(RB_AVP_DIR):
+			case(RB_AVP_ACCTID):
 				break;
 			default:
 				return FALSE;
@@ -227,26 +237,32 @@ void proto_register_redbackli(void) {
 	static hf_register_info hf[] = {
 		{ &hf_redbackli_seqno,
 			{ "Sequence No", "redbackli.seqno", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Sequence No", HFILL }},
+			NULL, HFILL }},
 		{ &hf_redbackli_liid,
 			{ "Lawful Intercept Id", "redbackli.liid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"LI Identifier", HFILL }},
 		{ &hf_redbackli_sessid,
 			{ "Session Id", "redbackli.sessid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Session Identifier", HFILL }},
+		{ &hf_redbackli_dir,
+			{ "Direction", "redbackli.dir", FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
 		{ &hf_redbackli_label,
 			{ "Label", "redbackli.label", FT_STRING, BASE_NONE, NULL, 0x0,
-			"Label", HFILL }},
+			NULL, HFILL }},
+		{ &hf_redbackli_acctid,
+			{ "Acctid", "redbackli.acctid", FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 		{ &hf_redbackli_eohpad,
 			{ "End of Header Padding", "redbackli.eohpad", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 		{ &hf_redbackli_unknownavp,
 			{ "Unknown AVP", "redbackli.unknownavp", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }}
 		};
 
 	static gint *ett[] = {
-		&ett_redbackli,
+		&ett_redbackli
 	};
 
 	proto_redbackli = proto_register_protocol("Redback Lawful Intercept",
