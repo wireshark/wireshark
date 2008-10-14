@@ -1529,6 +1529,7 @@ AC_OUTPUT(
   asn1/ess/Makefile
   asn1/ftam/Makefile
   asn1/gnm/Makefile
+  asn1/goose/Makefile
   asn1/gsmmap/Makefile
   asn1/h225/Makefile
   asn1/h235/Makefile
