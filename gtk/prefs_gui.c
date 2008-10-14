@@ -74,6 +74,7 @@ static gint recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GUI_WEBBROWSER_KEY	    "webbrowser"
 #define GUI_FIND_WRAP_KEY       "find_wrap"
 #define GUI_USE_PREF_SAVE_KEY   "use_pref_save"
+#define GUI_SHOW_VERSION_KEY    "show_version"
 
 static const enum_val_t scrollbar_placement_vals[] _U_ = {
 	{ "FALSE", "Left", FALSE },
@@ -163,6 +164,7 @@ gui_prefs_show(void)
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *fileopen_preview_te;
 	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
 	GtkWidget *use_pref_save_cb;
+	GtkWidget *show_version_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 
@@ -302,6 +304,13 @@ gui_prefs_show(void)
 		"use an explicit save button - for advanced users.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
 
+	/* Show version in welcome screen */
+	show_version_cb = create_preference_check_button(main_tb, pos++,
+	    "Welcome screen shows version:", NULL, prefs.gui_version_in_start_page );
+	gtk_tooltips_set_tip(tooltips, show_version_cb, 
+                "Whether version should be shown in the start page or not", NULL);
+	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_cb);
+
 	/* Webbrowser */
 	if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++, 
@@ -399,6 +408,9 @@ gui_prefs_fetch(GtkWidget *w)
 
     prefs.gui_use_pref_save = 
         gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
+
+	prefs.gui_version_in_start_page  = 
+        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
 
     if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
