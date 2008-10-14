@@ -929,9 +929,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     {"/Copy/Bytes (Hex Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEX, NULL, NULL,},
     {"/Copy/Bytes (Binary Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_BINARY, NULL, NULL,},
 
-    {"/Export Selected Packet Bytes...", NULL, GTK_MENU_FUNC(savehex_cb),
-                       0, NULL, NULL,},
-
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
