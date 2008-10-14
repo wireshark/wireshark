@@ -48,6 +48,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/sminmpec.h>
 #include "packet-arp.h"
 
 static int proto_dhcpv6 = -1;
@@ -259,6 +260,17 @@ static const true_false_string fqdn_s = {
     "S bit set", "S bit cleared"
 }; 
 
+static void
+dhcpv6_enterprise_number(proto_tree * subtree, tvbuff_t *tvb, int offset)
+{
+	  guint32 enterprise_number;
+	  enterprise_number = tvb_get_ntohl(tvb, offset);
+	  proto_tree_add_text(subtree, tvb, offset, 4,
+			      "Enterprise-number: %s (%u)",
+			      val_to_str(enterprise_number, sminmpec_values, "%u"),
+			      enterprise_number);
+}
+
 /* Adds domain */
 static void
 dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int offset, guint16 optlen)
@@ -380,8 +392,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			}
 			hwtype=tvb_get_ntohs(tvb, off + 2);
 			proto_tree_add_text(subtree, tvb, off + 2, 2,
-				"Hardware type: %s (%u)",
-				arphrdtype_to_str(hwtype, "Unknown"),
+				"Hardware type: %s (%u)", arphrdtype_to_str(hwtype, "Unknown"),
 				hwtype);
 			/* XXX seconds since Jan 1 2000 */
 			proto_tree_add_text(subtree, tvb, off + 4, 4,
@@ -398,11 +409,11 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 					optlen, "DUID: malformed option");
 				break;
 			}
-			proto_tree_add_text(subtree, tvb, off + 2, 4,
-					    "enterprise-number");
+			dhcpv6_enterprise_number(subtree, tvb, off + 2);
 			if (optlen > 6) {
+	      			buf = tvb_bytes_to_str(tvb, off + 6, optlen - 6);
 				proto_tree_add_text(subtree, tvb, off + 6,
-					optlen - 6, "identifier");
+					optlen - 6, "identifier: %s", buf);
 			}
 			break;
 		case DUID_LL:
@@ -626,12 +637,11 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "VENDOR_CLASS: malformed option");
 	    break;
 	  }
-	  proto_tree_add_text(subtree, tvb, off, 4,
-			      "enterprise-number: %u",
-			      tvb_get_ntohl(tvb, off));
+	  dhcpv6_enterprise_number(subtree, tvb, off);
 	  if (optlen > 4) {
+	    buf = tvb_bytes_to_str(tvb, off + 4, optlen - 4);
 	    proto_tree_add_text(subtree, tvb, off+4, optlen-4,
-				"vendor-class-data");
+				"vendor-class-data: %s", buf);
 	  }
 	  break;
 	case OPTION_VENDOR_OPTS:
@@ -641,9 +651,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	    break;
 	  }
 
-	  proto_tree_add_text(subtree, tvb, off, 4,
-			      "enterprise-number: %u",
-			      tvb_get_ntohl(tvb, off));
+	  dhcpv6_enterprise_number(subtree, tvb, off);
 	  if (optlen >= 4)
 	  {
             int optoffset = 0;
@@ -667,7 +675,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "INTERFACE_ID: malformed option");
 	    break;
 	  }
-	  proto_tree_add_text(subtree, tvb, off, optlen, "Interface-ID");
+	  buf = tvb_get_ephemeral_string(tvb, off, optlen);
+	  proto_tree_add_text(subtree, tvb, off, optlen, "Interface-ID: %s", buf);
 	  break;
 	case OPTION_RECONF_MSG:
 	  if (optlen != 1) {
@@ -807,7 +816,11 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "REMOTE_ID: malformed option");
 	    break;
 	  }
-	  proto_tree_add_text(subtree, tvb, off, optlen, "Remote-ID");
+	  dhcpv6_enterprise_number(subtree, tvb, off);
+	  off += 4;
+	  optlen -= 4;
+	  buf = tvb_bytes_to_str(tvb, off, optlen);
+	  proto_tree_add_text(subtree, tvb, off, optlen, "Remote-ID: %s", buf);
 	  break;
 	case OPTION_SUBSCRIBER_ID:
 	  if (optlen == 0) {
@@ -815,7 +828,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "SUBSCRIBER_ID: malformed option");
 	    break;
 	  }
-	  proto_tree_add_text(subtree, tvb, off, optlen, "Subscriber-ID");
+	  buf = tvb_get_ephemeral_string(tvb, off, optlen);
+	  proto_tree_add_text(subtree, tvb, off, optlen, "Subscriber-ID: %s", buf);
 	  break;
 	case OPTION_CLIENT_FQDN:
 	  if (optlen < 1) {
