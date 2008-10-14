@@ -38,6 +38,7 @@ SUBDIRS = \
 	ess		\
 	ftam		\
 	gnm		\
+	goose		\
 	gsmmap		\
 	h225		\
 	h235		\

@@ -145,6 +145,9 @@ clean:
 	cd ftam
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd goose
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
