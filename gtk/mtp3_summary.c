@@ -284,7 +284,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  file_type = wtap_file_type_string(summary.encap_type);
+  file_type = wtap_file_type_string(summary.file_type);
   g_snprintf(string_buff, SUM_STR_MAX, "Format: %s", (file_type ? file_type : "N/A"));
   add_string_to_box(string_buff, file_box);
 

@@ -120,7 +120,8 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   st->filename = cf->filename;
   st->file_length = cf->f_datalen;
-  st->encap_type = cf->cd_t;
+  st->file_type = cf->cd_t;
+  st->encap_type = cf->lnk_t;
   st->has_snap = cf->has_snap;
   st->snap = cf->snap;
   st->elapsed_time = nstime_to_sec(&cf->elapsed_time);

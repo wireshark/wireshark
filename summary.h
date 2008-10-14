@@ -47,6 +47,7 @@ typedef struct _summary_tally {
     double 	filtered_stop;  /* time in seconds, with msec resolution */
     const char	*filename;
     gint64	file_length;	/* file length in bytes */
+    int		file_type;	/* wiretap file type */
     int		encap_type;	/* wiretap encapsulation type */
     gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
     int		snap;		/* Maximum captured packet length */
@@ -60,7 +61,7 @@ typedef struct _summary_tally {
     const char	*iface_descr;/* descriptive interface name */
 } summary_tally;
 
-extern void 
+extern void
 summary_fill_in(capture_file *cf, summary_tally *st);
 
 #ifdef HAVE_LIBPCAP

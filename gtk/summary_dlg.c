@@ -158,8 +158,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Length:", string_buff);
 
   /* format */
-  g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(summary.encap_type));
+  g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(summary.file_type));
   add_string_to_table(table, &row, "Format:", string_buff);
+
+  /* encapsulation */
+  g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_encap_string(summary.encap_type));
+  add_string_to_table(table, &row, "Encapsulation:", string_buff);
 
   if (summary.has_snap) {
     /* snapshot length */
@@ -384,7 +388,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* MBit per second */
   if (seconds > 0) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", 
+    g_snprintf(string_buff, SUM_STR_MAX, "%.3f",
 	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
 	       ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
   } else {
