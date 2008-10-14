@@ -3273,6 +3273,9 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	 */
 	/* XXX Do we really need to count them at all ?  ronnie */
 	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
+		if (ind) {
+			cnt--;  /* don't count EOC as an item */
+		}
 		while (offset < end_offset){
 			guint32 len;
                         gint s_offset;
@@ -3480,6 +3483,9 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 	 */
 	/* XXX Do we really need to count them at all ?  ronnie */
 	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
+		if (ind) {
+			cnt--;  /* don't count EOC as an item */
+		}
 		while (offset < end_offset){
 			guint32 len;
                         gint s_offset;
