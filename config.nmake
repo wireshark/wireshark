@@ -350,16 +350,29 @@ PERL=perl
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
-# command for native windows python (recommended)
-# both V2.4 and V2.5 should work
-PYTHON="C:/python24/python.exe"
-#PYTHON="C:/python25/python.exe"
-# add native python to the path (not needed if cygwin's python is used)
-PATH=c:\python24;$(PATH)
-#PATH=c:\python25;$(PATH)
+# Command for native Windows Python (recommended)
+# V2.4 to V2.6 should work
 
-# command for python (cygwin's python package, not recommended)
+# If you want to specify your Python settings, uncomment the lines below.
+#PYTHON="C:\Python26\python.exe"
+#PATH=c:\Python26;$(PATH)
+
+# Command for Cygwin's Python (not recommended)
 #PYTHON=env python
+
+# Otherwise, find Python automatically.
+!IF !DEFINED(PYTHON)
+!IF EXIST(c:\Python26\python.exe)
+PYTHON="C:\Python26\python.exe"
+PATH=c:\Python26;$(PATH)
+!ELSE IF EXIST(c:\Python25\python.exe)
+PYTHON="C:\Python25\python.exe"
+PATH=c:\Python25;$(PATH)
+!ELSE IF EXIST(c:\Python24\python.exe)
+PYTHON="C:\Python24\python.exe"
+PATH=c:\Python24;$(PATH)
+!ENDIF
+!ENDIF
 
 # command for lex/flexx (cygwin's flex recommended)
 LEX=flex
