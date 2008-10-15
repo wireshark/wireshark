@@ -726,6 +726,7 @@ DISSECTOR_SRC = \
 	packet-sebek.c		\
 	packet-ses.c		\
 	packet-sflow.c		\
+	packet-simulcrypt.c	\
 	packet-sip.c		\
 	packet-sigcomp.c	\
 	packet-sipfrag.c	\

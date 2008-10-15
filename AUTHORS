@@ -2776,6 +2776,9 @@ Joan Ramió		<joan[AT]ramio.cat> {
 	IEC 60870-5-104 dissector
 }
 
+David Castleford			<david.castleford [AT] orange-ftgroup.com> {
+	Simulcrypt dissector
+}
 
 and by:
 
