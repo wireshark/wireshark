@@ -328,7 +328,7 @@ static void dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_
 			guint32 pvaluedec;    /* parameter decimal value */
 			gchar  *pvalue_char;  /* parameter value string */
 			int     ca_system_id;
-			int     i;
+			guint   i;
 			
 			/* Parameter  Type 2 Bytes */
 			ptype= tvb_get_ntohs(tvb, offset); /* read 2 byte type value */
@@ -497,7 +497,7 @@ static void dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_
 }	
 
 /* determine PDU length of protocol foo */
-static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+static guint get_simulcrypt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint iLg;
 	
@@ -515,7 +515,7 @@ static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int o
 static void 
 simulcrypt_init(void) 
 {
-	gint i;
+	guint i;
 
 	for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 	{
@@ -724,7 +724,7 @@ void proto_reg_handoff_simulcrypt(void)
 	static gboolean initialized=FALSE;
 	static dissector_handle_t simulcrypt_handle;
 	static guint tcp_port;
-	gint   i;
+	guint   i;
 
 	if (!initialized) {
 		simulcrypt_handle = create_dissector_handle( dissect_simulcrypt, proto_simulcrypt);
