@@ -440,7 +440,7 @@ proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 }
 
 gboolean
-proto_tree_traverse_in_order(proto_tree *tree, proto_tree_traverse_func func,
+proto_tree_traverse_post_order(proto_tree *tree, proto_tree_traverse_func func,
     gpointer data)
 {
 	proto_node *pnode = tree;
@@ -448,7 +448,7 @@ proto_tree_traverse_in_order(proto_tree *tree, proto_tree_traverse_func func,
 	proto_node *current;
 
 	child = pnode->first_child;
-	if (child != NULL) {
+	while (child != NULL) {
 		/*
 		 * The routine we call might modify the child, e.g. by
 		 * freeing it, so we get the child's successor before
@@ -456,30 +456,12 @@ proto_tree_traverse_in_order(proto_tree *tree, proto_tree_traverse_func func,
 		 */
 		current = child;
 		child = current->next;
-
-		if (proto_tree_traverse_in_order((proto_tree *)current, func,
+		if (proto_tree_traverse_post_order((proto_tree *)current, func,
 		    data))
 			return TRUE;
-
-		if (func(pnode, data))
-			return TRUE;
-
-		while (child != NULL) {
-			/*
-			 * The routine we call might modify the child, e.g. by
-			 * freeing it, so we get the child's successor before
-			 * calling that routine.
-			 */
-			current = child;
-			child = current->next;
-			if (proto_tree_traverse_in_order((proto_tree *)current,
-			    func, data))
-				return TRUE;
-		}
-	} else {
-		if (func(pnode, data))
-			return TRUE;
 	}
+	if (func(pnode, data))
+		return TRUE;
 
 	return FALSE;
 }
@@ -503,7 +485,7 @@ proto_tree_children_foreach(proto_tree *tree, proto_tree_foreach_func func,
 void
 proto_tree_free(proto_tree *tree)
 {
-	proto_tree_traverse_in_order(tree, proto_tree_free_node, NULL);
+	proto_tree_traverse_post_order(tree, proto_tree_free_node, NULL);
 }
 
 static void
@@ -556,11 +538,14 @@ static gboolean
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
 	field_info *finfo = PITEM_FINFO(node);
+#if 0
+	proto_node *parent = node->parent;
+#endif
 
 	if (finfo == NULL) {
 		/* This is the root node. Destroy the per-tree data.
 		 * There is no field_info to destroy. */
-		free_node_tree_data(PTREE_DATA(node));
+		if (PTREE_DATA(node)) free_node_tree_data(PTREE_DATA(node));
 	}
 	else {
 		/* This is a child node. Don't free the per-tree data, but
@@ -568,6 +553,33 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 		FREE_NODE_FIELD_INFO(finfo);
 	}
 
+#if 0
+	/* NOTE: This code is required when this function is used to free individual
+	 * nodes only. Current use is for the destruction of complete trees, so the
+	 * inconsistancies have no ill effect.
+	 */
+	/* Remove node from parent */
+	if (parent) {
+		proto_item *prev_item = NULL;
+		if (parent->first_child == node) {
+			parent->first_child = node->next;
+		} else {
+			/* find previous and change its next */
+			for (prev_item = parent->first_child; prev_item; prev_item = prev_item->next) {
+				if (prev_item->next == node) {
+					break;
+				}
+			}
+			DISSECTOR_ASSERT(prev_item);
+			prev_item->next = node->next;
+		}
+		/* fix last_child if required */
+		if (parent->last_child == node) {
+			parent->last_child = prev_item;
+		}
+	}
+	DISSECTOR_ASSERT(node->first_child == NULL && node->last_child == NULL);
+#endif
 	/* Free the proto_node. */
 	PROTO_NODE_FREE(node);
 
@@ -3373,8 +3385,8 @@ proto_tree_get_root(proto_tree *tree) {
 void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move)
 {
-    proto_item *curr_item;
-
+    DISSECTOR_ASSERT(item_to_move->parent == tree);
+    DISSECTOR_ASSERT(fixed_item->parent == tree);
 
     /*** cut item_to_move out ***/
 
@@ -3382,7 +3394,10 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_
     if(tree->first_child == item_to_move) {
         /* simply change first child to next */
         tree->first_child = item_to_move->next;
+
+        DISSECTOR_ASSERT(tree->last_child != item_to_move);
     } else {
+        proto_item *curr_item;
         /* find previous and change it's next */
         for(curr_item = tree->first_child; curr_item != NULL; curr_item = curr_item->next) {
             if(curr_item->next == item_to_move) {

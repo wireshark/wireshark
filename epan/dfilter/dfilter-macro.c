@@ -93,7 +93,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 
 void dfilter_macro_build_ftv_cache(void* tree_root) {
 	g_hash_table_foreach_remove(fvt_cache,free_value,NULL);
-	proto_tree_traverse_in_order(tree_root, fvt_cache_cb, NULL);
+	proto_tree_traverse_post_order(tree_root, fvt_cache_cb, NULL);
 }
 
 void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {

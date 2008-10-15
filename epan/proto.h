@@ -334,7 +334,7 @@ typedef proto_node proto_item;
 typedef void (*proto_tree_foreach_func)(proto_node *, gpointer);
 typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
 
-extern gboolean proto_tree_traverse_in_order(proto_tree *tree,
+extern gboolean proto_tree_traverse_post_order(proto_tree *tree,
     proto_tree_traverse_func func, gpointer data);
 extern void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
