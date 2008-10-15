@@ -57,6 +57,11 @@
 #include "../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
+#ifdef HAVE_AIRPCAP
+#include "airpcap.h"
+#include "airpcap_loader.h"
+#include "airpcap_gui_utils.h"
+#endif
 
 /* XXX */
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
@@ -484,6 +489,12 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
         g_free(global_capture_opts.save_file);
         global_capture_opts.save_file = NULL;
     }
+
+#ifdef HAVE_AIRPCAP
+    airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, global_capture_opts.iface);
+    airpcap_if_selected = airpcap_if_active;
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
+#endif
 
     capture_start_cb(NULL, NULL);
 

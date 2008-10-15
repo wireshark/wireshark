@@ -74,7 +74,7 @@
 
 
 #ifdef HAVE_AIRPCAP
-#include <airpcap.h>
+#include "airpcap.h"
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 #include "airpcap_dlg.h"
