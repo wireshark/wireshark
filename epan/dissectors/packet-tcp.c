@@ -1452,6 +1452,8 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 #define TCPOPT_MD5              19      /* RFC2385 */
 #define TCPOPT_SCPS             20      /* SCPS Capabilties */
 #define TCPOPT_SNACK            21      /* SCPS SNACK */
+#define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
+#define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
 #define TCPOPT_QS               27      /* RFC4782 */
 
 /*
@@ -1471,6 +1473,8 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 #define TCPOLEN_MD5            18
 #define TCPOLEN_SCPS           4
 #define TCPOLEN_SNACK          6
+#define TCPOLEN_RECBOUND       2
+#define TCPOLEN_CORREXP        2
 #define TCPOLEN_QS             8
 
 
@@ -2693,6 +2697,22 @@ static const ip_tcp_opt tcpopts[] = {
     FIXED_LENGTH,
     TCPOLEN_SNACK,
     dissect_tcpopt_snack
+  },
+  {
+    TCPOPT_RECBOUND,
+    "SCPS record boundary",
+    NULL,
+    FIXED_LENGTH,
+    TCPOLEN_RECBOUND,
+    NULL
+  },
+  {
+    TCPOPT_CORREXP,
+    "SCPS corruption experienced",
+    NULL,
+    FIXED_LENGTH,
+    TCPOLEN_CORREXP,
+    NULL
   },
   {
     TCPOPT_QS,
