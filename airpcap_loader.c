@@ -473,10 +473,10 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
 
 	/*
-	 * XXX - The AIRPDCAP_KEY_TYPE_WEP is the only supportd right now!
+	 * XXX - The AIRPDCAP_KEY_TYPE_WEP is the only supported right now!
 	 * We will have to modify the AirpcapKey structure in order to
 	 * support the other two types! What happens now, is that simply the
-	 * not supported keys will just be discarded (they will be saved in wireshark though)
+	 * not supported keys will just be discarded (they will be saved in Wireshark though)
 	 */
 	if(key_item->type == AIRPDCAP_KEY_TYPE_WEP)
 	{
@@ -552,7 +552,7 @@ save_wlan_driver_wep_keys()
     fake_info_if = airpcap_driver_fake_if_info_new();
 
     if(fake_info_if == NULL)
-	return FALSE;
+	return 0;
 
     /* Retrieve the wlan preferences */
     wlan_prefs = prefs_find_module("wlan");
@@ -560,7 +560,6 @@ save_wlan_driver_wep_keys()
     /* Allocate a structure used to keep infos  between the callbacks */
     user_data = (keys_cb_data_t*)g_malloc(sizeof(keys_cb_data_t));
 
-    /* Number of keys in key list */
     /* Number of keys in key list */
     if(fake_info_if->keysCollectionSize != 0)
 	keys_in_list = (guint)(fake_info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey);
@@ -784,7 +783,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSup
     ULONG i=0, j=0, numInfo = 0;
 
     if (!AirpcapLoaded)
-        return FALSE;
+        return NULL;
     if (airpcap_if_get_device_supported_channels(ah, &chanInfo, &numInfo) == FALSE)
         return NULL;
     numSupportedChannels = 0;
@@ -1418,9 +1417,9 @@ get_airpcap_interface_list(int *err, char **err_str)
     for(i = 0; i < n_adapts; i++)
     {
 		if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
-    if (if_info != NULL){
-      il = g_list_append(il, if_info);
-    }
+		if (if_info != NULL){
+			il = g_list_append(il, if_info);
+		}
 
 		adListEntry = adListEntry->next;
     }
@@ -1625,7 +1624,7 @@ airpcap_load_selected_if_configuration(airpcap_if_info_t* if_info)
 
 	if(ad)
 	{
-	    /* Stop blinking (if it was blinkig!)*/
+	    /* Stop blinking (if it was blinking!)*/
 	    if(if_info->blinking)
 	    {
 		/* Turn on the light (if it was off) */
@@ -1666,7 +1665,7 @@ airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info)
 
 	if(ad)
 	{
-	    /* Stop blinking (if it was blinkig!)*/
+	    /* Stop blinking (if it was blinking!)*/
 	    if(if_info->blinking)
 	    {
 		/* Turn on the light (if it was off) */
@@ -1814,7 +1813,7 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
 	    g_free(tmp_key);
 
 	    /* BITS */
-	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an exadecimal number) */
+	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
 
 	    /* SSID not used in WEP keys */
 	    new_key->ssid = NULL;
@@ -1886,7 +1885,7 @@ get_airpcap_driver_keys()
 	    if(tmp_key != NULL) g_free(tmp_key);
 
 	    /* BITS */
-	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an exadecimal number) */
+	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
 
 	    /* SSID not used in WEP keys */
 	    new_key->ssid = NULL;
@@ -2179,7 +2178,7 @@ key_lists_are_equal(GList* list1, GList* list2)
 
     /*
      * XXX - START : Retrieve the aublists of WEP keys!!! This is needed only 'till Driver WPA decryption
-     * is not implemented.
+     * is implemented.
      */
     for(i=0;i<n1;i++)
     {
@@ -2234,7 +2233,7 @@ key_lists_are_equal(GList* list1, GList* list2)
 }
 
 static guint
-test_if_on(pref_t *pref, gpointer ud _U_)
+test_if_on(pref_t *pref, gpointer ud)
 {
     gboolean *is_on;
     gboolean number;
@@ -2332,7 +2331,7 @@ airpcap_if_info_free(airpcap_if_info_t *if_info)
 }
 
 static guint
-set_on_off(pref_t *pref, gpointer ud _U_)
+set_on_off(pref_t *pref, gpointer ud)
 {
     gboolean *is_on;
     gboolean number;
@@ -2461,7 +2460,7 @@ int load_airpcap(void)
     if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)
     {
   		/* Report the error but go on */
-      AirpcapVersion = AIRPCAP_DLL_NOT_FOUND;
+  		AirpcapVersion = AIRPCAP_DLL_NOT_FOUND;
   		return AirpcapVersion;
     }
     else
@@ -2493,24 +2492,24 @@ int load_airpcap(void)
   		if((g_PAirpcapGetDecryptionState = (AirpcapGetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDecryptionState")) == NULL) base_functions = FALSE;
   		if((g_PAirpcapSetDecryptionState = (AirpcapSetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDecryptionState")) == NULL) base_functions = FALSE;
   		if((g_PAirpcapStoreCurConfigAsAdapterDefault = (AirpcapStoreCurConfigAsAdapterDefaultHandler) GetProcAddress(AirpcapLib, "AirpcapStoreCurConfigAsAdapterDefault")) == NULL) base_functions = FALSE;
-      if((g_PAirpcapGetVersion = (AirpcapGetVersionHandler) GetProcAddress(AirpcapLib, "AirpcapGetVersion")) == NULL) base_functions = FALSE;
-      if((g_PAirpcapGetDriverDecryptionState = (AirpcapGetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverDecryptionState")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetVersion = (AirpcapGetVersionHandler) GetProcAddress(AirpcapLib, "AirpcapGetVersion")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDriverDecryptionState = (AirpcapGetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverDecryptionState")) == NULL) base_functions = FALSE;
   		if((g_PAirpcapSetDriverDecryptionState = (AirpcapSetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverDecryptionState")) == NULL) base_functions = FALSE;
-      if((g_PAirpcapGetDriverKeys = (AirpcapGetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverKeys")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDriverKeys = (AirpcapGetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverKeys")) == NULL) base_functions = FALSE;
   		if((g_PAirpcapSetDriverKeys = (AirpcapSetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverKeys")) == NULL) base_functions = FALSE;
 
   		/* TEST IF AIRPCAP SUPPORTS 11N */
   		if((g_PAirpcapSetDeviceChannelEx = (AirpcapSetDeviceChannelExHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceChannelEx")) == NULL) eleven_n_functions = FALSE;
-      if((g_PAirpcapGetDeviceChannelEx = (AirpcapGetDeviceChannelExHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceChannelEx")) == NULL) eleven_n_functions = FALSE;
+  		if((g_PAirpcapGetDeviceChannelEx = (AirpcapGetDeviceChannelExHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceChannelEx")) == NULL) eleven_n_functions = FALSE;
   		if((g_PAirpcapGetDeviceSupportedChannels = (AirpcapGetDeviceSupportedChannelsHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceSupportedChannels")) == NULL) eleven_n_functions = FALSE;
 
   		if(base_functions && eleven_n_functions){
   			AirpcapLoaded = TRUE;
-        AirpcapVersion = AIRPCAP_DLL_OK;
+  			AirpcapVersion = AIRPCAP_DLL_OK;
   		}else if(base_functions){
   			AirpcapLoaded = TRUE;
   			AirpcapVersion = AIRPCAP_DLL_OLD;
-        return AIRPCAP_DLL_OK;
+  			return AIRPCAP_DLL_OK;
   		}else{
   			AirpcapLoaded = FALSE;
   			AirpcapVersion = AIRPCAP_DLL_ERROR;

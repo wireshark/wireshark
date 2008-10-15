@@ -183,7 +183,7 @@ on_key_ls_click_column(GtkWidget *widget,
 }
 
 /*
- * Callback for the crc chackbox
+ * Callback for the crc checkbox
  */
 static void
 on_fcs_ck_toggled(GtkWidget *w, gpointer user_data)
@@ -230,7 +230,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
     if (string_is_not_empty(type_text))
     {
         /*
-         * If it is a WEP key, no SSID is required! Gray out rhe entry text so
+         * If it is a WEP key, no SSID is required! Gray out the entry text so
          * it doesn't create confusion ...
          */
         if (g_ascii_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
@@ -249,7 +249,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
             gtk_widget_set_sensitive(edit_ssid_te,FALSE);
             /*
              * Maybe the user has already entered some text into the SSID field
-             * and then switched to WEP...
+             * and then switched to WPA...
              */
             gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),"");
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
@@ -260,7 +260,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
             gtk_widget_set_sensitive(edit_ssid_te,TRUE);
             /*
              * Maybe the user has already entered some text into the SSID field
-             * and then switched to WEP...
+             * and then switched to WPA...
              */
             gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),"");
             gtk_label_set_text(GTK_LABEL(key_lb),"Passphrase");
@@ -317,7 +317,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
             gtk_widget_set_sensitive(add_ssid_te,FALSE);
             /*
              * Maybe the user has already entered some text into the SSID field
-             * and then switched to WEP...
+             * and then switched to WPA...
              */
             gtk_entry_set_text(GTK_ENTRY(add_ssid_te),"");
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
@@ -328,7 +328,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
             gtk_widget_set_sensitive(add_ssid_te,TRUE);
             /*
              * Maybe the user has already entered some text into the SSID field
-             * and then switched to WEP...
+             * and then switched to WPA...
              */
             gtk_entry_set_text(GTK_ENTRY(add_ssid_te),"");
             gtk_label_set_text(GTK_LABEL(key_lb),"Passphrase");
@@ -377,10 +377,10 @@ on_fcs_filter_en_changed(GtkWidget *w, gpointer data)
  * Changed callback for the channel combobox
  */
 static void
-on_channel_en_changed(GtkWidget *w _U_, gpointer data)
+on_channel_en_changed(GtkWidget *w, gpointer data)
 {
     const gchar *s;
-	ULONG ch_freq;
+    ULONG ch_freq;
 
     if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
     {
@@ -391,7 +391,7 @@ on_channel_en_changed(GtkWidget *w _U_, gpointer data)
             {
 				ch_freq = airpcap_get_frequency_from_str(s);
 				airpcap_if_active->channelInfo.Frequency = ch_freq;
-                airpcap_if_selected->saved = FALSE;
+				airpcap_if_selected->saved = FALSE;
 				airpcap_update_channel_offset_cb(airpcap_if_selected, ch_freq, GTK_WIDGET(data));
             }
         }
@@ -420,7 +420,7 @@ on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
             {
 				sscanf(s,"%d",&offset);
 				airpcap_if_selected->channelInfo.ExtChannel = offset;
-                airpcap_if_selected->saved = FALSE;
+				airpcap_if_selected->saved = FALSE;
             }
         }
     }
@@ -430,7 +430,7 @@ on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
  * Changed callback for the capture type combobox
  */
 static void
-on_capture_type_en_changed(GtkWidget *w _U_, gpointer data)
+on_capture_type_en_changed(GtkWidget *w, gpointer data)
 {
     const gchar *s;
 
@@ -450,14 +450,14 @@ on_capture_type_en_changed(GtkWidget *w _U_, gpointer data)
  * Activate callback for the adapter combobox
  */
 static void
-combo_if_activate_cb(GtkWidget *entry _U_, gpointer data)
+combo_if_activate_cb(GtkWidget *entry _U_, gpointer data _U_)
 {
 }
 
 /*
  * Thread function used to blink the led
  */
-gboolean update_blink(gpointer data _U_)
+gboolean update_blink(gpointer data)
 {
     airpcap_if_info_t* sel;
     PAirpcapHandle ad;
@@ -487,7 +487,7 @@ gboolean update_blink(gpointer data _U_)
  * Blink button callback
  */
 void
-on_blink_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data )
+on_blink_bt_clicked( GtkWidget *blink_bt, gpointer if_data )
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -572,7 +572,7 @@ on_key_management_destroy(GtkWidget *w _U_, gpointer data _U_)
 
 /* the Advenced wireless Settings window was closed, cleanup things */
 static void
-on_airpcap_advanced_destroy(GtkWidget *w _U_, gpointer data _U_)
+on_airpcap_advanced_destroy(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget	*airpcap_advanced_w,
     *toolbar;
@@ -618,7 +618,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* widgets in the toolbar */
     GtkWidget	*toolbar;
-    GtkWidget *toolbar_cm;
+    GtkWidget   *toolbar_cm;
     GtkWidget   *key_ls;
     GtkWidget   *decryption_en;
 
@@ -632,7 +632,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     toolbar               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
     toolbar_cm            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-#define CANT_SAVE_ERR_STR "Cannot save configuration! Another application" \
+#define CANT_SAVE_ERR_STR "Cannot save configuration! Another application " \
     "might be using AirPcap, or you might not have sufficient privileges."
     /* Set the Decryption Mode */
     if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
@@ -693,7 +693,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
     if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
     {
-        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
+		gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
 		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
 		airpcap_update_channel_offset_combo_entry(GTK_WIDGET(toolbar_channel_offset_cb),airpcap_if_selected->channelInfo.ExtChannel);
 		airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
@@ -759,7 +759,7 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
  * Callback for the 'Reset Configuration' button.
  */
 void
-on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_reset_configuration_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
 {
     return;
 }
@@ -876,7 +876,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
     else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
     {
         /* XXX - Perform some WPA related input fields check */
-        /* If everything is ok, modify the entry int he list */
+        /* If everything is ok, modify the entry in the list */
 
         if ( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
@@ -893,7 +893,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
         }
 
         /*
-         * XXX - Maybe we need some check on the characters? I'm not sure if only stabdard ASCII are ok...
+         * XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
          */
         if ( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
         {
@@ -1084,7 +1084,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
     else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
     {
         /* XXX - Perform some WPA related input fields check */
-        /* If everything is ok, modify the entry int he list */
+        /* If everything is ok, modify the entry in the list */
 
         if ( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
@@ -1101,7 +1101,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
         }
 
         /*
-         * XXX - Maybe we need some check on the characters? I'm not sure if only stabdard ASCII are ok...
+         * XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
          */
         if ( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
         {
@@ -1125,7 +1125,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
     else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
     {
         /* XXX - Perform some WPA_BIN related input fields check */
-        /* If everything is ok, modify the entry int he list */
+        /* If everything is ok, modify the entry in the list */
 
         if ( ((new_key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
         {
@@ -1379,7 +1379,7 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
  * Add key window destroy callback
  */
 static void
-add_key_w_destroy_cb(GtkWidget *button, gpointer data _U_)
+add_key_w_destroy_cb(GtkWidget *button _U_, gpointer data _U_)
 {
     return;
 }
@@ -1388,7 +1388,7 @@ add_key_w_destroy_cb(GtkWidget *button, gpointer data _U_)
  * Edit key window destroy callback
  */
 void
-on_edit_key_w_destroy(GtkWidget *button, gpointer data _U_)
+on_edit_key_w_destroy(GtkWidget *button, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
 
@@ -1403,7 +1403,7 @@ on_edit_key_w_destroy(GtkWidget *button, gpointer data _U_)
  * Add key window destroy callback
  */
 void
-on_add_key_w_destroy(GtkWidget *button, gpointer data _U_)
+on_add_key_w_destroy(GtkWidget *button, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
 
@@ -1418,7 +1418,7 @@ on_add_key_w_destroy(GtkWidget *button, gpointer data _U_)
  * Callback for the 'Remove Key' button.
  */
 void
-on_remove_key_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_remove_key_bt_clicked(GtkWidget *button, gpointer data)
 {
     GtkWidget *key_ls;
     GtkWidget *airpcap_advanced_w;
@@ -1448,7 +1448,7 @@ on_remove_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     if ( r == NO_ROW_SELECTED ) /* No key selected */
         return;
 
-    /* Remove selected key*/
+    /* Remove selected key */
     gtk_clist_remove(GTK_CLIST(key_ls),r);
 
     /* Reselect another row, if any... */
@@ -1465,7 +1465,7 @@ on_remove_key_bt_clicked(GtkWidget *button, gpointer data _U_)
  * Callback for the 'Edit Key' button.
  */
 void
-on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_edit_key_bt_clicked(GtkWidget *button, gpointer data)
 {
     GtkWidget *edit_key_window;
     GtkWidget *edit_frame;
@@ -1676,7 +1676,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
  * Callback for the 'Move Key Up' button.
  */
 void
-on_move_key_up_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_move_key_up_bt_clicked(GtkWidget *button, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
@@ -1726,7 +1726,7 @@ on_move_key_up_bt_clicked(GtkWidget *button, gpointer data _U_)
  * Callback for the 'Move Key Down' button.
  */
 void
-on_move_key_down_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_move_key_down_bt_clicked(GtkWidget *button, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
@@ -1817,7 +1817,7 @@ void
 update_decryption_mode_cm(GtkWidget *w)
 {
     /*
-     * This ensures that the entry tet changes... the callback will return immediately, but
+     * This ensures that the entry get changes... the callback will return immediately, but
      * at least next time packets will be redissected...
      */
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),"");
@@ -1861,7 +1861,7 @@ update_decryption_mode_list(GtkWidget *w)
 
     /*
      * XXX - Retrieve the current 'decryption mode'. It would be better just block the
-     * signal handler, but it doesn't work... one of these days I'll try to figure otu why...
+     * signal handler, but it doesn't work... one of these days I'll try to figure out why...
      */
     current_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 
@@ -2317,7 +2317,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
  * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
  */
 void
-on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -2408,7 +2408,7 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
  * Callback for the CANCEL button 'clicked' in the Advanced Wireless Settings window.
  */
 void
-on_advanced_cancel_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_advanced_cancel_bt_clicked(GtkWidget *button, gpointer data)
 {
     PAirpcapHandle ad = NULL;
     gchar ebuf[AIRPCAP_ERRBUF_SIZE];
@@ -2778,7 +2778,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
         /* Ask the user what to do ...*/
         airpcap_keys_check_w(key_management_w,NULL);
     }
-    else /* Keys from lists are equals, or wireshark has got no keys */
+    else /* Keys from lists are equals, or Wireshark has got no keys */
     {
         airpcap_load_decryption_keys(airpcap_if_list);
         airpcap_fill_key_list(key_ls);
@@ -2793,7 +2793,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 void
 on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 {
-    /* advenced window */
+    /* advanced window */
     GtkWidget	*key_management_w;
 
     /* retrieve main window */
@@ -2828,7 +2828,7 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
  * Callback for the CANCEL button 'clicked' in the Decryption Key Management window.
  */
 void
-on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data)
 {
     PAirpcapHandle ad = NULL;
 
@@ -2867,7 +2867,7 @@ on_key_management_cancel_bt_clicked(GtkWidget *button, gpointer data _U_)
 }
 
 /*
- * Dialog box that appears whenever keys are not consistent between wireshark and AirPcap
+ * Dialog box that appears whenever keys are not consistent between Wireshark and AirPcap
  */
 void
 airpcap_keys_check_w(GtkWidget *w, gpointer data)
@@ -3036,7 +3036,7 @@ on_keys_check_cancel_bt_clicked (GtkWidget *button, gpointer user_data)
 
     key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
 
-    /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
        and is not NULL if it was called when the Key Management widget has been clicked */
     if (key_management_w != NULL)
     {
@@ -3125,7 +3125,7 @@ on_keep_bt_clicked (GtkWidget *button, gpointer user_data)
     /* Close the window */
     gtk_widget_destroy(keys_check_w);
 
-    /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
        and is not NULL if it was called when the Key Management widget has been clicked */
     if (key_management_w != NULL)
     {
@@ -3206,7 +3206,7 @@ on_merge_bt_clicked (GtkWidget * button, gpointer user_data)
 
     gtk_widget_destroy(keys_check_w);
 
-    /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
        and is not NULL if it was called when the Key Management widget has been clicked */
     if (key_management_w != NULL)
     {
@@ -3285,7 +3285,7 @@ on_import_bt_clicked (GtkWidget * button, gpointer user_data)
 
     gtk_widget_destroy(keys_check_w);
 
-    /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
        and is not NULL if it was called when the Key Management widget has been clicked */
     if (key_management_w != NULL)
     {
@@ -3308,7 +3308,7 @@ on_ignore_bt_clicked (GtkWidget * button, gpointer user_data)
 
     key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
 
-    /* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
        and is not NULL if it was called when the Key Management widget has been clicked */
     if (key_management_w != NULL)
     {

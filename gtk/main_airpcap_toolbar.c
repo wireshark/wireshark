@@ -63,7 +63,7 @@ static GtkWidget *driver_warning_dialog;
  * Changed callback for the channel combobox
  */
 static void
-airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
+airpcap_toolbar_channel_changed_cb(GtkWidget *w, gpointer data)
 {
   const gchar *s;
   ULONG ch_freq;
@@ -136,11 +136,11 @@ airpcap_toolbar_wrong_crc_combo_cb(GtkWidget *entry, gpointer user_data)
 void
 airpcap_toolbar_encryption_cb(GtkWidget *entry, gpointer user_data)
 {
-  /* We need to directly access the .ddl functions here... */
+  /* We need to directly access the .dll functions here... */
   gchar ebuf[AIRPCAP_ERRBUF_SIZE];
   PAirpcapHandle ad;
 
- gint n = 0;
+  gint n = 0;
   gint i = 0;
   airpcap_if_info_t* curr_if = NULL;
 
@@ -239,7 +239,7 @@ GtkWidget *airpcap_toolbar_new()
     		  *channel_offset_cb = NULL,
     		  *wrong_crc_lb = NULL,
     		  *wrong_crc_cm = NULL;
-    GtkWidget *airpcap_tb;
+    GtkWidget     *airpcap_tb;
 
     GtkWidget     *enable_decryption_lb;
     GtkWidget     *enable_decryption_cb;
@@ -401,7 +401,7 @@ GtkWidget *airpcap_toolbar_new()
     gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
     gtk_widget_show (enable_decryption_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
-    NULL, "Private");
+        NULL, "Private");
 
     enable_decryption_cb = gtk_combo_new ();
     gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
@@ -448,7 +448,7 @@ GtkWidget *airpcap_toolbar_new()
     /* If no airpcap interface is present, gray everything */
     if(airpcap_if_active == NULL) {
         if(airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0) {
-            /*No airpcap device found */
+            /* No airpcap device found */
             airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
             /* recent.airpcap_toolbar_show = TRUE; */
         } else {
@@ -485,7 +485,7 @@ void airpcap_toolbar_show(GtkWidget *airpcap_tb)
       /* Ask the user what to do ...*/
       airpcap_keys_check_w(NULL,NULL);
     } else {
-      /* Keys from lists are equals, or wireshark has got no keys */
+      /* Keys from lists are equals, or Wireshark has got no keys */
       airpcap_load_decryption_keys(airpcap_if_list);
     }
   }
