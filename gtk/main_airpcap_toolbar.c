@@ -23,7 +23,7 @@
  */
 
 /*
- * This file implements the "filter" toolbar for Wireshark.
+ * This file implements the wireless toolbar for Wireshark.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -84,12 +84,16 @@ airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
  * Changed callback for the channel offset combobox
  */
 static void
-on_channel_offset_cb_changed(GtkWidget *w _U_, gpointer data)
+on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
 {
     const gchar *s;
-    gchar offset;
+    int offset;
 
-    if ((data != NULL) && (w != NULL) && change_airpcap_settings)
+    if (w == NULL || GTK_WIDGET_SENSITIVE(w)) {
+        return;
+    }
+    
+    if (data != NULL && change_airpcap_settings)
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
         if ((g_ascii_strcasecmp("",s)))

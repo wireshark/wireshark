@@ -402,12 +402,16 @@ on_channel_en_changed(GtkWidget *w _U_, gpointer data)
  * Changed callback for the channel offset combobox
  */
 static void
-on_channel_offset_cb_changed(GtkWidget *w _U_, gpointer data)
+on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
 {
     const gchar *s;
-	gchar offset;
+    int offset;
 
-    if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
+    if (w == NULL || GTK_WIDGET_SENSITIVE(w)) {
+        return;
+    }
+
+    if ( !block_advanced_signals && (data != NULL) )
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
         if ((g_ascii_strcasecmp("",s)))

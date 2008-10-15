@@ -1453,7 +1453,11 @@ airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name)
 		    if_info = curr->data;
 	    if(if_info != NULL)
 	    {
-		if ( g_ascii_strcasecmp(if_info->name,name) == 0)
+		if ( g_ascii_strcasecmp(if_info->name,name) == 0
+#ifdef HAVE_PCAP_REMOTE /* The interface will be prepended with "rpcap://" */
+			|| g_str_has_suffix(name, if_info->name)
+#endif
+			)
 		{
 		    return if_info;
 		}
