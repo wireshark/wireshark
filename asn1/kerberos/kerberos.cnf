@@ -1,0 +1,12 @@
+# kerberos.cnf
+# kerberos conformation file
+# Copyright 2007 Anders Broman 
+# $Id$
+
+#.FIELD_RENAME
+
+#.FN_PARS
+Int32 VAL_PTR = etype
+
+
+
