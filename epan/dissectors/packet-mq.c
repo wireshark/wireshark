@@ -2932,10 +2932,10 @@ proto_register_mq(void)
       { "Backount count", "mq.md.backount", FT_UINT32, BASE_DEC, NULL, 0x0, "MD Backount count", HFILL }},
 
     { &hf_mq_md_replytoq,
-      { "ReplyToQ", "mq.md.correlid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue manager", HFILL }},
+      { "ReplyToQ", "mq.md.replytoq", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue", HFILL }},
 
     { &hf_mq_md_replytoqmgr,
-      { "ReplyToQMgr", "mq.md.correlid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue", HFILL }},
+      { "ReplyToQMgr", "mq.md.replytoqmgr", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD ReplyTo queue manager", HFILL }},
 
     { &hf_mq_md_userid,
       { "UserId", "mq.md.userid", FT_STRINGZ, BASE_DEC, NULL, 0x0, "MD UserId", HFILL }},
