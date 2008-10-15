@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
+#include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/dissector_filters.h>
 #include <epan/strutil.h>
@@ -184,7 +185,7 @@ typedef enum {
     CONV_CBA
 } conv_values_e;
 
-char *
+static char *
 build_conversation_filter(int action, gboolean show_dialog)
 {
     packet_info *pi = &cfile.edt->pi;
@@ -203,7 +204,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
 
         if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-        && pi->ipproto == 6 ) {
+        && pi->ipproto == IP_PROTO_TCP ) {
             /* IPv4 */
             switch(pi->profinet_type) {
             case(1):
@@ -242,7 +243,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_TCP):
-        if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
+        if (pi->ipproto != IP_PROTO_TCP) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -251,15 +252,13 @@ build_conversation_filter(int action, gboolean show_dialog)
             return NULL;
         }
 
-        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-        && pi->ipproto == 6 ) {
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* TCP over IPv4 */
             buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
                 ip_to_str( pi->net_src.data),
                 ip_to_str( pi->net_dst.data),
                 pi->srcport, pi->destport );
-        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-                && pi->ipproto == 6 ) {
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* TCP over IPv6 */
             buf = g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
                 ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
@@ -270,7 +269,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_UDP):
-        if (cfile.edt->pi.ipproto != IP_PROTO_UDP) {
+        if (pi->ipproto != IP_PROTO_UDP) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -279,15 +278,13 @@ build_conversation_filter(int action, gboolean show_dialog)
             return NULL;
         }
 
-        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-        && pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* UDP over IPv4 */
             buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
                 ip_to_str( pi->net_src.data),
                 ip_to_str( pi->net_dst.data),
                 pi->srcport, pi->destport );
-        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-                && pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* UDP over IPv6 */
             buf = g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
                 ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
@@ -298,7 +295,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         }
         break;
     case(CONV_IP):
-        if (cfile.edt->pi.ethertype != 0x800) {
+        if ((pi->ethertype != ETHERTYPE_IP) && (pi->ethertype != ETHERTYPE_IPv6)) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -307,14 +304,12 @@ build_conversation_filter(int action, gboolean show_dialog)
             return NULL;
         }
 
-        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-        && pi->ipproto == 6 ) {
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* IPv4 */
             buf = g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
                 ip_to_str( pi->net_src.data),
                 ip_to_str( pi->net_dst.data));
-        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-                && pi->ipproto == 6 ) {
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* IPv6 */
             buf = g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
@@ -327,7 +322,7 @@ build_conversation_filter(int action, gboolean show_dialog)
         /* XXX - is this the right way to check for Ethernet? */
         /* check for the data link address type */
         /* (ethertype will be 0 when used as length field) */
-        if (cfile.edt->pi.dl_src.type != 1) {
+        if (pi->dl_src.type != AT_ETHER) {
             if (show_dialog) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Error filtering conversation.  Please make\n"
@@ -336,7 +331,7 @@ build_conversation_filter(int action, gboolean show_dialog)
             return NULL;
         }
 
-        if( pi->dl_src.type == 1 /*AT_IPv4*/ && pi->dl_dst.type == 1 /*AT_IPv4*/) {
+        if( pi->dl_src.type == AT_ETHER && pi->dl_dst.type == AT_ETHER ) {
             /* Ethernet */
             buf = g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
                 ether_to_str( pi->dl_src.data),
@@ -2583,9 +2578,9 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
-      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
-      cf->current_frame != NULL ? (cf->edt->pi.ethertype == 0x800) : FALSE);
+      cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
@@ -2595,9 +2590,9 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
-      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
-      cf->current_frame != NULL ? (cf->edt->pi.ethertype == 0x800) : FALSE);
+      cf->current_frame != NULL ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/TCP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/UDP",
