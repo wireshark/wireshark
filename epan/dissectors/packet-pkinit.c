@@ -148,7 +148,7 @@ static const ber_sequence_t PaPkAsReq_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
@@ -161,7 +161,7 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -171,7 +171,7 @@ dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -223,7 +223,7 @@ dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const value_string pkinit_PaPkAsRep_vals[] = {
+const value_string pkinit_PaPkAsRep_vals[] = {
   {   0, "dhSignedData" },
   {   1, "encKeyPack" },
   { 0, NULL }
@@ -235,7 +235,7 @@ static const ber_choice_t PaPkAsRep_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep,

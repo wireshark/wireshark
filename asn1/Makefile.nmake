@@ -194,6 +194,9 @@ clean:
 	cd ldap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd kerberos
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd logotype-cert-extn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -484,11 +487,16 @@ inap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+kerberos::
+	cd kerberos
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
 ldap::
 	cd ldap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
-
+	
 logotype-cert-extn::
 	cd logotype-cert-extn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files

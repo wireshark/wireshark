@@ -12,7 +12,7 @@ KerberosV5Spec2 {
 -- This OID also designates the OID arc for KerberosV5-related OIDs.
 --
 -- NOTE: RFC 1510 had an incorrect value (5) for "dod" in its OID.
--- My stuff
+-- WS construct
 Applications ::= CHOICE {
 	ticket			Ticket,				-- 1 --
 	authenticator	Authenticator,		-- 2 --
@@ -33,7 +33,7 @@ Applications ::= CHOICE {
 	encKrbCredPart	EncKrbCredPart,		-- 29 --
 	krb-error		KRB-ERROR			-- 30 --
 	}
--- end my stuff
+-- end WS construct
 id-krb5         OBJECT IDENTIFIER ::= {
         iso(1) identified-organization(3) dod(6) internet(1)
         security(5) kerberosV5(2)
