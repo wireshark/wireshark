@@ -196,7 +196,6 @@ h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, co
 
 	default:
 		return 0;
-		break;
 	}
 	return 1;
 }

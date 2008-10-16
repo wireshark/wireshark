@@ -290,7 +290,6 @@ h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 
 	default:
 		return 0;
-		break;
 	}
 
 	return 1;
