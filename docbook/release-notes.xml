@@ -109,9 +109,21 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-           Failure to dissect long SASL wrapped LDAP response
+          Let MP2T call its subdissectors, even without tree
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2627">Bug
+          2627</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Failure to dissect long SASL wrapped LDAP response
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2687">Bug
           2687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fix compiler warnings
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2823">Bug
+          2823</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -176,6 +188,11 @@ Wireshark Info
           2934</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Crash when selecting "Export Selected Packet Bytes"
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2964">Bug
+          2964</ulink>)
+        </para></listitem>
       </itemizedlist>
 
     </para>
@@ -209,6 +226,7 @@ Homeplug,
 IEEE 802.11,
 IP,
 Modbus TCP,
+MP2T,
 NSIP,
 NCP,
 PPI,

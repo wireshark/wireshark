@@ -1120,7 +1120,7 @@ static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, gu
 	guint8* auth;
 	guint8* key;
 	guint key_len;
-	guint8 calc_auth[16];
+	guint8 *calc_auth;
 	guint start;
 	guint end;
 	guint i;
@@ -1159,6 +1159,8 @@ static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, gu
 	for ( i = start ; i < end ; i++ ) {
 		msg[i] = '\0';
 	}
+
+	calc_auth = ep_alloc(16);
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
 
@@ -1176,7 +1178,7 @@ static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_
 	guint8* auth;
 	guint8* key;
 	guint key_len;
-	guint8 calc_auth[20];
+	guint8 *calc_auth;
 	guint start;
 	guint end;
 	guint i;
@@ -1215,6 +1217,8 @@ static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_
 	for ( i = start ; i < end ; i++ ) {
 		msg[i] = '\0';
 	}
+
+	calc_auth = ep_alloc(20);
 
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
 

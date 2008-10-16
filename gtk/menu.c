@@ -958,9 +958,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY, NULL, NULL),
 #endif
 
-    ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
-                       0, NULL, NULL),
-
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, WIRESHARK_STOCK_DECODE_AS),
@@ -1096,7 +1093,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
 {
     dissector_filter_t      *filter_entry = callback_data;
     GtkWidget		        *filter_te;
-    const char              *buf;    
+    const char              *buf;
 
 
     filter_te = OBJECT_GET_DATA(popup_menu_object, E_DFILTER_TE_KEY);
