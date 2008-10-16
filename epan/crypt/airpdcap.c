@@ -1961,7 +1961,6 @@ get_key_string(decryption_key_t* dk)
             break;
         default:
             return NULL;
-            break;
     }
 
     return output_string;
