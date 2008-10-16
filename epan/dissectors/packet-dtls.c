@@ -1179,7 +1179,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	    break;
 
 	  case SSL_HND_CERT_REQUEST:
-	    dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, offset);
+	    dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0);
 	    break;
 
 	  case SSL_HND_SVR_HELLO_DONE:
