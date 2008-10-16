@@ -483,8 +483,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     tcpheader[81];
   char hex1[17], hex2[17], hex3[17], hex4[17];
   char data[ISERIES_LINE_LENGTH * 2];
-  guint8 *buf;
-  char   *asciibuf, *tcpdatabuf, *workbuf;
+  guint8 *buf, *asciibuf;
+  char   *tcpdatabuf, *workbuf;
   struct tm tm;
 
   /*
