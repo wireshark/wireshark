@@ -53,13 +53,15 @@ KerberosString  ::= GeneralString (IA5String)
 Realm           ::= KerberosString
 
 PrincipalName   ::= SEQUENCE {
-        name-type       [0] Int32,
+--        name-type       [0] Int32, Use the translationj from krb5.asn (Heimdahl)
+        name-type       [0] NAME-TYPE,
         name-string     [1] SEQUENCE OF KerberosString
 }
 
 KerberosTime    ::= GeneralizedTime -- with no fractional seconds
 
 HostAddress     ::= SEQUENCE  {
+--      addr-type       [0] ADDR-TYPE, use k5.asn
         addr-type       [0] Int32,
         address         [1] OCTET STRING
 }
@@ -79,7 +81,8 @@ AuthorizationData       ::= SEQUENCE OF SEQUENCE {
 
 PA-DATA         ::= SEQUENCE {
         -- NOTE: first tag is [1], not [0]
-        padata-type     [1] Int32,
+--        padata-type     [1] Int32, use k5.asn
+        padata-type     [1] PADATA-TYPE,
         padata-value    [2] OCTET STRING -- might be encoded AP-REQ
 }
 
@@ -88,7 +91,8 @@ KerberosFlags   ::= BIT STRING (SIZE (32..MAX))
                     -- but no fewer than 32
 
 EncryptedData   ::= SEQUENCE {
-        etype   [0] Int32 -- EncryptionType --,
+--        etype   [0] Int32 - - EncryptionType - -, Use k5.asn
+        etype   [0] ENCTYPE -- EncryptionType --,
         kvno    [1] UInt32 OPTIONAL,
         cipher  [2] OCTET STRING -- ciphertext
 }
@@ -99,7 +103,8 @@ EncryptionKey   ::= SEQUENCE {
 }
 
 Checksum        ::= SEQUENCE {
-        cksumtype       [0] Int32,
+--        cksumtype       [0] Int32, Use k5.asn
+        cksumtype       [0] CKSUMTYPE,
         checksum        [1] OCTET STRING
 }
 
@@ -130,8 +135,8 @@ TransitedEncoding       ::= SEQUENCE {
         tr-type         [0] Int32 -- must be registered --,
         contents        [1] OCTET STRING
 }
-
-TicketFlags     ::= KerberosFlags
+-- Use the k5.asn def
+-- TicketFlags     ::= KerberosFlags
         -- reserved(0),
         -- forwardable(1),
         -- forwarded(2),
@@ -156,7 +161,8 @@ KDC-REQ         ::= SEQUENCE {
         -- NOTE: first tag is [1], not [0]
         pvno            [1] INTEGER (5) ,
 --        msg-type        [2] INTEGER (10 - - AS - - | 12 - - TGS - -),
-        msg-type        [2] INTEGER,
+--        msg-type        [2] INTEGER, use k5.asn
+        msg-type        [2] MESSAGE-TYPE,
         padata          [3] SEQUENCE OF PA-DATA OPTIONAL
                             -- NOTE: not empty --,
         req-body        [4] KDC-REQ-BODY
@@ -174,7 +180,8 @@ KDC-REQ-BODY    ::= SEQUENCE {
         till                    [5] KerberosTime,
         rtime                   [6] KerberosTime OPTIONAL,
         nonce                   [7] UInt32,
-        etype                   [8] SEQUENCE OF Int32 -- EncryptionType
+--        etype                   [8] SEQUENCE OF Int32 - - EncryptionType Use k5.asn
+        etype                   [8] SEQUENCE OF ENCTYPE -- EncryptionType
                                     -- in preference order --,
         addresses               [9] HostAddresses OPTIONAL,
         enc-authorization-data  [10] EncryptedData OPTIONAL
@@ -183,7 +190,8 @@ KDC-REQ-BODY    ::= SEQUENCE {
                                         -- NOTE: not empty
 }
 
-KDCOptions      ::= KerberosFlags
+-- Use th k5.asn def
+--KDCOptions      ::= KerberosFlags
         -- reserved(0),
         -- forwardable(1),
         -- forwarded(2),
@@ -216,7 +224,8 @@ TGS-REP         ::= [APPLICATION 13] KDC-REP
 KDC-REP         ::= SEQUENCE {
         pvno            [0] INTEGER (5),
 --        msg-type        [1] INTEGER (11 - - AS - - | 13 - - TGS - -),
-        msg-type        [1] INTEGER,
+--        msg-type        [1] INTEGER, use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         padata          [2] SEQUENCE OF PA-DATA OPTIONAL
                                 -- NOTE: not empty --,
         crealm          [3] Realm,
@@ -243,23 +252,26 @@ EncKDCRepPart   ::= SEQUENCE {
         renew-till      [8] KerberosTime OPTIONAL,
         srealm          [9] Realm,
         sname           [10] PrincipalName,
-        caddr           [11] HostAddresses OPTIONAL
+        caddr           [11] HostAddresses OPTIONAL,
+	    encrypted-pa-data[12]	METHOD-DATA OPTIONAL -- from k5.asn
 }
 
 LastReq         ::=     SEQUENCE OF SEQUENCE {
-        lr-type         [0] Int32,
+--        lr-type         [0] Int32, Use k5.asn
+		lr-type         [0] LR-TYPE,
         lr-value        [1] KerberosTime
 }
 
 AP-REQ          ::= [APPLICATION 14] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (14),
+--        msg-type        [1] INTEGER (14), use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         ap-options      [2] APOptions,
         ticket          [3] Ticket,
         authenticator   [4] EncryptedData -- Authenticator
 }
-
-APOptions       ::= KerberosFlags
+-- Use the krb5.asn def.
+--APOptions       ::= KerberosFlags
         -- reserved(0),
         -- use-session-key(1),
         -- mutual-required(2)
@@ -279,7 +291,8 @@ Authenticator   ::= [APPLICATION 2] SEQUENCE  {
 
 AP-REP          ::= [APPLICATION 15] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (15),
+--        msg-type        [1] INTEGER (15), Use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         enc-part        [2] EncryptedData -- EncAPRepPart
 }
 
@@ -292,7 +305,8 @@ EncAPRepPart    ::= [APPLICATION 27] SEQUENCE {
 
 KRB-SAFE        ::= [APPLICATION 20] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (20),
+--        msg-type        [1] INTEGER (20), use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         safe-body       [2] KRB-SAFE-BODY,
         cksum           [3] Checksum
 }
@@ -308,7 +322,8 @@ KRB-SAFE-BODY   ::= SEQUENCE {
 
 KRB-PRIV        ::= [APPLICATION 21] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (21),
+--        msg-type        [1] INTEGER (21), Use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
                         -- NOTE: there is no [2] tag
         enc-part        [3] EncryptedData -- EncKrbPrivPart
 }
@@ -324,7 +339,8 @@ EncKrbPrivPart  ::= [APPLICATION 28] SEQUENCE {
 
 KRB-CRED        ::= [APPLICATION 22] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (22),
+--        msg-type        [1] INTEGER (22), use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         tickets         [2] SEQUENCE OF Ticket,
         enc-part        [3] EncryptedData -- EncKrbCredPart
 }
@@ -354,7 +370,8 @@ KrbCredInfo     ::= SEQUENCE {
 
 KRB-ERROR       ::= [APPLICATION 30] SEQUENCE {
         pvno            [0] INTEGER (5),
-        msg-type        [1] INTEGER (30),
+--        msg-type        [1] INTEGER (30), use k5.asn
+        msg-type        [1] MESSAGE-TYPE,
         ctime           [2] KerberosTime OPTIONAL,
         cusec           [3] Microseconds OPTIONAL,
         stime           [4] KerberosTime,
@@ -385,14 +402,16 @@ PA-ENC-TS-ENC           ::= SEQUENCE {
 }
 
 ETYPE-INFO-ENTRY        ::= SEQUENCE {
-        etype           [0] Int32,
+--        etype           [0] Int32, use k5.asn
+        etype           [0] ENCTYPE,
         salt            [1] OCTET STRING OPTIONAL
 }
 
 ETYPE-INFO              ::= SEQUENCE OF ETYPE-INFO-ENTRY
 
 ETYPE-INFO2-ENTRY       ::= SEQUENCE {
-        etype           [0] Int32,
+--        etype           [0] Int32, use k5.asn
+        etype           [0] ENCTYPE,
         salt            [1] KerberosString OPTIONAL,
         s2kparams       [2] OCTET STRING OPTIONAL
 }

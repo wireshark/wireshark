@@ -118,7 +118,10 @@ static gboolean do_col_info;
 /* Forward declarations */
 static int dissect_kerberos_Applications(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_ENC_TIMESTAMP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-
+static int dissect_kerberos_KERB_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_ETYPE_INFO(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_ETYPE_INFO2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
 
@@ -128,6 +131,9 @@ static struct { const char *set; const char *unset; } bitval = { "Set", "Not set
 
 static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
+static gint hf_krb_provsrv_location = -1;
+static gint hf_krb_smb_nt_status = -1;
+static gint hf_krb_smb_unknown = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -1253,6 +1259,48 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 }
 #endif
 
+static int
+dissect_krb5_PA_PROV_SRV_LOCATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+{
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_provsrv_location, NULL, 0);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+{
+	guint32 nt_status;
+
+	/* Microsoft stores a special 12 byte blob here
+	 * guint32 NT_status
+	 * guint32 unknown
+	 * guint32 unknown
+	 * decode everything as this blob for now until we see if anyone
+	 * else ever uses it   or we learn how to tell wether this
+	 * is such an MS blob or not.
+	 */
+	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,
+			TRUE);
+	nt_status=tvb_get_letohl(tvb, offset);
+	if(nt_status && check_col(actx->pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO,
+			" NT Status: %s",
+			val_to_str(nt_status, NT_errors,
+			"Unknown error code %#x"));
+	}
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	return offset;
+}
 
 #include "packet-kerberos-fn.c"
 
@@ -1482,6 +1530,15 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_rm_reclen, {
 	    "Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
 	    NULL, KRB_RM_RECLEN, "Record length", HFILL }},
+	{ &hf_krb_provsrv_location, {
+	    "PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
+	    NULL, 0, "PacketCable PROV SRV Location", HFILL }},
+	{ &hf_krb_smb_nt_status,
+		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+	{ &hf_krb_smb_unknown,
+		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
+		NULL, 0, "unknown", HFILL }},
 
 #include "packet-kerberos-hfarr.c"
   };

@@ -1,9 +1,19 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* packet-kerberos.h                                                          */
+/* ../../tools/asn2wrs.py -b -e -p kerberos -c kerberos.cnf -s packet-kerberos-template KerberosV5Spec2.asn */
+
+/* Input file: packet-kerberos-template.h */
+
+#line 1 "packet-kerberos-template.h"
 /* packet-kerberos.h
+ * Routines for kerberos packet dissection
+ * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,8 +31,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_KERBEROS_H
-#define __PACKET_KERBEROS_H
+#ifndef PACKET_KERBEROS_H
+#define PACKET_KERBEROS_H
 
 /* This is a list of callback functions a caller can use to specify that
    octet strings in kerberos to be passed back to application specific
@@ -43,6 +53,17 @@ typedef struct _kerberos_callbacks {
 
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean do_col_info, kerberos_callbacks *cb);
+
+
+/*--- Included file: packet-kerberos-exp.h ---*/
+#line 1 "packet-kerberos-exp.h"
+int dissect_kerberos_Realm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/*--- End of included file: packet-kerberos-exp.h ---*/
+#line 50 "packet-kerberos-template.h"
 
 int
 dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
@@ -88,4 +109,18 @@ extern gboolean krb_decrypt;
 
 #endif /* HAVE_KERBEROS */
 
-#endif /* __PACKET_KERBEROS_H */
+
+
+/*--- Included file: packet-kerberos-exp.h ---*/
+#line 1 "packet-kerberos-exp.h"
+int dissect_kerberos_Realm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_kerberos_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/*--- End of included file: packet-kerberos-exp.h ---*/
+#line 97 "packet-kerberos-template.h"
+
+#endif  /* PACKET_KERBEROS_H */
+
+

@@ -12,7 +12,7 @@ Realm
 EncryptedData/etype encryptedData_etype
 KDC-REQ-BODY/etype kDC-REQ-BODY_etype
 
-#.FN_BODY KDC-REQ/msg-type VAL_PTR = &msgtype
+#.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 guint32 msgtype;
 
 %(DEFAULT_BODY)s
@@ -29,9 +29,8 @@ guint32 msgtype;
 #.FN_BODY Int32 VAL_PTR = actx->value_ptr
 %(DEFAULT_BODY)s
 
-#.FN_BODY PA-DATA/padata-type
-/* Calling Int32 returns the value in ctx->value_ptr */
-actx->value_ptr = &krb_PA_DATA_type;
+#.FN_BODY PADATA-TYPE VAL_PTR = &krb_PA_DATA_type
+
 %(DEFAULT_BODY)s
 
 krb_PA_DATA_type&=0xff; /*this is really just one single byte */
@@ -50,49 +49,42 @@ proto_tree *sub_tree=tree;
 
 	switch(krb_PA_DATA_type){
 	case KRB5_PA_TGS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_kerberos_Applications);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
  		break;
 	case KRB5_PA_PK_AS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_pkinit_PaPkAsReq);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
  		break;
  	case KRB5_PA_PK_AS_REP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_pkinit_PaPkAsRep);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
  		break;
-		/*
 	case KRB5_PA_PAC_REQUEST:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PA_PAC_REQUEST);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_KERB_PA_PAC_REQUEST);
 		break;
 	case KRB5_PA_S4U2SELF:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PA_S4U2SELF);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
  		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PA_PROV_SRV_LOCATION);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
  		break;
- 		*/
 	case KRB5_PA_ENC_TIMESTAMP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_kerberos_PA_ENC_TIMESTAMP);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
  		break;
- 		/*
 	case KRB5_PA_ENCTYPE_INFO:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PA_ENCTYPE_INFO);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
  		break;
 	case KRB5_PA_ENCTYPE_INFO2:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PA_ENCTYPE_INFO2);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
  		break;
 	case KRB5_PA_PW_SALT:
-		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, dissect_krb5_PW_SALT);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
  		break;
-	*/
 	default:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_kerberos_padata_value, NULL);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
 	}
 /*qqq*/
 
 
 #.TYPE_ATTR
-KDC-REQ/msg-type  TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(krb5_msg_types)
-# this does not work for some reason :(
-EncryptedData/etype  TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(krb5_encryption_types)
-
+#xxx TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(xx_vals)
 
 
