@@ -1543,7 +1543,6 @@ AC_OUTPUT(
   asn1/h460/Makefile
   asn1/h501/Makefile
   asn1/inap/Makefile
-  asn1/kerberos/Makefile
   asn1/ldap/Makefile
   asn1/logotype-cert-extn/Makefile
   asn1/mms/Makefile
