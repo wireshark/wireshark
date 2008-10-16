@@ -1981,7 +1981,7 @@ tds_init(void)
 */
 
 void
-proto_register_netlib(void)
+proto_register_tds(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_tds_type,
@@ -2138,6 +2138,9 @@ proto_register_netlib(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_tds, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* Allow dissector to be found by name. */
+	register_dissector("tds", dissect_tds_tcp, proto_tds);
 
 	tds_module = prefs_register_protocol(proto_tds, NULL);
 	prefs_register_bool_preference(tds_module, "desegment_buffers",
