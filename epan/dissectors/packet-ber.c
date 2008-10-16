@@ -3208,6 +3208,8 @@ static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *act
 	proto_item *causex;
 	int cnt, hoffsetx, end_offset;
 	header_field_info *hfi;
+	gint length_remaining;
+	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER_SQ_OF
 {
@@ -3273,9 +3275,6 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	 */
 	/* XXX Do we really need to count them at all ?  ronnie */
 	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
-		if (ind) {
-			cnt--;  /* don't count EOC as an item */
-		}
 		while (offset < end_offset){
 			guint32 len;
                         gint s_offset;
@@ -3383,11 +3382,16 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			/* Function has IMPLICIT TAG */
 		}
 
+		length_remaining=tvb_length_remaining(tvb, hoffset);
+		if (length_remaining>eoffset-hoffset)
+			length_remaining=eoffset-hoffset;
+		next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+
 		imp_tag = FALSE;
 		if(seq->flags == BER_FLAGS_IMPLTAG)
 			imp_tag = TRUE;
 		/* call the dissector for this field */
-		count=seq->func(imp_tag, tvb, hoffset, actx, tree, *seq->p_id)-hoffset;
+		count=seq->func(imp_tag, next_tvb, 0, actx, tree, *seq->p_id)-hoffset;
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
@@ -3418,6 +3422,8 @@ static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t 
 	proto_item *causex;
 	int cnt, hoffsetx, end_offset;
 	header_field_info *hfi;
+	gint length_remaining;
+	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER_SQ_OF
 {
@@ -3483,9 +3489,6 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 	 */
 	/* XXX Do we really need to count them at all ?  ronnie */
 	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
-		if (ind) {
-			cnt--;  /* don't count EOC as an item */
-		}
 		while (offset < end_offset){
 			guint32 len;
                         gint s_offset;
@@ -3590,6 +3593,12 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
 		}
+
+		length_remaining=tvb_length_remaining(tvb, hoffset);
+		if (length_remaining>eoffset-hoffset)
+			length_remaining=eoffset-hoffset;
+		next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+
 
 		/* call the dissector for this field */
 		count=seq->func(tree, tvb, hoffset, actx)-hoffset;
