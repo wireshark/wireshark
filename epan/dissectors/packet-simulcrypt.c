@@ -34,7 +34,6 @@
 #include <epan/prefs.h>
 
 #define PROTO_TAG_SIMULCRYPT		"SIMULCRYPT"
-#define TCP_PORT			8600    /* Simulcrypt TCP port */
 #define CA_SYSTEM_ID_MIKEY		0x9999  /* CA_system_ID corresponding to MIKEY ECM */
 #define CA_SYSTEM_ID_MIKEY_PROTO 	"mikey" /* Protocol name to be used to "decode as" ECMs with CA_SYSTEM_ID_MIKEY */
 
@@ -65,7 +64,7 @@ static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int o
 static guint proto_simulcrypt = -1;
 
 /* Preferences (with default values) */
-static guint global_simulcrypt_tcp_port = TCP_PORT;
+static guint global_simulcrypt_tcp_port = 0;   /* Simulcrypt registered only if pref set to non-zero value */
 static int ca_system_id_mikey = CA_SYSTEM_ID_MIKEY; /* MIKEY ECM CA_system_ID */
 
 /* MIKEY payload start bytes */
@@ -266,9 +265,6 @@ static void dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 
-	/*This is not a good way of dissecting packets.  The tvb length should
-	* be sanity checked so we aren't going past the actual size of the buffer.*/
-	
 	/* get 2 byte type value */
 	type =  tvb_get_ntohs(tvb, 1); /* 2 bytes starting at offset 1 are the message type */
 
@@ -710,8 +706,7 @@ void proto_register_simulcrypt (void)
 	simulcrypt_module = prefs_register_protocol(proto_simulcrypt, proto_reg_handoff_simulcrypt);
 	
 	prefs_register_uint_preference(simulcrypt_module, "tcp.port", "Simulcrypt TCP Port",
-				 "Set the port for Simulcrypt messages (if other"
-				 " than the default of TCP_PORT)",
+				 "Set the port for Simulcrypt messages ('0' means no port is assigned)",
 				 10, &global_simulcrypt_tcp_port);
 									
 	prefs_register_uint_preference(simulcrypt_module, "ca_system_id_mikey","MIKEY ECM CA_system_ID 0x (hex value)",
@@ -724,7 +719,7 @@ void proto_reg_handoff_simulcrypt(void)
 	static gboolean initialized=FALSE;
 	static dissector_handle_t simulcrypt_handle;
 	static guint tcp_port;
-	guint   i;
+	guint  i;
 
 	if (!initialized) {
 		simulcrypt_handle = create_dissector_handle( dissect_simulcrypt, proto_simulcrypt);
@@ -735,9 +730,13 @@ void proto_reg_handoff_simulcrypt(void)
 		initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
+		if (tcp_port != 0) {
+			dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
+		}
 	}	
-	dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
+	if (global_simulcrypt_tcp_port != 0) {
+		dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
+	}
 	tcp_port = global_simulcrypt_tcp_port;
 
 	/* update tab_ecm_inter table (always do this) */
