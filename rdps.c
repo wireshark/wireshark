@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 	}
-        exit(0);
+        return(0);
 }
 
 void start_code(FILE *fd, const char *func)
