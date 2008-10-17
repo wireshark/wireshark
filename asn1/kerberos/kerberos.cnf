@@ -26,6 +26,40 @@ guint32 msgtype;
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %%s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%%x"));
 
+	
+#.FN_BODY ERROR-CODE VAL_PTR = &krb5_errorcode
+%(DEFAULT_BODY)s
+	if(krb5_errorcode && check_col(actx->pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(actx->pinfo->cinfo, COL_INFO,
+			"KRB Error: %%s",
+			val_to_str(krb5_errorcode, krb5_error_codes,
+			"Unknown error code %%#x"));
+	}
+
+	return offset;
+#.END
+#.FN_BODY KRB-ERROR/_untag/e-data
+	switch(krb5_errorcode){
+	case KRB5_ET_KRB5KDC_ERR_BADOPTION:
+	case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
+	case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
+	case KRB5_ET_KRB5KDC_ERR_POLICY:
+		/* ms windows kdc sends e-data of this type containing a "salt"
+		 * that contains the nt_status code for these error codes.
+		 */
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
+		break;
+	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
+	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
+	case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_SEQUENCE_OF_PA_DATA);
+
+		break;
+	default:
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
+	}
+
+
 #.FN_BODY Int32 VAL_PTR = actx->value_ptr
 %(DEFAULT_BODY)s
 
@@ -82,6 +116,58 @@ proto_tree *sub_tree=tree;
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
 	}
 /*qqq*/
+
+#.FN_BODY ADDR-TYPE VAL_PTR = &addr_type
+%(DEFAULT_BODY)s
+
+#.FN_BODY HostAddress/address
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	char *address_str;
+	proto_item *it=NULL;
+
+	/* read header and len for the octet string */
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+
+	address_str=ep_alloc(256);
+	address_str[0]=0;
+	address_str[255]=0;
+	switch(addr_type){
+	case KRB5_ADDR_IPv4:
+		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, FALSE);
+		g_snprintf(address_str,256,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
+		break;
+	case KRB5_ADDR_NETBIOS:
+		{
+		char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
+		int netbios_name_type;
+		int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
+
+		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
+		g_snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
+		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
+		}
+		break;
+	case KRB5_ADDR_IPv6:
+		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
+		g_snprintf(address_str, 256, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
+		break;
+	default:
+		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
+
+	}
+
+	/* push it up two levels in the decode pane */
+	if(it){
+		proto_item_append_text(proto_item_get_parent(it), " %s",address_str);
+		proto_item_append_text(proto_item_get_parent_nth(it, 2), " %s",address_str);
+	}
+
+	offset+=len;
+	return offset;
 
 
 #.TYPE_ATTR

@@ -61,8 +61,8 @@ PrincipalName   ::= SEQUENCE {
 KerberosTime    ::= GeneralizedTime -- with no fractional seconds
 
 HostAddress     ::= SEQUENCE  {
---      addr-type       [0] ADDR-TYPE, use k5.asn
-        addr-type       [0] Int32,
+--        addr-type       [0] Int32,
+        addr-type       [0] ADDR-TYPE, --use k5.asn
         address         [1] OCTET STRING
 }
 
@@ -376,7 +376,8 @@ KRB-ERROR       ::= [APPLICATION 30] SEQUENCE {
         cusec           [3] Microseconds OPTIONAL,
         stime           [4] KerberosTime,
         susec           [5] Microseconds,
-        error-code      [6] Int32,
+--        error-code      [6] Int32,
+        error-code      [6] ERROR-CODE, -- Use k5.asn
         crealm          [7] Realm OPTIONAL,
         cname           [8] PrincipalName OPTIONAL,
         realm           [9] Realm -- service realm --,

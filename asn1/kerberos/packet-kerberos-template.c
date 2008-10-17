@@ -113,6 +113,9 @@ static dissector_handle_t kerberos_handle_udp=NULL;
 static guint32 authenticator_etype;
 static guint32 keytype;
 guint32 krb_PA_DATA_type;
+static guint32 addr_type;
+guint32 krb5_errorcode;
+
 static gboolean do_col_info;
 
 /* Forward declarations */
@@ -134,6 +137,9 @@ static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
 static gint hf_krb_smb_nt_status = -1;
 static gint hf_krb_smb_unknown = -1;
+static gint hf_krb_address_ip = -1;
+static gint hf_krb_address_netbios = -1;
+static gint hf_krb_address_ipv6 = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -1539,6 +1545,15 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_smb_unknown,
 		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
 		NULL, 0, "unknown", HFILL }},
+	{ &hf_krb_address_ip, {
+	    "IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,
+	    NULL, 0, "IP Address", HFILL }},
+	{ &hf_krb_address_ipv6, {
+	    "IPv6 Address", "kerberos.addr_ipv6", FT_IPv6, BASE_NONE,
+	    NULL, 0, "IPv6 Address", HFILL }},
+	{ &hf_krb_address_netbios, {
+	    "NetBIOS Address", "kerberos.addr_nb", FT_STRING, BASE_NONE,
+	    NULL, 0, "NetBIOS Address and type", HFILL }},
 
 #include "packet-kerberos-hfarr.c"
   };
