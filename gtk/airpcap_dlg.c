@@ -61,11 +61,6 @@
 #include "airpcap_gui_utils.h"
 #include "airpcap_dlg.h"
 
-
-
-/* temporary block signals to widgets */
-BOOL block_advanced_signals;
-
 /*
  * This function is used to write the preferences to the preferences file.
  * It has the same behaviour as prefs_main_write() in prefs_dlg.c
@@ -189,7 +184,7 @@ static void
 on_fcs_ck_toggled(GtkWidget *w, gpointer user_data)
 
 {
-    if ( !block_advanced_signals && (airpcap_if_selected != NULL))
+    if (airpcap_if_selected != NULL)
     {
         if (airpcap_if_selected->IsFcsPresent)
         {
@@ -357,13 +352,13 @@ string_is_not_empty(gchar *s)
  * Callback for the wrong crc combo
  */
 static void
-on_fcs_filter_en_changed(GtkWidget *w, gpointer data)
+on_fcs_filter_en_changed(GtkWidget *w, gpointer data _U_)
 {
     const gchar *s;
 
     s = gtk_entry_get_text(GTK_ENTRY(w));
 
-    if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
+    if (w != NULL)
     {
         if ((g_ascii_strcasecmp("",s)))
         {
@@ -377,12 +372,12 @@ on_fcs_filter_en_changed(GtkWidget *w, gpointer data)
  * Changed callback for the channel combobox
  */
 static void
-on_channel_en_changed(GtkWidget *w, gpointer data)
+on_channel_en_changed(GtkWidget *w, gpointer data _U_)
 {
     const gchar *s;
     ULONG ch_freq;
 
-    if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
+    if (w != NULL)
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
         if ((g_ascii_strcasecmp("",s)))
@@ -402,48 +397,46 @@ on_channel_en_changed(GtkWidget *w, gpointer data)
  * Changed callback for the channel offset combobox
  */
 static void
-on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
+on_channel_offset_cb_changed(GtkWidget *w, gpointer data _U_)
 {
-    const gchar *s;
-    int offset;
+	const gchar *s;
+	int offset;
 
-    if (w == NULL || GTK_WIDGET_SENSITIVE(w)) {
-        return;
-    }
+	if (w == NULL || !GTK_WIDGET_SENSITIVE(w)) {
+		return;
+	}
 
-    if ( !block_advanced_signals && (data != NULL) )
-    {
-        s = gtk_entry_get_text(GTK_ENTRY(w));
-        if ((g_ascii_strcasecmp("",s)))
-        {
-            if (airpcap_if_selected != NULL)
-            {
-				sscanf(s,"%d",&offset);
-				airpcap_if_selected->channelInfo.ExtChannel = offset;
-				airpcap_if_selected->saved = FALSE;
-            }
-        }
-    }
+	s = gtk_entry_get_text(GTK_ENTRY(w));
+	if ((g_ascii_strcasecmp("",s)))
+	{
+		if (airpcap_if_selected != NULL)
+		{
+			sscanf(s,"%d",&offset);
+			airpcap_if_selected->channelInfo.ExtChannel = offset;
+			airpcap_if_selected->saved = FALSE;
+		}
+	}
 }
 
 /*
  * Changed callback for the capture type combobox
  */
 static void
-on_capture_type_en_changed(GtkWidget *w, gpointer data)
+on_capture_type_en_changed(GtkWidget *w, gpointer data _U_)
 {
     const gchar *s;
 
+	if (w == NULL) {
+		return;
+	}
+	
     s = gtk_entry_get_text(GTK_ENTRY(w));
 
-    if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
-    {
-        if ((g_ascii_strcasecmp("",s)))
-        {
-            airpcap_if_selected->linkType = airpcap_get_link_type(s);
-            airpcap_if_selected->saved = FALSE;
-        }
-    }
+	if ((g_ascii_strcasecmp("",s)))
+	{
+		airpcap_if_selected->linkType = airpcap_get_link_type(s);
+		airpcap_if_selected->saved = FALSE;
+	}
 }
 
 /*
@@ -1961,9 +1954,6 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     /* main window */
     /* global */
 
-    /* NULL to global widgets */
-    block_advanced_signals = FALSE;
-
     /* the selected is the active, for now */
     airpcap_if_selected = airpcap_if_active;
 
@@ -2280,7 +2270,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     }
 
     g_signal_connect (channel_en, "changed", G_CALLBACK(on_channel_en_changed), channel_offset_cb);
-    g_signal_connect (GTK_COMBO(channel_offset_cb)->entry, "changed", G_CALLBACK(on_channel_offset_cb_changed), airpcap_advanced_w);
+    g_signal_connect (GTK_COMBO(channel_offset_cb)->entry, "changed", G_CALLBACK(on_channel_offset_cb_changed), NULL);
     g_signal_connect (capture_type_en, "changed", G_CALLBACK(on_capture_type_en_changed), airpcap_advanced_w);
     g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), airpcap_advanced_w);
     g_signal_connect (fcs_filter_en, "changed", G_CALLBACK(on_fcs_filter_en_changed), airpcap_advanced_w);
@@ -2361,18 +2351,20 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data)
     toolbar_channel_offset_cb	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY));
     toolbar_wrong_crc_cm	= GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_FCS_FILTER_KEY));
 
-    /* Stop blinking ALL leds (go through the airpcap_if_list) */
-    if (airpcap_if_selected != NULL)
+    if (airpcap_if_selected == NULL) { /* There's not much we can do. */
+		gtk_widget_destroy(airpcap_advanced_w);
+		return;
+	}
+
+    /* Stop blinking our LED */
+    ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
+    if (ad)
     {
-        ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
-        if (ad)
-        {
-            g_source_remove(airpcap_if_selected->tag);
-            airpcap_if_turn_led_on(ad, 0);
-            airpcap_if_selected->blinking = FALSE;
-            airpcap_if_selected->led = TRUE;
-            airpcap_if_close(ad);
-        }
+        g_source_remove(airpcap_if_selected->tag);
+        airpcap_if_turn_led_on(ad, 0);
+        airpcap_if_selected->blinking = FALSE;
+        airpcap_if_selected->led = TRUE;
+        airpcap_if_close(ad);
     }
 
     /* ??? - Ask if want to save configuration */
@@ -2382,24 +2374,10 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data)
     /* Remove GLIB timeout */
     g_source_remove(airpcap_if_selected->tag);
 
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    {
-        gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-        airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
-        airpcap_update_channel_offset_combo_entry(GTK_WIDGET(toolbar_channel_offset_cb),airpcap_if_selected->channelInfo.ExtChannel);
-        airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
-    }
-
-    /* If interface active is airpcap, set sensitive TRUE for airpcap toolbar */
-    if ( get_airpcap_if_from_name(airpcap_if_list,airpcap_if_active->description) != NULL)
-    {
-        airpcap_set_toolbar_start_capture(airpcap_if_active);
-    }
-    else
-    {
-        airpcap_set_toolbar_stop_capture(airpcap_if_active);
-    }
+    gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
+    airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
+    airpcap_update_channel_offset_combo_entry(GTK_WIDGET(toolbar_channel_offset_cb),airpcap_if_selected->channelInfo.ExtChannel);
+    airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
     gtk_widget_destroy(airpcap_advanced_w);
 }
@@ -2532,9 +2510,6 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 
     /* main window */
     /* global */
-
-    /* NULL to global widgets */
-    block_advanced_signals = FALSE;
 
     /* the selected is the active, for now */
     airpcap_if_selected = airpcap_if_active;
@@ -2804,22 +2779,6 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 
     /* Save the preferences to preferences file!!! */
     write_prefs_to_file();
-
-    /* If interface active is airpcap, set sensitive TRUE for airpcap toolbar */
-    if (airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0)
-    {
-        if (airpcap_if_active != NULL)
-        {
-            if ( get_airpcap_if_from_name(airpcap_if_list,airpcap_if_active->description) != NULL)
-            {
-                airpcap_set_toolbar_start_capture(airpcap_if_active);
-            }
-            else
-            {
-                airpcap_set_toolbar_stop_capture(airpcap_if_active);
-            }
-        }
-    }
 
     gtk_widget_destroy(key_management_w);
 }
@@ -3323,3 +3282,16 @@ on_ignore_bt_clicked (GtkWidget * button, gpointer user_data)
 
 
 #endif /* HAVE_AIRPCAP */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 noexpandtab
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */

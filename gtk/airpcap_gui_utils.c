@@ -136,8 +136,8 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,TRUE);
-    gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,TRUE);
-    gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,TRUE);
+		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,TRUE);
+		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,TRUE);
 		gtk_widget_set_sensitive(airpcap_toolbar_fcs,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_fcs_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_button,FALSE);
@@ -170,9 +170,9 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 			airpcap_free_channel_combo_list(channel_list);
 		}
 
+		airpcap_update_channel_offset_combo_entry(airpcap_toolbar_channel_offset, if_info->channelInfo.ExtChannel);
 		airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
 		airpcap_update_channel_offset_cb(if_info, if_info->channelInfo.Frequency, airpcap_toolbar_channel_offset);
-		airpcap_update_channel_offset_combo_entry(airpcap_toolbar_channel_offset, if_info->channelInfo.ExtChannel);
 		change_airpcap_settings = TRUE;
     }
     else /* Current interface is NOT an AirPcap one... */
@@ -181,8 +181,8 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		gtk_widget_set_sensitive(airpcap_toolbar_label,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,FALSE);
-    gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,FALSE);
-    gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,FALSE);
+		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset,FALSE);
+		gtk_widget_set_sensitive(airpcap_toolbar_channel_offset_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_fcs,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_fcs_lb,FALSE);
 		gtk_widget_set_sensitive(airpcap_toolbar_button,FALSE);
