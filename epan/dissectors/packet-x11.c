@@ -4907,6 +4907,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int offset = 0, *offsetp = &offset, left;
 	unsigned char eventcode;
+	const char *sent;
 	proto_item *ti;
 	proto_tree *t;
 
@@ -4914,28 +4915,31 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	t = proto_item_add_subtree(ti, ett_x11);
 
 	eventcode = tvb_get_guint8(tvb, offset);
+	sent = (eventcode & 0x80) ? "Sent-" : "";
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-			  	sep, val_to_str(eventcode, eventcode_vals,
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s%s",
+			  	sep, sent,
+				val_to_str(eventcode & 0x7F, eventcode_vals,
 			  	"<Unknown eventcode %u>"));
 
 	proto_tree_add_uint_format(t, hf_x11_eventcode, tvb, offset, 1,
 				   eventcode,
-				   "eventcode: %d (%s)",
-				   eventcode,
-				   val_to_str(eventcode, eventcode_vals,
+				   "eventcode: %d (%s%s)",
+				   eventcode, sent,
+				   val_to_str(eventcode & 0x7F, eventcode_vals,
 				   "<Unknown eventcode %u>"));
 	++offset;
 
-	proto_item_append_text(ti, ", Event, eventcode: %d (%s)",
-			      eventcode, val_to_str(eventcode, eventcode_vals,
+	proto_item_append_text(ti, ", Event, eventcode: %d (%s%s)",
+			      eventcode, sent,
+			      val_to_str(eventcode & 0x7F, eventcode_vals,
 			      "<Unknown eventcode %u>"));
 
   	if (tree == NULL)
   	 	return;
 
-	switch (eventcode) {
+	switch (eventcode & 0x7F) {
 		case KeyPress:
 		case KeyRelease: {
 			int code, mask;
