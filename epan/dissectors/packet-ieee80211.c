@@ -4998,7 +4998,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
  * information element is in the format shown in Figure 7-75 and requires that the first 3 octets of the
  * information field contain the OUI of the entity that has defined the content of the particular Vendor Specific
  * information element. The length of the information field (n) is 3 >= n =< 255. The OUI field shall be a public
- * OUI assigned by the IEEE. It is 3 octets in length. The length of the vendor-specific content is n–3 octets.
+ * OUI assigned by the IEEE. It is 3 octets in length. The length of the vendor-specific content is n-3 octets.
  *
  *          Element ID Length OUI Vendor-specific content
  * Octets   1          1      3    n-3
@@ -5009,9 +5009,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len >= 3) {
         oui = tvb_get_ntoh24(tvb, offset + 2);
         tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
-		tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
+        tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
         proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-			tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+          tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
         proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
 
 #define WPAWME_OUI  0x0050F2
@@ -5356,8 +5356,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
         offset++;
 
-		if (tag_len == 3)
-			break;
+        if (tag_len == 3)
+            break;
         switch (report_type) {
           case 0: /* Basic Report */
           {
@@ -6918,33 +6918,32 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         return;
 
       if (!wlan_subdissector) {
-	guint fnum = 0;
+        guint fnum = 0;
 
         /* key: bssid:src
          * data: last seq_control seen and frame number
-        */
+         */
         retransmitted = FALSE;
-	if(!pinfo->fd->flags.visited){
-	   retransmit_key key;
-	   retransmit_key *result;
+        if(!pinfo->fd->flags.visited){
+          retransmit_key key;
+          retransmit_key *result;
 
-	   memcpy(key.bssid, bssid, 6);
-	   memcpy(key.src, src, 6);
-	   key.seq_control = 0;
-	   result = (retransmit_key *)g_hash_table_lookup(fc_analyse_retransmit_table, &key);
-	   if (result && result->seq_control == seq_control) {
-	        /* keep a pointer to the first seen frame, could be done with proto data? */
-	   	fnum = result->fnum;
-	   	g_hash_table_insert(fc_first_frame_table, GINT_TO_POINTER( pinfo->fd->num),
-	   		 GINT_TO_POINTER(fnum));
-	   	retransmitted = TRUE;
-           }
-           else {
+          memcpy(key.bssid, bssid, 6);
+          memcpy(key.src, src, 6);
+          key.seq_control = 0;
+          result = (retransmit_key *)g_hash_table_lookup(fc_analyse_retransmit_table, &key);
+          if (result && result->seq_control == seq_control) {
+               /* keep a pointer to the first seen frame, could be done with proto data? */
+               fnum = result->fnum;
+               g_hash_table_insert(fc_first_frame_table, GINT_TO_POINTER( pinfo->fd->num),
+                  GINT_TO_POINTER(fnum));
+               retransmitted = TRUE;
+          } else {
                /* first time or new seq*/
                if (!result) {
                   result = se_alloc(sizeof(retransmit_key));
                   *result = key;
-		  g_hash_table_insert(fc_analyse_retransmit_table, result, result);
+                  g_hash_table_insert(fc_analyse_retransmit_table, result, result);
                }
                result->seq_control = seq_control;
                result->fnum =  pinfo->fd->num;
@@ -6954,7 +6953,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
            retransmitted = TRUE;
         }
 
-      	if (retransmitted) {
+        if (retransmitted) {
             if (check_col (pinfo->cinfo, COL_INFO))
                 col_append_fstr(pinfo->cinfo, COL_INFO, " [retransmitted]");
             if (tree) {
@@ -6962,8 +6961,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
                 item=proto_tree_add_none_format(hdr_tree, hf_fc_analysis_retransmission, tvb, 0, 0, "Retransmitted frame");
                 PROTO_ITEM_SET_GENERATED(item);
-		item=proto_tree_add_uint(hdr_tree, hf_fc_analysis_retransmission_frame,tvb, 0, 0, fnum);
-		PROTO_ITEM_SET_GENERATED(item);
+                item=proto_tree_add_uint(hdr_tree, hf_fc_analysis_retransmission_frame,tvb, 0, 0, fnum);
+                PROTO_ITEM_SET_GENERATED(item);
             }
             next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
             call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -8352,22 +8351,22 @@ proto_register_ieee80211 (void)
 
   static const true_false_string cf_spec_man_flags = {
     "dot11SpectrumManagementRequired TRUE",
-    "dot11SpectrumManagementRequired FALSE",
+    "dot11SpectrumManagementRequired FALSE"
   };
 
   static const true_false_string cf_apsd_flags = {
     "apsd implemented",
-    "apsd not implemented",
+    "apsd not implemented"
   };
 
   static const true_false_string cf_del_blk_ack_flags = {
     "delayed block ack implemented",
-    "delayed block ack not implemented",
+    "delayed block ack not implemented"
   };
 
   static const true_false_string cf_imm_blk_ack_flags = {
     "immediate block ack implemented",
-    "immediate block ack not implemented",
+    "immediate block ack not implemented"
   };
   static const true_false_string cf_ibss_flags = {
     "Transmitter belongs to an IBSS",
@@ -8429,8 +8428,8 @@ proto_register_ieee80211 (void)
 
   /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
   static const value_string  ff_channel_width_vals[] = {
-	 {0x00, "20 MHz channel width only"},
-     {0x01, "Any channel width in the STA’s Supported Channel Width Set"},    
+    {0x00, "20 MHz channel width only"},
+    {0x01, "Any channel width in the STA’s Supported Channel Width Set"},
     {0, NULL}
   };
   /*** End: Channel Width Fixed Field - Dustin Johnson ***/
@@ -8740,12 +8739,12 @@ proto_register_ieee80211 (void)
     {MRVL_MESH_MGMT_ACTION_PLDM, "Peer Link Down"},
     {0, NULL}
   };
-  
+
   static const value_string mesh_path_selection_codes[] ={
     {0x0, "Hybrid Wireless Mesh Protocol"},
     {0, NULL}
   };
-  
+
   static const value_string mesh_metric_codes[] ={
     {0x0, "Airtime Link Metric"},
     {0, NULL}
@@ -8878,7 +8877,7 @@ proto_register_ieee80211 (void)
     { 6, "OFDM 802.11g" },
     { 7, "PBCC 802.11g" },
     { 8, "OFDM 802.11a" },
-    { 0, NULL },
+    { 0, NULL }
   };
 
   static const value_string encoding_type[] = {
@@ -8891,7 +8890,7 @@ proto_register_ieee80211 (void)
     { 6, "QPSK" },
     { 7, "16QAM" },
     { 8, "64QAM" },
-    { 0, NULL },
+    { 0, NULL }
   };
 
   static const value_string ssi_type[] = {
@@ -8899,14 +8898,14 @@ proto_register_ieee80211 (void)
     { SSI_NORM_RSSI, "Normalized RSSI" },
     { SSI_DBM, "dBm" },
     { SSI_RAW_RSSI, "Raw RSSI" },
-    { 0, NULL },
+    { 0, NULL }
   };
 
   static const value_string preamble_type[] = {
     { 0, "Unknown" },
     { 1, "Short" },
     { 2, "Long" },
-    { 0, NULL },
+    { 0, NULL }
   };
 
   static hf_register_info hf[] = {
@@ -9321,7 +9320,7 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_type,
      {"Block Ack Request Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }}
     /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
   };
 
@@ -9362,7 +9361,7 @@ proto_register_ieee80211 (void)
 
     { &hf_prism_frmlen_data,
      {"Frame Length Field", "prism.frmlen.data", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "", HFILL }},
+      "", HFILL }}
   };
 
   static hf_register_info hf_wlancap[] = {
@@ -9383,9 +9382,9 @@ proto_register_ieee80211 (void)
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
 			   VALS(ssi_type), 0x0, "", HFILL } },
     { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
-			     BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
-			    BASE_DEC, NULL, 0x0, "", HFILL } },
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
 			   BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
     { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
@@ -9395,9 +9394,9 @@ proto_register_ieee80211 (void)
     { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
-			       BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
+			   BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
     { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
-			  BASE_NONE, NULL, 0x0, "", HFILL } },
+			   BASE_NONE, NULL, 0x0, "", HFILL } }
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -10404,15 +10403,15 @@ proto_register_ieee80211 (void)
     {&ff_mesh_mgt_length,
      {"Message Length", "wlan_mgt.fixed.length",
       FT_UINT8, BASE_DEC, NULL, 0, "Message Length", HFILL }},
-    
+
     {&ff_mesh_mgt_mode,
      {"Message Mode", "wlan_mgt.fixed.mode",
       FT_UINT8, BASE_HEX, NULL, 0, "Message Mode", HFILL }},
-    
+
     {&ff_mesh_mgt_ttl,
      {"Message TTL", "wlan_mgt.fixed.ttl",
       FT_UINT8, BASE_DEC, NULL, 0, "Message TTL", HFILL }},
-    
+
     {&ff_mesh_mgt_dstcount,
      {"Destination Count", "wlan_mgt.fixed.dstcount",
       FT_UINT8, BASE_DEC, NULL, 0, "Destination Count", HFILL }},
@@ -10420,15 +10419,15 @@ proto_register_ieee80211 (void)
     {&ff_mesh_mgt_hopcount,
      {"Hop Count", "wlan_mgt.fixed.hopcount",
       FT_UINT8, BASE_DEC, NULL, 0, "Hop Count", HFILL }},
-    
+
     {&ff_mesh_mgt_rreqid,
      {"RREQ ID", "wlan_mgt.fixed.rreqid",
       FT_UINT32, BASE_DEC, NULL, 0, "RREQ ID", HFILL }},
-    
+
     {&ff_mesh_mgt_sa,
      {"Source Address", "wlan_mgt.fixed.sa",
       FT_ETHER, BASE_NONE, NULL, 0, "Source MAC address", HFILL }},
-    
+
     {&ff_mesh_mgt_ssn,
      {"SSN", "wlan_mgt.fixed.ssn",
       FT_UINT32, BASE_DEC, NULL, 0, "Source Sequence Number", HFILL }},
@@ -10436,15 +10435,15 @@ proto_register_ieee80211 (void)
     {&ff_mesh_mgt_metric,
      {"Metric", "wlan_mgt.fixed.metric",
       FT_UINT32, BASE_DEC, NULL, 0, "Route Metric", HFILL }},
-    
+
     {&ff_mesh_mgt_flags,
      {"RREQ Flags", "wlan_mgt.fixed.hopcount",
       FT_UINT8, BASE_HEX, NULL, 0, "RREQ Flags", HFILL }},
-    
+
     {&ff_mesh_mgt_da,
      {"Destination Address", "wlan_mgt.fixed.da",
       FT_ETHER, BASE_NONE, NULL, 0, "Destination MAC address", HFILL }},
-    
+
     {&ff_mesh_mgt_dsn,
      {"DSN", "wlan_mgt.fixed.dsn",
       FT_UINT32, BASE_DEC, NULL, 0, "Destination Sequence Number", HFILL }},
@@ -11325,31 +11324,31 @@ proto_register_ieee80211 (void)
     /*** End: Measurement Report Tag  - Dustin Johnson***/
 
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
-	/* Table 7-35a—Capabilities field */
+    /* Table 7-35a—Capabilities field */
     {&hf_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
       FT_UINT8, BASE_HEX, NULL, 0, "Extended Capabilities", HFILL }},
 
-	  /* P802.11n/D6.0 */
-	  {&hf_tag_extended_capabilities_b0,
-	 {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
+    /* P802.11n/D6.0 */
+    {&hf_tag_extended_capabilities_b0,
+     {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
       FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0001, "HT Information Exchange Support", HFILL }},
 
-	/* P802.11p/D4.0 */
-	{&hf_tag_extended_capabilities_b1,
-	 {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
+    /* P802.11p/D4.0 */
+    {&hf_tag_extended_capabilities_b1,
+     {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
       FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0002, "On-demand beacon", HFILL }},
 
-	{&hf_tag_extended_capabilities_b2,
-	 {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
+    {&hf_tag_extended_capabilities_b2,
+     {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
       FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0004, "Extended Channel Switching", HFILL }},
 
-	{&hf_tag_extended_capabilities_b3,
-	 {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
+    {&hf_tag_extended_capabilities_b3,
+     {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
       FT_BOOLEAN, 8, TFS(&hf_tag_extended_capabilities_flag), 0x0008, "WAVE indication", HFILL }},
-	/*End: P802.11p/D4.0 */
+    /*End: P802.11p/D4.0 */
 
-	  /*** End: Extended Capabilities Tag - Dustin Johnson ***/
+    /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
     /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
     {&hf_tag_neighbor_report_bssid,
@@ -11452,11 +11451,11 @@ proto_register_ieee80211 (void)
     {&hf_marvell_ie_type,
      {"Type", "wlan_mgt.marvell.ie.type",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-    
+
     {&hf_marvell_ie_mesh_subtype,
      {"Subtype", "wlan_mgt.marvell.ie.subtype",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-    
+
     {&hf_marvell_ie_mesh_version,
      {"Version", "wlan_mgt.marvell.ie.version",
       FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
@@ -11789,14 +11788,14 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 16, NULL, 0x4000, "High Throughput Control AC Constraint", HFILL }},
     {&hf_htc_rdg_more_ppdu,
      {"RDG/More PPDU", "wlan_mgt.htc.rdg_more_ppdu",
-      FT_BOOLEAN, 16, NULL, 0x8000, "High Throughput Control RDG/More PPDU", HFILL }},
+      FT_BOOLEAN, 16, NULL, 0x8000, "High Throughput Control RDG/More PPDU", HFILL }}
     /* End: HT Control (+HTC) */
   };
 
   static hf_register_info aggregate_fields[] = {
     {&amsdu_msdu_header_text,
      {"MAC Service Data Unit (MSDU)",	"wlan_aggregate.msduheader", FT_UINT16,
-      BASE_DEC, 0, 0x0000, "MAC Service Data Unit (MSDU)", HFILL }},
+      BASE_DEC, 0, 0x0000, "MAC Service Data Unit (MSDU)", HFILL }}
   };
 
   static gint *tree_array[] = {
@@ -11855,10 +11854,10 @@ proto_register_ieee80211 (void)
     &ett_sched_tree,
     &ett_fcs,
     &ett_radio,
-	&ett_pst_tree,
-	&ett_pst_cap_tree,
-	&ett_chan_noc_tree,
-	&ett_wave_chnl_tree,
+    &ett_pst_tree,
+    &ett_pst_cap_tree,
+    &ett_chan_noc_tree,
+    &ett_wave_chnl_tree
   };
   module_t *wlan_module;
 
@@ -11908,9 +11907,9 @@ proto_register_ieee80211 (void)
     &wlan_ignore_draft_ht);
 
   prefs_register_bool_preference(wlan_module, "retransmitted",
-	"Call subdissector for retransmitted 802.11 frames",
-	"Whether retransmitted 802.11 frames should be subdissected",
-	&wlan_subdissector);
+    "Call subdissector for retransmitted 802.11 frames",
+    "Whether retransmitted 802.11 frames should be subdissected",
+    &wlan_subdissector);
 
   prefs_register_bool_preference(wlan_module, "check_fcs",
     "Assume packets have FCS",

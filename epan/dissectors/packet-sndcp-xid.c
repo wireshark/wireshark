@@ -37,13 +37,13 @@
 #include <epan/packet.h>
 
 
-/* Parameter types: TS 44.065 §8
+/* Parameter types: TS 44.065 8
 */
 #define SNDCP_VERSION_PAR_TYPE 0
 #define DATA_COMPRESSION_PAR_TYPE 1
 #define PROTOCOL_COMPRESSION_PAR_TYPE 2
 
-/* Algorithm identifiers: TS 44.065 §6.6.1.1.4 and §6.5.1.1.4
+/* Algorithm identifiers: TS 44.065 6.6.1.1.4 and 6.5.1.1.4
 */
 #define ALGO_V42BIS 0
 #define ALGO_V44 1
@@ -76,7 +76,7 @@ static int proto_sndcp_xid   = -1;
 
 /* These fields are used to store store the algorithm ID
 * When the P bit is not set, try to decode the algo based on what whas stored.
-* Entity ranges from 0 to 31 (§6.5.1.1.3)
+* Entity ranges from 0 to 31 (6.5.1.1.3)
 */
 static guint8 dcomp_entity_algo_id[32]={-1, -1, -1, -1, -1, -1, -1, -1, 
 										-1, -1, -1, -1, -1, -1, -1, -1, 
@@ -99,7 +99,7 @@ static int hf_sndcp_xid_comp_entity = -1;
 static int hf_sndcp_xid_comp_spare_byte2 = -1;
 static int hf_sndcp_xid_comp_algo_id = -1;
 static int hf_sndcp_xid_comp_len = -1;
-/* There is currently a maximum of 15 DCOMP/PCOMP: §6.5.1.1.5 */
+/* There is currently a maximum of 15 DCOMP/PCOMP: 6.5.1.1.5 */
 static int hf_sndcp_xid_comp[15] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; 
 static int hf_sndcp_xid_comp_spare = -1;
 
@@ -572,7 +572,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 	value_string const * comp_algo_str;
 
 	tvb_len = tvb_reported_length(tvb);
-	if (tvb_len < 3) return; /* entity, algo and length bytes should always be present §6.5.1.1 and §6.6.1.1 */
+	if (tvb_len < 3) return; /* entity, algo and length bytes should always be present 6.5.1.1 and 6.6.1.1 */
 
 	/* Loop to decode each entity (cf Figure 10) */
 	while (offset < tvb_len)
@@ -723,11 +723,11 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, gboole
 
 void
 proto_register_sndcp_xid(void)
-{                 
+{
   /* Setup list of header fields
    */
-  static hf_register_info hf[] = {
-    		/* L3 XID Parameter Parsing Info */
+	static hf_register_info hf[] = {
+		/* L3 XID Parameter Parsing Info */
 		{&hf_sndcp_xid_type,
 				{ "Parameter type","llcgprs.l3xidpartype", FT_UINT8, BASE_DEC, NULL, 0xFF, "Data", HFILL}},
 		{&hf_sndcp_xid_len,
@@ -864,15 +864,14 @@ proto_register_sndcp_xid(void)
 				{ "P3r MSB","sndcpxid.V44_p3r_msb", FT_UINT8, BASE_HEX, NULL, 0xFF, "Data", HFILL}},
  		{&hf_sndcp_xid_V44_p3r_lsb,
 				{ "P3r LSB","sndcpxid.V44_p3r_lsb", FT_UINT8, BASE_HEX, NULL, 0xFF, "Data", HFILL}},
-				
- };
+	};
 
    /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_sndcp_xid,
     &ett_sndcp_xid_version_field,
-	&ett_sndcp_comp_field
-  };  
+    &ett_sndcp_comp_field
+  };
 
   /* Register the protocol name and description */
   proto_sndcp_xid = proto_register_protocol("Subnetwork Dependent Convergence Protocol XID",
