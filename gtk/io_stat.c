@@ -1961,7 +1961,6 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
 	g_object_set_data (G_OBJECT(gio->calc_field), E_FILT_FIELD_NAME_ONLY_KEY, "");
 	g_signal_connect(gio->calc_field, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-	/* HERE */
 	g_object_set_data(G_OBJECT(box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
 	g_signal_connect(gio->calc_field, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
 	g_signal_connect(gio->io->window, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
