@@ -300,20 +300,23 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
       if(name_with_period)
 	g_free (name_with_period);
-      if(prefix_start)
-        g_free(prefix_start);
     }
+    if(prefix_start)
+      g_free(prefix_start);
+
     return FALSE;
   } else if(k==GDK_BackSpace && !popup_win) {
-    if(strlen(prefix) > 2 && strchr(prefix, '.')) {
+    if(strlen(prefix) > 2) {
       /* Delete the last character in the prefix string */
       prefix[strlen(prefix)-1] = '\0';
-      popup_win = filter_autocomplete_new(filter_te, prefix);
-      g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
-      
-      if(prefix_start)
-        g_free(prefix_start);
+      if(strchr(prefix, '.')) {
+        popup_win = filter_autocomplete_new(filter_te, prefix);
+        g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
+      }
     }
+    if(prefix_start)
+      g_free(prefix_start);
+
     return FALSE;
   }
 
@@ -341,6 +344,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
       }
 
+      if(prefix_start)
+	g_free(prefix_start);
+
       /* stop event propagation */
       return TRUE;
 
@@ -358,6 +364,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       if(gtk_tree_model_get_iter_first(model, &iter))
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
       }
+
+      if(prefix_start)
+	g_free(prefix_start);
 
       /* stop event propagation */
       return TRUE;
