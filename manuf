@@ -1103,7 +1103,7 @@
 00:04:18	TeltronicS             # Teltronic S.A.U.
 00:04:19	Fibercycle             # Fibercycle Networks, Inc.
 00:04:1A	InesTestAn             # Ines Test and Measurement GmbH & CoKG
-00:04:1B	DigitalInt             # Digital Interfaces Ltd.
+00:04:1B	Bridgework             # Bridgeworks Ltd.
 00:04:1C	Ipdialog               # ipDialog, Inc.
 00:04:1D	CoregaOfAm             # Corega of America
 00:04:1E	ShikokuIns             # Shikoku Instrumentation Co., Ltd.
@@ -2534,7 +2534,7 @@
 00:09:D5	SignalComm             # Signal Communication, Inc.
 00:09:D6	KncOne                 # KNC One GmbH
 00:09:D7	DcSecurity             # DC Security Products
-00:09:D8	Private
+00:09:D8	FältCommun             # Fält Communications AB
 00:09:D9	Neoscale               # Neoscale Systems, Inc
 00:09:DA	ControlMod             # Control Module Inc.
 00:09:DB	Espace
@@ -9217,6 +9217,24 @@
 00:23:F2	Tvlogic
 00:23:F3	Glocom                 # Glocom, Inc.
 00:23:F4	Masternaut
+00:23:F5	WiloSe                 # WILO SE
+00:23:F6	SoftwellTe             # Softwell Technology Co., Ltd.
+00:23:F7	Private
+00:23:F8	ZyxelCommu             # ZyXEL Communications Corporation
+00:23:F9	Double-Tak             # Double-Take Software, INC.
+00:23:FA	RgNets                 # RG Nets, Inc.
+00:23:FB	IpDatatel              # IP Datatel, Inc.
+00:23:FC	UltraStere             # Ultra Stereo Labs, Inc
+00:23:FD	AftAtlasFa             # AFT Atlas Fahrzeugtechnik GmbH
+00:23:FE	Biodevices             # Biodevices, SA
+00:23:FF	BeijingHtt             # Beijing HTTC Technology Ltd.
+00:24:00	NortelNetw             # Nortel Networks
+00:24:01	D-Link                 # D-Link Corporation
+00:24:02	Op-Tection             # Op-Tection GmbH
+00:24:03	NokiaDanma             # Nokia Danmark A/S
+00:24:04	NokiaDanma             # Nokia Danmark A/S
+00:24:05	DilogNordi             # Dilog Nordic AB
+00:24:06	Pointmobil             # Pointmobile
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -11912,7 +11930,7 @@
 00:50:C2:7D:70:00/36	Newtec                 # Newtec A/S
 00:50:C2:7D:80:00/36	InnoscanK/             # InnoScan K/S
 00:50:C2:7D:90:00/36	Volumatic              # Volumatic Limited
-00:50:C2:7D:A0:00/36	Htec                   # HTEC Ltd
+00:50:C2:7D:A0:00/36	Htec                   # HTEC Limited
 00:50:C2:7D:B0:00/36	MuellerEle             # Mueller Elektronik
 00:50:C2:7D:C0:00/36	Aixtrusion             # aiXtrusion GmbH
 00:50:C2:7D:D0:00/36	LsElektron             # LS Elektronik AB
@@ -12378,6 +12396,12 @@
 00:50:C2:9A:C0:00/36	QuestekAus             # Questek Australia Pty Ltd
 00:50:C2:9A:D0:00/36	ChronosTec             # Chronos Technology Ltd.
 00:50:C2:9A:E0:00/36	Esensors               # Esensors, Inc.
+00:50:C2:9A:F0:00/36	Kress-NetK             # KRESS-NET Krzysztof Rutecki
+00:50:C2:9B:00:00/36	Ebru                   # Ebru GmbH
+00:50:C2:9B:10:00/36	BonHora                # Bon Hora GmbH
+00:50:C2:9B:20:00/36	Tempsys
+00:50:C2:9B:30:00/36	KahlerAuto             # Kahler Automation
+00:50:C2:9B:40:00/36	EukreaElec             # EUKREA ELECTROMATIQUE SARL
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
