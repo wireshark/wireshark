@@ -39,6 +39,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/filter_dlg.h"
+#include "gtk/filter_autocomplete.h"
 
 
 static GtkWidget *column_l, *del_bt, *title_te, *field_te, *field_lb, *fmt_cmb, *up_bt, *dn_bt;
@@ -60,7 +61,7 @@ void          column_set_arrow_button_sensitivity(GList *);
 /* Create and display the column selection widgets. */
 /* Called when the 'Columns' preference notebook page is selected. */
 GtkWidget *
-column_prefs_show() {
+column_prefs_show(GtkWidget *prefs_window) {
   GtkWidget         *main_vb, *top_hb, *new_bt,
                     *tb, *lb;
   GtkWidget         *order_fr, *order_vb, *order_lb;
@@ -245,6 +246,9 @@ column_prefs_show() {
   field_te = gtk_entry_new();
   g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
   g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  g_object_set_data(G_OBJECT(main_vb), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+  g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(prefs_window, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(field_te);
   gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 3, 4, 1, 2);
   gtk_widget_set_sensitive(field_te, FALSE);

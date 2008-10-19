@@ -518,7 +518,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* GUI Column prefs */
   g_strlcpy(label_str, "Columns", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, column_prefs_show(), E_GUI_COLUMN_PAGE_KEY);
+  prefs_nb_page_add(prefs_nb, label_str, column_prefs_show(prefs_w), E_GUI_COLUMN_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
   cts.page++;
 

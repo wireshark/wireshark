@@ -57,6 +57,7 @@
 #include "gtk/stock_icons.h"
 #include "gtk/service_response_time_table.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/filter_autocomplete.h"
 
 
 static GtkWidget *dlg=NULL;
@@ -392,6 +393,9 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
         g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+	g_signal_connect(filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
 	/* filter prefs dialog */
         g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);

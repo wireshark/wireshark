@@ -35,7 +35,7 @@
  *
  * @return the new column preferences page
  */
-GtkWidget           *column_prefs_show(void);
+GtkWidget           *column_prefs_show(GtkWidget *prefs_window);
 
 /** Fetch preference values from page.
  *

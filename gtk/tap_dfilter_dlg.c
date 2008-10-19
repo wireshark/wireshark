@@ -50,6 +50,7 @@
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/filter_autocomplete.h"
 
 
 typedef struct _tap_dfilter_dlg_list_item {
@@ -211,7 +212,10 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	/* Filter entry */
 	current_dlg->filter_entry=gtk_entry_new();
         g_signal_connect(current_dlg->filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
-	
+	g_object_set_data(G_OBJECT(filter_box), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+	g_signal_connect(current_dlg->filter_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(current_dlg->dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+
 	/* filter prefs dialog */
         g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
 	/* filter prefs dialog */
