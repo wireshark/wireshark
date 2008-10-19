@@ -244,9 +244,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
   /* If the popup window hasn't been constructed yet or if the pressed key is SHIFT 
    * then we have nothing to do with the pressed key, but if the the pressed key is 
-   * a period or decimal then complete execution.
+   * a period, decimal or backspace then complete execution.
    **/
-  if( (popup_win == NULL && (k != GDK_KP_Decimal && k != GDK_period))
+  if( (popup_win == NULL && (k != GDK_KP_Decimal && k != GDK_period && k != GDK_BackSpace))
       || k == GDK_Shift_L || k == GDK_Shift_R )
     return FALSE;
 
@@ -285,6 +285,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
   /* Now, if the pressed key is decimal or period, and there is no period or
    * decimal before it in prefix then construct the popup window.
+   *
+   * If the pressed key is backspace, and there is no existing popup window
+   * then construct the popup window again.
    **/
   if(k==GDK_period || k==GDK_KP_Decimal) {
     if( !strchr(prefix, '.') ) {
@@ -295,6 +298,19 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       popup_win = filter_autocomplete_new(filter_te, name_with_period);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
+      if(name_with_period)
+	g_free (name_with_period);
+      if(prefix_start)
+        g_free(prefix_start);
+    }
+    return FALSE;
+  } else if(k==GDK_BackSpace && !popup_win) {
+    if(strlen(prefix) > 2 && strchr(prefix, '.')) {
+      /* Delete the last character in the prefix string */
+      prefix[strlen(prefix)-1] = '\0';
+      popup_win = filter_autocomplete_new(filter_te, prefix);
+      g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
+      
       if(prefix_start)
         g_free(prefix_start);
     }
