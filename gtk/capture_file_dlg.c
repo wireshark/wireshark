@@ -66,6 +66,7 @@
 #endif
 #include "gtk/stock_icons.h"
 #include "gtk/range_utils.h"
+#include "gtk/filter_autocomplete.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>
@@ -501,6 +502,9 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  g_object_set_data(G_OBJECT(filter_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+  g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(file_open_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
@@ -808,6 +812,9 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
+  g_object_set_data(G_OBJECT(filter_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+  g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(file_merge_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
