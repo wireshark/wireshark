@@ -1740,7 +1740,7 @@ proto_register_nis(void)
 			NULL, 0, "From This Timestamp", HFILL }},
 
 		{ &hf_nisplus_dummy, {
-			" ", ".nisplus.dummy", FT_BYTES, BASE_NONE,
+			" ", "nisplus.dummy", FT_BYTES, BASE_NONE,
 			NULL, 0, " ", HFILL }},
 
 		{ &hf_nisplus_ping_time, {
