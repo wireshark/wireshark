@@ -43,6 +43,7 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/dfilter_expr_dlg.h"
 #include "gtk/color_edit_dlg.h"
+#include "gtk/filter_autocomplete.h"
 
 
 #define BUTTON_SIZE_X -1
@@ -183,6 +184,9 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     filt_text_entry = gtk_entry_new ();
     g_signal_connect(filt_text_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+    g_object_set_data(G_OBJECT(filter_string_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    g_signal_connect(filt_text_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+    g_signal_connect(edit_dialog, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), filt_text_entry, TRUE, TRUE, 0);
