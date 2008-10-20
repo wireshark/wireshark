@@ -81,9 +81,11 @@
 #endif
 
 #include <string.h>
+#include <winsock2.h>       /// struct in_addr (should use socket.h ??)
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <wiretap/wtap.h>   /// struct in_addr (should use socket.h ??)
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/inet_aton.h>
@@ -388,72 +390,72 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
 /*
  * Flag bits in connection-oriented PDU header.
  */
-#define WIRESHARK_FADF_AUTO			0x0001
+#define WIRESHARK_FADF_AUTO		0x0001
 #define WIRESHARK_FADF_STATIC		0x0002
 #define WIRESHARK_FADF_EMBEDDED		0x0004
-#define WIRESHARK_FADF_FIXEDSIZE		0x0010
+#define WIRESHARK_FADF_FIXEDSIZE	0x0010
 #define WIRESHARK_FADF_RECORD		0x0020
 #define WIRESHARK_FADF_HAVEIID		0x0040
 #define WIRESHARK_FADF_HAVEVARTYPE	0x0080
-#define WIRESHARK_FADF_BSTR			0x0100
+#define WIRESHARK_FADF_BSTR		0x0100
 #define WIRESHARK_FADF_UNKNOWN		0x0200
 #define WIRESHARK_FADF_DISPATCH		0x0400
 #define WIRESHARK_FADF_VARIANT		0x0800
 
 
 typedef enum {
-    WIRESHARK_VT_EMPTY           = 0,
-    WIRESHARK_VT_NULL            = 1,
-    WIRESHARK_VT_I2              = 2,
-    WIRESHARK_VT_I4              = 3,
-    WIRESHARK_VT_R4              = 4,
-    WIRESHARK_VT_R8              = 5,
-    WIRESHARK_VT_CY              = 6,
-    WIRESHARK_VT_DATE            = 7,
-    WIRESHARK_VT_BSTR            = 8,
-    WIRESHARK_VT_DISPATCH        = 9,
-    WIRESHARK_VT_ERROR           = 10,
-    WIRESHARK_VT_BOOL            = 11,
-    WIRESHARK_VT_VARIANT         = 12,
-    WIRESHARK_VT_UNKNOWN         = 13,
-    WIRESHARK_VT_DECIMAL         = 14,
-    WIRESHARK_VT_I1              = 16,
-    WIRESHARK_VT_UI1             = 17,
-    WIRESHARK_VT_UI2             = 18,
-    WIRESHARK_VT_UI4             = 19,
-    WIRESHARK_VT_I8              = 20,
-    WIRESHARK_VT_UI8             = 21,
-    WIRESHARK_VT_INT             = 22,
-    WIRESHARK_VT_UINT            = 23,
-    WIRESHARK_VT_VOID            = 24,
-    WIRESHARK_VT_HRESULT         = 25,
-    WIRESHARK_VT_PTR             = 26,
-    WIRESHARK_VT_SAFEARRAY       = 27,
-    WIRESHARK_VT_CARRAY          = 28,
-    WIRESHARK_VT_USERDEFINED     = 29,
-    WIRESHARK_VT_LPSTR           = 30,
-    WIRESHARK_VT_LPWSTR          = 31,
-    WIRESHARK_VT_RECORD          = 36,
-    WIRESHARK_VT_FILETIME        = 64,
-    WIRESHARK_VT_BLOB            = 65,
-    WIRESHARK_VT_STREAM          = 66,
-    WIRESHARK_VT_STORAGE         = 67,
-    WIRESHARK_VT_STREAMED_OBJECT = 68,
-    WIRESHARK_VT_STORED_OBJECT   = 69,
-    WIRESHARK_VT_BLOB_OBJECT     = 70,
-    WIRESHARK_VT_CF              = 71,
-    WIRESHARK_VT_CLSID           = 72,
+	WIRESHARK_VT_EMPTY           = 0,
+	WIRESHARK_VT_NULL            = 1,
+	WIRESHARK_VT_I2              = 2,
+	WIRESHARK_VT_I4              = 3,
+	WIRESHARK_VT_R4              = 4,
+	WIRESHARK_VT_R8              = 5,
+	WIRESHARK_VT_CY              = 6,
+	WIRESHARK_VT_DATE            = 7,
+	WIRESHARK_VT_BSTR            = 8,
+	WIRESHARK_VT_DISPATCH        = 9,
+	WIRESHARK_VT_ERROR           = 10,
+	WIRESHARK_VT_BOOL            = 11,
+	WIRESHARK_VT_VARIANT         = 12,
+	WIRESHARK_VT_UNKNOWN         = 13,
+	WIRESHARK_VT_DECIMAL         = 14,
+	WIRESHARK_VT_I1              = 16,
+	WIRESHARK_VT_UI1             = 17,
+	WIRESHARK_VT_UI2             = 18,
+	WIRESHARK_VT_UI4             = 19,
+	WIRESHARK_VT_I8              = 20,
+	WIRESHARK_VT_UI8             = 21,
+	WIRESHARK_VT_INT             = 22,
+	WIRESHARK_VT_UINT            = 23,
+	WIRESHARK_VT_VOID            = 24,
+	WIRESHARK_VT_HRESULT         = 25,
+	WIRESHARK_VT_PTR             = 26,
+	WIRESHARK_VT_SAFEARRAY       = 27,
+	WIRESHARK_VT_CARRAY          = 28,
+	WIRESHARK_VT_USERDEFINED     = 29,
+	WIRESHARK_VT_LPSTR           = 30,
+	WIRESHARK_VT_LPWSTR          = 31,
+	WIRESHARK_VT_RECORD          = 36,
+	WIRESHARK_VT_FILETIME        = 64,
+	WIRESHARK_VT_BLOB            = 65,
+	WIRESHARK_VT_STREAM          = 66,
+	WIRESHARK_VT_STORAGE         = 67,
+	WIRESHARK_VT_STREAMED_OBJECT = 68,
+	WIRESHARK_VT_STORED_OBJECT   = 69,
+	WIRESHARK_VT_BLOB_OBJECT     = 70,
+	WIRESHARK_VT_CF              = 71,
+	WIRESHARK_VT_CLSID           = 72,
 
-    WIRESHARK_VT_BSTR_BLOB       = 0x0fff,
+	WIRESHARK_VT_BSTR_BLOB       = 0x0fff,
 
-    WIRESHARK_VT_VECTOR          = 0x1000,
-    WIRESHARK_VT_ARRAY           = 0x2000,
-    WIRESHARK_VT_BYREF           = 0x4000,
-    WIRESHARK_VT_RESERVED        = 0x8000,
+	WIRESHARK_VT_VECTOR          = 0x1000,
+	WIRESHARK_VT_ARRAY           = 0x2000,
+	WIRESHARK_VT_BYREF           = 0x4000,
+	WIRESHARK_VT_RESERVED        = 0x8000,
 
-    WIRESHARK_VT_ILLEGAL         = 0xffff,
-    WIRESHARK_VT_ILLEGALMASKED   = 0x0fff,
-    WIRESHARK_VT_TYPEMASK        = 0x0fff
+	WIRESHARK_VT_ILLEGAL         = 0xffff,
+	WIRESHARK_VT_ILLEGALMASKED   = 0x0fff,
+	WIRESHARK_VT_TYPEMASK        = 0x0fff
 } dcom_vartype_t;
 
 const value_string dcom_variant_type_vals[] = {
@@ -475,29 +477,29 @@ const value_string dcom_variant_type_vals[] = {
 	{ WIRESHARK_VT_UI4,		"VT_UI4"},
 	{ WIRESHARK_VT_I8,		"VT_I8"},
 	{ WIRESHARK_VT_UI8,		"VT_UI8"},
-    { WIRESHARK_VT_ARRAY,    "VT_ARRAY"},
-    { WIRESHARK_VT_UNKNOWN,  "VT_UNKNOWN"},
-    { WIRESHARK_VT_USERDEFINED, "VT_USERDEFINED"},
+	{ WIRESHARK_VT_ARRAY,    "VT_ARRAY"},
+	{ WIRESHARK_VT_UNKNOWN,  "VT_UNKNOWN"},
+	{ WIRESHARK_VT_USERDEFINED, "VT_USERDEFINED"},
 
 	/* XXX: this could be done better */
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,    "VT_ARRAY|VT_I2"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I4,    "VT_ARRAY|VT_I4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,    "VT_ARRAY|VT_I2"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I4,    "VT_ARRAY|VT_I4"},
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R4,	 "VT_ARRAY|VT_R4"},
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R8,	 "VT_ARRAY|VT_R8"},
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_DATE,	 "VT_ARRAY|VT_DATE"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_BSTR,  "VT_ARRAY|VT_BSTR"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_ERROR, "VT_ARRAY|VT_ERROR"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BSTR,  "VT_ARRAY|VT_BSTR"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_ERROR, "VT_ARRAY|VT_ERROR"},
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BOOL,	 "VT_ARRAY|VT_BOOL"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I1,    "VT_ARRAY|VT_I1"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI1,   "VT_ARRAY|VT_UI1"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI2,   "VT_ARRAY|VT_UI2"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI4,   "VT_ARRAY|VT_UI4"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_I8,    "VT_ARRAY|VT_I8"},
-    { WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI8,   "VT_ARRAY|VT_UI8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I1,    "VT_ARRAY|VT_I1"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI1,   "VT_ARRAY|VT_UI1"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI2,   "VT_ARRAY|VT_UI2"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI4,   "VT_ARRAY|VT_UI4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I8,    "VT_ARRAY|VT_I8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI8,   "VT_ARRAY|VT_UI8"},
 
-    { WIRESHARK_VT_BYREF | WIRESHARK_VT_I2,    "VT_BYREF|VT_I2"},
-    { WIRESHARK_VT_BYREF | WIRESHARK_VT_BSTR,  "VT_BYREF|VT_BSTR"},
-    { WIRESHARK_VT_BYREF | WIRESHARK_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_I2,    "VT_BYREF|VT_I2"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_BSTR,  "VT_BYREF|VT_BSTR"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
 	{ 0,          NULL }
 /* XXX: append more types here */
 };
@@ -628,23 +630,23 @@ static const value_string dcom_dualstringarray_authz[] = {
 	{ 0x0001, "RPC_C_AUTHZ_NAME"},
 	{ 0x0002, "RPC_C_AUTHZ_DCE"},
 	{ 0xffff, "Default"},
-    { 0, NULL}
+	{ 0, NULL}
 };
 
 static const value_string dcom_dualstringarray_authn[] = {
-    {  00, "RPC_C_AUTHN_NONE" },
-    {   1, "RPC_C_AUTHN_DCE_PRIVATE"},
-    {   2, "RPC_C_AUTHN_DCE_PUBLIC"},
-    {   4, "RPC_C_AUTHN_DEC_PUBLIC"},
-    {   9, "RPC_C_AUTHN_GSS_NEGOTIATE"},
-    {  10, "RPC_C_AUTH_WINNT"},
-    {  14, "RPC_C_AUTHN_GSS_SCHANNEL"},
-    {  16, "RPC_C_AUTHN_GSS_KERBEROS"},
-    {  17, "RPC_C_AUTHN_MSN"},
-    {  18, "RPC_C_AUTHN_DPA"},
+	{  00, "RPC_C_AUTHN_NONE" },
+	{   1, "RPC_C_AUTHN_DCE_PRIVATE"},
+	{   2, "RPC_C_AUTHN_DCE_PUBLIC"},
+	{   4, "RPC_C_AUTHN_DEC_PUBLIC"},
+	{   9, "RPC_C_AUTHN_GSS_NEGOTIATE"},
+	{  10, "RPC_C_AUTH_WINNT"},
+	{  14, "RPC_C_AUTHN_GSS_SCHANNEL"},
+	{  16, "RPC_C_AUTHN_GSS_KERBEROS"},
+	{  17, "RPC_C_AUTHN_MSN"},
+	{  18, "RPC_C_AUTHN_DPA"},
 	{ 100, "RPC_C_AUTHN_MQ"},
 	{ 0xffff, "RPC_C_AUTHN_DEFAULT"},
-    { 0, NULL}
+	{ 0, NULL}
 };
 
 const value_string dcom_protseq_vals[] = {
@@ -663,7 +665,7 @@ const value_string dcom_protseq_vals[] = {
 static const value_string dcom_vt_bool_vals[] = {
 	{ 0x0000, "FALSE" },
 	{ 0xFFFF, "TRUE" },
-	{ 0,          NULL }
+	{ 0,      NULL }
 };
 
 
@@ -673,100 +675,101 @@ static int
 dissect_dcom_extent(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 u32ArraySize;
-    guint32 u32ArraySize2;
-    guint32 u32Pointer;
-    guint32 u32VariableOffset;
+	guint32 u32ArraySize;
+	guint32 u32ArraySize2;
+	guint32 u32Pointer;
+	guint32 u32VariableOffset;
 	guint32 u32Idx;
 	guint32 u32SubStart;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
-    guint32 u32ArrayCount;
-    guint32 u32ArrayRes;
+	guint32 u32ArrayCount;
+	guint32 u32ArrayRes;
 
-    guint32 u32ExtentSize;
+	guint32 u32ExtentSize;
 	e_uuid_t uuidExtend;
-    const char *uuid_name;
+	const char *uuid_name;
 
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
 
-    if (u32Pointer == 0) {
-        return offset;
-    }
+	if (u32Pointer == 0) {
+		return offset;
+	}
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_dcom_extent_array_count, &u32ArrayCount);
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
                         hf_dcom_extent_array_res, &u32ArrayRes);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
 
-    if (u32Pointer == 0) {
-        return offset;
-    }
+	if (u32Pointer == 0) {
+		return offset;
+	}
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
 						&u32ArraySize);
 
-    u32VariableOffset = offset + u32ArraySize*4;
+	u32VariableOffset = offset + u32ArraySize*4;
 
-    u32Idx = 1;
-    while (u32ArraySize--) {
+	u32Idx = 1;
+	while (u32ArraySize--) {
 		sub_item = proto_tree_add_item(tree, hf_dcom_extent, tvb, offset, 0, FALSE);
 		sub_tree = proto_item_add_subtree(sub_item, ett_dcom_extent);
 		u32SubStart = offset;
 
-        offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
 
-        if(u32Pointer != 0) {
-            u32VariableOffset = dissect_dcom_DWORD(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
-                                hf_dcom_extent_size, &u32ExtentSize);
+		if(u32Pointer != 0) {
+			u32VariableOffset = dissect_dcom_DWORD(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+							       hf_dcom_extent_size, &u32ExtentSize);
 	        
-            dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, NULL, drep, 
-                                hf_dcom_extent_id, &uuidExtend);
+			dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, NULL, drep, 
+					  hf_dcom_extent_id, &uuidExtend);
 
-		    /* look for a registered uuid name */
-            if((uuid_name = guids_get_uuid_name(&uuidExtend)) != NULL) {
-                proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
-	                offset, sizeof(e_uuid_t), (e_guid_t *) &uuidExtend, "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
-				                      uuid_name,
-                                      uuidExtend.Data1, uuidExtend.Data2, uuidExtend.Data3,
-                                      uuidExtend.Data4[0], uuidExtend.Data4[1],
-                                      uuidExtend.Data4[2], uuidExtend.Data4[3],
-                                      uuidExtend.Data4[4], uuidExtend.Data4[5],
-                                      uuidExtend.Data4[6], uuidExtend.Data4[7]);
-                u32VariableOffset += 16;
-            } else {
-	            u32VariableOffset = dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
-                                    hf_dcom_extent_id, &uuidExtend);
-            }
+			/* look for a registered uuid name */
+			if((uuid_name = guids_get_uuid_name(&uuidExtend)) != NULL) {
+				proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
+								 offset, sizeof(e_uuid_t), (e_guid_t *) &uuidExtend, 
+								 "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
+								 uuid_name,
+								 uuidExtend.Data1, uuidExtend.Data2, uuidExtend.Data3,
+								 uuidExtend.Data4[0], uuidExtend.Data4[1],
+								 uuidExtend.Data4[2], uuidExtend.Data4[3],
+								 uuidExtend.Data4[4], uuidExtend.Data4[5],
+								 uuidExtend.Data4[6], uuidExtend.Data4[7]);
+				u32VariableOffset += 16;
+			} else {
+				u32VariableOffset = dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+								      hf_dcom_extent_id, &uuidExtend);
+			}
 
 
-		    u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
-							    &u32ArraySize2);
-		    u32VariableOffset = dissect_dcom_nospec_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, u32ArraySize2);
+			u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+									   &u32ArraySize2);
+			u32VariableOffset = dissect_dcom_nospec_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, u32ArraySize2);
 
-		    /* update subtree header */
-            if(uuid_name != NULL) {
-		        proto_item_append_text(sub_item, "[%u]: %s, Bytes=%u", 
-			        u32Idx, uuid_name, u32ArraySize2);
-            } else {
-		        proto_item_append_text(sub_item, "[%u]: Bytes=%u", 
-			        u32Idx, u32ArraySize2);
-            }
-		    proto_item_set_len(sub_item, offset - u32SubStart);
-        } else {
-		    /* update subtree header */
-		    proto_item_append_text(sub_item, "[%u]: NULL", u32Idx);
-		    proto_item_set_len(sub_item, offset - u32SubStart);
-        }
+			/* update subtree header */
+			if(uuid_name != NULL) {
+				proto_item_append_text(sub_item, "[%u]: %s, Bytes=%u", 
+						       u32Idx, uuid_name, u32ArraySize2);
+			} else {
+				proto_item_append_text(sub_item, "[%u]: Bytes=%u", 
+						       u32Idx, u32ArraySize2);
+			}
+			proto_item_set_len(sub_item, offset - u32SubStart);
+		} else {
+			/* update subtree header */
+			proto_item_append_text(sub_item, "[%u]: NULL", u32Idx);
+			proto_item_set_len(sub_item, offset - u32SubStart);
+		}
 
-    	u32Idx++;
-    }
+		u32Idx++;
+	}
 
-    return u32VariableOffset;
+	return u32VariableOffset;
 }
 
 
@@ -788,7 +791,7 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 	
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
-		"DCOM, ORPCThis");
+						  "DCOM, ORPCThis");
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_this);
 
 	offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, sub_tree, drep,
@@ -814,7 +817,7 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
                 	(e_guid_t *) &info->call_data->object_uuid,
                 	"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
-        PROTO_ITEM_SET_GENERATED(pi);
+		PROTO_ITEM_SET_GENERATED(pi);
 	}
 
 	return offset;
@@ -834,11 +837,11 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
-		"DCOM, ORPCThat");
+						  "DCOM, ORPCThat");
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_that);
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_that_flags, &u32Flags);
+				    hf_dcom_that_flags, &u32Flags);
 	u32SubStart = offset - 4;
 
 	offset = dissect_dcom_extent(tvb, offset, pinfo, sub_tree, drep);
@@ -850,7 +853,7 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
         	        (e_guid_t *) &info->call_data->object_uuid,
                 	"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
-        PROTO_ITEM_SET_GENERATED(pi);
+		PROTO_ITEM_SET_GENERATED(pi);
 	}
 
 	return offset;
@@ -863,7 +866,7 @@ dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 
-    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -877,14 +880,14 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	guint32 u32HResult;
 
 
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+	offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
-                    &u32HResult);
+				      &u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
-		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
 	return offset;
@@ -976,27 +979,27 @@ dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 int hfindex, guint16 * pu16WORD, int field_index)
 {
-    guint16 u16WORD;
+	guint16 u16WORD;
 
 
 	/* dissect the WORD, but don't add to tree */
 	dissect_dcom_WORD(tvb, offset, pinfo, NULL /*tree*/, drep,
 					hfindex, &u16WORD);
 
-    if (tree) {
+	if (tree) {
 		/* special formatted output of indexed value */
-        proto_tree_add_uint_format(tree, hfindex, tvb, offset, 2, (drep[0] & 0x10),
+		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 2, (drep[0] & 0x10),
 			"%s[%u]: 0x%04x", 
 			proto_registrar_get_name(hfindex),
 			field_index, u16WORD);
-    }
+	}
 
 	offset += 2;
 
-    if (pu16WORD)
-        *pu16WORD = u16WORD;
+	if (pu16WORD)
+		*pu16WORD = u16WORD;
 
-    return offset;
+	return offset;
 }
 	
 
@@ -1006,27 +1009,27 @@ dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 int hfindex, guint32 * pu32DWORD, int field_index)
 {
-    guint32 u32DWORD;
+	guint32 u32DWORD;
 
 
 	/* dissect the DWORD, but don't add to tree */
 	dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep,
 					hfindex, &u32DWORD);
 
-    if (tree) {
+	if (tree) {
 		/* special formatted output of indexed value */
-        proto_tree_add_uint_format(tree, hfindex, tvb, offset, 4, (drep[0] & 0x10),
+		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 4, (drep[0] & 0x10),
 			"%s[%u]: 0x%08x", 
 			proto_registrar_get_name(hfindex),
 			field_index, u32DWORD);
-    }
+	}
 
 	offset += 4;
 
-    if (pu32DWORD)
-        *pu32DWORD = u32DWORD;
+	if (pu32DWORD)
+		*pu32DWORD = u32DWORD;
 
-    return offset;
+	return offset;
 }
 	
 
@@ -1036,19 +1039,19 @@ dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32HResult, int field_index, proto_item **item)
 {
-    guint32 u32HResult;
+	guint32 u32HResult;
 
 	/* dissect the DWORD, but don't add to tree */
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
                     field_index, &u32HResult);
 
-    if (tree) {
+	if (tree) {
 		/* special formatted output of indexed value */
-        *item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
-    }
+		*item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
+	}
 
-    if (pu32HResult)
-        *pu32HResult = u32HResult;
+	if (pu32HResult)
+		*pu32HResult = u32HResult;
 
 	return offset;
 }
@@ -1060,17 +1063,17 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32HResult)
 {
-    guint32 u32HResult;
+	guint32 u32HResult;
 	proto_item *item = NULL;
 
 	/* dissect the DWORD, but don't add to tree */
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
                     hf_dcom_hresult, &u32HResult);
 
-    if (tree) {
+	if (tree) {
 		/* special formatted output of indexed value */
-        item = proto_tree_add_item (tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10));
-    }
+		item = proto_tree_add_item (tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10));
+	}
 
 	/* expert info only if severity is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
@@ -1078,8 +1081,8 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
-    if (pu32HResult)
-        *pu32HResult = u32HResult;
+	if (pu32HResult)
+		*pu32HResult = u32HResult;
 
 	return offset;
 }
@@ -1091,7 +1094,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32HResult, int field_index)
 {
-    guint32 u32HResult;
+	guint32 u32HResult;
 	proto_item *item = NULL;
 
 
@@ -1099,21 +1102,21 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
                     hf_dcom_hresult, &u32HResult);
 
-    if (tree) {
+	if (tree) {
 		/* special formatted output of indexed value */
-        item = proto_tree_add_uint_format(tree, hf_dcom_hresult, tvb, offset-4, 4, u32HResult,
+		item = proto_tree_add_uint_format(tree, hf_dcom_hresult, tvb, offset-4, 4, u32HResult,
 			"HResult[%u]: %s (0x%08x)", field_index,
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown"),
 			u32HResult);
-    }
+	}
 	/* expert info only if severity flag is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
 		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
-    if (pu32HResult)
-        *pu32HResult = u32HResult;
+	if (pu32HResult)
+		*pu32HResult = u32HResult;
 
 	return offset;
 }
@@ -1183,21 +1186,21 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* feature flags */
 	u32TmpOffset = dissect_dcom_WORD(tvb, offset, pinfo, NULL, drep, 
                         hf_dcom_sa_features, &u16Features);
-    feature_item = proto_tree_add_uint (sub_tree, hf_dcom_sa_features, tvb, offset, 2, u16Features);
-    feature_tree = proto_item_add_subtree (feature_item, ett_dcom_sa_features);
-    if (feature_tree) {
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_variant, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_dispatch, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_unknown, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_bstr, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_vartype, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_iid, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_record, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_fixedsize, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_embedded, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_static, tvb, offset, 2, u16Features);
-        proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_auto, tvb, offset, 2, u16Features);
-    }
+	feature_item = proto_tree_add_uint (sub_tree, hf_dcom_sa_features, tvb, offset, 2, u16Features);
+	feature_tree = proto_item_add_subtree (feature_item, ett_dcom_sa_features);
+	if (feature_tree) {
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_variant, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_dispatch, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_unknown, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_bstr, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_vartype, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_iid, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_record, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_fixedsize, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_embedded, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_static, tvb, offset, 2, u16Features);
+		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_auto, tvb, offset, 2, u16Features);
+	}
 	offset = u32TmpOffset;
 	
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
@@ -1221,11 +1224,11 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, drep, &u32ArraySize);
 
-    tvb_ensure_bytes_exist(tvb, offset, u32ArraySize * u32ElementSize);
+	tvb_ensure_bytes_exist(tvb, offset, u32ArraySize * u32ElementSize);
 	u32VariableOffset = offset + u32ArraySize * u32ElementSize;
 
         if(sacb) {
-            sacb(tvb, offset, pinfo, tree, drep, u32VarType, u32ArraySize);
+		sacb(tvb, offset, pinfo, tree, drep, u32VarType, u32ArraySize);
         }
 
 	u32Tmp = u32ArraySize;
@@ -1250,8 +1253,8 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			case(WIRESHARK_VT_I8):
 				offset = dissect_dcom_I8(tvb, offset, pinfo, sub_tree, drep, 
 									hf_dcom_vt_i8, NULL);
-                /* take care of the 8 byte alignment */
-                u32VariableOffset = offset;
+				/* take care of the 8 byte alignment */
+				u32VariableOffset = offset;
 				break;
 			case(WIRESHARK_VT_BSTR):
 				offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
@@ -1271,12 +1274,12 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				u32VariableOffset = dissect_dcom_tobedone_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
 								10000);
 		}
-	    }
+	}
 
-	    /* update subtree header */
-	    proto_item_append_text(sub_item, ": Elements: %u/%u VarType: %s",
-		    u32Elements, u32BoundElements,
-		    val_to_str(u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
+	/* update subtree header */
+	proto_item_append_text(sub_item, ": Elements: %u/%u VarType: %s",
+			       u32Elements, u32BoundElements,
+			       val_to_str(u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
 
 	proto_item_set_len(sub_item, u32VariableOffset - u32SubStart);
 
@@ -1316,13 +1319,13 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 u32Data;
 	gchar cData[500];
 	guint32 u32Pointer;
-    gfloat  f32Data;
-    gdouble f64Data;
+	gfloat  f32Data;
+	gdouble f64Data;
 
 	
 	/* alignment of 8 needed for a VARIANT */
-    if (offset % 8) {
-        offset += 8 - (offset % 8);
+	if (offset % 8) {
+		offset += 8 - (offset % 8);
 	}
 
 	sub_item = proto_tree_add_item(tree, hfindex, tvb, offset, 0, FALSE);
@@ -1427,7 +1430,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (u32Pointer) {
 			    offset = dissect_dcom_VARIANT(tvb, offset, pinfo, sub_tree, drep,
 								    hf_dcom_vt_byref /* must be BYREF */);
-            }
+			}
 			break;
 		case(WIRESHARK_VT_UNKNOWN):
 			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, &u32Pointer);
@@ -1454,19 +1457,19 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 	int hfindex, e_uuid_t *pdata)
 {
 	const gchar *uuid_name;
-    header_field_info *hfi;
-    e_uuid_t uuid;
+	header_field_info *hfi;
+	e_uuid_t uuid;
 
 
-    /* get the UUID, but don't put it into the tree */
+	/* get the UUID, but don't put it into the tree */
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, NULL, drep, 
 						hfindex, &uuid);
 
-    /* add to the tree */
-    hfi = proto_registrar_get_nth(hfindex);
-    uuid_name = guids_get_uuid_name(&uuid);
-    if(uuid_name) {
-	    proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
+	/* add to the tree */
+	hfi = proto_registrar_get_nth(hfindex);
+	uuid_name = guids_get_uuid_name(&uuid);
+	if(uuid_name) {
+		proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
                           "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)", 
                           hfi->name, uuid_name, 
                           uuid.Data1, uuid.Data2, uuid.Data3,
@@ -1474,8 +1477,8 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
                           uuid.Data4[2], uuid.Data4[3],
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
-    } else {
-	    proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
+	} else {
+		proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid, 
                           "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           hfi->name,
                           uuid.Data1, uuid.Data2, uuid.Data3,
@@ -1483,11 +1486,11 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
                           uuid.Data4[2], uuid.Data4[3],
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
-    }
+	}
 
-    if(pdata != NULL) {
-        *pdata = uuid;
-    }
+	if(pdata != NULL) {
+		*pdata = uuid;
+	}
 
 	return offset;
 }
@@ -1499,43 +1502,43 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	int hfindex, int field_index, e_uuid_t *uuid)
 {
 	const gchar *uuid_name;
-    proto_item *pi;
-    header_field_info *hfi;
+	proto_item *pi;
+	header_field_info *hfi;
 
 
-    /* XXX - this is far from being performance optimized! */
+	/* XXX - this is far from being performance optimized! */
 
-    /* get the UUID, but don't put it into the tree */
+	/* get the UUID, but don't put it into the tree */
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, NULL, drep, 
 						hfindex, uuid);
 
 	/* look for a registered uuid name */
-    uuid_name = guids_get_uuid_name(uuid);
+	uuid_name = guids_get_uuid_name(uuid);
 
-    /* add to the tree */
-    hfi = proto_registrar_get_nth(hfindex);
+	/* add to the tree */
+	hfi = proto_registrar_get_nth(hfindex);
 	pi = proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) uuid, "%s", hfi->name);
 
-    if (field_index != -1) {
-        proto_item_append_text(pi, "[%u]: ", field_index);
-    } else {
-        proto_item_append_text(pi, ": ");
-    }
+	if (field_index != -1) {
+		proto_item_append_text(pi, "[%u]: ", field_index);
+	} else {
+		proto_item_append_text(pi, ": ");
+	}
 
-    if(uuid_name) {
-	    proto_item_append_text(pi, "%s (", uuid_name);
-    }
+	if(uuid_name) {
+		proto_item_append_text(pi, "%s (", uuid_name);
+	}
 
-    proto_item_append_text(pi, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+	proto_item_append_text(pi, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid->Data1, uuid->Data2, uuid->Data3,
                           uuid->Data4[0], uuid->Data4[1],
                           uuid->Data4[2], uuid->Data4[3],
                           uuid->Data4[4], uuid->Data4[5],
                           uuid->Data4[6], uuid->Data4[7]);
 
-    if(uuid_name) {
-	    proto_item_append_text(pi, ")");
-    }
+	if(uuid_name) {
+		proto_item_append_text(pi, ")");
+	}
 
 	/* update column info now */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1566,9 +1569,9 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 	guint8  u8Tmp2;
 
 
-    *isPrintable = TRUE;
+	*isPrintable = TRUE;
 
-    /* we must have at least the space for the zero termination */
+	/* we must have at least the space for the zero termination */
 	DISSECTOR_ASSERT(outLength >= 1);
 
 	/* determine length and printablility of the string */
@@ -1577,43 +1580,43 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 		u8Tmp1 = tvb_get_guint8(tvb, offset+u32Idx);
 		u8Tmp2 = tvb_get_guint8(tvb, offset+u32Idx+1);
 
-        /* is this the zero termination? */
+		/* is this the zero termination? */
 		if (u8Tmp1 == 0 && u8Tmp2 == 0) {
-            u32Idx+=2;
+			u32Idx+=2;
 			break;
 		}
 
-        /* is this character printable? */
-        /* XXX - there are probably more printable chars than isprint() */
-        if(!isprint(u8Tmp1) || u8Tmp2 != 0) {
-            *isPrintable = FALSE;
-        }
-    }
+		/* is this character printable? */
+		/* XXX - there are probably more printable chars than isprint() */
+		if(!isprint(u8Tmp1) || u8Tmp2 != 0) {
+			*isPrintable = FALSE;
+		}
+	}
 
-    /* u32Idx now contains the string length in bytes */
-    /* (including optional zero termination) */
+	/* u32Idx now contains the string length in bytes */
+	/* (including optional zero termination) */
 
-    /* if this is a printable string? */
-    if(*isPrintable == TRUE) {
-        /* convert to ascii (every "2nd char") */
-        /* XXX - is it possible to convert to UTF8, so the output functions work with it? */
-        for(u32IdxA = 0, u32IdxW = 0;
-            u32IdxW < u32Idx && u32IdxA < outLength-2;
-            u32IdxW+=2, u32IdxA++) {
-		    pszStr[u32IdxA] = tvb_get_guint8(tvb, offset+u32IdxW);
-        }
-    } else {
-        /* convert to hexdump */
-        for(u32IdxA = 0, u32IdxW = 0; 
-            u32IdxW < u32Idx && u32IdxA < outLength-2;
-            u32IdxW++, u32IdxA+=2) {
-		    g_snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
-        }
-    }
+	/* if this is a printable string? */
+	if(*isPrintable == TRUE) {
+		/* convert to ascii (every "2nd char") */
+		/* XXX - is it possible to convert to UTF8, so the output functions work with it? */
+		for(u32IdxA = 0, u32IdxW = 0;
+		    u32IdxW < u32Idx && u32IdxA < outLength-2;
+		    u32IdxW+=2, u32IdxA++) {
+			pszStr[u32IdxA] = tvb_get_guint8(tvb, offset+u32IdxW);
+		}
+	} else {
+		/* convert to hexdump */
+		for(u32IdxA = 0, u32IdxW = 0; 
+		    u32IdxW < u32Idx && u32IdxA < outLength-2;
+		    u32IdxW++, u32IdxA+=2) {
+			g_snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
+		}
+	}
 
-    /* zero terminate the string, space must be available */
+	/* zero terminate the string, space must be available */
 	DISSECTOR_ASSERT(u32IdxA < outLength);
-    pszStr[u32IdxA] = 0;
+	pszStr[u32IdxA] = 0;
 
 	return offset + u32Idx;
 }
@@ -1634,15 +1637,15 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-    gboolean isPrintable;
+	gboolean isPrintable;
 
 
 	/* alignment of 4 needed */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
+	if (offset % 4) {
+		offset += 4 - (offset % 4);
 	}
 
-    /* add subtree item */
+	/* add subtree item */
 	sub_item = proto_tree_add_string(tree, hfindex, tvb, offset, 0, "");
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_lpwstr);
 	u32SubStart = offset;
@@ -1655,19 +1658,19 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         &u32ArraySize);
 
 	u32StrStart = offset;
-    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
+	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
 
-    proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
+	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
 
-    /* update subtree header */
+	/* update subtree header */
 	if (field_index != -1) {
 		proto_item_set_text(sub_item, "%s[%u]: %s%s%s", 
 			proto_registrar_get_name(hfindex),
 			field_index, 
-            isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
+			isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	} else {
 		proto_item_append_text(sub_item, "%s%s%s",
-            isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
+				       isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	}
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -1703,11 +1706,11 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 u32SubStart;
 	guint32 u32ByteLength;
 	guint32	u32RealOffset;
-    gboolean isPrintable;
+	gboolean isPrintable;
 
 	/* alignment of 4 needed */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
+	if (offset % 4) {
+		offset += 4 - (offset % 4);
 	}
 
     /* add subtree item */
@@ -1725,7 +1728,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	u32RealOffset = offset + u32ArraySize*2;
 
 	u32StrStart = offset;
-    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
+	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
 
 	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
 
@@ -1733,7 +1736,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item_append_text(sub_item, "%s%s%s", 
         isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
 	if ((int) (u32RealOffset - u32SubStart) <= 0)
-	    THROW(ReportedBoundsError);
+		THROW(ReportedBoundsError);
 	proto_item_set_len(sub_item, u32RealOffset - u32SubStart);
 
 	return u32RealOffset;
@@ -1761,11 +1764,11 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *subsub_item;
 	proto_tree *subsub_tree;
 	guint32	u32SubSubStart;
-    gboolean isPrintable;
-    guint32 first_ip = 0;
-    guint32 curr_ip = 0;
-    struct in_addr		ipaddr;
-    proto_item *pi;
+	gboolean isPrintable;
+	guint32 first_ip = 0;
+	guint32 curr_ip = 0;
+	struct in_addr		ipaddr;
+	proto_item *pi;
 
 
 	/* add subtree header */
@@ -1797,27 +1800,27 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         /* convert ip address (if it is dotted decimal) */
         /* XXX - this conversion is ugly */
-        if (inet_aton(szStr, &ipaddr)) {
-            if(get_host_ipaddr(szStr, &curr_ip)) {
-                curr_ip = g_ntohl(curr_ip);
+		if (inet_aton(szStr, &ipaddr)) {
+			if(get_host_ipaddr(szStr, &curr_ip)) {
+				curr_ip = g_ntohl(curr_ip);
 
-    	        /*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s", 
-                    ip_to_str( (gchar *) &curr_ip));*/
+				/*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s", 
+				  ip_to_str( (gchar *) &curr_ip));*/
 
-                if(first_ip == 0) {
-                    if(ip != NULL) {
-                            memcpy(ip, &curr_ip, sizeof(curr_ip));
-                    }
-                    first_ip = curr_ip;
-                } else {
-                    if(first_ip != curr_ip) {
-                        expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, 
-                            "DUALSTRINGARRAY: multiple IP's %s %s", 
-                            ip_to_str( (char *) &first_ip), ip_to_str( (char *) &curr_ip));
-                    }
-                }
-            }
-        }
+				if(first_ip == 0) {
+					if(ip != NULL) {
+						memcpy(ip, &curr_ip, sizeof(curr_ip));
+					}
+					first_ip = curr_ip;
+				} else {
+					if(first_ip != curr_ip) {
+						expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, 
+								       "DUALSTRINGARRAY: multiple IP's %s %s", 
+								       ip_to_str( (char *) &first_ip), ip_to_str( (char *) &curr_ip));
+					}
+				}
+			}
+		}
 
 		proto_item_append_text(subsub_item, "[%u]: TowerId=%s, NetworkAddr=\"%s\"", 
 			u32StringBindings, 
@@ -1916,11 +1919,11 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32	u32SubStart;
 	guint32	u32CBExtension;
 	guint32	u32Size;
-    guint64 oxid;
-    guint64 oid;
-    e_uuid_t ipid;
-    dcom_interface_t *dcom_if = NULL;
-    gchar ip[4];
+	guint64 oxid;
+	guint64 oid;
+	e_uuid_t ipid;
+	dcom_interface_t *dcom_if = NULL;
+	gchar ip[4];
 
 
 	/* add subtree header */
@@ -1939,13 +1942,13 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	switch(u32Flags) {
 		case(0x1):	/* standard */
 			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex, 
-                                &oxid, &oid, &ipid);
+								&oxid, &oid, &ipid);
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep,
 								hf_dcom_objref_resolver_address, ip);
 		break;
 		case(0x2):	/* handler (untested) */
 			offset = dissect_dcom_STDOBJREF(tvb, offset, pinfo, sub_tree, drep, hfindex, 
-                                &oxid, &oid, &iid);
+								&oxid, &oid, &iid);
 			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_clsid, &clsid);
 			offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, sub_tree, drep, 
@@ -1954,27 +1957,27 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		case(0x4):	/* custom */
 			offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
 								hf_dcom_clsid, &clsid);
-	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
-                                hf_dcom_objref_cbextension, &u32CBExtension);
-	        offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
-                                hf_dcom_objref_size, &u32Size);
-            /* the following data depends on the CLSID, no docs available on this */
+	        	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+								hf_dcom_objref_cbextension, &u32CBExtension);
+	        	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+								hf_dcom_objref_size, &u32Size);
+			/* the following data depends on the CLSID, no docs available on this */
 			offset = dissect_dcom_nospec_data(tvb, offset, pinfo, sub_tree, drep, u32Size);
 		break;
 	}
 
-    if(u32Flags == 0x1 || u32Flags == 0x2) {
-        /* add interface instance to database (we currently only handle IPv4) */
-        if(pinfo->net_src.type == AT_IPv4) {
-            dcom_if = dcom_interface_new(pinfo, 
-	        ip,
-                &iid, oxid, oid, &ipid);
-        }
-    }
+	if(u32Flags == 0x1 || u32Flags == 0x2) {
+		/* add interface instance to database (we currently only handle IPv4) */
+		if(pinfo->net_src.type == AT_IPv4) {
+			dcom_if = dcom_interface_new(pinfo, 
+						     ip,
+						     &iid, oxid, oid, &ipid);
+		}
+	}
 
-    if(interf != NULL) {
-        *interf = dcom_if;
-    }
+	if(interf != NULL) {
+		*interf = dcom_if;
+	}
 
 	/* append info to subtree header */
 	proto_item_set_len(sub_item, offset - u32SubStart);
@@ -2031,19 +2034,19 @@ dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (u32Pointer) {
 		offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, hfindex, interf);
-    } else {
-        if(interf != NULL) {
-            *interf = NULL;
-        }
-    }
+	} else {
+		if(interf != NULL) {
+			*interf = NULL;
+		}
+	}
 
 	return offset;
 }
 
 
 static void dcom_reinit( void) {
-    dcom_machines = NULL;
-    dcom_interfaces = NULL;
+	dcom_machines = NULL;
+	dcom_interfaces = NULL;
 }
 
 
@@ -2069,7 +2072,7 @@ proto_register_dcom (void)
 		{ "Flags", "dcom.that.flags", FT_UINT32, BASE_HEX, VALS(dcom_thisthat_flag_vals), 0x0, "", HFILL }}
 	};
 
-    static hf_register_info hf_dcom_extent_array[] = {
+	static hf_register_info hf_dcom_extent_array[] = {
 		{ &hf_dcom_extent,
 		{ "Extension", "dcom.extent", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_extent_array_count,
@@ -2080,7 +2083,7 @@ proto_register_dcom (void)
 		{ "Extension Size", "dcom.extent.size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_extent_id,
 		{ "Extension Id", "dcom.extent.id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }}
-    };
+	};
 
 	static hf_register_info hf_dcom_array[] = {
 		{ &hf_dcom_version_major,
@@ -2263,7 +2266,7 @@ proto_register_dcom (void)
 	static gint *ett_dcom[] = {
 		&ett_dcom_this,
 		&ett_dcom_that,
-        &ett_dcom_extent,
+		&ett_dcom_extent,
 		&ett_dcom_lpwstr,
 		&ett_dcom_interface_pointer,
 		&ett_dcom_objref,
