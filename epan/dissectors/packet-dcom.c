@@ -81,11 +81,9 @@
 #endif
 
 #include <string.h>
-#include <winsock2.h>       /// struct in_addr (should use socket.h ??)
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <wiretap/wtap.h>   /// struct in_addr (should use socket.h ??)
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/inet_aton.h>
