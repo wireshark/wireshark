@@ -115,6 +115,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireless Toolbar not enabled (using AirPcap) if PCAP_REMOTE=1
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2685">Bug
+          2685</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Failure to dissect long SASL wrapped LDAP response
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2687">Bug
           2687</ulink>)

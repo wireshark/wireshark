@@ -4311,16 +4311,16 @@ airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
  * Changed callback for the channel offset combobox
  */
 static void
-on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
+on_channel_offset_cb_changed(GtkWidget *w, gpointer data _U_)
 {
     const gchar *s;
     int offset;
 
-    if (w == NULL || GTK_WIDGET_SENSITIVE(w)) {
+    if (w == NULL) {
         return;
     }
 
-    if (data != NULL && change_airpcap_settings)
+    if (change_airpcap_settings)
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
         if ((g_ascii_strcasecmp("",s)))
@@ -4329,10 +4329,7 @@ on_channel_offset_cb_changed(GtkWidget *w, gpointer data)
             {
                 sscanf(s,"%d",&offset);
                 airpcap_if_active->channelInfo.ExtChannel = offset;
-                if (change_airpcap_settings != NULL)
-                {
-                    airpcap_update_frequency_and_offset(airpcap_if_active);
-                }
+                airpcap_update_frequency_and_offset(airpcap_if_active);
             }
         }
     }
@@ -4734,7 +4731,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* callback for channel combo box */
     SIGNAL_CONNECT(GTK_COMBO(channel_cm)->entry,"changed", airpcap_toolbar_channel_changed_cb, channel_offset_cb);
     /* callback for channel offset combo box */
-    SIGNAL_CONNECT(GTK_COMBO(channel_offset_cb)->entry,"changed", on_channel_offset_cb_changed, channel_offset_cb);
+    SIGNAL_CONNECT(GTK_COMBO(channel_offset_cb)->entry,"changed", on_channel_offset_cb_changed, NULL);
     /* End: Channel offset combo box */
 
     /* Wrong CRC Label */
