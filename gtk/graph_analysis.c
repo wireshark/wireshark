@@ -154,7 +154,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 
 /****************************************************************************/
 /* close the dialog window */
-static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
+static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data)
 {
 	int i;
 
@@ -169,7 +169,7 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 	user_data->dlg.title = NULL;
 
 	if(user_data->on_destroy_user_data){
-        user_data->on_destroy_user_data(user_data->data);
+		user_data->on_destroy_user_data(user_data->data);
 	}
 }
 
@@ -214,7 +214,7 @@ static void enlarge_string(GString *gstr, guint32 length, char pad){
 /****************************************************************************/
 /* overwrites the characters in a string, between positions p1 and p2, with */
 /*   the characters of text_to_insert                                       */
-/*   NB: it does not check that p1 and p2 fit into string					*/
+/*   NB: it does not check that p1 and p2 fit into string                   */
 /****************************************************************************/
 
 static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2){
@@ -260,16 +260,16 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 /****************************************************************************/
 static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 {
-        guint32 i, first_node, display_items, display_nodes;
+	guint32 i, first_node, display_items, display_nodes;
 	guint32 start_position, end_position, item_width, header_length;
-        guint32 current_item;
+	guint32 current_item;
 	graph_analysis_item_t *gai;
 	guint16 first_conv_num = 0;
 	gboolean several_convs = FALSE;
 	gboolean first_packet = TRUE;
 
-        GString *label_string, *empty_line,*separator_line, *tmp_str, *tmp_str2;
-        char *empty_header;
+	GString *label_string, *empty_line,*separator_line, *tmp_str, *tmp_str2;
+	char *empty_header;
 	char src_port[8],dst_port[8];
 
 	GList* list;
@@ -517,7 +517,7 @@ static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 		  "Do you want to overwrite it?",
 		  simple_dialog_primary_start(),user_data_p->dlg.save_file, simple_dialog_primary_end());
 		simple_dialog_set_cb(dialog, overwrite_existing_file_cb, user_data);
-  		fclose(file_test);
+		fclose(file_test);
 	}
 
 	else{
@@ -558,25 +558,23 @@ on_save_bt_clicked                    (GtkButton       *button _U_,
 	GTK_FILE_SELECTION(save_to_file_w)->cancel_button, window_cancel_button_cb);
 
 	g_signal_connect(save_to_file_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	g_signal_connect(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb),
-	               NULL);
+	g_signal_connect(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb), NULL);
 
 	gtk_widget_show(save_to_file_w);
 	window_present(save_to_file_w);
-
 
 }
 
 /****************************************************************************/
 static void dialog_graph_draw(graph_analysis_data_t* user_data)
 {
-        guint32 i, last_item, first_item, display_items;
+	guint32 i, last_item, first_item, display_items;
 	guint32 start_arrow, end_arrow, label_x, src_port_x, dst_port_x, arrow_width;
-        guint32 current_item;
-        guint32 left_x_border;
-        guint32 right_x_border;
-        guint32 top_y_border;
-        guint32 bottom_y_border;
+	guint32 current_item;
+	guint32 left_x_border;
+	guint32 right_x_border;
+	guint32 top_y_border;
+	guint32 bottom_y_border;
 	graph_analysis_item_t *gai;
 	guint16 first_conv_num;
 	gboolean several_convs = FALSE;
@@ -586,22 +584,22 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	GdkGC *frame_bg_color;
 	GdkGC *div_line_color;
 
-        PangoLayout  *layout;
-        PangoLayout  *big_layout;
-        PangoLayout  *small_layout;
-        gint label_width, label_height;
-        guint32 draw_width, draw_height;
-        char label_string[MAX_COMMENT];
+	PangoLayout  *layout;
+	PangoLayout  *big_layout;
+	PangoLayout  *small_layout;
+	gint label_width, label_height;
+	guint32 draw_width, draw_height;
+	char label_string[MAX_COMMENT];
 	GList* list;
 
-        /* new variables */
+	/* new variables */
 
-        if(!user_data->dlg.needs_redraw){
-                return;
-        }
-        user_data->dlg.needs_redraw=FALSE;
+	if(!user_data->dlg.needs_redraw){
+		return;
+	}
+	user_data->dlg.needs_redraw=FALSE;
 
-        /* Clear out old plt */
+	/* Clear out old plt */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
 						   user_data->dlg.draw_area_time->style->white_gc,
@@ -627,10 +625,10 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 						   user_data->dlg.draw_area_comments->allocation.height);
 
 	/* Calculate the y border */
-        top_y_border=TOP_Y_BORDER;	/* to display the node address */
-        bottom_y_border=2;
+	top_y_border=TOP_Y_BORDER;	/* to display the node address */
+	bottom_y_border=2;
 
-	    draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
+	draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
 
 	first_item = user_data->dlg.first_item;
 	display_items = draw_height/ITEM_HEIGHT;
@@ -698,25 +696,25 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Calculate the x borders */
 	/* We use time from the last display item to calcultate the x left border */
 	g_snprintf(label_string, MAX_LABEL, "%.3f", user_data->dlg.items[display_items-1].time);
-        layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
-        big_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
-        small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
+	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
+	big_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
+	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 
-        /* XXX - to prevent messages like "Couldn't load font x, falling back to y", I've changed font
-           description from "Helvetica-Bold 8" to "Helvetica,Sans,Bold 8", this seems to be
-           conforming to the API, see http://developer.gnome.org/doc/API/2.0/pango/pango-Fonts.html */
+	/* XXX - to prevent messages like "Couldn't load font x, falling back to y", I've changed font
+	         description from "Helvetica-Bold 8" to "Helvetica,Sans,Bold 8", this seems to be
+	         conforming to the API, see http://developer.gnome.org/doc/API/2.0/pango/pango-Fonts.html */
 	pango_layout_set_font_description(big_layout, pango_font_description_from_string("Helvetica,Sans,Bold 8"));
 	pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
 
-        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
-		/* resize the "time" draw area */
+	/* resize the "time" draw area */
 
-        left_x_border=3;
+	left_x_border=3;
 	user_data->dlg.left_x_border = left_x_border;
 
-        right_x_border=2;
-        draw_width=user_data->dlg.pixmap_width-right_x_border-left_x_border;
+	right_x_border=2;
+	draw_width=user_data->dlg.pixmap_width-right_x_border-left_x_border;
 
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
@@ -750,7 +748,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Draw the word "Time" on top of time column */
 	g_snprintf(label_string, label_width, "%s", "Time");
 	pango_layout_set_text(layout, label_string, -1);
-        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
 		gdk_draw_layout(user_data->dlg.pixmap_time,
 						user_data->dlg.draw_area_time->style->black_gc,
@@ -762,7 +760,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Draw the word "Comment" on top of comment column */
 	g_snprintf(label_string, label_width, "%s", "Comment");
 	pango_layout_set_text(layout, label_string, -1);
-        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
 		gdk_draw_layout(user_data->dlg.pixmap_comments,
 			   user_data->dlg.draw_area_comments->style->black_gc,
@@ -798,7 +796,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		g_snprintf(label_string, NODE_WIDTH/5, "%s",
 			get_addr_name(&(user_data->nodes[i])));
 		pango_layout_set_text(layout, label_string, -1);
-	        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
 			gdk_draw_layout(user_data->dlg.pixmap,
 							user_data->dlg.draw_area->style->black_gc,
@@ -823,7 +821,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		/* draw the time */
 		g_snprintf(label_string, MAX_LABEL, "%.3f", user_data->dlg.items[current_item].time);
 		pango_layout_set_text(layout, label_string, -1);
-	        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
 			gdk_draw_layout(user_data->dlg.pixmap_time,
 							user_data->dlg.draw_area->style->black_gc,
@@ -980,30 +978,30 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 						user_data->dlg.draw_area_comments->allocation.width, user_data->dlg.draw_area_comments->allocation.height);
 
 	/* update the v_scrollbar */
-        user_data->dlg.v_scrollbar_adjustment->upper=(gfloat) user_data->num_items-1;
-        user_data->dlg.v_scrollbar_adjustment->step_increment=1;
-        user_data->dlg.v_scrollbar_adjustment->page_increment=(gfloat) (last_item-first_item);
-        user_data->dlg.v_scrollbar_adjustment->page_size=(gfloat) (last_item-first_item);
-        user_data->dlg.v_scrollbar_adjustment->value=(gfloat) first_item;
+	user_data->dlg.v_scrollbar_adjustment->upper=(gfloat) user_data->num_items-1;
+	user_data->dlg.v_scrollbar_adjustment->step_increment=1;
+	user_data->dlg.v_scrollbar_adjustment->page_increment=(gfloat) (last_item-first_item);
+	user_data->dlg.v_scrollbar_adjustment->page_size=(gfloat) (last_item-first_item);
+	user_data->dlg.v_scrollbar_adjustment->value=(gfloat) first_item;
 
 	gtk_adjustment_changed(user_data->dlg.v_scrollbar_adjustment);
-        gtk_adjustment_value_changed(user_data->dlg.v_scrollbar_adjustment);
+	gtk_adjustment_value_changed(user_data->dlg.v_scrollbar_adjustment);
 }
 
 /****************************************************************************/
 static void dialog_graph_redraw(graph_analysis_data_t* user_data)
 {
-        user_data->dlg.needs_redraw=TRUE;
-        dialog_graph_draw(user_data);
+	user_data->dlg.needs_redraw=TRUE;
+	dialog_graph_draw(user_data);
 }
 
 /****************************************************************************/
 static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 {
-        graph_analysis_data_t *user_data;
+	graph_analysis_data_t *user_data;
 	guint32 item;
 
-        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
 	if (event->type != GDK_BUTTON_PRESS) return TRUE;
 
@@ -1019,7 +1017,7 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 
 	cf_goto_frame(&cfile, user_data->dlg.items[item].frame_num);
 
-        return TRUE;
+	return TRUE;
 }
 
 /****************************************************************************/
@@ -1047,8 +1045,8 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	    break;
 	case(GDK_SCROLL_LEFT):
 	case(GDK_SCROLL_RIGHT):
-	    /* nothing to do */
-	    break;
+		/* nothing to do */
+		break;
 	}
 	dialog_graph_redraw(user_data);
 
@@ -1096,19 +1094,19 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 	graph_analysis_data_t *user_data;
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
-	if (GDK_IS_DRAWABLE(widget->window) )
+	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_pixmap(widget->window,
-		widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-		user_data->dlg.pixmap,
-		event->area.x, event->area.y,
-		event->area.x, event->area.y,
-		event->area.width, event->area.height);
+			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			user_data->dlg.pixmap,
+			event->area.x, event->area.y,
+			event->area.x, event->area.y,
+			event->area.width, event->area.height);
 
-        return FALSE;
+	return FALSE;
 }
 
 /****************************************************************************/
@@ -1117,19 +1115,19 @@ static gint expose_event_comments(GtkWidget *widget, GdkEventExpose *event)
 	graph_analysis_data_t *user_data;
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
-	if (GDK_IS_DRAWABLE(widget->window) )
+	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_pixmap(widget->window,
-		widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-		user_data->dlg.pixmap_comments,
-		event->area.x, event->area.y,
-		event->area.x, event->area.y,
-		event->area.width, event->area.height);
+			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			user_data->dlg.pixmap_comments,
+			event->area.x, event->area.y,
+			event->area.x, event->area.y,
+			event->area.width, event->area.height);
 
-        return FALSE;
+	return FALSE;
 }
 
 /****************************************************************************/
@@ -1138,19 +1136,19 @@ static gint expose_event_time(GtkWidget *widget, GdkEventExpose *event)
 	graph_analysis_data_t *user_data;
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
 	if (GDK_IS_DRAWABLE(widget->window) )
 		gdk_draw_pixmap(widget->window,
-		widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-		user_data->dlg.pixmap_time,
-		event->area.x, event->area.y,
-		event->area.x, event->area.y,
-		event->area.width, event->area.height);
+			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			user_data->dlg.pixmap_time,
+			event->area.x, event->area.y,
+			event->area.x, event->area.y,
+			event->area.width, event->area.height);
 
-        return FALSE;
+	return FALSE;
 }
 
 /****************************************************************************/
@@ -1165,11 +1163,11 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		{0, 0x7fff, 0x7fff, 0x7fff}
 	};
 
-	/* the first calor is blue to highlight the selected item */
+	/* the first color is blue to highlight the selected item */
 	static GdkColor col[MAX_NUM_COL_CONV+1] = {
 		{0,     0x00FF, 0x00FF, 0xFFFF},
-	{0,     0x33FF, 0xFFFF, 0x33FF},
-	{0,     0x00FF, 0xCCFF, 0xCCFF},
+		{0,     0x33FF, 0xFFFF, 0x33FF},
+		{0,     0x00FF, 0xCCFF, 0xCCFF},
 		{0,     0x66FF, 0xFFFF, 0xFFFF},
 		{0,     0x99FF, 0x66FF, 0xFFFF},
 		{0,     0xFFFF, 0xFFFF, 0x33FF},
@@ -1180,137 +1178,138 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		{0,     0xFFFF, 0xFFFF, 0x99FF}
 	};
 
-        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
-        if(user_data->dlg.pixmap){
-                gdk_pixmap_unref(user_data->dlg.pixmap);
-                user_data->dlg.pixmap=NULL;
-        }
+	if(user_data->dlg.pixmap){
+		gdk_pixmap_unref(user_data->dlg.pixmap);
+		user_data->dlg.pixmap=NULL;
+	}
 
-        user_data->dlg.pixmap=gdk_pixmap_new(widget->window,
-                        widget->allocation.width,
-                        widget->allocation.height,
-                        -1);
+	user_data->dlg.pixmap=gdk_pixmap_new(widget->window,
+		widget->allocation.width,
+		widget->allocation.height,
+		-1);
 
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
 			gdk_draw_rectangle(user_data->dlg.pixmap,
-		widget->style->white_gc,
-		TRUE,
-		0, 0,
-		widget->allocation.width,
-		widget->allocation.height);
+				widget->style->white_gc,
+				TRUE,
+				0, 0,
+				widget->allocation.width,
+				widget->allocation.height);
 
-	/* create gc for division lines and set the line stype to dash*/
+	/* create gc for division lines and set the line stype to dash */
 	for (i=0; i<2; i++){
 		user_data->dlg.div_line_gc[i]=gdk_gc_new(user_data->dlg.pixmap);
 		gdk_gc_set_line_attributes(user_data->dlg.div_line_gc[i], 1, GDK_LINE_ON_OFF_DASH, 0, 0);
-	gdk_gc_set_rgb_fg_color(user_data->dlg.div_line_gc[i], &color_div_line[i]);
+		gdk_gc_set_rgb_fg_color(user_data->dlg.div_line_gc[i], &color_div_line[i]);
 	}
 
 	/* create gcs for the background items */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
 		user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap);
-	gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
+		gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
 	}
 
-		dialog_graph_redraw(user_data);
+	dialog_graph_redraw(user_data);
 
-        return TRUE;
+	return TRUE;
 }
 
 /****************************************************************************/
 static gint configure_event_comments(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
-        graph_analysis_data_t *user_data;
+	graph_analysis_data_t *user_data;
 
-        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
-        if(user_data->dlg.pixmap_comments){
-                gdk_pixmap_unref(user_data->dlg.pixmap_comments);
-                user_data->dlg.pixmap_comments=NULL;
-        }
+	if(user_data->dlg.pixmap_comments){
+		gdk_pixmap_unref(user_data->dlg.pixmap_comments);
+		user_data->dlg.pixmap_comments=NULL;
+	}
 
-        user_data->dlg.pixmap_comments=gdk_pixmap_new(widget->window,
+	user_data->dlg.pixmap_comments=gdk_pixmap_new(widget->window,
 						widget->allocation.width,
-                        widget->allocation.height,
-                        -1);
+						widget->allocation.height,
+						-1);
 
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-						   widget->style->white_gc,
-						   TRUE,
-						   0, 0,
-						   widget->allocation.width,
-						   widget->allocation.height);
+						widget->style->white_gc,
+						TRUE,
+						0, 0,
+						widget->allocation.width,
+						widget->allocation.height);
 
 	dialog_graph_redraw(user_data);
-        return TRUE;
+	return TRUE;
 }
 
 /****************************************************************************/
 static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
-        graph_analysis_data_t *user_data;
+	graph_analysis_data_t *user_data;
 
-        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 
-        if(user_data->dlg.pixmap_time){
-                gdk_pixmap_unref(user_data->dlg.pixmap_time);
-                user_data->dlg.pixmap_time=NULL;
-        }
+	if(user_data->dlg.pixmap_time){
+		gdk_pixmap_unref(user_data->dlg.pixmap_time);
+		user_data->dlg.pixmap_time=NULL;
+	}
 
-        user_data->dlg.pixmap_time=gdk_pixmap_new(widget->window,
+	user_data->dlg.pixmap_time=gdk_pixmap_new(widget->window,
 						widget->allocation.width,
-                        widget->allocation.height,
-                        -1);
+						widget->allocation.height,
+						-1);
 
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-						   widget->style->white_gc,
-						   TRUE,
-						   0, 0,
-						   widget->allocation.width,
-						   widget->allocation.height);
+						widget->style->white_gc,
+						TRUE,
+						0, 0,
+						widget->allocation.width,
+						widget->allocation.height);
 
 	dialog_graph_redraw(user_data);
 
-
-        return TRUE;
+	return TRUE;
 }
+
 /****************************************************************************/
 static gint pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer data)
 {
-        graph_analysis_data_t *user_data=(graph_analysis_data_t *)data;
+	graph_analysis_data_t *user_data=(graph_analysis_data_t *)data;
 
-        if(!user_data){
-                exit(10);
-        }
+	if(!user_data){
+		exit(10);
+	}
 	if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) > user_data->dlg.pixmap_width)
 		gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), user_data->dlg.pixmap_width);
 	else if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) < NODE_WIDTH*2)
 		gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), NODE_WIDTH*2);
-	/* repaint the comment area because when moving the pane position thre are times that the expose_event_comments is not called */
-	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area_comments->window) )
+	/* repaint the comment area because when moving the pane position there are times that the expose_event_comments is not called */
+	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area_comments->window))
 		gdk_draw_pixmap(user_data->dlg.draw_area_comments->window,
-		user_data->dlg.draw_area_comments->style->fg_gc[GTK_WIDGET_STATE(widget)],
-		user_data->dlg.pixmap_comments,
-					0,0,
-					0,0,
-					user_data->dlg.draw_area_comments->allocation.width,
-		user_data->dlg.draw_area_comments->allocation.height);
-        return TRUE;
+			user_data->dlg.draw_area_comments->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			user_data->dlg.pixmap_comments,
+			0,0,
+			0,0,
+			user_data->dlg.draw_area_comments->allocation.width,
+			user_data->dlg.draw_area_comments->allocation.height);
+
+	return TRUE;
 }
 
 /****************************************************************************/
@@ -1327,6 +1326,7 @@ static gint v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	user_data->dlg.first_item = (guint32) user_data->dlg.v_scrollbar_adjustment->value;
 
 	dialog_graph_redraw(user_data);
+
 	return TRUE;
 }
 
@@ -1334,43 +1334,43 @@ static gint v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 {
 	GtkWidget *vbox;
-        GtkWidget *hbox;
+	GtkWidget *hbox;
 	GtkWidget *viewport;
 	GtkWidget *scroll_window_comments;
 	GtkWidget *viewport_comments;
 
-        hbox=gtk_hbox_new(FALSE, 0);
-        gtk_widget_show(hbox);
+	hbox=gtk_hbox_new(FALSE, 0);
+	gtk_widget_show(hbox);
 
-        vbox=gtk_vbox_new(FALSE, 0);
-        gtk_widget_show(vbox);
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_widget_show(vbox);
 
 	/* create "time" draw area */
-        user_data->dlg.draw_area_time=gtk_drawing_area_new();
-        gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.pixmap_height);
-        g_object_set_data(G_OBJECT(user_data->dlg.draw_area_time), "graph_analysis_data_t", user_data);
+	user_data->dlg.draw_area_time=gtk_drawing_area_new();
+	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.pixmap_height);
+	g_object_set_data(G_OBJECT(user_data->dlg.draw_area_time), "graph_analysis_data_t", user_data);
 
 	/* create "comments" draw area */
-        user_data->dlg.draw_area_comments=gtk_drawing_area_new();
-        gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.pixmap_height);
+	user_data->dlg.draw_area_comments=gtk_drawing_area_new();
+	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.pixmap_height);
 	scroll_window_comments=gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(scroll_window_comments, COMMENT_WIDTH/2, user_data->dlg.pixmap_height);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll_window_comments), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scroll_window_comments), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
 	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)), gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)));
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
 	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_comments), GTK_SHADOW_NONE);
-        g_object_set_data(G_OBJECT(user_data->dlg.draw_area_comments), "graph_analysis_data_t", user_data);
+	g_object_set_data(G_OBJECT(user_data->dlg.draw_area_comments), "graph_analysis_data_t", user_data);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
 
 	g_signal_connect(user_data->dlg.draw_area_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
 	/* create main Graph draw area */
-        user_data->dlg.draw_area=gtk_drawing_area_new();
+	user_data->dlg.draw_area=gtk_drawing_area_new();
 	if (user_data->num_nodes < 2)
 		user_data->dlg.pixmap_width = 2 * NODE_WIDTH;
 	else
 		user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
-        gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
+	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
 	user_data->dlg.scroll_window=gtk_scrolled_window_new(NULL, NULL);
 	if ( user_data->num_nodes < 6)
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
@@ -1381,21 +1381,21 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
-        g_object_set_data(G_OBJECT(user_data->dlg.draw_area), "graph_analysis_data_t", user_data);
+	g_object_set_data(G_OBJECT(user_data->dlg.draw_area), "graph_analysis_data_t", user_data);
 	GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
 
-        /* signals needed to handle backing pixmap */
-        g_signal_connect(user_data->dlg.draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
-        g_signal_connect(user_data->dlg.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
+	/* signals needed to handle backing pixmap */
+	g_signal_connect(user_data->dlg.draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
+	g_signal_connect(user_data->dlg.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
 
-        /* signals needed to handle backing pixmap comments*/
-        g_signal_connect(user_data->dlg.draw_area_comments, "expose_event", G_CALLBACK(expose_event_comments), NULL);
-        g_signal_connect(user_data->dlg.draw_area_comments, "configure_event", G_CALLBACK(configure_event_comments), user_data);
+	/* signals needed to handle backing pixmap comments */
+	g_signal_connect(user_data->dlg.draw_area_comments, "expose_event", G_CALLBACK(expose_event_comments), NULL);
+	g_signal_connect(user_data->dlg.draw_area_comments, "configure_event", G_CALLBACK(configure_event_comments), user_data);
 
-        /* signals needed to handle backing pixmap time*/
-        g_signal_connect(user_data->dlg.draw_area_time, "expose_event", G_CALLBACK(expose_event_time), NULL);
-        g_signal_connect(user_data->dlg.draw_area_time, "configure_event", G_CALLBACK(configure_event_time), user_data);
+	/* signals needed to handle backing pixmap time */
+	g_signal_connect(user_data->dlg.draw_area_time, "expose_event", G_CALLBACK(expose_event_time), NULL);
+	g_signal_connect(user_data->dlg.draw_area_time, "configure_event", G_CALLBACK(configure_event_time), user_data);
 
 	gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
 	g_signal_connect(user_data->dlg.draw_area, "button_press_event", G_CALLBACK(button_press_event), user_data);
@@ -1403,7 +1403,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	g_signal_connect(user_data->dlg.draw_area, "key_press_event",  G_CALLBACK(key_press_event), user_data);
 
 	gtk_widget_show(user_data->dlg.draw_area_time);
-        gtk_widget_show(user_data->dlg.draw_area);
+	gtk_widget_show(user_data->dlg.draw_area);
 	gtk_widget_show(viewport);
 	gtk_widget_show(user_data->dlg.draw_area_comments);
 	gtk_widget_show(viewport_comments);
@@ -1411,25 +1411,24 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_widget_show(user_data->dlg.scroll_window);
 	gtk_widget_show(scroll_window_comments);
 
-        gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.draw_area_time, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.draw_area_time, FALSE, FALSE, 0);
 
-		user_data->dlg.hpane = gtk_hpaned_new();
-		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
-		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
+	user_data->dlg.hpane = gtk_hpaned_new();
+	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
 	g_signal_connect(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
 	gtk_widget_show(user_data->dlg.hpane);
 
-        gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
 
-       /* create the associated v_scrollbar */
-        user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
-        user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
-        gtk_widget_show(user_data->dlg.v_scrollbar);
-        gtk_box_pack_end(GTK_BOX(hbox), user_data->dlg.v_scrollbar, FALSE, FALSE, 0);
+	/* create the associated v_scrollbar */
+	user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
+	user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
+	gtk_widget_show(user_data->dlg.v_scrollbar);
+	gtk_box_pack_end(GTK_BOX(hbox), user_data->dlg.v_scrollbar, FALSE, FALSE, 0);
 	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed", G_CALLBACK(v_scrollbar_changed), user_data);
 
-
-        gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 0);
 }
 /****************************************************************************/
 /* PUBLIC */
@@ -1439,10 +1438,10 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 /****************************************************************************/
 static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 {
-        GtkWidget *vbox;
-        GtkWidget *hbuttonbox;
-    	GtkWidget *bt_close;
-    	GtkWidget *bt_save;
+	GtkWidget *vbox;
+	GtkWidget *hbuttonbox;
+	GtkWidget *bt_close;
+	GtkWidget *bt_save;
 	GtkTooltips *tooltips = gtk_tooltips_new();
 	const gchar *title_name_ptr;
 	gchar   *win_name;
@@ -1450,20 +1449,20 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - Graph Analysis", title_name_ptr);
 
-        /* create the main window */
-		if (user_data->dlg.title)
-	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, user_data->dlg.title);
-		else
-	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, win_name);
+	/* create the main window */
+	if (user_data->dlg.title)
+		user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, user_data->dlg.title);
+	else
+		user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, win_name);
 
 
-        vbox=gtk_vbox_new(FALSE, 0);
-        gtk_container_add(GTK_CONTAINER(user_data->dlg.window), vbox);
-        gtk_widget_show(vbox);
+	vbox=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(user_data->dlg.window), vbox);
+	gtk_widget_show(vbox);
 
-        create_draw_area(user_data, vbox);
+	create_draw_area(user_data, vbox);
 
-        /* button row */
+	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
@@ -1481,13 +1480,13 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_widget_show(bt_close);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
-        window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
+	window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
-        g_signal_connect(user_data->dlg.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(user_data->dlg.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(user_data->dlg.window, "destroy", G_CALLBACK(on_destroy), user_data);
 
-        gtk_widget_show(user_data->dlg.window);
-        window_present(user_data->dlg.window);
+	gtk_widget_show(user_data->dlg.window);
+	window_present(user_data->dlg.window);
 
 	/* Destroy our graph window with our parent if the caller specified the parent */
 	if(user_data->dlg.parent_w) {
@@ -1592,7 +1591,7 @@ void graph_analysis_update(graph_analysis_data_t* user_data)
 
 	user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
-	if ( user_data->num_nodes < 6)
+	if (user_data->num_nodes < 6)
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
@@ -1613,15 +1612,15 @@ void graph_analysis_redraw(graph_analysis_data_t* user_data)
 
 	user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
     gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
-	if ( user_data->num_nodes < 6)
-			gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
-		else
-			gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
+	if (user_data->num_nodes < 6)
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
+	else
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
 
 
 	/* redraw the graph */
 	dialog_graph_redraw(user_data);
 
-    window_present(user_data->dlg.window);
+	window_present(user_data->dlg.window);
 	return;
 }
