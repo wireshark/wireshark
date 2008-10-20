@@ -457,7 +457,7 @@ typedef enum {
 } dcom_vartype_t;
 
 const value_string dcom_variant_type_vals[] = {
-	{ WIRESHARK_VT_EMPTY,	"VT_EMPTY"},
+	{ WIRESHARK_VT_EMPTY,		"VT_EMPTY"},
 	{ WIRESHARK_VT_NULL,		"VT_NULL"},
 	{ WIRESHARK_VT_I2,		"VT_I2"},
 	{ WIRESHARK_VT_I4,		"VT_I4"},
@@ -466,8 +466,8 @@ const value_string dcom_variant_type_vals[] = {
 	{ WIRESHARK_VT_CY,		"VT_CY"},
 	{ WIRESHARK_VT_DATE,		"VT_DATE"},
 	{ WIRESHARK_VT_BSTR,		"VT_BSTR"},
-	{ WIRESHARK_VT_DISPATCH, "VT_DISPATCH"},
-	{ WIRESHARK_VT_ERROR,	"VT_ERROR"},
+	{ WIRESHARK_VT_DISPATCH,	"VT_DISPATCH"},
+	{ WIRESHARK_VT_ERROR,		"VT_ERROR"},
 	{ WIRESHARK_VT_BOOL,		"VT_BOOL"},
 	{ WIRESHARK_VT_I1,		"VT_I1"},
 	{ WIRESHARK_VT_UI1,		"VT_UI1"},
@@ -475,29 +475,29 @@ const value_string dcom_variant_type_vals[] = {
 	{ WIRESHARK_VT_UI4,		"VT_UI4"},
 	{ WIRESHARK_VT_I8,		"VT_I8"},
 	{ WIRESHARK_VT_UI8,		"VT_UI8"},
-	{ WIRESHARK_VT_ARRAY,    "VT_ARRAY"},
-	{ WIRESHARK_VT_UNKNOWN,  "VT_UNKNOWN"},
-	{ WIRESHARK_VT_USERDEFINED, "VT_USERDEFINED"},
+	{ WIRESHARK_VT_ARRAY,		"VT_ARRAY"},
+	{ WIRESHARK_VT_UNKNOWN,		"VT_UNKNOWN"},
+	{ WIRESHARK_VT_USERDEFINED,	"VT_USERDEFINED"},
 
 	/* XXX: this could be done better */
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,    "VT_ARRAY|VT_I2"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I4,    "VT_ARRAY|VT_I4"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R4,	 "VT_ARRAY|VT_R4"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R8,	 "VT_ARRAY|VT_R8"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_DATE,	 "VT_ARRAY|VT_DATE"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BSTR,  "VT_ARRAY|VT_BSTR"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_ERROR, "VT_ARRAY|VT_ERROR"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BOOL,	 "VT_ARRAY|VT_BOOL"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I1,    "VT_ARRAY|VT_I1"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI1,   "VT_ARRAY|VT_UI1"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI2,   "VT_ARRAY|VT_UI2"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI4,   "VT_ARRAY|VT_UI4"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I8,    "VT_ARRAY|VT_I8"},
-	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI8,   "VT_ARRAY|VT_UI8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,      "VT_ARRAY|VT_I2"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I4,      "VT_ARRAY|VT_I4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R4,	     "VT_ARRAY|VT_R4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_R8,	     "VT_ARRAY|VT_R8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_DATE,    "VT_ARRAY|VT_DATE"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BSTR,    "VT_ARRAY|VT_BSTR"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_ERROR,   "VT_ARRAY|VT_ERROR"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_BOOL,    "VT_ARRAY|VT_BOOL"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I1,      "VT_ARRAY|VT_I1"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI1,     "VT_ARRAY|VT_UI1"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI2,     "VT_ARRAY|VT_UI2"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI4,     "VT_ARRAY|VT_UI4"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I8,      "VT_ARRAY|VT_I8"},
+	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_UI8,     "VT_ARRAY|VT_UI8"},
 
-	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_I2,    "VT_BYREF|VT_I2"},
-	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_BSTR,  "VT_BYREF|VT_BSTR"},
-	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_VARIANT,"VT_BYREF|VT_VARIANT"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_I2,      "VT_BYREF|VT_I2"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_BSTR,    "VT_BYREF|VT_BSTR"},
+	{ WIRESHARK_VT_BYREF | WIRESHARK_VT_VARIANT, "VT_BYREF|VT_VARIANT"},
 	{ 0,          NULL }
 /* XXX: append more types here */
 };
@@ -593,7 +593,7 @@ static const value_string dcom_objref_flag_vals[] = {
 	{ 0x1, "OBJREF_STANDARD" },
 	{ 0x2, "OBJREF_HANDLER" },
 	{ 0x4, "OBJREF_CUSTOM" },
-	{ 0,          NULL }
+	{ 0,   NULL }
 };
 
 static const value_string dcom_objref_signature_vals[] = {
@@ -613,7 +613,7 @@ static const value_string dcom_stdobjref_flag_vals[] = {
 	{ 0x0400, "SORF_OXRES7" },
 	{ 0x0800, "SORF_OXRES8" },
 	{ 0x1000, "SORF_NOPING" },
-	{ 0,          NULL }
+	{ 0,      NULL }
 };
 
 static const value_string dcom_dcerpc_pointer_vals[] = {
@@ -628,7 +628,7 @@ static const value_string dcom_dualstringarray_authz[] = {
 	{ 0x0001, "RPC_C_AUTHZ_NAME"},
 	{ 0x0002, "RPC_C_AUTHZ_DCE"},
 	{ 0xffff, "Default"},
-	{ 0, NULL}
+	{ 0,      NULL}
 };
 
 static const value_string dcom_dualstringarray_authn[] = {
@@ -644,7 +644,7 @@ static const value_string dcom_dualstringarray_authn[] = {
 	{  18, "RPC_C_AUTHN_DPA"},
 	{ 100, "RPC_C_AUTHN_MQ"},
 	{ 0xffff, "RPC_C_AUTHN_DEFAULT"},
-	{ 0, NULL}
+	{ 0,   NULL}
 };
 
 const value_string dcom_protseq_vals[] = {
