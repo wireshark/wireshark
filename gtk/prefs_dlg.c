@@ -641,6 +641,7 @@ set_option_label(GtkWidget *main_tb, int table_position,
 	gtk_widget_show(label);
 
 	event_box = gtk_event_box_new();
+	gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1,
 	    table_position, table_position + 1);
 	if (tooltip_text != NULL && tooltips != NULL)
@@ -706,6 +707,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 	gtk_widget_show(radio_button_hbox);
 
 	event_box = gtk_event_box_new();
+	gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
 	gtk_container_add(GTK_CONTAINER(event_box), radio_button_hbox);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 1, 2,
 	    table_position, table_position+1);
@@ -814,6 +816,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	gtk_box_pack_start(GTK_BOX(menu_box), option_menu, FALSE, FALSE, 0);
 
 	event_box = gtk_event_box_new();
+	gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box,
 	    1, 2, table_position, table_position + 1);
 	if (tooltip_text != NULL && tooltips != NULL)

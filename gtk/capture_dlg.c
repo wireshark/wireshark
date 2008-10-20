@@ -1103,6 +1103,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
 
   if_ip_eb = gtk_event_box_new();
+  gtk_event_box_set_visible_window (GTK_EVENT_BOX(if_ip_eb), FALSE);
   gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_eb, TRUE, TRUE, 6);
   gtk_tooltips_set_tip(tooltips, if_ip_eb, "Lists the IP address(es) "
 		       "assigned to the selected interface.  If there are "
