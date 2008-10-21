@@ -75,7 +75,7 @@ Wireshark Info
         <listitem>
           <para>
             David Maciejak found that the USB dissector could crash or abort.
-            This led to the disovery of a similar problem in the Bluetooth
+            This led to the discovery of a similar problem in the Bluetooth
             RFCOMM dissector.
             <!-- Fixed in r26333 -->
 	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2922">2922</ulink>)
