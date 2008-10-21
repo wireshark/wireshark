@@ -1,4 +1,4 @@
-Wireshark 1.0.3 Release Notes
+Wireshark 1.0.4 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,61 +15,65 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The NCP dissector was susceptible to a number of problems,
-       including buffer overflows and an infinite loop.
+     o Florent Drouin and David Maciejak found that the Bluetooth ACL
+       dissector could crash or abort. (Bug 1513)
 
-       Versions affected: 0.9.7 to 1.0.2
+       Versions affected: 0.99.2 to 1.0.3
 
-     o Wireshark could crash while uncompressing zlib-compressed
-       packet data.
+     o The Q.931 dissector could crash or abort. (Bug 2870)
 
-       Versions affected: 0.10.14 to 1.0.2
+       Versions affected: 0.10.3 to 1.0.3
 
-     o Wireshark could crash while reading a Tektronix .rf5 file.
+     o Wireshark could abort while reading Tamos CommView capture
+       files. (Bug 2926)
 
-       Versions affected: 0.99.6 to 1.0.2
+       Versions affected: 0.99.7 to 1.0.3
+
+     o David Maciejak found that the USB dissector could crash or
+       abort. This led to the disovery of a similar problem in the
+       Bluetooth RFCOMM dissector. (Bug 2922)
+
+       Versions affected: 0.99.7 to 1.0.3
+
+     o Vivek Gupta and David Maciejak found that the PRP and MATE
+       dissectors could make Wireshark crash. (Neither PRP nor MATE
+       are enabled by default.) (Bug 2549)
+
+       Versions affected: 0.99.2 to 1.0.3
 
    The following bugs have been fixed:
 
-     o 802.11 WPA/WPA2-PSK Unable to decode Group Keys. (Bug 1420)
+     o Let MP2T call its subdissectors, even without tree (Bug 2627)
 
-     o Packets could wrongly be dissected as "Redback Lawful
-       Intercept" (Bug 2376)
+     o Wireless Toolbar not enabled (using AirPcap) if PCAP_REMOTE=1
+       (Bug 2685)
 
-     o MIKEY dissector improvements (Bug 2400)
+     o Failure to dissect long SASL wrapped LDAP response (Bug 2687)
 
-     o tvb_get_bits{16|32} could read past the end of a tvbuff (Bug
-       2439)
+     o Fix compiler warnings (Bug 2823)
 
-     o Incorrect wslua function names. (Bug 2448)
+     o Homeplug dissection bugs (Bug 2859)
 
-     o Memory corruption in wslua. (Bug 2453)
+     o Malformed Packet DCP ETSI error (Bug 2860)
 
-     o Unknown PPPoE TAGs which are present in a PPPoE discovery
-       packet are not displayed under "PPPoE Tags" subtree/section.
-       (Bug 2458)
+     o Wrong size of selected_registrar in WPS dissector (Bug 2865)
 
-     o Following a TCP stream could incorrectly reassemble packets.
-       (Bug 2606)
+     o Dissector assertion displaying cookies in DTLS frames (Bug
+       2876)
 
-     o SIP decode shows fully expanded "Content-Length" header
-       instead of compact form. (Bug 2635)
+     o Missing field type in documentation (Bug 2889)
 
-     o Segmentation fault loading trace containing NCP packets. (Bug
-       2675)
+     o Wireshark -p switch seems to have no effect to PROMISCUOUS
+       mode (Bug 2891)
 
-     o SIP packets might incorrectly be displayed as malformed. (Bug
-       2729)
+     o Misspelled PPI error vector magnitude filter (Bug 2903)
 
-     o RTCP BYE padding interpreted incorrectly. (Bug 2778)
+     o Modbus Function 43 Encapsulated Interface Transport decoding
+       (Bug 2917)
 
-     o Reversed RTP stream is saved as silent .au file, forward
-       stream saves correctly. (Bug 2780)
+     o Crash when printing or exporting some protocol data (Bug 2934)
 
-     o Fix some lint warnings. (Bug 2822)
-
-     o Setting a duration on a capture file would capture for an
-       extra second.
+     o Crash when selecting "Export Selected Packet Bytes" (Bug 2964)
 
   New and Updated Features
 
@@ -81,12 +85,13 @@ What's New
 
   Updated Protocol Support
 
-   AIM, Bluetooth RFCOMM, ERF, K12, NCP, PPP BCP, PPPoE, Q.933,
-   Redback LI, RTCP, RTP, SIP, SNMP, TCP, V.120, WiMAX
+   AFP, Bluetooth ACL, Bluetooth RFCOMM, DCP ETSI, DTLS, Homeplug,
+   IEEE 802.11, IP, Modbus TCP, MP2T, NSIP, NCP, PPI, Q.931, SASL,
+   SNMP, USB, WPS
 
   New and Updated Capture File Support
 
-   Endace ERF.
+   AiroPeek, CommView
 
 Getting Wireshark
 

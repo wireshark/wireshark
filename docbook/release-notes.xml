@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.3">
+  <!ENTITY WiresharkCurrentVersion "1.0.4">
 
 ]>
 
@@ -112,6 +112,12 @@ Wireshark Info
           Let MP2T call its subdissectors, even without tree
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2627">Bug
           2627</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireless Toolbar not enabled (using AirPcap) if PCAP_REMOTE=1
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2685">Bug
+          2685</ulink>)
         </para></listitem>
 
         <listitem><para>
