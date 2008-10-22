@@ -114,6 +114,11 @@ extern int hf_gsm_a_gm_elem_id;
 extern void get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 extern void get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 
+extern const value_string gsm_bsslap_elem_strings[];
+extern gint ett_gsm_bsslap_elem[];
+extern elem_fcn bsslap_elem_fcn[];
+extern int hf_gsm_a_bsslap_elem_id;
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
@@ -134,12 +139,13 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_BSSMAP_APDU_IE	0x49
 
 /* flags for the packet-gsm_a_common routines */
-#define GSM_A_PDU_TYPE_BSSMAP	BSSAP_PDU_TYPE_BSSMAP /* i.e. 0 - until split complete at least! */
-#define GSM_A_PDU_TYPE_DTAP		BSSAP_PDU_TYPE_DTAP   /* i.e. 1 - until split complete at least! */
+#define GSM_A_PDU_TYPE_BSSMAP	0 /* BSSAP_PDU_TYPE_BSSMAP i.e. 0 - until split complete at least! */
+#define GSM_A_PDU_TYPE_DTAP		1  /*BSSAP_PDU_TYPE_DTAP i.e. 1 - until split complete at least! */
 #define GSM_A_PDU_TYPE_RP		2
 #define GSM_A_PDU_TYPE_RR		3
 #define GSM_A_PDU_TYPE_COMMON	4
 #define GSM_A_PDU_TYPE_GM		5
+#define GSM_A_PDU_TYPE_BSSLAP	6
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -223,6 +229,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		SEV_elem_names = gsm_gm_elem_strings; \
 		SEV_elem_ett = ett_gsm_gm_elem; \
 		SEV_elem_funcs = gm_elem_fcn; \
+		break; \
+	case GSM_A_PDU_TYPE_BSSLAP: \
+		SEV_elem_names = gsm_bsslap_elem_strings; \
+		SEV_elem_ett = ett_gsm_bsslap_elem; \
+		SEV_elem_funcs = bsslap_elem_fcn; \
 		break; \
 	default: \
 		proto_tree_add_text(tree, \
@@ -529,6 +540,125 @@ common_elem_idx_t;
 
 typedef enum
 {
+	BE_CIC,	 /* Circuit Identity Code */
+	BE_RSVD_1,	 /* Reserved */
+	BE_RES_AVAIL,	 /* Resource Available */
+	BE_CAUSE,	 /* Cause */
+	BE_CELL_ID,	 /* Cell Identifier */
+	BE_PRIO,	 /* Priority */
+	BE_L3_HEADER_INFO,	 /* Layer 3 Header Information */
+	BE_IMSI,	 /* IMSI */
+	BE_TMSI,	 /* TMSI */
+	BE_ENC_INFO,	 /* Encryption Information */
+	BE_CHAN_TYPE,	 /* Channel Type */
+	BE_PERIODICITY,	 /* Periodicity */
+	BE_EXT_RES_IND,	 /* Extended Resource Indicator */
+	BE_NUM_MS,	 /* Number Of MSs */
+	BE_RSVD_2,	 /* Reserved */
+	BE_RSVD_3,	 /* Reserved */
+	BE_RSVD_4,	 /* Reserved */
+	BE_CM_INFO_2,	 /* Classmark Information Type 2 */
+	BE_CM_INFO_3,	 /* Classmark Information Type 3 */
+	BE_INT_BAND,	 /* Interference Band To Be Used */
+	BE_RR_CAUSE,	 /* RR Cause */
+	BE_RSVD_5,	 /* Reserved */
+	BE_L3_INFO,	 /* Layer 3 Information */
+	BE_DLCI,	 /* DLCI */
+	BE_DOWN_DTX_FLAG,	 /* Downlink DTX Flag */
+	BE_CELL_ID_LIST,	 /* Cell Identifier List */
+	BE_RESP_REQ,	 /* Response Request */
+	BE_RES_IND_METHOD,	 /* Resource Indication Method */
+	BE_CM_INFO_1,	 /* Classmark Information Type 1 */
+	BE_CIC_LIST,	 /* Circuit Identity Code List */
+	BE_DIAG,	 /* Diagnostic */
+	BE_L3_MSG,	 /* Layer 3 Message Contents */
+	BE_CHOSEN_CHAN,	 /* Chosen Channel */
+	BE_TOT_RES_ACC,	 /* Total Resource Accessible */
+	BE_CIPH_RESP_MODE,	 /* Cipher Response Mode */
+	BE_CHAN_NEEDED,	 /* Channel Needed */
+	BE_TRACE_TYPE,	 /* Trace Type */
+	BE_TRIGGERID,	 /* TriggerID */
+	BE_TRACE_REF,	 /* Trace Reference */
+	BE_TRANSID,	 /* TransactionID */
+	BE_MID,	 /* Mobile Identity */
+	BE_OMCID,	 /* OMCID */
+	BE_FOR_IND,	 /* Forward Indicator */
+	BE_CHOSEN_ENC_ALG,	 /* Chosen Encryption Algorithm */
+	BE_CCT_POOL,	 /* Circuit Pool */
+	BE_CCT_POOL_LIST,	 /* Circuit Pool List */
+	BE_TIME_IND,	 /* Time Indication */
+	BE_RES_SIT,	 /* Resource Situation */
+	BE_CURR_CHAN_1,	 /* Current Channel Type 1 */
+	BE_QUE_IND,	 /* Queueing Indicator */
+	BE_SPEECH_VER,	 /* Speech Version */
+	BE_ASS_REQ,	 /* Assignment Requirement */
+	BE_TALKER_FLAG,	 /* Talker Flag */
+	BE_CONN_REL_REQ,	 /* Connection Release Requested */
+	BE_GROUP_CALL_REF,	 /* Group Call Reference */
+	BE_EMLPP_PRIO,	 /* eMLPP Priority */
+	BE_CONF_EVO_IND,	 /* Configuration Evolution Indication */
+	BE_OLD2NEW_INFO,	 /* Old BSS to New BSS Information */
+	BE_LSA_ID,	 /* LSA Identifier */
+	BE_LSA_ID_LIST,	 /* LSA Identifier List */
+	BE_LSA_INFO,	 /* LSA Information */
+	BE_LCS_QOS,	 /* LCS QoS */
+	BE_LSA_ACC_CTRL,	 /* LSA access control suppression */
+	BE_LCS_PRIO,	 /* LCS Priority */
+	BE_LOC_TYPE,	 /* Location Type */
+	BE_LOC_EST,	 /* Location Estimate */
+	BE_POS_DATA,	 /* Positioning Data */
+	BE_LCS_CAUSE,	 /* LCS Cause */
+	BE_LCS_CLIENT,	 /* LCS Client Type */
+	BE_APDU,	 /* APDU */
+	BE_NE_ID,	 /* Network Element Identity */
+	BE_GSP_ASSIST_DATA,	 /* GPS Assistance Data */
+	BE_DECIPH_KEYS,	 /* Deciphering Keys */
+	BE_RET_ERR_REQ,	 /* Return Error Request */
+	BE_RET_ERR_CAUSE,	 /* Return Error Cause */
+	BE_SEG,	 /* Segmentation */
+	BE_SERV_HO,	/* Service Handover */
+	BE_SRC_RNC_TO_TAR_RNC_UMTS,	/* Source RNC to target RNC transparent information (UMTS) */
+	BE_SRC_RNC_TO_TAR_RNC_CDMA,	/* Source RNC to target RNC transparent information (cdma2000) */
+	BE_GRAN_CLS_M,	/* GERAN Classmark */
+	BE_GRAN_BSC_CONT,	/* GERAN BSC Container */
+	BE_NEW_BSS_TO_OLD_BSS_INF,	/* New BSS to Old BSS Information */
+	BE_INTER_SYS_INF,	/*	Inter-System Information */
+	BE_SNA_ACC_INF,		/* SNA Access Information */
+	BE_VSTK_RAND_INF,	/* VSTK_RAND Information */
+	BE_VSTK_INF,		/* VSTK Information */
+	BE_PAGING_INF,		/* Paging Information */
+	BE_IMEI,			/* IMEI */
+	BE_VEL_EST,			/* Velocity Estimate */
+	BE_VGCS_FEAT_FLG,	/* VGCS Feature Flags */
+	BE_TALKER_PRI,		/* Talker Priority */
+	BE_EMRG_SET_IND,	/* Emergency Set Indication */
+	BE_TALKER_ID,		/* Talker Identity */
+	BE_CELL_ID_LIST_SEG,/* Cell Identifier List Segment */
+	BE_SMS_TO_VGCS,		/* SMS to VGCS */
+	BE_VGCS_TALKER_MOD, /*	VGCS Talker Mode */
+	BE_VGS_VBS_CELL_STAT, /*	VGCS/VBS Cell Status */
+	BE_CELL_ID_LST_SEG_F_EST_CELLS, /*	Cell Identifier List Segment for established cells */
+	BE_CELL_ID_LST_SEG_F_CELL_TB_EST,	/* Cell Identifier List Segment for cells to be established */
+	BE_CELL_ID_LST_SEG_F_REL_CELL,	/* Cell Identifier List Segment for released cells - no user present */
+	BE_CELL_ID_LST_SEG_F_NOT_EST_CELL,	/* Cell Identifier List Segment for not established cells - no establishment possible */
+	BE_GANSS_ASS_DTA,	/*	GANSS Assistance Data */
+	BE_GANSS_POS_DTA,	/*	GANSS Positioning Data */
+	BE_GANSS_LOC_TYP,	/* GANSS Location Type */
+	BE_APP_DATA,		/* Application Data */
+	BE_DATA_ID,			/* Data Identity */
+	BE_APP_DATA_INF,	/*  Application Data Information */
+	BE_MSISDN,			/* MSISDN */
+	BE_AOIP_TRANS_LAY_ADD,	/*	AoIP Transport Layer Address */
+	BE_SPEECH_CODEC_LST,	/* Speech Codec List */
+	BE_SPEECH_CODEC,		/* Speech Codec */
+	BE_CALL_ID,				/* Call Identifier */
+	BE_CALL_ID_LST,			/* Call Identifier List */
+	BE_NONE	/* NONE */
+}
+bssmap_elem_idx_t;
+
+typedef enum
+{
 	/* Mobility Management Information Elements [3] 10.5.3 */
 	DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
 	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
@@ -658,4 +788,153 @@ typedef enum
 }
 gm_elem_idx_t;
 
+typedef enum
+{
+	/* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1	*/
+/*
+ * [3]  10.5.2.1a	BA Range
+ */
+	DE_RR_CELL_CH_DSC,				/* [3]  10.5.2.1b	Cell Channel Description	*/
+
+/* [3]  10.5.2.1c	BA List Pref
+ * [3]  10.5.2.1d	UTRAN Frequency List
+ * [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE
+ */
+	DE_RR_CELL_DSC,					/* 10.5.2.2   RR Cell Description				*/
+	DE_RR_CELL_OPT_BCCH,				/* [3]  10.5.2.3	Cell Options (BCCH)		*/
+	DE_RR_CELL_OPT_SACCH,				/* [3]  10.5.2.3a	Cell Options (SACCH)		*/
+	DE_RR_CELL_SEL_PARAM,				/* [3]  10.5.2.4	Cell Selection Parameters		*/
+/*
+ * [3]  10.5.2.4a	(void)
+ */
+	DE_RR_CH_DSC,					/* [3]  10.5.2.5	Channel Description			*/
+	DE_RR_CH_DSC2,					/* [3]  10.5.2.5a   Channel Description 2 		*/
+	DE_RR_CH_MODE,					/* [3]  10.5.2.6	Channel Mode				*/
+	DE_RR_CH_MODE2,					/* [3]  10.5.2.7	Channel Mode 2				*/
+/* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
+ * [3]  10.5.2.7b	(void) */
+	DE_RR_CM_ENQ_MASK,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element						*/
+	DE_RR_CHNL_NEEDED,				/* [3]  10.5.2.8	Channel Needed
+ * [3]  10.5.2.8a	(void)
+ * [3]  10.5.2.8b	Channel Request Description 2 */
+	DE_RR_CIP_MODE_SET,				/* [3]  10.5.2.9	Cipher Mode Setting			*/
+	DE_RR_CIP_MODE_RESP,			/* [3]  10.5.2.10	Cipher Response			 */
+	DE_RR_CTRL_CH_DESC,		/* [3]  10.5.2.11	Control Channel Description	*/
+/* [3]  10.5.2.11a	DTM Information Details */
+	DE_RR_DYN_ARFCN_MAP,			/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
+	DE_RR_FREQ_CH_SEQ,				/* [3]  10.5.2.12	Frequency Channel Sequence	*/
+	DE_RR_FREQ_LIST,				/* [3]  10.5.2.13	Frequency List				*/
+	DE_RR_FREQ_SHORT_LIST,			/* [3]  10.5.2.14	Frequency Short List		*/
+	DE_RR_FREQ_SHORT_LIST2,			/* [3]  10.5.2.14a	Frequency Short List 2		*/
+/* [3]  10.5.2.14b	Group Channel Description
+ * [3]  10.5.2.14c	GPRS Resumption
+ * [3]  10.5.2.14d	GPRS broadcast information
+ * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
+ */
+
+	DE_RR_HO_REF,					/* 10.5.2.15  Handover Reference				*/
+
+	DE_RR_IA_REST_OCT,					/* [3] 10.5.2.16 IA Rest Octets				*/
+	DE_RR_IAR_REST_OCT,					/* [3] 10.5.2.17 IAR Rest Octets				*/
+	DE_RR_IAX_REST_OCT,					/* [3] 10.5.2.18 IAX Rest Octets				*/
+	DE_RR_L2_PSEUDO_LEN,			/*	[3] 10.5.2.19 L2 Pseudo Length				*/
+	DE_RR_MEAS_RES,					/* [3] 10.5.2.20 Measurement Results		*/
+ /* [3] 10.5.2.20a GPRS Measurement Results */
+	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
+	DE_RR_MOB_TIME_DIFF,			/* [3] 10.5.2.21a Mobile Time Difference		*/
+	DE_RR_MULTIRATE_CONF,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+	DE_RR_MULT_ALL,					/* [3] 10.5.2.21b Multislot Allocation			*/
+/*
+ * [3] 10.5.2.21c NC mode
+ */
+	DE_RR_NEIGH_CELL_DESC,				/* [3] 10.5.2.22 Neighbour Cell Description	*/
+	DE_RR_NEIGH_CELL_DESC2,				/* [3] 10.5.2.22a Neighbour Cell Description 2	*/
+/*
+ * [3] 10.5.2.22b (void)
+ * [3] 10.5.2.22c NT/N Rest Octets
+ * [3] 10.5.2.23 P1 Rest Octets
+ * [3] 10.5.2.24 P2 Rest Octets
+ * [3] 10.5.2.25 P3 Rest Octets */
+	DE_RR_PACKET_CH_DESC,				/* [3] 10.5.2.25a Packet Channel Description	*/
+	DE_RR_DED_MOD_OR_TBF,			/* [3] 10.5.2.25b Dedicated mode or TBF			*/
+/* [3] 10.5.2.25c RR Packet Uplink Assignment
+ * [3] 10.5.2.25d RR Packet Downlink Assignment */
+	DE_RR_PAGE_MODE,				/* [3] 10.5.2.26 Page Mode						*/
+/* [3] 10.5.2.26a (void)
+ * [3] 10.5.2.26b (void)
+ * [3] 10.5.2.26c (void)
+ * [3] 10.5.2.26d (void)
+ */
+	DE_RR_NCC_PERM,					/* [3] 10.5.2.27 NCC Permitted */
+	DE_RR_POW_CMD,					/* 10.5.2.28  Power Command						*/
+	DE_RR_POW_CMD_AND_ACC_TYPE,		/* 10.5.2.28a Power Command and access type		*/
+	DE_RR_RACH_CTRL_PARAM,			/* [3] 10.5.2.29 RACH Control Parameters */
+	DE_RR_REQ_REF,					/* [3] 10.5.2.30 Request Reference				*/
+	DE_RR_CAUSE,					/* 10.5.2.31  RR Cause							*/
+	DE_RR_SYNC_IND,					/* 10.5.2.39  Synchronization Indication		*/
+	DE_RR_SI1_REST_OCT,				/* [3] 10.5.2.32 SI1 Rest Octets */
+/* [3] 10.5.2.33 SI 2bis Rest Octets
+ * [3] 10.5.2.33a SI 2ter Rest Octets
+ * [3] 10.5.2.33b SI 2quater Rest Octets
+ */
+	DE_RR_SI3_REST_OCT,				/* [3] 10.5.2.34 SI3 Rest Octets */
+	DE_RR_SI4_REST_OCT,				/* [3] 10.5.2.35 SI4 Rest Octets */
+	DE_RR_SI6_REST_OCT,				/* [3] 10.5.2.35a SI6 Rest Octets */
+/* [3] 10.5.2.36 SI 7 Rest Octets
+ * [3] 10.5.2.37 SI 8 Rest Octets
+ * [3] 10.5.2.37a SI 9 Rest Octets
+ */
+	DE_RR_SI13_REST_OCT,				/* [3] 10.5.2.37b SI13 Rest Octets */
+/* [3] 10.5.2.37c (void)
+ * [3] 10.5.2.37d (void)
+ * [3] 10.5.2.37e SI 16 Rest Octets
+ * [3] 10.5.2.37f SI 17 Rest Octets
+ * [3] 10.5.2.37g SI 19 Rest Octets
+ * [3] 10.5.2.37h SI 18 Rest Octets
+ * [3] 10.5.2.37i SI 20 Rest Octets */
+	DE_RR_STARTING_TIME,			/* [3] 10.5.2.38 Starting Time					*/
+	DE_RR_TIMING_ADV,				/* [3] 10.5.2.40 Timing Advance					*/
+	DE_RR_TIME_DIFF,				/* [3] 10.5.2.41 Time Difference				*/
+	DE_RR_TLLI,						/* [3] 10.5.2.41a TLLI							*/
+/*
+ * [3] 10.5.2.42 TMSI/P-TMSI */
+	DE_RR_VGCS_TAR_MODE_IND,		/* [3] 10.5.2.42a VGCS target mode Indication	*/
+	DE_RR_VGCS_CIP_PAR,				/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
+
+	DE_RR_WAIT_IND,					/* [3] 10.5.2.43 Wait Indication */
+/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+ * [3] 10.5.2.46 Extended Measurement Frequency List */
+	DE_RR_SUS_CAU,					/* [3] 10.5.2.47 Suspension Cause				*/
+/* [3] 10.5.2.48 APDU ID
+ * [3] 10.5.2.49 APDU Flags
+ * [3] 10.5.2.50 APDU Data
+ * [3] 10.5.2.51 Handover To UTRAN Command
+ * [3] 10.5.2.52 Handover To cdma2000 Command
+ * [3] 10.5.2.53 (void)
+ * [3] 10.5.2.54 (void)
+ * [3] 10.5.2.55 (void)
+ * [3] 10.5.2.56 3G Target Cell */
+	DE_RR_SERV_SUP,					/* 10.5.2.57 Service Support						*/
+/* 10.5.2.58 MBMS p-t-m Channel Description
+ */
+
+	DE_RR_DED_SERV_INF,				/* [3] 10.5.2.59	Dedicated Service Information */
+
+/*
+ * 10.5.2.60 MPRACH Description
+ * 10.5.2.61 Restriction Timer
+ * 10.5.2.62 MBMS Session Identity
+ * 10.5.2.63 Reduced group or broadcast call reference
+ * 10.5.2.64 Talker Priority status
+ * 10.5.2.65 Talker Identity
+ * 10.5.2.66 Token
+ * 10.5.2.67 PS Cause
+ * 10.5.2.68 VGCS AMR Configuration
+ * 10.5.2.69 Carrier Indication
+ */
+	DE_RR_NONE							/* NONE */
+}
+rr_elem_idx_t;
 #endif /* __PACKET_GSM_A_COMMON_H__ */

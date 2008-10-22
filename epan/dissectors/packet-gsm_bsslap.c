@@ -42,10 +42,15 @@
 /* Initialize the protocol and registered fields */
 static int proto_gsm_bsslap			= -1;
 static int hf_gsm_bsslap_msg_type	= -1;
-static int hf_gsm_bsslap_ie			= -1;
-static int hf_gsm_bsslap_cell_id	= -1;
+int hf_gsm_a_bsslap_elem_id			= -1;
 static int hf_gsm_bsslap_ta			= -1;
-static int hf_gsm_bsslap_length		= -1;
+static int hf_gsm_bsslap_timer_value = -1;
+static int hf_gsm_bsslap_ms_pow = -1;
+static int hf_gsm_bsslap_cause = -1;
+static int hf_gsm_bsslap_rrlp_flg = -1;
+static int hf_gsm_bsslap_tfi = -1;
+static int hf_gsm_bsslap_poll_rep = -1;
+static int hf_gsm_bsslap_lac = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
@@ -56,40 +61,71 @@ static int ett_gsm_bsslap_enh_meas_rep = -1;
 static int ett_gsm_bsslap_cell_id = -1;
 
 /* Table 5.1: Element Indentifier codes */
+#define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
+#define BSSLAP_PARAM_RESERVED_01                     0x08
+#define BSSLAP_PARAM_CELL_IDENTITY                   0x09
+#define BSSLAP_PARAM_RESERVED_02                     0x0A
+#define BSSLAP_PARAM_RESERVED_03                     0x0B
+#define BSSLAP_PARAM_RESERVED_04                     0x0C
+#define BSSLAP_PARAM_CHANNEL_DESCRIPTION             0x10
+#define BSSLAP_PARAM_RESERVED_05                     0x11
+#define BSSLAP_PARAM_RESERVED_06                     0x12
+#define BSSLAP_PARAM_RESERVED_07                     0x13
+#define BSSLAP_PARAM_MEASUREMENT_REPORT              0x14
+#define BSSLAP_PARAM_RESERVED_08                     0x15
+#define BSSLAP_PARAM_CAUSE                           0x18
+#define BSSLAP_PARAM_RRLP_FLAG                       0x19
+#define BSSLAP_PARAM_RRLP_IE                         0x1B
+#define BSSLAP_PARAM_CELL_IDENTITY_LIST              0x1C
+#define BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT     0x1D
+#define BSSLAP_PARAM_LOCATION_AREA_CODE              0x1E
+#define BSSLAP_PARAM_FREQUENCY_LIST                  0x21
+#define BSSLAP_PARAM_MS_POWER                        0x22
+#define BSSLAP_PARAM_DELTA_TIMER                     0x23
+#define BSSLAP_PARAM_SERVING_CELL_IDENTIFIER         0x24
+#define BSSLAP_PARAM_ENCRYPTION_KEY                  0x25
+#define BSSLAP_PARAM_CIPHER_MODE_SETTING             0x26
+#define BSSLAP_PARAM_CHANNEL_MODE                    0x27
+#define BSSLAP_PARAM_MULTIRATE_CONFIGURATION         0x28
+#define BSSLAP_PARAM_POLLING_REPETITION              0x29
+#define BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION      0x2A
+#define BSSLAP_PARAM_TLLI                            0x2B
+#define BSSLAP_PARAM_TFI                             0x2C
+#define BSSLAP_PARAM_STARTING_TIME                   0x2D
 
-static const value_string gsm_bsslap_ie_code_vals[] = {
-	{  0x00,	"Reserved" },
-	{  0x01,	"Timing Advance" },
-	{  0x08,	"Reserved" },			/* (note) */
-	{  0x09,	"Cell Identity" },	
-	{  0x0a,	"Reserved" },			/* (note) */
-	{  0x0b,	"Reserved" },			/* (note) */
-	{  0x0c,	"Reserved" },			/* (note) */
-	{  0x10,	"Channel Description" },
-	{  0x11,	"Reserved" },			/* (note) */
-	{  0x12,	"Reserved" },			/* (note) */
-	{  0x13,	"Reserved" },			/* (note) */
-	{  0x14,	"Measurement Report" },
-	{  0x15,	"Reserved" },			/* (note) */
-	{  0x18,	"Cause" },
-	{  0x19,	"RRLP Flag" },
-	{  0x1b,	"RRLP IE" },
-	{  0x1c,	"Cell Identity List" },
-	{  0x1d,	"Enhanced Measurement Report" },
-	{  0x1e,	"Location Area Code" },
-	{  0x21,	"Frequency List" },
-	{  0x22,	"MS Power" },
-	{  0x23,	"Delta Timer" },
-	{  0x24,	"Serving Cell Identifier" },
-	{  0x25,	"Encryption Key (Kc)" },
-	{  0x26,	"Cipher Mode Setting" },
-	{  0x27,	"Channel Mode" },
-	{  0x28,	"MultiRate Configuration" },
-	{  0x29,	"Polling Repetition" },
-	{  0x2a,	"Packet Channel Description" },
-	{  0x2b,	"TLLI" },
-	{  0x2c,	"TFI" },
-	{  0x2d,	"Starting Time" },
+const value_string gsm_bsslap_elem_strings[] = {
+	{  0x00,								"Reserved" },
+	{  BSSLAP_PARAM_TIMING_ADVANCE,			"Timing Advance" },
+	{  BSSLAP_PARAM_RESERVED_01,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_CELL_IDENTITY,			"Cell Identity" },	
+	{  BSSLAP_PARAM_RESERVED_02,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_RESERVED_03,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_RESERVED_04,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_CHANNEL_DESCRIPTION,	"Channel Description" },
+	{  BSSLAP_PARAM_RESERVED_05,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_RESERVED_06,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_RESERVED_07,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_MEASUREMENT_REPORT,		"Measurement Report" },
+	{  BSSLAP_PARAM_RESERVED_08,			"Reserved" },			/* (note) */
+	{  BSSLAP_PARAM_CAUSE,					"Cause" },
+	{  BSSLAP_PARAM_RRLP_FLAG,				"RRLP Flag" },
+	{  BSSLAP_PARAM_RRLP_IE,				"RRLP IE" },
+	{  BSSLAP_PARAM_CELL_IDENTITY_LIST,		"Cell Identity List" },
+	{  BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT,	"Enhanced Measurement Report" },
+	{  BSSLAP_PARAM_LOCATION_AREA_CODE,		"Location Area Code" },
+	{  BSSLAP_PARAM_FREQUENCY_LIST,			"Frequency List" },
+	{  BSSLAP_PARAM_MS_POWER,				"MS Power" },
+	{  BSSLAP_PARAM_DELTA_TIMER,			"Delta Timer" },
+	{  BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,	"Serving Cell Identifier" },
+	{  BSSLAP_PARAM_ENCRYPTION_KEY,			"Encryption Key (Kc)" },
+	{  BSSLAP_PARAM_CIPHER_MODE_SETTING,	"Cipher Mode Setting" },
+	{  BSSLAP_PARAM_CHANNEL_MODE,			"Channel Mode" },
+	{  BSSLAP_PARAM_MULTIRATE_CONFIGURATION,	"MultiRate Configuration" },
+	{  BSSLAP_PARAM_POLLING_REPETITION,		"Polling Repetition" },
+	{  BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION,	"Packet Channel Description" },
+	{  BSSLAP_PARAM_TLLI,					"TLLI" },
+	{  BSSLAP_PARAM_TFI,					"TFI" },
+	{  BSSLAP_PARAM_STARTING_TIME,			"Starting Time" },
 	{ 0,		NULL },
 };
 
@@ -112,7 +148,7 @@ static const value_string gsm_bsslap_ie_code_vals[] = {
 #define BSSLAP_U_TDOA_RES	18
 
 /* Table 5.1.1: Message Type codes */
-static const value_string gsm_bsslap_msg_type_vals[] = {
+const value_string gsm_a_bsslap_msg_strings[] = {
 	{  0x00,				"Reserved" },
 	{  BSSLAP_TA_REQUEST,	"TA REQUEST" },
 	{  BSSLAP_TA_RESPONSE,	"TA RESPONSE" },
@@ -129,96 +165,322 @@ static const value_string gsm_bsslap_msg_type_vals[] = {
 	{ 0,			NULL }
 };
 
-/* 4.2.1 TA Request ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
-dissect_gsm_bsslap_ta(tvbuff_t *tvb, proto_tree *tree, int offset)
+#define	NUM_GSM_BSSLAP_ELEM (sizeof(gsm_bsslap_elem_strings)/sizeof(value_string))
+gint ett_gsm_bsslap_elem[NUM_GSM_BSSLAP_ELEM];
+
+/*
+ * 5.2 Timing Advance IE
+ */
+static guint8
+de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_ta, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/* 
+ * 5.12 Measurement Report IE
+ */
+
+static guint8
+de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+
+
+	return(len);
+}
+/*
+ * 5.14 Cause IE
+ */
+static const value_string gsm_bsslap_cause_vals[] = {
+	{ 0x00,	"Congestion" },
+	{ 0x01,	"Channel Mode not supported" },
+	{ 0x02,	"Positioning procedure not supported" },
+	{ 0x03,	"Failure for other radio related events" },
+	{ 0x04,	"Intra-BSS handover" },
+	{ 0x05,	"Supervision Timer Expired" },
+	{ 0x06,	"Inter-BSS handover" },
+	{ 0x07,	"Loss of signalling connection to MS" },
+	{ 0x08,	"Incorrect serving cell identity" },
+	{ 0x09,	"BSSAP-LE Segmentation error" },
+	{ 0,	NULL }
+};
+
+static guint8
+de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_cause, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 5.15 RRLP Flag IE
+ */
+static const true_false_string gsm_bsslap_rrlp_flg_vals = {
+	"Not a Positioning Command or final response." ,
+	"Position Command (SMLC to BSC) or final response (BSC to SMLC)"
+};
+static guint8
+de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+static guint8
+de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset; 
+	/* RRLP APDU (3GPP TS 44.031)*/
+	proto_tree_add_text(tree,tvb, curr_offset, len,"RRLP APDU Not decoded yet");
+
+	curr_offset++;
+
+	return(len);
+}
+/*
+ * 5.17 Cell Identity List IE
+ */
+static guint8
+de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+
+
+	return(len);
+}
+/*
+ * 5.18 Enhanced Measurement Report IE
+ * The Enhanced Measurement Results field is encoded as the contents of the 
+ * ENHANCED MEASUREMENT REPORT message in 3GPP TS 44.018 (excluding the fields:
+ * "RR short PD", "Message type" and "Short layer 2 header")...
+ */
+static guint8
+de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+
+
+	return(len);
+}
+/*
+ * 5.19 Location Area Code IE
+ */
+static guint8
+de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 5.21 MS Power IE
+ */
+static guint8
+de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_ms_pow, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
 }
 
+/* 
+ * 5.22 Delta Timer IE
+ */
+static guint8
+de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_timer_value, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 5.28 Polling Repetition IE
+ */
+static guint8
+de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_poll_rep, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 5.29 Packet Channel Description IE
+ * CSN.1 binary representation of the channel parameters as
+ * described in TS 44.018 (CCCH) or TS 44.060 (PCCCH) plus
+ * padding bits (binary 0) as required to achieve 4 complete octets
+ */
+static guint8
+de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+
+
+	return(len);
+}
+/*
+ * 5.31 TFI IE
+ * The TFI information element is coded as defined in TS 44.060 (excluding IEI).
+ * 44.060:
+ * UPLINK_TFI (5 bit field)
+ * The Temporary Flow Identity field identifies an uplink Temporary Block Flow (TBF). 
+ * This field is encoded as a binary number. Range 0 to 31
+ */
+static guint8
+de_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_bsslap_tfi, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+typedef enum
+{
+	/* BSS LAP Elements 5 */
+	DE_1,	/* Reserved */
+	DE_TA,	/* Timing Advance */
+	DE_3,	/* Reserved */			/* (note) */
+	DE_4,	/* "Cell Identity */	
+	DE_5,	/* "Reserved */			/* (note) */
+	DE_6,	/* "Reserved */			/* (note) */
+	DE_7,	/* "Reserved */			/* (note) */
+	DE_8,	/* "Channel Description */
+	DE_9,	/* "Reserved */			/* (note) */
+	DE_10,	/* Reserved */			/* (note) */
+	DE_11,	/* Reserved */			/* (note) */
+	DE_MEAS_REP,	/* "Measurement Report */
+	DE_13,	/* "Reserved */			/* (note) */
+	DE_BSSLAP_CAUSE,	/* "Cause */
+	DE_RRLP_FLG,	/* "RRLP Flag */
+	DE_RRLP_IE,	/* "RRLP IE */
+	DE_CELL_ID_LIST,	/* "Cell Identity List */
+	DE_ENH_MEAS_REP,	/* Enhanced Measurement Report */
+	DE_LAC,	/* "Location Area Code */
+	DE_20,	/* "Frequency List */
+	DE_MS_POW,	/* MS Power */
+	DE_DELTA_TIME,	/* Delta Timer */
+	DE_23,	/* Serving Cell Identifier */
+	DE_24,	/* Encryption Key (Kc) */
+	DE_25,	/* Cipher Mode Setting */
+	DE_26,	/* Channel Mode */
+	DE_POLL_REP,	/* Polling Repetition */
+	DE_PKT_CH_DESC,	/* Packet Channel Description */
+	DE_29,	/* TLLI */
+	DE_TFI,	/* TFI */
+	DE_31,	/* Starting Time */
+	BSSLAP_NONE							/* NONE */
+}
+bsslap_elem_idx_t;
+elem_fcn bsslap_elem_fcn[];
+
+guint8 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+	/* BSS LAP Elements 5 */
+	NULL,	/* Reserved */
+	de_ta,	/* Timing Advance */
+	NULL,	/* Reserved */			/* (note) */
+	NULL,	/* "Cell Identity */	
+	NULL,	/* "Reserved */			/* (note) */
+	NULL,	/* "Reserved */			/* (note) */
+	NULL,	/* "Reserved */			/* (note) */
+	NULL,	/* "Channel Description */
+	NULL,	/* "Reserved */			/* (note) */
+	NULL,	/* Reserved */			/* (note) */
+	NULL,	/* Reserved */			/* (note) */
+	de_meas_rep,	/* "Measurement Report */
+	NULL,	/* "Reserved */			/* (note) */
+	de_bsslap_cause,	/* "Cause */
+	de_rrlp_flg,	/* "RRLP Flag */
+	de_rrlp_ie,	/* "RRLP IE */
+	de_cell_id_list,	/* "Cell Identity List */
+	de_enh_meas_rep,	/* Enhanced Measurement Report */
+	de_lac,	/* "Location Area Code */
+	NULL,	/* "Frequency List */
+	de_ms_pow,	/* MS Power */
+	de_delta_time,	/* Delta Timer */
+	NULL,	/* Serving Cell Identifier */
+	NULL,	/* Encryption Key (Kc) */
+	NULL,	/* Cipher Mode Setting */
+	NULL,	/* Channel Mode */
+	de_poll_rep,	/* Polling Repetition */
+	de_pkt_ch_desc,	/* Packet Channel Description */
+	NULL,	/* TLLI */
+	de_tfi,	/* TFI */
+	NULL,	/* Starting Time */
+	NULL,	/* NONE */
+};
+
+#define	NUM_GSM_BSSLAP_MSG (sizeof(gsm_a_bsslap_msg_strings)/sizeof(value_string))
+static gint ett_gsm_bsslap_msg[NUM_GSM_BSSLAP_MSG];
+
 /* 4.2.2 TA Response ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_item	*item = NULL;
-	proto_tree	*subtree = NULL;
-	guint16 value;
-	guint8 octet;
-	guint8 length;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* Cell Identity IE / 5.4 M TV 3 */
-	item = proto_tree_add_text(tree,tvb, offset, 3,"Serving Cell Identity - ");
-	subtree = proto_item_add_subtree(item, ett_gsm_bsslap_ie);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ie, tvb, offset, 1, FALSE);
-	offset++;
-	value = tvb_get_ntohs(tvb, offset);
-	proto_item_append_text(item ,"0x%x(%u)",value,value);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_cell_id, tvb, offset, 2, FALSE);
-	offset = offset + 2;
-
+	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "Serving Cell Identity");
 	/* Timing Advance IE / 5.2 M TV 2 */
-	item = proto_tree_add_text(tree,tvb, offset, 2,"Timing Advance - ");
-	subtree = proto_item_add_subtree(item, ett_gsm_bsslap_ta);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ie, tvb, offset, 1, FALSE);
-	offset++;
-	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ta, tvb, offset, 1, FALSE);
-	proto_item_append_text(item ,"%u",octet);
-	offset++;
-
-	if(tvb_reported_length_remaining(tvb,offset)==0){
-		return offset;
-	}
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	item = proto_tree_add_text(tree,tvb, offset, 18,"Measurement Report");
-	subtree = proto_item_add_subtree(item, ett_gsm_bsslap_meas_rep);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ie, tvb, offset, 1, FALSE);
-	offset++;
-	length = tvb_get_guint8(tvb,offset);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_length, tvb, offset, 1, FALSE);
-	offset++;
-	/*TODO: Check this, may not give correct decoding */
-	de_rr_meas_res(tvb, subtree, offset, length, NULL, 0);
-	offset = offset + length;
-	if(tvb_reported_length_remaining(tvb,offset)==0){
-		return offset;
-	}
-
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
-	item = proto_tree_add_text(tree,tvb, offset, -1,"Enhanced Measurement Report");
-	subtree = proto_item_add_subtree(item, ett_gsm_bsslap_enh_meas_rep);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ie, tvb, offset, 1, FALSE);
-	offset++;
-	length = tvb_get_guint8(tvb,offset);
-	proto_item_set_len(item, length+2);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_length, tvb, offset, 1, FALSE);
-	offset++;
-	proto_tree_add_text(tree,tvb, offset, length,"Data not decoded(yet)");
-	offset = offset + length;
-	if(tvb_reported_length_remaining(tvb,offset)==0){
-		return offset;
-	}
-
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	item = proto_tree_add_text(tree,tvb, offset, -1,"Enhanced Measurement Report");
-	subtree = proto_item_add_subtree(item, ett_gsm_bsslap_cell_id);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_ie, tvb, offset, 1, FALSE);
-	offset++;
-	length = tvb_get_guint8(tvb,offset);
-	proto_item_set_len(item, length+2);
-	proto_tree_add_item(subtree, hf_gsm_bsslap_length, tvb, offset, 1, FALSE);
-	offset++;
-	proto_tree_add_text(tree,tvb, offset, length,"Data not decoded(yet)");
-	offset = offset + length;
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
 
-	return offset;
+	return;
 
 }
 
@@ -226,83 +488,214 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* 4.2.3 (void)   ETSI TS 148 071 V7.2.0 (2007-06) */
 /* 4.2.4 (void)   ETSI TS 148 071 V7.2.0 (2007-06) */
 /* 4.2.5 Reject   ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Cause IE / 5.14 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+
+	return;
 }
 
 /* 4.2.6 Reset   ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Cell Identity IE / 5.4 M TV 3 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "");
+	/* Timing Advance IE / 5.2 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	/* Channel Description IE / 5.8 M TV 4 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC,"");
+	/* Cause IE / 5.1 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+	/* Measurement Report Measurement Report IE / 5.12 O TLV 18 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	/* Enhanced Measurement Report Enhanced Measurement Report IE / 5.18 O TLV 4-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	/* Cell Identity List IE / 5.17 O TLV 6-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	/* LAC Location Area Code IE / 5.19 O TV 3 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_LOCATION_AREA_CODE, GSM_A_PDU_TYPE_BSSLAP, DE_LAC, "");
+	/* Frequency List Frequency List IE 5.20 C (note 1) TLV 3-n  */
+	ELEM_OPT_TLV(BSSLAP_PARAM_FREQUENCY_LIST, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, "");
+	/* Channel Mode IE 5.26 C (notes 2 & 4) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_CHANNEL_MODE, GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, "");
+	/* MultiRate Configuration 5.27 C (notes 3 & 4) TLV 4-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MULTIRATE_CONFIGURATION, GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
+	/* Packet Channel Description Packet Channel Description IE 5.29 C (note 5) TV 4 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_PKT_CH_DESC, "");
+	/* TLLI IE 5.30 C (note 5) TV 5 */
+	ELEM_OPT_TV(BSSLAP_PARAM_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI,"");
+	/* TFI 5.31 C (note 5) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_TFI,"");
+	/* Starting Time IE 5.32 C (note 5) TV 3 */
+	ELEM_OPT_TV(BSSLAP_PARAM_STARTING_TIME, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "TBF Starting Time");
+	/* Encryption Key IE 5.24 C (note 4) TV 9 */
+	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO,"");
+	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_CIPHER_MODE_SETTING, GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
+	return;
 }
 
 /* 4.2.7 Abort  ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Cause IE / 5.14 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+
+	return;
 }
 /* 4.2.8 TA Layer3  ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Timing Advance IE / 5.2 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	/* Measurement Report IE / 5.12 O TLV 18 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	/*Cell Identity List IE / 5.17 O TLV 6-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	return;
 }
 /* 4.2.9 MS Position Command  ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* RRLP flag IE / 5.15 M TV 2 */
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_FLG,"flag");
+	/* RRLP IE / 5.16 M TLV 3-n */
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_IE,"RRLP Info");
+	return;
 }
 /* 4.2.10 MS Position Response   ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* flag RRLP flag IE / 5.15 M TV 2  */
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_FLG,"flag");
+	/* RRLP Info RRLP IE / 5.16 M TLV 3-n */
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_IE,"RRLP Info");
+	/* Timing Advance IE / 5.2 O TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	/* Measurement Report IE / 5.12 O TLV 18 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	/* Cell Identity List IE / 5.17 O TLV 6-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	return;
 }
 /* 4.2.11 U-TDOA Request   ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Delta Timer IE 5.22 O (note 1) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_DELTA_TIME, "");
+	/* 	Polling Repitition IE 5.28 (note) C (note 2) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_POLLING_REPETITION, GSM_A_PDU_TYPE_BSSLAP, DE_POLL_REP, "");
+	
+	return;
 }
 /* 4.2.12 U-TDOA Response  ETSI TS 148 071 V7.2.0 (2007-06) */
-static int
+static void
 dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* Message Type IE / 5.1 M V 1 */
-	proto_tree_add_item(tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
-	offset++;
-	return offset;
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = tvb_length_remaining(tvb,offset);
+
+	/* Channel Description IE 5.8 M TV 4 */
+	ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC,"");
+	/* Serving Cell Identifier Cell Identifier IE 5.23 M TLV 4-n */
+	ELEM_MAND_TLV(BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID,"");
+	/* Frequency List IE 5.20 C (note 3) TLV 3-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_FREQUENCY_LIST, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, "");
+	/* Timing Advance IE 5.2 O TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	/* MS Power IE 5.21 O TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_MS_POWER, GSM_A_PDU_TYPE_BSSLAP, DE_MS_POW, "");
+	/* Measurement Report IE 5.12 O TLV 18 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	/* Encryption Key IE 5.24 C (note 4) TV 9 */
+	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO,"");
+	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_CIPHER_MODE_SETTING, GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
+	/* Channel Mode IE 5.26 C (notes 1 & 4)TV 2 */
+	ELEM_OPT_TV(BSSLAP_PARAM_CHANNEL_MODE, GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, "");
+	/* MultiRate Configuration IE 5.27 C (notes 1 & 4)TLV 4-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_MULTIRATE_CONFIGURATION, GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
+	/* Cell Identity List IE / 5.17 O TLV 6-n */
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	/* Packet Channel Description IE 5.29 C (note 5) TV 4 */
+	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_PKT_CH_DESC, "");
+	/* TLLI IE 5.30 C (note 5) TV 5 */
+	ELEM_OPT_TV(BSSLAP_PARAM_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI,"");
+	/* TFI IE 5.31 C (note 5) TV 2 BSSLAP_PARAM_TFI*/
+	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_TFI,"");
+	/* Starting Time IE 5.32 C (note 5) TV 3*/
+	ELEM_OPT_TV(BSSLAP_PARAM_STARTING_TIME, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "TBF Starting Time");
+	return;
 }
 
 
 static void
-dissect_gsm_bsslap_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *sub_tree;
@@ -317,36 +710,40 @@ dissect_gsm_bsslap_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		item = proto_tree_add_item(tree, proto_gsm_bsslap, tvb, 0, -1, FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_gsm_bsslap);
 
+		/* Message Type IE / 5.1 M V 1 */
+		proto_tree_add_item(sub_tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
+		offset++;
+
 		switch (octet){
 		case BSSLAP_TA_REQUEST:
-			offset = dissect_gsm_bsslap_ta(tvb, sub_tree, offset);
+			/* Only message type IE */
 			break;
 		case BSSLAP_TA_RESPONSE:
-			offset = dissect_gsm_bsslap_ta_res(tvb, sub_tree, offset); 
+			dissect_gsm_bsslap_ta_res(tvb, sub_tree, offset); 
 			break;
 		case BSSLAP_REJECT:
-			offset = dissect_gsm_bsslap_reject(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_reject(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_RESET:
-			offset = dissect_gsm_bsslap_reset(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_reset(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_ABORT:			
-			offset = dissect_gsm_bsslap_abort(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_abort(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_TA_LAYER3:
-			offset = dissect_gsm_bsslap_ta_layer3(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ta_layer3(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_MS_POS_CMD:
-			offset = dissect_gsm_bsslap_ms_pos_cmd(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ms_pos_cmd(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_MS_POS_RES:
-			offset = dissect_gsm_bsslap_ms_pos_res(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_ms_pos_res(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_U_TDOA_REQ:
-			offset = dissect_gsm_bsslap_u_tdoa_req(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_u_tdoa_req(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_U_TDOA_RES:
-			offset = dissect_gsm_bsslap_u_tdoa_res(tvb, sub_tree, offset);
+			dissect_gsm_bsslap_u_tdoa_res(tvb, sub_tree, offset);
 			break;
 		default:
 			break;
@@ -364,23 +761,20 @@ proto_reg_handoff_gsm_bsslap(void)
 void
 proto_register_gsm_bsslap(void)
 {                 
+	guint		i;
+	guint		last_offset;
 
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
+	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_gsm_bsslap_msg_type,
 			{ "Message Type IE",           "gsm_bsslap.msg_type",
-			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_msg_type_vals), 0x0,          
+			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_msg_strings), 0x0,          
 			"Message Type IE", HFILL }
 		},
-		{ &hf_gsm_bsslap_ie,
-			{ "Element identifier",           "gsm_bsslap.ie",
-			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_ie_code_vals), 0x0,          
-			"Message Type IE", HFILL }
-		},
-		{ &hf_gsm_bsslap_cell_id,
-			{ "Cell ID",	"gsm_bsslap.cell_id",
-			FT_UINT16, BASE_HEX_DEC, 0, 0x0,
+		{ &hf_gsm_a_bsslap_elem_id,
+			{ "Element ID",	"gsm_bsslap.elem_id",
+			FT_UINT8, BASE_DEC, NULL, 0,
 			"", HFILL }
 		},
 		{ &hf_gsm_bsslap_ta,
@@ -388,22 +782,65 @@ proto_register_gsm_bsslap(void)
 			FT_UINT8, BASE_HEX, NULL, 0x0,          
 			"Timing Advance", HFILL }
 		},
-		{ &hf_gsm_bsslap_length,
-			{ "Length",           "gsm_bsslap.length",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Length", HFILL }
+        { &hf_gsm_bsslap_timer_value, 
+			{"Timer Value", "gsm_bsslap.timerValue", 
+			FT_UINT8, BASE_DEC, NULL, 0x0, 
+			"Timer Value", HFILL }
+		},
+
+        { &hf_gsm_bsslap_ms_pow, 
+			{"MS Power", "gsm_bsslap.MS_pow", 
+			FT_UINT8, BASE_DEC, NULL, 0x0, 
+			"MS power", HFILL }
+		},
+		{ &hf_gsm_bsslap_cause,
+			{"Cause", "gsm_bsslap.cause", 
+			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_cause_vals), 0x0, 
+			"Cause", HFILL }
+		},
+		{ &hf_gsm_bsslap_rrlp_flg,
+			{"RRLP Flag", "gsm_bsslap.rrlp_flg", 
+			FT_UINT8, BASE_DEC, TFS(&gsm_bsslap_rrlp_flg_vals), 0x01, 
+			"Cause", HFILL }
+		},
+		{ &hf_gsm_bsslap_tfi,
+			{"TFI", "gsm_bsslap.tfi", 
+			FT_UINT8, BASE_DEC, NULL, 0x1F, 
+			"TFI", HFILL }
+		},
+		{ &hf_gsm_bsslap_poll_rep,
+			{"Number of polling repetitions", "gsm_bsslap.poll_rep", 
+			FT_UINT8, BASE_DEC, NULL, 0x3F, 
+			"Number of polling repetitions", HFILL }
+		},
+		{ &hf_gsm_bsslap_lac,
+			{"Location Area Code", "gsm_bsslap.lac", 
+			FT_UINT8, BASE_DEC, NULL, 0x3F, 
+			"Location Area Code", HFILL }
 		},
 	};
 
-/* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_gsm_bsslap,
-		&ett_gsm_bsslap_ie,
-		&ett_gsm_bsslap_ta,
-		&ett_gsm_bsslap_meas_rep,
-		&ett_gsm_bsslap_enh_meas_rep,
-		&ett_gsm_bsslap_cell_id,
-	};
+	/* Setup protocol subtree array */
+#define	NUM_INDIVIDUAL_ELEMS	1
+	static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
+			NUM_GSM_BSSLAP_ELEM];
+
+	ett[0] = &ett_gsm_bsslap;
+
+	last_offset = NUM_INDIVIDUAL_ELEMS;
+
+	for (i=0; i < NUM_GSM_BSSLAP_MSG; i++, last_offset++)
+	{
+		ett_gsm_bsslap_msg[i] = -1;
+		ett[last_offset] = &ett_gsm_bsslap_msg[i];
+	}
+
+	for (i=0; i < NUM_GSM_BSSLAP_ELEM; i++, last_offset++)
+	{
+		ett_gsm_bsslap_elem[i] = -1;
+		ett[last_offset] = &ett_gsm_bsslap_elem[i];
+	}
+
 
 /* Register the protocol name and description */
 	proto_gsm_bsslap = 
@@ -414,5 +851,5 @@ proto_register_gsm_bsslap(void)
 	proto_register_field_array(proto_gsm_bsslap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("gsm_bsslap", dissect_gsm_bsslap_apdu, proto_gsm_bsslap);
+	register_dissector("gsm_bsslap", dissect_gsm_bsslap, proto_gsm_bsslap);
 }
