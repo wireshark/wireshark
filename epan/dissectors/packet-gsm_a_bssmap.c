@@ -2173,10 +2173,10 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * Network Element Identity element of 3GPP TS 49.031 BSSAP-LE.
  * 3.2.2.70 GPS Assistance Data
  * Requested GPS Data element of 3GPP TS 49.031 BSSAP-LE.
- /*
-  * 3.2.2.71 Deciphering Keys
-  * Deciphering Key element of 3GPP TS 49.031 BSSAP-LE.
-  */
+ *
+ * 3.2.2.71 Deciphering Keys
+ * Deciphering Key element of 3GPP TS 49.031 BSSAP-LE.
+ */
 
 static guint8
 be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
