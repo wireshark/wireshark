@@ -587,9 +587,7 @@ EXTRA_DIST = \
 	README.vmware		\
 	README.win32		\
 	aclocal-fallback/glib-2.0.m4 \
-	aclocal-fallback/glib.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
-	aclocal-fallback/gtk.m4 \
 	aclocal-flags		\
 	adns_dll.dep		\
 	adns_dll.rc		\
