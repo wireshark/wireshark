@@ -2178,6 +2178,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * Deciphering Key element of 3GPP TS 49.031 BSSAP-LE.
  */
 
+#if 0
 static guint8
 be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2192,6 +2193,7 @@ be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	return(len);
 }
+#endif
  /* 3.2.2.72 Return Error Request
   * Return Error Request element of 3GPP TS 49.031 BSSAP-LE.
   * 3.2.2.73 Return Error Cause

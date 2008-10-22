@@ -54,11 +54,13 @@ static int hf_gsm_bsslap_lac = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
+#if 0
 static int ett_gsm_bsslap_ie = -1;
 static int ett_gsm_bsslap_ta = -1;
 static int ett_gsm_bsslap_meas_rep = -1;
 static int ett_gsm_bsslap_enh_meas_rep = -1;
 static int ett_gsm_bsslap_cell_id = -1;
+#endif
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -172,7 +174,7 @@ gint ett_gsm_bsslap_elem[NUM_GSM_BSSLAP_ELEM];
  * 5.2 Timing Advance IE
  */
 static guint8
-de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -187,7 +189,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_str
  */
 
 static guint8
-de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -215,7 +217,7 @@ static const value_string gsm_bsslap_cause_vals[] = {
 };
 
 static guint8
-de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -233,7 +235,7 @@ static const true_false_string gsm_bsslap_rrlp_flg_vals = {
 	"Position Command (SMLC to BSC) or final response (BSC to SMLC)"
 };
 static guint8
-de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -244,7 +246,7 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	return(curr_offset - offset);
 }
 static guint8
-de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -260,7 +262,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * 5.17 Cell Identity List IE
  */
 static guint8
-de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -277,7 +279,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * "RR short PD", "Message type" and "Short layer 2 header")...
  */
 static guint8
-de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -291,7 +293,7 @@ de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * 5.19 Location Area Code IE
  */
 static guint8
-de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -305,7 +307,7 @@ de_lac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
  * 5.21 MS Power IE
  */
 static guint8
-de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -320,7 +322,7 @@ de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * 5.22 Delta Timer IE
  */
 static guint8
-de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -334,7 +336,7 @@ de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * 5.28 Polling Repetition IE
  */
 static guint8
-de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -351,7 +353,7 @@ de_poll_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * padding bits (binary 0) as required to achieve 4 complete octets
  */
 static guint8
-de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -370,7 +372,7 @@ de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * This field is encoded as a binary number. Range 0 to 31
  */
 static guint8
-de_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
