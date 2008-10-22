@@ -629,7 +629,7 @@ if test "$GTK_OK" = "no" ; then
 	wireshark_bin=""
 	wireshark_man=""
 	# Honor GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.0 or later distribution not found.), gmodule)
+	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
 
 else
 	wireshark_bin="wireshark\$(EXEEXT)"
