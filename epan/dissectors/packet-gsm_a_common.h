@@ -659,6 +659,44 @@ bssmap_elem_idx_t;
 
 typedef enum
 {
+	/* BSS LAP Elements 5 */
+	DE_BLAP_RES1,			/* Reserved */
+	DE_BLAP_TA,				/* Timing Advance */
+	DE_BLAP_RES3,			/* Reserved */			/* (note) */
+	DE_BLAP_RES4,			/* Cell Identity */	
+	DE_BLAP_RES5,			/* Reserved */			/* (note) */
+	DE_BLAP_RES6,			/* Reserved */			/* (note) */
+	DE_BLAP_RES7,			/* Reserved */			/* (note) */
+	DE_BLAP_CH_DESC,		/* Channel Description */
+	DE_BLAP_RES9,			/* Reserved */			/* (note) */
+	DE_BLAP_RES10,			/* Reserved */			/* (note) */
+	DE_BLAP_RES11,			/* Reserved */			/* (note) */
+	DE_BLAP_MEAS_REP,		/* Measurement Report */
+	DE_BLAP_RES13,			/* Reserved */			/* (note) */
+	DE_BLAP_CAUSE,			/* Cause */
+	DE_BLAP_RRLP_FLG,		/* RRLP Flag */
+	DE_BLAP_RRLP_IE,		/* RRLP IE */
+	DE_BLAP_CELL_ID_LIST,	/* Cell Identity List */
+	DE_BLAP_ENH_MEAS_REP,	/* Enhanced Measurement Report */
+	DE_BLAP_LAC,			/* Location Area Code */
+	DE_BLAP_FREQ_LIST,		/* Frequency List */
+	DE_BLAP_MS_POW,			/* MS Power */
+	DE_BLAP_DELTA_TIME,		/* Delta Timer */
+	DE_BLAP_SERV_CELL_ID,	/* Serving Cell Identifier */
+	DE_BLAP_ENC_KEY,		/* Encryption Key (Kc) */
+	DE_BLAP_CIP_M_SET,		/* Cipher Mode Setting */
+	DE_BLAP_CH_MODE,		/* Channel Mode */
+	DE_BLAP_POLL_REP,		/* Polling Repetition */
+	DE_BLAP_PKT_CH_DESC,	/* Packet Channel Description */
+	DE_BLAP_TLLI,			/* TLLI */
+	DE_BLAP_TFI,			/* TFI */
+	DE_BLAP_START_TIME,		/* Starting Time */
+	BSSLAP_NONE				/* NONE */
+}
+bsslap_elem_idx_t;
+
+typedef enum
+{
 	/* Mobility Management Information Elements [3] 10.5.3 */
 	DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
 	DE_AUTH_PARAM_AUTN,				/* Authentication Parameter AUTN (UMTS authentication challenge only) */
@@ -937,4 +975,5 @@ typedef enum
 	DE_RR_NONE							/* NONE */
 }
 rr_elem_idx_t;
+
 #endif /* __PACKET_GSM_A_COMMON_H__ */

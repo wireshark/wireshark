@@ -54,13 +54,6 @@ static int hf_gsm_bsslap_lac = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
-#if 0
-static int ett_gsm_bsslap_ie = -1;
-static int ett_gsm_bsslap_ta = -1;
-static int ett_gsm_bsslap_meas_rep = -1;
-static int ett_gsm_bsslap_enh_meas_rep = -1;
-static int ett_gsm_bsslap_cell_id = -1;
-#endif
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -382,43 +375,53 @@ de_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	return(curr_offset - offset);
 }
+
+/*
+This enum has been moved to packet-gsm_a_common to
+make it possible to use element dissecton from this dissector
+in other dissectors.
+It is left here as a comment for easier reference.
+
+Note this enum must be of the same size as the element decoding list
+
 typedef enum
 {
-	/* BSS LAP Elements 5 */
-	DE_1,	/* Reserved */
-	DE_TA,	/* Timing Advance */
-	DE_3,	/* Reserved */			/* (note) */
-	DE_4,	/* "Cell Identity */	
-	DE_5,	/* "Reserved */			/* (note) */
-	DE_6,	/* "Reserved */			/* (note) */
-	DE_7,	/* "Reserved */			/* (note) */
-	DE_8,	/* "Channel Description */
-	DE_9,	/* "Reserved */			/* (note) */
-	DE_10,	/* Reserved */			/* (note) */
-	DE_11,	/* Reserved */			/* (note) */
-	DE_MEAS_REP,	/* "Measurement Report */
-	DE_13,	/* "Reserved */			/* (note) */
-	DE_BSSLAP_CAUSE,	/* "Cause */
-	DE_RRLP_FLG,	/* "RRLP Flag */
-	DE_RRLP_IE,	/* "RRLP IE */
-	DE_CELL_ID_LIST,	/* "Cell Identity List */
-	DE_ENH_MEAS_REP,	/* Enhanced Measurement Report */
-	DE_LAC,	/* "Location Area Code */
-	DE_20,	/* "Frequency List */
-	DE_MS_POW,	/* MS Power */
-	DE_DELTA_TIME,	/* Delta Timer */
-	DE_23,	/* Serving Cell Identifier */
-	DE_24,	/* Encryption Key (Kc) */
-	DE_25,	/* Cipher Mode Setting */
-	DE_26,	/* Channel Mode */
-	DE_POLL_REP,	/* Polling Repetition */
-	DE_PKT_CH_DESC,	/* Packet Channel Description */
-	DE_29,	/* TLLI */
-	DE_TFI,	/* TFI */
-	DE_31,	/* Starting Time */
-	BSSLAP_NONE							/* NONE */
+	/. BSS LAP Elements 5 ./
+	DE_BLAP_RES1,			/. Reserved ./
+	DE_BLAP_TA,				/. Timing Advance ./
+	DE_BLAP_RES3,			/. Reserved ./			/. (note) ./
+	DE_BLAP_RES4,			/. Cell Identity ./	
+	DE_BLAP_RES5,			/. Reserved ./			/. (note) ./
+	DE_BLAP_RES6,			/. Reserved ./			/. (note) ./
+	DE_BLAP_RES7,			/. Reserved ./			/. (note) ./
+	DE_BLAP_CH_DESC,		/. Channel Description ./
+	DE_BLAP_RES9,			/. Reserved ./			/. (note) ./
+	DE_BLAP_RES10,			/. Reserved ./			/. (note) ./
+	DE_BLAP_RES11,			/. Reserved ./			/. (note) ./
+	DE_BLAP_MEAS_REP,		/. Measurement Report ./
+	DE_BLAP_RES13,			/. Reserved ./			/. (note) ./
+	DE_BLAP_CAUSE,			/. Cause ./
+	DE_BLAP_RRLP_FLG,		/. RRLP Flag ./
+	DE_BLAP_RRLP_IE,		/. RRLP IE ./
+	DE_BLAP_CELL_ID_LIST,	/. Cell Identity List ./
+	DE_BLAP_ENH_MEAS_REP,	/. Enhanced Measurement Report ./
+	DE_BLAP_LAC,			/. Location Area Code ./
+	DE_BLAP_FREQ_LIST,		/. Frequency List ./
+	DE_BLAP_MS_POW,			/. MS Power ./
+	DE_BLAP_DELTA_TIME,		/. Delta Timer ./
+	DE_BLAP_SERV_CELL_ID,	/. Serving Cell Identifier ./
+	DE_BLAP_ENC_KEY,		/. Encryption Key (Kc) ./
+	DE_BLAP_CIP_M_SET,		/. Cipher Mode Setting ./
+	DE_BLAP_CH_MODE,		/. Channel Mode ./
+	DE_BLAP_POLL_REP,		/. Polling Repetition ./
+	DE_BLAP_PKT_CH_DESC,	/. Packet Channel Description ./
+	DE_BLAP_TLLI,			/. TLLI ./
+	DE_BLAP_TFI,			/. TFI ./
+	DE_BLAP_START_TIME,		/. Starting Time ./
+	BSSLAP_NONE				/. NONE ./
 }
 bsslap_elem_idx_t;
+*/
 elem_fcn bsslap_elem_fcn[];
 
 guint8 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -474,13 +477,13 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Cell Identity IE / 5.4 M TV 3 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "Serving Cell Identity");
 	/* Timing Advance IE / 5.2 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
 
 	return;
 
@@ -501,7 +504,7 @@ dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* Cause IE / 5.14 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,"");
 
 	return;
 }
@@ -520,19 +523,19 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Cell Identity IE / 5.4 M TV 3 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "");
 	/* Timing Advance IE / 5.2 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Channel Description IE / 5.8 M TV 4 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC,"");
 	/* Cause IE / 5.1 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,"");
 	/* Measurement Report Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Enhanced Measurement Report Enhanced Measurement Report IE / 5.18 O TLV 4-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
 	/* LAC Location Area Code IE / 5.19 O TV 3 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_LOCATION_AREA_CODE, GSM_A_PDU_TYPE_BSSLAP, DE_LAC, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_LOCATION_AREA_CODE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_LAC, "");
 	/* Frequency List Frequency List IE 5.20 C (note 1) TLV 3-n  */
 	ELEM_OPT_TLV(BSSLAP_PARAM_FREQUENCY_LIST, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, "");
 	/* Channel Mode IE 5.26 C (notes 2 & 4) TV 2 */
@@ -540,11 +543,11 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* MultiRate Configuration 5.27 C (notes 3 & 4) TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_MULTIRATE_CONFIGURATION, GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
 	/* Packet Channel Description Packet Channel Description IE 5.29 C (note 5) TV 4 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_PKT_CH_DESC, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_PKT_CH_DESC, "");
 	/* TLLI IE 5.30 C (note 5) TV 5 */
 	ELEM_OPT_TV(BSSLAP_PARAM_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI,"");
 	/* TFI 5.31 C (note 5) TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_TFI,"");
+	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TFI,"");
 	/* Starting Time IE 5.32 C (note 5) TV 3 */
 	ELEM_OPT_TV(BSSLAP_PARAM_STARTING_TIME, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "TBF Starting Time");
 	/* Encryption Key IE 5.24 C (note 4) TV 9 */
@@ -566,7 +569,7 @@ dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* Cause IE / 5.14 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BSSLAP_CAUSE,"");
+	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,"");
 
 	return;
 }
@@ -582,13 +585,13 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* Timing Advance IE / 5.2 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/*Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
 	return;
 }
 /* 4.2.9 MS Position Command  ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -603,9 +606,9 @@ dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* RRLP flag IE / 5.15 M TV 2 */
-	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_FLG,"flag");
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
 	/* RRLP IE / 5.16 M TLV 3-n */
-	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_IE,"RRLP Info");
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE,"RRLP Info");
 	return;
 }
 /* 4.2.10 MS Position Response   ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -620,17 +623,17 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* flag RRLP flag IE / 5.15 M TV 2  */
-	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_FLG,"flag");
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
 	/* RRLP Info RRLP IE / 5.16 M TLV 3-n */
-	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_RRLP_IE,"RRLP Info");
+	ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE,"RRLP Info");
 	/* Timing Advance IE / 5.2 O TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_ENH_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
 	return;
 }
 /* 4.2.11 U-TDOA Request   ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -645,9 +648,9 @@ dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 	curr_len = tvb_length_remaining(tvb,offset);
 
 	/* Delta Timer IE 5.22 O (note 1) TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_DELTA_TIME, "");
+	ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_DELTA_TIME, "");
 	/* 	Polling Repitition IE 5.28 (note) C (note 2) TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_POLLING_REPETITION, GSM_A_PDU_TYPE_BSSLAP, DE_POLL_REP, "");
+	ELEM_OPT_TV(BSSLAP_PARAM_POLLING_REPETITION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_POLL_REP, "");
 	
 	return;
 }
@@ -669,11 +672,11 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Frequency List IE 5.20 C (note 3) TLV 3-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_FREQUENCY_LIST, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, "");
 	/* Timing Advance IE 5.2 O TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_TA, "");
+	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* MS Power IE 5.21 O TV 2 */
-	ELEM_OPT_TV(BSSLAP_PARAM_MS_POWER, GSM_A_PDU_TYPE_BSSLAP, DE_MS_POW, "");
+	ELEM_OPT_TV(BSSLAP_PARAM_MS_POWER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MS_POW, "");
 	/* Measurement Report IE 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Encryption Key IE 5.24 C (note 4) TV 9 */
 	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO,"");
 	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
@@ -683,13 +686,13 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* MultiRate Configuration IE 5.27 C (notes 1 & 4)TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_MULTIRATE_CONFIGURATION, GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
 	/* Packet Channel Description IE 5.29 C (note 5) TV 4 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_PKT_CH_DESC, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_PKT_CH_DESC, "");
 	/* TLLI IE 5.30 C (note 5) TV 5 */
 	ELEM_OPT_TV(BSSLAP_PARAM_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI,"");
 	/* TFI IE 5.31 C (note 5) TV 2 BSSLAP_PARAM_TFI*/
-	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_TFI,"");
+	ELEM_OPT_TV(BSSLAP_PARAM_TFI, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TFI,"");
 	/* Starting Time IE 5.32 C (note 5) TV 3*/
 	ELEM_OPT_TV(BSSLAP_PARAM_STARTING_TIME, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "TBF Starting Time");
 	return;

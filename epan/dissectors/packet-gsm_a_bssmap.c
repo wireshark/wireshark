@@ -11,7 +11,7 @@
  *   (MSC - BSS) interface;
  *   Layer 3 specification
  *   (GSM 08.08 version 7.7.0 Release 1998)	TS 100 590 v7.7.0
- *   3GPP TS 48.008 version 6.9.0 Release 6
+ *   3GPP TS 48.008 version 8.4.0 Release 8
  *
  * $Id$
  *
@@ -301,15 +301,16 @@ static int proto_a_bssmap = -1;
 static int hf_gsm_a_bssmap_msg_type = -1;
 int hf_gsm_a_length = -1;
 int hf_gsm_a_bssmap_elem_id = -1;
-static int hf_gsm_a_cell_ci = -1;
-static int hf_gsm_a_cell_lac = -1;
-static int hf_gsm_a_dlci_cc = -1;
-static int hf_gsm_a_dlci_spare = -1;
-static int hf_gsm_a_dlci_sapi = -1;
+static int hf_gsm_a_bssmap_cell_ci = -1;
+static int hf_gsm_a_bssmap_cell_lac = -1;
+static int hf_gsm_a_bssmap_dlci_cc = -1;
+static int hf_gsm_a_bssmap_dlci_spare = -1;
+static int hf_gsm_a_bssmap_dlci_sapi = -1;
 static int hf_gsm_a_bssmap_cause = -1;
-static int hf_gsm_a_be_cell_id_disc = -1;
-static int hf_gsm_a_be_rnc_id = -1;
-static int hf_gsm_a_apdu_protocol_id = -1;
+static int hf_gsm_a_bssmap_be_cell_id_disc = -1;
+static int hf_gsm_a_bssmap_be_rnc_id = -1;
+static int hf_gsm_a_bssmap_apdu_protocol_id = -1;
+static int hf_gsm_a_bssmap_periodicity = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -329,6 +330,8 @@ This enum has been moved to packet-gsm_a_common to
 make it possible to use element dissecton from this dissector
 in other dissectors.
 It is left here as a comment for easier reference.
+
+Note this enum must be of the same size as the element decoding list
 
 typedef enum
 {
@@ -1026,6 +1029,8 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 				case 0x18: str = "14.5 kbit/s"; break;
 				case 0x10: str = "12 kbits/s"; break;
 				case 0x11: str = "6 kbits/s"; break;
+				case 0x31: str = "29 kbit/s"; break;
+				case 0x34: str = "43,5 kbit/s"; break;
 				default:
 					str = "Reserved";
 					break;
@@ -1042,6 +1047,8 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 				case 0x13: str = "1.2Kbit/s"; break;
 				case 0x14: str = "600 bit/s"; break;
 				case 0x15: str = "1200/75 bit/s (1200 network-to-MS / 75 MS-to-network)"; break;
+				case 0x39: str = "28,8 kbit/s"; break;
+				case 0x3a: str = "32,0 kbit/s"; break;
 				default:
 					str = "Reserved";
 					break;
@@ -1225,9 +1232,34 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	return(curr_offset - offset);
 }
-
 /*
- * [2] 3.2.2.17
+ * 3.2.2.12	Periodicity
+ */
+static guint8
+be_periodicity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_periodicity, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 3.2.2.13	Extended Resource Indicator
+ */
+/*
+ * 3.2.2.14	Total Resource Accessible
+ */
+/*
+ * 3.2.2.15	LSA Identifier
+ */
+/*
+ * 3.2.2.16	LSA Identifier List
+ */
+/*
+ * [2] 3.2.2.17 Cell Identifier
  * Formats everything after the discriminator, shared function
  */
 guint8
@@ -1257,7 +1289,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	case 0x0a: /*For intersystem handover from GSM to UMTS or cdma2000: */
 		/* LAC */
 		value = tvb_get_ntohs(tvb, curr_offset);
-		proto_tree_add_item(tree, hf_gsm_a_cell_lac, tvb, curr_offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_bssmap_cell_lac, tvb, curr_offset, 2, FALSE);
 		curr_offset += 2;
 
 		if (add_string)
@@ -1269,7 +1301,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		if ((disc == 0x08) ||(disc == 0x09) || (disc == 0x0a)){
 			/* RNC-ID */
 			value = tvb_get_ntohs(tvb, curr_offset);
-			proto_tree_add_item(tree, hf_gsm_a_be_rnc_id, tvb, curr_offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_bssmap_be_rnc_id, tvb, curr_offset, 2, FALSE);
 
 			if (add_string)
 			{
@@ -1293,7 +1325,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		/* CI */
 
 		value = tvb_get_ntohs(tvb, curr_offset);
-		proto_tree_add_uint(tree, hf_gsm_a_cell_ci, tvb,
+		proto_tree_add_uint(tree, hf_gsm_a_bssmap_cell_ci, tvb,
 			curr_offset, 2, value);
 
 		curr_offset += 2;
@@ -1339,7 +1371,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 		"%s :  Spare",
 		a_bigbuf);
 
-	proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
 	disc = oct&0x0f;
 	curr_offset++;
 
@@ -1354,7 +1386,7 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [2] 3.2.2.18
+ * [2] 3.2.2.18 Priority
  */
 static guint8
 be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -1416,7 +1448,28 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 
 	return(curr_offset - offset);
 }
-
+/*
+ * 3.2.2.19	Classmark Information Type 2
+ * The classmark octets 3, 4 and 5 are coded in the same way as the 
+ * equivalent octets in the Mobile station classmark 2 element of 
+ * 3GPP TS 24.008
+ */
+/*
+ * 3.2.2.20	Classmark Information Type 3
+ * The classmark octets 3 to 34 are coded in the same way as the 
+ * equivalent octets in the Mobile station classmark 3 element of 
+ * 3GPP TS 24.008.
+ */
+/*
+ * 3.2.2.21	Interference Band To Be Used
+ */
+/*
+ * 3.2.2.22	RR Cause
+ * Octet 2 is coded as the equivalent field from 3GPP TS 24.008
+ */
+/*
+ * 3.2.2.23	LSA Information
+ */
 /*
  * [2] 3.2.2.24
  */
@@ -1446,7 +1499,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 }
 
 /*
- * [2] 3.2.2.25
+ * [2] 3.2.2.25 DLCI
  */
 static guint8
 be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1466,9 +1519,9 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_uint(subtree, hf_gsm_a_dlci_cc, tvb, curr_offset, 1, oct);
-	proto_tree_add_uint(subtree, hf_gsm_a_dlci_spare, tvb, curr_offset, 1, oct);
-	proto_tree_add_uint(subtree, hf_gsm_a_dlci_sapi, tvb, curr_offset, 1, oct);
+	proto_tree_add_uint(subtree, hf_gsm_a_bssmap_dlci_cc, tvb, curr_offset, 1, oct);
+	proto_tree_add_uint(subtree, hf_gsm_a_bssmap_dlci_spare, tvb, curr_offset, 1, oct);
+	proto_tree_add_uint(subtree, hf_gsm_a_bssmap_dlci_sapi, tvb, curr_offset, 1, oct);
 
 	curr_offset++;
 
@@ -1478,7 +1531,7 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 }
 
 /*
- * [2] 3.2.2.26
+ * [2] 3.2.2.26 Downlink DTX Flag
  */
 static guint8
 be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1511,7 +1564,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 }
 
 /*
- * [2] 3.2.2.27
+ * [2] 3.2.2.27 Cell Identifier List
  */
 guint8
 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -1535,7 +1588,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		a_bigbuf);
 
 	disc = oct & 0x0f;
-	proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
@@ -1580,12 +1633,45 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	return(curr_offset - offset);
 }
 /*
+ * 3.2.2.27a	Cell Identifier List Segment
+ */
+/*
+ * 3.2.2.27b	Cell Identifier List Segment for established cells
+ */
+/*
+ * 3.2.2.27d	(void)
+ */
+/*
+ * 3.2.2.27e	Cell Identifier List Segment for released cells - no user present
+ */
+/*
+ * 3.2.2.27f	Cell Identifier List Segment for not established cells - no establishment possible 
+ */
+/*
  * 3.2.2.28 Response Request
  * No data
  */
 /*
  * 3.2.2.29 Resource Indication Method 
  */
+/*
+The coding of the Resource Indication parameter is:
+0000	the method i) of sub-clause 3.1.3.1 is selected;
+0001	the method ii) of sub-clause 3.1.3.1 is selected;
+0010	the method iii) of sub-clause 3.1.3.1 is selected;
+0011	the method iv) of sub-clause 3.1.3.1 is selected.
+All other values are reserved.
+3.1.3.1
+:
+i)	(Spontaneous resource information expected)...
+:
+ii)	(One single resource information expected)...
+:
+iii)	(Periodic resource information expected)...
+:
+iv)	(No resource information expected)..
+:
+*/
 /*
  * 3.2.2.30 Classmark Information Type 1
  * coded in the same way as the equivalent octet in the classmark 1 element of 3GPP TS 24.008
@@ -2136,7 +2222,7 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	 */
 
 	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset+1);
-	proto_tree_add_item(tree, hf_gsm_a_apdu_protocol_id, tvb, curr_offset+1, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_apdu_protocol_id, tvb, curr_offset+1, 1, FALSE);
 
 	switch(apdu_protocol_id){
 	case 1:
@@ -2225,7 +2311,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	be_tmsi,	/* TMSI */
 	be_enc_info,	/* Encryption Information */
 	be_chan_type,	/* Channel Type */
-	NULL,	/* Periodicity */
+	be_periodicity,	/* Periodicity */
 	NULL,	/* Extended Resource Indicator */
 	NULL,	/* Number Of MSs */
 	NULL,	/* Reserved */
@@ -2271,7 +2357,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,	/* Group Call Reference */
 	NULL,	/* eMLPP Priority */
 	NULL,	/* Configuration Evolution Indication */
-	NULL /* no decode required */,	/* Old BSS to New BSS Information */
+	NULL	/* no decode required */,	/* Old BSS to New BSS Information */
 	NULL,	/* LSA Identifier */
 	NULL,	/* LSA Identifier List */
 	NULL,	/* LSA Information */
@@ -2840,21 +2926,21 @@ static void
 bssmap_res_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
-	/*
 	guint32	consumed;
-	*/
 	guint	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
 
 	/* Periodicity 	3.2.2.12	MSC-BSS 	M 	2   */
+	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_PERIODICITY].value, BSSAP_PDU_TYPE_BSSMAP, BE_PERIODICITY, "");
 	/* Resource Indication Method	3.2.2.29	MSC-BSS 	M 	2  */ 
 	/* Cell Identifier 	3.2.2.17	MSC-BSS 	M 	3-10   */
 	/* Extended Resource Indicator 	3.2.2.13	MSC-BSS 	O 	2  */
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+
 /*
  * 3.2.1.18	RESOURCE INDICATION
  */
@@ -4048,27 +4134,27 @@ proto_register_gsm_a_bssmap(void)
 		FT_UINT16, BASE_DEC, NULL, 0,
 		"", HFILL }
 	},
-	{ &hf_gsm_a_cell_ci,
+	{ &hf_gsm_a_bssmap_cell_ci,
 		{ "Cell CI",	"gsm_a.cell_ci",
 		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
 		"", HFILL }
 	},
-	{ &hf_gsm_a_cell_lac,
+	{ &hf_gsm_a_bssmap_cell_lac,
 		{ "Cell LAC",	"gsm_a.cell_lac",
 		FT_UINT16, BASE_HEX_DEC, 0, 0x0,
 		"", HFILL }
 	},
-	{ &hf_gsm_a_dlci_cc,
+	{ &hf_gsm_a_bssmap_dlci_cc,
 		{ "Control Channel", "bssap.dlci.cc",
 		FT_UINT8, BASE_HEX, VALS(bssap_cc_values), 0xc0,
 		"", HFILL}
 	},
-	{ &hf_gsm_a_dlci_spare,
+	{ &hf_gsm_a_bssmap_dlci_spare,
 		{ "Spare", "bssap.dlci.spare",
 		FT_UINT8, BASE_HEX, NULL, 0x38,
 		"", HFILL}
 	},
-	{ &hf_gsm_a_dlci_sapi,
+	{ &hf_gsm_a_bssmap_dlci_sapi,
 		{ "SAPI", "bssap.dlci.sapi",
 		FT_UINT8, BASE_HEX, VALS(bssap_sapi_values), 0x07,
 		"", HFILL}
@@ -4078,20 +4164,25 @@ proto_register_gsm_a_bssmap(void)
 		FT_UINT8, BASE_HEX, 0, 0x0,
 		"", HFILL }
 	},
-	{ &hf_gsm_a_be_cell_id_disc,
+	{ &hf_gsm_a_bssmap_be_cell_id_disc,
 		{ "Cell identification discriminator","gsm_a.be.cell_id_disc",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_be_cell_id_disc_vals), 0x0f,
 		"Cell identification discriminator", HFILL }
 	},
-	{ &hf_gsm_a_be_rnc_id,
+	{ &hf_gsm_a_bssmap_be_rnc_id,
 		{ "RNC-ID","gsm_a.be.rnc_id",
 		FT_UINT16,BASE_DEC,  NULL, 0x0,
 		"RNC-ID", HFILL }
 	},
-	{ &hf_gsm_a_apdu_protocol_id,
+	{ &hf_gsm_a_bssmap_apdu_protocol_id,
 		{ "Protocol ID", "gsm_a.apdu_protocol_id",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_apdu_protocol_id_strings), 0x0,
 		"APDU embedded protocol id", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_periodicity,
+		{ "Periodicity", "gsm_a_bssmap.periodicity",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"Periodicity", HFILL }
 	},
 	};
 
