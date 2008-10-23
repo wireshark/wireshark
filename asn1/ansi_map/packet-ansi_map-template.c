@@ -364,6 +364,7 @@ static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 tvbuff_t *SMS_BearerData_tvb = NULL;
+gint32    ansi_map_sms_tele_id = -1;
 static gboolean is683_ota;
 static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
@@ -706,7 +707,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void 
 dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 	
-	guint8 octet;
+	guint8 octet , octet_len;
 	guint8 b1,b2,b3,b4;
 	int offset = 0;
 	char		*digit_str;
@@ -763,9 +764,9 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
 	case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
 	case 7:/* Private Numbering Plan */
-		octet = tvb_get_guint8(tvb,offset);
+		octet_len = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
-		if(octet == 0)
+		if(octet_len == 0)
 			return;
 		offset++;
 		switch ((octet&0xf)){
@@ -4291,6 +4292,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	SMS_BearerData_tvb = NULL;
+	ansi_map_sms_tele_id = -1;
     g_pinfo = pinfo;
 	g_tree = tree;
     /*

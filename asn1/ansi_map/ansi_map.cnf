@@ -287,6 +287,13 @@
 					break;
 			}
 		}
+		else
+		{
+			if (ansi_map_sms_tele_id != -1)
+			{
+				dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+			}
+		}
 	}
 
 # 6.5.2.136 SMS-OriginationRestrictions
@@ -304,7 +311,7 @@
 	int length;
     proto_tree *subtree;
 	tvbuff_t *parameter_tvb = NULL;
-	static gint32 ansi_map_sms_tele_id = -1;
+	ansi_map_sms_tele_id = -1;
 
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
