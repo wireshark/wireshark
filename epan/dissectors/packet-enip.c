@@ -207,7 +207,7 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* Create item count tree */
 	item_count = tvb_get_letohs( tvb, offset );
-   count_item  = proto_tree_add_text( tree, tvb, offset, 2, "Item Count: %d", item_count );
+	count_item  = proto_tree_add_text( tree, tvb, offset, 2, "Item Count: %d", item_count );
 	count_tree  = proto_item_add_subtree( count_item, ett_count_tree );
 
 	while( item_count-- )
@@ -217,7 +217,7 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		item_tree = proto_item_add_subtree( type_item, ett_type_tree );
 
 		/* Add length field to item type tree*/
-      proto_tree_add_text( item_tree, tvb, offset+4, 2, "Length: %d", tvb_get_letohs( tvb, offset+4 ) );
+		proto_tree_add_text( item_tree, tvb, offset+4, 2, "Length: %d", tvb_get_letohs( tvb, offset+4 ) );
 
 		item        = tvb_get_letohs( tvb, offset+2 );
 		item_length = tvb_get_letohs( tvb, offset+4 );
@@ -501,7 +501,9 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti, *encaph, *csf;
-   proto_tree *enip_tree, *header_tree, *csftree;
+   proto_tree *enip_tree = NULL;
+   proto_tree *header_tree = NULL;
+   proto_tree *csftree;
 
    /* Make entries in Protocol column and Info column on summary display */
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -510,6 +512,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_clear(pinfo->cinfo, COL_INFO);
 
    encap_cmd = tvb_get_letohs( tvb, 0 );
+   encap_data_length = tvb_get_letohs( tvb, 2 );
 
    if( check_col(pinfo->cinfo, COL_INFO) )
    {
@@ -531,10 +534,9 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Add service and request/response to info column */
       col_add_fstr(pinfo->cinfo, COL_INFO,
-                "%s (%s)",
-	      val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
-	      pkt_type_str );
-
+        "%s (%s)",
+         val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
+         pkt_type_str );
 
    } /* end of if( col exists ) */
 
@@ -554,7 +556,6 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Add EtherNet/IP encapsulation header */
       proto_tree_add_item( header_tree, hf_enip_command, tvb, 0, 2, TRUE );
 
-      encap_data_length = tvb_get_letohs( tvb, 2 );
       proto_tree_add_text( header_tree, tvb, 2, 2, "Length: %u", encap_data_length );
 
       proto_tree_add_item( header_tree, hf_enip_session, tvb, 4, 4, TRUE );
@@ -566,23 +567,25 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
          val_to_str( encap_cmd, encap_cmd_vals, "Unknown (0x%04x)" ) );
 
-      /*
-      ** For some commands we want to add some info to the info column
-      */
+   } /* end of if (tree) */
 
-      if( check_col( pinfo->cinfo, COL_INFO ) )
+   /*
+   ** For some commands we want to add some info to the info column
+   */
+
+   if( check_col( pinfo->cinfo, COL_INFO ) )
+   {
+
+      switch( encap_cmd )
       {
+         case REGISTER_SESSION:
+         case UNREGISTER_SESSION:
+               col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
+                                tvb_get_letohl( tvb, 4 ) );
 
-         switch( encap_cmd )
-         {
-            case REGISTER_SESSION:
-            case UNREGISTER_SESSION:
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", Session: 0x%08X",
-                                   tvb_get_letohl( tvb, 4 ) );
+      } /* end of switch() */
 
-         } /* end of switch() */
-
-      } /* end of id info column */
+   } /* end of id info column */
 
       /* Command specific data - create tree */
       if( encap_data_length )
@@ -658,7 +661,6 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       } /* end of if( encapsulated data ) */
 
-   }
 } /* end of dissect_enip_pdu() */
 
 static int
@@ -698,7 +700,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return 0;	/* not a known command */
 
    tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4,
-	get_enip_pdu_len, dissect_enip_pdu);
+      get_enip_pdu_len, dissect_enip_pdu);
    return tvb_length(tvb);
 }
 
@@ -708,7 +710,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *enip_tree;
+	proto_tree *enip_tree = NULL;
 	guint16 type_id;
 
 	g_tree = tree;
@@ -729,15 +731,15 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    necessary to generate protocol tree items. */
 	if (tree)
 	{
-      /* create display subtree for the protocol */
+	  /* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_enip, tvb, 0, -1, FALSE);
 
 		enip_tree = proto_item_add_subtree(ti, ett_enip);
-
-      dissect_cpf( 0xFFFF, tvb, pinfo, enip_tree, 0, 0 );
 	}
 
-   return tvb_length(tvb);
+	dissect_cpf( 0xFFFF, tvb, pinfo, enip_tree, 0, 0 );
+
+	return tvb_length(tvb);
 } /* end of dissect_enipio() */
 
 
@@ -880,7 +882,7 @@ proto_register_enip(void)
 		&ett_enip,
 		&ett_count_tree,
 		&ett_type_tree,
-	&ett_command_tree,
+		&ett_command_tree,
 		&ett_sockadd,
 		&ett_lsrcf,
 	};
@@ -900,10 +902,10 @@ proto_register_enip(void)
 	    "Whether the EtherNet/IP dissector should desegment all messages spanning multiple TCP segments",
 	    &enip_desegment);
 
-   subdissector_sud_table = register_dissector_table("enip.sud.iface",
+	subdissector_sud_table = register_dissector_table("enip.sud.iface",
 		"SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
 
-   subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
+	subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
 		"SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
 
 } /* end of proto_register_enip() */
