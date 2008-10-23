@@ -1299,21 +1299,27 @@ filter_te_syntax_check_cb(GtkWidget *w)
     const gchar *strval;
     dfilter_t   *dfp;
     GPtrArray   *depr = NULL;
+    gboolean     use_statusbar;
     gchar       *msg;
     guchar       c;
 
-    statusbar_pop_filter_msg();
-
     strval = gtk_entry_get_text(GTK_ENTRY(w));
+    use_statusbar = g_object_get_data(G_OBJECT(w), E_FILT_FIELD_USE_STATUSBAR_KEY) ? TRUE : FALSE;
+
+    if (use_statusbar) {
+      statusbar_pop_filter_msg();
+    }
 
     /* colorize filter string entry */
     if (g_object_get_data(G_OBJECT(w), E_FILT_FIELD_NAME_ONLY_KEY) &&
 	strval && (c = proto_check_field_name(strval)) != 0)
     {
         colorize_filter_te_as_invalid(w);
-	msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
-	statusbar_push_filter_msg(msg);
-	g_free(msg);
+	if (use_statusbar) {
+	  msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
+	  statusbar_push_filter_msg(msg);
+	  g_free(msg);
+	}
     } else if (strval && dfilter_compile(strval, &dfp)) {
     	if (dfp != NULL) {
           depr = dfilter_deprecated_tokens(dfp);
@@ -1324,19 +1330,23 @@ filter_te_syntax_check_cb(GtkWidget *w)
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */
             colorize_filter_te_as_deprecated(w);
-            /*
-             * We're being lazy and only printing the first "problem" token.
-             * Would it be better to print all of them?
-             */
-            msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
-                (const char *) g_ptr_array_index(depr, 0));
-            statusbar_push_filter_msg(msg);
-            g_free(msg);
+	    if (use_statusbar) {
+	      /*
+	       * We're being lazy and only printing the first "problem" token.
+	       * Would it be better to print all of them?
+	       */
+	      msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
+				    (const char *) g_ptr_array_index(depr, 0));
+	      statusbar_push_filter_msg(msg);
+	      g_free(msg);
+	    }
         } else {
             colorize_filter_te_as_valid(w);
         }
     } else {
         colorize_filter_te_as_invalid(w);
-        statusbar_push_filter_msg(" Invalid filter");
+	if (use_statusbar) {
+	  statusbar_push_filter_msg(" Invalid filter");
+	}
     }
 }

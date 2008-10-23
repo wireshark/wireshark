@@ -121,6 +121,10 @@ void filter_te_syntax_check_cb(GtkWidget *widget);
  */
 #define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
+/** Only validate a singel field entry. */
 #define E_FILT_FIELD_NAME_ONLY_KEY  "filter_field_name_only"
+
+/** Update statusbar when changing the filter entry. */
+#define E_FILT_FIELD_USE_STATUSBAR_KEY "filter_field_use_statusbar"
 
 #endif /* filter_dlg.h */
