@@ -881,6 +881,39 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 			break;
 		}
+		case SCCP_MSG_TYPE_RLC:
+		{
+			emem_tree_key_t bw_key[] = {
+				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+			};
+			emem_tree_key_t fw_key[] = {
+				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+			};
+			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+				goto got_assoc_rlc;
+			}
+
+			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+				goto got_assoc_rlc;
+			}
+
+			assoc = new_assoc(dpck,opck);
+
+	 got_assoc_rlc:
+
+			pinfo->p2p_dir = P2P_DIR_SENT;
+
+			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+				se_tree_insert32_array(assocs,bw_key,assoc);
+				assoc->has_bw_key = TRUE;
+			}
+
+			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+				se_tree_insert32_array(assocs,fw_key,assoc);
+				assoc->has_fw_key = TRUE;
+			}
+			break;
+		}
 		default:
 		{
 			emem_tree_key_t key[] = {
