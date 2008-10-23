@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.4">
+  <!ENTITY WiresharkCurrentVersion "1.0.5">
 
 ]>
 
@@ -31,68 +31,18 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-05.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-07.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Florent Drouin and David Maciejak found that the Bluetooth ACL
-            dissector could crash or abort.
-            <!-- Fixed in r25195 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513">1513</ulink>)
+            Editcap could go on a rampage and steal all of your dental floss.
+            This could result in a serious DoH (Denial of Hygiene) condition.
+            <!-- Fixed in r99999 -->
+	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id="></ulink>)
           </para>
-          <para>Versions affected: 0.99.2 to 1.0.3</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Q.931 dissector could crash or abort.
-            <!-- Fixed in r26190 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2870">2870</ulink>)
-          </para>
-          <para>Versions affected: 0.10.3 to 1.0.3</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could abort while reading Tamos CommView capture files.
-            <!-- Fixed in r26327 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2926">2926</ulink>)
-          </para>
-          <para>Versions affected: 0.99.7 to 1.0.3</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            David Maciejak found that the USB dissector could crash or abort.
-            This led to the discovery of a similar problem in the Bluetooth
-            RFCOMM dissector.
-            <!-- Fixed in r26333 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2922">2922</ulink>)
-          </para>
-          <para>Versions affected: 0.99.7 to 1.0.3</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Vivek Gupta and David Maciejak found that the PRP and MATE dissectors could make Wireshark crash. (Neither PRP nor MATE are enabled by default.)
-            <!-- Fixed in r25339, r25342, r25344, r25347 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2549">2549</ulink>)
-          </para>
-          <para>Versions affected: 0.99.2 to 1.0.3</para>
+          <para>Versions affected: 0.99.0 to 1.0.4</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -109,96 +59,11 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Let MP2T call its subdissectors, even without tree
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2627">Bug
-          2627</ulink>)
+          Compilation broke when compiling without zlib
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2993">Bug
+          2993</ulink>)
         </para></listitem>
 
-        <listitem><para>
-          Wireless Toolbar not enabled (using AirPcap) if PCAP_REMOTE=1
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2685">Bug
-          2685</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Failure to dissect long SASL wrapped LDAP response
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2687">Bug
-          2687</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fix compiler warnings
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2823">Bug
-          2823</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Homeplug dissection bugs
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2859">Bug
-          2859</ulink>)
-        </para></listitem>
-
-        <!--
-        <listitem><para>
-          Empty GPRS LLC S frames cause truncated data exception
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2855">Bug
-          2855</ulink>)
-        </para></listitem>
-        -->
-
-        <listitem><para>
-          Malformed Packet DCP ETSI error
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2860">Bug
-          2860</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong size of selected_registrar in WPS dissector
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2865">Bug
-          2865</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dissector assertion displaying cookies in DTLS frames
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2876">Bug
-          2876</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Missing field type in documentation
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2889">Bug
-          2889</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark -p switch seems to have no effect to PROMISCUOUS mode
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2891">Bug
-          2891</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Misspelled PPI error vector magnitude filter
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2903">Bug
-          2903</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Modbus Function 43 Encapsulated Interface Transport decoding
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2917">Bug
-          2917</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when printing or exporting some protocol data
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2934">Bug
-          2934</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when selecting "Export Selected Packet Bytes"
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2964">Bug
-          2964</ulink>)
-        </para></listitem>
       </itemizedlist>
 
     </para>
@@ -223,24 +88,7 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-AFP,
-Bluetooth ACL,
-Bluetooth RFCOMM,
-DCP ETSI,
-DTLS,
-Homeplug,
-IEEE 802.11,
-IP,
-Modbus TCP,
-MP2T,
-NSIP,
-NCP,
-PPI,
-Q.931,
-SASL,
-SNMP,
-USB,
-WPS
+None
 
     </para>
     </section>
@@ -248,7 +96,7 @@ WPS
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-AiroPeek, CommView
+None
 
     </para>
     </section>
