@@ -4,6 +4,8 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
+ * Updated to 3GPP TS 48.008 version 8.4.0 Release 8
+ * Copyrigt 2008, Anders Broman <anders.broman [at] ericsson.com
  * Title		3GPP			Other
  *
  *   Reference [2]
@@ -308,6 +310,7 @@ static int hf_gsm_a_bssmap_dlci_spare = -1;
 static int hf_gsm_a_bssmap_dlci_sapi = -1;
 static int hf_gsm_a_bssmap_cause = -1;
 static int hf_gsm_a_bssmap_be_cell_id_disc = -1;
+static int hf_gsm_a_bssmap_ch_mode = -1;
 static int hf_gsm_a_bssmap_be_rnc_id = -1;
 static int hf_gsm_a_bssmap_apdu_protocol_id = -1;
 static int hf_gsm_a_bssmap_periodicity = -1;
@@ -1684,8 +1687,29 @@ iv)	(No resource information expected)..
  */
 
 /*
- * [2] 3.2.2.33
+ * [2] 3.2.2.33 Chosen Channel
  */
+static const value_string gsm_a_bssmap_ch_mode_vals[] = {
+	{ 0,	"reserved" },
+	{ 0,	"no channel mode indication" },
+	{ 9,	"speech (full rate or half rate)" },
+	{ 14,	"data, 14.5 kbit/s radio interface rate" },
+	{ 11,	"data, 12.0 kbit/s radio interface rate" },
+	{ 12,	"data, 6.0 kbit/s radio interface rate" },
+	{ 13,	"data, 3.6 kbit/s radio interface rate" },
+	{ 8,	"signalling only" },
+	{ 1,	"data, 29.0 kbit/s radio interface rate" },
+	{ 2,	"data, 32.0 kbit/s radio interface rate" },
+	{ 3,	"data, 43.5 kbit/s radio interface rate" },
+	{ 4,	"data, 43.5 kbit/s downlink and 14.5 kbit/s uplink" },
+	{ 5,	"data, 29.0 kbit/s downlink and 14.5 kbit/s uplink" },
+	{ 6,	"data, 43.5 kbit/s downlink and 29.0 kbit/s uplink" },
+	{ 7,	"data, 14.5 kbit/s downlink and 43.5 kbit/s uplink" },
+	{ 10,	"data, 14.5 kbit/s downlink and 29.0 kbit/s uplink" },
+	{ 15,	"data, 29.0 kbit/s downlink and 43.5 kbit/s uplink" },
+	{ 0, NULL },
+};
+
 static guint8
 be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1697,26 +1721,8 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ((oct & 0xf0) >> 4)
-	{
-	case 0: str = "No channel mode indication"; break;
-	case 9: str = "Speech (full rate or half rate)"; break;
-	case 14: str = "Data, 14.5 kbit/s radio interface rate"; break;
-	case 11: str = "Data, 12.0 kbit/s radio interface rate"; break;
-	case 12: str = "Data, 6.0 kbit/s radio interface rate"; break;
-	case 13: str = "Data, 3.6 kbit/s radio interface rate"; break;
-	case 8: str = "Signalling only"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Channel mode: %s",
-		a_bigbuf,
-		str);
+	/* Channel mode */
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_ch_mode, tvb, curr_offset, 1, FALSE);
 
 	switch (oct & 0x0f)
 	{
@@ -1751,7 +1757,7 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 }
 
 /*
- * [2] 3.2.2.34
+ * [2] 3.2.2.34 Cipher Response Mode
  */
 static guint8
 be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1785,7 +1791,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 
 /*
- * [2] 3.2.2.35
+ * [2] 3.2.2.35 Layer 3 Message Contents
  */
 static guint8
 be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -1830,16 +1836,18 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	return(curr_offset - offset);
 }
 /*
- * 3.2.2.36 Channel Needed
  * 3.2.2.37 Trace Type
+ * coded as the MSC/BSS Trace Type specified in 3GPP TS 52.008
  * 3.2.2.38 TriggerID
  * 3.2.2.39 Trace Reference
  * 3.2.2.40 TransactionID
  * 3.2.2.41 Mobile Identity (IMSI, IMEISV or IMEI as coded in 3GPP TS 24.008)
+ * Dissected in packet-gsm_a_common.c
  * 3.2.2.42 OMCID
+ * For the OMC identity, see 3GPP TS 52.021
  */
 /*
- * [2] 3.2.2.43
+ * [2] 3.2.2.43 Forward Indicator
  */
 static guint8
 be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1882,7 +1890,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [2] 3.2.2.44
+ * [2] 3.2.2.44 Chosen Encryption Algorithm
  */
 static guint8
 be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -1926,7 +1934,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 }
 
 /*
- * [2] 3.2.2.45
+ * [2] 3.2.2.45 Circuit Pool
  */
 static guint8
 be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -1939,7 +1947,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	if (oct <= 32)
+	if (oct <= 50)
 	{
 		str = "";
 	}
@@ -1968,13 +1976,12 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	return(curr_offset - offset);
 }
 /*
- * 3.2.2.45 Circuit Pool
  * 3.2.2.46 Circuit Pool List
  * 3.2.2.47 Time Indication
  * 3.2.2.48 Resource Situation
  */
 /*
- * [2] 3.2.2.49
+ * [2] 3.2.2.49 Current Channel Type 1
  */
 static guint8
 be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1987,25 +1994,8 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ((oct & 0xf0) >> 4)
-	{
-	case 0x00: str = "Signalling only"; break;
-	case 0x01: str = "Speech (full rate or half rate)"; break;
-	case 0x06: str = "Data, 14.5 kbit/s radio interface rate"; break;
-	case 0x03: str = "Data, 12.0 kbit/s radio interface rate"; break;
-	case 0x04: str = "Data, 6.0 kbit/s radio interface rate"; break;
-	case 0x05: str = "Data, 3.6 kbit/s radio interface rate"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Channel Mode: %s",
-		a_bigbuf,
-		str);
+	/* Channel mode */
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_ch_mode, tvb, curr_offset, 1, FALSE);
 
 	switch (oct & 0x0f)
 	{
@@ -2040,7 +2030,7 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 }
 
 /*
- * [2] 3.2.2.50
+ * [2] 3.2.2.50 Queuing Indicator
  */
 static guint8
 be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -2079,7 +2069,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [2] 3.2.2.51
+ * [2] 3.2.2.51 Speech Version
  */
 static guint8
 be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -2130,19 +2120,26 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 3.2.2.52 Assignment Requirement
  * 3.2.2.53 (void)
+ * 3.2.2.54	Talker Flag
+ * No data
  * 3.2.2.55 Group Call Reference
  * 3.2.2.56 eMLPP Priority
  * 3.2.2.57 Configuration Evolution Indication
  * 3.2.2.58 Old BSS to New BSS information
  * 3.2.2.59 (void)
- * 3.2.2.60 LCS QoS (LCS QoS element of 3GPP TS 49.031)
+ * 3.2.2.60 LCS QoS 
+ * (The QoS octets 3 to n are coded in the same way as the equivalent octets
+ * in the LCS QoS element of 3GPP TS 49.031.)
  * 3.2.2.61 LSA Access Control Suppression
- * 3.2.2.62 LCS Priority (LCS Priority element of 3GPP TS 49.031
+ * 3.2.2.62 LCS Priority 
+ *  The Priority octets 3 to n are coded in the same way as the equivalent octets
+ *  in the LCS Priority element of 3GPP TS 49.031.
  * 3.2.2.63 Location Type (Location Type element of 3GPP TS 49.031 BSSAP-LE.)
  */
 /*
  * 3.2.2.64 Location Estimate
- * The Location Estimate field is composed of 1 or more octets with an internal structure according to 3GPP TS 23.032.
+ * The Location Estimate field is composed of 1 or more octets with an internal structure
+ * according to 3GPP TS 23.032.
  */
 static guint8
 be_loc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -2297,6 +2294,28 @@ be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
   * 3.2.2.83 VSTK_RAND Information
   * 3.2.2.84 VSTK information
   * 3.2.2.85 Paging Information
+  * 3.2.2.86	IMEI
+  * 3.2.2.87	Velocity Estimate
+  * 3.2.2.88	VGCS Feature Flags
+  * 3.2.2.89	Talker Priority
+  * 3.2.2.90	Emergency Set Indicatio
+  * 3.2.2.91	Talker Identity
+  * 3.2.2.92	SMS to VGCS
+  * 3.2.2.93	VGCS talker mode 
+  * 3.2.2.94	VGCS/VBS Cell Status
+  * 3.2.2.95	GANSS Assistance Data
+  * 3.2.2.96	GANSS Positioning Data
+  * 3.2.2.97	GANSS Location Type
+  * 3.2.2.98	Application Data
+  * 3.2.2.99	Data Identity
+  * 3.2.2.100	Application Data Information
+  * 3.2.2.101	MSISDN 
+  * 3.2.2.102	AoIP Transport Layer Address 
+  * 3.2.2.103	Speech Codec List
+  * 3.2.2.104	Speech Codec
+  * 3.2.2.105	Call Identifier
+  * 3.2.2.106	Call Identifier List
+  * 
   */
 
 guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -2935,7 +2954,9 @@ bssmap_res_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Periodicity 	3.2.2.12	MSC-BSS 	M 	2   */
 	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_PERIODICITY].value, BSSAP_PDU_TYPE_BSSMAP, BE_PERIODICITY, "");
 	/* Resource Indication Method	3.2.2.29	MSC-BSS 	M 	2  */ 
-	/* Cell Identifier 	3.2.2.17	MSC-BSS 	M 	3-10   */
+	/* Cell Identifier 	3.2.2.17	MSC-BSS 	M 	3-10   
+	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
+	*/
 	/* Extended Resource Indicator 	3.2.2.13	MSC-BSS 	O 	2  */
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -2958,7 +2979,10 @@ bssmap_res_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* Resource Indication Method	3.2.2.29	BSS-MSC	M	2 */
 	/* Resource Available	3.2.2.4	BSS-MSC	O (note 1)	21 */
-	/* Cell Identifier 	3.2.2.17	BSS-MSC	M	3-10  */
+	/* Cell Identifier 	3.2.2.17	BSS-MSC	M	3-10  
+	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
+	*/
+	*/
 	/* Total Resource Accessible 	3.2.2.14	BSS-MSC	O (note 2)	5 */
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -3579,6 +3603,7 @@ Cause	3.2.2.5	BSS-MSC	M	3-4
 Channel Type	3.2.2.11	MSC-BSS	M (note 2)	5-13
 Assignment Requirement	3.2.2.52	MSC-BSS	M	2
 Cell Identifier	3.2.2.17	MSC-BSS	M	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Group Call Reference	3.2.2.55	MSC-BSS	M	7
 Priority	3.2.2.18	MSC-BSS	O	3
 Circuit Identity Code	3.2.2.2	MSC-BSS	O (note  4, 5)	3
@@ -3593,6 +3618,7 @@ Cell Identifier List Segment
  *
 Channel Type	3.2.2.11	BSS-MSC	M (note 3, 4)	5
 Cell Identifier	3.2.2.17	BSS-MSC	M	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Chosen Channel	3.2.2.33	BSS-MSC	O (note 2)	2
 Circuit Identity Code	3.2.2.2	BSS-MSC	O (note 5)	3
 Circuit Pool	3.2.2.45	BSS-MSC	O (note 1)	2
@@ -3612,6 +3638,7 @@ Circuit Pool List	3.2.2.46	BSS-MSC	O (note 2)	V
  *
 Talker Priority	3.2.2.89	BSS-MSC	O (note 1)	2
 Cell Identifier	3.2.2.17	BSS-MSC	O (note 1)	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Layer 3 Information	3.2.2.24	BSS-MSC	O (note 1,3)	3-n
 Mobile Identity	3.2.2.41	BSS-MSC	O (note 1,2)	3-n
  *
@@ -3624,12 +3651,14 @@ Talker Identity	3.2.2.91	MSC-BSS	O	3-20
  * 3.2.1.59	UPLINK REQUEST CONFIRMATION
  *
 Cell Identifier	3.2.2.17	BSS-MSC	M	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Talker Identity	3.2.2.91	BSS-MSC	O	3-20
 Layer 3 Information	3.2.2.24	BSS-MSC	M	3-n
  *
  * 3.2.1.59a	UPLINK APPLICATION DATA
  *
 Cell Identifier	3.2.2.17	BSS-MSC	M	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Layer 3 Information	3.2.2.24	BSS-MSC	M	3-n
 Application Data information	3.2.2.100	BSS-MSC	M	3
  *
@@ -3768,6 +3797,7 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
 Location Type 3.2.2.63 M 3-n
 Cell Identifier 3.2.2.17 O 5-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Classmark Information Type 3 3.2.2.20 O 3-14
 LCS Client Type 3.2.2.67 C (note 3) 3-n
 Chosen Channel 3.2.2.33 O 2
@@ -3775,6 +3805,10 @@ LCS Priority 3.2.2.62 O 3-n
 LCS QoS 3.2.2.60 C (note 1) 3-n
 GPS Assistance Data 3.2.2.70 C (note 2) 3-n
 APDU 3.2.2.68 O 3-n
+IMSI	3.2.2.6	O (note 4)	5-10
+IMEI	3.2.2.86	O (note 4)	10
+GANSS Location Type	3.2.2.97	C	3
+GANSS Assistance Data	3.2.2.95	C (note 5)	3-n
 */
 /*
  * 3.2.1.72 PERFORM LOCATION RESPONSE
@@ -3796,6 +3830,8 @@ bssmap_perf_loc_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Deciphering Keys 3.2.2.71 C (note 2) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_DECIPH_KEYS].value, BSSAP_PDU_TYPE_BSSMAP, BE_DECIPH_KEYS, "");
 	/* LCS Cause 3.2.2.66 C (note 3) 3-n */
+	/* Velocity Estimate	3.2.2.87	O	3-n */
+	/* GANSS Positioning Data	3.2.2.96	O	3-n */
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3841,6 +3877,7 @@ Cause	3.2.2.5	BSS-MSC	M	3-4
  */
 /*
 Cell Identifier	3.2.2.17	BSS-MSC	O	3-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 Layer 3 Information	3.2.2.24	BSS-MSC	O (note 2)	3-n
 Mobile Identity	3.2.2.41	BSS-MSC	O (note 1)	3-n
 */
@@ -3879,6 +3916,7 @@ MSISDN 	3.2.2.101	MSC-BSS	O	2-12
  *
 Cause 	3.2.2.5 	BSS-MSC 	M	 3-4 
 Cell Identifier	3.2.2.17 	BSS-MSC 	M	4-10
+ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 AoIP Transport Layer Address (BSS)	3.2.2.nn	BSS-MSC	C (Note 1)	10-22
 Codec List (BSS Supported) 	3.2.2.nn	BSS-MSC	M	3-n
  *
@@ -4168,6 +4206,11 @@ proto_register_gsm_a_bssmap(void)
 		{ "Cell identification discriminator","gsm_a.be.cell_id_disc",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_be_cell_id_disc_vals), 0x0f,
 		"Cell identification discriminator", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_ch_mode,
+		{ "Channel mode","gsm_a_bssmap.cch_mode",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_ch_mode_vals), 0xf0,
+		"Channel mode", HFILL }
 	},
 	{ &hf_gsm_a_bssmap_be_rnc_id,
 		{ "RNC-ID","gsm_a.be.rnc_id",
