@@ -7,36 +7,36 @@
   <section id="ChIntroIntro">
     <title>Introduction</title>
     <para>
-	This chapter will provide you with information about Wireshark 
-	development in general. 
+	This chapter will provide you with information about Wireshark
+	development in general.
     </para>
   </section>
 
   <section id="ChIntroWhatIs">
     <title>What is <application>Wireshark?</application></title>
     <para>
-	Well, if you want to start Wireshark development, you might already 
-	know what Wireshark is doing. If not, please have a look at the 
-	<ulink url="&WiresharkUsersGuidePage;">Wireshark User's Guide</ulink>, 
+	Well, if you want to start Wireshark development, you might already
+	know what Wireshark is doing. If not, please have a look at the
+	<ulink url="&WiresharkUsersGuidePage;">Wireshark User's Guide</ulink>,
 	which will provide a lot of general information about it.
     </para>
-		
+
   </section>
-  
+
   <section id="ChIntroPlatforms">
     <title>Platforms Wireshark runs on</title>
     <para>
-      Wireshark currently runs on most UNIX platforms and various Windows 
-      platforms. It requires GTK+, GLib, libpcap and some other libraries in 
+      Wireshark currently runs on most UNIX platforms and various Windows
+      platforms. It requires GTK+, GLib, libpcap and some other libraries in
 	  order to run.
     </para>
     <para>
-	As Wireshark is developed in a platform independent way and uses libraries 
+	As Wireshark is developed in a platform independent way and uses libraries
 	(such as the GTK+ GUI library) which are available for a lot of different platforms,
         it's thus available on a wide variety of platforms.
     </para>
     <para>
-      If a binary package is not available for your platform, you should 
+      If a binary package is not available for your platform, you should
       download the source and try to build it. Please report your experiences
 	  to <ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>.
     </para>
@@ -62,7 +62,7 @@
 	</itemizedlist>
 	</para>
 	</section>
-	
+
 	<section><title>Linux</title>
 	<para>
 	<itemizedlist>
@@ -78,162 +78,162 @@
 	</itemizedlist>
 	</para>
 	</section>
-	
+
 	<section><title>Microsoft Windows</title>
     <para>
-	Thanks to the Win32 API, development on all Windows platforms will be 
+	Thanks to the Win32 API, development on all Windows platforms will be
 	done in a very similar way. All Windows platforms referred to as Win32,
 	Win or Windows may be used with the same meaning.
 	Older Windows versions are no longer supported by Wireshark.
-	As Windows CE differs a lot compared to the other Windows platforms 
-	mentioned, Wireshark will not run on Windows CE and there are no plans to 
-	support it. 
+	As Windows CE differs a lot compared to the other Windows platforms
+	mentioned, Wireshark will not run on Windows CE and there are no plans to
+	support it.
 	<itemizedlist>
 	<listitem><para>Windows Server 2003 / XP / 2000</para></listitem>
 	</itemizedlist>
     </para>
 	</section>
-	
+
   </section>
-  
+
   <section id="ChIntroDevelopment">
     <title>
 	Development and maintenance of <application>Wireshark</application>
     </title>
     <para>
-      Wireshark was initially developed by Gerald Combs. Ongoing development 
-      and maintenance of Wireshark is handled by the Wireshark team, a loose 
-      group of individuals who fix bugs and provide new functionality.  
+      Wireshark was initially developed by Gerald Combs. Ongoing development
+      and maintenance of Wireshark is handled by the Wireshark team, a loose
+      group of individuals who fix bugs and provide new functionality.
     </para>
     <para>
-      There have also been a large number of people who have contributed 
-      protocol dissectors to Wireshark, and it is expected that this will 
-      continue.  You can find a list of the people who have contributed 
-      code to Wireshark by checking the about dialog box of Wireshark, or have 
-	  a look at the <ulink url="&WiresharkAuthorsPage;"/> page on the Wireshark 
+      There have also been a large number of people who have contributed
+      protocol dissectors to Wireshark, and it is expected that this will
+      continue.  You can find a list of the people who have contributed
+      code to Wireshark by checking the about dialog box of Wireshark, or have
+	  a look at the <ulink url="&WiresharkAuthorsPage;"/> page on the Wireshark
 	  web site.
     </para>
     <para>
-	The 
-	communication between the developers is usually done through the developer 
-	mailing list, which can be joined by anyone interested in the development 
-	process. At the time this document was written, more than 500 persons were 
-	subscribed to this mailing list! 
+	The
+	communication between the developers is usually done through the developer
+	mailing list, which can be joined by anyone interested in the development
+	process. At the time this document was written, more than 500 persons were
+	subscribed to this mailing list!
     </para>
     <para>
-	It is strongly recommended to join the developer mailing list, if you 
-	are going to do any Wireshark development. See 
-	<xref linkend="ChIntroMailingLists"/> about the different Wireshark 
+	It is strongly recommended to join the developer mailing list, if you
+	are going to do any Wireshark development. See
+	<xref linkend="ChIntroMailingLists"/> about the different Wireshark
 	mailing lists available.
     </para>
-	
+
 	<section><title>Programming language(s) used</title>
     <para>
-	Almost any part of Wireshark is implemented in plain ANSI C. 
+	Almost any part of Wireshark is implemented in plain ANSI C.
     </para>
     <para>
-	The typical task for a new Wireshark developer is to extend an existing, 
-	or write a new dissector for a specific network protocol. As (almost) any 
-	dissector is written in plain old ANSI C, a good knowledge about ANSI C 
+	The typical task for a new Wireshark developer is to extend an existing,
+	or write a new dissector for a specific network protocol. As (almost) any
+	dissector is written in plain old ANSI C, a good knowledge about ANSI C
 	will be sufficient for Wireshark development in almost any case.
     </para>
     <para>
-	So unless you are going to change the development process of Wireshark 
-	itself, you won't come in touch with any other programming language than 
-	ANSI C (such as perl or python, which are used only in the Wireshark build 
+	So unless you are going to change the development process of Wireshark
+	itself, you won't come in touch with any other programming language than
+	ANSI C (such as Perl or Python, which are used only in the Wireshark build
 	process).
     </para>
     <para>
-	Beside the usual tools for developing a program in C (compiler, make, ...), 
-	the build process uses some additional helper tools (Perl, Python, Sed, 
-	...), which are needed for the build process when Wireshark 
-	is to be installed from the released source packages. If Wireshark is 
-	installed from a binary package, none of these helper tools are needed on 
+	Beside the usual tools for developing a program in C (compiler, make, ...),
+	the build process uses some additional helper tools (Perl, Python, Sed,
+	...), which are needed for the build process when Wireshark
+	is to be installed from the released source packages. If Wireshark is
+	installed from a binary package, none of these helper tools are needed on
 	the target system.
 	</para>
 	</section>
-	
-	
+
+
 	<section><title>Open Source Software</title>
     <para>
-      Wireshark is an open source software project, and is released under 
-      the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL). 
-	  You can freely use Wireshark on any number of computers you like, without 
-	  worrying about license keys or fees or such. In addition, all source 
-	  code is freely available under the GPL. Because of that, it is very easy 
-	  for people to add new protocols to Wireshark, either as plugins, or built 
+      Wireshark is an open source software project, and is released under
+      the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL).
+	  You can freely use Wireshark on any number of computers you like, without
+	  worrying about license keys or fees or such. In addition, all source
+	  code is freely available under the GPL. Because of that, it is very easy
+	  for people to add new protocols to Wireshark, either as plugins, or built
 	  into the source, and they often do!
     </para>
     <para>
-	  You are welcome to 
-      modify Wireshark to suit your own needs, and it would be appreciated 
+	  You are welcome to
+      modify Wireshark to suit your own needs, and it would be appreciated
       if you contribute your improvements back to the Wireshark team.
     </para>
     <para>
-      You gain three benefits by contributing your improvements back to the 
+      You gain three benefits by contributing your improvements back to the
       community:
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Other people who find your contributions useful will appreciate 
-	    them, and you will know that you have helped people in the 
+	    Other people who find your contributions useful will appreciate
+	    them, and you will know that you have helped people in the
 	    same way that the developers of Wireshark have helped people.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    The developers of Wireshark might improve your changes even more,
-		as there's always room for improvements. Or they may implement some 
+		as there's always room for improvements. Or they may implement some
 		advanced things on top of your code, which can be useful for yourself
 		too.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The maintainers and developers of Wireshark will maintain your 
-	    code as well, fixing it when API changes or other changes are 
-	    made, and generally keeping it in tune with what is happening 
+	    The maintainers and developers of Wireshark will maintain your
+	    code as well, fixing it when API changes or other changes are
+	    made, and generally keeping it in tune with what is happening
 	    with Wireshark. So if Wireshark is updated (which is done often),
-		you can get a new Wireshark version from the website and your changes 
+		you can get a new Wireshark version from the website and your changes
 		will already be included without any effort for you.
 	  </para>
 	</listitem>
       </itemizedlist>
     </para>
     <para>
-      The Wireshark source code and binary kits for some platforms are all 
-      available on the download page of the Wireshark website: 
+      The Wireshark source code and binary kits for some platforms are all
+      available on the download page of the Wireshark website:
       <ulink url="&WiresharkDownloadPage;">&WiresharkDownloadPage;</ulink>.
     </para>
-	
+
 	</section>
-	
+
   </section>
-  
+
   <section id="ChIntroReleases">
     <title>Releases and distributions</title>
     <para>
-	The officially released files can be found at: <ulink 
-	url="&WiresharkDownloadPage;"/>.  A new Wireshark version is released after 
-	significant changes compared to the last release are completed or a 
+	The officially released files can be found at: <ulink
+	url="&WiresharkDownloadPage;"/>.  A new Wireshark version is released after
+	significant changes compared to the last release are completed or a
 	serious security issue is encountered. The typical release schedule is
 	about every 4-8 weeks (although this may vary).
     </para>
     <para>
-	There are two kinds of distributions: binary and source; both have their 
-	advantages and disadvantages. 
+	There are two kinds of distributions: binary and source; both have their
+	advantages and disadvantages.
     </para>
 
 	<section id="ChIntroReleaseBinary">
     <title>Binary distributions</title>
     <para>
 	Binary distributions are usually easy to install (as simply starting
-	the appropriate file is usually the only thing to do). They are available 
+	the appropriate file is usually the only thing to do). They are available
 	for the following systems:
 	<itemizedlist>
 	<listitem>
     <para>
-	Win32 (.exe file). The typical Windows end user method is used to get a setup.exe 
+	Win32 (.exe file). The typical Windows end user method is used to get a setup.exe
 	file which will install all the required things for him.
     </para>
 	</listitem>
@@ -244,21 +244,21 @@
 	</listitem>
 	<listitem>
     <para>
-	Debian (.deb file). A user of a Debian Package Manager (DPKG) based system 
-	obtains a .deb file from which the package manager checks the 
+	Debian (.deb file). A user of a Debian Package Manager (DPKG) based system
+	obtains a .deb file from which the package manager checks the
 	dependencies and installs the software.
     </para>
 	</listitem>
 	<listitem>
     <para>
 	Red Hat (.rpm file). A user of a Red Hat Package Manager (RPM) based system
-	obtains an .rpm file from which the package manager checks the 
+	obtains an .rpm file from which the package manager checks the
 	dependencies and installs the software.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	Solaris. A Solaris user obtains a file from which the package manager 
+	Solaris. A Solaris user obtains a file from which the package manager
 	(PKG) checks the dependencies and installs the software.
     </para>
 	</listitem>
@@ -268,8 +268,8 @@
 	course.
     </para>
     <para>
-	For details about how to build these binary distributions yourself, 
-	e.g. if you need a distribution for a special audience, see 
+	For details about how to build these binary distributions yourself,
+	e.g. if you need a distribution for a special audience, see
 	<xref linkend="ChSrcBinary"/>.
     </para>
 	</section>
@@ -277,17 +277,17 @@
 	<section id="ChIntroReleaseSource">
 	<title>Source code distributions</title>
     <para>
-	It's still common for UNIX developers to give the end user a source 
-	tarball and let the user compile it on their target machine (configure, 
-	make, make install). However, for different UNIX (Linux) distributions 
-	it's becoming more common to release binary packages (e.g. .deb or .rpm 
+	It's still common for UNIX developers to give the end user a source
+	tarball and let the user compile it on their target machine (configure,
+	make, make install). However, for different UNIX (Linux) distributions
+	it's becoming more common to release binary packages (e.g. .deb or .rpm
 	files) these days.
     </para>
     <para>
 	You should use the released sources if you want to build Wireshark from
-	source on your platform for productive use. However, if you going to 
-	develop changes to the Wireshark sources, it might be better to use the 
-	latest SVN sources. For details about the different ways to get the 
+	source on your platform for productive use. However, if you going to
+	develop changes to the Wireshark sources, it might be better to use the
+	latest SVN sources. For details about the different ways to get the
 	Wireshark source code see <xref linkend="ChSrcObtain"/>.
     </para>
     <para>
@@ -297,39 +297,39 @@
     </para>
 	</section>
   </section>
-  
+
   <section id="ChIntroAutomated">
     <title>Automated Builds (Buildbot)</title>
     <para>
-	The Wireshark Buildbot automatically rebuilds Wireshark on every 
+	The Wireshark Buildbot automatically rebuilds Wireshark on every
 	change of the source code repository and indicates problematic changes.
-	This frees the developers from repeating (and annoying) work, so time can 
+	This frees the developers from repeating (and annoying) work, so time can
 	be spent on more interesting tasks.
     </para>
 	<section>
 	<title>Advantages</title>
 	<itemizedlist>
 	<listitem><para>
-	Recognizing (cross platform) build problems - early. Compilation problems 
+	Recognizing (cross platform) build problems - early. Compilation problems
 	can be narrowed down to a few commits, making a fix much easier.
 	</para></listitem>
 	<listitem><para>
-	"Health status" overview of the sources. A quick look at: <ulink 
-	url="http://buildbot.wireshark.org/trunk/" /> gives a good "feeling" if 
-	the sources are currently "well". 
-	On the other hand, if all is "red", an update of a personal source tree 
+	"Health status" overview of the sources. A quick look at: <ulink
+	url="http://buildbot.wireshark.org/trunk/" /> gives a good "feeling" if
+	the sources are currently "well".
+	On the other hand, if all is "red", an update of a personal source tree
 	might better be done later ...
 	</para></listitem>
 	<listitem><para>
-	"Up to date" binary packages are available. 
-	After a change was committed to the repository, a binary package / 
-	installer is usually available within a few hours at: <ulink 
-	url="http://www.wireshark.org/download/automated/" />. 
+	"Up to date" binary packages are available.
+	After a change was committed to the repository, a binary package /
+	installer is usually available within a few hours at: <ulink
+	url="http://www.wireshark.org/download/automated/" />.
 	This can be quite helpful, e.g. a bug reporter can easily verify a bugfix
 	by installing a recent build.
 	</para></listitem>
 	<listitem><para>
-	Automated regression tests. In particular, the fuzz tests often indicate 
+	Automated regression tests. In particular, the fuzz tests often indicate
 	"real life" problems that are otherwise hard to find.
 	</para></listitem>
 	</itemizedlist>
@@ -337,7 +337,7 @@
 	<section>
 	<title>What does the Buildbot do?</title>
     <para>
-	The Buildbot will do the following (to a different degree on the different 
+	The Buildbot will do the following (to a different degree on the different
 	platforms):
 	<itemizedlist>
 	<listitem><para>
@@ -353,15 +353,15 @@
 	create source package (and check completeness)
 	</para></listitem>
 	<listitem><para>
-	run regression tests 
+	run regression tests
 	</para></listitem>
 	</itemizedlist>
-	Each step is represented at the status page by a rectangle, green if it 
-	succeeded or red if it failed. Most steps provide a link to the corresponding 
+	Each step is represented at the status page by a rectangle, green if it
+	succeeded or red if it failed. Most steps provide a link to the corresponding
 	console logfile, to get additional information.
     </para>
     <para>
-	The Buildbot runs on a platform collection that represents the different 
+	The Buildbot runs on a platform collection that represents the different
 	"platform specialties" quite well:
 	<itemizedlist>
 	<listitem><para>
@@ -377,17 +377,17 @@
 	Mac OS-X PPC (BSD, big endian, gcc)
 	</para></listitem>
 	</itemizedlist>
-	Each platform is represented at the status page by a single column, the 
-	most recent entries are at the top. 
+	Each platform is represented at the status page by a single column, the
+	most recent entries are at the top.
     </para>
 	</section>
   </section>
-  
+
   <section id="ChIntroHelp">
     <title>Reporting problems and getting help</title>
 	<para>
-      If you have problems, or need help with Wireshark, there are several 
-      places that may be of interest to you (well, beside this guide of 
+      If you have problems, or need help with Wireshark, there are several
+      places that may be of interest to you (well, beside this guide of
 	  course).
 	</para>
 
@@ -413,26 +413,26 @@
         wiki pages by simply using your webbrowser.
         </para>
         </section>
-	
+
 	<section id="ChIntroFAQ"><title>FAQ</title>
     <para>
-	The "Frequently Asked Questions" will list often asked questions and 
+	The "Frequently Asked Questions" will list often asked questions and
 	the corresponding answers.
 	<note><title>Read the FAQ!</title>
 	<para>
-	Before sending any mail to the mailing lists below, be sure to read the 
-	FAQ, as it will often answer the question(s) you might have. This will save 
-	yourself and others a lot of time (keep in mind that a lot of people are 
-	subscribed to the mailing lists). 
+	Before sending any mail to the mailing lists below, be sure to read the
+	FAQ, as it will often answer the question(s) you might have. This will save
+	yourself and others a lot of time (keep in mind that a lot of people are
+	subscribed to the mailing lists).
     </para>
     </note>
-	You will find the FAQ inside Wireshark by clicking the menu item 
-	Help/Contents and selecting the FAQ page in the upcoming dialog. 
+	You will find the FAQ inside Wireshark by clicking the menu item
+	Help/Contents and selecting the FAQ page in the upcoming dialog.
     </para>
     <para>
 	An online version is available at the Wireshark website:
-	<ulink url="&WiresharkFAQPage;">&WiresharkFAQPage;</ulink>. You might 
-	prefer this online version, as it's typically more up to date and the HTML 
+	<ulink url="&WiresharkFAQPage;">&WiresharkFAQPage;</ulink>. You might
+	prefer this online version, as it's typically more up to date and the HTML
 	format is easier to use.
     </para>
 	</section>
@@ -440,13 +440,13 @@
     <section id="ChIntroOtherSources"><title>Other sources
     </title>
     <para>
-	If you don't find the information you need inside this book, there are 
+	If you don't find the information you need inside this book, there are
 	various other sources of information:
 	<itemizedlist>
 	<listitem>
 	<para>
-    the file <filename>doc/README.developer</filename> and 
-	all the other README.xxx files in the source code - these are various 
+    the file <filename>doc/README.developer</filename> and
+	all the other README.xxx files in the source code - these are various
 	documentation files on different topics
 	</para>
 	</listitem>
@@ -457,7 +457,7 @@
 	</listitem>
 	<listitem>
 	<para>
-    tool documentation of the various tools used 
+    tool documentation of the various tools used
 	(e.g. manpages of sed, gcc, ...)
 	</para>
 	</listitem>
@@ -482,7 +482,7 @@
 	<varlistentry><term><command>wireshark-announce</command></term>
 	  <listitem>
 	    <para>
-	      This mailing list will inform you about new program 
+	      This mailing list will inform you about new program
 		  releases, which usually appear about every 4-8 weeks.
 	    </para>
 	  </listitem>
@@ -490,17 +490,17 @@
 	<varlistentry><term><command>wireshark-users</command></term>
 	  <listitem>
 	    <para>
-	      This list is for users of Wireshark. People post 
-	      questions about building and using Wireshark, others (hopefully) 
-		  provide answers. 
+	      This list is for users of Wireshark. People post
+	      questions about building and using Wireshark, others (hopefully)
+		  provide answers.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>wireshark-dev</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Wireshark developers. People post questions about 
-		  the development of Wireshark, others (hopefully) provide answers. 
+	      This list is for Wireshark developers. People post questions about
+		  the development of Wireshark, others (hopefully) provide answers.
 		  If you want to start developing a protocol dissector, join this list.
 	    </para>
 	  </listitem>
@@ -508,10 +508,10 @@
 	<varlistentry><term><command>wireshark-bugs</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Wireshark developers. Every time a change to the bug 
+	      This list is for Wireshark developers. Every time a change to the bug
 		  database occurs, a mail to this mailing list is generated.
-		  If you want to be notified about all the changes to the bug 
-		  database, join this list. Details about the bug database can be 
+		  If you want to be notified about all the changes to the bug
+		  database, join this list. Details about the bug database can be
 		  found in <xref linkend="ChIntroBugDatabase"/>.
 	    </para>
 	  </listitem>
@@ -519,24 +519,24 @@
 	<varlistentry><term><command>wireshark-commits</command></term>
 	  <listitem>
 	    <para>
-	      This list is for Wireshark developers. Every time a change to the SVN 
+	      This list is for Wireshark developers. Every time a change to the SVN
 		  repository is checked in, a mail to this mailing list is generated.
-		  If you want to be notified about all the changes to the SVN 
-		  repository, join this list. Details about the SVN repository can be 
+		  If you want to be notified about all the changes to the SVN
+		  repository, join this list. Details about the SVN repository can be
 		  found in <xref linkend="ChSrcSVNServer"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
       </variablelist>
-      You can subscribe to each of these lists from the Wireshark web site: 
-      <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.  Simply 
-      select the <command>mailing lists</command> link on the left hand 
-      side of the site. The lists are archived at the Wireshark web site 
+      You can subscribe to each of these lists from the Wireshark web site:
+      <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.  Simply
+      select the <command>mailing lists</command> link on the left hand
+      side of the site. The lists are archived at the Wireshark web site
       as well.
 	<tip><title>Tip!</title>
 	<para>
-	You can search in the list archives to see if someone previously asked the same 
-	question and maybe already got an answer. That way you 
+	You can search in the list archives to see if someone previously asked the same
+	question and maybe already got an answer. That way you
 	don't have to wait until someone answers your question.
 	</para>
 	</tip>
@@ -547,33 +547,33 @@
 	<para>
 	The Wireshark community collects bug reports in a Bugzilla database at
 	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
-	This database is filled with manually filed bug reports, usually after some 
+	This database is filled with manually filed bug reports, usually after some
 	discussion on wireshark-dev, and bug reports from the QA build tools.
 	</para>
 	</section>
-		
+
 	<section id="ChIntroReportProblems"><title>Reporting Problems</title>
 	<note><title>Note!</title>
 	<para>
-	Before reporting any problems, please make sure you have installed the 
+	Before reporting any problems, please make sure you have installed the
 	latest version of Wireshark.
 	</para>
 	</note>
     <para>
-	If you report problems, provide as much 
-	information as possible. In general, just think about what 
-	you would need to find that problem, if someone else sends you such a 
-	problem report. Also keep in mind that people compile/run Wireshark on a lot of different 
-	platforms. 
+	If you report problems, provide as much
+	information as possible. In general, just think about what
+	you would need to find that problem, if someone else sends you such a
+	problem report. Also keep in mind that people compile/run Wireshark on a lot of different
+	platforms.
     </para>
     <para>
-      When reporting problems with Wireshark, it is helpful if you supply the 
+      When reporting problems with Wireshark, it is helpful if you supply the
       following information:
       <orderedlist>
 	<listitem>
 	  <para>
-	    The version number of Wireshark and the dependent libraries linked with 
-		it, e.g. GTK+, etc. You can obtain this with the command 
+	    The version number of Wireshark and the dependent libraries linked with
+		it, e.g. GTK+, etc. You can obtain this with the command
 	    <command>wireshark -v</command>.
 	  </para>
 	</listitem>
@@ -589,10 +589,10 @@
 	</listitem>
 	<listitem>
 	  <para>
-		If you get an error/warning message, copy the text of that message (and 
-		also a few lines before and after it, if there are some), so others may 
-		find the build step where things go wrong. 
-		Please don't give something like: "I get a warning when compiling x" 
+		If you get an error/warning message, copy the text of that message (and
+		also a few lines before and after it, if there are some), so others may
+		find the build step where things go wrong.
+		Please don't give something like: "I get a warning when compiling x"
 		as this won't give any direction to look at.
 	  </para>
 	</listitem>
@@ -600,26 +600,26 @@
     </para>
 	<note><title>Don't send large files!</title>
 	<para>
-	Do not send large files (>100KB) to the mailing lists, just place a note 
-	that further data is available on request. Large files will only annoy a 
-	lot of people on the list who are not interested in your specific problem. 
-	If required, you will be asked for further data by the persons who really 
+	Do not send large files (>100KB) to the mailing lists, just place a note
+	that further data is available on request. Large files will only annoy a
+	lot of people on the list who are not interested in your specific problem.
+	If required, you will be asked for further data by the persons who really
 	can help you.
 	</para>
 	</note>
 	<note><title>Don't send confidential information!</title>
 	<para>
 	If you send captured data to the mailing lists, or add it to your bug report,
-	be sure it doesn't contain any sensitive or confidential information, 
+	be sure it doesn't contain any sensitive or confidential information,
 	such as passwords.
 	</para>
 	</note>
   </section>
-  
+
   <section><title>Reporting Crashes on UNIX/Linux platforms</title>
     <para>
-      When reporting crashes with Wireshark, it is helpful if you supply the 
-      traceback information (besides the information mentioned in 
+      When reporting crashes with Wireshark, it is helpful if you supply the
+      traceback information (besides the information mentioned in
 	  <xref linkend="ChIntroReportProblems"/>).
     </para>
 	  <para>
@@ -634,40 +634,40 @@ $
 		</programlisting>
 	    <note>
 	      <para>
-		Type the characters in the first line verbatim! Those are 
+		Type the characters in the first line verbatim! Those are
 		back-tics there!
 	      </para>
 	    </note>
 	    <note>
 	      <para>
-		backtrace is a <command>gdb</command> command. You should 
-		enter it verbatim after the first line shown above, but it will not be 
-		echoed. The ^D 
-		(Control-D, that is, press the Control key and the D key 
-		together) will cause <command>gdb</command> to exit. This will 
-		leave you with a file called 
-		<filename>bt.txt</filename> in the current directory. 
+		backtrace is a <command>gdb</command> command. You should
+		enter it verbatim after the first line shown above, but it will not be
+		echoed. The ^D
+		(Control-D, that is, press the Control key and the D key
+		together) will cause <command>gdb</command> to exit. This will
+		leave you with a file called
+		<filename>bt.txt</filename> in the current directory.
 		Include the file with your bug report.
 	      </para>
 	    </note>
 	    <note>
 	      <para>
-		If you do not have <command>gdb</command> available, you 
-		will have to check out your operating system's debugger.  
+		If you do not have <command>gdb</command> available, you
+		will have to check out your operating system's debugger.
 	      </para>
 	    </note>
 	  </para>
 	  <para>
-	    You should mail the traceback to the 
+	    You should mail the traceback to the
 		<ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>
 	    mailing list, or append it to your bug report.
 	  </para>
   </section>
-  
+
   <section><title>Reporting Crashes on Windows platforms</title>
     <para>
-	The Windows distributions don't contain the symbol files (.pdb), because 
-	they are very large. For this reason it's not possible to create 
+	The Windows distributions don't contain the symbol files (.pdb), because
+	they are very large. For this reason it's not possible to create
 	a meaningful backtrace file from it. You should report your crash just
 	like other problems, using the mechanism from
 	<xref linkend="ChIntroReportProblems"/>.

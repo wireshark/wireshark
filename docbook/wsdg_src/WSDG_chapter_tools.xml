@@ -245,13 +245,19 @@ PARTICULAR PURPOSE.]]>
     </orderedlist>
     <section>
       <title>Toolchain Package Alternatives</title>
-      <para>The Microsoft Visual C++ 2005 Express Edition is
-      recommended to compile Wireshark - it's free (as in beer) and
-      gives by far the best development comfort (compared to the
-      other free packages).</para>
+      <para>The official Wireshark 1.0.x releases are compiled using Microsoft
+      Visual C++ 6.0. The 1.1.x development releases are compiled using
+      Microsoft Visual C++ 2008 SP1. Using the release compilers is recommended
+      for Wireshark development work. Visual C++ 2008 Express Edition SP1 may
+      be used for the development branch, but it cannot create PortableApps
+      or U3 packages.</para>
       <para>However, you might already have a different Microsoft C
-      compiler installed. With the following differences to the
-      recommendations it's possible to use it as well:</para>
+      compiler installed. With the considerations listed below, it should
+      be possible to use it as well:</para>
+
+      <section>
+        <title>
+
       <informaltable frame="all">
         <tgroup cols="7">
           <colspec colname="c1" colwidth="14*" />
@@ -1126,8 +1132,8 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
     <para>Python is an interpreter based programming language. The
     homepage of the python project is:
     <ulink url="http://python.org/" />. Python is used to generate
-    some source files. Python version 2.2 and above should be
-    working fine.</para>
+    some source files. Python 2.4 to 2.6 should work fine.
+    </para>
     <section id="ChToolsUnixPython">
       <title>UNIX or Win32 Cygwin: python</title>
       <para>Python is available for most of the UNIX-like platforms
@@ -1149,21 +1155,24 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
     </section>
     <section id="ChToolsWin32Python">
       <title>Win32 native: python</title>
-      <para>Have a look at
-      <ulink url="http://python.org/download/" />to download the
-      latest stable release. You can download a setup there, which
-      will install the python system typically into
-      <filename>C:\Python25</filename> or similar.</para>
-      <para>After correct installation, typing at the command
-      line prompt (cmd.exe) - this must be entered in the Python
-      directory, the installer won't set the PATH:</para>
+      <para>Get Python 2.6, 2.5, or 2.4 from
+      <ulink url="http://python.org/download/" />.
+      You can download an installation package there, which
+      will install the Python system in the top level of your
+      <filename>C:</filename> drive by default, e.g.
+      <filename>C:\Python26</filename>.</para>
+      <para>You can check for a successful installation from a command prompt (cmd.exe):</para>
       <para>
-        <prompt>C:\Python25&gt;</prompt>
+        <prompt>C:\&gt;</prompt>
+        <userinput>cd python26</userinput>
+      </para>
+      <para>
+        <prompt>C:\Python26&gt;</prompt>
         <userinput>python -V</userinput>
       </para>
-      <para>should result in something like:
+      <para>The output should look something like:
       <programlisting>
-        <![CDATA[Python 2.5]]>
+        <![CDATA[Python 2.6]]>
 </programlisting>However, the version string may vary.</para>
     </section>
   </section>
