@@ -4038,7 +4038,7 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
 					       "Ext Maximum bit rate for uplink : %u Mbps", md);
 			}
 			/* Octet 18 */
-			if(guar_ul_ext = 0)
+			if(guar_ul_ext == 0)
 				proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for uplink in octet 13");
 			if (guar_ul_ext > 0 && guar_ul_ext <= 0x4a) {
 				gd = 8600 + guar_ul_ext * 100;
