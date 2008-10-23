@@ -2982,7 +2982,6 @@ bssmap_res_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Cell Identifier 	3.2.2.17	BSS-MSC	M	3-10  
 	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, BSSAP_PDU_TYPE_BSSMAP, BE_CELL_ID, "");
 	*/
-	*/
 	/* Total Resource Accessible 	3.2.2.14	BSS-MSC	O (note 2)	5 */
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
