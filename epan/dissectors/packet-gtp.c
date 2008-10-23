@@ -3871,6 +3871,14 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
 		guar_ul = wrapped_tvb_get_guint8(tvb, offset + (10 - 1) * utf8_type + 1, utf8_type);
 		/* Octet 13 */
 		guar_dl = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
+
+		src_stat_desc = 0;
+		sig_ind = 0;
+		max_dl_ext = 0;
+		guar_dl_ext = 0;
+		max_ul_ext = 0;
+		guar_ul_ext =0;
+
 		if (length > 13) {
 			src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& 0xf;
 			sig_ind = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& 0x01;
