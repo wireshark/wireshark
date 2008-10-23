@@ -255,9 +255,6 @@ PARTICULAR PURPOSE.]]>
       compiler installed. With the considerations listed below, it should
       be possible to use it as well:</para>
 
-      <section>
-        <title>
-
       <informaltable frame="all">
         <tgroup cols="7">
           <colspec colname="c1" colwidth="14*" />
