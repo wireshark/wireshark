@@ -16,7 +16,7 @@ Before starting to develop a new dissector, a "running" Wireshark build
 environment is required - there's no such thing as a standalone "dissector
 build toolkit".
 
-How to setup such an environment is platform dependent, detailed information
+How to setup such an environment is platform dependent; detailed information
 about these steps can be found in the "Developer's Guide" (available from:
 http://www.wireshark.org) and in the INSTALL and README files of the sources
 root dir.
@@ -139,7 +139,7 @@ Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
 			sequence_number);
 
 When using standard C routines, such as printf and scanf, use
-PRId64, PRIu64, PRIx64, PRIX64, and PRIo64, for example:
+PRId64, PRIu64, PRIx64, PRIX64, and PRIo64; for example:
 
    printf("Sequence Number: %" PRIu64 "\n", sequence_number);
 
@@ -475,10 +475,10 @@ If you are allocating a chunk of memory to contain data from a packet,
 or to contain information derived from data in a packet, and the size of
 the chunk of memory is derived from a size field in the packet, make
 sure all the data is present in the packet before allocating the buffer.
-Doing so means that
+Doing so means that:
 
 	1) Wireshark won't leak that chunk of memory if an attempt to
-	   fetch data not present in the packet throws an exception
+	   fetch data not present in the packet throws an exception.
 
 and
 
@@ -1142,6 +1142,22 @@ tvb_get_ephemeral_faked_unicode() returns a buffer allocated from a special
 heap with a lifetime until the next packet is dissected. You do not need to
 free() this buffer, it will happen automatically once the next packet is
 dissected.
+
+Byte Array Accessors:
+
+gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
+
+Formats a bunch of data from a tvbuff as bytes, returning a pointer
+to the string with the data formatted as two hex digits for each byte. 
+The string pointed to is stored in an "ep_alloc'd" buffer which will be freed
+before the next frame is dissected. The formatted string will contain the hex digits
+for at most the first 16 bytes of the data. If len is greater than 16 bytes, a 
+trailing "..." will be added to the string.
+
+gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct);
+
+This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
+between the hex representation of each byte. 
 
 
 Copying memory:
@@ -2116,7 +2132,7 @@ Output format:
 
 proto_tree_add_bits_ret_val()
 -----------------------------
-Works in the same way but alo returns the value of the read bits.
+Works in the same way but also returns the value of the read bits.
 
 proto_tree_add_protocol_format()
 --------------------------------
