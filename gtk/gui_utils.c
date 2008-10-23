@@ -169,14 +169,14 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
 }
 
 
-/* Create a new window for a splash screen; it's a main window, with no title,
+/* Create a new window for a splash screen; it's a main window, without decoration,
    positioned in the center of the screen. */
 GtkWidget *
 splash_window_new(void)
 {
   GtkWidget *win;
 
-  win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  win = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark");
   gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
 
   /* set the initial position (must be done, before show is called!) */
