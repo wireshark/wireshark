@@ -3687,6 +3687,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Octet 10 */
 	proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, FALSE);
 
@@ -3700,6 +3701,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Octet 11 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct>>2 )
@@ -3751,6 +3753,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Octet 12 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct )
@@ -3823,6 +3826,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Ocet 14 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( (oct>>4)&1 )
@@ -3857,6 +3861,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Octet 15 */
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -3866,10 +3871,18 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		default: str="Unspecified";
 	}
 
-	if (( oct >= 1 ) && ( oct <= 0x3f ))
+	if (( oct >= 1 ) && ( oct <= 0x4a ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"Maximum bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+	if (( oct >= 0x4b ) && ( oct <= 0xba ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for downlink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for downlink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
@@ -3885,6 +3898,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		return(curr_offset - offset);
 	}
 
+	/* Octet 16 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct )
@@ -3897,6 +3911,14 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"Guaranteed bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+	if (( oct >= 0x4b ) && ( oct <= 0xba ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for downlink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for downlink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
@@ -3905,6 +3927,76 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	curr_offset+= 1;
 	curr_len-= 1;
 
+	if ( curr_len == 0 )
+	{
+		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+		return(curr_offset - offset);
+	}
+	/* Maximum bit rate for uplink (extended) Octet 17 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch ( oct )
+	{
+		case 0x00: str="Use the value indicated by the Maximum bit rate for uplink"; break;
+		default: str="Unspecified";
+	}
+
+	if (( oct >= 1 ) && ( oct <= 0x4a ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for uplink (extended): (%u) %ukbps",oct,oct*100);
+	if (( oct >= 0x4b ) && ( oct <= 0xba ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for uplink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for uplink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+	else
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Maximum bit rate for uplink (extended): (%u) %s",oct,str);
+
+	curr_offset+= 1;
+	curr_len-= 1;
+
+	if ( curr_len == 0 )
+	{
+		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+		return(curr_offset - offset);
+	}
+
+	/* Guaranteed bit rate for uplink (extended) Octet 18 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch ( oct )
+	{
+		case 0x00: str="Use the value indicated by the Guaranteed bit rate for uplink"; break;
+		default: str="Unspecified";
+	}
+
+	if (( oct >= 1 ) && ( oct <= 0x4a ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for uplink (extended): (%u) %ukbps",oct,oct*100);
+	if (( oct >= 0x4b ) && ( oct <= 0xba ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for uplink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for uplink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+	else
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Guaranteed bit rate for uplink (extended): (%u) %s",oct,str);
+
+	curr_offset+= 1;
+	curr_len-= 1;
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);

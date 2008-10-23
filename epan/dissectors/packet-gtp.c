@@ -157,6 +157,8 @@ static int hf_gtp_qos_trans_delay = -1;
 static int hf_gtp_qos_traf_handl_prio = -1;
 static int hf_gtp_qos_guar_ul = -1;
 static int hf_gtp_qos_guar_dl = -1;
+static int hf_gtp_qos_src_stat_desc = -1;
+static int hf_gtp_qos_sig_ind = -1;
 static int hf_gtp_pkt_flow_id = -1;
 static int hf_gtp_rab_gtpu_dn = -1;
 static int hf_gtp_rab_gtpu_up = -1;
@@ -1121,6 +1123,18 @@ static const value_string qos_guar_ul[] = {
     /* For values from 0x80 to 0xFE, value = 576 kbps + (value - 0x80) * 64 kbps */
     {0xFF, "0 kbps"},
     {0, NULL}
+};
+
+static const value_string src_stat_desc_vals[] = {
+    {0x00, "unknown"},
+    {0x01, "speech"},
+    {0, NULL}
+};
+
+
+static const true_false_string gtp_sig_ind = {
+    "Optimised for signalling traffic",
+    "Not optimised for signalling traffic"
 };
 
 static const value_string qos_guar_dl[] = {
@@ -3705,10 +3719,11 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
     guint8 al_ret_priority;
     guint8 delay, reliability, peak, precedence, mean, spare1, spare2, spare3;
     guint8 traf_class, del_order, del_err_sdu;
-    guint8 max_sdu_size, max_ul, max_dl;
+    guint8 max_sdu_size, max_ul, max_dl, max_ul_ext, max_dl_ext;
     guint8 res_ber, sdu_err_ratio;
     guint8 trans_delay, traf_handl_prio;
-    guint8 guar_ul, guar_dl;
+    guint8 guar_ul, guar_dl, guar_ul_ext, guar_dl_ext;
+	guint8 src_stat_desc, sig_ind;
     proto_tree *ext_tree_qos;
     proto_item *te;
     int mss, mu, md, gu, gd;
@@ -3825,105 +3840,214 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
     proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3, tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, spare3);
     proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean, tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, mean);
 
+	/* TS 24.008 V 7.8.0
+	 * The quality of service is a type 4 information element with a minimum length of 14 octets and a maximum length of 18
+	 * octets. The QoS requested by the MS shall be encoded both in the QoS attributes specified in octets 3-5 and in the QoS
+	 * attributes specified in octets 6-14.
+	 * In the MS to network direction and in the network to MS direction the following applies:
+	 * - Octets 15-18 are optional. If octet 15 is included, then octet 16 shall also be included, and octets 17 and 18 may
+	 * be included.
+	 * - If octet 17 is included, then octet 18 shall also be included.
+	 * - A QoS IE received without octets 6-18, without octets 14-18, without octets 15-18, or without octets 17-18 shall
+	 * be accepted by the receiving entity.
+	 */
+
     if (length > 4) {
 
-	/* See above for the need of wrapping
-	 * */
-	traf_class = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0xE0;
-	del_order = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0x18;
-	del_err_sdu = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0x07;
-	max_sdu_size = wrapped_tvb_get_guint8(tvb, offset + (5 - 1) * utf8_type + 1, utf8_type);
-	max_ul = wrapped_tvb_get_guint8(tvb, offset + (6 - 1) * utf8_type + 1, utf8_type);
-	max_dl = wrapped_tvb_get_guint8(tvb, offset + (7 - 1) * utf8_type + 1, utf8_type);
-	res_ber = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & 0xF0;
-	sdu_err_ratio = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & 0x0F;
-	trans_delay = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & 0xFC;
-	traf_handl_prio = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & 0x03;
-	guar_ul = wrapped_tvb_get_guint8(tvb, offset + (10 - 1) * utf8_type + 1, utf8_type);
-	guar_dl = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
+		/* See above for the need of wrapping
+		 * 
+		 */
+		/* Octet 6 */
+		traf_class = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0xE0;
+		del_order = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0x18;
+		del_err_sdu = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0x07;
+		max_sdu_size = wrapped_tvb_get_guint8(tvb, offset + (5 - 1) * utf8_type + 1, utf8_type);
+		max_ul = wrapped_tvb_get_guint8(tvb, offset + (6 - 1) * utf8_type + 1, utf8_type);
+		max_dl = wrapped_tvb_get_guint8(tvb, offset + (7 - 1) * utf8_type + 1, utf8_type);
+		res_ber = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & 0xF0;
+		sdu_err_ratio = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & 0x0F;
+		trans_delay = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & 0xFC;
+		traf_handl_prio = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & 0x03;
+		guar_ul = wrapped_tvb_get_guint8(tvb, offset + (10 - 1) * utf8_type + 1, utf8_type);
+		/* Octet 13 */
+		guar_dl = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
+		if (length > 13) {
+			src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& 0xf;
+			sig_ind = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& 0x01;
+		}
+		if (length > 14) {
+			max_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (13 - 1) * utf8_type + 1, utf8_type);
+			guar_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (14 - 1) * utf8_type + 1, utf8_type);
+		}
+		if (length > 17) {
+			max_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (15 - 1) * utf8_type + 1, utf8_type);
+			guar_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (16 - 1) * utf8_type + 1, utf8_type);
+		}
 
-	/* See above comments for the changes
-	 * */
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_class, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, traf_class);
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_order, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_order);
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_err_sdu, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_err_sdu);
-	if (max_sdu_size == 0 || max_sdu_size > 150)
-	    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, max_sdu_size);
-	if (max_sdu_size > 0 && max_sdu_size <= 150) {
-	    mss = max_sdu_size * 10;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, mss,
-				       "Maximum SDU size : %u octets", mss);
-	}
+		/* See above comments for the changes
+		 * */
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_class, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, traf_class);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_order, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_order);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_err_sdu, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_err_sdu);
+		if (max_sdu_size == 0 || max_sdu_size > 150)
+		    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, max_sdu_size);
+		if (max_sdu_size > 0 && max_sdu_size <= 150) {
+		    mss = max_sdu_size * 10;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, mss,
+					       "Maximum SDU size : %u octets", mss);
+		}
 
-	if (max_ul == 0 || max_ul == 255)
-	    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul);
-	if (max_ul > 0 && max_ul <= 63)
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul,
+		if (max_ul == 0 || max_ul == 255)
+		    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul);
+		if (max_ul > 0 && max_ul <= 63)
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, max_ul,
 				       "Maximum bit rate for uplink : %u kbps", max_ul);
-	if (max_ul > 63 && max_ul <= 127) {
-	    mu = 64 + (max_ul - 64) * 8;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
+		if (max_ul > 63 && max_ul <= 127) {
+		    mu = 64 + (max_ul - 64) * 8;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
 				       "Maximum bit rate for uplink : %u kbps", mu);
-	}
+		}
 
-	if (max_ul > 127 && max_ul <= 254) {
-	    mu = 576 + (max_ul - 128) * 64;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
+		if (max_ul > 127 && max_ul <= 254) {
+		    mu = 576 + (max_ul - 128) * 64;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (6 - 1) * utf8_type + 1, utf8_type, mu,
 				       "Maximum bit rate for uplink : %u kbps", mu);
-	}
+		}
 
-	if (max_dl == 0 || max_dl == 255)
-	    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl);
-	if (max_dl > 0 && max_dl <= 63)
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl,
+		if (max_dl == 0 || max_dl == 255)
+		    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl);
+		if (max_dl > 0 && max_dl <= 63)
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, max_dl,
 				       "Maximum bit rate for downlink : %u kbps", max_dl);
-	if (max_dl > 63 && max_dl <= 127) {
-	    md = 64 + (max_dl - 64) * 8;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
+		if (max_dl > 63 && max_dl <= 127) {
+		    md = 64 + (max_dl - 64) * 8;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
 				       "Maximum bit rate for downlink : %u kbps", md);
-	}
-	if (max_dl > 127 && max_dl <= 254) {
-	    md = 576 + (max_dl - 128) * 64;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
+		}
+		if (max_dl > 127 && max_dl <= 254) {
+		    md = 576 + (max_dl - 128) * 64;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (7 - 1) * utf8_type + 1, utf8_type, md,
 				       "Maximum bit rate for downlink : %u kbps", md);
-	}
+		}
 
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_res_ber, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, res_ber);
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_sdu_err_ratio, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, sdu_err_ratio);
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_trans_delay, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, trans_delay);
-	proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_handl_prio, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, traf_handl_prio);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_res_ber, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, res_ber);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_sdu_err_ratio, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, sdu_err_ratio);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_trans_delay, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, trans_delay);
+		proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_handl_prio, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, traf_handl_prio);
 
-	if (guar_ul == 0 || guar_ul == 255)
-	    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul);
-	if (guar_ul > 0 && guar_ul <= 63)
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul,
+		if (guar_ul == 0 || guar_ul == 255)
+		    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul);
+		if (guar_ul > 0 && guar_ul <= 63)
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, guar_ul,
 				       "Guaranteed bit rate for uplink : %u kbps", guar_ul);
-	if (guar_ul > 63 && guar_ul <= 127) {
-	    gu = 64 + (guar_ul - 64) * 8;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
+		if (guar_ul > 63 && guar_ul <= 127) {
+		    gu = 64 + (guar_ul - 64) * 8;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
 				       "Guaranteed bit rate for uplink : %u kbps", gu);
-	}
-	if (guar_ul > 127 && guar_ul <= 254) {
-	    gu = 576 + (guar_ul - 128) * 64;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
+		}
+		if (guar_ul > 127 && guar_ul <= 254) {
+		    gu = 576 + (guar_ul - 128) * 64;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (10 - 1) * utf8_type + 1, utf8_type, gu,
 				       "Guaranteed bit rate for uplink : %u kbps", gu);
-	}
+		}
 
-	if (guar_dl == 0 || guar_dl == 255)
-	    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, guar_dl);
-	if (guar_dl > 0 && guar_dl <= 63)
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, guar_dl,
+		/* Octet 13 */
+		if (guar_dl == 0 || guar_dl == 255)
+		    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, guar_dl);
+		if (guar_dl > 0 && guar_dl <= 63)
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, guar_dl,
 				       "Guaranteed bit rate for downlink : %u kbps", guar_dl);
-	if (guar_dl > 63 && guar_dl <= 127) {
-	    gd = 64 + (guar_dl - 64) * 8;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, gd,
+		if (guar_dl > 63 && guar_dl <= 127) {
+		    gd = 64 + (guar_dl - 64) * 8;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, gd,
 				       "Guaranteed bit rate for downlink : %u kbps", gd);
-	}
-	if (guar_dl > 127 && guar_dl <= 254) {
-	    gd = 576 + (guar_dl - 128) * 64;
-	    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, gd,
+		}
+		if (guar_dl > 127 && guar_dl <= 254) {
+		    gd = 576 + (guar_dl - 128) * 64;
+		    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, gd,
 				       "Guaranteed bit rate for downlink : %u kbps", gd);
-	}
+		}
+		
+		if(length > 13){
+			proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
+			proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
+		}
+		if(length > 14){
+			/* Octet 15 */
+			if (max_dl_ext > 0 && max_dl_ext <= 0x4a) {
+			    md = 8600 + max_dl_ext * 100;
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (13 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for downlink : %u kbps", md);
+			}
+			if (max_dl_ext > 0x4a && max_dl_ext <= 0xba) {
+				md = 16 + (max_dl_ext-0x4a);
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (13 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for downlink : %u Mbps", md);
+			}
+			if (max_dl_ext > 0xba && max_dl_ext <= 0xfa) {
+				md = 128 + (max_dl_ext-0xba)*2;
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_dl, tvb, offset + (13 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for downlink : %u Mbps", md);
+			}
+			/* Octet 16 */
+			if(guar_dl_ext == 0)
+				proto_tree_add_text(ext_tree_qos, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for downlink in octet 13");
+			if (guar_dl_ext > 0 && guar_dl_ext <= 0x4a) {
+				gd = 8600 + guar_dl_ext * 100;
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for downlink : %u kbps", gd);
+			}
+			if (guar_dl_ext > 0x4a && max_dl_ext <= 0xba) {
+				gd = 16 + (guar_dl_ext-0x4a);
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for downlink : %u Mbps", gd);
+			}
+			if (guar_dl_ext > 0xba && max_dl_ext <= 0xfa) {
+				gd = 128 + (guar_dl_ext-0xba)*2;
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for downlink : %u Mbps", gd);
+			}
+
+		}
+		if(length > 16){
+			/* Octet 17
+			 * This field is an extension of the Maximum bit rate for uplink in octet 8. The coding is identical to that of the Maximum bit
+			 * rate for downlink (extended).
+			 */
+			if (max_ul_ext > 0 && max_ul_ext <= 0x4a) {
+			    md = 8600 + max_ul_ext * 100;
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for uplink : %u kbps", md);
+			}
+			if (max_ul_ext > 0x4a && max_ul_ext <= 0xba) {
+				md = 16 + (max_ul_ext-0x4a);
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for uplink : %u Mbps", md);
+			}
+			if (max_ul_ext > 0xba && max_ul_ext <= 0xfa) {
+				md = 128 + (max_ul_ext-0xba)*2;
+			    proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_max_ul, tvb, offset + (15 - 1) * utf8_type + 1, utf8_type, md,
+					       "Ext Maximum bit rate for uplink : %u Mbps", md);
+			}
+			/* Octet 18 */
+			if(guar_ul_ext = 0)
+				proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for uplink in octet 13");
+			if (guar_ul_ext > 0 && guar_ul_ext <= 0x4a) {
+				gd = 8600 + guar_ul_ext * 100;
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for uplink : %u kbps", gd);
+			}
+			if (guar_ul_ext > 0x4a && max_ul_ext <= 0xba) {
+				gd = 16 + (guar_ul_ext-0x4a);
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for uplink : %u Mbps", gd);
+			}
+			if (guar_ul_ext > 0xba && max_ul_ext <= 0xfa) {
+				gd = 128 + (guar_ul_ext-0xba)*2;
+				proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
+						"Ext Guaranteed bit rate for uplink : %u Mbps", gd);
+			}
+		}
 
     }
 
@@ -6436,6 +6560,10 @@ void proto_register_gtp(void)
 	{&hf_gtp_qos_guar_dl,
 	 {"Guaranteed bit rate for downlink", "gtp.qos_guar_dl", FT_UINT8, BASE_DEC, VALS(qos_guar_dl), 0, "Guaranteed bit rate for downlink",
 	  HFILL}},
+	{&hf_gtp_qos_src_stat_desc,
+	 	 {"Source Statistics Descriptor", "gtp.src_stat_desc", FT_UINT8, BASE_DEC, VALS(src_stat_desc_vals), 0xf, "Source Statistics Descriptor", HFILL}},
+	{&hf_gtp_qos_sig_ind,
+	 	 {"Signalling Indication", "gtp.sig_ind", FT_BOOLEAN, 8, TFS(&gtp_sig_ind), 0x10, "Signalling Indication", HFILL}},
 	{&hf_gtp_pkt_flow_id, {"Packet Flow ID", "gtp.pkt_flow_id", FT_UINT8, BASE_DEC, NULL, 0, "Packet Flow ID", HFILL}},
 	{&hf_gtp_ptmsi, {"P-TMSI", "gtp.ptmsi", FT_UINT32, BASE_HEX, NULL, 0, "Packet-Temporary Mobile Subscriber Identity", HFILL}},
 	{&hf_gtp_ptmsi_sig, {"P-TMSI Signature", "gtp.ptmsi_sig", FT_UINT24, BASE_HEX, NULL, 0, "P-TMSI Signature", HFILL}},
