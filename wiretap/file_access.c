@@ -978,6 +978,7 @@ static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 {
 	return fdopen(fd, "wb");
+}
 #endif
 
 /* internally writing raw bytes (compressed or not) */
