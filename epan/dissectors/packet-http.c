@@ -81,6 +81,7 @@ static int hf_http_proxy_connect_host = -1;
 static int hf_http_proxy_connect_port = -1;
 static int hf_http_www_authenticate = -1;
 static int hf_http_content_type = -1;
+static int hf_http_content_length_header = -1;
 static int hf_http_content_length = -1;
 static int hf_http_content_encoding = -1;
 static int hf_http_transfer_encoding = -1;
@@ -106,6 +107,7 @@ static gint ett_http_request = -1;
 static gint ett_http_chunked_response = -1;
 static gint ett_http_chunk_data = -1;
 static gint ett_http_encoded_entity = -1;
+static gint ett_http_header_item = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
@@ -1732,7 +1734,7 @@ static const header_info headers[] = {
 	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, HDR_AUTHENTICATE },
 	{ "WWW-Authenticate", &hf_http_www_authenticate, HDR_AUTHENTICATE },
 	{ "Content-Type", &hf_http_content_type, HDR_CONTENT_TYPE },
-	{ "Content-Length", &hf_http_content_length, HDR_CONTENT_LENGTH },
+	{ "Content-Length", &hf_http_content_length_header, HDR_CONTENT_LENGTH },
 	{ "Content-Encoding", &hf_http_content_encoding, HDR_CONTENT_ENCODING },
 	{ "Transfer-Encoding", &hf_http_transfer_encoding, HDR_TRANSFER_ENCODING },
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
@@ -1898,10 +1900,16 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				 */
 				eh_ptr->have_content_length = FALSE;
 			} else {
+				proto_tree *header_tree;
+				proto_item *tree_item;
 				/*
 				 * We do have a valid content length.
 				 */
 				eh_ptr->have_content_length = TRUE;
+				header_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
+				tree_item = proto_tree_add_uint(header_tree, hf_http_content_length,
+					tvb, offset, len, eh_ptr->content_length);
+				PROTO_ITEM_SET_GENERATED(tree_item);
 			}
 			break;
 
@@ -2148,10 +2156,14 @@ proto_register_http(void)
 	      { "Content-Type",	"http.content_type",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Content-Type header", HFILL }},
-	    { &hf_http_content_length,
-	      { "Content-Length",	"http.content_length",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
+	    { &hf_http_content_length_header,
+	      { "Content-Length",	"http.content_length_header",
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Content-Length header", HFILL }},
+	    { &hf_http_content_length,
+	      { "Content length",	"http.content_length",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
 	    { &hf_http_content_encoding,
 	      { "Content-Encoding",	"http.content_encoding",
 		FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2228,6 +2240,7 @@ proto_register_http(void)
 		&ett_http_chunked_response,
 		&ett_http_chunk_data,
 		&ett_http_encoded_entity,
+		&ett_http_header_item
 	};
 	module_t *http_module;
 
