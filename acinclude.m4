@@ -78,7 +78,7 @@ dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
 dnl AC_WIRESHARK_STRUCT_SA_LEN, which checks if "struct sockaddr"
 dnl has the 4.4BSD "sa_len" member, and defines HAVE_SA_LEN; that's
 dnl what's in this file.
-dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14. 
+dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14.
 
 dnl ### Checks for structure members
 
@@ -178,7 +178,7 @@ yes
 				v6lib=inet6
 				[CFLAGS="-DINET6 -DSOLARIS8_INET6 $CFLAGS"]
 			fi
-			;; 
+			;;
 		esac
 		if test "$v6type" != "unknown"; then
 			break
@@ -207,7 +207,7 @@ yes
 #
 # Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
 # GNU Autoconf 2.13; the comment came from there.
-# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
 #
 AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
 [
@@ -232,7 +232,7 @@ AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
 #
 # Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
 # GNU Autoconf 2.13; the comment came from there.
-# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14. 
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
 #
 # We use "connect" because that's what AC_PATH_XTRA did.
 #
@@ -344,7 +344,7 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	fi
 
 	# Pcap header check
-	AC_CHECK_HEADER(pcap.h,, 
+	AC_CHECK_HEADER(pcap.h,,
 	    AC_MSG_ERROR([[Header file pcap.h not found; if you installed libpcap
 from source, did you also do \"make install-incl\", and if you installed a
 binary package of libpcap, is there also a developer's package of libpcap,
@@ -436,13 +436,13 @@ and did you also install that package?]]))
 	# a -Wimplicit warning (the "compile with warnings as errors"
 	# option requires GCC). If it is not usable, we fail and tell
 	# the user that the pcap.h header needs to be updated.
-	# 
+	#
 	# Ceteris paribus, this should only happen with Mac OS X 10.3[.x] which
 	# can have an up-to-date pcap library without the corresponding pcap
 	# header.
 	#
 	# However, it might also happen on some others OSes with some erroneous
-	# system manipulations where multiple versions of libcap might co-exist	
+	# system manipulations where multiple versions of libcap might co-exist
 	# e.g. hand made symbolic link from libpcap.so -> libpcap.so.0.8 but
 	# having the pcap header version 0.7.
 	#
@@ -831,7 +831,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		LIBS="$LIBS -L$lua_dir/lib -llua -lm"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
-	else 
+	else
 		#
 		# The user specified no directory in which liblua resides,
 		# so just add "-llua -lliblua" to the used libs.
@@ -858,7 +858,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				# we found lua5.1/lua.h, but we don't know which include dir contains it
 				AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't use it. Please set the PATH for the --with-lua configure parameter. \n probably it is /usr.)
 			fi
-			
+
 		],
 		[
 			if test "x$lua_dir" != "x"
@@ -932,7 +932,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				# no lualib, in 5.1 there's only liblua
 				# do we have 5.1?
 				#
-				
+
 				LIBS="$wireshark_save_LIBS $LUA_LIBS"
 
 				AC_CHECK_LIB(lua, luaL_register,
@@ -967,7 +967,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				    want_lua=no
 				])
 			])
-		],[  
+		],[
 			#
 			# We could not find the libs, maybe we have version number in the lib name
 			#
@@ -1039,7 +1039,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		LIBS="$LIBS -L$portaudio_dir/lib -lportaudio"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$portaudio_dir/lib"
-	else 
+	else
 		#
 		# The user specified no directory in which libportaudio resides,
 		# so just add "-lportaudio" to the used libs.
@@ -1126,7 +1126,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			fi
 			AC_DEFINE(HAVE_LIBPORTAUDIO, 1, [Define to use libportaudio library])
 			want_portaudio=yes
-		],[  
+		],[
 			#
 			# Restore the versions of CFLAGS, CPPFLAGS,
 			# LDFLAGS, and LIBS before we added the
@@ -1321,7 +1321,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	    AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
 	  fi
 	else
-	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
+	  AC_PATH_PROG(KRB5_CONFIG, krb5-config)
 	  if test -x "$KRB5_CONFIG"
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
@@ -1571,3 +1571,25 @@ else
   AC_MSG_RESULT(no)
 fi
 ])
+
+#
+# AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK
+#
+# Checks for the presence of OS X integration functions in GTK+
+# http://developer.imendio.com/projects/gtk-macosx/integration
+#
+AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
+[
+	ac_save_CFLAGS="$CFLAGS"
+	ac_save_LIBS="$LIBS"
+	CFLAGS="$CFLAGS $GTK_CFLAGS"
+	LIBS="$GTK_LIBS $LIBS"
+	AC_CHECK_LIB(Gtk, ige_mac_menu_set_menu_bar,
+	[
+		AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
+			[Define to 1 if the GTK+ library inclues the Imendio IGE Mac OS X Integration library.])
+		AC_CHECK_FUNCS(ige_mac_menu_install_key_handler)
+	])
+])
+
+
