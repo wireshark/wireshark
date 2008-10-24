@@ -648,6 +648,7 @@ proto_get_next_protocol_field
 proto_get_protocol_filter_name
 proto_get_protocol_name
 proto_get_protocol_short_name
+proto_get_protocol_long_name
 proto_initialize_all_prefixes
 proto_is_protocol_enabled
 proto_item_add_subtree
