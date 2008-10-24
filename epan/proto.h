@@ -1420,6 +1420,10 @@ extern int proto_get_id(protocol_t *protocol);
  @return its short name. */
 extern const char *proto_get_protocol_short_name(protocol_t *protocol);
 
+/** Get the protocol's long name, for the given protocol's "protocol_t".
+ @return its long name. */
+extern const char *proto_get_protocol_long_name(protocol_t *protocol);
+
 /** Is protocol's decoding enabled ?
  @param protocol 
  @return TRUE if decoding is enabled, FALSE if not */

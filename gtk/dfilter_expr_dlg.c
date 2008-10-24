@@ -1119,7 +1119,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     GtkTreeIter iter, child_iter;
     void *cookie, *cookie2;
-    const gchar *name;
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
 	 i = proto_get_next_protocol(&cookie)) {
@@ -1131,11 +1130,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	    continue;
 	}
 
-	name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
+	g_snprintf(str, TAG_STRING_LEN, "%s - %s", 
+		   proto_get_protocol_short_name(protocol),
+		   proto_get_protocol_long_name(protocol));
+	str[TAG_STRING_LEN]='\0';
+	strp=str;
+
 	hfinfo = proto_registrar_get_nth(i);
 
 	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter, 0, name, 1, hfinfo, -1);
+	gtk_tree_store_set(store, &iter, 0, strp, 1, hfinfo, -1);
 
 	for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
              hfinfo = proto_get_next_protocol_field(&cookie2)) {
@@ -1151,7 +1155,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                            hfinfo->name);
             }
             str[TAG_STRING_LEN]='\0';
-            strp=str;
             gtk_tree_store_append(store, &child_iter, &iter);
             gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
 	}

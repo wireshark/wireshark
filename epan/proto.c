@@ -3655,6 +3655,14 @@ proto_get_protocol_short_name(protocol_t *protocol)
 }
 
 const char *
+proto_get_protocol_long_name(protocol_t *protocol)
+{
+	if (protocol == NULL)
+		return "(none)";
+	return protocol->name;
+}
+
+const char *
 proto_get_protocol_filter_name(int proto_id)
 {
 	protocol_t *protocol;
