@@ -31,10 +31,11 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifdef HAVE_LIBZ
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
 #endif
+
+#ifdef HAVE_LIBZ
 #include <zlib.h>
 #define FILE_T	gzFile
 #else /* No zLib */

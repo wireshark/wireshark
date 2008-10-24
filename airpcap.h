@@ -29,6 +29,10 @@
 #pragma warning( disable : 4996)
 #endif
 
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

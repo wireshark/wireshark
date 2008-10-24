@@ -84,14 +84,6 @@
 
 #include "packet-wps.h"
 
-#ifdef HAVE_AIRPCAP
-#include <airpcap.h>
-#include <airpcap_loader.h>
-#else
-/* XXX - This is probably a bit much */
-#define MAX_ENCRYPTION_KEYS 64
-#endif
-
 #ifndef roundup2
 #define	roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif

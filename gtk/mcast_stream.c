@@ -59,7 +59,9 @@
 #include "gtk/mcast_stream_dlg.h"
 #include "gtk/main.h"
 
-
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 
 gint32 trigger=50; /* limit for triggering the burst alarm (in packets per second) */
 gint32 bufferalarm = 10000; /* limit for triggernig the buffer alarm (in bytes) */

@@ -102,6 +102,9 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 
 #include <glib.h>
 

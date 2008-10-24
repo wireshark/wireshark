@@ -34,7 +34,6 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include <wtap.h>
 #include <pcap.h>
 
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
@@ -42,15 +41,23 @@
 
 #include <epan/value_string.h>
 
+#include <Packet32.h>
+#include <windows.h>
+#include <windowsx.h>
+#include <Ntddndis.h>
 
+#include "capture_wpcap_packet.h"
 
 /* packet32.h requires sockaddr_storage 
- * wether sockaddr_storage is defined or not depends on the Platform SDK 
+ * whether sockaddr_storage is defined or not depends on the Platform SDK 
  * version installed. The only one not defining it is the SDK that comes
  * with MSVC 6.0 (WINVER 0x0400).
  *
  * copied from RFC2553 (and slightly modified because of datatypes) ...
  * XXX - defined more than once, move this to a header file */
+#ifndef WINVER
+#error WINVER not defined ....
+#endif
 #if (WINVER <= 0x0400) && defined(_MSC_VER)
 typedef unsigned short eth_sa_family_t;
 
@@ -84,13 +91,6 @@ struct sockaddr_storage {
 /* ... copied from RFC2553 */
 #endif /* WINVER */
 
-
-#include <Packet32.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <Ntddndis.h>
-
-#include "capture_wpcap_packet.h"
 
 gboolean has_wpacket = FALSE;
 

@@ -27,10 +27,6 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
-
 #include <glib.h>
 #include <stdio.h>
 #include <time.h>

@@ -45,6 +45,9 @@
 
 #include "image/wsicon16.xpm"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #define WINDOW_GEOM_KEY "window_geom"
 

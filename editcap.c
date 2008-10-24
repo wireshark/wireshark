@@ -48,6 +48,9 @@
 
 #ifdef _WIN32
 #include <process.h>    /* getpid */
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 #endif
 
 #ifdef NEED_STRPTIME_H

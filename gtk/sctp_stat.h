@@ -28,6 +28,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#else
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 #endif
 
 #define SCTP_DATA_CHUNK_ID               0

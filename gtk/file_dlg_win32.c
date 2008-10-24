@@ -34,6 +34,12 @@
 #include <io.h>
 #include <fcntl.h>
 
+#include <windows.h>
+#include <windowsx.h>
+#include <commdlg.h>
+#include <richedit.h>
+
+
 #include <gtk/gtk.h>
 
 #include "epan/filesystem.h"
@@ -58,11 +64,6 @@
 #include "gtk/capture_dlg.h"
 #include "gtk/file_dlg_win32.h"
 #include "gtk/help_dlg.h"
-
-#include <windows.h>
-#include <windowsx.h>
-#include <commdlg.h>
-#include <richedit.h>
 
 typedef enum {
     merge_append,

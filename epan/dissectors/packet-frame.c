@@ -27,6 +27,11 @@
 # include "config.h"
 #endif
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
+
+
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/timestamp.h>
