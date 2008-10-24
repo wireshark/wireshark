@@ -34,30 +34,31 @@
       <orderedlist>
         <listitem>
           <para>C compiler:
-          <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">
-          Download</ulink>(474MB) and install "Microsoft Visual C++
-		  2005 Express Edition"</para>
+          <ulink url="http://www.microsoft.com/express/vc/">
+          Download</ulink> and install "Microsoft Visual C++
+          2008 Express Edition." (This is a very large download.)</para>
         </listitem>
+        <!--
         <listitem>
           <para>Platform SDK :
           <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en">
           Download</ulink>(420MB) and install "Microsoft Platform
 		  SDK Server 2003 R2"</para>
         </listitem>
+        -->
       </orderedlist></para>
       <para>Install MSVC the usual way. Don't forget to install
       vcvars32.bat or call it manually before building Wireshark.
       vcvars32.bat will set some required environment (e.g. the
       PATH) settings.</para>
       <tip>
-        <title>Other Microsoft C compiler variants
-        possible!</title>
+        <title>You can use other Microsoft C compiler variants!</title>
         <para>It's possible to compile Wireshark with a wide range
-        of Microsoft C compiler variants, for details see
+        of Microsoft C compiler variants. For details see
         <xref linkend="ChToolsMSChain" />!</para>
       </tip>
       <warning>
-        <title>Don't use cygwin's gcc!</title>
+        <title>Don't use Cygwin's gcc!</title>
         <para>Using cygwin's gcc is not recommended and will
         certainly not work (at least without a lot of advanced
         tweaking). For further details on this topic, see
@@ -66,11 +67,28 @@
       <para>XXX - mention the compiler and PSDK web installers -
       which significantly reduce download size - and find out the
       required components</para>
-      <para>XXX - how to get the right PATH settings?</para>
-      <para>Why this is recommended: While this is a huge download,
-      the 2005 express edition is the only free (as in beer)
+      <para>Wireshark development depends on several environment variables,
+      particularly <varname>PATH</varname>. You can use a batch script to fill
+      these in, for example
+
+        <programlisting>
+          <![CDATA[@echo off
+echo Adding things to the path...
+set PATH=%PATH%;.
+set PATH=%PATH%;c:\cygwin\bin
+
+echo Setting up Visual Studio environment...
+call "c:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat"
+
+title Command Prompt (VC++ 2008)]]>
+        </programlisting>
+      </para>
+      <para>Why is this recommended? While this is a huge download,
+      the 2008 Express Edition is the only free (as in beer)
       version that includes the Visual Studio integrated
-      debugger.</para>
+      debugger. Visual C++ 2008 is also used to create official
+      Wireshark builds, so it will likely have fewer development-related
+      problems.</para>
     </section>
     <section id="ChSetupCygwin">
       <title>Install Cygwin</title>
@@ -211,19 +229,26 @@
           <para>
             <orderedlist>
               <listitem>
-                <para>VERSION_EXTRA : give Wireshark your "private"
+                <para>VERSION_EXTRA : Give Wireshark your "private"
                 version info, e.g.: -myprotocol123 - to distinguish
                 it from an official release!</para>
               </listitem>
               <listitem>
-                <para>PROGRAM_FILES : where your programs reside,
+                <para>PROGRAM_FILES : Where your programs reside,
                 usually just keep the default: C:/Program Files
                 <superscript>2</superscript></para>
               </listitem>
               <listitem>
-                <para>MSVC_VARIANT : search for the line:
-                #MSVC_VARIANT=MSVC2005EE and remove the tailing #
-                comment char from this line
+                <para>MSVC_VARIANT : Make sure the variant for your compiler is uncommented, and that all others are commented out. For example, if you're using Visual C++ 2005 Express Edition, find the line
+                <programlisting>
+                  <![CDATA[#MSVC_VARIANT=MSVC2005EE]]>
+                </programlisting>
+                and remove the comment character (<code>#</code>)
+                from the beginning of the line. Then, find the line
+                <programlisting>
+                  <![CDATA[MSVC_VARIANT=MSVC2008]]>
+                </programlisting>
+                and comment it out.
                 <superscript>1</superscript></para>
               </listitem>
             </orderedlist>
@@ -231,10 +256,9 @@
         </listitem>
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step
-      depends on the compiler variant used, for other variants than
-      the recommended Visual C++ 2005 Express Edition see the table
-      at
-      <xref linkend="ChToolsMSChain" />!</para>
+      depends on the compiler you are using. For compilers other than
+      Visual C++ 2008, see the table at
+      <xref linkend="ChToolsMSChain" />.</para>
       <para>
       <superscript>2</superscript>International Windows might use
       different values here, e.g. a German version uses
@@ -248,26 +272,27 @@
         <listitem>
           <para>start cmd.exe</para>
         </listitem>
+        <!--
         <listitem>
           <para>call "C:\Program Files\Microsoft Platform SDK for
           Windows Server 2003 R2\SetEnv.Cmd" to set environment
           variables of Platform SDK Server 2003 R2
           <superscript>1,2</superscript></para>
         </listitem>
+        -->
         <listitem>
-          <para>call "C:\Program Files\Microsoft Visual Studio
-          8\VC\bin\vcvars32.bat" to set environment variables of
-          Visual C++ 2005 Express Edition
+          <para>call <command>C:\Program Files\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</command> to set environment variables of
+          Visual C++ 2008 Express Edition
           <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
-          <para>cd C:\wireshark to jump into the source
-          directory</para>
+          <para><command>cd C:\wireshark to jump into the source
+          directory</command></para>
         </listitem>
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
-      the recommended Visual C++ 2005 Express Edition see the table
+      the recommended Visual C++ 2008 Express Edition see the table
       at
       <xref linkend="ChToolsMSChain" />!</para>
       <para>
@@ -429,7 +454,7 @@
           <para>vcredist_x86.exe :
           <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en">
           Download</ulink> the C-Runtime redistributable for Visual
-          C++ 2005 Express Edition (vcredist_x86.exe) and copy it
+          C++ 2008 Express Edition (vcredist_x86.exe) and copy it
           into C:\wireshark-win32-libs
           <superscript>1</superscript>
           <warning>
@@ -457,7 +482,7 @@
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
-      the recommended Visual C++ 2005 Express Edition see the table
+      the recommended Visual C++ 2008 Express Edition see the table
       at
       <xref linkend="ChToolsMSChain" />!</para>
     </section>
