@@ -519,9 +519,9 @@ static const value_string user_identity_values[] = {
   { RESERVED_8_USER_ID,     "Reserved"       },
   { BROADBAND_ISUP_USER_ID, "Broadband ISUP" },
   { SATELLITE_ISUP_USER_ID, "Satellite ISUP" },
-  { RESERVED_11_USER_ID,    "Reserved"       },	
+  { RESERVED_11_USER_ID,    "Reserved"       },
   { AAL_2_SIGNALING_USER_ID,"AAL type2 Signaling"},
-  { BICC_USER_ID,	    "Bearer Independent Call Control (BICC)"},	
+  { BICC_USER_ID,	    "Bearer Independent Call Control (BICC)"},
   { GATEWAY_CONTROL_PROTOCOL_USER_ID, "Gateway Control Protocol"},
   { RESERVED_15_USER_ID,    "Reserved"       },
 
@@ -538,7 +538,7 @@ dissect_user_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 {
   proto_tree_add_item(parameter_tree, hf_cause, parameter_tvb, CAUSE_OFFSET, CAUSE_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_user,  parameter_tvb, USER_OFFSET,  USER_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%s: %s)", 
+  proto_item_append_text(parameter_item, " (%s: %s)",
                          val_to_str(tvb_get_ntohs(parameter_tvb, USER_OFFSET),  user_identity_values,        "Unknown user"),
                          val_to_str(tvb_get_ntohs(parameter_tvb, CAUSE_OFFSET), unavailability_cause_values, "unknown cause"));
 }
@@ -632,7 +632,7 @@ static const value_string v5_error_code_values[] = {
   {  7, "Protocol error"                },
   {  8, "Invalid routing context"       },
   {  0,  NULL                           } };
-  
+
 static void
 dissect_v5_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -980,7 +980,7 @@ static void
 dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *item;
-  
+
   proto_tree_add_item(parameter_tree, hf_dpc_mask, parameter_tvb, DPC_MASK_OFFSET, DPC_MASK_LENGTH, NETWORK_BYTE_ORDER);
   item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
   if (mtp3_pc_structured())
@@ -1039,7 +1039,7 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
   guint16 length, number_of_point_codes, point_code_number;
   gint point_code_offset;
   proto_item *item;
-  
+
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / 4;
 
@@ -1067,21 +1067,35 @@ dissect_originating_point_code_list_parameter(tvbuff_t *parameter_tvb, proto_tre
 static void
 dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, number_of_point_codes, point_code_number;
+  guint16 length, number_of_point_codes, point_code_number, cic_low, cic_high;
+  guint32 pc;
   gint point_code_offset;
-  proto_item *pc_item;
+  proto_item *pc_item, *cic_range_item;
+  proto_tree *cic_range_tree;
+  gchar *pc_string;
 
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / CIC_RANGE_LENGTH;
 
   point_code_offset = PARAMETER_VALUE_OFFSET;
   for(point_code_number = 1; point_code_number <= number_of_point_codes; point_code_number++) {
-    proto_tree_add_item(parameter_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  NETWORK_BYTE_ORDER);
-    pc_item = proto_tree_add_item(parameter_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    NETWORK_BYTE_ORDER);
+    cic_range_item = proto_tree_add_text(parameter_tree, parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET, CIC_RANGE_LENGTH, "CIC range");
+    cic_range_tree = proto_item_add_subtree(cic_range_item, ett_parameter);
+
+    proto_tree_add_item(cic_range_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  NETWORK_BYTE_ORDER);
+
+    pc = tvb_get_ntoh24(parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET);
+    pc_string = mtp3_pc_to_str(pc);
+    pc_item = proto_tree_add_item(cic_range_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    NETWORK_BYTE_ORDER);
     if (mtp3_pc_structured())
-      proto_item_append_text(pc_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET)));
-    proto_tree_add_item(parameter_tree, hf_cic_range_lower, parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET, CIC_RANGE_LOWER_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_cic_range_upper, parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET, CIC_RANGE_UPPER_LENGTH, NETWORK_BYTE_ORDER);
+      proto_item_append_text(pc_item, " (%s)", pc_string);
+
+    cic_low = tvb_get_ntohs(parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET);
+    proto_tree_add_item(cic_range_tree, hf_cic_range_lower, parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET, CIC_RANGE_LOWER_LENGTH, NETWORK_BYTE_ORDER);
+    cic_high = tvb_get_ntohs(parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET);
+    proto_tree_add_item(cic_range_tree, hf_cic_range_upper, parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET, CIC_RANGE_UPPER_LENGTH, NETWORK_BYTE_ORDER);
+
+    proto_item_append_text(cic_range_item, " (%s: %d-%d)", pc_string, cic_low, cic_high);
     point_code_offset += CIC_RANGE_LENGTH;
   };
   proto_item_append_text(parameter_item, " (%u range%s)", number_of_point_codes, plurality(number_of_point_codes, "", "s"));
@@ -1117,7 +1131,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   mtp3_tap->addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
 
-	
+
   mtp3_tap->addr_opc.type = mtp3_standard;
   mtp3_tap->addr_opc.pc = tvb_get_ntohl(parameter_tvb,DATA_OPC_OFFSET);
   mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
@@ -1145,10 +1159,10 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
     proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
-    
+
     item = proto_tree_add_text(parameter_tree,parameter_tvb,0,0,"MTP3 equivalents");
     parameter_tree = proto_item_add_subtree(item,ett_mtp3_equiv);
-    
+
     proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
@@ -1156,7 +1170,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
 
   }
-  
+
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
   if (!dissector_try_port(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
@@ -1406,7 +1420,7 @@ static const value_string v6_parameter_tag_values[] = {
   { V6_REGISTRATION_RESULTS_PARAMETER_TAG,         "Registration results" },
   { V6_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
   { 0,                           NULL } };
-  
+
 static void
 dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
@@ -1573,7 +1587,7 @@ static const value_string v7_parameter_tag_values[] = {
   { V7_REGISTRATION_RESULTS_PARAMETER_TAG,         "Registration results" },
   { V7_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
   { 0,                           NULL } };
-  
+
 static void
 dissect_v7_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
@@ -1923,7 +1937,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
       case M3UA_RFC:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA (RFC 3332)");
         break;
-      };      
+      };
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
