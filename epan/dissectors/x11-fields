@@ -303,6 +303,7 @@ long-length	UINT32	DEC		The maximum length of the property in bytes
 long-offset	UINT32	DEC		The starting position in the property bytes array
 map		BYTES	NONE
 map-length	UINT8	DEC
+mapping-request	UINT8	DEC	VALS(mapping_request)
 mask		UINT32	HEX	VALS(zero_is_none)
 mask-char	UINT16	DEC
 mask-font	UINT32	HEX	VALS(zero_is_none)

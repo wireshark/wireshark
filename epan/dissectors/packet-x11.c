@@ -575,6 +575,13 @@ static const value_string visibility_state_vals[] = {
       { 0, NULL }
 };
 
+static const value_string mapping_request_vals[] = {
+      { 0, "MappingModifier" },
+      { 1, "MappingKeyboard" },
+      { 2, "MappingPointer" },
+      { 0, NULL }
+};
+
 /* Requestcodes.  From <X11/Xproto.h>. */
 #define X_CreateWindow                  1
 #define X_ChangeWindowAttributes        2
@@ -5215,6 +5222,14 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case MappingNotify:
+			UNUSED(1);
+			CARD16(event_sequencenumber);
+			ENUM8(mapping_request);
+			CARD8(first_keycode);
+			CARD8(count);
+			UNUSED(25);
+			break;
+
 		default:
 			break;
 	}
