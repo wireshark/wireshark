@@ -430,8 +430,6 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
     case GDK_BackSpace:
       filter_autocomplete_handle_backspace(treeview, popup_win, prefix, w_toplevel);
-      if( strlen(prefix) ) 
-	autocompletion_list_lookup(popup_win, treeview, prefix);
       break;
 
     default: {
@@ -554,12 +552,10 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   g_signal_connect(filter_te, "focus-out-event", G_CALLBACK(filter_te_focus_out_cb), w_toplevel);
   g_signal_connect(popup_win, "destroy", G_CALLBACK(filter_autocomplete_win_destroy_cb), NULL);
 
-  if (protocols_only) {
-    /* Select first entry */
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-  }
+  /* Select first entry */
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+  gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
 
   gtk_widget_size_request(treeview, &requisition);
 
@@ -581,6 +577,10 @@ static void
 filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
 {
   GtkListStore *store;
+  GtkTreeSelection *selection;
+  GtkRequisition requisition;
+  GtkTreeIter iter;
+
   void *cookie, *cookie2;
   protocol_t *protocol;
   int i;
@@ -635,6 +635,16 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
       }
     }
   }
+
+  /* Select first entry */
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+  gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
+
+  gtk_widget_size_request(list, &requisition);
+
+  gtk_widget_set_size_request (popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
 }
 
 static void 
