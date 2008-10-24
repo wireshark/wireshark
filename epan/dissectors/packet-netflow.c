@@ -330,7 +330,7 @@ static int      hf_cflow_ip_header_words = -1;
 static int      hf_cflow_option_map = -1;
 static int      hf_cflow_section_header = -1;
 static int      hf_cflow_section_payload = -1;
-/* IPFIX (version 10) Information Elementes */
+/* IPFIX (version 10) Information Elements */
 static int      hf_cflow_post_octets		 = -1;
 static int      hf_cflow_post_octets64		 = -1;
 static int      hf_cflow_post_packets		 = -1;
@@ -419,6 +419,7 @@ static int      hf_cflow_total_tcp_psh		 = -1;
 static int      hf_cflow_total_tcp_ack		 = -1;
 static int      hf_cflow_total_tcp_urg		 = -1;
 static int      hf_cflow_ip_total_length64       = -1;
+static int      hf_cflow_biflow_direction	 = -1;
 
 const value_string special_mpls_top_label_type[] = {
 	{0,	"Unknown"},
@@ -2472,6 +2473,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		case 238: /* tcpWindowScale */
 		  break;
 
+		case 239: /*  biflowDirection */
+		        proto_tree_add_item(pdutree, hf_cflow_biflow_direction,
+					    tvb, offset, length, FALSE);
+			break;
+
 		case 313: /* SECTION_HEADER */
 			proto_tree_add_item(pdutree, hf_cflow_section_header,
 					    tvb, offset, length, FALSE);
@@ -2895,6 +2901,7 @@ static const value_string v9_template_types[] = {
 	{ 236, "fwEvent" },
 	{ 237, "postMplsTopLabelExp" },
 	{ 238, "tcpWindowScale" },
+	{ 239, "biflowDirection" },
 	{ 313, "IP_SECTION HEADER" },
 	{ 314, "IP_SECTION PAYLOAD" },
 	{ 0, NULL }
@@ -4229,6 +4236,11 @@ proto_register_netflow(void)
 		 {"IP Total Length", "cflow.ip_total_length",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "IP total length", HFILL}
+		},
+		{&hf_cflow_biflow_direction,
+		 {"Biflow Direction", "cflow.biflow_direction",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Biflow Direction", HFILL}
 		},
 		/*
 		 * end pdu content storage
