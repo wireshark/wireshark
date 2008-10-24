@@ -41,8 +41,10 @@
 
 #include <epan/value_string.h>
 
-#include <Packet32.h>
-#include <windows.h>
+#include <winsock2.h>    /* Needed here to force a definition of WINVER           */
+                         /* for some (all ?) Microsoft compilers newer than vc6.  */
+                         /* (If windows.h were used instead, there might be       */
+                         /*  issues re winsock.h included before winsock2.h )     */
 #include <windowsx.h>
 #include <Ntddndis.h>
 
@@ -91,6 +93,7 @@ struct sockaddr_storage {
 /* ... copied from RFC2553 */
 #endif /* WINVER */
 
+#include <Packet32.h>
 
 gboolean has_wpacket = FALSE;
 
