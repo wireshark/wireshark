@@ -855,40 +855,40 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tvb, offset + 4, 4, present);
 	present_tree = proto_item_add_subtree(pt, ett_radiotap_present);
 
-    proto_tree_add_item(present_tree, hf_radiotap_present_tsft,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_flags,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_rate,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_channel,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_fhss,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antsignal,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antnoise,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_lock_quality,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_tx_attenuation,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_db_tx_attenuation,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_dbm_tx_attenuation,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_antenna,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_db_antsignal,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_db_antnoise,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_fcs,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
-        tvb, 4, 4, TRUE);
-    proto_tree_add_item(present_tree, hf_radiotap_present_ext,
-        tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_tsft,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_flags,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_rate,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_channel,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_fhss,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antsignal,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_antnoise,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_lock_quality,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_tx_attenuation,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_db_tx_attenuation,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_dbm_tx_attenuation,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_antenna,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_db_antsignal,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_db_antnoise,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_fcs,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
+	    tvb, 4, 4, TRUE);
+	proto_tree_add_item(present_tree, hf_radiotap_present_ext,
+	    tvb, 4, 4, TRUE);
     }
     offset += RADIOTAP_MIN_HEADER_LEN;
     length_remaining -= RADIOTAP_MIN_HEADER_LEN;
@@ -1210,18 +1210,18 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=2;
 	    break;
 	case IEEE80211_RADIOTAP_FCS:
-        /* This handles the case of an FCS existing inside the radiotap header. */
+	    /* This handles the case of an FCS existing inside the radiotap header. */
 	    align_offset = ALIGN_OFFSET(offset, 4);
 	    offset += align_offset;
 	    length_remaining -= align_offset;
 	    if (length_remaining < 4)
 		break;
-        if (tree) {
-        sent_fcs = tvb_get_ntohl(tvb, offset);
+	    if (tree) {
+		sent_fcs = tvb_get_ntohl(tvb, offset);
 		hdr_fcs_ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_fcs,
 				tvb, offset, 4, sent_fcs);
-        hdr_fcs_offset = offset;
-        }
+		hdr_fcs_offset = offset;
+	    }
 	    offset+=4;
 	    length_remaining-=4;
 	    break;
@@ -1236,13 +1236,13 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* This handles the case of an FCS exiting at the end of the frame. */
-	if (rflags & IEEE80211_RADIOTAP_F_FCS)
+    if (rflags & IEEE80211_RADIOTAP_F_FCS)
 	pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
-	else
+    else
 	pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
 
     /* Grab the rest of the frame. */
-	next_tvb = tvb_new_subset(tvb, length, -1, -1);
+    next_tvb = tvb_new_subset(tvb, length, -1, -1);
 
     /* If we had an in-header FCS, check it. */
     if (hdr_fcs_ti) {
@@ -1293,3 +1293,17 @@ proto_reg_handoff_radiotap(void)
 
     dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP, radiotap_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 noexpandtab
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
+
