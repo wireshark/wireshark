@@ -41,7 +41,8 @@
 #define E_FILT_AUTOCOMP_TREE_KEY    "filter_autocomplete_tree"
 
 
-static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name);
+static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, 
+					  gboolean protocols_only);
 static void autocomplete_protocol_string(GtkWidget  *filter_te, gchar* selected_str);
 static void autoc_filter_row_activated_cb(GtkTreeView *treeview, 
                       GtkTreePath *path, 
@@ -209,8 +210,8 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
 
     gtk_widget_size_request(list, &requisition);
 
-    gtk_widget_set_size_request(popup_win, requisition.width+25, (requisition.height<200? requisition.height+20:200));
-    gtk_window_resize(GTK_WINDOW(popup_win), requisition.width+25, (requisition.height<200? requisition.height+20:200));
+    gtk_widget_set_size_request(popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+    gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
 
     return TRUE;
   }
@@ -242,12 +243,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   k = event->keyval;
   ckey = event->string[0];
 
-  /* If the popup window hasn't been constructed yet or if the pressed key is SHIFT 
-   * then we have nothing to do with the pressed key, but if the the pressed key is 
-   * a period, decimal or backspace then complete execution.
-   **/
-  if( (popup_win == NULL && (k != GDK_KP_Decimal && k != GDK_period && k != GDK_BackSpace))
-      || k == GDK_Shift_L || k == GDK_Shift_R )
+  /* If the pressed key is SHIFT then we have nothing to do with the pressed key. */
+  if( k == GDK_Shift_L || k == GDK_Shift_R )
     return FALSE;
 
   /* get the string from filter_te, start from 0 till cursor's position */
@@ -264,12 +261,14 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       k != GDK_Down && k != GDK_Up &&
       k != GDK_BackSpace)
   {
+    if (popup_win) {
       gtk_widget_destroy(popup_win);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-      return FALSE;
+    }
+    return FALSE;
   }
 
-  /* let prefix points to the first char that is not aphanumeric,'.', '_' or '-',
+  /* Let prefix points to the first char that is not aphanumeric,'.', '_' or '-',
    * start from the end of filter_te_str.
    **/
   prefix = g_strdup(filter_te_str);
@@ -294,8 +293,12 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
       gchar* name_with_period;
 
+      if (popup_win) {
+	gtk_widget_destroy (popup_win);
+      }
+
       name_with_period = g_strconcat(prefix, event->string, NULL);
-      popup_win = filter_autocomplete_new(filter_te, name_with_period);
+      popup_win = filter_autocomplete_new(filter_te, name_with_period, FALSE);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
       if(name_with_period)
@@ -306,14 +309,42 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
     return FALSE;
   } else if(k==GDK_BackSpace && !popup_win) {
-    if(strlen(prefix) > 2) {
+
+    if(strlen(prefix) > 1) {
       /* Delete the last character in the prefix string */
       prefix[strlen(prefix)-1] = '\0';
       if(strchr(prefix, '.')) {
-        popup_win = filter_autocomplete_new(filter_te, prefix);
+        popup_win = filter_autocomplete_new(filter_te, prefix, FALSE);
+        g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
+      } else if(strlen(prefix)) {
+        popup_win = filter_autocomplete_new(filter_te, prefix, TRUE);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
       }
     }
+
+    if(prefix_start)
+      g_free(prefix_start);
+
+    return FALSE;
+  } else if(g_ascii_isalnum(ckey) && !popup_win) {
+    gchar *name = g_strconcat(prefix, event->string, NULL);
+
+    if (strlen(name) && !strchr(name, '.')) {
+      popup_win = filter_autocomplete_new(filter_te, name, TRUE);
+      g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
+    }
+
+    if (name)
+      g_free (name);
+
+    if(prefix_start)
+      g_free(prefix_start);
+
+    return FALSE;
+  }
+
+  /* If the popup window hasn't been constructed yet then we have nothing to do */
+  if( !popup_win ) {
     if(prefix_start)
       g_free(prefix_start);
 
@@ -381,19 +412,26 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       if(gtk_tree_selection_get_selected(selection, &model, &iter) ) {
         gchar *value;
 
-        /* Use chosen string */
-        gtk_tree_model_get(model, &iter, 0, &value,  -1);
-        autocomplete_protocol_string(filter_te, value);
-        g_free(value);
-
-        /* Lose popup */
-        gtk_widget_destroy(popup_win);
-        g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+	/* Do not autocomplete protocols with space yet, because we can be in
+	 * a operator or a value field.
+	 **/
+	if(k != GDK_space || strchr(prefix, '.')) {
+	  /* Use chosen string */
+	  gtk_tree_model_get(model, &iter, 0, &value,  -1);
+	  autocomplete_protocol_string(filter_te, value);
+	  g_free(value);
+	}
       }
+
+      /* Lose popup */
+      gtk_widget_destroy(popup_win);
+      g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
       break;
 
     case GDK_BackSpace:
       filter_autocomplete_handle_backspace(treeview, popup_win, prefix, w_toplevel);
+      if( strlen(prefix) ) 
+	autocompletion_list_lookup(popup_win, treeview, prefix);
       break;
 
     default: {
@@ -423,7 +461,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 }
 
 static GtkWidget *
-filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
+filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only)
 {
   GtkWidget *popup_win;
   GtkWidget *treeview;
@@ -433,6 +471,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
   int i, protocol_name_len;
   header_field_info *hfinfo;
   gint x_pos, y_pos;
+  GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkSortType order;
   GtkRequisition requisition;
@@ -475,17 +514,24 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
     if (!proto_is_protocol_enabled(protocol))
       continue;
 
-    hfinfo = proto_registrar_get_nth(i);
+    if (protocols_only) {
+      const gchar *name = proto_get_protocol_filter_name (i);
 
-    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
-         hfinfo != NULL;
-         hfinfo = proto_get_next_protocol_field(&cookie2)) 
-    {
-      if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-        continue;
+      if (!g_ascii_strncasecmp(protocol_name, name, protocol_name_len))
+	add_to_autocompletion_list(treeview, name);
+    } else {
+      hfinfo = proto_registrar_get_nth(i);
 
-      if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len))
-        add_to_autocompletion_list(treeview, hfinfo->abbrev);
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
+	   hfinfo != NULL;
+	   hfinfo = proto_get_next_protocol_field(&cookie2)) 
+	{
+	  if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+	    continue;
+
+	  if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len))
+	    add_to_autocompletion_list(treeview, hfinfo->abbrev);
+	}
     }
   }
 
@@ -495,8 +541,6 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
     gtk_widget_destroy(popup_win);
     return NULL;
   }
-
-  gtk_widget_size_request(treeview, &requisition);
 
   /* sort treeview */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
@@ -510,7 +554,17 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
   g_signal_connect(filter_te, "focus-out-event", G_CALLBACK(filter_te_focus_out_cb), w_toplevel);
   g_signal_connect(popup_win, "destroy", G_CALLBACK(filter_autocomplete_win_destroy_cb), NULL);
 
-  gtk_widget_set_size_request (popup_win, requisition.width+25, (requisition.height<200? requisition.height+8:200));
+  if (protocols_only) {
+    /* Select first entry */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
+  }
+
+  gtk_widget_size_request(treeview, &requisition);
+
+  gtk_widget_set_size_request (popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
 
   gtk_window_get_position(GTK_WINDOW(w_toplevel), &x_pos, &y_pos); 
   x_pos = x_pos + filter_te->allocation.x;
@@ -526,23 +580,25 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name)
 static void 
 filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
 {
-  GtkRequisition requisition;
   GtkListStore *store;
   void *cookie, *cookie2;
   protocol_t *protocol;
   int i;
   header_field_info *hfinfo;
   gint prefix_len;
+  gboolean protocols_only = FALSE;
 
   /* Delete the last character in the prefix string */
   prefix_len = strlen(prefix)-1;
   prefix[prefix_len] = '\0';
 
-  /* Dismiss if there are no dots left in the string */
-  if(strchr(prefix, '.') == NULL) {
+  if (prefix_len == 0) {
+    /* Remove the popup window for protocols */
     gtk_widget_destroy(popup_win);
     g_object_set_data(G_OBJECT(main_win), E_FILT_AUTOCOMP_PTR_KEY, NULL);
     return;
+  } else if(strchr(prefix, '.') == NULL) {
+    protocols_only = TRUE;
   }
 
   /* Empty list */
@@ -557,26 +613,28 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
     if (!proto_is_protocol_enabled(protocol))
       continue;
 
-    hfinfo = proto_registrar_get_nth(i);
+    if (protocols_only) {
+      const gchar *name = proto_get_protocol_filter_name (i);
 
-    /* Try all fields in this protocol */
-    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
-         hfinfo != NULL;
-         hfinfo = proto_get_next_protocol_field(&cookie2)) 
-    {
-      if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-        continue;
+      if (!g_ascii_strncasecmp(prefix, name, prefix_len))
+	add_to_autocompletion_list(list, name);
+    } else {
+      hfinfo = proto_registrar_get_nth(i);
 
-      /* Add if prefix matches */
-      if(!g_ascii_strncasecmp(prefix, hfinfo->abbrev, prefix_len))
-        add_to_autocompletion_list(list, hfinfo->abbrev);
+      /* Try all fields in this protocol */
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
+	   hfinfo != NULL;
+	   hfinfo = proto_get_next_protocol_field(&cookie2)) 
+      {
+	if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+	  continue;
+
+	/* Add if prefix matches */
+	if(!g_ascii_strncasecmp(prefix, hfinfo->abbrev, prefix_len))
+	  add_to_autocompletion_list(list, hfinfo->abbrev);
+      }
     }
   }
-
-  gtk_widget_size_request(list, &requisition);
-
-  gtk_widget_set_size_request(popup_win, requisition.width+25, (requisition.height<200? requisition.height+20:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), requisition.width+25, (requisition.height<200? requisition.height+20:200));
 }
 
 static void 
