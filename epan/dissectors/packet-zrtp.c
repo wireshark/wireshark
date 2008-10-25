@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-08
+ * IETF draft draft-zimmermann-avt-zrtp-10
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -142,6 +142,7 @@ static gint ett_zrtp_msg_sc = -1;
 #define ZRTP_ERR_70 0x70
 #define ZRTP_ERR_80 0x80
 #define ZRTP_ERR_90 0x90
+#define ZRTP_ERR_A0 0xA0
 
 /*
   Text for Display
@@ -159,6 +160,7 @@ typedef struct _value_string_keyval {
 
 const value_zrtp_versions valid_zrtp_versions[]=
   {
+    {"1.0x"},
     {"0.95"},
     {"0.90"},
     {"0.85"},
@@ -221,6 +223,7 @@ const value_string zrtp_error_vals[] =
     { ZRTP_ERR_70, "Auth. Error Bad Confirm Packet HMAC"},
     { ZRTP_ERR_80, "Nonce is reused"},
     { ZRTP_ERR_90, "Equal ZID's in Hello"},
+    { ZRTP_ERR_A0, "Service unavailable"},
     { 0, NULL}
   };
 
@@ -265,8 +268,9 @@ key_to_val(const gchar *key, int keylen, const value_string_keyval *kv, const gc
 static const gchar *
 check_valid_version(const gchar *version){
   int i=0;
+  int match_size = (version[0] == '0') ? 4 : 3;
   while (valid_zrtp_versions[i].version) {
-    if (!strncmp(valid_zrtp_versions[i].version, version, 4)){
+    if (!strncmp(valid_zrtp_versions[i].version, version, match_size)){
       return(valid_zrtp_versions[i].version);
     }
     i++;
