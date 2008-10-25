@@ -73,10 +73,6 @@ extern void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp,
 
 extern unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset);
 
-
-extern dissector_handle_t data_handle;
-
-
 /*
  * Protocol exports.
  * Modify the lines below to add new protocols.

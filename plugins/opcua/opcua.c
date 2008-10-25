@@ -27,9 +27,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/prefs.h>
 #include "opcua_transport_layer.h"
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"
@@ -40,8 +38,6 @@
 #include "opcua_hfindeces.h"
 
 /* forward reference */
-void proto_register_opcua (void);
-void proto_reg_handoff_opcua (void);
 static void dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -50,8 +46,7 @@ typedef void (*FctParse)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 
 static int proto_opcua = -1;
 /** Official IANA registered port for OPC UA Binary Protocol. */
-static int global_opcua_port = 4840;
-static dissector_handle_t opcua_handle;
+#define OPCUA_PORT 4840
 
 /** subtree types */
 gint ett_opcua_transport = -1;
@@ -100,18 +95,11 @@ static gint *ett[] =
  */
 void proto_register_opcua(void)
 {
-    module_t *opcua_module;
-    
-    if (proto_opcua == -1)
-    {
-        proto_opcua = proto_register_protocol(
-            "OpcUa Binary Protocol", /* name */
-            "OpcUa",                 /* short name */
-            "opcua"                  /* abbrev */
-            );
-    }
-    opcua_module = prefs_register_protocol(proto_opcua, proto_reg_handoff_opcua);
-    
+    proto_opcua = proto_register_protocol(
+        "OpcUa Binary Protocol", /* name */
+        "OpcUa",                 /* short name */
+        "opcua"                  /* abbrev */
+        );
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
     registerApplicationLayerTypes(proto_opcua);
@@ -129,13 +117,9 @@ void proto_register_opcua(void)
   */
 void proto_reg_handoff_opcua(void)
 {
-    static int Initialized=FALSE;
-    
-    if (!Initialized)
-    {
-        opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
-        dissector_add("tcp.port", global_opcua_port, opcua_handle);
-    }
+    dissector_handle_t opcua_handle;
+    opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
+    dissector_add("tcp.port", OPCUA_PORT, opcua_handle);
 }
 
 /** header length that is needed to compute

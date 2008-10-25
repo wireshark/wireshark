@@ -119,19 +119,11 @@ static int ett_enttec = -1;
  */
 
 static guint global_udp_port_enttec = UDP_PORT_ENTTEC;
-static guint udp_port_enttec = UDP_PORT_ENTTEC;
-
 static guint global_tcp_port_enttec = TCP_PORT_ENTTEC;
-static guint tcp_port_enttec = TCP_PORT_ENTTEC;
 
 static gint global_disp_chan_val_type = 0;
 static gint global_disp_col_count = 16;
 static gint global_disp_chan_nr_type = 0;
-
-
-/* A static handle for the ip dissector */
-static dissector_handle_t ip_handle;
-static dissector_handle_t rdm_handle;
 
 static gint
 dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -551,12 +543,10 @@ proto_register_enttec(void)
 /* The registration hand-off routing */
 void
 proto_reg_handoff_enttec(void) {
-	static int enttec_initialized = FALSE;
+	static gboolean enttec_initialized = FALSE;
 	static dissector_handle_t enttec_handle;
-
-	ip_handle = find_dissector("ip");
-	rdm_handle = find_dissector("rdm");
-
+	static guint udp_port_enttec;
+	static guint tcp_port_enttec;
 
 	if(!enttec_initialized) {
 		enttec_handle = create_dissector_handle(dissect_enttec,proto_enttec);

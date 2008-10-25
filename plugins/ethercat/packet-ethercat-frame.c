@@ -45,8 +45,6 @@
 
 #include "packet-ethercat-frame.h"
 
-void proto_reg_handoff_ethercat_frame(void);
-
 /* Define the Ethercat frame proto */
 static int proto_ethercat_frame = -1;
 
@@ -166,9 +164,9 @@ void proto_register_ethercat_frame(void)
 
 void proto_reg_handoff_ethercat_frame(void)
 {
-   static dissector_handle_t ethercat_frame_handle;
+   dissector_handle_t ethercat_frame_handle;
 
-   ethercat_frame_handle = create_dissector_handle(dissect_ethercat_frame, proto_ethercat_frame);
+   ethercat_frame_handle = find_dissector("ecatf");
    dissector_add("ethertype", ETHERTYPE_ECATF, ethercat_frame_handle);
    dissector_add("udp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
    dissector_add("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);

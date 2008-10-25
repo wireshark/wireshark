@@ -132,6 +132,7 @@ static gint ett_ircomm_ctrl = -1;
 #define MAX_PARAMETERS          32
 static gint ett_param[MAX_IAP_ENTRIES * MAX_PARAMETERS];
 
+static dissector_handle_t data_handle;
 
 static int proto_ircomm = -1;
 static int hf_ircomm_param = -1;
@@ -437,4 +438,9 @@ void proto_register_ircomm(void)
         ett_p[i]     = &ett_param[i];
     }
     proto_register_subtree_array(ett_p, MAX_IAP_ENTRIES * MAX_PARAMETERS);
+}
+
+void
+proto_reg_handoff_ircomm(void) {
+    data_handle = find_dissector("data");
 }

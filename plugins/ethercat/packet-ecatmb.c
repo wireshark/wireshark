@@ -40,14 +40,9 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 #include "packet-ecatmb.h"
-
-void proto_reg_handoff_ecat_mailbox(void);
-
 
 #define BIT2BYTE(x) ((x+7)/8)
 #define ENDOF(p) ((p)+1) /* pointer to end of *p */
@@ -2073,10 +2068,10 @@ void proto_register_ecat_mailbox(void)
 
 void proto_reg_handoff_ecat_mailbox(void)
 {
-   static dissector_handle_t ecat_mailbox_handle;
+   dissector_handle_t ecat_mailbox_handle;
 
    /* Register this dissector as a sub dissector to E88A4 based on ether type. */
-   ecat_mailbox_handle = create_dissector_handle(dissect_ecat_mailbox, proto_ecat_mailbox);
+   ecat_mailbox_handle = find_dissector("ecat_mailbox");
    dissector_add("ecatf.type", 5, ecat_mailbox_handle);
 
    eth_handle = find_dissector("eth_withoutfcs");

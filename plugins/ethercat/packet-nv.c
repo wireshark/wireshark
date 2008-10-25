@@ -44,8 +44,6 @@
 
 #include "packet-nv.h"
 
-void proto_reg_handoff_nv(void);
-
 /* Define the nv proto */
 int proto_nv  = -1;
 
@@ -247,7 +245,7 @@ void proto_register_nv(void)
 
 void proto_reg_handoff_nv(void)
 {
-   static dissector_handle_t nv_handle;
+   dissector_handle_t nv_handle;
 
    nv_handle = create_dissector_handle(dissect_nv, proto_nv);  
    dissector_add("ecatf.type", 4, nv_handle);

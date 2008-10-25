@@ -49,8 +49,8 @@
 
 
 /** Protocol handles. */
-dissector_handle_t data_handle;
-dissector_handle_t irda_handle;
+static dissector_handle_t data_handle;
+static dissector_handle_t irda_handle;
 
 /** Protocol fields. */
 static int proto_sir = -1;
@@ -186,7 +186,7 @@ proto_reg_handoff_irsir(void)
 
 	data_handle = find_dissector("data");
 	irda_handle = find_dissector("irda");
-	if (irda_handle == 0)
+	if (irda_handle == NULL)
 		irda_handle = data_handle;
 }
 

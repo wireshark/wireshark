@@ -51,10 +51,6 @@
 
 #include "packet-pn.h"
 
-
-
-void proto_reg_handoff_pn_rt(void);
-
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
 
@@ -418,7 +414,7 @@ proto_register_pn_rt(void)
 
   /* Register our configuration options */
 
-  pn_rt_module = prefs_register_protocol(proto_pn_rt, proto_reg_handoff_pn_rt);
+  pn_rt_module = prefs_register_protocol(proto_pn_rt, NULL);
 
   prefs_register_bool_preference(pn_rt_module, "summary_in_tree",
 	    "Show PN-RT summary in protocol tree",
@@ -432,23 +428,13 @@ proto_register_pn_rt(void)
 }
 
 
-/* The registration hand-off routine 
- * Is called at startup, and everytime the preferences of this protocol changed. */
+/* The registration hand-off routine is called at startup */
 void
 proto_reg_handoff_pn_rt(void)
 {
-  static int pn_rt_prefs_initialized = FALSE;
-  static dissector_handle_t pn_rt_handle;
+  dissector_handle_t pn_rt_handle;
 
-
-  if (!pn_rt_prefs_initialized) {
-    pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
-    pn_rt_prefs_initialized = TRUE;
-  }
-  else {
-    dissector_delete("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
-    dissector_delete("udp.port", 0x8892, pn_rt_handle);
-  }
+  pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
 
   dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
   dissector_add("udp.port", 0x8892, pn_rt_handle);

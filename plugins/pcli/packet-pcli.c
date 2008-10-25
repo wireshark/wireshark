@@ -69,7 +69,6 @@ static int ett_pcli = -1;
  */
 
 static guint global_udp_port_pcli = UDP_PORT_PCLI;
-static guint udp_port_pcli = UDP_PORT_PCLI;
 
 /* A static handle for the ip dissector */
 static dissector_handle_t ip_handle;
@@ -147,13 +146,13 @@ proto_register_pcli(void) {
 
 void
 proto_reg_handoff_pcli(void) {
-  static int pcli_initialized = FALSE;
+  static gboolean pcli_initialized = FALSE;
   static dissector_handle_t pcli_handle;
-
-  ip_handle = find_dissector("ip");
+  static guint udp_port_pcli;
 
   if(!pcli_initialized) {
     pcli_handle = create_dissector_handle(dissect_pcli,proto_pcli);
+    ip_handle = find_dissector("ip");
     pcli_initialized = TRUE;
   } else {
     dissector_delete("udp.port",udp_port_pcli,pcli_handle);

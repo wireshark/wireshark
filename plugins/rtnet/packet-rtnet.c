@@ -129,11 +129,8 @@ static const value_string tdma_msg_vals[] = {
   { 0, NULL }
 };
 
-static dissector_table_t ethertype_table = NULL;
-static dissector_handle_t data_handle = NULL;
-
-void proto_reg_handoff_rtmac(void);
-void proto_reg_handoff_rtcfg(void);
+static dissector_table_t ethertype_table;
+static dissector_handle_t data_handle;
 
 /* Define the rtnet proto */
 static int proto_rtmac = -1;
@@ -1357,34 +1354,18 @@ proto_register_rtcfg(void) {
 
 void
 proto_reg_handoff_rtmac(void) {
-  static int rtmac_initialized = FALSE;
-  static dissector_handle_t rtmac_handle;
+  dissector_handle_t rtmac_handle;
 
-  if( !rtmac_initialized ){
-    rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
-    rtmac_initialized = TRUE;
-  } else {
-    dissector_delete("ethertype",ETHERTYPE_RTMAC, rtmac_handle);
-  }
-
+  rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
   dissector_add("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
-
-
   ethertype_table = find_dissector_table("ethertype");
 }
 
 void
 proto_reg_handoff_rtcfg(void) {
-  static int rtcfg_initialized = FALSE;
-  static dissector_handle_t rtcfg_handle;
+  dissector_handle_t rtcfg_handle;
 
-  if( !rtcfg_initialized ){
-    data_handle = find_dissector("data");
-    rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
-    rtcfg_initialized = TRUE;
-  } else {
-    dissector_delete("ethertype",ETHERTYPE_RTCFG, rtcfg_handle);
-  }
-
+  data_handle = find_dissector("data");
+  rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
   dissector_add("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }

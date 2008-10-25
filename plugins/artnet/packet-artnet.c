@@ -479,13 +479,11 @@ static int ett_artnet = -1;
  */
 
 static guint global_udp_port_artnet = UDP_PORT_ARTNET;
-static guint udp_port_artnet = UDP_PORT_ARTNET;
 static gint global_disp_chan_val_type = 0;
 static gint global_disp_col_count = 16;
 static gint global_disp_chan_nr_type = 0;
 
-/* A static handle for the ip dissector */
-static dissector_handle_t ip_handle;
+/* A static handle for the rdm dissector */
 static dissector_handle_t rdm_handle;
 
 static guint
@@ -2689,15 +2687,13 @@ proto_register_artnet(void) {
 
 void
 proto_reg_handoff_artnet(void) {
-  static int artnet_initialized = FALSE;
+  static gboolean artnet_initialized = FALSE;
   static dissector_handle_t artnet_handle;
-
-  ip_handle = find_dissector("ip");
-  rdm_handle = find_dissector("rdm");
-
+  static guint udp_port_artnet;
 
   if(!artnet_initialized) {
     artnet_handle = create_dissector_handle(dissect_artnet,proto_artnet);
+    rdm_handle = find_dissector("rdm");
     artnet_initialized = TRUE;
   } else {
     dissector_delete("udp.port",udp_port_artnet,artnet_handle);

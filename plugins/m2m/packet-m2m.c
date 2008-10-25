@@ -37,7 +37,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
 #include <plugins/wimax/wimax_tlv.h>
@@ -60,7 +59,6 @@ guint g_frame_number = 0;
 
 /* Local Variables */
 static gint proto_m2m = -1;
-static dissector_handle_t m2m_handle = NULL;
 static dissector_handle_t wimax_fch_burst_handle = NULL;
 static dissector_handle_t wimax_cdma_code_burst_handle = NULL;
 static dissector_handle_t wimax_pdu_burst_handle = NULL;
@@ -369,31 +367,24 @@ m2m_defragment_init(void)
 /* Register Wimax Mac to Mac Protocol handler */
 void proto_reg_handoff_m2m(void)
 {
-	static int Initialized = FALSE;
+	dissector_handle_t m2m_handle;
 
-	if (!Initialized)
-	{
-		m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
-		dissector_add("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
-	}
+	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
+	dissector_add("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 }
 
 /* Register Wimax Mac to Mac Protocol */
 void proto_register_m2m(void)
 {
-	if (proto_m2m == -1)
-	{
-		proto_m2m = proto_register_protocol (
-							"WiMax Mac to Mac Packet", /* name */
-							"M2M  (m2m)", /* short name */
-							"m2m" /* abbrev */
-							);
+	proto_m2m = proto_register_protocol (
+		"WiMax Mac to Mac Packet", /* name */
+		"M2M  (m2m)", /* short name */
+		"m2m" /* abbrev */
+		);
 
-		proto_register_field_array(proto_m2m, hf, array_length(hf));
-		proto_register_field_array(proto_m2m, hf_tlv, array_length(hf_tlv));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-	prefs_register_protocol(proto_m2m, proto_reg_handoff_m2m);
+	proto_register_field_array(proto_m2m, hf, array_length(hf));
+	proto_register_field_array(proto_m2m, hf_tlv, array_length(hf_tlv));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* init the PDU fragment table */
 	fragment_table_init(&pdu_frag_table);

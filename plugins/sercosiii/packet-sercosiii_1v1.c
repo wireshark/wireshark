@@ -37,11 +37,6 @@
 
 #include "packet-sercosiii.h"
 
-static int global_siii_eth_type = ETHERTYPE_SERCOS;
-
-/* Forward declaration we need below */
-void proto_reg_handoff_sercosiii(void);
-
 /* Initialize the protocol and registered fields */
 static gint proto_siii = -1;
 
@@ -125,14 +120,8 @@ proto_register_sercosiii(void)
 void
 proto_reg_handoff_sercosiii(void)
 {
-  static gboolean inited = FALSE;
+  dissector_handle_t siii_handle;
 
-  if( !inited ) {
-
-    dissector_handle_t siii_handle;
-
-    siii_handle = create_dissector_handle(dissect_siii, proto_siii);
-    dissector_add("ethertype", global_siii_eth_type, siii_handle);
-    inited = TRUE;
-  }
+  siii_handle = create_dissector_handle(dissect_siii, proto_siii);
+  dissector_add("ethertype", ETHERTYPE_SERCOS, siii_handle);
 }

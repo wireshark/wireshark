@@ -186,7 +186,6 @@ static int ett_ns_rec_item = -1;
 #define LWRES_UDP_PORT 921
 
 static guint global_lwres_port = LWRES_UDP_PORT;
-static guint lwres_port = LWRES_UDP_PORT;
 
 void proto_reg_handoff_lwres(void);
 
@@ -1493,20 +1492,19 @@ proto_register_lwres(void)
 void
 proto_reg_handoff_lwres(void)
 {
-  static int lwres_prefs_initialized = FALSE;
+  static gboolean lwres_prefs_initialized = FALSE;
   static dissector_handle_t lwres_handle;
+  static guint lwres_port;
 
   if(!lwres_prefs_initialized) {
-                lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
-                lwres_prefs_initialized = TRUE;
-        }
-        else {
-                dissector_delete("udp.port",global_lwres_port, lwres_handle);
+    lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
+    lwres_prefs_initialized = TRUE;
+  }
+  else {
+    dissector_delete("udp.port", lwres_port, lwres_handle);
+  }
 
-        }
-
-        lwres_port = global_lwres_port;
-
-  dissector_add("udp.port", lwres_port, lwres_handle);
+  dissector_add("udp.port", global_lwres_port, lwres_handle);
+  lwres_port = global_lwres_port;
 
 }

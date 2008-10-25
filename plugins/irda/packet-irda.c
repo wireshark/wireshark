@@ -140,6 +140,8 @@
 #define TTP_PARAMETERS         0x80
 #define TTP_MORE               0x80
 
+static dissector_handle_t data_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_irlap = -1;
 static int hf_lap_a = -1;

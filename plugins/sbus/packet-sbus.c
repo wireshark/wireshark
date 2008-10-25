@@ -176,9 +176,6 @@
 #define F_INFO_B2      (1<<4)         /* EEPROM information of slot B2*/
 #define F_PGU_BAUD (1<<5)             /* PGU baudrate can be switched*/
 
-/* Forward declaration we need below */
-void proto_reg_handoff_sbus(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_sbus = -1;
 static int hf_sbus_length = -1;

@@ -45,8 +45,6 @@
 #include "packet-ethercat-datagram.h"
 #include "packet-ecatmb.h"
 
-void proto_reg_handoff_ecat(void);
-
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ecat_mailbox_handle;
 
@@ -1707,7 +1705,7 @@ void proto_register_ecat(void)
 /* The registration hand-off routing */
 void proto_reg_handoff_ecat(void)
 {
-   static dissector_handle_t ecat_handle;
+   dissector_handle_t ecat_handle;
 
    /* Register this dissector as a sub dissector to EtherCAT frame based on
       ether type. */

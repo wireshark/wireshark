@@ -42,7 +42,6 @@
 #include <epan/dissectors/packet-tcp.h>
 
 static guint global_agentx_tcp_port = 705;
-static guint agentx_tcp_port = 705;
 
 void proto_reg_handoff_agentx(void);
 
@@ -1089,26 +1088,24 @@ proto_register_agentx(void)
 				 "Set the TCP port for AgentX"
 				 "(if other than the default of 705)",
 				 10, &global_agentx_tcp_port);
-
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_agentx(void)
 {
-	static int agentx_prefs_initialized = FALSE;
+	static gboolean agentx_prefs_initialized = FALSE;
 	static dissector_handle_t agentx_handle;
+	static guint agentx_tcp_port;
 
 	if(!agentx_prefs_initialized) {
                 agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
                 agentx_prefs_initialized = TRUE;
         }
         else {
-                dissector_delete("tcp.port",global_agentx_tcp_port, agentx_handle);
-
+                dissector_delete("tcp.port", agentx_tcp_port, agentx_handle);
         }
 
         agentx_tcp_port = global_agentx_tcp_port;
-
 	dissector_add("tcp.port", agentx_tcp_port, agentx_handle);
 }

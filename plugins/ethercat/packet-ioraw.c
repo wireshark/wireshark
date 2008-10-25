@@ -44,8 +44,6 @@
 
 #include "packet-ioraw.h"
 
-void proto_reg_handoff_ioraw(void);
-
 /* Define the ioraw proto */
 int proto_ioraw  = -1;
 
@@ -127,7 +125,7 @@ void proto_register_ioraw(void)
 
 void proto_reg_handoff_ioraw(void)
 {
-   static dissector_handle_t ioraw_handle;
+   dissector_handle_t ioraw_handle;
 
    ioraw_handle = create_dissector_handle(dissect_ioraw, proto_ioraw);
    dissector_add("ecatf.type", 3, ioraw_handle);

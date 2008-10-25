@@ -39,13 +39,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 #include "packet-ams.h"
-
-void proto_reg_handoff_ams(void);
 
 /* Define the ams proto */
 int proto_ams = -1;
@@ -1226,8 +1222,7 @@ void proto_register_ams(void)
       &ett_ams_adsdnrequest
    };
 
-   proto_ams = proto_register_protocol("AMS",
-      "AMS", "ams");
+   proto_ams = proto_register_protocol("AMS", "AMS", "ams");
    proto_register_field_array(proto_ams, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
@@ -1238,9 +1233,9 @@ void proto_register_ams(void)
 
 void proto_reg_handoff_ams(void)
 {
-   static dissector_handle_t ams_handle;
+   dissector_handle_t ams_handle;
 
-   ams_handle = create_dissector_handle(dissect_ams, proto_ams);
+   ams_handle = find_dissector("ams");
    dissector_add("tcp.port", 0xbf02, ams_handle);
    dissector_add("ecatf.type", 2, ams_handle);
 }
