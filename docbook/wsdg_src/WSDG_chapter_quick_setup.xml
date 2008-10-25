@@ -243,7 +243,7 @@ title Command Prompt (VC++ 2008)]]>
                 <programlisting>
                   <![CDATA[#MSVC_VARIANT=MSVC2005EE]]>
                 </programlisting>
-                and remove the comment character (<code>#</code>)
+                and remove the comment character (#)
                 from the beginning of the line. Then, find the line
                 <programlisting>
                   <![CDATA[MSVC_VARIANT=MSVC2008]]>
