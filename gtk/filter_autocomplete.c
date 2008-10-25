@@ -289,7 +289,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
    * then construct the popup window again.
    **/
   if(k==GDK_period || k==GDK_KP_Decimal) {
-    if( !strchr(prefix, '.') ) {
+    if( !strchr(prefix, '.') || !popup_win) {
 
       gchar* name_with_period;
 
@@ -329,7 +329,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   } else if(g_ascii_isalnum(ckey) && !popup_win) {
     gchar *name = g_strconcat(prefix, event->string, NULL);
 
-    if (strlen(name) && !strchr(name, '.')) {
+    if( !strchr(name, '.') ) {
       popup_win = filter_autocomplete_new(filter_te, name, TRUE);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
     }
