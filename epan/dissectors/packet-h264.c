@@ -50,6 +50,9 @@ static int proto_h264								= -1;
 static int hf_h264_type								= -1;
 static int hf_h264_nal_f_bit						= -1;
 static int hf_h264_nal_nri							= -1;
+static int hf_h264_start_bit						= -1;
+static int hf_h264_forbidden_bit					= -1;
+static int hf_h264_end_bit							= -1;
 static int hf_h264_profile							= -1;
 static int hf_h264_profile_idc						= -1;
 static int hf_h264_rbsp_stop_bit					= -1;
@@ -77,7 +80,7 @@ static int hf_h264_log2_max_pic_order_cnt_lsb_minus4 = -1;
 static int hf_h264_delta_pic_order_always_zero_flag = -1;
 static int hf_h264_offset_for_non_ref_pic			= -1;
 static int hf_h264_offset_for_top_to_bottom_field	= -1;
-static int hf_264_num_ref_frames_in_pic_order_cnt_cycle = -1;
+static int hf_h264_num_ref_frames_in_pic_order_cnt_cycle = -1;
 static int hf_h264_offset_for_ref_frame				= -1;
 static int hf_h264_num_ref_frames					= -1;
 static int hf_h264_gaps_in_frame_num_value_allowed_flag = -1;
@@ -179,6 +182,7 @@ static int hf_h264_frame_num						= -1;
 static int ett_h264 = -1;
 static int ett_h264_profile = -1;
 static int ett_h264_nal = -1;
+static int ett_h264_fua = -1;
 static int ett_h264_stream = -1;
 static int ett_h264_nal_unit = -1;
 static int ett_h264_par_profile = -1;
@@ -203,6 +207,18 @@ typedef enum {
 static const true_false_string h264_f_bit_vals = {
   "Bit errors or other syntax violations",
   "No bit errors or other syntax violations"
+};
+static const true_false_string h264_start_bit_vals = {
+  "the first packet of FU-A picture",
+  "Not the first packet of FU-A picture"
+};
+static const true_false_string h264_end_bit_vals = {
+  "the last packet of FU-A picture",
+  "Not the last packet of FU-A picture"
+};
+static const true_false_string h264_forbidden_bit_vals = {
+  "Forbidden Bit of FU-A",
+  "Not Forbidden Bit of FU-A"
 };
 
 #define H264_SEQ_PAR_SET		7
@@ -285,7 +301,7 @@ static const value_string h264_nal_unit_type_vals[] = {
 	{ 25,	"Unspecified" },
 	{ 26,	"Unspecified" },
 	{ 27,	"Unspecified" },
-	{ 28,	"Unspecified" },
+	{ 28,	"FU-A" },
 	{ 29,	"Unspecified" },
 	{ 30,	"Unspecified" },
 	{ 31,	"Unspecified" },
@@ -312,7 +328,7 @@ static const value_string h264_slice_type_vals[] = {
 	{ 4,	"SI (SI slice)" },
 	{ 5,	"P (P slice)" },
 	{ 6,	"B (B slice)" },
-	{ 7 ,	"I (I slice)" },
+	{ 7,	"I (I slice)" },
 	{ 8,	"SP (SP slice)" },
 	{ 9,	"SI (SI slice)" },
 	{ 0,	NULL }
@@ -464,7 +480,10 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	codenum = 1;
 	codenum = codenum << leading_zero_bits;
 	mask = codenum>>1;
-	value = tvb_get_bits8(tvb, bit_offset,leading_zero_bits );
+	if (leading_zero_bits > 8)
+		value = tvb_get_bits16(tvb, bit_offset,leading_zero_bits, FALSE);
+	else
+		value = tvb_get_bits8(tvb, bit_offset,leading_zero_bits );
 	codenum = (codenum-1) + value; 
 	bit_offset = bit_offset + leading_zero_bits;
 
@@ -1177,7 +1196,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		dissect_h264_exp_golomb_code(tree, hf_h264_offset_for_top_to_bottom_field, tvb, &bit_offset, H264_SE_V);
 		
 		/* num_ref_frames_in_pic_order_cnt_cycle 0 ue(v) */
-		num_ref_frames_in_pic_order_cnt_cycle = dissect_h264_exp_golomb_code(tree, hf_264_num_ref_frames_in_pic_order_cnt_cycle, tvb, &bit_offset, H264_UE_V);
+		num_ref_frames_in_pic_order_cnt_cycle = dissect_h264_exp_golomb_code(tree, hf_h264_num_ref_frames_in_pic_order_cnt_cycle, tvb, &bit_offset, H264_UE_V);
 		for( i = 0; i < num_ref_frames_in_pic_order_cnt_cycle; i++ ){
 			/*offset_for_ref_frame[ i ] 0 se(v)*/
 			dissect_h264_exp_golomb_code(tree, hf_h264_offset_for_ref_frame, tvb, &bit_offset, H264_SE_V);
@@ -1500,6 +1519,9 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	case 19:	/* Coded slice of an auxiliary coded picture without partitioning */
 		dissect_h264_slice_layer_without_partitioning_rbsp(tree, tvb, pinfo, offset);
 		break;
+	case 28:
+		dissect_h264_slice_layer_without_partitioning_rbsp(tree, tvb, pinfo, offset);
+		break;
 	default:
 		/* 24..31 Unspecified */
 		proto_tree_add_text(h264_nal_tree, tvb, offset, -1, "Unspecified NAL unit type");
@@ -1512,8 +1534,8 @@ static void
 dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
-	proto_item *item, *ti, *stream_item;
-	proto_tree *h264_tree, *h264_nal_tree, *stream_tree;
+	proto_item *item, *ti, *stream_item, *fua_item;
+	proto_tree *h264_tree, *h264_nal_tree, *stream_tree, *fua_tree;
 	guint8 type;
 
 
@@ -1525,8 +1547,14 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, FALSE);
 		h264_tree = proto_item_add_subtree(item, ett_h264);
 
-		ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "NAL unit header or first byte of the payload");
+		type = tvb_get_guint8(tvb,offset)&0x1f;
+/* if the type is 28, it would be draw another title */
+		if(type == 28)
+			ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "FU identifier");
+		else
+			ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "NAL unit header or first byte of the payload");
 		h264_nal_tree = proto_item_add_subtree(ti, ett_h264_nal);
+
 		/* +---------------+
 		 * |0|1|2|3|4|5|6|7|
 		 * +-+-+-+-+-+-+-+-+
@@ -1542,7 +1570,6 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_f_bit, tvb, offset, 1, FALSE);
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_nri, tvb, offset, 1, FALSE);
-		type = tvb_get_guint8(tvb,offset)&0x1f;
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 				val_to_str(type, h264_type_values, "Unknown Type (%u)"));
@@ -1550,7 +1577,21 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(h264_nal_tree, hf_h264_type, tvb, offset, 1, FALSE);
 		offset++;
-		stream_item =proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
+		if (type == 28){
+			fua_item = proto_tree_add_text(h264_tree, tvb, offset, 1, "FU Header");
+			fua_tree = proto_item_add_subtree(fua_item, ett_h264_fua);
+			proto_tree_add_item(fua_tree, hf_h264_start_bit, tvb, offset, 1, FALSE);	
+			proto_tree_add_item(fua_tree, hf_h264_end_bit, tvb, offset, 1, FALSE);
+			proto_tree_add_item(fua_tree, hf_h264_forbidden_bit, tvb, offset, 1, FALSE);
+			proto_tree_add_item(fua_tree, hf_h264_nal_unit_type, tvb, offset, 1, FALSE);
+			if ( (tvb_get_guint8(tvb,offset)&0x80) == 0x80 ){
+				type = tvb_get_guint8(tvb,offset)&0x1f;
+				offset++;
+			}
+			else
+				return;
+		}
+		stream_item =proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");	
 		stream_tree = proto_item_add_subtree(stream_item, ett_h264_stream);
 		switch(type){
 		case 1:				/* 1 Coded slice of a non-IDR picture */ 
@@ -1808,6 +1849,21 @@ proto_register_h264(void)
 			FT_UINT8, BASE_DEC, VALS(h264_type_values), 0x1f,          
 			"Type", HFILL }
 		},
+		{ &hf_h264_start_bit,
+			{ "Start bit", "h264.start.bit",
+			FT_BOOLEAN, 8, TFS(&h264_start_bit_vals), 0x80,
+			"Start bit", HFILL }
+		},
+		{ &hf_h264_end_bit,
+			{ "End bit", "h264.end.bit",
+			FT_BOOLEAN, 8, TFS(&h264_end_bit_vals), 0x40,
+			"End Bit", HFILL }
+		},
+		{ &hf_h264_forbidden_bit,
+			{ "Forbidden bit", "h264.forbidden.bit",
+			FT_UINT8, BASE_DEC, NULL, 0x20,
+			"Forbidden bit", HFILL }
+		},
 		{ &hf_h264_profile,
 			{ "Profile",           "h264.profile",
 			FT_BYTES, BASE_NONE, NULL, 0x0,          
@@ -1943,7 +1999,7 @@ proto_register_h264(void)
 			FT_INT32, BASE_DEC, NULL, 0x0,          
 			"offset_for_top_to_bottom_field", HFILL }
 		},
-		{ &hf_264_num_ref_frames_in_pic_order_cnt_cycle,
+		{ &hf_h264_num_ref_frames_in_pic_order_cnt_cycle,
 			{ "num_ref_frames_in_pic_order_cnt_cycle",           "h264.num_ref_frames_in_pic_order_cnt_cycle",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"num_ref_frames_in_pic_order_cnt_cycle", HFILL }
@@ -2406,6 +2462,7 @@ proto_register_h264(void)
 		&ett_h264,
 		&ett_h264_profile,
 		&ett_h264_nal,
+		&ett_h264_fua,
 		&ett_h264_stream,
 		&ett_h264_nal_unit,
 		&ett_h264_par_profile,
