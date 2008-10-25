@@ -546,7 +546,7 @@ CLEANFILES =		\
 	@rdps_bin@	\
 	idl2wrs		\
 	*~		\
-	vgcore.pid*
+	vgcore.*
 
 #
 # XXX - "ps.c" is distributed in the source tarballs; why is it in the
