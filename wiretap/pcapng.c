@@ -62,6 +62,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static void
 pcapng_close(wtap *wth);
+static int wtap_pcapng_encap_to_wtap_encap(int encap);
 
 
 
@@ -253,18 +254,18 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 
 	/* read option header */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(oh, 1, sizeof oh, fh);
-	if (bytes_read != sizeof oh) {
+	bytes_read = file_read(oh, 1, sizeof (*oh), fh);
+	if (bytes_read != sizeof (*oh)) {
 	    pcapng_debug0("pcapng_read_option: failed to read option");
 	    *err = file_error(fh);
 	    if (*err != 0)
 		    return -1;
 	    return 0;
 	}
-	block_read = sizeof oh;
+	block_read = sizeof (*oh);
 	if(pn->byte_swapped) {
 		oh->option_code      = BSWAP16(oh->option_code);
-		oh->option_length    = BSWAP32(oh->option_length);
+		oh->option_length    = BSWAP16(oh->option_length);
 	}
 
 	/* sanity check: option length */
@@ -965,7 +966,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* read "Interface Description Block" specific settings */
-	wth->file_encap = wblock.data.if_descr.link_type;
+	wth->file_encap = wtap_pcapng_encap_to_wtap_encap( wblock.data.if_descr.link_type );
 	wth->snapshot_length = wblock.data.if_descr.snap_len;
 
 
@@ -1423,5 +1424,64 @@ int pcapng_dump_can_write_encap(int encap)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
+}
+
+
+static const struct {
+	int	dlt_value;
+	int	wtap_encap_value;
+} pcapng_to_wtap_map[] = {
+	/*
+	 * These are the values that are almost certainly the same
+	 * in all libpcaps (I've yet to find one where the values
+	 * in question are used for some purpose other than the
+	 * one below, but...), and that Wiretap and Wireshark
+	 * currently support.
+	 */
+	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
+	{ 1,		WTAP_ENCAP_ETHERNET },
+	{ 6,		WTAP_ENCAP_TOKEN_RING },
+	{ 7,		WTAP_ENCAP_ARCNET },
+	{ 8,		WTAP_ENCAP_SLIP },
+	{ 9,		WTAP_ENCAP_PPP },
+	{ 10,		WTAP_ENCAP_FDDI },
+	{ 99,		WTAP_ENCAP_SYMANTEC },
+	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
+	{ 101,		WTAP_ENCAP_RAW_IP },
+	{ 104,		WTAP_ENCAP_CHDLC },
+	{ 105,		WTAP_ENCAP_IEEE_802_11 },
+	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
+	{ 107,		WTAP_ENCAP_FRELAY },
+	{ 109,		WTAP_ENCAP_ENC },
+	{ 114,		WTAP_ENCAP_LOCALTALK },
+	{ 118,		WTAP_ENCAP_CISCO_IOS },
+	{ 119,		WTAP_ENCAP_PRISM_HEADER },
+	{ 121,		WTAP_ENCAP_HHDLC },
+	{ 122,		WTAP_ENCAP_IP_OVER_FC },
+	{ 127,		WTAP_ENCAP_IEEE_802_11_WITH_RADIO },
+	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
+	{ 130,		WTAP_ENCAP_JUNIPER_MLPPP },
+	{ 131,		WTAP_ENCAP_JUNIPER_MLFR },
+	{ 133,		WTAP_ENCAP_JUNIPER_GGSN },
+	{ 135,		WTAP_ENCAP_JUNIPER_ATM2 },
+	{ 137,		WTAP_ENCAP_JUNIPER_ATM1 },
+	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },
+	{ 139,		WTAP_ENCAP_MTP2_WITH_PHDR },
+	{ 140,		WTAP_ENCAP_MTP2 },
+	{ 141,		WTAP_ENCAP_MTP3 },
+	{ 142,		WTAP_ENCAP_SCCP },
+	{ 143,		WTAP_ENCAP_DOCSIS }
+};
+#define NUM_PCAPNG_ENCAPS (sizeof pcapng_to_wtap_map / sizeof pcapng_to_wtap_map[0])
+
+static int wtap_pcapng_encap_to_wtap_encap(int encap)
+{
+	unsigned int i;
+
+	for (i = 0; i < NUM_PCAPNG_ENCAPS; i++) {
+		if (pcapng_to_wtap_map[i].dlt_value == encap)
+			return pcapng_to_wtap_map[i].wtap_encap_value;
+	}
+	return WTAP_ENCAP_UNKNOWN;
 }
 
