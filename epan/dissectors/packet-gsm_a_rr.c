@@ -2835,7 +2835,7 @@ convert_n_to_q[32] = {   0,   9,  17,  25,  32, 39, 46, 53, 59, 65, 71, 77, 83, 
 static guint8
 de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree	*subtree, *subtree2, *subtree3;
+	proto_tree	*subtree, *subtree2=NULL, *subtree3=NULL;
 	proto_item	*item, *item2, *item3;
 	guint32	curr_offset;
    gint bit_offset, bit_offset_sav, bit_offset_sav2;
