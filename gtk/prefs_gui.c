@@ -64,6 +64,8 @@ static gint recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
 
+#define MACOSX_STYLE_KEY		"macosx_style"
+
 #define GUI_CONSOLE_OPEN_KEY "console_open"
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_FILEOPEN_PREVIEW_KEY "fileopen_preview_timeout"
@@ -167,6 +169,7 @@ gui_prefs_show(void)
 	GtkWidget *show_version_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
+	GtkWidget *macosx_style_cb;
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
@@ -223,6 +226,16 @@ gui_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, save_maximized_cb, "Whether to save the "
 		"maximed state of the main window.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
+
+#ifdef HAVE_IGE_MAC_INTEGRATION
+	macosx_style_cb = create_preference_check_button(main_tb, pos++,
+	    "MacOS X style", NULL, prefs.gui_macosx_style);
+	gtk_tooltips_set_tip(tooltips, macosx_style_cb, "Whether to create a "
+	   "MacOS X look and feel. Checking this box will move the menu bar to "
+           "the top of the screen instead of the top of the Wireshark window. "
+           "Requires a restart of Wireshark to take effect.", NULL);
+	g_object_set_data(G_OBJECT(main_vb), MACOSX_STYLE_KEY, macosx_style_cb);
+#endif
 
 #ifdef _WIN32
 	/* How the console window should be opened */
@@ -387,6 +400,11 @@ gui_prefs_fetch(GtkWidget *w)
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
 	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
+
+#ifdef HAVE_IGE_MAC_INTEGRATION
+	prefs.gui_macosx_style =
+	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
+#endif
 
 #ifdef _WIN32
 	prefs.gui_console_open = fetch_enum_value(

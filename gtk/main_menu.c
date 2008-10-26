@@ -90,10 +90,6 @@
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
 
-#ifdef HAVE_IGE_MAC_INTEGRATION
-#include <ige-mac-menu.h>
-#endif
-
 typedef struct _menu_item {
     char    *name;
     gint    group;
@@ -1049,10 +1045,6 @@ main_menu_new(GtkAccelGroup ** table) {
 
     if (table)
         *table = grp;
-
-#ifdef HAVE_IGE_MAC_INTEGRATION
-    ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
-#endif
 
     return menubar;
 }

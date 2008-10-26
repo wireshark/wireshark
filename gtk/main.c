@@ -174,6 +174,9 @@
 #include <epan/crypt/airpdcap_ws.h>
 #endif
 
+#ifdef HAVE_IGE_MAC_INTEGRATION
+#include <ige-mac-menu.h>
+#endif
 
 /*
  * Files under personal and global preferences directories in which
@@ -3151,8 +3154,17 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Menu bar */
     menubar = main_menu_new(&accel);
-    gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
-    gtk_widget_show(menubar);
+#ifdef HAVE_IGE_MAC_INTEGRATION
+    if(prefs->gui_macosx_style) {
+        ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
+	ige_mac_menu_set_global_key_handler_enabled(TRUE);
+    } else {
+#endif
+	gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
+        gtk_widget_show(menubar);
+#ifdef HAVE_IGE_MAC_INTEGRATION
+    }
+#endif
 
     /* Main Toolbar */
     main_tb = toolbar_new();
