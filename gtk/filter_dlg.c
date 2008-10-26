@@ -538,10 +538,11 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_name_te_changed_cb), filter_list_type_p);
     if (list_type == DFILTER_EDITED_LIST) {
         colorize_filter_te_as_empty(filter_te);
+
+	g_object_set_data(G_OBJECT(main_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+	g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(main_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     }
-    g_object_set_data(G_OBJECT(main_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-    g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-    g_signal_connect(main_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     gtk_widget_show(filter_te);
 
     g_object_set_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
