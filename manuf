@@ -3275,7 +3275,7 @@
 00:0C:BB	Iskraemeco
 00:0C:BC	Iscutum
 00:0C:BD	InterfaceM             # Interface Masters, Inc
-00:0C:BE	Private
+00:0C:BE	Innominate             # Innominate Security Technologies AG
 00:0C:BF	HolyStoneE             # Holy Stone Ent. Co., Ltd.
 00:0C:C0	GeneraOy               # Genera Oy
 00:0C:C1	CooperIndu             # Cooper Industries Inc.
@@ -3409,7 +3409,7 @@
 00:0D:41	SiemensIcm             # Siemens AG ICM MP UC RD IT KLF1
 00:0D:42	NewbestDev             # Newbest Development Limited
 00:0D:43	DrsTactica             # DRS Tactical Systems Inc.
-00:0D:44	Private
+00:0D:44	AudioBu-Lo             # Audio BU - Logitech
 00:0D:45	TottoriSan             # Tottori SANYO Electric Co., Ltd.
 00:0D:46	ParkerSsdD             # Parker SSD Drives
 00:0D:47	Collex
@@ -3613,7 +3613,7 @@
 00:0E:0D	HeschSchrö             # HESCH Schröder GmbH
 00:0E:0E	EsaElettro             # ESA elettronica S.P.A.
 00:0E:0F	Ermme
-00:0E:10	Private
+00:0E:10	C-Guys                 # C-guys, Inc.
 00:0E:11	BdtBüro-Un             # BDT Büro- und Datentechnik GmbH & Co. KG
 00:0E:12	AdaptiveMi             # Adaptive Micro Systems Inc.
 00:0E:13	Accu-Sort              # Accu-Sort Systems inc.
@@ -9235,6 +9235,22 @@
 00:24:04	NokiaDanma             # Nokia Danmark A/S
 00:24:05	DilogNordi             # Dilog Nordic AB
 00:24:06	Pointmobil             # Pointmobile
+00:24:07	TelemSas               # TELEM SAS
+00:24:08	PacificBio             # Pacific Biosciences
+00:24:09	Toro                   # The Toro Company
+00:24:0A	UsBeverage             # US Beverage Net
+00:24:0B	VirtualCom             # Virtual Computer Inc.
+00:24:0C	Delec                  # DELEC GmbH
+00:24:0D	OnepathNet             # OnePath Networks LTD.
+00:24:0E	InventecBe             # Inventec Besta Co., Ltd.
+00:24:0F	IshiiToolE             # Ishii Tool & Engineering Corporation
+00:24:10	NueteqTech             # NUETEQ Technology,Inc.
+00:24:11	Pharmasmar             # PharmaSmart LLC
+00:24:12	BenignTech             # Benign Technologies Co, Ltd.
+00:24:13	Cisco                  # Cisco Systems
+00:24:14	Cisco                  # Cisco Systems
+00:24:15	MagneticAu             # Magnetic Autocontrol GmbH
+00:24:16	AnyUse                 # Any Use
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -10325,6 +10341,7 @@
 00:50:C2:18:A0:00/36	BaslerElec             # Basler Electric
 00:50:C2:18:B0:00/36	Teradyne               # Teradyne Inc.
 00:50:C2:18:C0:00/36	Technodriv             # Technodrive srl
+00:50:C2:18:D0:00/36	CciiPty                # CCII Systems (Pty) Ltd
 00:50:C2:18:E0:00/36	SparrElect             # SPARR ELECTRONICS LTD
 00:50:C2:18:F0:00/36	MatsuiMfg              # MATSUI MFG CO.,LTD
 00:50:C2:19:00:00/36	Goerlitz               # Goerlitz AG
@@ -10518,6 +10535,7 @@
 00:50:C2:24:D0:00/36	Hi-SpeedCh             # Hi-Speed Checkweigher Co Inc
 00:50:C2:24:E0:00/36	ScharffWei             # Scharff Weisberg Systems Integration Inc
 00:50:C2:24:F0:00/36	MacronetSR             # Macronet s.r.l.
+00:50:C2:25:00:00/36	AcdElektro             # ACD Elektronik GmbH
 00:50:C2:25:10:00/36	DgtSpZOO               # DGT Sp. z o.o.
 00:50:C2:25:20:00/36	Ads-Tec                # ads-tec GmbH
 00:50:C2:25:30:00/36	Dsm-Messte             # DSM-Messtechnik GmbH
@@ -10533,9 +10551,11 @@
 00:50:C2:25:D0:00/36	Rdtech
 00:50:C2:25:E0:00/36	MiteHradec             # MITE Hradec Kralove, s.r.o.
 00:50:C2:25:F0:00/36	HandtmannM             # Handtmann Maschinenfabrik GmbH&Co.KG
+00:50:C2:26:00:00/36	Biotage
 00:50:C2:26:10:00/36	TattileSrl             # Tattile Srl
 00:50:C2:26:20:00/36	ShanghaiGa             # Shanghai Gaozhi Science&Technology Development Ltd.
 00:50:C2:26:30:00/36	VanscoElec             # Vansco Electronics Oy
+00:50:C2:26:40:00/36	Confidence             # Confidence Direct Ltd
 00:50:C2:26:50:00/36	BelikSPRL              # BELIK S.P.R.L.
 00:50:C2:26:60:00/36	AtomGiken              # ATOM GIKEN Co.,Ltd.
 00:50:C2:26:70:00/36	AllenMarti             # Allen Martin Conservation Ltd
@@ -12402,6 +12422,17 @@
 00:50:C2:9B:20:00/36	Tempsys
 00:50:C2:9B:30:00/36	KahlerAuto             # Kahler Automation
 00:50:C2:9B:40:00/36	EukreaElec             # EUKREA ELECTROMATIQUE SARL
+00:50:C2:9B:50:00/36	TelegammaS             # Telegamma srl
+00:50:C2:9B:60:00/36	Actech
+00:50:C2:9B:70:00/36	StMichaelS             # St. Michael Strategies
+00:50:C2:9B:80:00/36	SoundPlaye             # Sound Player Systems e.K.
+00:50:C2:9B:90:00/36	Isa-Intell             # ISA - Intelligent Sensing Anywhere, S.A.
+00:50:C2:9B:A0:00/36	Connor-Win             # Connor-Winfield
+00:50:C2:9B:B0:00/36	OmicronEle             # OMICRON electronics GmbH
+00:50:C2:9B:C0:00/36	VesterElek             # Vester Elektronik GmbH
+00:50:C2:9B:D0:00/36	SensitronS             # Sensitron Semiconductor
+00:50:C2:9B:E0:00/36	XadCommuni             # Xad Communications Ltd
+00:50:C2:9B:F0:00/36	2nTelekomu             # 2N TELEKOMUNIKACE a.s.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
