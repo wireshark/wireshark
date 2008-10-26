@@ -91,7 +91,7 @@
 #include "gtk/main_welcome.h"
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
-#include <igemacintegration/ige-mac-menu.h>
+#include <ige-mac-menu.h>
 #endif
 
 typedef struct _menu_item {
