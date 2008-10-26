@@ -67,6 +67,16 @@
 #include "packet-e212.h"
 #include "packet-ppp.h"
 
+#define PADDING_BYTE 0x2B
+
+gboolean gsm_a_rr_is_bit_high(tvbuff_t *tvb, gint bit_offset)
+{
+   guint8 bit_mask = 0x80 >> (bit_offset & 0x07);
+   if ((tvb_get_guint8(tvb,bit_offset >> 3) & bit_mask) != (PADDING_BYTE & bit_mask))
+      return TRUE;
+   return FALSE;
+}
+
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_dtap_msg_rr_strings[] = {
@@ -260,10 +270,9 @@ const value_string gsm_rr_elem_strings[] = {
 	{ 0x00,	"RR Cause" },						/* 10.5.2.31 */
 	{ 0x00,	"Synchronization Indication" },		/* 10.5.2.39 */
 	{ 0x00, "SI 1 Rest Octets" },			/* [3] 10.5.2.32 */
-/* [3] 10.5.2.33 SI 2bis Rest Octets
- * [3] 10.5.2.33a SI 2ter Rest Octets
- * [3] 10.5.2.33b SI 2quater Rest Octets
- */
+/* [3] 10.5.2.33 SI 2bis Rest Octets */
+	{ 0x00, "SI 2ter Rest Octets" },		/* [3] 10.5.2.33a */
+	{ 0x00, "SI 2quater Rest Octets" },		/* [3] 10.5.2.33b */
 	{ 0x00, "SI 3 Rest Octets" },			/* [3] 10.5.2.34 */
 	{ 0x00, "SI 4 Rest Octets" },			/* [3] 10.5.2.35 */
 	{ 0x00, "SI 6 Rest Octets" },			/* [3] 10.5.2.35a */
@@ -319,6 +328,27 @@ const value_string gsm_rr_elem_strings[] = {
  */
 	{ 0, NULL }
 };
+
+const value_string gsm_rr_rest_octets_elem_strings[] = {
+   /* RR Rest Octets information elements */
+   { 0, "UTRAN FDD Description" },
+   { 0, "UTRAN TDD Description" }, 
+   { 0, "3G Measurement Parameters Description" },
+   { 0, "3G Additional Measurement Parameters Description" },
+   { 0, "Measurement Parameters Description" },
+   { 0, "GPRS Real Time Difference Description" },
+   { 0, "GPRS BSIC Description" },
+   { 0, "GPRS Report Priority Description" },
+   { 0, "GPRS Measurement Parameters Description" },
+   { 0, "NC Measurement Parameters" },
+   { 0, "SI2q Extension Information" },
+   { 0, "CCN Support Description" },
+   { 0, "3G Neighbour Cell Description" },
+   { 0, "GPRS 3G Measurement Parameters Description" },
+   { 0, "3G Additional Measurement Parameters Description 2" },
+   { 0, NULL }
+};
+
 
 /* RR cause value (octet 2) TS 44.018 6.11.0*/
 static const value_string gsm_a_rr_RR_cause_vals[] = {
@@ -469,6 +499,31 @@ static dissector_handle_t data_handle;
 
 #define	NUM_GSM_RR_ELEM (sizeof(gsm_rr_elem_strings)/sizeof(value_string))
 gint ett_gsm_rr_elem[NUM_GSM_RR_ELEM];
+
+typedef enum
+{
+   /* RR Rest Octets information elements */
+   DE_RR_REST_OCTETS_UTRAN_FDD_DESC,
+   DE_RR_REST_OCTETS_UTRAN_TDD_DESC,
+   DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC,
+   DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC,
+   DE_RR_REST_OCTETS_MEAS_PARAM_DESC,
+   DE_RR_REST_OCTETS_GPRS_RTD_DESC,
+   DE_RR_REST_OCTETS_GPRS_BSIC_DESC,
+   DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC,
+   DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC,
+   DE_RR_REST_OCTETS_NC_MEAS_PARAM,
+   DE_RR_REST_OCTETS_SI2Q_EXT_INFO,
+   DE_RR_REST_OCTETS_CCN_SUPPORT_DESC,
+   DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC,
+   DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC,
+   DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2,
+   DE_RR_REST_OCTETS_NONE
+}
+rr_rest_octets_elem_idx_t;
+
+#define NUM_GSM_RR_REST_OCTETS_ELEM (sizeof(gsm_rr_rest_octets_elem_strings)/sizeof(value_string))
+gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 
 /*
 10.5.2 Radio Resource management information elements
@@ -1955,7 +2010,6 @@ de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_multiband_reporting, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_rr_ext_ind, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_rr_ba_ind, tvb, curr_offset, 1, FALSE);
 
 	return dissect_arfcn_list(tvb, tree, offset, 16, add_string, string_len);
@@ -2383,32 +2437,1025 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 /*
  * [3] 10.5.2.32 SI 1 Rest Octets
  */
+static const char*
+translate_nch_position(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0,	"No of blocks = 1 and Number of first block = 0"},
+	{ 1,	"No of blocks = 1 and Number of first block = 1"},
+	{ 2,	"No of blocks = 1 and Number of first block = 2"},
+	{ 3,	"No of blocks = 1 and Number of first block = 3"},
+	{ 4,	"No of blocks = 1 and Number of first block = 4"},
+	{ 5,	"No of blocks = 1 and Number of first block = 5"},
+	{ 6,	"No of blocks = 1 and Number of first block = 6"},
+	{ 7,	"No of blocks = 1 and Number of first block = 0"},
+	{ 8,	"No of blocks = 2 and Number of first block = 1"},
+	{ 9,	"No of blocks = 2 and Number of first block = 2"},
+	{10,	"No of blocks = 2 and Number of first block = 3"},
+	{11,	"No of blocks = 2 and Number of first block = 4"},
+	{12,	"No of blocks = 2 and Number of first block = 5"},
+	{13,	"No of blocks = 3 and Number of first block = 0"},
+	{14,	"No of blocks = 3 and Number of first block = 1"},
+	{15,	"No of blocks = 3 and Number of first block = 2"},
+	{16,	"No of blocks = 3 and Number of first block = 3"},
+	{17,	"No of blocks = 3 and Number of first block = 4"},
+	{18,	"No of blocks = 4 and Number of first block = 0"},
+	{19,	"No of blocks = 4 and Number of first block = 1"},
+	{20,	"No of blocks = 4 and Number of first block = 2"},
+	{21,	"No of blocks = 4 and Number of first block = 3"},
+	{22,	"No of blocks = 5 and Number of first block = 0"},
+	{23,	"No of blocks = 5 and Number of first block = 1"},
+	{24,	"No of blocks = 5 and Number of first block = 2"},
+	{25,	"No of blocks = 6 and Number of first block = 0"},
+	{26,	"No of blocks = 6 and Number of first block = 1"},
+	{27,	"No of blocks = 7 and Number of first block = 0"},
+	{ 0,	NULL }
+    /* Otherwise "Reserved" */
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
 static guint8
 de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
 	proto_item	*item;
 	guint32	curr_offset;
+   guint8 value;
+   gint bit_offset;
 
 	len = 1;
 	curr_offset = offset;
+   bit_offset = curr_offset << 3;
 
 	item = proto_tree_add_text(tree, tvb, curr_offset, len,
 		gsm_rr_elem_strings[DE_RR_SI1_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI1_REST_OCT]);
 
-	proto_tree_add_text(subtree,tvb, curr_offset, len ,"Data(Not decoded)");
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      value = tvb_get_bits8(tvb,bit_offset,5);
+	   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "NCH position: %s (%d)", translate_nch_position(value), value);
+      bit_offset += 5;
+   }
+   else
+   {
+      proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "NCH position: not present");
+      bit_offset += 1;
+   }
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Band Indicator: 1900");
+   else
+      proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Band Indicator: 1800");
+   bit_offset += 1;
 
 	curr_offset = curr_offset + len;
 
 	return curr_offset-offset;
 }
+
 /*
  * [3] 10.5.2.33 SI 2bis Rest Octets
+ */
+
+/*
  * [3] 10.5.2.33a SI 2ter Rest Octets
+ */
+static const char*
+translate_qsearch_x(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0,	"-98 dBm"},
+	{ 1,	"-94 dBm"},
+	{ 2,	"-90 dBm"},
+	{ 3,	"-86 dBm"},
+	{ 4,	"-82 dBm"},
+	{ 5,	"-78 dBm"},
+	{ 6,	"-74 dBm"},
+	{ 7,	"always"},
+	{ 8,	"-78 dBm"},
+	{ 9,	"-74 dBm"},
+	{10,	"-70 dBm"},
+	{11,	"-66 dBm"},
+	{12,	"-62 dBm"},
+	{13,	"-58 dBm"},
+	{14,	"-54 dBm"},
+	{15,	"never"},
+	{ 0,	NULL }
+    /* Otherwise "Reserved" */
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static const char*
+translate_xdd_qoffset(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0,	"always select a cell if acceptable"},
+	{ 1,	"-28 dB"},
+	{ 2,	"-24 dB"},
+	{ 3,	"-20 dB"},
+	{ 4,	"-16 dB"},
+	{ 5,	"-12 dB"},
+	{ 6,	"-8 dB"},
+	{ 7,	"-4 dB"},
+	{ 8,	"0 dB"},
+	{ 9,	"4 dB"},
+	{10,	"8 dB"},
+	{11,	"12 dB"},
+	{12,	"16 dB"},
+	{13,	"20 dB"},
+	{14,	"24 dB"},
+	{15,	"28 dB"},
+	{ 0,	NULL }
+    /* Otherwise "Reserved" */
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static const char*
+translate_fdd_qmin(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0,	"-20 dB"},
+	{ 1,	"-6 dB"},
+	{ 2,	"-18 dB"},
+	{ 3,	"-8 dB"},
+	{ 4,	"-16 dB"},
+	{ 5,	"-10 dB"},
+	{ 6,	"-14 dB"},
+	{ 7,	"-12 dB"},
+	{ 0,	NULL }
+    /* Otherwise "Reserved" */
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static guint8
+de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree	*subtree, *subtree2;
+	proto_item	*item, *item2;
+	guint32	curr_offset;
+   gint bit_offset, bit_offset_sav;
+   guint8 value;
+
+	len = 4;
+	curr_offset = offset;
+   bit_offset = curr_offset<<3;
+
+	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+		gsm_rr_elem_strings[DE_RR_SI2TER_REST_OCT].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI2TER_REST_OCT]);
+
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+	   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2ter Rest Octet Measurement Parameter Change Mark: %d", tvb_get_bits8(tvb,bit_offset,1));
+      bit_offset += 1;
+	   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2ter Rest Octet 3G Change Mark: %d", tvb_get_bits8(tvb,bit_offset,1));
+      bit_offset += 1;
+      proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2ter Index: %d", tvb_get_bits8(tvb,bit_offset,3));
+      bit_offset += 3;
+      proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2ter Count: %d", tvb_get_bits8(tvb,bit_offset,3));
+      bit_offset += 3;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      { /* UTRAN FDD Description */
+         bit_offset_sav = bit_offset;
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
+         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
+         bit_offset += 2;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "FDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
+         bit_offset += 14;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Bandwidth FDD: %d", tvb_get_bits8(tvb,bit_offset,3));
+            bit_offset += 3;
+         }
+         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      { /* UTRAN TDD Description */
+         bit_offset_sav = bit_offset;
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
+         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
+         bit_offset += 2;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "TDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
+         bit_offset += 14;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Bandwidth TDD: %d", tvb_get_bits8(tvb,bit_offset,3));
+            bit_offset += 3;
+         }
+         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      { /* 3G Measurement Parameters Description */
+         bit_offset_sav = bit_offset;
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
+         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
+         value = tvb_get_bits8(tvb,bit_offset,4);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Qsearch I: %s (%d)", translate_qsearch_x(value), value);
+         bit_offset += 4;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            value = tvb_get_bits8(tvb,bit_offset,4);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qoffset: %s (%d)", translate_xdd_qoffset(value), value);
+            bit_offset += 4;
+            value = tvb_get_bits8(tvb,bit_offset,3);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qmin: %s (%d)", translate_fdd_qmin(value), value);
+            bit_offset += 3;
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            value = tvb_get_bits8(tvb,bit_offset,4);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Qoffset: %s (%d)", translate_xdd_qoffset(value), value);
+            bit_offset += 4;
+         }
+         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+      }
+      if (((curr_offset + len)<<3) - bit_offset > 0)
+      {
+         /* There is still room left in the Rest Octets IE */
+         if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+         { /* Additions in release R5 */
+            bit_offset += 1;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            if (value)
+            { /* 3G Additional Measurement Parameters Description */
+               bit_offset_sav = bit_offset;
+               item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
+               subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC]);
+               value = tvb_get_bits8(tvb,bit_offset,3);
+               proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qmin Offset: %d dB (%d)", 2*value, value);
+               bit_offset += 3;
+               value = tvb_get_bits8(tvb,bit_offset,4);
+               proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD RSCPmin: -%d dB (%d)", 114-(2*value), value);
+               bit_offset += 4;
+               proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+            }
+         }
+         else
+            bit_offset += 1;
+      }
+   }
+   else
+   {
+      bit_offset += 1;
+      proto_tree_add_text(subtree,tvb, curr_offset, len ,"Empty");
+   }
+
+	curr_offset = curr_offset + len;
+
+	return curr_offset-offset;
+}
+
+/*
  * [3] 10.5.2.33b SI 2quater Rest Octets
  */
+static const char*
+translate_gsm_report_type(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "The MS shall use the Enhanced Measurement Report message for reporting if at least one BSIC is allocated to each BA (list) frequency. Otherwise, the Measurement Report message shall be used"},
+	{ 1, "The MS shall use the Measurement Report message for reporting"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "");
+}
+
+static const char*
+translate_scale_ord(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "An offset of 0 dB shall be used for the reported RXLEV values"},
+	{ 1, "An offset of 10 dB shall be used for the reported RXLEV values"},
+	{ 2, "An automatic offset shall be used for the reported RXLEV values"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "");
+}
+
+static const char*
+translate_xxx_reporting_offset(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "Apply an offset of 0 dB to the reported value when prioritising the cells for reporting"},
+	{ 1, "Apply an offset of 6 dB to the reported value when prioritising the cells for reporting"},
+	{ 2, "Apply an offset of 12 dB to the reported value when prioritising the cells for reporting"},
+	{ 3, "Apply an offset of 18 dB to the reported value when prioritising the cells for reporting"},
+	{ 4, "Apply an offset of 24 dB to the reported value when prioritising the cells for reporting"},
+	{ 5, "Apply an offset of 30 dB to the reported value when prioritising the cells for reporting"},
+	{ 6, "Apply an offset of 36 dB to the reported value when prioritising the cells for reporting"},
+	{ 7, "Apply an offset of 42 dB to the reported value when prioritising the cells for reporting"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "");
+}
+
+static const char*
+translate_xxx_reporting_threshold(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "Apply priority reporting if the reported value is above threshold 0"},
+	{ 1, "Apply priority reporting if the reported value is above threshold 6"},
+	{ 2, "Apply priority reporting if the reported value is above threshold 12"},
+	{ 3, "Apply priority reporting if the reported value is above threshold 18"},
+	{ 4, "Apply priority reporting if the reported value is above threshold 24"},
+	{ 5, "Apply priority reporting if the reported value is above threshold 30"},
+	{ 6, "Apply priority reporting if the reported value is above threshold 36"},
+	{ 7, "Never apply priority reporting"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "");
+}
+
+static const char*
+translate_network_control_order(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "NC0"},
+	{ 1, "NC1"},
+	{ 2, "NC2"},
+   { 3, "Reserved"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static const char*
+translate_nc_non_drx_period(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "No non-DRX mode after a measurement report has been sent"},
+	{ 1, "0,24 s"},
+	{ 2, "0,48 s"},
+   { 3, "0.72 s"},
+   { 4, "0.96 s"},
+   { 5, "1.20 s"},
+   { 6, "1.44 s"},
+   { 7, "1.92 s"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static const char*
+translate_nc_reporting_period_x(guint8 value) {
+  static const value_string tab_values[] = {
+	{ 0, "0.48 s"},
+	{ 1, "0.96 s"},
+	{ 2, "1.92 s"},
+   { 3, "3.84 s"},
+   { 4, "7.68 s"},
+   { 5, "15.36 s"},
+   { 6, "30.72 s"},
+   { 7, "61.44 s"},
+	{ 0, NULL }
+  };
+  return val_to_str(value, tab_values, "Reserved");
+}
+
+static const guint8
+convert_n_to_p[32] = {   0, 10, 19, 28, 26, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116,
+                       122,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,   0,   0};
+
+static const guint8
+convert_n_to_q[32] = {   0,   9,  17,  25,  32, 39, 46, 53, 59, 65, 71, 77, 83, 89, 95, 101,
+                       106, 111, 116, 121, 126,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0};
+
+static guint8
+de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree	*subtree, *subtree2, *subtree3;
+	proto_item	*item, *item2, *item3;
+	guint32	curr_offset;
+   gint bit_offset, bit_offset_sav, bit_offset_sav2;
+   guint8 value, idx;
+
+	len = 20;
+	curr_offset = offset;
+   bit_offset = curr_offset<<3;
+
+	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+		gsm_rr_elem_strings[DE_RR_SI2QUATER_REST_OCT].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI2QUATER_REST_OCT]);
+
+   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "BA Ind: %d", tvb_get_bits8(tvb,bit_offset,1));
+   bit_offset += 1;
+   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "3G BA Ind: %d", tvb_get_bits8(tvb,bit_offset,1));
+   bit_offset += 1;
+   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "MP Change Mark: %d", tvb_get_bits8(tvb,bit_offset,1));
+   bit_offset += 1;
+   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2quater Index: %d", tvb_get_bits8(tvb,bit_offset,4));
+   bit_offset += 4;
+   proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "SI2quater Count: %d", tvb_get_bits8(tvb,bit_offset,4));
+   bit_offset += 4;
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* Measurement Parameters Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_MEAS_PARAM_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_MEAS_PARAM_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Report Type: %s (%d)", translate_gsm_report_type(value), value);
+      bit_offset += 1;
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Serving Band Reporting: report %d cell(s) from the GSM serving frequency band", tvb_get_bits8(tvb,bit_offset,2));
+      bit_offset += 2;
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value  = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* GPRS Real Time Difference Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_RTD_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_RTD_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            idx = tvb_get_bits8(tvb,bit_offset,5);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "BA Index Start RTD: %d", idx);
+            bit_offset += 5;
+         }
+         else
+            idx = 0;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value == 0)
+         {
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "RTD index %d: %d TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits8(tvb,bit_offset,6));
+            bit_offset += 6;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value == 0)
+         {
+            idx += 1;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            while (value == 0)
+            {
+               proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "RTD index %d: %d TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits8(tvb,bit_offset,6));
+               bit_offset += 6;
+               value = tvb_get_bits8(tvb,bit_offset,1);
+               bit_offset += 1;
+            }
+         }
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            idx = tvb_get_bits8(tvb,bit_offset,5);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "BA Index Start RTD: %d", idx);
+            bit_offset += 5;
+         }
+         else
+            idx = 0;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value == 0)
+         {
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,bit_offset,12,FALSE));
+            bit_offset += 12;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value == 0)
+         {
+            idx += 1;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            while (value == 0)
+            {
+               proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,bit_offset,12,FALSE));
+               bit_offset += 12;
+               value = tvb_get_bits8(tvb,bit_offset,1);
+               bit_offset += 1;
+            }
+         }
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value  = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* GPRS BSIC Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_BSIC_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_BSIC_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "BA Index Start BSIC: %d", tvb_get_bits8(tvb,bit_offset,5));
+         bit_offset += 5;
+      }
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "BSIC: %d", tvb_get_bits8(tvb,bit_offset,6));
+      bit_offset += 6;
+      idx = tvb_get_bits8(tvb,bit_offset,7);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Number Remaining BSIC: %d", idx);
+      bit_offset += 7;
+      while (idx)
+      {
+         if (tvb_get_bits8(tvb,bit_offset,1))
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Frequency Scrolling: next BSIC in the structure relates to the subsequent frequency in the BA (list) (1)");
+         else
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Frequency Scrolling: next BSIC in the structure relates to the same frequency in the BA(list) (0)");
+         bit_offset += 1;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "BSIC: %d", tvb_get_bits8(tvb,bit_offset,6));
+         bit_offset += 6;
+         idx -= 1;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value  = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* GPRS Report Priority Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC]);
+      idx = tvb_get_bits8(tvb,bit_offset,7);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Number Cells: %d", idx);
+      bit_offset += 7;
+      while (idx)
+      {
+         if (tvb_get_bits8(tvb,bit_offset,1))
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Rep Priority: High reporting priority (1)");
+         else
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Rep Priority: Normal reporting priority (0)");
+         bit_offset += 1;
+         idx -= 1;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value  = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* GPRS Measurement Parameters Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC]);
+      if (tvb_get_bits8(tvb,bit_offset,1))
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Report Type: The MS shall use the PACKET MEASUREMENT REPORT message for reporting (1)");
+      else
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Report Type: The MS shall use the PACKET ENHANCED MEASUREMENT REPORT message for reporting (0)");
+      bit_offset++;
+      if (tvb_get_bits8(tvb,bit_offset,1))
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Reporting Rate: Reduced reporting rate allowed (1)");
+      else
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Reporting Rate: Normal reporting rate (0)");
+      bit_offset++;
+      if (tvb_get_bits8(tvb,bit_offset,1))
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Invalid BSIC Reporting: Report on cells with invalid BSIC and allowed NCC part of BSIC is allowed (1)");
+      else
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Invalid BSIC Reporting: Report on cells with invalid BSIC and allowed NCC part of BSIC is not allowed (0)");
+      bit_offset++;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Multiband Reporting: %d",tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Serving Band Reporting: report %d cell(s) from the GSM serving frequency band", tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,2);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Scale Ord: %s (%d)", translate_scale_ord(value), value);
+      bit_offset += 2;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "900 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "900 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "1800 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "1800 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "400 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "400 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "1900 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "1900 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "850 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "850 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* NC Measurement Parameters */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_NC_MEAS_PARAM].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_NC_MEAS_PARAM]);
+      value = tvb_get_bits8(tvb,bit_offset,2);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Network Control Order: %s (%d)", translate_network_control_order(value), value);
+      bit_offset += 2;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "NC Non DRX Period: %s (%d)", translate_nc_non_drx_period(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "NC Reporting Period I: %s (%d)", translate_nc_reporting_period_x(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "NC Reporting Period T: %s (%d)", translate_nc_reporting_period_x(value), value);
+         bit_offset += 3;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* SI 2quater Extension Information */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI2Q_EXT_INFO].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SI2Q_EXT_INFO]);
+      idx = tvb_get_bits8(tvb,bit_offset,8);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Extension Length: %d", idx);
+      bit_offset += 8;
+      proto_item_set_len(item2,((bit_offset+idx+1-bit_offset_sav)>>3)+1);
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      { /* CCN Support Description */
+         bit_offset_sav = bit_offset;
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC].strptr);
+         subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC]);
+         value = tvb_get_bits8(tvb,bit_offset,7);
+         proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Number Cells: %d", value);
+         bit_offset += 7;
+         idx -= 7;
+         item2 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (value>>3)+1, "CCN Supported: ");
+         while (value)
+         {
+            proto_item_append_text(item2,"%d",tvb_get_bits8(tvb,bit_offset,1));
+            bit_offset += 1;
+            value -= 1;
+            idx -= 1;
+         }
+         proto_item_set_len(item3,((bit_offset+-bit_offset_sav)>>3)+1);
+      }
+      bit_offset += idx;
+   }
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* 3G Neighbour Cell Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Index Start 3G: %d", tvb_get_bits8(tvb,bit_offset,7));
+         bit_offset += 7;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Absolute Index Start EMR: %d", tvb_get_bits8(tvb,bit_offset,7));
+         bit_offset += 7;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         bit_offset_sav2 = bit_offset;
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
+         subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Bandwidth FDD: %d", tvb_get_bits8(tvb,bit_offset,3));
+            bit_offset += 3;
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value)
+         {
+            bit_offset += 1; /* skip a 0 bit */
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 2, "FDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
+            bit_offset += 14;
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "FDD Indic0: %d", tvb_get_bits8(tvb,bit_offset,1));
+            bit_offset += 1;
+            idx = tvb_get_bits8(tvb,bit_offset,5);
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Nr of FDD Cells : %d", idx);
+            bit_offset += 5;
+            idx = convert_n_to_p[idx];
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, "FDD Cell Information Field: %d bits long (data not decoded)",idx);
+            bit_offset += idx;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+         }
+         proto_item_set_len(item3,((bit_offset-bit_offset_sav2)>>3)+1);
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         bit_offset_sav2 = bit_offset;
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
+         subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         {
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Bandwidth TDD: %d", tvb_get_bits8(tvb,bit_offset,3));
+            bit_offset += 3;
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         while (value)
+         {
+            bit_offset += 1; /* skip a 0 bit */
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 2, "TDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
+            bit_offset += 14;
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "TDD Indic0: %d", tvb_get_bits8(tvb,bit_offset,1));
+            bit_offset += 1;
+            idx = tvb_get_bits8(tvb,bit_offset,5);
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Nr of TDD Cells : %d", idx);
+            bit_offset += 5;
+            idx = convert_n_to_q[idx];
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, "TDD Cell Information Field: %d bits long (data not decoded)",idx);
+            bit_offset += idx;
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+         }
+         proto_item_set_len(item3,((bit_offset-bit_offset_sav2)>>3)+1);
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* 3G Measurement Parameters Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,4);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Qsearch I: %s (%d)", translate_qsearch_x(value), value);
+      bit_offset += 4;
+      if (tvb_get_bits8(tvb,bit_offset,1))
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Qsearch C Initial: always (1)");
+      else
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Qsearch C Initial: use Qsearch I (0)");
+      bit_offset += 1;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,4);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qoffset: %s (%d)", translate_xdd_qoffset(value), value);
+         bit_offset += 4;
+         if (tvb_get_bits8(tvb,bit_offset,1))
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Rep Quant: Ec/No (1)");
+         else
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Rep Quant: RSCP (0)");
+         bit_offset += 1;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Multirat Reporting: %d",tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qmin: %s (%d)", translate_fdd_qmin(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,4);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Qoffset: %s (%d)", translate_xdd_qoffset(value), value);
+         bit_offset += 4;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Multirat Reporting: %d",tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   value = tvb_get_bits8(tvb,bit_offset,1);
+   bit_offset += 1;
+   if (value)
+   { /* GPRS 3G Measurement Parameters Description */
+      bit_offset_sav = bit_offset;
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC].strptr);
+      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC]);
+      value = tvb_get_bits8(tvb,bit_offset,4);
+      proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Qsearch P: %s (%d)", translate_qsearch_x(value), value);
+      bit_offset += 4;
+      if (tvb_get_bits8(tvb,bit_offset,1))
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "3G Search Prio: 3G cells may be searched when BSIC decoding is required (1)");
+      else
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "3G Search Prio: 3G cells may not be searched when BSIC decoding is required (0)");
+      bit_offset += 1;
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         if (tvb_get_bits8(tvb,bit_offset,1))
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Rep Quant: Ec/No (1)");
+         else
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Rep Quant: RSCP (0)");
+         bit_offset += 1;
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Multirat Reporting: %d",tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Multirat Reporting: %d",tvb_get_bits8(tvb,bit_offset,2));
+         bit_offset += 2;
+      }
+      value = tvb_get_bits8(tvb,bit_offset,1);
+      bit_offset += 1;
+      if (value)
+      {
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+         bit_offset += 3;
+         value = tvb_get_bits8(tvb,bit_offset,3);
+         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "TDD Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+         bit_offset += 3;
+      }
+      proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+   }
+   if (((curr_offset + len)<<3) - bit_offset > 0)
+   {
+      /* There is still room left in the Rest Octets IE */
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      { /* Additions in Rel-5 */
+         bit_offset += 1;
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         { /* 3G Additional Measurement Parameters Description */
+            bit_offset_sav = bit_offset;
+            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
+            subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC]);
+            value = tvb_get_bits8(tvb,bit_offset,3);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Qmin Offset: %d dB (%d)", 2*value, value);
+            bit_offset += 3;
+            value = tvb_get_bits8(tvb,bit_offset,4);
+            proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD RSCPmin: -%d dB (%d)", 114-(2*value), value);
+            bit_offset += 4;
+            proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+         }
+         value = tvb_get_bits8(tvb,bit_offset,1);
+         bit_offset += 1;
+         if (value)
+         { /* 3G Additional Measurement Parameters Description 2 */
+            bit_offset_sav = bit_offset;
+            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2].strptr);
+            subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2]);
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            if (value)
+            {
+               proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "FDD Reporting Threshold 2: %d", tvb_get_bits8(tvb,bit_offset,6));
+               bit_offset += 6;
+            }
+            proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
+         }
+         if (((curr_offset + len)<<3) - bit_offset > 0)
+         {
+            /* There is still room left in the Rest Octets IE */
+            if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+            { /* Additions in Rel-6 */
+               bit_offset += 1;
+               if (tvb_get_bits8(tvb,bit_offset,1))
+                  proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "3G CCN Active: CCN towards 3G cells is enabled in the cell (1)");
+               else
+                  proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "3G CCN Active: CCN towards 3G cells is disabled in the cell (0)");
+               bit_offset += 1;
+               if (((curr_offset + len)<<3) - bit_offset > 0)
+               {
+                  /* There is still room left in the Rest Octets IE */
+                  if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                  { /* Additions in Rel-7 */
+                     bit_offset += 1;
+                     value = tvb_get_bits8(tvb,bit_offset,1);
+                     bit_offset += 1;
+                     if (value)
+                     {
+                        value = tvb_get_bits8(tvb,bit_offset,3);
+                        proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "700 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+                        bit_offset += 3;
+                        value = tvb_get_bits8(tvb,bit_offset,3);
+                        proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "700 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+                        bit_offset += 3;
+                     }
+                     value = tvb_get_bits8(tvb,bit_offset,1);
+                     bit_offset += 1;
+                     if (value)
+                     {
+                        value = tvb_get_bits8(tvb,bit_offset,3);
+                        proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "810 Reporting Offset: %s (%d)", translate_xxx_reporting_offset(value), value);
+                        bit_offset += 3;
+                        value = tvb_get_bits8(tvb,bit_offset,3);
+                        proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "810 Reporting Threshold: %s (%d)", translate_xxx_reporting_threshold(value), value);
+                        bit_offset += 3;
+                     }
+                  }
+                  else
+                     bit_offset += 1;
+               }
+            }
+            else
+               bit_offset += 1;
+         }
+      }
+      else bit_offset += 1;
+   }
+
+ 	curr_offset = curr_offset + len;
+
+	return curr_offset-offset;
+}
 
 /*
  * [3] 10.5.2.34 SI 3 Rest Octets
@@ -2891,10 +3938,9 @@ guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	de_rr_cause,					/* 10.5.2.31  RR Cause							*/
 	de_rr_sync_ind,					/* 10.5.2.39  Synchronization Indication		*/
 	de_rr_si1_rest_oct,					/* [3] 10.5.2.32 SI1 Rest Octets	*/
-/* [3] 10.5.2.33 SI 2bis Rest Octets
- * [3] 10.5.2.33a SI 2ter Rest Octets
- * [3] 10.5.2.33b SI 2quater Rest Octets
- */
+/* [3] 10.5.2.33 SI 2bis Rest Octets */
+	de_rr_si2ter_rest_oct,				/* [3] 10.5.2.33a SI 2ter Rest Octets */
+	de_rr_si2quater_rest_oct,			/* [3] 10.5.2.33b SI 2quater Rest Octets */
 	de_rr_si3_rest_oct,					/* [3] 10.5.2.34 SI3 Rest Octets	*/
 	de_rr_si4_rest_oct,					/* [3] 10.5.2.35 SI4 Rest Octets	*/
 	de_rr_si6_rest_oct,					/* [3] 10.5.2.35b SI6 Rest Octets	*/
@@ -3760,11 +4806,66 @@ dtap_rr_sys_info_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
+   proto_tree_add_text(tree, tvb, curr_offset, len, "BCCH Frquency List");
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NCC_PERM);
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+}
+
+/*
+ * [4] 9.1.33
+ */
+static void
+dtap_rr_sys_info_2bis(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+   proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC);
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
+}
+
+/*
+ * [4] 9.1.34
+ */
+static void
+dtap_rr_sys_info_2ter(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+   proto_tree_add_text(tree, tvb, curr_offset, 16, "Extended BCCH Frequency List");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_NEIGH_CELL_DESC2);
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2TER_REST_OCT);
+}
+
+/*
+ * [4] 9.1.34a
+ */
+static void
+dtap_rr_sys_info_2quater(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI2QUATER_REST_OCT);
 }
 
 /*
@@ -3940,9 +5041,9 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	dtap_rr_sys_info_6,	/* System Information Type 6 */
 	NULL,	/* System Information Type 7 */
 
-	NULL,	/* System Information Type 2bis */
-	NULL,	/* System Information Type 2ter */
-	NULL,	/* System Information Type 2quater */
+	dtap_rr_sys_info_2bis,	/* System Information Type 2bis */
+	dtap_rr_sys_info_2ter,	/* System Information Type 2ter */
+	dtap_rr_sys_info_2quater,	/* System Information Type 2quater */
 	NULL,	/* System Information Type 5bis */
 	NULL,	/* System Information Type 5ter */
 	NULL,	/* System Information Type 9 */
@@ -4612,7 +5713,7 @@ proto_register_gsm_a_rr(void)
 	},
 	{ &hf_gsm_a_rr_multiband_reporting,
 	  { "Multiband Reporting", "gsm_a.rr.multiband_reporting",
-		FT_UINT8, BASE_DEC,  NULL, 0x30,
+		FT_UINT8, BASE_DEC,  NULL, 0x60,
 		"Number of cells to be reported in each band if Multiband Reporting", HFILL }
 	},
 	{ &hf_gsm_a_rr_ncc_permitted,
@@ -4651,7 +5752,8 @@ proto_register_gsm_a_rr(void)
 #define	NUM_INDIVIDUAL_ELEMS	2
 	static gint *ett[NUM_INDIVIDUAL_ELEMS +
 			NUM_GSM_DTAP_MSG_RR +
-			NUM_GSM_RR_ELEM];
+			NUM_GSM_RR_ELEM +
+			NUM_GSM_RR_REST_OCTETS_ELEM];
 
 	ett[0] = &ett_ccch_msg;
 	ett[1] = &ett_ccch_oct_1;
@@ -4668,6 +5770,12 @@ proto_register_gsm_a_rr(void)
 	{
 		ett_gsm_rr_elem[i] = -1;
 		ett[last_offset] = &ett_gsm_rr_elem[i];
+	}
+
+	for (i=0; i < NUM_GSM_RR_REST_OCTETS_ELEM; i++, last_offset++)
+	{
+		ett_gsm_rr_rest_octets_elem[i] = -1;
+		ett[last_offset] = &ett_gsm_rr_rest_octets_elem[i];
 	}
 
 	/* Register the protocol name and description */

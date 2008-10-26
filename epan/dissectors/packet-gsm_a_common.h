@@ -913,10 +913,9 @@ typedef enum
 	DE_RR_CAUSE,					/* 10.5.2.31  RR Cause							*/
 	DE_RR_SYNC_IND,					/* 10.5.2.39  Synchronization Indication		*/
 	DE_RR_SI1_REST_OCT,				/* [3] 10.5.2.32 SI1 Rest Octets */
-/* [3] 10.5.2.33 SI 2bis Rest Octets
- * [3] 10.5.2.33a SI 2ter Rest Octets
- * [3] 10.5.2.33b SI 2quater Rest Octets
- */
+/* [3] 10.5.2.33 SI 2bis Rest Octets */
+	DE_RR_SI2TER_REST_OCT,			/* [3] 10.5.2.33a SI 2ter Rest Octets */
+	DE_RR_SI2QUATER_REST_OCT,		/* [3] 10.5.2.33b SI 2quater Rest Octets */
 	DE_RR_SI3_REST_OCT,				/* [3] 10.5.2.34 SI3 Rest Octets */
 	DE_RR_SI4_REST_OCT,				/* [3] 10.5.2.35 SI4 Rest Octets */
 	DE_RR_SI6_REST_OCT,				/* [3] 10.5.2.35a SI6 Rest Octets */
