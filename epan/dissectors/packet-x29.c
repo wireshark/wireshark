@@ -266,7 +266,7 @@ proto_register_x29(void)
 		&ett_x29,
 	};
 
-        proto_x29 = proto_register_protocol("X.29", "X.29", "x.29");
+        proto_x29 = proto_register_protocol("X.29", "X.29", "x29");
 	proto_register_field_array(proto_x29, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
