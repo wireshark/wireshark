@@ -465,6 +465,7 @@ guint8 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 
 guint8 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint8 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint8 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 guint8 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint8 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -611,7 +612,7 @@ typedef enum
 	BE_LCS_CLIENT,	 /* LCS Client Type */
 	BE_APDU,	 /* APDU */
 	BE_NE_ID,	 /* Network Element Identity */
-	BE_GSP_ASSIST_DATA,	 /* GPS Assistance Data */
+	BE_GPS_ASSIST_DATA,	 /* GPS Assistance Data */
 	BE_DECIPH_KEYS,	 /* Deciphering Keys */
 	BE_RET_ERR_REQ,	 /* Return Error Request */
 	BE_RET_ERR_CAUSE,	 /* Return Error Cause */

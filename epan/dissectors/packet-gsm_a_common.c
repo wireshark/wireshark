@@ -169,6 +169,31 @@ static const value_string CMSP_vals[] = {
 	{ 1,	"Network initiated MO CM connection request supported for at least one CM protocol"},
 	{ 0,	NULL }
 };
+/* A5/4 algorithm supported */
+static const value_string A5_7_algorithm_sup_vals[] = {
+	{ 0,	"encryption algorithm A5/7 not available"},
+	{ 1,	"encryption algorithm A5/7 available"},
+	{ 0,	NULL }
+};
+/* A5/4 algorithm supported */
+static const value_string A5_6_algorithm_sup_vals[] = {
+	{ 0,	"encryption algorithm A5/6 not available"},
+	{ 1,	"encryption algorithm A5/6 available"},
+	{ 0,	NULL }
+};
+/* A5/5 algorithm supported */
+static const value_string A5_5_algorithm_sup_vals[] = {
+	{ 0,	"encryption algorithm A5/5 not available"},
+	{ 1,	"encryption algorithm A5/5 available"},
+	{ 0,	NULL }
+};
+/* A5/4 algorithm supported */
+static const value_string A5_4_algorithm_sup_vals[] = {
+	{ 0,	"encryption algorithm A5/4 not available"},
+	{ 1,	"encryption algorithm A5/4 available"},
+	{ 0,	NULL }
+};
+
 /* A5/3 algorithm supported (octet 5, bit 2) */
 static const value_string A5_3_algorithm_sup_vals[] = {
 	{ 0,	"encryption algorithm A5/3 not available"},
@@ -199,6 +224,32 @@ static const value_string oddevenind_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string true_false_vals[] = {
+    { 0, "false" },
+    { 1, "true" },
+    { 0, NULL}
+};
+
+static const value_string gsm_a_sms_vals[] = {
+    {0, "1/4 timeslot (~144 microseconds)" },
+    {1, "2/4 timeslot (~288 microseconds)" },
+    {2, "3/4 timeslot (~433 microseconds)" },
+    {3, "4/4 timeslot (~577 microseconds)" },
+    {4, "5/4 timeslot (~721 microseconds)" },
+    {5, "6/4 timeslot (~865 microseconds)" },
+    {6, "7/4 timeslot (~1009 microseconds)" },
+    {7, "8/4 timeslot (~1154 microseconds)" },
+    {8, "9/4 timeslot (~1298 microseconds)" },
+    {9, "10/4 timeslot (~1442 microseconds)" },
+    {10, "11/4 timeslot (~1586 microseconds)" },
+    {11, "12/4 timeslot (~1730 microseconds)" },
+    {12, "13/4 timeslot (~1874 microseconds)" },
+    {13, "14/4 timeslot (~2019 microseconds)" },
+    {14, "15/4 timeslot (~2163 microseconds)" },
+    {15, "16/4 timeslot (~2307 microseconds)" },
+    { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 
@@ -225,6 +276,10 @@ static int hf_gsm_a_LCS_VA_cap		= -1;
 static int hf_gsm_a_UCS2_treatment	= -1;
 static int hf_gsm_a_SoLSA				= -1;
 static int hf_gsm_a_CMSP				= -1;
+static int hf_gsm_a_A5_7_algorithm_sup= -1;
+static int hf_gsm_a_A5_6_algorithm_sup= -1;
+static int hf_gsm_a_A5_5_algorithm_sup= -1;
+static int hf_gsm_a_A5_4_algorithm_sup= -1;
 static int hf_gsm_a_A5_3_algorithm_sup= -1;
 static int hf_gsm_a_A5_2_algorithm_sup = -1;
 
@@ -239,6 +294,22 @@ int hf_gsm_a_skip_ind = -1;
 
 static int hf_gsm_a_b7spare = -1;
 int hf_gsm_a_b8spare = -1;
+static int hf_gsm_a_spare_bits = -1;
+static int hf_gsm_a_multi_bnd_sup_fields = -1;
+static int hf_gsm_a_pgsm_supported = -1;
+static int hf_gsm_a_egsm_supported = -1;
+static int hf_gsm_a_gsm1800_supported = -1;
+static int hf_gsm_a_ass_radio_cap1 = -1;
+static int hf_gsm_a_ass_radio_cap2 = -1;
+static int hf_gsm_a_rsupport = -1;
+static int hf_gsm_a_r_capabilities = -1;
+static int hf_gsm_a_multislot_capabilities = -1;
+static int hf_gsm_a_multislot_class = -1;
+static int hf_gsm_a_ucs2_treatment = -1;
+static int hf_gsm_a_extended_measurement_cap = -1;
+static int hf_gsm_a_ms_measurement_capability = -1;
+static int hf_gsm_a_sms_value =-1;
+static int hf_gsm_a_sm_value =-1;
 
 static char a_bigbuf[1024];
 
@@ -1199,7 +1270,8 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [3] 10.5.1.6
+ * [3] 10.5.1.6 Mobile Station Classmark 2 
+ * 3GPP TS 24.008 version 7.8.0 Release 7
  */
 guint8
 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -1243,7 +1315,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* CM3 (octet 5, bit 8) */
 	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, FALSE);
 	/* spare bit 7 */
-		proto_tree_add_item(tree, hf_gsm_a_b7spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_b7spare, tvb, curr_offset, 1, FALSE);
 	/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
 	proto_tree_add_item(tree, hf_gsm_a_LCS_VA_cap, tvb, curr_offset, 1, FALSE);
 	/* UCS2 treatment (octet 5, bit 5) */
@@ -1262,6 +1334,191 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.1.7 Mobile Station Classmark 3
+ * 3GPP TS 24.008 version 7.8.0 Release 7
+ */
+guint8
+de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset; /* Offset in bits */
+	proto_tree	*subtree;
+	proto_item	*item;
+	guint64 multi_bnd_sup_fields,rsupport, multislotCapability, msMeasurementCapability; 
+
+	curr_offset = offset;
+
+	bit_offset = curr_offset << 3;
+
+	/* Spare bit */
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+    /* Multiband supported field 
+	 * { < Multiband supported : { 000 } >
+	 * < A5 bits >
+	 * | < Multiband supported : { 101 | 110 } >
+	 * < A5 bits >
+	 * < Associated Radio Capability 2 : bit(4) >
+	 * < Associated Radio Capability 1 : bit(4) >
+	 * | < Multiband supported : { 001 | 010 | 100 } >
+	 * < A5 bits >
+	 * < spare bit >(4)
+	 * < Associated Radio Capability 1 : bit(4) > }
+	 */
+	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, FALSE);
+	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_gsm1800_supported, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_egsm_supported, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+	/* < A5 bits > */
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+
+	switch(multi_bnd_sup_fields){
+		case 0:
+			/* A5 bits dissected so done */
+			break;
+		/*
+		 * | < Multiband supported : { 001 | 010 | 100 } >
+		 */
+		case 1:
+		case 2:
+		case 4:
+			/* < spare bit >(4) */
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 4, FALSE);
+			bit_offset+=4;
+			/* < Associated Radio Capability 1 : bit(4) > */
+			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			bit_offset+=4;
+			break;
+		/* < Multiband supported : { 101 | 110 } > */
+		case 5:
+			/* fall trough */
+		case 6:
+			/* < Associated Radio Capability 2 : bit(4) > */
+			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, FALSE);
+			bit_offset+=4;
+			/* < Associated Radio Capability 1 : bit(4) > */
+			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			bit_offset+=4;
+			break;
+		default:
+			break;
+	}
+    /* Extract R Support */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, FALSE);
+    bit_offset++;
+
+    if(rsupport == 1)
+    {
+        /* 
+		 * { 0 | 1 < R Support > }
+		 * Extract R Capabilities 
+		 */
+        proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, FALSE);
+        bit_offset = bit_offset + 3;
+    }
+
+    /* 
+	 * { 0 | 1 < HSCSD Multi Slot Capability > }
+	 * Extract Multislot capability
+	 */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, FALSE);
+    bit_offset++;
+
+    if(multislotCapability == 1)
+    {
+        /* Extract Multislot Class */
+        proto_tree_add_bits_item(tree, hf_gsm_a_multislot_class, tvb, bit_offset, 5, FALSE);
+        bit_offset = bit_offset + 5;
+    }
+
+    /* < UCS2 treatment: bit > */
+    proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, FALSE);
+    bit_offset = bit_offset + 1;
+
+    /* < Extended Measurement Capability : bit > */
+    proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
+    bit_offset = bit_offset + 1;
+
+    /* { 0 | 1 < MS measurement capability > } 
+	 * Extract MS Measurement capability
+	 */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
+    bit_offset = bit_offset + 1;
+
+    if(msMeasurementCapability == 1)
+    {
+        /* Extract SMS Value n/4 */
+        proto_tree_add_bits_item(tree, hf_gsm_a_sms_value, tvb, bit_offset, 4, FALSE);
+        bit_offset = bit_offset + 4;
+
+        /* Extract SM Value n/4 */
+        proto_tree_add_bits_item(tree, hf_gsm_a_sm_value, tvb, bit_offset, 4, FALSE);
+        bit_offset = bit_offset + 4;
+    }
+
+/*
+{ 0 | 1 < MS Positioning Method Capability > }
+{ 0 | 1 < ECSD Multi Slot Capability > }
+{ 0 | 1 < 8-PSK Struct > }
+{ 0 | 1 < GSM 400 Bands Supported : { 01 | 10 | 11 } >
+< GSM 400 Associated Radio Capability: bit(4) > }
+{ 0 | 1 <GSM 850 Associated Radio Capability : bit(4) > }
+{ 0 | 1 <GSM 1900 Associated Radio Capability : bit(4) > }
+< UMTS FDD Radio Access Technology Capability : bit >
+< UMTS 3.84 Mcps TDD Radio Access Technology Capability : bit >
+< CDMA 2000 Radio Access Technology Capability : bit >
+{ 0 | 1 < DTM GPRS Multi Slot Class : bit(2) >
+< Single Slot DTM : bit >
+{0 | 1< DTM EGPRS Multi Slot Class : bit(2) > } }
+{ 0 | 1 < Single Band Support > } -- Release 4 starts here:
+{ 0 | 1 <GSM 750 Associated Radio Capability : bit(4)>}
+< UMTS 1.28 Mcps TDD Radio Access Technology Capability : bit >
+< GERAN Feature Package 1 : bit >
+{ 0 | 1 < Extended DTM GPRS Multi Slot Class : bit(2) >
+< Extended DTM EGPRS Multi Slot Class : bit(2) > }
+{ 0 | 1 < High Multislot Capability : bit(2) > } ---Release 5 starts here.
+{ 0 | 1 < GERAN Iu Mode Capabilities > } -- "1" also means support of GERAN Iu mode
+< GERAN Feature Package 2 : bit >
+< GMSK Multislot Power Profile : bit (2) >
+< 8-PSK Multislot Power Profile : bit (2) >
+{ 0 | 1 < T-GSM 400 Bands Supported : { 01 | 10 | 11 } > -- Release 6 starts here.
+< T-GSM 400 Associated Radio Capability: bit(4) > }
+{ 0 | 1 < T-GSM 900 Associated Radio Capability: bit(4) > }
+< Downlink Advanced Receiver Performance : bit (2)>
+< DTM Enhancements Capability : bit >
+{ 0 | 1 < DTM GPRS High Multi Slot Class : bit(3) >
+< Offset required : bit>
+{ 0 | 1 < DTM EGPRS High Multi Slot Class : bit(3) > } }
+< Repeated ACCH Capability : bit >
+{ 0 | 1 <GSM 710 Associated Radio Capability : bit(4)>} -- Release 7 starts here.
+{ 0 | 1 <T-GSM 810 Associated Radio Capability : bit(4)>}
+< Ciphering Mode Setting Capability : bit >
+0 | 1 < Multislot Capability Reduction for Downlink Dual Carrier : bit (3) > } -- "1" also means that
+the mobile station supports dual carrier in the downlink during DTM
+< spare bits > ;
+*/
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(len);
 }
 /*
  * [3] 10.5.1.8
@@ -1495,7 +1752,7 @@ guint8 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_mid,	/* Mobile Identity */
 	de_ms_cm_1,	/* Mobile Station Classmark 1 */
 	de_ms_cm_2,	/* Mobile Station Classmark 2 */
-	NULL,		/* Mobile Station Classmark 3 */
+	de_ms_cm_3,		/* Mobile Station Classmark 3 */
 	de_spare_nibble,	/* Spare Half Octet */
 	de_d_gb_call_ref,	/* Descriptive group or broadcast call reference */
 	NULL /* handled inline */,	/* Group Cipher Key Number */
@@ -1616,6 +1873,26 @@ proto_register_gsm_a_common(void)
 		FT_UINT8,BASE_DEC, VALS(CMSP_vals), 0x04,
 		"CMSP: CM Service Prompt", HFILL }
 	},
+	{ &hf_gsm_a_A5_7_algorithm_sup,
+		{ "A5/7 algorithm supported","gsm_a.A5_7_algorithm_sup",
+		FT_UINT8,BASE_DEC, VALS(A5_7_algorithm_sup_vals), 0x0,
+		"A5/7 algorithm supported", HFILL }
+	},
+	{ &hf_gsm_a_A5_6_algorithm_sup,
+		{ "A5/6 algorithm supported","gsm_a.A5_6_algorithm_sup",
+		FT_UINT8,BASE_DEC, VALS(A5_6_algorithm_sup_vals), 0x0,
+		"A5/6 algorithm supported", HFILL }
+	},
+	{ &hf_gsm_a_A5_5_algorithm_sup,
+		{ "A5/5 algorithm supported","gsm_a.A5_5_algorithm_sup",
+		FT_UINT8,BASE_DEC, VALS(A5_5_algorithm_sup_vals), 0x0,
+		"A5/5 algorithm supported", HFILL }
+	},
+	{ &hf_gsm_a_A5_4_algorithm_sup,
+		{ "A5/4 algorithm supported","gsm_a.A5_4_algorithm_sup",
+		FT_UINT8,BASE_DEC, VALS(A5_4_algorithm_sup_vals), 0x0,
+		"A5/4 algorithm supported", HFILL }
+	},
 	{ &hf_gsm_a_A5_3_algorithm_sup,
 		{ "A5/3 algorithm supported","gsm_a.A5_3_algorithm_sup",
 		FT_UINT8,BASE_DEC, VALS(A5_3_algorithm_sup_vals), 0x02,
@@ -1676,6 +1953,74 @@ proto_register_gsm_a_common(void)
 		FT_UINT8,BASE_DEC, NULL, 0x80,
 		"Spare", HFILL }
 	},
+	{ &hf_gsm_a_spare_bits,
+		{ "Spare bit(s)","gsm_a.spare_bits",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		"Spare bit(s)", HFILL }
+	},
+	{ &hf_gsm_a_multi_bnd_sup_fields,
+		{ "Multiband supported field","gsm_a.multi_bnd_sup_fields",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		"Multiband supported field", HFILL }
+	},
+	{ &hf_gsm_a_pgsm_supported,
+		{ "P-GSM Supported", "gsm_a.classmark3.pgsmSupported", 
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"P-GSM Supported", HFILL}
+	},
+	{ &hf_gsm_a_egsm_supported,
+		{ "E-GSM or R-GSM Supported", "gsm_a.classmark3.egsmSupported", 
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"E-GSM or R-GSM Supported", HFILL}
+	},
+	{ &hf_gsm_a_gsm1800_supported,
+		{ "GSM 1800 Supported", "gsm_a.classmark3.gsm1800Supported",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"GSM 1800 Supported", HFILL}
+	},
+	{ &hf_gsm_a_ass_radio_cap1,
+		{ "Associated Radio Capability 1", "gsm_a.classmark3.ass_radio_cap1",
+		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
+	},
+	{ &hf_gsm_a_ass_radio_cap2,
+		{ "Associated Radio Capability 1", "gsm_a.classmark3.ass_radio_cap2",
+		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
+	},
+	{ &hf_gsm_a_rsupport,
+		{ "R Support", "gsm_a.classmark3.rsupport",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"R Support", HFILL}
+	},
+	{ &hf_gsm_a_r_capabilities,
+		{ "R-GSM band Associated Radio Capability", "gsm_a.classmark3.r_capabilities",
+		FT_UINT8, BASE_DEC, NULL, 0x0,"R-GSM band Associated Radio Capability", HFILL}
+	},
+	{ &hf_gsm_a_multislot_capabilities,
+		{ "HSCSD Multi Slot Capability", "gsm_a.classmark3.multislot_capabilities",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"HSCSD Multi Slot Capability", HFILL}
+	},
+	{ &hf_gsm_a_multislot_class,
+		{ "HSCSD Multi Slot Class", "gsm_a.classmark3.multislot_cap",
+		FT_UINT8, BASE_DEC, NULL, 0x0,"HSCSD Multi Slot Class", HFILL}
+	},
+	{ &hf_gsm_a_ucs2_treatment,
+		{ "UCS2 treatment ","gsm_a.UCS2_treatment",
+		FT_UINT8,BASE_DEC, VALS(UCS2_treatment_vals), 0x0,
+		"UCS2 treatment ", HFILL }
+	},
+	{ &hf_gsm_a_extended_measurement_cap,
+		{ "Extended Measurement Capability", "gsm_a.classmark3.ext_meas_cap",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"Extended Measurement Capability", HFILL}
+	},
+	{ &hf_gsm_a_ms_measurement_capability,
+		{ "MS measurement capability", "gsm_a.classmark3.ms_measurement_capability",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,"MS measurement capability", HFILL}
+	},
+	{ &hf_gsm_a_sms_value,
+		{ "SMS_VALUE (Switch-Measure-Switch)", "gsm_a.classmark3.sms_value",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SMS_VALUE (Switch-Measure-Switch)", HFILL}
+	},
+	{ &hf_gsm_a_sm_value,
+		{ "SM_VALUE (Switch-Measure", "gsm_a.classmark3.sm_value",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SM_VALUE (Switch-Measure", HFILL}
+	},
+
 	};
 
 	/* Setup protocol subtree array */
