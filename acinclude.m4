@@ -1575,7 +1575,9 @@ fi
 #
 # AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK
 #
-# Checks for the presence of OS X integration functions in GTK+
+# Checks for the presence of OS X integration functions in the GTK+ framework
+# or as a separate library.
+#
 # http://developer.imendio.com/projects/gtk-macosx/integration
 #
 AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
@@ -1584,11 +1586,10 @@ AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
 	ac_save_LIBS="$LIBS"
 	CFLAGS="$CFLAGS $GTK_CFLAGS"
 	LIBS="$GTK_LIBS $LIBS"
-	AC_CHECK_LIB(Gtk, ige_mac_menu_set_menu_bar,
+	AC_SEARCH_LIBS(ige_mac_menu_set_menu_bar, Gtk igemacintegration,
 	[
 		AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
-			[Define to 1 if the GTK+ library inclues the Imendio IGE Mac OS X Integration library.])
-		AC_CHECK_FUNCS(ige_mac_menu_install_key_handler)
+			[Define to 1 if the the Gtk+ framework or a separate library inclues the Imendio IGE Mac OS X Integration functions.])
 	])
 ])
 

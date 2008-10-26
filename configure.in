@@ -680,7 +680,7 @@ AC_MSG_CHECKING(whether to use IGE Mac integration functions)
 
 AC_ARG_WITH(ige-mac-integration,
   AC_HELP_STRING( [--with-ige-mac-integration],
-                  [use IGE Mac integration. (@<:@default=yes, if supported in GTK+@:>@]),
+                  [use IGE Mac integration. (@<:@default=yes, if available@:>@]),
 [
     if test $withval = no
     then
