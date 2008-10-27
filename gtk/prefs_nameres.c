@@ -195,7 +195,7 @@ nameres_prefs_show(void)
 #ifdef HAVE_GEOIP
 	/* GeoIP databases http://www.maxmind.com/app/api */
 	geoip_db_paths_uat = uat_get_table_by_name("GeoIP Database Paths");
-g_warning("gdu: %p", geoip_db_paths_uat);
+
 	if (geoip_db_paths_uat) {
 		table_row++;
 		geoip_resolv_bt = create_preference_uat(main_tb, table_row,
