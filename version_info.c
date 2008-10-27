@@ -87,6 +87,10 @@
 # include <sys/capability.h>
 #endif
 
+#ifdef HAVE_GEOIP
+#include <epan/geoip.h>
+#endif
+
 #ifdef SVNVERSION
 	const char *wireshark_svnversion = " (" SVNVERSION ")";
 #else
@@ -214,8 +218,7 @@ get_epan_compiled_version_info(GString *str)
         /* SNMP */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBSMI
-	g_string_append(str, "with SMI ");
-	g_string_append(str, SMI_VERSION_STRING);
+	g_string_append(str, "with SMI " SMI_VERSION_STRING);
 #else /* no SNMP library */
 	g_string_append(str, "without SMI");
 #endif /* _SMI_H */
@@ -223,19 +226,18 @@ get_epan_compiled_version_info(GString *str)
 	/* c-ares */
 	g_string_append(str, ", ");
 #ifdef HAVE_C_ARES
-	g_string_append(str, "with c-ares ");
-	g_string_append(str, ARES_VERSION_STR);
+	g_string_append(str, "with c-ares " ARES_VERSION_STR);
 #else
 	g_string_append(str, "without c-ares");
-#endif /* HAVE_C_ARES */
 
-	/* ADNS */
+	/* ADNS - only add if no c-ares */
 	g_string_append(str, ", ");
 #ifdef HAVE_GNU_ADNS
 	g_string_append(str, "with ADNS");
 #else
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
+#endif /* HAVE_C_ARES */
 
         /* LUA */
 	g_string_append(str, ", ");
@@ -275,6 +277,15 @@ get_epan_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without Kerberos");
 #endif /* HAVE_KERBEROS */
+
+	/* GeoIP */
+	g_string_append(str, ", ");
+#ifdef HAVE_GEOIP
+	g_string_append(str, "with GeoIP");
+#else
+	g_string_append(str, "without GeoIP");
+#endif /* HAVE_GEOIP */
+
 }
 
 /*
