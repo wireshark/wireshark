@@ -82,7 +82,6 @@ static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t media_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 static dissector_handle_t stream_jxta_handle = NULL;
-static dissector_handle_t message_jxta_handle;
 
 static int hf_uri_addr = -1;
 static int hf_uri_src = -1;
@@ -2326,7 +2325,8 @@ void proto_register_jxta(void)
 
     proto_message_jxta = proto_register_protocol("JXTA Message", "JXTA Message", "jxta.message");
 
-    message_jxta_handle = new_create_dissector_handle(dissect_jxta_message, proto_message_jxta);
+    new_register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
+    new_register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
 
     /* Register header fields */
     proto_register_field_array(proto_jxta, hf, array_length(hf));
@@ -2365,24 +2365,21 @@ void proto_register_jxta(void)
 void proto_reg_handoff_jxta(void)
 {
     static gboolean init_done = FALSE;
+    static dissector_handle_t message_jxta_handle;
 
     static gboolean msg_media_register_done = FALSE;
-
     static gboolean udp_register_done = FALSE;
     static gboolean tcp_register_done = FALSE;
     static gboolean sctp_register_done = FALSE;
 
     if(!init_done) {
+        message_jxta_handle = new_create_dissector_handle(dissect_jxta_message, proto_message_jxta);
+        stream_jxta_handle = find_dissector("jxta.stream");
+
         media_type_dissector_table = find_dissector_table("media_type");
 
         data_handle = find_dissector("data");
-
         media_handle = find_dissector("media");
-
-        new_register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
-
-        new_register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
-        stream_jxta_handle = find_dissector("jxta.stream");
 
         init_done = TRUE;
         }
