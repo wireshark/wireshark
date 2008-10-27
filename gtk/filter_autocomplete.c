@@ -90,7 +90,7 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   pos = start + (cursor_pos - str_len);
   
   /* Walk back through string to find last char which isn't ' ' or '(' */
-  while(pos != start) {
+  while(pos > start) {
     if(*pos != ' ' && *pos != '(') {
       /* Check if we have one of the logical operations */
       for(i = 0; i < (sizeof(logic_ops)/sizeof(logic_ops[0])); i++) {
@@ -239,7 +239,10 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
   GtkTreeIter iter;
   GtkTreeSelection *selection;
   gchar *curr_str;
+  unsigned int str_len = strlen(str);
+  gint count = 0;
   gboolean loop = TRUE;
+  gboolean exact_match = FALSE;
 
   store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
 
@@ -251,16 +254,22 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
 
       gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &curr_str,  -1);
 
-      if( !g_ascii_strncasecmp(str, curr_str, strlen(str)) )
+      if( !g_ascii_strncasecmp(str, curr_str, str_len) ) {
         loop = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
-      else
+	if (strlen(curr_str) == str_len) {
+	  exact_match = TRUE;
+	}
+	count++;
+      } else {
         loop = gtk_list_store_remove(store, &iter);
+      }
 
       g_free(curr_str);
 
     } while( loop );
 
-    if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter))
+    if((count == 1 && exact_match) ||
+       !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter))
       return FALSE;
 
     gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
@@ -522,9 +531,11 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   GtkWidget *filter_sc;
   void *cookie, *cookie2;
   protocol_t *protocol;
-  int i, protocol_name_len;
+  int i;
+  unsigned int protocol_name_len;
   header_field_info *hfinfo;
-  gint x_pos, y_pos;
+  gint x_pos, y_pos, count = 0;
+  gboolean exact_match = FALSE;
   GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkSortType order;
@@ -571,8 +582,13 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
     if (protocols_only) {
       const gchar *name = proto_get_protocol_filter_name (i);
 
-      if (!g_ascii_strncasecmp(protocol_name, name, protocol_name_len))
+      if (!g_ascii_strncasecmp(protocol_name, name, protocol_name_len)) {
 	add_to_autocompletion_list(treeview, name);
+	if (strlen(name) == protocol_name_len) {
+	  exact_match = TRUE;
+	}
+	count++;
+      }
     } else {
       hfinfo = proto_registrar_get_nth(i);
 
@@ -583,15 +599,22 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 	  if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
 	    continue;
 
-	  if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len))
+	  if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len)) {
 	    add_to_autocompletion_list(treeview, hfinfo->abbrev);
+	    if (strlen(hfinfo->abbrev) == protocol_name_len) {
+	      exact_match = TRUE;
+	    }
+	    count++;
+	  }
 	}
     }
   }
 
+  /* Don't show an autocompletion-list with only one entry with exact match */
   /* Don't show an empty autocompletion-list */
   store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
-  if( !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+  if ((count == 1 && exact_match) || 
+      !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
     gtk_widget_destroy(popup_win);
     return NULL;
   }
