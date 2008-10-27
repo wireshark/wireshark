@@ -3157,7 +3157,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_widget_show(menubar);
-#ifdef HAVE_IGE_MAC_INTEGRATION;
+#ifdef HAVE_IGE_MAC_INTEGRATION
     }
 #endif
 
