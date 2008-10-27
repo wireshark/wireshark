@@ -57,7 +57,64 @@ static void filter_autocomplete_handle_backspace(GtkWidget *list,
                          gchar *prefix, 
                          GtkWidget *main_win);
 static void filter_autocomplete_win_destroy_cb(GtkWidget *win, gpointer data);
+static gboolean is_protocol_name_being_typed(GtkWidget *filter_te, int str_len);
 
+
+/*
+ * Check if the string at the cursor position is a beginning of a protocol name.
+ * Possible false positives:
+ * 	"NOT" at the beginning of the display filter editable text.
+ * 	"NOT" adjacent to another logical operation. (e.g: exp1 AND NOT exp2).
+ **/
+static gboolean
+is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
+{
+  unsigned int i;
+  int op_len, cursor_pos;
+  gchar *start;
+  gchar *pos;
+  static gchar *logic_ops[] = { "!", "not",
+				"||", "or",
+				"&&", "and",
+				"^^", "xor" };
+  
+  /* If the cursor is located at the beginning of the filter editable text,
+   * then it's _probably_ a protocol name.
+   **/
+  if(!(cursor_pos = gtk_editable_get_position(GTK_EDITABLE(filter_te))))
+    return TRUE;
+  
+  start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, cursor_pos);
+  
+  /* Point to one char before the current string in the filter editable text */
+  pos = start + (cursor_pos - str_len);
+  
+  /* Walk back through string to find last char which isn't ' ' or '(' */
+  while(pos != start) {
+    if(*pos != ' ' && *pos != '(') {
+      /* Check if we have one of the logical operations */
+      for(i = 0; i < (sizeof(logic_ops)/sizeof(logic_ops[0])); i++) {
+	op_len = strlen(logic_ops[i]);
+	
+	if(pos-start+1 < op_len)
+	  continue;
+	
+	/* If one of the logical operations is found, then the current string is _probably_ a protocol name */
+	if(!strncmp(pos-op_len+1, logic_ops[i], op_len))
+	  return TRUE;
+      }
+
+      /* If none of the logical operations was found, then the current string is not a protocol */
+      return FALSE;
+    }
+    pos--;
+  }
+  
+  /* The "str" preceded only by ' ' or '(' chars, 
+   * which means that the str is _probably_ a protocol name.
+   **/
+  return TRUE;
+}
 
 
 static void
@@ -227,7 +284,6 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   GtkWidget *treeview;
   GtkTreeModel *model;
   GtkTreeSelection *selection;
-/*  GtkListStore *store; */
   GtkTreeIter iter;
   const gchar *filter_te_str = "";
   gchar* prefix = "";
@@ -316,7 +372,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       if(strchr(prefix, '.')) {
         popup_win = filter_autocomplete_new(filter_te, prefix, FALSE);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
-      } else if(strlen(prefix)) {
+      } else if(strlen(prefix) && is_protocol_name_being_typed(filter_te, strlen(prefix)+2)) {
         popup_win = filter_autocomplete_new(filter_te, prefix, TRUE);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
       }
@@ -329,7 +385,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   } else if(g_ascii_isalnum(ckey) && !popup_win) {
     gchar *name = g_strconcat(prefix, event->string, NULL);
 
-    if( !strchr(name, '.') ) {
+    if( !strchr(name, '.') && is_protocol_name_being_typed(filter_te, strlen(name)) ) {
       popup_win = filter_autocomplete_new(filter_te, name, TRUE);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
     }
