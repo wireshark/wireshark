@@ -38,6 +38,7 @@
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include <epan/strutil.h>
 #ifdef HAVE_GEOIP
 #include <epan/geoip.h>
 #endif
@@ -252,7 +253,7 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
     text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
     text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
-    if (clist->sort_column < 2 || clist->sort_column > 7) { /* Integers */
+    if (clist->sort_column >= 2 || clist->sort_column <= 7) { /* Integers */
         sscanf(text1, "%" G_GINT64_MODIFIER "u", &i1);
         sscanf(text2, "%" G_GINT64_MODIFIER "u", &i2);
         if (i1 > i2) {
@@ -1105,7 +1106,8 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         /* Filled in from the GeoIP config, if any */
         for (i = 0; i < NUM_GEOIP_COLS; i++) {
             if (i < geoip_num_dbs() && talker->address.type == AT_IPv4) {
-                g_snprintf(geoip[i], 16, "%s", geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data));
+                const guchar *name = geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data);
+                g_snprintf(geoip[i], 16, "%s", format_text (name, strlen(name)));
                 entries[NUM_BUILTIN_COLS + i] = geoip[i];
                 gtk_clist_set_column_visibility(hl->table, NUM_BUILTIN_COLS + i, TRUE);
             } else {
