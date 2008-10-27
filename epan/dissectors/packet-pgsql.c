@@ -163,10 +163,19 @@ static const value_string format_vals[] = {
 void
 proto_reg_handoff_pgsql(void)
 {
-    dissector_handle_t pgsql_handle;
+    static gboolean initialized = FALSE;
+    static dissector_handle_t pgsql_handle;
+    static guint saved_pgsql_port;
 
-    pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
+    if (!initialized) {
+        pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
+        initialized = TRUE;
+    } else {
+        dissector_delete("tcp.port", saved_pgsql_port, pgsql_handle);
+    }
+
     dissector_add("tcp.port", pgsql_port, pgsql_handle);
+    saved_pgsql_port = pgsql_port;
 }
 
 
@@ -345,7 +354,7 @@ proto_register_pgsql(void)
     proto_register_field_array(proto_pgsql, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    mod_pgsql = prefs_register_protocol(proto_pgsql, NULL);
+    mod_pgsql = prefs_register_protocol(proto_pgsql, proto_reg_handoff_pgsql);
     prefs_register_uint_preference(
         mod_pgsql, "tcp.port", "PGSQL TCP port", "Set the port for PGSQL "
         "messages (if different from the default of 5432)", 10, &pgsql_port
