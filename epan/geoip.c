@@ -124,7 +124,7 @@ static void geoip_path_free_cb(void* p) {
  */
 void
 geoip_init(void) {
-	int i;
+	guint i;
 	static uat_field_t geoip_db_paths_fields[] = {
 		UAT_FLD_CSTRING(geoip_mod, path, "The database path"),
 		UAT_END_FIELDS
