@@ -42,7 +42,7 @@
 
 
 static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, 
-					  gboolean protocols_only);
+                                          gboolean protocols_only);
 static void autocomplete_protocol_string(GtkWidget  *filter_te, gchar* selected_str);
 static void autoc_filter_row_activated_cb(GtkTreeView *treeview, 
                       GtkTreePath *path, 
@@ -63,8 +63,8 @@ static gboolean is_protocol_name_being_typed(GtkWidget *filter_te, int str_len);
 /*
  * Check if the string at the cursor position is a beginning of a protocol name.
  * Possible false positives:
- * 	"NOT" at the beginning of the display filter editable text.
- * 	"NOT" adjacent to another logical operation. (e.g: exp1 AND NOT exp2).
+ *      "NOT" at the beginning of the display filter editable text.
+ *      "NOT" adjacent to another logical operation. (e.g: exp1 AND NOT exp2).
  **/
 static gboolean
 is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
@@ -74,9 +74,9 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   gchar *start;
   gchar *pos;
   static gchar *logic_ops[] = { "!", "not",
-				"||", "or",
-				"&&", "and",
-				"^^", "xor" };
+                                "||", "or",
+                                "&&", "and",
+                                "^^", "xor" };
   
   /* If the cursor is located at the beginning of the filter editable text,
    * then it's _probably_ a protocol name.
@@ -94,14 +94,14 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
     if(*pos != ' ' && *pos != '(') {
       /* Check if we have one of the logical operations */
       for(i = 0; i < (sizeof(logic_ops)/sizeof(logic_ops[0])); i++) {
-	op_len = strlen(logic_ops[i]);
-	
-	if(pos-start+1 < op_len)
-	  continue;
-	
-	/* If one of the logical operations is found, then the current string is _probably_ a protocol name */
-	if(!strncmp(pos-op_len+1, logic_ops[i], op_len))
-	  return TRUE;
+        op_len = strlen(logic_ops[i]);
+        
+        if(pos-start+1 < op_len)
+          continue;
+        
+        /* If one of the logical operations is found, then the current string is _probably_ a protocol name */
+        if(!strncmp(pos-op_len+1, logic_ops[i], op_len))
+          return TRUE;
       }
 
       /* If none of the logical operations was found, then the current string is not a protocol */
@@ -256,10 +256,10 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
 
       if( !g_ascii_strncasecmp(str, curr_str, str_len) ) {
         loop = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
-	if (strlen(curr_str) == str_len) {
-	  exact_match = TRUE;
-	}
-	count++;
+        if (strlen(curr_str) == str_len) {
+          exact_match = TRUE;
+        }
+        count++;
       } else {
         loop = gtk_list_store_remove(store, &iter);
       }
@@ -359,7 +359,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       gchar* name_with_period;
 
       if (popup_win) {
-	gtk_widget_destroy (popup_win);
+        gtk_widget_destroy (popup_win);
       }
 
       name_with_period = g_strconcat(prefix, event->string, NULL);
@@ -367,7 +367,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
       if(name_with_period)
-	g_free (name_with_period);
+        g_free (name_with_period);
     }
     if(prefix_start)
       g_free(prefix_start);
@@ -441,7 +441,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       }
 
       if(prefix_start)
-	g_free(prefix_start);
+        g_free(prefix_start);
 
       /* stop event propagation */
       return TRUE;
@@ -462,7 +462,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       }
 
       if(prefix_start)
-	g_free(prefix_start);
+        g_free(prefix_start);
 
       /* stop event propagation */
       return TRUE;
@@ -477,15 +477,15 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       if(gtk_tree_selection_get_selected(selection, &model, &iter) ) {
         gchar *value;
 
-	/* Do not autocomplete protocols with space yet, because we can be in
-	 * a operator or a value field.
-	 **/
-	if(k != GDK_space || strchr(prefix, '.')) {
-	  /* Use chosen string */
-	  gtk_tree_model_get(model, &iter, 0, &value,  -1);
-	  autocomplete_protocol_string(filter_te, value);
-	  g_free(value);
-	}
+        /* Do not autocomplete protocols with space yet, because we can be in
+         * a operator or a value field.
+         **/
+        if(k != GDK_space || strchr(prefix, '.')) {
+          /* Use chosen string */
+          gtk_tree_model_get(model, &iter, 0, &value,  -1);
+          autocomplete_protocol_string(filter_te, value);
+          g_free(value);
+        }
       }
 
       /* Lose popup */
@@ -523,19 +523,83 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   return FALSE;
 }
 
+/*
+ * In my implementation, I'm looking for fields that match the protocol name in the whole fields list
+ * and not only restrict the process by returning all the fields of the protocol that match the prefix using
+ * 'proto_get_id_by_filter_name(protocol_name)'; because I have noticed that some of the fields
+ * have a prefix different than its parent protocol; for example SIP protocol had this field raw_sip.line despite
+ * that there is a protocol called RAW_SIP which it should be associated with it.
+ * so the unorganized fields and nonexistent of a standardized protocols and fields naming rules prevent me from
+ * implementing the autocomplete in an optimized way.
+ **/
+static gboolean
+build_autocompletion_list(GtkWidget *treeview, const gchar *protocol_name, gboolean protocols_only)
+{
+  void *cookie, *cookie2;
+  protocol_t *protocol;
+  unsigned int protocol_name_len;
+  header_field_info *hfinfo;
+  gint count = 0;
+  gboolean exact_match = FALSE;
+  int i;
+
+  protocol_name_len = strlen(protocol_name);
+
+  /* Walk protocols list */
+  for (i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie)) {
+
+    protocol = find_protocol_by_id(i);
+
+    if (!proto_is_protocol_enabled(protocol))
+      continue;
+
+    if (protocols_only) {
+      const gchar *name = proto_get_protocol_filter_name (i);
+
+      if (!g_ascii_strncasecmp(protocol_name, name, protocol_name_len)) {
+        add_to_autocompletion_list(treeview, name);
+        if (strlen(name) == protocol_name_len) {
+          exact_match = TRUE;
+        }
+        count++;
+      }
+    } else {
+      hfinfo = proto_registrar_get_nth(i);
+
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
+           hfinfo != NULL;
+           hfinfo = proto_get_next_protocol_field(&cookie2)) 
+      {
+        if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+          continue;
+
+        if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len)) {
+          add_to_autocompletion_list(treeview, hfinfo->abbrev);
+          if (strlen(hfinfo->abbrev) == protocol_name_len) {
+            exact_match = TRUE;
+          }
+          count++;
+        }
+      }
+    }
+  }
+
+  /* Don't show an empty autocompletion-list or
+   * an autocompletion-list with only one entry with exact match 
+   **/
+  if (count == 0 || (count == 1 && exact_match))
+    return FALSE;
+
+  return TRUE;
+}
+
 static GtkWidget *
 filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only)
 {
   GtkWidget *popup_win;
   GtkWidget *treeview;
   GtkWidget *filter_sc;
-  void *cookie, *cookie2;
-  protocol_t *protocol;
-  int i;
-  unsigned int protocol_name_len;
-  header_field_info *hfinfo;
-  gint x_pos, y_pos, count = 0;
-  gboolean exact_match = FALSE;
+  gint x_pos, y_pos;
   GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkSortType order;
@@ -560,61 +624,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   init_autocompletion_list(treeview);
   g_object_set_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY, treeview);
 
-  /*
-   * In my implementation, I'm looking for fields that match the protocol name in the whole fields list
-   * and not only restrict the process by returning all the fields of the protocol that match the prefix using
-   * 'proto_get_id_by_filter_name(protocol_name)'; because I have noticed that some of the fields
-   * have a prefix different than its parent protocol; for example SIP protocol had this field raw_sip.line despite
-   * that there is a protocol called RAW_SIP which it should be associated with it.
-   * so the unorganized fields and nonexistent of a standardized protocols and fields naming rules prevent me from
-   * implementing the autocomplete in an optimized way.
-   **/
-  protocol_name_len = strlen(protocol_name);
-
-  /* Walk protocols list */
-  for (i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie)) {
-
-    protocol = find_protocol_by_id(i);
-
-    if (!proto_is_protocol_enabled(protocol))
-      continue;
-
-    if (protocols_only) {
-      const gchar *name = proto_get_protocol_filter_name (i);
-
-      if (!g_ascii_strncasecmp(protocol_name, name, protocol_name_len)) {
-	add_to_autocompletion_list(treeview, name);
-	if (strlen(name) == protocol_name_len) {
-	  exact_match = TRUE;
-	}
-	count++;
-      }
-    } else {
-      hfinfo = proto_registrar_get_nth(i);
-
-      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
-	   hfinfo != NULL;
-	   hfinfo = proto_get_next_protocol_field(&cookie2)) 
-	{
-	  if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-	    continue;
-
-	  if(!g_ascii_strncasecmp(protocol_name, hfinfo->abbrev, protocol_name_len)) {
-	    add_to_autocompletion_list(treeview, hfinfo->abbrev);
-	    if (strlen(hfinfo->abbrev) == protocol_name_len) {
-	      exact_match = TRUE;
-	    }
-	    count++;
-	  }
-	}
-    }
-  }
-
-  /* Don't show an autocompletion-list with only one entry with exact match */
-  /* Don't show an empty autocompletion-list */
-  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
-  if ((count == 1 && exact_match) || 
-      !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+  /* Build list */
+  if (!build_autocompletion_list(treeview, protocol_name, protocols_only)) {
     gtk_widget_destroy(popup_win);
     return NULL;
   }
@@ -632,6 +643,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   g_signal_connect(popup_win, "destroy", G_CALLBACK(filter_autocomplete_win_destroy_cb), NULL);
 
   /* Select first entry */
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
   gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
   gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
@@ -660,10 +672,6 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
   GtkRequisition requisition;
   GtkTreeIter iter;
 
-  void *cookie, *cookie2;
-  protocol_t *protocol;
-  int i;
-  header_field_info *hfinfo;
   gint prefix_len;
   gboolean protocols_only = FALSE;
 
@@ -684,35 +692,11 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
   store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
   gtk_list_store_clear(store);
 
-  /* Look through enabled protocols for matching fields to show in list */
-  for (i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie)) {
-
-    protocol = find_protocol_by_id(i);
-
-    if (!proto_is_protocol_enabled(protocol))
-      continue;
-
-    if (protocols_only) {
-      const gchar *name = proto_get_protocol_filter_name (i);
-
-      if (!g_ascii_strncasecmp(prefix, name, prefix_len))
-	add_to_autocompletion_list(list, name);
-    } else {
-      hfinfo = proto_registrar_get_nth(i);
-
-      /* Try all fields in this protocol */
-      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
-	   hfinfo != NULL;
-	   hfinfo = proto_get_next_protocol_field(&cookie2)) 
-      {
-	if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-	  continue;
-
-	/* Add if prefix matches */
-	if(!g_ascii_strncasecmp(prefix, hfinfo->abbrev, prefix_len))
-	  add_to_autocompletion_list(list, hfinfo->abbrev);
-      }
-    }
+  /* Build new list */
+  if (!build_autocompletion_list(list, prefix, protocols_only)) {
+    gtk_widget_destroy(popup_win);
+    g_object_set_data(G_OBJECT(main_win), E_FILT_AUTOCOMP_PTR_KEY, NULL);
+    return;
   }
 
   /* Select first entry */
