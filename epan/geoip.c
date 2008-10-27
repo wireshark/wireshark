@@ -220,6 +220,33 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr) {
 	return "Invalid database";
 }
 
+gchar *
+geoip_get_paths(void) {
+	GString* path_str = NULL;
+	gchar *path_ret;
+	char path_separator;
+	guint i;
+
+	path_str = g_string_new("");
+#ifdef _WIN32
+	path_separator = ';';
+#else
+	path_separator = ':';
+#endif
+
+	for (i = 0; i < num_geoip_db_paths; i++) {
+		if (geoip_db_paths[i].path) {
+			g_string_append_printf(path_str, "%s%c", geoip_db_paths[i].path, path_separator);
+		}
+	}
+
+	g_string_truncate(path_str, path_str->len-1);
+	path_ret = path_str->str;
+	g_string_free(path_str, FALSE);
+
+	return path_ret;
+}
+
 #else /* HAVE_GEOIP */
 void
 geoip_init(void) {}
@@ -236,6 +263,11 @@ geoip_db_name(guint dbnum _U_) {
 
 const char *
 geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_) {
+	return "";
+}
+
+gchar *
+geoip_get_paths(void) {
 	return "";
 }
 

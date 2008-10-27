@@ -56,4 +56,11 @@ const gchar *geoip_db_name(guint dbnum);
  */
 const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr);
 
+/**
+ * Get all configured paths
+ *
+ * @return String with all paths separated by a path separator
+ */
+extern gchar *geoip_get_paths(void);
+
 #endif /* __GEOIP_H__ */

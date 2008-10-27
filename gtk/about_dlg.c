@@ -35,6 +35,9 @@
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif
+#ifdef HAVE_GEOIP
+#include <epan/geoip.h>
+#endif
 
 #include "../globals.h"
 #include "../log.h"
@@ -362,7 +365,7 @@ about_folders_page_new(void)
   char *path;
   const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
-#ifdef HAVE_LIBSMI
+#if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
   gint i;
   gchar **resultArray;
 #endif
@@ -423,6 +426,23 @@ about_folders_page_new(void)
   /* global plugins */
   about_folders_row(table, "Global Plugins", get_plugin_dir(),
       "dissector plugins");
+#endif
+
+#ifdef HAVE_GEOIP
+  /* GeoIP */
+  path = geoip_get_paths();
+
+#ifdef _WIN32
+  resultArray = g_strsplit(path, ";", 10);
+#else
+  resultArray = g_strsplit(path, ":", 10);
+#endif
+
+  for(i = 0; resultArray[i]; i++)
+    about_folders_row(table, "GeoIP path", g_strstrip(resultArray[i]),
+		      "GeoIP database search path");
+  g_strfreev(resultArray);
+  g_free((void *) path);
 #endif
 
 #ifdef HAVE_LIBSMI
