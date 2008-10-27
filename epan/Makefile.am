@@ -48,7 +48,8 @@ libwireshark_la_LDFLAGS = -version-info 0:1:0 @LDFLAGS_SHAREDLIB@
 include Makefile.common
 
 INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) @LUA_INCLUDES@ \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS)
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) \
+	$(LIBGEOIP_CFLAGS)
 
 
 if HAVE_WARNINGS_AS_ERRORS
@@ -128,7 +129,7 @@ libwireshark_la_LIBADD = \
 	dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
-	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ \
+	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
 	${top_builddir}/wsutil/libwsutil.la -lm
 
 libwireshark_la_DEPENDENCIES = \

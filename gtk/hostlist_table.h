@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,6 +42,14 @@ typedef struct _hostlist_talker_t {
 	guint64 tx_bytes;       /**< number of transmitted bytes */
 } hostlist_talker_t;
 
+#define NUM_BUILTIN_COLS 8
+#ifdef HAVE_GEOIP
+# define NUM_GEOIP_COLS 8
+#else
+# define NUM_GEOIP_COLS 0
+#endif
+#define NUM_HOSTLIST_COLS (NUM_BUILTIN_COLS + NUM_GEOIP_COLS)
+
 /** Hostlist widget */
 typedef struct _hostlist_table {
 	const char          *name;              /**< the name of the table */
@@ -53,7 +61,7 @@ typedef struct _hostlist_table {
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
 	guint32             num_columns;        /**< number of columns in the above table */
-	const char          *default_titles[8]; /**< Column headers */
+	const char          *default_titles[NUM_HOSTLIST_COLS]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_hosts;          /**< number of hosts (0 or 1) */

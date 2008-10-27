@@ -45,28 +45,48 @@
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"
 #define T_RESOLVE_KEY	"t_resolve"
+
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 # define C_RESOLVE_KEY	"c_resolve"
 # define RESOLVE_CONCURRENCY_KEY "resolve_concurrency"
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
+
 #ifdef HAVE_LIBSMI
-#define SP_RESOLVE_KEY	"sp_resolve"
-#define SM_RESOLVE_KEY	"sm_resolve"
-#endif
+# define SP_RESOLVE_KEY	"sp_resolve"
+# define SM_RESOLVE_KEY	"sm_resolve"
+#endif /* HAVE_LIBSMI */
+
+#ifdef HAVE_GEOIP
+# define GEOIP_RESOLVE_KEY "geoip_resolve"
+#endif /* HAVE_GEOIP */
+
+#define BASE_TABLE_ROWS 3
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
-# ifdef HAVE_LIBSMI
-#  define RESOLV_TABLE_ROWS 7
-# else
-#  define RESOLV_TABLE_ROWS 5
-# endif
+# define ASYNC_TABLE_ROWS 2
 #else
-# ifdef HAVE_LIBSMI
-#  define RESOLV_TABLE_ROWS 5
-# else
-#  define RESOLV_TABLE_ROWS 3
-# endif
-#endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
+# define ASYNC_TABLE_ROWS 0
+#endif
+
+#ifdef HAVE_LIBSMI
+# define SMI_TABLE_ROWS 2
+#else
+# define SMI_TABLE_ROWS 0
+#endif
+
+#ifdef HAVE_GEOIP
+# define GEOIP_TABLE_ROWS 1
+#else
+# define GEOIP_TABLE_ROWS 0
+#endif
+
+#define RESOLV_TABLE_ROWS (\
+	BASE_TABLE_ROWS + \
+	ASYNC_TABLE_ROWS + \
+	SMI_TABLE_ROWS + \
+	GEOIP_TABLE_ROWS \
+	)
+
 GtkWidget*
 nameres_prefs_show(void)
 {
@@ -79,9 +99,13 @@ nameres_prefs_show(void)
 	char		concur_str[10+1];
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
-	GtkWidget	*sp_resolv_cb, *sm_resolv_cb;
+	GtkWidget	*sp_resolv_bt, *sm_resolv_bt;
 	uat_t *smi_paths_uat;
 	uat_t *smi_modules_uat;
+#endif
+#ifdef HAVE_GEOIP
+	GtkWidget	*geoip_resolv_bt;
+	uat_t		*geoip_db_paths_uat;
 #endif
 	/*
 	 * XXX - it would be nice if the current setting of the resolver
@@ -147,26 +171,43 @@ nameres_prefs_show(void)
 	smi_paths_uat = uat_get_table_by_name("SMI Paths");
 	if (smi_paths_uat) {
 		table_row++;
-		sp_resolv_cb = create_preference_uat(main_tb, table_row,
+		sp_resolv_bt = create_preference_uat(main_tb, table_row,
 		    "SMI (MIB and PIB) paths",
                     "Search paths for SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_paths_uat);
-		g_object_set_data(G_OBJECT(main_vb), SP_RESOLVE_KEY, sp_resolv_cb);
+		g_object_set_data(G_OBJECT(main_vb), SP_RESOLVE_KEY, sp_resolv_bt);
 	}
 
 	/* SMI modules UAT */
 	smi_modules_uat = uat_get_table_by_name("SMI Modules");
 	if (smi_modules_uat) {
 		table_row++;
-		sm_resolv_cb = create_preference_uat(main_tb, table_row,
+		sm_resolv_bt = create_preference_uat(main_tb, table_row,
 		    "SMI (MIB and PIB) modules",
                     "List of enabled SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_modules_uat);
-		g_object_set_data(G_OBJECT(main_vb), SM_RESOLVE_KEY, sm_resolv_cb);
+		g_object_set_data(G_OBJECT(main_vb), SM_RESOLVE_KEY, sm_resolv_bt);
 	}
-#endif
+#endif /* HAVE_LIBSMI */
+
+#ifdef HAVE_GEOIP
+	/* GeoIP databases http://www.maxmind.com/app/api */
+	geoip_db_paths_uat = uat_get_table_by_name("GeoIP Database Paths");
+g_warning("gdu: %p", geoip_db_paths_uat);
+	if (geoip_db_paths_uat) {
+		table_row++;
+		geoip_resolv_bt = create_preference_uat(main_tb, table_row,
+		    "GeoIP database search paths",
+		    "Paths to GeoIP address mapping databases. Database\n"
+		    "names must begin with \"Geo\" and in with \".dat\".\n"
+		    "You must restart Wireshark for these changes to take\n"
+		    "effect.",
+                    geoip_db_paths_uat);
+		g_object_set_data(G_OBJECT(main_vb), GEOIP_RESOLVE_KEY, geoip_resolv_bt);
+	}
+#endif /* HAVE_GEOIP */
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -182,7 +223,10 @@ nameres_prefs_fetch(GtkWidget *w)
 	GtkWidget *c_resolv_cb, *resolv_concurrency_te;
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
-	GtkWidget *sp_resolv_cb, *sm_resolv_cb;
+	GtkWidget *sp_resolv_bt, *sm_resolv_bt;
+#endif
+#ifdef HAVE_GEOIP
+	GtkWidget *geoip_resolv_bt;
 #endif
 
 	m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), M_RESOLVE_KEY);
@@ -194,8 +238,11 @@ nameres_prefs_fetch(GtkWidget *w)
 	resolv_concurrency_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), RESOLVE_CONCURRENCY_KEY);
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
-	sp_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SP_RESOLVE_KEY);
-	sm_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SM_RESOLVE_KEY);
+	sp_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), SP_RESOLVE_KEY);
+	sm_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), SM_RESOLVE_KEY);
+#endif
+#ifdef HAVE_GEOIP
+	geoip_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), GEOIP_RESOLVE_KEY);
 #endif
 
 	prefs.name_resolve = RESOLV_NONE;

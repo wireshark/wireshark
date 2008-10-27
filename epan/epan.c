@@ -59,6 +59,10 @@
 	int wslua_init(void*);
 #endif
 
+#ifdef HAVE_GEOIP
+#include "geoip.h"
+#endif
+
 gchar*
 epan_get_version(void) {
   return VERSION;
@@ -101,6 +105,9 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	oids_init();
 #ifdef HAVE_LUA_5_1
 	wslua_init(NULL);
+#endif
+#ifdef HAVE_GEOIP
+	geoip_init();
 #endif
 
 }

@@ -1293,6 +1293,31 @@ else
 fi
 AC_SUBST(ADNS_LIBS)
 
+dnl GEOIP Check
+GEOIP_LIBS=''
+AC_MSG_CHECKING(whether to use the GeoIP IP address mapping library if available)
+
+AC_ARG_WITH(geoip,
+  AC_HELP_STRING( [--with-geoip@<:@=DIR@:>@],
+                  [use GeoIP (located in directory DIR, if supplied).   @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_geoip=no
+elif test "x$withval" = "xyes"; then
+	want_geoip=yes
+elif test -d "$withval"; then
+	want_geoip=yes
+	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$want_geoip" = "xno"; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_GEOIP_CHECK
+fi
+AC_SUBST(GEOIP_LIBS)
+
 #
 # Define WS_VAR_IMPORT appropriately for declarations of external
 # variables exported from dynamically-linked libraries.

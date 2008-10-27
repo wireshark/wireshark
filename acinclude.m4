@@ -1542,6 +1542,36 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 ])
 
 #
+# AC_WIRESHARK_GEOIP_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
+[
+	want_geoip=defaultyes
+
+	if test "x$want_geoip" = "xdefaultyes"; then
+		want_geoip=yes
+		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+			withval=/usr/local
+			if test -d "$withval"; then
+				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			fi
+		fi
+	fi
+
+	if test "x$want_geoip" = "xyes"; then
+		AC_CHECK_LIB(GeoIP, GeoIP_new,
+		  [
+		    GEOIP_LIBS=-lGeoIP
+	    	AC_DEFINE(HAVE_GEOIP, 1, [Define to use GeoIP library])
+		have_good_geoip=yes
+		  ],,
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])
+
+#
 # AC_WIRESHARK_GCC_CFLAGS_CHECK
 #
 # $1 : cflags to test

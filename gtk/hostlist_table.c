@@ -38,6 +38,9 @@
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#ifdef HAVE_GEOIP
+#include <epan/geoip.h>
+#endif
 
 #include "../simple_dialog.h"
 #include "../globals.h"
@@ -56,7 +59,6 @@
 #include "image/clist_descend.xpm"
 
 
-#define NUM_COLS 8
 #define HOST_PTR_KEY "hostlist-pointer"
 #define NB_PAGES_KEY "notebook-pages"
 
@@ -240,40 +242,37 @@ hostlist_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static gint
 hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
-	char *text1 = NULL;
-	char *text2 = NULL;
-	guint64 i1, i2;
+    char *text1 = NULL;
+    char *text2 = NULL;
+    guint64 i1, i2;
 
-	const GtkCListRow *row1 = ptr1;
-	const GtkCListRow *row2 = ptr2;
+    const GtkCListRow *row1 = ptr1;
+    const GtkCListRow *row2 = ptr2;
 
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
+    text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
+    text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
-	switch(clist->sort_column){
-	case 0: /* Address */
-	case 1: /* (Port) */
-		return strcmp (text1, text2);
-	case 2: /* Packets */
-	case 3: /* Bytes */
-	case 4: /* Tx Packets */
-	case 5: /* Tx Bytes */
-	case 6: /* Rx Packets */
-	case 7: /* Rx Bytes */
-		sscanf(text1, "%" G_GINT64_MODIFIER "u", &i1);
-		sscanf(text2, "%" G_GINT64_MODIFIER "u", &i2);
-        /* XXX - this might cause trouble because of overflow problems */
-        /* XXX - is this correct anyway? Subtracting two unsigned values will still be an unsigned value, which will never become negative */
-		return (gint) (i1-i2);
-	}
-	g_assert_not_reached();
+    if (clist->sort_column < 2 || clist->sort_column > 7) { /* Integers */
+        sscanf(text1, "%" G_GINT64_MODIFIER "u", &i1);
+        sscanf(text2, "%" G_GINT64_MODIFIER "u", &i2);
+        if (i1 > i2) {
+            return 1;
+        } else if (i1 < i2) {
+            return -1;
+        } else {
+            return 0;
+        }
+    } else { /* Strings */
+        return strcmp (text1, text2);
+    }
+    g_assert_not_reached();
 
-	/* Allow clist to redraw */
+    /* Allow clist to redraw */
 
-	gtk_clist_thaw(clist);
-	gtk_clist_freeze(clist);
+    gtk_clist_thaw(clist);
+    gtk_clist_freeze(clist);
 
-	return 0;
+    return 0;
 }
 
 static void
@@ -282,7 +281,7 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
 
-	for (i = 0; i < NUM_COLS; i++) {
+	for (i = 0; i < NUM_HOSTLIST_COLS; i++) {
 		gtk_widget_hide(col_arrows[i].ascend_pm);
 		gtk_widget_hide(col_arrows[i].descend_pm);
 	}
@@ -444,7 +443,7 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
     else
         entry=get_addr_name(&hl->hosts[hostlist_idx].address);
 
-		gtk_clist_set_text(hl->table, rownum, 0, entry);
+    gtk_clist_set_text(hl->table, rownum, 0, entry);
 
     pt = hl->hosts[hostlist_idx].port_type;
     if(!hl->resolve_names) pt = PT_NONE;
@@ -583,22 +582,33 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 static gboolean
 init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
-    int i;
+    guint i;
     column_arrows *col_arrows;
     GtkStyle *win_style;
     GtkWidget *column_lb;
     GString *error_string;
     char title[256];
 
-    hosttable->num_columns=NUM_COLS;
-    hosttable->default_titles[0] = "Address";
-    hosttable->default_titles[1] = "Port";
-    hosttable->default_titles[2] = "Packets";
-    hosttable->default_titles[3] = "Bytes";
-    hosttable->default_titles[4] = "Tx Packets";
-    hosttable->default_titles[5] = "Tx Bytes";
-    hosttable->default_titles[6] = "Rx Packets";
-    hosttable->default_titles[7] = "Rx Bytes";
+    hosttable->num_columns=NUM_HOSTLIST_COLS;
+    hosttable->default_titles[0]  = "Address";
+    hosttable->default_titles[1]  = "Port";
+    hosttable->default_titles[2]  = "Packets";
+    hosttable->default_titles[3]  = "Bytes";
+    hosttable->default_titles[4]  = "Tx Packets";
+    hosttable->default_titles[5]  = "Tx Bytes";
+    hosttable->default_titles[6]  = "Rx Packets";
+    hosttable->default_titles[7]  = "Rx Bytes";
+
+#ifdef HAVE_GEOIP
+    for (i = 0; i < NUM_GEOIP_COLS; i++) {
+        if (i < geoip_num_dbs()) {
+            hosttable->default_titles[NUM_BUILTIN_COLS + i]  = geoip_db_name(i);
+        } else {
+            hosttable->default_titles[NUM_BUILTIN_COLS + i]  = "";
+        }
+    }
+#endif /* HAVE_GEOIP */
+
     if (strcmp(table_name, "NCP")==0) {
         hosttable->default_titles[1] = "Connection";
     }
@@ -615,11 +625,11 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->scrolled_window=scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), hosttable->scrolled_window, TRUE, TRUE, 0);
 
-    hosttable->table=(GtkCList *)gtk_clist_new(NUM_COLS);
+    hosttable->table=(GtkCList *)gtk_clist_new(NUM_HOSTLIST_COLS);
 
-    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
+    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_HOSTLIST_COLS);
     win_style = gtk_widget_get_style(hosttable->scrolled_window);
-    for (i = 0; i < NUM_COLS; i++) {
+    for (i = 0; i < NUM_HOSTLIST_COLS; i++) {
         col_arrows[i].table = gtk_table_new(2, 2, FALSE);
         gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
         column_lb = gtk_label_new(hosttable->default_titles[i]);
@@ -643,7 +653,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     gtk_clist_set_sort_column(hosttable->table, 4);
     gtk_clist_set_sort_type(hosttable->table, GTK_SORT_DESCENDING);
 
-    for (i = 0; i < NUM_COLS; i++) {
+    for (i = 0; i < NUM_HOSTLIST_COLS; i++) {
         gtk_clist_set_column_auto_resize(hosttable->table, i, TRUE);
     }
 
@@ -660,6 +670,13 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     if(hide_ports){
         gtk_clist_set_column_visibility(hosttable->table, 1, FALSE);
     }
+
+#ifdef HAVE_GEOIP
+    /* Hide all of the GeoIP columns initially */
+    for (i = 0; i < NUM_GEOIP_COLS; i++) {
+        gtk_clist_set_column_visibility(hosttable->table, NUM_BUILTIN_COLS + i, FALSE);
+    }
+#endif /* HAVE_GEOIP */
 
     /* create popup menu for this table */
     hostlist_create_popup_menu(hosttable);
@@ -927,8 +944,9 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     while(current_table) {
         registered = current_table->data;
         page_lb = gtk_label_new("");
-        hosttable = init_hostlist_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
-            registered->filter, registered->packet_func);
+        hosttable = init_hostlist_notebook_page_cb(registered->hide_ports,
+                registered->table_name, registered->tap_name,
+                registered->filter, registered->packet_func);
         g_object_set_data(G_OBJECT(hosttable->win), HOST_PTR_KEY, hosttable);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), hosttable->win, page_lb);
         hosttable->win = win;
@@ -1057,8 +1075,12 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 
     /* if this was a new talker we have to create a clist row for it */
     if(new_talker){
-        char *entries[NUM_COLS];
+        char *entries[NUM_HOSTLIST_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
+#ifdef HAVE_GEOIP
+        char geoip[NUM_GEOIP_COLS][16];
+        guint i;
+#endif /* HAVE_GEOIP */
 
         /* these values will be filled by call to draw_hostlist_table_addresses() below */
         entries[0]="";
@@ -1078,6 +1100,19 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         entries[6]=rxframes;
         g_snprintf(rxbytes, 16, "%" G_GINT64_MODIFIER "u", talker->rx_bytes);
         entries[7]=rxbytes;
+
+#ifdef HAVE_GEOIP
+        /* Filled in from the GeoIP config, if any */
+        for (i = 0; i < NUM_GEOIP_COLS; i++) {
+            if (i < geoip_num_dbs() && talker->address.type == AT_IPv4) {
+                g_snprintf(geoip[i], 16, "%s", geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data));
+                entries[NUM_BUILTIN_COLS + i] = geoip[i];
+                gtk_clist_set_column_visibility(hl->table, NUM_BUILTIN_COLS + i, TRUE);
+            } else {
+                entries[NUM_BUILTIN_COLS + i] = "";
+            }
+        }
+#endif /* HAVE_GEOIP */
 
         gtk_clist_insert(hl->table, talker_idx, entries);
         gtk_clist_set_row_data(hl->table, talker_idx, (gpointer)(long) talker_idx);
