@@ -154,8 +154,8 @@ geoip_init(void) {
 	}
 
 	for (i = 0; i < num_geoip_db_paths; i++) {
-		if (geoip_db_paths_fields[i].path) {
-			geoip_dat_scan_dir(geoip_db_paths_fields[i].path);
+		if (geoip_db_paths[i].path) {
+			geoip_dat_scan_dir(geoip_db_paths[i].path);
 		}
 	}
 
