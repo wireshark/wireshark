@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-
+#include <epan/crc32.h>
 
 /*
   RTP header
@@ -107,6 +107,8 @@ static int hf_zrtp_msg_error = -1;
   Checksum Data
 */
 static int hf_zrtp_checksum = -1;
+static int hf_zrtp_checksum_good = -1;
+static int hf_zrtp_checksum_bad = -1;
 
 /*
   Sub-Tree
@@ -123,6 +125,7 @@ static gint ett_zrtp_msg_ac = -1;
 static gint ett_zrtp_msg_cc = -1;
 static gint ett_zrtp_msg_sc = -1;
 
+static gint ett_zrtp_checksum = -1;
 
 /*
   Definitions
@@ -136,6 +139,7 @@ static gint ett_zrtp_msg_sc = -1;
 #define ZRTP_ERR_53 0x53
 #define ZRTP_ERR_54 0x54
 #define ZRTP_ERR_55 0x55
+#define ZRTP_ERR_56 0x56
 #define ZRTP_ERR_61 0x61
 #define ZRTP_ERR_62 0x62
 #define ZRTP_ERR_63 0x63
@@ -143,6 +147,7 @@ static gint ett_zrtp_msg_sc = -1;
 #define ZRTP_ERR_80 0x80
 #define ZRTP_ERR_90 0x90
 #define ZRTP_ERR_A0 0xA0
+#define ZRTP_ERR_100 0x100
 
 /*
   Text for Display
@@ -175,8 +180,9 @@ const value_string_keyval zrtp_hash_type_vals[] =
 
 const value_string_keyval zrtp_cipher_type_vals[] =
   {
-    { "AES1",	"AES-CM with 128 bit Keys"},
-    { "AES3",	"AES-CM with 256 bit Keys"},
+    { "AES1",	"AES-CM with 128 bit keys"},
+    { "AES2",	"AES-CM with 192 bit keys"},
+    { "AES3",	"AES-CM with 256 bit keys"},
     { NULL,		NULL }
   };
 
@@ -196,6 +202,7 @@ const value_string_keyval zrtp_sas_type_vals[] =
 
 const value_string_keyval zrtp_key_agreement_vals[] =
   {
+    { "DH2k",	"DH mode with p=2048 bit prime"},
     { "DH3k",	"DH mode with p=3072 bit prime"},
     { "DH4k",	"DH mode with p=4096 bit prime"},
     { "Prsh",	"Preshared non-DH mode using shared secret"},
@@ -217,6 +224,7 @@ const value_string zrtp_error_vals[] =
     { ZRTP_ERR_53, "Public key exchange not supported"},
     { ZRTP_ERR_54, "SRTP auth. tag not supported"},
     { ZRTP_ERR_55, "SAS scheme not supported"},
+    { ZRTP_ERR_56, "No shared secret available, DH mode required"},
     { ZRTP_ERR_61, "DH Error: bad pv for initiator/responder value is (1,0,p-1)"},
     { ZRTP_ERR_62, "DH Error: bad hash commitment (hvi != hashed data)"},
     { ZRTP_ERR_63, "Received relayed SAS from untrusted MiTM"},
@@ -224,6 +232,7 @@ const value_string zrtp_error_vals[] =
     { ZRTP_ERR_80, "Nonce is reused"},
     { ZRTP_ERR_90, "Equal ZID's in Hello"},
     { ZRTP_ERR_A0, "Service unavailable"},
+    { ZRTP_ERR_100, "GoClear packet received, but not allowed"},
     { 0, NULL}
   };
 
@@ -285,12 +294,14 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree   *zrtp_tree;
   proto_tree   *zrtp_msg_tree;
   proto_tree   *zrtp_msg_data_tree;
+  proto_tree   *checksum_tree;
   proto_item   *ti;
   int          linelen;
   int          checksum_offset;
   unsigned char message_type[9];
   unsigned int prime_offset = 0;
   unsigned int msg_offset = 12;
+  guint32      sent_crc, calc_crc;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZRTP");
@@ -375,7 +386,27 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_RelayACK(pinfo);
     }
 
-    proto_tree_add_item(zrtp_tree,hf_zrtp_checksum,tvb,msg_offset+checksum_offset,4,FALSE);
+    sent_crc = tvb_get_ntohl(tvb,msg_offset+checksum_offset);
+    calc_crc = ~calculate_crc32c(tvb_get_ptr(tvb,0,msg_offset+checksum_offset),msg_offset+checksum_offset,CRC32C_PRELOAD);
+
+    if (sent_crc == calc_crc) {
+      ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
+                                           "0x%04x [correct]", sent_crc);
+      checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
+      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, TRUE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+    } else {
+      ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
+                                      "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
+      checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
+      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, FALSE);
+      PROTO_ITEM_SET_GENERATED(ti);
+      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, TRUE);
+      PROTO_ITEM_SET_GENERATED(ti);
+    }
+
 }
 
 static void
@@ -490,7 +521,7 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pbxs,tvb,data_offset+24,8,FALSE);
   linelen = tvb_reported_length_remaining(tvb,data_offset+32);
   pvr_len = linelen-8-4;
-  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,"pvr/nouncer Data");
+  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,(part==1)?"pvr Data":"pvi Data");
   zrtp_msg_pvr_tree = proto_item_add_subtree(ti,ett_zrtp_msg_pvr);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+32+pvr_len,8,FALSE);
 }
@@ -540,7 +571,7 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tvb_memcpy(tvb,(void *)value,data_offset+28,4);
   value[4]=0;
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_sas,tvb,data_offset+28,4,value,
-				  "Sas type: %s",key_to_val(value,4,zrtp_sas_type_vals,"Unknown sas type %s"));
+				  "SAS type: %s",key_to_val(value,4,zrtp_sas_type_vals,"Unknown SAS type %s"));
 
   switch(key_type){
   case 1: /* 
@@ -652,13 +683,13 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 				    "Key agreement[%d]: %s",i,key_to_val(value,4,zrtp_key_agreement_vals,"Unknown key agreement %s"));
     run_offset+=4;
   }
-  ti=proto_tree_add_uint_format(zrtp_tree,hf_zrtp_msg_sas_count,tvb,data_offset+3,1,sc,"Sas type count = %d",vsc);
+  ti=proto_tree_add_uint_format(zrtp_tree,hf_zrtp_msg_sas_count,tvb,data_offset+3,1,sc,"SAS type count = %d",vsc);
   tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_sc);  
   for(i=0;i<vsc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
     value[4]=0;
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_sas,tvb,run_offset,4,value,
-				    "Sas type[%d]: %s",i,key_to_val(value,4,zrtp_sas_type_vals,"Unknown sas type %s"));
+				    "SAS type[%d]: %s",i,key_to_val(value,4,zrtp_sas_type_vals,"Unknown SAS type %s"));
     run_offset+=4;
   }
 
@@ -977,6 +1008,24 @@ proto_register_zrtp(void)
      }
     },
 
+    {&hf_zrtp_checksum_good,
+     {
+       "Good", "zrtp.checksum_good",
+       FT_BOOLEAN, BASE_NONE,
+       NULL, 0x0,
+       "True: checksum matches packet content; False: doesn't match content", HFILL
+     }
+    },
+
+    {&hf_zrtp_checksum_bad,
+     {
+       "Bad", "zrtp.checksum_bad",
+       FT_BOOLEAN, BASE_NONE,
+       NULL, 0x0,
+       "True: checksum doesn't match packet content; False: matches content", HFILL
+     }
+    },
+
     {&hf_zrtp_msg_hvi,
      {
        "hvi", "zrtp.hvi",
@@ -1015,7 +1064,8 @@ proto_register_zrtp(void)
     &ett_zrtp_msg_kc,
     &ett_zrtp_msg_ac,
     &ett_zrtp_msg_cc,
-    &ett_zrtp_msg_sc
+    &ett_zrtp_msg_sc,
+    &ett_zrtp_checksum
   };
 
   proto_zrtp = proto_register_protocol("ZRTP", "ZRTP", "zrtp");
