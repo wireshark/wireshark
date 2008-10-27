@@ -2199,17 +2199,33 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 #define  ELLIPSOID_POINT 0
-
+#define  ELLIPSOID_POINT_WITH_UNCERT_CIRC 1
+#define  ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE 3
+#define  POLYGON 5
+#define  ELLIPSOID_POINT_WITH_ALT 8
+#define  ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID 9
+#define  ELLIPSOID_ARC 10
+/*
+4 3 2 1
+0 0 0 0 Ellipsoid Point
+0 0 0 1 Ellipsoid point with uncertainty Circle
+0 0 1 1 Ellipsoid point with uncertainty Ellipse
+0 1 0 1 Polygon 
+1 0 0 0 Ellipsoid point with altitude
+1 0 0 1 Ellipsoid point with altitude and uncertainty Ellipsoid
+1 0 1 0 Ellipsoid Arc
+other values reserved for future use
+*/
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
 static const value_string type_of_shape_vals[] = {
 	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
-	{ 1,		"Ellipsoid point with uncertainty Circle"},
-	{ 3,		"Ellipsoid point with uncertainty Ellipse"},
-	{ 5,		"Polygon"},
-	{ 8,		"Ellipsoid point with altitude"},
-	{ 9,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
-	{ 10,		"Ellipsoid Arc"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,		"Ellipsoid point with uncertainty Circle"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,		"Ellipsoid point with uncertainty Ellipse"},
+	{ POLYGON,		"Polygon"},
+	{ ELLIPSOID_POINT_WITH_ALT,		"Ellipsoid point with altitude"},
+	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ ELLIPSOID_ARC,		"Ellipsoid Arc"},
 	{ 0,	NULL }
 };
 
@@ -2252,12 +2268,18 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		return;
 	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
 	switch (type_of_shape){
-	case ELLIPSOID_POINT:	/* Ellipsoid Point */
-	case 2:					/* Ellipsoid Point with uncertainty Circle */
-	case 3:					/* Ellipsoid Point with uncertainty Ellipse */
-	case 8:					/* Ellipsoid Point with Altitude */
-	case 9:					/* Ellipsoid Point with altitude and uncertainty ellipsoid */
-	case 10:				/* Ellipsoid Arc */
+	case ELLIPSOID_POINT:	
+		/* Ellipsoid Point */
+	case ELLIPSOID_POINT_WITH_UNCERT_CIRC:
+		/* Ellipsoid Point with uncertainty Circle */
+	case ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE:
+		/* Ellipsoid Point with uncertainty Ellipse */
+	case ELLIPSOID_POINT_WITH_ALT:
+		/* Ellipsoid Point with Altitude */
+	case ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID:
+		/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+	case ELLIPSOID_ARC:
+		/* Ellipsoid Arc */
 		offset++;
 		if (length<4)
 			return;
@@ -2370,7 +2392,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		}
 
 		break;
-	case 5:					/* Polygon */
+	case POLYGON:					/* Polygon */
 		/* Number of points */
 		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
 		proto_tree_add_item(tree, hf_gsm_map_geo_loc_no_of_points, tvb, offset, 1, FALSE);
@@ -15670,7 +15692,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 888 "packet-gsmmap-template.c"
+#line 910 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -15883,7 +15905,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 899 "packet-gsmmap-template.c"
+#line 921 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -16089,7 +16111,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 903 "packet-gsmmap-template.c"
+#line 925 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -22585,7 +22607,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2663 "packet-gsmmap-template.c"
+#line 2685 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -23153,7 +23175,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2691 "packet-gsmmap-template.c"
+#line 2713 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
@@ -23229,7 +23251,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2709 "packet-gsmmap-template.c"
+#line 2731 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

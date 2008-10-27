@@ -428,17 +428,33 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 #define  ELLIPSOID_POINT 0
-
+#define  ELLIPSOID_POINT_WITH_UNCERT_CIRC 1
+#define  ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE 3
+#define  POLYGON 5
+#define  ELLIPSOID_POINT_WITH_ALT 8
+#define  ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID 9
+#define  ELLIPSOID_ARC 10
+/*
+4 3 2 1
+0 0 0 0 Ellipsoid Point
+0 0 0 1 Ellipsoid point with uncertainty Circle
+0 0 1 1 Ellipsoid point with uncertainty Ellipse
+0 1 0 1 Polygon 
+1 0 0 0 Ellipsoid point with altitude
+1 0 0 1 Ellipsoid point with altitude and uncertainty Ellipsoid
+1 0 1 0 Ellipsoid Arc
+other values reserved for future use
+*/
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
 static const value_string type_of_shape_vals[] = {
 	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
-	{ 1,		"Ellipsoid point with uncertainty Circle"},
-	{ 3,		"Ellipsoid point with uncertainty Ellipse"},
-	{ 5,		"Polygon"},
-	{ 8,		"Ellipsoid point with altitude"},
-	{ 9,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
-	{ 10,		"Ellipsoid Arc"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,		"Ellipsoid point with uncertainty Circle"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,		"Ellipsoid point with uncertainty Ellipse"},
+	{ POLYGON,		"Polygon"},
+	{ ELLIPSOID_POINT_WITH_ALT,		"Ellipsoid point with altitude"},
+	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ ELLIPSOID_ARC,		"Ellipsoid Arc"},
 	{ 0,	NULL }
 };
 
@@ -481,12 +497,18 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		return;
 	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
 	switch (type_of_shape){
-	case ELLIPSOID_POINT:	/* Ellipsoid Point */
-	case 2:					/* Ellipsoid Point with uncertainty Circle */
-	case 3:					/* Ellipsoid Point with uncertainty Ellipse */
-	case 8:					/* Ellipsoid Point with Altitude */
-	case 9:					/* Ellipsoid Point with altitude and uncertainty ellipsoid */
-	case 10:				/* Ellipsoid Arc */
+	case ELLIPSOID_POINT:	
+		/* Ellipsoid Point */
+	case ELLIPSOID_POINT_WITH_UNCERT_CIRC:
+		/* Ellipsoid Point with uncertainty Circle */
+	case ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE:
+		/* Ellipsoid Point with uncertainty Ellipse */
+	case ELLIPSOID_POINT_WITH_ALT:
+		/* Ellipsoid Point with Altitude */
+	case ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID:
+		/* Ellipsoid Point with altitude and uncertainty ellipsoid */
+	case ELLIPSOID_ARC:
+		/* Ellipsoid Arc */
 		offset++;
 		if (length<4)
 			return;
@@ -599,7 +621,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		}
 
 		break;
-	case 5:					/* Polygon */
+	case POLYGON:					/* Polygon */
 		/* Number of points */
 		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
 		proto_tree_add_item(tree, hf_gsm_map_geo_loc_no_of_points, tvb, offset, 1, FALSE);
