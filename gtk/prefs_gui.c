@@ -169,7 +169,9 @@ gui_prefs_show(void)
 	GtkWidget *show_version_cb;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
+#ifdef HAVE_IGE_MAC_INTEGRATION
 	GtkWidget *macosx_style_cb;
+#endif
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
