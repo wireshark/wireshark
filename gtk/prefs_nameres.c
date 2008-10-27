@@ -201,7 +201,7 @@ nameres_prefs_show(void)
 		geoip_resolv_bt = create_preference_uat(main_tb, table_row,
 		    "GeoIP database search paths",
 		    "Paths to GeoIP address mapping databases. Database\n"
-		    "names must begin with \"Geo\" and in with \".dat\".\n"
+		    "names must begin with \"Geo\" and end with \".dat\".\n"
 		    "You must restart Wireshark for these changes to take\n"
 		    "effect.",
                     geoip_db_paths_uat);
