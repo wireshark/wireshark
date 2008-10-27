@@ -185,6 +185,7 @@ static gint ett_x11_window_value_mask = -1;	/* XXX - unused */
 static gint ett_x11_configure_window_mask = -1;	/* XXX - unused */
 static gint ett_x11_keyboard_value_mask = -1;	/* XXX - unused */
 static gint ett_x11_same_screen_focus = -1;
+static gint ett_x11_event = -1;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
@@ -1130,6 +1131,26 @@ static const value_string zero_is_none_vals[] = {
 	keycode, mask));						\
 	++offset;							\
 } while (0)
+#define EVENT() do { \
+	tvbuff_t *next_tvb;						\
+	unsigned char eventcode;					\
+	const char *sent;						\
+	proto_item *ti;							\
+	proto_tree *proto_tree;						\
+	next_tvb = tvb_new_subset(tvb, offset, next_offset - offset,	\
+				  next_offset - offset);		\
+	eventcode = tvb_get_guint8(next_tvb, 0);			\
+	sent = (eventcode & 0x80) ? "Sent-" : "";			\
+	ti = proto_tree_add_text(t, next_tvb, 0, -1, "event: %d (%s)",	\
+				 eventcode,				\
+				 val_to_str(eventcode & 0x7F,           \
+					    eventcode_vals,             \
+					    "<Unknown eventcode %u>")); \
+	proto_tree = proto_item_add_subtree(ti, ett_x11_event);		\
+	decode_x11_event(next_tvb, eventcode, sent, proto_tree,		\
+			 state, little_endian);				\
+	offset = next_offset;						\
+} while (0)
 
 #define LISTofARC(name) { listOfArc(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 12, little_endian); }
 #define LISTofATOM(name, length) { listOfAtom(tvb, offsetp, t, hf_x11_##name, (length) / 4, little_endian); }
@@ -1262,6 +1283,11 @@ static void
 dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  const char *volatile sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian);
+
+static void
+decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
+		 proto_tree *t, x11_conv_data_t *volatile state,
+		 gboolean little_endian);
 
 static x11_conv_data_t *
 x11_stateinit(conversation_t *conversation);
@@ -3249,7 +3275,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    REQUEST_LENGTH();
 	    WINDOW(destination);
 	    SETofEVENT(event_mask);
-	    UNDECODED(32);
+	    EVENT();
 	    break;
 
       case X_GrabPointer:
@@ -4912,7 +4938,6 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  const char *volatile sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian)
 {
-	int offset = 0, *offsetp = &offset, left;
 	unsigned char eventcode;
 	const char *sent;
 	proto_item *ti;
@@ -4921,7 +4946,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
 	t = proto_item_add_subtree(ti, ett_x11);
 
-	eventcode = tvb_get_guint8(tvb, offset);
+	eventcode = tvb_get_guint8(tvb, 0);
 	sent = (eventcode & 0x80) ? "Sent-" : "";
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -4930,14 +4955,6 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				val_to_str(eventcode & 0x7F, eventcode_vals,
 			  	"<Unknown eventcode %u>"));
 
-	proto_tree_add_uint_format(t, hf_x11_eventcode, tvb, offset, 1,
-				   eventcode,
-				   "eventcode: %d (%s%s)",
-				   eventcode, sent,
-				   val_to_str(eventcode & 0x7F, eventcode_vals,
-				   "<Unknown eventcode %u>"));
-	++offset;
-
 	proto_item_append_text(ti, ", Event, eventcode: %d (%s%s)",
 			      eventcode, sent,
 			      val_to_str(eventcode & 0x7F, eventcode_vals,
@@ -4945,6 +4962,26 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   	if (tree == NULL)
   	 	return;
+
+	decode_x11_event(tvb, eventcode, sent, t, state, little_endian);
+
+	return;
+}
+
+static void
+decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
+		 proto_tree *t, x11_conv_data_t *volatile state,
+		 gboolean little_endian)
+{
+	int offset = 0, *offsetp = &offset, left;
+
+	proto_tree_add_uint_format(t, hf_x11_eventcode, tvb, offset, 1,
+				   eventcode,
+				   "eventcode: %d (%s%s)",
+				   eventcode, sent,
+				   val_to_str(eventcode & 0x7F, eventcode_vals,
+				   "<Unknown eventcode %u>"));
+	++offset;
 
 	switch (eventcode & 0x7F) {
 		case KeyPress:
@@ -5234,8 +5271,8 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 	}
 
-      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
-	    UNDECODED(left);
+	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
+		UNDECODED(left);
 
 	return;
 }
@@ -5354,6 +5391,7 @@ void proto_register_x11(void)
 	    &ett_x11_configure_window_mask,
 	    &ett_x11_keyboard_value_mask,
 	    &ett_x11_same_screen_focus,
+	    &ett_x11_event,
       };
       module_t *x11_module;
 
