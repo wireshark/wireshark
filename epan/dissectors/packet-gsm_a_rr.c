@@ -2825,32 +2825,32 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * [3] 10.5.2.33b SI 2quater Rest Octets
  */
-static const true_false_string gsm_a_rr_gsm_report_type_value[] = {
+static const true_false_string gsm_a_rr_gsm_report_type_value = {
 	"The MS shall use the Measurement Report message for reporting",
 	"The MS shall use the Enhanced Measurement Report message for reporting if at least one BSIC is allocated to each BA (list) frequency. Otherwise, the Measurement Report message shall be used"
 };
 
-static const true_false_string gsm_a_rr_frequency_scrolling_value[] = {
+static const true_false_string gsm_a_rr_frequency_scrolling_value = {
 	"Next BSIC in the structure relates to the subsequent frequency in the BA(list)",
 	"Next BSIC in the structure relates to the same frequency in the BA(list)"
 };
 
-static const true_false_string gsm_a_rr_rep_priority_value[] = {
+static const true_false_string gsm_a_rr_rep_priority_value = {
 	"High reporting priority",
 	"Normal reporting priority"
 };
 
-static const true_false_string gsm_a_rr_report_type_value[] = {
+static const true_false_string gsm_a_rr_report_type_value = {
 	"The MS shall use the PACKET MEASUREMENT REPORT message for reporting",
 	"The MS shall use the PACKET ENHANCED MEASUREMENT REPORT message for reporting"
 };
 
-static const true_false_string gsm_a_rr_reporting_rate_value[] = {
+static const true_false_string gsm_a_rr_reporting_rate_value = {
 	"Reduced reporting rate allowed",
 	"Normal reporting rate"
 };
 
-static const true_false_string gsm_a_rr_invalid_bsic_reporting_value[] = {
+static const true_false_string gsm_a_rr_invalid_bsic_reporting_value = {
 	"High reporting priority",
 	"Normal reporting priority"
 };
@@ -2918,22 +2918,22 @@ static const value_string gsm_a_rr_nc_reporting_period_x_vals[] = {
    { 0, NULL }
 };
 
-static const true_false_string gsm_a_rr_qsearch_c_initial_value[] = {
+static const true_false_string gsm_a_rr_qsearch_c_initial_value = {
 	"Always",
 	"use Qsearch I"
 };
 
-static const true_false_string gsm_a_rr_fdd_rep_quant_value[] = {
+static const true_false_string gsm_a_rr_fdd_rep_quant_value = {
 	"Ec/No",
 	"RSCP"
 };
 
-static const true_false_string gsm_a_rr_3g_search_prio_value[] = {
+static const true_false_string gsm_a_rr_3g_search_prio_value = {
 	"3G cells may be searched when BSIC decoding is required",
 	"3G cells may not be searched when BSIC decoding is required"
 };
 
-static const true_false_string gsm_a_rr_3g_ccn_active_value[] = {
+static const true_false_string gsm_a_rr_3g_ccn_active_value = {
 	"CCN towards 3G cells is enabled in the cell",
 	"CCN towards 3G cells is disabled in the cell"
 };
@@ -3692,12 +3692,12 @@ static const value_string gsm_a_rr_power_offset_vals[] = {
 	{ 0, NULL }
 };
 
-static const true_false_string gsm_a_rr_si2quater_position_value[] = {
+static const true_false_string gsm_a_rr_si2quater_position_value = {
    "SYSTEM INFORMATION TYPE 2 quater message is sent on BCCH Ext",
    "SYSTEM INFORMATION TYPE 2 quater message is sent on BCCH Norm"
 };
 
-static const true_false_string gsm_a_rr_si13alt_position_value[] = {
+static const true_false_string gsm_a_rr_si13alt_position_value = {
    "If Iu mode is supported in the cell, SYSTEM INFORMATION TYPE 13alt message is sent on BCCH Ext",
    "If Iu mode is supported in the cell, SYSTEM INFORMATION TYPE 13alt message is sent on BCCH Norm"
 };
