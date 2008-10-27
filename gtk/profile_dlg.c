@@ -154,8 +154,8 @@ copy_profile_list(void)
 static GtkTreeIter *
 fill_list(GtkWidget *main_w)
 {
-  ETH_DIR       *dir;             /* scanned directory */
-  ETH_DIRENT    *file;            /* current file */
+  WS_DIR        *dir;             /* scanned directory */
+  WS_DIRENT     *file;            /* current file */
   GList         *fl_entry;
   profile_def   *profile;
   GtkTreeView   *profile_l;
@@ -841,7 +841,7 @@ profile_dialog_new(void)
 }
 
 
-static void 
+static void
 select_profile_cb (GtkWidget *w _U_, gpointer data)
 {
   const gchar *current_profile = get_profile_name ();
@@ -858,8 +858,8 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
   GdkEventButton *bevent = (GdkEventButton *)event;
   const gchar    *profile_name = get_profile_name ();
   const gchar    *profiles_dir, *name;
-  ETH_DIR        *dir;             /* scanned directory */
-  ETH_DIRENT     *file;            /* current file */
+  WS_DIR         *dir;             /* scanned directory */
+  WS_DIRENT      *file;            /* current file */
   GtkWidget      *menu;
   GtkWidget      *menu_item;
 
@@ -897,7 +897,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
 
   gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL,
 		  bevent->button, bevent->time);
-    
+
   return TRUE;
 }
 

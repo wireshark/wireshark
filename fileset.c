@@ -242,8 +242,8 @@ void fileset_update_dlg(void)
 void
 fileset_add_dir(const char *fname)
 {
-    ETH_DIR       *dir;             /* scanned directory */
-    ETH_DIRENT    *file;            /* current file */
+    WS_DIR        *dir;             /* scanned directory */
+    WS_DIRENT     *file;            /* current file */
     const char    *name;
     fileset_entry *entry;
     GString       *dirname;

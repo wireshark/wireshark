@@ -970,8 +970,8 @@ profile_exists(const gchar *profilename)
 static int
 delete_directory (const char *directory, char **pf_dir_path_return)
 {
-	ETH_DIR *dir;
-	ETH_DIRENT *file;
+	WS_DIR *dir;
+	WS_DIRENT *file;
 	gchar *filename;
 	int ret = 0;
 

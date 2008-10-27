@@ -132,8 +132,8 @@ static void
 plugins_scan_dir(const char *dirname)
 {
 #define FILENAME_LEN	1024
-    ETH_DIR       *dir;             /* scanned directory */
-    ETH_DIRENT    *file;            /* current file */
+    WS_DIR        *dir;             /* scanned directory */
+    WS_DIRENT     *file;            /* current file */
     const char    *name;
     gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
@@ -342,8 +342,8 @@ init_plugins(void)
     const char *name;
     char *plugin_dir_path;
     char *plugins_pers_dir;
-    ETH_DIR *dir;		/* scanned directory */
-    ETH_DIRENT *file;		/* current file */
+    WS_DIR *dir;		/* scanned directory */
+    WS_DIRENT *file;		/* current file */
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {

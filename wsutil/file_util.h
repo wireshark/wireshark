@@ -106,8 +106,8 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #endif /* _WIN32 */
 
 /* directory handling */
-#define ETH_DIR				GDir
-#define ETH_DIRENT			const char
+#define WS_DIR				GDir
+#define WS_DIRENT			const char
 #define ws_dir_open			g_dir_open
 #define ws_dir_read_name		g_dir_read_name
 #define ws_dir_get_name(dirent)	dirent
