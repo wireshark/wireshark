@@ -1542,7 +1542,7 @@ de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 
 /*
- * [3] 10.5.1.9
+ * [3] 10.5.1.9 Descriptive group or broadcast call reference
  */
 guint8
 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1618,7 +1618,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 }
 
 /*
- * [3] 10.5.1.10a
+ * [3] 10.5.1.10a PD and SAPI $(CCBS)$
  */
 static guint8
 de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1670,7 +1670,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [3] 10.5.1.11
+ * [3] 10.5.1.11 Priority Level
  */
 static const value_string gsm_a_call_prio_vals[] = {
 	{ 0x00,	"no priority applied" },
@@ -1701,7 +1701,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 }
 
 /*
- * [3] 10.5.1.13
+ * [3] 10.5.1.13 PLMN list
  */
 static guint8
 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)

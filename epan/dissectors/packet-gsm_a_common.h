@@ -85,6 +85,7 @@ extern const value_string gsm_bssmap_elem_strings[];
 extern gint ett_gsm_bssmap_elem[];
 extern elem_fcn bssmap_elem_fcn[];
 extern int hf_gsm_a_bssmap_elem_id;
+extern int hf_gsm_a_bssmap_cell_ci;
 
 extern const value_string gsm_dtap_elem_strings[];
 extern gint ett_gsm_dtap_elem[];
@@ -620,7 +621,7 @@ typedef enum
 	BE_SERV_HO,	/* Service Handover */
 	BE_SRC_RNC_TO_TAR_RNC_UMTS,	/* Source RNC to target RNC transparent information (UMTS) */
 	BE_SRC_RNC_TO_TAR_RNC_CDMA,	/* Source RNC to target RNC transparent information (cdma2000) */
-	BE_GRAN_CLS_M,	/* GERAN Classmark */
+	BE_GERAN_CLS_M,	/* GERAN Classmark */
 	BE_GRAN_BSC_CONT,	/* GERAN BSC Container */
 	BE_NEW_BSS_TO_OLD_BSS_INF,	/* New BSS to Old BSS Information */
 	BE_INTER_SYS_INF,	/*	Inter-System Information */
