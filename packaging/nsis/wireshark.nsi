@@ -411,7 +411,7 @@ File "..\..\colorfilters"
 ;IfFileExists dfilters dont_overwrite_dfilters
 File "..\..\dfilters"
 ;dont_overwrite_dfilters:
-;IfFileExists dfilters dont_overwrite_smi_modules
+;IfFileExists smi_modules dont_overwrite_smi_modules
 File "..\..\smi_modules"
 ;dont_overwrite_smi_modules:
 
