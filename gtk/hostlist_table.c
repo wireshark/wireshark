@@ -63,6 +63,7 @@
 #define HOST_PTR_KEY "hostlist-pointer"
 #define NB_PAGES_KEY "notebook-pages"
 
+#define COL_STR_LEN 32
 
 /* convert a port number into a string */
 static char *
@@ -502,25 +503,25 @@ draw_hostlist_table_data(hostlist_table *hl)
     }
 
     for(i=0;i<hl->num_hosts;i++){
-        char str[16];
+        char str[COL_STR_LEN];
 
         j=gtk_clist_find_row_from_data(hl->table, (gpointer)(unsigned long)i);
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
         gtk_clist_set_text(hl->table, j, 2, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
         gtk_clist_set_text(hl->table, j, 3, str);
 
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_frames);
         gtk_clist_set_text(hl->table, j, 4, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].tx_bytes);
         gtk_clist_set_text(hl->table, j, 5, str);
 
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].rx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].rx_frames);
         gtk_clist_set_text(hl->table, j, 6, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", hl->hosts[i].rx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", hl->hosts[i].rx_bytes);
         gtk_clist_set_text(hl->table, j, 7, str);
 
     }
@@ -1077,9 +1078,10 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
     /* if this was a new talker we have to create a clist row for it */
     if(new_talker){
         char *entries[NUM_HOSTLIST_COLS];
-        char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
+        char frames[COL_STR_LEN], bytes[COL_STR_LEN], txframes[COL_STR_LEN];
+        char txbytes[COL_STR_LEN], rxframes[COL_STR_LEN], rxbytes[COL_STR_LEN];
 #ifdef HAVE_GEOIP
-        char geoip[NUM_GEOIP_COLS][16];
+        char geoip[NUM_GEOIP_COLS][COL_STR_LEN];
         guint i;
 #endif /* HAVE_GEOIP */
 
@@ -1087,19 +1089,19 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         entries[0]="";
         entries[1]="";
 
-        g_snprintf(frames, 16, "%" G_GINT64_MODIFIER "u", talker->tx_frames+talker->rx_frames);
+        g_snprintf(frames, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->tx_frames+talker->rx_frames);
         entries[2]=frames;
-        g_snprintf(bytes, 16, "%" G_GINT64_MODIFIER "u", talker->tx_bytes+talker->rx_bytes);
+        g_snprintf(bytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->tx_bytes+talker->rx_bytes);
         entries[3]=bytes;
 
-        g_snprintf(txframes, 16, "%" G_GINT64_MODIFIER "u", talker->tx_frames);
+        g_snprintf(txframes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->tx_frames);
         entries[4]=txframes;
-        g_snprintf(txbytes, 16, "%" G_GINT64_MODIFIER "u", talker->tx_bytes);
+        g_snprintf(txbytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->tx_bytes);
         entries[5]=txbytes;
 
-        g_snprintf(rxframes, 16, "%" G_GINT64_MODIFIER "u", talker->rx_frames);
+        g_snprintf(rxframes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->rx_frames);
         entries[6]=rxframes;
-        g_snprintf(rxbytes, 16, "%" G_GINT64_MODIFIER "u", talker->rx_bytes);
+        g_snprintf(rxbytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", talker->rx_bytes);
         entries[7]=rxbytes;
 
 #ifdef HAVE_GEOIP
@@ -1107,7 +1109,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         for (i = 0; i < NUM_GEOIP_COLS; i++) {
             if (i < geoip_num_dbs() && talker->address.type == AT_IPv4) {
                 const guchar *name = geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data);
-                g_snprintf(geoip[i], 16, "%s", format_text (name, strlen(name)));
+                g_snprintf(geoip[i], COL_STR_LEN, "%s", format_text (name, strlen(name)));
                 entries[NUM_BUILTIN_COLS + i] = geoip[i];
                 gtk_clist_set_column_visibility(hl->table, NUM_BUILTIN_COLS + i, TRUE);
             } else {
