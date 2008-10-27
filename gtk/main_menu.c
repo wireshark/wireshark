@@ -90,6 +90,10 @@
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
 
+#ifdef HAVE_IGE_MAC_INTEGRATION
+#include <ige-mac-menu.h>
+#endif
+
 typedef struct _menu_item {
     char    *name;
     gint    group;
@@ -1035,6 +1039,10 @@ static GtkAccelGroup *grp;
 GtkWidget *
 main_menu_new(GtkAccelGroup ** table) {
     GtkWidget *menubar;
+#ifdef HAVE_IGE_MAC_INTEGRATION
+    GtkWidget *quit_item, *about_item, *preferences_item;
+    IgeMacMenuGroup *group;
+#endif
 
     grp = gtk_accel_group_new();
 
@@ -1042,6 +1050,37 @@ main_menu_new(GtkAccelGroup ** table) {
         menus_init();
 
     menubar = main_menu_factory->widget;
+
+#ifdef HAVE_IGE_MAC_INTEGRATION
+    if(prefs.gui_macosx_style) {
+        ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
+	ige_mac_menu_set_global_key_handler_enabled(TRUE);
+
+	/* Create menu items to populate the application menu with.  We have to
+	 * do this because we are still using the old GtkItemFactory API for
+	 * the main menu. */
+	group = ige_mac_menu_add_app_menu_group();
+	about_item = gtk_menu_item_new_with_label("About");
+	g_signal_connect(about_item, "activate", G_CALLBACK(about_wireshark_cb),
+			 NULL);
+	ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(about_item), NULL);
+
+	group = ige_mac_menu_add_app_menu_group();
+	preferences_item = gtk_menu_item_new_with_label("Preferences");
+	g_signal_connect(preferences_item, "activate", G_CALLBACK(prefs_cb),
+			 NULL);
+	ige_mac_menu_add_app_menu_item(group, GTK_MENU_ITEM(preferences_item),
+				       NULL);
+    }
+
+    /* The quit item in the application menu shows up whenever ige mac
+     * integration is enabled, even if the OS X UI style in Wireshark isn't
+     * turned on. */
+    quit_item = gtk_menu_item_new_with_label("Quit");
+    g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb),
+		     NULL);
+    ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
+#endif
 
     if (table)
         *table = grp;

@@ -174,10 +174,6 @@
 #include <epan/crypt/airpdcap_ws.h>
 #endif
 
-#ifdef HAVE_IGE_MAC_INTEGRATION
-#include <ige-mac-menu.h>
-#endif
-
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -3154,15 +3150,14 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Menu bar */
     menubar = main_menu_new(&accel);
+
 #ifdef HAVE_IGE_MAC_INTEGRATION
-    if(prefs->gui_macosx_style) {
-        ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
-	ige_mac_menu_set_global_key_handler_enabled(TRUE);
-    } else {
+    /* MacOS X native menus are created and displayed by main_menu_new() */
+    if(!prefs->gui_macosx_style) {
 #endif
-	gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
-        gtk_widget_show(menubar);
-#ifdef HAVE_IGE_MAC_INTEGRATION
+    gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
+    gtk_widget_show(menubar);
+#ifdef HAVE_IGE_MAC_INTEGRATION;
     }
 #endif
 
