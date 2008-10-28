@@ -185,14 +185,160 @@ static gint ett_params = -1;
 
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
+static char gsm_637_bigbuf[1024];
+static char ia5_637_bigbuf[1024];
 /* static dissector_handle_t data_handle; */
 static dissector_table_t tele_dissector_table;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
 /* FUNCTIONS */
+#define GN_CHAR_ALPHABET_SIZE 128
 
-static void
+#define GN_CHAR_ESCAPE 0x1b
+
+gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+
+    /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+    /* Fixed to use unicode */
+    /* Characters in hex position 10, [12 to 1a] and 24 are not present on
+       latin1 charset, so we cannot reproduce on the screen, however they are
+       greek symbol not present even on my Nokia */
+
+    '@',  0xa3, '$' , 0xa5, 0xe8, 0xe9, 0xf9, 0xec,
+    0xf2, 0xc7, '\n', 0xd8, 0xf8, '\r', 0xc5, 0xe5,
+   0x394, '_', 0x3a6,0x393,0x39b,0x3a9,0x3a0,0x3a8,
+   0x3a3,0x398,0x39e, 0xa0, 0xc6, 0xe6, 0xdf, 0xc9,
+    ' ',  '!',  '\"', '#',  0xa4,  '%',  '&',  '\'',
+    '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',
+    '0',  '1',  '2',  '3',  '4',  '5',  '6',  '7',
+    '8',  '9',  ':',  ';',  '<',  '=',  '>',  '?',
+    0xa1, 'A',  'B',  'C',  'D',  'E',  'F',  'G',
+    'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+    'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',
+    'X',  'Y',  'Z',  0xc4, 0xd6, 0xd1, 0xdc, 0xa7,
+    0xbf, 'a',  'b',  'c',  'd',  'e',  'f',  'g',
+    'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+    'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+    'x',  'y',  'z',  0xe4, 0xf6, 0xf1, 0xfc, 0xe0
+};
+
+
+gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+
+    /*ITU-T recommendation T.50 specifies International Reference Alphabet 5 (IA5) */
+
+    '?', '?', '?', '?', '?', '?', '?', '?',
+    '?', '?', '?', '?', '?', '?', '?', '?',
+    '?', '?', '?', '?', '?', '?', '?', '?',
+    '?', '?', '?', '?', '?', '?', '?', '?',
+    ' ', '!', '\"','#', '$', '%', '&', '\'',
+    '(', ')', '*', '+', ',', '-', '.', '/',
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', ':', ';', '<', '=', '>', '?',
+    '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+    'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+    'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',
+    'X',  'Y',  'Z',  '[',  '\\',  ']',  '^',  '_',
+    '`', 'a',  'b',  'c',  'd',  'e',  'f',  'g',
+    'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+    'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+    'x',  'y',  'z',  '{',  '|',  '}',  '~',  '?'
+};
+
+gboolean
+char_is_escape(unsigned char value)
+{
+    return (value == GN_CHAR_ESCAPE);
+}
+
+gunichar
+char_def_alphabet_ext_decode(unsigned char value)
+{
+    switch (value)
+    {
+    case 0x0a: return 0x0c; /* form feed */
+    case 0x14: return '^';
+    case 0x28: return '{';
+    case 0x29: return '}';
+    case 0x2f: return '\\';
+    case 0x3c: return '[';
+    case 0x3d: return '~';
+    case 0x3e: return ']';
+    case 0x40: return '|';
+    case 0x65: return 0x20ac; /* euro */
+    default: return '?'; /* invalid character */
+    }
+}
+
+gunichar 
+char_def_alphabet_decode(unsigned char value)
+{
+    if (value < GN_CHAR_ALPHABET_SIZE)
+    {
+	return gsm_default_alphabet[value];
+    }
+    else
+    {
+	return '?';
+    }
+}
+
+void
+gsm_sms_char_7bit_ascii_decode(unsigned char * dest, const unsigned char* src, int len)
+{
+    int i, j;
+    gunichar buf;
+
+
+    for (i = 0, j = 0; j < len;  j++)
+    {
+	if (char_is_escape(src[j])) {
+	    buf = char_def_alphabet_ext_decode(src[++j]);
+	    i += g_unichar_to_utf8(buf,&(dest[i]));
+	}
+	else {
+	    buf = char_def_alphabet_decode(src[j]);
+	    i += g_unichar_to_utf8(buf,&(dest[i]));
+	}
+    }
+    dest[i]=0;
+    return;
+}
+
+
+
+gunichar 
+char_def_ia5_alphabet_decode(unsigned char value)
+{
+    if (value < GN_CHAR_ALPHABET_SIZE)
+    {
+		return IA5_default_alphabet[value];
+    }
+    else
+    {
+		return '?';
+    }
+}
+
+void
+IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
+{
+    int i, j;
+    gunichar buf;
+
+
+    for (i = 0, j = 0; j < len;  j++)
+    {
+	    buf = char_def_ia5_alphabet_decode(src[j]);
+	    i += g_unichar_to_utf8(buf,&(dest[i]));
+    }
+    dest[i]=0;
+    return;
+}
+
+
+static int
 decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oct, guint8 *last_bit, gchar *buf)
 {
     guint8	oct, oct2, bit;
@@ -202,7 +348,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
 
     if (num_fields == 0)
     {
-	return;
+		return 0;
     }
 
     /* saved_offset = *offset; */
@@ -275,6 +421,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
     buf[i] = '\0';
     *last_bit = bit;
     *last_oct = (bit == 1) ? oct : oct2;
+	return i;
 }
 
 /* PARAM FUNCTIONS */
@@ -332,8 +479,14 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     guint8	bit;
     guint32	required_octs;
     guint32	saved_offset;
-    guint32	i;
+    guint32	i , out_len;
     const gchar	*str = NULL;
+
+	/*add more translation UCS  , IA5 , latin ,  latin \ hebrew ,gsm 7BIT*/ 
+	proto_item *ucs2_item;
+	gchar *utf8_text = NULL;
+    GIConv cd;
+    GError *l_conv_error = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -472,9 +625,114 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		ansi_637_bigbuf);
 	}
     }
-    else
+	else if (encoding == 0x03)/* IA5 */
+	{
+		i = (num_fields * 7) - 3;
+		required_octs = (i / 8) + ((i % 8) ? 1 : 0);
+
+		if (required_octs + used > len)
+		{
+			proto_tree_add_text(tree, tvb, offset, 1,
+			"Missing %d octet(s) for number of fields",
+			(required_octs + used) - len);
+
+			return;
+		}
+
+		bit = 3;
+		saved_offset = offset;
+		out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
+		IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
+
+		proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
+			"Encoded user data: %s",
+			ia5_637_bigbuf);
+	}
+	/*TODO UCS else if (encoding == 0x04)
+	{
+	}*/
+    else if (encoding == 0x07)/* Latin/Hebrew */
+	{
+		saved_offset = offset - 1;
+		for (i=0; i < num_fields; i++)
+		{
+			oct = tvb_get_guint8(tvb, saved_offset);
+			oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+			ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);			
+			saved_offset++;
+		}
+
+		if ((cd = g_iconv_open("UTF-8","iso-8859-8")) != (GIConv)-1)
+		{
+			utf8_text = g_convert_with_iconv(tvb->real_data +  offset, num_fields , cd , NULL , NULL , &l_conv_error);
+			if(!l_conv_error)
+			{
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+			}
+			else
+			{
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact wireshark developers");
+			}
+			if(utf8_text)
+				g_free(utf8_text);
+			g_iconv_close(cd);
+		}
+	}
+	else if (encoding == 0x08) /* Latin */
+	{
+		saved_offset = offset - 1;
+		for (i=0; i < num_fields; i++)
+		{
+			oct = tvb_get_guint8(tvb, saved_offset);
+			oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+			ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
+			saved_offset++;
+		}
+
+		if ((cd = g_iconv_open("UTF-8","iso-8859-1")) != (GIConv)-1)
+		{
+			utf8_text = g_convert_with_iconv(ansi_637_bigbuf , num_fields , cd , NULL , NULL , &l_conv_error);
+			if(!l_conv_error)
+			{
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "Encoded user data: %s", utf8_text);
+			}
+			else
+			{
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact wireshark developers");
+			}			
+			if(utf8_text)
+				g_free(utf8_text);
+			g_iconv_close(cd);
+		}
+	}
+	else if (encoding == 0x09) /* GSM 7-bit default alphabet */
+	{
+		i = (num_fields * 7) - 3;
+		required_octs = (i / 8) + ((i % 8) ? 1 : 0);
+
+		if (required_octs + used > len)
+		{
+			proto_tree_add_text(tree, tvb, offset, 1,
+			"Missing %d octet(s) for number of fields",
+			(required_octs + used) - len);
+
+			return;
+		}
+
+		bit = 3;
+		saved_offset = offset;
+		out_len = decode_7_bits(tvb, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
+		gsm_sms_char_7bit_ascii_decode(gsm_637_bigbuf, ansi_637_bigbuf, out_len);
+
+		proto_tree_add_text(tree, tvb, saved_offset, offset - saved_offset,
+			"Encoded user data: %s",
+			gsm_637_bigbuf);
+
+
+	}
+	else
     {
-	proto_tree_add_text(tree, tvb, offset, len - used,
+		proto_tree_add_text(tree, tvb, offset, len - used,
 	    "Encoded user data");
     }
 }
