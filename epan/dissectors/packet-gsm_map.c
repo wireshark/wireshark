@@ -4081,7 +4081,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     case SMS_ENCODING_UCS2_LANG:
 	if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
 	{
-	    utf8_text = g_convert_with_iconv(tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
+	    utf8_text = g_convert_with_iconv(parameter_tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
 	    if(!l_conv_error)
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: %s", utf8_text);
 	    else
