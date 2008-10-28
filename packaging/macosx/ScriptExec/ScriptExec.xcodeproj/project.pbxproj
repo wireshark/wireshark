@@ -308,10 +308,7 @@
 		78E9AE1C0A36A8E3000D76A8 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = i386;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SYMROOT = "$(PROJECT_DIR)/build";
 			};
