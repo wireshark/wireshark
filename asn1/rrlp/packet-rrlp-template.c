@@ -40,7 +40,7 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
-#include "packet-gsm_map.h"
+#include "packet-gsm_a_common.h"
 
 #define PNAME  "Radio Resource LCS Protocol (RRLP)"
 #define PSNAME "RRLP"
