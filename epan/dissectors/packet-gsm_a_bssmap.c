@@ -2435,7 +2435,7 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	/*
 	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
 	*/
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 
 	return(len);
@@ -2449,14 +2449,13 @@ be_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 static guint8
 be_loc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	tvbuff_t *data_tvb;
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	/*
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	*/
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
 
+	data_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	dissect_geographical_description(data_tvb, g_pinfo, tree);
 
 	return(len);
 }
@@ -2473,7 +2472,7 @@ be_pos_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	/*
 	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
 	*/
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 
 	return(len);
@@ -2489,7 +2488,7 @@ be_lcs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -2505,7 +2504,7 @@ be_lcs_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 
 	return(len);
@@ -2562,12 +2561,12 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	case 2:
 		/* LLP
 		 * The embedded message contains a Facility Information Element as defined in 3GPP TS 04.71
-		 * excluding the Facility IEI and length of Facility IEI octets defined in 3GPP TS 04.71.
+		 * excluding the Facility IEI and length of Facility IEI octets defined in 3GPP TS 04.71.(3GPP TS 44.071).
 		 */
 		break;
 	case 3:
 		/* SMLCPP
-		 * The embedded message is as defined in 3GPP TS 08.31
+		 * The embedded message is as defined in 3GPP TS 08.31(TS 48.031).
 		 */
 		break;
 	default:
@@ -2595,7 +2594,7 @@ be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 
 	return(len);
@@ -2615,7 +2614,7 @@ be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	/*
 	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
 	*/
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 
 	return(len);
@@ -2631,7 +2630,7 @@ be_ret_err_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2646,7 +2645,7 @@ be_ret_err_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2661,7 +2660,7 @@ be_seg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2675,7 +2674,7 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2691,7 +2690,7 @@ be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 	/* The Source RNC to Target RNC transparent Information value is encoded as 
 	 * the Source RNC to Target RNC Transparent Container IE as defined in relevant 
 	 * RANAP specification 3GPP TS 25.413, excluding RANAP tag 
@@ -2709,7 +2708,7 @@ be_src_rnc_to_tar_rnc_cdma(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 	/* The Source RNC to Target RNC transparent Information value (structure and encoding) 
 	 * for cdma2000 is defined in relevant specifications.
 	 */
@@ -2727,7 +2726,7 @@ be_geran_cls_m(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 	/* The Source RNC to Target RNC transparent Information value (structure and encoding) 
 	 * for cdma2000 is defined in relevant specifications.
 	 */
@@ -2748,7 +2747,7 @@ be_new_bss_to_old_bss_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2762,7 +2761,7 @@ be_inter_sys_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
@@ -2776,7 +2775,7 @@ be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset+1, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }

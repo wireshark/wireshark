@@ -127,6 +127,9 @@ extern int gsm_a_tap;
 extern gboolean lower_nibble;
 extern packet_info *gsm_a_dtap_pinfo;
 
+/* TS 23 032 */
+void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 /* common field values */
 extern int hf_gsm_a_length;
 extern int hf_gsm_a_extension;

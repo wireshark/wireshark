@@ -54,8 +54,6 @@ typedef struct _gsm_map_tap_rec_t {
 WS_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
-void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 extern const value_string ssCode_vals[];
 extern const value_string gsm_map_PDP_Type_Organisation_vals[];
 extern const value_string gsm_map_ietf_defined_pdp_vals[];
@@ -167,7 +165,7 @@ int dissect_gsm_old_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 int dissect_gsm_old_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 59 "packet-gsmmap-template.h"
+#line 57 "packet-gsmmap-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */
