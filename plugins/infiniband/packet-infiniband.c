@@ -29,7 +29,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include <string.h>
 #include <epan/dissectors/packet-frame.h>
 #include "packet-infiniband.h"
 
@@ -37,11 +36,8 @@
 /* Protocol Registration */
 void proto_register_infiniband(void)
 {
-	if(proto_infiniband == -1)
-	{
-		proto_infiniband = proto_register_protocol("InfiniBand", "InfiniBand", "infiniband");
-		register_dissector("infiniband", dissect_infiniband, proto_infiniband);
-	}
+	proto_infiniband = proto_register_protocol("InfiniBand", "InfiniBand", "infiniband");
+	register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
 	proto_register_field_array(proto_infiniband, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -51,17 +47,9 @@ void proto_register_infiniband(void)
 /* Reg Handoff.  Register dissectors we'll need for IPoIB */
 void proto_reg_handoff_infiniband(void)
 {
-	static int initialized=FALSE;
-	if(!initialized)
-	{
-		infiniband_handle = create_dissector_handle(dissect_infiniband, proto_infiniband);
-		ipv6_handle = find_dissector("ipv6");
-		ip_handle = find_dissector("ip");
-		arp_handle = find_dissector("arp");
-		rarp_handle = find_dissector("rarp");
-		data_handle = find_dissector("data");
-		ethertype_dissector_table = find_dissector_table("ethertype");
-	}
+	ipv6_handle = find_dissector("ipv6");
+	data_handle = find_dissector("data");
+	ethertype_dissector_table = find_dissector_table("ethertype");
 }
 
 
@@ -188,7 +176,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	packetLength = tvb_get_ntohs(tvb, offset); /* Get the Packet Length. This will determine payload size later on. */
 	packetLength = packetLength & 0x07FF; /* Mask off top 5 bits, they are reserved */
-    packetLength = packetLength * 4; /* Multiply by 4 to get true byte length. This is by specification. PktLen is size in 4 byte words (byteSize /4). */
+	packetLength = packetLength * 4; /* Multiply by 4 to get true byte length. This is by specification. PktLen is size in 4 byte words (byteSize /4). */
 
 	proto_tree_add_item(local_route_header_tree, hf_infiniband_packet_length,			tvb, offset, 2, FALSE); offset+=2;
 	proto_tree_add_item(local_route_header_tree, hf_infiniband_source_local_id,			tvb, offset, 2, FALSE);
@@ -1033,11 +1021,6 @@ static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
 {
 	tvbuff_t *ipv6_tvb;
-
-	if(ipv6_handle == NULL)
-	{
-		ipv6_handle = find_dissector("ipv6");
-	}
 
 	/* (- 2) for VCRC which lives at the end of the packet   */
 	ipv6_tvb = tvb_new_subset(tvb, *offset,

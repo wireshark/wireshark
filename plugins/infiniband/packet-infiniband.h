@@ -103,16 +103,10 @@ typedef struct {
 } MAD_Data;
 
 /* Dissector Declarations */
-static dissector_handle_t infiniband_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t ip_handle;
-static dissector_handle_t arp_handle;
-static dissector_handle_t rarp_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t ethertype_dissector_table;
 
-void proto_register_infiniband(void);
-void proto_reg_handoff_infiniband(void);
 static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint32 find_next_header_sequence(guint32 OpCode);
 static gboolean contains(guint32 value, guint32* arr, int length);
