@@ -3618,8 +3618,8 @@ proto_register_gsm_sms(void)
 	ett[last_offset] = &ett_udh_ieis[i];
     }
 
-	ett[last_offset++] = &ett_gsm_sms_ud_fragment;
-	ett[last_offset] = &ett_gsm_sms_ud_fragments;
+    ett[last_offset++] = &ett_gsm_sms_ud_fragment;
+    ett[last_offset] = &ett_gsm_sms_ud_fragments;
 
     /* Register the protocol name and description */
 
@@ -3631,20 +3631,20 @@ proto_register_gsm_sms(void)
 
     proto_register_subtree_array(ett, array_length(ett));
 
-	gsm_sms_dissector_tbl = register_dissector_table("gsm-sms.udh.port",
-	    "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
+    gsm_sms_dissector_tbl = register_dissector_table("gsm-sms.udh.port",
+        "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
 
-	gsm_sms_module = prefs_register_protocol (proto_gsm_sms, NULL);
+    gsm_sms_module = prefs_register_protocol (proto_gsm_sms, NULL);
     prefs_register_bool_preference (gsm_sms_module,
-	    "try_dissect_message_fragment",
-		"Always try subdissection of the fragment of a fragmented",
-	    "Always try subdissection of 7bit ,  UCS2 Short Message fragment."
-		"If check every msg decode will shown in it's fragment",
-	    &msg_udh_frag);
+        "try_dissect_message_fragment",
+        "Always try subdissection of the fragment of a fragmented",
+        "Always try subdissection of 7bit, UCS2 Short Message fragment."
+        "If checked, every msg decode will shown in its fragment",
+        &msg_udh_frag);
 
-	//register_dissector("gsm-sms", dissect_gsm_sms, proto_gsm_sms);
+    /* register_dissector("gsm-sms", dissect_gsm_sms, proto_gsm_sms); */
 
-	/* GSM SMS UD dissector initialization routines */
+    /* GSM SMS UD dissector initialization routines */
     register_init_routine (gsm_sms_defragment_init);
 }
 
