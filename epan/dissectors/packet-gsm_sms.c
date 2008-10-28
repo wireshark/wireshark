@@ -1640,7 +1640,6 @@ gsm_sms_char_ascii_decode(unsigned char * dest, const unsigned char* src, int le
 static void
 dis_iei_csm8(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 3);
@@ -1773,7 +1772,6 @@ dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length
 static void
 dis_iei_scp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 1);
@@ -1867,7 +1865,6 @@ dis_iei_scp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_udh_si(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 1);
@@ -1902,7 +1899,6 @@ dis_iei_udh_si(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 	guint16	oct_ref;
 
@@ -1931,7 +1927,6 @@ dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 	proto_item	*item;
 	proto_item	*item_colour;
@@ -2139,7 +2134,6 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 2);
@@ -2163,7 +2157,6 @@ dis_iei_ps(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_uds(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 2);
@@ -2187,7 +2180,6 @@ dis_iei_uds(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_pa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 2);
@@ -2212,7 +2204,6 @@ dis_iei_pa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_la(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 2);
@@ -2235,7 +2226,6 @@ dis_iei_la(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_sa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 2);
@@ -2259,7 +2249,6 @@ dis_iei_sa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_lp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 2);
@@ -2282,7 +2271,6 @@ dis_iei_lp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_sp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 2);
@@ -2306,7 +2294,6 @@ dis_iei_sp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_vp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     SHORT_DATA_CHECK(length, 4);
@@ -2343,7 +2330,6 @@ dis_iei_vp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_upi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    const gchar	*str = NULL;
     guint8	oct;
 
     EXACT_DATA_CHECK(length, 1);
