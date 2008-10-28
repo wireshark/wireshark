@@ -127,17 +127,10 @@ static int ett_seq[MAX_NEST];
 static guint global_tcp_port_asn1 = TCP_PORT_ASN1;
 static guint global_udp_port_asn1 = UDP_PORT_ASN1;
 static guint global_sctp_port_asn1 = SCTP_PORT_ASN1;
-static guint tcp_port_asn1 = TCP_PORT_ASN1;
-static guint udp_port_asn1 = UDP_PORT_ASN1;
-static guint sctp_port_asn1 = SCTP_PORT_ASN1;
 #else
 static range_t *global_tcp_ports_asn1;
 static range_t *global_udp_ports_asn1;
 static range_t *global_sctp_ports_asn1;
-
-static range_t *tcp_ports_asn1;
-static range_t *udp_ports_asn1;
-static range_t *sctp_ports_asn1;
 #endif /* JUST_ONE_PORT */
 
 static gboolean asn1_desegment = TRUE;
@@ -164,14 +157,14 @@ static char *asn1_logfile = NULL;
 /* PDU counter, for correlation between GUI display and log file in debug mode */
 static int pcount = 0;
 
-static tvbuff_t *asn1_desc;	/* the PDU description */
+static tvbuff_t *asn1_desc;		/* the PDU description */
 static GNode *asn1_nodes = NULL;	/* GNode tree pointing to every asn1 data element */
 static GNode *data_nodes = NULL;	/* GNode tree describing the syntax data */
-static GNode *PDUtree = NULL;	/* GNode tree describing the expected PDU format */
+static GNode *PDUtree = NULL;		/* GNode tree describing the expected PDU format */
 
-static guint PDUerrcount = 0;   /* count of parse errors in one ASN.1 message */
+static guint PDUerrcount = 0;   	/* count of parse errors in one ASN.1 message */
 
-#define NEL(x) (sizeof(x)/sizeof(*x)) /* # elements in static array */
+#define NEL(x) (sizeof(x)/sizeof(*x)) 	/* # elements in static array */
 
 
 static char pabbrev[] = "asn1";	/* field prefix */
@@ -4912,8 +4905,6 @@ proto_register_asn1(void) {
 
   static gint *ett[1+MAX_NEST+MAXPDU];
 
-  char tmpstr[64];
-
   module_t *asn1_module;
   int i, j;
 
@@ -4959,14 +4950,9 @@ proto_register_asn1(void) {
 				 "ASN.1 messages will be read",
 				 10, &global_sctp_port_asn1);
 #else
-  g_snprintf(tmpstr, sizeof(tmpstr), "%u", TCP_PORT_ASN1);
-  range_convert_str(&global_tcp_ports_asn1, tmpstr, 65535);
-
-  g_snprintf(tmpstr, sizeof(tmpstr), "%u", UDP_PORT_ASN1);
-  range_convert_str(&global_udp_ports_asn1, tmpstr, 65535);
-
-  g_snprintf(tmpstr, sizeof(tmpstr), "%u", SCTP_PORT_ASN1);
-  range_convert_str(&global_sctp_ports_asn1, tmpstr, 65535);
+  range_convert_str(&global_tcp_ports_asn1,  ep_strdup_printf("%u", TCP_PORT_ASN1),  65535);
+  range_convert_str(&global_udp_ports_asn1,  ep_strdup_printf("%u", UDP_PORT_ASN1),  65535);
+  range_convert_str(&global_sctp_ports_asn1, ep_strdup_printf("%u", SCTP_PORT_ASN1), 65535);
 
   prefs_register_range_preference(asn1_module, "tcp_ports",
 				 "ASN.1 TCP Ports",
@@ -5042,44 +5028,58 @@ static dissector_handle_t asn1_handle;
 static void
 register_tcp_port(guint32 port)
 {
-  dissector_add("tcp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_add("tcp.port", port, asn1_handle);
 }
 
 static void
 unregister_tcp_port(guint32 port)
 {
-  dissector_delete("tcp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_delete("tcp.port", port, asn1_handle);
 }
 
 static void
 register_udp_port(guint32 port)
 {
-  dissector_add("udp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_add("udp.port", port, asn1_handle);
 }
 
 static void
 unregister_udp_port(guint32 port)
 {
-  dissector_delete("udp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_delete("udp.port", port, asn1_handle);
 }
 
 static void
 register_sctp_port(guint32 port)
 {
-  dissector_add("sctp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_add("sctp.port", port, asn1_handle);
 }
 
 static void
 unregister_sctp_port(guint32 port)
 {
-  dissector_delete("sctp.port", port, asn1_handle);
+  if (port != 0)
+    dissector_delete("sctp.port", port, asn1_handle);
 }
 
 void
 proto_reg_handoff_asn1(void) {
-  static int asn1_initialized = FALSE;
-#ifndef JUST_ONE_PORT
-  char *tcp_ports_asn1_string, *udp_ports_asn1_string, *sctp_ports_asn1_string;
+  static gboolean asn1_initialized = FALSE;
+/* XXX: Note that the "saved" ports [or port ranges] will not be initialized the first time */
+/*      thru pro_reg_handoff_asn1 if no PDUtree is built; So: we init with the definition.  */
+#ifdef JUST_ONE_PORT
+  static guint tcp_port_asn1  = 0;
+  static guint udp_port_asn1  = 0;
+  static guint sctp_port_asn1 = 0;
+#else
+  static range_t *tcp_ports_asn1  = NULL;
+  static range_t *udp_ports_asn1  = NULL;
+  static range_t *sctp_ports_asn1 = NULL;
 #endif
 
   pcount = 0;
@@ -5091,6 +5091,7 @@ proto_reg_handoff_asn1(void) {
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
 #else
   if (asn1_verbose) {
+    char *tcp_ports_asn1_string, *udp_ports_asn1_string, *sctp_ports_asn1_string;
     tcp_ports_asn1_string = range_convert_range(global_tcp_ports_asn1);
     udp_ports_asn1_string = range_convert_range(global_udp_ports_asn1);
     sctp_ports_asn1_string = range_convert_range(global_sctp_ports_asn1);
@@ -5171,6 +5172,6 @@ proto_reg_handoff_asn1(void) {
     range_foreach(tcp_ports_asn1, register_tcp_port);
     range_foreach(udp_ports_asn1, register_udp_port);
     range_foreach(sctp_ports_asn1, register_sctp_port);
-  }
 #endif /* JUST_ONE_PORT */
+  }
 }
