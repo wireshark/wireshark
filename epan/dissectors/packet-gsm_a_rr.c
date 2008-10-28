@@ -617,39 +617,45 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
 	return;
 }
 
-static int f_k(int k, int *w, int range)
+static gint greatest_power_of_2_lesser_or_equal_to(gint index)
 {
-	int index=k, j=1, n;
-
-	/* J := GREATEST_POWER_OF_2_LESSER_OR_EQUAL_TO(INDEX); */
-	if (index>1) {
-		do {
-			j<<=1;
-		} while (j<=index);
-		j >>= 1;
-	}
-
-   n = w[index];
-
-   while (index>1) {
-	   if (2*index < 3*j) {			 /* left child */
-			index -= j>>1;
-			n = (n + w[index] - range/j - 1)%((2*range/j) - 1) + 1;
-	   }
-	   else {						   /* right child */
-			index -= j;
-			n = (n + w[index] - 1)%((2*range)/j - 1) + 1;
-		}
-		j >>= 1;
-	}
-
-	return n%1024;
+   gint j = 1;
+   do {
+      j<<=1;
+   } while (j<=index);
+   j >>= 1;
+   return j;
 }
 
-static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int range)
+static gint f_k(gint k, gint *w, gint range)
 {
-	int curr_offset=offset, f0, arfcn_orig, bits, w[64], wsize, i, wi;
-	int octet, nwi=1, jwi=0, wbits, imax, iused, arfcn;
+   gint index, n, j;
+
+   index = k;
+   range -= 1;
+   range = range/greatest_power_of_2_lesser_or_equal_to(index);
+   n = w[index]-1;
+
+   while (index>1) {
+      j = greatest_power_of_2_lesser_or_equal_to(index);
+      range = 2*range+1;
+      if ((2*index) < 3*j){ /* left child */
+         index -= j/2;
+         n = (n+w[index]-1+((range-1)/2)+1)%range;
+      }
+      else { /* right child */
+         index -= j;
+         n = (n+w[index]-1+1)%range;
+      }
+   }
+
+   return (n+1)%1024;
+}
+
+static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gint range)
+{
+	gint curr_offset=offset, f0, arfcn_orig, bits, w[64], wsize, i, wi;
+	gint octet, nwi=1, jwi=0, wbits, imax, iused, arfcn;
 	guint8 list[1024];
 
 	memset((void*)list,0,sizeof(list));
