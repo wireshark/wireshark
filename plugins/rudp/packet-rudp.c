@@ -223,13 +223,11 @@ proto_register_rudp(void)
 	};
 
 
-	if (proto_rudp == -1) {
-	    proto_rudp = proto_register_protocol (
+	proto_rudp = proto_register_protocol (
 		"Reliable UDP",		/* name */
 		"RUDP",		/* short name */
 		"rudp"		/* abbrev */
 		);
-	}
 
 	proto_register_field_array(proto_rudp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -249,14 +247,25 @@ proto_register_rudp(void)
 
 void
 proto_reg_handoff_rudp(void) {
-	static dissector_handle_t rudp_handle = NULL;
 
-	if (!rudp_handle) {
+	static gboolean initialized = FALSE;
+	static dissector_handle_t rudp_handle;
+	static guint saved_udp_port;
+
+	if (!initialized) {
 		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
+		dissector_add_handle("udp.port", rudp_handle);  /* for "decode as" */
+		sm_handle = find_dissector("sm");
+		data_handle = find_dissector("data");
+		initialized = TRUE;
+	} else {
+		if (saved_udp_port != 0) {
+			dissector_delete("udp.port", saved_udp_port, rudp_handle);
+		}
 	}
 
-	dissector_add("udp.port", udp_port, rudp_handle);
-
-	sm_handle = find_dissector("sm");
-	data_handle = find_dissector("data");
+	if (udp_port != 0) {
+		dissector_add("udp.port", udp_port, rudp_handle);
+	}
+	saved_udp_port = udp_port;
 }

@@ -50,7 +50,7 @@
 
 /* Don't set this to 5000 until this dissector is made a heuristic one!
    It collides (at least) with tapa. */
-static int global_unistim_port = 0;
+static guint global_unistim_port = 0;
 
 static unistim_info_t *uinfo;
 static int unistim_tap = -1;
@@ -58,7 +58,6 @@ static int unistim_tap = -1;
 void proto_reg_handoff_unistim(void);
 static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
 static void dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static dissector_handle_t unistim_handle;
 
 static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
@@ -193,19 +192,24 @@ proto_register_unistim(void){
 
 void 
 proto_reg_handoff_unistim(void) {
-   static gboolean initialized=FALSE;
-   static int unistim_port = 0;
+   static gboolean initialized = FALSE;
+   static dissector_handle_t unistim_handle;
+   static guint unistim_port;
 
-   if(initialized!=TRUE){
+   if (!initialized) {
       unistim_handle=create_dissector_handle(dissect_unistim,proto_unistim);
+      dissector_add_handle("udp.port", unistim_handle);  /* for "decode as" */
       initialized=TRUE;
    } else {
-      dissector_delete("udp.port",unistim_port,unistim_handle);
+      if (unistim_port != 0) {
+         dissector_delete("udp.port",unistim_port,unistim_handle);
+      }
    }
 
+   if (global_unistim_port != 0) {
+      dissector_add("udp.port",global_unistim_port,unistim_handle);
+   }
    unistim_port = global_unistim_port;
-
-   dissector_add("udp.port",global_unistim_port,unistim_handle);
 }
 
 
