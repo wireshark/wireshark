@@ -7401,6 +7401,11 @@ proto_reg_handoff_wsp(void)
 	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
 	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
+	/* GSM SMS dissector can also carry WSP */
+	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+
+
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }
 
