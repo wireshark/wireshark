@@ -1927,6 +1927,7 @@ dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
+	const gchar *str = NULL;
     guint8	oct;
 	proto_item	*item;
 	proto_item	*item_colour;
@@ -2497,7 +2498,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     char	*ustr;
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
-	gchar save_byte , save_byte2;
+	gchar save_byte = 0 , save_byte2 = 0;
     GIConv cd;
     GError *l_conv_error = NULL;
 
