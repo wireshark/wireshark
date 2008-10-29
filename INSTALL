@@ -41,6 +41,10 @@ README.win32 for those instructions.
    GLib 2.x; you need to configure with --disable-gtk2 to use GTK+
    1.2[.x].
 
+   Please also note that GTK+ 1.2[.x] is only supported up to 
+   Wireshark 1.0.x. From Wireshark 1.1.x onwards only GTK+ 2.x
+   is supported.
+
 2. If you wish to build TShark, the line-mode version of Wireshark,
    make sure you have GLIB installed.  See note #1 above for instructions
    on checking if you have GLIB installed. You can download GLIB from
@@ -93,6 +97,7 @@ README.win32 for those instructions.
 
     --disable-gtk2
         Build Glib/Gtk+ 1.2[.x]-based wireshark.
+        Note: not supported from Wireshark 1.1.x onwards
 
     --disable-tshark
         By default the line-mode packet analyzer, TShark, is built.
