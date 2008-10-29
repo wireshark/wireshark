@@ -73,7 +73,7 @@ static GtkWidget *save_to_file_w = NULL;
 #define ITEM_HEIGHT 20
 #define NODE_WIDTH 100
 #define TOP_Y_BORDER 40
-#define BOTTOM_Y_BORDER 0
+#define BOTTOM_Y_BORDER 2
 #define COMMENT_WIDTH 400
 #define TIME_WIDTH 50
 
@@ -327,34 +327,56 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	first_node = user_data->dlg.first_node;
 
 	/* Write the conv. and time headers */
-
 	if (several_convs){
-		fprintf (of, CONV_TIME_HEADER);
+		fprintf(of, CONV_TIME_HEADER);
 		empty_header = CONV_TIME_EMPTY_HEADER;
 		header_length = CONV_TIME_HEADER_LENGTH;
 	}
 	else{
-		fprintf (of, TIME_HEADER);
+		fprintf(of, TIME_HEADER);
 		empty_header = TIME_EMPTY_HEADER;
 		header_length = TIME_HEADER_LENGTH;
 	}
 
 	/* Write the node names on top */
-	for (i=0; i<display_nodes; i++){
+	for (i=0; i<display_nodes; i+=2){
 		/* print the node identifiers */
 		g_string_printf(label_string, "| %s",
 			get_addr_name(&(user_data->nodes[i+first_node])));
-		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
+		enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
 		fprintf(of, "%s", label_string->str);
 		g_string_printf(label_string, "| ");
 		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
 		g_string_append(empty_line, label_string->str);
 	}
+
+	fprintf(of, "|\n%s", empty_header);
+	g_string_printf(label_string, "| ");
+	enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
+	fprintf(of, "%s", label_string->str);
+
+	/* Write the node names on top */
+	for (i=1; i<display_nodes; i+=2){
+		/* print the node identifiers */
+		g_string_printf(label_string, "| %s",
+			get_addr_name(&(user_data->nodes[i+first_node])));
+		if (label_string->len < NODE_CHARS_WIDTH)
+		{
+			enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
+			g_string_append(label_string, "| ");
+		}
+		enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
+		fprintf(of, "%s", label_string->str);
+		g_string_printf(label_string, "| ");
+		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
+		g_string_append(empty_line, label_string->str);
+	}
+
+	fprintf(of, "\n");
+
 	g_string_append_c(empty_line, '|');
 
 	enlarge_string(separator_line, empty_line->len + header_length, '-');
-
-	fprintf(of, "|\n");
 
 	/*
 	 * Draw the items
@@ -626,7 +648,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 	/* Calculate the y border */
 	top_y_border=TOP_Y_BORDER;	/* to display the node address */
-	bottom_y_border=2;
+	bottom_y_border=BOTTOM_Y_BORDER;
 
 	draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
 
@@ -689,7 +711,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	display_items = current_item;
 	last_item = first_item+display_items-1;
 
-	/* if not items to display */
+	/* if no items to display */
 	if (display_items == 0)	return;
 
 
@@ -801,7 +823,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 			gdk_draw_layout(user_data->dlg.pixmap,
 							user_data->dlg.draw_area->style->black_gc,
 							left_x_border+NODE_WIDTH/2-label_width/2+NODE_WIDTH*i,
-							top_y_border/2-label_height/2,
+							top_y_border/2-((i&1)?0:label_height),
 							layout);
 		}
 
