@@ -107,9 +107,7 @@ static gboolean global_norm_heur = FALSE;
 static struct _norm_hf hf;
 static struct _norm_ett ett;
 
-static gboolean preferences_initialized = FALSE;
 static struct _norm_prefs preferences;
-static struct _norm_prefs preferences_old;
 
 /* Preferences */
 /* =========== */
@@ -670,7 +668,9 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void proto_reg_handoff_norm(void)
 {
+	static gboolean preferences_initialized = FALSE;
 	static dissector_handle_t handle;
+        static struct _norm_prefs preferences_old;
 
 	if (!preferences_initialized)
 	{
@@ -708,20 +708,20 @@ void proto_register_norm(void)
 			{ "Group Size", "norm.gsize", FT_DOUBLE, BASE_DEC, NULL, 0x0, "", HFILL}},
 		{ &hf.flags,
 			{ "Flags", "norm.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
-	    { &hf.flag.repair,
-		    { "Repair Flag", "norm.flag.repair", FT_BOOLEAN, 8, NULL, NORM_FLAG_REPAIR, "", HFILL }},
-	    { &hf.flag.explicit,
-		    { "Explicit Flag", "norm.flag.explicit", FT_BOOLEAN, 8, NULL, NORM_FLAG_EXPLICIT, "", HFILL }},
-	    { &hf.flag.info,
-		    { "Info Flag", "norm.flag.info", FT_BOOLEAN, 8, NULL, NORM_FLAG_INFO, "", HFILL }},
-	    { &hf.flag.unreliable,
-		    { "Unreliable Flag", "norm.flag.unreliable", FT_BOOLEAN, 8, NULL, NORM_FLAG_UNRELIABLE, "", HFILL }},
-	    { &hf.flag.file,
-		    { "File Flag", "norm.flag.file", FT_BOOLEAN, 8, NULL, NORM_FLAG_FILE, "", HFILL }},
-	    { &hf.flag.stream,
-		    { "Stream Flag", "norm.flag.stream", FT_BOOLEAN, 8, NULL, NORM_FLAG_STREAM, "", HFILL }},
-	    { &hf.flag.msgstart,
-		    { "Msg Start Flag", "norm.flag.msgstart", FT_BOOLEAN, 8, NULL, NORM_FLAG_MSG_START, "", HFILL }},
+		{ &hf.flag.repair,
+			{ "Repair Flag", "norm.flag.repair", FT_BOOLEAN, 8, NULL, NORM_FLAG_REPAIR, "", HFILL }},
+		{ &hf.flag.explicit,
+			{ "Explicit Flag", "norm.flag.explicit", FT_BOOLEAN, 8, NULL, NORM_FLAG_EXPLICIT, "", HFILL }},
+		{ &hf.flag.info,
+			{ "Info Flag", "norm.flag.info", FT_BOOLEAN, 8, NULL, NORM_FLAG_INFO, "", HFILL }},
+		{ &hf.flag.unreliable,
+			{ "Unreliable Flag", "norm.flag.unreliable", FT_BOOLEAN, 8, NULL, NORM_FLAG_UNRELIABLE, "", HFILL }},
+		{ &hf.flag.file,
+			{ "File Flag", "norm.flag.file", FT_BOOLEAN, 8, NULL, NORM_FLAG_FILE, "", HFILL }},
+		{ &hf.flag.stream,
+			{ "Stream Flag", "norm.flag.stream", FT_BOOLEAN, 8, NULL, NORM_FLAG_STREAM, "", HFILL }},
+		{ &hf.flag.msgstart,
+			{ "Msg Start Flag", "norm.flag.msgstart", FT_BOOLEAN, 8, NULL, NORM_FLAG_MSG_START, "", HFILL }},
 		{ &hf.object_transport_id,
 			{ "Object Transport ID", "norm.object_transport_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 		{ &hf.extension,
@@ -827,7 +827,6 @@ void proto_register_norm(void)
 
 	/* Reset preferences */
 	norm_prefs_set_default(&preferences);
-	norm_prefs_save(&preferences, &preferences_old);
 
 	/* Register preferences */
 	module = prefs_register_protocol(proto, proto_reg_handoff_norm);

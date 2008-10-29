@@ -61,9 +61,7 @@ static int proto = -1;
 static struct _alc_hf hf;
 static struct _alc_ett ett;
 
-static gboolean preferences_initialized = FALSE;
 static struct _alc_prefs preferences;
-static struct _alc_prefs preferences_old;
 dissector_handle_t xml_handle;
 
 
@@ -223,12 +221,15 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_reg_handoff_alc(void)
 {
 	static dissector_handle_t handle;
+	static gboolean preferences_initialized = FALSE;
+	static struct _alc_prefs preferences_old;
 
 	if (!preferences_initialized)
 	{
 		preferences_initialized = TRUE;		
 		handle = create_dissector_handle(dissect_alc, proto);
 		dissector_add_handle("udp.port", handle);
+		xml_handle = find_dissector("xml");
 		
 	} else {
 		
@@ -240,7 +241,6 @@ void proto_reg_handoff_alc(void)
 		dissector_add("udp.port", preferences.default_udp_port, handle);
 		
 	alc_prefs_save(&preferences, &preferences_old);
-	xml_handle = find_dissector("xml");
 
 }
 
@@ -282,7 +282,6 @@ void proto_register_alc(void)
 	
 	/* Reset preferences */
 	alc_prefs_set_default(&preferences);
-	alc_prefs_save(&preferences, &preferences_old);
 	
 	/* Register preferences */
 	module = prefs_register_protocol(proto, proto_reg_handoff_alc);
