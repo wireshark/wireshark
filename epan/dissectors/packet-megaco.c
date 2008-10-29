@@ -903,6 +903,10 @@ nextcontext:
 
 				tvb_offset  = tvb_find_guint8(tvb, tvb_command_start_offset,
 					tvb_len, '=');
+				if (tvb_offset == -1 ) {
+					proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Missing \"=\" ]");
+					return;
+				}
 				tvb_offset = megaco_tvb_skip_wsp_return(tvb, tvb_offset -1);
 				tokenlen = tvb_offset - tvb_command_start_offset;
 
@@ -1180,8 +1184,16 @@ nextcontext:
 
 					tvb_offset  = tvb_find_guint8(tvb, tvb_command_start_offset,
 						tvb_len, '=');
+					if (tvb_offset == -1 ) {
+						proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Missing \"=\" ]");
+						return;
+					}
 					tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset+1);
 					tokenlen = tvb_next_offset - tvb_offset;
+					if (tokenlen+1 <= 0) {
+						proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Invalid token length (%d) ]", tokenlen+1);
+						return;
+					}
 
 					tempchar = tvb_get_guint8(tvb, tvb_offset);
 					if ( (tempchar >= 'a')&& (tempchar <= 'z'))
@@ -1194,7 +1206,7 @@ nextcontext:
 					switch ( tempchar ){
 
 					case 'E':
-						if ((tokenlen+1 > (int) sizeof(TermID)) || (tokenlen+1 <= 0)) {
+						if ((tokenlen+1 > (int) sizeof(TermID))) {
 							proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Invalid TermID length (%d) ]", tokenlen+1);
 							return;
 						}
