@@ -1,5 +1,5 @@
 /* wlan_stat_dlg.c
- * Copyright 2008 Stig Bjørlykke <stig@bjorlykke.org>
+ * Copyright 2008 Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *

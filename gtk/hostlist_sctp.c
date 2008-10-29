@@ -1,4 +1,4 @@
-/* hostlist_sctp.c    2008 Stig Bjørlykke
+/* hostlist_sctp.c    2008 Stig Bjorlykke
  *
  * $Id$
  *
