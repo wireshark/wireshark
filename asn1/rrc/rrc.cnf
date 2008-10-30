@@ -13,17 +13,58 @@ UNALIGNED
 
 #.PDU
 
-DL-DCCH-Message    @dl.dcch
-UL-DCCH-Message    @ul.dcch
-DL-CCCH-Message    @dl.ccch
-UL-CCCH-Message    @ul.ccch
-PCCH-Message       @pcch
-DL-SHCCH-Message   @dl.shcch
-UL-SHCCH-Message   @ul.shcch
-BCCH-FACH-Message  @bcch.fach
-BCCH-BCH-Message   @bcch.bch
-MCCH-Message       @mcch
-MSCH-Message       @msch
+DL-DCCH-Message        @dl.dcch
+UL-DCCH-Message        @ul.dcch
+DL-CCCH-Message        @dl.ccch
+UL-CCCH-Message        @ul.ccch
+PCCH-Message           @pcch
+DL-SHCCH-Message       @dl.shcch
+UL-SHCCH-Message       @ul.shcch
+BCCH-FACH-Message      @bcch.fach
+BCCH-BCH-Message       @bcch.bch
+MCCH-Message           @mcch
+MSCH-Message           @msch
+MasterInformationBlock @si.mib
+SysInfoType1           @si.sib1
+SysInfoType2           @si.sib2
+SysInfoType3           @si.sib3
+SysInfoType4           @si.sib4
+SysInfoType5           @si.sib5
+SysInfoType5bis        @si.sib5bis
+SysInfoType6           @si.sib6
+SysInfoType7           @si.sib7
+SysInfoType8           @si.sib8
+SysInfoType9           @si.sib9
+SysInfoType10          @si.sib10
+SysInfoType11          @si.sib11
+SysInfoType11bis       @si.sib11bis
+SysInfoType12          @si.sib12
+SysInfoType13          @si.sib13
+SysInfoType13-1        @si.sib13-1
+SysInfoType13-2        @si.sib13-2
+SysInfoType13-3        @si.sib13-3
+SysInfoType13-4        @si.sib13-4
+SysInfoType14          @si.sib14
+SysInfoType15          @si.sib15
+SysInfoType15bis       @si.sib15bis
+SysInfoType15-1        @si.sib15-1
+SysInfoType15-1bis     @si.sib15-1bis
+SysInfoType15-2        @si.sib15-2
+SysInfoType15-2bis     @si.sib15-2bis
+SysInfoType15-3        @si.sib15-3
+SysInfoType15-3bis     @si.sib15-3bis
+SysInfoType15-4        @si.sib15-4
+SysInfoType15-5        @si.sib15-5
+SysInfoType15-6        @si.sib15-6
+SysInfoType15-7        @si.sib15-7
+SysInfoType15-8        @si.sib15-8
+SysInfoType16          @si.sib16
+SysInfoType17          @si.sib17
+SysInfoType18          @si.sib18
+SysInfoTypeSB1         @si.sb1
+SysInfoTypeSB2         @si.sb2
+HandoverToUTRANCommand @irat.ho_to_utran_cmd
+InterRATHandoverInfo   @irat.irat_ho_info
 
 #.END
 #.FN_PARS UTRAN-GANSSReferenceTime/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
