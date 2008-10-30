@@ -125,11 +125,46 @@ static gint hf_gsm_sms_coding_group_bits4 = -1;
 static gint  hf_gsm_sms_ud_multiple_messages_msg_id = -1;
 static gint  hf_gsm_sms_ud_multiple_messages_msg_parts = -1;
 static gint  hf_gsm_sms_ud_multiple_messages_msg_part = -1;
+
+/* TPDU Parameters */
+static gint hf_gsm_sms_tp_oa = -1;
+static gint hf_gsm_sms_tp_da = -1;
+static gint hf_gsm_sms_tp_pid = -1;
+static gint hf_gsm_sms_tp_dcs = -1;
  
 static gboolean msg_udh_frag = FALSE;
 static char bigbuf[1024];
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
+
+/* 3GPP TS 23.038 version 7.0.0 Release 7
+ * The TP-Data-Coding-Scheme field, defined in 3GPP TS 23.040 [4],
+ * indicates the data coding scheme of the TP-UD field, and may indicate a message class.
+ * Any reserved codings shall be assumed to be the GSM 7 bit default alphabet
+ * (the same as codepoint 00000000) by a receiving entity.
+ * The octet is used according to a coding group which is indicated in bits 7..4.
+ */
+
+/* Coding Group Bits */
+static const value_string gsm_sms_coding_group_bits_vals[] = {
+	{ 0,	"General Data Coding indication" }, /* 00xx */
+	{ 1,	"General Data Coding indication" }, /* 00xx */
+	{ 2,	"General Data Coding indication" }, /* 00xx */
+	{ 3,	"General Data Coding indication" }, /* 00xx */
+	{ 4,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 5,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 6,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 7,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 8,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 9,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 10,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 11,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 12,	"Message Waiting Indication Group: Discard Message" },/* 1100  */
+	{ 13,	"Message Waiting Indication Group: Store Message" },  /* 1101  */
+	{ 14,	"Message Waiting Indication Group: Store Message" },  /* 1110  */
+	{ 15,	"Data coding/message class" },  /* 1111  */
+    { 0, NULL },
+};
 
 guint16 g_sm_id;
 guint16 g_frags;
@@ -308,8 +343,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
 	return;
     }
 
-    item =
-	proto_tree_add_text(tree, tvb,
+    item = proto_tree_add_text(tree, tvb,
 	    offset, numdigocts + 2,
 	    title);
 
@@ -396,10 +430,18 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
 	break;
     }
 
-    proto_tree_add_text(subtree,
+    if (g_ascii_strncasecmp(title, "TP-O", 4) == 0) {
+	proto_tree_add_string(subtree, hf_gsm_sms_tp_oa, tvb,
+		offset, numdigocts, bigbuf);
+    } else if (g_ascii_strncasecmp(title, "TP-D", 4) == 0) {
+	proto_tree_add_string(subtree, hf_gsm_sms_tp_da, tvb,
+		offset, numdigocts, bigbuf);
+    } else {
+    	proto_tree_add_text(subtree,
 	tvb, offset, numdigocts,
 	"Digits: %s",
 	bigbuf);
+    }
 
     proto_item_append_text(item, " - (%s)", bigbuf);
 
@@ -424,9 +466,8 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 
 
     item =
-	proto_tree_add_text(tree, tvb,
-	    offset, 1,
-	    "TP-Protocol-Identifier");
+	proto_tree_add_item(tree, hf_gsm_sms_tp_pid, tvb,
+	    offset, 1, FALSE);
 
     subtree = proto_item_add_subtree(item, ett_pid);
 
@@ -571,34 +612,6 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
     }
 }
-/* 3GPP TS 23.038 version 7.0.0 Release 7
- * The TP-Data-Coding-Scheme field, defined in 3GPP TS 23.040 [4],
- * indicates the data coding scheme of the TP-UD field, and may indicate a message class.
- * Any reserved codings shall be assumed to be the GSM 7 bit default alphabet
- * (the same as codepoint 00000000) by a receiving entity.
- * The octet is used according to a coding group which is indicated in bits 7..4.
- */
-
-/* Coding Group Bits */
-static const value_string gsm_sms_coding_group_bits_vals[] = {
-	{ 0,	"General Data Coding indication" }, /* 00xx */
-	{ 1,	"General Data Coding indication" }, /* 00xx */
-	{ 2,	"General Data Coding indication" }, /* 00xx */
-	{ 3,	"General Data Coding indication" }, /* 00xx */
-	{ 4,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 5,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 6,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 7,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
-	{ 8,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 9,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 10,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 11,	"Reserved coding groups" },			/* 1000..1011  */
-	{ 12,	"Message Waiting Indication Group: Discard Message" },/* 1100  */
-	{ 13,	"Message Waiting Indication Group: Store Message" },  /* 1101  */
-	{ 14,	"Message Waiting Indication Group: Store Message" },  /* 1110  */
-	{ 15,	"Data coding/message class" },  /* 1111  */
-    { 0, NULL },
-};
 
 /* 9.2.3.10 */
 static void
@@ -620,10 +633,8 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     *compressed = FALSE;
 
     item =
-	proto_tree_add_text(tree, tvb,
-	    offset, 1,
-	    "TP-Data-Coding-Scheme (%d)",
-	    oct);
+	proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb,
+	    offset, 1, FALSE);
 
     subtree = proto_item_add_subtree(item, ett_dcs);
 	if(oct&0x80){
@@ -3584,6 +3595,27 @@ proto_register_gsm_sms(void)
 		"Message part (fragment) sequence number",
 		HFILL
 	    }
+	},
+	/* TPDU parameters */
+        { &hf_gsm_sms_tp_oa,
+	      { "TP-Originating-Address Digits", "gsm_sms.tp-oa",
+	        FT_STRING, BASE_NONE, NULL, 0x00,
+	        "Originating Address Digits", HFILL }
+	},
+        { &hf_gsm_sms_tp_da,
+	      { "TP-Destination-Address Digits", "gsm_sms.tp-da",
+	        FT_STRING, BASE_NONE, NULL, 0x00,
+	        "Destination Address Digits", HFILL }
+	},
+        { &hf_gsm_sms_tp_pid,
+	      { "TP-Protocol-Identifier", "gsm_sms.tp-pid",
+	        FT_UINT8, BASE_DEC, NULL, 0x00,
+	        "Protocol Identifier", HFILL }
+	},
+        { &hf_gsm_sms_tp_dcs,
+	      { "TP-Data-Coding-Scheme", "gsm_sms.tp-dcs",
+	        FT_UINT8, BASE_DEC, NULL, 0x00,
+	        "Data Coding Scheme", HFILL }
 	},
     };
 
