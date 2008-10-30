@@ -64,6 +64,7 @@ static int hf_ocsp_ArchiveCutoff_PDU = -1;        /* ArchiveCutoff */
 static int hf_ocsp_AcceptableResponses_PDU = -1;  /* AcceptableResponses */
 static int hf_ocsp_ServiceLocator_PDU = -1;       /* ServiceLocator */
 static int hf_ocsp_CrlID_PDU = -1;                /* CrlID */
+static int hf_ocsp_NULL_PDU = -1;                 /* NULL */
 static int hf_ocsp_tbsRequest = -1;               /* TBSRequest */
 static int hf_ocsp_optionalSignature = -1;        /* Signature */
 static int hf_ocsp_version = -1;                  /* Version */
@@ -157,7 +158,7 @@ static const value_string ocsp_Version_vals[] = {
 static int
 dissect_ocsp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -322,7 +323,7 @@ dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "ocsp.cnf"
+#line 37 "ocsp.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -593,7 +594,7 @@ dissect_ocsp_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_ocsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -640,6 +641,11 @@ static void dissect_CrlID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_ocsp_CrlID(FALSE, tvb, 0, &asn1_ctx, tree, hf_ocsp_CrlID_PDU);
+}
+static void dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_ocsp_NULL(FALSE, tvb, 0, &asn1_ctx, tree, hf_ocsp_NULL_PDU);
 }
 
 
@@ -732,6 +738,10 @@ void proto_register_ocsp(void) {
       { "CrlID", "ocsp.CrlID",
         FT_NONE, BASE_NONE, NULL, 0,
         "ocsp.CrlID", HFILL }},
+    { &hf_ocsp_NULL_PDU,
+      { "NULL", "ocsp.NULL",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ocsp.NULL", HFILL }},
     { &hf_ocsp_tbsRequest,
       { "tbsRequest", "ocsp.tbsRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -973,6 +983,7 @@ void proto_reg_handoff_ocsp(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.4", dissect_AcceptableResponses_PDU, proto_ocsp, "id-pkix-ocsp-response");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.5", dissect_NULL_PDU, proto_ocsp, "id-pkix-ocsp-nocheck");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
   register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
 

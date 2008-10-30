@@ -20,6 +20,7 @@ PKIX1Explicit88 pkix1explicit
 BasicOCSPResponse	B	"1.3.6.1.5.5.7.48.1.1"	"id-pkix-ocsp-basic"
 CrlID				B	"1.3.6.1.5.5.7.48.1.3"	"id-pkix-ocsp-crl"
 AcceptableResponses	B	"1.3.6.1.5.5.7.48.1.4"	"id-pkix-ocsp-response"
+NULL				B	"1.3.6.1.5.5.7.48.1.5"	"id-pkix-ocsp-nocheck"
 ArchiveCutoff		B	"1.3.6.1.5.5.7.48.1.6"	"id-pkix-ocsp-archive-cutoff"
 ServiceLocator		B	"1.3.6.1.5.5.7.48.1.7"	"id-pkix-ocsp-service-locator"
 
