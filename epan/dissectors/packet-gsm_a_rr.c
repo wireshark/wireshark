@@ -3032,7 +3032,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	guint32	curr_offset;
    gint bit_offset, bit_offset_sav, bit_offset_sav2, idx;
    guint8 value;
-   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
+   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0=0;
 
 	len = 20;
 	curr_offset = offset;
