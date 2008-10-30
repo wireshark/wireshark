@@ -1474,13 +1474,10 @@ static gchar * get_repoid_from_objkey(GHashTable *hash, guint8 *obj, guint32 len
 static gchar * get_modname_from_repoid(gchar *repoid) {
 
   gchar *modname = NULL;
-  gchar *saved_repoid = NULL;
   gchar c = 'a';
   guint8 stop_mod = 0;		/* Index of last character of modname in Repoid  */
   guint8 start_mod = 4;		/* Index where Module name starts in repoid */
   int i;
-
-  saved_repoid = g_strdup(repoid); /* make a copy */
 
   /* Must start with IDL: , otherwise I get confused */
 
