@@ -1558,6 +1558,9 @@ AC_SUBST(ENABLE_STATIC)
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
 
+sinclude(plugins/Custom.m4) dnl
+ifdef(_CUSTOM_AC_OUTPUT_, '', define(_CUSTOM_AC_OUTPUT_, )) dnl
+
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
   Makefile
@@ -1697,6 +1700,7 @@ AC_OUTPUT(
   tools/lemon/Makefile
   wiretap/Makefile
   wsutil/Makefile
+  _CUSTOM_AC_OUTPUT_
   ,)
 dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 

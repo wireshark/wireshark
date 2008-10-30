@@ -238,8 +238,8 @@ wimaxasncp_DATA = \
 PLATFORM_SRC = capture-pcap-util-unix.c
 
 if HAVE_PLUGINS
-
-plugin_ldadd = \
+-include plugins/Custom.make
+plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/agentx/agentx.la \
 	-dlopen plugins/artnet/artnet.la \
 	-dlopen plugins/asn1/asn1.la \

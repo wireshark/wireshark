@@ -185,7 +185,7 @@ inet_pton.c:
 if HAVE_PLUGINS
 
 if ENABLE_STATIC
-
+-include ../plugins/Custom.make
 plugin_src = \
 	../plugins/artnet/packet-artnet.c \
 	../plugins/asn1/packet-asn1.c \
