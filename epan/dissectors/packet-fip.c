@@ -30,7 +30,8 @@
 /*
  * For FIP protocol details, see http://t11.org.
  * This version uses preliminary details not yet standardized.
- * Based on FIP v2, received 4/2/08 from Claudio DeSanti (cds@cisco.com).
+ * Based on http://www.t11.org/ftp/t11/pub/fc/bb-5/08-543v1.pdf
+ * and      http://www.t11.org/ftp/t11/pub/fc/bb-5/08-545v1.pdf
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,7 +62,8 @@ void proto_reg_handoff_fip(void);
 enum fip_opcode {
         FIP_OP_DISC =   1,              /* discovery, advertisement, etc. */
         FIP_OP_LS = 2,                  /* Link Service request or reply */
-        FIP_OP_CTRL =   3               /* control */
+        FIP_OP_CTRL =   3,              /* control */
+        FIP_OP_VLAN =   4               /* VLAN request or reply */
 };
 
 /*
@@ -85,10 +87,16 @@ enum fip_ctrl_subcode {
         FIP_SC_CVL =    2               /* clear virtual link */
 };
 
+enum fip_vlan_subcode {
+        FIP_VL_REQ =    1,              /* request */
+        FIP_VL_REP =    2               /* reply */
+};
+
 static const value_string fip_opcodes[] = {
         { FIP_OP_DISC,      "Discovery" },
         { FIP_OP_LS,        "Link Service" },
         { FIP_OP_CTRL,      "Control" },
+        { FIP_OP_VLAN,      "VLAN" },
         { 0,                NULL }
 };
 
@@ -99,14 +107,20 @@ static const value_string fip_disc_subcodes[] = {
 };
 
 static const value_string fip_ls_subcodes[] = {
-        { FIP_SC_REQ,       "Request" },
-        { FIP_SC_REP,       "Response" },
+        { FIP_SC_REQ,       "ELS Request" },
+        { FIP_SC_REP,       "ELS Response" },
         { 0,    NULL }
 };
 
 static const value_string fip_ctrl_subcodes[] = {
         { FIP_SC_KA,       "Keep-Alive" },
         { FIP_SC_CVL,      "Clear Virtual Link" },
+        { 0,    NULL }
+};
+
+static const value_string fip_vlan_subcodes[] = {
+        { FIP_VL_REQ,       "VLAN Request" },
+        { FIP_VL_REP,       "VLAN Response" },
         { 0,    NULL }
 };
 
@@ -117,25 +131,26 @@ enum fip_desc_type {
         FIP_DT_PRI =    1,              /* priority for forwarder selection */
         FIP_DT_MAC =    2,              /* MAC address */
         FIP_DT_MAP_OUI = 3,             /* FC-MAP OUI */
-        FIP_DT_SWWN =   4,              /* switch name */
-        FIP_DT_FWWN =   5,              /* fabric name */
-        FIP_DT_MRS =    6,              /* max read size */
+        FIP_DT_NAME =   4,              /* switch name or node name */
+        FIP_DT_FAB =    5,              /* fabric descriptor */
+        FIP_DT_FCOE_SIZE = 6,           /* max FCoE frame size */
         FIP_DT_FLOGI =  7,              /* FLOGI request or response */
         FIP_DT_FDISC =  8,              /* FDISC request or response */
         FIP_DT_LOGO =   9,              /* LOGO request or response */
         FIP_DT_ELP =    10,             /* ELP request or response */
         FIP_DT_VN =     11,             /* VN_Port Info */
         FIP_DT_FKA =    12,             /* FIP keep-alive / advert. period */
-        FIP_DT_VEND =   13              /* Vendor-specific TLV */
+        FIP_DT_VEND =   13,             /* Vendor-specific TLV */
+        FIP_DT_VLAN =   14              /* VLAN number */
 };
 
 static const value_string fip_desc_types[] = {
         { FIP_DT_PRI,   "Priority" },
         { FIP_DT_MAC,   "MAC Address" },
         { FIP_DT_MAP_OUI, "FPMA MAP OUI" },
-        { FIP_DT_SWWN,  "Switch Name" },
-        { FIP_DT_FWWN,  "Fabric Name" },
-        { FIP_DT_MRS,   "Max Receive Size" },
+        { FIP_DT_NAME,  "Switch or Node Name" },
+        { FIP_DT_FAB,   "Fabric Descriptor" },
+        { FIP_DT_FCOE_SIZE, "Max FCoE frame size" },
         { FIP_DT_FLOGI, "FLOGI Encapsulation" },
         { FIP_DT_FDISC, "FDISC Encapsulation" },
         { FIP_DT_LOGO,  "LOGO Encapsulation" },
@@ -143,6 +158,7 @@ static const value_string fip_desc_types[] = {
         { FIP_DT_VN,    "VN_Port Info" },
         { FIP_DT_FKA,   "FKA_ADV_Period" },
         { FIP_DT_VEND,  "Vendor_ID" },
+        { FIP_DT_VLAN,  "VLAN" },
         { 0,    NULL }
 };
 
@@ -163,6 +179,7 @@ static int hf_fip_op            = -1;
 static int hf_fip_disc_subcode  = -1;
 static int hf_fip_ls_subcode    = -1;
 static int hf_fip_ctrl_subcode  = -1;
+static int hf_fip_vlan_subcode  = -1;
 static int hf_fip_hex_subcode   = -1;
 static int hf_fip_dlen          = -1;
 static int hf_fip_flags         = -1;
@@ -171,20 +188,33 @@ static int hf_fip_flag_spma     = -1;
 static int hf_fip_flag_avail    = -1;
 static int hf_fip_flag_sol      = -1;
 static int hf_fip_flag_fport    = -1;
+
+static const int *hf_fip_flags_fields[] = {
+    &hf_fip_flag_fpma,
+    &hf_fip_flag_spma,
+    &hf_fip_flag_avail,
+    &hf_fip_flag_sol,
+    &hf_fip_flag_fport,
+    NULL
+};
+
 static int hf_fip_desc_type     = -1;
 static int hf_fip_desc_len      = -1;
 static int hf_fip_desc_pri      = -1;
 static int hf_fip_desc_mac      = -1;
 static int hf_fip_desc_map      = -1;
-static int hf_fip_desc_swwn     = -1;
-static int hf_fip_desc_fwwn     = -1;
-static int hf_fip_desc_mrs      = -1;
+static int hf_fip_desc_name     = -1;
+static int hf_fip_desc_fab_vfid = -1;
+static int hf_fip_desc_fab_map  = -1;
+static int hf_fip_desc_fab_name = -1;
+static int hf_fip_desc_fcoe_size = -1;
 static int hf_fip_desc_vn_mac   = -1;
 static int hf_fip_desc_vn_fid   = -1;
 static int hf_fip_desc_vn_wwpn  = -1;
 static int hf_fip_desc_fka      = -1;
 static int hf_fip_desc_vend     = -1;
 static int hf_fip_desc_vend_data = -1;
+static int hf_fip_desc_vlan     = -1;
 static int hf_fip_desc_unk      = -1;
 
 static int ett_fip              = -1;
@@ -192,13 +222,14 @@ static int ett_fip_flags        = -1;
 static int ett_fip_dt_pri       = -1;
 static int ett_fip_dt_mac       = -1;
 static int ett_fip_dt_map       = -1;
-static int ett_fip_dt_swwn      = -1;
-static int ett_fip_dt_fwwn      = -1;
+static int ett_fip_dt_name      = -1;
+static int ett_fip_dt_fab       = -1;
 static int ett_fip_dt_mdl       = -1;
 static int ett_fip_dt_caps      = -1;
 static int ett_fip_dt_vn        = -1;
 static int ett_fip_dt_fka       = -1;
 static int ett_fip_dt_vend      = -1;
+static int ett_fip_dt_vlan      = -1;
 static int ett_fip_dt_unk       = -1;
 
 static dissector_handle_t fc_handle;
@@ -227,6 +258,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint dtype;
     guint dlen;
     guint desc_offset;
+    guint val;
     tvbuff_t *desc_tvb;
     tvbuff_t *ls_tvb = NULL;
     const char *info;
@@ -257,6 +289,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FIP_OP_CTRL:
         info = val_to_str(sub, fip_ctrl_subcodes, "Control 0x%x");
         break;
+    case FIP_OP_VLAN:
+        info = val_to_str(sub, fip_vlan_subcodes, "VLAN 0x%x");
+        break;
     default:
         info = val_to_str(op, fip_opcodes, "Unknown op 0x%x");
         break;
@@ -284,30 +319,17 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FIP_OP_CTRL:
         proto_tree_add_item(fip_tree, hf_fip_ctrl_subcode, tvb, 5, 1, FALSE);
         break;
+    case FIP_OP_VLAN:
+        proto_tree_add_item(fip_tree, hf_fip_vlan_subcode, tvb, 5, 1, FALSE);
+        break;
     default:
         proto_tree_add_item(fip_tree, hf_fip_hex_subcode, tvb, 5, 1, FALSE);
         break;
     }
     proto_tree_add_item(fip_tree, hf_fip_dlen, tvb, 6, 2, FALSE);
 
-    /*
-     * Handle flags.  Show just the known ones that are set.
-     */
-    item = proto_tree_add_uint_format_value(fip_tree, hf_fip_flags,
-      tvb, 8, 2, flags, "%s%s%s%s%s%s",
-      (flags) ? "" : "0",
-      (flags & FIP_FL_FPMA) ? "FPMA " : "",
-      (flags & FIP_FL_SPMA) ? "SPMA " : "",
-      (flags & FIP_FL_AVAIL) ? "Available " : "",
-      (flags & FIP_FL_SOL) ? "Solicited " : "",
-      (flags & FIP_FL_FPORT) ? "F_Port " : "");
-
-    subtree = proto_item_add_subtree(item, ett_fip_flags);
-    proto_tree_add_item(subtree, hf_fip_flag_fpma, tvb, 8, 2, FALSE);
-    proto_tree_add_item(subtree, hf_fip_flag_spma, tvb, 8, 2, FALSE);
-    proto_tree_add_item(subtree, hf_fip_flag_avail, tvb, 8, 2, FALSE);
-    proto_tree_add_item(subtree, hf_fip_flag_sol, tvb, 8, 2, FALSE);
-    proto_tree_add_item(subtree, hf_fip_flag_fport, tvb, 8, 2, FALSE);
+    proto_tree_add_bitmask(fip_tree, tvb, 8, hf_fip_flags,
+            ett_fip_flags, hf_fip_flags_fields, FALSE);
 
     desc_offset = FIP_HEADER_LEN;
     rlen *= FIP_BPW;
@@ -350,31 +372,36 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FIP_DT_MAP_OUI:
             subtree = proto_item_add_subtree(item, ett_fip_dt_map);
             fip_desc_type_len(subtree, desc_tvb);
-            proto_tree_add_item(subtree, hf_fip_desc_map, desc_tvb,
-                    5, 3, FALSE);
-            proto_item_append_text(item, "%6.6x",
-                    tvb_get_ntoh24(desc_tvb, 5));
+            text = fc_to_str(tvb_get_ptr(desc_tvb, 5, 3));
+            proto_tree_add_string(subtree, hf_fip_desc_map, desc_tvb,
+                    5, 3, text);
+            proto_item_append_text(item, text);
             break;
-        case FIP_DT_SWWN:
-            subtree = proto_item_add_subtree(item, ett_fip_dt_swwn);
+        case FIP_DT_NAME:
+            subtree = proto_item_add_subtree(item, ett_fip_dt_name);
             fip_desc_type_len(subtree, desc_tvb);
             text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 4, 8));
-            proto_tree_add_string(subtree, hf_fip_desc_swwn,
+            proto_tree_add_string(subtree, hf_fip_desc_name,
                     desc_tvb, 4, 8, text);
             proto_item_append_text(item, text);
             break;
-        case FIP_DT_FWWN:
-            subtree = proto_item_add_subtree(item, ett_fip_dt_fwwn);
+        case FIP_DT_FAB:
+            subtree = proto_item_add_subtree(item, ett_fip_dt_fab);
             fip_desc_type_len(subtree, desc_tvb);
-            text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 4, 8));
-            proto_tree_add_string(subtree, hf_fip_desc_fwwn,
-                    desc_tvb, 4, 8, text);
+            proto_tree_add_item(subtree, hf_fip_desc_fab_vfid, desc_tvb,
+                    2, 2, FALSE);
+            text = fc_to_str(tvb_get_ptr(desc_tvb, 5, 3));
+            proto_tree_add_string(subtree, hf_fip_desc_fab_map, desc_tvb,
+                    5, 3, text);
+            text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 8, 8));
+            proto_tree_add_string(subtree, hf_fip_desc_fab_name,
+                    desc_tvb, 8, 8, text);
             proto_item_append_text(item, text);
             break;
-        case FIP_DT_MRS:
+        case FIP_DT_FCOE_SIZE:
             subtree = proto_item_add_subtree(item, ett_fip_dt_mdl);
             fip_desc_type_len(subtree, desc_tvb);
-            proto_tree_add_item(subtree, hf_fip_desc_mrs, desc_tvb,
+            proto_tree_add_item(subtree, hf_fip_desc_fcoe_size, desc_tvb,
                     2, 2, FALSE);
             proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
             break;
@@ -405,10 +432,10 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FIP_DT_FKA:
             subtree = proto_item_add_subtree(item, ett_fip_dt_fka);
             fip_desc_type_len(subtree, desc_tvb);
-            proto_tree_add_item(subtree, hf_fip_desc_fka, desc_tvb,
-                    4, 4, FALSE);
-            proto_item_append_text(item, "%u seconds",
-                    tvb_get_ntohl(desc_tvb, 4));
+            val = tvb_get_ntohl(desc_tvb, 4);
+            proto_tree_add_uint_format_value(subtree, hf_fip_desc_fka,
+                    desc_tvb, 4, 4, val, "%u ms", val);
+            proto_item_append_text(item, "%u ms", val);
             break;
         case FIP_DT_VEND:
             subtree = proto_item_add_subtree(item, ett_fip_dt_vend);
@@ -416,9 +443,16 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(subtree, hf_fip_desc_vend, desc_tvb,
                     4, 8, FALSE);
             if (tvb_bytes_exist(desc_tvb, 9, -1)) {
-                proto_tree_add_time(subtree, hf_fip_desc_vend_data,
+                proto_tree_add_item(subtree, hf_fip_desc_vend_data,
                      desc_tvb, 9, -1, FALSE);
             }
+            break;
+        case FIP_DT_VLAN:
+            subtree = proto_item_add_subtree(item, ett_fip_dt_vlan);
+            fip_desc_type_len(subtree, desc_tvb);
+            proto_tree_add_item(subtree, hf_fip_desc_vlan, desc_tvb,
+                    2, 2, FALSE);
+            proto_item_append_text(item, "%u", tvb_get_ntohs(desc_tvb, 2));
             break;
         default:
             subtree = proto_item_add_subtree(item, ett_fip_dt_unk);
@@ -453,6 +487,9 @@ proto_register_fip(void)
         { &hf_fip_ctrl_subcode,
           {"Control Subcode", "fip.ctrl_subcode", FT_UINT8, BASE_HEX,
            VALS(&fip_ctrl_subcodes), 0, "", HFILL}},
+        { &hf_fip_vlan_subcode,
+          {"VLAN Subcode", "fip.vlan_subcode", FT_UINT8, BASE_HEX,
+           VALS(&fip_vlan_subcodes), 0, "", HFILL}},
         { &hf_fip_hex_subcode,
           {"Unknown Subcode", "fip.subcode", FT_UINT8, BASE_HEX,
            NULL, 0, "", HFILL}},
@@ -492,12 +529,20 @@ proto_register_fip(void)
           {"MAC Address", "fip.mac", FT_ETHER, 0, NULL, 0, "", HFILL}},
         { &hf_fip_desc_map,
           {"FC-MAP-OUI", "fip.map", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}},
-        { &hf_fip_desc_swwn,
-          {"Switch Name", "fip.swwn", FT_STRING, BASE_HEX, NULL, 0, "", HFILL}},
-        { &hf_fip_desc_fwwn,
-          {"Fabric Name", "fip.fwwn", FT_STRING, BASE_HEX, NULL, 0, "", HFILL}},
-        { &hf_fip_desc_mrs,
-          {"Max Receive Size", "fip.mrs", FT_UINT16, BASE_DEC, NULL,
+        { &hf_fip_desc_name,
+          {"Switch or Node Name", "fip.name", FT_STRING, BASE_HEX, NULL,
+            0, "", HFILL}},
+        { &hf_fip_desc_fab_vfid,
+          {"VFID Descriptor", "fip.fab.vfid", FT_STRING, BASE_DEC, NULL,
+            0, "", HFILL}},
+        { &hf_fip_desc_fab_map,
+          {"FC-MAP", "fip.fab.map", FT_STRING, BASE_HEX, NULL,
+            0, "", HFILL}},
+        { &hf_fip_desc_fab_name,
+          {"Fabric Descriptor", "fip.fab.name", FT_STRING, BASE_HEX, NULL,
+            0, "", HFILL}},
+        { &hf_fip_desc_fcoe_size,
+          {"Max FCoE frame size", "fip.fcoe_size", FT_UINT16, BASE_DEC, NULL,
             0, "", HFILL}},
         { &hf_fip_desc_vn_mac,
           {"VN_Port MAC Address", "fip.vn.mac", FT_ETHER, 0, NULL,
@@ -516,6 +561,8 @@ proto_register_fip(void)
         { &hf_fip_desc_vend_data,
           {"Vendor-specific data", "fip.vendor.data", FT_BYTES, BASE_HEX, NULL,
             0, "", HFILL}},
+        { &hf_fip_desc_vlan,
+          {"VLAN", "fip.vlan", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL}},
         { &hf_fip_desc_unk,
           {"Unknown Descriptor", "fip.desc", FT_BYTES, BASE_HEX, NULL,
             0, "", HFILL}}
@@ -526,13 +573,14 @@ proto_register_fip(void)
         &ett_fip_dt_pri,
         &ett_fip_dt_mac,
         &ett_fip_dt_map,
-        &ett_fip_dt_swwn,
-        &ett_fip_dt_fwwn,
+        &ett_fip_dt_name,
+        &ett_fip_dt_fab,
         &ett_fip_dt_mdl,
         &ett_fip_dt_caps,
         &ett_fip_dt_vn,
         &ett_fip_dt_fka,
         &ett_fip_dt_vend,
+        &ett_fip_dt_vlan,
         &ett_fip_dt_unk
     };
 
