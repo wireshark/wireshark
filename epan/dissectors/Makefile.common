@@ -696,6 +696,7 @@ DISSECTOR_SRC = \
 	packet-rmt-norm.c	\
 	packet-roofnet.c 	\
 	packet-rpc.c		\
+	packet-rpcap.c		\
 	packet-rpl.c		\
 	packet-rquota.c		\
 	packet-rsh.c		\

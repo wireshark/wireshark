@@ -1,0 +1,1213 @@
+/* packet-rpcap.c
+ *
+ * Routines for RPCAP message formats.
+ *
+ * Copyright 2008, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/to_str.h>
+
+#include <wiretap/wtap.h>
+
+#include "packet-frame.h"
+
+#define PNAME  "Remote Packet Capture"
+#define PSNAME "RPCAP"
+#define PFNAME "rpcap"
+
+/* Recommended UDP Port Numbers */
+#define DEFAULT_RPCAP_PORT_RANGE  ""
+
+#define RPCAP_MSG_ERROR               1
+#define RPCAP_MSG_FINDALLIF_REQ       2
+#define RPCAP_MSG_OPEN_REQ            3
+#define RPCAP_MSG_STARTCAP_REQ        4
+#define RPCAP_MSG_UPDATEFILTER_REQ    5
+#define RPCAP_MSG_CLOSE               6
+#define RPCAP_MSG_PACKET              7
+#define RPCAP_MSG_AUTH_REQ            8
+#define RPCAP_MSG_STATS_REQ           9
+#define RPCAP_MSG_ENDCAP_REQ          10
+#define RPCAP_MSG_SETSAMPLING_REQ     11
+
+#define RPCAP_MSG_FINDALLIF_REPLY     (128+RPCAP_MSG_FINDALLIF_REQ)
+#define RPCAP_MSG_OPEN_REPLY          (128+RPCAP_MSG_OPEN_REQ)
+#define RPCAP_MSG_STARTCAP_REPLY      (128+RPCAP_MSG_STARTCAP_REQ)
+#define RPCAP_MSG_UPDATEFILTER_REPLY  (128+RPCAP_MSG_UPDATEFILTER_REQ)
+#define RPCAP_MSG_AUTH_REPLY          (128+RPCAP_MSG_AUTH_REQ)
+#define RPCAP_MSG_STATS_REPLY         (128+RPCAP_MSG_STATS_REQ)
+#define RPCAP_MSG_ENDCAP_REPLY        (128+RPCAP_MSG_ENDCAP_REQ)
+#define RPCAP_MSG_SETSAMPLING_REPLY   (128+RPCAP_MSG_SETSAMPLING_REQ)
+
+#define RPCAP_ERR_NETW            1
+#define RPCAP_ERR_INITTIMEOUT     2
+#define RPCAP_ERR_AUTH            3
+#define RPCAP_ERR_FINDALLIF       4
+#define RPCAP_ERR_NOREMOTEIF      5
+#define RPCAP_ERR_OPEN            6
+#define RPCAP_ERR_UPDATEFILTER    7
+#define RPCAP_ERR_GETSTATS        8
+#define RPCAP_ERR_READEX          9
+#define RPCAP_ERR_HOSTNOAUTH      10
+#define RPCAP_ERR_REMOTEACCEPT    11
+#define RPCAP_ERR_STARTCAPTURE    12
+#define RPCAP_ERR_ENDCAPTURE      13
+#define RPCAP_ERR_RUNTIMETIMEOUT  14
+#define RPCAP_ERR_SETSAMPLING     15
+#define RPCAP_ERR_WRONGMSG        16
+#define RPCAP_ERR_WRONGVER        17
+
+#define RPCAP_SAMP_NOSAMP            0
+#define RPCAP_SAMP_1_EVERY_N         1
+#define RPCAP_SAMP_FIRST_AFTER_N_MS  2
+
+#define RPCAP_RMTAUTH_NULL  0
+#define RPCAP_RMTAUTH_PWD   1
+
+#define FLAG_PROMISC     0x0001
+#define FLAG_DGRAM       0x0002
+#define FLAG_SERVEROPEN  0x0004
+#define FLAG_INBOUND     0x0008
+#define FLAG_OUTBOUND    0x0010
+
+void proto_reg_handoff_rpcap (void);
+
+static int proto_rpcap = -1;
+
+static int hf_version = -1;
+static int hf_type = -1;
+static int hf_value = -1;
+static int hf_error_value = -1;
+static int hf_plen = -1;
+
+static int hf_error = -1;
+
+static int hf_packet = -1;
+static int hf_timestamp = -1;
+static int hf_caplen = -1;
+static int hf_len = -1;
+static int hf_npkt = -1;
+
+static int hf_auth_request = -1;
+static int hf_auth_type = -1;
+static int hf_auth_slen1 = -1;
+static int hf_auth_slen2 = -1;
+static int hf_auth_username = -1;
+static int hf_auth_password = -1;
+
+static int hf_open_request = -1;
+
+static int hf_open_reply = -1;
+static int hf_linktype = -1;
+static int hf_tzoff = -1;
+
+static int hf_startcap_request = -1;
+static int hf_snaplen = -1;
+static int hf_read_timeout = -1;
+static int hf_flags = -1;
+static int hf_flags_promisc = -1;
+static int hf_flags_dgram = -1;
+static int hf_flags_serveropen = -1;
+static int hf_flags_inbound = -1;
+static int hf_flags_outbound = -1;
+static int hf_client_port = -1;
+static int hf_startcap_reply = -1;
+static int hf_bufsize = -1;
+static int hf_server_port = -1;
+static int hf_dummy = -1;
+
+static int hf_filter = -1;
+static int hf_filtertype = -1;
+static int hf_nitems = -1;
+
+static int hf_filterbpf_insn = -1;
+static int hf_code = -1;
+static int hf_jt = -1;
+static int hf_jf = -1;
+static int hf_instr_value = -1;
+
+static int hf_stats_reply = -1;
+static int hf_ifrecv = -1;
+static int hf_ifdrop = -1;
+static int hf_krnldrop = -1;
+static int hf_srvcapt = -1;
+
+static int hf_findalldevs_reply = -1;
+static int hf_findalldevs_if = -1;
+static int hf_namelen = -1;
+static int hf_desclen = -1;
+static int hf_if_flags = -1;
+static int hf_naddr = -1;
+static int hf_if_name = -1;
+static int hf_if_desc = -1;
+
+static int hf_findalldevs_ifaddr = -1;
+static int hf_if_addr = -1;
+static int hf_if_netmask = -1;
+static int hf_if_broadaddr = -1;
+static int hf_if_dstaddr = -1;
+static int hf_if_af = -1;
+static int hf_if_port = -1;
+static int hf_if_ip = -1;
+static int hf_if_padding = -1;
+static int hf_if_unknown = -1;
+
+static int hf_sampling_request = -1;
+static int hf_sampling_method = -1;
+static int hf_sampling_dummy1 = -1;
+static int hf_sampling_dummy2 = -1;
+static int hf_sampling_value = -1;
+
+static gint ett_rpcap = -1;
+static gint ett_error = -1;
+static gint ett_packet = -1;
+static gint ett_auth_request = -1;
+static gint ett_open_reply = -1;
+static gint ett_startcap_request = -1;
+static gint ett_startcap_reply = -1;
+static gint ett_startcap_flags = -1;
+static gint ett_filter = -1;
+static gint ett_filterbpf_insn = -1;
+static gint ett_stats_reply = -1;
+static gint ett_findalldevs_reply = -1;
+static gint ett_findalldevs_if = -1;
+static gint ett_findalldevs_ifaddr = -1;
+static gint ett_ifaddr = -1;
+static gint ett_sampling_request = -1;
+
+static dissector_handle_t rpcap_handle = NULL;
+static dissector_handle_t data_handle = NULL;
+
+
+/* User definable values */
+static range_t *global_rpcap_port_range = NULL;          /* Default disabled */
+static gboolean add_packet_info = TRUE;
+
+/* Global variables */
+static guint32 linktype = WTAP_ENCAP_UNKNOWN;
+
+static const true_false_string yes_no = {
+  "Yes", "No"
+};
+
+static const true_false_string enabled_disabled = {
+  "Enabled", "Disabled"
+};
+
+static const true_false_string open_closed = {
+  "Open", "Closed"
+};
+
+static const value_string message_type[] = {
+  { RPCAP_MSG_ERROR,              "Error"                       },
+  { RPCAP_MSG_FINDALLIF_REQ,      "Find all interfaces request" },
+  { RPCAP_MSG_OPEN_REQ,           "Open request"                },
+  { RPCAP_MSG_STARTCAP_REQ,       "Start capture request"       },
+  { RPCAP_MSG_UPDATEFILTER_REQ,   "Update filter request"       },
+  { RPCAP_MSG_CLOSE,              "Close"                       },
+  { RPCAP_MSG_PACKET,             "Packet"                      },
+  { RPCAP_MSG_AUTH_REQ,           "Authentication request"      },
+  { RPCAP_MSG_STATS_REQ,          "Statistics request"          },
+  { RPCAP_MSG_ENDCAP_REQ,         "End capture request"         },
+  { RPCAP_MSG_SETSAMPLING_REQ,    "Set sampling request"        },
+  { RPCAP_MSG_FINDALLIF_REPLY,    "Find all interfaces reply"   },
+  { RPCAP_MSG_OPEN_REPLY,         "Open reply"                  },
+  { RPCAP_MSG_STARTCAP_REPLY,     "Start capture reply"         },
+  { RPCAP_MSG_UPDATEFILTER_REPLY, "Update filter reply"         },
+  { RPCAP_MSG_AUTH_REPLY,         "Authentication reply"        },
+  { RPCAP_MSG_STATS_REPLY,        "Statistics reply"            },
+  { RPCAP_MSG_ENDCAP_REPLY,       "End capture reply"           },
+  { RPCAP_MSG_SETSAMPLING_REPLY,  "Set sampling reply"          },
+  { 0,   NULL }
+};
+
+static const value_string error_codes[] = {
+  { RPCAP_ERR_NETW,            "Network error"                        },
+  { RPCAP_ERR_INITTIMEOUT,     "Initial timeout has expired"          },
+  { RPCAP_ERR_AUTH,            "Authentication error"                 },
+  { RPCAP_ERR_FINDALLIF,       "Generic findalldevs error"            },
+  { RPCAP_ERR_NOREMOTEIF,      "No remote interfaces"                 },
+  { RPCAP_ERR_OPEN,            "Generic pcap_open error"              },
+  { RPCAP_ERR_UPDATEFILTER,    "Generic updatefilter error"           },
+  { RPCAP_ERR_GETSTATS,        "Generic pcap_stats error"             },
+  { RPCAP_ERR_READEX,          "Generic pcap_next_ex error"           },
+  { RPCAP_ERR_HOSTNOAUTH,      "The host is not authorized"           },
+  { RPCAP_ERR_REMOTEACCEPT,    "Generic pcap_remoteaccept error"      },
+  { RPCAP_ERR_STARTCAPTURE,    "Generic pcap_startcapture error"      },
+  { RPCAP_ERR_ENDCAPTURE,      "Generic pcap_endcapture error"        },
+  { RPCAP_ERR_RUNTIMETIMEOUT,  "Runtime timeout has expired"          },
+  { RPCAP_ERR_SETSAMPLING,     "Error in setting sampling parameters" },
+  { RPCAP_ERR_WRONGMSG,        "Unrecognized message"                 },
+  { RPCAP_ERR_WRONGVER,        "Incompatible version"                 },
+  { 0,   NULL }
+};
+
+static const value_string sampling_method[] = {
+  { RPCAP_SAMP_NOSAMP,            "No sampling"      },
+  { RPCAP_SAMP_1_EVERY_N,         "1 every N"        },
+  { RPCAP_SAMP_FIRST_AFTER_N_MS,  "First after N ms" },
+  { 0,   NULL }
+};
+
+static const value_string auth_type[] = {
+  { RPCAP_RMTAUTH_NULL, "None"     },
+  { RPCAP_RMTAUTH_PWD,  "Password" },
+  { 0,   NULL }
+};
+
+static const value_string address_family[] = {
+  { AF_UNSPEC, "AF_UNSPEC" },
+  { AF_INET,   "AF_INET"   },
+  { 0,   NULL }
+};
+
+
+static gint
+dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo _U_,
+		     proto_tree *parent_tree, gint offset)
+{
+  gint len;
+
+  len = tvb_length_remaining (tvb, offset);
+  
+  if (check_col (pinfo->cinfo, COL_INFO)) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
+		     tvb_format_text_wsp (tvb, offset, len));
+  }
+  
+  proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, FALSE);
+  offset += len;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
+		      proto_tree *parent_tree, gint offset, int hf_id,
+		      proto_item *parent_item)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  gchar ipaddr[MAX_ADDR_STR_LEN];
+  guint32 ipv4;
+  guint16 af;
+
+  ti = proto_tree_add_item (parent_tree, hf_id, tvb, offset, 128, FALSE);
+  tree = proto_item_add_subtree (ti, ett_ifaddr);
+
+  af = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_if_af, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  if (af == AF_INET) {
+    proto_tree_add_item (tree, hf_if_port, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    ipv4 = tvb_get_ipv4 (tvb, offset);
+    ip_to_str_buf((guint8 *)&ipv4, ipaddr, MAX_ADDR_STR_LEN);
+    proto_item_append_text (ti, ": %s", ipaddr);
+    if (parent_item) {
+      proto_item_append_text (parent_item, ": %s", ipaddr);
+    }
+    proto_tree_add_item (tree, hf_if_ip, tvb, offset, 4, FALSE);
+    offset += 4;
+
+    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 120, FALSE);
+    offset += 120;
+  } else {
+    proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, FALSE);
+    offset += 126;
+  }
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_findalldevs_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
+				  proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_ifaddr, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_findalldevs_ifaddr);
+
+  offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_addr, ti);
+  offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_netmask, NULL);
+  offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_broadaddr, NULL);
+  offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_dstaddr, NULL);
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
+			      proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint16 namelen, desclen, naddr, i;
+
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_if, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_findalldevs_if);
+
+  namelen = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_namelen, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  desclen = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_desclen, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_if_flags, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  naddr = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_naddr, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  if (namelen) {
+    proto_item_append_text (ti, ": %s", tvb_get_ephemeral_string (tvb, offset, namelen));
+    proto_tree_add_item (tree, hf_if_name, tvb, offset, namelen, FALSE);
+    offset += namelen;
+  }
+  
+  if (desclen) {
+    proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, FALSE);
+    offset += desclen;
+  }
+
+  for (i = 0; i < naddr; i++) {
+    offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
+  }
+  
+  proto_item_set_len (ti, 12 + namelen + desclen);
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+				 proto_tree *parent_tree, gint offset, guint16 no_devs)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint16 i;
+  
+  ti = proto_tree_add_item (parent_tree, hf_findalldevs_reply, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_findalldevs_reply);
+
+  for (i = 0; i < no_devs; i++) {
+    offset = dissect_rpcap_findalldevs_if (tvb, pinfo, tree, offset);
+  }
+
+  proto_item_append_text (ti, ", %d item%s", no_devs, plurality (no_devs, "", "s"));
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_filterbpf_insn (tvbuff_t *tvb, packet_info *pinfo _U_,
+			      proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item (parent_tree, hf_filterbpf_insn, tvb, offset, 8, FALSE);
+  tree = proto_item_add_subtree (ti, ett_filterbpf_insn);
+
+  proto_tree_add_item (tree, hf_code, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_jt, tvb, offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item (tree, hf_jf, tvb, offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item (tree, hf_instr_value, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
+		      proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint32 nitems, i;
+
+  ti = proto_tree_add_item (parent_tree, hf_filter, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_filter);
+
+  proto_tree_add_item (tree, hf_filtertype, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  nitems = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_nitems, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  for (i = 0; i < nitems; i++) {
+    offset = dissect_rpcap_filterbpf_insn (tvb, pinfo, tree, offset);
+  }
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
+			    proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint16 type, slen1, slen2;
+
+  ti = proto_tree_add_item (parent_tree, hf_auth_request, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_auth_request);
+
+  type = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_auth_type, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
+  offset += 2;
+  
+  slen1 = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_auth_slen1, tvb, offset, 2, FALSE);
+  offset += 2;
+  
+  slen2 = tvb_get_ntohs (tvb, offset);
+  proto_tree_add_item (tree, hf_auth_slen2, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  if (type == RPCAP_RMTAUTH_NULL) {
+    proto_item_append_text (ti, " (none)");
+  } else if (type == RPCAP_RMTAUTH_PWD) {
+    gchar *username, *password;
+    
+    username = tvb_get_ephemeral_string (tvb, offset, slen1);
+    proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, FALSE);
+    offset += slen1;
+    
+    password = tvb_get_ephemeral_string (tvb, offset, slen2);
+    proto_tree_add_item (tree, hf_auth_password, tvb, offset, slen2, FALSE);
+    offset += slen2;
+
+    proto_item_append_text (ti, " (%s/%s)", username, password);
+  }
+    
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
+			    proto_tree *parent_tree, gint offset)
+{
+  gint len;
+
+  len = tvb_length_remaining (tvb, offset);
+  proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, FALSE);
+  offset += len;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+			  proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item (parent_tree, hf_open_reply, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_open_reply);
+
+  linktype = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_linktype, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_tzoff, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_startcap_request (tvbuff_t *tvb, packet_info *pinfo,
+				proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree, *field_tree;
+  proto_item *ti, *field_ti;
+  guint16 flags;
+
+  ti = proto_tree_add_item (parent_tree, hf_startcap_request, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_startcap_request);
+
+  proto_tree_add_item (tree, hf_snaplen, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_read_timeout, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  flags = tvb_get_ntohs (tvb, offset);
+  field_ti = proto_tree_add_uint_format (tree, hf_flags, tvb, offset, 2, flags, "Flags");
+  field_tree = proto_item_add_subtree (field_ti, ett_startcap_flags);
+  proto_tree_add_item (field_tree, hf_flags_promisc, tvb, offset, 2, FALSE);
+  proto_tree_add_item (field_tree, hf_flags_dgram, tvb, offset, 2, FALSE);
+  proto_tree_add_item (field_tree, hf_flags_serveropen, tvb, offset, 2, FALSE);
+  proto_tree_add_item (field_tree, hf_flags_inbound, tvb, offset, 2, FALSE);
+  proto_tree_add_item (field_tree, hf_flags_outbound, tvb, offset, 2, FALSE);
+
+  if (flags & 0x1F) {
+    gchar *flagstr = g_strdup_printf ("%s%s%s%s%s",
+	  (flags & FLAG_PROMISC)    ? ", Promiscuous" : "",
+	  (flags & FLAG_DGRAM)      ? ", Datagram"    : "",
+	  (flags & FLAG_SERVEROPEN) ? ", ServerOpen"  : "",
+	  (flags & FLAG_INBOUND)    ? ", Inbound"     : "",
+	  (flags & FLAG_OUTBOUND)   ? ", Outbound"    : "");
+    proto_item_append_text (field_ti, ":%s", &flagstr[1]);
+    g_free (flagstr);
+  } else {
+    proto_item_append_text (field_ti, " (none)");
+  }
+  offset += 2;
+
+  proto_tree_add_item (tree, hf_client_port, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  offset += dissect_rpcap_filter (tvb, pinfo, tree, offset);
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_startcap_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+			      proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item (parent_tree, hf_startcap_reply, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_startcap_reply);
+
+  proto_tree_add_item (tree, hf_bufsize, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_server_port, tvb, offset, 2, FALSE);
+  offset += 2;
+  
+  proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_stats_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+			   proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+
+  ti = proto_tree_add_item (parent_tree, hf_stats_reply, tvb, offset, 16, FALSE);
+  tree = proto_item_add_subtree (ti, ett_stats_reply);
+
+  proto_tree_add_item (tree, hf_ifrecv, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_ifdrop, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_krnldrop, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_srvcapt, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
+				proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint32 value;
+  guint8 method;
+
+  ti = proto_tree_add_item (parent_tree, hf_sampling_request, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_sampling_request);
+
+  method = tvb_get_guint8 (tvb, offset);
+  proto_tree_add_item (tree, hf_sampling_method, tvb, offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item (tree, hf_sampling_dummy1, tvb, offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item (tree, hf_sampling_dummy2, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  value = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_sampling_value, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  switch (method) {
+  case RPCAP_SAMP_NOSAMP:
+    proto_item_append_text (ti, ": None");
+    break;
+  case RPCAP_SAMP_1_EVERY_N:
+    proto_item_append_text (ti, ": 1 every %d", value);
+    break;
+  case RPCAP_SAMP_FIRST_AFTER_N_MS:
+    proto_item_append_text (ti, ": First after %d ms", value);
+    break;
+  default:
+    break;
+  }
+  
+  return offset;
+}
+
+
+static gint
+dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
+		      proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  nstime_t ts;
+  tvbuff_t *new_tvb;
+  gint caplen, frame_no;
+  
+  if (add_packet_info) {
+    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
+      /* Indicate RPCAP in the protocol column */
+      col_set_str (pinfo->cinfo, COL_PROTOCOL, "R|");
+      col_set_fence (pinfo->cinfo, COL_PROTOCOL);
+    }
+
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+      /* Indicate RPCAP in the info column */
+      col_set_str (pinfo->cinfo, COL_INFO, "Remote | ");
+      col_set_fence (pinfo->cinfo, COL_INFO);
+    }
+  }
+
+  ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, FALSE);
+  tree = proto_item_add_subtree (ti, ett_packet);
+
+  ts.secs = tvb_get_ntohl (tvb, offset);
+  ts.nsecs = tvb_get_ntohl (tvb, offset + 4) * 1000;
+  proto_tree_add_time(tree, hf_timestamp, tvb, offset, 8, &ts);
+  offset += 8;
+
+  caplen = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_caplen, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_tree_add_item (tree, hf_len, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  frame_no = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_npkt, tvb, offset, 4, FALSE);
+  offset += 4;
+
+  proto_item_append_text (ti, ", Frame %d", frame_no);
+
+  new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
+  dissector_try_port(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+  offset += caplen;
+  
+  return offset;
+}
+
+
+static int
+dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  tvbuff_t *new_tvb;
+  gint len, offset = 0;
+  guint8 version, msg_type;
+  guint16 msg_value;
+  guint32 plen;
+
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_clear (pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item (top_tree, proto_rpcap, tvb, offset, -1, FALSE);
+  tree = proto_item_add_subtree (ti, ett_rpcap);
+
+  version = tvb_get_guint8 (tvb, offset);
+  proto_tree_add_item (tree, hf_version, tvb, offset, 1, FALSE);
+  offset++;
+
+  msg_type = tvb_get_guint8 (tvb, offset);
+  proto_tree_add_item (tree, hf_type, tvb, offset, 1, FALSE);
+  offset++;
+
+  if (check_col (pinfo->cinfo, COL_INFO)) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, "%s",
+		     val_to_str (msg_type, message_type, "Unknown: %d"));
+  }
+
+  proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: %d"));
+  
+  msg_value = tvb_get_ntohs (tvb, offset);
+  if (msg_type == RPCAP_MSG_ERROR) {
+    proto_tree_add_item (tree, hf_error_value, tvb, offset, 2, FALSE);
+  } else {
+    proto_tree_add_item (tree, hf_value, tvb, offset, 2, FALSE);
+  }
+  offset += 2;
+
+  plen = tvb_get_ntohl (tvb, offset);
+  proto_tree_add_item (tree, hf_plen, tvb, offset, 4, FALSE);
+  offset += 4;
+
+
+  switch (msg_type) {
+  case RPCAP_MSG_ERROR:
+    offset = dissect_rpcap_error (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_OPEN_REQ:
+    offset = dissect_rpcap_open_request (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_STARTCAP_REQ:
+    offset = dissect_rpcap_startcap_request (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_UPDATEFILTER_REQ:
+    offset = dissect_rpcap_filter (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_PACKET:
+    offset = dissect_rpcap_packet (tvb, pinfo, top_tree, tree, offset);
+    break;
+  case RPCAP_MSG_AUTH_REQ:
+    offset = dissect_rpcap_auth_request (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_SETSAMPLING_REQ:
+    offset = dissect_rpcap_sampling_request (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_FINDALLIF_REPLY:
+    offset = dissect_rpcap_findalldevs_reply (tvb, pinfo, tree, offset, msg_value);
+    break;
+  case RPCAP_MSG_OPEN_REPLY:
+    offset = dissect_rpcap_open_reply (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_STARTCAP_REPLY:
+    offset = dissect_rpcap_startcap_reply (tvb, pinfo, tree, offset);
+    break;
+  case RPCAP_MSG_STATS_REPLY:
+    offset = dissect_rpcap_stats_reply (tvb, pinfo, tree, offset);
+    break;
+  default:
+    len = tvb_length_remaining (tvb, offset);
+    if (len) {
+      /* Yet unknown, dump as data */
+      new_tvb = tvb_new_subset (tvb, offset, len, len);
+      call_dissector (data_handle, new_tvb, pinfo, top_tree);
+    }
+    break;
+  }
+  
+  return offset;
+}
+
+
+void
+proto_register_rpcap (void)
+{
+  static hf_register_info hf[] = {
+    /* Common header for all messages */
+    { &hf_version,
+      { "Version", "rpcap.version", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Version", HFILL } },
+    { &hf_type,
+      { "Message type", "rpcap.type", FT_UINT8, BASE_DEC,
+	VALS(message_type), 0x0, "Message type", HFILL } },
+    { &hf_error_value,
+      { "Error value", "rpcap.error_value", FT_UINT16, BASE_DEC,
+	VALS(error_codes), 0x0, "Error value", HFILL } },
+    { &hf_value,
+      { "Message value", "rpcap.value", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Message value", HFILL } },
+    { &hf_plen,
+      { "Payload length", "rpcap.len", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Payload length", HFILL } },
+
+    /* Error */
+    { &hf_error,
+      { "Error", "rpcap.error", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Error text", HFILL } },
+    
+    /* Packet header */
+    { &hf_packet,
+      { "Packet", "rpcap.packet", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Packet data", HFILL } },
+    { &hf_timestamp,
+      { "Arrival time", "rpcap.time", FT_ABSOLUTE_TIME, BASE_NONE,
+	NULL, 0x0, "Arrival time", HFILL } },
+    { &hf_caplen,
+      { "Capture length", "rpcap.cap_len", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Capture length", HFILL } },
+    { &hf_len,
+      { "Frame length", "rpcap.len", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Frame length (off wire)", HFILL } },
+    { &hf_npkt,
+      { "Frame number", "rpcap.number", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Frame number", HFILL } },
+
+    /* Authentication request */
+    { &hf_auth_request,
+      { "Authentication", "rpcap.auth", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Authentication", HFILL } },
+    { &hf_auth_type,
+      { "Authentication type", "rpcap.auth_type", FT_UINT16, BASE_DEC,
+	VALS(auth_type), 0x0, "Authentication type", HFILL } },
+    { &hf_auth_slen1,
+      { "Authentication item length 1", "rpcap.auth_len1", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Authentication item length 1", HFILL } },
+    { &hf_auth_slen2,
+      { "Authentication item length 2", "rpcap.auth_len2", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Authentication item length 2", HFILL } },
+    { &hf_auth_username,
+      { "Username", "rpcap.username", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Username", HFILL } },
+    { &hf_auth_password,
+      { "Password", "rpcap.password", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Password", HFILL } },
+    
+    /* Open request */
+    { &hf_open_request,
+      { "Open request", "rpcap.open_request", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Open request", HFILL } },
+    
+    /* Open reply */
+    { &hf_open_reply,
+      { "Open reply", "rpcap.open_reply", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Open reply", HFILL } },
+    { &hf_linktype,
+      { "Link type", "rpcap.linktype", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Link type", HFILL } },
+    { &hf_tzoff,
+      { "Timezone offset", "rpcap.tzoff", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Timezone offset", HFILL } },
+
+    /* Start capture request */
+    { &hf_startcap_request,
+      { "Start capture request", "rpcap.startcap_request", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Start capture request", HFILL } },
+    { &hf_snaplen,
+      { "Snap length", "rpcap.snaplen", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Snap length", HFILL } },
+    { &hf_read_timeout,
+      { "Read timeout", "rpcap.read_timeout", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Read timeout", HFILL } },
+    { &hf_flags,
+      { "Flags", "rpcap.flags", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Capture flags", HFILL } },
+    { &hf_flags_promisc,
+      { "Promiscuous mode", "rpcap.flags.promisc", FT_BOOLEAN, 16,
+	TFS(&enabled_disabled), FLAG_PROMISC, "Promiscuous mode", HFILL } },
+    { &hf_flags_dgram,
+      { "Use Datagram", "rpcap.flags.dgram", FT_BOOLEAN, 16,
+	TFS(&yes_no), FLAG_DGRAM, "", HFILL } },
+    { &hf_flags_serveropen,
+      { "Server open", "rpcap.flags.serveropen", FT_BOOLEAN, 16,
+	TFS(&open_closed), FLAG_SERVEROPEN, "Server open", HFILL } },
+    { &hf_flags_inbound,
+      { "Inbound", "rpcap.flags.inbound", FT_BOOLEAN, 16,
+	TFS(&yes_no), FLAG_INBOUND, "Inbound", HFILL } },
+    { &hf_flags_outbound,
+      { "Outbound", "rpcap.flags.outbound", FT_BOOLEAN, 16,
+	TFS(&yes_no), FLAG_OUTBOUND, "Outbound", HFILL } },
+    { &hf_client_port,
+      { "Client Port", "rpcap.client_port", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Client Port", HFILL } },
+
+    /* Start capture reply */
+    { &hf_startcap_reply,
+      { "Start capture reply", "rpcap.startcap_reply", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Start Capture Reply", HFILL } },
+    { &hf_bufsize,
+      { "Buffer size", "rpcap.bufsize", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Buffer size", HFILL } },
+    { &hf_server_port,
+      { "Server port", "rpcap.server_port", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Server port", HFILL } },
+    { &hf_dummy,
+      { "Dummy", "rpcap.dummy", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "", HFILL } },
+
+    /* Filter */
+    { &hf_filter,
+      { "Filter", "rpcap.filter", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Filter", HFILL } },
+    { &hf_filtertype,
+      { "Filter type", "rpcap.filtertype", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Filter type (BPF)", HFILL } },
+    { &hf_nitems,
+      { "Number of items", "rpcap.nitems", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Number of items", HFILL } },
+
+    /* Filter BPF instruction */
+    { &hf_filterbpf_insn,
+      { "Filter BPF instruction", "rpcap.filterbpf_insn", FT_NONE, BASE_NONE,
+	NULL, 0x0, "", HFILL } },
+    { &hf_code,
+      { "Op code", "rpcap.opcode", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Operation code", HFILL } },
+    { &hf_jt,
+      { "JT", "rpcap.jt", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "JT", HFILL } },
+    { &hf_jf,
+      { "JF", "rpcap.jf", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "JF", HFILL } },
+    { &hf_instr_value,
+      { "Instruction value", "rpcap.instr_value", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Instruction-Dependent value", HFILL } },
+
+    /* Statistics reply */
+    { &hf_stats_reply,
+      { "Statistics", "rpcap.stats_reply", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Statistics reply data", HFILL } },
+    { &hf_ifrecv,
+      { "Received by kernel filter", "rpcap.ifrecv", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Received by kernel", HFILL } },
+    { &hf_ifdrop,
+      { "Dropped by network interface", "rpcap.ifdrop", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Dropped by network interface", HFILL } },
+    { &hf_krnldrop,
+      { "Dropped by kernel filter", "rpcap.krnldrop", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Dropped by kernel filter", HFILL } },
+    { &hf_srvcapt,
+      { "Captured by rpcapd", "rpcap.srvcapt", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Captured by RPCAP daemon", HFILL } },
+
+    /* Find all devices reply */
+    { &hf_findalldevs_reply,
+      { "Find all devices", "rpcap.findalldevs_reply", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Find all devices", HFILL } },
+    { &hf_findalldevs_if,
+      { "Interface", "rpcap.if", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Interface", HFILL } },
+    { &hf_namelen,
+      { "Name length", "rpcap.namelen", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Name length", HFILL } },
+    { &hf_desclen,
+      { "Description length", "rpcap.desclen", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Description length", HFILL } },
+    { &hf_if_flags,
+      { "Interface flags", "rpcap.if.flags", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Interface flags", HFILL } },
+    { &hf_naddr,
+      { "Number of addresses", "rpcap.naddr", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Number of addresses", HFILL } },
+    { &hf_if_name,
+      { "Name", "rpcap.ifname", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Interface name", HFILL } },
+    { &hf_if_desc,
+      { "Description", "rpcap.ifdesc", FT_STRING, BASE_DEC,
+	NULL, 0x0, "Interface description", HFILL } },
+
+    /* Find all devices / Interface addresses */
+    { &hf_findalldevs_ifaddr,
+      { "Interface address", "rpcap.ifaddr", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Interface address", HFILL } },
+    { &hf_if_addr,
+      { "Address", "rpcap.addr", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Network address", HFILL } },
+    { &hf_if_netmask,
+      { "Netmask", "rpcap.netmask", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Netmask", HFILL } },
+    { &hf_if_broadaddr,
+      { "Broadcast", "rpcap.broadaddr", FT_NONE, BASE_NONE,
+	NULL, 0x0, "", HFILL } },
+    { &hf_if_dstaddr,
+      { "P2P destination address", "rpcap.dstaddr", FT_NONE, BASE_NONE,
+	NULL, 0x0, "P2P destination address", HFILL } },
+    { &hf_if_af,
+      { "Address family", "rpcap.if.af", FT_UINT16, BASE_HEX,
+	VALS(address_family), 0x0, "Address family", HFILL } },
+    { &hf_if_port,
+      { "Port", "rpcap.if.port", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Port number", HFILL } },
+    { &hf_if_ip,
+      { "IP address", "rpcap.if.ip", FT_IPv4, BASE_NONE,
+	NULL, 0x0, "IP address", HFILL } },
+    { &hf_if_padding,
+      { "Padding", "rpcap.if.padding", FT_BYTES, BASE_NONE,
+	NULL, 0x0, "Padding", HFILL } },
+    { &hf_if_unknown,
+      { "Unknown address", "rpcap.if.unknown", FT_BYTES, BASE_NONE,
+	NULL, 0x0, "Unknown address", HFILL } },
+
+    /* Sampling request */
+    { &hf_sampling_request,
+      { "Sampling", "rpcap.sampling_request", FT_NONE, BASE_NONE,
+	NULL, 0x0, "Sampling", HFILL } },
+    { &hf_sampling_method,
+      { "Method", "rpcap.sampling_method", FT_UINT8, BASE_DEC,
+	VALS(sampling_method), 0x0, "Sampling method", HFILL } },
+    { &hf_sampling_dummy1,
+      { "Dummy1", "rpcap.dummy", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Dummy1", HFILL } },
+    { &hf_sampling_dummy2,
+      { "Dummy2", "rpcap.dummy", FT_UINT16, BASE_DEC,
+	NULL, 0x0, "Dummy2", HFILL } },
+    { &hf_sampling_value,
+      { "Value", "rpcap.sampling_value", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "", HFILL } },
+  };
+
+  static gint *ett[] = {
+    &ett_rpcap,
+    &ett_error,
+    &ett_packet,
+    &ett_auth_request,
+    &ett_open_reply,
+    &ett_startcap_request,
+    &ett_startcap_reply,
+    &ett_startcap_flags,
+    &ett_filter,
+    &ett_filterbpf_insn,
+    &ett_stats_reply,
+    &ett_findalldevs_reply,
+    &ett_findalldevs_if,
+    &ett_findalldevs_ifaddr,
+    &ett_ifaddr,
+    &ett_sampling_request
+  };
+
+  module_t *rpcap_module;
+
+  proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  new_register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+	
+  proto_register_field_array (proto_rpcap, hf, array_length (hf));
+  proto_register_subtree_array (ett, array_length (ett));
+
+  /* Set default UDP ports */
+  range_convert_str (&global_rpcap_port_range, DEFAULT_RPCAP_PORT_RANGE, MAX_UDP_PORT);
+
+  /* Register our configuration options */
+  rpcap_module = prefs_register_protocol (proto_rpcap, proto_reg_handoff_rpcap);
+
+  prefs_register_range_preference (rpcap_module, "ports",
+				  "Port numbers",
+				  "Port numbers used for RPCAP traffic",
+				   &global_rpcap_port_range, MAX_UDP_PORT);
+  prefs_register_bool_preference (rpcap_module, "add_packet_info",
+                                  "Indicate RPCAP in columns",
+                                  "Indicate that this is a Remote PCAP packet "
+				  "in the protocol column and the info column",
+                                  &add_packet_info);
+}
+
+static void
+range_delete_callback (guint32 port)
+{
+  dissector_delete ("tcp.port", port, rpcap_handle);
+  dissector_delete ("udp.port", port, rpcap_handle);
+}
+
+static void
+range_add_callback (guint32 port)
+{
+  dissector_add ("tcp.port", port, rpcap_handle);
+  dissector_add ("udp.port", port, rpcap_handle);
+}
+
+void
+proto_reg_handoff_rpcap (void)
+{
+  static range_t *rpcap_port_range;
+  static int rpcap_prefs_initialized = FALSE;
+
+  if (!rpcap_prefs_initialized) {
+    rpcap_handle = find_dissector (PFNAME);
+    data_handle = find_dissector ("data");
+    rpcap_prefs_initialized = TRUE;
+  } else {
+    range_foreach (rpcap_port_range, range_delete_callback);
+    g_free (rpcap_port_range);
+  }
+
+  /* Save port number for later deletion */
+  rpcap_port_range = range_copy (global_rpcap_port_range);
+    
+  range_foreach (rpcap_port_range, range_add_callback);
+}
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 noexpandtab
+ * :indentSize=2:tabSize=8:noTabs=false:
+ */
