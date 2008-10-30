@@ -411,6 +411,9 @@ print_statistics_loop(gboolean machine_readable)
     pcap_t      *pch;
     char        errbuf[PCAP_ERRBUF_SIZE];
     struct pcap_stat ps;
+#ifndef _WIN32
+    struct sigaction act;
+#endif	
 
     if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
@@ -452,6 +455,13 @@ print_statistics_loop(gboolean machine_readable)
         printf("%-15s  %10s  %10s\n", "Interface", "Received",
             "Dropped");
     }
+
+#ifndef _WIN32
+    /* handle SIGPIPE signal to default action */
+    act.sa_handler = SIG_DFL;
+    sigemptyset(&act.sa_mask);
+    sigaction(SIGPIPE,&act,NULL);
+#endif	
 
     global_ld.go = TRUE;
     while (global_ld.go) {
