@@ -135,6 +135,7 @@ extern int hf_gsm_a_length;
 extern int hf_gsm_a_extension;
 extern int hf_gsm_a_tmsi;
 extern int hf_gsm_a_L3_protocol_discriminator;
+extern int hf_gsm_a_call_prio;
 extern int hf_gsm_a_b8spare;
 extern int hf_gsm_a_skip_ind;
 extern int hf_gsm_a_rr_chnl_needed_ch1;

@@ -290,7 +290,7 @@ static int hf_gsm_a_tmgi_mcc_mnc_ind = -1;
 static int hf_gsm_a_mbs_ses_id_ind = -1;
 static int hf_gsm_a_mbs_service_id = -1;
 int hf_gsm_a_L3_protocol_discriminator = -1;
-static int hf_gsm_a_call_prio = -1;
+int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
 
 static int hf_gsm_a_b7spare = -1;
@@ -1925,7 +1925,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_call_prio, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_call_prio, tvb, (curr_offset<<3)+5, 3, FALSE);
 	curr_offset++;
 
 	/* no length check possible */
@@ -2168,7 +2168,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_call_prio,
 		{ "Call priority", "gsm_a.call_prio",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x07,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x00,
 		"Call priority", HFILL }
 	},
 	{ &hf_gsm_a_skip_ind,
@@ -2250,8 +2250,8 @@ proto_register_gsm_a_common(void)
 		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SMS_VALUE (Switch-Measure-Switch)", HFILL}
 	},
 	{ &hf_gsm_a_sm_value,
-		{ "SM_VALUE (Switch-Measure", "gsm_a.classmark3.sm_value",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SM_VALUE (Switch-Measure", HFILL}
+		{ "SM_VALUE (Switch-Measure)", "gsm_a.classmark3.sm_value",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,"SM_VALUE (Switch-Measure)", HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
 		{ "Location estimate","gsm_a.gad.location_estimate",
