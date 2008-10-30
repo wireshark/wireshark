@@ -382,6 +382,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
     GtkTreeIter       *l_select;
+    gchar *list_name = NULL;
 
     /* Get a pointer to a static variable holding the type of filter on
        which we're working, so we can pass that pointer to callback
@@ -392,12 +393,14 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         filter_dialogs = &cfilter_dialogs;
         filter_list_type_p = &cfilter_list_type;
         list_type = CFILTER_EDITED_LIST;
+        list_name = "Capture Filter";
         break;
 
     case DFILTER_LIST:
         filter_dialogs = &dfilter_dialogs;
         filter_list_type_p = &dfilter_list_type;
         list_type = DFILTER_EDITED_LIST;
+        list_name = "Display Filter";
         break;
 
     default:
@@ -457,7 +460,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, del_bt, ("Delete the selected filter"), NULL);
 
-    filter_fr = gtk_frame_new("Filter");
+    filter_fr = gtk_frame_new(list_name);
     gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
     gtk_widget_show(filter_fr);
 
