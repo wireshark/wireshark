@@ -51,6 +51,7 @@ static int hf_gsm_bsslap_rrlp_flg = -1;
 static int hf_gsm_bsslap_tfi = -1;
 static int hf_gsm_bsslap_poll_rep = -1;
 static int hf_gsm_bsslap_lac = -1;
+static int hf_gsm_bsslap_cell_id_disc = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
@@ -254,13 +255,50 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * 5.17 Cell Identity List IE
  */
+/* 
+ * The Cell identification discriminator i is coded as follows:
+ */
+const value_string gsm_a_bsslap_cell_id_disc_vals[] = {
+	{  0x0,				"The whole Cell Global Identification, CGI, is used to identify the 2G cells" },
+	{  0x1,				"Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells" },
+	{  0x2,				"3G Cell identification container 1" },
+	{  0x3,				"3G Cell identification container 2" },
+	{ 0,			NULL }
+};
+
+
+
 static guint8
 de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 cell_id_disc;
 
 	curr_offset = offset;
-	proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+	cell_id_disc = tvb_get_guint8(tvb,curr_offset);
+
+	proto_tree_add_item(tree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, FALSE);
+	switch(cell_id_disc){
+		case 0:
+			/* The whole Cell Global Identification, CGI, is used to identify the 2G cells. */
+			curr_offset +=
+			be_cell_id_aux(tvb, tree, curr_offset, len, add_string, string_len, 0);
+			break;
+		case 1:
+			/* Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells. */
+			curr_offset +=
+			be_cell_id_aux(tvb, tree, curr_offset, len, add_string, string_len, 1);
+			break;
+		case 2:
+			/* 3G Cell identification container 1 */
+		case 3:
+			/* 3G Cell identification container 2 */
+			/* fall trough */
+		default:
+			proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+			break;
+	}
+	
 
 
 	return(len);
@@ -325,6 +363,36 @@ de_delta_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	return(curr_offset - offset);
 }
+/*
+ * 5.23 Serving Cell Identifier IE
+ * The Serving Cell Identifier IE is encoded as in 3GPP TS 48.008 (excluding IEI and length field).
+ */
+/*
+ * 5.24 Encryption Key
+ */
+static guint8
+de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	proto_tree_add_text(tree,tvb, curr_offset, 8,"Encryption Key (Kc)");
+	curr_offset = curr_offset + 8;
+
+	return(curr_offset - offset);
+}
+/*
+ * 5.25 Cipher Mode Setting IE
+ * The Cipher Mode Setting information element is coded as defined in TS 44.018 (excluding IEI).
+ */
+/*
+ * 5.26 Channel Mode IE
+ * The Channel Mode information element is coded as defined in TS 44.018 (excluding IEI).
+ */
+/* 
+ * 5.27 MultiRate Configuration IE
+ * The MultiRate Configuration information element is coded as defined in TS 44.018 (excluding IEI).
+ */
 /*
  * 5.28 Polling Repetition IE
  */
@@ -449,7 +517,7 @@ guint8 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_ms_pow,	/* MS Power */
 	de_delta_time,	/* Delta Timer */
 	NULL,	/* Serving Cell Identifier */
-	NULL,	/* Encryption Key (Kc) */
+	de_blap_enc_key,	/* Encryption Key (Kc) */
 	NULL,	/* Cipher Mode Setting */
 	NULL,	/* Channel Mode */
 	de_poll_rep,	/* Polling Repetition */
@@ -483,7 +551,7 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "-Measured Cell");
 
 	return;
 
@@ -533,7 +601,7 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Enhanced Measurement Report Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "-Measured Cell");
 	/* LAC Location Area Code IE / 5.19 O TV 3 */
 	ELEM_OPT_TLV(BSSLAP_PARAM_LOCATION_AREA_CODE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_LAC, "");
 	/* Frequency List Frequency List IE 5.20 C (note 1) TLV 3-n  */
@@ -551,7 +619,7 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Starting Time IE 5.32 C (note 5) TV 3 */
 	ELEM_OPT_TV(BSSLAP_PARAM_STARTING_TIME, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "TBF Starting Time");
 	/* Encryption Key IE 5.24 C (note 4) TV 9 */
-	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO,"");
+	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENC_KEY,"");
 	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_CIPHER_MODE_SETTING, GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
 	return;
@@ -591,7 +659,7 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/*Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "-Measured Cell");
 	return;
 }
 /* 4.2.9 MS Position Command  ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -633,7 +701,7 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "-Measured Cell");
 	return;
 }
 /* 4.2.11 U-TDOA Request   ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -678,7 +746,7 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Measurement Report IE 5.12 O TLV 18 */
 	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
 	/* Encryption Key IE 5.24 C (note 4) TV 9 */
-	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO,"");
+	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENC_KEY,"");
 	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_CIPHER_MODE_SETTING, GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
 	/* Channel Mode IE 5.26 C (notes 1 & 4)TV 2 */
@@ -686,7 +754,7 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* MultiRate Configuration IE 5.27 C (notes 1 & 4)TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_MULTIRATE_CONFIGURATION, GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
-	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "Measured Cell Identity List");
+	ELEM_OPT_TLV(BSSLAP_PARAM_CELL_IDENTITY_LIST, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CELL_ID_LIST, "-Measured Cell");
 	/* Packet Channel Description IE 5.29 C (note 5) TV 4 */
 	ELEM_OPT_TLV(BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_PKT_CH_DESC, "");
 	/* TLLI IE 5.30 C (note 5) TV 5 */
@@ -810,7 +878,7 @@ proto_register_gsm_bsslap(void)
 		},
 		{ &hf_gsm_bsslap_tfi,
 			{"TFI", "gsm_bsslap.tfi", 
-			FT_UINT8, BASE_DEC, NULL, 0x1F, 
+			FT_UINT8, BASE_DEC, NULL, 0x1f, 
 			"TFI", HFILL }
 		},
 		{ &hf_gsm_bsslap_poll_rep,
@@ -820,8 +888,13 @@ proto_register_gsm_bsslap(void)
 		},
 		{ &hf_gsm_bsslap_lac,
 			{"Location Area Code", "gsm_bsslap.lac", 
-			FT_UINT8, BASE_DEC, NULL, 0x3F, 
+			FT_UINT8, BASE_DEC, NULL, 0x3f, 
 			"Location Area Code", HFILL }
+		},
+		{ &hf_gsm_bsslap_cell_id_disc,
+			{"Cell identification Discriminator", "gsm_bsslap.cell_id_disc", 
+			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_cell_id_disc_vals), 0xf, 
+			"Cell identification Discriminator", HFILL }
 		},
 	};
 

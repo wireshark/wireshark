@@ -323,6 +323,15 @@ static int hf_gsm_a_bssmap_periodicity = -1;
 static int hf_gsm_a_bssmap_lcs_pri = -1;
 static int hf_gsm_a_bssmap_num_ms = -1;
 static int hf_gsm_a_bssmap_talker_pri = -1;
+static int hf_gsm_a_bssmap_paging_cause = -1;
+static int hf_gsm_a_bssmap_paging_inf_flg = -1;
+static int hf_gsm_a_bssmap_spare_bits = -1;
+static int hf_gsm_a_bssmap_tpind = -1;
+static int hf_gsm_a_bssmap_asind_b2 = -1;
+static int hf_gsm_a_bssmap_asind_b3 = -1;
+static int hf_gsm_a_bssmap_bss_res = -1;
+static int hf_gsm_a_bssmap_tcp = -1;
+static int hf_gsm_a_bssmap_filler_bits = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -515,7 +524,7 @@ be_res_avail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1297,7 +1306,7 @@ be_ext_res_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1312,7 +1321,7 @@ be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1332,7 +1341,7 @@ be_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
 	 * PLMN significant number or a universal LSA. If the bit is set to 0 the LSA is a PLMN significant number; if it is set to
 	 * 1 it is a universal LSA.
 	 */
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1349,7 +1358,7 @@ be_lsa_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -1567,7 +1576,7 @@ be_int_band(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1587,7 +1596,7 @@ be_lsa_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1764,7 +1773,7 @@ be_cell_id_list_seg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1780,7 +1789,7 @@ be_cell_id_lst_seg_f_est_cells(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1795,7 +1804,7 @@ be_cell_id_lst_seg_f_cell_tb_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1813,7 +1822,7 @@ be_cell_id_lst_seg_f_rel_cell(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1828,7 +1837,7 @@ be_cell_id_lst_seg_f_not_est_cell(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1864,7 +1873,7 @@ iii)	(Periodic resource information expected)...
 iv)	(No resource information expected)..
 :
 */
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1885,7 +1894,7 @@ be_cic_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -1900,7 +1909,7 @@ be_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -2350,7 +2359,7 @@ be_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2390,7 +2399,7 @@ be_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	/*
 	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
 	*/
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 
 	return(len);
@@ -2790,6 +2799,37 @@ be_sna_acc_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 3.2.2.85 Paging Information
  */
 /*
+* If the VGCS/VBS flag is set to zero, the mobile station to be paged is not a member of any VGCS/VBS-group.
+* If the VGCS/VBS flag is set to one, the mobile station to be paged is a member of a VGCS/VBS-group.
+*/
+static const true_false_string gbssmap_paging_inf_flg_value = {
+   "A member of a VGCS/VBS-group",
+   "Not a member of any VGCS/VBS-group"
+};
+
+static const value_string gsm_a_bssmap_paging_cause_vals[] = {
+	{ 0,	"Paging is for mobile terminating call" },
+	{ 1,	"Paging is for a short message" },
+	{ 2,	"Paging is for a USSD" },
+	{ 3,	"Spare" },
+	{ 0, NULL },
+};
+
+static guint8
+be_paging_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 5, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_paging_cause, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_paging_inf_flg, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
+/*
  * 3.2.2.86	IMEI
  */
 static guint8
@@ -2799,7 +2839,7 @@ be_imei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2813,13 +2853,42 @@ be_vel_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
 /*
  * 3.2.2.88	VGCS Feature Flags 
  */
+
+/* Bit 1 is the talker priority indicator (TP Ind). */
+static const true_false_string gsm_bssmap_tpind_vals = {
+	"Talker Priority not supported" ,
+	"Talker Priority supported"
+};
+/* Bits 2 and 3 are the A-interface resource sharing indicator (AS Ind). */
+static const true_false_string gsm_bssmap_asind_b2_vals = {
+	"A-interface circuit sharing" ,
+	"No A-interface circuit sharing"
+};
+
+static const true_false_string gsm_bssmap_asind_b3_vals = {
+	"A-interface link sharing" ,
+	"No A-interface link sharing"
+};
+
+/* Bit 4 is the group or broadcast call re-establishment by the BSS indicator (Bss Res). */
+static const true_false_string gsm_bssmap_bss_res_vals = {
+	"Re-establishment of the group or broadcast call by the BSS" ,
+	"No re-establishment of the group or broadcast call by the BSS"
+};
+
+/* Bit 5 is the Talker Channel Parameter (TCP). */
+static const true_false_string gsm_bssmap_bss_tcp_vals = {
+	"Talker channel parameter is applicable to this call, talker shall be established and maintained on a dedicated channel" ,
+	"Talker channel parameter is not applicable to this call"
+};
+
 static guint8
 be_vgcs_feat_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2827,9 +2896,16 @@ be_vgcs_feat_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_tcp, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_bss_res, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_asind_b3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_asind_b2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_tpind, tvb, curr_offset, 1, FALSE);
 
-	return(len);
+	curr_offset++;
+
+	return(curr_offset-offset);
 }
 /*
  * 3.2.2.89	Talker Priority
@@ -2871,13 +2947,31 @@ be_talker_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 5, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_filler_bits, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	proto_tree_add_text(tree, tvb, curr_offset, len-1, "Talker Identity field");
 
 	return(len);
 }
 /*
- * 3.2.2.92	SMS to VGCS
+ * 3.2.2.92	SMS to VGCS 
  */
+static guint8
+be_sms_to_vgcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	/* The SMS content field is coded as follows -	this field contains
+	 * the RP-DATA message as defined in 3GPP TS 24.011.
+	 */
+
+
+	return(len);
+}
 /*
  * 3.2.2.93	VGCS talker mode 
  */
@@ -2894,7 +2988,7 @@ be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2908,7 +3002,7 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2922,7 +3016,7 @@ be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2942,7 +3036,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2959,7 +3053,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2973,7 +3067,7 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -2987,7 +3081,7 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -3001,7 +3095,7 @@ be_call_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -3015,7 +3109,7 @@ be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
 
 	return(len);
 }
@@ -3107,7 +3201,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	be_sna_acc_inf,		/* SNA Access Information */
 	NULL,	/* VSTK_RAND Information */
 	NULL,		/* VSTK Information */
-	NULL,		/* Paging Information */
+	be_paging_inf,		/* Paging Information */
 	be_imei,			/* 3.2.2.86 IMEI */
 	be_vel_est,			/* Velocity Estimate */
 	be_vgcs_feat_flg,	/* VGCS Feature Flags */
@@ -3115,7 +3209,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,	/* no data Emergency Set Indication */
 	be_talker_id,		/* Talker Identity */
 	be_cell_id_list_seg,	/* Cell Identifier List Segment */
-	NULL,		/* SMS to VGCS */
+	be_sms_to_vgcs,		/* SMS to VGCS */
 	NULL,	/*	VGCS Talker Mode */
 	NULL,	 /*	VGCS/VBS Cell Status */
 	be_cell_id_lst_seg_f_est_cells,	 /*	Cell Identifier List Segment for established cells */
@@ -3730,6 +3824,8 @@ bssmap_paging(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* eMLPP Priority	3.2.2.56	MSC-BSS	O (note 3)	2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_EMLPP_PRIO].value, BSSAP_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, "");
 	/* Paging Information	3.2.2.85	MSC-BSS	O	2 */
+	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_PAGING_INF].value, BSSAP_PDU_TYPE_BSSMAP, BE_PAGING_INF, "");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -4895,11 +4991,26 @@ Cell Identifier List Segment for cells to be established 	3.2.2.27c	BSS-MSC	O (n
 Cell Identifier List Segment for released cells - no user present	3.2.2.27e	BSS-MSC	O (note 1)	3-?
 Cell Identifier List Segment for not established cells - no establishment possible	3.2.2.27f	BSS-MSC	O (note 1)	3-?
 VGCS/VBS Cell Status	3.2.2.94	BSS-MSC	O (note 2)	3
- *
+*/
+/*
  * 3.2.1.81	VGCS SMS
- *
-SMS to VGCS	3.2.2.92	MSC-BSS	M	2-250
- *
+ */
+static void
+bssmap_vgcs_sms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* SMS to VGCS	3.2.2.92	MSC-BSS	M	2-250 */
+	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_SMS_TO_VGCS].value, BSSAP_PDU_TYPE_BSSMAP, BE_SMS_TO_VGCS, "");
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
  * 3.2.1.82	NOTIFICATION DATA 
  */
 static void
@@ -5131,7 +5242,7 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	bssmap_uplink_rel_cmd,	/* Uplink Release Command */
 	bssmap_uplink_seized_cmd,	/* Uplink Seized Command */
 	bssmap_vgcs_add_inf,	/* VGCS Additional Information */
-	NULL,	/* VGCS SMS */
+	bssmap_vgcs_sms,	/* VGCS SMS */
 	bssmap_notification_data,	/* Notification Data*/
 	bssmap_uplink_app_data,	/* Uplink Application Data */
 	NULL,	/* NONE */
@@ -5345,6 +5456,51 @@ proto_register_gsm_a_bssmap(void)
 		{ "Priority", "gsm_a_bssmap.talker_pri",
 		FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_talker_pri_vals), 0x03,
 		"Priority ", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_paging_cause,
+		{ "Paging Cause", "gsm_a_bssmap.paging_cause",
+		FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_paging_cause_vals), 0x06,
+		"Paging Cause ", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_paging_inf_flg,
+		{ "VGCS/VBS flag","ggsm_a_bssmap.paging_inf_flg",
+		FT_BOOLEAN,8, TFS(&gbssmap_paging_inf_flg_value), 0x01,
+		"If 1, a member of a VGCS/VBS-group", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_spare_bits,
+		{ "Spare bit(s)", "gsm_a_bssmap.spare_bits",
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Spare bit(s)", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_tpind,
+		{ "Talker priority indicator (TP Ind)","gsm_a_bssmap.tpind",
+		FT_BOOLEAN,8, TFS(&gsm_bssmap_tpind_vals), 0x01,
+		"Talker priority indicator (TP Ind)", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_asind_b2,
+		{ "A-interface resource sharing indicator (AS Ind) bit 2","gsm_a_bssmap.asind_b2",
+		FT_BOOLEAN,8, TFS(&gsm_bssmap_asind_b2_vals), 0x02,
+		"A-interface resource sharing indicator (AS Ind) bit 2", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_asind_b3,
+		{ "A-interface resource sharing indicator (AS Ind) bit 3","gsm_a_bssmap.asind_b3",
+		FT_BOOLEAN,8, TFS(&gsm_bssmap_asind_b3_vals), 0x04,
+		"A-interface resource sharing indicator (AS Ind) bit 3", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_bss_res,
+		{ "Group or broadcast call re-establishment by the BSS indicator","gsm_a_bssmap.bss_res",
+		FT_BOOLEAN,8, TFS(&gsm_bssmap_bss_res_vals), 0x08,
+		"Group or broadcast call re-establishment by the BSS indicator", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_tcp,
+		{ "Talker Channel Parameter (TCP).","gsm_a_bssmap.tcp",
+		FT_BOOLEAN,8, TFS(&gsm_bssmap_bss_tcp_vals), 0x10,
+		"Talker Channel Parameter (TCP).", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_filler_bits,
+		{ "Filler Bits","gsm_a_bssmap.filler_bits",
+		FT_UINT8, BASE_DEC,NULL, 0x07,
+		"Filler Bits", HFILL }
 	},
 	};
 
