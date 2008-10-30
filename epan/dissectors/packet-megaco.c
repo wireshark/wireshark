@@ -881,6 +881,36 @@ nextcontext:
 
 				tvb_next_offset = tvb_command_start_offset + tokenlen;
 
+				/* Try to dissect Topology Descriptor before the command */
+				if ( tvb_get_guint8(tvb, tvb_command_start_offset ) == 'T') {
+					tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
+
+					if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+						tempchar = tempchar - 0x20;
+	
+					if ( tempchar == 'P' || tempchar == 'O'){
+						tvb_command_end_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '}');
+						tvb_command_start_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '{');
+						dissect_megaco_topologydescriptor(tvb, megaco_tree_command_line, tvb_command_end_offset-1, tvb_command_start_offset+1);
+						tvb_next_offset = tvb_command_end_offset;
+						
+						/* Command after Topology Descriptor */
+						tvb_command_start_offset = tvb_find_guint8(tvb, tvb_command_end_offset +1,
+							tvb_len, ',');
+
+						if ( tvb_command_start_offset == -1 ){
+							/* No Command present after Topology Descriptor */
+							break;
+
+						} else {
+							/* Try to find the first char of the command */
+							tvb_command_start_offset =  megaco_tvb_skip_wsp_return(tvb, tvb_command_start_offset + 1);
+							
+						}
+
+					}
+				}
+
 				/* Additional value */
 
 				if ( tvb_get_guint8(tvb, tvb_command_start_offset ) == 'O'){
