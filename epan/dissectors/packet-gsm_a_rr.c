@@ -923,7 +923,7 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	oct = tvb_get_guint8(tvb, curr_offset);
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 2,
+			tvb, curr_offset, 2, "%s",
 			gsm_rr_elem_strings[DE_RR_CELL_DSC].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CELL_DSC]);
@@ -977,7 +977,7 @@ de_rr_cell_opt_bcch(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 1, "%s",
 		gsm_rr_elem_strings[DE_RR_CELL_OPT_BCCH].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CELL_OPT_BCCH]);
@@ -1018,7 +1018,7 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 	dtx = ((oct&0x80)>>5)|((oct&0x30)>>4); /* DTX is a split filed in bits 8, 6 and 5 */
-	item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 1, "%s",
 		gsm_rr_elem_strings[DE_RR_CELL_OPT_SACCH].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CELL_OPT_SACCH]);
@@ -1046,7 +1046,7 @@ de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-	item = proto_tree_add_text(tree, tvb, curr_offset, 2,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 2, "%s",
 		gsm_rr_elem_strings[DE_RR_CELL_SEL_PARAM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CELL_SEL_PARAM]);
@@ -1081,7 +1081,7 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree,tvb, curr_offset, 3,gsm_rr_elem_strings[DE_RR_CH_DSC].strptr);
+	item = proto_tree_add_text(tree,tvb, curr_offset, 3, "%s", gsm_rr_elem_strings[DE_RR_CH_DSC].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CH_DSC]);
 
@@ -1175,7 +1175,7 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree,tvb, curr_offset, 3,gsm_rr_elem_strings[DE_RR_CH_DSC2].strptr);
+	item = proto_tree_add_text(tree,tvb, curr_offset, 3, "%s", gsm_rr_elem_strings[DE_RR_CH_DSC2].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CH_DSC2]);
 
@@ -1539,7 +1539,7 @@ de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, 3,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
 		gsm_rr_elem_strings[DE_RR_CTRL_CH_DESC].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CTRL_CH_DESC]);
@@ -1711,7 +1711,7 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_rr_elem_strings[DE_RR_HO_REF].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_HO_REF]);
@@ -1742,7 +1742,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, len,
+			tvb, curr_offset, len, "%s",
 			gsm_rr_elem_strings[DE_RR_IA_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IA_REST_OCT]);
@@ -1770,7 +1770,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 3,
+		tvb, curr_offset, 3, "%s",
 		gsm_rr_elem_strings[DE_RR_IAR_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IAR_REST_OCT]);
@@ -1800,7 +1800,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, len,
+		tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_IAX_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IAX_REST_OCT]);
@@ -1824,7 +1824,7 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree,tvb, curr_offset, 1, gsm_rr_elem_strings[DE_RR_L2_PSEUDO_LEN].strptr);
+	item = proto_tree_add_text(tree,tvb, curr_offset, 1, "%s", gsm_rr_elem_strings[DE_RR_L2_PSEUDO_LEN].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_L2_PSEUDO_LEN]);
 
@@ -1950,7 +1950,7 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 16,
+			tvb, curr_offset, 16, "%s",
 			gsm_rr_elem_strings[DE_RR_MEAS_RES].strptr);
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_MEAS_RES]);
 
@@ -2205,7 +2205,7 @@ de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree,tvb,curr_offset,3,gsm_rr_elem_strings[DE_RR_PACKET_CH_DESC].strptr);
+	item = proto_tree_add_text(tree,tvb,curr_offset,3, "%s", gsm_rr_elem_strings[DE_RR_PACKET_CH_DESC].strptr);
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_PACKET_CH_DESC]);
 
 	/* Octet 2 */
@@ -2279,7 +2279,7 @@ de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_rr_elem_strings[DE_RR_DED_MOD_OR_TBF].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_DED_MOD_OR_TBF]);
@@ -2314,7 +2314,7 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_rr_elem_strings[DE_RR_PAGE_MODE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_PAGE_MODE]);
@@ -2341,7 +2341,7 @@ de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 1, "%s",
 		gsm_rr_elem_strings[DE_RR_NCC_PERM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_NCC_PERM]);
@@ -2414,7 +2414,7 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_rr_elem_strings[DE_RR_POW_CMD].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_POW_CMD]);
@@ -2446,7 +2446,7 @@ de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_rr_elem_strings[DE_RR_POW_CMD_AND_ACC_TYPE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_POW_CMD_AND_ACC_TYPE]);
@@ -2515,7 +2515,7 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset = offset;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, 3,
+	item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
 		gsm_rr_elem_strings[DE_RR_RACH_CTRL_PARAM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_RACH_CTRL_PARAM]);
@@ -2567,7 +2567,7 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 3,
+			tvb, curr_offset, 3, "%s",
 			gsm_rr_elem_strings[DE_RR_REQ_REF].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_REQ_REF]);
@@ -2653,7 +2653,7 @@ de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	curr_offset = offset;
    bit_offset = curr_offset << 3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI1_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI1_REST_OCT]);
@@ -2784,7 +2784,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
    bit_offset = curr_offset<<3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI2TER_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI2TER_REST_OCT]);
@@ -2805,7 +2805,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
       if (value)
       { /* UTRAN FDD Description */
          bit_offset_sav = bit_offset;
-         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
          subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
          bit_offset += 2; /* skip '01' bits */
          proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "FDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
@@ -2824,7 +2824,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
       if (value)
       { /* UTRAN TDD Description */
          bit_offset_sav = bit_offset;
-         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
          subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
          bit_offset += 2; /* skip '01' bits */
          proto_tree_add_text(subtree2,tvb, bit_offset>>3, 2, "TDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
@@ -2843,7 +2843,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
       if (value)
       { /* 3G Measurement Parameters Description */
          bit_offset_sav = bit_offset;
-         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
          subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
          proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_qsearch_i, tvb, bit_offset, 4, FALSE);
          bit_offset += 4;
@@ -2876,7 +2876,7 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
             if (value)
             { /* 3G Additional Measurement Parameters Description */
                bit_offset_sav = bit_offset;
-               item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
+               item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
                subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC]);
                proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qmin_offset, tvb, bit_offset, 3, FALSE);
                bit_offset += 3;
@@ -3038,7 +3038,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_offset = offset;
    bit_offset = curr_offset<<3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI2QUATER_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI2QUATER_REST_OCT]);
@@ -3058,7 +3058,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* Measurement Parameters Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_MEAS_PARAM_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_MEAS_PARAM_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_MEAS_PARAM_DESC]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_gsm_report_type, tvb, bit_offset, 1, FALSE);
       bit_offset += 1;
@@ -3071,7 +3071,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* GPRS Real Time Difference Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_RTD_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_RTD_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_RTD_DESC]);
       value = tvb_get_bits8(tvb,bit_offset,1);
       bit_offset += 1;
@@ -3158,7 +3158,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* GPRS BSIC Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_BSIC_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_BSIC_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_BSIC_DESC]);
       value = tvb_get_bits8(tvb,bit_offset,1);
       bit_offset += 1;
@@ -3187,7 +3187,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* GPRS Report Priority Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC]);
       idx = tvb_get_bits8(tvb,bit_offset,7);
       proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Number Cells: %d", idx);
@@ -3205,7 +3205,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* GPRS Measurement Parameters Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_report_type, tvb, bit_offset, 1, FALSE);
       bit_offset += 1;
@@ -3281,7 +3281,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* NC Measurement Parameters */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_NC_MEAS_PARAM].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_NC_MEAS_PARAM].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_NC_MEAS_PARAM]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_network_control_order, tvb, bit_offset, 2, FALSE);
       bit_offset += 2;
@@ -3303,7 +3303,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* SI 2quater Extension Information */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI2Q_EXT_INFO].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI2Q_EXT_INFO].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SI2Q_EXT_INFO]);
       idx = tvb_get_bits8(tvb,bit_offset,8);
       proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Extension Length: %d", idx);
@@ -3314,7 +3314,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
       if (value)
       { /* CCN Support Description */
          bit_offset_sav = bit_offset;
-         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC].strptr);
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC].strptr);
          subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC]);
          value = tvb_get_bits8(tvb,bit_offset,7);
          proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Number Cells: %d", value);
@@ -3337,7 +3337,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* 3G Neighbour Cell Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC]);
       value = tvb_get_bits8(tvb,bit_offset,1);
       bit_offset += 1;
@@ -3358,7 +3358,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
       if (value)
       { /* UTRAN FDD Description */
          bit_offset_sav2 = bit_offset;
-         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
          subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
          value = tvb_get_bits8(tvb,bit_offset,1);
          bit_offset += 1;
@@ -3381,7 +3381,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
             proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Nr of FDD Cells : %d", idx);
             bit_offset += 5;
             idx = convert_n_to_p[idx];
-            item4 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
+            item4 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
             subtree4 = proto_item_add_subtree(item4, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_FDD_CELL_INFORMATION_FIELD]);
             proto_tree_add_text(subtree4,tvb, bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
             if (xdd_indic0)
@@ -3437,7 +3437,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
       if (value)
       { /* UTRAN TDD Description */
          bit_offset_sav2 = bit_offset;
-         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
          subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
          value = tvb_get_bits8(tvb,bit_offset,1);
          bit_offset += 1;
@@ -3459,7 +3459,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
             proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Nr of TDD Cells : %d", idx);
             bit_offset += 5;
             idx = convert_n_to_q[idx];
-            item4 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
+            item4 = proto_tree_add_text(subtree3,tvb, bit_offset>>3, (idx>>3)+1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
             subtree4 = proto_item_add_subtree(item4, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_TDD_CELL_INFORMATION_FIELD]);
             proto_tree_add_text(subtree4,tvb, bit_offset>>3, (idx>>3)+1, "Field is %d bits long", idx);
             if (xdd_indic0)
@@ -3519,7 +3519,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* 3G Measurement Parameters Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_qsearch_i, tvb, bit_offset, 4, FALSE);
       bit_offset += 4;
@@ -3554,7 +3554,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
    if (value)
    { /* GPRS 3G Measurement Parameters Description */
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_qsearch_p, tvb, bit_offset, 4, FALSE);
       bit_offset += 4;
@@ -3607,7 +3607,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
          if (value)
          { /* 3G Additional Measurement Parameters Description */
             bit_offset_sav = bit_offset;
-            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
+            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
             subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC]);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qmin_offset, tvb, bit_offset, 3, FALSE);
             bit_offset += 3;
@@ -3620,7 +3620,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
          if (value)
          { /* 3G Additional Measurement Parameters Description 2 */
             bit_offset_sav = bit_offset;
-            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2].strptr);
+            item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2].strptr);
             subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2]);
             value = tvb_get_bits8(tvb,bit_offset,1);
             bit_offset += 1;
@@ -3811,7 +3811,7 @@ de_rr_rest_oct_opt_sel_param(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
    if (gsm_a_rr_is_bit_high(tvb,curr_bit_offset) == TRUE)
    { /* Selection Parameters */
       curr_bit_offset += 1;
-      item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_OPTIONAL_SEL_PARAM].strptr);
+      item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_OPTIONAL_SEL_PARAM].strptr);
       subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_OPTIONAL_SEL_PARAM]);
       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_cbq, tvb, curr_bit_offset, 1, FALSE);
       curr_bit_offset += 1;
@@ -3844,7 +3844,7 @@ de_rr_rest_oct_gprs_indicator(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
    curr_bit_offset = bit_offset;
 
-   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_INDICATOR].strptr);
+   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_INDICATOR].strptr);
    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_INDICATOR]);
    proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "RA Colour: %d",tvb_get_bits8(tvb,curr_bit_offset,3));
    curr_bit_offset += 3;
@@ -3885,7 +3885,7 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	curr_offset = offset;
    bit_offset = curr_offset << 3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI3_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI3_REST_OCT]);
@@ -3993,12 +3993,12 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	curr_offset = offset;
    bit_offset = curr_offset << 3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI4_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI4_REST_OCT]);
 
-   item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI4_REST_OCTETS_O].strptr);
+   item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI4_REST_OCTETS_O].strptr);
 
 	subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SI4_REST_OCTETS_O]);
 
@@ -4024,13 +4024,13 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
    { /* SI4 Rest Octets_S */
       bit_offset += 1;
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI4_REST_OCTETS_S].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI4_REST_OCTETS_S].strptr);
       subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SI4_REST_OCTETS_S]);
       if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
       { /* LSA Parameters */
          bit_offset += 1;
          bit_offset_sav2 = bit_offset;
-         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_PARAMETERS].strptr);
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_PARAMETERS].strptr);
          subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_PARAMETERS]);
          proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_prio_thr, tvb, bit_offset, 3, FALSE);
          bit_offset += 3;
@@ -4062,7 +4062,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
       { /* LSA ID information */
          bit_offset += 1;
          bit_offset_sav2 = bit_offset;
-         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, len, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_ID_INFO].strptr);
+         item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, len, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_ID_INFO].strptr);
          subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_ID_INFO]);
          do
          {
@@ -4169,7 +4169,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	curr_offset = offset;
    bit_offset = curr_offset << 3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI6_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI6_REST_OCT]);
@@ -4178,7 +4178,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
    { /* PCH and NCH Info */
       bit_offset += 1;
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PCH_AND_NCH_INFO].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PCH_AND_NCH_INFO].strptr);
 	   subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PCH_AND_NCH_INFO]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_paging_channel_restructuring, tvb, bit_offset, 1, FALSE);
       bit_offset += 1;
@@ -4201,7 +4201,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
    { /* VBS/VGCS options */
       bit_offset += 1;
       bit_offset_sav = bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb,bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_VBS_VGCS_OPTIONS].strptr);
+      item2 = proto_tree_add_text(subtree, tvb,bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_VBS_VGCS_OPTIONS].strptr);
 	   subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_VBS_VGCS_OPTIONS]);
       proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_vbs_vgcs_inband_notifications, tvb, bit_offset, 1, FALSE);
       bit_offset += 1;
@@ -4364,7 +4364,7 @@ de_rr_rest_oct_gprs_mobile_allocation(tvbuff_t *tvb, proto_tree *tree, gint bit_
 
    curr_bit_offset = bit_offset;
 
-   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_MOBILE_ALLOC].strptr);
+   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_MOBILE_ALLOC].strptr);
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_MOBILE_ALLOC]);
    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hsn, tvb, curr_bit_offset, 6, FALSE);
    curr_bit_offset += 6;
@@ -4551,7 +4551,7 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
 
    curr_bit_offset = bit_offset;
 
-   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS].strptr);
+   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS].strptr);
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS]);
    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nmo, tvb, curr_bit_offset, 2, FALSE);
    curr_bit_offset += 2;
@@ -4583,7 +4583,7 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
    { /* Optional extension information */
       curr_bit_offset += 1;
       curr_bit_offset_sav = curr_bit_offset;
-      item2 = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO].strptr);
+      item2 = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO].strptr);
 	   subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO]);
       value = tvb_get_bits8(tvb,curr_bit_offset,6);
       proto_tree_add_text(subtree2,tvb, curr_bit_offset>>3, 1, "Extension Length: %d", value);
@@ -4743,7 +4743,7 @@ de_rr_rest_oct_gprs_power_control_parameters(tvbuff_t *tvb, proto_tree *tree, gi
 
    curr_bit_offset = bit_offset;
 
-   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_POWER_CONTROL_PARAMS].strptr);
+   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_POWER_CONTROL_PARAMS].strptr);
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_POWER_CONTROL_PARAMS]);
    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
    curr_bit_offset += 4;
@@ -4827,7 +4827,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	curr_offset = offset;
    bit_offset = curr_offset << 3;
 
-	item = proto_tree_add_text(tree, tvb, curr_offset, len,
+	item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
 		gsm_rr_elem_strings[DE_RR_SI13_REST_OCT].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI13_REST_OCT]);
@@ -4854,7 +4854,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
          proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psi1_repeat_period, tvb, bit_offset, 4, FALSE);
          bit_offset += 4;
          bit_offset_sav = bit_offset;
-         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PBCCH_DESC].strptr);
+         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PBCCH_DESC].strptr);
 	      subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PBCCH_DESC]);
          proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_pbcch_pb, tvb, bit_offset, 4, FALSE);
          bit_offset += 4;
@@ -6086,7 +6086,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);

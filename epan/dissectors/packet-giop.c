@@ -5195,7 +5195,7 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 			       &encapsulation_is_be , &encapsulation_boundary);
 
     if (tree) {
-      tf_st1 = proto_tree_add_text (tree, tvb, temp_offset, sizeof(context_data_len) + context_data_len , service_context_name);
+      tf_st1 = proto_tree_add_text (tree, tvb, temp_offset, sizeof(context_data_len) + context_data_len , "%s", service_context_name);
       sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
     }
 

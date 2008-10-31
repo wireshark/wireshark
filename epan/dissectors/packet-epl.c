@@ -343,11 +343,11 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree && !udpencap)
     {
         epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, TRUE);
-        proto_item_append_text (epl_dest_item, dest_str);
+        proto_item_append_text (epl_dest_item, "%s", dest_str);
         offset += 1;
 
         epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, TRUE);
-        proto_item_append_text (epl_src_item, src_str);
+        proto_item_append_text (epl_src_item, "%s", src_str);
         offset += 1;
     }
     else

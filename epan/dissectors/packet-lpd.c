@@ -123,7 +123,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			printer_len = find_printer_string(tvb, 1);
 
 			if (code <= 9 && printer_len != -1) {
-				proto_tree_add_text(lpd_tree, tvb, 0, 1,
+				proto_tree_add_text(lpd_tree, tvb, 0, 1, "%s",
 					val_to_str(code, lpd_client_code, "Unknown client code: %u"));
 				proto_tree_add_text(lpd_tree, tvb, 1, printer_len,
 					 "Printer/options: %s",

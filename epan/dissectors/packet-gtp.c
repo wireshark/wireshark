@@ -2832,7 +2832,7 @@ static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     guint8 byte[3];
     guint16 mnc, mcc;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message"));
     ext_tree_rai = proto_item_add_subtree(te, ett_gtp_rai);
 
     byte[0] = tvb_get_guint8(tvb, offset + 1);
@@ -2954,7 +2954,7 @@ static int decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree_auth_tri;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 29, val_to_str(GTP_EXT_AUTH_TRI, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 29, "%s", val_to_str(GTP_EXT_AUTH_TRI, gtp_val, "Unknown message"));
     ext_tree_auth_tri = proto_item_add_subtree(tree, ett_gtp_auth_tri);
 
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + 1, 16));
@@ -3109,7 +3109,7 @@ static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 
     switch (gtp_version) {
     case 0:
-	te = proto_tree_add_text(tree, tvb, offset, 4, val_to_str(GTP_EXT_FLOW_II, gtp_val, "Unknown message"));
+	te = proto_tree_add_text(tree, tvb, offset, 4, "%s", val_to_str(GTP_EXT_FLOW_II, gtp_val, "Unknown message"));
 	ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
 
 	proto_tree_add_uint(ext_tree_flow_ii, hf_gtp_nsapi, tvb, offset + 1, 1, tvb_get_guint8(tvb, offset + 1) & 0x0F);
@@ -3119,7 +3119,7 @@ static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 
 	return 4;
     case 1:
-	te = proto_tree_add_text(tree, tvb, offset, 6, val_to_str(GTP_EXT_TEID_II, gtpv1_val, "Unknown message"));
+	te = proto_tree_add_text(tree, tvb, offset, 6, "%s", val_to_str(GTP_EXT_TEID_II, gtpv1_val, "Unknown message"));
 	ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
 
 	proto_tree_add_uint(ext_tree_flow_ii, hf_gtp_nsapi, tvb, offset + 1, 1, tvb_get_guint8(tvb, offset + 1) & 0x0F);
@@ -3235,7 +3235,7 @@ static int decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree *ext_tree_rab_cntxt;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 10, val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 10, "%s", val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
     ext_tree_rab_cntxt = proto_item_add_subtree(te, ett_gtp_rab_cntxt);
 
     nsapi = tvb_get_guint8(tvb, offset + 1) & 0x0F;
@@ -3566,7 +3566,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     tvbuff_t *l3_tvb;
 
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
     ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
 
     /* Octet 2 - 3 */
@@ -4109,7 +4109,7 @@ static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, val_to_str(GTP_EXT_PDP_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_PDP_CNTXT, gtp_val, "Unknown message"));
     ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_pdp);
 
     vaa = (tvb_get_guint8(tvb, offset + 3) >> 6) & 0x01;
@@ -4261,7 +4261,7 @@ static int decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, val_to_str(GTP_EXT_APN, gtp_val, "Unknown field"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_APN, gtp_val, "Unknown field"));
     ext_tree_apn = proto_item_add_subtree(te, ett_gtp_apn);
 
     proto_tree_add_text(ext_tree_apn, tvb, offset + 1, 2, "APN length : %u", length);
@@ -4288,7 +4288,7 @@ int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, val_to_str(GTP_EXT_PROTO_CONF, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_PROTO_CONF, gtp_val, "Unknown message"));
     ext_tree_proto = proto_item_add_subtree(te, ett_gtp_proto);
 
     proto_tree_add_text(ext_tree_proto, tvb, offset + 1, 2, "Length: %u", length);
@@ -5986,7 +5986,7 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
     tvbuff_t *next_tvb;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_DATA_REQ, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_DATA_REQ, gtp_val, "Unknown message"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
 
     length = tvb_get_ntohs(tvb, offset + 1);
@@ -6088,7 +6088,7 @@ static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree_priv_ext;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_PRIV_EXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_PRIV_EXT, gtp_val, "Unknown message"));
     ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
 
     offset++;

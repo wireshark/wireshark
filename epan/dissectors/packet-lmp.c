@@ -2025,7 +2025,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      "Channel Status: %s",
 				      val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
 						 channel_status_str, "Unknown (%u). "));
-		  proto_item_append_text(ti2, val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+		  proto_item_append_text(ti2, "%s", val_to_str(tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
 							 channel_status_str, "Unknown (%u). "));
 		  j++;
 		  l += 4;
@@ -2296,7 +2296,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 service_attribute_link_type_str, 
 						 "UNK (%u). "));
 		  
-		  proto_item_append_text(lmp_object_tree, 
+		  proto_item_append_text(lmp_object_tree, "%s",
 					 val_to_str(tvb_get_guint8(tvb, offset2),
 						    service_attribute_link_type_str,
 						    "Unknown (%u). "));
@@ -2311,7 +2311,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						     service_attribute_signal_types_sdh_str,
 						     "Unknown (%u).  "));
 		      
-		      proto_item_append_text(lmp_object_tree,
+		      proto_item_append_text(lmp_object_tree, "%s",
 					     val_to_str(tvb_get_guint8(tvb, offset2+1),
 							service_attribute_signal_types_sdh_str,
 							"Unknown (%u).   "));
@@ -2325,7 +2325,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						     service_attribute_signal_types_sonet_str,
 						     "Unknown (%u).  "));
 		      
-		      proto_item_append_text(lmp_object_tree,
+		      proto_item_append_text(lmp_object_tree, "%s",
 					     val_to_str(tvb_get_guint8(tvb, offset2+1),
 							service_attribute_signal_types_sonet_str,
 							"Unknown (%u).   "));

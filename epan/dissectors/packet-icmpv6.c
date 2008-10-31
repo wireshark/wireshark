@@ -2039,13 +2039,13 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_get_ntohs(tvb, offset + 4),
 		tvb_get_ntohs(tvb, offset + 4));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + 6, 1,
+		offset + 6, 1, "%s",
 		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
 		    0x80, 8,
 		    "Managed Address Configuration",
 		    "No Managed Address Configuration"));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + 6, 1,
+		offset + 6, 1, "%s",
 		decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
 		    0x40, 8,
 		    "Other Stateful Configuration",

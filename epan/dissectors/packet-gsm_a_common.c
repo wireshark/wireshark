@@ -1217,7 +1217,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 5,
+			tvb, curr_offset, 5, "%s",
 			gsm_common_elem_strings[DE_LAI].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_LAI]);
@@ -1480,7 +1480,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_MS_CM_1].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
@@ -1868,7 +1868,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_PD_SAPI].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);

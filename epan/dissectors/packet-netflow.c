@@ -884,7 +884,7 @@ static int
 flow_process_textfield(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		       int bytes, const char *text)
 {
-	proto_tree_add_text(pdutree, tvb, offset, bytes, text);
+	proto_tree_add_text(pdutree, tvb, offset, bytes, "%s", text);
 	offset += bytes;
 
 	return offset;

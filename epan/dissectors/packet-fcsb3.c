@@ -300,7 +300,7 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 	flags&=(~( 0x08 ));
 
         proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, 0);
-	proto_item_append_text(item, val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
+	proto_item_append_text(item, "%s", val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
 	flags&=(~( 0x07 ));
 }
 
@@ -549,7 +549,7 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
 
 
         proto_tree_add_item (tree, hf_sbccs_dib_statusflags_ffc, tvb, offset, 1, 0);
-	proto_item_append_text(item, val_to_str ((flags>>5)&0x07, status_ffc_val, "Reserved:0x%x"));
+	proto_item_append_text(item, "%s", val_to_str ((flags>>5)&0x07, status_ffc_val, "Reserved:0x%x"));
 	flags&=(~( 0xE0 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_ci, tvb, offset, 1, flags);

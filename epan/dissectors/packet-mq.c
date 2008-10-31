@@ -2216,7 +2216,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										tMsgProps.iOffsetFormat   = offset + 20;
 								 		if (tree)
 										{
-											ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeHeader, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
+											ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeHeader, "%s", val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
 											mq_tree = proto_item_add_subtree(ti, ett_mq_head);
 
 											proto_tree_add_item(mq_tree, hf_mq_head_structid, tvb, offset, 4, FALSE);

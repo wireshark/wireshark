@@ -668,18 +668,18 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 	if (tree) {
 		flags_cost = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
+		proto_tree_add_text(tree, tvb, offset, 1, "%s",
 		    decode_boolean_bitfield(flags_cost, 0x80, 1*8,
 			"Cost not present", "Cost present"));
 		if (!(flags_cost & 0x80)) {
 			/*
 			 * 0x80 clear => cost present.
 			 */
-			proto_tree_add_text(tree, tvb, offset, 1,
+			proto_tree_add_text(tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(flags_cost, 0x40, 1*8,
 				"Cost is internal metric",
 				"Cost is external metric"));
-			proto_tree_add_text(tree, tvb, offset, 1,
+			proto_tree_add_text(tree, tvb, offset, 1, "%s",
 			    decode_numeric_bitfield(flags_cost, 0x3F, 1*8,
 				"Cost = %u"));
 		}

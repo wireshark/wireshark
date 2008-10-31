@@ -1015,7 +1015,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
-		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, name);
+		ti = proto_tree_add_text(nbns_tree, tvb, start_off, -1, "%s", name);
 		qatree = proto_item_add_subtree(ti, ett_nbns_ans);
 	}
 	while (count-- > 0) {

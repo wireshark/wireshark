@@ -1242,7 +1242,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			proto_tree_add_text(sap_tree, tvb, 0, 2, sap_type[query.query_type - 1]);
+			proto_tree_add_text(sap_tree, tvb, 0, 2, "%s", sap_type[query.query_type - 1]);
 			if ((query.query_type - 1) % 2) {
 			  hidden_item = proto_tree_add_boolean(sap_tree,
 						     hf_sap_response,

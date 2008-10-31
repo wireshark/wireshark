@@ -344,7 +344,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     }
 
     item = proto_tree_add_text(tree, tvb,
-	    offset, numdigocts + 2,
+	    offset, numdigocts + 2, "%s",
 	    title);
 
     subtree = proto_item_add_subtree(item, ett_addr);
@@ -1486,7 +1486,7 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     }
 
     proto_tree_add_text(subtree, tvb,
-	offset, 1,
+	offset, 1, "%s",
 	str);
 }
 

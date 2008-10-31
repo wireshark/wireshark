@@ -893,7 +893,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
+  parameter_item   = proto_tree_add_text(m2ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
                                          val_to_str(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_m2ua_parameter);
 

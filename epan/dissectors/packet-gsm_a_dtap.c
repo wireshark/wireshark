@@ -2168,7 +2168,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_CALL_STATE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CALL_STATE]);
@@ -3503,7 +3503,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
@@ -3621,7 +3621,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
@@ -3752,7 +3752,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
@@ -3785,7 +3785,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_CM_SRVC_TYPE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CM_SRVC_TYPE]);
@@ -3857,7 +3857,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_ID_TYPE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_ID_TYPE]);
@@ -4008,7 +4008,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_common_elem_strings[DE_CIPH_KEY_SEQ_NUM].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
@@ -4041,7 +4041,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, curr_offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_LOC_UPD_TYPE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_LOC_UPD_TYPE]);
@@ -4291,7 +4291,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	item =
 		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
+			tvb, curr_offset, 1, "%s",
 			gsm_dtap_elem_strings[DE_CONGESTION].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CONGESTION]);

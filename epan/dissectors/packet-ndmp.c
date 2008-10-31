@@ -2840,7 +2840,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		if(tree){
-			cmd_item = proto_tree_add_text(tree, tvb, offset, -1,
+			cmd_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
 				msg_vals[i].strptr);
 			cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
 		}

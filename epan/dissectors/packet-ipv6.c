@@ -686,7 +686,7 @@ dissect_shim_hex(tvbuff_t *tvb, int offset, int len, const char *itemname, guint
 
     p = offset;
 
-    ti = proto_tree_add_text(tree, tvb, offset, len, itemname);
+    ti = proto_tree_add_text(tree, tvb, offset, len, "%s", itemname);
 
     proto_item_append_text(ti, " 0x%02x", tvb_get_guint8(tvb, p) & bitmask);
     for (count=1; count<len; count++)
@@ -938,7 +938,7 @@ dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offs
 			      tmp[0] & SHIM6_BITMASK_CT, tmp[1], tmp[2],
 			      tmp[3], tmp[4], tmp[5]
 			    );
-  proto_tree_add_none_format(shim_tree, hf_item, tvb, offset - 6, 6, ct_str);
+  proto_tree_add_none_format(shim_tree, hf_item, tvb, offset - 6, 6, "%s", ct_str);
 }
 
 static void
@@ -960,7 +960,7 @@ dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
     ett_probes = ett_ipv6_shim6_probes_sent;
     ett_probe = ett_ipv6_shim6_probe_sent;
   }
-  it = proto_tree_add_text(shim_tree, tvb, offset, 40 * nbr_probe, label);
+  it = proto_tree_add_text(shim_tree, tvb, offset, 40 * nbr_probe, "%s", label);
   probes_tree = proto_item_add_subtree(it, ett_probes);
 
   for (count=0; count < nbr_probe; count++) {

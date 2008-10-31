@@ -1631,7 +1631,7 @@ static int dissect_kademlia_peer(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* offset = dissect_kademlia_peertype(tvb, pinfo, offset, peer_tree); */
     kad_version = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_item(peer_tree, hf_kademlia_version, tvb, offset, 1, FALSE);
-    proto_item_append_text(ti, val_to_str(kad_version, kademlia_versions, " Unknown"));
+    proto_item_append_text(ti, "%s", val_to_str(kad_version, kademlia_versions, " Unknown"));
     return offset + 1;
 }
 
@@ -2654,7 +2654,7 @@ static int dissect_kademlia2_prolog( tvbuff_t *tvb, packet_info *pinfo _U_,
     kad_version = tvb_get_guint8(tvb, offset);
     /* ti = proto_tree_add_text(tree, tvb, offset, 1, "Kad Version: %d", kad_version ); */
     ti = proto_tree_add_item(tree, hf_kademlia_version, tvb, offset, 1, FALSE);
-    proto_item_append_text(ti, val_to_str(kad_version, kademlia_versions, " Unknown"));
+    proto_item_append_text(ti, "%s", val_to_str(kad_version, kademlia_versions, " Unknown"));
     offset++;
 
     return offset;
@@ -2764,7 +2764,7 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
 
                 type = tvb_get_guint8(tvb, offset);
                 ti = proto_tree_add_uint_format_value(tree, hf_kademlia_request_type, tvb, offset, 1, type, "0x%02x", type );
-                proto_item_append_text(ti, val_to_str(type, kademlia_parameter, " Unknown"));
+                proto_item_append_text(ti, "%s", val_to_str(type, kademlia_parameter, " Unknown"));
                 offset +=1;
 
                 /* get target id */
