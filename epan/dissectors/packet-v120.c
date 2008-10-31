@@ -148,18 +148,18 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			0, 2,
 			"Address field: %s", info);
 	address_tree = proto_item_add_subtree(tc, ett_v120_address);
-	proto_tree_add_text(address_tree, tvb, 0, 2,
+	proto_tree_add_text(address_tree, tvb, 0, 2, "%s",
 		    decode_boolean_bitfield(addr, 0x0002, 2*8,
-			"Response", "Command"), NULL);
+			"Response", "Command"));
 	g_snprintf(info, 80, "LLI: %d", ((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1));
-	proto_tree_add_text(address_tree, tvb, 0, 2,
+	proto_tree_add_text(address_tree, tvb, 0, 2, "%s",
 		    decode_numeric_bitfield(addr, 0xfefc, 2*8, info));
-	proto_tree_add_text(address_tree, tvb, 0, 2,
+	proto_tree_add_text(address_tree, tvb, 0, 2, "%s",
 		    decode_boolean_bitfield(addr, 0x0001, 2*8,
-			"EA0 = 1 (Error)", "EA0 = 0"), NULL);
-	proto_tree_add_text(address_tree, tvb, 0, 2,
+			"EA0 = 1 (Error)", "EA0 = 0"));
+	proto_tree_add_text(address_tree, tvb, 0, 2, "%s",
 		    decode_boolean_bitfield(addr, 0x0100, 2*8,
-			"EA1 = 1", "EA1 = 0 (Error)"), NULL);
+			"EA1 = 1", "EA1 = 0 (Error)"));
     }
     else {
 	v120_tree = NULL;
@@ -204,21 +204,21 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 			offset, header_len,
 			"Header octet: %s (0x%02X)", info, byte0);
 	h_tree = proto_item_add_subtree(tc, ett_v120_header);
-	proto_tree_add_text(h_tree, tvb, offset, header_len,
+	proto_tree_add_text(h_tree, tvb, offset, header_len, "%s",
 		    decode_boolean_bitfield(header, 0x80, nbits,
-			"No extension octet", "Extension octet follows"), NULL);
-	proto_tree_add_text(h_tree, tvb, offset, header_len,
+			"No extension octet", "Extension octet follows"));
+	proto_tree_add_text(h_tree, tvb, offset, header_len, "%s",
 		    decode_boolean_bitfield(header, 0x40, nbits,
-			"Break condition", "No break condition"), NULL);
+			"Break condition", "No break condition"));
 	g_snprintf(info, 80, "Error control C1/C2: %d", (header & 0x0c) >> 2);
-	proto_tree_add_text(h_tree, tvb, offset, header_len,
+	proto_tree_add_text(h_tree, tvb, offset, header_len, "%s",
 		    decode_numeric_bitfield(header, 0x0c, nbits, info));
-	proto_tree_add_text(h_tree, tvb, offset, header_len,
+	proto_tree_add_text(h_tree, tvb, offset, header_len, "%s",
 		    decode_boolean_bitfield(header, 0x02, nbits,
-			"Segmentation bit B", "No segmentation bit B"), NULL);
-	proto_tree_add_text(h_tree, tvb, offset, header_len,
+			"Segmentation bit B", "No segmentation bit B"));
+	proto_tree_add_text(h_tree, tvb, offset, header_len, "%s",
 		    decode_boolean_bitfield(header, 0x01, nbits,
-			"Segmentation bit F", "No segmentation bit F"), NULL);
+			"Segmentation bit F", "No segmentation bit F"));
 	if (header_len == 2) {
 		proto_tree_add_text(h_tree, tvb, offset, header_len,
 		    decode_boolean_bitfield(header, 0x8000, nbits,
