@@ -185,7 +185,7 @@ extern int dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_
 /* this function dissects a BER Object Identifier
  */
 extern int dissect_ber_object_identifier(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **value_tvb);
-extern int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, const char **value_string);
+extern int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, const char **value_stringx);
 
 /* this function dissects a BER sequence of
  */

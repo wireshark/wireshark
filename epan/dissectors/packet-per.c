@@ -900,18 +900,18 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 }
 
 guint32
-dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_string)
+dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx)
 {
   tvbuff_t *value_tvb = NULL;
   guint length;
 
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, (value_string) ? &value_tvb : NULL);
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, (value_stringx) ? &value_tvb : NULL);
 
-  if (value_string) {
+  if (value_stringx) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
-      *value_string = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
+      *value_stringx = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
     } else {
-      *value_string = "";
+      *value_stringx = "";
     }
   }
 
