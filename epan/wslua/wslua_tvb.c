@@ -865,6 +865,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_len(lua_State* L) {
+	/* obtain the length of a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
@@ -877,6 +878,7 @@ WSLUA_METHOD TvbRange_len(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_offset(lua_State* L) {
+	/* obtain the offset in a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
