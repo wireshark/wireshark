@@ -468,22 +468,22 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if (flags_tree) {
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_DATA, 32,
 				"Data","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_ACK, 32,
 				"Acknowledgment","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_NAK, 32,
 				"No Acknowledgment","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_EOM, 32,
 				"End Of Message","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_UNRELIABLE, 32,
 				"Unreliable","-"));
-			proto_tree_add_text(flags_tree, tvb, 0, 2,
+			proto_tree_add_text(flags_tree, tvb, 0, 2, "%s",
 				decode_boolean_bitfield(flags, NETFLAG_CTL, 32,
 				"Control","-"));
 		}

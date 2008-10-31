@@ -138,7 +138,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(subtyp == 0xc005) ett_type = ett_rpl_c005;
 				if(subtyp == 0xc014) ett_type = ett_rpl_c014;
 				ti = proto_tree_add_text(tree, tvb,
-					offset, sublen, val_to_str(subtyp, 
+					offset, sublen, "%s", val_to_str(subtyp, 
 					rpl_type_vals, "Unknown Type"));
 				rpl_container_tree = proto_item_add_subtree(ti, 
 					ett_type);

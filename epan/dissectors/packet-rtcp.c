@@ -732,7 +732,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 				if (rtcp_rtpfb_nack_blp) {
 					for (i = 0; i < 16; i ++) {
 						g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
-						proto_tree_add_text(bitfield_tree, tvb, offset, 2,
+						proto_tree_add_text(bitfield_tree, tvb, offset, 2, "%s",
 						decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
 											16, strbuf, ""));
 						if (rtcp_rtpfb_nack_blp & (1<<i)) {

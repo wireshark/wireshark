@@ -2216,7 +2216,7 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		old_tree = ptvcursor_tree(ptvc);
 		offset = ptvcursor_current_offset(ptvc);
 		item = proto_tree_add_text(old_tree, ptvcursor_tvbuff(ptvc),
-				offset, PROTO_LENGTH_UNTIL_END,
+				offset, PROTO_LENGTH_UNTIL_END, "%s",
 				rec->sub_ptvc_rec->descr);
 		new_tree = proto_item_add_subtree(item, ett);
 		ptvcursor_set_tree(ptvc, new_tree);

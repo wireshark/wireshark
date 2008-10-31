@@ -1450,7 +1450,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
     ti = proto_tree_add_text(tree,
                         tvb,
                         offset,
-                        12,
+                        12, "%s",
                         temp_buff);
 
     guid_tree = proto_item_add_subtree(ti,
@@ -1668,7 +1668,7 @@ static void rtps_util_add_generic_guid(proto_tree *tree,
                         counter,
                         entity_id, str_entity_kind, entity_key);
   if (tree) {
-    proto_tree_add_text(tree, tvb, offset, 16, temp_buff);
+    proto_tree_add_text(tree, tvb, offset, 16, "%s", temp_buff);
   }
   if (buffer != NULL) {
     g_strlcpy(buffer, temp_buff, buffer_size);
@@ -2989,7 +2989,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
       proto_tree_add_text(tree,
                         tvb, 
                         offset, 
-                        param_length,
+                        param_length, "%s",
                         buffer);
     }
     return ;
@@ -3451,7 +3451,7 @@ static void dissect_serialized_data(proto_tree *tree,
           proto_tree_add_text(rtps_parameter_sequence_tree,
                         tvb,
                         offset,
-                        size,
+                        size, "%s",
                         label);
   }  
 }
@@ -8642,7 +8642,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
 
   /* Compose the content of the 'summary' column */
   if ((pinfo != NULL) && (pinfo->cinfo != NULL) && (check_col(pinfo->cinfo, COL_INFO))) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, info_summary_text);
+    col_add_str(pinfo->cinfo, COL_INFO, info_summary_text);
   }
   return TRUE;
 

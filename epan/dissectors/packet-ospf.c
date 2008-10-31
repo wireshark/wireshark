@@ -1526,7 +1526,7 @@ dissect_ospfv2_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     type = tvb_get_ntohs(tvb, offset);
     length = tvb_get_ntohs(tvb, offset + 2);
 
-    ti = proto_tree_add_text(tree, tvb, offset, length + 4,
+    ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
 		    val_to_str(type, lls_tlv_type_vals, "Unknown TLV"));
     ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
 
@@ -1595,7 +1595,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
                                  offset, length + 4, FALSE);
         break;
     default:
-        ti = proto_tree_add_text(tree, tvb, offset, length + 4, 
+        ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
                                  val_to_str(type, lls_v3_tlv_type_vals, "Unknown TLV")); 
     }
 

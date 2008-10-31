@@ -1204,7 +1204,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree, /* Can be NULL */
     ti = proto_tree_add_text(tree,
                         tvb,
                         offset,
-                        8,
+                        8, "%s",
                         temp_buff);
 
     guid_tree = proto_item_add_subtree(ti,
@@ -1444,7 +1444,7 @@ static void rtps_util_add_generic_guid(proto_tree *tree,                /* Canno
                         host_id,
                         app_id, str_app_kind, instance_id,
                         entity_id, str_entity_kind, entity_key);
-  proto_tree_add_text(tree, tvb, offset, 12, temp_buff);
+  proto_tree_add_text(tree, tvb, offset, 12, "%s", temp_buff);
   if (buffer != NULL) {
     g_strlcpy(buffer, temp_buff, buffer_size);
   }
@@ -2708,7 +2708,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
     proto_tree_add_text(tree,
                       tvb, 
                       offset, 
-                      param_length,
+                      param_length, "%s",
                       buffer);
     return ;
   }
@@ -5945,7 +5945,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
         smcr_ptr = smcr_ptr->next;
       }
     }
-    col_add_fstr(pinfo->cinfo, COL_INFO, info_buf);
+    col_add_str(pinfo->cinfo, COL_INFO, info_buf);
   }
   sm_counter_free(smcr_head);
 

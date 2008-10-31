@@ -734,7 +734,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 
 	case PCEP_EXPLICIT_ROUTE_OBJ:
 		l = (l_and_or_type& Mask_L)>>7;
-		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset, 1,  "%s",val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_uint(pcep_subobj_ipv4, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
@@ -769,7 +769,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
-		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+7, 1, val_to_str(resvd, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+7, 1,  "%s",val_to_str(resvd, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
 		break;
 
 	default:
@@ -802,7 +802,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 	switch(obj_class){
 	case PCEP_EXPLICIT_ROUTE_OBJ:
 		l = (l_and_or_type& Mask_L)>>7;
-		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset, 1,  "%s",val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_uint(pcep_subobj_ipv6, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
@@ -836,7 +836,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
-		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+19, 1, val_to_str(resv, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+19, 1, "%s", val_to_str(resv, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
 		break;
 
 	default:
@@ -873,11 +873,11 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  tvbuff_t *tvb,  int 
 
 	case PCEP_EXPLICIT_ROUTE_OBJ:
 		l = (l_and_or_type& Mask_L)>>7;
-		proto_tree_add_text(pcep_subobj_label_control, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_label_control, tvb, offset, 1, "%s", val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_uint(pcep_subobj_label_control, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+1, 1, "Length: %u", length);
 		u = (u_reserved & 0x80)>>7;
-		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, val_to_str(u, pcep_route_u_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, "%s", val_to_str(u, pcep_route_u_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, "Reserved: %u", (u_reserved & 0x7f));
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+3, 1, "C-Type: %u", c_type);
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+4, length-4, "Label: %s", 
@@ -888,7 +888,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  tvbuff_t *tvb,  int 
 		proto_tree_add_uint(pcep_subobj_label_control, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, l_and_or_type);
 		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+1, 1, "Length: %u", length);
 		u = (u_reserved & 0x80)>>7;
-		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, val_to_str(u, pcep_route_u_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, "%s", val_to_str(u, pcep_route_u_obj_vals, "Unknown Object (%u). "));
 
 		ti = proto_tree_add_text(pcep_subobj_label_control, tvb, offset+2, 1, "Flags: 0x%02x ", (u_reserved & 0x7f));
 		pcep_subobj_label_flags = proto_item_add_subtree(ti, ett_pcep_obj);
@@ -932,7 +932,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 
 	case PCEP_EXPLICIT_ROUTE_OBJ:
 		l = (l_and_or_type& Mask_L)>>7;
-		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset, 1, "%s", val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_uint(pcep_subobj_unnumb_interfaceID, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+2, 2, "Reserved: 0x%04x", reserved_flags);
@@ -961,7 +961,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
 		proto_tree_add_uint(pcep_subobj_unnumb_interfaceID, pcep_filter[PCEPF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+2, 1, "Reserved: 0x%02x", (reserved_flags & 0xff00)>>4);
-		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+3, 1, val_to_str((reserved_flags & 0x00ff), pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+3, 1, "%s", val_to_str((reserved_flags & 0x00ff), pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
 		break;
 
 	default:
@@ -1005,7 +1005,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+1, 1, "Length: %u", length);
 
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+2, 1, "Reserved: 0x%02x", reserved);
-		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+3, 1, val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
+		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+3, 1, "%s", val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+4, 2, "Optional AS Number High Octets: 0x%04x", AS_number);
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+6, 2, "AS Number: 0x%04x", AS_number);
 	} else {
@@ -1023,7 +1023,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		if(obj_class == PCEP_IRO_OBJ)
 			proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset, 1, "l: %x", (l_and_or_type & 0x80)>>7);
 		else	
-			proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+			proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset, 1, "%s", val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 		proto_tree_add_uint(pcep_subobj_autonomous_sys_num, pcep_filter[PCEPF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+2, 2, "AS Number: 0x%04x", AS_number);
@@ -1058,7 +1058,7 @@ dissect_subobj_srlg(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, gui
 
 	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+2, 4, "SRLG ID: 0x%08x", srlg_id);
 	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+6, 1, "Reserved: 0x%02x", reserved);
-	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+7, 1, val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
+	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+7, 1, "%s", val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
 }
 
 static void
@@ -1083,7 +1083,7 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 	}
 
 	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pcep_subobj_exrs, tvb, offset, 1, val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
+	proto_tree_add_text(pcep_subobj_exrs, tvb, offset, 1, "%s", val_to_str(l, pcep_route_l_obj_vals, "Unknown Object (%u). "));
 	proto_tree_add_text(pcep_subobj_exrs, tvb, offset, 1, "Type: %u", (l_and_or_type & 0x7f));
 	proto_tree_add_text(pcep_subobj_exrs, tvb, offset+1, 1, "Length: %u", length);
 
@@ -1247,7 +1247,7 @@ dissect_pcep_no_path_obj(proto_tree *pcep_object_tree,
 	}
 
 	ni = tvb_get_guint8(tvb, offset2);
-	proto_tree_add_text(pcep_object_tree, tvb, offset2, 1, val_to_str(ni, pcep_no_path_obj_vals, "Unknown Object (%u). "));
+	proto_tree_add_text(pcep_object_tree, tvb, offset2, 1, "%s", val_to_str(ni, pcep_no_path_obj_vals, "Unknown Object (%u). "));
 
 	flags = tvb_get_ntohs(tvb, offset2+1);
 	ti = proto_tree_add_text(pcep_object_tree, tvb, offset2+1, 2, "Flags: 0x%04x", flags);
@@ -1363,7 +1363,7 @@ dissect_pcep_metric_obj(proto_tree *pcep_object_tree,
 	proto_tree_add_boolean(pcep_metric_obj_flags, pcep_metric_flags_b, tvb, offset2+2, 1, flags);
 
 	metric_type = tvb_get_guint8(tvb, offset2+3);
-	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, val_to_str(metric_type, pcep_metric_obj_vals, "Unknown Object (%u). "));
+	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "%s", val_to_str(metric_type, pcep_metric_obj_vals, "Unknown Object (%u). "));
 
 	metric_value = tvb_get_ntohl(tvb, offset2+4);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+4, 4, "Metric Value: 0x%x", metric_value);
@@ -1914,7 +1914,7 @@ dissect_pcep_close_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+2, 1, "Flags: 0x%02x", flags);
 
 	reason = tvb_get_guint8(tvb, offset2+3);
-	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, val_to_str(reason, pcep_close_reason_obj_vals, "Unknown Object (%u). "));
+	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "%s", val_to_str(reason, pcep_close_reason_obj_vals, "Unknown Object (%u). "));
 
 	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
 	offset2 += CLOSE_OBJ_MIN_LEN;

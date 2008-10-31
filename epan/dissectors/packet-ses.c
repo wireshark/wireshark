@@ -811,7 +811,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 	while(pg_len != 0)
 	{
 		param_type = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_text(pg_tree, tvb, offset, -1,
+		ti = proto_tree_add_text(pg_tree, tvb, offset, -1, "%s",
 		    val_to_str(param_type, param_vals,
 		      "Unknown parameter type (0x%02x)"));
 		param_tree = proto_item_add_subtree(ti, ett_ses_param);
@@ -890,7 +890,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	while(len != 0)
 	{
 		param_type = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_text(ses_tree, tvb, offset, -1,
+		ti = proto_tree_add_text(ses_tree, tvb, offset, -1, "%s",
 		    val_to_str(param_type, param_vals,
 		      "Unknown parameter type (0x%02x)"));
 		param_tree = proto_item_add_subtree(ti, ett_ses_param);

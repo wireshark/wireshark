@@ -180,33 +180,33 @@ dissect_option_qos( const guchar type, const guchar sub_type, int offset,
 
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RSVD;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_SEQ_VS_TRS;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type &OSI_OPT_QOS_SUB_CONG_EXPED;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_TSD_VS_COST;
 
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_TRS;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
     tmp_type = sub_type & OSI_OPT_QOS_SUB_RESERR_COST;
     if ( tmp_type ) {
-         proto_tree_add_text( osi_qos_tree, tvb, offset, len,
+         proto_tree_add_text( osi_qos_tree, tvb, offset, len, "%s",
          val_to_str( tmp_type, osi_opt_qos_sub_vals, "Unknown (0x%x)") );
     }
   }

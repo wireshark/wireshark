@@ -1150,7 +1150,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(type == 0x22) ett = ett_sna_nlp_opti_22;
 		if (tree) {
 			sub_item = proto_tree_add_text(tree, tvb,
-			    offset, len << 2,
+			    offset, len << 2, "%s",
 			    val_to_str(type, sna_nlp_opti_vals,
 			    "Unknown Segment Type"));
 			sub_tree = proto_item_add_subtree(sub_item, ett);
@@ -2464,11 +2464,11 @@ dissect_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		if (key == 0x0e) ett = ett_sna_control_0e;
 
 		if (((key == 0) || (key == 3) || (key == 5)) && hpr)
-			sub_item = proto_tree_add_text(tree, tvb, 0, -1,
+			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
 			    val_to_str(key, sna_control_hpr_vals,
 			    "Unknown Control Vector"));
 		else
-			sub_item = proto_tree_add_text(tree, tvb, 0, -1,
+			sub_item = proto_tree_add_text(tree, tvb, 0, -1, "%s",
 			    val_to_str(key, sna_control_vals,
 			    "Unknown Control Vector"));
 		sub_tree = proto_item_add_subtree(sub_item, ett);

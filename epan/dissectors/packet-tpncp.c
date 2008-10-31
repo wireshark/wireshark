@@ -410,7 +410,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 offset += 16;
                 if (tpncp_events_info_db[id].tpncp_data_field_size) {
                     g_snprintf(tpncp_header, MAX_TPNCP_HEADER_LEN, "TPNCP Event: %s (%d)", val_to_str(id, tpncp_events_id_vals, "Unknown"), id);
-                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, tpncp_header);
+                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_event(id, tvb, tpncp_item, &offset);
                 }
             }
@@ -421,7 +421,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 offset += 12;
                 if (tpncp_commands_info_db[id].tpncp_data_field_size) {
                     g_snprintf(tpncp_header, MAX_TPNCP_HEADER_LEN, "TPNCP Command: %s (%d)", val_to_str(id, tpncp_commands_id_vals, "Unknown"), id);
-                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, tpncp_header);
+                    tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_command(id, tvb, tpncp_item, &offset);
                 }
             }

@@ -927,7 +927,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     add_new_data_source(pinfo, next_tvb, mpdu_str);
 
                     if (agg_tree) {
-                        ti = proto_tree_add_text(agg_tree, next_tvb, 0, -1, mpdu_str);
+                        ti = proto_tree_add_text(agg_tree, next_tvb, 0, -1, "%s", mpdu_str);
                         ampdu_tree = proto_item_add_subtree(ti, ett_ampdu_segment);
                     }
                     call_dissector(ieee80211_ht_handle, next_tvb, pinfo, ampdu_tree);

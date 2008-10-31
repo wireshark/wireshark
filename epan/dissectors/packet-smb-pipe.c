@@ -2510,7 +2510,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				ett = *lanman->ett_data_entry_list;
 			else
 				ett = ett_lanman_unknown_entries;
-			data_item = proto_tree_add_text(tree, tvb, offset, -1,
+			data_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
 			    label);
 			data_tree = proto_item_add_subtree(data_item, ett);
 		} else {

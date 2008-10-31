@@ -953,7 +953,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 			hfi->name,
 			value?"True":"False"
 		);
-		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, str);
+		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, "%s", str);
 	} else {
 		actx->created_item = NULL;
 	}

@@ -1383,7 +1383,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
 
   if (tree) {
     /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v8_parameter_tag_values, "Unknown parameter"));
+    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, v8_parameter_tag_values, "Unknown parameter"));
     parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
     /* add tag and length to the sua tree */
@@ -1659,7 +1659,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
 
   if (tree) {
     /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, parameter_tag_values, "Unknown parameter"));
     parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
     /* add tag and length to the sua tree */

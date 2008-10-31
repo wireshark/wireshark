@@ -411,7 +411,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 			g_string_append_printf(title,")");
 		}
 
-		ti=proto_tree_add_text(tree,tvb,offset,-1,title->str);
+		ti=proto_tree_add_text(tree,tvb,offset,-1, "%s", title->str);
 		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
 		if (title) g_string_free(title,TRUE);
 	}
