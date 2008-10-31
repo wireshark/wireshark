@@ -478,7 +478,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     break;
   case ACN_ADDR_IPV4:
     /* Build tree and add type*/
-    pi = proto_tree_add_text(tree, tvb, offset, 7, label);
+    pi = proto_tree_add_text(tree, tvb, offset, 7, "%s", label);
     addr_tree = proto_item_add_subtree(pi, ett_acn_address);
     proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
     offset +=1;
@@ -496,7 +496,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     break;
   case ACN_ADDR_IPV6:
     /* Build tree and add type*/
-    pi = proto_tree_add_text(tree, tvb, offset, 19, label);
+    pi = proto_tree_add_text(tree, tvb, offset, 19, "%s", label);
     addr_tree = proto_item_add_subtree(pi, ett_acn_address);
     proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
     offset +=1;
@@ -514,7 +514,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     break;
   case ACN_ADDR_IPPORT:
     /* Build tree and add type*/
-    pi = proto_tree_add_text(tree, tvb, offset, 3, label);
+    pi = proto_tree_add_text(tree, tvb, offset, 3, "%s", label);
     addr_tree = proto_item_add_subtree(pi, ett_acn_address);
     proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
     offset +=1;
@@ -1957,7 +1957,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         }
       }
       *buf_ptr = '\0';
-      proto_tree_add_text(pdu_tree, tvb, data_offset, dmx_count, buffer);
+      proto_tree_add_text(pdu_tree, tvb, data_offset, dmx_count, "%s", buffer);
 
       /* start our line */
       g_snprintf(buffer, BUFFER_SIZE, "001-%03d: ", perline);
@@ -1980,7 +1980,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
         if (item_cnt == perline || x == (end_offset-1)) {
           /* add leader... */
-          proto_tree_add_text(pdu_tree, tvb, data_offset, item_cnt, buffer);
+          proto_tree_add_text(pdu_tree, tvb, data_offset, item_cnt, "%s", buffer);
           data_offset += perline;
           g_snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
           buf_ptr = buffer + 9;
