@@ -227,6 +227,8 @@ gtk_sctperror_dlg(void)
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_error_on_close), NULL);
 
 	sctp_error_dlg = sctp_error_dlg_w;
+
+	g_free(col_arrows);
 }
 
 
