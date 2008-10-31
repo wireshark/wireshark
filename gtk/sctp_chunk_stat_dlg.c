@@ -325,6 +325,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 
 	cf_retap_packets(&cfile, FALSE);
 
+	g_free(col_arrows);
 }
 
 
