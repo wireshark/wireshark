@@ -1153,7 +1153,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   int               err_fileno;
   int               i;
   char              errmsg_errno[1024+1];
-  gchar             err_str[2048+1];
   const char       *errmsg;
   gboolean          got_read_error = FALSE, got_write_error = FALSE;
   gint64            data_offset;
@@ -1345,8 +1344,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 	  errmsg = errmsg_errno;
 	  break;
 	}
-	g_snprintf(err_str, sizeof err_str, errmsg, in_files[i].filename);
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, errmsg, in_files[i].filename);
       }
     }
   }

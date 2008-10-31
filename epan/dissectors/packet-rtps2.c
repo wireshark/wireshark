@@ -3747,7 +3747,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         proto_tree_add_text(rtps_parameter_tree,
                         tvb,
                         offset,
-                        param_length,
+                        param_length, "%s",
                         buffer);
         break;
       }

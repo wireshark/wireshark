@@ -118,7 +118,7 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 	if (add_subtree) {
 
 		item = proto_tree_add_text(
-			tree, tvb, offset, 0,
+			tree, tvb, offset, 0, "%s",
 			proto_registrar_get_name(hf_index));
 
 		subtree = proto_item_add_subtree(item, ett_nt_counted_string);
@@ -185,7 +185,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0,
+	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
 		proto_registrar_get_name(hf_index));
 
 	subtree = proto_item_add_subtree(item, ett_nt_counted_byte_array);
@@ -291,7 +291,7 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0,
+	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
 		proto_registrar_get_name(hf_index));
 
 	subtree = proto_item_add_subtree(item, ett_nt_counted_ascii_string);

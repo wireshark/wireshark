@@ -292,7 +292,7 @@ static void after_xmlpi(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 
 	proto_tree_add_text(current_frame->tree,
-						   tok->tvb, tok->offset, tok->len,
+						   tok->tvb, tok->offset, tok->len, "%s",
 						   tvb_format_text(tok->tvb,tok->offset,tok->len));
 
 	if (stack->len > 1) {

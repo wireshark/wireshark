@@ -1990,17 +1990,17 @@ dissect_q2931_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	    "Information element extension: 0x%02x",
 	    info_element_ext);
 	ie_ext_tree = proto_item_add_subtree(ti, ett_q2931_ie_ext);
-	proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1,
+	proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1, "%s",
 	    decode_enumerated_bitfield(info_element_ext,
 	        Q2931_IE_COMPAT_CODING_STD, 8,
 		coding_std_vals, "Coding standard: %s"));
-	proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1,
+	proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1, "%s",
 	    decode_boolean_bitfield(info_element_ext,
 	    Q2931_IE_COMPAT_FOLLOW_INST, 8,
 	    "Follow explicit error handling instructions",
   	    "Regular error handling procedures apply"));
 	if (info_element_ext & Q2931_IE_COMPAT_FOLLOW_INST) {
-		proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1,
+		proto_tree_add_text(ie_ext_tree, tvb, offset + 1, 1, "%s",
 		    decode_enumerated_bitfield(info_element_ext,
 		        Q2931_IE_COMPAT_ACTION_IND, 8,
 			ie_action_ind_vals,

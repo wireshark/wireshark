@@ -2279,7 +2279,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						structId = tvb_get_ntohl(tvb, offset);
 						if (tree)
 						{
-							proto_tree_add_text(mqroot_tree, tvb, offset, -1, val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
+							proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", val_to_str(structId, mq_structid_vals, "Unknown (0x%08x)"));
 						}
 					}
 				}

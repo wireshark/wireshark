@@ -471,7 +471,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 			break;
 		}
 
-		ti = proto_tree_add_text(wccp_tree, tvb, offset, item_length + 4,
+		ti = proto_tree_add_text(wccp_tree, tvb, offset, item_length + 4, "%s",
 		    val_to_str(type, info_type_vals, "Unknown info type (%u)"));
 		info_tree = proto_item_add_subtree(ti, ett);
 		proto_tree_add_text(info_tree, tvb, offset, 2,

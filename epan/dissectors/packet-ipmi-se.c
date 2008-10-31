@@ -2237,7 +2237,7 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 
 	val = tvb_get_guint8(tvb, 0);
 	proto_tree_add_uint_format(tree, hf_ipmi_se_11_rq_timeout, tvb, 0, 1,
-			val, val_to_str(val, vals_11_pef_timer, "Arm Timer for: %d sec"));
+			val, "%s", val_to_str(val, vals_11_pef_timer, "Arm Timer for: %d sec"));
 }
 
 static void
@@ -2247,7 +2247,7 @@ rs11(tvbuff_t *tvb, proto_tree *tree)
 
 	val = tvb_get_guint8(tvb, 0);
 	proto_tree_add_uint_format(tree, hf_ipmi_se_11_rs_timeout, tvb, 0, 1,
-			val, val_to_str(val, vals_11_pef_timer, "Present Timer Countdown value: %d sec"));
+			val, "%s", val_to_str(val, vals_11_pef_timer, "Present Timer Countdown value: %d sec"));
 }
 
 /* Set PEF Configuration Parameters.
