@@ -226,24 +226,22 @@ gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb,
 
 void lct_info_column(struct _lct *lct, packet_info *pinfo)
 {
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (lct->tsi_present)
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", lct->tsi);
+	if (lct->tsi_present)
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", lct->tsi);
 
-		if (lct->toi_present)
-		{
-			if (lct->toi_size <= 8)
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", lct->toi);
-			else
-				col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", bytes_to_str(lct->toi_extended, lct->toi_size));
-		}
-
-		if (lct->close_session)
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close session");
-
-		if (lct->close_object)
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close object");
+	if (lct->toi_present)
+	{
+		if (lct->toi_size <= 8)
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", lct->toi);
+		else
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", bytes_to_str(lct->toi_extended, lct->toi_size));
 	}
+
+	if (lct->close_session)
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close session");
+
+	if (lct->close_object)
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "Close object");
 }
 
 /* Dissection */

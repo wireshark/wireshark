@@ -73,13 +73,11 @@ const value_string string_fec_encoding_id[] =
 
 void fec_info_column(struct _fec *fec, packet_info *pinfo)
 {
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (fec->sbn_present)
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", fec->sbn);
+	if (fec->sbn_present)
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SBN: %u", fec->sbn);
 
-		if (fec->esi_present)
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", fec->esi);
-	}
+	if (fec->esi_present)
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ESI: 0x%X", fec->esi);
 }
 
 /* Dissection */
