@@ -301,8 +301,10 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     foffset += 1;
 
     /* Fill in the INFO column. */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMAS");
+    }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
        col_add_fstr(pinfo->cinfo, COL_INFO, "C NMAS - %s",
                     val_to_str(subfunc, nmas_func_enum, "Unknown (0x%02x)"));
     }
@@ -492,7 +494,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         subverb = request_value->req_nds_flags;
         msgverb = request_value->nds_request_verb;
     }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMAS");
     }
     if (tvb_reported_length_remaining(tvb, foffset)<4) {
