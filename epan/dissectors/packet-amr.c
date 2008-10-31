@@ -348,10 +348,10 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 		ft = (unit16val >> (11 - (bitcount % 8)))  &0x000F;
 		if (amr_mode==AMR_NB)
 			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-						   amr_nb_codec_mode_request_vals[ft].strptr);
+						   "%s", amr_nb_codec_mode_request_vals[ft].strptr);
 		else
 			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-						   amr_wb_codec_mode_request_vals[ft].strptr);
+						   "%s", amr_wb_codec_mode_request_vals[ft].strptr);
 		    	    
 		bitcount += 4;
 		if (amr_mode==AMR_NB)

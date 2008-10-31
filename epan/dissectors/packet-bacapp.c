@@ -3168,7 +3168,7 @@ fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		if (tag_is_closing(tag_info)) {
 			return offset; /* outer encoding will print out closing tag */
 		}
-		tt = proto_tree_add_text(tree, tvb, offset, 0, val_to_str(i++, day_of_week, "day of week (%d) not found"));
+		tt = proto_tree_add_text(tree, tvb, offset, 0, "%s", val_to_str(i++, day_of_week, "day of week (%d) not found"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset = fDailySchedule (tvb,subtree,offset);
 	}
@@ -5093,7 +5093,7 @@ fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		/* optional range choice */
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_opening(tag_info)) {
-			tt = proto_tree_add_text(subtree, tvb, offset, 1, val_to_str(tag_no, BACnetReadRangeOptions, "unknown range option"));
+			tt = proto_tree_add_text(subtree, tvb, offset, 1, "%s", val_to_str(tag_no, BACnetReadRangeOptions, "unknown range option"));
 			subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 			switch (tag_no) {
@@ -5168,7 +5168,7 @@ static guint fAccessMethod(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	if (tag_is_opening(tag_info))
 	{
-		tt = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(tag_no, BACnetFileAccessOption, "invalid access method"));
+		tt = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(tag_no, BACnetFileAccessOption, "invalid access method"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 		offset = fApplicationTypes (tvb, subtree, offset, val_to_str(tag_no, BACnetFileStartOption, "invalid option"));
@@ -5209,7 +5209,7 @@ fAtomicReadFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	if (tag_is_opening(tag_info))
 	{
-		tt = proto_tree_add_text(subtree, tvb, offset, 1, val_to_str(tag_no, BACnetFileAccessOption, "unknown access method"));
+		tt = proto_tree_add_text(subtree, tvb, offset, 1, "%s", val_to_str(tag_no, BACnetFileAccessOption, "unknown access method"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 		offset = fSignedTag (tvb, subtree, offset, val_to_str(tag_no, BACnetFileStartOption, "unknown option"));

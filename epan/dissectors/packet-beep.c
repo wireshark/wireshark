@@ -566,7 +566,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       hdr = proto_item_add_subtree(ti, ett_header);
 
       hidden_item = proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, TRUE);
-      proto_tree_add_text(hdr, tvb, offset, 3, cmd_temp);
+      proto_tree_add_text(hdr, tvb, offset, 3, "%s", cmd_temp);
     }
 
     offset += 4;

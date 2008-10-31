@@ -257,7 +257,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_APPEARANCE:
 	    {
                 proto_item *newSubtree;
-                newField = proto_tree_add_text(tree, tvb, offset, 4,
+                newField = proto_tree_add_text(tree, tvb, offset, 4, "%s",
                     parserNodes[fieldIndex].fieldLabel);
                 newSubtree = proto_item_add_subtree(newField,
                     parserNodes[fieldIndex].ettVar);
@@ -359,7 +359,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_LOCATION_ENTITY:
         case DIS_FIELDTYPE_ENTITY_TYPE:
         case DIS_FIELDTYPE_ORIENTATION:
-            newField = proto_tree_add_text(tree, tvb, offset, -1,
+            newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                 parserNodes[fieldIndex].fieldLabel);
             if (parserNodes[fieldIndex].children != 0)
             {
@@ -382,7 +382,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
 	        for (i = 0; i < numArticulations; ++i)
 	        {
 		    proto_item *newSubtree;
-                    newField = proto_tree_add_text(tree, tvb, offset, -1,
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                         parserNodes[fieldIndex].fieldLabel);
                     newSubtree = proto_item_add_subtree(newField,
                         ettArticulations[i]);

@@ -227,10 +227,10 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
     trd = proto_tree_add_text(dest_tree, tvb, offset, 2, "Route descriptor: 0x%02X",
     			route_descriptor);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
-    proto_tree_add_text(rd_tree, tvb, offset, 2,
+    proto_tree_add_text(rd_tree, tvb, offset, 2, "%s",
 	    decode_numeric_bitfield(route_descriptor, 0xFFF0, 2*8,
 			"LAN ID = %u"));
-    proto_tree_add_text(rd_tree, tvb, offset, 2,
+    proto_tree_add_text(rd_tree, tvb, offset, 2, "%s",
 	    decode_numeric_bitfield(route_descriptor, 0x000F, 2*8,
 			"Bridge number = %u"));
     break;

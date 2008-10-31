@@ -2165,7 +2165,7 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 		size = tvb_get_guint8(tvb, offset) +2;
 	}
 
-	item = proto_tree_add_text(ptree, tvb, offset, size, label);
+	item = proto_tree_add_text(ptree, tvb, offset, size, "%s", label);
 	tree = proto_item_add_subtree(item, ett_afp_cat_spec);
 
 	if (ext) {

@@ -2603,7 +2603,7 @@ static proto_tree *
 info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const char *str) {
      proto_item *tv;
 
-     tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, str);
+     tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, "%s", str);
      return( proto_item_add_subtree( tv, ett_cops_subtree ) );
 }
 

@@ -271,7 +271,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     	proto_tree_add_uint(cpha_tree, hf_filler, tvb, offset, sizeof(hdr.filler), g_ntohs(hdr.filler));
     	offset += sizeof(hdr.filler);
     }
-    nti = proto_tree_add_text(cpha_tree, tvb, offset, -1, opcode2str_short(opcode));
+    nti = proto_tree_add_text(cpha_tree, tvb, offset, -1, "%s", opcode2str_short(opcode));
     ntree = proto_item_add_subtree(nti, ett_cphap);
 
     switch(opcode) {

@@ -1266,12 +1266,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 		case IP_PROTO_TCP:
 		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_tcp_port(port_num)));
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%s", get_tcp_port(port_num)));
 		  break;
 
 		case IP_PROTO_UDP:
 		  strptr += MIN(MAX_STR_LEN-(strptr-bitnames),
-				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_udp_port(port_num)));
+				g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%s", get_udp_port(port_num)));
 		  break;
 
 		default:
@@ -2466,7 +2466,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   start_off = cur_off;
   if (dns_tree) {
     const char *s = (isupdate ?  "Zone" : "Queries");
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, s);
+    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", s);
     qatree = proto_item_add_subtree(ti, ett_dns_qry);
   }
   while (count-- > 0) {
@@ -2491,7 +2491,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   start_off = cur_off;
   if (dns_tree) {
-    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, name);
+    ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, "%s", name);
     qatree = proto_item_add_subtree(ti, ett_dns_ans);
   }
   while (count-- > 0) {

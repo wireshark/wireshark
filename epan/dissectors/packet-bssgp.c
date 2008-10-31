@@ -597,7 +597,7 @@ bit_proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb,
 			guint64 bo, guint8 bl, const char *value) {
   /* XXX: Use varargs */
   return proto_tree_add_text(tree, tvb, get_start_octet(bo),
-			     get_num_octets_spanned(bo, bl), value);
+			     get_num_octets_spanned(bo, bl), "%s", value);
 }
 
 static proto_item *
@@ -1564,7 +1564,7 @@ bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
   };
   value = tvb_get_masked_guint8(tvb, offset, MASK_PFI);
   proto_item_append_text(pi,
-		  val_to_str(value, tab_pfi, "Dynamically assigned (PFI: %d)"));
+		  "%s", val_to_str(value, tab_pfi, "Dynamically assigned (PFI: %d)"));
 }
 
 static void
@@ -2791,11 +2791,11 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item_append_text(pi, "Precedence: ");
 
   if (bi->ul_data) {
-    proto_item_append_text(pi, val_to_str(value, tab_precedence_ul,
+    proto_item_append_text(pi, "%s", val_to_str(value, tab_precedence_ul,
 					  "Reserved (Low priority)"));
   }
   else {
-    proto_item_append_text(pi, val_to_str(value, tab_precedence_dl,
+    proto_item_append_text(pi, "%s", val_to_str(value, tab_precedence_dl,
 					  "Reserved (Radio priority 3)"));
   }
   proto_item_append_text(pi, " (%#x)", value);

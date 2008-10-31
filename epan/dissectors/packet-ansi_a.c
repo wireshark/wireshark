@@ -7384,7 +7384,7 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	}
 
 	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    str);
+	    "%s", str);
     }
     else
     {

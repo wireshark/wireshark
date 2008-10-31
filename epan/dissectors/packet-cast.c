@@ -849,21 +849,21 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       val = tvb_get_letohl( tvb, i);
       ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "partyPIRestrictionBits");
       cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x01, 4*8, "Does RestrictCallingPartyName", "Doesn't RestrictCallingPartyName"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x02, 4*8, "Does RestrictCallingPartyNumber", "Doesn't RestrictCallingPartyNumber"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x04, 4*8, "Does RestrictCalledPartyName", "Doesn't RestrictCalledPartyName"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x08, 4*8, "Does RestrictCalledPartyNumber", "Doesn't RestrictCalledPartyNumber"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x10, 4*8, "Does RestrictOriginalCalledPartyName", "Doesn't RestrictOriginalCalledPartyName"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x20, 4*8, "Does RestrictOriginalCalledPartyNumber", "Doesn't RestrictOriginalCalledPartyNumber"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x40, 4*8, "Does RestrictLastRedirectPartyName", "Doesn't RestrictLastRedirectPartyName"));
-      proto_tree_add_text(cast_sub_tree, tvb, i, 4,
+      proto_tree_add_text(cast_sub_tree, tvb, i, 4, "%s",
         decode_boolean_bitfield( val, 0x80, 4*8, "Does RestrictLastRedirectPartyNumber", "Doesn't RestrictLastRedirectPartyNumber"));
       break;
 

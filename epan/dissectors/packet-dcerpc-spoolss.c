@@ -510,7 +510,7 @@ dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *str;
 
 	if (add_subtree) {
-		item = proto_tree_add_text(tree, tvb, offset, 16, name);
+		item = proto_tree_add_text(tree, tvb, offset, 16, "%s", name);
 		subtree = proto_item_add_subtree(item, ett_SYSTEM_TIME);
 	}
 

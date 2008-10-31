@@ -654,7 +654,7 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 		buf[strlen(buf)-1] = 0; /* skip last comma */
 
 		g_strlcat(buf, ")", sizeof(buf));
-		proto_item_append_text(item, buf);
+		proto_item_append_text(item, "%s", buf);
 	}
 	else
 	{

@@ -999,31 +999,31 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     ti = proto_tree_add_text(tree, tvb, offset, length, "Capabilities: 0x%08x",
         capabilities);
     capabilities_tree = proto_item_add_subtree(ti, ett_cdp_capabilities);
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x01, 4*8,
 	    "Is  a Router",
 	    "Not a Router"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x02, 4*8,
 	    "Is  a Transparent Bridge",
 	    "Not a Transparent Bridge"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x04, 4*8,
 	    "Is  a Source Route Bridge",
 	    "Not a Source Route Bridge"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x08, 4*8,
 	    "Is  a Switch",
 	    "Not a Switch"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x10, 4*8,
 	    "Is  a Host",
 	    "Not a Host"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x20, 4*8,
 	    "Is  IGMP capable",
 	    "Not IGMP capable"));
-    proto_tree_add_text(capabilities_tree, tvb, offset, 4,
+    proto_tree_add_text(capabilities_tree, tvb, offset, 4, "%s",
 	decode_boolean_bitfield(capabilities, 0x40, 4*8,
 	    "Is  a Repeater",
 	    "Not a Repeater"));

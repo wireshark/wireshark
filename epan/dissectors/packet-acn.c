@@ -1161,7 +1161,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* Add Vector item to tree*/
   name = val_to_str(vector, acn_dmp_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
-  proto_item_append_text(ti, name);
+  proto_item_append_text(ti, "%s", name);
 
   /* Set header offset */
   if (pdu_flags & ACN_PDU_FLAG_H) {
@@ -1469,7 +1469,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   /* Add Vector item to tree*/
   name = val_to_str(vector, acn_sdt_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
-  proto_item_append_text(ti, name);
+  proto_item_append_text(ti, "%s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 
@@ -1644,7 +1644,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   /* Add protocol to tree*/
   name = val_to_str(protocol_id, acn_protocol_id_vals, "id not valid (%d)");
   proto_item_append_text(ti, ": ");
-  proto_item_append_text(ti, name);
+  proto_item_append_text(ti, "%s", name);
 
   /* add association item */
   association = tvb_get_ntohs(tvb, header_offset);
@@ -1859,7 +1859,7 @@ dissect_acn_dmx_data_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   /* Add Vector item to tree*/
   name = val_to_str(vector, acn_dmp_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
-  proto_item_append_text(ti, name);
+  proto_item_append_text(ti, "%s", name);
 
   /* Set header offset */
   if (pdu_flags & ACN_PDU_FLAG_H) {
@@ -2241,7 +2241,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   /* Add Vector item to tree*/
   name = val_to_str(vector, acn_sdt_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
-  proto_item_append_text(ti, name);
+  proto_item_append_text(ti, "%s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
 

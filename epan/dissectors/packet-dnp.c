@@ -1011,7 +1011,7 @@ add_item_text(proto_item *item, const gchar *text, gboolean comma_needed)
   if (comma_needed) {
     proto_item_append_text(item, ", ");
   }
-  proto_item_append_text(item, text);
+  proto_item_append_text(item, "%s", text);
   return TRUE;
 }
 
@@ -1104,8 +1104,8 @@ dnp3_al_obj_procindex(tvbuff_t *tvb, int offset, guint8 al_objq_index, guint32 *
 static void
 dnp3_append_2item_text(proto_item *item1, proto_item *item2, const gchar *text)
 {
-  proto_item_append_text(item1, text);
-  proto_item_append_text(item2, text);
+  proto_item_append_text(item1, "%s", text);
+  proto_item_append_text(item2, "%s", text);
 }
 
 /*****************************************************************/
@@ -2317,7 +2317,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (dl_ctl & DNP3_CTL_RES) proto_item_append_text(tdl, "RES, ");
     if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tdl, "DFC, ");
   }
-  proto_item_append_text(tdl, func_code_str);
+  proto_item_append_text(tdl, "%s", func_code_str);
   dl_tree = proto_item_add_subtree(tdl, ett_dnp3_dl);
 
   /* start bytes */

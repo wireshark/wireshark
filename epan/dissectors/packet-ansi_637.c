@@ -819,7 +819,7 @@ tele_param_rel_timestamp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     if (str == NULL)
     {
 	proto_tree_add_text(tree, tvb, offset, 1,
-	    str2);
+	    "%s", str2);
     }
     else
     {
@@ -987,7 +987,7 @@ tele_param_lang_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     }
 
     proto_tree_add_text(tree, tvb, offset, 1,
-	str);
+	"%s", str);
 }
 
 static void
@@ -1275,7 +1275,7 @@ trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset,
     if (NULL == str) str = "Reserved";
 
     proto_tree_add_text(tree, tvb, offset, 2,
-	str);
+	"%s", str);
 
     g_snprintf(add_string, string_len, " - %s (%d)", str, value);
 }
@@ -1752,7 +1752,7 @@ trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
     }
 
     proto_tree_add_text(tree, tvb, offset, 1,
-	str);
+	"%s", str);
 }
 
 static void
@@ -1819,7 +1819,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     param_fcn = ansi_637_tele_param_fcn[idx];
 
     item =
-	proto_tree_add_text(tree, tvb, curr_offset, -1, str);
+	proto_tree_add_text(tree, tvb, curr_offset, -1, "%s", str);
 
     subtree = proto_item_add_subtree(item, ett_param_idx);
 
@@ -2008,7 +2008,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     param_fcn = ansi_637_trans_param_fcn[idx];
 
     item =
-	proto_tree_add_text(tree, tvb, curr_offset, -1, str);
+	proto_tree_add_text(tree, tvb, curr_offset, -1, "%s", str);
 
     subtree = proto_item_add_subtree(item, ett_param_idx);
 

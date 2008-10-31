@@ -1099,7 +1099,7 @@ msg_validate_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	item =
 	    proto_tree_add_none_format(tree, hf_ansi_683_none,
 		tvb, offset, -1,
-		str);
+		"%s", str);
 
 	subtree = proto_item_add_subtree(item, ett_for_val_block);
 

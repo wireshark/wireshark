@@ -3109,7 +3109,7 @@ netlogon_dissect_CIPHER_VALUE(tvbuff_t *tvb, int offset,
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			name);
+			"%s", name);
 		tree = proto_item_add_subtree(item, ett_CYPHER_VALUE);
 	}
 
@@ -3557,7 +3557,7 @@ netlogon_dissect_DELTA_ENUM(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_delta_type, &type);
 
-	proto_item_append_text(item, val_to_str(
+	proto_item_append_text(item, "%s", val_to_str(
 				       type, delta_type_vals, "Unknown"));
 
 	offset = netlogon_dissect_DELTA_ID_UNION(tvb, offset,

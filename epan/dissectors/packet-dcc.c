@@ -110,7 +110,7 @@ static gint ett_dcc_trace = -1;
 	hidden_item = proto_tree_add_item(dcc_tree, hf_dcc_target, tvb, \
 		offset, sizeof(DCC_TGTS), FALSE); \
 	PROTO_ITEM_SET_HIDDEN(hidden_item); \
-	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), \
+	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), "%s", \
 		val_to_str(tvb_get_ntohl(tvb,offset), dcc_target_vals, "Targets (%u)")); \
 	offset += sizeof(DCC_TGTS); \
 

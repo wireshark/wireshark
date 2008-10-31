@@ -4474,7 +4474,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     item_type = tvb_get_guint8(tvb, offset);
     item_len  = tvb_get_ntohs(tvb, offset+2);
 
-    assoc_item_pitem = proto_tree_add_text(tree, tvb, offset, item_len+4, pitem_prefix);
+    assoc_item_pitem = proto_tree_add_text(tree, tvb, offset, item_len+4, "%s", pitem_prefix);
     assoc_item_ptree = proto_item_add_subtree(assoc_item_pitem, ett_subtree);
 
     proto_tree_add_uint(assoc_item_ptree, *hf_type, tvb, offset, 1, item_type);
@@ -4561,7 +4561,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     item_type = tvb_get_guint8(tvb, offset-4);
     item_len  = tvb_get_ntohs(tvb, offset-2);
 
-    pctx_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, pitem_prefix);
+    pctx_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, "%s", pitem_prefix);
     pctx_ptree = proto_item_add_subtree(pctx_pitem, ett_assoc_pctx);
 
     pctx_id     = tvb_get_guint8(tvb, offset);
@@ -4731,7 +4731,7 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
     item_type = tvb_get_guint8(tvb, offset-4);
     item_len  = tvb_get_ntohs(tvb, offset-2);
 
-    userinfo_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, pitem_prefix);
+    userinfo_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, "%s", pitem_prefix);
     userinfo_ptree = proto_item_add_subtree(userinfo_pitem, ett_assoc_info);
 
     proto_tree_add_uint(userinfo_ptree, hf_dcm_assoc_item_type, tvb, offset-4, 2, item_type);
@@ -5550,17 +5550,17 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (vl == 0xFFFFFFFF) {
 	/* 'Just' mark header as the length of the item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, tag_summary);
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset - offset_tag, "%s", tag_summary);
 	vl_max = 0;	    /* We don't know who long this sequence/item is */
     }
     else if (offset + vl <= endpos) {
 	/* Show real length of item */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, tag_summary);
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, offset + vl - offset_tag, "%s", tag_summary);
 	vl_max = vl;
     }
     else {
 	/* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
-	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, tag_summary);
+	tag_pitem = proto_tree_add_text(tree, tvb, offset_tag, endpos - offset_tag, "%s", tag_summary);
 	vl_max = endpos - offset;
     }
 
