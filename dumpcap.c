@@ -1693,7 +1693,9 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   char tmpname[128+1];
   gchar *capfile_name;
   gboolean is_tempfile;
-
+#ifndef _WIN32
+  int ret;
+#endif
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
       (capture_opts->save_file) ? capture_opts->save_file : "");
@@ -1775,7 +1777,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   /* capture_opts.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
 #ifndef _WIN32
-  fchown(*save_file_fd, capture_opts->owner, capture_opts->group);
+  ret = fchown(*save_file_fd, capture_opts->owner, capture_opts->group);
 #endif
 
   return TRUE;

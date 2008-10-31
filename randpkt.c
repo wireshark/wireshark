@@ -615,6 +615,7 @@ seed(void)
 #if defined(linux)
 	/* Okay, I should use #ifdef HAVE_DEV_RANDOM, but this is a quick hack */
 	int 		fd;
+	int 		ret;
 
 	fd = open("/dev/random", O_RDONLY);
 	if (fd < 0) {
@@ -622,7 +623,7 @@ seed(void)
 		exit(0);
 	}
 
-	read(fd, &randomness, sizeof(randomness));
+	ret = read(fd, &randomness, sizeof(randomness));
 #else
 	time_t now;
 
