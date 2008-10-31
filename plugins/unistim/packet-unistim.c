@@ -2575,7 +2575,7 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
    #define MAX_BUFFER 1024
    buffer=ep_alloc(MAX_BUFFER);
 
-   g_snprintf(buffer,MAX_BUFFER,label);
+   g_snprintf(buffer,MAX_BUFFER,"%s",label);
    buffer_index=strlen(label);
 
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
@@ -2597,7 +2597,7 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
    }
    buffer[buffer_index]='\0';
 
-   proto_tree_add_text(msg_tree,tvb,offset,msg_len,buffer);
+   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"%s",buffer);
 }
 
 static void
@@ -2609,7 +2609,7 @@ set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint m
    #define MAX_BUFFER 1024
    buffer=ep_alloc(MAX_BUFFER);
 
-   g_snprintf(buffer,MAX_BUFFER,label);
+   g_snprintf(buffer,MAX_BUFFER,"%s",label);
    buffer_index=strlen(label);
 
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
@@ -2633,6 +2633,6 @@ set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint m
    }
    buffer[buffer_index]='\0';
 
-   proto_tree_add_text(msg_tree,tvb,offset,msg_len,buffer);
+   proto_tree_add_text(msg_tree,tvb,offset,msg_len,"%s",buffer);
 }
 

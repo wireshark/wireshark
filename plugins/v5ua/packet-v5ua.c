@@ -1517,7 +1517,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 
   switch(iua_version){
   case RFC:
-	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
+	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
 		val_to_str(tag, parameter_tag_values, "Unknown parameter"));
 	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
@@ -1527,7 +1527,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 
   case DRAFT:
   default:
-	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
+	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
 		val_to_str(tag, parameter_tag_draft_values, "Unknown parameter"));
 	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 

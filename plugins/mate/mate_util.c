@@ -63,7 +63,7 @@ void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... )
 	va_end( list );
 
 	if (! where) {
-		g_message(debug_buffer);
+		g_message("%s", debug_buffer);
 	} else {
 		fputs(debug_buffer,where);
 		fputs("\n",where);

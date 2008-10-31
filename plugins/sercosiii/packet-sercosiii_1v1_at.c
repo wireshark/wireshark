@@ -51,12 +51,12 @@ void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   char devices[]="Recognized Devices"; /* fixme: it would be nice to have this as subtree */
   static char outbuf[200];
 
-  proto_tree_add_text(tree, tvb, 0, 1024, devices);
+  proto_tree_add_text(tree, tvb, 0, 1024, "%s", devices);
 
   /* check sequence count field */
   seqcnt = tvb_get_letohs(tvb, 0);
   g_snprintf(outbuf, sizeof(outbuf), "Number of Devices: %u", (0x1FF & seqcnt)-1);
-  proto_tree_add_text(tree, tvb, 0, 2, outbuf);
+  proto_tree_add_text(tree, tvb, 0, 2, "%s", outbuf);
 
   /* check SERCOS address of each topology field */
   for(i=1;i < MAX_SERCOS_DEVICES; ++i)
@@ -75,7 +75,7 @@ void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     {
       g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: %u", i, tfield);
     }
-    proto_tree_add_text(tree, tvb, i*2, 2, outbuf);
+    proto_tree_add_text(tree, tvb, i*2, 2, "%s", outbuf);
   }
 }
 

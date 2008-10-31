@@ -463,7 +463,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* get the TLV value offset */
 			tlv_offset = get_tlv_value_offset(&m2m_tlv_info);
 			/* display TLV type */
-			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), val_to_str(tlv_type, tlv_name, "Unknown TLV"));
+			ti = proto_tree_add_protocol_format(m2m_tree, proto_m2m, tvb, offset, (tlv_len + tlv_offset), "%s", val_to_str(tlv_type, tlv_name, "Unknown TLV"));
 			/* add TLV subtree */
 			tlv_tree = proto_item_add_subtree(ti, ett_m2m_tlv);
 			/* update the offset */

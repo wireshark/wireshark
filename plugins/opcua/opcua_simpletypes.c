@@ -615,7 +615,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
 void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex, fctSimpleTypeParser pParserFunction)
 {
     char szFieldName[] = "Array of Simple Type";
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
     int i;
     gint32 iLen;
@@ -641,7 +641,7 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParser pParserFunction)
 {
     char szFieldName[] = "Array of Enum Type";
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
     int i;
     gint32 iLen;

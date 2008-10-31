@@ -4147,7 +4147,7 @@ showstack(statestack *pos, char *txt, int n)
 			p->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 			p->name, p->offset);
 	}
-	g_message(buf);
+	g_message("%s", buf);
 }
 
 #if 0

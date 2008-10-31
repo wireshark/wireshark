@@ -2219,15 +2219,15 @@ dissect_rsvp_error (proto_item *ti, proto_tree *rsvp_object_tree,
     ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset3, 1,
 			      "Flags: 0x%02x", error_flags);
     rsvp_error_subtree = proto_item_add_subtree(ti2, TREE(TT_ERROR_FLAGS));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1,
+    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s", 
 		    decode_boolean_bitfield(error_flags, 0x04, 8,
 					    "Path State Removed",
 					    ""));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1,
+    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
 		    decode_boolean_bitfield(error_flags, 0x02, 8,
 					    "NotGuilty",
 					    ""));
-    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1,
+    proto_tree_add_text(rsvp_error_subtree, tvb, offset3, 1, "%s",
 		    decode_boolean_bitfield(error_flags, 0x01, 8,
 					    "InPlace",
 					    ""));
@@ -2522,11 +2522,11 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
 	    ti3 = proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off+4, 1,
 				      "Profile: 0x%02x", profile);
 	    ethspec_profile_subtree = proto_item_add_subtree(ti3, TREE(TT_ETHSPEC_SUBTREE));
-	    proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1,
+	    proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1, "%s",
 				decode_boolean_bitfield(profile, 0x02, 8,
 					    "Color Mode (CM) set",
 					    "Color Mode (CM) NOT set"));
-	    proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1,
+	    proto_tree_add_text(ethspec_profile_subtree, tvb, offset+tlv_off+4, 1, "%s",
 				decode_boolean_bitfield(profile, 0x01, 8,
 					    "Coupling Flag (CF) set",
 					    "Coupling Flag (CF) NOT set"));
@@ -2758,11 +2758,11 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
 			    "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
 	tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
-	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8,
 						    "Standard contiguous concatenation",
 						    "No standard contiguous concatenation"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8,
 						    "Arbitrary contiguous concatenation",
 						    "No arbitrary contiguous concatenation"));
@@ -2775,59 +2775,59 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 				  "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
 	tspec_tree = proto_item_add_subtree(ti2, TREE(TT_TSPEC_SUBTREE));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32,
 						    "Section/Regenerator Section layer transparency",
 						    "No Section/Regenerator Section layer transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32,
 						    "Line/Multiplex Section layer transparency",
 						    "No Line/Multiplex Section layer transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32,
 						    "J0 transparency",
 						    "No J0 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32,
 						    "SOH/RSOH DCC transparency",
 						    "No SOH/RSOH DCC transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32,
 						    "LOH/MSOH DCC transparency",
 						    "No LOH/MSOH DCC transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32,
 						    "LOH/MSOH Extended DCC transparency",
 						    "No LOH/MSOH Extended DCC transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32,
 						    "K1/K2 transparency",
 						    "No K1/K2 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32,
 						    "E1 transparency",
 						    "No E1 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32,
 						    "F1 transparency",
 						    "No F1 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32,
 						    "E2 transparency",
 						    "No E2 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32,
 						    "B1 transparency",
 						    "No B1 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32,
 						    "B2 transparency",
 						    "No B2 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32,
 						    "M0 transparency",
 						    "No M0 transparency"));
-	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32,
 						    "M1 transparency",
 						    "No M1 transparency"));
@@ -3089,11 +3089,11 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
 				  "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
 	flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8,
 						    "Standard contiguous concatenation",
 						    "No standard contiguous concatenation"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8,
 						    "Arbitrary contiguous concatenation",
 						    "No arbitrary contiguous concatenation"));
@@ -3106,59 +3106,59 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 				  "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
 	flowspec_tree = proto_item_add_subtree(ti2, TREE(TT_FLOWSPEC_SUBTREE));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32,
 						    "Section/Regenerator Section layer transparency",
 						    "No Section/Regenerator Section layer transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32,
 						    "Line/Multiplex Section layer transparency",
 						    "No Line/Multiplex Section layer transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32,
 						    "J0 transparency",
 						    "No J0 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32,
 						    "SOH/RSOH DCC transparency",
 						    "No SOH/RSOH DCC transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32,
 						    "LOH/MSOH DCC transparency",
 						    "No LOH/MSOH DCC transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32,
 						    "LOH/MSOH Extended DCC transparency",
 						    "No LOH/MSOH Extended DCC transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32,
 						    "K1/K2 transparency",
 						    "No K1/K2 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32,
 						    "E1 transparency",
 						    "No E1 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32,
 						    "F1 transparency",
 						    "No F1 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32,
 						    "E2 transparency",
 						    "No E2 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32,
 						    "B1 transparency",
 						    "No B1 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32,
 						    "B2 transparency",
 						    "No B2 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32,
 						    "M0 transparency",
 						    "No M0 transparency"));
-	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4, "%s",
 			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32,
 						    "M1 transparency",
 						    "No M1 transparency"));
@@ -3237,7 +3237,7 @@ dissect_rsvp_adspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	break_bit = tvb_get_guint8(tvb, offset2+1);
 	length = tvb_get_ntohs(tvb, offset2+2);
 	ti = proto_tree_add_text(rsvp_object_tree, tvb, offset2,
-				 (length+1)*4,
+				 (length+1)*4, "%s",
 				 str);
 	adspec_tree = proto_item_add_subtree(ti,
 					     TREE(TT_ADSPEC_SUBTREE));
@@ -3326,7 +3326,7 @@ dissect_rsvp_integrity (proto_item *ti _U_, proto_tree *rsvp_object_tree,
     ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			      "Flags: 0x%02x", flags);
     rsvp_integ_flags_tree = proto_item_add_subtree(ti2, TREE(TT_INTEGRITY_FLAGS));
-    proto_tree_add_text(rsvp_integ_flags_tree, tvb, offset2, 1,
+    proto_tree_add_text(rsvp_integ_flags_tree, tvb, offset2, 1, "%s",
 	decode_boolean_bitfield(flags, 0x01, 8, "Handshake capable", "Handshake not capable"));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6,
 			"Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
@@ -3644,23 +3644,23 @@ dissect_rsvp_session_attribute (proto_item *ti, proto_tree *rsvp_object_tree,
 				  "Flags: 0x%02x", flags);
 	rsvp_sa_flags_tree = proto_item_add_subtree(ti2,
 						    TREE(TT_SESSION_ATTRIBUTE_FLAGS));
-	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x01, 8,
 						    "Local protection desired",
 						    "Local protection not desired"));
-	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x02, 8,
 						    "Label recording desired",
 						    "Label recording not desired"));
-	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x04, 8,
 						    "SE style desired",
 						    "SE style not desired"));
-	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x08, 8,
 						    "Bandwidth protection desired",
 						    "Bandwidth protection not desired"));
-	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x10, 8,
 						    "Node protection desired",
 						    "Node protection not desired"));
@@ -3763,23 +3763,23 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree =
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x01, 8,
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x02, 8,
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x04, 8,
 							    "Bandwidth Protection Available",
 							    "Bandwidth Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x08, 8,
 							    "Node Protection Available",
 							    "Node Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+7, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x10, 8,
 							    "Address Specifies a Node-id Address",
 							    "Address Doesn't Specify a Node-id Address"));
@@ -3825,23 +3825,23 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree =
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x01, 8,
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x02, 8,
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x04, 8,
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x08, 8,
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+19, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x10, 8,
 							    "Address Specifies a Node-id Address",
 							    "Address Doesn't Specify a Node-id Address"));
@@ -3877,19 +3877,19 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree =
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x01, 8,
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x02, 8,
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x04, 8,
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x08, 8,
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
@@ -3936,19 +3936,19 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 					  "Flags: 0x%02x", flags);
 		rsvp_rro_flags_subtree =
 		    proto_item_add_subtree(ti2, TREE(TT_RECORD_ROUTE_SUBOBJ_FLAGS));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x01, 8,
 							    "Local Protection Available",
 							    "Local Protection Not Available"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x02, 8,
 							    "Local Protection In Use",
 							    "Local Protection Not In Use"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x04, 8,
 							    "Backup Tunnel Has Bandwidth",
 							    "Backup Tunnel Does Not Have Bandwidth"));
-		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1,
+		proto_tree_add_text(rsvp_rro_flags_subtree, tvb, offset+l+2, 1, "%s",
 				    decode_boolean_bitfield(flags, 0x08, 8,
 							    "Backup Tunnel Goes To Next-Next-Hop",
 							    "Backup Tunnel Goes To Next-Hop"));
@@ -4310,19 +4310,19 @@ dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 				  "Admin Status: 0x%08x", status);
 	rsvp_admin_subtree =
 	    proto_item_add_subtree(ti2, TREE(TT_ADMIN_STATUS_FLAGS));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
 			    decode_boolean_bitfield(status, 0x80000000, 32,
 						    "R: Reflect",
 						    "R: Do not reflect"));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
 			    decode_boolean_bitfield(status, 0x04, 32,
 						    "T: Testing",
 						    "T: "));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
 			    decode_boolean_bitfield(status, 0x02, 32,
 						    "A: Administratively Down",
 						    "A: "));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
 			    decode_boolean_bitfield(status, 0x01, 32,
 						    "D: Delete In Progress",
 						    "D: "));
@@ -5172,27 +5172,27 @@ dissect_rsvp_protection_info (proto_tree *ti, proto_tree *rsvp_object_tree,
 				  "Link Flags: 0x%02x", flags);
 	rsvp_pi_flags_tree = proto_item_add_subtree(ti2,
 						    TREE(TT_PROTECTION_INFO));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x01, 8,
 						    "Extra Traffic desired",
 						    "Extra Traffic not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x02, 8,
 						    "Unprotected desired",
 						    "Unprotected not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x04, 8,
 						    "Shared desired",
 						    "Shared not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x08, 8,
 						    "Dedicated 1:1 desired",
 						    "Dedicated 1:1 not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x10, 8,
 						    "Dedicated 1+1 desired",
 						    "Dedicated 1+1 not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x20, 8,
 						    "Enhanced desired",
 						    "Enhanced not desired"));
@@ -5252,11 +5252,11 @@ dissect_rsvp_fast_reroute (proto_tree *ti, proto_tree *rsvp_object_tree,
                                   "Flags: 0x%02x", flags);
         rsvp_frr_flags_tree = proto_item_add_subtree(ti2,
                                                      TREE(TT_FAST_REROUTE_FLAGS));
-	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1,
+	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x01, 8,
 						    "One-to-One Backup desired",
 						    "One-to-One Backup not desired"));
-	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1,
+	proto_tree_add_text(rsvp_frr_flags_tree, tvb, offset+7, 1, "%s",
 			    decode_boolean_bitfield(flags, 0x02, 8,
 						    "Facility Backup desired",
 						    "Facility Backup not desired"));
@@ -5464,13 +5464,13 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (pinfo->ipproto == IP_PROTO_RSVPE2EI)
 	proto_item_append_text(rsvp_tree, " (E2E-IGNORE)");
     proto_item_append_text(rsvp_tree, ": ");
-    proto_item_append_text(rsvp_tree, val_to_str(message_type, message_type_vals,
+    proto_item_append_text(rsvp_tree, "%s", val_to_str(message_type, message_type_vals,
 						 "Unknown (%u). "));
     find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
     if (session_off)
-	proto_item_append_text(rsvp_tree, summary_session(tvb, session_off));
+	proto_item_append_text(rsvp_tree, "%s", summary_session(tvb, session_off));
     if (tempfilt_off)
-	proto_item_append_text(rsvp_tree, summary_template(tvb, tempfilt_off));
+	proto_item_append_text(rsvp_tree, "%s", summary_template(tvb, tempfilt_off));
 
     ti = proto_tree_add_text(rsvp_tree, tvb, offset, 8, "RSVP Header. %s",
 			     val_to_str(message_type, message_type_vals,

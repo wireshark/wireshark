@@ -274,7 +274,7 @@ void
 pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text)
 {
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, text);
+        col_append_str(pinfo->cinfo, COL_INFO, text);
 
     proto_item_append_text(dcp_item, "%s", text);
 }

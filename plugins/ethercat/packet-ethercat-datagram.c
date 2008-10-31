@@ -541,7 +541,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       {
          /* Create the sub tree for the current datagram */
          EcSubFormatter(tvb, suboffset, szText, nMax);
-         aitem = proto_tree_add_text(ecat_datagrams_tree, tvb, suboffset, subsize, szText);
+         aitem = proto_tree_add_text(ecat_datagrams_tree, tvb, suboffset, subsize, "%s", szText);
          ecat_datagram_tree = proto_item_add_subtree(aitem, ett_ecat_datagram_subtree);
 
          /* Create a subtree placeholder for the Header */

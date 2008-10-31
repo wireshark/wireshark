@@ -354,7 +354,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - bit 0x80 is "Normal" if 0; what is it if 1?
 		 */
 		if (is_broadcast) {
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 			      "Router nodes",
 			      "All nodes"));
@@ -362,20 +362,20 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    decode_enumerated_bitfield(viph.vip_tctl, 0x30, 1*8,
 				      class_vals, "%s"));
 		} else {
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 			      "Forwarding router can handle redirect packets",
 			      "Forwarding router cannot handle redirect packets"));
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x20, 1*8,
 			      "Return metric notification packet",
 			      "Do not return metric notification packet"));
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x10, 1*8,
 			      "Return exception notification packet",
 			      "Do not return exception notification packet"));
 		}
-		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
 		    decode_numeric_bitfield(viph.vip_tctl, 0x0F, 1*8,
 			"Hop count remaining = %u"));
 		proto_tree_add_uint(vip_tree, hf_vines_ip_protocol, tvb,
@@ -609,22 +609,22 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * XXX - do reassembly based on BOM/EOM bits.
 			 */
-			proto_tree_add_text(control_tree, tvb, offset, 1,
+			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vipc_control, 0x80,
 			      1*8,
 			      "Send immediate acknowledgment",
 			      "Do not send immediate acknowledgement"));
-			proto_tree_add_text(control_tree, tvb, offset, 1,
+			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vipc_control, 0x40,
 			      1*8,
 			      "End of message",
 			      "Not end of message"));
-			proto_tree_add_text(control_tree, tvb, offset, 1,
+			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vipc_control, 0x20,
 			      1*8,
 			      "Beginning of message",
 			      "Not beginning of message"));
-			proto_tree_add_text(control_tree, tvb, offset, 1,
+			proto_tree_add_text(control_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vipc_control, 0x10,
 			      1*8,
 			      "Abort current message",
@@ -771,19 +771,19 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * XXX - do reassembly based on BOM/EOM bits.
 		 */
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
 		    decode_boolean_bitfield(viph.vspp_control, 0x80, 1*8,
 		      "Send immediate acknowledgment",
 		      "Do not send immediate acknowledgement"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
 		    decode_boolean_bitfield(viph.vspp_control, 0x40, 1*8,
 		      "End of message",
 		      "Not end of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
 		    decode_boolean_bitfield(viph.vspp_control, 0x20, 1*8,
 		      "Beginning of message",
 		      "Not beginning of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1, "%s",
 		    decode_boolean_bitfield(viph.vspp_control, 0x10, 1*8,
 		      "Abort current message",
 		      "Do not abort current message"));
@@ -1192,19 +1192,19 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			subtree = proto_item_add_subtree(ti,
 			    ett_vines_rtp_compatibility_flags);
 			proto_tree_add_text(subtree, tvb,
-			    offset, 1,
+			    offset, 1, "%s",
 			    decode_boolean_bitfield(compatibility_flags,
 			      0x04, 1*8,
 			      "Auto-configured non-Vines-reachable neighbor router",
 			      "Not an auto-configured non-Vines-reachable neighbor router"));
 			proto_tree_add_text(subtree, tvb,
-			    offset, 1,
+			    offset, 1, "%s",
 			    decode_boolean_bitfield(compatibility_flags,
 			      0x02, 1*8,
 			      "Not all neighbor routers support Sequenced RTP",
 			      "All neighbor routers support Sequenced RTP"));
 			proto_tree_add_text(subtree, tvb,
-			    offset, 1,
+			    offset, 1, "%s",
 			    decode_boolean_bitfield(compatibility_flags,
 			      0x01, 1*8,
 			      "Sequenced RTP version mismatch",
@@ -1239,32 +1239,32 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				subtree = proto_item_add_subtree(ti,
 				    ett_vines_rtp_control_flags);
 				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
+				    offset, 1, "%s",
 				    decode_boolean_bitfield(control_flags,
 				      0x10, 1*8,
 				      "Part of routing table synchronization broadcast",
 				      "Not part of routing table synchronization broadcast"));
 				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
+				    offset, 1, "%s",
 				    decode_boolean_bitfield(control_flags,
 				      0x08, 1*8,
 				      "Part of full topology update",
 				      "Not part of full topology update"));
 				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
+				    offset, 1, "%s",
 				    decode_boolean_bitfield(control_flags,
 				      0x04, 1*8,
 				      "Contains info specifically requested or network changes",
 				      "Not a response to a specific request"));
 				/* XXX - need reassembly? */
 				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
+				    offset, 1, "%s",
 				    decode_boolean_bitfield(control_flags,
 				      0x02, 1*8,
 				      "End of message",
 				      "Not end of message"));
 				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
+				    offset, 1, "%s",
 				    decode_boolean_bitfield(control_flags,
 				      0x01, 1*8,
 				      "Beginning of message",
@@ -1417,15 +1417,15 @@ rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, const char *t
 	    tag == NULL ? "" : " ",
 	    machine_type);
 	subtree = proto_item_add_subtree(ti, ett_vines_rtp_mtype);
-	proto_tree_add_text(subtree, tvb, offset, 1,
+	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(machine_type, 0x04, 1*8,
 	      "Sequenced RTP supported",
 	      "Sequenced RTP not supported"));
-	proto_tree_add_text(subtree, tvb, offset, 1,
+	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(machine_type, 0x02, 1*8,
 	      "TCP/IP supported",
 	      "TCP/IP not supported"));
-	proto_tree_add_text(subtree, tvb, offset, 1,
+	proto_tree_add_text(subtree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(machine_type, 0x01, 1*8,
 	      "Fast bus",
 	      "Slow bus"));
@@ -1442,19 +1442,19 @@ rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, const char *tag)
 	ti = proto_tree_add_text(tree, tvb, offset, 1, "%s Flags: 0x%02x",
 	    tag, flags);
 	flags_tree = proto_item_add_subtree(ti, ett_vines_rtp_flags);
-	proto_tree_add_text(flags_tree, tvb, offset, 1,
+	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x08, 1*8,
 	      "Network doesn't support Sequenced RTP",
 	      "Network supports Sequenced RTP"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1,
+	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x04, 1*8,
 	      "Network accessed point-to-point on non-Vines network",
 	      "Network not accessed point-to-point on non-Vines network"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1,
+	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x02, 1*8,
 	      "Data link to network uses point-to-point connection",
 	      "Data link to network doesn't use point-to-point connection"));
-	proto_tree_add_text(flags_tree, tvb, offset, 1,
+	proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x01, 1*8,
 	      "Network accessed across broadcast medium",
 	      "Network not accessed across broadcast medium"));

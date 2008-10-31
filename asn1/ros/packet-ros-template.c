@@ -195,7 +195,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_set_str(pinfo->cinfo, COL_INFO, opname);
 				if(suffix)
-					col_append_fstr(pinfo->cinfo, COL_INFO, suffix);
+					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
 			
 			offset = (*opdissector)(tvb, pinfo, ros_tree);

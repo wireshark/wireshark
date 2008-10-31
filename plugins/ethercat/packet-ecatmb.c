@@ -620,11 +620,11 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
          CANopenNumberFormatter(&coe, szText, nMax);
          anItem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_number, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.v.Number);
-         proto_item_set_text(anItem, szText);
+         proto_item_set_text(anItem, "%s", szText);
 
          CANopenTypeFormatter(&coe, szText, nMax);
          anItem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_type, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.v.Type);
-         proto_item_set_text(anItem, szText);
+         proto_item_set_text(anItem, "%s", szText);
       }
 
       offset += ETHERCAT_COE_HEADER_LEN;
@@ -650,10 +650,10 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if( tree )
             {
-               proto_item_append_text(aparent, szText);
+               proto_item_append_text(aparent, "%s", szText);
 
                anItem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_sdoreq, tvb, offset, 1, sdo.anSdoHeaderUnion.Idq.Ccs);
-               proto_item_set_text(anItem, szText);
+               proto_item_set_text(anItem, "%s", szText);
                ecat_sdo_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_sdo);
 
                switch ( sdo.anSdoHeaderUnion.Idq.Ccs )
@@ -742,7 +742,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             if( tree )
             {
                anItem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_sdores, tvb, offset, 1, sdo.anSdoHeaderUnion.Ids.Scs);
-               proto_item_set_text(anItem, szText);
+               proto_item_set_text(anItem, "%s", szText);
                ecat_sdo_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_sdo);
 
                switch ( sdo.anSdoHeaderUnion.Ids.Scs )
@@ -959,8 +959,8 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          ETHERCAT_SOE_HEADER soe;
          init_soe_header(&soe, tvb, offset);
 
-         proto_item_append_text(aparent, szText);
-         proto_item_set_text(anItem, szText);
+         proto_item_append_text(aparent, "%s", szText);
+         proto_item_set_text(anItem, "%s", szText);
 
          ecat_soe_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_soe);
          anItem = proto_tree_add_item(ecat_soe_tree, hf_ecat_mailbox_soe_header, tvb, offset , 2, TRUE);
@@ -1065,26 +1065,26 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
          anItem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_type, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.Type);
          EoETypeFormatter(&eoe, szText, nMax);
-         proto_item_set_text(anItem,szText);
+         proto_item_set_text(anItem, "%s", szText);
 
          switch ( eoe.anEoeHeaderInfoUnion.v.Type )
          {
          case EOE_TYPE_FRAME_FRAG:
             anItem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_fragno, tvb, offset, 4, eoe.anEoeHeaderDataUnion.v.Fragment);
             EoEFragNoFormatter(&eoe, szText, nMax);
-            proto_item_set_text(anItem,szText);
+            proto_item_set_text(anItem, "%s", szText);
 
             anItem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_offset, tvb, offset, 4, 32*eoe.anEoeHeaderDataUnion.v.OffsetBuffer);
             EoEOffsetFormatter(&eoe, szText, nMax);
-            proto_item_set_text(anItem,szText);
+            proto_item_set_text(anItem, "%s", szText);
 
             anItem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_frame, tvb, offset, 4, eoe.anEoeHeaderDataUnion.v.FrameNo);
             EoEFrameFormatter(&eoe, szText, nMax);
-            proto_item_set_text(anItem,szText);
+            proto_item_set_text(anItem, "%s", szText);
 
             anItem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_last, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.LastFragment);
             EoELastFormatter(&eoe, szText, nMax);
-            proto_item_set_text(anItem,szText);
+            proto_item_set_text(anItem, "%s", szText);
 
             if ( eoe.anEoeHeaderInfoUnion.v.TimeStampRequested )
             {
@@ -1350,7 +1350,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
             /* Add type information to the mailbox header */
             MailboxTypeFormatter(&hdr, szText, nMax);
-            proto_tree_add_text(ecat_mailbox_header_tree, tvb, offset, 1, szText);
+            proto_tree_add_text(ecat_mailbox_header_tree, tvb, offset, 1, "%s", szText);
 
             /* Add counter information to the mailbox header */
             proto_tree_add_text(ecat_mailbox_header_tree, tvb, offset, 1, "Counter : %d",hdr.aControlUnion.v.Counter);

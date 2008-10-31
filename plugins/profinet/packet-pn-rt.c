@@ -352,7 +352,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 	/* update column info now */
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, szFieldSummary);
+      col_add_str(pinfo->cinfo, COL_INFO, szFieldSummary);
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_add_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 

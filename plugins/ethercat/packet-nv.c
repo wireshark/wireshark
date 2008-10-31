@@ -134,7 +134,7 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       ti= proto_tree_add_item(nv_header_tree, hf_nv_publisher, tvb, offset, sizeof(guint8)*6, TRUE);
       NvPublisherFormater(tvb, offset, szText, nMax);
-      proto_item_set_text(ti, szText);
+      proto_item_set_text(ti, "%s", szText);
       offset+=(sizeof(guint8)*6);
 
       ti= proto_tree_add_item(nv_header_tree, hf_nv_count, tvb, offset, sizeof(guint16), TRUE);
@@ -150,7 +150,7 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
          ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len+var_length, TRUE);
          NvVarHeaderFormater(tvb, offset, szText, nMax);
-         proto_item_set_text(ti, szText);
+         proto_item_set_text(ti, "%s", szText);
 
          nv_var_tree = proto_item_add_subtree(ti, ett_nv_var);
          ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, TRUE);
