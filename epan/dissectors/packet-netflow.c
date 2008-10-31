@@ -1219,14 +1219,18 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
     struct v9_template * template)
 {
 	int i;
-	nstime_t        ts_start, ts_end;
-	int		offset_s = 0, offset_e = 0;
-	nstime_t	ts_delta;
-	guint32         msec_start = 0, msec_end = 0;
+	int             rev;
+	nstime_t        ts_start[2], ts_end[2];
+	int             offset_s[2], offset_e[2];
+	nstime_t        ts_delta;
+	guint32         msec_start[2], msec_end[2];
 	guint32         msec_delta;
-	proto_tree *	timetree = 0;
+	proto_tree *    timetree = 0;
 	proto_item *    timeitem = 0;
 	guint16         pen_count = 0;
+
+	offset_s[0] = offset_s[1] = offset_e[0] = offset_e[1] = 0;
+	msec_start[0] = msec_start[1] = msec_end[0] = msec_end[1] = 0;
 
 	if( (template->count_scopes > 0) && (template->scopes != NULL)) {
 		for(i = 0; i < template->count_scopes; i++) {
@@ -1278,6 +1282,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		guint16 type, length;
 		guint32 pen = 0;
 
+		rev = 0;
 		type = template->entries[i + pen_count].type;
 		length = template->entries[i + pen_count].length;
 		if (type & 0x8000) {
@@ -1285,6 +1290,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		  pen = *(guint32 *)&template->entries[i + pen_count];
 		  if (pen == REVPEN) { /* reverse PEN */
 		    type &= 0x7fff;
+		    rev = 1;
 		  }
 		}
 
@@ -1460,94 +1466,99 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		case 22: /* first switched */
 		case 21: /* last switched */
 			if(type == 22) {
-				offset_s = offset;
-			        msec_start = tvb_get_ntohl(tvb, offset);
-				ts_start.secs = msec_start / 1000;
-				ts_start.nsecs = (msec_start % 1000) * 1000000;
+				offset_s[rev] = offset;
+			        msec_start[rev] = tvb_get_ntohl(tvb, offset);
+				ts_start[rev].secs = msec_start[rev] / 1000;
+				ts_start[rev].nsecs = (msec_start[rev] % 1000) * 1000000;
 			} else {
-				offset_e = offset;
-			        msec_end = tvb_get_ntohl(tvb, offset);
-				ts_end.secs = msec_end / 1000;
-				ts_end.nsecs = (msec_end % 1000) * 1000000;
+				offset_e[rev] = offset;
+			        msec_end[rev] = tvb_get_ntohl(tvb, offset);
+				ts_end[rev].secs = msec_end[rev] / 1000;
+				ts_end[rev].nsecs = (msec_end[rev] % 1000) * 1000000;
 			}
+			/* FALLTHROUGH */
 		case 150: /*  flowStartSeconds */
 		case 151: /*  flowEndSeconds */
 			if (type == 150) {
-			  offset_s = offset;
-			  ts_start.secs = tvb_get_ntohl(tvb, offset);
-			  ts_start.nsecs = 0;
+			  offset_s[rev] = offset;
+			  ts_start[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_start[rev].nsecs = 0;
 			} else if (type == 151) {
-			  offset_e = offset;
-			  ts_end.secs = tvb_get_ntohl(tvb, offset);
-			  ts_end.nsecs = 0;
+			  offset_e[rev] = offset;
+			  ts_end[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_end[rev].nsecs = 0;
 			}
-
+			/* FALLTHROUGH */
 		case 152: /*  flowStartMilliseconds */
 		case 153: /*  flowEndMilliseconds */
 		        if(type == 152) {
-			  offset_s = offset;
-			  ts_start.secs = tvb_get_ntohl(tvb, offset);
-			  ts_start.nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000000;
+			  offset_s[rev] = offset;
+			  ts_start[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_start[rev].nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000000;
 			} else if(type == 153) {
-			  offset_e = offset;
-			  ts_end.secs = tvb_get_ntohl(tvb, offset);
-			  ts_end.nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000000;
+			  offset_e[rev] = offset;
+			  ts_end[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_end[rev].nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000000;
 			}
+			/* FALLTHROUGH */
 		case 154: /*  flowStartMicroseconds */
 		case 155: /*  flowEndMicroseconds */
 		        if(type == 154) {
-			  offset_s = offset;
-			  ts_start.secs = tvb_get_ntohl(tvb, offset);
-			  ts_start.nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000;
+			  offset_s[rev] = offset;
+			  ts_start[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_start[rev].nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000;
 			} else if(type == 155) {
-			  offset_e = offset;
-			  ts_end.secs = tvb_get_ntohl(tvb, offset);
-			  ts_end.nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000;
+			  offset_e[rev] = offset;
+			  ts_end[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_end[rev].nsecs = tvb_get_ntohl(tvb, offset + 4) * 1000;
 			}
+			/* FALLTHROUGH */
 		case 156: /*  flowStartNanoseconds */
 		case 157: /*  flowEndNanoseconds */
 		        if(type == 156) {
-			  offset_s = offset;
-			  ts_start.secs = tvb_get_ntohl(tvb, offset);
-			  ts_start.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			  offset_s[rev] = offset;
+			  ts_start[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_start[rev].nsecs = tvb_get_ntohl(tvb, offset + 4);
 			} else if(type == 157) {
-			  offset_e = offset;
-			  ts_end.secs = tvb_get_ntohl(tvb, offset);
-			  ts_end.nsecs = tvb_get_ntohl(tvb, offset + 4);
+			  offset_e[rev] = offset;
+			  ts_end[rev].secs = tvb_get_ntohl(tvb, offset);
+			  ts_end[rev].nsecs = tvb_get_ntohl(tvb, offset + 4);
 			}
+			/* FALLTHROUGH */
 		case 158: /*  flowStartDeltaMicroseconds */
 		case 159: /*  flowEndDeltaMicroseconds */
 			if(type == 158) {
-				offset_s = offset;
-			        msec_start = tvb_get_ntohl(tvb, offset);
-				ts_start.secs = msec_start / 1000000;
-				ts_start.nsecs = (msec_start % 1000000) * 1000000;
+				offset_s[rev] = offset;
+			        msec_start[rev] = tvb_get_ntohl(tvb, offset);
+				ts_start[rev].secs = msec_start[rev] / 1000000;
+				ts_start[rev].nsecs = (msec_start[rev] % 1000000) * 1000000;
 			} else if(type == 159) {
-				offset_e = offset;
-			        msec_end = tvb_get_ntohl(tvb, offset);
-				ts_end.secs = msec_end / 1000000;
-				ts_end.nsecs = (msec_end % 1000000) * 1000000;
+				offset_e[rev] = offset;
+			        msec_end[rev] = tvb_get_ntohl(tvb, offset);
+				ts_end[rev].secs = msec_end[rev] / 1000000;
+				ts_end[rev].nsecs = (msec_end[rev] % 1000000) * 1000000;
 			}
-			if(offset_s && offset_e) {
-				nstime_delta(&ts_delta, &ts_end, &ts_start);
+			/* This code executed for all timestamp fields above */
+			if(offset_s[rev] && offset_e[rev]) {
+				nstime_delta(&ts_delta, &ts_end[rev], &ts_start[rev]);
 				timeitem =
 				  proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
-						      offset_s, 0, &ts_delta);
+						      offset_s[rev], 0, &ts_delta);
 				PROTO_ITEM_SET_GENERATED(timeitem);
 				timetree = proto_item_add_subtree(timeitem, ett_flowtime);
-				if (msec_start) {
+				if (msec_start[rev]) {
 				  proto_tree_add_time(timetree, hf_cflow_timestart, tvb,
-						      offset_s, length, &ts_start);
+						      offset_s[rev], length, &ts_start[rev]);
 				} else {
 				  proto_tree_add_time(timetree, hf_cflow_abstimestart, tvb,
-						      offset_s, length, &ts_start);
+						      offset_s[rev], length, &ts_start[rev]);
 				}
-				if (msec_end) {
+				if (msec_end[rev]) {
 				  proto_tree_add_time(timetree, hf_cflow_timeend, tvb,
-						      offset_e, length, &ts_end);
+						      offset_e[rev], length, &ts_end[rev]);
 				} else {
 				  proto_tree_add_time(timetree, hf_cflow_abstimeend, tvb,
-						      offset_e, length, &ts_end);
+						      offset_e[rev], length, &ts_end[rev]);
 				}
 			}
 			break;
@@ -2503,24 +2514,26 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		offset += length;
 	}
-	if (!(offset_s && offset_e)) {
-		if (offset_s) {
-		  if (msec_start) {
-			proto_tree_add_time(pdutree, hf_cflow_timestart, tvb,
-					    offset_s, 4, &ts_start);
-		  } else {
-			proto_tree_add_time(pdutree, hf_cflow_abstimestart, tvb,
-					    offset_s, 4, &ts_start);
-		  }
-		}
-		if (offset_e) {
-		  if (msec_end) {
-			proto_tree_add_time(pdutree, hf_cflow_timeend, tvb,
-					    offset_e, 4, &ts_end);
-		  } else {
-			proto_tree_add_time(pdutree, hf_cflow_abstimeend, tvb,
-					    offset_s, 4, &ts_start);
-		  }
+	for (i = 0; i < 2; i++) {
+		if (!(offset_s[i] && offset_e[i])) {
+			if (offset_s[i]) {
+				if (msec_start[i]) {
+					proto_tree_add_time(pdutree, hf_cflow_timestart, tvb,
+							    offset_s[i], 4, &ts_start[i]);
+				} else {
+					proto_tree_add_time(pdutree, hf_cflow_abstimestart, tvb,
+							    offset_s[i], 4, &ts_start[i]);
+				}
+			}
+			if (offset_e[i]) {
+				if (msec_end[i]) {
+					proto_tree_add_time(pdutree, hf_cflow_timeend, tvb,
+							    offset_e[i], 4, &ts_end[i]);
+				} else {
+					proto_tree_add_time(pdutree, hf_cflow_abstimeend, tvb,
+							    offset_s[i], 4, &ts_start[i]);
+				}
+			}
 		}
 	}
 
