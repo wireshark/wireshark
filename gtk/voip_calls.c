@@ -438,7 +438,7 @@ rtp_event_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -671,7 +671,7 @@ rtp_init_tap(void)
 			);
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -835,7 +835,7 @@ t38_init_tap(void)
 			);
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1042,7 +1042,7 @@ sip_calls_init_tap(void)
 			);
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1268,7 +1268,7 @@ isup_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1333,7 +1333,7 @@ mtp3_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1351,7 +1351,7 @@ mtp3_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-						  error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1679,7 +1679,7 @@ q931_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -1982,7 +1982,7 @@ h225_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2150,7 +2150,7 @@ h245dg_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2216,7 +2216,7 @@ sdp_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2586,7 +2586,7 @@ mgcp_calls_init_tap(void)
 			);
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2718,7 +2718,7 @@ actrace_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2867,7 +2867,7 @@ void h248_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-						  error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -2885,7 +2885,7 @@ void h248_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-						  error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -3050,7 +3050,7 @@ void sccp_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-						  error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -3068,7 +3068,7 @@ void sccp_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-						  error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -3580,7 +3580,7 @@ unistim_calls_init_tap(void){
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -3689,7 +3689,7 @@ VoIPcalls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
@@ -3752,7 +3752,7 @@ prot_calls_init_tap(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}

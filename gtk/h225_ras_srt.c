@@ -314,7 +314,7 @@ gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 
 	error_string=register_tap_listener("h225", hs, filter, h225rassrt_reset, h225rassrt_packet, h225rassrt_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(hs->filter);
 		g_free(hs);

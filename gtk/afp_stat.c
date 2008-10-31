@@ -175,7 +175,7 @@ gtk_afpstat_init(const char *optarg, void *userdata _U_)
 
 	error_string=register_tap_listener("afp", ss, filter, afpstat_reset, afpstat_packet, afpstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(ss);
 		return;

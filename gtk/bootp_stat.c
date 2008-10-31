@@ -246,7 +246,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 			dhcpstat_draw);
 	if (error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
+		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str );
 		g_free(sp->filter);
 		g_free(sp);
 		g_string_free(error_string, TRUE);

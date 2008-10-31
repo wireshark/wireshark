@@ -177,7 +177,7 @@ wlanstat_reset (void *phs)
 
 	error_string = set_tap_dfilter (wlan_stat, filter);
 	if (error_string) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
 		return;
 	}
@@ -1259,7 +1259,7 @@ wlanstat_dlg_create (void)
 	error_string=register_tap_listener ("wlan", hs, NULL, wlanstat_reset,
 					    wlanstat_packet, wlanstat_draw);
 	if (error_string) {
-		simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free (error_string, TRUE);
 		g_free (hs);
 		return;

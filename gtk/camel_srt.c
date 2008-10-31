@@ -216,7 +216,7 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   }
   
     if(error_string){
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
       g_string_free(error_string, TRUE);
     g_free(p_camelsrt);
     return;

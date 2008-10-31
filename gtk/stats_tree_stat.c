@@ -307,7 +307,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
+		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str );
 		/* destroy_stat_tree_window(st); */
 		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 		g_string_free(error_string, TRUE);

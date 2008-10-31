@@ -153,7 +153,7 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 			
 			for (i=0; i<len;i++) g_string_append_printf(s,"%.2X",((guint8*)ptr)[i]);
 			
-			out = ep_strdup_printf(s->str);
+			out = ep_strdup(s->str);
 			
 			g_string_free(s,TRUE);
 			break;

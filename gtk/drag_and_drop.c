@@ -269,7 +269,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         }
         g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                    ESD_BTN_OK,
+                    ESD_BTN_OK, "%s", 
                     dialog_text->str);
         g_string_free(dialog_text, TRUE);
 

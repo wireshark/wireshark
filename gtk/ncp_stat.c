@@ -700,7 +700,7 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     /* Register the tap listener */
     error_string=register_tap_listener("ncp_srt", ss, filter, ncpstat_reset, ncpstat_packet, ncpstat_draw);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
         g_free(ss);
         return;

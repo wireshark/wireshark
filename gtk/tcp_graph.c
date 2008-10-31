@@ -1808,7 +1808,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 
 	/* no real filter yet */
 	if (!dfilter_compile("tcp", &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
 		return NULL;
 	}
 

@@ -191,7 +191,7 @@ register_tap_listener_rtp_stream(void)
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
+				      "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}

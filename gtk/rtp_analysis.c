@@ -1787,7 +1787,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	error_string = register_tap_listener("rtp", user_data, NULL,
 		rtp_reset, rtp_packet, rtp_draw);
 	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 		return;
 	}
@@ -3350,7 +3350,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* Try to compile the filter. */
 	g_strlcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)",256);
 	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
 		return;
 	}
 	/* we load the current file into cf variable */

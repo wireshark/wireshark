@@ -630,7 +630,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     if (error_string)
     {
         /* Error.  We failed to attach to the tap. Clean up */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_free(sp->filter);
         g_free(sp);
         g_string_free(error_string, TRUE);

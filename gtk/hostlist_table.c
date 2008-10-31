@@ -180,7 +180,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
     }
     error_string = set_tap_dfilter (hosts, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
         return;
     }
@@ -686,7 +686,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, hosttable, filter, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
         g_free(hosttable);
         return FALSE;

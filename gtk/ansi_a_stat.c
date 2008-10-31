@@ -476,7 +476,7 @@ register_tap_listener_gtkansi_a_stat(void)
 
     if (err_p != NULL)
     {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_p->str);
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_p->str);
 	g_string_free(err_p, TRUE);
 
 	exit(1);
