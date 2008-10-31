@@ -867,12 +867,16 @@ parse_tuple( char *key_from_option )
 	printf("keys: %s\n", key_from_option );
 	*/
 	client=strchr(key_from_option,'/');
-	if(!client)
+	if(!client) {
+		g_free(tacplus_data);
 		return;
+	}
 	*client++='\0';
 	key=strchr(client,'=');
-	if(!key)
+	if(!key) {
+		g_free(tacplus_data);
 		return;
+	}
 	*key++='\0';
 	/*
 	printf("%s %s => %s\n", key_from_option, client, key );
