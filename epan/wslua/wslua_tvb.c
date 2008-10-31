@@ -568,85 +568,6 @@ int Tvb_register(lua_State* L) {
     return 1;
 }
 
-/*
- *  read access to tvbr's data
- */
-static int TvbRange_index(lua_State* L) {
-	/* WSLUA_ATTRIBUTE TvbRange_tvb RO The Tvb from which this TvbRange was generated */
-	/* WSLUA_ATTRIBUTE TvbRange_len RW The length (in octets) of this TvbRange */
-	/* WSLUA_ATTRIBUTE TvbRange_offset RW The offset (in octets) of this TvbRange */
-
-    TvbRange tvbr = checkTvbRange(L,1);
-    Tvb tvb;
-    const gchar* index = luaL_checkstring(L,2);
-
-    if (!(tvbr && index && tvbr->tvb)) return 0;
-    if (tvbr->tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
-    if (g_str_equal(index,"offset")) {
-        lua_pushnumber(L,(lua_Number)tvbr->offset);
-        return 1;
-    } else if (g_str_equal(index,"len")) {
-        lua_pushnumber(L,(lua_Number)tvbr->len);
-        return 1;
-    } else if (g_str_equal(index,"tvb")) {
-        tvb = g_malloc(sizeof(struct _wslua_tvb));
-        tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
-        tvb->expired = FALSE;
-        PUSH_TVB(L,tvbr->tvb);
-        return 1;
-    } else {
-        luaL_error(L,"TvbRange has no `%s' attribute",index);
-    }
-
-    return 0;
-}
-
-/*
- *  write access to tvbr's data
- */
-static int TvbRange_newindex(lua_State* L) {
-    TvbRange tvbr = checkTvbRange(L,1);
-    const gchar* index = luaL_checkstring(L,2);
-
-    if (!(tvbr && !tvbr->tvb)) return 0;
-    if (tvbr->tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
-    if (g_str_equal(index,"offset")) {
-        int offset = (int)lua_tonumber(L,3);
-
-        if ( (guint)(tvbr->len + offset) > tvb_length(tvbr->tvb->ws_tvb)) {
-            luaL_error(L,"out of bounds");
-            return 0;
-        } else {
-            tvbr->offset = offset;
-            PUSH_TVBRANGE(L,tvbr);
-            return 1;
-        }
-    } else if (g_str_equal(index,"len")) {
-        int len = (int)lua_tonumber(L,3);
-
-        if ( (guint)(tvbr->offset + len) > tvb_length(tvbr->tvb->ws_tvb)) {
-            luaL_error(L,"out of bounds");
-            return 0;
-        } else {
-            tvbr->len = len;
-            PUSH_TVBRANGE(L,tvbr);
-            return 1;
-        }
-    } else {
-        luaL_error(L,"cannot set `%s' attribute on TvbRange",index);
-        return 0;
-    }
-
-    return 0;
-}
 
 /*
  *  get a Blefuscuoan unsigned integer from a tvb
@@ -943,6 +864,31 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 	WSLUA_RETURN(1); /* the ByteArray */
 }
 
+WSLUA_METHOD TvbRange_len(lua_State* L) {
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+        lua_pushnumber(L,(lua_Number)tvbr->len);
+        return 1;
+}
+
+WSLUA_METHOD TvbRange_offset(lua_State* L) {
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+        lua_pushnumber(L,(lua_Number)tvbr->offset);
+        return 1;
+}
+
+
 WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 	/* converts the TvbRange into a string. As the string gets truncated
 	   you should use this only for debugging purposes
@@ -971,13 +917,13 @@ static const luaL_reg TvbRange_methods[] = {
 	{"le_ipv4", TvbRange_le_ipv4},
     {"string", TvbRange_string},
     {"bytes", TvbRange_bytes},
+    {"len", TvbRange_len},
+    {"offset", TvbRange_offset},
     {"tvb", Tvb_tvb},
     { NULL, NULL }
 };
 
 static const luaL_reg TvbRange_meta[] = {
-    {"__index", TvbRange_index},
-    {"__newindex", TvbRange_newindex},
     {"__tostring", TvbRange__tostring},
     { NULL, NULL }
 };
