@@ -1767,6 +1767,12 @@ else
 	libcap_message="no"
 fi
 
+if test "x$have_good_geoip" = "xyes" ; then
+	geoip_message="yes"
+else
+	geoip_message="no"
+fi
+
 echo ""
 echo "The Wireshark package has been configured with the following options."
 echo "                    Build wireshark : $enable_wireshark"
@@ -1799,4 +1805,4 @@ echo "             Use SSL crypto library : $ssl_message"
 echo "           Use IPv6 name resolution : $enable_ipv6"
 echo "                 Use gnutls library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
-echo "                  Use GeoIP library : $want_geoip"
+echo "                  Use GeoIP library : $geoip_message"
