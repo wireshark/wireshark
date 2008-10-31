@@ -49,8 +49,12 @@
  * - Read private tags from configuration and parse in capture
  * - Show Association Headers as individual items
  * - Support item 56-59 in Accociation Request
-
- * Oct 12, 2008 - David Aggeler
+ *
+ * Oct 26, 2008 - David Aggeler 
+ *
+ * - Support remaining DICOM/ARCNEMA tags
+ *
+ * Oct 12, 2008 - David Aggeler (SVN 26424)
  *
  * - Follow-up checkin 26417
  *
@@ -458,7 +462,7 @@ typedef struct dcm_state {
 #define DCM_VR_UT 27  /* Unlimited Text            */
 
 /* Following must be in the same order as the defintions above */
-static const gchar* dcm_tag_lookup[] = {
+static const gchar* dcm_tag_vr_lookup[] = {
     "  ",
     "AE","AS","AT","CS","DA","DS","DT","FL",
     "FD","IS","LO","LT","OB","OF","OW","PN",
@@ -578,6 +582,7 @@ typedef struct dcm_tag {
     const gboolean add_to_summary;	    /* Add to parent's item description */
 } dcm_tag_t;
 
+
 static dcm_tag_t dcm_tag_data[] = {
 
     /* Command Tags */
@@ -627,6 +632,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00005190, "Erase", "CS", "1", -1, 0},
     { 0x000051A0, "Print", "CS", "1", -1, 0},
     { 0x000051B0, "Overlays", "US", "1-n", -1, 0},
+
 
     /* Data Tags */
     { 0x00080001, "Length to End", "UL", "1", -1, 0},
@@ -1514,6 +1520,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00201206, "Number of Study Related Series", "IS", "1", 0, 0},
     { 0x00201208, "Number of Study Related Instances", "IS", "1", 0, 0},
     { 0x00201209, "Number of Series Related Instances", "IS", "1", 0, 0},
+    { 0x00203100, "Source Image IDs", "CS", "1-n", -1, 0},
     { 0x00203401, "Modifying Device ID", "CS", "1", -1, 0},
     { 0x00203402, "Modified Image ID", "CS", "1", -1, 0},
     { 0x00203403, "Modified Image Date", "DA", "1", -1, 0},
@@ -1675,6 +1682,10 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00280402, "Number of Transform Steps", "US", "1", -1, 0},
     { 0x00280403, "Sequence of Compressed Data", "LO", "1-n", -1, 0},
     { 0x00280404, "Details of Coefficients", "AT", "1-n", -1, 0},
+    { 0x00280410, "Rows For Nth Order Coefficients", "US", "1", -1, 0},
+    { 0x00280411, "Columns For Nth Order Coefficients", "US", "1", -1, 0},
+    { 0x00280412, "Coefficient Coding", "LO", "1-n", -1, 0},
+    { 0x00280413, "Coefficient Coding Pointers", "AT", "1-n", -1, 0},
     { 0x00280700, "DCT Label", "LO", "1", -1, 0},
     { 0x00280701, "Data Block Description", "CS", "1-n", -1, 0},
     { 0x00280702, "Data Block", "AT", "1-n", -1, 0},
@@ -1684,6 +1695,11 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00280722, "Zonal Map Format", "US", "1", -1, 0},
     { 0x00280730, "Adaptive Map Format", "US", "1", -1, 0},
     { 0x00280740, "Code Number Format", "US", "1", -1, 0},
+    { 0x00280800, "Code Label", "CS", "1-n", -1, 0},
+    { 0x00280802, "Number of Table", "US", "1", -1, 0},
+    { 0x00280803, "Code Table Location", "AT", "1-n", -1, 0},
+    { 0x00280804, "Bits For Code Word", "US", "1", -1, 0},
+    { 0x00280808, "Image Data Location", "AT", "1-n", -1, 0},
     { 0x00280A02, "Pixel Spacing Calibration Type", "CS", "1", 0, 0},
     { 0x00280A04, "Pixel Spacing Calibration Description", "LO", "1", 0, 0},
     { 0x00281040, "Pixel Intensity Relationship", "CS", "1", 0, 0},
@@ -2440,6 +2456,13 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x04000563, "Modifying System", "LO", "1", 0, 0},
     { 0x04000564, "Source of Previous Values", "LO", "1", 0, 0},
     { 0x04000565, "Reason for the Attribute Modification", "CS", "1", 0, 0},
+    { 0x10000000, "Escape Triplet", "US", "3", -1, 0},
+    { 0x10000001, "Run Length Triplet", "US", "3", -1, 0},
+    { 0x10000002, "Huffman Table Size", "US", "1", -1, 0},
+    { 0x10000003, "Huffman Table Triplet", "US", "3", -1, 0},
+    { 0x10000004, "Shift Table Size", "US", "1", -1, 0},
+    { 0x10000005, "Shift Table Triplet", "US", "3", -1, 0},
+    { 0x10100000, "Zonal Map", "US", "1-n", -1, 0},
     { 0x20000010, "Number of Copies", "IS", "1", 0, 0},
     { 0x2000001E, "Printer Configuration Sequence", "SQ", "1", 0, 0},
     { 0x20000020, "Print Priority", "CS", "1", 0, 0},
@@ -2627,7 +2650,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30060042, "Contour Geometric Type", "CS", "1", 0, -1},
     { 0x30060044, "Contour Slab Thickness", "DS", "1", 0, 0},
     { 0x30060045, "Contour Offset Vector", "DS", "3", 0, 0},
-    { 0x30060046, "Number of Contour Points", "IS", "1", 0, 1},
+    { 0x30060046, "Number of Contour Points", "IS", "1", 0, 0},
     { 0x30060048, "Contour Number", "IS", "1", 0, 0},
     { 0x30060049, "Attached Contours", "IS", "1-n", 0, 0},
     { 0x30060050, "Contour Data", "DS", "3-3n", 0, 0},
@@ -3145,6 +3168,32 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x40080300, "Impressions", "ST", "1", -1, 0},
     { 0x40084000, "Results Comments", "ST", "1", -1, 0},
     { 0x4FFE0001, "MAC Parameters Sequence", "SQ", "1", 0, 0},
+    { 0x50000005, "Curve Dimensions", "US", "1", -1, 0},
+    { 0x50000010, "Number of Points", "US", "1", -1, 0},
+    { 0x50000020, "Type of Data", "CS", "1", -1, 0},
+    { 0x50000022, "Curve Description", "LO", "1", -1, 0},
+    { 0x50000030, "Axis Units", "SH", "1-n", -1, 0},
+    { 0x50000040, "Axis Labels", "SH", "1-n", -1, 0},
+    { 0x50000103, "Data Value Representation", "US", "1", -1, 0},
+    { 0x50000104, "Minimum Coordinate Value", "US", "1-n", -1, 0},
+    { 0x50000105, "Maximum Coordinate Value", "US", "1-n", -1, 0},
+    { 0x50000106, "Curve Range", "SH", "1-n", -1, 0},
+    { 0x50000110, "Curve Data Descriptor", "US", "1-n", -1, 0},
+    { 0x50000112, "Coordinate Start Value", "US", "1-n", -1, 0},
+    { 0x50000114, "Coordinate Step Value", "US", "1-n", -1, 0},
+    { 0x50001001, "Curve Activation Layer", "CS", "1", -1, 0},
+    { 0x50002000, "Audio Type", "US", "1", -1, 0},
+    { 0x50002002, "Audio Sample Format", "US", "1", -1, 0},
+    { 0x50002004, "Number of Channels", "US", "1", -1, 0},
+    { 0x50002006, "Number of Samples", "UL", "1", -1, 0},
+    { 0x50002008, "Sample Rate", "UL", "1", -1, 0},
+    { 0x5000200A, "Total Time", "UL", "1", -1, 0},
+    { 0x5000200C, "Audio Sample Data", "OW or OB", "1", -1, 0},
+    { 0x5000200E, "Audio Comments", "LT", "1", -1, 0},
+    { 0x50002500, "Curve Label", "LO", "1", -1, 0},
+    { 0x50002600, "Curve Referenced Overlay Sequence", "SQ", "1", -1, 0},
+    { 0x50002610, "Curve Referenced Overlay Group", "US", "1", -1, 0},
+    { 0x50003000, "Curve Data", "OW or OB", "1", -1, 0},
     { 0x52009229, "Shared Functional Groups Sequence", "SQ", "1", 0, 0},
     { 0x52009230, "Per-frame Functional Groups Sequence", "SQ", "1", 0, 0},
     { 0x54000100, "Waveform Sequence", "SQ", "1", 0, 0},
@@ -3156,10 +3205,55 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x54001010, "Waveform Data", "OB or OW", "1", 0, 0},
     { 0x56000010, "First Order Phase Correction Angle", "OF", "1", 0, 0},
     { 0x56000020, "Spectroscopy Data", "OF", "1", 0, 0},
+    { 0x60000010, "Overlay Rows", "US", "1", 0, 0},
+    { 0x60000011, "Overlay Columns", "US", "1", 0, 0},
+    { 0x60000012, "Overlay Planes", "US", "1", -1, 0},
+    { 0x60000015, "Number of Frames in Overlay", "IS", "1", 0, 0},
+    { 0x60000022, "Overlay Description", "LO", "1", 0, 0},
+    { 0x60000040, "Overlay Type", "CS", "1", 0, 0},
+    { 0x60000045, "Overlay Subtype", "LO", "1", 0, 0},
+    { 0x60000050, "Overlay Origin", "SS", "2", 0, 0},
+    { 0x60000051, "Image Frame Origin", "US", "1", 0, 0},
+    { 0x60000052, "Overlay Plane Origin", "US", "1", -1, 0},
+    { 0x60000060, "Overlay Compression Code", "CS", "1", -1, 0},
+    { 0x60000061, "Overlay Compression Originator", "SH", "1", -1, 0},
+    { 0x60000062, "Overlay Compression Label", "SH", "1", -1, 0},
+    { 0x60000063, "Overlay Compression Description", "CS", "1", -1, 0},
+    { 0x60000066, "Overlay Compression Step Pointers", "AT", "1-n", -1, 0},
+    { 0x60000068, "Overlay Repeat Interval", "US", "1", -1, 0},
+    { 0x60000069, "Overlay Bits Grouped", "US", "1", -1, 0},
+    { 0x60000100, "Overlay Bits Allocated", "US", "1", 0, 0},
+    { 0x60000102, "Overlay Bit Position", "US", "1", 0, 0},
+    { 0x60000110, "Overlay Format", "CS", "1", -1, 0},
+    { 0x60000200, "Overlay Location", "US", "1", -1, 0},
+    { 0x60000800, "Overlay Code Label", "CS", "1-n", -1, 0},
+    { 0x60000802, "Overlay Number of Tables", "US", "1", -1, 0},
+    { 0x60000803, "Overlay Code Table Location", "AT", "1-n", -1, 0},
+    { 0x60000804, "Overlay Bits For Code Word", "US", "1", -1, 0},
+    { 0x60001001, "Overlay Activation Layer", "CS", "1", 0, 0},
+    { 0x60001100, "Overlay Descriptor - Gray", "US", "1", -1, 0},
+    { 0x60001101, "Overlay Descriptor - Red", "US", "1", -1, 0},
+    { 0x60001102, "Overlay Descriptor - Green", "US", "1", -1, 0},
+    { 0x60001103, "Overlay Descriptor - Blue", "US", "1", -1, 0},
+    { 0x60001200, "Overlays- Gray", "US", "1-n", -1, 0},
+    { 0x60001201, "Overlays - Red", "US", "1-n", -1, 0},
+    { 0x60001202, "Overlays - Green", "US", "1-n", -1, 0},
+    { 0x60001203, "Overlays- Blue", "US", "1-n", -1, 0},
+    { 0x60001301, "ROI Area", "IS", "1", 0, 0},
+    { 0x60001302, "ROI Mean", "DS", "1", 0, 0},
+    { 0x60001303, "ROI Standard Deviation", "DS", "1", 0, 0},
+    { 0x60001500, "Overlay Label", "LO", "1", 0, 0},
+    { 0x60003000, "Overlay Data", "OB or OW", "1", 0, 0},
+    { 0x60004000, "Overlay Comments", "LT", "1", -1, 0},
     { 0x7FE00010, "Pixel Data", "OW or OB", "1", 0, 0},
     { 0x7FE00020, "Coefficients SDVN", "OW", "1", -1, 0},
     { 0x7FE00030, "Coefficients SDHN", "OW", "1", -1, 0},
     { 0x7FE00040, "Coefficients SDDN", "OW", "1", -1, 0},
+    { 0x7F000010, "Variable Pixel Data", "OW or OB", "1", -1, 0},
+    { 0x7F000011, "Variable Next Data Group", "US", "1", -1, 0},
+    { 0x7F000020, "Variable Coefficients SDVN", "OW", "1", -1, 0},
+    { 0x7F000030, "Variable Coefficients SDHN", "OW", "1", -1, 0},
+    { 0x7F000040, "Variable Coefficients SDDN", "OW", "1", -1, 0},
     { 0xFFFAFFFA, "Digital Signatures Sequence", "SQ", "1", 0, 0},
     { 0xFFFCFFFC, "Data Set Trailing Padding", "OB", "1", 0, 0},
     { 0xFFFEE000, "Item", "see note", "1", 0, 0},
@@ -3194,69 +3288,6 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00041512, "Referenced Transfer Syntax UID in File", "UI", "1", 0, 0},
     { 0x0004151A, "Referenced Related General SOP Class UID in File", "UI", "1-n", 0, 0},
     { 0x00041600, "Number of References", "UL", "1", -1, 0},
-
-    /*  Repeating groups 0x50xx/0x60xx.
-	Declare group as 0x5000 and 0x6000, and do the matching in the code
-    */
-
-    { 0x50000005, "Curve Dimensions", "US", "1", -1, 0},
-    { 0x50000010, "Number of Points", "US", "1", -1, 0},
-    { 0x50000020, "Type of Data", "CS", "1", -1, 0},
-    { 0x50000022, "Curve Description", "LO", "1", -1, 0},
-    { 0x50000030, "Axis Units", "SH", "1-n", -1, 0},
-    { 0x50000040, "Axis Labels", "SH", "1-n", -1, 0},
-    { 0x50000103, "Data Value Representation", "US", "1", -1, 0},
-    { 0x50000104, "Minimum Coordinate Value", "US", "1-n", -1, 0},
-    { 0x50000105, "Maximum Coordinate Value", "US", "1-n", -1, 0},
-    { 0x50000106, "Curve Range", "SH", "1-n" , -1, 0},
-    { 0x50000110, "Curve Data Descriptor", "US", "1-n", -1, 0},
-    { 0x50000112, "Coordinate Start Value", "US", "1-n", -1, 0},
-    { 0x50000114, "Coordinate Step Value", "US", "1-n", -1, 0},
-    { 0x50001001, "Curve Activation Layer", "CS", "1", -1, 0},
-    { 0x50002000, "Audio Type", "US", "1", -1, 0},
-    { 0x50002002, "Audio Sample Format", "US", "1", -1, 0},
-    { 0x50002004, "Number of Channels", "US", "1", -1, 0},
-    { 0x50002006, "Number of Samples", "UL", "1", -1, 0},
-    { 0x50002008, "Sample Rate", "UL", "1", -1, 0},
-    { 0x5000200A, "Total Time", "UL", "1", -1, 0},
-    { 0x5000200C, "Audio Sample Data", "OW or OB", "1", -1, 0},
-    { 0x5000200E, "Audio Comments", "LT", "1", -1, 0},
-    { 0x50002500, "Curve Label", "LO", "1", -1, 0},
-    { 0x50002600, "Curve Referenced Overlay Sequence", "SQ", "1", -1, 0},
-    { 0x50002610, "Curve Referenced Overlay Group", "US", "1", -1, 0},
-    { 0x50003000, "Curve Data", "OW or OB" , "1", -1, 0},
-
-    { 0x60000010, "Overlay Rows", "US", "1", 0, 0},
-    { 0x60000011, "Overlay Columns", "US", "1", 0, 0},
-    { 0x60000012, "Overlay Planes", "US", "1", 0, 0},
-    { 0x60000015, "Number of Frames in Overlay", "IS", "1", 0, 0},
-    { 0x60000022, "Overlay Description", "LO", "1", 0, 0},
-    { 0x60000040, "Overlay Type", "CS", "1", 0, 0},
-    { 0x60000045, "Overlay Subtype", "LO", "1", 0, 0},
-    { 0x60000050, "Overlay Origin", "SS", "2", 0, 0},
-    { 0x60000051, "Image Frame Origin", "US", "1", 0, 0},
-    { 0x60000052, "Overlay Plane Origin", "US", "1", 0, 0},
-    { 0x60000060, "Overlay Compression Code", "CS", "1", -1, 0},
-    { 0x60000100, "Overlay Bits Allocated", "US", "1", 0, 0},
-    { 0x60000102, "Overlay Bit Position", "US", "1", 0, 0},
-    { 0x60000110, "Overlay Format", "CS", "1", -1, 0},
-    { 0x60000200, "Overlay Location", "US", "1", -1, 0},
-    { 0x60001001, "Overlay Activation Layer", "CS", "1", 0, 0},
-    { 0x60001100, "Overlay Descriptor - Gray", "US", "1", -1, 0},
-    { 0x60001101, "Overlay Descriptor - Red", "US", "1", -1, 0},
-    { 0x60001102, "Overlay Descriptor - Green", "US", "1", -1, 0},
-    { 0x60001103, "Overlay Descriptor - Blue", "US", "1", -1, 0},
-    { 0x60001200, "Overlays- Gray", "US", "1-n", -1, 0},
-    { 0x60001201, "Overlays - Red", "US", "1-n", -1, 0},
-    { 0x60001202, "Overlays - Green", "US", "1-n", -1, 0},
-    { 0x60001203, "Overlays- Blue", "US", "1-n", -1, 0},
-    { 0x60001301, "ROI Area", "IS", "1", 0, 0},
-    { 0x60001302, "ROI Mean", "DS", "1", 0, 0},
-    { 0x60001303, "ROI Standard Deviation", "DS", "1", 0, 0},
-    { 0x60001500, "Overlay Label", "LO", "1", 0, 0},
-    { 0x60003000, "Overlay Data", "OB or OW", "1", 0, 0},
-    { 0x60004000, "Overlay Comments", "LT", "1", -1, 0},
-
 };
 
 /* ---------------------------------------------------------------------
@@ -4169,7 +4200,7 @@ dcm_export_create_tag_base(guint8 *buffer, guint32 bufflen, guint32 offset,
     offset += 2;
     dcm_guint16_to_le(buffer + offset, elm);
     offset += 2;
-    memmove(buffer + offset, dcm_tag_lookup[vr], 2);
+    memmove(buffer + offset, dcm_tag_vr_lookup[vr], 2);
     offset += 2;
 
     switch (vr) {
@@ -5279,6 +5310,64 @@ dcm_tag_is_open(dcm_state_pdv_t *pdv, guint32 startpos, guint32 offset, guint32 
     }
 }
 
+static dcm_tag_t*
+dcm_tag_lookup(guint16 grp, guint16 elm)
+{
+
+    static dcm_tag_t *tag_def = NULL;
+
+    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", "1", 0, 0};
+    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", "1", 0, 0 };
+    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
+    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
+
+    /* Try a direct hit first before doing a masked search */
+    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | elm));
+
+    if (tag_def == NULL) {
+
+	/* No match found */
+	if ((grp & 0x0001) && (elm == 0x0000)) {
+	    tag_def = &tag_private_grp_len;
+	}
+	else if (grp & 0x0001) {
+	    tag_def = &tag_private;
+	}
+	else if (elm == 0x0000) {
+	    tag_def = &tag_grp_length;
+	}
+
+        /* There are a few tags that require a mask to be found */
+	else if (((grp & 0xFF00) == 0x5000) || ((grp & 0xFF00) == 0x6000) || ((grp & 0xFF00) == 0x7F00)) {
+	    /* Do a special for groups 0x50xx, 0x60xx and 0x7Fxx */
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((grp & 0xFF00) << 16) | elm));
+	}
+	else if ((grp == 0x0020) && ((elm & 0xFF00) == 0x3100)) {
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF00)));
+	}
+	else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0400)) {
+	    /* This map was done to 0x041x */
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF0F) | 0x0010));
+	}
+	else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0800)) {
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF0F)));
+	}
+	else if (grp == 0x1000) {
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0x000F)));
+	}
+	else if (grp == 0x1010) {
+	    tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0x0000)));
+	}
+
+        if (tag_def == NULL) {
+    	    /* Still no match found */
+	    tag_def = &tag_unknown;
+	}
+    }
+
+    return tag_def;
+}
+
 static gchar*
 dcm_tag_summary(guint16 grp, guint16 elm, guint32 vl, gchar *tag_desc, gchar *vr,
 		gboolean is_retired, gboolean is_implicit)
@@ -5327,11 +5416,6 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_item *tag_pitem = NULL;
     dcm_tag_t  *tag_def   = NULL;
-
-    static dcm_tag_t tag_unknown	 = { 0x00000000, "(unknown)", "UN", "1", 0, 0};
-    static dcm_tag_t tag_private	 = { 0x00000000, "Private Tag", "UN", "1", 0, 0 };
-    static dcm_tag_t tag_private_grp_len = { 0x00000000, "Private Tag Group Length", "UL", "1", 0, 0 };
-    static dcm_tag_t tag_grp_length	 = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
     gchar   *vr = NULL;
     gchar   *tag_value = NULL;		/* Tag Value converted to a string	*/
@@ -5427,24 +5511,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pdv->open_tag.elm = elm;
     }
 
-
-    if (((grp & 0xFF00) == 0x5000) || ((grp & 0xFF00) == 0x6000)) {
-	/* Do a special for repeating groups 0x50xx and 0x60xx */
-	tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((grp & 0xFF00) << 16) | elm));
-    }
-    else {
-	tag_def = g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | elm));
-    }
-
-    if (tag_def == NULL) {
-	/* No match found */
-	if (grp & 0x0001) {
-	    if (elm == 0x0000)	tag_def = &tag_private_grp_len;
-	    else		tag_def = &tag_private;
-	}
-	else if (elm == 0x0000) tag_def = &tag_grp_length;
-	else			tag_def = &tag_unknown;
-    }
+    /* Find the best matching tag */
+    tag_def = dcm_tag_lookup(grp, elm);
 
     /* Value Representation */
     offset_vr = offset;
