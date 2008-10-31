@@ -228,221 +228,221 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 			switch( item )
 			{
-			   case CONNECTION_BASED:
+			    case CONNECTION_BASED:
 
-			      /* Add Connection identifier */
-			      proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%08X", tvb_get_letohl( tvb, offset + 6 )  );
+				/* Add Connection identifier */
+				proto_tree_add_text( item_tree, tvb, offset+6, 4, "Connection Identifier: 0x%08X", tvb_get_letohl( tvb, offset + 6 )  );
 
-			      /* Add Connection ID to Info col */
-			      if(check_col(pinfo->cinfo, COL_INFO))
-	            {
-                  col_append_fstr(pinfo->cinfo, COL_INFO,
-				         ", CONID: 0x%08X",
-				         tvb_get_letohl( tvb, offset+6 ) );
-				   }
+				/* Add Connection ID to Info col */
+				if(check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+							", CONID: 0x%08X",
+							tvb_get_letohl( tvb, offset+6 ) );
+				}
 
-			      break;
+				break;
 
-			   case UNCONNECTED_MSG:
+			    case UNCONNECTED_MSG:
+
+				/* Call dissector for interface */
+				next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
+
+				if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
+				{
+					/* Show the undissected payload */
+					if( tvb_length_remaining(tvb, offset) > 0 )
+						call_dissector( data_handle, next_tvb, pinfo, g_tree );
+				}
+
+				break;
+
+			    case CONNECTION_TRANSPORT:
+
+				if( command == SEND_UNIT_DATA )
+				{
+					/*
+					** If the encapsulation service is SendUnit Data, this is a
+					** encapsulated connected message
+					*/
+
+					/* Add sequence count ( Transport Class 1,2,3 )*/
+					proto_tree_add_text( item_tree, tvb, offset+6, 2, "Sequence Count: 0x%04X", tvb_get_letohs( tvb, offset+6 ) );
 
 					/* Call dissector for interface */
-					next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
+					next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
 
-               if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
-               {
-                  /* Show the undissected payload */
-                   if( tvb_length_remaining(tvb, offset) > 0 )
-                     call_dissector( data_handle, next_tvb, pinfo, g_tree );
-               }
+					if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
+					{
+						/* Show the undissected payload */
+						if( tvb_length_remaining(tvb, offset) > 0 )
+							call_dissector( data_handle, next_tvb, pinfo, g_tree );
+					}
 
-					break;
+				}
+				else
+				{
+					/* Display data */
+					if (tvb_length_remaining(tvb, offset+6) > 0)
+					{
+						next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+						call_dissector(data_handle, next_tvb, pinfo, item_tree);
+					}
+				} /* End of if send unit data */
 
-            case CONNECTION_TRANSPORT:
-
-               if( command == SEND_UNIT_DATA )
-               {
-                  /*
-                  ** If the encapsulation service is SendUnit Data, this is a
-                  ** encapsulated connected message
-                  */
-
-                  /* Add sequence count ( Transport Class 1,2,3 )*/
-                  proto_tree_add_text( item_tree, tvb, offset+6, 2, "Sequence Count: 0x%04X", tvb_get_letohs( tvb, offset+6 ) );
-
-                  /* Call dissector for interface */
-                  next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
-
-                  if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
-                  {
-                     /* Show the undissected payload */
-                      if( tvb_length_remaining(tvb, offset) > 0 )
-                        call_dissector( data_handle, next_tvb, pinfo, g_tree );
-                  }
-
-               }
-               else
-               {
-                  /* Display data */
-                  if (tvb_length_remaining(tvb, offset+6) > 0)
-                  {
-                     next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
-                     call_dissector(data_handle, next_tvb, pinfo, item_tree);
-                  }
-               } /* End of if send unit data */
-
-               break;
+				break;
 
 
-            case LIST_IDENTITY_RESP:
+			    case LIST_IDENTITY_RESP:
 
-               /* Encapsulation version */
-               temp_data = tvb_get_letohs( tvb, offset+6 );
-               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
+				/* Encapsulation version */
+				temp_data = tvb_get_letohs( tvb, offset+6 );
+				proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
 
-               /* Socket Address */
-               sockaddr_item = proto_tree_add_text( item_tree, tvb, offset+8, 16, "Socket Address");
-               sockaddr_tree = proto_item_add_subtree( sockaddr_item, ett_sockadd );
+				/* Socket Address */
+				sockaddr_item = proto_tree_add_text( item_tree, tvb, offset+8, 16, "Socket Address");
+				sockaddr_tree = proto_item_add_subtree( sockaddr_item, ett_sockadd );
 
-               /* Socket address struct - sin_family */
-               proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinfamily,
-							tvb, offset+8, 2, FALSE );
+				/* Socket address struct - sin_family */
+				proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinfamily,
+						    tvb, offset+8, 2, FALSE );
 
-               /* Socket address struct - sin_port */
-               proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinport,
-							tvb, offset+10, 2, FALSE );
+				/* Socket address struct - sin_port */
+				proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinport,
+						    tvb, offset+10, 2, FALSE );
 
-               /* Socket address struct - sin_address */
-               proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinaddr,
-							tvb, offset+12, 4, FALSE );
+				/* Socket address struct - sin_address */
+				proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinaddr,
+						    tvb, offset+12, 4, FALSE );
 
-               /* Socket address struct - sin_zero */
-               proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinzero,
-							tvb, offset+16, 8, FALSE );
+				/* Socket address struct - sin_zero */
+				proto_tree_add_item(sockaddr_tree, hf_enip_lir_sinzero,
+						    tvb, offset+16, 8, FALSE );
 
-               /* Vendor ID */
-               proto_tree_add_item(item_tree, hf_enip_lir_vendor,
-							tvb, offset+24, 2, TRUE );
+				/* Vendor ID */
+				proto_tree_add_item(item_tree, hf_enip_lir_vendor,
+						    tvb, offset+24, 2, TRUE );
 
-               /* Device Type */
-               proto_tree_add_item(item_tree, hf_enip_lir_devtype,
-							tvb, offset+26, 2, TRUE );
+				/* Device Type */
+				proto_tree_add_item(item_tree, hf_enip_lir_devtype,
+						    tvb, offset+26, 2, TRUE );
 
-               /* Product Code */
-               proto_tree_add_item(item_tree, hf_enip_lir_prodcode,
-							tvb, offset+28, 2, TRUE );
+				/* Product Code */
+				proto_tree_add_item(item_tree, hf_enip_lir_prodcode,
+						    tvb, offset+28, 2, TRUE );
 
-               /* Revision */
-               temp_data = tvb_get_letohs( tvb, offset+30 );
-               proto_tree_add_text( item_tree, tvb, offset+30, 2, "Revision: %d.%02d", temp_data & 0xFF, ( temp_data & 0xFF00 ) >> 8 );
+				/* Revision */
+				temp_data = tvb_get_letohs( tvb, offset+30 );
+				proto_tree_add_text( item_tree, tvb, offset+30, 2, "Revision: %d.%02d", temp_data & 0xFF, ( temp_data & 0xFF00 ) >> 8 );
 
-               /* Status */
-               proto_tree_add_item(item_tree, hf_enip_lir_status,
-							tvb, offset+32, 2, TRUE );
+				/* Status */
+				proto_tree_add_item(item_tree, hf_enip_lir_status,
+						    tvb, offset+32, 2, TRUE );
 
-               /* Serial Number */
-               proto_tree_add_item(item_tree, hf_enip_lir_serial,
-							tvb, offset+34, 4, TRUE );
+				/* Serial Number */
+				proto_tree_add_item(item_tree, hf_enip_lir_serial,
+						    tvb, offset+34, 4, TRUE );
 
-               /* Product Name Length */
-               name_length = tvb_get_guint8( tvb, offset+38 );
-               proto_tree_add_text( item_tree, tvb, offset+38, 1, "Product Name Length: %d", name_length );
+				/* Product Name Length */
+				name_length = tvb_get_guint8( tvb, offset+38 );
+				proto_tree_add_text( item_tree, tvb, offset+38, 1, "Product Name Length: %d", name_length );
 
-               /* Product Name */
-               proto_tree_add_item(item_tree, hf_enip_lir_name,
-							tvb, offset+39, name_length, TRUE );
+				/* Product Name */
+				proto_tree_add_item(item_tree, hf_enip_lir_name,
+						    tvb, offset+39, name_length, TRUE );
 
-               /* Append product name to info column */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-                      tvb_format_text(tvb, offset+39, name_length));
-               }
+				/* Append product name to info column */
+				if(check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+							 tvb_format_text(tvb, offset+39, name_length));
+				}
 
-               /* State */
-               proto_tree_add_item(item_tree, hf_enip_lir_state,
-							tvb, offset+name_length+39, 1, TRUE );
-               break;
-
-
-            case SOCK_ADR_INFO_OT:
-            case SOCK_ADR_INFO_TO:
-
-               /* Socket address struct - sin_family */
-               proto_tree_add_item(item_tree, hf_enip_lir_sinfamily,
-							tvb, offset+6, 2, FALSE );
-
-               /* Socket address struct - sin_port */
-               proto_tree_add_item(item_tree, hf_enip_lir_sinport,
-							tvb, offset+8, 2, FALSE );
-
-               /* Socket address struct - sin_address */
-               proto_tree_add_item(item_tree, hf_enip_lir_sinaddr,
-							tvb, offset+10, 4, FALSE );
-
-               /* Socket address struct - sin_zero */
-               proto_tree_add_item( item_tree, hf_enip_lir_sinzero,
-							tvb, offset+14, 8, FALSE );
-				   break;
+				/* State */
+				proto_tree_add_item(item_tree, hf_enip_lir_state,
+						    tvb, offset+name_length+39, 1, TRUE );
+				break;
 
 
-            case SEQ_ADDRESS:
-               proto_tree_add_item(item_tree, hf_enip_cpf_sai_connid,
-							tvb, offset+6, 4, TRUE );
+			    case SOCK_ADR_INFO_OT:
+			    case SOCK_ADR_INFO_TO:
 
-               proto_tree_add_item(item_tree, hf_enip_cpf_sai_seqnum,
-							tvb, offset+10, 4, TRUE );
+				/* Socket address struct - sin_family */
+				proto_tree_add_item(item_tree, hf_enip_lir_sinfamily,
+						    tvb, offset+6, 2, FALSE );
 
-               /* Add info to column */
+				/* Socket address struct - sin_port */
+				proto_tree_add_item(item_tree, hf_enip_lir_sinport,
+						    tvb, offset+8, 2, FALSE );
 
-               if(check_col(pinfo->cinfo, COL_INFO))
-	            {
-	               col_clear(pinfo->cinfo, COL_INFO);
+				/* Socket address struct - sin_address */
+				proto_tree_add_item(item_tree, hf_enip_lir_sinaddr,
+						    tvb, offset+10, 4, FALSE );
 
-                  col_add_fstr(pinfo->cinfo, COL_INFO,
-				         "Connection:  ID=0x%08X, SEQ=%010d",
-				         tvb_get_letohl( tvb, offset+6 ),
-				         tvb_get_letohl( tvb, offset+10 ) );
-				   }
-
-				   break;
-
-            case LIST_SERVICES_RESP:
-
-               /* Encapsulation version */
-               temp_data = tvb_get_letohs( tvb, offset+6 );
-               proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
-
-               /* Capability flags */
-               temp_data = tvb_get_letohs( tvb, offset+8 );
-               temp_item = proto_tree_add_text(item_tree, tvb, offset+8, 2, "Capability Flags: 0x%04X", temp_data );
-               temp_tree = proto_item_add_subtree(temp_item, ett_lsrcf);
-
-               proto_tree_add_item(temp_tree, hf_enip_lsr_tcp,
-                  tvb, offset+8, 2, TRUE );
-      		   proto_tree_add_item(temp_tree, hf_enip_lsr_udp,
-      			   tvb, offset+8, 2, TRUE );
-
-               /* Name of service */
-               temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name of Service: %s",
-                   tvb_format_stringzpad(tvb, offset+10, 16) );
-
-               /* Append service name to info column */
-               if(check_col(pinfo->cinfo, COL_INFO))
-               {
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
-                      tvb_format_stringzpad(tvb, offset+10, 16) );
-               }
-
-               break;
+				/* Socket address struct - sin_zero */
+				proto_tree_add_item( item_tree, hf_enip_lir_sinzero,
+						     tvb, offset+14, 8, FALSE );
+				break;
 
 
-           default:
-               if (tvb_length_remaining(tvb, offset+6) > 0)
-               {
-                 next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
-                 call_dissector(data_handle, next_tvb, pinfo, item_tree);
-               }
-               break;
+			    case SEQ_ADDRESS:
+				proto_tree_add_item(item_tree, hf_enip_cpf_sai_connid,
+						    tvb, offset+6, 4, TRUE );
+
+				proto_tree_add_item(item_tree, hf_enip_cpf_sai_seqnum,
+						    tvb, offset+10, 4, TRUE );
+
+				/* Add info to column */
+
+				if(check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_clear(pinfo->cinfo, COL_INFO);
+
+					col_add_fstr(pinfo->cinfo, COL_INFO,
+						     "Connection:  ID=0x%08X, SEQ=%010d",
+						     tvb_get_letohl( tvb, offset+6 ),
+						     tvb_get_letohl( tvb, offset+10 ) );
+				}
+
+				break;
+
+			    case LIST_SERVICES_RESP:
+
+				/* Encapsulation version */
+				temp_data = tvb_get_letohs( tvb, offset+6 );
+				proto_tree_add_text( item_tree, tvb, offset+6, 2, "Encapsulation Version: %d", temp_data );
+
+				/* Capability flags */
+				temp_data = tvb_get_letohs( tvb, offset+8 );
+				temp_item = proto_tree_add_text(item_tree, tvb, offset+8, 2, "Capability Flags: 0x%04X", temp_data );
+				temp_tree = proto_item_add_subtree(temp_item, ett_lsrcf);
+
+				proto_tree_add_item(temp_tree, hf_enip_lsr_tcp,
+						    tvb, offset+8, 2, TRUE );
+				proto_tree_add_item(temp_tree, hf_enip_lsr_udp,
+						    tvb, offset+8, 2, TRUE );
+
+				/* Name of service */
+				temp_item = proto_tree_add_text( item_tree, tvb, offset+10, 16, "Name of Service: %s",
+								 tvb_format_stringzpad(tvb, offset+10, 16) );
+
+				/* Append service name to info column */
+				if(check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_fstr( pinfo->cinfo, COL_INFO, ", %s",
+							 tvb_format_stringzpad(tvb, offset+10, 16) );
+				}
+
+				break;
+
+
+			    default:
+				if (tvb_length_remaining(tvb, offset+6) > 0)
+				{
+					next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+					call_dissector(data_handle, next_tvb, pinfo, item_tree);
+				}
+				break;
 
 			} /* end of switch( item type ) */
 
