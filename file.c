@@ -403,7 +403,6 @@ cf_read(capture_file *cf)
   const gchar *name_ptr;
   const char  *errmsg;
   char         errmsg_errno[1024+1];
-  gchar        err_str[2048+1];
   gint64       data_offset;
   progdlg_t *volatile progbar = NULL;
   gboolean     stop_flag;
@@ -627,8 +626,7 @@ cf_read(capture_file *cf)
       errmsg = errmsg_errno;
       break;
     }
-    g_snprintf(err_str, sizeof err_str, errmsg);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errmsg);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;

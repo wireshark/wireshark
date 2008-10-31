@@ -152,7 +152,7 @@ phs_draw(phs_t *rs, int indentation)
 			}
 			stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, "  ");
 		}
-		stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, rs->proto_name);
+		stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, "%s", rs->proto_name);
 		printf("%-40s frames:%d bytes:%" G_GINT64_MODIFIER "d\n",str, rs->frames, rs->bytes);
 		phs_draw(rs->child, indentation+1);
 	}

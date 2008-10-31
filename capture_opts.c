@@ -669,7 +669,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
                 case AT_IPv4:
                     if (inet_ntop(AF_INET, &if_addr->ip_addr.ip4_addr, addr_str,
                                 ADDRSTRLEN)) {
-                        printf(addr_str);
+                        printf("%s", addr_str);
                     } else {
                         printf("<unknown IPv4>");
                     }
@@ -677,7 +677,7 @@ capture_opts_list_interfaces(gboolean machine_readable)
                 case AT_IPv6:
                     if (inet_ntop(AF_INET6, &if_addr->ip_addr.ip6_addr,
                                 addr_str, ADDRSTRLEN)) {
-                        printf(addr_str);
+                        printf("%s", addr_str);
                     } else {
                         printf("<unknown IPv6>");
                     }

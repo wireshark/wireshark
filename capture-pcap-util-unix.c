@@ -359,7 +359,7 @@ get_runtime_pcap_version(GString *str)
 {
 	g_string_append_printf(str, "with ");
 #ifdef HAVE_PCAP_LIB_VERSION
-	g_string_append_printf(str, pcap_lib_version());
+	g_string_append(str, pcap_lib_version());
 #else
 	g_string_append(str, "libpcap (version unknown)");
 #endif
