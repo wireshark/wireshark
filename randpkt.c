@@ -460,8 +460,9 @@ main(int argc, char **argv)
 			case 'b':	/* max bytes */
 				produce_max_bytes = atoi(optarg);
 				if (produce_max_bytes > 65536) {
-					printf("Max bytes is 65536\n");
-					exit(0);
+					fprintf(stderr,
+					    "randpkt: Max bytes is 65536\n");
+					exit(1);
 				}
 				break;
 
@@ -495,18 +496,22 @@ main(int argc, char **argv)
 
 	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
 		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
-    if (!dump) {
-        printf("Error writing to %s\n", produce_filename);
-        exit(1);
-    }
+	if (!dump) {
+		fprintf(stderr,
+		    "randpkt: Error writing to %s\n", produce_filename);
+		exit(2);
+	}
 
 	seed();
 
 	/* reduce max_bytes by # of bytes already in sample */
 	if (produce_max_bytes <= example->sample_length) {
-		printf("Sample packet length is %d, which is greater than or equal to\n", example->sample_length);
-		printf("your requested max_bytes value of %d\n", produce_max_bytes);
-		exit(0);
+		fprintf(stderr,
+		    "randpkt: Sample packet length is %d, which is greater than or equal to\n",
+		    example->sample_length);
+		fprintf(stderr, "your requested max_bytes value of %d\n",
+		    produce_max_bytes);
+		exit(1);
 	}
 	else {
 		produce_max_bytes -= example->sample_length;
@@ -585,7 +590,7 @@ int parse_type(char *string)
 	}
 
 	/* Complain */
-	printf("Type %s not known.\n", string);
+	fprintf(stderr, "randpkt: Type %s not known.\n", string);
 	exit(1);
 }
 
@@ -602,7 +607,9 @@ pkt_example* find_example(int type)
 		}
 	}
 
-	printf("Internal error. Type %d has no entry in examples table.\n", type);
+	fprintf(stderr,
+	    "randpkt: Internal error. Type %d has no entry in examples table.\n",
+	    type);
 	exit(1);
 }
 
@@ -611,25 +618,48 @@ void
 seed(void)
 {
 	unsigned int	randomness;
-
-#if defined(linux)
-	/* Okay, I should use #ifdef HAVE_DEV_RANDOM, but this is a quick hack */
+	time_t now;
+#ifndef _WIN32
 	int 		fd;
-	int 		ret;
+	ssize_t		ret;
 
+	/*
+	 * Assume it's at least worth trying /dev/random on UN*X.
+	 * If it doesn't exist, fall back on time().
+	 *
+	 * XXX - does Windows have a system source of entropy?
+	 */
 	fd = open("/dev/random", O_RDONLY);
-	if (fd < 0) {
-		printf("Could not open /dev/random for reading: %s\n", strerror(errno));
-		exit(0);
+	if (fd == -1) {
+		if (errno != ENOENT) {
+			fprintf(stderr,
+			    "randpkt: Could not open /dev/random for reading: %s\n",
+			    strerror(errno));
+			exit(2);
+		}
+		goto fallback;
 	}
 
-	ret = read(fd, &randomness, sizeof(randomness));
-#else
-	time_t now;
+	ret = read(fd, &randomness, sizeof randomness);
+	if (ret == -1) {
+		fprintf(stderr,
+		    "randpkt: Could not read from /dev/random: %s\n",
+		    strerror(errno));
+		exit(2);
+	}
+	if ((size_t)ret != sizeof randomness) {
+		fprintf(stderr,
+		    "randpkt: Tried to read %lu bytes from /dev/random, got %ld\n",
+		    (unsigned long)sizeof randomness, (long)ret);
+		exit(2);
+	}
+	srand(randomness);
+	return;
 
+fallback:
+#endif
 	now = time(NULL);
 	randomness = (unsigned int) now;
-#endif
 
 	srand(randomness);
 }
