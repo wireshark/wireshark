@@ -217,7 +217,7 @@ dissect_h323_RasTunnelledSignallingMessage(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_h323_INTEGER_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 256U, NULL, FALSE);
+                                                            1U, 256U, NULL, FALSE);
 
   return offset;
 }
@@ -277,7 +277,7 @@ dissect_h323_Rrq_RD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_h323_INTEGER_1_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 65535U, NULL, FALSE);
+                                                            1U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -476,7 +476,7 @@ void proto_register_h323(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h323.T_messageContent", HFILL }},
     { &hf_h323_messageContent_item,
-      { "Item", "h323.messageContent_item",
+      { "messageContent", "h323.messageContent_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h323.OCTET_STRING", HFILL }},
     { &hf_h323_tunnellingRequired,
@@ -520,7 +520,7 @@ void proto_register_h323(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "h323.StatusInquiry_RD", HFILL }},
     { &hf_h323_BackupCallSignalAddresses_item,
-      { "Item", "h323.BackupCallSignalAddresses_item",
+      { "BackupCallSignalAddresses", "h323.BackupCallSignalAddresses_item",
         FT_UINT32, BASE_DEC, VALS(h323_BackupCallSignalAddresses_item_vals), 0,
         "h323.BackupCallSignalAddresses_item", HFILL }},
     { &hf_h323_tcp,
@@ -556,7 +556,7 @@ void proto_register_h323(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h323.T_fastStart", HFILL }},
     { &hf_h323_fastStart_item,
-      { "Item", "h323.fastStart_item",
+      { "fastStart", "h323.fastStart_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h323.OCTET_STRING", HFILL }},
     { &hf_h323_resetH245,

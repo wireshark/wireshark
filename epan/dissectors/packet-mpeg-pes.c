@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-mpeg-pes.c                                                          */
-/* ../../../svn/trunk/tools/asn2wrs.py -p mpeg-pes -c ../../../svn/trunk/asn1/mpeg-pes/mpeg-pes.cnf -s ../../../svn/trunk/asn1/mpeg-pes/packet-mpeg-pes-template -D ../../../svn/trunk/asn1/mpeg-pes mpeg-pes.asn */
+/* ../../tools/asn2wrs.py -p mpeg-pes -c mpeg-pes.cnf -s packet-mpeg-pes-template mpeg-pes.asn */
 
 /* Input file: packet-mpeg-pes-template.c */
 
@@ -148,7 +148,7 @@ static const value_string mpeg_pes_T_stream_vals[] = {
 static int
 dissect_mpeg_pes_T_stream(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -173,7 +173,7 @@ dissect_mpeg_pes_PES(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_mpeg_pes_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -197,7 +197,7 @@ static const value_string mpeg_pes_T_scrambling_control_vals[] = {
 static int
 dissect_mpeg_pes_T_scrambling_control(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 3U, NULL, FALSE);
+                                                            0U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -207,7 +207,7 @@ dissect_mpeg_pes_T_scrambling_control(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_mpeg_pes_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -265,7 +265,7 @@ static const value_string mpeg_pes_T_aspect_ratio_vals[] = {
 static int
 dissect_mpeg_pes_T_aspect_ratio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 15U, NULL, FALSE);
+                                                            0U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -352,7 +352,7 @@ dissect_mpeg_pes_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_mpeg_pes_INTEGER_0_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 3U, NULL, FALSE);
+                                                            0U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -387,7 +387,7 @@ dissect_mpeg_pes_Sequence_extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_mpeg_pes_INTEGER_0_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 32U, NULL, FALSE);
+                                                            0U, 32U, NULL, FALSE);
 
   return offset;
 }
@@ -397,7 +397,7 @@ dissect_mpeg_pes_INTEGER_0_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_mpeg_pes_INTEGER_0_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 64U, NULL, FALSE);
+                                                            0U, 64U, NULL, FALSE);
 
   return offset;
 }
@@ -447,7 +447,7 @@ static const value_string mpeg_pes_T_frame_type_vals[] = {
 static int
 dissect_mpeg_pes_T_frame_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 7U, NULL, FALSE);
+                                                            0U, 7U, NULL, FALSE);
 
   return offset;
 }
@@ -849,15 +849,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
-			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
-			 * "A value of 0 indicates that the PES packet length is neither specified nor
-			 * bounded and is allowed only in PES packets whose payload is a video elementary
-			 * stream contained in Transport Stream packets."
-			 * XXX Some one with access to the spec should check this
-			 */
-			if(length !=0 && stream != STREAM_VIDEO){
-				length -= 5 * 8;
-			}
+			length -= 5 * 8;
 
 			header_length = tvb_get_guint8(tvb, 8);
 			if (header_length > 0) {
@@ -866,15 +858,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						header_length, header_length);
 				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
 				offset += header_length * 8;
-				/* lenght may be zero for Video stream */
-				if(length !=0 && stream != STREAM_VIDEO){
-					length -= header_length * 8;
-				}
-			}
-			/* lenght may be zero for Video stream */
-			if(length==0){
-				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, FALSE);
-				return TRUE;
+				length -= header_length * 8;
 			}
 
 			es = tvb_new_subset(tvb, offset / 8, -1, length / 8);

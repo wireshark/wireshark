@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acp133.c                                                            */
-/* ../../tools/asn2wrs.py -b -p acp133 -c ./acp133.cnf -s ./packet-acp133-template -D . acp133.asn MHSDirectoryObjectsAndAttributes.asn */
+/* ../../tools/asn2wrs.py -b -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn MHSDirectoryObjectsAndAttributes.asn */
 
 /* Input file: packet-acp133-template.c */
 
@@ -1105,7 +1105,7 @@ void proto_register_acp133(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "acp133.Capability", HFILL }},
     { &hf_acp133_Addressees_item,
-      { "Item", "acp133.Addressees_item",
+      { "Addressees", "acp133.Addressees_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "acp133.PrintableString_SIZE_1_55", HFILL }},
     { &hf_acp133_ukm_entries,
@@ -1113,7 +1113,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SEQUENCE_OF_UKMEntry", HFILL }},
     { &hf_acp133_ukm_entries_item,
-      { "Item", "acp133.ukm_entries_item",
+      { "ukm-entries", "acp133.ukm_entries_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acp133.UKMEntry", HFILL }},
     { &hf_acp133_algorithm_identifier,
@@ -1125,7 +1125,7 @@ void proto_register_acp133(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "acp133.BIT_STRING", HFILL }},
     { &hf_acp133_Remarks_item,
-      { "Item", "acp133.Remarks_item",
+      { "Remarks", "acp133.Remarks_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "acp133.PrintableString", HFILL }},
     { &hf_acp133_rI,
@@ -1177,7 +1177,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_acp133_insteadOf_item,
-      { "Item", "acp133.insteadOf_item",
+      { "insteadOf", "acp133.insteadOf_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_acp133_inAdditionTo,
@@ -1185,7 +1185,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_acp133_inAdditionTo_item,
-      { "Item", "acp133.inAdditionTo_item",
+      { "inAdditionTo", "acp133.inAdditionTo_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_acp133_individual,
@@ -1273,7 +1273,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SEQUENCE_OF_AlgorithmInformation", HFILL }},
     { &hf_acp133_token_encryption_algorithm_preference_item,
-      { "Item", "acp133.token_encryption_algorithm_preference_item",
+      { "token-encryption-algorithm-preference", "acp133.token_encryption_algorithm_preference_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acp133.AlgorithmInformation", HFILL }},
     { &hf_acp133_token_signature_algorithm_preference,
@@ -1281,7 +1281,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SEQUENCE_OF_AlgorithmInformation", HFILL }},
     { &hf_acp133_token_signature_algorithm_preference_item,
-      { "Item", "acp133.token_signature_algorithm_preference_item",
+      { "token-signature-algorithm-preference", "acp133.token_signature_algorithm_preference_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acp133.AlgorithmInformation", HFILL }},
     { &hf_acp133_originator_certificate_selector,
@@ -1305,7 +1305,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SET_OF_Capability", HFILL }},
     { &hf_acp133_capabilities_item,
-      { "Item", "acp133.capabilities_item",
+      { "capabilities", "acp133.capabilities_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acp133.Capability", HFILL }},
     { &hf_acp133_content_types,
@@ -1313,7 +1313,7 @@ void proto_register_acp133(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "acp133.SET_OF_ExtendedContentType", HFILL }},
     { &hf_acp133_content_types_item,
-      { "Item", "acp133.content_types_item",
+      { "content-types", "acp133.content_types_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x411.ExtendedContentType", HFILL }},
     { &hf_acp133_maximum_content_length,

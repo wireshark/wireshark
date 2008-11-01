@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-spnego.c                                                            */
-/* ../../tools/asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . spnego.asn */
+/* ../../tools/asn2wrs.py -b -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
@@ -1886,7 +1886,7 @@ void proto_register_spnego(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "spnego.NegTokenTarg", HFILL }},
     { &hf_spnego_MechTypeList_item,
-      { "Item", "spnego.MechTypeList_item",
+      { "MechTypeList", "spnego.MechTypeList_item",
         FT_OID, BASE_NONE, NULL, 0,
         "spnego.MechType", HFILL }},
     { &hf_spnego_principal,

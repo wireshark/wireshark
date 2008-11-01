@@ -184,7 +184,7 @@ static const value_string ess_AllOrFirstTier_vals[] = {
 static int
 dissect_ess_AllOrFirstTier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -250,7 +250,7 @@ static const value_string ess_ESSVersion_vals[] = {
 static int
 dissect_ess_ESSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -358,7 +358,7 @@ static const value_string ess_SecurityClassification_vals[] = {
 static int
 dissect_ess_SecurityClassification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -502,7 +502,7 @@ dissect_ess_RestrictiveTag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -932,7 +932,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_ess_receiptsTo_item,
-      { "Item", "ess.receiptsTo_item",
+      { "receiptsTo", "ess.receiptsTo_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_ess_allOrFirstTier,
@@ -944,7 +944,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_ess_receiptList_item,
-      { "Item", "ess.receiptList_item",
+      { "receiptList", "ess.receiptList_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_ess_version,
@@ -988,7 +988,7 @@ void proto_register_ess(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "ess.UTF8String", HFILL }},
     { &hf_ess_SecurityCategories_item,
-      { "Item", "ess.SecurityCategories_item",
+      { "SecurityCategories", "ess.SecurityCategories_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ess.SecurityCategory", HFILL }},
     { &hf_ess_type,
@@ -1012,7 +1012,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SET_OF_SecurityAttribute", HFILL }},
     { &hf_ess_attributeList_item,
-      { "Item", "ess.attributeList_item",
+      { "attributeList", "ess.attributeList_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "ess.SecurityAttribute", HFILL }},
     { &hf_ess_attributes,
@@ -1028,15 +1028,15 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SET_OF_SecurityAttribute", HFILL }},
     { &hf_ess_securityAttributes_item,
-      { "Item", "ess.securityAttributes_item",
+      { "securityAttributes", "ess.securityAttributes_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "ess.SecurityAttribute", HFILL }},
     { &hf_ess_EquivalentLabels_item,
-      { "Item", "ess.EquivalentLabels_item",
+      { "EquivalentLabels", "ess.EquivalentLabels_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ess.ESSSecurityLabel", HFILL }},
     { &hf_ess_MLExpansionHistory_item,
-      { "Item", "ess.MLExpansionHistory_item",
+      { "MLExpansionHistory", "ess.MLExpansionHistory_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ess.MLData", HFILL }},
     { &hf_ess_mailListIdentifier,
@@ -1068,7 +1068,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_ess_insteadOf_item,
-      { "Item", "ess.insteadOf_item",
+      { "insteadOf", "ess.insteadOf_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_ess_inAdditionTo,
@@ -1076,7 +1076,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_GeneralNames", HFILL }},
     { &hf_ess_inAdditionTo_item,
-      { "Item", "ess.inAdditionTo_item",
+      { "inAdditionTo", "ess.inAdditionTo_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.GeneralNames", HFILL }},
     { &hf_ess_certs,
@@ -1084,7 +1084,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_ESSCertID", HFILL }},
     { &hf_ess_certs_item,
-      { "Item", "ess.certs_item",
+      { "certs", "ess.certs_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ess.ESSCertID", HFILL }},
     { &hf_ess_policies,
@@ -1092,7 +1092,7 @@ void proto_register_ess(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ess.SEQUENCE_OF_PolicyInformation", HFILL }},
     { &hf_ess_policies_item,
-      { "Item", "ess.policies_item",
+      { "policies", "ess.policies_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509ce.PolicyInformation", HFILL }},
     { &hf_ess_certHash,

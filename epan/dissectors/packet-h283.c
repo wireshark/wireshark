@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h283.c                                                              */
-/* ../../../svn/trunk/tools/asn2wrs.py -p h283 -c ../../../svn/trunk/asn1/h283/h283.cnf -s ../../../svn/trunk/asn1/h283/packet-h283-template -D ../../../svn/trunk/asn1/h283 LCT-PROTOCOL.asn */
+/* ../../tools/asn2wrs.py -p h283 -c h283.cnf -s packet-h283-template LCT-PROTOCOL.asn */
 
 /* Input file: packet-h283-template.c */
 
@@ -133,7 +133,7 @@ static gboolean info_is_set;
 static int
 dissect_h283_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -143,7 +143,7 @@ dissect_h283_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h283_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -240,7 +240,7 @@ dissect_h283_MTAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h283_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 4294967295U, NULL, FALSE);
+                                                            0U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -666,7 +666,7 @@ void proto_register_h283(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "h283.SEQUENCE_OF_NonStandardParameter", HFILL }},
     { &hf_h283_nonStandardParameters_item,
-      { "Item", "h283.nonStandardParameters_item",
+      { "nonStandardParameters", "h283.nonStandardParameters_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h283.NonStandardParameter", HFILL }},
     { &hf_h283_mAddress,

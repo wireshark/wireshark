@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkix1explicit.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
+/* ../../tools/asn2wrs.py -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
 
@@ -862,7 +862,7 @@ void proto_register_pkix1explicit(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.GeneralizedTime", HFILL }},
     { &hf_pkix1explicit_Extensions_item,
-      { "Item", "pkix1explicit.Extensions_item",
+      { "Extensions", "pkix1explicit.Extensions_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.Extension", HFILL }},
     { &hf_pkix1explicit_extnId,
@@ -914,7 +914,7 @@ void proto_register_pkix1explicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.T_values", HFILL }},
     { &hf_pkix1explicit_values_item,
-      { "Item", "pkix1explicit.values_item",
+      { "values", "pkix1explicit.values_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.T_values_item", HFILL }},
     { &hf_pkix1explicit_value,
@@ -922,11 +922,11 @@ void proto_register_pkix1explicit(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.T_value", HFILL }},
     { &hf_pkix1explicit_RDNSequence_item,
-      { "Item", "pkix1explicit.RDNSequence_item",
+      { "RDNSequence", "pkix1explicit.RDNSequence_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.RelativeDistinguishedName", HFILL }},
     { &hf_pkix1explicit_RelativeDistinguishedName_item,
-      { "Item", "pkix1explicit.RelativeDistinguishedName_item",
+      { "RelativeDistinguishedName", "pkix1explicit.RelativeDistinguishedName_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.AttributeTypeAndValue", HFILL }},
     { &hf_pkix1explicit_type_01,
@@ -938,7 +938,7 @@ void proto_register_pkix1explicit(void) {
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.TeletexString", HFILL }},
     { &hf_pkix1explicit_IPAddrBlocks_item,
-      { "Item", "pkix1explicit.IPAddrBlocks_item",
+      { "IPAddrBlocks", "pkix1explicit.IPAddrBlocks_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.IPAddressFamily", HFILL }},
     { &hf_pkix1explicit_addressFamily,
@@ -958,7 +958,7 @@ void proto_register_pkix1explicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.SEQUENCE_OF_IPAddressOrRange", HFILL }},
     { &hf_pkix1explicit_addressesOrRanges_item,
-      { "Item", "pkix1explicit.addressesOrRanges_item",
+      { "addressesOrRanges", "pkix1explicit.addressesOrRanges_item",
         FT_UINT32, BASE_DEC, VALS(pkix1explicit_IPAddressOrRange_vals), 0,
         "pkix1explicit.IPAddressOrRange", HFILL }},
     { &hf_pkix1explicit_addressPrefix,
@@ -990,7 +990,7 @@ void proto_register_pkix1explicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.SEQUENCE_OF_ASIdOrRange", HFILL }},
     { &hf_pkix1explicit_asIdsOrRanges_item,
-      { "Item", "pkix1explicit.asIdsOrRanges_item",
+      { "asIdsOrRanges", "pkix1explicit.asIdsOrRanges_item",
         FT_UINT32, BASE_DEC, VALS(pkix1explicit_ASIdOrRange_vals), 0,
         "pkix1explicit.ASIdOrRange", HFILL }},
     { &hf_pkix1explicit_id,

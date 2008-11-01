@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cmp.h                                                               */
-/* ../../../svn/trunk/tools/asn2wrs.py -b -p cmp -c ../../../svn/trunk/asn1/pkixcmp/cmp.cnf -s ../../../svn/trunk/asn1/pkixcmp/packet-cmp-template -D ../../../svn/trunk/asn1/pkixcmp CMP.asn */
+/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
 
 /* Input file: packet-cmp-template.h */
 

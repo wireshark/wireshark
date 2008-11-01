@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dsp.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . dsp.asn */
+/* ../../tools/asn2wrs.py -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
 
 /* Input file: packet-dsp-template.c */
 
@@ -2250,7 +2250,7 @@ void proto_register_dsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.SEQUENCE_OF_Attribute", HFILL }},
     { &hf_dsp_notification_item,
-      { "Item", "dsp.notification_item",
+      { "notification", "dsp.notification_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_dsp_unsignedDSAReferral,
@@ -2354,7 +2354,7 @@ void proto_register_dsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.SEQUENCE_OF_CrossReference", HFILL }},
     { &hf_dsp_crossReferences_item,
-      { "Item", "dsp.crossReferences_item",
+      { "crossReferences", "dsp.crossReferences_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dsp.CrossReference", HFILL }},
     { &hf_dsp_alreadySearched,
@@ -2374,7 +2374,7 @@ void proto_register_dsp(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "dsp.INTEGER", HFILL }},
     { &hf_dsp_TraceInformation_item,
-      { "Item", "dsp.TraceInformation_item",
+      { "TraceInformation", "dsp.TraceInformation_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dsp.TraceItem", HFILL }},
     { &hf_dsp_dsa,
@@ -2398,7 +2398,7 @@ void proto_register_dsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.SET_OF_ProtocolInformation", HFILL }},
     { &hf_dsp_protocolInformation_item,
-      { "Item", "dsp.protocolInformation_item",
+      { "protocolInformation", "dsp.protocolInformation_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.ProtocolInformation", HFILL }},
     { &hf_dsp_access_point_category,
@@ -2410,7 +2410,7 @@ void proto_register_dsp(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "dsp.BOOLEAN", HFILL }},
     { &hf_dsp_MasterAndShadowAccessPoints_item,
-      { "Item", "dsp.MasterAndShadowAccessPoints_item",
+      { "MasterAndShadowAccessPoints", "dsp.MasterAndShadowAccessPoints_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dsp.MasterOrShadowAccessPoint", HFILL }},
     { &hf_dsp_category,
@@ -2422,7 +2422,7 @@ void proto_register_dsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.MasterAndShadowAccessPoints", HFILL }},
     { &hf_dsp_Exclusions_item,
-      { "Item", "dsp.Exclusions_item",
+      { "Exclusions", "dsp.Exclusions_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509if.RDNSequence", HFILL }},
     { &hf_dsp_rdnsResolved,
@@ -2434,7 +2434,7 @@ void proto_register_dsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.SET_OF_AccessPointInformation", HFILL }},
     { &hf_dsp_accessPoints_item,
-      { "Item", "dsp.accessPoints_item",
+      { "accessPoints", "dsp.accessPoints_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dsp.AccessPointInformation", HFILL }},
     { &hf_dsp_returnToDUA,

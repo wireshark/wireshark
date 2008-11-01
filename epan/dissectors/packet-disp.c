@@ -1668,7 +1668,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_SupplierAndConsumers", HFILL }},
     { &hf_disp_modifiedSecondaryShadows_item,
-      { "Item", "disp.secondaryShadows_item",
+      { "secondaryShadows", "disp.secondaryShadows_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "dop.SupplierAndConsumers", HFILL }},
     { &hf_disp_shadowSubject,
@@ -1720,7 +1720,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.T_selectedContexts", HFILL }},
     { &hf_disp_selectedContexts_item,
-      { "Item", "disp.selectedContexts_item",
+      { "selectedContexts", "disp.selectedContexts_item",
         FT_OID, BASE_NONE, NULL, 0,
         "disp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_disp_contextPrefix,
@@ -1740,7 +1740,7 @@ void proto_register_disp(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "disp.BOOLEAN", HFILL }},
     { &hf_disp_AttributeSelection_item,
-      { "Item", "disp.AttributeSelection_item",
+      { "AttributeSelection", "disp.AttributeSelection_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.ClassAttributeSelection", HFILL }},
     { &hf_disp_class,
@@ -1764,7 +1764,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.AttributeTypes", HFILL }},
     { &hf_disp_AttributeTypes_item,
-      { "Item", "disp.AttributeTypes_item",
+      { "AttributeTypes", "disp.AttributeTypes_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_disp_supplierInitiated,
@@ -1868,7 +1868,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_Attribute", HFILL }},
     { &hf_disp_notification_item,
-      { "Item", "disp.notification_item",
+      { "notification", "disp.notification_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_unsignedInformation,
@@ -1960,7 +1960,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Subtree", HFILL }},
     { &hf_disp_subtree_item,
-      { "Item", "disp.subtree_item",
+      { "subtree", "disp.subtree_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.Subtree", HFILL }},
     { &hf_disp_sDSEType,
@@ -1980,7 +1980,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Attribute", HFILL }},
     { &hf_disp_attributes_item,
-      { "Item", "disp.attributes_item",
+      { "attributes", "disp.attributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_attValIncomplete,
@@ -1988,7 +1988,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_AttributeType", HFILL }},
     { &hf_disp_attValIncomplete_item,
-      { "Item", "disp.attValIncomplete_item",
+      { "attValIncomplete", "disp.attValIncomplete_item",
         FT_OID, BASE_NONE, NULL, 0,
         "x509if.AttributeType", HFILL }},
     { &hf_disp_rdn,
@@ -1996,7 +1996,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509if.RelativeDistinguishedName", HFILL }},
     { &hf_disp_IncrementalRefresh_item,
-      { "Item", "disp.IncrementalRefresh_item",
+      { "IncrementalRefresh", "disp.IncrementalRefresh_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.IncrementalStepRefresh", HFILL }},
     { &hf_disp_sDSEChanges,
@@ -2020,7 +2020,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_SubordinateChanges", HFILL }},
     { &hf_disp_subordinateUpdates_item,
-      { "Item", "disp.subordinateUpdates_item",
+      { "subordinateUpdates", "disp.subordinateUpdates_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "disp.SubordinateChanges", HFILL }},
     { &hf_disp_rename,
@@ -2044,7 +2044,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SET_OF_Attribute", HFILL }},
     { &hf_disp_replace_item,
-      { "Item", "disp.replace_item",
+      { "replace", "disp.replace_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_disp_changes,
@@ -2052,7 +2052,7 @@ void proto_register_disp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "disp.SEQUENCE_OF_EntryModification", HFILL }},
     { &hf_disp_changes_item,
-      { "Item", "disp.changes_item",
+      { "changes", "disp.changes_item",
         FT_UINT32, BASE_DEC, VALS(dap_EntryModification_vals), 0,
         "dap.EntryModification", HFILL }},
     { &hf_disp_subordinate,
@@ -2081,7 +2081,7 @@ void proto_register_disp(void) {
         "disp.ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 209 "packet-disp-template.c"
+#line 211 "packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2146,7 +2146,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 215 "packet-disp-template.c"
+#line 217 "packet-disp-template.c"
   };
   module_t *disp_module;
 
@@ -2185,7 +2185,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 243 "packet-disp-template.c"
+#line 245 "packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

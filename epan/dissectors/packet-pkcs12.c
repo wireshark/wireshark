@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkcs12.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . pkcs12.asn */
+/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.c */
 
@@ -1289,11 +1289,11 @@ void proto_register_pkcs12(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "cms.Digest", HFILL }},
     { &hf_pkcs12_AuthenticatedSafe_item,
-      { "Item", "pkcs12.AuthenticatedSafe_item",
+      { "AuthenticatedSafe", "pkcs12.AuthenticatedSafe_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "cms.ContentInfo", HFILL }},
     { &hf_pkcs12_SafeContents_item,
-      { "Item", "pkcs12.SafeContents_item",
+      { "SafeContents", "pkcs12.SafeContents_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkcs12.SafeBag", HFILL }},
     { &hf_pkcs12_bagId,
@@ -1309,7 +1309,7 @@ void proto_register_pkcs12(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkcs12.SET_OF_PKCS12Attribute", HFILL }},
     { &hf_pkcs12_bagAttributes_item,
-      { "Item", "pkcs12.bagAttributes_item",
+      { "bagAttributes", "pkcs12.bagAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkcs12.PKCS12Attribute", HFILL }},
     { &hf_pkcs12_certId,
@@ -1345,7 +1345,7 @@ void proto_register_pkcs12(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkcs12.T_attrValues", HFILL }},
     { &hf_pkcs12_attrValues_item,
-      { "Item", "pkcs12.attrValues_item",
+      { "attrValues", "pkcs12.attrValues_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkcs12.T_attrValues_item", HFILL }},
     { &hf_pkcs12_privateKeyVersion,
@@ -1365,7 +1365,7 @@ void proto_register_pkcs12(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkcs12.Attributes", HFILL }},
     { &hf_pkcs12_Attributes_item,
-      { "Item", "pkcs12.Attributes_item",
+      { "Attributes", "pkcs12.Attributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509if.Attribute", HFILL }},
     { &hf_pkcs12_encryptionAlgorithm,

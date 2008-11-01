@@ -16,7 +16,7 @@ ServiceAdministration	x509if
 AttributeCertificateDefinitions	x509af
 BasicAccessControl	crmf
 
-
+# Forward declaration of classes
 #.CLASS CONTEXT
 &Type      
 &Assertion  
@@ -35,6 +35,34 @@ BasicAccessControl	crmf
 &bind-operation		ClassReference OPERATION
 &Operations		ClassReference OPERATION
 &applicationContextName	ObjectIdentifierType
+#.END
+
+#.CLASS OBJECT-CLASS
+&Superclasses         ClassReference OBJECT-CLASS
+&kind                 TypeReference ObjectClassKind
+&MandatoryAttributes  ClassReference ATTRIBUTE
+&OptionalAttributes   ClassReference ATTRIBUTE
+&id                   ObjectIdentifierType
+#.END
+
+#.CLASS ATTRIBUTE
+&derivation            ClassReference ATTRIBUTE
+&Type                  
+&equality-match        ClassReference MATCHING-RULE
+&ordering-match        ClassReference MATCHING-RULE
+&substrings-match      ClassReference MATCHING-RULE
+&single-valued         BooleanType
+&collective            BooleanType
+&no-user-modification  BooleanType
+&usage                 TypeReference AttributeUsage
+&id                    ObjectIdentifierType
+#.END
+
+#.CLASS MATCHING-RULE
+&ParentMatchingRules   ClassReference MATCHING-RULE
+&AssertionType         
+&uniqueMatchIndicator  ClassReference ATTRIBUTE
+&id                    ObjectIdentifierType
 #.END
 
 #.OMIT_ASSIGNMENT

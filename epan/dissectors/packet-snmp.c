@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3304,7 +3304,7 @@ void proto_register_snmp(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "snmp.NULL", HFILL }},
     { &hf_snmp_VarBindList_item,
-      { "Item", "snmp.VarBindList_item",
+      { "VarBindList", "snmp.VarBindList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "snmp.VarBind", HFILL }},
     { &hf_snmp_open,
