@@ -55,6 +55,7 @@ static int hf_gsm_bsslap_cell_id_disc = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
+static int ett_bsslap_cell_list = -1;
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -272,36 +273,55 @@ static guint8
 de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8	consumed;
 	guint8 cell_id_disc;
-
+	guint8	num_cells;
+	proto_item	*item = NULL;
+	proto_tree	*subtree = NULL;
+	
 	curr_offset = offset;
 	cell_id_disc = tvb_get_guint8(tvb,curr_offset);
+	num_cells = 0;
 
-	proto_tree_add_item(tree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, FALSE);
-	switch(cell_id_disc){
-		case 0:
-			/* The whole Cell Global Identification, CGI, is used to identify the 2G cells. */
-			curr_offset +=
-			be_cell_id_aux(tvb, tree, curr_offset, len, add_string, string_len, 0);
-			break;
-		case 1:
-			/* Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells. */
-			curr_offset +=
-			be_cell_id_aux(tvb, tree, curr_offset, len, add_string, string_len, 1);
-			break;
-		case 2:
-			/* 3G Cell identification container 1 */
-		case 3:
-			/* 3G Cell identification container 2 */
-			/* fall trough */
-		default:
-			proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
-			break;
+	while(len>0){
+		num_cells++;
+		consumed = 0;
+		item = proto_tree_add_text(tree, tvb, curr_offset, -1, "Cell %u", num_cells);
+		subtree = proto_item_add_subtree(item, ett_bsslap_cell_list);
+
+		if (add_string)
+			add_string[0] = '\0';
+		proto_tree_add_item(subtree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+		len--;
+		switch(cell_id_disc){
+			case 0:
+				/* The whole Cell Global Identification, CGI, is used to identify the 2G cells. */
+				consumed+= be_cell_id_aux(tvb, subtree, curr_offset, len, NULL, 0, 0);
+				break;
+			case 1:
+				/* Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells. */
+				consumed+= be_cell_id_aux(tvb, subtree, curr_offset, len, NULL, 0, 1);
+				break;
+			case 2:
+				/* 3G Cell identification container 1 */
+				/* fall trough */
+			case 3:
+				/* 3G Cell identification container 2 */
+				/* fall trough */
+			default:
+				proto_tree_add_text(subtree,tvb, curr_offset, len,"Not decoded yet");
+				consumed = len;
+				break;
+		}
+		curr_offset += consumed;
+		len-=consumed;
+		/* lengt is "cell id" + discriminator */
+		proto_item_set_len(item, consumed+1);
 	}
 	
 
-
-	return(len);
+	return(curr_offset - offset);
 }
 /*
  * 5.18 Enhanced Measurement Report IE
@@ -505,7 +525,7 @@ guint8 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,	/* "Reserved */			/* (note) */
 	NULL,	/* Reserved */			/* (note) */
 	NULL,	/* Reserved */			/* (note) */
-	de_meas_rep,	/* "Measurement Report */
+	de_rr_meas_res,	/* "Measurement Report */
 	NULL,	/* "Reserved */			/* (note) */
 	de_bsslap_cause,	/* "Cause */
 	de_rrlp_flg,	/* "RRLP Flag */
@@ -547,7 +567,7 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Timing Advance IE / 5.2 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
@@ -597,7 +617,7 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Cause IE / 5.1 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,"");
 	/* Measurement Report Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
 	/* Enhanced Measurement Report Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
@@ -655,7 +675,7 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Timing Advance IE / 5.2 M TV 2 */
 	ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/*Cell Identity List IE / 5.17 O TLV 6-n */
@@ -697,7 +717,7 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* Timing Advance IE / 5.2 O TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, "");
 	/* Measurement Report IE / 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
 	/* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
 	ELEM_OPT_TLV(BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENH_MEAS_REP, "");
 	/* Cell Identity List IE / 5.17 O TLV 6-n */
@@ -744,7 +764,7 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/* MS Power IE 5.21 O TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_MS_POWER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MS_POW, "");
 	/* Measurement Report IE 5.12 O TLV 18 */
-	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, "");
+	ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
 	/* Encryption Key IE 5.24 C (note 4) TV 9 */
 	ELEM_OPT_TV(BSSLAP_PARAM_ENCRYPTION_KEY, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_ENC_KEY,"");
 	/* Cipher Mode Setting IE 5.25 C (note 4) TV 2 */
@@ -899,11 +919,12 @@ proto_register_gsm_bsslap(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	1
+#define	NUM_INDIVIDUAL_ELEMS	2
 	static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
 			NUM_GSM_BSSLAP_ELEM];
 
 	ett[0] = &ett_gsm_bsslap;
+	ett[1] = &ett_bsslap_cell_list;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

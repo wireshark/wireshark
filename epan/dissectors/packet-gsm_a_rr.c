@@ -422,6 +422,16 @@ static int hf_gsm_a_ncc				= -1;
 static int hf_gsm_a_bcch_arfcn		= -1;
 static int hf_gsm_a_rr_ho_ref_val	= -1;
 static int hf_gsm_a_rr_L2_pseudo_len = -1;
+static int hf_gsm_a_rr_ba_used = -1;
+static int hf_gsm_a_rr_dtx_used = -1;
+static int hf_gsm_a_rr_3g_ba_used = -1;
+static int hf_gsm_a_rr_meas_valid = -1;
+static int hf_gsm_a_rr_rxlev_full_serv_cell = -1;
+static int hf_gsm_a_rr_rxlev_sub_serv_cell = -1;
+static int hf_gsm_a_rr_rxqual_full_serv_cell = -1;
+static int hf_gsm_a_rr_rxqual_sub_serv_cell = -1;
+static int hf_gsm_a_rr_no_ncell_m = -1;
+static int hf_gsm_a_rr_rxlev_ncell_1 = -1;
 static int hf_gsm_a_rr_pow_cmd_atc = -1;
 static int hf_gsm_a_rr_pow_cmd_epc = -1;
 static int hf_gsm_a_rr_page_mode = -1;
@@ -1839,11 +1849,11 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * [3] 10.5.2.20 Measurement Results
  */
-static const value_string gsm_a_rr_dtx_vals[] = {
-	{ 0,	"DTX was not used"},
-	{ 1,	"DTX was used"},
-	{ 0,	NULL}
+static const true_false_string gsm_a_rr_dtx_vals  = {
+	"DTX was not used",
+	"DTX was used"
 };
+
 static const value_string gsm_a_rr_rxlev_vals [] = {
 	{0, "< -110 dBm"},
 	{1, "-110 <= x < -109 dBm"},
@@ -1911,11 +1921,12 @@ static const value_string gsm_a_rr_rxlev_vals [] = {
 	{63, ">= -48 dBm"},
 	{ 0, NULL}
 };
-static const value_string gsm_a_rr_mv_vals[] = {
-	{ 0,	"The measurement results are valid"},
-	{ 1,	"The measurement results are not valid"},
-	{ 0,	NULL}
+
+static const true_false_string gsm_a_rr_mv_vals  = {
+	"The measurement results are valid",
+	"The measurement results are not valid"
 };
+
 static const value_string gsm_a_rr_rxqual_vals [] = {
 	{0, "BER < 0.2%, Mean value 0.14%"},
 	{1, "0.2% <= BER < 0.4%, Mean value 0.28%"},
@@ -1944,7 +1955,6 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	proto_tree	*subtree;
 	proto_item	*item;
 	guint32	curr_offset;
-	guint8	oct, nextoct, val;
 
 	curr_offset = offset;
 
@@ -1955,58 +1965,71 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_MEAS_RES]);
 
 	/* 2nd octet */
-	oct = tvb_get_guint8(tvb,curr_offset);
 	/* BA-USED */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = BA-USED: %d",a_bigbuf,(oct & 0x80)>>7);
+	proto_tree_add_item(subtree, hf_gsm_a_rr_ba_used, tvb, curr_offset, 1, FALSE);
 	/* DTX USED */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = DTX USED: %s",a_bigbuf,\
-		val_to_str((oct & 0x40)>>6, gsm_a_rr_dtx_vals, "Reserved (0x%02x)"));
+	proto_tree_add_item(subtree, hf_gsm_a_rr_dtx_used, tvb, curr_offset, 1, FALSE);
 	/* RXLEV-FULL-SERVING-CELL */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3F, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXLEV-FULL-SERVING-CELL: %s (%d)",a_bigbuf,\
-		val_to_str((oct & 0x3F), gsm_a_rr_rxlev_vals, "Reserved (0x%02x)"),(oct & 0x3F));
-
+	proto_tree_add_item(subtree, hf_gsm_a_rr_rxlev_full_serv_cell, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	/* 3rd octet */
-	oct = tvb_get_guint8(tvb,curr_offset);
-	/* 3G-BA-USED */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = 3G-BA-USED: %d",a_bigbuf,(oct & 0x80)>>7);
+	/* 3G-BA-USED */ 
+	proto_tree_add_item(subtree, hf_gsm_a_rr_3g_ba_used, tvb, curr_offset, 1, FALSE);
 	/* MEAS-VALID */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = MEAS-VALID: %s",a_bigbuf,\
-		val_to_str((oct & 0x40)>>6, gsm_a_rr_mv_vals, "Reserved (0x%02x)"));
+	proto_tree_add_item(subtree, hf_gsm_a_rr_meas_valid, tvb, curr_offset, 1, FALSE);	
 	/* RXLEV-SUB-SERVING-CELL */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3F, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXLEV-SUB-SERVING-CELL: %s (%d)",\
-		a_bigbuf,val_to_str((oct & 0x3F), gsm_a_rr_rxlev_vals, "Reserved (0x%02x)"),(oct & 0x3F));
+	proto_tree_add_item(subtree, hf_gsm_a_rr_rxlev_sub_serv_cell, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
 
 	/* 4th octet */
-	oct = tvb_get_guint8(tvb,curr_offset);
 	/* RXQUAL-FULL-SERVING-CELL */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXQUAL-FULL-SERVING-CELL: %s (%d)",a_bigbuf,\
-		val_to_str((oct & 0x7)>>4, gsm_a_rr_rxqual_vals, "Reserved (0x%02x)"),(oct & 0x70)>>4);
-	/* RXQUAL-SUB-SERVING-CELL */
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0e, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXQUAL-SUB-SERVING-CELL: %s (%d)",a_bigbuf,\
-		val_to_str((oct & 0x0e)>>1, gsm_a_rr_rxqual_vals, "Reserved (0x%02x)"),(oct & 0x0e)>>1);
-	/* NO-NCELL-M */
-	nextoct = tvb_get_guint8(tvb,curr_offset+1);
-	val = ((oct & 0x01) << 2) + ((nextoct & 0xc0) >> 6);
-	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s",a_bigbuf);
-	other_decode_bitfield_value(a_bigbuf, nextoct, 0xc0, 8);
-	proto_tree_add_text(subtree,tvb,curr_offset+1,1,"%s = NO-NCELL-M: %s (%d)",a_bigbuf,\
-		val_to_str(val, gsm_a_rr_ncell_vals, "Reserved (0x%02x)"),val);
+	proto_tree_add_item(subtree, hf_gsm_a_rr_rxqual_full_serv_cell, tvb, curr_offset, 1, FALSE);
 
-	curr_offset = curr_offset + len;
-	return(curr_offset - offset);
+	/* RXQUAL-SUB-SERVING-CELL */
+	proto_tree_add_item(subtree, hf_gsm_a_rr_rxqual_sub_serv_cell, tvb, curr_offset, 1, FALSE);
+	/* NO-NCELL-M */
+	proto_tree_add_item(subtree, hf_gsm_a_rr_no_ncell_m, tvb, curr_offset, 2, FALSE);
+	curr_offset++;
+	/* 5th octet ( part included above */
+	/* RXLEV-NCELL 1 */
+	proto_tree_add_item(subtree, hf_gsm_a_rr_rxlev_ncell_1, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	/* 6th octet */
+	/* BCCH-FREQ-NCELL 1 */
+	/* BSIC-NCELL 1 (high part) */
+	/* 7th octet */
+	/* BSIC-NCELL 1 (low part) */
+	/* RXLEV-NCELL 2 (high part) */
+	/* Octet 8 */
+	/* RXLEV-NCELL 2 (low part) */
+	/* BCCH-FREQ-NCELL 2 */
+	/* BSIC-NCELL 2 (high part) */
+	/* Octet 9 */
+	/* BSIC-NCELL 2 (low part) */
+	/* RXLEV-NCELL 3 (high part) */
+	/* Octet 10 */
+	/* RXLEV-NCELL 3 (low part) /*
+	/* BCCH-FREQ-NCELL 3 */
+	/* BSICNCELL 3 (high part) */
+	/* BSIC-NCELL 3 (low part) */
+	/* RXLEV-NCELL 4 (high part) */
+	/* RXLEV-NCELL 4 (low part) */
+	/* BCCH-FREQ-NCELL 4 */
+	/* BSIC-NCELL 4 */
+	/* RXLEV-NCELL 5 (high part) */
+	/* RXLEV-NCELL 5 (low part) */
+	/* BCCH-FREQ-NCELL 5 (high part) */
+	/* BCCHFREQNCELL 5 (low part) */
+	/* BSIC-NCELL 5 */
+	/* RXLEV NCELL 6 (high part) */
+	/* RXLEV-NCELL 6 (low part) */
+	/* BCCH-FREQ-NCELL 6 (high part) */
+	/* BCCH-FREQNCELL 6 (low part) */
+	/* BSIC-NCELL 6 */
+	proto_tree_add_text(tree,tvb, curr_offset, len-(curr_offset-offset),"Not decoded yet");
+	return(len);
 }
 
 /*
@@ -6765,10 +6788,60 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8,BASE_DEC,  NULL, 0xfc,
 		"L2 Pseudo Length value", HFILL }
 	},
+	{ &hf_gsm_a_rr_ba_used,
+		{ "BA-USED","gsm_a.rr.ba_used",
+		FT_BOOLEAN,8,  NULL, 0x80,
+		"BA-USED", HFILL }
+	},
+	{ &hf_gsm_a_rr_dtx_used,
+		{ "DTX-USED","gsm_a.rr.dtx_used",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_dtx_vals), 0x40,
+		"DTX-USED", HFILL }
+	},
+	{ &hf_gsm_a_rr_3g_ba_used,
+	{ "3G-BA-USED","gsm_a.rr.3g_ba_used",
+		FT_BOOLEAN,8,  NULL, 0x80,
+		"3G-BA-USED", HFILL }
+	},
+	{ &hf_gsm_a_rr_meas_valid,
+		{ "MEAS-VALID","gsm_a.rr.meas_valid",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_mv_vals), 0x40,
+		"MEAS-VALID", HFILL }
+	},
+	{ &hf_gsm_a_rr_rxlev_full_serv_cell,
+		{ "RXLEV-FULL-SERVING-CELL","gsm_a.rr.rxlev_full_serv_cell",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxlev_vals), 0x3f,
+		"RXLEV-FULL-SERVING-CELL", HFILL }
+	},
+	{ &hf_gsm_a_rr_rxlev_sub_serv_cell,
+		{ "RXLEV-SUB-SERVING-CELL","gsm_a.rr.rxlev_sub_serv_cell",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxlev_vals), 0x3f,
+		"RXLEV-SUB-SERVING-CELL", HFILL }
+	},
+	{ &hf_gsm_a_rr_rxqual_full_serv_cell,
+		{ "RXQUAL-FULL-SERVING-CELL","gsm_a.rr.rxqual_full_serv_cell",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxqual_vals), 0x70,
+		"RXQUAL-FULL-SERVING-CELL", HFILL }
+	},
+	{ &hf_gsm_a_rr_rxqual_sub_serv_cell,
+		{ "RXQUAL-SUB-SERVING-CELL","gsm_a.rr.rxqual_sub_serv_cell",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxqual_vals), 0x0e,
+		"RXQUAL-SUB-SERVING-CELL", HFILL }
+	},
+	{ &hf_gsm_a_rr_no_ncell_m,
+		{ "NO-NCELL-M","gsm_a.rr.no_ncell_m",
+		FT_UINT16,BASE_DEC,  VALS(gsm_a_rr_ncell_vals), 0x01c0,
+		"NO-NCELL-M", HFILL }
+	},
+	{ &hf_gsm_a_rr_rxlev_ncell_1,
+		{ "RXLEV-NCELL 1","gsm_a.rr.rxlev_ncell_1",
+		FT_UINT8,BASE_DEC,  NULL, 0x3f,
+		"RXLEV-NCELL 1", HFILL }
+	},
 	{ &hf_gsm_a_rr_pow_cmd_atc,
-		{ "Spare","gsm_a.rr.pow_cmd_atc",
+		{ "ATC","gsm_a.rr.pow_cmd_atc",
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_atc_value), 0x80,
-		"Spare", HFILL }
+		"ATC", HFILL }
 	},
 	{ &hf_gsm_a_rr_page_mode,
 		{ "Page Mode","gsm_a.rr.page_mode",
