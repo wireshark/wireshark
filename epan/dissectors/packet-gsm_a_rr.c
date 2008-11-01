@@ -3055,7 +3055,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	guint32	curr_offset;
    gint bit_offset, bit_offset_sav, bit_offset_sav2, idx;
    guint8 value;
-   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0=0;
+   gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
 
 	len = 20;
 	curr_offset = offset;
@@ -3476,7 +3476,8 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
             bit_offset += 1; /* skip a 0 bit */
             proto_tree_add_text(subtree3,tvb, bit_offset>>3, 2, "TDD UARFCN: %d", tvb_get_bits16(tvb,bit_offset,14,FALSE));
             bit_offset += 14;
-            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "TDD Indic0: %d", tvb_get_bits8(tvb,bit_offset,1));
+            xdd_indic0 = tvb_get_bits8(tvb,bit_offset,1);
+            proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "TDD Indic0: %d", xdd_indic0);
             bit_offset += 1;
             idx = tvb_get_bits8(tvb,bit_offset,5);
             proto_tree_add_text(subtree3,tvb, bit_offset>>3, 1, "Nr of TDD Cells : %d", idx);
