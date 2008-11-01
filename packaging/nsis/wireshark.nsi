@@ -262,30 +262,47 @@ un.unlink.end:
 FunctionEnd
 
 Var OLD_UNINSTALLER
+Var OLD_INSTDIR
 Var OLD_DISPLAYNAME
+Var TMP_UNINSTALLER
 
 Function .onInit
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
-  "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
-  "UninstallString"
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
+    "UninstallString"
   StrCmp $OLD_UNINSTALLER "" done
 
+  ReadRegStr $OLD_INSTDIR HKLM \
+    "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe" \
+    "Path"
+  StrCmp $OLD_INSTDIR "" done
+
   ReadRegStr $OLD_DISPLAYNAME HKLM \
-  "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
-  "DisplayName"
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
+    "DisplayName"
   StrCmp $OLD_DISPLAYNAME "" done
 
-  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-  "$OLD_DISPLAYNAME is already installed. $\n$\nClick `OK` to remove it \
-  or `Cancel` to cancel this upgrade." \
-  IDOK uninst
+  MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+    "$OLD_DISPLAYNAME is already installed.\
+    $\n$\nWould you like to uninstall it first?" \
+      IDYES uninst \
+      IDNO done
   Abort
  
-;Run the uninstaller
+; Copy the uninstaller to $TEMP and run it.
+; The uninstaller normally does this by itself, but doesn't wait around
+; for the executable to finish, which means ExecWait won't work correctly.
 uninst:
   ClearErrors
-  ExecWait $OLD_UNINSTALLER
+  StrCpy $TMP_UNINSTALLER "$TEMP\wireshark_uninstaller.exe"
+  ; ...because we surround UninstallString in quotes.
+  StrCpy $0 $OLD_UNINSTALLER -1 1
+  StrCpy $1 "$TEMP\wireshark_uninstaller.exe"
+  StrCpy $2 1
+  System::Call 'kernel32::CopyFile(t r0, t r1, b r2) 1'
+  ExecWait "$TMP_UNINSTALLER _?=$OLD_INSTDIR"
+  Delete "$TMP_UNINSTALLER"
   
 done:
   ;Extract InstallOptions INI files
