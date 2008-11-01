@@ -1,6 +1,7 @@
 $Revision$
 $Date$
 $Author$
+Tabsize: 4
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use of some of the important functions
@@ -1261,7 +1262,7 @@ unsigned integer containing the number of bytes in the request:
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s request, %u bytes",
-		    reqtype, n);
+			reqtype, n);
 
 Don't use 'col_add_fstr' with a format argument of just "%s" -
 'col_add_str', or possibly even 'col_set_str' if the string that matches
@@ -1462,7 +1463,7 @@ abbreviation.
 
 Here is how the frame "protocol" is registered.
 
-	int proto_frame;
+        int proto_frame;
 
         proto_frame = proto_register_protocol (
                 /* name */            "Frame",
@@ -1477,7 +1478,7 @@ struct header_field_info {
 	const char			*name;
 	const char			*abbrev;
 	enum ftenum			type;
-	int				display;
+	int					display;
 	const void			*strings;
 	guint32				bitmask;
 	const char			*blurb;
@@ -1518,9 +1519,9 @@ The type of value this field holds. The current field types are:
 				subtree below it containing fields for
 				the members of the array, might be an
 				FT_NONE field.
-        FT_PROTOCOL             Used for protocols which will be placing
+	FT_PROTOCOL		Used for protocols which will be placing
 				themselves as top-level items in the
-                                "Packet Details" pane of the UI.
+				"Packet Details" pane of the UI.
 	FT_BOOLEAN		0 means "false", any other value means
 				"true".
 	FT_FRAMENUM		A frame number; if this is used, the "Go
@@ -1846,171 +1847,165 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_item(tree, id, tvb, start, length, little_endian);
 
 	proto_item*
-	proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits, little_endian);
-
-	proto_item *
-	proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits, return_value, little_endian);
-
-	proto_item*
 	proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
 
 	proto_item*
 	proto_tree_add_protocol_format(tree, id, tvb, start, length,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_bytes(tree, id, tvb, start, length, start_ptr);
 
 	proto_item *
 	proto_tree_add_bytes_format(tree, id, tvb, start, length, start_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_bytes_format_value(tree, id, tvb, start, length,
-	    start_ptr, format, ...);
+		start_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_time_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_ipxnet(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_ipxnet_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_ipxnet_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_ipv4(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_ipv4_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_ipv4_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_ipv6(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_ipv6_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_ipv6_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_ether_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_ether_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_string(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_string_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_string_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_boolean(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_boolean_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_boolean_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_float(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_float_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_float_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_double(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_double_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_double_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_uint(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_uint_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_uint_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_uint64(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_uint64_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_uint64_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_int(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_int_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_int_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item *
 	proto_tree_add_int64(tree, id, tvb, start, length, value);
 
 	proto_item *
 	proto_tree_add_int64_format(tree, id, tvb, start, length, value,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_int64_format_value(tree, id, tvb, start, length,
-	    value, format, ...);
+		value, format, ...);
 
 	proto_item*
 	proto_tree_add_text(tree, tvb, start, length, format, ...);
@@ -2023,31 +2018,38 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_guid_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
 
 	proto_item *
 	proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
 
 	proto_item *
 	proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
-	    format, ...);
+		format, ...);
 
 	proto_item *
 	proto_tree_add_oid_format_value(tree, id, tvb, start, length,
-	    value_ptr, format, ...);
+		value_ptr, format, ...);
+
+	proto_item*
+	proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
+		little_endian);
 
 	proto_item *
-	proto_tree_add_bitmask(tree, tvb, start, header, ett, **fields,
-	    little_endian);
+	proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits,
+		return_value, little_endian);
 
 	proto_item *
-	proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb,
-	    guint offset, guint len, const char *name, const char *fallback,
-            gint ett, const int **fields, gboolean little_endian, int flags);
+	proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
+		little_endian);
+
+	proto_item *
+	proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
+		ett, fields, little_endian, flags);
 
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
@@ -2121,18 +2123,6 @@ naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
 Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 in the past.
-
-proto_tree_add_bits_item()
---------------------------
-Adds a number of bits to the protocol tree which does not have to be byte aligned.
-The offset and length is in bits.
-Output format:
-
-..10 1010 10.. .... "value" (formated as FT_ indicates).
-
-proto_tree_add_bits_ret_val()
------------------------------
-Works in the same way but also returns the value of the read bits.
 
 proto_tree_add_protocol_format()
 --------------------------------
@@ -2349,6 +2339,18 @@ This is like proto_tree_add_text(), but takes, as the last argument, a
 variable-length list of arguments to add a text item to the protocol
 tree.
 
+proto_tree_add_bits_item()
+--------------------------
+Adds a number of bits to the protocol tree which does not have to be byte
+aligned. The offset and length is in bits.
+Output format:
+
+..10 1010 10.. .... "value" (formated as FT_ indicates).
+
+proto_tree_add_bits_ret_val()
+-----------------------------
+Works in the same way but also returns the value of the read bits.
+
 proto_tree_add_bitmask() and proto_tree_add_bitmask_text()
 ----------------------------------------------------------
 This function provides an easy to use and convenient helper function
@@ -2362,19 +2364,21 @@ represents the entire width of the bitmask.
 'header' and 'ett' are the hf fields and ett field respectively to create an
 expansion that covers the 1-4 bytes of the bitmask.
 
-'**fields' is a NULL terminated a array of pointers to hf fields representing
+'fields' is a NULL terminated array of pointers to hf fields representing
 the individual subfields of the bitmask. These fields must either be integers
 of the same byte width as 'header' or of the type FT_BOOLEAN.
-Each of the entries in '**fields' will be dissected as an item under the
+Each of the entries in 'fields' will be dissected as an item under the
 'header' expansion and also IF the field is a boolean and IF it is set to 1,
 then the name of that boolean field will be printed on the 'header' expansion
 line.  For integer type subfields that have a value_string defined, the
-matched string from that value_string will be printed on the expansion line as well.
+matched string from that value_string will be printed on the expansion line
+as well.
 
-Example: (from the scsi dissector)
+Example: (from the SCSI dissector)
 	static int hf_scsi_inq_peripheral        = -1;
 	static int hf_scsi_inq_qualifier         = -1;
 	static int hf_scsi_inq_devtype           = -1;
+	...
 	static gint ett_scsi_inq_peripheral = -1;
 	...
 	static const int *peripheal_fields[] = {
@@ -2384,7 +2388,8 @@ Example: (from the scsi dissector)
 	};
 	...
 	/* Qualifier and DeviceType */
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral,
+		ett_scsi_inq_peripheral, peripheal_fields, FALSE);
 	offset+=1;
 	...
         { &hf_scsi_inq_peripheral,
@@ -2403,6 +2408,40 @@ Which provides very pretty dissection of this one byte bitmask.
     Peripheral: 0x05, Qualifier: Device type is connected to logical unit, Device Type: CD-ROM
         000. .... = Qualifier: Device type is connected to logical unit (0x00)
         ...0 0101 = Device Type: CD-ROM (0x05)
+
+The proto_tree_add_bitmask_text() function is an extended version of
+the proto_tree_add_bitmask() function. In addition, it allows to:
+- Provide a leading text (e.g. "Flags: ") that will appear before
+  the comma-separated list of field values
+- Provide a fallback text (e.g. "None") that will be appended if
+  no fields warranted a change to the top-level title.
+- Using flags, specify which fields will affect the top-level title.
+
+There are the following flags defined:
+
+  BMT_NO_APPEND - the title is taken "as-is" from the 'name' argument.
+  BMT_NO_INT - only boolean flags are added to the title.
+  BMT_NO_FALSE - boolean flags are only added to the title if they are set.
+  BMT_NO_TFS - only add flag name to the title, do not use true_false_string
+
+The proto_tree_add_bitmask() behavior can be obtained by providing
+both 'name' and 'fallback' arguments as NULL, and a flags of
+(BMT_NO_FALSE|BMT_NO_TFS).
+
+PROTO_ITEM_SET_GENERATED()
+--------------------------
+PROTO_ITEM_SET_GENERATED is used to mark fields as not being read from the
+captured data directly, but infered from one or more values.
+
+One of the primary uses of this is the presentation of verification of
+checksums. Every IP packet has a checksum line, which can present the result
+of the checksum verification, if enabled in the preferences. The result is
+presented as a subtree, where the result is enclosed in square brackets
+indicating a generated field.
+
+  Header checksum: 0x3d42 [correct]
+    [Good: True]
+    [Bad: False]
 
 PROTO_ITEM_SET_HIDDEN()
 -----------------------
@@ -2469,24 +2508,12 @@ filter is then possible:
 
 	tr.rif_ring eq 0x013
 
-The proto_tree_add_bitmask_text() function is an extended version of
-the proto_tree_add_bitmask() function. In addition, it allows to:
-- Provide a leading text (e.g. "Flags: ") that will appear before
-  the comma-separated list of field values
-- Provide a fallback text (e.g. "None") that will be appended if
-  no fields warranted a change to the top-level title.
-- Using flags, specify which fields will affect the top-level title.
-
-There are the following flags defined:
-
-  BMT_NO_APPEND - the title is taken "as-is" from the 'name' argument.
-  BMT_NO_INT - only boolean flags are added to the title.
-  BMT_NO_FALSE - boolean flags are only added to the title if they are set.
-  BMT_NO_TFS - only add flag name to the title, do not use true_false_string
-
-The proto_tree_add_bitmask() behavior can be obtained by providing
-both 'name' and 'fallback' arguments as NULL, and a flags of
-(BMT_NO_FALSE|BMT_NO_TFS).
+PROTO_ITEM_SET_URL
+------------------
+PROTO_ITEM_SET_URL is used to mark fields as containing a URL. This can only
+be done with fields of type FT_STRING(Z). If these fields are presented they
+are underlined, as could be done in a browser. These fields are sensitive to
+clicks as well, launching the configured browser with this URL as parameter.
 
 1.7 Utility routines.
 
@@ -2803,7 +2830,7 @@ associate data with it using this function.
 The conversation_add_proto_data prototype:
 
 	void conversation_add_proto_data(conversation_t *conv, int proto,
-	    void *proto_data);
+		void *proto_data);
 
 Where:
 	conversation_t *conv = the conversation in question
@@ -3253,7 +3280,7 @@ p_get_proto_data(frame_data *fd, int proto)
 Where:
 	fd         - The fd pointer in the pinfo structure, pinfo->fd
 	proto      - Protocol id returned by the proto_register_protocol call
-		     during initialization
+	             during initialization
 	proto_data - pointer to the dissector data.
 
 
@@ -3264,12 +3291,12 @@ to a configuration dialog.
 
 You must register the module with the preferences routine with -
 
-module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
+       module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
 
 Where: proto_id   - the value returned by "proto_register_protocol()" when
-		    the protocol was registered
-       apply_cb   - Callback routine that is called when preferences are applied
-
+                    the protocol was registered.
+       apply_cb   - Callback routine that is called when preferences are
+                    applied. It may be NULL, which inhibits the callback.
 
 Then you can register the fields that can be configured by the user with these
 routines -
@@ -3632,3 +3659,4 @@ proto_tree*
 ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
+
