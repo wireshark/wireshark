@@ -959,8 +959,8 @@ class EthCtx:
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} }
     name = ident.split('/')[-1]
-    if len(ident.split('/')) > 1 and name == '_item':  # Sequnce/Set of type
-      self.field[ident]['attr']['NAME'] = '"Item"'
+    if len(ident.split('/')) > 1 and name == '_item':  # Sequence/Set of type
+      self.field[ident]['attr']['NAME'] = '"%s"' % ident.split('/')[-2]
       self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
     else:
       self.field[ident]['attr']['NAME'] = '"%s"' % name
