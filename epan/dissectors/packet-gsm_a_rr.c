@@ -2010,7 +2010,7 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	/* BSIC-NCELL 2 (low part) */
 	/* RXLEV-NCELL 3 (high part) */
 	/* Octet 10 */
-	/* RXLEV-NCELL 3 (low part) /*
+	/* RXLEV-NCELL 3 (low part) */
 	/* BCCH-FREQ-NCELL 3 */
 	/* BSICNCELL 3 (high part) */
 	/* BSIC-NCELL 3 (low part) */

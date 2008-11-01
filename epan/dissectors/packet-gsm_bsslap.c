@@ -182,7 +182,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add
 /* 
  * 5.12 Measurement Report IE
  */
-
+#if 0
 static guint8
 de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -194,6 +194,7 @@ de_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
 	return(len);
 }
+#endif
 /*
  * 5.14 Cause IE
  */
