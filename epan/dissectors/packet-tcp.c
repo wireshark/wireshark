@@ -1286,7 +1286,7 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 {
   proto_item * flags_item;
 
-  /* TCP Zeor Window Probe */
+  /* TCP Zero Window Probe */
   if (ta->flags & TCP_A_ZERO_WINDOW_PROBE) {
     flags_item=proto_tree_add_none_format(flags_tree,
 					  hf_tcp_analysis_zero_window_probe,
