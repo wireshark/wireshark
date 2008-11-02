@@ -272,12 +272,10 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
        !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter))
       return FALSE;
 
-    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-
     gtk_widget_size_request(list, &requisition);
 
-    gtk_widget_set_size_request(popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
-    gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+    gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
+    gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
 
     return TRUE;
   }
@@ -309,7 +307,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   ckey = event->string[0];
 
   /* If the pressed key is SHIFT then we have nothing to do with the pressed key. */
-  if( k == GDK_Shift_L || k == GDK_Shift_R )
+  if( k == GDK_Shift_L || k == GDK_Shift_R)
     return FALSE;
 
   /* get the string from filter_te, start from 0 till cursor's position */
@@ -323,7 +321,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       k != GDK_KP_Decimal && k != GDK_period && 
       k != GDK_underscore && k != GDK_minus &&
       k != GDK_space && k != GDK_Return && k != GDK_KP_Enter && 
-      k != GDK_Down && k != GDK_Up &&
+      k != GDK_Page_Down && k != GDK_Down && k != GDK_Page_Up && k != GDK_Up &&
       k != GDK_BackSpace)
   {
     if (popup_win) {
@@ -368,11 +366,12 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
 
       if(name_with_period)
         g_free (name_with_period);
-    }
-    if(prefix_start)
-      g_free(prefix_start);
 
-    return FALSE;
+      if(prefix_start)
+	g_free(prefix_start);
+
+      return FALSE;
+    }
   } else if(k==GDK_BackSpace && !popup_win) {
 
     if(strlen(prefix) > 1) {
@@ -427,17 +426,31 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
        * the treeview handle the up, down actions directly and return the control to the filter text once 
        * the user press Enter or any key except for UP, DOWN arrows. * I wasn't able to find a way to do that. *
        **/
+    case GDK_Page_Down:
     case GDK_Down:
-      if( gtk_tree_selection_get_selected(selection, &model, &iter) ) {
-        if(gtk_tree_model_iter_next(model, &iter)) {
+      if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        if (gtk_tree_model_iter_next(model, &iter)) {
+	  if (k == GDK_Page_Down) {
+	    /* Skip up to 8 entries */
+	    GtkTreeIter last_iter;
+	    gint count = 0;
+	    do {
+	      last_iter = iter;
+	    } while (++count < 8 && gtk_tree_model_iter_next(model, &iter));
+	    iter = last_iter;
+	  }
           gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
           gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
                                        gtk_tree_model_get_path(model, &iter),
                                        NULL, FALSE, 0, 0);
-        }
-      } else {
-      if(gtk_tree_model_get_iter_first(model, &iter))
+        } else {
+	  gtk_tree_selection_unselect_all(selection);
+	}
+      } else if (gtk_tree_model_get_iter_first(model, &iter)) {
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
+				     gtk_tree_model_get_path(model, &iter),
+				     NULL, FALSE, 0, 0);
       }
 
       if(prefix_start)
@@ -446,19 +459,38 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       /* stop event propagation */
       return TRUE;
 
-    case GDK_Up: {
+    case GDK_Page_Up:
+    case GDK_Up:
+    {
       GtkTreePath* path;
+      GtkTreeIter last_iter;
 
-      if(gtk_tree_selection_get_selected(selection, &model, &iter) ) {
-          path = gtk_tree_model_get_path(model, &iter);
+      if (gtk_tree_selection_get_selected(selection, &model, &iter) ) {
+	path = gtk_tree_model_get_path(model, &iter);
 
-        if(gtk_tree_path_prev(path)) {
+	if (gtk_tree_path_prev(path)) {
+	  if (k == GDK_Page_Up) {
+	    /* Skip up to 8 entries */
+	    GtkTreePath *last_path;
+	    gint count = 0;
+	    do {
+	      last_path = path;
+	    } while (++count < 8 && gtk_tree_path_prev(path));
+	    path = last_path;
+	  }
           gtk_tree_selection_select_path(GTK_TREE_SELECTION(selection), path);
           gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), path, NULL, FALSE, 0, 0);
+        } else {
+	  gtk_tree_selection_unselect_iter(selection, &iter);
         }
-      } else {
-      if(gtk_tree_model_get_iter_first(model, &iter))
-        gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
+      } else if (gtk_tree_model_get_iter_first(model, &iter)) {
+	do {
+	  last_iter = iter;
+	} while (gtk_tree_model_iter_next(model, &iter));
+	gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &last_iter);
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
+				     gtk_tree_model_get_path(model, &last_iter),
+				     NULL, FALSE, 0, 0);
       }
 
       if(prefix_start)
@@ -600,13 +632,11 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   GtkWidget *treeview;
   GtkWidget *filter_sc;
   gint x_pos, y_pos;
-  GtkTreeSelection *selection;
   GtkTreeModel *model;
   GtkSortType order;
+  GtkTreeSelection *selection;
   GtkRequisition requisition;
   GtkWidget *w_toplevel;
-  GtkListStore *store;
-  GtkTreeIter iter;
 
   w_toplevel = gtk_widget_get_toplevel(filter_te);
 
@@ -621,6 +651,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 
   /* Create tree view */
   treeview = gtk_tree_view_new();
+  gtk_tree_view_set_hover_selection(GTK_TREE_VIEW(treeview), TRUE);
   init_autocompletion_list(treeview);
   g_object_set_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY, treeview);
 
@@ -630,7 +661,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
     return NULL;
   }
 
-  /* sort treeview */
+  /* Sort treeview */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
   order = GTK_SORT_ASCENDING;
   if(model)
@@ -642,16 +673,10 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   g_signal_connect(filter_te, "focus-out-event", G_CALLBACK(filter_te_focus_out_cb), w_toplevel);
   g_signal_connect(popup_win, "destroy", G_CALLBACK(filter_autocomplete_win_destroy_cb), NULL);
 
-  /* Select first entry */
-  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
-  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-  gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-
   gtk_widget_size_request(treeview, &requisition);
 
-  gtk_widget_set_size_request (popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+  gtk_widget_set_size_request(popup_win, filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
 
   gtk_window_get_position(GTK_WINDOW(w_toplevel), &x_pos, &y_pos); 
   x_pos = x_pos + filter_te->allocation.x;
@@ -661,6 +686,9 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
 
   gtk_widget_show_all (popup_win);
 
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+  gtk_tree_selection_unselect_all(selection);
+
   return popup_win;
 }
 
@@ -668,10 +696,7 @@ static void
 filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
 {
   GtkListStore *store;
-  GtkTreeSelection *selection;
   GtkRequisition requisition;
-  GtkTreeIter iter;
-
   gint prefix_len;
   gboolean protocols_only = FALSE;
 
@@ -699,15 +724,10 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
     return;
   }
 
-  /* Select first entry */
-  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
-  gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-  gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-
   gtk_widget_size_request(list, &requisition);
 
-  gtk_widget_set_size_request (popup_win, (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), (requisition.width<100?125:requisition.width+25), (requisition.height<200? requisition.height+8:200));
+  gtk_widget_set_size_request(popup_win, popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
+  gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width, (requisition.height<200? requisition.height+8:200));
 }
 
 static void 
