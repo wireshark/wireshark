@@ -8464,7 +8464,7 @@
 00:21:01	Aplicacion             # Aplicaciones Electronicas Quasar (AEQ)
 00:21:02	Updatelogi             # UpdateLogic Inc.
 00:21:03	GhiElectro             # GHI Electronics, LLC
-00:21:04	SiemensHom             # Siemens Home and Office Communication Devices GmbH&Co. KG
+00:21:04	GigasetCom             # Gigaset Communications GmbH
 00:21:05	Alcatel-Lu             # Alcatel-Lucent
 00:21:06	RimTesting             # RIM Testing Services
 00:21:07	Seowoninte             # Seowonintech Co Ltd.
@@ -9251,6 +9251,30 @@
 00:24:14	Cisco                  # Cisco Systems
 00:24:15	MagneticAu             # Magnetic Autocontrol GmbH
 00:24:16	AnyUse                 # Any Use
+00:24:17	ThomsonTel             # Thomson Telecom Belgium
+00:24:18	NextwaveSe             # Nextwave Semiconductor
+00:24:19	PatronicsI             # Patronics International LTD
+00:24:1A	RedBeetle              # Red Beetle Inc.
+00:24:1B	IwowCommun             # iWOW Communications Pte Ltd
+00:24:1C	FugangElec             # FuGang Electronic (DG) Co.,Ltd
+00:24:1D	Giga-ByteT             # GIGA-BYTE TECHNOLOGY CO.,LTD.
+00:24:1E	Nintendo               # Nintendo Co., Ltd.
+00:24:1F	Dct-Delta              # DCT-Delta GmbH
+00:24:20	Netup                  # NetUP Inc.
+00:24:21	Micro-Star             # MICRO-STAR INT'L CO., LTD.
+00:24:22	KnappLogis             # Knapp Logistik Automation GmbH
+00:24:23	AzurewaveT             # AzureWave Technologies (Shanghai) Inc.
+00:24:24	AxisNetwor             # Axis Network Technology
+00:24:25	Shenzhensh             # Shenzhenshi chuangzhicheng Technology Co.,Ltd
+00:24:26	NohmiBosai             # NOHMI BOSAI LTD.
+00:24:27	SsiCompute             # SSI COMPUTER CORP
+00:24:28	Energyict
+00:24:29	MkMaster               # MK MASTER INC.
+00:24:2A	HittiteMic             # Hittite Microwave Corporation
+00:24:2B	HonHaiPrec             # Hon Hai Precision Ind.Co.,Ltd.
+00:24:2C	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
+00:24:2D	RonanEngin             # Ronan Engineering
+00:24:2E	Datastrip              # Datastrip Inc.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -9392,7 +9416,7 @@
 00:30:89	Spectrapoi             # Spectrapoint Wireless, LLC
 00:30:8A	NicotraSis             # NICOTRA SISTEMI S.P.A
 00:30:8B	BrixNetwor             # Brix Networks
-00:30:8C	AdvancedDi             # ADVANCED DIGITAL INFORMATION
+00:30:8C	Quantum                # Quantum Corporation
 00:30:8D	Pinnacle               # Pinnacle Systems, Inc.
 00:30:8E	CrossMatch             # CROSS MATCH TECHNOLOGIES, INC.
 00:30:8F	Micrilor               # MICRILOR, Inc.
@@ -12433,6 +12457,16 @@
 00:50:C2:9B:D0:00/36	SensitronS             # Sensitron Semiconductor
 00:50:C2:9B:E0:00/36	XadCommuni             # Xad Communications Ltd
 00:50:C2:9B:F0:00/36	2nTelekomu             # 2N TELEKOMUNIKACE a.s.
+00:50:C2:9C:00:00/36	StuytsEngi             # Stuyts Engineering Haarlem BV
+00:50:C2:9C:10:00/36	TattileSrl             # Tattile srl
+00:50:C2:9C:20:00/36	TeamEngine             # Team Enginers
+00:50:C2:9C:30:00/36	GeSecurity             # GE Security-Kampro
+00:50:C2:9C:40:00/36	VitelNet               # Vitel Net
+00:50:C2:9C:50:00/36	ScansonicM             # Scansonic MI GmbH
+00:50:C2:9C:60:00/36	Protronic              # Protronic GmbH
+00:50:C2:9C:70:00/36	KumeraDriv             # Kumera Drives Oy
+00:50:C2:9C:80:00/36	Ethermetri             # ethermetrics
+00:50:C2:9C:90:00/36	LuminexLig             # LUMINEX Lighting Control Equipment
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
