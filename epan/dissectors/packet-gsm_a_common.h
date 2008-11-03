@@ -871,11 +871,10 @@ typedef enum
 	DE_RR_FREQ_LIST,				/* [3]  10.5.2.13	Frequency List				*/
 	DE_RR_FREQ_SHORT_LIST,			/* [3]  10.5.2.14	Frequency Short List		*/
 	DE_RR_FREQ_SHORT_LIST2,			/* [3]  10.5.2.14a	Frequency Short List 2		*/
-/* [3]  10.5.2.14b	Group Channel Description
- * [3]  10.5.2.14c	GPRS Resumption
- * [3]  10.5.2.14d	GPRS broadcast information
- * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
- */
+/* [3]  10.5.2.14b	Group Channel Description */
+	DE_RR_GPRS_RESUMPTION,			/* [3]  10.5.2.14c	GPRS Resumption */
+	DE_RR_GPRS_BROADCAST_INFORMATION,			/* [3]  10.5.2.14d	GPRS broadcast information */
+/* [3]  10.5.2.14e	Enhanced DTM CS Release Indication*/
 
 	DE_RR_HO_REF,					/* 10.5.2.15  Handover Reference				*/
 
