@@ -51,6 +51,8 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-isup.h"
 #include "packet-sip.h"
 #include <epan/tap.h>
@@ -131,6 +133,7 @@ static gint hf_sip_msg_body              = -1;
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
 static gint ett_sip_hdr 			= -1;
+static gint ett_sip_ext_hdr			= -1;
 static gint ett_raw_text 			= -1;
 static gint ett_sip_element 		= -1;
 static gint ett_sip_uri				= -1;
@@ -547,6 +550,9 @@ static gboolean sip_desegment_headers = TRUE;
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
 static gboolean sip_desegment_body = TRUE;
+
+/* Extension header subdissectors */
+static dissector_table_t ext_hdr_subdissector_table;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
@@ -1703,6 +1709,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		gint parameter_len;
 		gint content_type_len, content_type_parameter_str_len;
 		gint header_len;
+		gchar *header_name;
+		dissector_handle_t ext_hdr_handle;
 		gint hf_index;
 		gint value_offset;
 		gint sub_value_offset;
@@ -1753,29 +1761,35 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			header_len = colon_offset - offset;
 			hf_index = sip_is_known_sip_header(tvb, offset, header_len);
 
+			/*
+			 * Skip whitespace after the colon.
+			 */
+			value_offset = tvb_skip_wsp(tvb, colon_offset + 1, line_end_offset - (colon_offset + 1));
+
+			/*
+			 * Fetch the value.
+			 */
+			value_len = line_end_offset - value_offset;
+			value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
+
 			if (hf_index == -1) {
-				if(hdr_tree) {
-					proto_item *ti = proto_tree_add_text(hdr_tree, tvb,
-					                                     offset, next_offset - offset, "%s",
-					                                     tvb_format_text(tvb, offset, linelen));
+				proto_item *ti = proto_tree_add_text(hdr_tree, tvb,
+				                                     offset, next_offset - offset, "%s",
+				                                     tvb_format_text(tvb, offset, linelen));
+				header_name = (gchar*)tvb_get_ephemeral_string(tvb, offset, header_len);
+				ascii_strdown_inplace(header_name);
+				ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
+				if (ext_hdr_handle != NULL) {
+					tvbuff_t *next_tvb;
+					next_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+					dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb, pinfo, proto_item_add_subtree(ti, ett_sip_ext_hdr));
+ 				} else {
 					expert_add_info_format(pinfo, ti,
 					                       PI_UNDECODED, PI_NOTE,
 					                       "Unrecognised SIP header (%s)",
 					                       tvb_format_text(tvb, offset, header_len));
 				}
 			} else {
-				/*
-				 * Skip whitespace after the colon.
-				 */
-				value_offset = tvb_skip_wsp(tvb, colon_offset + 1, line_end_offset - (colon_offset + 1));
-
-				/*
-				 * Fetch the value.
-				 */
-				value_len = line_end_offset - value_offset;
-				value = tvb_get_ephemeral_string(tvb, value_offset,
-				                       value_len);
-
 				/*
 				 * Add it to the protocol tree,
 				 * but display the line as is.
@@ -3836,6 +3850,7 @@ void proto_register_sip(void)
 		&ett_sip,
 		&ett_sip_reqresp,
 		&ett_sip_hdr,
+		&ett_sip_ext_hdr,
 		&ett_sip_element,
 		&ett_sip_uri,
 		&ett_sip_contact_item,
@@ -3911,6 +3926,9 @@ void proto_register_sip(void)
 	register_heur_dissector_list("sip", &heur_subdissector_list);
 	/* Register for tapping */
 	sip_tap = register_tap("sip");
+
+	ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", FT_STRING, BASE_NONE);
+
 }
 
 void
