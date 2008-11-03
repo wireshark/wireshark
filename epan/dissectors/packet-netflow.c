@@ -3149,56 +3149,10 @@ getprefix(const guint32 * address, int prefix)
 	return (ip_to_str((const guint8 *)&gprefix));
 }
 
-static void
-netflow_delete_callback(guint32 port)
-{
-    if ( port ) {
-	dissector_delete("udp.port", port, netflow_handle);
-    }
-}
-static void
-ipfix_delete_callback(guint32 port)
-{
-    if ( port ) {
-	dissector_delete("udp.port", port, netflow_handle);
-	dissector_delete("tcp.port", port, netflow_handle);
-	dissector_delete("sctp.port", port, netflow_handle);
-    }
-}
-
-static void
-netflow_add_callback(guint32 port)
-{
-    if ( port ) {
-	dissector_add("udp.port", port, netflow_handle);
-    }
-}
-static void
-ipfix_add_callback(guint32 port)
-{
-    if ( port ) {
-	dissector_add("udp.port", port, netflow_handle);
-	dissector_add("tcp.port", port, netflow_handle);
-	dissector_add("sctp.port", port, netflow_handle);
-    }
-}
-
+/* Called whenever a pref is changed, a new capture is loaded, & etc */
 static void
 netflow_reinit(void)
 {
-	/* XXX: registered as an "init" routine and also called whenever a netflow pref  */
-        /*      is changed. The result thus appears to be that netflow_reinit is called  */
-        /*      twice whenever a netflow pref is changed.                                */
-
-	/*
-	 *	netflow_ports : holds the currently used range of ports for netflow
-	 */
-	static range_t *netflow_ports = NULL;
-	/*
-	 *	ipfix_ports : holds the currently used range of ports for IPFIX
-	 */
-	static range_t *ipfix_ports = NULL;
-
 	int i;
 
 	/*
@@ -3213,21 +3167,6 @@ netflow_reinit(void)
 		g_free(v9_template_cache[i].entries);
 	}
 	memset(v9_template_cache, 0, sizeof v9_template_cache);
-
-	if (netflow_ports) {
-	  range_foreach(netflow_ports, netflow_delete_callback);
-	  g_free(netflow_ports);
-	}
-	if (ipfix_ports) {
-	  range_foreach(ipfix_ports, ipfix_delete_callback);
-	  g_free(ipfix_ports);
-	}
-
-	netflow_ports = range_copy(global_netflow_ports);
-	ipfix_ports = range_copy(global_ipfix_ports);
-
-	range_foreach(netflow_ports, netflow_add_callback);
-	range_foreach(ipfix_ports, ipfix_add_callback);
 }
 
 void
@@ -4325,7 +4264,7 @@ proto_register_netflow(void)
 	    proto_reg_handoff_netflow);
 
 	/* Set default Netflow port(s) */
-	range_convert_str(&global_netflow_ports, NETFLOW_UDP_PORTS,
+	range_convert_str(&global_netflow_ports,NETFLOW_UDP_PORTS,
 			  MAX_UDP_PORT);
 	range_convert_str(&global_ipfix_ports, IPFIX_UDP_PORTS,
 			  MAX_UDP_PORT);
@@ -4351,18 +4290,63 @@ proto_register_netflow(void)
 /*
  * protocol/port association
  */
+static void
+netflow_delete_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_delete("udp.port", port, netflow_handle);
+    }
+}
+
+static void
+netflow_add_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_add("udp.port", port, netflow_handle);
+    }
+}
+
+static void
+ipfix_delete_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_delete("udp.port", port, netflow_handle);
+	dissector_delete("tcp.port", port, netflow_handle);
+	dissector_delete("sctp.port", port, netflow_handle);
+    }
+}
+
+static void
+ipfix_add_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_add("udp.port", port, netflow_handle);
+	dissector_add("tcp.port", port, netflow_handle);
+	dissector_add("sctp.port", port, netflow_handle);
+    }
+}
+
 void
 proto_reg_handoff_netflow(void)
 {
 	static gboolean netflow_prefs_initialized = FALSE;
+	static range_t *netflow_ports;
+	static range_t *ipfix_ports;
 
 	if (!netflow_prefs_initialized) {
-		netflow_handle = new_create_dissector_handle(dissect_netflow,
-		    proto_netflow);
-
+		netflow_handle = new_create_dissector_handle(dissect_netflow, proto_netflow);
 		netflow_prefs_initialized = TRUE;
-	}
+	} else {
+		range_foreach(netflow_ports, netflow_delete_callback);
+		g_free(netflow_ports);
+		range_foreach(ipfix_ports, ipfix_delete_callback);
+		g_free(ipfix_ports);
+        }
 
-	netflow_reinit();
+	netflow_ports = range_copy(global_netflow_ports);
+	ipfix_ports = range_copy(global_ipfix_ports);
+
+	range_foreach(netflow_ports, netflow_add_callback);
+	range_foreach(ipfix_ports, ipfix_add_callback);
 }
 
