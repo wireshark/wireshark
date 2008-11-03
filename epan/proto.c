@@ -5942,6 +5942,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian)
 {
+	const char *format = NULL;
 	gint	offset;
 	guint	length;
 	guint8	tot_no_bits;
@@ -5959,10 +5960,12 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
 											  hf_field->abbrev, hf_field->name));
 	}
-	
+
+	DISSECTOR_ASSERT(bit_offset >= 0);
+	DISSECTOR_ASSERT(no_of_bits > 0);
+
 	/* Byte align offset */
 	offset = bit_offset>>3;
-
 
 	/*
 	 * Calculate the number of octets used to hold the bits
@@ -5981,11 +5984,14 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, little_endian);
 	}else if(no_of_bits < 65){
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, little_endian);
-	}else if(no_of_bits>64){
+	}else{
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
 	}
 
+	if(return_value){
+		*return_value=value;
+	}
 
 	mask = 1;
 	mask = mask << (no_of_bits-1);
@@ -5999,6 +6005,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		}
 		strcat(str,".");
 	}
+
 	/* read the bits for the int */
 	for(i=0;i<no_of_bits;i++){
 		if(bit&&(!(bit%4))){
@@ -6016,18 +6023,13 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		}
 		mask = mask>>1;
 	}
+
 	for(;bit%8;bit++){
 		if(bit&&(!(bit%4))){
 			strcat(str, " ");
 		}
 		strcat(str,".");
 	}
-
-	if(return_value){
-		*return_value=value;
-	}
-	if(hf_index == -1)
-		return NULL;
 
 	strcat(str," = ");
 	strcat(str,hf_field->name);
@@ -6036,9 +6038,8 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	case FT_BOOLEAN:
 		/* Boolean field */
 		if (hf_field->strings) {
-			const true_false_string		*tfstring = &tfs_true_false;
-			tfstring = (const struct true_false_string*) hf_field->strings;
-
+			const true_false_string *tfstring =
+				(const true_false_string *) hf_field->strings;
 			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
 				"%s: %s",
 				str,
@@ -6050,6 +6051,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 				(guint32)value);
 		}
 		break;
+
 	case FT_UINT8:
 	case FT_UINT16:
 	case FT_UINT24:
@@ -6057,58 +6059,41 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		/* 1 - 32 bits field */
 		if (hf_field->strings) {
 			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-							  "%s: %s (%u)",
-							  str, (hf_field->display & BASE_RANGE_STRING) ?
-							  
-							  
-							  rval_to_str((guint32)value, hf_field->strings, "Unknown ") :
-							  val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
-							  (guint32)value);
+				"%s: %s (%u)",
+				str,	(hf_field->display & BASE_RANGE_STRING) ?
+					rval_to_str((guint32)value, hf_field->strings, "Unknown ") :
+					val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
+				(guint32)value);
 			break;
 		}
-		switch(hf_field->display){
-			case BASE_DEC:
-				return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				         "%s: %u",
-						  str,
-						  (guint32)value);
-				break;
-			case BASE_HEX:
-				return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-			             "%s: 0x%x",
-						  str,
-						  (guint32)value);
-				break;
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				return NULL;
-				break;
+		/* Pick the proper format string */
+		format = hfinfo_uint_format(hf_field);
+		if (IS_BASE_DUAL(hf_field->display)) {
+			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
+				format, str, (guint32)value, (guint32)value);
+		} else {
+			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
+				format, str, (guint32)value);
 		}
 		break;
+
 	case FT_UINT64:
-		switch(hf_field->display){
-			case BASE_DEC:
-				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-				         "%s: %" G_GINT64_MODIFIER "u",
-						  str, value);
-				break;
-			case BASE_HEX:
-				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-			             "%s: 0x%" G_GINT64_MODIFIER "x",
-						  str, value);
-				break;
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				return NULL;
-				break;
+		/* Pick the proper format string */
+		format = hfinfo_uint64_format(hf_field);
+		if (IS_BASE_DUAL(hf_field->display)) {
+			return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
+				format, str, value, value);
+		} else {
+			return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
+				format, str, value);
 		}
 		break;
+
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
 		break;
 	}
-
 }
 
 guchar
