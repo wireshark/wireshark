@@ -254,21 +254,49 @@ GList *
 get_interface_list_findalldevs_ex(const char *source,
                                   struct pcap_rmtauth *auth,
                                   int *err, char **err_str)
-#else
-GList *
-get_interface_list_findalldevs(int *err, char **err_str)
-#endif
 {
 	GList  *il = NULL;
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
-#ifdef HAVE_PCAP_REMOTE
-    if (pcap_findalldevs_ex((char *)source, auth, &alldevs, errbuf) == -1) {
-#else
-	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
+        if (pcap_findalldevs_ex((char *)source, auth, &alldevs, errbuf) == -1) {
+		*err = CANT_GET_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_if_list_error_message(errbuf);
+		return NULL;
+	}
+
+	if (alldevs == NULL) {
+		/*
+		 * No interfaces found.
+		 */
+		*err = NO_INTERFACES_FOUND;
+		if (err_str != NULL)
+			*err_str = NULL;
+		return NULL;
+	}
+
+	for (dev = alldevs; dev != NULL; dev = dev->next) {
+		if_info = if_info_new(dev->name, dev->description);
+		il = g_list_append(il, if_info);
+		if_info_ip(if_info, dev);
+	}
+	pcap_freealldevs(alldevs);
+
+	return il;
+}
 #endif
+
+GList *
+get_interface_list_findalldevs(int *err, char **err_str)
+{
+	GList  *il = NULL;
+	pcap_if_t *alldevs, *dev;
+	if_info_t *if_info;
+	char errbuf[PCAP_ERRBUF_SIZE];
+
+	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);

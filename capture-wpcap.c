@@ -612,28 +612,13 @@ get_remote_interface_list(const char *hostname, const char *port,
 GList *
 get_interface_list(int *err, char **err_str)
 {
-#ifdef HAVE_PCAP_REMOTE
-	char source[PCAP_BUF_SIZE];
-#else
 	GList  *il = NULL;
 	wchar_t *names;
 	char *win95names;
 	char ascii_name[MAX_WIN_IF_NAME_LEN + 1];
 	char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
 	int i, j;
-#endif
 	char errbuf[PCAP_ERRBUF_SIZE];
-
-#ifdef HAVE_PCAP_REMOTE
-    if (p_pcap_createsrcstr(source, PCAP_SRC_IFLOCAL, NULL, NULL,
-                            NULL, errbuf) == -1) {
-        *err = CANT_GET_INTERFACE_LIST;
-        if (err_str != NULL)
-            *err_str = cant_get_if_list_error_message(errbuf);
-        return NULL;
-    }
-    return get_interface_list_findalldevs_ex(source, NULL, err, err_str);
-#else
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 	if (p_pcap_findalldevs != NULL)
@@ -775,7 +760,6 @@ get_interface_list(int *err, char **err_str)
 	}
 
 	return il;
-#endif  /* HAVE_PCAP_REMOTE */
 }
 
 /*

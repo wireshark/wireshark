@@ -29,9 +29,9 @@
 #ifdef HAVE_PCAP_REMOTE
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#endif /* HAVE_CONFIG_H */
 #include <pcap.h>
-#endif
+#endif /* HAVE_PCAP_REMOTE */
 
 extern if_info_t *if_info_new(char *name, char *description);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
@@ -39,10 +39,9 @@ extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_REMOTE
 extern GList *get_interface_list_findalldevs_ex(const char *source,
         struct pcap_rmtauth *auth, int *err, char **err_str);
-#else
+#endif /* HAVE_PCAP_REMOTE */
 extern GList *get_interface_list_findalldevs(int *err, char **err_str);
-#endif
-#endif
+#endif /* HAVE_PCAP_FINDALLDEVS */
 
 /*
  * Get an error message string for a CANT_GET_INTERFACE_LIST error from

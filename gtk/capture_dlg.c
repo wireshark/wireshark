@@ -288,7 +288,19 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     /*
      * Try to get the list of known interfaces.
      */
+#ifdef HAVE_PCAP_REMOTE
+    if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
+      if_list = get_remote_interface_list(global_capture_opts.remote_host,
+					  global_capture_opts.remote_port,
+					  global_capture_opts.auth_type,
+					  global_capture_opts.auth_username,
+					  global_capture_opts.auth_password,
+					  &err, NULL);
+    else
+      if_list = capture_interface_list(&err, NULL);
+#else
     if_list = capture_interface_list(&err, NULL);
+#endif
     if (if_list != NULL) {
       /*
        * We have the list - check it.
@@ -671,7 +683,7 @@ update_interface_list()
                         global_capture_opts.auth_password,
                         &err, &err_str);
     else
-        if_list = get_interface_list(&err, &err_str);
+        if_list = capture_interface_list(&err, &err_str);
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
@@ -1005,7 +1017,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                     global_capture_opts.auth_password,
                     &err, &err_str);
   else
-      if_list = get_interface_list(&err, &err_str);
+      if_list = capture_interface_list(&err, &err_str);
 #else
   if_list = capture_interface_list(&err, &err_str);
 #endif
