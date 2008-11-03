@@ -5152,23 +5152,19 @@ static guint8
 de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-   gint bit_offset;
-   guint64 t1prime, t2, t3;
+	gint bit_offset;
+	guint64 t1prime, t2, t3;
 
 	curr_offset = offset;
-   bit_offset = curr_offset << 3;
+	bit_offset = curr_offset << 3;
 
-   proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t1prime, tvb, bit_offset, 5, &t1prime, FALSE);
-   bit_offset += 5;
-   proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t3, tvb, bit_offset, 6, &t3, FALSE);
-   bit_offset += 6;
-   proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t2, tvb, bit_offset, 5, &t2, FALSE);
-   bit_offset += 5;
-   /*
-   proto_tree_add_text(tree,tvb, curr_offset, 2, "FN mod 42432: %s",51*((t3-t2)%26)+t3+51*26*t1prime);
-   packet-gsm_a_rr.c:5167: error: format ‘%s’ expects type ‘char *’, but
-	argument 6 has type ‘guint64’
-	*/
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t1prime, tvb, bit_offset, 5, &t1prime, FALSE);
+	bit_offset += 5;
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t3, tvb, bit_offset, 6, &t3, FALSE);
+	bit_offset += 6;
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_t2, tvb, bit_offset, 5, &t2, FALSE);
+	bit_offset += 5;
+	proto_tree_add_text(tree,tvb, curr_offset, 2, "FN mod 42432: %" G_GINT64_MODIFIER "u",51*((t3-t2)%26)+t3+51*26*t1prime);
 	curr_offset = curr_offset + 2;
 	return(curr_offset - offset);
 }
