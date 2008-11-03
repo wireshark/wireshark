@@ -290,12 +290,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
      */
 #ifdef HAVE_PCAP_REMOTE
     if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
-      if_list = get_remote_interface_list(global_capture_opts.remote_host,
-					  global_capture_opts.remote_port,
-					  global_capture_opts.auth_type,
-					  global_capture_opts.auth_username,
-					  global_capture_opts.auth_password,
-					  &err, NULL);
+      /* Not able to get link-layer for remote interfaces */
+      if_list = NULL;
     else
       if_list = capture_interface_list(&err, NULL);
 #else

@@ -1228,7 +1228,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     /* we've opened "iface" as a network device */
 #ifdef _WIN32
     /* try to set the capture buffer size */
-    if (pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
+    if (capture_opts->buffer_size > 1 &&
+	pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
         sync_secondary_msg_str = g_strdup_printf(
           "The capture buffer size of %luMB seems to be too high for your machine,\n"
           "the default of 1MB will be used.\n"

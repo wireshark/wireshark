@@ -401,6 +401,12 @@ sync_pipe_start(capture_options *capture_opts) {
 
 #ifdef _WIN32
     argv = sync_pipe_add_arg(argv, &argc, "-B");
+#ifdef HAVE_PCAP_REMOTE
+    if (capture_opts->src_type == CAPTURE_IFREMOTE)
+      /* No buffer size when using remote interfaces */
+      g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", 1);
+    else
+#endif
     g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
 #endif
