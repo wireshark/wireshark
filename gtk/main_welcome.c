@@ -280,7 +280,7 @@ welcome_header_new(void)
     g_string_append(message, "</span>");
 
     if (prefs.gui_version_in_start_page) {
-        g_string_append_printf(message, "\n<span size=\"large\">Version " VERSION "%s</span>",
+        g_string_append_printf(message, "\n<span size=\"large\" foreground=\"black\">Version " VERSION "%s</span>",
                                wireshark_svnversion);
     }
 
