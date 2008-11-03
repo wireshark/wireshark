@@ -29,7 +29,7 @@
  * - draft-ietf-behave-rfc3489bis-17
  * - draft-ietf-mmusic-ice-19
  * - draft-ietf-behave-nat-behavior-discovery-03
- * - draft-ietf-behave-turn-09
+ * - draft-ietf-behave-turn-10
  * - draft-ietf-behave-turn-ipv6-03
  */
 
@@ -104,9 +104,7 @@ static int stun2_att_change_ip = -1;
 static int stun2_att_change_port = -1;
 static int stun2_att_cache_timeout = -1;
 static int stun2_att_token = -1;
-static int stun2_att_properties_e = -1;
-static int stun2_att_properties_r = -1;
-static int stun2_att_properties_p = -1;
+static int stun2_att_reserve_next = -1;
 static int stun2_att_reserved = -1;
 static int stun2_att_value = -1;
 static int stun2_att_transp = -1;
@@ -137,12 +135,13 @@ typedef struct _stun2_conv_info_t {
 
 /* Methods */
 #define BINDING			0x0001	/*draft-ietf-behave-rfc3489bis-17 */
-#define ALLOCATE		0x0003  /*draft-ietf-behave-turn-09*/
-#define REFRESH			0x0004  /*draft-ietf-behave-turn-09*/
-#define CHANNELBIND		0x0009  /*draft-ietf-behave-turn-09*/
+#define ALLOCATE		0x0003  /*draft-ietf-behave-turn-10*/
+#define REFRESH			0x0004  /*draft-ietf-behave-turn-10*/
+#define CHANNELBIND		0x0009  /*draft-ietf-behave-turn-10*/
+#define CREATE_PERMISSION	0x0008	/* draft-ietf-behave-turn-10 */
 /* Indications */
-#define SEND			0x0006  /*draft-ietf-behave-turn-09*/
-#define DATA_IND		0x0007  /*draft-ietf-behave-turn-09*/
+#define SEND			0x0006  /*draft-ietf-behave-turn-10*/
+#define DATA_IND		0x0007  /*draft-ietf-behave-turn-10*/
 
 
 /* Attribute Types */
@@ -153,25 +152,26 @@ typedef struct _stun2_conv_info_t {
 #define MESSAGE_INTEGRITY	0x0008	/* draft-ietf-behave-rfc3489bis-17 */
 #define ERROR_CODE		0x0009	/* draft-ietf-behave-rfc3489bis-17 */
 #define UNKNOWN_ATTRIBUTES	0x000a	/* draft-ietf-behave-rfc3489bis-17 */
-#define CHANNEL_NUMBER		0x000c	/* draft-ietf-behave-turn-09 */
-#define LIFETIME		0x000d	/* draft-ietf-behave-turn-09 */
+#define CHANNEL_NUMBER		0x000c	/* draft-ietf-behave-turn-10 */
+#define LIFETIME		0x000d	/* draft-ietf-behave-turn-10 */
 #define BANDWIDTH		0x0010 /* turn-07 */
-#define PEER_ADDRESS		0x0012	/* draft-ietf-behave-turn-09 */
-#define DATA			0x0013	/* draft-ietf-behave-turn-09 */
+#define XOR_PEER_ADDRESS	0x0012	/* draft-ietf-behave-turn-10 */
+#define DATA			0x0013	/* draft-ietf-behave-turn-10 */
 #define REALM			0x0014	/* draft-ietf-behave-rfc3489bis-17 */
 #define NONCE			0x0015	/* draft-ietf-behave-rfc3489bis-17 */
-#define RELAYED_ADDRESS	        0x0016	/* draft-ietf-behave-turn-09 */
+#define XOR_RELAYED_ADDRESS	0x0016	/* draft-ietf-behave-turn-10 */
 #define REQUESTED_ADDRESS_TYPE	0x0017	/* draft-ietf-behave-turn-ipv6-03 */
-#define REQUESTED_PROPS	        0x0018	/* draft-ietf-behave-turn-09 */
-#define REQUESTED_TRANSPORT	0x0019	/* draft-ietf-behave-turn-09 */
+#define EVEN_PORT		0x0018	/* draft-ietf-behave-turn-10 */
+#define REQUESTED_TRANSPORT	0x0019	/* draft-ietf-behave-turn-10 */
+#define DONT_FRAGMENT		0x001a	/* draft-ietf-behave-turn-10 */
 #define XOR_MAPPED_ADDRESS	0x0020	/* draft-ietf-behave-rfc3489bis-17 */
-#define RESERVATION_TOKEN	0x0022	/* draft-ietf-behave-turn-09 */
+#define RESERVATION_TOKEN	0x0022	/* draft-ietf-behave-turn-10 */
 #define PRIORITY		0x0024	/* draft-ietf-mmusic-ice-19 */
 #define USE_CANDIDATE		0x0025	/* draft-ietf-mmusic-ice-19 */
 #define PADDING		        0x0026	/* draft-ietf-behave-nat-behavior-discovery-03 */
 #define XOR_RESPONSE_TARGET	0x0027	/* draft-ietf-behave-nat-behavior-discovery-03 */
 #define XOR_REFLECTED_FROM	0x0028	/* draft-ietf-behave-nat-behavior-discovery-03 */
-#define ICMP			0x0030	/* draft-ietf-behave-turn-09 */
+#define ICMP			0x0030	/* Moved from TURN to a future I-D */
 /* Comprehension-optional range (0x8000-0xFFFF) */
 #define SOFTWARE		0x8022	/* draft-ietf-behave-rfc3489bis-17 */
 #define ALTERNATE_SERVER	0x8023	/* draft-ietf-behave-rfc3489bis-17 */
@@ -235,6 +235,7 @@ static const value_string methods[] = {
 	{CHANNELBIND, "Channel-Bind"},
 	{SEND, "Send"},
 	{DATA_IND, "Data"},
+        {CREATE_PERMISSION, "CreatePermission"},
 	{0x00, NULL}
 };
 
@@ -250,14 +251,15 @@ static const value_string attributes[] = {
 	{CHANNEL_NUMBER, "CHANNEL-NUMBER"},
 	{LIFETIME, "LIFETIME"},
 	{BANDWIDTH, "BANDWIDTH"},
-	{PEER_ADDRESS, "PEER-ADDRESS"},
+	{XOR_PEER_ADDRESS, "XOR-PEER-ADDRESS"},
 	{DATA, "DATA"},
 	{REALM, "REALM"},
 	{NONCE, "NONCE"},
-	{RELAYED_ADDRESS, "RELAYED-ADDRESS"},
+	{XOR_RELAYED_ADDRESS, "XOR-RELAYED-ADDRESS"},
 	{REQUESTED_ADDRESS_TYPE, "REQUESTED-ADDRESS-TYPE"},
-	{REQUESTED_PROPS, "REQUESTED-PROPS"},
+	{EVEN_PORT, "EVEN-PORT"},
 	{REQUESTED_TRANSPORT, "REQUESTED-TRANSPORT"},
+        {DONT_FRAGMENT, "DONT-FRAGMENT"},
 	{XOR_MAPPED_ADDRESS, "XOR-MAPPED-ADDRESS"},
 	{RESERVATION_TOKEN, "RESERVATION-TOKEN"},
 	{PRIORITY, "PRIORITY"},
@@ -289,13 +291,7 @@ static const value_string comprehensions[] = {
         {0x00, NULL}
 };
 
-static const value_string attributes_properties_e[] = {
-	{0, "Even or odd port number"},
-	{1, "Even port number"},
-	{0x00, NULL}
-};
-
-static const value_string attributes_properties_r[] = {
+static const value_string attributes_reserve_next[] = {
 	{0, "No reservation"},
 	{1, "Reserve next port number"},
 	{0x00, NULL}
@@ -836,8 +832,8 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case XOR_MAPPED_ADDRESS:
-			case PEER_ADDRESS:
-			case RELAYED_ADDRESS:
+			case XOR_PEER_ADDRESS:
+			case XOR_RELAYED_ADDRESS:
 			case XOR_RESPONSE_TARGET:
 			case XOR_REFLECTED_FROM:
 				if (att_length < 1)
@@ -920,13 +916,10 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				proto_tree_add_uint(att_tree, stun2_att_reserved, tvb, offset+1, 3, 3);
 				break;
-
-			case REQUESTED_PROPS:
-				if (att_length < 4)
-				break;
-				proto_tree_add_item(att_tree, stun2_att_properties_e, tvb, offset, 4, FALSE);
-				proto_tree_add_item(att_tree, stun2_att_properties_r, tvb, offset, 4, FALSE);
-				proto_tree_add_item(att_tree, stun2_att_properties_p, tvb, offset, 4, FALSE);
+case EVEN_PORT:
+  				if (att_length < 1)
+                                  break;
+				proto_tree_add_item(att_tree, stun2_att_reserve_next, tvb, offset, 1, FALSE);
 				break;
 
 			case RESERVATION_TOKEN:
@@ -1295,17 +1288,9 @@ proto_register_stun2(void)
 			{ "Change Port","stun2.att.change-port",	FT_BOOLEAN,
 			16, 	TFS(&set_flag),	0x0002,	"",	HFILL}
 		},		
-		{ &stun2_att_properties_e,
-			{ "Properties","stun2.att.properties.even",	FT_UINT32,
-			BASE_DEC, 	VALS(attributes_properties_e),	0x80000000,	"",	HFILL}
-		},		
-		{ &stun2_att_properties_r,
-			{ "Properties","stun2.att.properties.reserve",	FT_UINT32,
-			BASE_DEC, 	VALS(attributes_properties_r),	0x40000000,	"",	HFILL}
-		},		
-		{ &stun2_att_properties_p,
-			{ "Properties","stun2.att.properties.preserving",	FT_UINT32,
-			BASE_DEC, 	VALS(attributes_properties_p),	0x20000000,	"",	HFILL}
+		{ &stun2_att_reserve_next,
+			{ "Reserve next","stun2.att.even-port.reserve-next",	FT_UINT8,
+			BASE_DEC, 	VALS(attributes_reserve_next),	0x80,	"",	HFILL}
 		},		
 		{ &stun2_att_cache_timeout,
 			{ "Cache timeout",		"stun2.att.cache-timeout",	FT_UINT32,
