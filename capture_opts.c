@@ -157,7 +157,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         "Unknown");
     if (capture_opts->src_type == CAPTURE_IFREMOTE) {
         g_log(log_domain, log_level, "Remote host        : %s", capture_opts->remote_host);
-        g_log(log_domain, log_level, "Remote port        : %u", capture_opts->remote_port);
+        g_log(log_domain, log_level, "Remote port        : %s", capture_opts->remote_port);
     }
     g_log(log_domain, log_level, "Authentication     : %s",
         capture_opts->auth_type == CAPTURE_AUTH_NULL ? "Null" :
