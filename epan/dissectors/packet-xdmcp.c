@@ -77,6 +77,7 @@ static const value_string family_vals[] = {
   { 0, "Internet" },
   { 1, "DECnet" },
   { 2, "Chaos" },
+  { 6, "InternetV6" },
   { 0, NULL }
 };
 
@@ -242,6 +243,11 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "Client address: %s",
 			      ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
 	  offset += 6;
+	} else if (alen == 16) {
+	  proto_tree_add_text(xdmcp_tree, tvb, offset, alen+2,
+			      "Client address: %s",
+			      ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+	  offset += 18;
 	} else {
 	  offset += xdmcp_add_bytes(xdmcp_tree, "Client address", tvb, offset);
 	}
@@ -324,6 +330,8 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  if ((ctype == 0) && (alen == 4)) {
 	    ip_string = ip_to_str(tvb_get_ptr(tvb, caddrs_offset, 4));
+	  } else if ((ctype == 6) && (alen == 16)) {
+	    ip_string = ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, caddrs_offset, 16));
 	  } else {
 	    ip_string = NULL;
 	  }
@@ -339,7 +347,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      "Type: %s",
 			      val_to_str(ctype, family_vals,
 					 "Unknown (0x%04x)"));
-	  if ((ctype == 0) && (alen == 4)) {
+	  if (ip_string) {
 	    proto_tree_add_text(connection_tree, tvb, caddrs_offset-2, alen+2,
 				"Address: %s", ip_string);
 	  } else {
