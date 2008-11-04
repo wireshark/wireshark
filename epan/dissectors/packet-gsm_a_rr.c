@@ -3265,7 +3265,8 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	curr_offset++;
 	proto_tree_add_item(subtree, hf_gsm_a_rr_T2, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
-	proto_tree_add_uint(subtree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
+	item = proto_tree_add_uint(subtree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
+	PROTO_ITEM_SET_GENERATED(item);
 
 	return(curr_offset - offset);
 }
@@ -5492,6 +5493,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	proto_item *item;
 	guint32	curr_offset;
 	guint16	rfn, fn;
 
@@ -5504,7 +5506,8 @@ de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	curr_offset++;
 	proto_tree_add_item(tree, hf_gsm_a_rr_T2, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
-	proto_tree_add_uint(tree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
+	item = proto_tree_add_uint(tree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
+	PROTO_ITEM_SET_GENERATED(item);
 	return(curr_offset - offset);
 }
 /*
