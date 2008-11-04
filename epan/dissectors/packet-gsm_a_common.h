@@ -835,15 +835,11 @@ gm_elem_idx_t;
 typedef enum
 {
 	/* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1	*/
-/*
- * [3]  10.5.2.1a	BA Range
- */
-	DE_RR_CELL_CH_DSC,				/* [3]  10.5.2.1b	Cell Channel Description	*/
-
-/* [3]  10.5.2.1c	BA List Pref
- * [3]  10.5.2.1d	UTRAN Frequency List
- * [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE
- */
+	DE_RR_BA_RANGE,				   /* [3]  10.5.2.1a	BA Range */
+	DE_RR_CELL_CH_DSC,			   /* [3]  10.5.2.1b	Cell Channel Description	*/
+	DE_RR_BA_LIST_PREF,			   /* [3]  10.5.2.1c	BA List Pref */
+	DE_RR_UTRAN_FREQ_LIST,		   /* [3]  10.5.2.1d	UTRAN Frequency List */
+	DE_RR_CELL_SELECT_INDIC,	   /* [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE */
 	DE_RR_CELL_DSC,					/* 10.5.2.2   RR Cell Description				*/
 	DE_RR_CELL_OPT_BCCH,				/* [3]  10.5.2.3	Cell Options (BCCH)		*/
 	DE_RR_CELL_OPT_SACCH,				/* [3]  10.5.2.3a	Cell Options (SACCH)		*/
@@ -855,8 +851,8 @@ typedef enum
 	DE_RR_CH_DSC2,					/* [3]  10.5.2.5a   Channel Description 2 		*/
 	DE_RR_CH_MODE,					/* [3]  10.5.2.6	Channel Mode				*/
 	DE_RR_CH_MODE2,					/* [3]  10.5.2.7	Channel Mode 2				*/
-/* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
- * [3]  10.5.2.7b	(void) */
+	DE_RR_UTRAN_CM,					/* [3]  10.5.2.7a	UTRAN Classmark */
+/* [3]  10.5.2.7b	(void) */
 	DE_RR_CM_ENQ_MASK,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
 /* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element						*/
 	DE_RR_CHNL_NEEDED,				/* [3]  10.5.2.8	Channel Needed
@@ -864,7 +860,7 @@ typedef enum
  * [3]  10.5.2.8b	Channel Request Description 2 */
 	DE_RR_CIP_MODE_SET,				/* [3]  10.5.2.9	Cipher Mode Setting			*/
 	DE_RR_CIP_MODE_RESP,			/* [3]  10.5.2.10	Cipher Response			 */
-	DE_RR_CTRL_CH_DESC,		/* [3]  10.5.2.11	Control Channel Description	*/
+	DE_RR_CTRL_CH_DESC,				/* [3]  10.5.2.11	Control Channel Description	*/
 /* [3]  10.5.2.11a	DTM Information Details */
 	DE_RR_DYN_ARFCN_MAP,			/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
 	DE_RR_FREQ_CH_SEQ,				/* [3]  10.5.2.12	Frequency Channel Sequence	*/
@@ -878,10 +874,10 @@ typedef enum
 
 	DE_RR_HO_REF,					/* 10.5.2.15  Handover Reference				*/
 
-	DE_RR_IA_REST_OCT,					/* [3] 10.5.2.16 IA Rest Octets				*/
-	DE_RR_IAR_REST_OCT,					/* [3] 10.5.2.17 IAR Rest Octets				*/
-	DE_RR_IAX_REST_OCT,					/* [3] 10.5.2.18 IAX Rest Octets				*/
-	DE_RR_L2_PSEUDO_LEN,			/*	[3] 10.5.2.19 L2 Pseudo Length				*/
+	DE_RR_IA_REST_OCT,				/* [3] 10.5.2.16 IA Rest Octets				*/
+	DE_RR_IAR_REST_OCT,				/* [3] 10.5.2.17 IAR Rest Octets				*/
+	DE_RR_IAX_REST_OCT,				/* [3] 10.5.2.18 IAX Rest Octets				*/
+	DE_RR_L2_PSEUDO_LEN,			/* [3] 10.5.2.19 L2 Pseudo Length				*/
 	DE_RR_MEAS_RES,					/* [3] 10.5.2.20 Measurement Results		*/
  /* [3] 10.5.2.20a GPRS Measurement Results */
 	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
@@ -951,9 +947,9 @@ typedef enum
 	DE_RR_SUS_CAU,					/* [3] 10.5.2.47 Suspension Cause				*/
 /* [3] 10.5.2.48 APDU ID
  * [3] 10.5.2.49 APDU Flags
- * [3] 10.5.2.50 APDU Data
- * [3] 10.5.2.51 Handover To UTRAN Command
- * [3] 10.5.2.52 Handover To cdma2000 Command
+ * [3] 10.5.2.50 APDU Data */
+	DE_RR_HO_TO_UTRAN_CMD,			/* [3] 10.5.2.51 Handover To UTRAN Command */
+/* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
