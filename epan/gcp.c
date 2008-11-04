@@ -35,8 +35,6 @@ static emem_tree_t* msgs = NULL;
 static emem_tree_t* trxs = NULL;
 static emem_tree_t* ctxs_by_trx = NULL;
 static emem_tree_t* ctxs = NULL;
-static gboolean gcp_initailized = FALSE;
-
 
 const value_string gcp_cmd_type[] = {
 	{ GCP_CMD_NONE, "NoCommand"},
@@ -73,13 +71,16 @@ const value_string gcp_term_types[] = {
 
 
 void gcp_init(void) {
-  if (gcp_initailized) return;
+  static gboolean gcp_initialized = FALSE;
+
+  if (gcp_initialized)
+    return;
 	  
   msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_msgs");
   trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_trxs");
   ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs_by_trx");
   ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs");
-  gcp_initailized = TRUE;
+  gcp_initialized = TRUE;
 }
 
 gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
