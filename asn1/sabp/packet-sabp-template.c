@@ -56,9 +56,6 @@
 
 #include "packet-sabp-val.h"
 
-static dissector_handle_t sabp_handle = NULL;
-static dissector_handle_t sabp_tcp_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
 
@@ -200,8 +197,6 @@ void proto_register_sabp(void) {
   /* Register dissector */
   register_dissector("sabp", dissect_sabp, proto_sabp);
   register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
-  sabp_handle = find_dissector("sabp");
-  sabp_tcp_handle = find_dissector("sabp.tcp");
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -217,14 +212,16 @@ void proto_register_sabp(void) {
 void
 proto_reg_handoff_sabp(void)
 {
+  dissector_handle_t sabp_handle;
+  dissector_handle_t sabp_tcp_handle;
 
+  sabp_handle = find_dissector("sabp");
+  sabp_tcp_handle = find_dissector("sabp.tcp");
+  dissector_add("udp.port", 3452, sabp_handle);
+  dissector_add("tcp.port", 3452, sabp_tcp_handle);
 
 #include "packet-sabp-dis-tab.c"
 
-  sabp_handle = find_dissector("sabp");
-  dissector_add("tcp.port", 3452, sabp_tcp_handle);
-  dissector_add("udp.port", 3452, sabp_handle);
-  dissector_add_handle("tcp.port", sabp_tcp_handle);
 }
 
 

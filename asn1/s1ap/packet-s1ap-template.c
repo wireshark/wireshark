@@ -62,8 +62,6 @@
 
 #include "packet-s1ap-val.h"
 
-static dissector_handle_t s1ap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
 
@@ -159,11 +157,14 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_s1ap(void)
 {
-	static int Initialized=FALSE;
-	static int SctpPort=0;
+	static gboolean Initialized=FALSE;
+	static dissector_handle_t s1ap_handle;
+	static guint SctpPort;
 
 	if (!Initialized) {
+		s1ap_handle = find_dissector("s1ap");
 		Initialized=TRUE;
+#include "packet-s1ap-dis-tab.c"
 	} else {
 		dissector_delete("sctp.port", SctpPort, s1ap_handle);
 	}
@@ -171,7 +172,6 @@ proto_reg_handoff_s1ap(void)
 	SctpPort=gbl_s1apSctpPort;
 	dissector_add("sctp.port", SctpPort, s1ap_handle);
 
-#include "packet-s1ap-dis-tab.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -200,7 +200,6 @@ void proto_register_s1ap(void) {
  
   /* Register dissector */
   register_dissector("s1ap", dissect_s1ap, proto_s1ap);
-  s1ap_handle = find_dissector("s1ap");
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -211,15 +210,14 @@ void proto_register_s1ap(void) {
   s1ap_proc_sout_dissector_table = register_dissector_table("s1ap.proc.sout", "S1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
   
-	/* Register configuration options for ports */
-	s1ap_module = prefs_register_protocol(proto_s1ap,
-											  proto_reg_handoff_s1ap);
+  /* Register configuration options for ports */
+  s1ap_module = prefs_register_protocol(proto_s1ap, proto_reg_handoff_s1ap);
 
-	prefs_register_uint_preference(s1ap_module, "sctp.port",
-								   "S1AP SCTP Port",
-								   "Set the SCTP port for S1AP messages",
-								   10,
-								   &gbl_s1apSctpPort);
+  prefs_register_uint_preference(s1ap_module, "sctp.port",
+                                 "S1AP SCTP Port",
+                                 "Set the SCTP port for S1AP messages",
+                                 10,
+                                 &gbl_s1apSctpPort);
 
 }
 

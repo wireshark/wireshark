@@ -60,8 +60,6 @@
 
 #include "packet-ranap-val.h"
 
-static dissector_handle_t ranap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 
@@ -237,7 +235,6 @@ void proto_register_ranap(void) {
 
   /* Register dissector */
   register_dissector("ranap", dissect_ranap, proto_ranap);
-  ranap_handle = find_dissector("ranap");
 
   /* Register dissector tables */
   ranap_ies_dissector_table = register_dissector_table("ranap.ies", "RANAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -262,11 +259,14 @@ void proto_register_ranap(void) {
 void
 proto_reg_handoff_ranap(void)
 {
-	static int initialized = FALSE;
+	static gboolean initialized = FALSE;
+	static dissector_handle_t ranap_handle;
 	static gint local_ranap_sccp_ssn;
 
 	if (!initialized) {
+		ranap_handle = find_dissector("ranap");
 		initialized = TRUE;
+#include "packet-ranap-dis-tab.c"
 	} else {
 		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
@@ -274,7 +274,6 @@ proto_reg_handoff_ranap(void)
 	dissector_add("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
 	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
 
-#include "packet-ranap-dis-tab.c"
 }
 
 
