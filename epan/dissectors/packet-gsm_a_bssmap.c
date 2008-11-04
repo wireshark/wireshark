@@ -2091,7 +2091,6 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 {
 	guint8	oct;
 	guint32	curr_offset;
-	const gchar *str = NULL;
 
 	curr_offset = offset;
 
@@ -3262,15 +3261,15 @@ static const true_false_string bssmap_fi_vals = {
    "AoIP with Compressed speech via RTP/UDP/IP is not supported by the BSS/Not Preferred by the MSC"
 };
 static const true_false_string bssmap_tf_vals = {
-	"TFO supported by the BSS or TFO support is preferred by the MSC for this Codec Type"
+	"TFO supported by the BSS or TFO support is preferred by the MSC for this Codec Type",
 	"TFO is not supported by the BSS or TFO support is not preferred by the MSC for this Codec Type"
 };
 static const true_false_string bssmap_pi_vals = {
-	"Transport of PCM over A-Interface via RTP/UDP/IP is supported by the BSS or preferred by the MSC for this Codec Type"
+	"Transport of PCM over A-Interface via RTP/UDP/IP is supported by the BSS or preferred by the MSC for this Codec Type",
 	"PCM over A interface with IP as transport is not supported by the BSS or not preferred by the MSC for this Codec Type"
 };
 static const true_false_string bssmap_pt_vals = {
-	"Transport of PCM over A-Interface via TDM is supported by the BSS or preferred by the MSC"
+	"Transport of PCM over A-Interface via TDM is supported by the BSS or preferred by the MSC",
 	"PCM over A-Interface with TDM as transport is not supported by the BSS or not preferred by the MSC for this Codec Type"
 };
 static const value_string bssap_speech_codec_values[] = {
@@ -3376,7 +3375,6 @@ static guint8
 be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint32	consumed=0;
 	curr_offset = offset;
 
 	if (len==0){
