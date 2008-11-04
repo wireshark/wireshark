@@ -1950,7 +1950,6 @@ static dissector_handle_t	map_handle;
 /* Preferenc settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -15506,7 +15505,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 724 "packet-gsmmap-template.c"
+#line 723 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -15719,7 +15718,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 735 "packet-gsmmap-template.c"
+#line 734 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -15925,7 +15924,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 739 "packet-gsmmap-template.c"
+#line 738 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -17243,102 +17242,103 @@ static void range_add_callback(guint32 ssn)
 
 void proto_reg_handoff_gsm_map(void) {
 
-    static int map_prefs_initialized = FALSE;
-    data_handle = find_dissector("data");
-    ranap_handle = find_dissector("ranap");
-	dtap_handle = find_dissector("gsm_a_dtap");
+    static gboolean map_prefs_initialized = FALSE;
+    static range_t *ssn_range;
 
     if (!map_prefs_initialized) {
 	map_prefs_initialized = TRUE;
-	map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");  
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.2.3", map_handle, proto_gsm_map,"locationCancellationContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.2.2", map_handle, proto_gsm_map,"locationCancellationContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.2.1", map_handle, proto_gsm_map,"locationCancellationContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.3.3", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.3.2", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.3.1", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.4.3", map_handle, proto_gsm_map,"istAlertingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.5.3", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.5.2", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.5.1", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.6.4", map_handle, proto_gsm_map,"callControlTransferContext-v4" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.6.3", map_handle, proto_gsm_map,"callControlTransferContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_handle, proto_gsm_map,"reportingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_handle, proto_gsm_map,"callCompletionContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_handle, proto_gsm_map,"serviceTerminationContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_handle, proto_gsm_map,"resetContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_handle, proto_gsm_map,"resetContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_handle, proto_gsm_map,"handoverControlContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.11.2", map_handle, proto_gsm_map,"handoverControlContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.11.1", map_handle, proto_gsm_map,"handoverControlContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.12.3", map_handle, proto_gsm_map,"sIWFSAllocationContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.13.3", map_handle, proto_gsm_map,"equipmentMngtContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.13.2", map_handle, proto_gsm_map,"equipmentMngtContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.13.1", map_handle, proto_gsm_map,"equipmentMngtContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.14.3", map_handle, proto_gsm_map,"infoRetrievalContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.14.2", map_handle, proto_gsm_map,"infoRetrievalContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.14.1", map_handle, proto_gsm_map,"infoRetrievalContext-v1" );
-  /* fallback to infoRetrieval(14) version1(1) and not interVlrInfoRetrieval(15) version1(1) */
-  /*register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_handle, proto_gsm_map,"map-ac interVlrInfoRetrieval(15) version1(1)" );*/
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.2", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.3", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.16.3", map_handle, proto_gsm_map,"subscriberDataMngtContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.16.2", map_handle, proto_gsm_map,"subscriberDataMngtContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.16.1", map_handle, proto_gsm_map,"subscriberDataMngtContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.17.3", map_handle, proto_gsm_map,"tracingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.17.2", map_handle, proto_gsm_map,"tracingContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.17.1", map_handle, proto_gsm_map,"tracingContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.18.2", map_handle, proto_gsm_map,"networkFunctionalSsContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.18.1", map_handle, proto_gsm_map,"networkFunctionalSsContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.19.2", map_handle, proto_gsm_map,"networkUnstructuredSsContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.20.3", map_handle, proto_gsm_map,"shortMsgGatewayContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.20.2", map_handle, proto_gsm_map,"shortMsgGatewayContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.20.1", map_handle, proto_gsm_map,"shortMsgGatewayContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.21.3", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.21.2", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.21.1", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.22.3", map_handle, proto_gsm_map,"subscriberDataModificationNotificationContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.23.2", map_handle, proto_gsm_map,"shortMsgAlertContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.23.1", map_handle, proto_gsm_map,"shortMsgAlertContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.24.3", map_handle, proto_gsm_map,"mwdMngtContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.24.2", map_handle, proto_gsm_map,"mwdMngtContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.24.1", map_handle, proto_gsm_map,"mwdMngtContext-v1" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.25.3", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.25.2", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.26.2", map_handle, proto_gsm_map,"imsiRetrievalContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.27.2", map_handle, proto_gsm_map,"msPurgingContext-v2" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.27.3", map_handle, proto_gsm_map,"msPurgingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.28.3", map_handle, proto_gsm_map,"subscriberInfoEnquiryContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.29.3", map_handle, proto_gsm_map,"anyTimeInfoEnquiryContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.31.3", map_handle, proto_gsm_map,"groupCallControlContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.32.3", map_handle, proto_gsm_map,"gprsLocationUpdateContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.33.4", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v4" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.33.3", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.34.3", map_handle, proto_gsm_map,"failureReportContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.35.3", map_handle, proto_gsm_map,"gprsNotifyContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.36.3", map_handle, proto_gsm_map,"ss-InvocationNotificationContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.37.3", map_handle, proto_gsm_map,"locationSvcGatewayContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.38.3", map_handle, proto_gsm_map,"locationSvcEnquiryContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.39.3", map_handle, proto_gsm_map,"authenticationFailureReportContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.40.3", map_handle, proto_gsm_map,"secureTransportHandlingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.41.3", map_handle, proto_gsm_map,"shortMsgMT-Relay-VGCS-Context-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.42.3", map_handle, proto_gsm_map,"mm-EventReportingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.43.3", map_handle, proto_gsm_map,"anyTimeInfoHandlingContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.44.3", map_handle, proto_gsm_map,"resourceManagementContext-v3" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.45.3", map_handle, proto_gsm_map,"groupCallInfoRetrievalContext-v3" );
-  /* Private extension container */
-  register_ber_oid_dissector("1.3.12.2.1006.53.2.1.3", dissect_gsm_mapext_PlmnContainer, proto_gsm_map,"alcatel-E10-MAP-extension-PlmnContainer" );
+        data_handle = find_dissector("data");
+        ranap_handle = find_dissector("ranap");
+        dtap_handle = find_dissector("gsm_a_dtap");
+
+        map_handle = find_dissector("gsm_map");
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");  
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.2.3", map_handle, proto_gsm_map,"locationCancellationContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.2.2", map_handle, proto_gsm_map,"locationCancellationContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.2.1", map_handle, proto_gsm_map,"locationCancellationContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.3.3", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.3.2", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.3.1", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.4.3", map_handle, proto_gsm_map,"istAlertingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.5.3", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.5.2", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.5.1", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.6.4", map_handle, proto_gsm_map,"callControlTransferContext-v4" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.6.3", map_handle, proto_gsm_map,"callControlTransferContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_handle, proto_gsm_map,"reportingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_handle, proto_gsm_map,"callCompletionContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_handle, proto_gsm_map,"serviceTerminationContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_handle, proto_gsm_map,"resetContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_handle, proto_gsm_map,"resetContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_handle, proto_gsm_map,"handoverControlContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.11.2", map_handle, proto_gsm_map,"handoverControlContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.11.1", map_handle, proto_gsm_map,"handoverControlContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.12.3", map_handle, proto_gsm_map,"sIWFSAllocationContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.13.3", map_handle, proto_gsm_map,"equipmentMngtContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.13.2", map_handle, proto_gsm_map,"equipmentMngtContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.13.1", map_handle, proto_gsm_map,"equipmentMngtContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.14.3", map_handle, proto_gsm_map,"infoRetrievalContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.14.2", map_handle, proto_gsm_map,"infoRetrievalContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.14.1", map_handle, proto_gsm_map,"infoRetrievalContext-v1" );
+        /* fallback to infoRetrieval(14) version1(1) and not interVlrInfoRetrieval(15) version1(1) */
+        /*register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_handle, proto_gsm_map,"map-ac interVlrInfoRetrieval(15) version1(1)" );*/
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.15.2", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.15.3", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.16.3", map_handle, proto_gsm_map,"subscriberDataMngtContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.16.2", map_handle, proto_gsm_map,"subscriberDataMngtContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.16.1", map_handle, proto_gsm_map,"subscriberDataMngtContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.17.3", map_handle, proto_gsm_map,"tracingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.17.2", map_handle, proto_gsm_map,"tracingContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.17.1", map_handle, proto_gsm_map,"tracingContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.18.2", map_handle, proto_gsm_map,"networkFunctionalSsContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.18.1", map_handle, proto_gsm_map,"networkFunctionalSsContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.19.2", map_handle, proto_gsm_map,"networkUnstructuredSsContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.20.3", map_handle, proto_gsm_map,"shortMsgGatewayContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.20.2", map_handle, proto_gsm_map,"shortMsgGatewayContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.20.1", map_handle, proto_gsm_map,"shortMsgGatewayContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.21.3", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.21.2", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.21.1", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.22.3", map_handle, proto_gsm_map,"subscriberDataModificationNotificationContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.23.2", map_handle, proto_gsm_map,"shortMsgAlertContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.23.1", map_handle, proto_gsm_map,"shortMsgAlertContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.24.3", map_handle, proto_gsm_map,"mwdMngtContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.24.2", map_handle, proto_gsm_map,"mwdMngtContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.24.1", map_handle, proto_gsm_map,"mwdMngtContext-v1" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.25.3", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.25.2", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.26.2", map_handle, proto_gsm_map,"imsiRetrievalContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.27.2", map_handle, proto_gsm_map,"msPurgingContext-v2" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.27.3", map_handle, proto_gsm_map,"msPurgingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.28.3", map_handle, proto_gsm_map,"subscriberInfoEnquiryContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.29.3", map_handle, proto_gsm_map,"anyTimeInfoEnquiryContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.31.3", map_handle, proto_gsm_map,"groupCallControlContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.32.3", map_handle, proto_gsm_map,"gprsLocationUpdateContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.33.4", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v4" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.33.3", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.34.3", map_handle, proto_gsm_map,"failureReportContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.35.3", map_handle, proto_gsm_map,"gprsNotifyContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.36.3", map_handle, proto_gsm_map,"ss-InvocationNotificationContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.37.3", map_handle, proto_gsm_map,"locationSvcGatewayContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.38.3", map_handle, proto_gsm_map,"locationSvcEnquiryContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.39.3", map_handle, proto_gsm_map,"authenticationFailureReportContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.40.3", map_handle, proto_gsm_map,"secureTransportHandlingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.41.3", map_handle, proto_gsm_map,"shortMsgMT-Relay-VGCS-Context-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.42.3", map_handle, proto_gsm_map,"mm-EventReportingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.43.3", map_handle, proto_gsm_map,"anyTimeInfoHandlingContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.44.3", map_handle, proto_gsm_map,"resourceManagementContext-v3" );
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.45.3", map_handle, proto_gsm_map,"groupCallInfoRetrievalContext-v3" );
+        /* Private extension container */
+        register_ber_oid_dissector("1.3.12.2.1006.53.2.1.3", dissect_gsm_mapext_PlmnContainer, proto_gsm_map,"alcatel-E10-MAP-extension-PlmnContainer" );
     }
     else {
 	range_foreach(ssn_range, range_delete_callback);
+        g_free(ssn_range);
     }
 
-    g_free(ssn_range);
     ssn_range = range_copy(global_ssn_range);
-
     range_foreach(ssn_range, range_add_callback);
 
 }
@@ -17349,255 +17349,255 @@ void proto_register_gsm_map(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_gsm_map_old_Component_PDU,
-      { "Component", "gsm_map.old.Component",
-        FT_UINT32, BASE_DEC, VALS(gsm_old_Component_vals), 0,
-        "gsm_map.old.Component", HFILL }},
-    { &hf_gsm_map_getPassword,
-      { "getPassword", "gsm_map.getPassword",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "getPassword", HFILL }},
-    { &hf_gsm_map_currentPassword,
-      { "currentPassword", "gsm_map.currentPassword",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_gsm_map_extension,
-      { "Extension", "gsm_map.extension",
-        FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
-        "Extension", HFILL }},
-    { &hf_gsm_map_nature_of_number,
-      { "Nature of number", "gsm_map.nature_of_number",
-        FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
-        "Nature of number", HFILL }},
-    { &hf_gsm_map_number_plan,
-      { "Number plan", "gsm_map.number_plan",
-        FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
-        "Number plan", HFILL }},
-	{ &hf_gsm_map_isdn_address_digits,
-      { "ISDN Address digits", "gsm_map.isdn.address.digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "ISDN Address digits", HFILL }},
-	{ &hf_gsm_map_address_digits,
-      { "Address digits", "gsm_map.address.digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Address digits", HFILL }},
-	{ &hf_gsm_map_servicecentreaddress_digits,
-      { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "ServiceCentreAddress digits", HFILL }},
-	{ &hf_gsm_map_imsi_digits,
-      { "IMSI digits", "gsm_map.imsi_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "IMSI digits", HFILL }},
-	{ &hf_gsm_map_TBCD_digits,
-      { "TBCD digits", "gsm_map.imsi_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "TBCD digits", HFILL }},
-	{ &hf_gsm_map_Ss_Status_unused,
-      { "Unused", "gsm_map.unused",
-        FT_UINT8, BASE_HEX, NULL, 0xf0,
-        "Unused", HFILL }},
-	{ &hf_gsm_map_Ss_Status_q_bit,
-      { "Q bit", "gsm_map.ss_status_q_bit",
-        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_q_bit_values), 0x08,
-        "Q bit", HFILL }},
-	{ &hf_gsm_map_Ss_Status_p_bit,
-      { "P bit", "gsm_map.ss_status_p_bit",
-        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
-        "P bit", HFILL }},
-	{ &hf_gsm_map_Ss_Status_r_bit,
-      { "R bit", "gsm_map.ss_status_r_bit",
-        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
-        "R bit", HFILL }},
-	{ &hf_gsm_map_Ss_Status_a_bit,
-      { "A bit", "gsm_map.ss_status_a_bit",
-        FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
-        "A bit", HFILL }},
-	{ &hf_gsm_map_notification_to_forwarding_party,
-      { "Notification to forwarding party", "gsm_map.notification_to_forwarding_party",
-        FT_BOOLEAN, 8, TFS(&notification_value), 0x80,
-        "Notification to forwarding party", HFILL }},
-	{ &hf_gsm_map_redirecting_presentation,
-      { "Redirecting presentation", "gsm_map.redirecting_presentation",
-        FT_BOOLEAN, 8, TFS(&redirecting_presentation_value), 0x40,
-        "Redirecting presentation", HFILL }},
-	{ &hf_gsm_map_notification_to_calling_party,
-      { "Notification to calling party", "gsm_map.notification_to_clling_party",
-        FT_BOOLEAN, 8, TFS(&notification_value), 0x20,
-        "Notification to calling party", HFILL }},
-    { &hf_gsm_map_forwarding_reason,
-      { "Forwarding reason", "gsm_map.forwarding_reason",
-        FT_UINT8, BASE_HEX, VALS(forwarding_reason_values), 0x0c,
-        "forwarding reason", HFILL }},
-    { &hf_gsm_map_pdp_type_org,
-      { "PDP Type Organization", "gsm_map.pdp_type_org",
-        FT_UINT8, BASE_HEX, VALS(pdp_type_org_values), 0x0f,
-        "PDP Type Organization", HFILL }},
-    { &hf_gsm_map_etsi_pdp_type_number,
-      { "PDP Type Number", "gsm_map.pdp_type_org",
-        FT_UINT8, BASE_HEX, VALS(etsi_pdp_type_number_values), 0,
-        "ETSI PDP Type Number", HFILL }},
-    { &hf_gsm_map_ietf_pdp_type_number,
-      { "PDP Type Number", "gsm_map.ietf_pdp_type_number",
-        FT_UINT8, BASE_HEX, VALS(ietf_pdp_type_number_values), 0,
-        "IETF PDP Type Number", HFILL }},
-    { &hf_gsm_map_ext_qos_subscribed_pri,
-      { "Allocation/Retention priority", "gsm_map.ext_qos_subscribed_pri",
-        FT_UINT8, BASE_DEC, NULL, 0xff,
-        "Allocation/Retention priority", HFILL }},
-    { &hf_gsm_map_qos_traffic_cls,
-      { "Traffic class", "gsm_map.qos.traffic_cls",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
-        "Traffic class", HFILL }},
-    { &hf_gsm_map_qos_del_order,
-      { "Delivery order", "gsm_map.qos.del_order",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
-        "Delivery order", HFILL }},
-    { &hf_gsm_map_qos_del_of_err_sdu,
-      { "Delivery of erroneous SDUs", "gsm_map.qos.del_of_err_sdu",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
-        "Delivery of erroneous SDUs", HFILL }},
-    { &hf_gsm_map_qos_ber,
-      { "Residual Bit Error Rate (BER)", "gsm_map.qos.ber",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
-        "Residual Bit Error Rate (BER)", HFILL }},
-    { &hf_gsm_map_qos_sdu_err_rat,
-      { "SDU error ratio", "gsm_map.qos.sdu_err_rat",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
-        "SDU error ratio", HFILL }},
-    { &hf_gsm_map_qos_traff_hdl_pri,
-      { "Traffic handling priority", "gsm_map.qos.traff_hdl_pri",
-        FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
-        "Traffic handling priority", HFILL }},
-
-    { &hf_gsm_map_qos_max_sdu,
-      { "Maximum SDU size", "gsm_map.qos.max_sdu",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Maximum SDU size", HFILL }},		
-    { &hf_gsm_map_max_brate_ulink,
-      { "Maximum bit rate for uplink in kbit/s", "gsm_map.qos.max_brate_ulink",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Maximum bit rate for uplink", HFILL }},
-    { &hf_gsm_map_max_brate_dlink,
-      { "Maximum bit rate for downlink in kbit/s", "gsm_map.qos.max_brate_dlink",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Maximum bit rate for downlink", HFILL }},
-    { &hf_gsm_map_qos_transfer_delay,
-      { "Transfer delay (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.transfer_delay",
-        FT_UINT8, BASE_DEC, NULL, 0xfc,
-        "Transfer delay", HFILL }},
-    { &hf_gsm_map_guaranteed_max_brate_ulink,
-      { "Guaranteed bit rate for uplink in kbit/s", "gsm_map.qos.brate_ulink",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Guaranteed bit rate for uplink", HFILL }},
-    { &hf_gsm_map_guaranteed_max_brate_dlink,
-      { "Guaranteed bit rate for downlink in kbit/s", "gsm_map.qos.brate_dlink",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Guaranteed bit rate for downlink", HFILL }},
-   { &hf_gsm_map_GSNAddress_IPv4,
-      { "GSN-Address IPv4",  "gsm_map.gsnaddress_ipv4",
-	  FT_IPv4, BASE_NONE, NULL, 0,
-	  "IPAddress IPv4", HFILL }},
-   { &hf_gsm_map_GSNAddress_IPv6,
-      { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
-	  FT_IPv4, BASE_NONE, NULL, 0,
-	  "IPAddress IPv6", HFILL }},
-    { &hf_gsm_map_ranap_service_Handover,
-      { "service-Handover", "gsm_map.ranap.service_Handover",
-        FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
-        "gsm_map.ranap.Service_Handover", HFILL }},
-    { &hf_gsm_map_IntegrityProtectionInformation,
-      { "IntegrityProtectionInformation", "gsm_map.ranap.IntegrityProtectionInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.ranap.IntegrityProtectionInformation", HFILL }},
-    { &hf_gsm_map_EncryptionInformation,
-      { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.ranap.EncryptionInformation", HFILL }},
-    { &hf_gsm_map_PlmnContainer_PDU,
-      { "PlmnContainer", "gsm_map.PlmnContainer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.PlmnContainer", HFILL }},
-    { &hf_gsm_map_ss_SS_UserData,
-      { "SS-UserData", "gsm_ss.SS_UserData",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "gsm_map.ss.SS_UserData", HFILL }},
-	{ &hf_gsm_map_cbs_coding_grp,
-		{ "Coding Group","gsm_map.cbs.coding_grp",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,          
-		"Coding Group", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp0_lang,
-		{ "Language","gsm_map.cbs.coding_grp0_lang",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,          
-		"Language", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp1_lang,
-		{ "Language","gsm_map.cbs.coding_grp1_lang",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,          
-		"Language", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp2_lang,
-		{ "Language","gsm_map.cbs.coding_grp2_lang",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,          
-		"Language", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp3_lang,
-		{ "Language","gsm_map.cbs.coding_grp3_lang",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,          
-		"Language", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp4_7_comp,
-		{ "Compressed indicator","gsm_map.cbs.coding_grp4_7_comp",
-		FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_comp_vals), 0x20,          
-		"Compressed indicator", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp4_7_class_ind,
-		{ "Message Class present","gsm_map.cbs.coding_grp4_7_class_ind",
-		FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_class_ind_vals), 0x10,          
-		"Message Class present", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp4_7_char_set,
-		{ "Character set being used","gsm_map.cbs.coding_grp4_7_char_set",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_char_set_vals), 0x0c,          
-		"Character set being used", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp4_7_class,
-		{ "Message Class","gsm_map.cbs.coding_grp4_7_class",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_class_vals), 0x03,          
-		"Message Class", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp15_mess_code,
-		{ "Message coding","gsm_map.cbs.cbs_coding_grp15_mess_code",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_mess_code_vals), 0x04,          
-		"Message coding", HFILL }
-	},
-	{ &hf_gsm_map_cbs_coding_grp15_class,
-		{ "Message Class","gsm_map.cbs.gsm_map_cbs_coding_grp15_class",
-		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,          
-		"Message Class", HFILL }
-	},
-    { &hf_gsm_map_tmsi,
-      { "tmsi", "gsm_map.tmsi",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.TMSI", HFILL }},
-
-    { &hf_gsm_map_ie_tag,
-      { "Tag", "gsm_map.ie_tag",
-        FT_UINT8, BASE_DEC, VALS(gsm_map_tag_vals), 0,
-        "GSM 04.08 tag", HFILL }},
-	{ &hf_gsm_map_len,
-      { "Length", "gsm_map.length",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "Length", HFILL }},
-	{ &hf_gsm_map_disc_par,
-      { "Discrimination parameter", "gsm_map.disc_par",
-        FT_UINT8, BASE_DEC, VALS(gsm_map_disc_par_vals), 0,
-        "Discrimination parameter", HFILL }},
-	{ &hf_gsm_map_dlci,
-      { "DLCI", "gsm_map.disc_par",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "Data Link Connection Indicator", HFILL }},
+      { &hf_gsm_map_old_Component_PDU,
+        { "Component", "gsm_map.old.Component",
+          FT_UINT32, BASE_DEC, VALS(gsm_old_Component_vals), 0,
+          "gsm_map.old.Component", HFILL }},
+      { &hf_gsm_map_getPassword,
+        { "getPassword", "gsm_map.getPassword",
+          FT_BYTES, BASE_HEX, NULL, 0,
+          "getPassword", HFILL }},
+      { &hf_gsm_map_currentPassword,
+        { "currentPassword", "gsm_map.currentPassword",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "", HFILL }},
+      { &hf_gsm_map_extension,
+        { "Extension", "gsm_map.extension",
+          FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,
+          "Extension", HFILL }},
+      { &hf_gsm_map_nature_of_number,
+        { "Nature of number", "gsm_map.nature_of_number",
+          FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
+          "Nature of number", HFILL }},
+      { &hf_gsm_map_number_plan,
+        { "Number plan", "gsm_map.number_plan",
+          FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
+          "Number plan", HFILL }},
+      { &hf_gsm_map_isdn_address_digits,
+        { "ISDN Address digits", "gsm_map.isdn.address.digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ISDN Address digits", HFILL }},
+      { &hf_gsm_map_address_digits,
+        { "Address digits", "gsm_map.address.digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "Address digits", HFILL }},
+      { &hf_gsm_map_servicecentreaddress_digits,
+        { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ServiceCentreAddress digits", HFILL }},
+      { &hf_gsm_map_imsi_digits,
+        { "IMSI digits", "gsm_map.imsi_digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "IMSI digits", HFILL }},
+      { &hf_gsm_map_TBCD_digits,
+        { "TBCD digits", "gsm_map.imsi_digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "TBCD digits", HFILL }},
+      { &hf_gsm_map_Ss_Status_unused,
+        { "Unused", "gsm_map.unused",
+          FT_UINT8, BASE_HEX, NULL, 0xf0,
+          "Unused", HFILL }},
+      { &hf_gsm_map_Ss_Status_q_bit,
+        { "Q bit", "gsm_map.ss_status_q_bit",
+          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_q_bit_values), 0x08,
+          "Q bit", HFILL }},
+      { &hf_gsm_map_Ss_Status_p_bit,
+        { "P bit", "gsm_map.ss_status_p_bit",
+          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
+          "P bit", HFILL }},
+      { &hf_gsm_map_Ss_Status_r_bit,
+        { "R bit", "gsm_map.ss_status_r_bit",
+          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
+          "R bit", HFILL }},
+      { &hf_gsm_map_Ss_Status_a_bit,
+        { "A bit", "gsm_map.ss_status_a_bit",
+          FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
+          "A bit", HFILL }},
+      { &hf_gsm_map_notification_to_forwarding_party,
+        { "Notification to forwarding party", "gsm_map.notification_to_forwarding_party",
+          FT_BOOLEAN, 8, TFS(&notification_value), 0x80,
+          "Notification to forwarding party", HFILL }},
+      { &hf_gsm_map_redirecting_presentation,
+        { "Redirecting presentation", "gsm_map.redirecting_presentation",
+          FT_BOOLEAN, 8, TFS(&redirecting_presentation_value), 0x40,
+          "Redirecting presentation", HFILL }},
+      { &hf_gsm_map_notification_to_calling_party,
+        { "Notification to calling party", "gsm_map.notification_to_clling_party",
+          FT_BOOLEAN, 8, TFS(&notification_value), 0x20,
+          "Notification to calling party", HFILL }},
+      { &hf_gsm_map_forwarding_reason,
+        { "Forwarding reason", "gsm_map.forwarding_reason",
+          FT_UINT8, BASE_HEX, VALS(forwarding_reason_values), 0x0c,
+          "forwarding reason", HFILL }},
+      { &hf_gsm_map_pdp_type_org,
+        { "PDP Type Organization", "gsm_map.pdp_type_org",
+          FT_UINT8, BASE_HEX, VALS(pdp_type_org_values), 0x0f,
+          "PDP Type Organization", HFILL }},
+      { &hf_gsm_map_etsi_pdp_type_number,
+        { "PDP Type Number", "gsm_map.pdp_type_org",
+          FT_UINT8, BASE_HEX, VALS(etsi_pdp_type_number_values), 0,
+          "ETSI PDP Type Number", HFILL }},
+      { &hf_gsm_map_ietf_pdp_type_number,
+        { "PDP Type Number", "gsm_map.ietf_pdp_type_number",
+          FT_UINT8, BASE_HEX, VALS(ietf_pdp_type_number_values), 0,
+          "IETF PDP Type Number", HFILL }},
+      { &hf_gsm_map_ext_qos_subscribed_pri,
+        { "Allocation/Retention priority", "gsm_map.ext_qos_subscribed_pri",
+          FT_UINT8, BASE_DEC, NULL, 0xff,
+          "Allocation/Retention priority", HFILL }},
+      { &hf_gsm_map_qos_traffic_cls,
+        { "Traffic class", "gsm_map.qos.traffic_cls",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,
+          "Traffic class", HFILL }},
+      { &hf_gsm_map_qos_del_order,
+        { "Delivery order", "gsm_map.qos.del_order",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0x18,
+          "Delivery order", HFILL }},
+      { &hf_gsm_map_qos_del_of_err_sdu,
+        { "Delivery of erroneous SDUs", "gsm_map.qos.del_of_err_sdu",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_del_of_err_sdu_vals), 0x03,
+          "Delivery of erroneous SDUs", HFILL }},
+      { &hf_gsm_map_qos_ber,
+        { "Residual Bit Error Rate (BER)", "gsm_map.qos.ber",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_ber_vals), 0xf0,
+          "Residual Bit Error Rate (BER)", HFILL }},
+      { &hf_gsm_map_qos_sdu_err_rat,
+        { "SDU error ratio", "gsm_map.qos.sdu_err_rat",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_sdu_err_rat_vals), 0x0f,
+          "SDU error ratio", HFILL }},
+      { &hf_gsm_map_qos_traff_hdl_pri,
+        { "Traffic handling priority", "gsm_map.qos.traff_hdl_pri",
+          FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
+          "Traffic handling priority", HFILL }},
+      
+      { &hf_gsm_map_qos_max_sdu,
+        { "Maximum SDU size", "gsm_map.qos.max_sdu",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Maximum SDU size", HFILL }},		
+      { &hf_gsm_map_max_brate_ulink,
+        { "Maximum bit rate for uplink in kbit/s", "gsm_map.qos.max_brate_ulink",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Maximum bit rate for uplink", HFILL }},
+      { &hf_gsm_map_max_brate_dlink,
+        { "Maximum bit rate for downlink in kbit/s", "gsm_map.qos.max_brate_dlink",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Maximum bit rate for downlink", HFILL }},
+      { &hf_gsm_map_qos_transfer_delay,
+        { "Transfer delay (Raw data see TS 24.008 for interpretation)", "gsm_map.qos.transfer_delay",
+          FT_UINT8, BASE_DEC, NULL, 0xfc,
+          "Transfer delay", HFILL }},
+      { &hf_gsm_map_guaranteed_max_brate_ulink,
+        { "Guaranteed bit rate for uplink in kbit/s", "gsm_map.qos.brate_ulink",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Guaranteed bit rate for uplink", HFILL }},
+      { &hf_gsm_map_guaranteed_max_brate_dlink,
+        { "Guaranteed bit rate for downlink in kbit/s", "gsm_map.qos.brate_dlink",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Guaranteed bit rate for downlink", HFILL }},
+      { &hf_gsm_map_GSNAddress_IPv4,
+        { "GSN-Address IPv4",  "gsm_map.gsnaddress_ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "IPAddress IPv4", HFILL }},
+      { &hf_gsm_map_GSNAddress_IPv6,
+        { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "IPAddress IPv6", HFILL }},
+      { &hf_gsm_map_ranap_service_Handover,
+        { "service-Handover", "gsm_map.ranap.service_Handover",
+          FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
+          "gsm_map.ranap.Service_Handover", HFILL }},
+      { &hf_gsm_map_IntegrityProtectionInformation,
+        { "IntegrityProtectionInformation", "gsm_map.ranap.IntegrityProtectionInformation",
+          FT_NONE, BASE_NONE, NULL, 0,
+          "gsm_map.ranap.IntegrityProtectionInformation", HFILL }},
+      { &hf_gsm_map_EncryptionInformation,
+        { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
+          FT_NONE, BASE_NONE, NULL, 0,
+          "gsm_map.ranap.EncryptionInformation", HFILL }},
+      { &hf_gsm_map_PlmnContainer_PDU,
+        { "PlmnContainer", "gsm_map.PlmnContainer",
+          FT_NONE, BASE_NONE, NULL, 0,
+          "gsm_map.PlmnContainer", HFILL }},
+      { &hf_gsm_map_ss_SS_UserData,
+        { "SS-UserData", "gsm_ss.SS_UserData",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "gsm_map.ss.SS_UserData", HFILL }},
+      { &hf_gsm_map_cbs_coding_grp,
+        { "Coding Group","gsm_map.cbs.coding_grp",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,          
+          "Coding Group", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp0_lang,
+        { "Language","gsm_map.cbs.coding_grp0_lang",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,          
+          "Language", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp1_lang,
+        { "Language","gsm_map.cbs.coding_grp1_lang",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,          
+          "Language", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp2_lang,
+        { "Language","gsm_map.cbs.coding_grp2_lang",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,          
+          "Language", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp3_lang,
+        { "Language","gsm_map.cbs.coding_grp3_lang",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,          
+          "Language", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp4_7_comp,
+        { "Compressed indicator","gsm_map.cbs.coding_grp4_7_comp",
+          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_comp_vals), 0x20,          
+          "Compressed indicator", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp4_7_class_ind,
+        { "Message Class present","gsm_map.cbs.coding_grp4_7_class_ind",
+          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_class_ind_vals), 0x10,          
+          "Message Class present", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp4_7_char_set,
+        { "Character set being used","gsm_map.cbs.coding_grp4_7_char_set",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_char_set_vals), 0x0c,          
+          "Character set being used", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp4_7_class,
+        { "Message Class","gsm_map.cbs.coding_grp4_7_class",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_class_vals), 0x03,          
+          "Message Class", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp15_mess_code,
+        { "Message coding","gsm_map.cbs.cbs_coding_grp15_mess_code",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_mess_code_vals), 0x04,          
+          "Message coding", HFILL }
+      },
+      { &hf_gsm_map_cbs_coding_grp15_class,
+        { "Message Class","gsm_map.cbs.gsm_map_cbs_coding_grp15_class",
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,          
+          "Message Class", HFILL }
+      },
+      { &hf_gsm_map_tmsi,
+        { "tmsi", "gsm_map.tmsi",
+          FT_BYTES, BASE_HEX, NULL, 0,
+          "gsm_map.TMSI", HFILL }},
+      
+      { &hf_gsm_map_ie_tag,
+        { "Tag", "gsm_map.ie_tag",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_tag_vals), 0,
+          "GSM 04.08 tag", HFILL }},
+      { &hf_gsm_map_len,
+        { "Length", "gsm_map.length",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Length", HFILL }},
+      { &hf_gsm_map_disc_par,
+        { "Discrimination parameter", "gsm_map.disc_par",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_disc_par_vals), 0,
+          "Discrimination parameter", HFILL }},
+      { &hf_gsm_map_dlci,
+        { "DLCI", "gsm_map.disc_par",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Data Link Connection Indicator", HFILL }},
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -22344,24 +22344,24 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_InvokeId,
     &ett_gsm_map_InvokePDU,
     &ett_gsm_map_ReturnResultPDU,
-	&ett_gsm_map_ReturnErrorPDU,
+    &ett_gsm_map_ReturnErrorPDU,
     &ett_gsm_map_ReturnResult_result,
-	&ett_gsm_map_ReturnError_result,
+    &ett_gsm_map_ReturnError_result,
     &ett_gsm_map_GSMMAPPDU,
-	&ett_gsm_map_ext_qos_subscribed,
-	&ett_gsm_map_pdptypenumber,
-	&ett_gsm_map_RAIdentity,
-	&ett_gsm_map_LAIFixedLength,
-	&ett_gsm_map_isdn_address_string,
-	&ett_gsm_map_geo_desc,
-	&ett_gsm_map_LongSignalInfo,
-	&ett_gsm_map_RadioResourceInformation,
-	&ett_gsm_map_MSNetworkCapability,
-	&ett_gsm_map_MSRadioAccessCapability,
-	&ett_gsm_map_externalsignalinfo,
-	&ett_gsm_map_cbs_data_coding,
-	&ett_gsm_map_GlobalCellId,
-	&ett_gsm_map_GeographicalInformation,
+    &ett_gsm_map_ext_qos_subscribed,
+    &ett_gsm_map_pdptypenumber,
+    &ett_gsm_map_RAIdentity,
+    &ett_gsm_map_LAIFixedLength,
+    &ett_gsm_map_isdn_address_string,
+    &ett_gsm_map_geo_desc,
+    &ett_gsm_map_LongSignalInfo,
+    &ett_gsm_map_RadioResourceInformation,
+    &ett_gsm_map_MSNetworkCapability,
+    &ett_gsm_map_MSRadioAccessCapability,
+    &ett_gsm_map_externalsignalinfo,
+    &ett_gsm_map_cbs_data_coding,
+    &ett_gsm_map_GlobalCellId,
+    &ett_gsm_map_GeographicalInformation,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -22988,8 +22988,6 @@ void proto_register_gsm_map(void) {
    * Set default SSNs
    */
   range_convert_str(&global_ssn_range, "6-9", MAX_SSN);
-  ssn_range = range_empty();
-
 
   gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
 
@@ -22997,5 +22995,3 @@ void proto_register_gsm_map(void) {
 				  "TCAP Subsystem numbers used for GSM MAP",
 				  &global_ssn_range, MAX_SSN);
 }
-
-

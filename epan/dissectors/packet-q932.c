@@ -128,11 +128,7 @@ static gint ett_q932_NetworkFacilityExtension_U = -1;
 static rose_ctx_t q932_rose_ctx;
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
-static dissector_handle_t q932_ros_handle = NULL; 
-
-/* Gloabl variables */
-
+static dissector_handle_t q932_ros_handle; 
 
 #define	Q932_IE_EXTENDED_FACILITY   0x0D
 #define	Q932_IE_FACILITY            0x1C
@@ -640,7 +636,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 130 "packet-q932-template.c"
+#line 126 "packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
@@ -962,7 +958,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 299 "packet-q932-template.c"
+#line 295 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -987,7 +983,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 306 "packet-q932-template.c"
+#line 302 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */
@@ -1020,7 +1016,6 @@ void proto_reg_handoff_q932(void) {
   dissector_add("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle); 
 
   q932_ros_handle = find_dissector("q932.ros");
-  data_handle = find_dissector("data");
 }
 
 /*---------------------------------------------------------------------------*/

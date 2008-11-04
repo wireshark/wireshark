@@ -422,18 +422,12 @@ static gint ett_h501_TerminationCause = -1;
 #line 56 "packet-h501-template.c"
 
 /* Dissectors */
-static dissector_handle_t h501_pdu_handle = NULL;
-static dissector_handle_t h501_udp_handle = NULL;
-static dissector_handle_t h501_tcp_handle = NULL;
+static dissector_handle_t h501_pdu_handle;
 
 /* Preferences */
 static guint h501_udp_port = 2099;
 static guint h501_tcp_port = 2099;
 static gboolean h501_desegment_tcp = TRUE;
-
-/* Gloabl variables */
-static guint saved_h501_udp_port;
-static guint saved_h501_tcp_port;
 
 void proto_reg_handoff_h501(void);
 
@@ -2527,7 +2521,7 @@ static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-h501-fn.c ---*/
-#line 74 "packet-h501-template.c"
+#line 68 "packet-h501-template.c"
 
 static int
 dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3569,7 +3563,7 @@ void proto_register_h501(void) {
         "h501.INTEGER_1_65535", HFILL }},
 
 /*--- End of included file: packet-h501-hfarr.c ---*/
-#line 111 "packet-h501-template.c"
+#line 105 "packet-h501-template.c"
   };
 
   /* List of subtrees */
@@ -3679,7 +3673,7 @@ void proto_register_h501(void) {
     &ett_h501_TerminationCause,
 
 /*--- End of included file: packet-h501-ettarr.c ---*/
-#line 117 "packet-h501-template.c"
+#line 111 "packet-h501-template.c"
   };
 
   /* Register protocol */
@@ -3690,10 +3684,6 @@ void proto_register_h501(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   new_register_dissector(PFNAME, dissect_h501_pdu, proto_h501);
-  h501_pdu_handle = find_dissector(PFNAME);
-
-  h501_udp_handle = new_create_dissector_handle(dissect_h501_udp, proto_h501);
-  h501_tcp_handle = new_create_dissector_handle(dissect_h501_tcp, proto_h501);
 
   h501_module = prefs_register_protocol(proto_h501, proto_reg_handoff_h501);
   prefs_register_uint_preference(h501_module, "udp.port",
@@ -3715,12 +3705,19 @@ void proto_register_h501(void) {
 void proto_reg_handoff_h501(void) 
 {
   static gboolean h501_prefs_initialized = FALSE;
+  static dissector_handle_t h501_udp_handle;
+  static dissector_handle_t h501_tcp_handle;
+  static guint saved_h501_udp_port;
+  static guint saved_h501_tcp_port;
 
-  if (h501_prefs_initialized) {
+  if (!h501_prefs_initialized) {
+    h501_pdu_handle = find_dissector(PFNAME);
+    h501_udp_handle = new_create_dissector_handle(dissect_h501_udp, proto_h501);
+    h501_tcp_handle = new_create_dissector_handle(dissect_h501_tcp, proto_h501);
+    h501_prefs_initialized = TRUE;
+  } else {
     dissector_delete("udp.port", saved_h501_udp_port, h501_udp_handle);
     dissector_delete("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
-  } else {
-    h501_prefs_initialized = TRUE;
   }
 
   /* Set our port number for future use */

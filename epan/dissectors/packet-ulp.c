@@ -56,14 +56,13 @@
 #define PSNAME "ULP"
 #define PFNAME "ulp"
 
-static dissector_handle_t ulp_handle = NULL;
-static dissector_handle_t rrlp_handle = NULL;
+static dissector_handle_t rrlp_handle;
 
 /* IANA Registered Ports  
  * oma-ulp         7275/tcp    OMA UserPlane Location
  * oma-ulp         7275/udp    OMA UserPlane Location
  */
-guint gbl_ulp_port = 7275;
+static guint gbl_ulp_port = 7275;
 
 /* Initialize the protocol and registered fields */
 static int proto_ulp = -1;
@@ -252,7 +251,7 @@ static int hf_ulp_horuncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 static int hf_ulp_veruncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 69 "packet-ulp-template.c"
+#line 68 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -319,7 +318,7 @@ static gint ett_ulp_Horveluncert = -1;
 static gint ett_ulp_Horandveruncert = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 73 "packet-ulp-template.c"
+#line 72 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -332,7 +331,7 @@ static gint ett_ulp_Horandveruncert = -1;
 #define maxTS                          14
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 76 "packet-ulp-template.c"
+#line 75 "packet-ulp-template.c"
 
 
 
@@ -2188,7 +2187,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 79 "packet-ulp-template.c"
+#line 78 "packet-ulp-template.c"
 
 
 static guint
@@ -2914,7 +2913,7 @@ void proto_register_ulp(void) {
         "ulp.BIT_STRING_SIZE_8", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 104 "packet-ulp-template.c"
+#line 103 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2983,7 +2982,7 @@ void proto_register_ulp(void) {
     &ett_ulp_Horandveruncert,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 110 "packet-ulp-template.c"
+#line 109 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -3005,12 +3004,12 @@ void proto_register_ulp(void) {
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&ulp_desegment);
 
-	/* Register a configuration option for port */
-	prefs_register_uint_preference(ulp_module, "tcp.port",
-								   "ULP TCP Port",
-								   "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
-								   10,
-								   &gbl_ulp_port);
+  /* Register a configuration option for port */
+  prefs_register_uint_preference(ulp_module, "tcp.port",
+                                 "ULP TCP Port",
+                                 "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
+                                 10,
+                                 &gbl_ulp_port);
  
 }
 
@@ -3019,15 +3018,23 @@ void proto_register_ulp(void) {
 void
 proto_reg_handoff_ulp(void)
 {
+	static gboolean initialized = FALSE;
+	static dissector_handle_t ulp_handle;
+	static guint local_ulp_port;
 
-	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
+	if (!initialized) {
+		ulp_handle = find_dissector("ulp");
+		dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+		rrlp_handle = find_dissector("rrlp");
+		initialized = TRUE;
+	} else {
+		dissector_delete("tcp.port", local_ulp_port, ulp_handle);
+	}
 
+	local_ulp_port = gbl_ulp_port;
 	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
 
 	/* application/oma-supl-ulp */
-	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
-
-	rrlp_handle = find_dissector("rrlp");
 
 }
 

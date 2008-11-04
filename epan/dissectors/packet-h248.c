@@ -551,12 +551,9 @@ static emem_tree_t* trxs = NULL;
 static emem_tree_t* ctxs_by_trx = NULL;
 static emem_tree_t* ctxs = NULL;
 
-static gboolean h248_prefs_initialized = FALSE;
 static gboolean keep_persistent_data = FALSE;
-static guint32 udp_port = 2945;
-static guint32 temp_udp_port = 2945;
-static guint32 tcp_port = 2945;
-static guint32 temp_tcp_port = 2945;
+static guint    global_udp_port = 2945;
+static guint    global_tcp_port = 2945;
 static gboolean h248_desegment = TRUE;
 
 
@@ -4990,7 +4987,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1213 "packet-h248-template.c"
+#line 1210 "packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -5047,37 +5044,9 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-
-static void h248_init(void)  {
-
-    if (!h248_prefs_initialized) {
-		h248_prefs_initialized = TRUE;
-    } else {
-        if ( udp_port )
-            dissector_delete("udp.port", udp_port, h248_handle);
-
-		if ( tcp_port)
-            dissector_delete("tcp.port", tcp_port, h248_tpkt_handle);
-	}
-
-    udp_port = temp_udp_port;
-    tcp_port = temp_tcp_port;
-
-    if ( udp_port ) {
-		dissector_add("udp.port", udp_port, h248_handle);
-	}
-
-	if ( tcp_port) {
-		dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
-	}
-
-	if (!h248_term_handle){
-		h248_term_handle = find_dissector("h248term");
-	}
-
-}
-
 /*--- proto_register_h248 ----------------------------------------------*/
+void proto_reg_handoff_h248(void);
+
 void proto_register_h248(void) {
 
   /* List of fields */
@@ -6374,7 +6343,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1376 "packet-h248-template.c"
+#line 1345 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6536,7 +6505,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1394 "packet-h248-template.c"
+#line 1363 "packet-h248-template.c"
   };
 
   module_t *h248_module;
@@ -6551,7 +6520,7 @@ void proto_register_h248(void) {
   proto_register_field_array(proto_h248, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  h248_module = prefs_register_protocol(proto_h248, h248_init);
+  h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);
   prefs_register_bool_preference(h248_module, "ctx_info",
                                  "Track Context",
                                  "Mantain relationships between transactions and contexts and display an extra tree showing context data",
@@ -6560,19 +6529,16 @@ void proto_register_h248(void) {
                                  "UDP port",
                                  "Port to be decoded as h248",
                                  10,
-                                 &temp_udp_port);
+                                 &global_udp_port);
   prefs_register_uint_preference(h248_module, "tcp_port",
                                  "TCP port",
                                  "Port to be decoded as h248",
                                  10,
-                                 &temp_tcp_port);
+                                 &global_tcp_port);
   prefs_register_bool_preference(h248_module, "desegment",
                                  "Desegment H.248 over TCP",
                                  "Desegment H.248 messages that span more TCP segments",
                                  &h248_desegment);
-
-
-  register_init_routine( &h248_init );
 
   msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_msgs");
   trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_trxs");
@@ -6587,13 +6553,33 @@ void proto_register_h248(void) {
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
 void proto_reg_handoff_h248(void) {
 
-  h248_handle = find_dissector("h248");
-  h248_tpkt_handle = find_dissector("h248.tpkt");
+  static gboolean initialized = FALSE;
+  static guint32 udp_port;
+  static guint32 tcp_port;
 
-  dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
-  dissector_add("udp.port", udp_port, h248_handle);
-  dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
+  if (!initialized) {
+    h248_handle = find_dissector("h248");
+    h248_tpkt_handle = find_dissector("h248.tpkt");
+    dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
+    h248_term_handle = find_dissector("h248term");
+    initialized = TRUE;
+  } else {
+    if (udp_port != 0)
+      dissector_delete("udp.port", udp_port, h248_handle);
+
+    if (tcp_port != 0)
+      dissector_delete("tcp.port", tcp_port, h248_tpkt_handle);
+  }
+
+  udp_port = global_udp_port;
+  tcp_port = global_tcp_port;
+
+  if (udp_port != 0) {
+    dissector_add("udp.port", udp_port, h248_handle);
+  }
+
+  if (tcp_port != 0) {
+    dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
+  }
 }
-
-
 

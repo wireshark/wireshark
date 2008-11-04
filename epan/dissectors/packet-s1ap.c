@@ -230,8 +230,6 @@ typedef enum _ProtocolIE_ID_enum {
 /*--- End of included file: packet-s1ap-val.h ---*/
 #line 64 "packet-s1ap-template.c"
 
-static dissector_handle_t s1ap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
 
@@ -519,7 +517,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 71 "packet-s1ap-template.c"
+#line 69 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -681,7 +679,7 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 76 "packet-s1ap-template.c"
+#line 74 "packet-s1ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -5424,7 +5422,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 103 "packet-s1ap-template.c"
+#line 101 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5484,18 +5482,13 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_s1ap(void)
 {
-	static int Initialized=FALSE;
-	static int SctpPort=0;
+	static gboolean Initialized=FALSE;
+	static dissector_handle_t s1ap_handle;
+	static guint SctpPort;
 
 	if (!Initialized) {
+		s1ap_handle = find_dissector("s1ap");
 		Initialized=TRUE;
-	} else {
-		dissector_delete("sctp.port", SctpPort, s1ap_handle);
-	}
-
-	SctpPort=gbl_s1apSctpPort;
-	dissector_add("sctp.port", SctpPort, s1ap_handle);
-
 
 /*--- Included file: packet-s1ap-dis-tab.c ---*/
 #line 1 "packet-s1ap-dis-tab.c"
@@ -5654,7 +5647,14 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 175 "packet-s1ap-template.c"
+#line 168 "packet-s1ap-template.c"
+	} else {
+		dissector_delete("sctp.port", SctpPort, s1ap_handle);
+	}
+
+	SctpPort=gbl_s1apSctpPort;
+	dissector_add("sctp.port", SctpPort, s1ap_handle);
+
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -6961,7 +6961,6 @@ void proto_register_s1ap(void) {
  
   /* Register dissector */
   register_dissector("s1ap", dissect_s1ap, proto_s1ap);
-  s1ap_handle = find_dissector("s1ap");
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -6972,15 +6971,14 @@ void proto_register_s1ap(void) {
   s1ap_proc_sout_dissector_table = register_dissector_table("s1ap.proc.sout", "S1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
   
-	/* Register configuration options for ports */
-	s1ap_module = prefs_register_protocol(proto_s1ap,
-											  proto_reg_handoff_s1ap);
+  /* Register configuration options for ports */
+  s1ap_module = prefs_register_protocol(proto_s1ap, proto_reg_handoff_s1ap);
 
-	prefs_register_uint_preference(s1ap_module, "sctp.port",
-								   "S1AP SCTP Port",
-								   "Set the SCTP port for S1AP messages",
-								   10,
-								   &gbl_s1apSctpPort);
+  prefs_register_uint_preference(s1ap_module, "sctp.port",
+                                 "S1AP SCTP Port",
+                                 "Set the SCTP port for S1AP messages",
+                                 10,
+                                 &gbl_s1apSctpPort);
 
 }
 

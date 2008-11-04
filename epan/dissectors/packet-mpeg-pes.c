@@ -1225,9 +1225,8 @@ proto_register_mpeg_pes(void)
 void
 proto_reg_handoff_mpeg_pes(void)
 {
-	dissector_handle_t mpeg_handle = create_dissector_handle(
-			dissect_mpeg, proto_mpeg);
-	dissector_add("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
+	dissector_handle_t mpeg_handle = find_dissector("mpeg");
 
+	dissector_add("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
 	heur_dissector_add("mpeg", dissect_mpeg_pes, proto_mpeg_pes);
 }

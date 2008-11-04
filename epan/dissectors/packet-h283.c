@@ -115,13 +115,10 @@ static gint ett_h283_NonStandardMessage = -1;
 /*--- End of included file: packet-h283-ett.c ---*/
 #line 53 "packet-h283-template.c"
 
-/* Dissectors */
-static dissector_handle_t h283_udp_handle = NULL; 
-
 /* Subdissectors */
-static dissector_handle_t rdc_pdu_handle = NULL; 
-static dissector_handle_t rdc_device_list_handle = NULL; 
-static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t rdc_pdu_handle; 
+static dissector_handle_t rdc_device_list_handle; 
+static dissector_handle_t data_handle; 
 
 static gboolean info_is_set;
 
@@ -574,7 +571,7 @@ static int dissect_LCTPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h283-fn.c ---*/
-#line 65 "packet-h283-template.c"
+#line 62 "packet-h283-template.c"
 
 static int
 dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -731,7 +728,7 @@ void proto_register_h283(void) {
         "h283.NULL", HFILL }},
 
 /*--- End of included file: packet-h283-hfarr.c ---*/
-#line 89 "packet-h283-template.c"
+#line 86 "packet-h283-template.c"
   };
 
   /* List of subtrees */
@@ -756,7 +753,7 @@ void proto_register_h283(void) {
     &ett_h283_NonStandardMessage,
 
 /*--- End of included file: packet-h283-ettarr.c ---*/
-#line 95 "packet-h283-template.c"
+#line 92 "packet-h283-template.c"
   };
 
   /* Register protocol */
@@ -767,14 +764,15 @@ void proto_register_h283(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   new_register_dissector(PFNAME, dissect_h283_udp, proto_h283);
-  h283_udp_handle = find_dissector(PFNAME);
 
 }
 
 /*--- proto_reg_handoff_h283 -------------------------------------------*/
 void proto_reg_handoff_h283(void) 
 {
+  dissector_handle_t h283_udp_handle; 
 
+  h283_udp_handle = find_dissector(PFNAME);
   dissector_add_handle("udp.port", h283_udp_handle); 
 
   rdc_pdu_handle = find_dissector("rdc");

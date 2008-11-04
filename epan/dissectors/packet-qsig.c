@@ -2023,11 +2023,7 @@ static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /* Preferences */
 
-/* Subdissectors */
-static dissector_handle_t q931_handle = NULL; 
-static dissector_handle_t data_handle = NULL; 
-
-/* Gloabl variables */
+/* Global variables */
 static const char *extension_oid = NULL;
 
 /* Dissector tables */
@@ -11900,7 +11896,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 326 "packet-qsig-template.c"
+#line 322 "packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12118,7 +12114,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 335 "packet-qsig-template.c"
+#line 331 "packet-qsig-template.c"
 };                                 
 
 typedef struct _qsig_err_t {
@@ -12299,7 +12295,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 344 "packet-qsig-template.c"
+#line 340 "packet-qsig-template.c"
 };                                 
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15814,7 +15810,7 @@ void proto_register_qsig(void) {
         "qsig.Extension", HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 621 "packet-qsig-template.c"
+#line 617 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16265,7 +16261,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 629 "packet-qsig-template.c"
+#line 625 "packet-qsig-template.c"
   };
 
   /* Register protocol and dissector */
@@ -16283,13 +16279,13 @@ void proto_register_qsig(void) {
 /*--- proto_reg_handoff_qsig ------------------------------------------------*/
 void proto_reg_handoff_qsig(void) {
   int i;
+  dissector_handle_t q931_handle; 
   dissector_handle_t qsig_arg_handle;
   dissector_handle_t qsig_res_handle;
   dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
   q931_handle = find_dissector("q931");
-  data_handle = find_dissector("data");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);

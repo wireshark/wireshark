@@ -1366,7 +1366,6 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 */
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
-			ber_oid_dissector_table = find_dissector_table("ber.oid");
 			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 				p_tcap_context->subdissector_handle=subdissector_handle;
@@ -1638,7 +1637,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 440 "packet-ansi_tcap-template.c"
+#line 439 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1675,7 +1674,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 450 "packet-ansi_tcap-template.c"
+#line 449 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

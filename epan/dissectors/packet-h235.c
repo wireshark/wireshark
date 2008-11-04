@@ -210,7 +210,6 @@ static gint ett_h235_FecOrder = -1;
 /*--- End of included file: packet-h235-ett.c ---*/
 #line 61 "packet-h235-template.c"
 
-static dissector_handle_t mikey_handle=NULL;
 
 static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
@@ -1055,7 +1054,7 @@ static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 71 "packet-h235-template.c"
+#line 70 "packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1472,7 +1471,7 @@ void proto_register_h235(void) {
         "h235.NULL", HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 79 "packet-h235-template.c"
+#line 78 "packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1514,7 +1513,7 @@ void proto_register_h235(void) {
     &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 84 "packet-h235-template.c"
+#line 83 "packet-h235-template.c"
   };
 
   /* Register protocol */
@@ -1536,8 +1535,8 @@ void proto_register_h235(void) {
     oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.1.6");
     oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.2.6");
   /* H.235.7, Chapter 5, Table 1 */
-    oid_add_from_string("MIKEY",			OID_MIKEY);
-    oid_add_from_string("MIKEY-PS",			OID_MIKEY_PS);
+    oid_add_from_string("MIKEY",		OID_MIKEY);
+    oid_add_from_string("MIKEY-PS",		OID_MIKEY_PS);
     oid_add_from_string("MIKEY-DHHMAC",		OID_MIKEY_DHHMAC);
     oid_add_from_string("MIKEY-PK-SIGN",	OID_MIKEY_PK_SIGN);
     oid_add_from_string("MIKEY-DH-SIGN",	OID_MIKEY_DH_SIGN);
@@ -1554,6 +1553,7 @@ void proto_register_h235(void) {
 
 /*--- proto_reg_handoff_h235 -------------------------------------------*/
 void proto_reg_handoff_h235(void) {
+  dissector_handle_t mikey_handle;
 
   mikey_handle = find_dissector("mikey");
 

@@ -99,9 +99,6 @@ void gef_ctx_update_key(gef_ctx_t *gefx) {
   );
 }
 
-/* Subdissectors */
-static dissector_handle_t q931_handle = NULL; 
-
 /* Initialize the protocol and registered fields */
 int proto_h323 = -1;
 
@@ -137,7 +134,7 @@ static int hf_h323_timeToLive = -1;               /* TimeToLive */
 static int hf_h323_includeFastStart = -1;         /* NULL */
 
 /*--- End of included file: packet-h323-hf.c ---*/
-#line 100 "packet-h323-template.c"
+#line 97 "packet-h323-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -158,7 +155,7 @@ static gint ett_h323_T_fastStart = -1;
 static gint ett_h323_StatusInquiry_RD = -1;
 
 /*--- End of included file: packet-h323-ett.c ---*/
-#line 103 "packet-h323-template.c"
+#line 100 "packet-h323-template.c"
 
 
 /*--- Included file: packet-h323-fn.c ---*/
@@ -449,7 +446,7 @@ static int dissect_RobustnessData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h323-fn.c ---*/
-#line 105 "packet-h323-template.c"
+#line 102 "packet-h323-template.c"
 
 /*--- proto_register_h323 ----------------------------------------------*/
 void proto_register_h323(void) {
@@ -573,7 +570,7 @@ void proto_register_h323(void) {
         "h323.NULL", HFILL }},
 
 /*--- End of included file: packet-h323-hfarr.c ---*/
-#line 112 "packet-h323-template.c"
+#line 109 "packet-h323-template.c"
   };
 
   /* List of subtrees */
@@ -596,7 +593,7 @@ void proto_register_h323(void) {
     &ett_h323_StatusInquiry_RD,
 
 /*--- End of included file: packet-h323-ettarr.c ---*/
-#line 117 "packet-h323-template.c"
+#line 114 "packet-h323-template.c"
   };
 
   /* Register protocol */
@@ -612,6 +609,8 @@ void proto_register_h323(void) {
 /*--- proto_reg_handoff_h323 -------------------------------------------*/
 void proto_reg_handoff_h323(void) 
 {
+  dissector_handle_t q931_handle; 
+
   q931_handle = find_dissector("q931");
 
   /* H.323, Annex M1, Tunnelling of signalling protocols (QSIG) in H.323 */

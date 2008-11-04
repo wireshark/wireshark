@@ -85,8 +85,6 @@ static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages 
 static int pi_current=0;
 h225_packet_info *h225_pi=&pi_arr[0];
 
-static dissector_handle_t h225ras_handle;
-static dissector_handle_t H323UserInformation_handle;
 static dissector_handle_t data_handle;
 /* Subdissector tables */
 static dissector_table_t nsp_object_dissector_table;
@@ -886,7 +884,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 112 "packet-h225-template.c"
+#line 110 "packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1133,7 +1131,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 116 "packet-h225-template.c"
+#line 114 "packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -1142,7 +1140,6 @@ static gboolean h225_h245_in_tree = TRUE;
 static gboolean h225_tp_in_tree = TRUE;
 
 /* Global variables */
-static guint saved_h225_tls_port;
 static guint32  ipv4_address;
 static guint32  ipv4_port;
 guint32 T38_manufacturer_code;
@@ -7468,7 +7465,7 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 142 "packet-h225-template.c"
+#line 139 "packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -7481,15 +7478,15 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tr;
 	int offset = 0;
 
-    pi_current++;
-    if(pi_current==5){
-      pi_current=0;
-    }
-    h225_pi=&pi_arr[pi_current];
+	pi_current++;
+	if(pi_current==5){
+		pi_current=0;
+	}
+	h225_pi=&pi_arr[pi_current];
 
 	/* Init struct for collecting h225_packet_info */
-    reset_h225_packet_info(h225_pi);
-    h225_pi->msg_type = H225_CS;
+	reset_h225_packet_info(h225_pi);
+	h225_pi->msg_type = H225_CS;
 
 	next_tvb_init(&h245_list);
 	next_tvb_init(&tp_list);
@@ -7524,15 +7521,15 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree *tr;
 	guint32 offset=0;
 
-    pi_current++;
-    if(pi_current==5){
-        pi_current=0;
-    }
-    h225_pi=&pi_arr[pi_current];
+	pi_current++;
+	if(pi_current==5){
+		pi_current=0;
+	}
+	h225_pi=&pi_arr[pi_current];
 
 	/* Init struct for collecting h225_packet_info */
-    reset_h225_packet_info(h225_pi);
-    h225_pi->msg_type = H225_RAS;
+	reset_h225_packet_info(h225_pi);
+	h225_pi->msg_type = H225_RAS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -10636,7 +10633,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 245 "packet-h225-template.c"
+#line 242 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10885,7 +10882,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 251 "packet-h225-template.c"
+#line 248 "packet-h225-template.c"
   };
   module_t *h225_module;
 
@@ -10942,27 +10939,25 @@ void
 proto_reg_handoff_h225(void)
 {
 	static gboolean h225_prefs_initialized = FALSE;
+	static dissector_handle_t h225ras_handle;
+	static guint saved_h225_tls_port;
 
-    if (h225_prefs_initialized) {
-      ssl_dissector_delete(saved_h225_tls_port, "q931.tpkt", TRUE);
-    } else {
-      h225_prefs_initialized = TRUE;
-    }
+	if (!h225_prefs_initialized) {
+		h225ras_handle=find_dissector("h225.ras");
+		dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
+		dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
 
-    saved_h225_tls_port = h225_tls_port;
-    ssl_dissector_add(saved_h225_tls_port, "q931.tpkt", TRUE);
+		h245_handle = find_dissector("h245");
+		h245dg_handle = find_dissector("h245dg");
+		h4501_handle = find_dissector("h4501");
+		data_handle = find_dissector("data");
+		h225_prefs_initialized = TRUE;
+	} else {
+		ssl_dissector_delete(saved_h225_tls_port, "q931.tpkt", TRUE);
+	}
 
-	h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
-	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
-	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
-
-	H323UserInformation_handle=find_dissector("h323ui");
-
-	h245_handle = find_dissector("h245");
-	h245dg_handle = find_dissector("h245dg");
-	h4501_handle = find_dissector("h4501");
-	data_handle = find_dissector("data");
-
+	saved_h225_tls_port = h225_tls_port;
+	ssl_dissector_add(saved_h225_tls_port, "q931.tpkt", TRUE);
 }
 
 

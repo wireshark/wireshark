@@ -79,7 +79,6 @@ static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
-static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
 static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
@@ -217,7 +216,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 90 "packet-h245-template.c"
+#line 89 "packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1898,7 +1897,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 371 "packet-h245-template.c"
+#line 370 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2399,7 +2398,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 376 "packet-h245-template.c"
+#line 375 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14352,7 +14351,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 385 "packet-h245-template.c"
+#line 384 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20015,7 +20014,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 463 "packet-h245-template.c"
+#line 462 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20518,7 +20517,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 470 "packet-h245-template.c"
+#line 469 "packet-h245-template.c"
   };
   module_t *h245_module;
 
@@ -20606,6 +20605,8 @@ void proto_register_h245(void) {
 
 /*--- proto_reg_handoff_h245 ---------------------------------------*/
 void proto_reg_handoff_h245(void) {
+	dissector_handle_t h245_handle;
+
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	t38_handle = find_dissector("t38");
@@ -20614,9 +20615,9 @@ void proto_reg_handoff_h245(void) {
 	amr_handle = find_dissector("amr_if2_nb");
 
 
-	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
+	h245_handle = find_dissector("h245");
 	dissector_add_handle("tcp.port", h245_handle);
-	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
+	MultimediaSystemControlMessage_handle = find_dissector("h245dg");
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
 }
 

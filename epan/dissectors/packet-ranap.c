@@ -332,8 +332,6 @@ typedef enum _ProtocolIE_ID_enum {
 /*--- End of included file: packet-ranap-val.h ---*/
 #line 62 "packet-ranap-template.c"
 
-static dissector_handle_t ranap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 
@@ -905,7 +903,7 @@ static int hf_ranap_value_02 = -1;                /* T_value_02 */
 static int hf_ranap_value_03 = -1;                /* T_value_03 */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 70 "packet-ranap-template.c"
+#line 68 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1181,7 +1179,7 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 75 "packet-ranap-template.c"
+#line 73 "packet-ranap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -10446,7 +10444,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 123 "packet-ranap-template.c"
+#line 121 "packet-ranap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -12799,7 +12797,7 @@ void proto_register_ranap(void) {
         "ranap.T_value_03", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 223 "packet-ranap-template.c"
+#line 221 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13076,7 +13074,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 229 "packet-ranap-template.c"
+#line 227 "packet-ranap-template.c"
   };
 
 
@@ -13088,7 +13086,6 @@ void proto_register_ranap(void) {
 
   /* Register dissector */
   register_dissector("ranap", dissect_ranap, proto_ranap);
-  ranap_handle = find_dissector("ranap");
 
   /* Register dissector tables */
   ranap_ies_dissector_table = register_dissector_table("ranap.ies", "RANAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -13113,18 +13110,13 @@ void proto_register_ranap(void) {
 void
 proto_reg_handoff_ranap(void)
 {
-	static int initialized = FALSE;
+	static gboolean initialized = FALSE;
+	static dissector_handle_t ranap_handle;
 	static gint local_ranap_sccp_ssn;
 
 	if (!initialized) {
+		ranap_handle = find_dissector("ranap");
 		initialized = TRUE;
-	} else {
-		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
-	}
-
-	dissector_add("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
-	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
-
 
 /*--- Included file: packet-ranap-dis-tab.c ---*/
 #line 1 "packet-ranap-dis-tab.c"
@@ -13388,7 +13380,14 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 278 "packet-ranap-template.c"
+#line 270 "packet-ranap-template.c"
+	} else {
+		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
+	}
+
+	dissector_add("sccp.ssn", global_ranap_sccp_ssn, ranap_handle);
+	local_ranap_sccp_ssn = global_ranap_sccp_ssn;
+
 }
 
 

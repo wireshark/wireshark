@@ -817,8 +817,6 @@ typedef enum _ProtocolIE_ID_enum {
 /*--- End of included file: packet-rnsap-val.h ---*/
 #line 58 "packet-rnsap-template.c"
 
-static dissector_handle_t rnsap_handle = NULL;
-
 static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -2984,7 +2982,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 67 "packet-rnsap-template.c"
+#line 65 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -4047,7 +4045,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 72 "packet-rnsap-template.c"
+#line 70 "packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -35594,7 +35592,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 93 "packet-rnsap-template.c"
+#line 91 "packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -44272,7 +44270,7 @@ void proto_register_rnsap(void) {
         "rnsap.Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 146 "packet-rnsap-template.c"
+#line 144 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -45336,7 +45334,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 152 "packet-rnsap-template.c"
+#line 150 "packet-rnsap-template.c"
   };
 
 
@@ -45348,7 +45346,6 @@ void proto_register_rnsap(void) {
  
   /* Register dissector */
   register_dissector("rnsap", dissect_rnsap, proto_rnsap);
-  rnsap_handle = find_dissector("rnsap");
 
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -45364,7 +45361,9 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
+	dissector_handle_t rnsap_handle;
 
+	rnsap_handle = find_dissector("rnsap");
 	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 
 	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
@@ -46045,7 +46044,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 190 "packet-rnsap-template.c"
+#line 189 "packet-rnsap-template.c"
 }
 
 

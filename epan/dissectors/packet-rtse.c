@@ -65,9 +65,6 @@ static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
 
-static  dissector_handle_t rtse_handle = NULL;
-static  dissector_handle_t ros_handle = NULL;
-
 /* Preferences */
 static gboolean rtse_reassemble = TRUE;
 
@@ -100,7 +97,7 @@ static int hf_rtse_t61String = -1;                /* T_t61String */
 static int hf_rtse_octetString = -1;              /* T_octetString */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 67 "packet-rtse-template.c"
+#line 64 "packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -117,7 +114,7 @@ static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 71 "packet-rtse-template.c"
+#line 68 "packet-rtse-template.c"
 
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
@@ -158,8 +155,17 @@ static const fragment_items rtse_frag_items = {
 };
 
 void
-register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_ros)
+register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name, gboolean uses_ros)
 {
+/* XXX: Note that this fcn is called from proto_reg_handoff in *other* dissectors ... */
+
+  static  dissector_handle_t rtse_handle = NULL;
+  static  dissector_handle_t ros_handle = NULL;
+
+  if (rtse_handle == NULL)
+    rtse_handle = find_dissector("rtse");
+  if (ros_handle == NULL)
+    ros_handle = find_dissector("ros");
 
   /* save the name - but not used */
   g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
@@ -683,7 +689,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 177 "packet-rtse-template.c"
+#line 183 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -942,7 +948,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 335 "packet-rtse-template.c"
+#line 341 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -964,7 +970,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 344 "packet-rtse-template.c"
+#line 350 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;
@@ -988,8 +994,6 @@ void proto_register_rtse(void) {
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 
-  rtse_handle = find_dissector("rtse");
-  ros_handle = find_dissector("ros");
 
 }
 

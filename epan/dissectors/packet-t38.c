@@ -81,13 +81,6 @@ static guint global_t38_udp_port = PORT_T38;
 
 static int t38_tap = -1;
 
-/*
-* Variables to allow for proper deletion of dissector registration when
-* the user changes port from the gui.
-*/
-static guint tcp_port = 0;
-static guint udp_port = 0;
-
 /* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
 static gboolean use_pre_corrigendum_asn1_specification = TRUE;
 
@@ -159,7 +152,7 @@ static int hf_t38_fec_data = -1;                  /* T_fec_data */
 static int hf_t38_fec_data_item = -1;             /* OCTET_STRING */
 
 /*--- End of included file: packet-t38-hf.c ---*/
-#line 132 "packet-t38-template.c"
+#line 125 "packet-t38-template.c"
 
 /* T38 setup fields */
 static int hf_t38_setup        = -1;
@@ -191,7 +184,7 @@ static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
 
 /*--- End of included file: packet-t38-ett.c ---*/
-#line 150 "packet-t38-template.c"
+#line 143 "packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -977,7 +970,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 400 "packet-t38-template.c"
+#line 393 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1348,7 +1341,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 694 "packet-t38-template.c"
+#line 687 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1403,7 +1396,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 735 "packet-t38-template.c"
+#line 728 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
@@ -1417,7 +1410,7 @@ proto_register_t38(void)
 	register_dissector("t38", dissect_t38, proto_t38);
 
 	/* Init reassemble tables for HDLC */
-    register_init_routine(t38_defragment_init);
+	register_init_routine(t38_defragment_init);
 
 	t38_tap = register_tap("t38");
 
@@ -1445,7 +1438,8 @@ proto_register_t38(void)
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "
 		"when TPKT is used over TCP. "
-        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		"To use this option, you must also enable \"Allow subdissectors to reassemble "
+		"TCP streams\" in the TCP protocol settings.",
 		&t38_tpkt_reassembly);
 	prefs_register_enum_preference(t38_module, "tpkt_usage",
 		"TPKT used over TCP",
@@ -1463,12 +1457,17 @@ proto_register_t38(void)
 void
 proto_reg_handoff_t38(void)
 {
-	static int t38_prefs_initialized = FALSE;
+	static gboolean t38_prefs_initialized = FALSE;
+	static guint tcp_port;
+	static guint udp_port;
 
 	if (!t38_prefs_initialized) {
 		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
 		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
+		rtp_handle = find_dissector("rtp");
+		t30_hdlc_handle = find_dissector("t30.hdlc");
+		data_handle = find_dissector("data");
 		t38_prefs_initialized = TRUE;
 	}
 	else {
@@ -1481,11 +1480,5 @@ proto_reg_handoff_t38(void)
 	dissector_add("tcp.port", tcp_port, t38_tcp_handle);
 	dissector_add("udp.port", udp_port, t38_udp_handle);
 
-	rtp_handle = find_dissector("rtp");
-	t30_hdlc_handle = find_dissector("t30.hdlc");
-	data_handle = find_dissector("data");
 }
-
-
-
 

@@ -65,9 +65,6 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 proto_tree *global_tree  = NULL;
 packet_info *global_pinfo = NULL;
 
-/* dissector for data */
-static dissector_handle_t data_handle;
-
 static const char *abstract_syntax_name_oid;
 static guint32 presentation_context_identifier;
 
@@ -167,7 +164,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 81 "packet-pres-template.c"
+#line 78 "packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -212,7 +209,7 @@ static gint ett_pres_T_presentation_data_values = -1;
 static gint ett_pres_User_session_requirements = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 86 "packet-pres-template.c"
+#line 83 "packet-pres-template.c"
 
 
 static guint
@@ -1264,7 +1261,7 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 169 "packet-pres-template.c"
+#line 166 "packet-pres-template.c"
 
 
 /*
@@ -1727,7 +1724,7 @@ void proto_register_pres(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 323 "packet-pres-template.c"
+#line 320 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1773,7 +1770,7 @@ void proto_register_pres(void) {
     &ett_pres_User_session_requirements,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 329 "packet-pres-template.c"
+#line 326 "packet-pres-template.c"
   };
 
   /* Register protocol */
@@ -1792,7 +1789,5 @@ void proto_reg_handoff_pres(void) {
 
 /*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres, 
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
-
-	data_handle = find_dissector("data");
 
 }

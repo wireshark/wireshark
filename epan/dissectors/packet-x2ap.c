@@ -138,8 +138,6 @@ typedef enum _ProtocolIE_ID_enum {
 /*--- End of included file: packet-x2ap-val.h ---*/
 #line 58 "packet-x2ap-template.c"
 
-static dissector_handle_t x2ap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
 
@@ -324,7 +322,7 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 65 "packet-x2ap-template.c"
+#line 63 "packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
@@ -416,7 +414,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 70 "packet-x2ap-template.c"
+#line 68 "packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2956,7 +2954,7 @@ static void dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 90 "packet-x2ap-template.c"
+#line 88 "packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3718,7 +3716,7 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 143 "packet-x2ap-template.c"
+#line 141 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -3811,7 +3809,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 149 "packet-x2ap-template.c"
+#line 147 "packet-x2ap-template.c"
   };
 
 
@@ -3823,7 +3821,6 @@ void proto_register_x2ap(void) {
  
   /* Register dissector */
   register_dissector("x2ap", dissect_x2ap, proto_x2ap);
-  x2ap_handle = find_dissector("x2ap");
 
   /* Register dissector tables */
   x2ap_ies_dissector_table = register_dissector_table("x2ap.ies", "X2AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -3839,7 +3836,9 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
+	dissector_handle_t x2ap_handle;
 
+	x2ap_handle = find_dissector("x2ap");
 	dissector_add("sctp.port", 0, x2ap_handle);
 
 
@@ -3904,7 +3903,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 180 "packet-x2ap-template.c"
+#line 179 "packet-x2ap-template.c"
 }
 
 
