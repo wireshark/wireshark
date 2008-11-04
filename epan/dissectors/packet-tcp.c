@@ -558,13 +558,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_anal
 
 	tcpd->ta=se_tree_lookup32(tcpd->acked_table, frame);
 	if((!tcpd->ta) && createflag){
-		tcpd->ta=se_alloc(sizeof(struct tcp_acked));
-		tcpd->ta->frame_acked=0;
-		tcpd->ta->ts.secs=0;
-		tcpd->ta->ts.nsecs=0;
-		tcpd->ta->flags=0;
-		tcpd->ta->dupack_num=0;
-		tcpd->ta->dupack_frame=0;
+		tcpd->ta=se_alloc0(sizeof(struct tcp_acked));
 		se_tree_insert32(tcpd->acked_table, frame, (void *)tcpd->ta);
 	}
 }
