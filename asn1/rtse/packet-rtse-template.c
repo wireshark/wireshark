@@ -57,9 +57,6 @@ static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
 
-static  dissector_handle_t rtse_handle = NULL;
-static  dissector_handle_t ros_handle = NULL;
-
 /* Preferences */
 static gboolean rtse_reassemble = TRUE;
 
@@ -108,8 +105,17 @@ static const fragment_items rtse_frag_items = {
 };
 
 void
-register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_ros)
+register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name, gboolean uses_ros)
 {
+/* XXX: Note that this fcn is called from proto_reg_handoff in *other* dissectors ... */
+
+  static  dissector_handle_t rtse_handle = NULL;
+  static  dissector_handle_t ros_handle = NULL;
+
+  if (rtse_handle == NULL)
+    rtse_handle = find_dissector("rtse");
+  if (ros_handle == NULL)
+    ros_handle = find_dissector("ros");
 
   /* save the name - but not used */
   g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
@@ -364,8 +370,6 @@ void proto_register_rtse(void) {
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
 
-  rtse_handle = find_dissector("rtse");
-  ros_handle = find_dissector("ros");
 
 }
 
