@@ -59,7 +59,6 @@ int proto_h235 = -1;
 /* Initialize the subtree pointers */
 #include "packet-h235-ett.c"
 
-static dissector_handle_t mikey_handle=NULL;
 
 static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
@@ -102,8 +101,8 @@ void proto_register_h235(void) {
     oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.1.6");
     oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.2.6");
   /* H.235.7, Chapter 5, Table 1 */
-    oid_add_from_string("MIKEY",			OID_MIKEY);
-    oid_add_from_string("MIKEY-PS",			OID_MIKEY_PS);
+    oid_add_from_string("MIKEY",		OID_MIKEY);
+    oid_add_from_string("MIKEY-PS",		OID_MIKEY_PS);
     oid_add_from_string("MIKEY-DHHMAC",		OID_MIKEY_DHHMAC);
     oid_add_from_string("MIKEY-PK-SIGN",	OID_MIKEY_PK_SIGN);
     oid_add_from_string("MIKEY-DH-SIGN",	OID_MIKEY_DH_SIGN);
@@ -120,6 +119,7 @@ void proto_register_h235(void) {
 
 /*--- proto_reg_handoff_h235 -------------------------------------------*/
 void proto_reg_handoff_h235(void) {
+  dissector_handle_t mikey_handle;
 
   mikey_handle = find_dissector("mikey");
 

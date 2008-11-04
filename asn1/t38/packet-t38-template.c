@@ -73,13 +73,6 @@ static guint global_t38_udp_port = PORT_T38;
 
 static int t38_tap = -1;
 
-/*
-* Variables to allow for proper deletion of dissector registration when
-* the user changes port from the gui.
-*/
-static guint tcp_port = 0;
-static guint udp_port = 0;
-
 /* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
 static gboolean use_pre_corrigendum_asn1_specification = TRUE;
 
@@ -745,7 +738,7 @@ proto_register_t38(void)
 	register_dissector("t38", dissect_t38, proto_t38);
 
 	/* Init reassemble tables for HDLC */
-    register_init_routine(t38_defragment_init);
+	register_init_routine(t38_defragment_init);
 
 	t38_tap = register_tap("t38");
 
@@ -773,7 +766,8 @@ proto_register_t38(void)
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "
 		"when TPKT is used over TCP. "
-        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+		"To use this option, you must also enable \"Allow subdissectors to reassemble "
+		"TCP streams\" in the TCP protocol settings.",
 		&t38_tpkt_reassembly);
 	prefs_register_enum_preference(t38_module, "tpkt_usage",
 		"TPKT used over TCP",
@@ -791,12 +785,17 @@ proto_register_t38(void)
 void
 proto_reg_handoff_t38(void)
 {
-	static int t38_prefs_initialized = FALSE;
+	static gboolean t38_prefs_initialized = FALSE;
+	static guint tcp_port;
+	static guint udp_port;
 
 	if (!t38_prefs_initialized) {
 		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
 		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
+		rtp_handle = find_dissector("rtp");
+		t30_hdlc_handle = find_dissector("t30.hdlc");
+		data_handle = find_dissector("data");
 		t38_prefs_initialized = TRUE;
 	}
 	else {
@@ -809,11 +808,5 @@ proto_reg_handoff_t38(void)
 	dissector_add("tcp.port", tcp_port, t38_tcp_handle);
 	dissector_add("udp.port", udp_port, t38_udp_handle);
 
-	rtp_handle = find_dissector("rtp");
-	t30_hdlc_handle = find_dissector("t30.hdlc");
-	data_handle = find_dissector("data");
 }
-
-
-
 

@@ -51,8 +51,6 @@
 
 #include "packet-nbap-val.h"
 
-static dissector_handle_t nbap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
 
@@ -153,7 +151,6 @@ void proto_register_nbap(void) {
  
   /* Register dissector */
   register_dissector("nbap", dissect_nbap, proto_nbap);
-  nbap_handle = find_dissector("nbap");
 
   /* Register dissector tables */
   nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -169,7 +166,9 @@ void proto_register_nbap(void) {
 void
 proto_reg_handoff_nbap(void)
 {
+	dissector_handle_t nbap_handle;
 
+	nbap_handle = find_dissector("nbap");
 	/*dissector_add("sctp.ppi",  Add ppid here, nbap_handle); */
 	dissector_add("sctp.port", 0, nbap_handle);
 

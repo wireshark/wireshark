@@ -71,7 +71,6 @@ static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
-static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
 static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
@@ -554,6 +553,8 @@ void proto_register_h245(void) {
 
 /*--- proto_reg_handoff_h245 ---------------------------------------*/
 void proto_reg_handoff_h245(void) {
+	dissector_handle_t h245_handle;
+
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	t38_handle = find_dissector("t38");
@@ -562,9 +563,9 @@ void proto_reg_handoff_h245(void) {
 	amr_handle = find_dissector("amr_if2_nb");
 
 
-	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
+	h245_handle = find_dissector("h245");
 	dissector_add_handle("tcp.port", h245_handle);
-	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
+	MultimediaSystemControlMessage_handle = find_dissector("h245dg");
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
 }
 

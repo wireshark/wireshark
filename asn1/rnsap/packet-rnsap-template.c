@@ -56,8 +56,6 @@
 
 #include "packet-rnsap-val.h"
 
-static dissector_handle_t rnsap_handle = NULL;
-
 static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -160,7 +158,6 @@ void proto_register_rnsap(void) {
  
   /* Register dissector */
   register_dissector("rnsap", dissect_rnsap, proto_rnsap);
-  rnsap_handle = find_dissector("rnsap");
 
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -176,7 +173,9 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
+	dissector_handle_t rnsap_handle;
 
+	rnsap_handle = find_dissector("rnsap");
 	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 
 	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);

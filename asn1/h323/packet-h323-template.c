@@ -91,9 +91,6 @@ void gef_ctx_update_key(gef_ctx_t *gefx) {
   );
 }
 
-/* Subdissectors */
-static dissector_handle_t q931_handle = NULL; 
-
 /* Initialize the protocol and registered fields */
 int proto_h323 = -1;
 #include "packet-h323-hf.c"
@@ -129,6 +126,8 @@ void proto_register_h323(void) {
 /*--- proto_reg_handoff_h323 -------------------------------------------*/
 void proto_reg_handoff_h323(void) 
 {
+  dissector_handle_t q931_handle; 
+
   q931_handle = find_dissector("q931");
 
   /* H.323, Annex M1, Tunnelling of signalling protocols (QSIG) in H.323 */

@@ -312,11 +312,7 @@ static gint ett_qsig_unknown_extension = -1;
 
 /* Preferences */
 
-/* Subdissectors */
-static dissector_handle_t q931_handle = NULL; 
-static dissector_handle_t data_handle = NULL; 
-
-/* Gloabl variables */
+/* Global variables */
 static const char *extension_oid = NULL;
 
 /* Dissector tables */
@@ -643,13 +639,13 @@ void proto_register_qsig(void) {
 /*--- proto_reg_handoff_qsig ------------------------------------------------*/
 void proto_reg_handoff_qsig(void) {
   int i;
+  dissector_handle_t q931_handle; 
   dissector_handle_t qsig_arg_handle;
   dissector_handle_t qsig_res_handle;
   dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
   q931_handle = find_dissector("q931");
-  data_handle = find_dissector("data");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);

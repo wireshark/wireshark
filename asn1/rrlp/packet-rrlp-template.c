@@ -53,8 +53,6 @@
 #pragma warning(disable:4146)
 #endif
 
-static dissector_handle_t rrlp_handle=NULL;
-
 
 /* Initialize the protocol and registered fields */
 static int proto_rrlp = -1;
@@ -105,9 +103,6 @@ void proto_register_rrlp(void) {
 void
 proto_reg_handoff_rrlp(void)
 {
-
-	rrlp_handle = create_dissector_handle(dissect_PDU_PDU, proto_rrlp);
-
 
 }
 

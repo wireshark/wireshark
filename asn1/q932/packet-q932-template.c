@@ -60,11 +60,7 @@ static gint ett_q932_ie = -1;
 static rose_ctx_t q932_rose_ctx;
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
-static dissector_handle_t q932_ros_handle = NULL; 
-
-/* Gloabl variables */
-
+static dissector_handle_t q932_ros_handle; 
 
 #define	Q932_IE_EXTENDED_FACILITY   0x0D
 #define	Q932_IE_FACILITY            0x1C
@@ -335,7 +331,6 @@ void proto_reg_handoff_q932(void) {
   dissector_add("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle); 
 
   q932_ros_handle = find_dissector("q932.ros");
-  data_handle = find_dissector("data");
 }
 
 /*---------------------------------------------------------------------------*/

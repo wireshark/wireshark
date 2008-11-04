@@ -57,9 +57,6 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 proto_tree *global_tree  = NULL;
 packet_info *global_pinfo = NULL;
 
-/* dissector for data */
-static dissector_handle_t data_handle;
-
 static const char *abstract_syntax_name_oid;
 static guint32 presentation_context_identifier;
 
@@ -344,7 +341,5 @@ void proto_reg_handoff_pres(void) {
 
 /*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres, 
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
-
-	data_handle = find_dissector("data");
 
 }

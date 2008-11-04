@@ -71,9 +71,6 @@ static const value_string h450_str_error[] = {
 /* ROSE context */
 static rose_ctx_t h450_rose_ctx;
 
-/* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
-
 /* Global variables */
 
 #include "packet-h450-fn.c"
@@ -291,8 +288,6 @@ proto_reg_handoff_h450(void)
   dissector_handle_t h450_arg_handle;
   dissector_handle_t h450_res_handle;
   dissector_handle_t h450_err_handle;
-
-  data_handle = find_dissector("data");
 
   h450_arg_handle = new_create_dissector_handle(dissect_h450_arg, proto_h450);
   h450_res_handle = new_create_dissector_handle(dissect_h450_res, proto_h450);

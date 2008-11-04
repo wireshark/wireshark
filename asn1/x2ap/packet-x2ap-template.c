@@ -56,8 +56,6 @@
 
 #include "packet-x2ap-val.h"
 
-static dissector_handle_t x2ap_handle = NULL;
-
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
 
@@ -157,7 +155,6 @@ void proto_register_x2ap(void) {
  
   /* Register dissector */
   register_dissector("x2ap", dissect_x2ap, proto_x2ap);
-  x2ap_handle = find_dissector("x2ap");
 
   /* Register dissector tables */
   x2ap_ies_dissector_table = register_dissector_table("x2ap.ies", "X2AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -173,7 +170,9 @@ void proto_register_x2ap(void) {
 void
 proto_reg_handoff_x2ap(void)
 {
+	dissector_handle_t x2ap_handle;
 
+	x2ap_handle = find_dissector("x2ap");
 	dissector_add("sctp.port", 0, x2ap_handle);
 
 #include "packet-x2ap-dis-tab.c"
