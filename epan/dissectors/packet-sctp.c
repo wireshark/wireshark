@@ -1,7 +1,7 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
  *
- * It should be compilant to
+ * It should be compliant to
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
