@@ -54,6 +54,7 @@
 #define PFNAME "rrc"
 
 static dissector_handle_t gsm_a_dtap_handle;
+static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
 
 /* Include constants */
 #include "packet-rrc-val.h"
@@ -87,7 +88,6 @@ dissect_rrc_dymmy_remove_unused_code_warnings(tvbuff_t *tvb _U_, int offset _U_,
 	/* Dummy code to keep GCC happy */
 	switch(hf_index){
 		case 0:
-			dissect_rrc_UE_RadioAccessCapabilityInfo( tvb, offset, actx , tree, hf_index);
 			dissect_rrc_UL_PhysChCapabilityFDD_r6( tvb, offset, actx , tree, hf_index);
 			dissect_rrc_UE_Positioning_GANSS_Data( tvb, offset, actx , tree, hf_index);
 			dissect_rrc_ToTargetRNC_Container( tvb, offset, actx , tree, hf_index);
@@ -153,7 +153,7 @@ proto_reg_handoff_rrc(void)
 {
 
 	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-
+	rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
 }
 
 
