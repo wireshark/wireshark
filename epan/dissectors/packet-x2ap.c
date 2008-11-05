@@ -3839,7 +3839,7 @@ proto_reg_handoff_x2ap(void)
 	dissector_handle_t x2ap_handle;
 
 	x2ap_handle = find_dissector("x2ap");
-	dissector_add("sctp.port", 0, x2ap_handle);
+	dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
 
 
 /*--- Included file: packet-x2ap-dis-tab.c ---*/

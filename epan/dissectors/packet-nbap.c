@@ -54229,7 +54229,7 @@ proto_reg_handoff_nbap(void)
 
 	nbap_handle = find_dissector("nbap");
 	/*dissector_add("sctp.ppi",  Add ppid here, nbap_handle); */
-	dissector_add("sctp.port", 0, nbap_handle);
+	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 
 
 /*--- Included file: packet-nbap-dis-tab.c ---*/

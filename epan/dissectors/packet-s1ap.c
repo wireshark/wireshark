@@ -5488,6 +5488,7 @@ proto_reg_handoff_s1ap(void)
 
 	if (!Initialized) {
 		s1ap_handle = find_dissector("s1ap");
+		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		Initialized=TRUE;
 
 /*--- Included file: packet-s1ap-dis-tab.c ---*/
@@ -5647,13 +5648,17 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 168 "packet-s1ap-template.c"
+#line 169 "packet-s1ap-template.c"
 	} else {
-		dissector_delete("sctp.port", SctpPort, s1ap_handle);
+		if (SctpPort != 0) {
+			dissector_delete("sctp.port", SctpPort, s1ap_handle);
+		}
 	}
 
 	SctpPort=gbl_s1apSctpPort;
-	dissector_add("sctp.port", SctpPort, s1ap_handle);
+	if (SctpPort != 0) {
+		dissector_add("sctp.port", SctpPort, s1ap_handle);
+	}
 
 }
 
@@ -6785,7 +6790,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 185 "packet-s1ap-template.c"
+#line 190 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -6948,7 +6953,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 191 "packet-s1ap-template.c"
+#line 196 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
