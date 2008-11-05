@@ -153,6 +153,51 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
 
 }
 
+struct _close_cb_data {
+    lua_State* L;
+    int func_ref;
+    TextWindow wslua_tw;
+};
+
+
+int text_win_close_cb_error_handler(lua_State* L) {
+    const gchar* error =  lua_tostring(L,1);
+    report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
+    return 0;
+}
+
+static void text_win_close_cb(void* data) {
+    struct _close_cb_data* cbd = data;
+    lua_State* L = cbd->L;
+
+    if (cbd->L) { /* close function is set */
+	
+        lua_settop(L,0);
+        lua_pushcfunction(L,text_win_close_cb_error_handler);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
+
+        switch ( lua_pcall(L,0,0,1) ) {
+            case 0:
+                break;
+            case LUA_ERRRUN:
+                g_warning("Runtime error during execution of TextWindow close callback");
+                break;
+            case LUA_ERRMEM:
+                g_warning("Memory alloc error during execution of TextWindow close callback");
+                break;
+            default:
+                break;
+        }
+    }
+    
+    if (cbd->wslua_tw->expired) {
+        g_free(cbd->wslua_tw);
+    } else {
+        cbd->wslua_tw->expired = TRUE;
+    }
+
+}
+
 WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 #define WSLUA_ARG_new_dialog_TITLE 1 /* Title of the dialog's window. */
 #define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when OKd. */
@@ -345,52 +390,32 @@ int ProgDlg_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(TextWindow,NOP,NOP); /* Manages a text window. */
 
 /* XXX: button and close callback data is being leaked */
+/* XXX: lua callback function and TextWindow are not garbage collected because 
+   they stay in LUA_REGISTRYINDEX forever */
 
 WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 #define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. */
 
     const gchar* title;
-    TextWindow tw;
+    TextWindow tw = NULL;
+    struct _close_cb_data* default_cbd;
 
-	title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
-    tw = ops->new_text_window(title);
+    title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
+    tw = g_malloc(sizeof(struct _wslua_tw));
+    tw->expired = FALSE;
+    tw->ws_tw = ops->new_text_window(title);
+    
+    default_cbd = g_malloc(sizeof(struct _close_cb_data));
+
+    default_cbd->L = NULL;
+    default_cbd->func_ref = 0;
+    default_cbd->wslua_tw = tw;
+
+    ops->set_close_cb(tw->ws_tw,text_win_close_cb,default_cbd);
+
     pushTextWindow(L,tw);
 
 	WSLUA_RETURN(1); /* The newly created TextWindow object. */
-}
-
-struct _close_cb_data {
-    lua_State* L;
-    int func_ref;
-};
-
-int text_win_close_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
-    return 0;
-}
-
-static void text_win_close_cb(void* data) {
-    struct _close_cb_data* cbd = data;
-    lua_State* L = cbd->L;
-
-	lua_settop(L,0);
-    lua_pushcfunction(L,text_win_close_cb_error_handler);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
-
-    switch ( lua_pcall(L,0,0,1) ) {
-        case 0:
-            break;
-        case LUA_ERRRUN:
-            g_warning("Runtime error during execution of TextWindow close callback");
-            break;
-        case LUA_ERRMEM:
-            g_warning("Memory alloc error during execution of TextWindow close callback");
-            break;
-        default:
-            g_assert_not_reached();
-            break;
-    }
 }
 
 WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the window closes */
@@ -411,10 +436,10 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
 
     cbd->L = L;
     cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    cbd->wslua_tw = tw;
 
-    ops->set_close_cb(tw,text_win_close_cb,cbd);
+    ops->set_close_cb(tw->ws_tw,text_win_close_cb,cbd);
 
-    pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -427,12 +452,14 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set,"cannot be called for something not a TextWindow");
 
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
     if (!text)
 		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"must be a string");
 
-    ops->set_text(tw,text);
+    ops->set_text(tw->ws_tw,text);
 
-    pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -444,12 +471,14 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 	if (!tw)
 		WSLUA_ERROR(TextWindow_append,"cannot be called for something not a TextWindow");
 
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
 	if (!text)
 		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"must be a string");
 
-    ops->append_text(tw,text);
+    ops->append_text(tw->ws_tw,text);
 
-    pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -461,12 +490,14 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 	if (!tw)
 		WSLUA_ERROR(TextWindow_prepend,"cannot be called for something not a TextWindow");
 
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
  	if (!text)
 		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"must be a string");
 
-    ops->prepend_text(tw,text);
+    ops->prepend_text(tw->ws_tw,text);
 
-    pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -476,9 +507,11 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window.
 	if (!tw)
 		WSLUA_ERROR(TextWindow_clear,"cannot be called for something not a TextWindow");
 
-    ops->clear_text(tw);
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
+    ops->clear_text(tw->ws_tw);
 
-    pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -489,7 +522,10 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
 	if (!tw)
 		WSLUA_ERROR(TextWindow_get_text,"cannot be called for something not a TextWindow");
 
-	text = ops->get_text(tw);
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
+	text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
 	WSLUA_RETURN(1); /* The TextWindow's text. */
@@ -499,9 +535,16 @@ static int TextWindow__gc(lua_State* L) {
     TextWindow tw = checkTextWindow(L,1);
 
 	if (!tw)
-		WSLUA_ERROR(TextWindow_gc,"cannot be called for something not a TextWindow");
+		return 0;
+	
+	if (!tw->expired) {
+		tw->expired = TRUE;
+		ops->destroy_text_window(tw->ws_tw);
+	} else {
+		g_free(tw);
+	}
 
-    ops->destroy_text_window(tw);
+	
     return 0;
 }
 
@@ -514,26 +557,30 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set_editable,"cannot be called for something not a TextWindow");
 
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
 	if (ops->set_editable)
-		ops->set_editable(tw,editable);
+		ops->set_editable(tw->ws_tw,editable);
 
-	pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 typedef struct _wslua_bt_cb_t {
 	lua_State* L;
 	int func_ref;
+	int wslua_tw_ref;
 } wslua_bt_cb_t;
 
-static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
+static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
 	wslua_bt_cb_t* cbd = data;
 	lua_State* L = cbd->L;
+	(void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */
 
 	lua_settop(L,0);
 	lua_pushcfunction(L,dlg_cb_error_handler);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
-	pushTextWindow(L,tw);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->wslua_tw_ref);
 
 	switch ( lua_pcall(L,1,0,1) ) {
 		case 0:
@@ -564,6 +611,9 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 	if (!tw)
 		WSLUA_ERROR(TextWindow_add_button,"cannot be called for something not a TextWindow");
 
+    if (tw->expired)
+		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"expired TextWindow");
+    
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
@@ -573,7 +623,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 		fbt = g_malloc(sizeof(funnel_bt_t));
 		cbd = g_malloc(sizeof(wslua_bt_cb_t));
 
-		fbt->tw = tw;
+		fbt->tw = tw->ws_tw;
 		fbt->func = wslua_button_callback;
 		fbt->data = cbd;
 		fbt->free = g_free;
@@ -581,11 +631,11 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 
 		cbd->L = L;
 		cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		cbd->wslua_tw_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-		ops->add_button(tw,fbt,label);
+		ops->add_button(tw->ws_tw,fbt,label);
 	}
 
-	pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 

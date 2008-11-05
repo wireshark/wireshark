@@ -76,6 +76,11 @@ struct _wslua_tvbrange {
     int len;
 };
 
+struct _wslua_tw {
+    funnel_text_window_t* ws_tw;
+    gboolean expired;
+};
+
 typedef struct _wslua_field_t {
     int hfid;
     int ett;
@@ -219,7 +224,7 @@ typedef guint64* UInt64;
 typedef header_field_info** Field;
 typedef field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
-typedef funnel_text_window_t* TextWindow;
+typedef struct _wslua_tw* TextWindow;
 typedef struct _wslua_progdlg* ProgDlg;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
