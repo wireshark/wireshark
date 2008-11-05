@@ -49,9 +49,6 @@
 #define PSNAME "RPCAP"
 #define PFNAME "rpcap"
 
-/* Recommended UDP Port Numbers */
-#define DEFAULT_RPCAP_PORT_RANGE  ""
-
 #define RPCAP_MSG_ERROR               1
 #define RPCAP_MSG_FINDALLIF_REQ       2
 #define RPCAP_MSG_OPEN_REQ            3
@@ -111,10 +108,10 @@ static int proto_rpcap = -1;
 static int hf_version = -1;
 static int hf_type = -1;
 static int hf_value = -1;
-static int hf_error_value = -1;
 static int hf_plen = -1;
 
 static int hf_error = -1;
+static int hf_error_value = -1;
 
 static int hf_packet = -1;
 static int hf_timestamp = -1;
@@ -214,8 +211,8 @@ static dissector_handle_t data_handle = NULL;
 
 
 /* User definable values */
-static range_t *global_rpcap_port_range = NULL;          /* Default disabled */
 static gboolean add_packet_info = TRUE;
+static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
 
 /* Global variables */
 static guint32 linktype = WTAP_ENCAP_UNKNOWN;
@@ -735,7 +732,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   gint caplen, frame_no;
   
-  if (add_packet_info) {
+  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN) {
     if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
       /* Indicate RPCAP in the protocol column */
       col_set_str (pinfo->cinfo, COL_PROTOCOL, "R|");
@@ -771,7 +768,12 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   proto_item_append_text (ti, ", Frame %d", frame_no);
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
-  dissector_try_port(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+  if (linktype != WTAP_ENCAP_UNKNOWN) {
+    dissector_try_port(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+  } else {
+    proto_item_append_text (ti, ", Unknown link-layer type");
+    call_dissector (data_handle, new_tvb, pinfo, top_tree);
+  }
   offset += caplen;
   
   return offset;
@@ -874,6 +876,115 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 }
 
 
+static gboolean
+dissect_rpcap_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean tcp)
+{
+  gint offset = 0;
+  guint8 version, msg_type;
+  guint16 msg_value;
+  guint32 plen, len;
+
+  if (tvb_length (tvb) < 8)
+    /* Too short */
+    return FALSE;
+  
+  version = tvb_get_guint8 (tvb, offset);
+  if (version != 0)
+    /* Incorrect version */
+    return FALSE;
+  offset++;
+
+  msg_type = tvb_get_guint8 (tvb, offset);
+  if (!tcp && msg_type != 7) {
+    /* UDP is only used for packets */
+    return FALSE;
+  }
+  offset++;
+
+  msg_value = tvb_get_ntohs (tvb, offset);
+  if (msg_value > 0) {
+    if (msg_type == RPCAP_MSG_ERROR) {
+      /* Must have a valid error code */
+      if (msg_value < RPCAP_ERR_NETW || msg_value > RPCAP_ERR_WRONGVER) 
+	return FALSE;
+    } else if (msg_type != RPCAP_MSG_FINDALLIF_REPLY) {
+      return FALSE;
+    }
+  }
+  offset += 2;
+
+  plen = tvb_get_ntohl (tvb, offset);
+  offset += 4;
+  len = (guint32) tvb_length_remaining (tvb, offset);
+  
+  switch (msg_type) {
+    
+  case RPCAP_MSG_FINDALLIF_REQ:
+  case RPCAP_MSG_UPDATEFILTER_REPLY:
+  case RPCAP_MSG_AUTH_REPLY:
+  case RPCAP_MSG_STATS_REQ:
+  case RPCAP_MSG_CLOSE:
+  case RPCAP_MSG_SETSAMPLING_REPLY:
+  case RPCAP_MSG_ENDCAP_REQ:
+  case RPCAP_MSG_ENDCAP_REPLY:
+    /* Empty payload */
+    if (plen != 0 || len != 0)
+      return FALSE;
+    break;
+    
+  case RPCAP_MSG_OPEN_REPLY:
+  case RPCAP_MSG_STARTCAP_REPLY:
+  case RPCAP_MSG_SETSAMPLING_REQ:
+    /* Always 8 bytes */
+    if (plen != 8 || len != 8)
+      return FALSE;
+    break;
+    
+  case RPCAP_MSG_STATS_REPLY:
+    /* Always 16 bytes */
+    if (plen != 16 || len != 16)
+      return FALSE;
+    break;
+    
+  case RPCAP_MSG_PACKET:
+    /* Must have the frame header */
+    if (plen != len || plen < 20)
+      return FALSE;
+    break;
+    
+  case RPCAP_MSG_ERROR:
+  case RPCAP_MSG_FINDALLIF_REPLY:
+  case RPCAP_MSG_OPEN_REQ:
+  case RPCAP_MSG_STARTCAP_REQ:
+  case RPCAP_MSG_UPDATEFILTER_REQ:
+  case RPCAP_MSG_AUTH_REQ:
+    /* Variable length */
+    if (plen != len)
+      return FALSE;
+    break;
+  default:
+    /* Unknown message type */
+    return FALSE;
+  }
+
+  return dissect_rpcap (tvb, pinfo, tree);
+}
+
+
+static gboolean
+dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  return dissect_rpcap_heur (tvb, pinfo, tree, TRUE);
+}
+
+
+static gboolean
+dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  return dissect_rpcap_heur (tvb, pinfo, tree, FALSE);
+}
+
+
 void
 proto_register_rpcap (void)
 {
@@ -885,9 +996,6 @@ proto_register_rpcap (void)
     { &hf_type,
       { "Message type", "rpcap.type", FT_UINT8, BASE_DEC,
 	VALS(message_type), 0x0, "Message type", HFILL } },
-    { &hf_error_value,
-      { "Error value", "rpcap.error_value", FT_UINT16, BASE_DEC,
-	VALS(error_codes), 0x0, "Error value", HFILL } },
     { &hf_value,
       { "Message value", "rpcap.value", FT_UINT16, BASE_DEC,
 	NULL, 0x0, "Message value", HFILL } },
@@ -899,6 +1007,9 @@ proto_register_rpcap (void)
     { &hf_error,
       { "Error", "rpcap.error", FT_STRING, BASE_DEC,
 	NULL, 0x0, "Error text", HFILL } },
+    { &hf_error_value,
+      { "Error value", "rpcap.error_value", FT_UINT16, BASE_DEC,
+	VALS(error_codes), 0x0, "Error value", HFILL } },
     
     /* Packet header */
     { &hf_packet,
@@ -1147,16 +1258,14 @@ proto_register_rpcap (void)
   proto_register_field_array (proto_rpcap, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  /* Set default UDP ports */
-  range_convert_str (&global_rpcap_port_range, DEFAULT_RPCAP_PORT_RANGE, MAX_UDP_PORT);
-
   /* Register our configuration options */
   rpcap_module = prefs_register_protocol (proto_rpcap, proto_reg_handoff_rpcap);
 
-  prefs_register_range_preference (rpcap_module, "ports",
-				  "Port numbers",
-				  "Port numbers used for RPCAP traffic",
-				   &global_rpcap_port_range, MAX_UDP_PORT);
+  prefs_register_uint_preference (rpcap_module, "linktype",
+				  "Default link-layer type",
+				  "Default link-layer type to use if not received "
+				  "a Open Reply package",
+				  10, &global_linktype);
   prefs_register_bool_preference (rpcap_module, "add_packet_info",
                                   "Indicate RPCAP in columns",
                                   "Indicate that this is a Remote PCAP packet "
@@ -1164,39 +1273,20 @@ proto_register_rpcap (void)
                                   &add_packet_info);
 }
 
-static void
-range_delete_callback (guint32 port)
-{
-  dissector_delete ("tcp.port", port, rpcap_handle);
-  dissector_delete ("udp.port", port, rpcap_handle);
-}
-
-static void
-range_add_callback (guint32 port)
-{
-  dissector_add ("tcp.port", port, rpcap_handle);
-  dissector_add ("udp.port", port, rpcap_handle);
-}
-
 void
 proto_reg_handoff_rpcap (void)
 {
-  static range_t *rpcap_port_range;
   static int rpcap_prefs_initialized = FALSE;
 
   if (!rpcap_prefs_initialized) {
     rpcap_handle = find_dissector (PFNAME);
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
-  } else {
-    range_foreach (rpcap_port_range, range_delete_callback);
-    g_free (rpcap_port_range);
-  }
-
-  /* Save port number for later deletion */
-  rpcap_port_range = range_copy (global_rpcap_port_range);
     
-  range_foreach (rpcap_port_range, range_add_callback);
+    heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, proto_rpcap);
+    heur_dissector_add ("udp", dissect_rpcap_heur_udp, proto_rpcap);
+  }
+  linktype = global_linktype;
 }
 
 /*
