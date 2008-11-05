@@ -96,6 +96,11 @@ static int hf_icmpv6_option_type = -1;
 static int hf_icmpv6_option_length = -1;
 static int hf_icmpv6_opt_cga_pad_len = -1;
 static int hf_icmpv6_opt_cga = -1;
+static int hf_icmpv6_opt_cga_modifier = -1;
+static int hf_icmpv6_opt_cga_subnet_prefix = -1;
+static int hf_icmpv6_opt_cga_count = -1;
+static int hf_icmpv6_opt_cga_ext_type = -1;
+static int hf_icmpv6_opt_cga_ext_length = -1;
 static int hf_icmpv6_opt_rsa_key_hash = -1;
 static int hf_icmpv6_opt_name_type = -1;
 static int hf_icmpv6_opt_name_x501 = -1;
@@ -107,6 +112,7 @@ static int hf_icmpv6_comp = -1;
 static int hf_icmpv6_x509if_Name = -1;
 static int hf_icmpv6_x509af_Certificate = -1;
 static int hf_icmpv6_recursive_dns_serv = -1;
+
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -120,6 +126,7 @@ static gint ett_nodeinfo_nodebitmap = -1;
 static gint ett_nodeinfo_nodedns = -1;
 static gint ett_multicastRR = -1;
 static gint ett_icmpv6opt_name = -1;
+static gint ett_cga_param_name = -1;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -275,8 +282,8 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static void
 dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6opt_tree, *field_tree, *name_tree;
-    proto_item *ti, *tf, *name_item;
+    proto_tree *icmp6opt_tree, *field_tree, *name_tree, *cga_tree;
+    proto_item *ti, *tf, *name_item, *cga_item;
     struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
     const char *typename;
@@ -433,7 +440,8 @@ again:
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
 	break;
       }
-	case ND_OPT_CGA: /* 11 */
+	case ND_OPT_CGA: /* 11 */ {
+		guint16 ext_data_len;
 		/* RFC 3971 5.1.  CGA Option */
 		/* Pad Length */
 		opt_offset = offset +2;
@@ -448,11 +456,32 @@ again:
 		 * "Cryptographically Generated Addresses (CGA)", RFC3972.
 		 */
 		par_len = len-4-padd_length;
-		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
-		opt_offset = opt_offset + par_len;
+		cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
+		par_len += opt_offset;
+		cga_tree = proto_item_add_subtree(cga_item, ett_cga_param_name);
+		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_modifier,tvb, opt_offset,16,FALSE);
+		opt_offset += 16;
+		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_subnet_prefix,tvb,opt_offset,8,FALSE);
+		opt_offset += 8;
+		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_count,tvb,opt_offset,1,FALSE);
+		opt_offset++;
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+		opt_offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, opt_offset, &asn1_ctx, cga_tree, -1);
+		/* Process RFC 4581*/
+		while (opt_offset < par_len) {
+			proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_type,tvb,opt_offset,2,FALSE);
+			opt_offset += 2;
+			ext_data_len = tvb_get_ntohs(tvb,opt_offset); 
+			proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_length,tvb,opt_offset,2,FALSE);
+			opt_offset += 2;
+			proto_tree_add_text(cga_tree,tvb,opt_offset,ext_data_len,"Ext Data");
+			opt_offset += ext_data_len;
+		}
+
 		/* Padding */
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
 		break;
+	}
 	case ND_OPT_RSA: /* 12 */
 		/*5.2.  RSA Signature Option */
 		opt_offset = offset +2;
@@ -492,6 +521,7 @@ again:
 	case ND_OPT_NONCE:
 		/* 5.3.2.  Nonce Option */
 		opt_offset = offset +2;
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,len-2,"Nonce");
 		/* Nonce */
 		break;
 	case ND_OPT_TRUST_ANCHOR:
@@ -2125,6 +2155,24 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 		}
 	    break;
+	case ICMP6_CERT_PATH_SOL:
+		/*RFC 3971 6.4.1.  Certification Path Solicitation Message Format */
+		offset += 4;
+		proto_tree_add_text(icmp6_tree, tvb, offset, -1,
+							"Certification Path Solicitation Message");
+		/* Identifier A 16-bit unsigned integer field */
+		proto_tree_add_item(icmp6_tree, hf_icmpv6_identifier, tvb, offset,
+							2, FALSE);
+		offset += 2;
+		/* Component A 16-bit unsigned integer field,
+		 * 65,535 if the sender seeks to retrieve all certificates.
+		 * Otherwise, set to the identifier that the receiver wants.
+		 */
+		proto_tree_add_item(icmp6_tree, hf_icmpv6_comp, tvb, offset, 2,
+							FALSE);
+		offset += 2;
+		dissect_icmpv6ndopt(tvb, offset, pinfo, icmp6_tree);
+		break;
 	case ICMP6_CERT_PATH_AD:
 		/*RFC 3971 6.4.2.  Certification Path Advertisement Message Format */
 		offset = offset +4;
@@ -2172,10 +2220,9 @@ proto_register_icmpv6(void)
       	"", HFILL }},
     { &hf_icmpv6_checksum_bad,
       { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	"", HFILL }},
+      	"", HFILL }},
     { &hf_icmpv6_haad_ha_addrs,
-      { "Home Agent Addresses", "icmpv6.haad.ha_addrs",
-       FT_IPv6, BASE_HEX, NULL, 0x0,
+      { "Home Agent Addresses", "icmpv6.haad.ha_addrs", FT_IPv6, BASE_HEX, NULL, 0x0,
        "", HFILL }},
     { &hf_icmpv6_ra_cur_hop_limit,
       { "Cur hop limit",           "icmpv6.ra.cur_hop_limit", FT_UINT8,  BASE_DEC, NULL, 0x0,
@@ -2198,12 +2245,27 @@ proto_register_icmpv6(void)
     { &hf_icmpv6_option_length,
       { "Length",           "icmpv6.option.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"Options length (in bytes)", HFILL }},
-	{ &hf_icmpv6_opt_cga_pad_len,
+    { &hf_icmpv6_opt_cga_pad_len,
       { "Pad Length",           "icmpv6.option.cga.pad_length", FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"Pad Length (in bytes)", HFILL }},
-	{ &hf_icmpv6_opt_cga,
+    { &hf_icmpv6_opt_cga,
       { "CGA",           "icmpv6.option.cga", FT_BYTES,  BASE_NONE, NULL, 0x0,
       	"CGA", HFILL }},
+    { &hf_icmpv6_opt_cga_modifier,
+      { "Modifier", "icmpv6.option.cga.modifier", FT_BYTES, BASE_HEX, NULL, 0x0,
+        "Modifier", HFILL }},
+    { &hf_icmpv6_opt_cga_subnet_prefix,
+      { "Subnet Prefix", "icmpv6.option.cga.subnet_prefix", FT_BYTES, BASE_HEX, NULL, 0x0,
+        "Subnet Prefix", HFILL }},
+    { &hf_icmpv6_opt_cga_count,
+        { "Count", "icmpv6.option.cga.count", FT_BYTES, BASE_HEX, NULL, 0x0,
+          "Count", HFILL }},
+    { &hf_icmpv6_opt_cga_ext_type,
+        { "Ext Type", "icmpv6.option.cga.ext_type", FT_BYTES, BASE_HEX, NULL, 0x0,
+          "Ext Type", HFILL }},
+    { &hf_icmpv6_opt_cga_ext_length,
+        { "Ext Length", "icmpv6.option.cga.ext_length", FT_BYTES, BASE_HEX, NULL, 0x0,
+          "Ext Length", HFILL }},
 	{ &hf_icmpv6_opt_rsa_key_hash,
       { "Key Hash",           "icmpv6.option.rsa.key_hash", FT_BYTES,  BASE_HEX, NULL, 0x0,
       	"Key Hash", HFILL }},
@@ -2229,16 +2291,14 @@ proto_register_icmpv6(void)
       { "Component",           "icmpv6.comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	"Component", HFILL }},
     { &hf_icmpv6_x509if_Name,
-      { "Name", "icmpv6.x509_Name", FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+      { "Name", "icmpv6.x509_Name", FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0x0,
         "Name", HFILL }},
     { &hf_icmpv6_x509af_Certificate,
-      { "Certificate", "icmpv6_x509_Certificate", FT_NONE, BASE_NONE, NULL, 0,
+      { "Certificate", "icmpv6.x509_Certificate", FT_NONE, BASE_NONE, NULL, 0x0,
         "Certificate", HFILL }},
     { &hf_icmpv6_recursive_dns_serv,
-      { "Recursive DNS Servers", "icmpv6.recursive_dns_serv",
-       FT_IPv6, BASE_HEX, NULL, 0x0,
-       "Recursive DNS Servers", HFILL }},
-
+      { "Recursive DNS Servers", "icmpv6.recursive_dns_serv", FT_IPv6, BASE_HEX, NULL, 0x0,
+        "Recursive DNS Servers", HFILL }}
   };
 
   static gint *ett[] = {
@@ -2253,7 +2313,8 @@ proto_register_icmpv6(void)
     &ett_nodeinfo_nodebitmap,
     &ett_nodeinfo_nodedns,
     &ett_multicastRR,
-	&ett_icmpv6opt_name,
+    &ett_icmpv6opt_name,
+    &ett_cga_param_name
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
