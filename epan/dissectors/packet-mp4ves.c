@@ -337,7 +337,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * unsignedMax       INTEGER(0..65535), -- Look for max 
  */
 static int
-dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
   int offset = 0;
   guint16 lvl;
@@ -356,7 +356,7 @@ dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   return offset;
 }
 static int
-dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
   int offset = 0;
   guint16 lvl;
