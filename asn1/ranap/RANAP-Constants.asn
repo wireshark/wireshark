@@ -1,7 +1,7 @@
 -- RANAP-Constants.asn
 --
--- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
+-- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
 --
 -- 9.3.6	Constant Definitions
 --
@@ -69,6 +69,9 @@ id-MBMSRegistration					INTEGER ::= 39
 id-MBMSCNDe-Registration-Procedure	INTEGER ::= 40
 id-MBMSRABEstablishmentIndication	INTEGER ::= 41
 id-MBMSRABRelease					INTEGER ::= 42
+id-enhancedRelocationComplete		INTEGER ::= 43
+id-enhancedRelocationCompleteConfirm		INTEGER ::= 44
+id-RANAPenhancedRelocation			INTEGER ::= 45
 
 
 
@@ -303,6 +306,18 @@ id-GANSS-PositioningDataSet								INTEGER ::= 184
 id-RequestedGANSSAssistanceData							INTEGER ::= 185
 id-BroadcastGANSSAssistanceDataDecipheringKeys			INTEGER ::= 186
 id-d-RNTI-for-NoIuCSUP									INTEGER ::= 187
+id-RAB-SetupList-EnhancedRelocCompleteReq				INTEGER ::= 188
+id-RAB-SetupItem-EnhancedRelocCompleteReq				INTEGER ::= 189
+id-RAB-SetupList-EnhancedRelocCompleteRes				INTEGER ::= 190
+id-RAB-SetupItem-EnhancedRelocCompleteRes				INTEGER ::= 191
+id-RAB-SetupList-EnhRelocInfoReq						INTEGER ::= 192
+id-RAB-SetupItem-EnhRelocInfoReq						INTEGER ::= 193
+id-RAB-SetupList-EnhRelocInfoRes						INTEGER ::= 194
+id-RAB-SetupItem-EnhRelocInfoRes						INTEGER ::= 195
+id-OldIuSigConId										INTEGER ::= 196
+id-RAB-FailedList-EnhRelocInfoRes						INTEGER ::= 197
+id-RAB-FailedItem-EnhRelocInfoRes						INTEGER ::= 198
 
 END
+
 

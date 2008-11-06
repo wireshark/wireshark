@@ -1,7 +1,7 @@
 -- RANAP-CommonDataTypes.asn
 --
--- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
+-- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
 --
 -- 9.3.5	Common Definitions
 --
@@ -40,4 +40,5 @@ ProtocolIE-ID		::= INTEGER (0..65535)
 TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessfull-outcome, outcome }
 
 END
+
 

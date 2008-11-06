@@ -143,7 +143,10 @@ typedef enum _ProcedureCode_enum {
   id_MBMSRegistration =  39,
   id_MBMSCNDe_Registration_Procedure =  40,
   id_MBMSRABEstablishmentIndication =  41,
-  id_MBMSRABRelease =  42
+  id_MBMSRABRelease =  42,
+  id_enhancedRelocationComplete =  43,
+  id_enhancedRelocationCompleteConfirm =  44,
+  id_RANAPenhancedRelocation =  45
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -326,7 +329,18 @@ typedef enum _ProtocolIE_ID_enum {
   id_GANSS_PositioningDataSet = 184,
   id_RequestedGANSSAssistanceData = 185,
   id_BroadcastGANSSAssistanceDataDecipheringKeys = 186,
-  id_d_RNTI_for_NoIuCSUP = 187
+  id_d_RNTI_for_NoIuCSUP = 187,
+  id_RAB_SetupList_EnhancedRelocCompleteReq = 188,
+  id_RAB_SetupItem_EnhancedRelocCompleteReq = 189,
+  id_RAB_SetupList_EnhancedRelocCompleteRes = 190,
+  id_RAB_SetupItem_EnhancedRelocCompleteRes = 191,
+  id_RAB_SetupList_EnhRelocInfoReq = 192,
+  id_RAB_SetupItem_EnhRelocInfoReq = 193,
+  id_RAB_SetupList_EnhRelocInfoRes = 194,
+  id_RAB_SetupItem_EnhRelocInfoRes = 195,
+  id_OldIuSigConId = 196,
+  id_RAB_FailedList_EnhRelocInfoRes = 197,
+  id_RAB_FailedItem_EnhRelocInfoRes = 198
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
@@ -517,6 +531,14 @@ static int hf_ranap_RAB_ReleaseItem_PDU = -1;     /* RAB_ReleaseItem */
 static int hf_ranap_Iu_ReleaseRequest_PDU = -1;   /* Iu_ReleaseRequest */
 static int hf_ranap_RelocationDetect_PDU = -1;    /* RelocationDetect */
 static int hf_ranap_RelocationComplete_PDU = -1;  /* RelocationComplete */
+static int hf_ranap_EnhancedRelocationCompleteRequest_PDU = -1;  /* EnhancedRelocationCompleteRequest */
+static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteReq_PDU = -1;  /* RAB_SetupList_EnhancedRelocCompleteReq */
+static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteReq_PDU = -1;  /* RAB_SetupItem_EnhancedRelocCompleteReq */
+static int hf_ranap_EnhancedRelocationCompleteResponse_PDU = -1;  /* EnhancedRelocationCompleteResponse */
+static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_SetupList_EnhancedRelocCompleteRes */
+static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_SetupItem_EnhancedRelocCompleteRes */
+static int hf_ranap_EnhancedRelocationCompleteFailure_PDU = -1;  /* EnhancedRelocationCompleteFailure */
+static int hf_ranap_EnhancedRelocationCompleteConfirm_PDU = -1;  /* EnhancedRelocationCompleteConfirm */
 static int hf_ranap_Paging_PDU = -1;              /* Paging */
 static int hf_ranap_CommonID_PDU = -1;            /* CommonID */
 static int hf_ranap_CN_InvokeTrace_PDU = -1;      /* CN_InvokeTrace */
@@ -551,6 +573,14 @@ static int hf_ranap_DirectTransferInformationList_RANAP_RelocInf_PDU = -1;  /* D
 static int hf_ranap_DirectTransferInformationItem_RANAP_RelocInf_PDU = -1;  /* DirectTransferInformationItem_RANAP_RelocInf */
 static int hf_ranap_RAB_ContextList_RANAP_RelocInf_PDU = -1;  /* RAB_ContextList_RANAP_RelocInf */
 static int hf_ranap_RAB_ContextItem_RANAP_RelocInf_PDU = -1;  /* RAB_ContextItem_RANAP_RelocInf */
+static int hf_ranap_RANAP_EnhancedRelocationInformationRequest_PDU = -1;  /* RANAP_EnhancedRelocationInformationRequest */
+static int hf_ranap_RAB_SetupList_EnhRelocInfoReq_PDU = -1;  /* RAB_SetupList_EnhRelocInfoReq */
+static int hf_ranap_RAB_SetupItem_EnhRelocInfoReq_PDU = -1;  /* RAB_SetupItem_EnhRelocInfoReq */
+static int hf_ranap_RANAP_EnhancedRelocationInformationResponse_PDU = -1;  /* RANAP_EnhancedRelocationInformationResponse */
+static int hf_ranap_RAB_SetupList_EnhRelocInfoRes_PDU = -1;  /* RAB_SetupList_EnhRelocInfoRes */
+static int hf_ranap_RAB_SetupItem_EnhRelocInfoRes_PDU = -1;  /* RAB_SetupItem_EnhRelocInfoRes */
+static int hf_ranap_RAB_FailedList_EnhRelocInfoRes_PDU = -1;  /* RAB_FailedList_EnhRelocInfoRes */
+static int hf_ranap_RAB_FailedItem_EnhRelocInfoRes_PDU = -1;  /* RAB_FailedItem_EnhRelocInfoRes */
 static int hf_ranap_RAB_ModifyRequest_PDU = -1;   /* RAB_ModifyRequest */
 static int hf_ranap_RAB_ModifyList_PDU = -1;      /* RAB_ModifyList */
 static int hf_ranap_RAB_ModifyItem_PDU = -1;      /* RAB_ModifyItem */
@@ -880,6 +910,15 @@ static int hf_ranap_ul_GTP_PDU_SequenceNumber = -1;  /* UL_GTP_PDU_SequenceNumbe
 static int hf_ranap_dl_N_PDU_SequenceNumber = -1;  /* DL_N_PDU_SequenceNumber */
 static int hf_ranap_ul_N_PDU_SequenceNumber = -1;  /* UL_N_PDU_SequenceNumber */
 static int hf_ranap_iuSigConId = -1;              /* IuSignallingConnectionIdentifier */
+static int hf_ranap_transportLayerAddressReq1 = -1;  /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationReq1 = -1;  /* IuTransportAssociation */
+static int hf_ranap_ass_RAB_Parameters = -1;      /* Ass_RAB_Parameters */
+static int hf_ranap_transportLayerAddressReq2 = -1;  /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationReq2 = -1;  /* IuTransportAssociation */
+static int hf_ranap_transportLayerAddressRes1 = -1;  /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationRes1 = -1;  /* IuTransportAssociation */
+static int hf_ranap_transportLayerAddressRes2 = -1;  /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationRes2 = -1;  /* IuTransportAssociation */
 static int hf_ranap_transportLayerInformation = -1;  /* TransportLayerInformation */
 static int hf_ranap_dl_dataVolumes = -1;          /* DataVolumeList */
 static int hf_ranap_DataVolumeList_item = -1;     /* DataVolumeList_item */
@@ -1109,6 +1148,12 @@ static gint ett_ranap_RAB_ReleaseItem = -1;
 static gint ett_ranap_Iu_ReleaseRequest = -1;
 static gint ett_ranap_RelocationDetect = -1;
 static gint ett_ranap_RelocationComplete = -1;
+static gint ett_ranap_EnhancedRelocationCompleteRequest = -1;
+static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteReq = -1;
+static gint ett_ranap_EnhancedRelocationCompleteResponse = -1;
+static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteRes = -1;
+static gint ett_ranap_EnhancedRelocationCompleteFailure = -1;
+static gint ett_ranap_EnhancedRelocationCompleteConfirm = -1;
 static gint ett_ranap_Paging = -1;
 static gint ett_ranap_CommonID = -1;
 static gint ett_ranap_CN_InvokeTrace = -1;
@@ -1136,6 +1181,11 @@ static gint ett_ranap_PrivateMessage = -1;
 static gint ett_ranap_RANAP_RelocationInformation = -1;
 static gint ett_ranap_DirectTransferInformationItem_RANAP_RelocInf = -1;
 static gint ett_ranap_RAB_ContextItem_RANAP_RelocInf = -1;
+static gint ett_ranap_RANAP_EnhancedRelocationInformationRequest = -1;
+static gint ett_ranap_RAB_SetupItem_EnhRelocInfoReq = -1;
+static gint ett_ranap_RANAP_EnhancedRelocationInformationResponse = -1;
+static gint ett_ranap_RAB_SetupItem_EnhRelocInfoRes = -1;
+static gint ett_ranap_RAB_FailedItem_EnhRelocInfoRes = -1;
 static gint ett_ranap_RAB_ModifyRequest = -1;
 static gint ett_ranap_RAB_ModifyItem = -1;
 static gint ett_ranap_LocationRelatedDataRequest = -1;
@@ -1333,6 +1383,9 @@ static const value_string ranap_ProcedureCode_vals[] = {
   { id_MBMSCNDe_Registration_Procedure, "id-MBMSCNDe-Registration-Procedure" },
   { id_MBMSRABEstablishmentIndication, "id-MBMSRABEstablishmentIndication" },
   { id_MBMSRABRelease, "id-MBMSRABRelease" },
+  { id_enhancedRelocationComplete, "id-enhancedRelocationComplete" },
+  { id_enhancedRelocationCompleteConfirm, "id-enhancedRelocationCompleteConfirm" },
+  { id_RANAPenhancedRelocation, "id-RANAPenhancedRelocation" },
   { 0, NULL }
 };
 
@@ -1543,6 +1596,17 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_RequestedGANSSAssistanceData, "id-RequestedGANSSAssistanceData" },
   { id_BroadcastGANSSAssistanceDataDecipheringKeys, "id-BroadcastGANSSAssistanceDataDecipheringKeys" },
   { id_d_RNTI_for_NoIuCSUP, "id-d-RNTI-for-NoIuCSUP" },
+  { id_RAB_SetupList_EnhancedRelocCompleteReq, "id-RAB-SetupList-EnhancedRelocCompleteReq" },
+  { id_RAB_SetupItem_EnhancedRelocCompleteReq, "id-RAB-SetupItem-EnhancedRelocCompleteReq" },
+  { id_RAB_SetupList_EnhancedRelocCompleteRes, "id-RAB-SetupList-EnhancedRelocCompleteRes" },
+  { id_RAB_SetupItem_EnhancedRelocCompleteRes, "id-RAB-SetupItem-EnhancedRelocCompleteRes" },
+  { id_RAB_SetupList_EnhRelocInfoReq, "id-RAB-SetupList-EnhRelocInfoReq" },
+  { id_RAB_SetupItem_EnhRelocInfoReq, "id-RAB-SetupItem-EnhRelocInfoReq" },
+  { id_RAB_SetupList_EnhRelocInfoRes, "id-RAB-SetupList-EnhRelocInfoRes" },
+  { id_RAB_SetupItem_EnhRelocInfoRes, "id-RAB-SetupItem-EnhRelocInfoRes" },
+  { id_OldIuSigConId, "id-OldIuSigConId" },
+  { id_RAB_FailedList_EnhRelocInfoRes, "id-RAB-FailedList-EnhRelocInfoRes" },
+  { id_RAB_FailedItem_EnhRelocInfoRes, "id-RAB-FailedItem-EnhRelocInfoRes" },
   { 0, NULL }
 };
 
@@ -7301,6 +7365,123 @@ dissect_ranap_RelocationComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const per_sequence_t EnhancedRelocationCompleteRequest_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_EnhancedRelocationCompleteRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_EnhancedRelocationCompleteRequest, EnhancedRelocationCompleteRequest_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_RAB_SetupList_EnhancedRelocCompleteReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ranap_RAB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t RAB_SetupItem_EnhancedRelocCompleteReq_sequence[] = {
+  { &hf_ranap_rAB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_ID },
+  { &hf_ranap_transportLayerAddressReq1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociationReq1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_IuTransportAssociation },
+  { &hf_ranap_ass_RAB_Parameters, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_Ass_RAB_Parameters },
+  { &hf_ranap_transportLayerAddressReq2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociationReq2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_IuTransportAssociation },
+  { &hf_ranap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RAB_SetupItem_EnhancedRelocCompleteReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RAB_SetupItem_EnhancedRelocCompleteReq, RAB_SetupItem_EnhancedRelocCompleteReq_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EnhancedRelocationCompleteResponse_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_EnhancedRelocationCompleteResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_EnhancedRelocationCompleteResponse, EnhancedRelocationCompleteResponse_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_RAB_SetupList_EnhancedRelocCompleteRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ranap_RAB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t RAB_SetupItem_EnhancedRelocCompleteRes_sequence[] = {
+  { &hf_ranap_rAB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_ID },
+  { &hf_ranap_userPlaneInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_UserPlaneInformation },
+  { &hf_ranap_transportLayerAddressRes1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociationRes1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_IuTransportAssociation },
+  { &hf_ranap_transportLayerAddressRes2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociationRes2, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_IuTransportAssociation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RAB_SetupItem_EnhancedRelocCompleteRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RAB_SetupItem_EnhancedRelocCompleteRes, RAB_SetupItem_EnhancedRelocCompleteRes_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EnhancedRelocationCompleteFailure_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_EnhancedRelocationCompleteFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_EnhancedRelocationCompleteFailure, EnhancedRelocationCompleteFailure_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t EnhancedRelocationCompleteConfirm_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_EnhancedRelocationCompleteConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_EnhancedRelocationCompleteConfirm, EnhancedRelocationCompleteConfirm_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t Paging_sequence[] = {
   { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
   { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
@@ -7776,6 +7957,120 @@ static int
 dissect_ranap_RAB_ContextItem_RANAP_RelocInf(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ranap_RAB_ContextItem_RANAP_RelocInf, RAB_ContextItem_RANAP_RelocInf_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RANAP_EnhancedRelocationInformationRequest_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RANAP_EnhancedRelocationInformationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RANAP_EnhancedRelocationInformationRequest, RANAP_EnhancedRelocationInformationRequest_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_RAB_SetupList_EnhRelocInfoReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ranap_RAB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t RAB_SetupItem_EnhRelocInfoReq_sequence[] = {
+  { &hf_ranap_rAB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_ID },
+  { &hf_ranap_rAB_Parameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_Parameters },
+  { &hf_ranap_dataVolumeReportingIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_DataVolumeReportingIndication },
+  { &hf_ranap_pDP_TypeInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_PDP_TypeInformation },
+  { &hf_ranap_userPlaneInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_UserPlaneInformation },
+  { &hf_ranap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_IuTransportAssociation },
+  { &hf_ranap_service_Handover, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_Service_Handover },
+  { &hf_ranap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RAB_SetupItem_EnhRelocInfoReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RAB_SetupItem_EnhRelocInfoReq, RAB_SetupItem_EnhRelocInfoReq_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t RANAP_EnhancedRelocationInformationResponse_sequence[] = {
+  { &hf_ranap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_ProtocolIE_Container },
+  { &hf_ranap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RANAP_EnhancedRelocationInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RANAP_EnhancedRelocationInformationResponse, RANAP_EnhancedRelocationInformationResponse_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_RAB_SetupList_EnhRelocInfoRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ranap_RAB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t RAB_SetupItem_EnhRelocInfoRes_sequence[] = {
+  { &hf_ranap_cN_DomainIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_CN_DomainIndicator },
+  { &hf_ranap_rAB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_ID },
+  { &hf_ranap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_TransportLayerAddress },
+  { &hf_ranap_iuTransportAssociation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_IuTransportAssociation },
+  { &hf_ranap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RAB_SetupItem_EnhRelocInfoRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RAB_SetupItem_EnhRelocInfoRes, RAB_SetupItem_EnhRelocInfoRes_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ranap_RAB_FailedList_EnhRelocInfoRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ranap_RAB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t RAB_FailedItem_EnhRelocInfoRes_sequence[] = {
+  { &hf_ranap_cN_DomainIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_CN_DomainIndicator },
+  { &hf_ranap_rAB_ID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_RAB_ID },
+  { &hf_ranap_cause         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ranap_Cause },
+  { &hf_ranap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ranap_RAB_FailedItem_EnhRelocInfoRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ranap_RAB_FailedItem_EnhRelocInfoRes, RAB_FailedItem_EnhRelocInfoRes_sequence);
 
   return offset;
 }
@@ -9881,6 +10176,70 @@ static int dissect_RelocationComplete_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_EnhancedRelocationCompleteRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_EnhancedRelocationCompleteRequest(tvb, offset, &asn1_ctx, tree, hf_ranap_EnhancedRelocationCompleteRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupList_EnhancedRelocCompleteReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupList_EnhancedRelocCompleteReq(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupList_EnhancedRelocCompleteReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupItem_EnhancedRelocCompleteReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupItem_EnhancedRelocCompleteReq(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupItem_EnhancedRelocCompleteReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_EnhancedRelocationCompleteResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_EnhancedRelocationCompleteResponse(tvb, offset, &asn1_ctx, tree, hf_ranap_EnhancedRelocationCompleteResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupList_EnhancedRelocCompleteRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupList_EnhancedRelocCompleteRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupList_EnhancedRelocCompleteRes_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupItem_EnhancedRelocCompleteRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupItem_EnhancedRelocCompleteRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupItem_EnhancedRelocCompleteRes_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_EnhancedRelocationCompleteFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_EnhancedRelocationCompleteFailure(tvb, offset, &asn1_ctx, tree, hf_ranap_EnhancedRelocationCompleteFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_EnhancedRelocationCompleteConfirm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_EnhancedRelocationCompleteConfirm(tvb, offset, &asn1_ctx, tree, hf_ranap_EnhancedRelocationCompleteConfirm_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Paging_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -10150,6 +10509,70 @@ static int dissect_RAB_ContextItem_RANAP_RelocInf_PDU(tvbuff_t *tvb _U_, packet_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_ranap_RAB_ContextItem_RANAP_RelocInf(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_ContextItem_RANAP_RelocInf_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RANAP_EnhancedRelocationInformationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RANAP_EnhancedRelocationInformationRequest(tvb, offset, &asn1_ctx, tree, hf_ranap_RANAP_EnhancedRelocationInformationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupList_EnhRelocInfoReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupList_EnhRelocInfoReq(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupList_EnhRelocInfoReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupItem_EnhRelocInfoReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupItem_EnhRelocInfoReq(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupItem_EnhRelocInfoReq_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RANAP_EnhancedRelocationInformationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RANAP_EnhancedRelocationInformationResponse(tvb, offset, &asn1_ctx, tree, hf_ranap_RANAP_EnhancedRelocationInformationResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupList_EnhRelocInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupList_EnhRelocInfoRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupList_EnhRelocInfoRes_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_SetupItem_EnhRelocInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_SetupItem_EnhRelocInfoRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_SetupItem_EnhRelocInfoRes_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_FailedList_EnhRelocInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_FailedList_EnhRelocInfoRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_FailedList_EnhRelocInfoRes_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_FailedItem_EnhRelocInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_FailedItem_EnhRelocInfoRes(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_FailedItem_EnhRelocInfoRes_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -11259,6 +11682,38 @@ void proto_register_ranap(void) {
       { "RelocationComplete", "ranap.RelocationComplete",
         FT_NONE, BASE_NONE, NULL, 0,
         "ranap.RelocationComplete", HFILL }},
+    { &hf_ranap_EnhancedRelocationCompleteRequest_PDU,
+      { "EnhancedRelocationCompleteRequest", "ranap.EnhancedRelocationCompleteRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.EnhancedRelocationCompleteRequest", HFILL }},
+    { &hf_ranap_RAB_SetupList_EnhancedRelocCompleteReq_PDU,
+      { "RAB-SetupList-EnhancedRelocCompleteReq", "ranap.RAB_SetupList_EnhancedRelocCompleteReq",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.RAB_SetupList_EnhancedRelocCompleteReq", HFILL }},
+    { &hf_ranap_RAB_SetupItem_EnhancedRelocCompleteReq_PDU,
+      { "RAB-SetupItem-EnhancedRelocCompleteReq", "ranap.RAB_SetupItem_EnhancedRelocCompleteReq",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RAB_SetupItem_EnhancedRelocCompleteReq", HFILL }},
+    { &hf_ranap_EnhancedRelocationCompleteResponse_PDU,
+      { "EnhancedRelocationCompleteResponse", "ranap.EnhancedRelocationCompleteResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.EnhancedRelocationCompleteResponse", HFILL }},
+    { &hf_ranap_RAB_SetupList_EnhancedRelocCompleteRes_PDU,
+      { "RAB-SetupList-EnhancedRelocCompleteRes", "ranap.RAB_SetupList_EnhancedRelocCompleteRes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.RAB_SetupList_EnhancedRelocCompleteRes", HFILL }},
+    { &hf_ranap_RAB_SetupItem_EnhancedRelocCompleteRes_PDU,
+      { "RAB-SetupItem-EnhancedRelocCompleteRes", "ranap.RAB_SetupItem_EnhancedRelocCompleteRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RAB_SetupItem_EnhancedRelocCompleteRes", HFILL }},
+    { &hf_ranap_EnhancedRelocationCompleteFailure_PDU,
+      { "EnhancedRelocationCompleteFailure", "ranap.EnhancedRelocationCompleteFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.EnhancedRelocationCompleteFailure", HFILL }},
+    { &hf_ranap_EnhancedRelocationCompleteConfirm_PDU,
+      { "EnhancedRelocationCompleteConfirm", "ranap.EnhancedRelocationCompleteConfirm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.EnhancedRelocationCompleteConfirm", HFILL }},
     { &hf_ranap_Paging_PDU,
       { "Paging", "ranap.Paging",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11395,6 +11850,38 @@ void proto_register_ranap(void) {
       { "RAB-ContextItem-RANAP-RelocInf", "ranap.RAB_ContextItem_RANAP_RelocInf",
         FT_NONE, BASE_NONE, NULL, 0,
         "ranap.RAB_ContextItem_RANAP_RelocInf", HFILL }},
+    { &hf_ranap_RANAP_EnhancedRelocationInformationRequest_PDU,
+      { "RANAP-EnhancedRelocationInformationRequest", "ranap.RANAP_EnhancedRelocationInformationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RANAP_EnhancedRelocationInformationRequest", HFILL }},
+    { &hf_ranap_RAB_SetupList_EnhRelocInfoReq_PDU,
+      { "RAB-SetupList-EnhRelocInfoReq", "ranap.RAB_SetupList_EnhRelocInfoReq",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.RAB_SetupList_EnhRelocInfoReq", HFILL }},
+    { &hf_ranap_RAB_SetupItem_EnhRelocInfoReq_PDU,
+      { "RAB-SetupItem-EnhRelocInfoReq", "ranap.RAB_SetupItem_EnhRelocInfoReq",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RAB_SetupItem_EnhRelocInfoReq", HFILL }},
+    { &hf_ranap_RANAP_EnhancedRelocationInformationResponse_PDU,
+      { "RANAP-EnhancedRelocationInformationResponse", "ranap.RANAP_EnhancedRelocationInformationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RANAP_EnhancedRelocationInformationResponse", HFILL }},
+    { &hf_ranap_RAB_SetupList_EnhRelocInfoRes_PDU,
+      { "RAB-SetupList-EnhRelocInfoRes", "ranap.RAB_SetupList_EnhRelocInfoRes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.RAB_SetupList_EnhRelocInfoRes", HFILL }},
+    { &hf_ranap_RAB_SetupItem_EnhRelocInfoRes_PDU,
+      { "RAB-SetupItem-EnhRelocInfoRes", "ranap.RAB_SetupItem_EnhRelocInfoRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RAB_SetupItem_EnhRelocInfoRes", HFILL }},
+    { &hf_ranap_RAB_FailedList_EnhRelocInfoRes_PDU,
+      { "RAB-FailedList-EnhRelocInfoRes", "ranap.RAB_FailedList_EnhRelocInfoRes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.RAB_FailedList_EnhRelocInfoRes", HFILL }},
+    { &hf_ranap_RAB_FailedItem_EnhRelocInfoRes_PDU,
+      { "RAB-FailedItem-EnhRelocInfoRes", "ranap.RAB_FailedItem_EnhRelocInfoRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.RAB_FailedItem_EnhRelocInfoRes", HFILL }},
     { &hf_ranap_RAB_ModifyRequest_PDU,
       { "RAB-ModifyRequest", "ranap.RAB_ModifyRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12711,6 +13198,42 @@ void proto_register_ranap(void) {
       { "iuSigConId", "ranap.iuSigConId",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ranap.IuSignallingConnectionIdentifier", HFILL }},
+    { &hf_ranap_transportLayerAddressReq1,
+      { "transportLayerAddressReq1", "ranap.transportLayerAddressReq1",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ranap.TransportLayerAddress", HFILL }},
+    { &hf_ranap_iuTransportAssociationReq1,
+      { "iuTransportAssociationReq1", "ranap.iuTransportAssociationReq1",
+        FT_UINT32, BASE_DEC, VALS(ranap_IuTransportAssociation_vals), 0,
+        "ranap.IuTransportAssociation", HFILL }},
+    { &hf_ranap_ass_RAB_Parameters,
+      { "ass-RAB-Parameters", "ranap.ass_RAB_Parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ranap.Ass_RAB_Parameters", HFILL }},
+    { &hf_ranap_transportLayerAddressReq2,
+      { "transportLayerAddressReq2", "ranap.transportLayerAddressReq2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ranap.TransportLayerAddress", HFILL }},
+    { &hf_ranap_iuTransportAssociationReq2,
+      { "iuTransportAssociationReq2", "ranap.iuTransportAssociationReq2",
+        FT_UINT32, BASE_DEC, VALS(ranap_IuTransportAssociation_vals), 0,
+        "ranap.IuTransportAssociation", HFILL }},
+    { &hf_ranap_transportLayerAddressRes1,
+      { "transportLayerAddressRes1", "ranap.transportLayerAddressRes1",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ranap.TransportLayerAddress", HFILL }},
+    { &hf_ranap_iuTransportAssociationRes1,
+      { "iuTransportAssociationRes1", "ranap.iuTransportAssociationRes1",
+        FT_UINT32, BASE_DEC, VALS(ranap_IuTransportAssociation_vals), 0,
+        "ranap.IuTransportAssociation", HFILL }},
+    { &hf_ranap_transportLayerAddressRes2,
+      { "transportLayerAddressRes2", "ranap.transportLayerAddressRes2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ranap.TransportLayerAddress", HFILL }},
+    { &hf_ranap_iuTransportAssociationRes2,
+      { "iuTransportAssociationRes2", "ranap.iuTransportAssociationRes2",
+        FT_UINT32, BASE_DEC, VALS(ranap_IuTransportAssociation_vals), 0,
+        "ranap.IuTransportAssociation", HFILL }},
     { &hf_ranap_transportLayerInformation,
       { "transportLayerInformation", "ranap.transportLayerInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13004,6 +13527,12 @@ void proto_register_ranap(void) {
     &ett_ranap_Iu_ReleaseRequest,
     &ett_ranap_RelocationDetect,
     &ett_ranap_RelocationComplete,
+    &ett_ranap_EnhancedRelocationCompleteRequest,
+    &ett_ranap_RAB_SetupItem_EnhancedRelocCompleteReq,
+    &ett_ranap_EnhancedRelocationCompleteResponse,
+    &ett_ranap_RAB_SetupItem_EnhancedRelocCompleteRes,
+    &ett_ranap_EnhancedRelocationCompleteFailure,
+    &ett_ranap_EnhancedRelocationCompleteConfirm,
     &ett_ranap_Paging,
     &ett_ranap_CommonID,
     &ett_ranap_CN_InvokeTrace,
@@ -13031,6 +13560,11 @@ void proto_register_ranap(void) {
     &ett_ranap_RANAP_RelocationInformation,
     &ett_ranap_DirectTransferInformationItem_RANAP_RelocInf,
     &ett_ranap_RAB_ContextItem_RANAP_RelocInf,
+    &ett_ranap_RANAP_EnhancedRelocationInformationRequest,
+    &ett_ranap_RAB_SetupItem_EnhRelocInfoReq,
+    &ett_ranap_RANAP_EnhancedRelocationInformationResponse,
+    &ett_ranap_RAB_SetupItem_EnhRelocInfoRes,
+    &ett_ranap_RAB_FailedItem_EnhRelocInfoRes,
     &ett_ranap_RAB_ModifyRequest,
     &ett_ranap_RAB_ModifyItem,
     &ett_ranap_LocationRelatedDataRequest,
@@ -13238,6 +13772,17 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.ies", id_MBMSRegistrationRequestType, new_create_dissector_handle(dissect_MBMSRegistrationRequestType_PDU, proto_ranap));
   dissector_add("ranap.ies", id_IPMulticastAddress, new_create_dissector_handle(dissect_IPMulticastAddress_PDU, proto_ranap));
   dissector_add("ranap.ies", id_APN, new_create_dissector_handle(dissect_APN_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupList_EnhancedRelocCompleteReq, new_create_dissector_handle(dissect_RAB_SetupList_EnhancedRelocCompleteReq_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupItem_EnhancedRelocCompleteReq, new_create_dissector_handle(dissect_RAB_SetupItem_EnhancedRelocCompleteReq_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupList_EnhancedRelocCompleteRes, new_create_dissector_handle(dissect_RAB_SetupList_EnhancedRelocCompleteRes_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupItem_EnhancedRelocCompleteRes, new_create_dissector_handle(dissect_RAB_SetupItem_EnhancedRelocCompleteRes_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupList_EnhRelocInfoReq, new_create_dissector_handle(dissect_RAB_SetupList_EnhRelocInfoReq_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupItem_EnhRelocInfoReq, new_create_dissector_handle(dissect_RAB_SetupItem_EnhRelocInfoReq_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupList_EnhRelocInfoRes, new_create_dissector_handle(dissect_RAB_SetupList_EnhRelocInfoRes_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_SetupItem_EnhRelocInfoRes, new_create_dissector_handle(dissect_RAB_SetupItem_EnhRelocInfoRes_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_OldIuSigConId, new_create_dissector_handle(dissect_IuSignallingConnectionIdentifier_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_FailedList_EnhRelocInfoRes, new_create_dissector_handle(dissect_RAB_FailedList_EnhRelocInfoRes_PDU, proto_ranap));
+  dissector_add("ranap.ies", id_RAB_FailedItem_EnhRelocInfoRes, new_create_dissector_handle(dissect_RAB_FailedItem_EnhRelocInfoRes_PDU, proto_ranap));
   dissector_add("ranap.ies.pair.first", id_RAB_SetupOrModifyItem, new_create_dissector_handle(dissect_RAB_SetupOrModifyItemFirst_PDU, proto_ranap));
   dissector_add("ranap.ies.pair.second", id_RAB_SetupOrModifyItem, new_create_dissector_handle(dissect_RAB_SetupOrModifyItemSecond_PDU, proto_ranap));
   dissector_add("ranap.extension", id_AlternativeRABConfiguration, new_create_dissector_handle(dissect_RAB_Parameters_PDU, proto_ranap));
@@ -13377,6 +13922,12 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.proc.imsg", id_MBMSRABRelease, new_create_dissector_handle(dissect_MBMSRABReleaseRequest_PDU, proto_ranap));
   dissector_add("ranap.proc.sout", id_MBMSRABRelease, new_create_dissector_handle(dissect_MBMSRABRelease_PDU, proto_ranap));
   dissector_add("ranap.proc.uout", id_MBMSRABRelease, new_create_dissector_handle(dissect_MBMSRABReleaseFailure_PDU, proto_ranap));
+  dissector_add("ranap.proc.imsg", id_enhancedRelocationComplete, new_create_dissector_handle(dissect_EnhancedRelocationCompleteRequest_PDU, proto_ranap));
+  dissector_add("ranap.proc.sout", id_enhancedRelocationComplete, new_create_dissector_handle(dissect_EnhancedRelocationCompleteResponse_PDU, proto_ranap));
+  dissector_add("ranap.proc.uout", id_enhancedRelocationComplete, new_create_dissector_handle(dissect_EnhancedRelocationCompleteFailure_PDU, proto_ranap));
+  dissector_add("ranap.proc.imsg", id_enhancedRelocationCompleteConfirm, new_create_dissector_handle(dissect_EnhancedRelocationCompleteConfirm_PDU, proto_ranap));
+  dissector_add("ranap.proc.imsg", id_RANAPenhancedRelocation, new_create_dissector_handle(dissect_RANAP_EnhancedRelocationInformationRequest_PDU, proto_ranap));
+  dissector_add("ranap.proc.sout", id_RANAPenhancedRelocation, new_create_dissector_handle(dissect_RANAP_EnhancedRelocationInformationResponse_PDU, proto_ranap));
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/

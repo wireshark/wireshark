@@ -1,7 +1,7 @@
 -- RANAP-IEs.asn
 --
--- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
+-- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
 --
 -- 9.3.4	Information Element Definitions
 --
@@ -938,8 +938,8 @@ LoadValue	::= INTEGER (0..100)
 LocationRelatedDataRequestType	::= SEQUENCE {
 	requestedLocationRelatedDataType			RequestedLocationRelatedDataType,
 	requestedGPSAssistanceData					RequestedGPSAssistanceData	OPTIONAL,
-	-- This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GPS' or
-	-- `Dedicated Assistance Data for Assisted GPS and GANSS'
+	-- This IE shall be present if the Requested Location Related Data Type IE is set to ‘Dedicated Assistance Data for Assisted GPS’ or
+	-- `Dedicated Assistance Data for Assisted GPS and GANSS’
 	...
 }
 

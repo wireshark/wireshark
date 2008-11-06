@@ -1,7 +1,7 @@
 -- RANAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
+-- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
 --
 -- 9.3.2	Elementary Procedure Definitions
 --
@@ -43,6 +43,10 @@ FROM RANAP-CommonDataTypes
 	RelocationFailure,
 	RelocationCancel,
 	RelocationCancelAcknowledge,
+	EnhancedRelocationCompleteRequest,
+	EnhancedRelocationCompleteResponse,
+	EnhancedRelocationCompleteFailure,
+	EnhancedRelocationCompleteConfirm,
 	SRNS-ContextRequest,
 	SRNS-ContextResponse,
 	SecurityModeCommand,
@@ -75,6 +79,8 @@ FROM RANAP-CommonDataTypes
 	ResetResource,
 	ResetResourceAcknowledge,
 	RANAP-RelocationInformation,
+	RANAP-EnhancedRelocationInformationRequest,
+	RANAP-EnhancedRelocationInformationResponse,
 	LocationRelatedDataRequest,
 	LocationRelatedDataResponse,
 	LocationRelatedDataFailure,
@@ -128,11 +134,14 @@ FROM RANAP-PDU-Contents
 	id-RAB-ReleaseRequest, 
 	id-RAB-ModifyRequest,
 	id-RANAP-Relocation,
+	id-RANAPenhancedRelocation,
 	id-RelocationCancel,
 	id-RelocationComplete,
 	id-RelocationDetect,
 	id-RelocationPreparation,
 	id-RelocationResourceAllocation,
+	id-enhancedRelocationComplete,
+	id-enhancedRelocationCompleteConfirm,
 	id-Reset,
 	id-SRNS-ContextTransfer,
 	id-SRNS-DataForward,
@@ -247,7 +256,9 @@ RANAP-ELEMENTARY-PROCEDURES-CLASS-1 RANAP-ELEMENTARY-PROCEDURE ::= {
 	mBMSUELinking				|
 	mBMSRegistration			|
 	mBMSCNDe-Registration		|
-	mBMSRABRelease
+	mBMSRABRelease				|
+	enhancedRelocationComplete	|
+	rANAP-enhancedRelocation
 }
 
 RANAP-ELEMENTARY-PROCEDURES-CLASS-2 RANAP-ELEMENTARY-PROCEDURE ::= {
@@ -273,7 +284,8 @@ RANAP-ELEMENTARY-PROCEDURES-CLASS-2 RANAP-ELEMENTARY-PROCEDURE ::= {
 	rAB-ModifyRequest		|
 	uESpecificInformation	|
 	directInformationTransfer	|
-	mBMSRABEstablishmentIndication
+	mBMSRABEstablishmentIndication	|
+	enhancedRelocationCompleteConfirm
 }
 
 RANAP-ELEMENTARY-PROCEDURES-CLASS-3 RANAP-ELEMENTARY-PROCEDURE ::= {
@@ -570,6 +582,27 @@ mBMSRABRelease RANAP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE		id-MBMSRABRelease
 	CRITICALITY		reject
 }
+enhancedRelocationComplete RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	EnhancedRelocationCompleteRequest
+	SUCCESSFUL OUTCOME		EnhancedRelocationCompleteResponse
+	UNSUCCESSFUL OUTCOME	EnhancedRelocationCompleteFailure
+	PROCEDURE CODE		id-enhancedRelocationComplete
+	CRITICALITY		reject
+}
+
+enhancedRelocationCompleteConfirm RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	EnhancedRelocationCompleteConfirm
+	PROCEDURE CODE		id-enhancedRelocationCompleteConfirm
+	CRITICALITY		ignore
+}
+
+rANAP-enhancedRelocation RANAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	RANAP-EnhancedRelocationInformationRequest
+	SUCCESSFUL OUTCOME	RANAP-EnhancedRelocationInformationResponse
+	PROCEDURE CODE			id-RANAPenhancedRelocation
+	CRITICALITY		reject
+}
 
 END
+
 

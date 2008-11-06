@@ -1,7 +1,7 @@
 -- RANAP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
+-- Taken from 3GPP TS 25.413 V8.0.1 (2008-09)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-801.zip
 --
 -- 9.3.3	PDU Definitions
 --
@@ -209,6 +209,7 @@ FROM RANAP-Containers
 	id-InterSystemInformation-TransparentContainer,
 	id-IPMulticastAddress,
 	id-IuSigConId,
+	id-OldIuSigConId,
 	id-IuSigConIdItem,
 	id-IuSigConIdList,
 	id-IuTransportAssociation,
@@ -258,6 +259,8 @@ FROM RANAP-Containers
 	id-RAB-DataVolumeReportRequestList,
 	id-RAB-FailedItem,
 	id-RAB-FailedList,
+	id-RAB-FailedList-EnhRelocInfoRes,
+	id-RAB-FailedItem-EnhRelocInfoRes,
 	id-RAB-FailedtoReportItem,
 	id-RAB-FailedtoReportList,
 	id-RAB-ID, 
@@ -279,6 +282,14 @@ FROM RANAP-Containers
 	id-RAB-SetupItem-RelocReqAck,
 	id-RAB-SetupList-RelocReq,
 	id-RAB-SetupList-RelocReqAck,
+	id-RAB-SetupList-EnhRelocInfoReq,
+	id-RAB-SetupItem-EnhRelocInfoReq,
+	id-RAB-SetupList-EnhRelocInfoRes,
+	id-RAB-SetupItem-EnhRelocInfoRes,
+	id-RAB-SetupList-EnhancedRelocCompleteReq,
+	id-RAB-SetupItem-EnhancedRelocCompleteReq,
+	id-RAB-SetupList-EnhancedRelocCompleteRes,
+	id-RAB-SetupItem-EnhancedRelocCompleteRes,
 	id-RAB-SetupOrModifiedItem,
 	id-RAB-SetupOrModifiedList,
 	id-RAB-SetupOrModifyItem,
@@ -1366,6 +1377,144 @@ RelocationCompleteExtensions RANAP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
+-- ENHANCED RELOCATION COMPLETE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Enhanced Relocation Complete Request
+--
+-- **************************************************************
+
+EnhancedRelocationCompleteRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {EnhancedRelocationCompleteRequestIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {EnhancedRelocationCompleteRequestExtensions} }				OPTIONAL,
+	...
+}
+
+EnhancedRelocationCompleteRequestIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-OldIuSigConId	CRITICALITY reject TYPE IuSignallingConnectionIdentifier  PRESENCE mandatory } |
+	{ ID id-IuSigConId	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier  PRESENCE mandatory } |
+	{ ID id-SourceID				CRITICALITY ignore	TYPE SourceID	 				PRESENCE mandatory	} |
+	{ ID id-ExtendedRNC-ID			CRITICALITY ignore		TYPE ExtendedRNC-ID			PRESENCE optional	} |
+	{ ID id-RAB-SetupList-EnhancedRelocCompleteReq			CRITICALITY reject	TYPE RAB-SetupList-EnhancedRelocCompleteReq	PRESENCE optional	}| 
+	{ ID id-RAB-FailedList				CRITICALITY ignore	TYPE RAB-FailedList				PRESENCE optional },
+	...
+}
+
+RAB-SetupList-EnhancedRelocCompleteReq 				::= RAB-IE-ContainerList { { RAB-SetupItem-EnhancedRelocCompleteReq-IEs} }
+
+RAB-SetupItem-EnhancedRelocCompleteReq-IEs RANAP-PROTOCOL-IES ::= { 
+	{ ID id-RAB-SetupItem-EnhancedRelocCompleteReq		CRITICALITY reject	TYPE RAB-SetupItem-EnhancedRelocCompleteReq			PRESENCE mandatory 	},
+	...
+}
+
+RAB-SetupItem-EnhancedRelocCompleteReq ::= SEQUENCE {
+	rAB-ID						RAB-ID,
+	transportLayerAddressReq1				TransportLayerAddress	OPTIONAL,
+	iuTransportAssociationReq1				IuTransportAssociation	OPTIONAL,
+	ass-RAB-Parameters					Ass-RAB-Parameters OPTIONAL,
+	transportLayerAddressReq2				TransportLayerAddress	OPTIONAL,
+	iuTransportAssociationReq2				IuTransportAssociation	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { RAB-SetupItem-EnhancedRelocCompleteReq-ExtIEs} }			OPTIONAL,
+	...
+}
+
+RAB-SetupItem-EnhancedRelocCompleteReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EnhancedRelocationCompleteRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Enhanced Relocation Complete Response
+--
+-- **************************************************************
+
+EnhancedRelocationCompleteResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {EnhancedRelocationCompleteResponseIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {EnhancedRelocationCompleteResponseExtensions} }			OPTIONAL,
+	...
+}
+
+EnhancedRelocationCompleteResponseIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-RAB-SetupList-EnhancedRelocCompleteRes		CRITICALITY ignore	TYPE RAB-SetupList-EnhancedRelocCompleteRes	PRESENCE optional} |
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics 			PRESENCE optional	},
+	...
+}
+
+RAB-SetupList-EnhancedRelocCompleteRes ::= RAB-IE-ContainerList { {RAB-SetupItem-EnhancedRelocCompleteRes-IEs} }
+
+RAB-SetupItem-EnhancedRelocCompleteRes-IEs RANAP-PROTOCOL-IES ::= { 
+	{ ID id-RAB-SetupItem-EnhancedRelocCompleteRes		CRITICALITY reject	TYPE RAB-SetupItem-EnhancedRelocCompleteRes		PRESENCE mandatory 	},
+	...
+}
+
+RAB-SetupItem-EnhancedRelocCompleteRes ::= SEQUENCE {
+	rAB-ID						RAB-ID,
+	userPlaneInformation				UserPlaneInformation,
+
+	transportLayerAddressRes1				TransportLayerAddress	OPTIONAL,
+	iuTransportAssociationRes1				IuTransportAssociation	OPTIONAL,
+	transportLayerAddressRes2				TransportLayerAddress	OPTIONAL,
+	iuTransportAssociationRes2				IuTransportAssociation	OPTIONAL,
+	...
+}
+
+EnhancedRelocationCompleteResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Enhanced Relocation Complete Failure
+--
+-- **************************************************************
+
+EnhancedRelocationCompleteFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {EnhancedRelocationCompleteFailureIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {EnhancedRelocationCompleteFailureExtensions} }				OPTIONAL,
+	...
+}
+
+EnhancedRelocationCompleteFailureIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause					PRESENCE mandatory	} |
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics 			PRESENCE optional	},
+	...
+}
+
+EnhancedRelocationCompleteFailureExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Enhanced Relocation Complete Confirm
+--
+-- **************************************************************
+
+EnhancedRelocationCompleteConfirm ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {EnhancedRelocationCompleteConfirmIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {EnhancedRelocationCompleteConfirmExtensions} }				OPTIONAL,
+	...
+}
+
+EnhancedRelocationCompleteConfirmIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-RAB-FailedList				CRITICALITY ignore	TYPE RAB-FailedList				PRESENCE optional },
+	...
+}
+
+EnhancedRelocationCompleteConfirmExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
 -- PAGING ELEMENTARY PROCEDURE
 --
 -- **************************************************************
@@ -2080,6 +2229,135 @@ RANAP-RelocationInformationExtensions RANAP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
+-- RANAP ENHANCED RELOCATION INFORMATION REQUEST ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+RANAP-EnhancedRelocationInformationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {RANAP-EnhancedRelocationInformationRequestIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {RANAP-EnhancedRelocationInformationRequestExtensions} }			OPTIONAL,
+	...
+}
+
+RANAP-EnhancedRelocationInformationRequestIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-SourceRNC-ToTargetRNC-TransparentContainer		
+							CRITICALITY reject	TYPE SourceRNC-ToTargetRNC-TransparentContainer	PRESENCE mandatory	} |
+	{ ID id-OldIuSigConId	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier  PRESENCE mandatory } |
+	{ ID id-GlobalCN-ID				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
+	{ ID id-OldIuSigConId	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier  PRESENCE mandatory } |
+	{ ID id-GlobalCN-ID				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
+	{ ID id-RAB-SetupList-EnhRelocInfoReq			CRITICALITY reject	TYPE RAB-SetupList-EnhRelocInfoReq			PRESENCE optional	} |
+	{ ID id-SNA-Access-Information	CRITICALITY ignore		TYPE SNA-Access-Information	PRESENCE optional} |
+	{ ID id-UESBI-Iu	CRITICALITY ignore		TYPE UESBI-Iu	PRESENCE optional}|
+	{ ID id-SelectedPLMN-ID	 	CRITICALITY ignore	TYPE PLMNidentity		PRESENCE optional 	}|
+	{ ID id-CNMBMSLinkingInformation	CRITICALITY ignore		TYPE CNMBMSLinkingInformation	PRESENCE optional},
+	...
+}
+
+RAB-SetupList-EnhRelocInfoReq 					::= RAB-IE-ContainerList { { RAB-SetupItem-EnhRelocInfoReq-IEs} }
+
+RAB-SetupItem-EnhRelocInfoReq-IEs RANAP-PROTOCOL-IES ::= { 
+	{ ID id-RAB-SetupItem-EnhRelocInfoReq			CRITICALITY reject	TYPE RAB-SetupItem-EnhRelocInfoReq			PRESENCE mandatory 	},
+	...
+}
+
+RAB-SetupItem-EnhRelocInfoReq ::= SEQUENCE {
+	rAB-ID						RAB-ID,
+	rAB-Parameters					RAB-Parameters,
+	dataVolumeReportingIndication			DataVolumeReportingIndication 	OPTIONAL
+	-- This IE shall be present if the CN domain indicator IE is set to "PS domain" --,
+	pDP-TypeInformation				PDP-TypeInformation		OPTIONAL
+	-- This IE shall be present if the CN domain indicator IE is set to "PS domain" --,
+	userPlaneInformation				UserPlaneInformation,
+	transportLayerAddress				TransportLayerAddress,
+	iuTransportAssociation				IuTransportAssociation,
+	service-Handover				Service-Handover		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { RAB-SetupItem-EnhRelocInfoReq-ExtIEs} }			OPTIONAL,
+	...
+}
+
+RAB-SetupItem-EnhRelocInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
+	{ID id-Alt-RAB-Parameters	CRITICALITY ignore		EXTENSION Alt-RAB-Parameters		PRESENCE optional} ,
+-- Extension for Release 5 to enable GERAN support over Iu-cs --
+	...
+}
+
+RANAP-EnhancedRelocationInformationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- RANAP ENHANCED RELOCATION INFORMATION RESPONSE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+RANAP-EnhancedRelocationInformationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {RANAP-EnhancedRelocationInformationResponseIEs} },
+	protocolExtensions		ProtocolExtensionContainer { {RANAP-EnhancedRelocationInformationResponseExtensions} }			OPTIONAL,
+	...
+}
+
+RANAP-EnhancedRelocationInformationResponseIEs RANAP-PROTOCOL-IES ::= {
+	{ ID id-TargetRNC-ToSourceRNC-TransparentContainer 
+							CRITICALITY ignore	TYPE TargetRNC-ToSourceRNC-TransparentContainer PRESENCE optional	} |
+	{ ID id-RAB-SetupList-EnhRelocInfoRes		CRITICALITY ignore	TYPE RAB-SetupList-EnhRelocInfoRes			PRESENCE optional} |
+	{ ID id-RAB-FailedList-EnhRelocInfoRes		CRITICALITY ignore	TYPE RAB-FailedList-EnhRelocInfoRes			PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics 			PRESENCE optional	},
+	...
+}
+
+RAB-SetupList-EnhRelocInfoRes 				::= RAB-IE-ContainerList { { RAB-SetupItem-EnhRelocInfoRes-IEs} }
+
+RAB-SetupItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= { 
+	{ ID id-RAB-SetupItem-EnhRelocInfoRes		CRITICALITY reject	TYPE RAB-SetupItem-EnhRelocInfoRes			PRESENCE mandatory 	},
+	...
+}
+
+RAB-SetupItem-EnhRelocInfoRes ::= SEQUENCE {
+	cN-DomainIndicator			CN-DomainIndicator,
+	rAB-ID						RAB-ID,
+	transportLayerAddress				TransportLayerAddress	OPTIONAL,
+	iuTransportAssociation				IuTransportAssociation	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { RAB-SetupItem-EnhRelocInfoRes-ExtIEs} }			OPTIONAL,
+	...
+}
+
+RAB-SetupItem-EnhRelocInfoRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
+	{ID id-Ass-RAB-Parameters	CRITICALITY ignore		EXTENSION Ass-RAB-Parameters		PRESENCE optional	} |
+-- Extension for Release 5 to allow transfer of a second pair of TLA and association --
+	{ID id-TransportLayerAddress	CRITICALITY ignore	EXTENSION TransportLayerAddress	PRESENCE optional} |
+	{ID id-IuTransportAssociation	CRITICALITY ignore	EXTENSION IuTransportAssociation	PRESENCE optional},
+	...
+}
+
+RAB-FailedList-EnhRelocInfoRes 				::= RAB-IE-ContainerList { { RAB-FailedItem-EnhRelocInfoRes-IEs} }
+
+RAB-FailedItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= { 
+	{ ID id-RAB-FailedItem-EnhRelocInfoRes		CRITICALITY reject	TYPE RAB-FailedItem-EnhRelocInfoRes			PRESENCE mandatory 	},
+	...
+}
+
+RAB-FailedItem-EnhRelocInfoRes ::= SEQUENCE {
+	cN-DomainIndicator			CN-DomainIndicator,
+	rAB-ID						RAB-ID,
+	cause						Cause,
+	iE-Extensions					ProtocolExtensionContainer { { RAB-FailedItem-EnhRelocInfoRes-ExtIEs} }			OPTIONAL,
+	...
+}
+
+RAB-FailedItem-EnhRelocInfoRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RANAP-EnhancedRelocationInformationResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
 -- RAB MODIFICATION REQUEST ELEMENTARY PROCEDURE
 --
 -- **************************************************************
@@ -2143,7 +2421,7 @@ LocationRelatedDataRequest ::= SEQUENCE {
 
 LocationRelatedDataRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-LocationRelatedDataRequestType		CRITICALITY reject	TYPE LocationRelatedDataRequestType		PRESENCE optional	},
-	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode --
+	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode –-
 	...
 }
 
@@ -2152,7 +2430,7 @@ LocationRelatedDataRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	}|
 	-- The previous extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
 	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to
-	-- 'Dedicated Assistance Data for Assisted GANSS' or `Dedicated Assistance Data for Assisted GPS and GANSS'--
+	-- ‘Dedicated Assistance Data for Assisted GANSS’ or `Dedicated Assistance Data for Assisted GPS and GANSS’--
 	{ ID id-RequestedGANSSAssistanceData							CRITICALITY reject	EXTENSION RequestedGANSSAssistanceData							PRESENCE conditional	},
 	...
 }

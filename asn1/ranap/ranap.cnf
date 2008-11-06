@@ -262,6 +262,9 @@ id-MBMSRegistration					ProcedureCode
 id-MBMSCNDe-Registration-Procedure	ProcedureCode
 id-MBMSRABEstablishmentIndication	ProcedureCode
 id-MBMSRABRelease					ProcedureCode
+id-enhancedRelocationComplete		ProcedureCode
+id-enhancedRelocationCompleteConfirm	ProcedureCode
+id-RANAPenhancedRelocation				ProcedureCode
 
 # ProtocolIE-ID
 id-AreaIdentity 								ProtocolIE-ID 
@@ -444,7 +447,17 @@ id-GANSS-PositioningDataSet								ProtocolIE-ID
 id-RequestedGANSSAssistanceData							ProtocolIE-ID 
 id-BroadcastGANSSAssistanceDataDecipheringKeys			ProtocolIE-ID
 id-d-RNTI-for-NoIuCSUP									ProtocolIE-ID
-
+id-RAB-SetupList-EnhancedRelocCompleteReq				ProtocolIE-ID
+id-RAB-SetupItem-EnhancedRelocCompleteReq				ProtocolIE-ID
+id-RAB-SetupList-EnhancedRelocCompleteRes				ProtocolIE-ID
+id-RAB-SetupItem-EnhancedRelocCompleteRes				ProtocolIE-ID
+id-RAB-SetupList-EnhRelocInfoReq						ProtocolIE-ID
+id-RAB-SetupItem-EnhRelocInfoReq						ProtocolIE-ID
+id-RAB-SetupList-EnhRelocInfoRes						ProtocolIE-ID
+id-RAB-SetupItem-EnhRelocInfoRes						ProtocolIE-ID
+id-OldIuSigConId										ProtocolIE-ID
+id-RAB-FailedList-EnhRelocInfoRes						ProtocolIE-ID
+id-RAB-FailedItem-EnhRelocInfoRes						ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -568,12 +581,23 @@ UnsuccessfulLinking-IEs            N ranap.ies id-UnsuccessfulLinkingList
 MBMSRegistrationRequestType        N ranap.ies id-MBMSRegistrationRequestType
 IPMulticastAddress                 N ranap.ies id-IPMulticastAddress
 APN                                N ranap.ies id-APN
+RAB-SetupList-EnhancedRelocCompleteReq	N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteReq
+RAB-SetupItem-EnhancedRelocCompleteReq	N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteReq
+RAB-SetupList-EnhancedRelocCompleteRes	N ranap.ies id-RAB-SetupList-EnhancedRelocCompleteRes
+RAB-SetupItem-EnhancedRelocCompleteRes	N ranap.ies id-RAB-SetupItem-EnhancedRelocCompleteRes
+RAB-SetupList-EnhRelocInfoReq			N ranap.ies id-RAB-SetupList-EnhRelocInfoReq
+RAB-SetupItem-EnhRelocInfoReq			N ranap.ies id-RAB-SetupItem-EnhRelocInfoReq
+RAB-SetupList-EnhRelocInfoRes			N ranap.ies id-RAB-SetupList-EnhRelocInfoRes
+RAB-SetupItem-EnhRelocInfoRes			N ranap.ies id-RAB-SetupItem-EnhRelocInfoRes
+IuSignallingConnectionIdentifier		N ranap.ies id-OldIuSigConId
+RAB-FailedList-EnhRelocInfoRes			N ranap.ies id-RAB-FailedList-EnhRelocInfoRes
+RAB-FailedItem-EnhRelocInfoRes			N ranap.ies id-RAB-FailedItem-EnhRelocInfoRes 
 
 #RANAP-PROTOCOL-IES-PAIR
 RAB-SetupOrModifyItemFirst         N ranap.ies.pair.first id-RAB-SetupOrModifyItem
 RAB-SetupOrModifyItemSecond        N ranap.ies.pair.second id-RAB-SetupOrModifyItem
 
-#NBAP-PROTOCOL-EXTENSION
+#RANAP-PROTOCOL-EXTENSION
 RAB-Parameters                     N ranap.extension id-AlternativeRABConfiguration
 Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N ranap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
 Alt-RAB-Parameter-ExtendedMaxBitrateInf N ranap.extension id-Alt-RAB-Parameter-ExtendedMaxBitrateInf
@@ -713,5 +737,10 @@ MBMSRABEstablishmentIndication         N ranap.proc.imsg id-MBMSRABEstablishment
 MBMSRABReleaseRequest                  N ranap.proc.imsg id-MBMSRABRelease
 MBMSRABRelease                         N ranap.proc.sout id-MBMSRABRelease
 MBMSRABReleaseFailure                  N ranap.proc.uout id-MBMSRABRelease
-
+EnhancedRelocationCompleteRequest			N ranap.proc.imsg id-enhancedRelocationComplete
+EnhancedRelocationCompleteResponse			N ranap.proc.sout id-enhancedRelocationComplete
+EnhancedRelocationCompleteFailure			N ranap.proc.uout id-enhancedRelocationComplete
+EnhancedRelocationCompleteConfirm			N ranap.proc.imsg id-enhancedRelocationCompleteConfirm
+RANAP-EnhancedRelocationInformationRequest	N ranap.proc.imsg id-RANAPenhancedRelocation
+RANAP-EnhancedRelocationInformationResponse	N ranap.proc.sout id-RANAPenhancedRelocation
 #.END
