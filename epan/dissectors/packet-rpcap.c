@@ -44,6 +44,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-frame.h"
+#include "packet-tcp.h"
 
 #define PNAME  "Remote Packet Capture"
 #define PSNAME "RPCAP"
@@ -211,11 +212,13 @@ static dissector_handle_t data_handle = NULL;
 
 
 /* User definable values */
+static gboolean rpcap_desegment = TRUE;
 static gboolean add_packet_info = TRUE;
 static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
 
 /* Global variables */
 static guint32 linktype = WTAP_ENCAP_UNKNOWN;
+GHashTable *info_added_table = NULL;
 
 static const true_false_string yes_no = {
   "Yes", "No"
@@ -293,6 +296,16 @@ static const value_string address_family[] = {
 };
 
 
+static void rpcap_frame_end (void)
+{
+  if (info_added_table) {
+    g_hash_table_destroy (info_added_table);
+  }
+
+  info_added_table = g_hash_table_new (NULL, NULL);
+}
+
+
 static gint
 dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo _U_,
 		     proto_tree *parent_tree, gint offset)
@@ -361,6 +374,7 @@ dissect_rpcap_findalldevs_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   proto_tree *tree;
   proto_item *ti;
+  gint boffset = offset;
 
   ti = proto_tree_add_item (parent_tree, hf_findalldevs_ifaddr, tvb, offset, -1, FALSE);
   tree = proto_item_add_subtree (ti, ett_findalldevs_ifaddr);
@@ -369,6 +383,8 @@ dissect_rpcap_findalldevs_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_netmask, NULL);
   offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_broadaddr, NULL);
   offset = dissect_rpcap_ifaddr (tvb, pinfo, tree, offset, hf_if_dstaddr, NULL);
+
+  proto_item_set_len (ti, offset - boffset);
 
   return offset;
 }
@@ -381,6 +397,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
   guint16 namelen, desclen, naddr, i;
+  gint boffset = offset;
 
   ti = proto_tree_add_item (parent_tree, hf_findalldevs_if, tvb, offset, -1, FALSE);
   tree = proto_item_add_subtree (ti, ett_findalldevs_if);
@@ -418,7 +435,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
     offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
   }
   
-  proto_item_set_len (ti, 12 + namelen + desclen);
+  proto_item_set_len (ti, offset - boffset);
 
   return offset;
 }
@@ -724,7 +741,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static gint
 dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
-		      proto_tree *parent_tree, gint offset)
+		      proto_tree *parent_tree, gint offset, proto_item *top_item)
 {
   proto_tree *tree;
   proto_item *ti;
@@ -732,7 +749,10 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   gint caplen, frame_no;
   
-  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN) {
+  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN &&
+      !g_hash_table_lookup (info_added_table, GINT_TO_POINTER (pinfo->fd->num)))
+  {
+    /* Only indicate for known linktype and when not added before */
     if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
       /* Indicate RPCAP in the protocol column */
       col_set_str (pinfo->cinfo, COL_PROTOCOL, "R|");
@@ -744,6 +764,8 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
       col_set_str (pinfo->cinfo, COL_INFO, "Remote | ");
       col_set_fence (pinfo->cinfo, COL_INFO);
     }
+    g_hash_table_insert (info_added_table, GINT_TO_POINTER (pinfo->fd->num), (void *) TRUE);
+    register_frame_end_routine(rpcap_frame_end);
   }
 
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, FALSE);
@@ -766,6 +788,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   offset += 4;
 
   proto_item_append_text (ti, ", Frame %d", frame_no);
+  proto_item_append_text (top_item, " Frame %d", frame_no);
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
   if (linktype != WTAP_ENCAP_UNKNOWN) {
@@ -780,7 +803,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 }
 
 
-static int
+static void
 dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
 {
   proto_tree *tree;
@@ -842,7 +865,8 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
     offset = dissect_rpcap_filter (tvb, pinfo, tree, offset);
     break;
   case RPCAP_MSG_PACKET:
-    offset = dissect_rpcap_packet (tvb, pinfo, top_tree, tree, offset);
+    proto_item_set_len (ti, 28);
+    offset = dissect_rpcap_packet (tvb, pinfo, top_tree, tree, offset, ti);
     break;
   case RPCAP_MSG_AUTH_REQ:
     offset = dissect_rpcap_auth_request (tvb, pinfo, tree, offset);
@@ -866,18 +890,17 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
     len = tvb_length_remaining (tvb, offset);
     if (len) {
       /* Yet unknown, dump as data */
+      proto_item_set_len (ti, 8);
       new_tvb = tvb_new_subset (tvb, offset, len, len);
       call_dissector (data_handle, new_tvb, pinfo, top_tree);
     }
     break;
   }
-  
-  return offset;
 }
 
 
 static gboolean
-dissect_rpcap_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean tcp)
+check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
 {
   gint offset = 0;
   guint8 version, msg_type;
@@ -905,7 +928,7 @@ dissect_rpcap_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   if (msg_value > 0) {
     if (msg_type == RPCAP_MSG_ERROR) {
       /* Must have a valid error code */
-      if (msg_value < RPCAP_ERR_NETW || msg_value > RPCAP_ERR_WRONGVER) 
+      if (msg_value < RPCAP_ERR_NETW || msg_value > RPCAP_ERR_WRONGVER)
 	return FALSE;
     } else if (msg_type != RPCAP_MSG_FINDALLIF_REPLY) {
       return FALSE;
@@ -948,12 +971,14 @@ dissect_rpcap_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     
   case RPCAP_MSG_PACKET:
     /* Must have the frame header */
-    if (plen != len || plen < 20)
+    if (plen < 20)
       return FALSE;
     break;
     
-  case RPCAP_MSG_ERROR:
   case RPCAP_MSG_FINDALLIF_REPLY:
+    /* May be empty */
+    break;
+  case RPCAP_MSG_ERROR:
   case RPCAP_MSG_OPEN_REQ:
   case RPCAP_MSG_STARTCAP_REQ:
   case RPCAP_MSG_UPDATEFILTER_REQ:
@@ -967,21 +992,43 @@ dissect_rpcap_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     return FALSE;
   }
 
-  return dissect_rpcap (tvb, pinfo, tree);
+  return TRUE;
+}
+
+
+static guint
+get_rpcap_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+  return tvb_get_ntohl (tvb, offset + 4) + 8;
 }
 
 
 static gboolean
 dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return dissect_rpcap_heur (tvb, pinfo, tree, TRUE);
+  if (check_rpcap_heur (tvb, TRUE)) {
+    /* This is probably a rpcap tcp package */
+    tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8, 
+		      get_rpcap_pdu_len, dissect_rpcap);
+    
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
 static gboolean
 dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return dissect_rpcap_heur (tvb, pinfo, tree, FALSE);
+  if (check_rpcap_heur (tvb, FALSE)) {
+    /* This is probably a rpcap udp package */
+    dissect_rpcap (tvb, pinfo, tree);
+    
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
@@ -1253,24 +1300,31 @@ proto_register_rpcap (void)
   module_t *rpcap_module;
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  new_register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+  register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
 	
   proto_register_field_array (proto_rpcap, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
-
+  
   /* Register our configuration options */
   rpcap_module = prefs_register_protocol (proto_rpcap, proto_reg_handoff_rpcap);
 
+  prefs_register_bool_preference (rpcap_module, "desegment_pdus",
+				  "Reassemble RPCAP PDUs spanning multiple TCP segments",
+				  "Whether the RPCAP dissector shourd reassemble PDUs"
+				  " spanning multiple TCP segments."
+				  " To use this option, you must also enable \"Allow subdissectors"
+				  " to reassemble TCP streams\" in the TCP protocol settings.",
+				  &rpcap_desegment);
+  prefs_register_bool_preference (rpcap_module, "add_packet_info",
+                                  "Indicate RPCAP in Protocol and Info columns",
+                                  "Indicate that this is a Remote PCAP packet"
+				  " in the Protocol column and the Info column.",
+                                  &add_packet_info);
   prefs_register_uint_preference (rpcap_module, "linktype",
 				  "Default link-layer type",
-				  "Default link-layer type to use if not received "
-				  "a Open Reply package",
+				  "Default link-layer type to use if not received a"
+				  " Open Reply package.",
 				  10, &global_linktype);
-  prefs_register_bool_preference (rpcap_module, "add_packet_info",
-                                  "Indicate RPCAP in columns",
-                                  "Indicate that this is a Remote PCAP packet "
-				  "in the protocol column and the info column",
-                                  &add_packet_info);
 }
 
 void
@@ -1286,6 +1340,10 @@ proto_reg_handoff_rpcap (void)
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, proto_rpcap);
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, proto_rpcap);
   }
+
+  if (add_packet_info) 
+    rpcap_frame_end ();  /* Initialize table */
+
   linktype = global_linktype;
 }
 
