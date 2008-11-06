@@ -81,6 +81,7 @@ typedef struct _gsm_a_stat_t {
     int		dtap_sms_message_type[0xff];
     int		dtap_sm_message_type[0xff];
     int		dtap_ss_message_type[0xff];
+    int		dtap_tp_message_type[0xff];
 } gsm_a_stat_t;
 
 
@@ -92,6 +93,7 @@ static gsm_a_stat_dlg_t		dlg_dtap_gmm;
 static gsm_a_stat_dlg_t		dlg_dtap_sms;
 static gsm_a_stat_dlg_t		dlg_dtap_sm;
 static gsm_a_stat_dlg_t		dlg_dtap_ss;
+static gsm_a_stat_dlg_t		dlg_dtap_tp;
 static gsm_a_stat_t		gsm_a_stat;
 
 
@@ -144,6 +146,9 @@ gsm_a_stat_packet(
 	    break;
 	case PD_SS:
 	    stat_p->dtap_ss_message_type[data_p->message_type]++;
+	    break;
+	case PD_TP:
+	    stat_p->dtap_tp_message_type[data_p->message_type]++;
 	    break;
 	default:
 	    /*
@@ -255,6 +260,13 @@ gsm_a_stat_draw(
 	gsm_a_stat_draw_aux(&dlg_dtap_ss,
 	    stat_p->dtap_ss_message_type,
 	    gsm_a_dtap_msg_ss_strings);
+    }
+
+    if (dlg_dtap_tp.win != NULL)
+    {
+	gsm_a_stat_draw_aux(&dlg_dtap_tp,
+	    stat_p->dtap_tp_message_type,
+	    gsm_a_dtap_msg_tp_strings);
     }
 }
 
@@ -661,6 +673,23 @@ gsm_a_stat_gtk_dtap_ss_init(
     gsm_a_stat_gtk_dtap_ss_cb(NULL, NULL);
 }
 
+static void
+gsm_a_stat_gtk_dtap_tp_cb(
+    GtkWidget		*w _U_,
+    gpointer		d _U_)
+{
+    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_tp,
+	"GSM A-I/F DTAP Special Conformance Testing Functions Statistics",
+	gsm_a_dtap_msg_tp_strings);
+}
+
+static void
+gsm_a_stat_gtk_dtap_tp_init(
+    const char		*optarg _U_,
+    void		*userdata _U_)
+{
+    gsm_a_stat_gtk_dtap_tp_cb(NULL, NULL);
+}
 
 void
 register_tap_listener_gtkgsm_a_stat(void)
@@ -715,4 +744,8 @@ register_tap_listener_gtkgsm_a_stat(void)
     register_stat_menu_item("GSM/A-Interface DTAP/Supplementary Services", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_ss_cb, NULL, NULL, NULL);
     register_stat_cmd_arg("gsm_a,dtap_ss", gsm_a_stat_gtk_dtap_ss_init,NULL);
+
+    register_stat_menu_item("GSM/A-Interface DTAP/Special Conformance Testing Functions", REGISTER_STAT_GROUP_TELEPHONY,
+	gsm_a_stat_gtk_dtap_tp_cb, NULL, NULL, NULL);
+    register_stat_cmd_arg("gsm_a,dtap_tp", gsm_a_stat_gtk_dtap_tp_init,NULL);
 }

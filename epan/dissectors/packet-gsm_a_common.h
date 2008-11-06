@@ -441,7 +441,7 @@ typedef enum
 	PD_LCS,
 	PD_UNK_2,
 	PD_RSVD_EXT,
-	PD_RSVD_TEST
+	PD_TP
 }
 gsm_a_pd_str_e;
 
@@ -511,6 +511,7 @@ WS_VAR_IMPORT const value_string gsm_a_dtap_msg_gmm_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
+WS_VAR_IMPORT const value_string gsm_a_dtap_msg_tp_strings[];
 WS_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
 extern const value_string gsm_a_qos_del_of_err_sdu_vals[];
