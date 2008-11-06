@@ -15811,7 +15811,6 @@ static void range_delete_callback(guint32 ssn)
  {
 	if (ssn) {
 		delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
- 		add_ansi_tcap_subdissector(ssn , ansi_map_handle);
     }
  }
 
@@ -18798,7 +18797,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5213 "packet-ansi_map-template.c"
+#line 5212 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19051,7 +19050,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5246 "packet-ansi_map-template.c"
+#line 5245 "packet-ansi_map-template.c"
   };
 
 
