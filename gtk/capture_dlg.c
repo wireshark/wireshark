@@ -1065,7 +1065,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
 
-  nocap_rpcap_cb = gtk_check_button_new_with_mnemonic("Do not capture own traffic");
+  nocap_rpcap_cb = gtk_check_button_new_with_mnemonic("Do not capture own RPCAP traffic");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(nocap_rpcap_cb),
           global_capture_opts.nocap_rpcap);
   gtk_container_add(GTK_CONTAINER(capture_vb), nocap_rpcap_cb);
