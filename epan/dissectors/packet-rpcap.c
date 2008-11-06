@@ -218,7 +218,7 @@ static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
 
 /* Global variables */
 static guint32 linktype = WTAP_ENCAP_UNKNOWN;
-GHashTable *info_added_table = NULL;
+static gboolean info_added = FALSE;
 
 static const true_false_string yes_no = {
   "Yes", "No"
@@ -298,11 +298,7 @@ static const value_string address_family[] = {
 
 static void rpcap_frame_end (void)
 {
-  if (info_added_table) {
-    g_hash_table_destroy (info_added_table);
-  }
-
-  info_added_table = g_hash_table_new (NULL, NULL);
+  info_added = FALSE;
 }
 
 
@@ -749,9 +745,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   gint caplen, frame_no;
   
-  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN &&
-      !g_hash_table_lookup (info_added_table, GINT_TO_POINTER (pinfo->fd->num)))
-  {
+  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN && !info_added) {
     /* Only indicate for known linktype and when not added before */
     if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
       /* Indicate RPCAP in the protocol column */
@@ -764,7 +758,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
       col_set_str (pinfo->cinfo, COL_INFO, "Remote | ");
       col_set_fence (pinfo->cinfo, COL_INFO);
     }
-    g_hash_table_insert (info_added_table, GINT_TO_POINTER (pinfo->fd->num), (void *) TRUE);
+    info_added = TRUE;
     register_frame_end_routine(rpcap_frame_end);
   }
 
@@ -1341,9 +1335,7 @@ proto_reg_handoff_rpcap (void)
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, proto_rpcap);
   }
 
-  if (add_packet_info) 
-    rpcap_frame_end ();  /* Initialize table */
-
+  info_added = FALSE;
   linktype = global_linktype;
 }
 
