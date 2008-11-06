@@ -121,7 +121,6 @@
 /* Preferenc settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 static dissector_handle_t ansi_map_handle=NULL;
 
@@ -871,7 +870,7 @@ static int hf_ansi_map_checkMEIDRes = -1;         /* CheckMEIDRes */
 static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 326 "packet-ansi_map-template.c"
+#line 325 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1123,10 +1122,9 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 358 "packet-ansi_map-template.c"
+#line 357 "packet-ansi_map-template.c"
 
 /* Global variables */
-static dissector_handle_t data_handle=NULL;
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
@@ -15057,7 +15055,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3621 "packet-ansi_map-template.c"
+#line 3619 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -15808,40 +15806,40 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void range_delete_callback(guint32 ssn)
- {
-	if (ssn) {
-		delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
+{
+    if (ssn) {
+        delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
     }
- }
+}
 
- static void range_add_callback(guint32 ssn)
- {
-	if (ssn) {
-		 add_ansi_tcap_subdissector(ssn , ansi_map_handle);
-	}
- }
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+        add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+    }
+}
 
- void
- proto_reg_handoff_ansi_map(void)
- {
-     static int ansi_map_prefs_initialized = FALSE;
-     data_handle = find_dissector("data");
-     
-     if(!ansi_map_prefs_initialized)
-     {
+void
+proto_reg_handoff_ansi_map(void)
+{
+    static gboolean ansi_map_prefs_initialized = FALSE;
+    static range_t *ssn_range;
+
+    if(!ansi_map_prefs_initialized)
+    {
  	ansi_map_prefs_initialized = TRUE;
- 	ansi_map_handle = create_dissector_handle(dissect_ansi_map, proto_ansi_map);
-     }
-     else
-     {
+ 	ansi_map_handle = find_dissector("ansi_map");
+    }
+    else
+    {
  	range_foreach(ssn_range, range_delete_callback);
-     }
-     
-     g_free(ssn_range);
-     ssn_range = range_copy(global_ssn_range);
- 
-     range_foreach(ssn_range, range_add_callback);
- }
+	g_free(ssn_range);
+    }
+
+    ssn_range = range_copy(global_ssn_range);
+
+    range_foreach(ssn_range, range_add_callback);
+}
 
 /*--- proto_register_ansi_map -------------------------------------------*/
 void proto_register_ansi_map(void) {
@@ -18797,7 +18795,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5212 "packet-ansi_map-template.c"
+#line 5210 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19050,7 +19048,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5245 "packet-ansi_map-template.c"
+#line 5243 "packet-ansi_map-template.c"
   };
 
 
@@ -19059,7 +19057,6 @@ void proto_register_ansi_map(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_ansi_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
  
   register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
@@ -19079,8 +19076,6 @@ void proto_register_ansi_map(void) {
 
 
   range_convert_str(&global_ssn_range, "5-14", MAX_SSN);
-
-  ssn_range = range_empty();
 
   ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
     
