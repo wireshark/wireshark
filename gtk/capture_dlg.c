@@ -1320,6 +1320,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_PCAP_REMOTE
   iftype_om = iftype_option_menu_new(global_capture_opts.src_type);
+  g_object_set_data(G_OBJECT(iftype_om), E_CAP_OM_IFTYPE_VALUE_KEY,
+		    GINT_TO_POINTER(global_capture_opts.src_type));
   gtk_tooltips_set_tip(tooltips, iftype_om,
 		       "Choose to capture from local or remote interfaces.", NULL);
   gtk_box_pack_start(GTK_BOX(if_hb), iftype_om, FALSE, FALSE, 0);
