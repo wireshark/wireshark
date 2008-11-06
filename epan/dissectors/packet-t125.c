@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t125.c                                                              */
-/* ../../tools/asn2wrs.py -b -p t125 -c t125.cnf -s packet-t125-template MCS-PROTOCOL.asn */
+/* ../../tools/asn2wrs.py -b -p t125 -c ./t125.cnf -s ./packet-t125-template -D . MCS-PROTOCOL.asn */
 
 /* Input file: packet-t125-template.c */
 
@@ -2152,6 +2152,9 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
     dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
   } else {
+    if (check_col(pinfo->cinfo, COL_INFO)){
+      col_set_str(pinfo->cinfo, COL_INFO, "T.125 payload");
+    }
     proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
   }
 
@@ -2633,7 +2636,7 @@ void proto_register_t125(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 95 "packet-t125-template.c"
+#line 98 "packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -2711,7 +2714,7 @@ void proto_register_t125(void) {
     &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 101 "packet-t125-template.c"
+#line 104 "packet-t125-template.c"
   };
 
   /* Register protocol */
