@@ -792,6 +792,57 @@ if (h245_pi != NULL)
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
+#.FN_BODY ParameterValue/unsignedMax  VAL_PTR = &value
+  guint32 value;
+  guint8 *buf;
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    buf = ep_alloc(sizeof(guint16));
+    phtons(buf, value);
+    value_tvb = tvb_new_real_data(buf, sizeof(guint16), sizeof(guint16));
+    tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
+  }
+#.END
+#.FN_BODY ParameterValue/unsigned32Min  VAL_PTR = &value
+  guint32 value;
+  guint8 *buf;
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    buf = ep_alloc(sizeof(guint32));
+    phtonl(buf, value);
+    value_tvb = tvb_new_real_data(buf, sizeof(guint32), sizeof(guint32));
+    tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
+  }
+#.END
+#.FN_BODY ParameterValue/unsigned32Max  VAL_PTR = &value
+  guint32 value;
+  guint8 *buf;
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    buf = ep_alloc(sizeof(guint32));
+    phtonl(buf, value);
+    value_tvb = tvb_new_real_data(buf, sizeof(guint32), sizeof(guint32));
+    tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
+  }
+#.END
 #.FN_BODY ParameterValue/octetString  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;

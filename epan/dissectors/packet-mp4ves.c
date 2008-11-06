@@ -39,6 +39,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/asn1.h>
 
 #include "prefs.h"
 
@@ -49,6 +50,7 @@ static int hf_mp4ves_config = -1;
 static int hf_mp4ves_start_code_prefix = -1;
 static int hf_mp4ves_start_code = -1;
 static int hf_mp4ves_vop_coding_type = -1;
+static int hf_mp4ves_profileandlevel = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
@@ -59,6 +61,95 @@ static int ett_mp4ves_config = -1;
 static guint global_dynamic_payload_type = 0;
 
 
+/*
+14496-2, Annex G, Table G-1.
+Table G-1 FLC table for profile_and_level_indication Profile/Level Code
+*/
+static const value_string mp4ves_level_indication_vals[] =
+{
+  { 0,    "Reserved" },
+  { 1,    "Simple Profile/Level 1" },
+  { 2,    "Simple Profile/Level 2" },
+  { 3,    "Reserved" },
+  { 4,    "Reserved" },
+  { 5,    "Reserved" },
+  { 6,    "Reserved" },
+  { 7,    "Reserved" },
+  { 8,    "Simple Profile/Level 0" },
+  { 9,    "Simple Profile/Level 0b" },
+  /* Reserved 00001001 - 00010000 */
+  { 0x11, "Simple Scalable Profile/Level 1" },
+  { 0x12, "Simple Scalable Profile/Level 2" },
+  /* Reserved 00010011 - 00100000 */
+  { 0x21, "Core Profile/Level 1" },
+  { 0x22, "Core Profile/Level 2" },
+  /* Reserved 00100011 - 00110001 */
+  { 0x32, "Main Profile/Level 2" },
+  { 0x33, "Main Profile/Level 3" },
+  { 0x34, "Main Profile/Level 4" },
+  /* Reserved 00110101 - 01000001  */
+  { 0x42, "N-bit Profile/Level 2" },
+  /* Reserved 01000011 - 01010000  */
+  { 0x51, "Scalable Texture Profile/Level 1" },
+  /* Reserved 01010010 - 01100000 */
+  { 0x61, "Simple Face Animation Profile/Level 1" },
+  { 0x62, "Simple Face Animation Profile/Level 2" },
+  { 0x63, "Simple FBA Profile/Level 1" },
+  { 0x64, "Simple FBA Profile/Level 2" },
+  /* Reserved 01100101 - 01110000 */
+  { 0x71, "Basic Animated Texture Profile/Level 1" },
+  { 0x72, "Basic Animated Texture Profile/Level 2" },
+  /* Reserved 01110011 - 10000000 */
+  { 0x81, "Hybrid Profile/Level 1" },
+  { 0x82, "Hybrid Profile/Level 2" },
+  /* Reserved 10000011 - 10010000 */
+  { 0x91, "Advanced Real Time Simple Profile/Level 1" },
+  { 0x92, "Advanced Real Time Simple Profile/Level 2" },
+  { 0x93, "Advanced Real Time Simple Profile/Level 3" },
+  { 0x94, "Advanced Real Time Simple Profile/Level 4" },
+  /* Reserved 10010101 - 10100000 */
+  { 0xa1, "Core Scalable Profile/Level 1" },
+  { 0xa2, "Core Scalable Profile/Level 2" },
+  { 0xa3, "Core Scalable Profile/Level 3" },
+  /* Reserved 10100100 - 10110000  */
+  { 0xb1, "Advanced Coding Efficiency Profile/Level 1" },
+  { 0xb2, "Advanced Coding Efficiency Profile/Level 2" },
+  { 0xb3, "Advanced Coding Efficiency Profile/Level 3" },
+  { 0xb4, "Advanced Coding Efficiency Profile/Level 4" },
+  /* Reserved 10110101 - 11000000 */
+  { 0xc1, "Advanced Core Profile/Level 1" },
+  { 0xc2, "Advanced Core Profile/Level 2" },
+  /* Reserved 11000011 - 11010000 */
+  { 0xd1, "Advanced Scalable Texture/Level 1" },
+  { 0xd2, "Advanced Scalable Texture/Level 2" },
+  { 0xd3, "Advanced Scalable Texture/Level 3" },
+  /* Reserved 11010100 - 11100000 */
+  { 0xe1, "Simple Studio Profile/Level 1" },
+  { 0xe2, "Simple Studio Profile/Level 2" },
+  { 0xe3, "Simple Studio Profile/Level 3" },
+  { 0xe4, "Simple Studio Profile/Level 4" },
+  { 0xe5, "Core Studio Profile/Level 1" },
+  { 0xe6, "Core Studio Profile/Level 2" },
+  { 0xe7, "Core Studio Profile/Level 3" },
+  { 0xe8, "Core Studio Profile/Level 4" },
+  /* Reserved 11101001 - 11101111 */
+  { 0xf0, "Advanced Simple Profile/Level 0" },
+  { 0xf1, "Advanced Simple Profile/Level 1" },
+  { 0xf2, "Advanced Simple Profile/Level 2" },
+  { 0xf3, "Advanced Simple Profile/Level 3" },
+  { 0xf4, "Advanced Simple Profile/Level 4" },
+  { 0xf5, "Advanced Simple Profile/Level 5" },
+  /* Reserved 11110110 - 11110111 */
+  { 0xf8, "Fine Granularity Scalable Profile/Level 0" },
+  { 0xf9, "Fine Granularity Scalable Profile/Level 1" },
+  { 0xfa, "Fine Granularity Scalable Profile/Level 2" },
+  { 0xfb, "Fine Granularity Scalable Profile/Level 3" },
+  { 0xfc, "Fine Granularity Scalable Profile/Level 4" },
+  { 0xfd, "Fine Granularity Scalable Profile/Level 5" },
+  { 0xfe, "Reserved" },
+  { 0xff, "Reserved for Escape" },
+  { 0, NULL },
+};
 static const range_string mp4ves_startcode_vals[] = {
 	{ 0,	0x1f, "video_object_start_code" },
 	{ 0x20, 0x2f, "video_object_layer_start_code" },
@@ -94,6 +185,27 @@ static const value_string mp4ves_vop_coding_type_vals[] = {
 	{ 0,	NULL }
 };
 
+/* 
+ * FLC table for video_object_type indication
+ */
+static const value_string mp4ves_video_object_type_vals[] = {
+	{ 0x0,	"Reserved" },
+	{ 0x1,	"Simple Object Type" },
+	{ 0x2,	"Simple Scalable Object Type" },
+	{ 0x3,	"Core Object Type" },
+	{ 0x4,	"Main Object Type" },
+	{ 0x5,	"N-bit Object Type" },
+	{ 0x6,	"Basic Anim. 2D Texture" },
+	{ 0x7,	"Anim. 2D Mesh" },
+	{ 0x8,	"Simple Face" },
+	{ 0x9,	"Still Scalable Texture" },
+	{ 0xa,	"Advanced Real Time Simple" },
+	{ 0xb,	"Core Scalable" },
+	{ 0xc,	"Advanced Coding Efficiency" },
+	{ 0xd,	"Advanced Scalable Texture" },
+	{ 0xe,	"Simple FBA" },
+	{ 0,	NULL }
+};
 
 #if 0
 To be called from packet-sdp.c 
@@ -215,6 +327,95 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 }
+/*
+ * Parameter name profileAndLevel
+ * Parameter description This is a nonCollapsing GenericParameter
+ * Parameter identifier value 0
+ * Parameter status Mandatory
+ * Parameter type unsignedMax. Shall be in the range 0..255.
+ * H245:
+ * unsignedMax       INTEGER(0..65535), -- Look for max 
+ */
+static int
+dissect_mp4ves_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  int offset = 0;
+  guint16 lvl;
+  const gchar *p = NULL;
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+
+  lvl = tvb_get_ntohs(tvb, offset);
+  p = match_strval(lvl, VALS(mp4ves_level_indication_vals));
+  if (p) {
+    proto_item_append_text(actx->created_item, " - profileAndLevel %s", p);
+  }
+  offset += 2;
+  return offset;
+}
+static int
+dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  int offset = 0;
+  guint16 lvl;
+  const gchar *p = NULL;
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+
+  lvl = tvb_get_ntohs(tvb, offset);
+  p = match_strval(lvl, VALS(mp4ves_video_object_type_vals));
+  if (p) {
+    proto_item_append_text(actx->created_item, " - video_object_type %s", p);
+  }
+  offset += 2;
+  return offset;
+}
+
+typedef struct _mp4ves_capability_t {
+  const gchar *id;
+  const gchar *name;
+  new_dissector_t content_pdu;
+} mp4ves_capability_t;
+
+static mp4ves_capability_t mp4ves_capability_tab[] = {
+  /* ITU-T H.245  capabilities ISO/IEC 14496-2(m*/
+  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/0", "profileAndLevel", dissect_mp4ves_par_profile },
+  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/1", "object", dissect_mp4ves_par_video_object_type },
+  { NULL, NULL, NULL },
+};                                 
+
+static mp4ves_capability_t *find_cap(const gchar *id) {
+  mp4ves_capability_t *ftr = NULL;
+  mp4ves_capability_t *f;
+
+  for (f=mp4ves_capability_tab; f->id; f++) {
+    if (!strcmp(id, f->id)) { ftr = f; break; }
+  }
+  return ftr;
+}
+
+static void
+dissect_mp4ves_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) 
+{
+  asn1_ctx_t *actx;
+  mp4ves_capability_t *ftr = NULL;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+  if (tree) {
+    ftr = find_cap(pinfo->match_string);
+    if (ftr) {
+      proto_item_append_text(actx->created_item, " - %s", ftr->name);
+      proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", ftr->name);
+    } else {
+      proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
+    }
+  }
+}
 
 void
 proto_reg_handoff_mp4ves(void)
@@ -224,9 +425,20 @@ proto_reg_handoff_mp4ves(void)
 	static gboolean mp4ves_prefs_initialized = FALSE;
 
 	if (!mp4ves_prefs_initialized) {
+		dissector_handle_t mp4ves_name_handle;
+		mp4ves_capability_t *ftr;
+
 		mp4ves_handle = find_dissector("mp4ves");
 		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 		mp4ves_prefs_initialized = TRUE;
+
+		mp4ves_name_handle = create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
+		for (ftr=mp4ves_capability_tab; ftr->id; ftr++) {
+		    if (ftr->name) 
+				dissector_add_string("h245.gef.name", ftr->id, mp4ves_name_handle);
+			if (ftr->content_pdu)
+				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_mp4ves));
+		}
 	}else{
 		if ( dynamic_payload_type > 95 )
 			dissector_delete("rtp.pt", dynamic_payload_type, mp4ves_handle);
@@ -237,6 +449,7 @@ proto_reg_handoff_mp4ves(void)
 		dissector_add("rtp.pt", dynamic_payload_type, mp4ves_handle);
 	}
 }
+
 
 void
 proto_register_mp4ves(void)
