@@ -50,7 +50,6 @@ static int hf_mp4ves_config = -1;
 static int hf_mp4ves_start_code_prefix = -1;
 static int hf_mp4ves_start_code = -1;
 static int hf_mp4ves_vop_coding_type = -1;
-static int hf_mp4ves_profileandlevel = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
