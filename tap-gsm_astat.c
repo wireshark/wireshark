@@ -58,6 +58,7 @@ typedef struct _gsm_a_stat_t {
     int		dtap_sm_message_type[0xff];
     int		dtap_ss_message_type[0xff];
     int		dtap_tp_message_type[0xff];
+    int		sacch_rr_message_type[0xff];
 } gsm_a_stat_t;
 
 
@@ -111,6 +112,19 @@ gsm_a_stat_packet(
 	    return(0);
 	}
 	break;
+
+   case GSM_A_PDU_TYPE_SACCH:
+   switch (tap_p->protocol_disc)
+   {
+   case 0:
+      stat_p->sacch_rr_message_type[tap_p->message_type]++;
+      break;
+   default:
+      /* unknown Short PD */
+      break;
+   }
+   break;
+
 
     default:
 	/*
@@ -281,6 +295,23 @@ gsm_a_stat_draw(
 		gsm_a_dtap_msg_tp_strings[i].value,
 		gsm_a_dtap_msg_tp_strings[i].strptr,
 		stat_p->dtap_tp_message_type[gsm_a_dtap_msg_tp_strings[i].value]);
+	}
+
+	i++;
+    }
+
+    printf("\nSACCH Radio Resources Management messages\n");
+    printf("Message (ID)Type                                        Number\n");
+
+    i = 0;
+    while (gsm_a_sacch_msg_rr_strings[i].strptr)
+    {
+	if (stat_p->sacch_rr_message_type[gsm_a_sacch_msg_rr_strings[i].value] > 0)
+	{
+	    printf("0x%02x  %-50s%d\n",
+		gsm_a_sacch_msg_rr_strings[i].value,
+		gsm_a_sacch_msg_rr_strings[i].strptr,
+		stat_p->sacch_rr_message_type[gsm_a_sacch_msg_rr_strings[i].value]);
 	}
 
 	i++;

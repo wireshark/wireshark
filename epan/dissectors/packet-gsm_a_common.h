@@ -151,6 +151,7 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_A_PDU_TYPE_COMMON	4
 #define GSM_A_PDU_TYPE_GM		5
 #define GSM_A_PDU_TYPE_BSSLAP	6
+#define GSM_A_PDU_TYPE_SACCH  7
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -512,6 +513,7 @@ WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
 WS_VAR_IMPORT const value_string gsm_a_dtap_msg_tp_strings[];
+WS_VAR_IMPORT const value_string gsm_a_sacch_msg_rr_strings[];
 WS_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
 extern const value_string gsm_a_qos_del_of_err_sdu_vals[];
