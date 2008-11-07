@@ -61,7 +61,6 @@ int proto_inap = -1;
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 static dissector_handle_t	inap_handle;
 
@@ -167,19 +166,19 @@ static void range_add_callback(guint32 ssn)
 
 void proto_reg_handoff_inap(void) {
 
-    static int inap_prefs_initialized = FALSE;
+    static gboolean inap_prefs_initialized = FALSE;
+    static range_t *ssn_range;
 
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
-
-	    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
+	    inap_handle = find_dissector("inap");
 	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
+            g_free(ssn_range);
     }
 
-    g_free(ssn_range);
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
@@ -218,7 +217,6 @@ void proto_register_inap(void) {
 
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
-  ssn_range = range_empty();
 
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 

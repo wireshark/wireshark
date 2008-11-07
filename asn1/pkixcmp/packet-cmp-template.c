@@ -59,17 +59,9 @@
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
 
-static dissector_handle_t cmp_http_handle;
-static dissector_handle_t cmp_tcp_style_http_handle;
-static dissector_handle_t cmp_tcp_handle;
-
-static gboolean inited = FALSE;
 static guint cmp_alternate_tcp_port = 0;
-static guint cmp_alternate_tcp_port_prev = 0;
 static guint cmp_alternate_http_port = 0;
-static guint cmp_alternate_http_port_prev = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
-static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 /* Initialize the protocol and registered fields */
 int proto_cmp = -1;
@@ -406,6 +398,13 @@ void proto_register_cmp(void) {
 
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
+	static gboolean inited = FALSE;
+	static dissector_handle_t cmp_http_handle;
+	static dissector_handle_t cmp_tcp_style_http_handle;
+	static dissector_handle_t cmp_tcp_handle;
+	static guint cmp_alternate_tcp_port_prev = 0;
+	static guint cmp_alternate_http_port_prev = 0;
+	static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 	if (!inited) {
 		cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);

@@ -138,7 +138,6 @@ static gint ett_camel_stat = -1;
 /* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 static dissector_handle_t  camel_handle;
 
 /* Global variables */
@@ -488,18 +487,21 @@ static void range_add_callback(guint32 ssn)
 }
 
 void proto_reg_handoff_camel(void) {
-  int i;
-  dissector_handle_t camel_arg_handle;
-  dissector_handle_t camel_res_handle;
-  dissector_handle_t camel_err_handle;
+  static gboolean camel_prefs_initialized = FALSE;
+  static range_t *ssn_range;
 
-  static int camel_prefs_initialized = FALSE;
   if (!camel_prefs_initialized) {
-    camel_prefs_initialized = TRUE;
-    camel_handle = create_dissector_handle(dissect_camel, proto_camel);
+    int i;
+    dissector_handle_t camel_arg_handle;
+    dissector_handle_t camel_res_handle;
+    dissector_handle_t camel_err_handle;
 
-	camel_arg_handle = new_create_dissector_handle(dissect_camel_arg, proto_camel);
-	camel_res_handle = new_create_dissector_handle(dissect_camel_res, proto_camel);
+    camel_prefs_initialized = TRUE;
+    camel_handle = find_dissector("camel");
+
+    camel_arg_handle = new_create_dissector_handle(dissect_camel_arg, proto_camel);
+    camel_res_handle = new_create_dissector_handle(dissect_camel_res, proto_camel);
+    camel_err_handle = new_create_dissector_handle(dissect_camel_err, proto_camel);
 
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "CAP-v1-gsmSSF-to-gsmSCF-AC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "CAP-v2-gsmSSF-to-gsmSCF-AC" );
@@ -508,24 +510,23 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "cap3-gprssf-scfAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.51",camel_handle, proto_camel, "cap3-gsmscf-gprsssfAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "cap3-sms-AC" );
-	register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61",camel_handle, proto_camel, "cap4-sms-AC" );
 	
-	for (i=0; i<(int)array_length(camel_op_tab); i++) {
-		dissector_add("camel.ros.local.arg", camel_op_tab[i].opcode, camel_arg_handle);
-		dissector_add("camel.ros.local.res", camel_op_tab[i].opcode, camel_res_handle);
-	}
-	camel_err_handle = new_create_dissector_handle(dissect_camel_err, proto_camel);
-	for (i=0; i<(int)array_length(camel_err_tab); i++) {
-		dissector_add("camel.ros.local.err", camel_err_tab[i].errcode, camel_err_handle);
-	}
+    for (i=0; i<(int)array_length(camel_op_tab); i++) {
+      dissector_add("camel.ros.local.arg", camel_op_tab[i].opcode, camel_arg_handle);
+      dissector_add("camel.ros.local.res", camel_op_tab[i].opcode, camel_res_handle);
+    }
+    for (i=0; i<(int)array_length(camel_err_tab); i++) {
+      dissector_add("camel.ros.local.err", camel_err_tab[i].errcode, camel_err_handle);
+    }
 
 #include "packet-camel-dis-tab.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
+    g_free(ssn_range);
   }
 
-  g_free(ssn_range);
   ssn_range = range_copy(global_ssn_range);
 
   range_foreach(ssn_range, range_add_callback);
@@ -544,72 +545,72 @@ void proto_register_camel(void) {
       { "local", "camel.error_code_local",
         FT_INT32, BASE_DEC, VALS(camel_err_code_string_vals), 0,
         "ERROR code", HFILL }},
-  { &hf_camel_cause_indicator, /* Currently not enabled */
-    { "Cause indicator",  "camel.cause_indicator",
-      FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
-      "", HFILL }},
-   { &hf_digit,
+    { &hf_camel_cause_indicator, /* Currently not enabled */
+      { "Cause indicator",  "camel.cause_indicator",
+        FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
+        "", HFILL }},
+    { &hf_digit,
       { "Digit Value",  "camel.digit_value",
-      FT_UINT8, BASE_DEC, VALS(digit_value), 0, "Digit Value", HFILL }},
-   { &hf_camel_PDPTypeNumber_etsi,
+        FT_UINT8, BASE_DEC, VALS(digit_value), 0, "Digit Value", HFILL }},
+    { &hf_camel_PDPTypeNumber_etsi,
       { "ETSI defined PDP Type Value",  "camel.PDPTypeNumber_etsi",
-      FT_UINT8, BASE_HEX, VALS(gsm_map_etsi_defined_pdp_vals), 0,
-	  "ETSI defined PDP Type Value", HFILL }},
-   { &hf_camel_PDPTypeNumber_ietf,
+        FT_UINT8, BASE_HEX, VALS(gsm_map_etsi_defined_pdp_vals), 0,
+        "ETSI defined PDP Type Value", HFILL }},
+    { &hf_camel_PDPTypeNumber_ietf,
       { "IETF defined PDP Type Value",  "camel.PDPTypeNumber_ietf",
-      FT_UINT8, BASE_HEX, VALS(gsm_map_ietf_defined_pdp_vals), 0,
-	  "IETF defined PDP Type Value", HFILL }},
-   { &hf_camel_PDPAddress_IPv4,
+        FT_UINT8, BASE_HEX, VALS(gsm_map_ietf_defined_pdp_vals), 0,
+        "IETF defined PDP Type Value", HFILL }},
+    { &hf_camel_PDPAddress_IPv4,
       { "PDPAddress IPv4",  "camel.PDPAddress_IPv4",
-	  FT_IPv4, BASE_NONE, NULL, 0,
-	  "IPAddress IPv4", HFILL }},
-   { &hf_camel_PDPAddress_IPv6,
+        FT_IPv4, BASE_NONE, NULL, 0,
+        "IPAddress IPv4", HFILL }},
+    { &hf_camel_PDPAddress_IPv6,
       { "PDPAddress IPv6",  "camel.PDPAddress_IPv6",
-	  FT_IPv6, BASE_NONE, NULL, 0,
-	  "IPAddress IPv6", HFILL }},
-   { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
+        FT_IPv6, BASE_NONE, NULL, 0,
+        "IPAddress IPv6", HFILL }},
+    { &hf_camel_cellGlobalIdOrServiceAreaIdFixedLength,
       { "CellGlobalIdOrServiceAreaIdFixedLength", "camel.CellGlobalIdOrServiceAreaIdFixedLength",
         FT_BYTES, BASE_HEX, NULL, 0,
         "LocationInformationGPRS/CellGlobalIdOrServiceAreaIdOrLAI", HFILL }},
-  { &hf_camel_RP_Cause,
+    { &hf_camel_RP_Cause,
       { "RP Cause",  "camel.RP_Cause",
-      FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_DEC, NULL, 0,
 	"RP Cause Value", HFILL }},
     
-  { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
-    { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC,  VALS(camel_CAMEL_AChBillingChargingCharacteristics_vals), 0,
-      "CAMEL-AChBillingChargingCharacteristics", HFILL }}, 
+    { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
+      { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC,  VALS(camel_CAMEL_AChBillingChargingCharacteristics_vals), 0,
+        "CAMEL-AChBillingChargingCharacteristics", HFILL }}, 
     
-  { &hf_camel_CAMEL_FCIBillingChargingCharacteristics,
-    { "CAMEL-FCIBillingChargingCharacteristics", "camel.CAMEL_FCIBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCIBillingChargingCharacteristics_vals), 0,
-      "CAMEL-FCIBillingChargingCharacteristics", HFILL }},
+    { &hf_camel_CAMEL_FCIBillingChargingCharacteristics,
+      { "CAMEL-FCIBillingChargingCharacteristics", "camel.CAMEL_FCIBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCIBillingChargingCharacteristics_vals), 0,
+        "CAMEL-FCIBillingChargingCharacteristics", HFILL }},
 
-  { &hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics,
-    { "CAMEL-FCIGPRSBillingChargingCharacteristics", "camel.CAMEL_FCIGPRSBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC, NULL, 0,
-      "CAMEL-FCIGPRSBillingChargingCharacteristics", HFILL }},
+    { &hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics,
+      { "CAMEL-FCIGPRSBillingChargingCharacteristics", "camel.CAMEL_FCIGPRSBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CAMEL-FCIGPRSBillingChargingCharacteristics", HFILL }},
 
-  { &hf_camel_CAMEL_FCISMSBillingChargingCharacteristics,
-    { "CAMEL-FCISMSBillingChargingCharacteristics", "camel.CAMEL_FCISMSBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCISMSBillingChargingCharacteristics_vals), 0,
-      "CAMEL-FCISMSBillingChargingCharacteristics", HFILL }},
+    { &hf_camel_CAMEL_FCISMSBillingChargingCharacteristics,
+      { "CAMEL-FCISMSBillingChargingCharacteristics", "camel.CAMEL_FCISMSBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCISMSBillingChargingCharacteristics_vals), 0,
+        "CAMEL-FCISMSBillingChargingCharacteristics", HFILL }},
 
-  { &hf_camel_CAMEL_SCIBillingChargingCharacteristics,
-    { "CAMEL-SCIBillingChargingCharacteristics", "camel.CAMEL_SCIBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_SCIBillingChargingCharacteristics_vals), 0,
-      "CAMEL-SCIBillingChargingCharacteristics", HFILL }},
+    { &hf_camel_CAMEL_SCIBillingChargingCharacteristics,
+      { "CAMEL-SCIBillingChargingCharacteristics", "camel.CAMEL_SCIBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC, VALS(camel_CAMEL_SCIBillingChargingCharacteristics_vals), 0,
+        "CAMEL-SCIBillingChargingCharacteristics", HFILL }},
 
-  { &hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics,
-    { "CAMEL-SCIGPRSBillingChargingCharacteristics", "camel.CAMEL_SCIGPRSBillingChargingCharacteristics",
-      FT_UINT32, BASE_DEC, NULL, 0,
-      "CAMEL-FSCIGPRSBillingChargingCharacteristics", HFILL }},
+    { &hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics,
+      { "CAMEL-SCIGPRSBillingChargingCharacteristics", "camel.CAMEL_SCIGPRSBillingChargingCharacteristics",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CAMEL-FSCIGPRSBillingChargingCharacteristics", HFILL }},
 
-  { &hf_camel_CAMEL_CallResult,
-    { "CAMEL-CAMEL_CallResult", "camel.CAMEL_CallResult",
-      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_CallResult_vals), 0,
-      "CAMEL-CallResult", HFILL }},
+    { &hf_camel_CAMEL_CallResult,
+      { "CAMEL-CAMEL_CallResult", "camel.CAMEL_CallResult",
+        FT_UINT32, BASE_DEC, VALS(camel_CAMEL_CallResult_vals), 0,
+        "CAMEL-CallResult", HFILL }},
 
   /* Camel Service Response Time */
     { &hf_camelsrt_SessionId,
@@ -684,7 +685,7 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReport(Disconnect) and Release Call", HFILL }
     },
-  { &hf_camelsrt_DeltaTime80,
+    { &hf_camelsrt_DeltaTime80,
       { "Service Response Time",
         "camel.srt.deltatime80",
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -719,14 +720,19 @@ void proto_register_camel(void) {
   rose_ctx_init(&camel_rose_ctx);
 
   /* Register dissector tables */
-  camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg", "CAMEL Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res", "CAMEL Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
-  camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err", "CAMEL Error (local opcode)", FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg", 
+                                                                      "CAMEL Operation Argument (local opcode)", 
+                                                                      FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res", 
+                                                                      "CAMEL Operation Result (local opcode)", 
+                                                                      FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err", 
+                                                                      "CAMEL Error (local opcode)", 
+                                                                      FT_UINT32, BASE_HEX); 
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "6-9", MAX_SSN);
-  ssn_range = range_empty();
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 
