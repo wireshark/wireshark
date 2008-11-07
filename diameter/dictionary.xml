@@ -1443,10 +1443,16 @@ Note: TThe AVP codes from 410 to 499 are reserved for TS 29.109
       AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 -->
+		<avp name="Visited-Network-Identifier" code="600" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Public-Identity" code="601" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+    <avp name="Server-Name" code="602" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>    
 <!--
-600 Visited-Network-Identifier OctetString
-601 Public-Identity UTF8String
-602 Server-Name UTF8String
 603 Server-Capabilities Grouped
 604 Mandatory-Capability Unsigned32
 605 Optional-Capability Unsigned32
