@@ -77,6 +77,7 @@ static int hf_ipv6_opt_pad1	  = -1;
 static int hf_ipv6_opt_padn	  = -1;
 static int hf_ipv6_dst_opt	  = -1;
 static int hf_ipv6_hop_opt	  = -1;
+static int hf_ipv6_unk_hdr	  = -1;
 static int hf_ipv6_routing_hdr_opt	  = -1;
 static int hf_ipv6_routing_hdr_type	  = -1;
 static int hf_ipv6_routing_hdr_left	  = -1;
@@ -546,6 +547,34 @@ dissect_ipv6_options(tvbuff_t *tvb, int offset, guint length,
     if (opt == eol)
       break;
   }
+}
+
+static int
+dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    struct ip6_ext ext;
+    int len;
+    proto_tree *unkopt_tree;
+    proto_item *ti;
+
+    tvb_memcpy(tvb, (guint8 *)&ext, offset, sizeof(ext));
+    len = (ext.ip6e_len + 1) << 3;
+
+    if (tree) {
+	/* !!! specify length */
+	ti = proto_tree_add_item(tree, hf_ipv6_unk_hdr, tvb, offset, len, FALSE);
+
+	unkopt_tree = proto_item_add_subtree(ti, ett_ipv6);
+
+	proto_tree_add_text(unkopt_tree, tvb,
+	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
+	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+
+	proto_tree_add_text(unkopt_tree, tvb,
+	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
+	    "Length: %u (%d bytes)", ext.ip6e_len, len);
+    }
+    return len;
 }
 
 static int
@@ -1432,6 +1461,19 @@ again:
 			offset += advance;
 			plen -= advance;
 			goto again;
+    default:
+                        /* Since we did not recognize this IPv6 option, check
+                         * whether it is a known protocol. If not, then it
+                         * is an unknown IPv6 option
+                         */
+                        if( !dissector_get_port_handle(ip_dissector_table, nxt) ) {
+                          advance = dissect_unknown_option(tvb, offset, tree); 
+                          nxt = tvb_get_guint8(tvb, offset);
+                          poffset = offset;
+                          offset += advance;
+                          plen -= advance;
+                          goto again;
+                        }
     }
 
 #ifdef TEST_FINALHDR
@@ -1578,6 +1620,10 @@ proto_register_ipv6(void)
       { "Hop-by-Hop Option",	"ipv6.hop_opt",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Hop-by-Hop Option", HFILL }},
+    { &hf_ipv6_unk_hdr,
+      { "Unknown Extension Header",	"ipv6.unkown_hdr",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Unknown Extension Header", HFILL }},
     { &hf_ipv6_routing_hdr_opt,
       { "Routing Header, Type ","ipv6.routing_hdr",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
