@@ -7174,7 +7174,7 @@ static const value_string gsm_a_rr_3g_wait_vals[] = {
 static void
 sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_)
 {
-   proto_tree *subtree, *subtree2;
+   proto_tree *subtree = NULL, *subtree2;
    proto_item *item, *item2;
    guint32 curr_offset;
    gint bit_offset, bit_offset_sav, bit_offset_sav2;
