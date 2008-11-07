@@ -39,6 +39,8 @@
 
 #include "packet-gsm_a_common.h"
 
+static dissector_handle_t bsslap_rrlp_handle = NULL;
+
 /* Initialize the protocol and registered fields */
 static int proto_gsm_bsslap			= -1;
 static int hf_gsm_bsslap_msg_type	= -1;
@@ -234,7 +236,7 @@ static guint8
 de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-
+    
 	curr_offset = offset;
 	proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
@@ -244,15 +246,23 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 static guint8
 de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+   guint32 curr_offset;
+   tvbuff_t *rrlp_tvb;
+   static packet_info p_info;
+   guint16 length;
+  
+   length = tvb_get_ntohs(tvb, offset);
 
-	curr_offset = offset; 
-	/* RRLP APDU (3GPP TS 44.031)*/
-	proto_tree_add_text(tree,tvb, curr_offset, len,"RRLP APDU Not decoded yet");
+   curr_offset = offset + 2;
+   if (length > 0)
+   {
+      rrlp_tvb = tvb_new_subset(tvb, curr_offset, length, length);
+      if (bsslap_rrlp_handle)
+         call_dissector(bsslap_rrlp_handle, rrlp_tvb, &p_info, tree);
+   }
 
-	curr_offset++;
-
-	return(len);
+   curr_offset += length;
+   return(curr_offset - offset);
 }
 /*
  * 5.17 Cell Identity List IE
@@ -850,6 +860,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_gsm_bsslap(void)
 {
+	bsslap_rrlp_handle = find_dissector("rrlp");
 }
 
 void
