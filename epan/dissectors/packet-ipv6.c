@@ -1467,7 +1467,7 @@ again:
                          * is an unknown IPv6 option
                          */
                         if( !dissector_get_port_handle(ip_dissector_table, nxt) ) {
-                          advance = dissect_unknown_option(tvb, offset, tree); 
+                          advance = dissect_unknown_option(tvb, offset, ipv6_tree); 
                           nxt = tvb_get_guint8(tvb, offset);
                           poffset = offset;
                           offset += advance;
