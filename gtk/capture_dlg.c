@@ -127,6 +127,7 @@
 
 #ifdef HAVE_PCAP_REMOTE
 #define E_CAP_IFTYPE_OM_KEY         "cap_iftype_om"
+#define E_CAP_IF_LIST_KEY           "cap_if_list"
 #define E_CAP_DATATX_UDP_CB_KEY     "cap_datatx_udp_cb"
 #define E_CAP_NOCAP_RPCAP_CB_KEY    "cap_nocap_rpcap_cb"
 #define E_CAP_REMOTE_DIALOG_PTR_KEY "cap_remote_dialog"
@@ -293,8 +294,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
      */
 #ifdef HAVE_PCAP_REMOTE
     if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
-      /* Not able to get link-layer for remote interfaces */
-      if_list = NULL;
+      if_list = (GList *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY);
     else
       if_list = capture_interface_list(&err, NULL);
 #else
@@ -312,6 +312,10 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	   * It's in the list.
 	   * Get the list of link-layer types for it.
 	   */
+#ifdef HAVE_PCAP_REMOTE
+          if (global_capture_opts.src_type == CAPTURE_IFLOCAL)
+            /* Not able to get link-layer for remote interfaces */
+#endif
 	  lt_list = capture_pcap_linktype_list(if_name, NULL);
 
 	  /* create string of list of IP addresses of this interface */
@@ -341,6 +345,10 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	    g_string_append(ip_str, " (loopback)");
 	}
       }
+#ifdef HAVE_PCAP_REMOTE
+      /* Only delete if fetched local */
+      if (global_capture_opts.src_type == CAPTURE_IFLOCAL)
+#endif
       free_interface_list(if_list);
     }
   }
@@ -676,15 +684,22 @@ update_interface_list()
     iftype_om = g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_OM_KEY);
     remote_bt = g_object_get_data(G_OBJECT(iftype_om), E_OPT_REMOTE_BT_KEY);
 
-    if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
+    if_list = (GList *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY);
+    if (if_list) {
+       free_interface_list(if_list);
+    }
+    if (global_capture_opts.src_type == CAPTURE_IFREMOTE) {
         if_list = get_remote_interface_list(global_capture_opts.remote_host,
                         global_capture_opts.remote_port,
                         global_capture_opts.auth_type,
                         global_capture_opts.auth_username,
                         global_capture_opts.auth_password,
                         &err, &err_str);
-    else
+	g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, if_list);
+    } else {
         if_list = capture_interface_list(&err, &err_str);
+        g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
+    }
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
@@ -712,6 +727,10 @@ update_interface_list()
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "");
 
     free_capture_combo_list(combo_list);
+#ifdef HAVE_PCAP_REMOTE
+    /* Only delete if fetched local */
+    if (global_capture_opts.src_type == CAPTURE_IFLOCAL)
+#endif
     free_interface_list(if_list);
 
     if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
@@ -920,6 +939,15 @@ capture_remote_cb(GtkWidget *w, gpointer d _U_)
     window_set_cancel_button(remote_w, cancel_bt, window_cancel_button_cb);
 
     gtk_widget_grab_default(ok_bt);
+
+  /* Catch the "activate" signal on the text
+     entries, so that if the user types Return there, we act as if the
+     "OK" button had been selected, as happens if Return is typed if some
+     widget that *doesn't* handle the Return key has the input focus. */
+    dlg_set_activate(host_te, ok_bt);
+    dlg_set_activate(port_te, ok_bt);
+    dlg_set_activate(user_te, ok_bt);
+    dlg_set_activate(passwd_te, ok_bt);
 
     g_signal_connect(remote_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(remote_w, "destroy", G_CALLBACK(capture_remote_destroy_cb), NULL);
@@ -1255,16 +1283,27 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
+  /* use user-defined title if preference is set */
+  cap_title = create_user_window_title("Wireshark: Capture Options");
+
+  cap_open_w = dlg_window_new(cap_title);
+  g_free(cap_title);
+
+  tooltips = gtk_tooltips_new();
+
 #ifdef HAVE_PCAP_REMOTE
-  if (global_capture_opts.src_type == CAPTURE_IFREMOTE)
+  if (global_capture_opts.src_type == CAPTURE_IFREMOTE) {
       if_list = get_remote_interface_list(global_capture_opts.remote_host,
                     global_capture_opts.remote_port,
                     global_capture_opts.auth_type,
                     global_capture_opts.auth_username,
                     global_capture_opts.auth_password,
                     &err, &err_str);
-  else
+      g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, if_list);
+  } else {
       if_list = capture_interface_list(&err, &err_str);
+      g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
+  }
 #else
   if_list = capture_interface_list(&err, &err_str);
 #endif
@@ -1290,14 +1329,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* select the first ad default (THIS SHOULD BE CHANGED) */
 	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 #endif
-
-  /* use user-defined title if preference is set */
-  cap_title = create_user_window_title("Wireshark: Capture Options");
-
-  cap_open_w = dlg_window_new(cap_title);
-  g_free(cap_title);
-
-  tooltips = gtk_tooltips_new();
 
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -1356,6 +1387,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 		       (char *)combo_list->data);
   }
   free_capture_combo_list(combo_list);
+#ifdef HAVE_PCAP_REMOTE
+  /* Only delete if fetched local */
+  if (global_capture_opts.src_type == CAPTURE_IFLOCAL)
+#endif
   free_interface_list(if_list);
   gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
     "Choose which interface (network card) will be used to capture packets from. "
@@ -2439,12 +2474,20 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *fs;
 #ifdef HAVE_PCAP_REMOTE
+  GList     *if_list;
   GtkWidget *remote_w;
 #endif
 
   /* Is there a file selection dialog associated with this
      Capture Options dialog? */
   fs = g_object_get_data(G_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+
+#ifdef HAVE_PCAP_REMOTE
+  if_list = (GList *) g_object_get_data(G_OBJECT(win), E_CAP_IF_LIST_KEY);
+  if (if_list) {
+      free_interface_list(if_list);
+  }
+#endif
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
