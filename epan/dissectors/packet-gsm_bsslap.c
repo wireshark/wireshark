@@ -244,7 +244,7 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	return(curr_offset - offset);
 }
 static guint8
-de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
    tvbuff_t *rrlp_tvb;
