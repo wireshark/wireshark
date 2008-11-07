@@ -66,7 +66,6 @@
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 static dissector_table_t sccp_ssn_table;
 
@@ -209,9 +208,8 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-pcap-val.h ---*/
-#line 66 "packet-pcap-template.c"
+#line 65 "packet-pcap-template.c"
 
-static dissector_handle_t data_handle;
 static dissector_handle_t pcap_handle = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -1077,7 +1075,7 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh1 = -1;
 static int hf_pcap_AvailableSubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-pcap-hf.c ---*/
-#line 74 "packet-pcap-template.c"
+#line 72 "packet-pcap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_pcap = -1;
@@ -1409,7 +1407,7 @@ static gint ett_pcap_UnsuccessfulOutcome = -1;
 static gint ett_pcap_Outcome = -1;
 
 /*--- End of included file: packet-pcap-ett.c ---*/
-#line 79 "packet-pcap-template.c"
+#line 77 "packet-pcap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -11050,7 +11048,7 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pcap-fn.c ---*/
-#line 103 "packet-pcap-template.c"
+#line 101 "packet-pcap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -11114,32 +11112,17 @@ static void range_add_callback(guint32 ssn)
     }
 }
 
-
-static void init_pcap(void) {
-    if (ssn_range) {
-        range_foreach(ssn_range, range_delete_callback);
-        g_free(ssn_range);
-    }
-
-    ssn_range = range_copy(global_ssn_range);
-    range_foreach(ssn_range, range_add_callback);
-}
-
-
 /*--- proto_reg_handoff_pcap ---------------------------------------*/
 void
 proto_reg_handoff_pcap(void)
 {
-
     static gboolean prefs_initialized = FALSE;
+    static range_t *ssn_range;
 
     if (! prefs_initialized) {
+        pcap_handle = find_dissector("pcap");
         sccp_ssn_table = find_dissector_table("sccp.ssn");
         prefs_initialized = TRUE;
-    }
-
-    data_handle = find_dissector("data");
-
 
 /*--- Included file: packet-pcap-dis-tab.c ---*/
 #line 1 "packet-pcap-dis-tab.c"
@@ -11233,7 +11216,13 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 193 "packet-pcap-template.c"
+#line 176 "packet-pcap-template.c"
+    } else {
+        range_foreach(ssn_range, range_delete_callback);
+        g_free(ssn_range);
+    }
+    ssn_range = range_copy(global_ssn_range);
+    range_foreach(ssn_range, range_add_callback);
 }
 
 /*--- proto_register_pcap -------------------------------------------*/
@@ -14664,7 +14653,7 @@ void proto_register_pcap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 203 "packet-pcap-template.c"
+#line 192 "packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -14997,7 +14986,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 209 "packet-pcap-template.c"
+#line 198 "packet-pcap-template.c"
   };
 
   module_t *pcap_module;
@@ -15012,7 +15001,6 @@ void proto_register_pcap(void) {
  
   /* Register dissector */
   register_dissector("pcap", dissect_pcap, proto_pcap);
-  pcap_handle = find_dissector("pcap");
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -15026,16 +15014,12 @@ void proto_register_pcap(void) {
 
 
   /* Preferences */
-    /* Set default SSNs */
+  /* Set default SSNs */
   range_convert_str(&global_ssn_range, "", MAX_SSN);
-  ssn_range = range_empty();
 
   prefs_register_range_preference(pcap_module, "ssn", "SCCP SSNs",
-  "SCCP (and SUA) SSNs to decode as PCAP",
-  &global_ssn_range, MAX_SSN);
-
-
-  register_init_routine(&init_pcap);
+                                  "SCCP (and SUA) SSNs to decode as PCAP",
+                                  &global_ssn_range, MAX_SSN);
 }
 
 

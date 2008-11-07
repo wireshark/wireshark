@@ -67,17 +67,9 @@
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
 
-static dissector_handle_t cmp_http_handle;
-static dissector_handle_t cmp_tcp_style_http_handle;
-static dissector_handle_t cmp_tcp_handle;
-
-static gboolean inited = FALSE;
 static guint cmp_alternate_tcp_port = 0;
-static guint cmp_alternate_tcp_port_prev = 0;
 static guint cmp_alternate_http_port = 0;
-static guint cmp_alternate_http_port_prev = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
-static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 /* Initialize the protocol and registered fields */
 int proto_cmp = -1;
@@ -252,7 +244,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 85 "packet-cmp-template.c"
+#line 77 "packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -308,7 +300,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 89 "packet-cmp-template.c"
+#line 81 "packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
@@ -1476,7 +1468,7 @@ static void dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 94 "packet-cmp-template.c"
+#line 86 "packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
@@ -2377,7 +2369,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 362 "packet-cmp-template.c"
+#line 354 "packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2435,7 +2427,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 368 "packet-cmp-template.c"
+#line 360 "packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2477,6 +2469,13 @@ void proto_register_cmp(void) {
 
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
+	static gboolean inited = FALSE;
+	static dissector_handle_t cmp_http_handle;
+	static dissector_handle_t cmp_tcp_style_http_handle;
+	static dissector_handle_t cmp_tcp_handle;
+	static guint cmp_alternate_tcp_port_prev = 0;
+	static guint cmp_alternate_http_port_prev = 0;
+	static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 	if (!inited) {
 		cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
@@ -2522,7 +2521,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 433 "packet-cmp-template.c"
+#line 432 "packet-cmp-template.c"
 		inited = TRUE;
 	}
 

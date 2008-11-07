@@ -1001,7 +1001,6 @@ static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 static dissector_handle_t	inap_handle;
 
@@ -1256,7 +1255,7 @@ static gint ett_inap_T_problem = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 82 "packet-inap-template.c"
+#line 81 "packet-inap-template.c"
 
 
 /*--- Included file: packet-inap-table.c ---*/
@@ -1364,7 +1363,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 84 "packet-inap-template.c"
+#line 83 "packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -8784,7 +8783,7 @@ static int dissect_SRFCallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 98 "packet-inap-template.c"
+#line 97 "packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9123,7 +9122,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 119 "packet-inap-template.c"
+#line 118 "packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -9175,19 +9174,19 @@ static void range_add_callback(guint32 ssn)
 
 void proto_reg_handoff_inap(void) {
 
-    static int inap_prefs_initialized = FALSE;
+    static gboolean inap_prefs_initialized = FALSE;
+    static range_t *ssn_range;
 
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
-
-	    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
+	    inap_handle = find_dissector("inap");
 	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
+            g_free(ssn_range);
     }
 
-    g_free(ssn_range);
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
@@ -11399,7 +11398,7 @@ void proto_register_inap(void) {
         "inap.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 198 "packet-inap-template.c"
+#line 197 "packet-inap-template.c"
   };
 
 
@@ -11649,7 +11648,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 210 "packet-inap-template.c"
+#line 209 "packet-inap-template.c"
   };
 
   /* Register protocol */
@@ -11661,7 +11660,6 @@ void proto_register_inap(void) {
 
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
-  ssn_range = range_empty();
 
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 
