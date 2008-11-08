@@ -2083,9 +2083,9 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data 
 /* XXX what about endians here? could go something wrong? */
 static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
-	int to_fd, forw_fd, rev_fd, fread = 0, rread = 0, fwritten, rwritten;
-	gchar f_pd[1] = {0};
-	gchar r_pd[1] = {0};
+	FILE *to_stream, *forw_stream, *rev_stream;
+	size_t fwritten, rwritten;
+	int f_rawvalue, r_rawvalue, rawvalue;
 	gint16 sample;
 	gchar pd[4];
 	guint32 f_write_silence = 0;
@@ -2095,20 +2095,20 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	gboolean stop_flag = FALSE;
 	size_t nchars;
 
-	forw_fd = ws_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
-	if (forw_fd < 0)
+	forw_stream = ws_fopen(user_data->f_tempname, "rb");
+	if (forw_stream == NULL)
 		return FALSE;
-	rev_fd = ws_open(user_data->r_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
-	if (rev_fd < 0) {
-		ws_close(forw_fd);
+	rev_stream = ws_fopen(user_data->r_tempname, "rb");
+	if (rev_stream == NULL) {
+		fclose(forw_stream);
 		return FALSE;
 	}
 
 	/* open file for saving */
-	to_fd = ws_open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-	if (to_fd < 0) {
-		ws_close(forw_fd);
-		ws_close(rev_fd);
+	to_stream = ws_fopen(dest, "wb");
+	if (to_stream == NULL) {
+		fclose(forw_stream);
+		fclose(rev_stream);
 		return FALSE;
 	}
 
@@ -2119,22 +2119,22 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
 		phtonl(pd, 0x2e736e64);
-		nchars=ws_write(to_fd, pd, 4);
+		nchars=fwrite(pd, 1, 4, to_stream);
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		nchars=ws_write(to_fd, pd, 4);
-		/* total length, it is permited to set this to 0xffffffff */
+		nchars=fwrite(pd, 1, 4, to_stream);
+		/* total length; it is permitted to set this to 0xffffffff */
 		phtonl(pd, -1);
-		nchars=ws_write(to_fd, pd, 4);
+		nchars=fwrite(pd, 1, 4, to_stream);
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		nchars=ws_write(to_fd, pd, 4);
+		nchars=fwrite(pd, 1, 4, to_stream);
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		nchars=ws_write(to_fd, pd, 4);
+		nchars=fwrite(pd, 1, 4, to_stream);
 		/* channels == 1 */
 		phtonl(pd, 1);
-		nchars=ws_write(to_fd, pd, 4);
+		nchars=fwrite(pd, 1, 4, to_stream);
 
 
 		switch (channels) {
@@ -2142,7 +2142,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
-				while ((fread = read(forw_fd, f_pd, 1)) > 0) {
+				while ((f_rawvalue = getc(forw_stream)) != EOF) {
 					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2153,26 +2153,26 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(*f_pd);
+						sample = ulaw2linear(f_rawvalue);
 						phtons(pd, sample);
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(*f_pd);
+						sample = alaw2linear(f_rawvalue);
 						phtons(pd, sample);
 					}
 					else{
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
-					fwritten = ws_write(to_fd, pd, 2);
-					if ((fwritten < 2) || (fwritten < 0) || (fread < 0)) {
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+					fwritten = fwrite(pd, 1, 2, to_stream);
+					if (fwritten < 2) {
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2183,7 +2183,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			case SAVE_REVERSE_DIRECTION_MASK: {
 				progbar_count = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
-				while ((rread = read(rev_fd, r_pd, 1)) > 0) {
+				while ((r_rawvalue = getc(rev_stream)) != EOF) {
 					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2194,26 +2194,26 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->reversed.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(*r_pd);
+						sample = ulaw2linear(r_rawvalue);
 						phtons(pd, sample);
 					}
 					else if(user_data->reversed.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(*r_pd);
+						sample = alaw2linear(r_rawvalue);
 						phtons(pd, sample);
 					}
 					else{
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
-					rwritten = ws_write(to_fd, pd, 2);
-					if ((rwritten < 2) || (rwritten < 0) || (rread < 0)) {
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+					rwritten = fwrite(pd, 1, 2, to_stream);
+					if (rwritten < 2) {
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2246,60 +2246,64 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					count++;
 					if(f_write_silence > 0) {
-						rread = read(rev_fd, r_pd, 1);
+						r_rawvalue = getc(rev_stream);
 						switch (user_data->forward.statinfo.reg_pt) {
 						case PT_PCMU:
-							*f_pd = SILENCE_PCMU;
+							f_rawvalue = SILENCE_PCMU;
 							break;
 						case PT_PCMA:
-							*f_pd = SILENCE_PCMA;
+							f_rawvalue = SILENCE_PCMA;
+							break;
+						default:
+							f_rawvalue = 0;
 							break;
 						}
-						fread = 1;
 						f_write_silence--;
 					}
 					else if(r_write_silence > 0) {
-						fread = read(forw_fd, f_pd, 1);
+						f_rawvalue = getc(forw_stream);
 						switch (user_data->reversed.statinfo.reg_pt) {
 						case PT_PCMU:
-							*r_pd = SILENCE_PCMU;
+							r_rawvalue = SILENCE_PCMU;
 							break;
 						case PT_PCMA:
-							*r_pd = SILENCE_PCMA;
+							r_rawvalue = SILENCE_PCMA;
+							break;
+						default:
+							r_rawvalue = 0;
 							break;
 						}
-						rread = 1;
 						r_write_silence--;
 					}
 					else {
-						fread = read(forw_fd, f_pd, 1);
-						rread = read(rev_fd, r_pd, 1);
+						f_rawvalue = getc(forw_stream);
+						r_rawvalue = getc(rev_stream);
 					}
-					if ((rread == 0) && (fread == 0))
+					if ((r_rawvalue == EOF) && (f_rawvalue == EOF))
 						break;
 					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)){
-						sample = (ulaw2linear(*r_pd) + ulaw2linear(*f_pd)) / 2;
+						sample = (ulaw2linear(r_rawvalue) + ulaw2linear(f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
 					else if((user_data->forward.statinfo.pt == PT_PCMA) && (user_data->reversed.statinfo.pt == PT_PCMA)){
-						sample = (alaw2linear(*r_pd) + alaw2linear(*f_pd)) / 2;
+						sample = (alaw2linear(r_rawvalue) + alaw2linear(f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
 					else
 					{
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
 
-					rwritten = ws_write(to_fd, pd, 2);
-					if ((rwritten < 2) || (rread < 0) || (fread < 0)) {
-						ws_close(forw_fd);
-						ws_close(rev_fd);
-						ws_close(to_fd);
+					rwritten = fwrite(pd, 1, 2, to_stream);
+					if (rwritten < 2) {
+						fclose(forw_stream);
+						fclose(rev_stream);
+						fclose(to_stream);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2309,26 +2313,26 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	}
 	else if (format == SAVE_RAW_FORMAT)	/* raw format */
 	{
-		int fd;
+		FILE *stream;
 		switch (channels) {
 			/* only forward direction */
 			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
-				fd = forw_fd;
+				stream = forw_stream;
 				break;
 			}
 			/* only reversed direction */
 			case SAVE_REVERSE_DIRECTION_MASK: {
 				progbar_count = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
-				fd = rev_fd;
+				stream = rev_stream;
 				break;
 			}
 			default: {
-				ws_close(forw_fd);
-				ws_close(rev_fd);
-				ws_close(to_fd);
+				fclose(forw_stream);
+				fclose(rev_stream);
+				fclose(to_stream);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2337,7 +2341,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 
 		/* XXX how do you just copy the file? */
-		while ((rread = read(fd, pd, 1)) > 0) {
+		while ((rawvalue = getc(stream)) != EOF) {
 			if(stop_flag)
 				break;
 			if((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2347,12 +2351,10 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			}
 			count++;
 
-			rwritten = ws_write(to_fd, pd, 1);
-
-			if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
-				ws_close(forw_fd);
-				ws_close(rev_fd);
-				ws_close(to_fd);
+			if (putc(rawvalue, to_stream) == EOF) {
+				fclose(forw_stream);
+				fclose(rev_stream);
+				fclose(to_stream);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2360,9 +2362,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	}
 
 	destroy_progress_dlg(progbar);
-	ws_close(forw_fd);
-	ws_close(rev_fd);
-	ws_close(to_fd);
+	fclose(forw_stream);
+	fclose(rev_stream);
+	fclose(to_stream);
 	return TRUE;
 }
 
