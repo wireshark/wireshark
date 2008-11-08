@@ -660,7 +660,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *wlccp_tree, *wlccp_sap_tree, *wlccp_type_tree;
 
-	guint offset = 0;
+	guint offset = 0, old_offset;
 
 	guint8 version=0, sap=0, sap_id=0, sap_version=0;
 
@@ -1002,9 +1002,9 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					while (tvb_length_remaining(tvb,offset) >= 4) 
 					{
-
+						old_offset = offset;
 						offset = dissect_wlccp_tlvs(wlccp_tree, tvb, offset, 0);
-
+						DISSECTOR_ASSERT(offset > old_offset);
 					} /* while bytes_left */
 
 ;
@@ -1712,6 +1712,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 	gint  _group_id=0, _type_id=0;
 	guint _length=0;
 	guint _tlv_end=0;
+	guint _old_offset;
 
 
 
@@ -1900,9 +1901,9 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 
 			while (_offset < _tlv_end)
 			{
-
+				_old_offset = _offset;
 				_offset = dissect_wlccp_tlvs(_tlv_tree, _tvb, _offset, _depth++);
-
+				DISSECTOR_ASSERT(_offset > _old_offset);
 			} /* while bytes_left >= 4*/
 
 		} /* _container_flag && (tvb_length_remaining(_tvb,_offset) >= 4) */
@@ -1956,8 +1957,8 @@ static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 			break;
 		} /* case default for tlv_group_id=0x00  */
@@ -2115,8 +2116,8 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		{
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 			break;
 		} /* default case for switch (_type_id) */
@@ -2655,8 +2656,8 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 		break;
 		} /* case default  */
@@ -2678,8 +2679,8 @@ static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 			break;
 		} /* default case for switch (_type_id) */
@@ -2879,8 +2880,8 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 			break;
 		} /* default case for switch (_type_id) */
@@ -2904,8 +2905,8 @@ static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length-4, FALSE);
-			_offset += _length-4;
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, FALSE);
+			_offset += _length;
 
 			break;
 		} /* default case for switch (_type_id) */
