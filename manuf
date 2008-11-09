@@ -4409,7 +4409,7 @@
 00:11:2A	NikoNv                 # Niko NV
 00:11:2B	Netmodule
 00:11:2C	Izt                    # IZT GmbH
-00:11:2D	GuysWithou             # Guys Without Ties
+00:11:2D	Ipulse                 # iPulse Systems
 00:11:2E	Ceicom
 00:11:2F	AsustekCom             # ASUSTek Computer Inc.
 00:11:30	AlliedTele             # Allied Telesis (Hong Kong) Ltd.
@@ -7831,7 +7831,7 @@
 00:1E:88	AndorSyste             # ANDOR SYSTEM SUPPORT CO., LTD.
 00:1E:89	Crfs                   # CRFS Limited
 00:1E:8A	Ecopy                  # eCopy, Inc
-00:1E:8B	HannetTele             # Hannet Telecom Co., Ltd.
+00:1E:8B	InfraAcces             # Infra Access Korea Co., Ltd.
 00:1E:8C	AsustekCom             # ASUSTek COMPUTER INC.
 00:1E:8D	MotorolaMo             # Motorola Mobile Devices
 00:1E:8E	Hunkeler               # Hunkeler AG
@@ -9275,6 +9275,27 @@
 00:24:2C	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
 00:24:2D	RonanEngin             # Ronan Engineering
 00:24:2E	Datastrip              # Datastrip Inc.
+00:24:2F	Virtensys              # VirtenSys Inc
+00:24:30	RubyTech               # Ruby Tech Corp.
+00:24:31	Uni-V                  # Uni-v co.,ltd
+00:24:32	NeostarTec             # Neostar Technology Co.,LTD
+00:24:33	AlpsElectr             # Alps Electric Co., Ltd
+00:24:34	Lectrosoni             # Lectrosonics, Inc.
+00:24:35	Wide                   # WIDE CORPORATION
+00:24:36	Apple                  # Apple, Inc
+00:24:37	Motorola-B             # Motorola - BSG
+00:24:38	FoundryNet             # Foundry Networks
+00:24:39	EssentialV             # Essential Viewing Systems Limited
+00:24:3A	LudlElectr             # Ludl Electronic Products
+00:24:3B	CssiSPte               # CSSI (S) Pte Ltd
+00:24:3C	SAAA                   # S.A.A.A.
+00:24:3D	EmersonApp             # Emerson Appliance Motors and Controls
+00:24:3E	Charlyrobo             # CHARLYROBOT
+00:24:3F	Storwize               # Storwize, Inc.
+00:24:40	HaloMonito             # Halo Monitoring, Inc.
+00:24:41	WanzlMetal             # Wanzl Metallwarenfabrik GmbH
+00:24:42	Axona                  # Axona Limited
+00:24:43	NortelNetw             # Nortel Networks
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12467,6 +12488,20 @@
 00:50:C2:9C:70:00/36	KumeraDriv             # Kumera Drives Oy
 00:50:C2:9C:80:00/36	Ethermetri             # ethermetrics
 00:50:C2:9C:90:00/36	LuminexLig             # LUMINEX Lighting Control Equipment
+00:50:C2:9C:A0:00/36	Esab-Atas              # ESAB-ATAS GmbH
+00:50:C2:9C:B0:00/36	Nis-Time               # NIS-time GmbH
+00:50:C2:9C:C0:00/36	Hirotech               # Hirotech, Inc
+00:50:C2:9C:D0:00/36	UweSchneid             # Uwe Schneider GmbH
+00:50:C2:9C:E0:00/36	RonanEngin             # Ronan Engineering
+00:50:C2:9C:F0:00/36	IntuitiveS             # Intuitive Surgical, Inc
+00:50:C2:9D:00:00/36	JDittrichE             # J. DITTRICH ELEKTRONIC GmbH & Co. KG
+00:50:C2:9D:10:00/36	BladeliusD             # Bladelius Design Group AB
+00:50:C2:9D:20:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:9D:30:00/36	Telemetrie             # Telemetrie Elektronik GmbH
+00:50:C2:9D:40:00/36	First
+00:50:C2:9D:50:00/36	NetpowerLa             # Netpower Labs AB
+00:50:C2:9D:60:00/36	Innovation             # Innovation, Institute, Inc
+00:50:C2:9D:70:00/36	Melex                  # Melex Inc.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -13971,7 +14006,7 @@
 00:D0:75	AlarisMedi             # ALARIS MEDICAL SYSTEMS, INC.
 00:D0:76	MerrillLyn             # Merrill Lynch & Co., Inc.
 00:D0:77	LucentTech             # LUCENT TECHNOLOGIES
-00:D0:78	EltexOfSwe             # ELTEX OF SWEDEN AB
+00:D0:78	EltexOfSwe             # Eltex of Sweden AB
 00:D0:79	Cisco                  # CISCO SYSTEMS, INC.
 00:D0:7A	AmaquestCo             # AMAQUEST COMPUTER CORP.
 00:D0:7B	ComcamInte             # COMCAM INTERNATIONAL LTD.
