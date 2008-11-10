@@ -172,6 +172,25 @@ class ParseError(Exception):
   __str__ = __repr__
 
 
+class DuplicateError(Exception):
+  def __init__(self, type, ident):
+    self.type = type
+    self.ident = ident
+    self.msg =  "Duplicate %s for %s" % (self.type, self.ident)
+    Exception.__init__(self, self.msg)
+  def __repr__(self):
+    return self.msg
+  __str__ = __repr__
+
+class CompError(Exception):
+  def __init__(self, msg):
+    self.msg =  msg
+    Exception.__init__(self, self.msg)
+  def __repr__(self):
+    return self.msg
+  __str__ = __repr__
+
+
 states = (
   ('braceignore','exclusive'),
 )
@@ -422,7 +441,7 @@ class Ctx:
         assert (self.indent_lev >= 0)
     def register_assignment (self, ident, val, dependencies):
         if self.assignments.has_key (ident):
-            raise "Duplicate assignment for " + ident
+            raise DuplicateError("assignment", ident)
         if self.defined_dict.has_key (ident):
             raise "cross-module duplicates for " + ident
         self.defined_dict [ident] = 1
@@ -489,6 +508,7 @@ EF_NO_TYPE = 0x0080
 EF_UCASE   = 0x0100
 EF_TABLE   = 0x0400
 EF_DEFINE  = 0x0800
+EF_MODULE  = 0x1000
 
 #--- common dependency computation ---
 # Input  : list of items
@@ -702,6 +722,7 @@ class EthCtx:
     # end of get_type_fn()
     obj = { '_name' : ident, '_ident' : asn2c(ident)}
     obj['_class'] = self.oassign[ident].cls
+    obj['_module'] = self.oassign[ident].module
     val = self.oassign[ident].val
     fld = None
     fld_neg = False
@@ -737,7 +758,7 @@ class EthCtx:
     name = module.get_name()
     self.modules.append([name, module.get_proto(self)])
     if self.module.has_key(name):
-      raise "Duplicate module for " + name
+      raise DuplicateError("module", name)
     self.module[name] = []
     self.module_ord.append(name)
 
@@ -763,7 +784,7 @@ class EthCtx:
   def eth_reg_assign(self, ident, val, virt=False):
     #print "eth_reg_assign(ident='%s')" % (ident)
     if self.assign.has_key(ident):
-      raise "Duplicate assignment for " + ident
+      raise DuplicateError("assignment", ident)
     self.assign[ident] = { 'val' : val , 'virt' : virt }
     self.assign_ord.append(ident)
     if  (self.exports_all):
@@ -774,7 +795,7 @@ class EthCtx:
     ident = vassign.ident
     #print "eth_reg_vassign(ident='%s')" % (ident)
     if self.vassign.has_key(ident):
-      raise "Duplicate value assignment for " + ident
+      raise DuplicateError("value assignment", ident)
     self.vassign[ident] = vassign
     self.vassign_ord.append(ident)
     if  (self.exports_all):
@@ -788,7 +809,7 @@ class EthCtx:
       if self.oassign[ident] == oassign:
         return  # OK - already defined
       else:
-        raise "Duplicate information object assignment for " + ident
+        raise DuplicateError("information object assignment", ident)
     self.oassign[ident] = oassign
     self.oassign_ord.append(ident)
     self.oassign_cls.setdefault(oassign.cls, []).append(ident)
@@ -803,12 +824,18 @@ class EthCtx:
       elif self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
         return  # OK - already imported
       else:
-        raise "Duplicate type for " + ident
+        raise DuplicateError("type", ident)
     self.type[ident] = {'import'  : mod, 'proto' : proto,
                         'ethname' : '' }
     self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
                                  'STRINGS' : 'NULL', 'BITMASK' : '0' }
-    self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
+    mident = "$%s$%s" % (mod, ident)
+    if (self.conform.check_item('TYPE_ATTR', mident)):
+      self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', mident))
+    else:
+      self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
+    if (self.conform.check_item('IMPORT_TAG', mident)):
+      self.conform.copy_item('IMPORT_TAG', ident, mident)
     self.type_imp.append(ident)
 
   #--- dummy_import_type --------------------------------------------------------
@@ -835,7 +862,7 @@ class EthCtx:
       elif self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == mod) :
         return  # OK - already imported
       else:
-        raise "Duplicate object class for " + ident
+        raise DuplicateError("object class", ident)
     self.objectclass[ident] = {'import'  : mod, 'proto' : proto,
                         'ethname' : '' }
     self.objectclass_imp.append(ident)
@@ -850,7 +877,7 @@ class EthCtx:
       elif self.value[ident]['import'] and (self.value[ident]['import'] == mod) :
         return  # OK - already imported
       else:
-        raise "Duplicate value for " + ident
+        raise DuplicateError("value", ident)
     self.value[ident] = {'import'  : mod, 'proto' : proto,
                          'ethname' : ''}
     self.value_imp.append(ident)
@@ -882,7 +909,7 @@ class EthCtx:
         del self.type[ident]
         self.type_imp.remove(ident)
       else:
-        raise "Duplicate type for " + ident
+        raise DuplicateError("type", ident)
     self.type[ident] = { 'val' : val, 'import' : None }
     self.type[ident]['module'] = self.Module()
     self.type[ident]['proto'] = self.proto
@@ -921,7 +948,7 @@ class EthCtx:
            (self.objectclass[ident]['val'].val == val.val):
         pass  # ignore duplicated CLASS1 ::= CLASS2
       else:
-        raise "Duplicate object class for " + ident
+        raise DuplicateError("object class", ident)
     self.objectclass[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto }
     self.objectclass[ident]['val'] = val
     self.objectclass[ident]['export'] = self.conform.use_item('EXPORTS', ident)
@@ -939,7 +966,7 @@ class EthCtx:
         self.value[ident]['ethname'] = ethname
         return
       else:
-        raise "Duplicate value for " + ident
+        raise DuplicateError("value", ident)
     self.value[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto,
                           'type' : type, 'value' : value,
                           'no_emit' : False }
@@ -955,7 +982,7 @@ class EthCtx:
       if pdu and (type == self.field[ident]['type']):
         pass  # OK already created PDU
       else:
-        raise "Duplicate field for " + ident
+        raise DuplicateError("field", ident)
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} }
     name = ident.split('/')[-1]
@@ -1560,7 +1587,10 @@ class EthCtx:
     fx.write('#.END\n\n')
     for cls in self.objectclass_ord:
       if self.objectclass[cls]['export']:
-        fx.write('#.CLASS %s\n' % (cls))
+        cnm = cls
+        if self.objectclass[cls]['export'] & EF_MODULE:
+          cnm = "$%s$%s" % (self.objectclass[cls]['module'], cnm)
+        fx.write('#.CLASS %s\n' % (cnm))
         maxw = 2
         for fld in self.objectclass[cls]['val'].fields:
           w = len(fld.fld_repr()[0])  
@@ -1579,7 +1609,10 @@ class EthCtx:
     fx.write('#.TYPE_ATTR\n')
     for t in self.eth_export_ord:  # attributes
       if (self.eth_type[t]['export'] & EF_TYPE):
-        fx.write('%-24s ' % self.eth_type[t]['ref'][0])
+        tnm = self.eth_type[t]['ref'][0]
+        if self.eth_type[t]['export'] & EF_MODULE:
+          tnm = "$%s$%s" % (self.type[tnm]['module'], tnm)
+        fx.write('%-24s ' % tnm)
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')
@@ -1817,7 +1850,7 @@ class EthCtx:
       msg += t + "\n"
       for tt in self.eth_type_dupl[t]:
         msg += " %-20s %s\n" % (self.type[tt]['ethname'], tt)
-      warnings.warn_explicit(msg, UserWarning, '', '')
+      warnings.warn_explicit(msg, UserWarning, '', 0)
     # fields
     tmplist = self.eth_hf_dupl.keys()
     tmplist.sort()
@@ -1828,7 +1861,7 @@ class EthCtx:
         msg += " %-20s %-20s " % (self.eth_hf_dupl[f][tt], tt)
         msg += ", ".join(self.eth_hf[self.eth_hf_dupl[f][tt]]['ref'])
         msg += "\n"
-      warnings.warn_explicit(msg, UserWarning, '', '')
+      warnings.warn_explicit(msg, UserWarning, '', 0)
 
   #--- eth_do_output ------------------------------------------------------------
   def eth_do_output(self):
@@ -2031,6 +2064,10 @@ class EthCnf:
 
   def check_item(self, table, key):
     return self.table[table].has_key(key)
+
+  def copy_item(self, table, dst_key, src_key):
+    if (self.table[table].has_key(src_key)):
+      self.table[table][dst_key] = self.table[table][src_key]
 
   def check_item_value(self, table, key, **kw):
     return self.table[table].has_key(key) and self.table[table][key].has_key(kw.get('val_nm', self.tblcfg[table]['val_nm']))
@@ -2235,9 +2272,12 @@ class EthCnf:
             ctx = 'NO_OMIT_ASSGN'
           else:
             ctx = None
-        elif result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
+        elif result.group('name') in ('EXPORTS', 'MODULE_EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
           ctx = result.group('name')
           default_flags = EF_TYPE|EF_VALS
+          if ctx == 'MODULE_EXPORTS':
+            ctx = 'EXPORTS'
+            default_flags |= EF_MODULE
           if ctx == 'EXPORTS':
             par = get_par(line[result.end():], 0, 5, fn=fn, lineno=lineno)
           else:
@@ -2309,7 +2349,7 @@ class EthCnf:
           ctx = result.group('name')
           name = par[0]
           add_class_ident(name)
-          if not name.isupper():
+          if not name.split('$')[-1].isupper():
             warnings.warn_explicit("No lower-case letters shall be included in information object class name (%s)" % (name),
                                     UserWarning, fn, lineno)
         elif result.group('name') == 'ASSIGNED_OBJECT_IDENTIFIER':
@@ -2876,6 +2916,7 @@ class ObjectAssignment (Node):
       return
     # end of make_virtual_type()
     if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
+    self.module = ectx.Module()
     ectx.eth_reg_oassign(self)
     if (self.cls == 'TYPE-IDENTIFIER') or (self.cls == 'ABSTRACT-SYNTAX'):
       make_virtual_type(self.cls, '&Type', 'TYPE')
@@ -3517,7 +3558,7 @@ class Type_Ref (Type):
         if not ttag and not ectx.conform.check_item('IMPORT_TAG', self.val):
           msg = 'Missing tag information for imported type %s from %s (%s)' % (self.val, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
           warnings.warn_explicit(msg, UserWarning, '', '')
-          ttag = ('-1 /*imported*/', '-1 /*imported*/')
+          ttag = ('-1/*imported*/', '-1/*imported*/')
         ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=ttag)
       return ectx.type[self.val]['ttag']
     else:
@@ -5398,13 +5439,23 @@ def p_SymbolsFromModule (t):
   t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
   for s in (t[0].symbol_list): 
     if (isinstance(s, Value_Ref)): lcase_ident_assigned[s.val] = t[3]
-  if t[0].module.val == 'Remote-Operations-Information-Objects':
-    for i in range(len(t[0].symbol_list)):
-      s = t[0].symbol_list[i]
+  import_symbols_from_module(t[0].module, t[0].symbol_list)
+
+def import_symbols_from_module(module, symbol_list):
+  if module.val == 'Remote-Operations-Information-Objects':
+    for i in range(len(symbol_list)):
+      s = symbol_list[i]
       if isinstance(s, Type_Ref) or isinstance(s, Class_Ref):
         x880_import(s.val)
         if isinstance(s, Type_Ref) and is_class_ident(s.val):
-          t[0].symbol_list[i] = Class_Ref (val = s.val)
+          symbol_list[i] = Class_Ref (val = s.val)
+    return
+  for i in range(len(symbol_list)):
+    s = symbol_list[i]
+    if isinstance(s, Type_Ref) and is_class_ident("$%s$%s" % (module.val, s.val)):
+      import_class_from_module(module.val, s.val)
+    if isinstance(s, Type_Ref) and is_class_ident(s.val):
+      symbol_list[i] = Class_Ref (val = s.val)
 
 def p_GlobalModuleReference (t):
   'GlobalModuleReference : modulereference AssignedIdentifier'
@@ -6959,6 +7010,7 @@ def is_class_ident(name):
   return class_names.has_key(name)
 
 def add_class_ident(name):
+  #print "add_class_ident", name
   class_names[name] = name
 
 def get_type_from_class(cls, fld):
@@ -7007,7 +7059,7 @@ def set_type_to_class(cls, fld, pars):
   if msg:
     msg0 = "Can not define CLASS field %s as '%s'\n" % (key, ' '.join(pars))
     msg1 = "Already defined as '%s'" % (msg)
-    raise msg0 + msg1
+    raise CompError(msg0 + msg1)
 
   if (typename == 'ClassReference'):
     if not typeref: return False
@@ -7025,6 +7077,22 @@ def set_type_to_class(cls, fld, pars):
     return True
   else:
     return False
+
+def import_class_from_module(mod, cls):
+  add_class_ident(cls)
+  mcls = "$%s$%s" % (mod, cls)
+  for k in object_class_classrefs.keys():
+    kk = k.split('.', 1)
+    if kk[0] == mcls:
+      object_class_classrefs[cls + '.' + kk[0]] = object_class_classrefs[k]
+  for k in object_class_typerefs.keys():
+    kk = k.split('.', 1)
+    if kk[0] == mcls:
+      object_class_typerefs[cls + '.' + kk[0]] = object_class_typerefs[k]
+  for k in object_class_types.keys():
+    kk = k.split('.', 1)
+    if kk[0] == mcls:
+      object_class_types[cls + '.' + kk[0]] = object_class_types[k]
 
 #--- ITU-T Recommendation X.682 -----------------------------------------------
 
