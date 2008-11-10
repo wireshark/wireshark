@@ -7174,7 +7174,7 @@ static const value_string gsm_a_rr_3g_wait_vals[] = {
 static void
 sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_)
 {
-   proto_tree *subtree = NULL, *subtree2;
+   proto_tree *subtree, *subtree2;
    proto_item *item, *item2;
    guint32 curr_offset;
    gint bit_offset, bit_offset_sav, bit_offset_sav2;
@@ -7415,18 +7415,18 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
                bit_offset += 1;
                if (value)
                {
-                  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_700_reporting_offset, tvb, bit_offset, 3, FALSE);
+                  proto_tree_add_bits_item(tree, hf_gsm_a_rr_700_reporting_offset, tvb, bit_offset, 3, FALSE);
                   bit_offset += 3;
-                  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_700_reporting_threshold, tvb, bit_offset, 3, FALSE);
+                  proto_tree_add_bits_item(tree, hf_gsm_a_rr_700_reporting_threshold, tvb, bit_offset, 3, FALSE);
                   bit_offset += 3;
                }
                value = tvb_get_bits8(tvb,bit_offset,1);
                bit_offset += 1;
                if (value)
                {
-                  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_810_reporting_offset, tvb, bit_offset, 3, FALSE);
+                  proto_tree_add_bits_item(tree, hf_gsm_a_rr_810_reporting_offset, tvb, bit_offset, 3, FALSE);
                   bit_offset += 3;
-                  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_810_reporting_threshold, tvb, bit_offset, 3, FALSE);
+                  proto_tree_add_bits_item(tree, hf_gsm_a_rr_810_reporting_threshold, tvb, bit_offset, 3, FALSE);
                   bit_offset += 3;
                }
             }
