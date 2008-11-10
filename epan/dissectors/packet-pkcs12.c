@@ -1350,7 +1350,7 @@ void proto_register_pkcs12(void) {
         "pkcs12.T_attrValues_item", HFILL }},
     { &hf_pkcs12_privateKeyVersion,
       { "version", "pkcs12.version",
-        FT_INT32, BASE_DEC, VALS(x509af_Version_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(pkcs12_Version_vals), 0,
         "pkcs12.Version", HFILL }},
     { &hf_pkcs12_privateKeyAlgorithm,
       { "privateKeyAlgorithm", "pkcs12.privateKeyAlgorithm",

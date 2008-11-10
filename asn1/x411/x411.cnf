@@ -1,11 +1,11 @@
-#.TYPE_ATTR
-CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
-Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
-
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
+
+#.TYPE_ATTR
+CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
+Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.OMIT_ASSIGNMENT
 # These gives unused code warnings

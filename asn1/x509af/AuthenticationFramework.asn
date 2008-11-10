@@ -94,11 +94,11 @@ Extension ::= SEQUENCE {
 --ExtensionSet EXTENSION ::=
 --  {...}
 
---EXTENSION ::= CLASS {&id        OBJECT IDENTIFIER UNIQUE,
---                     &ExtnType  
---}WITH SYNTAX {SYNTAX &ExtnType
---              IDENTIFIED BY &id
---}
+EXTENSION ::= CLASS {&id        OBJECT IDENTIFIER UNIQUE,
+                     &ExtnType  
+}WITH SYNTAX {SYNTAX &ExtnType
+              IDENTIFIED BY &id
+}
 
 --  other certificate constructs
 Certificates ::= SEQUENCE {

@@ -198,7 +198,7 @@ void proto_register_pkcs1(void) {
         "pkcs1.INTEGER", HFILL }},
     { &hf_pkcs1_version,
       { "version", "pkcs1.version",
-        FT_INT32, BASE_DEC, VALS(x509af_Version_vals), 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "pkcs1.Version", HFILL }},
     { &hf_pkcs1_privateExponent,
       { "privateExponent", "pkcs1.privateExponent",

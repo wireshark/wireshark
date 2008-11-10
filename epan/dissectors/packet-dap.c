@@ -5298,7 +5298,7 @@ void proto_register_dap(void) {
         "x509if.DistinguishedName", HFILL }},
     { &hf_dap_time,
       { "time", "dap.time",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(dap_Time_vals), 0,
         "dap.Time", HFILL }},
     { &hf_dap_random,
       { "random", "dap.random",

@@ -2299,7 +2299,7 @@ void proto_register_dsp(void) {
         "dsp.DomainInfo", HFILL }},
     { &hf_dsp_timeLimit,
       { "timeLimit", "dsp.timeLimit",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(dsp_Time_vals), 0,
         "dsp.Time", HFILL }},
     { &hf_dsp_entryOnly,
       { "entryOnly", "dsp.entryOnly",

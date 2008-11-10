@@ -1633,7 +1633,7 @@ void proto_register_cms(void) {
         "cms.MessageDigest", HFILL }},
     { &hf_cms_SigningTime_PDU,
       { "SigningTime", "cms.SigningTime",
-        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cms_Time_vals), 0,
         "cms.SigningTime", HFILL }},
     { &hf_cms_Countersignature_PDU,
       { "Countersignature", "cms.Countersignature",

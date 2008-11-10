@@ -18,18 +18,18 @@ MTSAbstractService	x411
 #.END
 
 # InformationFramework classes
-#.CLASS ATTRIBUTE
-&derivation            ClassReference ATTRIBUTE
-&Type                  
-&equality-match        ClassReference MATCHING-RULE
-&ordering-match        ClassReference MATCHING-RULE
-&substrings-match      ClassReference MATCHING-RULE
-&single-valued         BooleanType
-&collective            BooleanType
-&no-user-modification  BooleanType
-&usage                 
-&id                    ObjectIdentifierType
-#.END
+##.CLASS ATTRIBUTE
+#&derivation            ClassReference ATTRIBUTE
+#&Type                  
+#&equality-match        ClassReference MATCHING-RULE
+#&ordering-match        ClassReference MATCHING-RULE
+#&substrings-match      ClassReference MATCHING-RULE
+#&single-valued         BooleanType
+#&collective            BooleanType
+#&no-user-modification  BooleanType
+#&usage                 
+#&id                    ObjectIdentifierType
+##.END
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE

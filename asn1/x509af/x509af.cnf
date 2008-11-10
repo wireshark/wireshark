@@ -7,7 +7,8 @@
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
 
-#.EXPORTS
+#.MODULE_EXPORTS
+EXTENSION
 ACPathData
 AlgorithmIdentifier
 AttCertValidityPeriod
@@ -43,7 +44,6 @@ AttributeCertificate	B "2.5.4.58" "id-at-attributeCertificate"
 CertificateList			B "2.5.4.59" "id-at-attributeCertificateRevocationList"
 
 DSS-Params				B "1.2.840.10040.4.1" "id-dsa"
-#.NO_EMIT
 
 #.TYPE_RENAME
 AttributeCertificateInfo/subject	InfoSubject

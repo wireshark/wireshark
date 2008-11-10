@@ -752,7 +752,7 @@ void proto_register_ocsp(void) {
         "ocsp.Signature", HFILL }},
     { &hf_ocsp_version,
       { "version", "ocsp.version",
-        FT_INT32, BASE_DEC, VALS(x509af_Version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(pkix1explicit_Version_vals), 0,
         "ocsp.Version", HFILL }},
     { &hf_ocsp_requestorName,
       { "requestorName", "ocsp.requestorName",

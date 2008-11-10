@@ -35,7 +35,7 @@ MTSAbstractService x411
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
-#.EXPORTS
+#.MODULE_EXPORTS
 CaseIgnoreListMatch
 CountryName
 Criteria
