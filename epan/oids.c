@@ -70,7 +70,7 @@ static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_DEC,  BER_CLAS
 static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   16};
 static const oid_value_type_t float_type =      { FT_FLOAT,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4,   4, OID_KEY_TYPE_WRONG,   0};
 static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,   8, OID_KEY_TYPE_WRONG,   0};
-static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_BYTES,   6};
+static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_ETHER,   6};
 static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_STRING,  0};
 static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   0};
 
