@@ -2153,11 +2153,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(f_rawvalue);
+						sample = ulaw2linear((unsigned char)f_rawvalue);
 						phtons(pd, sample);
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(f_rawvalue);
+						sample = alaw2linear((unsigned char)f_rawvalue);
 						phtons(pd, sample);
 					}
 					else{
@@ -2194,11 +2194,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->reversed.statinfo.pt == PT_PCMU){
-						sample = ulaw2linear(r_rawvalue);
+						sample = ulaw2linear((unsigned char)r_rawvalue);
 						phtons(pd, sample);
 					}
 					else if(user_data->reversed.statinfo.pt == PT_PCMA){
-						sample = alaw2linear(r_rawvalue);
+						sample = alaw2linear((unsigned char)r_rawvalue);
 						phtons(pd, sample);
 					}
 					else{
@@ -2282,11 +2282,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					if ((r_rawvalue == EOF) && (f_rawvalue == EOF))
 						break;
 					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)){
-						sample = (ulaw2linear(r_rawvalue) + ulaw2linear(f_rawvalue)) / 2;
+						sample = (ulaw2linear((unsigned char)r_rawvalue) + ulaw2linear((unsigned char)f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
 					else if((user_data->forward.statinfo.pt == PT_PCMA) && (user_data->reversed.statinfo.pt == PT_PCMA)){
-						sample = (alaw2linear(r_rawvalue) + alaw2linear(f_rawvalue)) / 2;
+						sample = (alaw2linear((unsigned char)r_rawvalue) + alaw2linear((unsigned char)f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
 					else
