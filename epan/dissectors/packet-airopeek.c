@@ -58,7 +58,6 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *next_tvb;
   proto_tree *airopeek_tree = NULL;
   proto_item *ti = NULL;
-  int offset = 0;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIROPEEK");
@@ -68,23 +67,13 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_airopeek, tvb, 0, -1, FALSE);
     airopeek_tree = proto_item_add_subtree(ti, ett_airopeek);
-  }
 
-  if (tree) {
-        proto_tree_add_item(airopeek_tree, hf_airopeek_unknown1, tvb, offset, 2,
-                FALSE);
-	offset += 2;
-        proto_tree_add_item(airopeek_tree, hf_airopeek_unknown2, tvb, offset, 2,
-                FALSE);
-	offset += 2;
-        proto_tree_add_item(airopeek_tree, hf_airopeek_unknown3, tvb, offset, 2,
-                FALSE);
-	offset += 2;
-        proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, offset, 14,
-                FALSE);
-	offset += 14;
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown1, tvb, 0, 2,  FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown2, tvb, 2, 2,  FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown3, tvb, 4, 2,  FALSE);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, 6, 14, FALSE);
   }
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset(tvb, 20, -1, -1);
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
