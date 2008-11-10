@@ -1034,7 +1034,6 @@ DISSECTOR_INCLUDES =	\
 	packet-msrp.h	\
 	packet-mstp.h	\
 	packet-mtp3.h	\
-	packet-nbap.h	\
 	packet-ncp-int.h	\
 	packet-ncp-nmas.h	\
 	packet-ncp-sss.h \
