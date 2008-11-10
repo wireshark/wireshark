@@ -647,17 +647,17 @@ more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint
 static int
 dissect_h264_rbsp_trailing_bits(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
 {
-	gint remaining_bits;
+	gint remaining_bits=0;
 
 	proto_tree_add_bits_item(tree, hf_h264_rbsp_stop_bit, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 
-	remaining_bits = 8 - (bit_offset&0x7);
-
-	proto_tree_add_bits_item(tree, hf_h264_rbsp_trailing_bits, tvb, bit_offset, remaining_bits, FALSE);
+	if((bit_offset&0x7)!=0){
+		remaining_bits = 8 - (bit_offset&0x7);
+		proto_tree_add_bits_item(tree, hf_h264_rbsp_trailing_bits, tvb, bit_offset, remaining_bits, FALSE);
+	}
 
 	return bit_offset+remaining_bits;
-
 }
 
 /*
@@ -678,8 +678,12 @@ dissect_h264_slice_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 	dissect_h264_exp_golomb_code(tree, hf_h264_pic_parameter_set_id, tvb, &bit_offset, H264_UE_V);
 	
 	/* frame_num 2 u(v) */
-	/* XXXX Is frame_num allways 4 bits in the bit stream? */
-	proto_tree_add_bits_item(tree, hf_h264_frame_num, tvb, bit_offset, 4, FALSE);
+	/*  
+	 * represented by log2_max_frame_num_minus4 + 4 bits in
+	 * the bitstream
+	 * proto_tree_add_bits_item(tree, hf_h264_frame_num, tvb, bit_offset, 4, FALSE);
+	 */
+	
 
 	return bit_offset;
 }
@@ -743,19 +747,19 @@ dissect_h264_hrd_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
 		bit_offset++;
 	}
 	/* initial_cpb_removal_delay_length_minus1 0 u(5) */
-	proto_tree_add_bits_item(tree, hf_h264_initial_cpb_removal_delay_length_minus1, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_h264_initial_cpb_removal_delay_length_minus1, tvb, bit_offset, 5, FALSE);
 	bit_offset = bit_offset + 5;
 
 	/* cpb_removal_delay_length_minus1 0 u(5) */
-	proto_tree_add_bits_item(tree, hf_h264_cpb_removal_delay_length_minus1, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_h264_cpb_removal_delay_length_minus1, tvb, bit_offset, 5, FALSE);
 	bit_offset = bit_offset + 5;
 
 	/* dpb_output_delay_length_minus1 0 u(5) */
-	proto_tree_add_bits_item(tree, hf_h264_dpb_output_delay_length_minus11, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_h264_dpb_output_delay_length_minus11, tvb, bit_offset, 5, FALSE);
 	bit_offset = bit_offset + 5;
 
 	/* time_offset_length 0 u(5) */
-	proto_tree_add_bits_item(tree, hf_h264_time_offset_length, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_h264_time_offset_length, tvb, bit_offset, 5, FALSE);
 	bit_offset = bit_offset + 5;
 
 	return bit_offset;
