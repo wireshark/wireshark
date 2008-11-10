@@ -780,8 +780,11 @@ static int hf_h245_atmnrtVBR = -1;                /* BOOLEAN */
 static int hf_h245_atmABR = -1;                   /* BOOLEAN */
 static int hf_h245_atmCBR = -1;                   /* BOOLEAN */
 static int hf_h245_nonStandardParameter = -1;     /* NonStandardParameter */
+static int hf_h245_value = -1;                    /* INTEGER_0_255 */
 static int hf_h245_servicePrioritySignalled = -1;  /* BOOLEAN */
 static int hf_h245_servicePriorityValue = -1;     /* ServicePriorityValue */
+static int hf_h245_serviceClass = -1;             /* INTEGER_0_4095 */
+static int hf_h245_serviceSubclass = -1;          /* INTEGER_0_255 */
 static int hf_h245_desired = -1;                  /* NULL */
 static int hf_h245_required = -1;                 /* NULL */
 static int hf_h245_class0 = -1;                   /* NULL */
@@ -1341,13 +1344,13 @@ static int hf_h245_source = -1;                   /* TerminalLabel */
 static int hf_h245_payloadDescriptor = -1;        /* T_payloadDescriptor */
 static int hf_h245_rfc_number = -1;               /* T_rfc_number */
 static int hf_h245_oid = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_h245_payloadType = -1;              /* T_payloadType */
+static int hf_h245_rtpPayloadType_01 = -1;        /* T_rtpPayloadType */
 static int hf_h245_secondaryEncoding = -1;        /* DataType */
 static int hf_h245_rtpRedundancyEncoding = -1;    /* T_rtpRedundancyEncoding */
 static int hf_h245_primary = -1;                  /* RedundancyEncodingElement */
 static int hf_h245_secondary = -1;                /* SEQUENCE_OF_RedundancyEncodingElement */
 static int hf_h245_secondary_item = -1;           /* RedundancyEncodingElement */
-static int hf_h245_payloadType_01 = -1;           /* INTEGER_0_127 */
+static int hf_h245_payloadType = -1;              /* INTEGER_0_127 */
 static int hf_h245_elements = -1;                 /* SEQUENCE_OF_MultiplePayloadStreamElement */
 static int hf_h245_elements_item = -1;            /* MultiplePayloadStreamElement */
 static int hf_h245_dep_rfc2733 = -1;              /* RFC2733Data */
@@ -1422,6 +1425,7 @@ static int hf_h245_waitForCommunicationMode = -1;  /* NULL */
 static int hf_h245_invalidDependentChannel = -1;  /* NULL */
 static int hf_h245_replacementForRejected = -1;   /* NULL */
 static int hf_h245_securityDenied = -1;           /* NULL */
+static int hf_h245_qoSControlNotSupported = -1;   /* NULL */
 static int hf_h245_sessionID = -1;                /* INTEGER_1_255 */
 static int hf_h245_ack_mediaChannel = -1;         /* Ack_mediaChannel */
 static int hf_h245_ack_mediaControlChannel = -1;  /* Ack_mediaControlChannel */
@@ -1433,6 +1437,7 @@ static int hf_h245_clc_reason = -1;               /* Clc_reason */
 static int hf_h245_unknown = -1;                  /* NULL */
 static int hf_h245_reopen = -1;                   /* NULL */
 static int hf_h245_reservationFailure = -1;       /* NULL */
+static int hf_h245_networkErrorCode = -1;         /* INTEGER_0_255 */
 static int hf_h245_qosCapability = -1;            /* QOSCapability */
 static int hf_h245_reason = -1;                   /* T_reason */
 static int hf_h245_normal = -1;                   /* NULL */
@@ -1623,7 +1628,7 @@ static int hf_h245_requestAllTerminalIDs = -1;    /* NULL */
 static int hf_h245_remoteMCRequest = -1;          /* RemoteMCRequest */
 static int hf_h245_CertSelectionCriteria_item = -1;  /* Criteria */
 static int hf_h245_field = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_h245_value = -1;                    /* OCTET_STRING_SIZE_1_65535 */
+static int hf_h245_criteriaValue = -1;            /* OCTET_STRING_SIZE_1_65535 */
 static int hf_h245_mcuNumber = -1;                /* McuNumber */
 static int hf_h245_terminalNumber = -1;           /* TerminalNumber */
 static int hf_h245_mCTerminalIDResponse = -1;     /* T_mCTerminalIDResponse */
@@ -4200,7 +4205,7 @@ dissect_h245_T_payloadDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static int
-dissect_h245_T_payloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h245_T_rtpPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 928 "h245.cnf"
   unsigned int pt;
 
@@ -4219,7 +4224,7 @@ dissect_h245_T_payloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t RTPPayloadType_sequence[] = {
   { &hf_h245_payloadDescriptor, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_T_payloadDescriptor },
-  { &hf_h245_payloadType    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_T_payloadType },
+  { &hf_h245_rtpPayloadType_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_T_rtpPayloadType },
   { NULL, 0, 0, NULL }
 };
 
@@ -4354,6 +4359,7 @@ dissect_h245_GenericTransportParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static const per_sequence_t ServicePriorityValue_sequence[] = {
   { &hf_h245_nonStandardParameter, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
+  { &hf_h245_value          , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_h245_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4366,10 +4372,22 @@ dissect_h245_ServicePriorityValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_h245_INTEGER_0_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 4095U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t ServicePriority_sequence[] = {
   { &hf_h245_nonStandardData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_NonStandardParameter },
   { &hf_h245_servicePrioritySignalled, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
   { &hf_h245_servicePriorityValue, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_ServicePriorityValue },
+  { &hf_h245_serviceClass   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_INTEGER_0_4095 },
+  { &hf_h245_serviceSubclass, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h245_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -4904,24 +4922,24 @@ dissect_h245_INTEGER_0_16383(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t H262VideoCapability_sequence[] = {
-  { &hf_h245_profileAndLevel_SPatML, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_MPatLL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_MPatML, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_MPatH_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_MPatHL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_SNRatLL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_SNRatML, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_SpatialatH_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_HPatML, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_HPatH_14, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_profileAndLevel_HPatHL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
-  { &hf_h245_videoBitRate   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_1073741823 },
-  { &hf_h245_vbvBufferSize  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_262143 },
-  { &hf_h245_samplesPerLine , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_16383 },
-  { &hf_h245_linesPerFrame  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_16383 },
-  { &hf_h245_framesPerSecond, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_15 },
-  { &hf_h245_luminanceSampleRate, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_4294967295 },
-  { &hf_h245_videoBadMBsCap , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_SPatML, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_MPatLL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_MPatML, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_MPatH_14, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_MPatHL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_SNRatLL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_SNRatML, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_SpatialatH_14, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_HPatML, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_HPatH_14, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_profileAndLevel_HPatHL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
+  { &hf_h245_videoBitRate   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_1073741823 },
+  { &hf_h245_vbvBufferSize  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_262143 },
+  { &hf_h245_samplesPerLine , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_16383 },
+  { &hf_h245_linesPerFrame  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_16383 },
+  { &hf_h245_framesPerSecond, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_15 },
+  { &hf_h245_luminanceSampleRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_4294967295 },
+  { &hf_h245_videoBadMBsCap , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_h245_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -6794,7 +6812,7 @@ dissect_h245_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t RedundancyEncodingElement_sequence[] = {
   { &hf_h245_dataType       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_DataType },
-  { &hf_h245_payloadType_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_127 },
+  { &hf_h245_payloadType    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_127 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6853,7 +6871,7 @@ dissect_h245_RedundancyEncoding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static const per_sequence_t MultiplePayloadStreamElement_sequence[] = {
   { &hf_h245_dataType       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_DataType },
-  { &hf_h245_payloadType_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_127 },
+  { &hf_h245_payloadType    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h245_INTEGER_0_127 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8695,6 +8713,7 @@ static const value_string h245_Clc_reason_vals[] = {
   {   0, "unknown" },
   {   1, "reopen" },
   {   2, "reservationFailure" },
+  {   3, "networkErrorCode" },
   { 0, NULL }
 };
 
@@ -8702,6 +8721,7 @@ static const per_choice_t Clc_reason_choice[] = {
   {   0, &hf_h245_unknown        , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
   {   1, &hf_h245_reopen         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
   {   2, &hf_h245_reservationFailure, ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   3, &hf_h245_networkErrorCode, ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_0_255 },
   { 0, NULL, 0, NULL }
 };
 
@@ -8741,6 +8761,7 @@ static const value_string h245_T_reason_vals[] = {
   {   1, "normal" },
   {   2, "reopen" },
   {   3, "reservationFailure" },
+  {   4, "networkErrorCode" },
   { 0, NULL }
 };
 
@@ -8749,6 +8770,7 @@ static const per_choice_t T_reason_choice[] = {
   {   1, &hf_h245_normal         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
   {   2, &hf_h245_reopen         , ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
   {   3, &hf_h245_reservationFailure, ASN1_EXTENSION_ROOT    , dissect_h245_NULL },
+  {   4, &hf_h245_networkErrorCode, ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_0_255 },
   { 0, NULL, 0, NULL }
 };
 
@@ -10186,7 +10208,7 @@ dissect_h245_CommunicationModeRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static const per_sequence_t Criteria_sequence[] = {
   { &hf_h245_field          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_OBJECT_IDENTIFIER },
-  { &hf_h245_value          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_OCTET_STRING_SIZE_1_65535 },
+  { &hf_h245_criteriaValue  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_OCTET_STRING_SIZE_1_65535 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11059,6 +11081,7 @@ static const value_string h245_OpenLogicalChannelRejectCause_vals[] = {
   {  12, "invalidDependentChannel" },
   {  13, "replacementForRejected" },
   {  14, "securityDenied" },
+  {  15, "qoSControlNotSupported" },
   { 0, NULL }
 };
 
@@ -11078,6 +11101,7 @@ static const per_choice_t OpenLogicalChannelRejectCause_choice[] = {
   {  12, &hf_h245_invalidDependentChannel, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
   {  13, &hf_h245_replacementForRejected, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
   {  14, &hf_h245_securityDenied , ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
+  {  15, &hf_h245_qoSControlNotSupported, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -13568,16 +13592,6 @@ dissect_h245_JitterIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-
-static int
-dissect_h245_INTEGER_0_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4095U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t H223SkewIndication_sequence[] = {
   { &hf_h245_logicalChannelNumber1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_LogicalChannelNumber },
   { &hf_h245_logicalChannelNumber2, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_LogicalChannelNumber },
@@ -14046,6 +14060,7 @@ dissect_h245_INTEGER_0_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static const per_sequence_t TerminalYouAreSeeingInSubPictureNumber_sequence[] = {
   { &hf_h245_terminalNumber , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_TerminalNumber },
   { &hf_h245_subPictureNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h245_INTEGER_0_255 },
+  { &hf_h245_mcuNumber      , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_h245_McuNumber },
   { NULL, 0, 0, NULL }
 };
 
@@ -15633,6 +15648,10 @@ void proto_register_h245(void) {
       { "nonStandardParameter", "h245.nonStandardParameter",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.NonStandardParameter", HFILL }},
+    { &hf_h245_value,
+      { "value", "h245.value",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h245.INTEGER_0_255", HFILL }},
     { &hf_h245_servicePrioritySignalled,
       { "servicePrioritySignalled", "h245.servicePrioritySignalled",
         FT_BOOLEAN, 8, NULL, 0,
@@ -15641,6 +15660,14 @@ void proto_register_h245(void) {
       { "servicePriorityValue", "h245.servicePriorityValue",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.ServicePriorityValue", HFILL }},
+    { &hf_h245_serviceClass,
+      { "serviceClass", "h245.serviceClass",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h245.INTEGER_0_4095", HFILL }},
+    { &hf_h245_serviceSubclass,
+      { "serviceSubclass", "h245.serviceSubclass",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h245.INTEGER_0_255", HFILL }},
     { &hf_h245_desired,
       { "desired", "h245.desired",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17877,10 +17904,10 @@ void proto_register_h245(void) {
       { "oid", "h245.oid",
         FT_OID, BASE_NONE, NULL, 0,
         "h245.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_h245_payloadType,
+    { &hf_h245_rtpPayloadType_01,
       { "payloadType", "h245.payloadType",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h245.T_payloadType", HFILL }},
+        "h245.T_rtpPayloadType", HFILL }},
     { &hf_h245_secondaryEncoding,
       { "secondaryEncoding", "h245.secondaryEncoding",
         FT_UINT32, BASE_DEC, VALS(h245_DataType_vals), 0,
@@ -17901,7 +17928,7 @@ void proto_register_h245(void) {
       { "secondary", "h245.secondary_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.RedundancyEncodingElement", HFILL }},
-    { &hf_h245_payloadType_01,
+    { &hf_h245_payloadType,
       { "payloadType", "h245.payloadType",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h245.INTEGER_0_127", HFILL }},
@@ -18201,6 +18228,10 @@ void proto_register_h245(void) {
       { "securityDenied", "h245.securityDenied",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.NULL", HFILL }},
+    { &hf_h245_qoSControlNotSupported,
+      { "qoSControlNotSupported", "h245.qoSControlNotSupported",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h245.NULL", HFILL }},
     { &hf_h245_sessionID,
       { "sessionID", "h245.sessionID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -18245,6 +18276,10 @@ void proto_register_h245(void) {
       { "reservationFailure", "h245.reservationFailure",
         FT_NONE, BASE_NONE, NULL, 0,
         "h245.NULL", HFILL }},
+    { &hf_h245_networkErrorCode,
+      { "networkErrorCode", "h245.networkErrorCode",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h245.INTEGER_0_255", HFILL }},
     { &hf_h245_qosCapability,
       { "qosCapability", "h245.qosCapability",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19005,7 +19040,7 @@ void proto_register_h245(void) {
       { "field", "h245.field",
         FT_OID, BASE_NONE, NULL, 0,
         "h245.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_h245_value,
+    { &hf_h245_criteriaValue,
       { "value", "h245.value",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h245.OCTET_STRING_SIZE_1_65535", HFILL }},

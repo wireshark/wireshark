@@ -5,11 +5,11 @@
 
 #.IMPORT ../h235/h235-exp.cnf
 
-#.TYPE_ATTR
-# override TransportAddress from H.245
-# temporary solution till collision between imported and defined type is solved in the asn2wrs
-TransportAddress         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_TransportAddress_vals)  BITMASK = 0
-#.END
+
+
+
+
+
 #.IMPORT ../h245/h245-exp.cnf
 
 #----------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ AdmissionRejectReason
 LocationRejectReason	
 RegistrationRejectReason
 
-#.EXPORTS
+#.MODULE_EXPORTS
 RasMessage  WS_VAR
 NonStandardParameter
 PublicTypeOfNumber

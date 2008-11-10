@@ -8,7 +8,7 @@ PER
 ALIGNED
 #.END
 
-#.EXPORTS
+#.MODULE_EXPORTS
 T38FaxProfile
 DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
@@ -1217,6 +1217,7 @@ MulticastAddress/iPAddress mIPAddress
 MulticastAddress/iP6Address mIP6Address 
 MulticastAddress/iPAddress/network mip4_network
 
+RTPPayloadType/payloadType  rtpPayloadType
 RTPPayloadType/payloadDescriptor/nonStandardIdentifier nonStandard
 MediaPacketizationCapability/rtpPayloadType  rtpPayloadTypes
 T84Profile/t84Restricted/cif cif_bool
@@ -1355,6 +1356,7 @@ MulticastAddress/iPAddress/tsapIdentifier multicast_tsapIdentifier
 MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
 CommunicationModeTableEntry/mediaChannel cm_mediaChannel
 CommunicationModeTableEntry/mediaControlChannel cm_mediaControlChannel
+Criteria/value criteriaValue
 
 OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters olc_rev_h223_params
 OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters olc_fw_h223_params
