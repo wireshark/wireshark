@@ -51,6 +51,9 @@
 #include "gtk/cfilter_combo_utils.h"
 #include "gtk/u3.h"
 
+#ifdef HAVE_PCAP_REMOTE
+#include "gtk/capture_dlg.h"
+#endif
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -183,6 +186,15 @@ write_recent(void)
     "\n", rf);
 
   dfilter_recent_combo_write_all(rf);
+
+#ifdef HAVE_PCAP_REMOTE
+  fputs("\n"
+    "######## Recent remote hosts, cannot be altered through command line ########\n"
+    "\n", rf);
+	
+  capture_remote_combo_recent_write_all(rf);
+#endif
+
   fprintf(rf, "\n# Main window geometry.\n");
   fprintf(rf, "# Decimal numbers.\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
@@ -679,6 +691,10 @@ read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
 	dfilter_combo_add_recent(value);
   } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
 	cfilter_combo_add_recent(value);
+#ifdef HAVE_PCAP_REMOTE
+  } else if (strcmp(key, RECENT_KEY_REMOTE_HOST) == 0) {
+	capture_remote_combo_add_recent(value);
+#endif
   }
 
   return PREFS_SET_OK;
