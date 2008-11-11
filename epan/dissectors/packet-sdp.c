@@ -73,12 +73,14 @@
 #include "packet-per.h"
 #include "packet-h245.h"
 #include "packet-h264.h"
+#include "packet-mp4ves.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 static dissector_handle_t msrp_handle=NULL;
 static dissector_handle_t h264_handle = NULL;
+static dissector_handle_t mp4ves_handle = NULL;
 
 static int sdp_tap = -1;
 
@@ -1213,95 +1215,7 @@ tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar 
 	}
 	return NULL;
 }
-/*
-14496-2, Annex G, Table G-1.
-Table G-1 FLC table for profile_and_level_indication Profile/Level Code
-*/
-static const value_string mpeg4es_level_indication_vals[] =
-{
-  { 0,    "Reserved" },
-  { 1,    "Simple Profile/Level 1" },
-  { 2,    "Simple Profile/Level 2" },
-  { 3,    "Reserved" },
-  { 4,    "Reserved" },
-  { 5,    "Reserved" },
-  { 6,    "Reserved" },
-  { 7,    "Reserved" },
-  { 8,    "Simple Profile/Level 0" },
-  { 9,    "Simple Profile/Level 0b" },
-  /* Reserved 00001001 - 00010000 */
-  { 0x11, "Simple Scalable Profile/Level 1" },
-  { 0x12, "Simple Scalable Profile/Level 2" },
-  /* Reserved 00010011 - 00100000 */
-  { 0x21, "Core Profile/Level 1" },
-  { 0x22, "Core Profile/Level 2" },
-  /* Reserved 00100011 - 00110001 */
-  { 0x32, "Main Profile/Level 2" },
-  { 0x33, "Main Profile/Level 3" },
-  { 0x34, "Main Profile/Level 4" },
-  /* Reserved 00110101 - 01000001  */
-  { 0x42, "N-bit Profile/Level 2" },
-  /* Reserved 01000011 - 01010000  */
-  { 0x51, "Scalable Texture Profile/Level 1" },
-  /* Reserved 01010010 - 01100000 */
-  { 0x61, "Simple Face Animation Profile/Level 1" },
-  { 0x62, "Simple Face Animation Profile/Level 2" },
-  { 0x63, "Simple FBA Profile/Level 1" },
-  { 0x64, "Simple FBA Profile/Level 2" },
-  /* Reserved 01100101 - 01110000 */
-  { 0x71, "Basic Animated Texture Profile/Level 1" },
-  { 0x72, "Basic Animated Texture Profile/Level 2" },
-  /* Reserved 01110011 - 10000000 */
-  { 0x81, "Hybrid Profile/Level 1" },
-  { 0x82, "Hybrid Profile/Level 2" },
-  /* Reserved 10000011 - 10010000 */
-  { 0x91, "Advanced Real Time Simple Profile/Level 1" },
-  { 0x92, "Advanced Real Time Simple Profile/Level 2" },
-  { 0x93, "Advanced Real Time Simple Profile/Level 3" },
-  { 0x94, "Advanced Real Time Simple Profile/Level 4" },
-  /* Reserved 10010101 - 10100000 */
-  { 0xa1, "Core Scalable Profile/Level 1" },
-  { 0xa2, "Core Scalable Profile/Level 2" },
-  { 0xa3, "Core Scalable Profile/Level 3" },
-  /* Reserved 10100100 - 10110000  */
-  { 0xb1, "Advanced Coding Efficiency Profile/Level 1" },
-  { 0xb2, "Advanced Coding Efficiency Profile/Level 2" },
-  { 0xb3, "Advanced Coding Efficiency Profile/Level 3" },
-  { 0xb4, "Advanced Coding Efficiency Profile/Level 4" },
-  /* Reserved 10110101 - 11000000 */
-  { 0xc1, "Advanced Core Profile/Level 1" },
-  { 0xc2, "Advanced Core Profile/Level 2" },
-  /* Reserved 11000011 - 11010000 */
-  { 0xd1, "Advanced Scalable Texture/Level 1" },
-  { 0xd2, "Advanced Scalable Texture/Level 2" },
-  { 0xd3, "Advanced Scalable Texture/Level 3" },
-  /* Reserved 11010100 - 11100000 */
-  { 0xe1, "Simple Studio Profile/Level 1" },
-  { 0xe2, "Simple Studio Profile/Level 2" },
-  { 0xe3, "Simple Studio Profile/Level 3" },
-  { 0xe4, "Simple Studio Profile/Level 4" },
-  { 0xe5, "Core Studio Profile/Level 1" },
-  { 0xe6, "Core Studio Profile/Level 2" },
-  { 0xe7, "Core Studio Profile/Level 3" },
-  { 0xe8, "Core Studio Profile/Level 4" },
-  /* Reserved 11101001 - 11101111 */
-  { 0xf0, "Advanced Simple Profile/Level 0" },
-  { 0xf1, "Advanced Simple Profile/Level 1" },
-  { 0xf2, "Advanced Simple Profile/Level 2" },
-  { 0xf3, "Advanced Simple Profile/Level 3" },
-  { 0xf4, "Advanced Simple Profile/Level 4" },
-  { 0xf5, "Advanced Simple Profile/Level 5" },
-  /* Reserved 11110110 - 11110111 */
-  { 0xf8, "Fine Granularity Scalable Profile/Level 0" },
-  { 0xf9, "Fine Granularity Scalable Profile/Level 1" },
-  { 0xfa, "Fine Granularity Scalable Profile/Level 2" },
-  { 0xfb, "Fine Granularity Scalable Profile/Level 3" },
-  { 0xfc, "Fine Granularity Scalable Profile/Level 4" },
-  { 0xfd, "Fine Granularity Scalable Profile/Level 5" },
-  { 0xfe, "Reserved" },
-  { 0xff, "Reserved for Escape" },
-  { 0, NULL },
-};
+
 /* Annex X Profiles and levels definition */
 static const value_string h263_profile_vals[] =
 {
@@ -1363,7 +1277,16 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
-    }
+    }else if(strcmp((char*)field_name, "config") == 0) {
+		/* String including "=" */
+		tokenlen = end_offset - offset;
+		format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		/* ascii_bytes_to_tvb requires the "=" to be in the buffer */
+		data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter); 
+		if(mp4ves_handle && data_tvb){
+			dissect_mp4ves_config(data_tvb, pinfo, tree);
+		}
+	}
   }
 
   /* Dissect the H263-2000 profile parameter if present */
@@ -1379,16 +1302,34 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   }
 
 
-  /* Dissect the H264 profile-level-id parameter */
+  /* Dissect the H264 profile-level-id parameter 
+   * RFC 3984:
+   * A base16 [6] (hexadecimal) representation of
+   * the following three bytes in the sequence
+   * parameter set NAL unit specified in [1]: 1)
+   * profile_idc, 2) a byte herein referred to as
+   * profile-iop, composed of the values of
+   * constraint_set0_flag, constraint_set1_flag,
+   * constraint_set2_flag, and reserved_zero_5bits
+   * in bit-significance order, starting from the
+   * most significant bit, and 3) level_idc.
+   */
   if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
+		int length;
  	
-	  /* Length includes "=" */
+	  /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	  data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-	  if(h264_handle && data_tvb){
-		  dissect_h264_profile(data_tvb, pinfo, tree);
+	  length = tvb_length(data_tvb);
+	  if (length == 3){
+		  if(h264_handle && data_tvb){
+			  dissect_h264_profile(data_tvb, pinfo, tree);
+		  }
+	  }else{
+		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
+		  PROTO_ITEM_SET_GENERATED(item);
 	  }
 	}else if (strcmp(field_name, "packetization-mode") == 0) {
       offset++;
@@ -1399,13 +1340,13 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
 	}else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
 		/* The value of the parameter is the
-                        base64 [6] representation of the initial
-                        parameter set NAL units as specified in
-                        sections 7.3.2.1 and 7.3.2.2 of [1].  The
-                        parameter sets are conveyed in decoding order,
-                        and no framing of the parameter set NAL units
-                        takes place.  A comma is used to separate any
-                        pair of parameter sets in the list.
+           base64 [6] representation of the initial
+           parameter set NAL units as specified in
+           sections 7.3.2.1 and 7.3.2.2 of [1].  The
+           parameter sets are conveyed in decoding order,
+           and no framing of the parameter set NAL units
+           takes place.  A comma is used to separate any
+           pair of parameter sets in the list.
 		*/
 		gchar *data = NULL;
 		gint comma_offset;
@@ -1935,7 +1876,7 @@ proto_register_sdp(void)
         "IPBCP Command Type", HFILL }},
 	{&hf_sdp_fmtp_mpeg4_profile_level_id,
       { "Level Code",
-        "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mpeg4es_level_indication_vals), 0x0,
+        "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mp4ves_level_indication_vals), 0x0,
         "Level Code", HFILL }},
 	{ &hf_sdp_fmtp_h263_profile,
       { "Profile",
@@ -2022,6 +1963,7 @@ proto_reg_handoff_sdp(void)
   msrp_handle = find_dissector("msrp");
   t38_handle = find_dissector("t38");
   h264_handle = find_dissector("h264");
+  mp4ves_handle = find_dissector("mp4ves");
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);

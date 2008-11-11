@@ -50,6 +50,12 @@ static int hf_mp4ves_config = -1;
 static int hf_mp4ves_start_code_prefix = -1;
 static int hf_mp4ves_start_code = -1;
 static int hf_mp4ves_vop_coding_type = -1;
+static int hf_mp4ves_profile_and_level_indication = -1;
+static int hf_mp4ves_is_visual_object_identifier = -1;
+static int hf_mp4ves_visual_object_type = -1;
+static int hf_mp4ves_video_signal_type = -1;
+static int hf_mp4ves_stuffing = -1;
+static int hf_mp4ves_video_object_type_indication = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
@@ -64,7 +70,7 @@ static guint global_dynamic_payload_type = 0;
 14496-2, Annex G, Table G-1.
 Table G-1 FLC table for profile_and_level_indication Profile/Level Code
 */
-static const value_string mp4ves_level_indication_vals[] =
+const value_string mp4ves_level_indication_vals[] =
 {
   { 0,    "Reserved" },
   { 1,    "Simple Profile/Level 1" },
@@ -150,7 +156,7 @@ static const value_string mp4ves_level_indication_vals[] =
   { 0, NULL },
 };
 static const range_string mp4ves_startcode_vals[] = {
-	{ 0,	0x1f, "video_object_start_code" },
+	{ 0x00,	0x1f, "video_object_start_code" },
 	{ 0x20, 0x2f, "video_object_layer_start_code" },
 	{ 0x30, 0xaf, "reserved" },
 	{ 0xb0, 0xb0, "visual_object_sequence_start_code" },
@@ -205,9 +211,295 @@ static const value_string mp4ves_video_object_type_vals[] = {
 	{ 0xe,	"Simple FBA" },
 	{ 0,	NULL }
 };
+/* Visual object type */
+static const value_string mp4ves_visual_object_type_vals[] = {
+	{ 0x0,	"reserved" },
+	{ 0x1,	"video ID" },
+	{ 0x2,	"still texture ID" },
+	{ 0x3,	"mesh ID" },
+	{ 0x4,	"FBA ID" },
+	{ 0x5,	"3D mesh ID" },
+	{ 0x6,	"reserved" },
+	{ 0x7,	"reserved" },
+	{ 0x8,	"reserved" },
+	{ 0x9,	"reserved" },
+	{ 0xa,	"reserved" },
+	{ 0xb,	"reserved" },
+	{ 0xc,	"reserved" },
+	{ 0xd,	"reserved" },
+	{ 0xe,	"reserved" },
+	{ 0xf,	"reserved" },
+	{ 0,	NULL }
+};
 
-#if 0
-To be called from packet-sdp.c 
+static const value_string mp4ves_video_object_type_indication_vals[] = {
+	{ 0x0,	"Reserved" },
+	{ 0x1,	"Simple Object Type" },
+	{ 0x2,	"Simple Scalable Object Type" },
+	{ 0x3,	"Core Object Type" },
+	{ 0x4,	"Main Object Type" },
+	{ 0x5,	"N-bit Object Type" },
+	{ 0x6,	"Basic Anim. 2D Texture" },
+	{ 0x7,	"Anim. 2D Mesh" },
+	{ 0x8,	"Simple Face" },
+	{ 0x9,	"Still Scalable Texture" },
+	{ 0xa,	"Advanced Real Time Simple" },
+	{ 0xb,	"Core Scalable" },
+	{ 0xc,	"Advanced Coding Efficiency" },
+	{ 0xd,	"Advanced Scalable Texture" },
+	{ 0xe,	"Simple FBA" },
+	{ 0xf,	"Reserved" },
+	/* Reserved 00001111 – 11111111 */
+	{ 0,	NULL }
+};
+/* 6.2.2.1 User data */
+static int
+dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	int start_bit_offset;
+
+	/* user_data_start_code */
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+	bit_offset+=24;
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	bit_offset+=8;
+	start_bit_offset = bit_offset;
+	/* while( next_bits() != ‘0000 0000 0000 0000 0000 0001’ ) { */
+	while ( tvb_get_bits32(tvb,bit_offset, 24, FALSE) != 1){
+		bit_offset+=8;
+		/* user_data 8 bits */
+	}
+	proto_tree_add_text(tree, tvb, start_bit_offset>>3, (bit_offset - start_bit_offset)>>2, "User data");
+
+	return bit_offset;
+}
+/*
+next_start_code() { 
+zero_bit 
+while (!bytealigned())
+one_bit 
+}
+*/
+static int
+dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	guint8 zero_bit;
+	int start_bit_offset;
+
+	start_bit_offset = bit_offset;
+
+	zero_bit = tvb_get_bits8(tvb,bit_offset,1);
+	if (zero_bit != 0){
+		/* Error */
+	}
+	bit_offset++;
+	
+	/* zero stuffing bits */
+	if(bit_offset %8 == 0)
+		return bit_offset;
+
+	while(bit_offset %8 != 0){
+		bit_offset++;
+	}
+
+	proto_tree_add_bits_item(tree, hf_mp4ves_stuffing, tvb, start_bit_offset, bit_offset-start_bit_offset, FALSE);
+
+	return bit_offset;
+}
+
+/*
+video_signal_type() { 
+	video_signal_type
+	if (video_signal_type) {
+		video_format 3 uimsbf
+		video_range 1 bslbf
+		colour_description 1 bslbf
+		if (colour_description) {
+			colour_primaries 8 uimsbf
+			transfer_characteristics 8 uimsbf
+			matrix_coefficients 8 uimsbf
+		}
+	}
+}
+*/
+static int
+dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	guint8 video_signal_type, colour_description;
+
+	video_signal_type = tvb_get_bits8(tvb,bit_offset,1);
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_signal_type, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	if (video_signal_type) {
+		/* video_format 3 bits */
+		bit_offset+=3;
+		/* video_range 1 bit */
+		bit_offset++;
+		/* colour_description 1 bit */
+		colour_description = tvb_get_bits8(tvb,bit_offset,1);
+		if (colour_description) {
+			/* colour_primaries 8 bits */
+			bit_offset+=8;
+			/* transfer_characteristics 8 bits */
+			bit_offset+=8;
+			/* matrix_coefficients 8 bits*/
+			bit_offset+=8;
+		}
+	}
+
+	return bit_offset;
+}
+/* 
+ * 6.2.3 Video Object Layer
+ */
+static int
+dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	guint32 dword;
+	guint8 octet;
+
+	/* if(next_bits() == video_object_layer_start_code) { */
+	dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
+	if (dword != 1){
+		return bit_offset;
+	}
+	octet = tvb_get_bits8(tvb,bit_offset+24, 8);
+	if((octet>=0x20)&&(octet<=0x2f)){
+		/* Continue */
+	}else{
+		return -1;
+	}
+	/* video_object_layer_start_code */
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+	bit_offset+=24;
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	bit_offset+= 8;
+
+	/* short_video_header = 0 */
+	/* random_accessible_vol 1 */
+	bit_offset++;
+	/* video_object_type_indication 8 */
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_type_indication, tvb, bit_offset, 8, FALSE);
+	bit_offset+= 8;
+	/* is_object_layer_identifier 1 */
+	bit_offset++;
+	/* if (is_object_layer_identifier) { */
+	/* video_object_layer_verid 4 uimsbf */
+	/* video_object_layer_priority 3 uimsbf */
+	/* }
+	/* aspect_ratio_info 4 uimsbf */
+	/* if (aspect_ratio_info == “extended_PAR”) { */
+	/* par_width 8 uimsbf */
+	/* par_height 8 uimsbf */
+	/* } */
+	/* vol_control_parameters 1 bslbf */
+	/* if (vol_control_parameters) { */
+	/* chroma_format 2 uimsbf */
+	/* low_delay 1 uimsbf */
+	/* vbv_parameters 1 blsbf */
+
+
+	return bit_offset;
+}
+/* Visual object */
+/*
+VisualObject() { 
+	visual_object_start_code
+	is_visual_object_identifier
+	if (is_visual_object_identifier) {
+		visual_object_verid
+		visual_object_priority
+	}
+	visual_object_type
+	if (visual_object_type == “video ID” || visual_object_type == “still textureID“) {
+		video_signal_type()
+	}
+	next_start_code()
+	while ( next_bits()== user_data_start_code){
+		user_data()
+	}
+	if (visual_object_type == “video ID”) {
+		video_object_start_code 
+		VideoObjectLayer()
+	}
+	else if (visual_object_type == “still texture ID”) {
+		StillTextureObject()
+	}
+	else if (visual_object_type == “mesh ID”) {
+		MeshObject()
+	}
+	else if (visual_object_type == “FBA ID”) {
+		FBAObject()
+	}
+	else if (visual_object_type == “3D mesh ID”) {
+		3D_Mesh_Object()
+	}
+	if (next_bits() != “0000 0000 0000 0000 0000 0001”)
+		next_start_code()
+}
+*/
+static int
+dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	guint8 is_visual_object_identifier, visual_object_type;
+	guint32 dword;
+	guint8 octet;
+
+	is_visual_object_identifier = tvb_get_bits8(tvb,bit_offset,1);
+	proto_tree_add_bits_item(tree, hf_mp4ves_is_visual_object_identifier, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	if(is_visual_object_identifier){
+		/* visual_object_verid 4 bits*/
+		bit_offset+=4;
+		/* visual_object_priority 3 bits*/
+		bit_offset+=3;
+	}
+	/* visual_object_type 4 bits*/
+	visual_object_type = tvb_get_bits8(tvb,bit_offset,4);
+	proto_tree_add_bits_item(tree, hf_mp4ves_visual_object_type, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	if ((visual_object_type == 1/*“video ID”*/) || (visual_object_type == 2/*“still textureID“*/)) {
+		/* video_signal_type() */
+		bit_offset = dissect_mp4ves_visual_object_type(tvb, pinfo, tree, bit_offset);
+	}
+	/* next_start_code() */
+	bit_offset = dissect_mp4ves_next_start_code(tvb, pinfo, tree, bit_offset);
+	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+/*
+	while ( next_bits()== user_data_start_code){
+		user_data()
+	}
+*/
+	while(dword==0x1b2){
+		bit_offset = dissect_mp4ves_user_data(tvb, pinfo, tree, bit_offset);
+		dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	}
+	if (visual_object_type == 1/*“video ID”*/) {
+		/* 
+		 * video_object_start_code
+		 */ 
+		dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
+		if (dword != 1){
+			/* no start code */
+			return -1;
+		}
+		octet = tvb_get_bits8(tvb,bit_offset+24, 8);
+		if(octet>0x20){
+			/* Error */
+			return -1;
+		}
+		proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+		bit_offset+=24;
+		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+		bit_offset+= 8;
+		/*
+		VideoObjectLayer()
+		*/
+		bit_offset = dissect_mp4ves_VideoObjectLayer(tvb, pinfo, tree, bit_offset);
+	}
+
+	return bit_offset;
+}
 void 
 dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -219,25 +511,60 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	item = proto_tree_add_item(tree, hf_mp4ves_config, tvb, 0, -1, FALSE);
 	mp4ves_tree = proto_item_add_subtree(item, ett_mp4ves_config);
 
-	/* Get start code prefix */
-	dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
-	if (dword == 1){
+	/*VisualObjectSequence() { 
+	do {
+		visual_object_sequence_start_code 
+	*/
 
-	}else{
+	/* Get start code prefix */
+	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	if ((dword & 0x00000100) != 0x00000100){
 		/* No start code prefix */
 		return;
 	}
-
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
-	bit_offset = bit_offset+24;
+	bit_offset+= 24;
 
-	/* We are byte aligned no stuffing */
-	dword = tvb_get_bits8(tvb,bit_offset, 8);
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	bit_offset+= 8;
 
+	/* Expect visual_object_sequence_start_code */
+	if(dword != 0x1b0)
+		return;
+	/* 	profile_and_level_indication */
+	proto_tree_add_bits_item(tree, hf_mp4ves_profile_and_level_indication, tvb, bit_offset, 8, FALSE);
+	bit_offset+= 8;
 
+	/* 	while ( next_bits()== user_data_start_code){
+		user_data()
+	}
+	*/
+	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	bit_offset+= 32;
+	if ((dword & 0x00000100) != 0x00000100){
+		/* No start code prefix */
+		return;
+	}
+	if(dword==0x1b2){
+		/* 
+		 * user_data_start_code
+		 * XXX call user data dissection here 
+		 */
+		return;
+	}
+	if(dword==0x1b5){
+	/*
+	 * VisualObject()
+	 */
+		bit_offset = dissect_mp4ves_VisualObject(tvb, pinfo, tree, bit_offset);
+	}
+		/*
+	} while ( next_bits() != visual_object_sequence_end_code)
+	visual_object_sequence_end_code 
 }
-#endif
+*/
+}
+
 
 void
 dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -384,6 +711,9 @@ static mp4ves_capability_t mp4ves_capability_tab[] = {
   /* ITU-T H.245  capabilities ISO/IEC 14496-2(m*/
   { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/0", "profileAndLevel", dissect_mp4ves_par_profile },
   { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/1", "object", dissect_mp4ves_par_video_object_type },
+  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/2", "decoderConfigurationInformation", NULL },
+  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/3", "drawingOrder", NULL },
+  { "GenericCapability/0.0.8.245.1.0.0/collapsing/4", "visualBackChannelHandle", NULL },
   { NULL, NULL, NULL },
 };                                 
 
@@ -469,13 +799,43 @@ proto_register_mp4ves(void)
 		},
 		{ &hf_mp4ves_start_code,
 			{ "Start code",		"mp4ves.start_code", 
-			FT_UINT32, BASE_HEX, RVALS(&mp4ves_startcode_vals), 0x0,
+			FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&mp4ves_startcode_vals), 0x0,
 			"Start code", HFILL }
 		},
 		{ &hf_mp4ves_vop_coding_type,
 			{ "vop_coding_type",		"mp4ves.vop_coding_type", 
 			FT_UINT8, BASE_DEC, VALS(mp4ves_vop_coding_type_vals), 0x0,
 			"Start code", HFILL }
+		},
+		{&hf_mp4ves_profile_and_level_indication,
+	      { "profile_and_level_indication",		"mp4ves.profile_and_level_indication",
+		  FT_UINT8, BASE_DEC,VALS(mp4ves_level_indication_vals), 0x0,
+	        "profile_and_level_indication", HFILL }
+		},
+		{ &hf_mp4ves_is_visual_object_identifier,
+	      { "visual_object_identifier",		"mp4ves.visual_object_identifier",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "visual_object_identifier", HFILL }
+		},
+		{ &hf_mp4ves_visual_object_type,
+	      { "visual_object_type",		"mp4ves.visual_object_type",
+		  FT_UINT32, BASE_DEC, VALS(mp4ves_visual_object_type_vals), 0x0,
+	        "visual_object_type", HFILL }
+		},
+		{ &hf_mp4ves_video_signal_type,
+	      { "video_signal_type",		"mp4ves.video_signal_type",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "video_signal_type", HFILL }
+		},
+		{ &hf_mp4ves_stuffing,
+	      { "Stuffing",		"mp4ves.stuffing",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "Stuffing", HFILL }
+		},
+		{ &hf_mp4ves_video_object_type_indication,
+	      { "video_object_type_indication",		"mp4ves.video_object_type_indication",
+		  FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_type_indication_vals), 0x0,
+	        "video_object_type_indication", HFILL }
 		},
 	};
 

@@ -1027,6 +1027,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mip6.h	\
 	packet-mms.h	\
 	packet-mount.h	\
+	packet-mp4ves.h		\
 	packet-mpls.h	\
 	packet-mq.h	\
 	packet-mrdisc.h	\
