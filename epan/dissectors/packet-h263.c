@@ -95,8 +95,8 @@ const value_string h263_srcformat_vals[] =
   { H263_SRCFORMAT_CIF,			"CIF 352x288" },
   { H263_SRCFORMAT_4CIF,		"4CIF 704x576" },
   { H263_SRCFORMAT_16CIF,		"16CIF 1408x1152" },
-  { 6,					"Reserved",},
-  { H263_PLUSPTYPE,			"extended PTYPE" },
+  { 6,							"Reserved",},
+  { H263_PLUSPTYPE,				"extended PTYPE" },
   { 0,		NULL },
 };
 
@@ -310,12 +310,12 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
 			 */
 			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, FALSE);
-			offset_in_bits = offset_in_bits +3;
+			offset_in_bits+=3;
 			
 			/*
 			 *  Bit 4 Optional Custom PCF, "0" CIF PCF, "1" custom PCF;
 			 */
-			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 3, &custom_pcf, FALSE);
+			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 1, &custom_pcf, FALSE);
 			offset_in_bits++;
 			/*
 			 *  Bit 5 Optional Unrestricted Motion Vector (UMV) mode (see Annex D), "0" off, "1" on;
@@ -388,7 +388,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * "111" Reserved;
 		 */
 		proto_tree_add_bits_ret_val( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code, FALSE);
-		offset_in_bits = offset_in_bits +3;
+		offset_in_bits+=3;
 		/*
 		 *  Bit 4 Optional Reference Picture Resampling (RPR) mode (see Annex P), "0" off, "1" on;
 		 */
@@ -426,8 +426,9 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		if(cpm==1){
 			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, FALSE);
-			offset_in_bits = offset_in_bits +2;
+			offset_in_bits+=2;
 		}
+		return offset_in_bits>>3;
 		/* TODO Add the rest of the fields */
 		/* 5.1.5 Custom Picture Format (CPFMT) (23 bits)
 		 * present only if the use of a custom picture format is
@@ -579,6 +580,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * A bit which when set to "1" signals the presence of the following optional data field.
 	 */
 	proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
+	offset_in_bits++;
 	while(pei==1)
 	{
 		/*5.1.25 Supplemental Enhancement Information (PSUPP) (0/8/16 ... bits) 
@@ -586,9 +588,9 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * to indicate if a further 9 bits follow and so on. Encoders shall use PSUPP as specified in Annex L.
 		 */
 		proto_tree_add_bits_item( tree, hf_h263_psupp, tvb, offset_in_bits, 8, FALSE);
-		offset_in_bits = offset_in_bits +8;
+		offset_in_bits+=8;
 		proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
-
+		offset_in_bits++;
 	}
 	/* For the first GOB in each picture (with number 0), no GOB header shall be transmitted.
 	 * For all other GOBs, the GOB header may be empty, depending on the encoder strategy.
@@ -925,7 +927,7 @@ proto_register_h263_data(void)
 			&hf_h263_psbi,
 			{
 				"H.263 Picture Sub-Bitstream Indicator (PSBI)",
-				"h263.psi",
+				"h263.psbi",
 				FT_UINT32,
 				BASE_DEC,
 				NULL,
