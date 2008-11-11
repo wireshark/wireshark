@@ -272,6 +272,25 @@ static const value_string h264_profile_idc_values[] = {
 	{ 0,	NULL }
 };
 
+static const value_string h264_level_bitrate_values[] = {
+	{ 10,	"64kb/s" },
+	{ 11,	"192kb/s" },
+	{ 12,	"384kb/s" },
+	{ 13,	"2 Mb/s" }, 
+	{ 20,	"2 Mb/s" },
+	{ 21,	"4 Mb/s" },
+	{ 22,	"4 Mb/s" },
+	{ 30,	"10 Mb/s" },
+	{ 31,	"14 Mb/s" },
+	{ 32,	"20 Mb/s" },
+	{ 40,	"20 Mb/s" },
+	{ 41,	"50 Mb/s" },
+	{ 42,	"50 Mb/s" },
+	{ 50,	"135 Mb/s" },
+	{ 51,	"240 Mb/s" },	
+	{ 0,	NULL }
+};
+
 static const value_string h264_nal_unit_type_vals[] = {
 	{ 0,	"Unspecified" },
 	{ 1,	"Coded slice of a non-IDR picture" },
@@ -971,9 +990,9 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	level_idc = tvb_get_guint8(tvb,offset);
 	level_item = proto_tree_add_item(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
 	if((level_idc==11)&&(constraint_set3_flag==1)){
-		proto_item_append_text(level_item," [Level 1b]");
+		proto_item_append_text(level_item," [Level 1b (128kb/s)]");
 	}else{
-		proto_item_append_text(level_item," [Level %.1f]",((double)level_idc/10));
+		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str(level_idc, h264_level_bitrate_values, "Unknown "));
 	}
 
 }
@@ -1120,7 +1139,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	if((level_idc==11)&&(constraint_set3_flag==1)){
 		proto_item_append_text(level_item,"[Level 1b]");
 	}else{
-		proto_item_append_text(level_item,"[Level %.1f]",((double)level_idc/10));
+		proto_item_append_text(level_item," [Level %.1f %s]",((double)level_idc/10),val_to_str(level_idc, h264_level_bitrate_values, "Unknown "));
 	}
 	offset++;
 	/* seq_parameter_set_id 0 ue(v) 
