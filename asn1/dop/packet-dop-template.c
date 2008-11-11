@@ -57,9 +57,8 @@
 #define PFNAME "dop"
 
 static guint global_dop_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_dop(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_dop(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_dop = -1;
@@ -287,7 +286,7 @@ void proto_register_dop(void) {
 
 /*--- proto_reg_handoff_dop --- */
 void proto_reg_handoff_dop(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t dop_handle;
 
 #include "packet-dop-dis-tab.c" 
   /* APPLICATION CONTEXT */
@@ -297,9 +296,8 @@ void proto_reg_handoff_dop(void) {
   /* ABSTRACT SYNTAXES */
     
   /* Register DOP with ROS (with no use of RTSE) */
-  if((handle = find_dissector("dop"))) {
-    register_ros_oid_dissector_handle("2.5.9.4", handle, 0, "id-as-directory-operational-binding-management", FALSE); 
-  }
+  dop_handle = find_dissector("dop");
+  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE); 
 
   /* BINDING TYPES */
 
@@ -330,10 +328,11 @@ void proto_reg_handoff_dop(void) {
 }
 
 void prefs_register_dop(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

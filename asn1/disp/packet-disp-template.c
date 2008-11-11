@@ -60,9 +60,8 @@
 #define PFNAME "disp"
 
 static guint global_disp_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_disp(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_disp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -239,7 +238,7 @@ void proto_register_disp(void) {
 
 /*--- proto_reg_handoff_disp --- */
 void proto_reg_handoff_disp(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t disp_handle;
 
   #include "packet-disp-dis-tab.c"
 
@@ -252,13 +251,11 @@ void proto_reg_handoff_disp(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  if((handle = find_dissector("disp"))) {
+  disp_handle = find_dissector("disp");
 
-    register_ros_oid_dissector_handle("2.5.9.3", handle, 0, "id-as-directory-shadow", FALSE); 
-
-    register_rtse_oid_dissector_handle("2.5.9.5", handle, 0, "id-as-directory-reliable-shadow", FALSE); 
-    register_rtse_oid_dissector_handle("2.5.9.6", handle, 0, "id-as-directory-reliable-binding", FALSE); 
-  } 
+  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE); 
+  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE); 
+  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE); 
 
   /* OPERATIONAL BINDING */
   oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
@@ -272,10 +269,11 @@ void proto_reg_handoff_disp(void) {
 
 
 void prefs_register_disp(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

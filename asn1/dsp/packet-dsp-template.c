@@ -54,9 +54,8 @@
 #define PFNAME "dsp"
 
 static guint global_dsp_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_dsp(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_dsp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -316,7 +315,7 @@ void proto_register_dsp(void) {
 
 /*--- proto_reg_handoff_dsp --- */
 void proto_reg_handoff_dsp(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t dsp_handle;
 
 #include "packet-dsp-dis-tab.c" 
 
@@ -326,19 +325,21 @@ void proto_reg_handoff_dsp(void) {
 
   /* ABSTRACT SYNTAXES */
     
-  /* Register DSP with ROS (with no use of RTSE) */
-  if((handle = find_dissector("dsp"))) {
-    register_ros_oid_dissector_handle("2.5.9.2", handle, 0, "id-as-directory-system", FALSE); 
-  }
+  /* remember the tpkt handler for change in preferences */
+  tpkt_handle = find_dissector("tpkt");
 
+  /* Register DSP with ROS (with no use of RTSE) */
+  dsp_handle = find_dissector("dsp");
+  register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE); 
 
 }
 
 void prefs_register_dsp(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

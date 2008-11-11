@@ -50,8 +50,7 @@
 #define PFNAME "p7"
 
 static guint global_p7_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
+static dissector_handle_t tpkt_handle;
 static const char *object_identifier_id = NULL; /* attribute identifier */
 static int seqno = 0;
 
@@ -145,10 +144,11 @@ void proto_reg_handoff_p7(void) {
 
 
 void prefs_register_p7(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

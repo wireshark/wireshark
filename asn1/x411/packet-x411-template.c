@@ -57,9 +57,8 @@
 #define PFNAME "x411"
 
 static guint global_x411_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_x411(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_x411(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_x411 = -1;
@@ -278,7 +277,7 @@ void proto_register_x411(void) {
 
 /*--- proto_reg_handoff_x411 --- */
 void proto_reg_handoff_x411(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t x411_handle;
 
 #include "packet-x411-dis-tab.c"
 
@@ -288,14 +287,13 @@ void proto_reg_handoff_x411(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  if((handle = find_dissector("x411")) != NULL) {
-    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse", TRUE); 
-    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse", FALSE);
+  x411_handle = find_dissector("x411");
+  register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE); 
+  register_rtse_oid_dissector_handle("2.6.0.2.7", x411_handle, 0, "id-as-mtse", FALSE);
 
-    register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
-    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984", FALSE);
-    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
-  }
+  register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
+  register_rtse_oid_dissector_handle("applicationProtocol.1", x411_handle, 0, "mts-transfer-protocol-1984", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.12", x411_handle, 0, "mta-transfer-protocol", FALSE);
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
@@ -303,10 +301,11 @@ void proto_reg_handoff_x411(void) {
 }
 
 void prefs_register_x411(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
