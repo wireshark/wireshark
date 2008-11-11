@@ -386,7 +386,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* if (is_object_layer_identifier) { */
 	/* video_object_layer_verid 4 uimsbf */
 	/* video_object_layer_priority 3 uimsbf */
-	/* }
+	/* } */
 	/* aspect_ratio_info 4 uimsbf */
 	/* if (aspect_ratio_info == “extended_PAR”) { */
 	/* par_width 8 uimsbf */
