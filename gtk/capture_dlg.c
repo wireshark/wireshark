@@ -656,14 +656,20 @@ static struct iftype_info iftype[] = {
     { CAPTURE_IFREMOTE, "Remote..." }
 };
 
+#if GTK_CHECK_VERSION(2,6,0)
 #define REMOTE_HOST_START ((sizeof(iftype) / sizeof(iftype[0])) + 1)
 #define REMOTE_HOST_SEPARATOR "---"
+#else
+#define REMOTE_HOST_START ((sizeof(iftype) / sizeof(iftype[0])))
+#endif
 
 static void
 iftype_combo_add_remote_separators (GtkWidget *iftype_cb)
 {
+#if GTK_CHECK_VERSION(2,6,0)
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cb), REMOTE_HOST_SEPARATOR);
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cb), REMOTE_HOST_SEPARATOR);
+#endif
   gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cb), "Clear list");
 }
 
@@ -769,6 +775,7 @@ iftype_combo_box_new(void)
   return iftype_cb;
 }
 
+#if GTK_CHECK_VERSION(2,6,0)
 static gboolean
 iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 {
@@ -784,6 +791,7 @@ iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data
   return result;
   
 }
+#endif
 
 static void
 error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data)
@@ -1584,8 +1592,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   iftype_cb = iftype_combo_box_new();
+#if GTK_CHECK_VERSION(2,6,0)
   gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (iftype_cb), 
 					iftype_combo_is_separator, NULL, NULL);
+#endif
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CB_KEY, iftype_cb);
   gtk_tooltips_set_tip(tooltips, iftype_cb,
 		       "Choose to capture from local or remote interfaces.", NULL);
@@ -2455,7 +2465,11 @@ select_if_type_cb(GtkComboBox *iftype_cb, gpointer data _U_)
     capture_remote_cb(GTK_WIDGET(iftype_cb), FALSE);
   } else if (new_iftype != old_iftype) {
     if (new_iftype > CAPTURE_IFREMOTE) {
+#if GTK_CHECK_VERSION(2,6,0)
       if (new_iftype == num_remote + 4) {
+#else
+      if (new_iftype == num_remote + 2) {
+#endif
 	/* The user selected the "Clear list" entry */
 	new_iftype = CAPTURE_IFLOCAL;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(iftype_cb), new_iftype);
@@ -2465,7 +2479,19 @@ select_if_type_cb(GtkComboBox *iftype_cb, gpointer data _U_)
 	  gtk_combo_box_remove_text (iftype_cb, 2);
       } else {
 	struct remote_host *rh;
-	rh = g_hash_table_lookup (remote_host_list, gtk_combo_box_get_active_text (GTK_COMBO_BOX(iftype_cb)));
+	gchar *string;
+#if GTK_CHECK_VERSION(2,6,0)
+	string = gtk_combo_box_get_active_text (GTK_COMBO_BOX(iftype_cb));
+#else
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(iftype_cb));
+	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(iftype_cb), &iter);
+	gtk_tree_model_get(model, &iter, 0, &string, -1);
+#endif
+	rh = g_hash_table_lookup (remote_host_list, string);
+	g_free (string);
 	
 	g_free(global_capture_opts.remote_host);
 	global_capture_opts.remote_host = g_strdup(rh->remote_host);
