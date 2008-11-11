@@ -254,7 +254,7 @@ static const value_string mp4ves_video_object_type_indication_vals[] = {
 };
 /* 6.2.2.1 User data */
 static int
-dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	int start_bit_offset;
 
@@ -281,7 +281,7 @@ one_bit
 }
 */
 static int
-dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	guint8 zero_bit;
 	int start_bit_offset;
@@ -323,7 +323,7 @@ video_signal_type() {
 }
 */
 static int
-dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	guint8 video_signal_type, colour_description;
 
@@ -353,7 +353,7 @@ dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  * 6.2.3 Video Object Layer
  */
 static int
-dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	guint32 dword;
 	guint8 octet;
