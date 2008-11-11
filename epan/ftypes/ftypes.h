@@ -280,6 +280,9 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc);
 
 /* Returns the length of the string required to hold the
  * string representation of the the field value.
+ *
+ * Returns -1 if the string cannot be represented in the given rtype.
+ *
  * The length DOES NOT include the terminating NUL. */
 int
 fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
@@ -291,7 +294,9 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
  * The pointer to the beginning of the string representation is
  * returned. If 'buf' was NULL, this points to the newly-allocated
  * memory. if 'buf' was non-NULL, then the return value will be
- * 'buf'. */
+ * 'buf'. 
+ *
+ * Returns NULL if the string cannot be represented in the given rtype.*/
 extern char *
 fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 

@@ -130,7 +130,7 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
 	guint length;
 
-	g_assert(rtype == FTREPR_DFILTER);
+	if (rtype != FTREPR_DFILTER) return -1;
 	length = tvb_length(fv->value.tvb);
 	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
 	 * as there's no trailing ":". */

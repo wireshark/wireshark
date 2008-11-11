@@ -125,9 +125,15 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 			return 1;
 		}
 		case FT_STRING:
-		case FT_STRINGZ:
-			lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
+		case FT_STRINGZ: {
+			gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+			if (repr) 
+				lua_pushstring(L,repr);
+			else
+				luaL_error(L,"field cannot be represented as string because it may contain invalid characters");
+			
 			return 1;
+		}
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 		case FT_GUID:
@@ -147,9 +153,13 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 	/* the string representation of the field */
 	FieldInfo fi = checkFieldInfo(L,1);
 	if (fi) {
-		if (fi->value.ftype->val_to_string_repr)
-			lua_pushstring(L,fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL));
-		else
+		if (fi->value.ftype->val_to_string_repr) {
+			gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+			if (repr) 
+				lua_pushstring(L,repr);
+			else
+				luaL_error(L,"field cannot be represented as string because it may contain invalid characters");
+		} else
 			luaL_error(L,"field has no string representation");
 	}
 	return 1;

@@ -303,7 +303,13 @@ fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
 	g_assert(fv->ftype->val_to_string_repr);
 	if (!buf) {
-		buf = g_malloc0(fvalue_string_repr_len(fv, rtype) + 1);
+		int len;
+		if ((len = fvalue_string_repr_len(fv, rtype)) >= 0) {
+			buf = g_malloc0(len + 1);
+		} else {
+			/* the value cannot be represented in the given representation type (rtype) */
+			return NULL;
+		}
 	}
 	fv->ftype->val_to_string_repr(fv, rtype, buf);
 	return buf;
