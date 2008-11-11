@@ -66,9 +66,8 @@
 #define PFNAME "dap"
 
 static guint global_dap_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_dap(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_dap(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -476,7 +475,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 71 "packet-dap-template.c"
+#line 70 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -654,7 +653,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 75 "packet-dap-template.c"
+#line 74 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-val.h ---*/
@@ -679,7 +678,7 @@ static gint ett_dap_T_signedUpdateError = -1;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 77 "packet-dap-template.c"
+#line 76 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -717,7 +716,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 79 "packet-dap-template.c"
+#line 78 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -4753,7 +4752,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 81 "packet-dap-template.c"
+#line 80 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4785,7 +4784,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 83 "packet-dap-template.c"
+#line 82 "packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "packet-dap-table21.c"
@@ -4814,7 +4813,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 84 "packet-dap-template.c"
+#line 83 "packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -6418,7 +6417,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 103 "packet-dap-template.c"
+#line 102 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6598,7 +6597,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 109 "packet-dap-template.c"
+#line 108 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -6646,15 +6645,15 @@ void proto_reg_handoff_dap(void) {
   /* AttributeTypes */
   x509if_register_fmt(hf_dap_present, "= *");
 
-
 }
 
 
 void prefs_register_dap(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

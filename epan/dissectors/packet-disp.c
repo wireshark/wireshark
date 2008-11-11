@@ -68,9 +68,8 @@
 #define PFNAME "disp"
 
 static guint global_disp_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_disp(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_disp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -190,7 +189,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 74 "packet-disp-template.c"
+#line 73 "packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -253,7 +252,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 78 "packet-disp-template.c"
+#line 77 "packet-disp-template.c"
 
 
 /*--- Included file: packet-disp-fn.c ---*/
@@ -1517,7 +1516,7 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 80 "packet-disp-template.c"
+#line 79 "packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2081,7 +2080,7 @@ void proto_register_disp(void) {
         "disp.ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 211 "packet-disp-template.c"
+#line 210 "packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2146,7 +2145,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 217 "packet-disp-template.c"
+#line 216 "packet-disp-template.c"
   };
   module_t *disp_module;
 
@@ -2172,7 +2171,7 @@ void proto_register_disp(void) {
 
 /*--- proto_reg_handoff_disp --- */
 void proto_reg_handoff_disp(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t disp_handle;
 
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
@@ -2185,7 +2184,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 245 "packet-disp-template.c"
+#line 244 "packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -2196,13 +2195,11 @@ void proto_reg_handoff_disp(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  if((handle = find_dissector("disp"))) {
+  disp_handle = find_dissector("disp");
 
-    register_ros_oid_dissector_handle("2.5.9.3", handle, 0, "id-as-directory-shadow", FALSE); 
-
-    register_rtse_oid_dissector_handle("2.5.9.5", handle, 0, "id-as-directory-reliable-shadow", FALSE); 
-    register_rtse_oid_dissector_handle("2.5.9.6", handle, 0, "id-as-directory-reliable-binding", FALSE); 
-  } 
+  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE); 
+  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE); 
+  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE); 
 
   /* OPERATIONAL BINDING */
   oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
@@ -2216,10 +2213,11 @@ void proto_reg_handoff_disp(void) {
 
 
 void prefs_register_disp(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

@@ -65,9 +65,8 @@
 #define PFNAME "x411"
 
 static guint global_x411_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_x411(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_x411(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_x411 = -1;
@@ -609,7 +608,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-x411-hf.c ---*/
-#line 87 "packet-x411-template.c"
+#line 86 "packet-x411-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
@@ -787,7 +786,7 @@ static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 97 "packet-x411-template.c"
+#line 96 "packet-x411-template.c"
 
 /* Dissector tables */
 static dissector_table_t x411_extension_dissector_table;
@@ -6976,7 +6975,7 @@ static void dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 105 "packet-x411-template.c"
+#line 104 "packet-x411-template.c"
 
 char* x411_get_last_oraddress() { return oraddress; }
 
@@ -9164,7 +9163,7 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 240 "packet-x411-template.c"
+#line 239 "packet-x411-template.c"
   };
 
   /* List of subtrees */
@@ -9344,7 +9343,7 @@ void proto_register_x411(void) {
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 252 "packet-x411-template.c"
+#line 251 "packet-x411-template.c"
   };
 
   module_t *x411_module;
@@ -9374,7 +9373,7 @@ void proto_register_x411(void) {
 
 /*--- proto_reg_handoff_x411 --- */
 void proto_reg_handoff_x411(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t x411_handle;
 
 
 /*--- Included file: packet-x411-dis-tab.c ---*/
@@ -9534,7 +9533,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 284 "packet-x411-template.c"
+#line 283 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -9542,14 +9541,13 @@ void proto_reg_handoff_x411(void) {
 
   /* ABSTRACT SYNTAXES */
 
-  if((handle = find_dissector("x411")) != NULL) {
-    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse", TRUE); 
-    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse", FALSE);
+  x411_handle = find_dissector("x411");
+  register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE); 
+  register_rtse_oid_dissector_handle("2.6.0.2.7", x411_handle, 0, "id-as-mtse", FALSE);
 
-    register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
-    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984", FALSE);
-    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
-  }
+  register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
+  register_rtse_oid_dissector_handle("applicationProtocol.1", x411_handle, 0, "mts-transfer-protocol-1984", FALSE);
+  register_rtse_oid_dissector_handle("applicationProtocol.12", x411_handle, 0, "mta-transfer-protocol", FALSE);
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
@@ -9557,10 +9555,11 @@ void proto_reg_handoff_x411(void) {
 }
 
 void prefs_register_x411(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

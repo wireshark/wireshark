@@ -62,9 +62,8 @@
 #define PFNAME "dsp"
 
 static guint global_dsp_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_dsp(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_dsp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -206,7 +205,7 @@ static int hf_dsp_signed = -1;                    /* BOOLEAN */
 static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
-#line 68 "packet-dsp-template.c"
+#line 67 "packet-dsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dsp = -1;
@@ -285,7 +284,7 @@ static gint ett_dsp_AuthenticationLevel = -1;
 static gint ett_dsp_T_basicLevels = -1;
 
 /*--- End of included file: packet-dsp-ett.c ---*/
-#line 72 "packet-dsp-template.c"
+#line 71 "packet-dsp-template.c"
 
 
 /*--- Included file: packet-dsp-fn.c ---*/
@@ -1733,7 +1732,7 @@ static void dissect_MasterAndShadowAccessPoints_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-dsp-fn.c ---*/
-#line 74 "packet-dsp-template.c"
+#line 73 "packet-dsp-template.c"
 
 /*
 * Dissect X518 PDUs inside a ROS PDUs
@@ -2463,7 +2462,7 @@ void proto_register_dsp(void) {
         "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 283 "packet-dsp-template.c"
+#line 282 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2544,7 +2543,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 289 "packet-dsp-template.c"
+#line 288 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2575,7 +2574,7 @@ void proto_register_dsp(void) {
 
 /*--- proto_reg_handoff_dsp --- */
 void proto_reg_handoff_dsp(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t dsp_handle;
 
 
 /*--- Included file: packet-dsp-dis-tab.c ---*/
@@ -2587,7 +2586,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 322 "packet-dsp-template.c"
+#line 321 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -2595,19 +2594,21 @@ void proto_reg_handoff_dsp(void) {
 
   /* ABSTRACT SYNTAXES */
     
-  /* Register DSP with ROS (with no use of RTSE) */
-  if((handle = find_dissector("dsp"))) {
-    register_ros_oid_dissector_handle("2.5.9.2", handle, 0, "id-as-directory-system", FALSE); 
-  }
+  /* remember the tpkt handler for change in preferences */
+  tpkt_handle = find_dissector("tpkt");
 
+  /* Register DSP with ROS (with no use of RTSE) */
+  dsp_handle = find_dissector("dsp");
+  register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE); 
 
 }
 
 void prefs_register_dsp(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */

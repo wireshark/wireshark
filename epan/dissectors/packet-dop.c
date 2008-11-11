@@ -65,9 +65,8 @@
 #define PFNAME "dop"
 
 static guint global_dop_tcp_port = 102;
-static guint tcp_port = 0;
-static dissector_handle_t tpkt_handle = NULL;
-void prefs_register_dop(void); /* forwad declaration for use in preferences registration */
+static dissector_handle_t tpkt_handle;
+void prefs_register_dop(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_dop = -1;
@@ -271,7 +270,7 @@ static int hf_dop_GrantsAndDenials_grantInvoke = -1;
 static int hf_dop_GrantsAndDenials_denyInvoke = -1;
 
 /*--- End of included file: packet-dop-hf.c ---*/
-#line 73 "packet-dop-template.c"
+#line 72 "packet-dop-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
@@ -348,7 +347,7 @@ static gint ett_dop_T_basicLevels = -1;
 static gint ett_dop_GrantsAndDenials = -1;
 
 /*--- End of included file: packet-dop-ett.c ---*/
-#line 78 "packet-dop-template.c"
+#line 77 "packet-dop-template.c"
 
 /* Dissector table */
 static dissector_table_t dop_dissector_table;
@@ -2051,7 +2050,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 93 "packet-dop-template.c"
+#line 92 "packet-dop-template.c"
 
 static int
 call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
@@ -2968,7 +2967,7 @@ void proto_register_dop(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 253 "packet-dop-template.c"
+#line 252 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3047,7 +3046,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 260 "packet-dop-template.c"
+#line 259 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -3078,7 +3077,7 @@ void proto_register_dop(void) {
 
 /*--- proto_reg_handoff_dop --- */
 void proto_reg_handoff_dop(void) {
-  dissector_handle_t handle = NULL;
+  dissector_handle_t dop_handle;
 
 
 /*--- Included file: packet-dop-dis-tab.c ---*/
@@ -3103,7 +3102,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 293 "packet-dop-template.c"
+#line 292 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
@@ -3111,9 +3110,8 @@ void proto_reg_handoff_dop(void) {
   /* ABSTRACT SYNTAXES */
     
   /* Register DOP with ROS (with no use of RTSE) */
-  if((handle = find_dissector("dop"))) {
-    register_ros_oid_dissector_handle("2.5.9.4", handle, 0, "id-as-directory-operational-binding-management", FALSE); 
-  }
+  dop_handle = find_dissector("dop");
+  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE); 
 
   /* BINDING TYPES */
 
@@ -3144,10 +3142,11 @@ void proto_reg_handoff_dop(void) {
 }
 
 void prefs_register_dop(void) {
+  static guint tcp_port = 0;
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port != 102) && tpkt_handle)
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
