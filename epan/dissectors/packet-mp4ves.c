@@ -56,6 +56,9 @@ static int hf_mp4ves_visual_object_type = -1;
 static int hf_mp4ves_video_signal_type = -1;
 static int hf_mp4ves_stuffing = -1;
 static int hf_mp4ves_video_object_type_indication = -1;
+static int hf_mp4ves_random_accessible_vol = -1;
+static int hf_mp4ves_is_object_layer_identifier = -1;
+static int hf_mp4ves_aspect_ratio_info = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
@@ -352,11 +355,36 @@ dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 /* 
  * 6.2.3 Video Object Layer
  */
+
+/*
+ * Table 6-12 -- Meaning of pixel aspect ratio
+ */
+
+static const value_string mp4ves_aspect_ratio_info_vals[] = {
+	{ 0x0,	"reserved" },
+	{ 0x0,	"Forbidden" },
+	{ 0x1,	"1:1 (Square)" },
+	{ 0x2,	"12:11 (625-type for 4:3 picture)" },
+	{ 0x3,	"10:11 (525-type for 4:3 picture)" },
+	{ 0x4,	"16:11 (625-type stretched for 16:9 picture)" },
+	{ 0x5,	"40:33 (525-type stretched for 16:9 picture)" },
+	{ 0x6,	"Reserved" },
+	{ 0x7,	"Reserved" },
+	{ 0x8,	"Reserved" },
+	{ 0x9,	"Reserved" },
+	{ 0xa,	"Reserved" },
+	{ 0xb,	"Reserved" },
+	{ 0xc,	"Reserved" },
+	{ 0xd,	"Reserved" },
+	{ 0xe,	"Reserved" },
+	{ 0xf,	"Extended PAR" },
+	{ 0,	NULL }
+};
 static int
 dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	guint32 dword;
-	guint8 octet;
+	guint8 octet, is_object_layer_identifier, aspect_ratio_info;
 
 	/* if(next_bits() == video_object_layer_start_code) { */
 	dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
@@ -367,7 +395,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	if((octet>=0x20)&&(octet<=0x2f)){
 		/* Continue */
 	}else{
-		return -1;
+		return bit_offset;
 	}
 	/* video_object_layer_start_code */
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
@@ -377,21 +405,30 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* short_video_header = 0 */
 	/* random_accessible_vol 1 */
+	proto_tree_add_bits_item(tree, hf_mp4ves_random_accessible_vol, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	/* video_object_type_indication 8 */
 	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_type_indication, tvb, bit_offset, 8, FALSE);
 	bit_offset+= 8;
 	/* is_object_layer_identifier 1 */
+	is_object_layer_identifier = tvb_get_bits8(tvb,bit_offset, 1);
+	proto_tree_add_bits_item(tree, hf_mp4ves_is_object_layer_identifier, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
-	/* if (is_object_layer_identifier) { */
-	/* video_object_layer_verid 4 uimsbf */
-	/* video_object_layer_priority 3 uimsbf */
-	/* } */
+	if(is_object_layer_identifier) { 
+		/* video_object_layer_verid 4 uimsbf */
+		bit_offset+=4;
+		/* video_object_layer_priority 3 uimsbf */
+		bit_offset+=3;
+	} 
 	/* aspect_ratio_info 4 uimsbf */
-	/* if (aspect_ratio_info == “extended_PAR”) { */
-	/* par_width 8 uimsbf */
-	/* par_height 8 uimsbf */
-	/* } */
+	aspect_ratio_info = tvb_get_bits8(tvb,bit_offset, 1);
+	proto_tree_add_bits_item(tree, hf_mp4ves_aspect_ratio_info, tvb, bit_offset, 4, FALSE);
+	if (aspect_ratio_info == 0xf /*“extended_PAR”*/ ) {
+		/* par_width 8 uimsbf */
+		bit_offset+=8;
+		/* par_height 8 uimsbf */
+		bit_offset+=8;
+	}
 	/* vol_control_parameters 1 bslbf */
 	/* if (vol_control_parameters) { */
 	/* chroma_format 2 uimsbf */
@@ -836,6 +873,21 @@ proto_register_mp4ves(void)
 	      { "video_object_type_indication",		"mp4ves.video_object_type_indication",
 		  FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_type_indication_vals), 0x0,
 	        "video_object_type_indication", HFILL }
+		},
+		{ &hf_mp4ves_random_accessible_vol,
+	      { "random_accessible_vol",		"mp4ves.random_accessible_vol",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "video_object_type_indication", HFILL }
+		},
+		{ &hf_mp4ves_is_object_layer_identifier,
+	      { "is_object_layer_identifier",		"mp4ves.is_object_layer_identifier",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "is_object_layer_identifier", HFILL }
+		},
+		{ &hf_mp4ves_aspect_ratio_info,
+	      { "aspect_ratio_info",		"mp4ves.aspect_ratio_info",
+		  FT_UINT8, BASE_DEC, VALS(mp4ves_aspect_ratio_info_vals), 0x0,
+	        "aspect_ratio_info", HFILL }
 		},
 	};
 
