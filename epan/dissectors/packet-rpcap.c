@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 
 #include <wiretap/wtap.h>
 
@@ -303,9 +304,10 @@ static void rpcap_frame_end (void)
 
 
 static gint
-dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *parent_tree, gint offset)
 {
+  proto_item *ti;
   gint len;
 
   len = tvb_length_remaining (tvb, offset);
@@ -315,7 +317,10 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo _U_,
 		     tvb_format_text_wsp (tvb, offset, len));
   }
   
-  proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, FALSE);
+  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, FALSE);
+  expert_add_info_format (pinfo, ti, PI_SEQUENCE, PI_NOTE,
+			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
+
   offset += len;
 
   return offset;
@@ -323,7 +328,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static gint
-dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *parent_tree, gint offset, int hf_id,
 		      proto_item *parent_item)
 {
@@ -356,7 +361,11 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item (tree, hf_if_padding, tvb, offset, 120, FALSE);
     offset += 120;
   } else {
-    proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, FALSE);
+    ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, FALSE);
+    if (af != AF_UNSPEC) {
+      expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_CHAT,
+			      "Unknown address family: %d", af);
+    }
     offset += 126;
   }
 
@@ -541,7 +550,7 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   if (type == RPCAP_RMTAUTH_NULL) {
     proto_item_append_text (ti, " (none)");
   } else if (type == RPCAP_RMTAUTH_PWD) {
-    gchar *username, *password;
+    guint8 *username, *password;
     
     username = tvb_get_ephemeral_string (tvb, offset, slen1);
     proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, FALSE);
