@@ -61,10 +61,16 @@
                         <enum name="REGISTERED_IDENTITIES" code="1"/>
                         <enum name="IMPLICIT_IDENTITIES" code="2"/>
 		</avp>
-<!--
-		<avp name="Expiry-Time" code="709" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no"><type type-name="Time"/></avp>
-		<avp name="Send-Data-Indication" code="710" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no"><type type-name="Enumerated"/></avp>
-		<avp name="DSAI-Tag" code="711" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no"><type type-name="OctetString"/></avp>
+
+		<avp name="Expiry-Time" code="709" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Time"/>
+    </avp>
+		<avp name="Send-Data-Indication" code="710" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Enumerated"/>
+    </avp>
+		<avp name="DSAI-Tag" code="711" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
 -->
 		<!-- ************************ END 3GPP Sh AVPS ******************* -->
 
