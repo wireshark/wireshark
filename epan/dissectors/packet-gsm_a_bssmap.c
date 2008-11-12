@@ -303,6 +303,140 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string bssmap_positioning_methods[] = {
+    { 0, "Timing Advance" },
+    { 1, "Reserved (Note)" },
+    { 2, "Reserved (Note)" },
+    { 3, "Mobile Assisted E-OTD" },
+    { 4, "Mobile Based E-OTD" },
+    { 5, "Mobile Assisted GPS" },
+    { 6, "Mobile Based GPS" },
+    { 7, "Conventional GPS" },
+    { 8, "U-TDOA" },
+    { 9, "Reserved for UTRAN use only" },
+    { 10, "Reserved for UTRAN use only" },
+    { 11, "Reserved for UTRAN use only" },
+    { 12, "Cell ID" },
+    { 0, NULL}
+};
+
+/* Positioning Method definitions */
+static const value_string bssmap_positioning_method_vals[] = {
+    { 0, "reserved" },
+    { 1, "Mobile Assisted E-OTD" },
+    { 2, "Mobile Based E-OTD" },
+    { 3, "Assisted GPS" },
+    { 4, "Assisted GANSS" },
+    { 5, "Assisted GPS and Assisted GANSS" },
+    { 0, NULL}
+};
+
+static const value_string bssmap_position_method_failure_diagnostic_vals[] = {
+    { 0, "Congestion" },
+    { 1, "insufficientResources" },
+    { 2, "insufficientMeasurementData" },
+    { 3, "inconsistentMeasurementData" },
+    { 4, "locationProcedureNotCompleted" },
+    { 5, "locationProcedureNotSupportedByTargetMS" },
+    { 6, "qoSNotAttainable" },
+    { 7, "positionMethodNotAvailableInNetwork" },
+    { 8, "positionMethodNotAvailableInLocaitonArea" },
+    { 0, NULL}
+};
+
+static const value_string bssmap_positioning_methods_usage[] = {
+    { 0, "Attempted unsuccessfully due to failure or interruption" },
+    { 1, "Attempted successfully - results not used to generate location" },
+    { 2, "Attempted successfully - results used to verify but not generate location" },
+    { 3, "Attempted successfully - results used to generate location" },
+    { 4, "Attempted successfully - case where MS supports multiple mobile based positioning methods and the actual method or methods used by the MS cannot be determined" },
+    { 0, NULL}
+};
+
+/* Client Category definitions */
+static const value_string bssmap_client_category[] = {
+    { 0, "Value Added Client" },
+    { 2, "PLMN Operator" },
+    { 3, "Emergency Services"},
+    { 4, "Lawful Intercept Services"},
+    { 0, NULL}
+};
+
+/* Client Subtype definitions */
+static const value_string bssmap_client_subtype[] = {
+    { 0, "unspecified" },
+    { 1, "broadcast service" },
+    { 2, "O&M" },
+    { 3, "anonymous statistics" },
+    { 4, "Target MS service support" },
+    { 0, NULL}
+};
+
+static const value_string bssmap_lcs_cause_value[] = {
+    { 0, "Unspecified" },
+    { 1, "System Failure" },
+    { 2, "Protocol Error" },
+    { 3, "Data missing in position request" },
+    { 4, "Unexpected data value in position request" },
+    { 5, "Position method failure" },
+    { 6, "Target MS Unreachable" },
+    { 7, "Location request aborted" },
+    { 8, "Facility not supported" },
+    { 9, "Inter-BSC Handover Ongoing" },
+    { 10, "Intra-BSC Handover Complete" },
+    { 11, "Congestion" },
+    { 12, "Inter NSE cell change" },
+    { 13, "Routing Area Update" },
+    { 14, "PTMSI reallocation" },
+    { 15, "Suspension of GPRS services" },
+    { 0, NULL}
+};
+
+/* Location Information definitions */
+static const value_string bssmap_location_information_vals[] = {
+    { 0, "current geographic location" },
+    { 1, "location assistance information for the target MS" },
+    { 2, "deciphering keys for braodcast assistance data for the target MS" },
+    { 0, NULL}
+};
+
+/* Velocity Requested definitions */
+static const value_string bssmap_velocity_requested_vals[] = {
+    { 0, "do not report velocity" },
+    { 1, "report velocity if available" },
+    { 0, NULL}
+};
+
+/* Vertical Coordinate definitions */
+static const value_string bssmap_vertical_coordinate_indicator_vals[] = {
+    { 0, "vertical coordinate not requested" },
+    { 1, "vertical coordinate is requested" },
+    { 0, NULL}
+};
+
+/* Horizontal Accuracy definitions */
+static const value_string bssmap_horizontal_accuracy_indicator_vals[] = {
+    { 0, "horizontal accuracy is not specified" },
+    { 1, "horizontal accuracy is specified" },
+    { 0, NULL}
+};
+
+/* Vertical Accuracy definitions */
+static const value_string bssmap_vertical_accuracy_indicator_vals[] = {
+    { 0, "vertical accuracy is not specified" },
+    { 1, "vertical accuracy is specified" },
+    { 0, NULL}
+};
+
+/* Response Time definitions */
+static const value_string bssmap_response_time_definitions_vals[] = {
+    { 0, "Response Time is not specified" },
+    { 1, "Low Delay" },
+    { 2, "Delay Tolerant" },
+    { 3, "reserved" },
+    { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
 
@@ -358,6 +492,26 @@ static int hf_gsm_a_bssmap_pi = -1;
 static int hf_gsm_a_bssmap_pt = -1;
 static int hf_gsm_a_bssap_speech_codec = -1;
 static int hf_gsm_a_bssmap_call_id = -1;
+static int hf_gsm_a_bssmap_spare = -1;
+static int hf_gsm_a_bssmap_positioning_data_discriminator = -1;
+static int hf_gsm_a_bssmap_positioning_method = -1;
+static int hf_gsm_a_bssmap_positioning_method_usage = -1;
+static int hf_gsm_a_bssmap_lcs_cause_value = -1;
+static int hf_gsm_a_bssmap_diagnostic_value = -1;
+static int hf_gsm_a_bssmap_client_category = -1;
+static int hf_gsm_a_bssmap_client_subtype = -1;
+static int hf_gsm_a_bssmap_location_type_location_information = -1;
+static int hf_gsm_a_bssmap_location_type_positioning_method = -1;
+static int hf_gsm_a_bssmap_velocity_requested = -1;
+static int hf_gsm_a_bssmap_vertical_coordinate_indicator = -1;
+static int hf_gsm_a_bssmap_horizontal_accuracy_indicator = -1;
+static int hf_gsm_a_bssmap_horizontal_accuracy = -1;
+static int hf_gsm_a_bssmap_vertical_accuracy = -1;
+static int hf_gsm_a_bssmap_vertical_accuracy_indicator = -1;
+static int hf_gsm_a_bssmap_response_time_category = -1;
+static int hf_gsm_a_bssmap_current_deciphering_key_value = -1;
+static int hf_gsm_a_bssmap_next_deciphering_key_value = -1;
+static int hf_gsm_a_bssmap_ciphering_key_flag = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -2507,8 +2661,9 @@ be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 	proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 	/* Subsequent Modification Indication */
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_smi, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	return(len);
+	return(curr_offset - offset);
 }
 /*
  * 3.2.2.58 Old BSS to New BSS information
@@ -2520,14 +2675,54 @@ be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 static guint8
 be_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint64 verticalCoordIndicator, velocityRequested, horizontalAccuracyIndicator, verticalAccuracyIndicator;
+    guint16 bitCount;
 
-	curr_offset = offset;
-	/*
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	*/
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    bitCount = offset << 3;
 
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare, tvb, bitCount, 6, FALSE);
+    bitCount = bitCount + 6;
+
+    /* Extract Velocity requested element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_bssmap_velocity_requested, tvb, bitCount, 1, &velocityRequested, FALSE);
+    bitCount++;
+
+    /* Extract vertical coordinator element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_bssmap_vertical_coordinate_indicator, tvb, bitCount, 1, &verticalCoordIndicator, FALSE);
+    bitCount++;
+
+    /* Extract horizontal accuracy element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_bssmap_horizontal_accuracy_indicator, tvb, bitCount, 1, &horizontalAccuracyIndicator, FALSE);
+    bitCount++;
+
+    if(horizontalAccuracyIndicator == 1)
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_horizontal_accuracy, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+    else
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+
+    /* Extract vertical accuracy element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_bssmap_vertical_accuracy_indicator, tvb, bitCount, 1, &verticalAccuracyIndicator, FALSE);
+    bitCount++;
+
+    if(verticalAccuracyIndicator == 1)
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_vertical_accuracy, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+    else
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_response_time_category, tvb, bitCount, 2, FALSE);
+    bitCount = bitCount + 2;
 
 	return(len);
 }
@@ -2555,8 +2750,9 @@ be_lcs_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	/* This octet is coded as the LCS-Priority octet in 3GPP TS 29.002 */
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_lcs_pri, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	return(len);
+	return(curr_offset - offset);
 }
 
 /*
@@ -2566,15 +2762,23 @@ static guint8
 be_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 location_information;
 
 	curr_offset = offset;
-	/*
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	*/
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
+    /* Extract the location information and add to protocol tree */
+    location_information = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_location_type_location_information, tvb, offset, 1, FALSE);
+    curr_offset++;
 
-	return(len);
+    if(location_information == 1 || location_information == 2)
+    {
+        /* protocol method  */
+		proto_tree_add_item(tree, hf_gsm_a_bssmap_location_type_positioning_method, tvb, curr_offset, 1, FALSE);
+        curr_offset++;
+    }
+
+	return(curr_offset - offset);
 }
 
 /*
@@ -2603,15 +2807,38 @@ static guint8
 be_pos_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 i;
+    guint64 pos_data_disc;
+    gint bit_offset;
 
 	curr_offset = offset;
-	/*
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	*/
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
+    /* Spare bits */
+    bit_offset = (offset<<3);
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare, tvb, bit_offset, 4, FALSE);
+    bit_offset += 4;
 
-	return(len);
+    /* Extract the positioning data discriminator and add to protocol tree */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_a_bssmap_positioning_data_discriminator, tvb, bit_offset, 4, &pos_data_disc, FALSE);
+    bit_offset += 4;
+    curr_offset++;
+
+    if (pos_data_disc == 0)
+    {
+        /* Extract the positioning methods and add to protocol tree */
+        for (i = 0; i < len-1; i++)
+        {
+            /* Extract the positioning method and add to protocol tree */
+            proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_positioning_method, tvb, bit_offset, 5, FALSE);
+            bit_offset += 5;
+            /* Extract the usage and add to protocol tree */
+            proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_positioning_method_usage, tvb, bit_offset, 3, FALSE);
+            bit_offset += 3;
+            curr_offset++;
+        }
+    }
+
+	return(curr_offset - offset);
 }
 /*
  * 3.2.2.66 LCS Cause
@@ -2624,10 +2851,18 @@ be_lcs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+    /* cause value  */
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_lcs_cause_value, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
 
+    if (len == 2)
+    {
+        /* Diagnostic value (note) */
+		proto_tree_add_item(tree, hf_gsm_a_bssmap_diagnostic_value, tvb, curr_offset, 1, FALSE);
+        curr_offset++;
+    }
 
-	return(len);
+	return(curr_offset - offset);
 }
 /*
  * 3.2.2.67 LCS Client Type
@@ -2637,13 +2872,21 @@ static guint8
 be_lcs_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+    guint8 bitCount;
 
+    bitCount = offset<<3;
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    /* Extract the client category and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_client_category, tvb, bitCount, 4, FALSE);
+    bitCount = bitCount + 4;
 
+    /* Extract the client subtype and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_client_subtype, tvb, bitCount, 4, FALSE);
+    bitCount = bitCount + 4;
+	curr_offset++;
 
-	return(len);
+	return(curr_offset - offset);
 }
 /*
  * 3.2.2.68 3GPP TS 48.008 version 6.9.0 Release 6
@@ -2739,19 +2982,29 @@ be_gps_assist_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * 3.2.2.71 Deciphering Keys
  * Deciphering Key element of 3GPP TS 49.031 BSSAP-LE.
  */
-
-
 static guint8
 be_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    gint bit_offset;
 
-	curr_offset = offset;
-	/*
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	*/
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+    /* Spare bits */
+    bit_offset = (offset<<3);
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare, tvb, bit_offset, 7, FALSE);
+    bit_offset += 7;
 
+    /* Extract the Ciphering Key Flag and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_ciphering_key_flag, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    offset++;
+
+    /* Extract the Current Deciphering Key Value and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_current_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+    bit_offset += 56;
+    offset += 7;
+
+    /* Extract the Next Deciphering Key Value and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_next_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+    offset += 7;
 
 	return(len);
 }
@@ -2971,18 +3224,9 @@ be_paging_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 }
 /*
  * 3.2.2.86	IMEI
+ * Use same dissector as IMSI 3.2.2.6
  */
-static guint8
-be_imei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
 
-	curr_offset = offset;
-
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
-
-	return(len);
-}
 /*
  * 3.2.2.87	Velocity Estimate
  */
@@ -3476,7 +3720,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,	/* VSTK_RAND Information */
 	NULL,		/* VSTK Information */
 	be_paging_inf,		/* Paging Information */
-	be_imei,			/* 3.2.2.86 IMEI */
+	de_mid,			/* 3.2.2.86 IMEI (use same dissector as IMSI)*/
 	be_vel_est,			/* Velocity Estimate */
 	be_vgcs_feat_flg,	/* VGCS Feature Flags */
 	be_talker_pri,		/* Talker Priority */
@@ -5133,7 +5377,7 @@ bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_APDU].value, BSSAP_PDU_TYPE_BSSMAP, BE_APDU, "");
 	/* IMSI	3.2.2.6	O (note 4)	5-10 */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_IMSI].value, BSSAP_PDU_TYPE_BSSMAP, BE_IMSI, "");
-	/* IMEI	3.2.2.86	O (note 4)	10 */
+	/* IMEI	3.2.2.86	O (note 4)	10 (use same decode as IMSI) */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_IMEI].value, BSSAP_PDU_TYPE_BSSMAP, BE_IMEI, "");
 	/* GANSS Location Type	3.2.2.97	C	3 */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_GANSS_LOC_TYP].value, BSSAP_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP, "");
@@ -5906,6 +6150,106 @@ proto_register_gsm_a_bssmap(void)
 		{ "Call Identifier","gsm_a_bssmap.callid",
 		FT_UINT32, BASE_DEC,NULL, 0x0,
 		"Call Identifier", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_spare,
+        { "Spare", "gsm_a_bssmap.spare", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Spare", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_positioning_data_discriminator,
+        { "Positioning Data Discriminator", "gsm_a_bssmap.posData.discriminator", 
+		FT_UINT8, BASE_HEX, NULL, 0x0, 
+		"Positioning Data Discriminator", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_positioning_method,
+        { "Positioning method", "gsm_a_bssmap.posData.method", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_methods), 0x0, 
+		"Positioning method", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_positioning_method_usage,
+        { "Usage", "gsm_a_bssmap.posData.usage", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_methods_usage), 0x0, 
+		"Usage", HFILL }
+	},
+    { &hf_gsm_a_bssmap_lcs_cause_value,
+        { "Cause Value", "gsm_a_bssmap.lcsCauseValue", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_lcs_cause_value), 0x0,
+		"Cause Value", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_diagnostic_value,
+        { "Diagnostic Value", "gsm_a_bssmap.diagnosticValue", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_position_method_failure_diagnostic_vals), 0x0,
+		"Diagnostic Value", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_client_category,
+        { "Client Category", "gsm_a_bssmap.lcsClientType.clientCategory", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_client_category), 0x0,
+		"Client Category", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_client_subtype,
+        { "Client Subtype", "gsm_a_bssmap.lcsClientType.clientSubtype", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_client_subtype), 0x0,
+		"Client Subtype", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_location_type_location_information,
+        { "Location Information", "gsm_a_bssmap.locationType.locationInformation", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_location_information_vals), 0x0, 
+		"Location Information", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_location_type_positioning_method,
+        { "Positioning Method", "gsm_a_bssmap.locationType.positioningMethod", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_method_vals), 0x0, 
+		"Positioning Method", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_velocity_requested,
+        { "Velocity Requested", "gsm_a_bssmap.lcsQos.velocityRequested", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_velocity_requested_vals), 0x0,
+		"Velocity Requested", HFILL}
+	},
+    { &hf_gsm_a_bssmap_vertical_coordinate_indicator,
+        { "Vertical Coordinate Indicator", "gsm_a_bssmap.lcsQos.verticalCoordinateIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_vertical_coordinate_indicator_vals), 0x0,
+		"Vertical Coordinate Indicator", HFILL}
+	},
+    { &hf_gsm_a_bssmap_horizontal_accuracy_indicator,
+        { "Horizontal Accuracy Indicator", "gsm_a_bssmap.lcsQos.horizontalAccuracyIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_horizontal_accuracy_indicator_vals), 0x0,
+		"Horizontal Accuracy Indicator", HFILL}
+	},
+    { &hf_gsm_a_bssmap_horizontal_accuracy,
+        { "Horizontal Accuracy", "gsm_a_bssmap.lcsQos.horizontalAccuracy", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Horizontal Accuracy", HFILL}
+	},
+    { &hf_gsm_a_bssmap_vertical_accuracy,
+        { "Vertical Accuracy", "gsm_a_bssmap.lcsQos.verticalAccuracy", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Vertical Accuracy", HFILL}
+	},
+    { &hf_gsm_a_bssmap_vertical_accuracy_indicator,
+        { "Vertical Accuracy Indicator", "gsm_a_bssmap.lcsQos.verticalAccuracyIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_vertical_accuracy_indicator_vals), 0x0,
+		"Vertical Accuracy Indicator", HFILL}
+	},
+    { &hf_gsm_a_bssmap_response_time_category,
+        { "Response Time Category", "gsm_a_bssmap.lcsQos.responseTimeCategory",
+		FT_UINT8, BASE_HEX, VALS(bssmap_response_time_definitions_vals), 0x0,
+		"Response Time Category", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_ciphering_key_flag,
+        { "Ciphering Key Flag", "gsm_a_bssmap.decipheringKeys.flag", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, 
+		"Ciphering Key Flag", HFILL}
+	},
+	{ &hf_gsm_a_bssmap_current_deciphering_key_value,
+        { "Current Deciphering Key Value", "gsm_a_bssmap.decipheringKeys.current", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, "Current Deciphering Key Value", 
+		HFILL}
+	},
+    { &hf_gsm_a_bssmap_next_deciphering_key_value,
+        { "Next Deciphering Key Value", "gsm_a_bssmap.decipheringKeys.next", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, 
+		"Next Deciphering Key Value", HFILL}
 	},
 	};
 
