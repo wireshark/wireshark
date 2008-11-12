@@ -304,7 +304,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 
 static int
-dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length, psm_data_t *psm_data _U_, config_data_t *config_data)
+dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length, config_data_t *config_data)
 {
 	proto_item *ti_option=NULL;
 	proto_tree *ti_option_subtree=NULL;
@@ -420,11 +420,14 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		if(pinfo->p2p_dir==P2P_DIR_RECV)
-			config_data = &(psm_data->out);
+		if (psm_data)
+			if(pinfo->p2p_dir==P2P_DIR_RECV)
+				config_data = &(psm_data->out);
+			else
+				config_data = &(psm_data->in);
 		else
-			config_data = &(psm_data->in);
-		offset=dissect_options(tvb, offset, pinfo, tree, length - 4, psm_data, config_data);
+			config_data = NULL;
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 4, config_data);
 	}
 
 	return offset;
@@ -511,11 +514,14 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		if(pinfo->p2p_dir==P2P_DIR_RECV)
-			config_data = &(psm_data->in);
+		if (psm_data)
+			if(pinfo->p2p_dir==P2P_DIR_RECV)
+				config_data = &(psm_data->out);
+			else
+				config_data = &(psm_data->in);
 		else
-			config_data = &(psm_data->out);
-		offset=dissect_options(tvb, offset, pinfo, tree, length - 6, psm_data, config_data);
+			config_data = NULL;
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 6, config_data);
 	}
 
 	return offset;
