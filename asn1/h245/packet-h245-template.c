@@ -251,6 +251,7 @@ static const value_string h245_RFC_number_vals[] = {
 	{  2429,	"RFC 2429 - 1998 Version of ITU-T Rec. H.263 Video (H.263+)" },
 	{  3016,	"RFC 3016 - RTP Payload Format for MPEG-4 Audio/Visual Streams" },
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
+	{  3984,	"RFC 3984 - RTP Payload Format for H.264 Video" },
 	{  0, NULL }
 };
 
