@@ -393,12 +393,12 @@ static guint global_ldaps_tcp_port = TCP_PORT_LDAPS;
 static guint tcp_port = 0;
 static guint ssl_port = 0;
 
-static dissector_handle_t gssapi_handle = NULL;
-static dissector_handle_t gssapi_wrap_handle = NULL;
-static dissector_handle_t ntlmssp_handle = NULL;
-static dissector_handle_t spnego_handle = NULL;
-static dissector_handle_t ssl_handle = NULL;
-static dissector_handle_t ldap_handle = NULL;
+static dissector_handle_t gssapi_handle;
+static dissector_handle_t gssapi_wrap_handle;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t spnego_handle;
+static dissector_handle_t ssl_handle;
+static dissector_handle_t ldap_handle ;
 
 void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
 
@@ -5226,12 +5226,9 @@ void
 proto_reg_handoff_ldap(void)
 {
 	dissector_handle_t cldap_handle;
-	ldap_handle = create_dissector_handle(dissect_ldap_tcp, proto_ldap);
+	ldap_handle = find_dissector("ldap");
 
-	dissector_add("tcp.port", global_ldap_tcp_port, ldap_handle);
 	dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
-
-	ssl_dissector_add(global_ldaps_tcp_port, "ldap", TRUE);
 
 	cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
 	dissector_add("udp.port", UDP_PORT_CLDAP, cldap_handle);
@@ -5243,6 +5240,8 @@ proto_reg_handoff_ldap(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 
 	ssl_handle = find_dissector("ssl");
+
+	prefs_register_ldap();
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
 	oid_add_from_string("LDAP_PAGED_RESULT_OID_STRING","1.2.840.113556.1.4.319");
@@ -5301,7 +5300,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2212 "packet-ldap-template.c"
+#line 2211 "packet-ldap-template.c"
 	
 
 }
