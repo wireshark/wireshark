@@ -2313,7 +2313,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 				severity = PI_WARN;
 			}
 
-			expert_add_info_format( actx->pinfo, authen_item, PI_CHECKSUM, severity, "%s", fmt );
+			expert_add_info_format( actx->pinfo, authen_item, PI_CHECKSUM, severity, "%s", msg );
 		}
 	}
 
