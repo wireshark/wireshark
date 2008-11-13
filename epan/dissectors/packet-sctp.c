@@ -1203,7 +1203,7 @@ dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   number_of_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / CHUNK_TYPE_LENGTH;
   for(type_number = 1, offset = PARAMETER_VALUE_OFFSET; type_number <= number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
     proto_tree_add_item(parameter_tree, hf_supported_chunk_type, parameter_tvb, offset, CHUNK_TYPE_LENGTH, NETWORK_BYTE_ORDER);
-    proto_item_append_text(parameter_item, val_to_str(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
+    proto_item_append_text(parameter_item, "%s", val_to_str(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
     if (type_number < number_of_types)
       proto_item_append_text(parameter_item, ", ");
 
