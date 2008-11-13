@@ -622,7 +622,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 	 * pcaprec_ss990915_hdr is the largest header type.
 	 */
 	struct pcaprec_ss990915_hdr first_rec_hdr, second_rec_hdr;
-	
+
 
 	/*
 	 * Attempt to read the first record's header.
@@ -948,6 +948,11 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		wth->data_offset += sizeof (struct linux_usb_phdr);
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4:
+		/* We don't have pseudoheader, so just pretend we received everything. */
+		wth->pseudo_header.p2p.sent = FALSE;
+		break;
+
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		if (packet_size < sizeof (struct libpcap_bt_phdr)) {
 			/*
@@ -1013,7 +1018,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		orig_size -= size;
 		packet_size -= size;
 		wth->data_offset += size;
-		
+
 		break;
 
 	case WTAP_ENCAP_I2C:
@@ -1177,6 +1182,11 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 			return FALSE;	/* Read error */
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4:
+		/* We don't have pseudoheader, so just pretend we received everything. */
+		wth->pseudo_header.p2p.sent = FALSE;
+		break;
+
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		if (!libpcap_read_bt_pseudoheader(wth->random_fh,
 		    pseudo_header, err))
@@ -1194,7 +1204,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 					       err, err_info, &size)){
 
 		  /* Read error */
-		  return FALSE;	
+		  return FALSE;
 	  }
 
 	  /* check the optional Multi Channel header */
@@ -1783,7 +1793,7 @@ libpcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
       }
       type = erf_exhdr[0];
       erf_exhdr_sw = pntohll((guint64*) &(erf_exhdr[0]));
-      if (i < max) 
+      if (i < max)
 	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
       *psize += 8;
       i++;
