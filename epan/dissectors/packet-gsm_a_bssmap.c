@@ -3438,7 +3438,7 @@ be_app_data_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 /*
  * 3.2.2.101	MSISDN 
- * Octets 3-12 contain the digits of an MSISDN, coded as in 3GPP TS 24.008, Calling party BCD number, octets 4 – 13.
+ * Octets 3-12 contain the digits of an MSISDN, coded as in 3GPP TS 24.008, Calling party BCD number, octets 4 - 13.
  */
  /*
   * 3.2.2.102	AoIP Transport Layer Address 
@@ -3479,19 +3479,19 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * 3.2.2.103	Speech Codec List
  */
 /*
-FR_AMR is coded ‘0011’. 
+FR_AMR is coded '011' 
 S11, S13 and S15 are reserved and coded with zeroes.  
-HR_AMR is coded ‘0100’. 
-S6 - S7 and S11 – S15 are reserved and coded with zeroes. 
-OHR_AMR is coded ‘1011’. 
+HR_AMR is coded '100' 
+S6 - S7 and S11 - S15 are reserved and coded with zeroes. 
+OHR_AMR is coded '011'
 S11, S13 and S15 are reserved and coded with zeroes.  
 
-FR_AMR-WB is coded ‘1001’.  
-S0 is set to ‘1’. S1 - S7 are reserved and coded with zeroes.
-OFR_AMR-WB is coded ‘1100’.  
+FR_AMR-WB is coded '001'
+S0 is set to '1' S1 - S7 are reserved and coded with zeroes.
+OFR_AMR-WB is coded '100'
 S0, S2, S4 indicates the supported Codec Configurations. S1, S3, S5, S6, S7 are reserved and coded with zeroes.
-OHR_AMR-WB is coded ‘1101’.  
-S0 is set to ‘1’. S1 - S7 are reserved and coded with zeroes.
+OHR_AMR-WB is coded '101'
+S0 is set to '1' S1 - S7 are reserved and coded with zeroes.
 
 
 8	7	6	5	4	3	2	1
@@ -3556,17 +3556,17 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 		curr_offset++;
 		consumed++;
 		if((codec==3)||(codec==4)||(codec==0xb)){
-			/* FR_AMR is coded ‘0011’. 
-			 * HR_AMR is coded ‘0100’.
-			 * OHR_AMR is coded ‘1011’.
+			/* FR_AMR is coded '011' 
+			 * HR_AMR is coded '100'
+			 * OHR_AMR is coded '011'
 			 */
 			proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
 			curr_offset+=2;
 			consumed+=2;
 		}else{
-			/* FR_AMR-WB is coded ‘1001’.  
-			 * OFR_AMR-WB is coded ‘1100’.  
-			 * OHR_AMR-WB is coded ‘1101’.
+			/* FR_AMR-WB is coded '001'  
+			 * OFR_AMR-WB is coded '100'  
+			 * OHR_AMR-WB is coded '101'
 			 */
 			proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
 			curr_offset++;

@@ -252,7 +252,7 @@ static const value_string mp4ves_video_object_type_indication_vals[] = {
 	{ 0xd,	"Advanced Scalable Texture" },
 	{ 0xe,	"Simple FBA" },
 	{ 0xf,	"Reserved" },
-	/* Reserved 00001111 – 11111111 */
+	/* Reserved 00001111 - 11111111 */
 	{ 0,	NULL }
 };
 /* 6.2.2.1 User data */
@@ -267,7 +267,7 @@ dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
 	bit_offset+=8;
 	start_bit_offset = bit_offset;
-	/* while( next_bits() != ‘0000 0000 0000 0000 0000 0001’ ) { */
+	/* while( next_bits() != '000 0000 0000 0000 0000 0001') { */
 	while ( tvb_get_bits32(tvb,bit_offset, 24, FALSE) != 1){
 		bit_offset+=8;
 		/* user_data 8 bits */
@@ -423,7 +423,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* aspect_ratio_info 4 uimsbf */
 	aspect_ratio_info = tvb_get_bits8(tvb,bit_offset, 1);
 	proto_tree_add_bits_item(tree, hf_mp4ves_aspect_ratio_info, tvb, bit_offset, 4, FALSE);
-	if (aspect_ratio_info == 0xf /*“extended_PAR”*/ ) {
+	if (aspect_ratio_info == 0xf /*"extended_PAR"*/ ) {
 		/* par_width 8 uimsbf */
 		bit_offset+=8;
 		/* par_height 8 uimsbf */
@@ -448,30 +448,30 @@ VisualObject() {
 		visual_object_priority
 	}
 	visual_object_type
-	if (visual_object_type == “video ID” || visual_object_type == “still textureID“) {
+	if (visual_object_type == "Video ID" || visual_object_type == "still textureID") {
 		video_signal_type()
 	}
 	next_start_code()
 	while ( next_bits()== user_data_start_code){
 		user_data()
 	}
-	if (visual_object_type == “video ID”) {
+	if (visual_object_type == "Video ID") {
 		video_object_start_code 
 		VideoObjectLayer()
 	}
-	else if (visual_object_type == “still texture ID”) {
+	else if (visual_object_type == "still texture ID") {
 		StillTextureObject()
 	}
-	else if (visual_object_type == “mesh ID”) {
+	else if (visual_object_type == "mesh ID") {
 		MeshObject()
 	}
-	else if (visual_object_type == “FBA ID”) {
+	else if (visual_object_type == "FBA ID") {
 		FBAObject()
 	}
-	else if (visual_object_type == “3D mesh ID”) {
+	else if (visual_object_type == "3D mesh ID") {
 		3D_Mesh_Object()
 	}
-	if (next_bits() != “0000 0000 0000 0000 0000 0001”)
+	if (next_bits() != "0000 0000 0000 0000 0000 0001")
 		next_start_code()
 }
 */
@@ -495,7 +495,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	visual_object_type = tvb_get_bits8(tvb,bit_offset,4);
 	proto_tree_add_bits_item(tree, hf_mp4ves_visual_object_type, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
-	if ((visual_object_type == 1/*“video ID”*/) || (visual_object_type == 2/*“still textureID“*/)) {
+	if ((visual_object_type == 1/*"Video ID"*/) || (visual_object_type == 2/*"still textureID"*/)) {
 		/* video_signal_type() */
 		bit_offset = dissect_mp4ves_visual_object_type(tvb, pinfo, tree, bit_offset);
 	}
@@ -511,7 +511,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bit_offset = dissect_mp4ves_user_data(tvb, pinfo, tree, bit_offset);
 		dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
 	}
-	if (visual_object_type == 1/*“video ID”*/) {
+	if (visual_object_type == 1/*"Video ID"*/) {
 		/* 
 		 * video_object_start_code
 		 */ 
