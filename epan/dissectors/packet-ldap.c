@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ldap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
+/* ../../tools/asn2wrs.py -b -p ldap -c ./ldap.cnf -s ./packet-ldap-template -D . Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
 
@@ -581,7 +581,7 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
       else
 	one_bit_set = TRUE;
 
-      proto_item_append_text(item, hfi->name);
+      proto_item_append_text(item, "%s", hfi->name);
 
     }
   }
@@ -3813,7 +3813,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
       else
 	one_bit_set = TRUE;
 
-      proto_item_append_text(item, hfi->name);
+      proto_item_append_text(item, "%s", hfi->name);
 
     }
   }

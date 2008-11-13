@@ -398,7 +398,7 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
       else
 	one_bit_set = TRUE;
 
-      proto_item_append_text(item, hfi->name);
+      proto_item_append_text(item, "%s", hfi->name);
 
     }
   }
@@ -1267,7 +1267,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
       else
 	one_bit_set = TRUE;
 
-      proto_item_append_text(item, hfi->name);
+      proto_item_append_text(item, "%s", hfi->name);
 
     }
   }
