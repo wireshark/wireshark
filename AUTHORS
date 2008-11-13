@@ -2471,6 +2471,8 @@ Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	COTP and RTSE reassembly improvements
 	Configuration Profiles
 	WLAN Traffic Statistics
+	Filter autocompletion usability improvements
+	Remote capture improvements and RPCAP support
 }
 
 Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {

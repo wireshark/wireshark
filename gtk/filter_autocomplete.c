@@ -3,6 +3,9 @@
  *
  * Copyright 2008, Bahaa Naamneh <b.naamneh@gmail.com>
  *
+ * With several usability improvements:
+ * Copyright 2008, Stig Bjorlykke <stig@bjorlykke.org>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -42,20 +45,17 @@
 
 
 static GtkWidget *filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, 
-                                          gboolean protocols_only);
+                                          gboolean protocols_only, gboolean *stop_propagation);
 static void autocomplete_protocol_string(GtkWidget  *filter_te, gchar* selected_str);
-static void autoc_filter_row_activated_cb(GtkTreeView *treeview, 
-                      GtkTreePath *path, 
-                      GtkTreeViewColumn *column, 
-                      gpointer data);
+static void autoc_filter_row_activated_cb(GtkTreeView *treeview, GtkTreePath *path, 
+                                          GtkTreeViewColumn *column, gpointer data);
 static gint filter_te_focus_out_cb(GtkWidget *filter_te, GdkEvent *event, gpointer data);
 static void init_autocompletion_list(GtkWidget *list);
 static void add_to_autocompletion_list(GtkWidget *list, const gchar *str);
-static gboolean autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *str);
-static void filter_autocomplete_handle_backspace(GtkWidget *list, 
-                         GtkWidget *popup_win,
-                         gchar *prefix, 
-                         GtkWidget *main_win);
+static gboolean autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget *list,
+                                           const gchar *str, gboolean *stop_propagation);
+static void filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkWidget *popup_win,
+                                                 gchar *prefix, GtkWidget *main_win);
 static void filter_autocomplete_win_destroy_cb(GtkWidget *win, gpointer data);
 static gboolean is_protocol_name_being_typed(GtkWidget *filter_te, int str_len);
 
@@ -199,6 +199,26 @@ filter_te_focus_out_cb(GtkWidget *filter_te _U_,
   return FALSE;
 }
 
+static gboolean
+check_select_region (GtkWidget *filter_te, GtkWidget *popup_win, 
+                     const gchar *string, unsigned int str_len)
+{
+  gint pos1 = gtk_editable_get_position(GTK_EDITABLE(filter_te));
+  gint pos2 = pos1 + strlen(string) - str_len;
+  gint pos3 = pos1;
+
+  if (pos2 > pos1) {
+    gtk_editable_insert_text(GTK_EDITABLE(filter_te), &string[str_len-1],
+                             pos2-pos1+1, &pos3);
+    gtk_editable_set_position(GTK_EDITABLE(filter_te), pos1+1);
+    gtk_editable_select_region(GTK_EDITABLE(filter_te), pos1+1, pos2+1);
+    gtk_widget_hide (popup_win);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 static void
 init_autocompletion_list(GtkWidget *list)
 {
@@ -232,7 +252,8 @@ add_to_autocompletion_list(GtkWidget *list, const gchar *str)
 }
 
 static gboolean
-autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *str)
+autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget *list, 
+			   const gchar *str, gboolean *stop_propagation)
 {
   GtkRequisition requisition;
   GtkListStore *store;
@@ -240,6 +261,7 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
   GtkTreeSelection *selection;
   gchar *curr_str;
   unsigned int str_len = strlen(str);
+  gchar *first = NULL;
   gint count = 0;
   gboolean loop = TRUE;
   gboolean exact_match = FALSE;
@@ -260,6 +282,8 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
           exact_match = TRUE;
         }
         count++;
+        if (count == 1) 
+          first = g_strdup (curr_str);
       } else {
         loop = gtk_list_store_remove(store, &iter);
       }
@@ -268,9 +292,21 @@ autocompletion_list_lookup(GtkWidget *popup_win, GtkWidget *list, const gchar *s
 
     } while( loop );
 
-    if((count == 1 && exact_match) ||
-       !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter))
+    if (count == 1 && !exact_match && strncmp(str, first, str_len) == 0) {
+      /* Only one match (not exact) with correct case */
+      *stop_propagation = check_select_region(filter_te, popup_win, first, str_len);
+    }
+
+    /* Don't show an autocompletion-list with only one entry with exact match */
+    if ((count == 1 && exact_match && strncmp(str, first, str_len) == 0) ||
+        !gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter))
+    {
+      g_free (first);
       return FALSE;
+    }
+
+    if (first)
+      g_free (first);
 
     gtk_widget_size_request(list, &requisition);
 
@@ -295,6 +331,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   const gchar *filter_te_str = "";
   gchar* prefix = "";
   gchar* prefix_start;
+  gboolean stop_propagation = FALSE;
   guint k;
   gchar ckey;
   gint pos;
@@ -310,8 +347,21 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   if( k == GDK_Shift_L || k == GDK_Shift_R)
     return FALSE;
 
-  /* get the string from filter_te, start from 0 till cursor's position */
+  if (popup_win)
+    gtk_widget_show(popup_win);
+
   pos = gtk_editable_get_position(GTK_EDITABLE(filter_te));
+  if (g_ascii_isalnum(ckey) ||      
+      k == GDK_KP_Decimal || k == GDK_period ||
+      k == GDK_underscore || k == GDK_minus) 
+  {
+    /* Ensure we delete the selected text */
+    gtk_editable_delete_selection(GTK_EDITABLE(filter_te));
+  } else if (k == GDK_Return || k == GDK_KP_Enter) {
+    /* Remove selection */
+    gtk_editable_select_region(GTK_EDITABLE(filter_te), pos, pos);
+  }
+  /* get the string from filter_te, start from 0 till cursor's position */
   filter_te_str = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, pos);
 
   /* If the pressed key is non-alphanumeric or one of the keys specified 
@@ -361,16 +411,16 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       }
 
       name_with_period = g_strconcat(prefix, event->string, NULL);
-      popup_win = filter_autocomplete_new(filter_te, name_with_period, FALSE);
+      popup_win = filter_autocomplete_new(filter_te, name_with_period, FALSE, &stop_propagation);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
       if(name_with_period)
         g_free (name_with_period);
 
       if(prefix_start)
-	g_free(prefix_start);
+        g_free(prefix_start);
 
-      return FALSE;
+      return stop_propagation;
     }
   } else if(k==GDK_BackSpace && !popup_win) {
 
@@ -378,10 +428,10 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       /* Delete the last character in the prefix string */
       prefix[strlen(prefix)-1] = '\0';
       if(strchr(prefix, '.')) {
-        popup_win = filter_autocomplete_new(filter_te, prefix, FALSE);
+        popup_win = filter_autocomplete_new(filter_te, prefix, FALSE, NULL);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
       } else if(strlen(prefix) && is_protocol_name_being_typed(filter_te, strlen(prefix)+2)) {
-        popup_win = filter_autocomplete_new(filter_te, prefix, TRUE);
+        popup_win = filter_autocomplete_new(filter_te, prefix, TRUE, NULL);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
       }
     }
@@ -394,7 +444,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     gchar *name = g_strconcat(prefix, event->string, NULL);
 
     if( !strchr(name, '.') && is_protocol_name_being_typed(filter_te, strlen(name)) ) {
-      popup_win = filter_autocomplete_new(filter_te, name, TRUE);
+      popup_win = filter_autocomplete_new(filter_te, name, TRUE, &stop_propagation);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
     }
 
@@ -404,7 +454,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     if(prefix_start)
       g_free(prefix_start);
 
-    return FALSE;
+    return stop_propagation;
   }
 
   /* If the popup window hasn't been constructed yet then we have nothing to do */
@@ -430,27 +480,27 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     case GDK_Down:
       if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
         if (gtk_tree_model_iter_next(model, &iter)) {
-	  if (k == GDK_Page_Down) {
-	    /* Skip up to 8 entries */
-	    GtkTreeIter last_iter;
-	    gint count = 0;
-	    do {
-	      last_iter = iter;
-	    } while (++count < 8 && gtk_tree_model_iter_next(model, &iter));
-	    iter = last_iter;
-	  }
+          if (k == GDK_Page_Down) {
+            /* Skip up to 8 entries */
+            GtkTreeIter last_iter;
+            gint count = 0;
+            do {
+              last_iter = iter;
+            } while (++count < 8 && gtk_tree_model_iter_next(model, &iter));
+            iter = last_iter;
+          }
           gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
           gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
                                        gtk_tree_model_get_path(model, &iter),
                                        NULL, FALSE, 0, 0);
         } else {
-	  gtk_tree_selection_unselect_all(selection);
-	}
+          gtk_tree_selection_unselect_all(selection);
+        }
       } else if (gtk_tree_model_get_iter_first(model, &iter)) {
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
-				     gtk_tree_model_get_path(model, &iter),
-				     NULL, FALSE, 0, 0);
+        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
+                                     gtk_tree_model_get_path(model, &iter),
+                                     NULL, FALSE, 0, 0);
       }
 
       if(prefix_start)
@@ -466,31 +516,31 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       GtkTreeIter last_iter;
 
       if (gtk_tree_selection_get_selected(selection, &model, &iter) ) {
-	path = gtk_tree_model_get_path(model, &iter);
+        path = gtk_tree_model_get_path(model, &iter);
 
-	if (gtk_tree_path_prev(path)) {
-	  if (k == GDK_Page_Up) {
-	    /* Skip up to 8 entries */
-	    GtkTreePath *last_path;
-	    gint count = 0;
-	    do {
-	      last_path = path;
-	    } while (++count < 8 && gtk_tree_path_prev(path));
-	    path = last_path;
-	  }
+        if (gtk_tree_path_prev(path)) {
+          if (k == GDK_Page_Up) {
+            /* Skip up to 8 entries */
+            GtkTreePath *last_path;
+            gint count = 0;
+            do {
+              last_path = path;
+            } while (++count < 8 && gtk_tree_path_prev(path));
+            path = last_path;
+          }
           gtk_tree_selection_select_path(GTK_TREE_SELECTION(selection), path);
           gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), path, NULL, FALSE, 0, 0);
         } else {
-	  gtk_tree_selection_unselect_iter(selection, &iter);
+          gtk_tree_selection_unselect_iter(selection, &iter);
         }
       } else if (gtk_tree_model_get_iter_first(model, &iter)) {
-	do {
-	  last_iter = iter;
-	} while (gtk_tree_model_iter_next(model, &iter));
-	gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &last_iter);
-	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
-				     gtk_tree_model_get_path(model, &last_iter),
-				     NULL, FALSE, 0, 0);
+        do {
+          last_iter = iter;
+        } while (gtk_tree_model_iter_next(model, &iter));
+        gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &last_iter);
+        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
+                                     gtk_tree_model_get_path(model, &last_iter),
+                                     NULL, FALSE, 0, 0);
       }
 
       if(prefix_start)
@@ -526,14 +576,14 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       break;
 
     case GDK_BackSpace:
-      filter_autocomplete_handle_backspace(treeview, popup_win, prefix, w_toplevel);
+      filter_autocomplete_handle_backspace(filter_te, treeview, popup_win, prefix, w_toplevel);
       break;
 
     default: {
       gchar* updated_str;
 
       updated_str = g_strconcat(prefix, event->string, NULL);
-      if( !autocompletion_list_lookup(popup_win, treeview, updated_str) ) {
+      if( !autocompletion_list_lookup(filter_te, popup_win, treeview, updated_str, &stop_propagation) ) {
         /* function returned false, ie the list is empty -> close popup  */
         gtk_widget_destroy(popup_win);
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
@@ -552,7 +602,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   if(k == GDK_Return || k == GDK_KP_Enter)
     return TRUE;    /* stop event propagation */
 
-  return FALSE;
+  return stop_propagation;
 }
 
 /*
@@ -565,7 +615,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
  * implementing the autocomplete in an optimized way.
  **/
 static gboolean
-build_autocompletion_list(GtkWidget *treeview, const gchar *protocol_name, gboolean protocols_only)
+build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *popup_win, 
+			  const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
 {
   void *cookie, *cookie2;
   protocol_t *protocol;
@@ -573,6 +624,7 @@ build_autocompletion_list(GtkWidget *treeview, const gchar *protocol_name, gbool
   header_field_info *hfinfo;
   gint count = 0;
   gboolean exact_match = FALSE;
+  const gchar *first = NULL;
   int i;
 
   protocol_name_len = strlen(protocol_name);
@@ -594,6 +646,8 @@ build_autocompletion_list(GtkWidget *treeview, const gchar *protocol_name, gbool
           exact_match = TRUE;
         }
         count++;
+        if (count == 1) 
+          first = name;
       }
     } else {
       hfinfo = proto_registrar_get_nth(i);
@@ -611,22 +665,32 @@ build_autocompletion_list(GtkWidget *treeview, const gchar *protocol_name, gbool
             exact_match = TRUE;
           }
           count++;
+          if (count == 1) 
+            first = hfinfo->abbrev;
         }
       }
     }
   }
 
+  if (count == 1 && !exact_match && stop_propagation && 
+      strncmp(protocol_name, first, protocol_name_len) == 0)
+  {
+    /* Only one match (not exact) with correct case */
+    *stop_propagation = check_select_region(filter_te, popup_win, first, protocol_name_len);
+  }
+
   /* Don't show an empty autocompletion-list or
    * an autocompletion-list with only one entry with exact match 
    **/
-  if (count == 0 || (count == 1 && exact_match))
+  if (count == 0 || (count == 1 && exact_match && 
+		     strncmp(protocol_name, first, protocol_name_len) == 0))
     return FALSE;
 
   return TRUE;
 }
 
 static GtkWidget *
-filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only)
+filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboolean protocols_only, gboolean *stop_propagation)
 {
   GtkWidget *popup_win;
   GtkWidget *treeview;
@@ -658,7 +722,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   g_object_set_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY, treeview);
 
   /* Build list */
-  if (!build_autocompletion_list(treeview, protocol_name, protocols_only)) {
+  if (!build_autocompletion_list(filter_te, treeview, popup_win, protocol_name, protocols_only, stop_propagation)) {
     gtk_widget_destroy(popup_win);
     return NULL;
   }
@@ -694,8 +758,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   return popup_win;
 }
 
-static void 
-filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
+static void
+filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkWidget *popup_win, gchar *prefix, GtkWidget *main_win)
 {
   GtkListStore *store;
   GtkRequisition requisition;
@@ -720,7 +784,7 @@ filter_autocomplete_handle_backspace(GtkWidget *list, GtkWidget *popup_win, gcha
   gtk_list_store_clear(store);
 
   /* Build new list */
-  if (!build_autocompletion_list(list, prefix, protocols_only)) {
+  if (!build_autocompletion_list(filter_te, list, popup_win, prefix, protocols_only, NULL)) {
     gtk_widget_destroy(popup_win);
     g_object_set_data(G_OBJECT(main_win), E_FILT_AUTOCOMP_PTR_KEY, NULL);
     return;
