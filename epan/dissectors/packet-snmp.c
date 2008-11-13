@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -2298,22 +2298,22 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
 		} else {
 			int severity;
-			gchar* fmt;			
+			gchar* msg;			
 
 			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
 			
 			if (usm_p.authOK) {
-				fmt = "SNMP Authentication OK";
+				msg = "SNMP Authentication OK";
 				severity = PI_CHAT;
 			} else {
 				gchar* calc_auth_str = bytestring_to_str(calc_auth,calc_auth_len,' ');
 				proto_item_append_text(authen_item, " calculated = %s", calc_auth_str);
-				fmt = "SNMP Authentication Error";
+				msg = "SNMP Authentication Error";
 				severity = PI_WARN;
 			}
 
-			expert_add_info_format( actx->pinfo, authen_item, PI_CHECKSUM, severity, fmt );
+			expert_add_info_format( actx->pinfo, authen_item, PI_CHECKSUM, severity, "%s", fmt );
 		}
 	}
 
