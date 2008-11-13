@@ -1495,7 +1495,7 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint 
   rsn = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) >> 1;
   more = tvb_get_guint8(tvb, SEQUENCING_SEGMENTING_SSN_LENGTH) & SEQUENCING_SEGMENTING_MORE_MASK;
 
-  param_item = proto_tree_add_text(tree, tvb, 0, length,
+  param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEQUENCING_SEGMENTING,
 					      sccp_parameter_values, "Unknown"));
   param_tree = proto_item_add_subtree(param_item,
@@ -1682,7 +1682,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 
   slrx = tvb_get_letoh24(tvb, 1);
 
-  param_item = proto_tree_add_text(tree, tvb, 0, length,
+  param_item = proto_tree_add_text(tree, tvb, 0, length, "%s",
 				   val_to_str(PARAMETER_SEGMENTATION,
 					      sccp_parameter_values, "Unknown"));
   param_tree = proto_item_add_subtree(param_item, ett_sccp_segmentation);
