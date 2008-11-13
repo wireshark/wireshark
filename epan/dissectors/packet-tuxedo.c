@@ -187,13 +187,13 @@ proto_register_tuxedo(void)
   proto_register_field_array(proto_tuxedo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  tuxedo_handle = create_dissector_handle(dissect_tuxedo, proto_tuxedo);
 
 }
 
 void
 proto_reg_handoff_tuxedo(void)
 {
-	heur_dissector_add("tcp", dissect_tuxedo_heur, proto_tuxedo);
+	tuxedo_handle = create_dissector_handle(dissect_tuxedo, proto_tuxedo);
 	dissector_add_handle("tcp.port", tuxedo_handle);
+	heur_dissector_add("tcp", dissect_tuxedo_heur, proto_tuxedo);
 }

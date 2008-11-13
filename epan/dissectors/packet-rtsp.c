@@ -1250,7 +1250,6 @@ proto_register_rtsp(void)
 
 	proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
 		"RTSP", "rtsp");
-	media_type_dissector_table = find_dissector_table("media_type");
 
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1302,6 +1301,7 @@ proto_reg_handoff_rtsp(void)
 		rtp_handle = find_dissector("rtp");
 		rtcp_handle = find_dissector("rtcp");
 		rdt_handle = find_dissector("rdt");
+		media_type_dissector_table = find_dissector_table("media_type");
 		rtsp_prefs_initialized = TRUE;
 	}
 	else {

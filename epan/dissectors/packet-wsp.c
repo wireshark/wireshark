@@ -7374,9 +7374,6 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
-	/* As the media types for WSP and HTTP are the same, the WSP dissector
-	 * uses the same string dissector table as the HTTP protocol. */
-	media_type_table = find_dissector_table("media_type");
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
@@ -7405,6 +7402,9 @@ proto_reg_handoff_wsp(void)
 	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
 	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
+	/* As the media types for WSP and HTTP are the same, the WSP dissector
+	 * uses the same string dissector table as the HTTP protocol. */
+	media_type_table = find_dissector_table("media_type");
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }

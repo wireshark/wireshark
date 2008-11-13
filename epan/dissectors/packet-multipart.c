@@ -1020,11 +1020,6 @@ proto_register_multipart(void)
 	proto_register_field_array(proto_multipart, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	/*
-	 * Get the content type and Internet media type table
-	 */
-	media_type_dissector_table = find_dissector_table("media_type");
-
 	multipart_module = prefs_register_protocol(proto_multipart, NULL);
 
 	prefs_register_bool_preference(multipart_module,
@@ -1069,6 +1064,11 @@ proto_reg_handoff_multipart(void)
 	 */
 	data_handle = find_dissector("data");
 	media_handle = find_dissector("media");
+
+	/*
+	 * Get the content type and Internet media type table
+	 */
+	media_type_dissector_table = find_dissector_table("media_type");
 
 	/*
 	 * Handle for multipart dissection

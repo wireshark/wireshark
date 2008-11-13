@@ -770,9 +770,10 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_msrp(void)
 {
-	msrp_handle = new_create_dissector_handle(dissect_msrp, proto_msrp);
-	dissector_add("tcp.port", 0, msrp_handle);
+	msrp_handle = find_dissector("msrp");
+	dissector_add_handle("tcp.port", msrp_handle);   /* for "decode-as" */
 	heur_dissector_add("tcp", dissect_msrp_heur, proto_msrp);
+	media_type_dissector_table = find_dissector_table("media_type");
 }
 
 void
@@ -936,8 +937,6 @@ proto_register_msrp(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_msrp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	media_type_dissector_table = find_dissector_table("media_type");
 
 	msrp_module = prefs_register_protocol(proto_msrp, NULL);
 

@@ -4411,8 +4411,7 @@ void proto_reg_handoff_giop (void) {
   heur_dissector_add("tcp", dissect_giop_heur, proto_giop);
   /* Support DIOP (GIOP/UDP) */
   heur_dissector_add("udp", dissect_giop_heur, proto_giop);
-  /* Port will be set by conversation */
-  dissector_add("tcp.port", 0, giop_tcp_handle);
+  dissector_add_handle("tcp.port", giop_tcp_handle);  /* for "decode-as" */
 }
 
 
