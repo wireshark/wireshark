@@ -37,10 +37,9 @@ Wireshark Info
 
         <listitem>
           <para>
-            Editcap could go on a rampage and steal all of your dental floss.
-            This could result in a serious DoH (Denial of Hygiene) condition.
-            <!-- Fixed in r99999 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id="></ulink>)
+            The Bluetooth L2CAP dissector could crash.
+            <!-- Fixed in r26759 -->
+	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3054">3054</ulink>)
           </para>
           <para>Versions affected: 0.99.0 to 1.0.4</para>
           <para>
