@@ -285,7 +285,6 @@ main(int argc, char *argv[])
   wtap *wth;
   int err;
   gchar *err_info;
-  extern char *optarg;
   extern int optind;
   int opt;
   int status = 0;
