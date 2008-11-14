@@ -210,7 +210,7 @@ static range_t *global_uma_tcp_port_range;
 /* Global variables */
 static	guint32		sgw_ipv4_address;
 static	guint32		unc_ipv4_address;
-static	guint32		rtp_ipv4_address;
+/** static	guint32		rtp_ipv4_address; **/
 static	guint32		rtcp_ipv4_address;
 static	guint32		GPRS_user_data_ipv4_address;
 
