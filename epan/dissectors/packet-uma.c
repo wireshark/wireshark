@@ -76,37 +76,37 @@
 
 /* Length field is 2 bytes and comes first */
 #define UMA_HEADER_SIZE 2
-gboolean uma_desegment = TRUE;
+static gboolean uma_desegment = TRUE;
 
-static dissector_handle_t uma_tcp_handle = NULL;
-static dissector_handle_t uma_udp_handle = NULL;
-static dissector_handle_t data_handle = NULL;
-static dissector_table_t bssap_pdu_type_table=NULL;
-static dissector_handle_t rtp_handle = NULL;
-static dissector_handle_t rtcp_handle = NULL;
-static dissector_handle_t llc_handle = NULL;
+static dissector_handle_t uma_tcp_handle;
+static dissector_handle_t uma_udp_handle;
+static dissector_handle_t data_handle;
+static dissector_table_t  bssap_pdu_type_table;
+static dissector_handle_t rtp_handle;
+static dissector_handle_t rtcp_handle;
+static dissector_handle_t llc_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_uma					= -1;
-static int hf_uma_length_indicator		= -1;
+static int hf_uma_length_indicator			= -1;
 static int hf_uma_pd					= -1;
 static int hf_uma_skip_ind				= -1;
-static int hf_uma_urr_msg_type			= -1;
-static int hf_uma_urlc_msg_type			= -1;
+static int hf_uma_urr_msg_type				= -1;
+static int hf_uma_urlc_msg_type				= -1;
 static int hf_uma_urlc_TLLI				= -1;
-static int hf_uma_urlc_seq_nr			= -1;
+static int hf_uma_urlc_seq_nr				= -1;
 static int hf_uma_urr_IE				= -1;
-static int hf_uma_urr_IE_len			= -1;
-static int hf_uma_urr_mobile_identity_type	= -1;
-static int hf_uma_urr_odde_even_ind		= -1;
+static int hf_uma_urr_IE_len				= -1;
+static int hf_uma_urr_mobile_identity_type		= -1;
+static int hf_uma_urr_odde_even_ind			= -1;
 static int hf_uma_urr_imsi				= -1;
 static int hf_uma_urr_imei				= -1;
-static int hf_uma_urr_imeisv			= -1;
-static int hf_uma_urr_tmsi_p_tmsi		= -1;
+static int hf_uma_urr_imeisv				= -1;
+static int hf_uma_urr_tmsi_p_tmsi			= -1;
 static int hf_uma_urr_uri				= -1;
-static int hf_uma_urr_radio_type_of_id	= -1;
-static int hf_uma_urr_radio_id			= -1;
-static int hf_uma_urr_cell_id			= -1;
+static int hf_uma_urr_radio_type_of_id			= -1;
+static int hf_uma_urr_radio_id				= -1;
+static int hf_uma_urr_cell_id				= -1;
 static int hf_uma_urr_mcc				= -1;
 static int hf_uma_urr_mnc				= -1;
 static int hf_uma_urr_lac				= -1;
@@ -115,20 +115,20 @@ static int hf_uma_urr_tura				= -1;
 static int hf_uma_urr_gc				= -1;
 static int hf_uma_urr_uc				= -1;
 static int hf_uma_urr_rrs				= -1;
-static int hf_uma_urr_IP_Address_type	= -1;
+static int hf_uma_urr_IP_Address_type			= -1;
 static int hf_uma_urr_FQDN				= -1;
-static int hf_uma_urr_sgw_ipv4			= -1;
-static int hf_uma_urr_redirection_counter = -1;
-static int hf_uma_urr_dis_rej_cau		= -1;
+static int hf_uma_urr_sgw_ipv4				= -1;
+static int hf_uma_urr_redirection_counter 		= -1;
+static int hf_uma_urr_dis_rej_cau			= -1;
 static int hf_uma_urr_MSCR				= -1;
 static int hf_uma_urr_ATT				= -1;
 static int hf_uma_urr_DTM				= -1;
 static int hf_uma_urr_GPRS				= -1;
 static int hf_uma_urr_NMO				= -1;
 static int hf_uma_urr_ECMC				= -1;
-static int hf_uma_urr_T3212_timer		= -1;
+static int hf_uma_urr_T3212_timer			= -1;
 static int hf_uma_urr_RAC				= -1;
-static int hf_uma_urr_ap_location		= -1;
+static int hf_uma_urr_ap_location			= -1;
 static int hf_uma_urr_SGSNR				= -1;
 static int hf_uma_urr_ECMP				= -1;
 static int hf_uma_urr_RE				= -1;
@@ -136,83 +136,83 @@ static int hf_uma_urr_PFCFM				= -1;
 static int hf_uma_urr_3GECS				= -1;
 static int hf_uma_urr_bcc				= -1;
 static int hf_uma_urr_ncc				= -1;
-static int hf_uma_urr_TU3907_timer		= -1;
-static int hf_uma_urr_GSM_RR_state		= -1;
-static int hf_uma_urr_UMA_band			= -1;
-static int hf_uma_urr_URR_state			= -1;
-static int hf_uma_urr_register_reject_cause = -1;
-static int hf_uma_urr_TU3906_timer		= -1;
-static int hf_uma_urr_TU3910_timer		= -1;
-static int hf_uma_urr_TU3902_timer		= -1;
-static int hf_uma_urr_communication_port = -1;
-static int hf_uma_urr_L3_Message		= -1;
-static int hf_uma_urr_L3_protocol_discriminator = -1;
+static int hf_uma_urr_TU3907_timer			= -1;
+static int hf_uma_urr_GSM_RR_state			= -1;
+static int hf_uma_urr_UMA_band				= -1;
+static int hf_uma_urr_URR_state				= -1;
+static int hf_uma_urr_register_reject_cause 		= -1;
+static int hf_uma_urr_TU3906_timer			= -1;
+static int hf_uma_urr_TU3910_timer			= -1;
+static int hf_uma_urr_TU3902_timer			= -1;
+static int hf_uma_urr_communication_port 		= -1;
+static int hf_uma_urr_L3_Message			= -1;
+static int hf_uma_urr_L3_protocol_discriminator 	= -1;
 static int hf_uma_urr_sc				= -1;
-static int hf_uma_urr_algorithm_id		= -1;
-static int hf_uma_urr_GPRS_resumption	= -1;
+static int hf_uma_urr_algorithm_id			= -1;
+static int hf_uma_urr_GPRS_resumption			= -1;
 static int hf_uma_urr_ULQI				= -1;
-static int hf_uma_urr_TU3920_timer		= -1;
-static int hf_uma_urr_peak_tpt_cls		= -1;
-static int hf_uma_urr_radio_pri			= -1;
-static int hf_uma_urr_rlc_mode			= -1;
-static int hf_uma_urr_URLCcause			= -1;
+static int hf_uma_urr_TU3920_timer			= -1;
+static int hf_uma_urr_peak_tpt_cls			= -1;
+static int hf_uma_urr_radio_pri				= -1;
+static int hf_uma_urr_rlc_mode				= -1;
+static int hf_uma_urr_URLCcause				= -1;
 static int hf_uma_urr_udr				= -1;
-static int hf_uma_urr_TU4001_timer		= -1;
+static int hf_uma_urr_TU4001_timer			= -1;
 static int hf_uma_urr_LS				= -1;
-static int hf_uma_urr_cipher_res		= -1;
-static int hf_uma_urr_rand_val			= -1;
-static int hf_uma_urr_ciphering_command_mac = -1;
-static int hf_uma_urr_ciphering_key_seq_num = -1;
-static int hf_uma_urr_sapi_id			= -1;
-static int hf_uma_urr_establishment_cause = -1;
-static int hf_uma_urr_channel			= -1;
-static int hf_uma_urr_PDU_in_error		= -1;
-static int hf_uma_urr_sample_size		= -1;
-static int hf_uma_urr_payload_type		= -1;
-static int hf_uma_urr_LLC_PDU			= -1;
+static int hf_uma_urr_cipher_res			= -1;
+static int hf_uma_urr_rand_val				= -1;
+static int hf_uma_urr_ciphering_command_mac 		= -1;
+static int hf_uma_urr_ciphering_key_seq_num 		= -1;
+static int hf_uma_urr_sapi_id				= -1;
+static int hf_uma_urr_establishment_cause 		= -1;
+static int hf_uma_urr_channel				= -1;
+static int hf_uma_urr_PDU_in_error			= -1;
+static int hf_uma_urr_sample_size			= -1;
+static int hf_uma_urr_payload_type			= -1;
+static int hf_uma_urr_LLC_PDU				= -1;
 static int hf_uma_urr_LBLI				= -1;
 static int hf_uma_urr_RI				= -1;
-static int hf_uma_urr_TU4003_timer		= -1;
-static int hf_uma_urr_ap_service_name_type = -1;
-static int hf_uma_urr_ap_Service_name_value = -1;
-static int hf_uma_urr_uma_service_zone_icon_ind = -1;
-static int hf_uma_urr_uma_service_zone_str_len = -1;
-static int hf_uma_urr_window_size	= -1;
-static int hf_uma_urr_uma_codec_mode	= -1;
-static int hf_uma_urr_UTRAN_cell_id_disc = -1;
-static int hf_uma_urr_ms_radio_id		= -1;
-static int hf_uma_urr_uma_service_zone_str = -1;
+static int hf_uma_urr_TU4003_timer			= -1;
+static int hf_uma_urr_ap_service_name_type 		= -1;
+static int hf_uma_urr_ap_Service_name_value 		= -1;
+static int hf_uma_urr_uma_service_zone_icon_ind 	= -1;
+static int hf_uma_urr_uma_service_zone_str_len 		= -1;
+static int hf_uma_urr_window_size			= -1;
+static int hf_uma_urr_uma_codec_mode			= -1;
+static int hf_uma_urr_UTRAN_cell_id_disc 		= -1;
+static int hf_uma_urr_ms_radio_id			= -1;
+static int hf_uma_urr_uma_service_zone_str 		= -1;
 static int hf_uma_urr_suti				= -1;
-static int hf_uma_urr_uma_mps			= -1;
-static int hf_uma_urr_num_of_plms		= -1;
+static int hf_uma_urr_uma_mps				= -1;
+static int hf_uma_urr_num_of_plms			= -1;
 static int hf_uma_urr_cbs				= -1;
-static int hf_uma_urr_num_of_cbs_frms	= -1;
-static int hf_uma_urr_unc_ipv4			= -1;
+static int hf_uma_urr_num_of_cbs_frms			= -1;
+static int hf_uma_urr_unc_ipv4				= -1;
 static int hf_uma_unc_FQDN				= -1;
-static int hf_uma_urr_GPRS_user_data_transport_ipv4 = -1;
-static int hf_uma_urr_GPRS_port			= -1;
-static int hf_uma_urr_UNC_tcp_port		= -1;
-static int hf_uma_urr_RTP_port			= -1;
-static int hf_uma_urr_RTCP_port			= -1;
-static int hf_uma_urr_RXLEV_NCELL		= -1;
+static int hf_uma_urr_GPRS_user_data_transport_ipv4 	= -1;
+static int hf_uma_urr_GPRS_port				= -1;
+static int hf_uma_urr_UNC_tcp_port			= -1;
+static int hf_uma_urr_RTP_port				= -1;
+static int hf_uma_urr_RTCP_port				= -1;
+static int hf_uma_urr_RXLEV_NCELL			= -1;
 
 /* Initialize the subtree pointers */
-static int ett_uma = -1;
+static int ett_uma     = -1;
 static int ett_uma_toc = -1;
-static int ett_urr_ie = -1;
+static int ett_urr_ie  = -1;
 
 /* The dynamic payload type which will be dissected as uma */
 
 static range_t *global_uma_tcp_port_range;
-static range_t *uma_tcp_port_range;
+
 #define DEFAULT_UMA_PORT_RANGE "14001,14001"
 
 /* Global variables */
-	guint32		sgw_ipv4_address;
-	guint32		unc_ipv4_address;
-	guint32		rtp_ipv4_address;
-	guint32		rtcp_ipv4_address;
-	guint32		GPRS_user_data_ipv4_address;
+static	guint32		sgw_ipv4_address;
+static	guint32		unc_ipv4_address;
+static	guint32		rtp_ipv4_address;
+static	guint32		rtcp_ipv4_address;
+static	guint32		GPRS_user_data_ipv4_address;
 
 /*
  * Protocol Discriminator (PD)
@@ -572,7 +572,7 @@ static const value_string register_reject_cause_vals[] = {
 };
 
 /* L3 Protocol discriminator values according to TS 24 007 (640)  */
-/*** temporary
+#if 0  /** See packet-gms_a-dtap.c **/
 static const value_string protocol_discriminator_vals[] = {
 	{0x0,		"Group call control"},
 	{0x1,		"Broadcast call control"},
@@ -592,7 +592,7 @@ static const value_string protocol_discriminator_vals[] = {
 	{0xf,		"Reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
 	{ 0,	NULL }
 };
-***/
+#endif
 
 /* algorithm identifier
  * If SC=1 then:
@@ -790,7 +790,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	tvbuff_t	*l3_tvb;
 	tvbuff_t	*llc_tvb;
 	tvbuff_t	*new_tvb;
-	int			ie_offset;
+	int		ie_offset;
 	guint8		ie_value;
 	guint16		ie_len = 0;
 	guint8		octet;
@@ -801,7 +801,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port, communication_port;
 	guint32		udr;
 	conversation_t *conversation;
-	address dst_addr, null_addr;
+	address 	dst_addr, null_addr;
 	guint8		str_len;
 	address		src_addr;
 
@@ -812,7 +812,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, FALSE);
 	offset++;
-	/* Some IE:s might have a lengt field of 2 octets */
+	/* Some IE:s might have a length field of 2 octets */
 	ie_len = tvb_get_guint8(tvb,offset);
 	if ( (ie_len & 0x80) == 0x80 ){
 		offset++;
@@ -1604,28 +1604,26 @@ range_add_callback(guint32 port)
 void
 proto_reg_handoff_uma(void)
 {
-	static int Initialized=FALSE;
+	static gboolean Initialized=FALSE;
+	static range_t *uma_tcp_port_range;
 
 	if (!Initialized) {
 		uma_tcp_handle = create_dissector_handle(dissect_uma_tcp, proto_uma);
 		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
-		dissector_add("udp.port", 0, uma_udp_handle);
+		dissector_add_handle("udp.port", uma_udp_handle);  /* for "decode-as" */
+		data_handle = find_dissector("data");
+		rtp_handle = find_dissector("rtp");
+		rtcp_handle = find_dissector("rtcp");
+		llc_handle = find_dissector("llcgprs");
+		bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 		Initialized=TRUE;
 	} else {
 		range_foreach(uma_tcp_port_range, range_delete_callback);
+		g_free(uma_tcp_port_range);
 	}
 
-	g_free(uma_tcp_port_range);
 	uma_tcp_port_range = range_copy(global_uma_tcp_port_range);
-
 	range_foreach(uma_tcp_port_range, range_add_callback);
-
-	data_handle = find_dissector("data");
-	rtp_handle = find_dissector("rtp");
-	rtcp_handle = find_dissector("rtcp");
-	llc_handle = find_dissector("llcgprs");
-
-
 }
 
 /* this format is require because a script is used to build the C function
@@ -2188,19 +2186,16 @@ proto_register_uma(void)
 
 /* Register the protocol name and description */
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
-	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_uma, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
 	/* Register a configuration option for port */
-
-
 	uma_module = prefs_register_protocol(proto_uma, proto_reg_handoff_uma);
 
 	/* Set default TCP ports */
 	range_convert_str(&global_uma_tcp_port_range, DEFAULT_UMA_PORT_RANGE, MAX_UDP_PORT);
-	uma_tcp_port_range = range_empty();
 
 	prefs_register_bool_preference(uma_module, "desegment_ucp_messages",
 		"Reassemble UMA messages spanning multiple TCP segments",
@@ -2208,13 +2203,10 @@ proto_register_uma(void)
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&uma_desegment);
 	prefs_register_obsolete_preference(uma_module, "tcp.port1");
-	prefs_register_range_preference(uma_module, "udp.ports", "UMA TCP ports",
+	prefs_register_obsolete_preference(uma_module, "udp.ports");
+	prefs_register_range_preference(uma_module, "tcp.ports", "UMA TCP ports",
 				  "TCP ports to be decoded as UMA (default: "
 				  DEFAULT_UMA_PORT_RANGE ")",
 				  &global_uma_tcp_port_range, MAX_UDP_PORT);
 
-
-
 }
-
-
