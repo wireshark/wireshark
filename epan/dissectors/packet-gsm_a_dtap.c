@@ -4075,7 +4075,7 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " Equivalent");
 
 	/* 34 Emergency Number List O TLV 5-50 10.5.3.13 */
-	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERG_NUM_LIST, " Equivalent");
+	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, " Equivalent");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
