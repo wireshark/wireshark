@@ -78,18 +78,17 @@ maintainer-clean: distclean
 # the generated stuff has "\n".
 
 fix_eol: generate_dissector
-	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
-	del /f packet-$(PROTOCOL_NAME).c.tmp 
-!IFDEF NEED_PACKET_PROTO_H
-	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
-	del /f packet-$(PROTOCOL_NAME).h.tmp
-!ENDIF
+   <<fix_file.bat
+IF "%1"=="" EXIT
+move %1 %1.tmp
+$(UNIX2DOS) < %1.tmp > %1
+	del /f %1.tmp 
+<<
+   <<fix_eol.bat
+FOR %%A IN ($(DISSECTOR_FILES)) DO CALL fix_file.bat %%A
+<<
 
 copy_files: generate_dissector
-	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-!IFDEF NEED_PACKET_PROTO_H
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
-!ENDIF
-
+   <<copy_files.bat
+FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors/d /y
+<<
