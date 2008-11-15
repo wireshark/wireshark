@@ -434,7 +434,7 @@ static dgt_set_t Dgt_mbcd = {
 };
 
 /*
- * [3] 10.5.3.1
+ * [3] 10.5.3.1 Authentication parameter RAND
  */
 static guint8
 de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -462,7 +462,7 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 }
 
 /*
- * [3] 10.5.3.1.1
+ * [3] 10.5.3.1.1 Authentication Parameter AUTN (UMTS authentication challenge only)
  */
 static guint8
 de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -484,7 +484,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 }
 
 /*
- * [3] 10.5.3.2
+ * [3] 10.5.3.2 Authentication Response parameter
  */
 static guint8
 de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -512,7 +512,7 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 }
 
 /*
- * [3] 10.5.3.2.1
+ * [3] 10.5.3.2.1 Authentication Response Parameter (extension) (UMTS authentication challenge only)
  */
 static guint8
 de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -534,7 +534,7 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [3] 10.5.3.2.2
+ * [3] 10.5.3.2.2 Authentication Failure parameter (UMTS authentication challenge only)
  */
 static guint8
 de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -556,7 +556,19 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 }
 
 /*
- * [3] 10.5.3.5a
+ * 10.5.3.3 CM service type
+ *  handled inline
+ */
+/*
+ * 10.5.3.4 Identity type
+ *  handled inline
+ */
+/*
+ * 10.5.3.5 Location updating type
+ *  handled inline
+ */
+/*
+ * [3] 10.5.3.5a Network Name
  */
 static guint8
 de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -700,9 +712,12 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	return(curr_offset - offset);
 }
-
 /*
- * [3] 10.5.3.8
+ * 10.5.3.7 Follow-on Proceed
+ *  No data
+ */
+/*
+ * [3] 10.5.3.8 Time Zone
  */
 static guint8
 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -738,7 +753,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 }
 
 /*
- * [3] 10.5.3.9
+ * [3] 10.5.3.9 Time Zone and Time
  */
 static guint8
 de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -805,9 +820,13 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	return(curr_offset - offset);
 }
-
 /*
- * [3] 10.5.3.11 3GPP TS 24.008 version 6.8.0 Release 6
+ * 10.5.3.10 CTS permission
+ * No data
+ */
+/*
+ * [3] 10.5.3.11 LSA Identifier
+ * 3GPP TS 24.008 version 6.8.0 Release 6
  */
 static guint8
 de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -830,7 +849,7 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [3] 10.5.3.12
+ * [3] 10.5.3.12 Daylight Saving Time
  */
 static guint8
 de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -872,9 +891,24 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 	return(curr_offset - offset);
 }
+/*
+ * 10.5.3.13 Emergency Number List 
+ */
+static guint8
+de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 
 /*
- * [3] 10.5.4.4
+ * [3] 10.5.4.4 Auxiliary states
  */
 static guint8
 de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -935,9 +969,11 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 	return(curr_offset - offset);
 }
-
 /*
- * [3] 10.5.4.5
+ * 10.5.4.4a Backup bearer capability
+ */
+/*
+ * [3] 10.5.4.5 Bearer capability
  */
 guint8
 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -2060,9 +2096,7 @@ bc_octet_7:
 	return(curr_offset - offset);
 }
 
-/*
- * [3] 10.5.4.5a
- */
+
 guint8
 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
@@ -2071,6 +2105,9 @@ de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
 }
 
+/*
+ * [3] 10.5.4.5a Call Control Capabilities
+ */
 
 static guint8
 de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2151,7 +2188,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [3] 10.5.4.6
+ * [3] 10.5.4.6 Call state
  */
 static guint8
 de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -2263,7 +2300,7 @@ const value_string gsm_a_numbering_plan_id_values[] = {
 };
 
 /*
- * [3] 10.5.4.7
+ * [3] 10.5.4.7 Called party BCD number
  */
 guint8
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -2307,7 +2344,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 }
 
 /*
- * [3] 10.5.4.8
+ * [3] 10.5.4.8 Called party subaddress
  */
 static guint8
 de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2368,7 +2405,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 /* 3GPP TS 24.008
- * [3] 10.5.4.9
+ * [3] 10.5.4.9 Calling party BCD number
  */
 static guint8
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -2456,7 +2493,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 }
 
 /*
- * [3] 10.5.4.10
+ * [3] 10.5.4.10 Calling party subaddress
  */
 static guint8
 de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2517,7 +2554,7 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 /*
- * [3] 10.5.4.11
+ * [3] 10.5.4.11 Cause
  */
 static guint8
 de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
@@ -2692,27 +2729,27 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	return(curr_offset - offset);
 }
-
 /*
- * 10.5.4.18 Low layer compatibility
+ * 10.5.4.11a CLIR suppression
+ * No data
  */
-static guint8
-de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	dissect_q931_bearer_capability_ie(tvb, offset, len, tree);
-
-	curr_offset = curr_offset + len;
-	return(curr_offset - offset);
-}
-
 /*
- * [6] 3.6
+ * 10.5.4.11b CLIR invocation
+ * No data
  */
-
+/*
+ * 10.5.4.12 Congestion level
+ *  handled inline
+ */
+/*
+ * 10.5.4.13 Connected number
+ */
+/*
+ * 10.5.4.14 Connected subaddress
+ */
+/*
+ * 10.5.4.15 Facility
+ */
 
 static guint8
 de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
@@ -2758,9 +2795,12 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 	gsm_a_dtap_pinfo->private_data = save_private_data;
 	return(fac_len);
 }
+/*
+ * 10.5.4.16 High layer compatibility
+ */
 
 /*
- * [3] 10.5.4.17
+ * [3] 10.5.4.17 Keypad facility
  */
 static guint8
 de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -2796,7 +2836,32 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
 
 /*
- * [3] 10.5.4.21
+ * 10.5.4.18 Low layer compatibility
+ */
+static guint8
+de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	dissect_q931_bearer_capability_ie(tvb, offset, len, tree);
+
+	curr_offset = curr_offset + len;
+	return(curr_offset - offset);
+}
+
+/*
+ * 10.5.4.19 More data
+ * No data
+ */
+/*
+ * 10.5.4.20 Notification indicator
+ */
+
+
+/*
+ * [3] 10.5.4.21 Progress indicator
  */
 static guint8
 de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
@@ -2901,9 +2966,14 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	return(curr_offset - offset);
 }
-
 /*
- * [3] 10.5.4.22
+ * 10.5.4.21b Redirecting party BCD number
+ */
+/*
+ * 10.5.4.21c Redirecting party subaddress
+ */
+/*
+ * [3] 10.5.4.22 Repeat indicator
  */
 static guint8
 de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -2939,9 +3009,18 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	return(curr_offset - offset);
 }
-
 /*
- * [6] 3.7.2
+ * 10.5.4.22a Reverse call setup direction
+ * No data
+ */
+/*
+ * 10.5.4.22b SETUP Container $(CCBS)$
+ */
+/*
+ * 10.5.4.23 Signal
+ */
+/*
+ * 10.5.4.24 SS Version Indicator
  */
 static guint8
 de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2974,7 +3053,41 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 	return(curr_offset - offset);
 }
-
+/*
+ * 10.5.4.25 User-user
+ */
+/*
+ * 10.5.4.26 Alerting Pattern $(NIA)$
+ */
+/*
+ * 10.5.4.27 Allowed actions $(CCBS)$
+ */
+/*
+ * 10.5.4.28 Stream Identifier
+ */
+/*
+ * 10.5.4.29 Network Call Control Capabilities
+ */
+/*
+ * 10.5.4.30 Cause of No CLI
+ */ 
+/*
+ * 10.5.4.31 Void
+ */
+/*
+ * 10.5.4.32 Supported codec list
+ */
+/*
+ * 10.5.4.33 Service category
+ */
+/*
+ * 10.5.4.34 Redial
+ * No data
+ */
+/*
+ * 10.5.4.35 Network-initiated Service Upgrade indicator
+ * No data
+ */
 /*
  * [5] 8.1.4.1 3GPP TS 24.011 version 6.1.0 Release 6
  */
@@ -3412,7 +3525,7 @@ guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	NULL /* no associated data */,	/* CTS Permission */
 	de_lsa_id,	/* LSA Identifier */
 	de_day_saving_time,	/* Daylight Saving Time */
-	NULL, /* Emergency Number List */
+	de_emerg_num_list, /* Emergency Number List */
 	/* Call Control Information Elements 10.5.4 */
 	de_aux_states,	/* Auxiliary States */
 	de_bearer_cap,	/* Bearer Capability */
@@ -3473,7 +3586,7 @@ guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 /* MESSAGE FUNCTIONS */
 
 /*
- * [4] 9.2.2
+ * [4] 9.2.2 Authentication request
  */
 static void
 dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3547,7 +3660,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.2.3
+ * [4] 9.2.3 Authentication response
  */
 static void
 dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3569,7 +3682,7 @@ dtap_mm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.2.3a
+ * [4] 9.2.3a Authentication Failure
  */
 static void
 dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3591,7 +3704,7 @@ dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.4
+ * [3] 9.2.4 CM Re-establishment request
  */
 static void
 dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3667,7 +3780,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [3] 9.2.5a
+ * [3] 9.2.5a CM service prompt $(CCBS)
  */
 static void
 dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3687,7 +3800,7 @@ dtap_mm_cm_srvc_prompt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [4] 9.2.6
+ * [4] 9.2.6 CM service reject
  */
 static void
 dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3707,7 +3820,7 @@ dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.2.8
+ * [4] 9.2.8 Abort
  */
 static void
 dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3727,7 +3840,7 @@ dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.9
+ * [3] 9.2.9 CM service request
  */
 static void
 dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3827,7 +3940,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.10
+ * [3] 9.2.10 Identity request
  */
 static void
 dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3893,7 +4006,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.11
+ * [3] 9.2.11 Identity response
  */
 static void
 dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3913,7 +4026,7 @@ dtap_mm_id_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.12
+ * [3] 9.2.12 IMSI detach indication
  */
 static void
 dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3935,7 +4048,7 @@ dtap_mm_imsi_det_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.13
+ * [3] 9.2.13 Location updating accept
  */
 static void
 dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3955,15 +4068,20 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_T(0xa1, GSM_A_PDU_TYPE_DTAP, DE_FOP, "");
 
+	/* CTS permission O T 1 10.5.3.10 */
 	ELEM_OPT_T(0xa2, GSM_A_PDU_TYPE_DTAP, DE_CTS_PERM, "");
 
+	/* PLMN list O TLV 5-47 10.5.1.13 */
 	ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " Equivalent");
+
+	/* 34 Emergency Number List O TLV 5-50 10.5.3.13 */
+	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERG_NUM_LIST, " Equivalent");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
 /*
- * [3] 9.2.14
+ * [3] 9.2.14 Location updating reject
  */
 static void
 dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -3983,7 +4101,7 @@ dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.15
+ * [3] 9.2.15 Location updating request
  */
 static void
 dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4096,7 +4214,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 
 /*
- * [4] 9.2.15a
+ * [4] 9.2.15a MM information
  */
 void
 dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
