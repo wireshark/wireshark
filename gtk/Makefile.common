@@ -150,6 +150,7 @@ WIRESHARK_TAP_SRC = \
 	conversations_usb.c	\
 	conversations_wlan.c	\
 	dcerpc_stat.c	\
+	diameter_stat.c	\
 	expert_comp_dlg.c     \
 	expert_dlg.c	\
 	fc_stat.c	\

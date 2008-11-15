@@ -6,6 +6,9 @@
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  * Copyright (c) 2007 by Luis E. Garcia Ontanon <luis@ontanon.org>
  *
+ * Support for Request-Answer tracking and Tapping 
+ * introduced by Abhik Sarkar
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -54,8 +57,11 @@
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/tap.h>
 #include "packet-tcp.h"
 #include "packet-ntp.h"
+#include "packet-diameter.h"
 #include "diam_dict.h"
 
 #define SCTP_PORT_DIAMETER	3868
@@ -251,12 +257,22 @@ static int hf_diameter_avp_flags_reserved7 = -1;
 static int hf_diameter_avp_vendor_id = -1;
 static int hf_diameter_avp_data_wrong_length = -1;
 
+static int hf_diameter_answer_in = -1;
+static int hf_diameter_answer_to = -1;
+static int hf_diameter_answer_time = -1;
+
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
 static gint ett_diameter_avp_flags = -1;
 static gint ett_diameter_avpinfo = -1;
 static gint ett_unknown = -1;
 static gint ett_err = -1;
+
+/* Tap for Diameter */
+static int diameter_tap = -1;
+
+/* For conversations */
+
 
 static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 
@@ -628,6 +644,12 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	const char* cmd_str;
 	guint32 cmd = tvb_get_ntoh24(tvb,5);
 	guint32 fourth = tvb_get_ntohl(tvb,8);
+	guint32 hop_by_hop_id = 0;
+	conversation_t *conversation;
+	diameter_conv_info_t *diameter_conv_info;
+	diameter_req_ans_pair_t *diameter_pair;
+	proto_item *it;
+	nstime_t ns;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
@@ -729,10 +751,93 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		PROTO_ITEM_SET_GENERATED(iu);
 	}
 
+	
+	hop_by_hop_id = tvb_get_ntohl(tvb, 12);
 	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,FALSE);
 	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,FALSE);
 
+	/* Conversation tracking stuff */
+	/* 
+	 * FIXME: Looking at epan/conversation.c it seems unlike that this will work properly in
+	 * multi-homed SCTP connections. This will probably need to be fixed at some point.
+	 */
+
+	conversation = find_conversation(pinfo->fd->num, 
+				&pinfo->src, &pinfo->dst,
+				pinfo->ptype, 
+				pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL) {
+		/* We don't yet have a conversation, so create one. */
+		conversation = conversation_new(pinfo->fd->num, 
+					&pinfo->src, &pinfo->dst,
+					pinfo->ptype,
+					pinfo->srcport, pinfo->destport, 0);
+	}
+
+	diameter_conv_info = conversation_get_proto_data(conversation, proto_diameter);
+	if (!diameter_conv_info) {
+		diameter_conv_info =  se_alloc(sizeof(diameter_conv_info_t));
+		diameter_conv_info->pdus = se_tree_create_non_persistent(
+					EMEM_TREE_TYPE_RED_BLACK, "diameter_pdus");
+
+		conversation_add_proto_data(conversation, proto_diameter, diameter_conv_info);
+	}
+
+	if (!pinfo->fd->flags.visited) {
+		if (flags_bits & 0x80) {
+			/* This is a request */
+			diameter_pair = se_alloc(sizeof(diameter_req_ans_pair_t));
+			diameter_pair->hop_by_hop_id = hop_by_hop_id;
+			diameter_pair->cmd_code = cmd;
+			diameter_pair->req_frame = pinfo->fd->num;
+			diameter_pair->ans_frame = 0;
+			diameter_pair->req_time = pinfo->fd->abs_ts;
+			se_tree_insert32(diameter_conv_info->pdus, hop_by_hop_id, (void *)diameter_pair);
+		} else {
+			diameter_pair = se_tree_lookup32(diameter_conv_info->pdus, hop_by_hop_id);
+			if (diameter_pair) {
+				diameter_pair->ans_frame = pinfo->fd->num;
+			}
+		}
+	} else {
+		diameter_pair = se_tree_lookup32(diameter_conv_info->pdus, hop_by_hop_id);
+	}
+
+	if (!diameter_pair) {
+		/* create a "fake" diameter_pair structure */
+		diameter_pair = ep_alloc(sizeof(diameter_req_ans_pair_t));
+		diameter_pair->req_frame = 0;
+		diameter_pair->ans_frame = 0;
+		diameter_pair->req_time = pinfo->fd->abs_ts;
+	}
+
 	if (!tree) return;
+
+	/* print state tracking info in the tree */
+	if (flags_bits & 0x80) {
+		/* This is a request */
+		if (diameter_pair->ans_frame) {
+			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_in,
+					tvb, 0, 0, diameter_pair->ans_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+	} else {
+		/* This is an answer */
+		if (diameter_pair->req_frame) {
+			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_to,
+					tvb, 0, 0, diameter_pair->req_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &diameter_pair->req_time);
+			diameter_pair->srt_time = ns; 
+			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
+			PROTO_ITEM_SET_GENERATED(it);
+
+			/* TODO: Populate result_code in tap record from AVP 268 */
+			/* Also TODO: See how to handle requests for which no answers were found */
+			tap_queue_packet(diameter_tap, pinfo, diameter_pair);
+		}
+	}
 
 	offset = 20;
 
@@ -1375,7 +1480,18 @@ proto_register_diameter(void)
 		  { "Command Code", "diameter.cmd.code", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_diameter_avp_code,
 		  { "AVP Code", "diameter.avp.code", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_diameter_answer_in,
+		{ "Answer In", "diameter.answer_in", FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		"The answer to this diameter request is in this frame", HFILL }},
+	{ &hf_diameter_answer_to,
+		{ "Request In", "diameter.answer_to", FT_FRAMENUM, BASE_DEC, NULL, 0x0,
+		"This is an answer to the diameter request in this frame", HFILL }},
+	{ &hf_diameter_answer_time,
+		{ "Response Time", "diameter.resp_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		"The time between the request and the answer", HFILL }},
+
 	};
+
 	gint *ett_base[] = {
 		&ett_diameter,
 		&ett_diameter_flags,
@@ -1446,6 +1562,9 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "dictionary.use");
 	prefs_register_obsolete_preference(diameter_module, "allow_zero_as_app_id");
 	prefs_register_obsolete_preference(diameter_module, "suppress_console_output");
+
+	/* Register tap */
+	diameter_tap = register_tap("diameter");
 
 } /* proto_register_diameter */
 
