@@ -83,7 +83,7 @@ gboolean gsm_a_rr_is_bit_high(tvbuff_t *tvb, gint bit_offset)
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_dtap_msg_rr_strings[] = {
-	{ 0x3c,	"RR Initialisation Request" },
+	{ 0x3c,	"Reserved" },
 	{ 0x3b,	"Additional Assignment" },
 	{ 0x3f,	"Immediate Assignment" },
 	{ 0x39,	"Immediate Assignment Extended" },
@@ -135,7 +135,6 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 
 	/* ETSI TS 101 503 V8.5.0 */
 	{ 0x60,	"Utran Classmark Change" },
-	{ 0x61,	"UE RAB Preconfiguration" },
 	{ 0x62,	"cdma2000 Classmark Change" },
 	{ 0x63,	"Inter System to UTRAN Handover Command" },
 	{ 0x64,	"Inter System to cdma2000 Handover Command" },
@@ -201,7 +200,7 @@ const value_string gsm_rr_elem_strings[] = {
 /* [3]  10.5.2.4a	(void) */
 	{ 0x00, "Channel Description" },			/* 10.5.2.5	 */
 	{ 0x00, "Channel Description 2" },			/* 10.5.2.5a */
-
+	{ 0x00, "Channel Description 3" },			/* 10.5.2.5c */
 	{ 0x00, "Channel Mode" },					/* [3]  10.5.2.6 */
 	{ 0x00, "Channel Mode 2" },					/* [3]  10.5.2.7 */
 	{ 0x00, "UTRAN Classmark" },				/* [3]  10.5.2.7a	*/
@@ -246,10 +245,10 @@ const value_string gsm_rr_elem_strings[] = {
 	{ 0x00, "Neighbour Cell Description 2" },	/* [3] 10.5.2.22a Neighbour Cell Description 2 */
 /*
  * [3] 10.5.2.22b (void)
- * [3] 10.5.2.22c NT/N Rest Octets
- * [3] 10.5.2.23 P1 Rest Octets
- * [3] 10.5.2.24 P2 Rest Octets
- * [3] 10.5.2.25 P3 Rest Octets */
+ * [3] 10.5.2.22c NT/N Rest Octets */
+	{ 0x00, "P1 Rest Octets" },						/* [3] 10.5.2.23 P1 Rest Octets */
+	{ 0x00, "P2 Rest Octets" },						/* [3] 10.5.2.24 P2 Rest Octets */
+	{ 0x00, "P3 Rest Octets" },						/* [3] 10.5.2.25 P3 Rest Octets */
 	{ 0x00, "Packet Channel Description" },		/* [3] 10.5.2.25a	*/
 	{ 0x00, "Dedicated mode or TBF" },			/* [3] 10.5.2.25b */
  /* [3] 10.5.2.25c RR Packet Uplink Assignment
@@ -291,15 +290,14 @@ const value_string gsm_rr_elem_strings[] = {
 	{ 0x00,	"Timing Advance" },					/* [3] 10.5.2.40 Timing Advance */
 	{ 0x00,	"Time Difference" },				/* [3] 10.5.2.41 Time Difference				*/
 	{ 0x00,	"TLLI" },							/* [3] 10.5.2.41a TLLI							*/
-/*
- * [3] 10.5.2.42 TMSI/P-TMSI */
+	{ 0x00,	"TMSI/P-TMSI" },					/* [3] 10.5.2.42 TMSI/P-TMSI */
 	{ 0x00,	"VGCS target mode Indication" },	/* [3] 10.5.2.42a								*/
 	/* Pos 40 */
 	{ 0x00,	"VGCS Ciphering Parameters" },		/* [3] 10.5.2.42b								*/
 	{ 0x00,	"Wait Indication" },				/* [3] 10.5.2.43 Wait Indication */
-/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$
- * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List */
+/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
+	{ 0x00,	"Extended Measurement Results" },			/* [3] 10.5.2.45 Extended Measurement Results */
+	{ 0x00,	"Extended Measurement Frequency List" },	/* [3] 10.5.2.46 Extended Measurement Frequency List */
 	{ 0x00,	"Suspension Cause" },				/* [3] 10.5.2.47								*/
 /* [3] 10.5.2.48 APDU ID
  * [3] 10.5.2.49 APDU Flags
@@ -323,8 +321,8 @@ const value_string gsm_rr_elem_strings[] = {
  * 10.5.2.66 Token
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
- * 10.5.2.69 Carrier Indication
  */
+	{ 0x00,	"Carrier Indication" },		/* 10.5.2.69 Carrier Indication */
 	{ 0, NULL }
 };
 
@@ -473,12 +471,15 @@ static int hf_gsm_a_rr_start_mode		= -1;
 static int hf_gsm_a_rr_timing_adv = -1;
 static int hf_gsm_a_rr_time_diff = -1;
 static int hf_gsm_a_rr_tlli = -1;
+static int hf_gsm_a_rr_tmsi_ptmsi = -1;
 static int hf_gsm_a_rr_target_mode = -1;
 static int hf_gsm_a_rr_wait_indication = -1;
+static int hf_gsm_a_rr_seq_code = -1;
 static int hf_gsm_a_rr_group_cipher_key_number = -1;
 static int hf_gsm_a_rr_MBMS_multicast = -1;
 static int hf_gsm_a_rr_MBMS_broadcast = -1;
 static int hf_gsm_a_rr_last_segment = -1;
+static int hf_gsm_a_rr_carrier_ind = -1;
 static int hf_gsm_a_rr_ra		= -1;
 static int hf_gsm_a_rr_T1prim	= -1;
 static int hf_gsm_a_rr_T3		= -1;
@@ -491,6 +492,8 @@ static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
 int hf_gsm_a_rr_chnl_needed_ch1 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
+static int hf_gsm_a_rr_chnl_needed_ch3 = -1;
+static int hf_gsm_a_rr_chnl_needed_ch4 = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
@@ -614,6 +617,8 @@ static int hf_gsm_a_rr_lsa_offset = -1;
 static int hf_gsm_a_rr_paging_channel_restructuring = -1;
 static int hf_gsm_a_rr_nln_sacch = -1;
 static int hf_gsm_a_rr_nln_status_sacch = -1;
+static int hf_gsm_a_rr_nln_pch = -1;
+static int hf_gsm_a_rr_nln_status_pch = -1;
 static int hf_gsm_a_rr_vbs_vgcs_inband_notifications = -1;
 static int hf_gsm_a_rr_vbs_vgcs_inband_pagings = -1;
 static int hf_gsm_a_rr_rac = -1;
@@ -1667,6 +1672,60 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 }
 
 /*
+ * [3] 10.5.2.5c Channel Description 3
+ */
+static guint8
+de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint8	oct8;
+	guint16 arfcn, hsn, maio;
+	proto_tree	*subtree;
+	proto_item	*item;
+	const gchar *str;
+
+	curr_offset = offset;
+
+	item = proto_tree_add_text(tree,tvb, curr_offset, 3, "%s", gsm_rr_elem_strings[DE_RR_CH_DSC3].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CH_DSC3]);
+
+	/* Octet 2 */
+	oct8 = tvb_get_guint8(tvb, curr_offset);
+	other_decode_bitfield_value(a_bigbuf, oct8, 0xe0, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Training Sequence: %d",a_bigbuf,((oct8 & 0xe0)>>5));
+
+	if ((oct8 & 0x10) == 0x10)
+	{
+		/* Hopping sequence */
+		maio = ((oct8 & 0x0f)<<2) | ((tvb_get_guint8(tvb,curr_offset+1) & 0xc0) >> 6);
+		hsn = (tvb_get_guint8(tvb,curr_offset+1) & 0x3f);
+		str = "Yes";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: MAIO %d",maio);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: HSN %d",hsn);
+	}
+	else
+	{
+		/* single ARFCN */
+		arfcn = ((oct8 & 0x03) << 8) | tvb_get_guint8(tvb,curr_offset+1);
+		str = "No";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x0c, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Spare",a_bigbuf);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Single channel : ARFCN %d",arfcn);
+	}
+	
+	curr_offset = curr_offset + 2;
+
+	return(curr_offset - offset);
+}
+
+/*
  * [3] 10.5.2.6 Channel Mode
  */
 /* Channel Mode  */
@@ -1824,12 +1883,24 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 guint8
 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	proto_tree	*subtree;
+	proto_item	*item;
 	guint32	curr_offset;
+	gint bit_offset;
 
 	curr_offset = offset;
+	if (UPPER_NIBBLE==len)
+		bit_offset = 4;
+	else
+		bit_offset = 0;
 
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch2, tvb, curr_offset, 1, FALSE);
+	item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
+		gsm_rr_elem_strings[DE_RR_CHNL_NEEDED].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CHNL_NEEDED]);
+
+	proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch1, tvb, (curr_offset<<3)+bit_offset+2, 2, FALSE);
+   proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch2, tvb, (curr_offset<<3)+bit_offset, 2, FALSE);
 
 	curr_offset = curr_offset + 1;
 
@@ -1857,7 +1928,8 @@ guint8
 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint8 oct;
+	gint bit_offset;
+	guint64 value;
 
 	curr_offset = offset;
 
@@ -1865,14 +1937,15 @@ de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	 * Note: The coding of fields SC and algorithm identifier is defined in [44.018]
 	 * as part of the Cipher Mode Setting IE.
 	 */
-	oct = tvb_get_guint8(tvb,curr_offset);
 	if (UPPER_NIBBLE==len)
-		oct>>=4;
+		bit_offset = 4;
+	else
+		bit_offset = 0;
 
-	proto_tree_add_uint(tree, hf_gsm_a_rr_sc, tvb, curr_offset, 1, oct);
-	if ( (oct & 1) == 1){ /* Start ciphering */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_sc, tvb, (curr_offset<<3)+bit_offset+3, 1, &value, FALSE);
+	if (value == 1){ /* Start ciphering */
 		/* algorithm identifier */
-		proto_tree_add_uint(tree, hf_gsm_a_algorithm_id, tvb, curr_offset, 1, oct);
+		proto_tree_add_bits_item(tree, hf_gsm_a_algorithm_id, tvb, (curr_offset<<3)+bit_offset, 3, FALSE);
 	}
 	curr_offset = curr_offset + 1;
 
@@ -1892,18 +1965,19 @@ static guint8
 de_rr_cip_mode_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint8 oct;
+	gint bit_offset;
 
 	curr_offset = offset;
-	oct = tvb_get_guint8(tvb,curr_offset);
 	if (UPPER_NIBBLE==len)
-		oct>>=4;
+		bit_offset = 4;
+	else
+		bit_offset = 0;
 
 	/* Cipher Mode Response
 		 * Note: The coding of field CR is defined in [44.018]
 		 * as part of the Cipher Mode Response IE.
 		 */
-	proto_tree_add_uint(tree, hf_gsm_a_rr_cr, tvb, curr_offset, 1, oct);
+	proto_tree_add_bits_item(tree, hf_gsm_a_rr_cr, tvb, (curr_offset<<3)+bit_offset+3, 1, FALSE);
 	curr_offset = curr_offset + 1;
 
 	return(curr_offset - offset);
@@ -2910,10 +2984,239 @@ de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 /*
  * [3] 10.5.2.22b (void)
  * [3] 10.5.2.22c NT/N Rest Octets
+ */
+
+/*
  * [3] 10.5.2.23 P1 Rest Octets
+ */
+static guint8
+de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+   proto_tree *subtree;
+   proto_item *item, *item2;
+   guint32 curr_offset, value;
+   gint bit_offset, bit_offset_sav, i;
+
+   curr_offset = offset;
+   bit_offset = curr_offset << 3;
+   len = tvb_length_remaining(tvb,offset);
+
+   item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
+    gsm_rr_elem_strings[DE_RR_P1_REST_OCT].strptr);
+
+   subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P1_REST_OCT]);
+
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, FALSE);
+      bit_offset += 1;
+   }
+   else
+      bit_offset += 1;
+   for (i=1; i<=2; i++)
+   {
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      {
+         bit_offset += 1;
+         item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+         bit_offset += 3;
+         proto_item_append_text(item2, " for Mobile Identity %d", i);
+      }
+      else
+         bit_offset += 1;
+   }
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   { /* Group Call Information */
+      bit_offset += 1;
+      bit_offset_sav = bit_offset;
+      bit_offset += 36;
+      if (tvb_get_bits8(tvb,bit_offset,1))
+      { /* Group Channel Description */
+         bit_offset += 24+1;
+         if (tvb_get_bits8(tvb,bit_offset,1))
+         { /* Hopping case */
+            bit_offset += 1;
+            if (tvb_get_bits8(tvb,bit_offset,1))
+            {
+               bit_offset += 64+1;
+            }
+            else
+            {
+               bit_offset += 1;
+               value = tvb_get_bits8(tvb,bit_offset,8);
+               bit_offset += 8 + (value<<3);
+            }
+         }
+         else
+            bit_offset += 1;
+      }
+      else
+         bit_offset += 1;
+      proto_tree_add_text(subtree,tvb, bit_offset_sav>>3, (bit_offset-bit_offset_sav)>>3,"Group Call Information: Data(Not decoded)");
+   }
+   else
+      bit_offset += 1;
+   for (i=1; i<=2; i++)
+   {
+      item2 = proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Packet Page Indication %d: ", i);
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+         proto_item_append_text(item2, "Packet paging procedure");
+      else
+         proto_item_append_text(item2, "Paging procedure for RR connection establishment");
+      bit_offset += 1;
+   }
+   if (((curr_offset + len)<<3) - bit_offset > 0)
+   {
+      /* There is still room left in the Rest Octets IE */
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      { /* Additions in release 6 */
+         bit_offset += 1;
+         proto_tree_add_text(subtree, tvb, bit_offset>>3, -1,"Additions in Release 6: Data(Not decoded)");
+      }
+      else
+         bit_offset += 1;
+   }
+
+   curr_offset = curr_offset + len;
+
+   return (curr_offset - offset);
+}
+
+/*
  * [3] 10.5.2.24 P2 Rest Octets
+ */
+static guint8
+de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+
+{
+   proto_tree *subtree;
+   proto_item *item, *item2;
+   guint32 curr_offset;
+   gint bit_offset, i;
+
+   curr_offset = offset;
+   bit_offset = curr_offset << 3;
+   len = tvb_length_remaining(tvb,offset);
+
+   item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
+    gsm_rr_elem_strings[DE_RR_P2_REST_OCT].strptr);
+
+   subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P2_REST_OCT]);
+
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch3, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+   }
+   else
+      bit_offset += 1;
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, FALSE);
+      bit_offset += 1;
+   }
+   else
+      bit_offset += 1;
+   for (i=1; i<=3; i++)
+   {
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      {
+         bit_offset += 1;
+         item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+         bit_offset += 3;
+         proto_item_append_text(item2, " for Mobile Identity %d", i);
+      }
+      else
+         bit_offset += 1;
+   }
+   item2 = proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Packet Page Indication 3: ");
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      proto_item_append_text(item2, "Packet paging procedure");
+   else
+      proto_item_append_text(item2, "Paging procedure for RR connection establishment");
+   bit_offset += 1;
+   if (((curr_offset + len)<<3) - bit_offset > 0)
+   {
+      /* There is still room left in the Rest Octets IE */
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      { /* Additions in release 6 */
+         bit_offset += 1;
+         proto_tree_add_text(subtree, tvb, bit_offset>>3, -1,"Additions in Release 6: Data(Not decoded)");
+      }
+      else
+         bit_offset += 1;
+   }
+
+   curr_offset = curr_offset + len;
+
+   return (curr_offset - offset);
+}
+
+/*
  * [3] 10.5.2.25 P3 Rest Octets
  */
+static guint8
+de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+   proto_tree *subtree;
+   proto_item *item, *item2;
+   guint32 curr_offset;
+   gint bit_offset, i;
+
+   curr_offset = offset;
+   bit_offset = curr_offset << 3;
+   len = 3;
+
+   item = proto_tree_add_text(tree, tvb, curr_offset, len, "%s",
+    gsm_rr_elem_strings[DE_RR_P3_REST_OCT].strptr);
+
+   subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P3_REST_OCT]);
+
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch3, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch4, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+   }
+   else
+      bit_offset += 1;
+   if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+   {
+      bit_offset += 1;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, FALSE);
+      bit_offset += 2;
+      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, FALSE);
+      bit_offset += 1;
+   }
+   else
+      bit_offset += 1;
+   for (i=1; i<=4; i++)
+   {
+      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+      {
+         bit_offset += 1;
+         item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+         bit_offset += 3;
+         proto_item_append_text(item2, " for Mobile Identity %d", i);
+      }
+      else
+         bit_offset += 1;
+   }
+
+   curr_offset = curr_offset + len;
+
+   return (curr_offset - offset);
+}
+
 /*
  * [3] 10.5.2.25a Packet Channel Description C V 3
  */
@@ -3010,6 +3313,8 @@ de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	proto_tree_add_item(subtree, hf_gsm_a_rr_dedicated_mode_or_tbf, tvb, curr_offset, 1, FALSE);
 
+	curr_offset += 1;
+
 	return(curr_offset - offset);
 }
 /*
@@ -3044,6 +3349,8 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_PAGE_MODE]);
 
 	proto_tree_add_item(subtree, hf_gsm_a_rr_page_mode, tvb, curr_offset, 1, FALSE);
+
+	curr_offset += 1;
 
 	return(curr_offset - offset);
 }
@@ -5445,8 +5752,8 @@ static const true_false_string gsm_a_rr_sgsnr_value = {
 };
 
 static const true_false_string gsm_a_rr_si_status_ind_value = {
-   "The network does not support the PACKET SI STATUS message",
-   "The network supports the PACKET SI STATUS message"
+   "The network supports the PACKET SI STATUS message",
+   "The network does not support the PACKET SI STATUS message"
 };
 
 static const value_string gsm_a_rr_lb_ms_txpwr_max_cch_vals[] = {
@@ -5741,9 +6048,30 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	return(curr_offset - offset);
 }
+
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI
  */
+guint8
+de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree	*subtree;
+	proto_item	*item;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
+		gsm_rr_elem_strings[DE_RR_TMSI_PTMSI].strptr);
+
+	subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_TMSI_PTMSI]);
+
+	proto_tree_add_item(subtree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_offset, 4, FALSE);
+	curr_offset = curr_offset + 4;
+
+	return(curr_offset - offset);
+}
+
 /*
  * [3] 10.5.2.42a VGCS target mode Indication
  */
@@ -5806,10 +6134,55 @@ de_rr_wait_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	return(curr_offset - offset);
 }
 
-/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$
- * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+/*
+ * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ */
+
+/*
+ * [3] 10.5.2.45 Extended Measurement Results
+ */
+static guint8
+de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+   guint32 curr_offset;
+   gint bit_offset, i;
+   guint8 value;
+
+   curr_offset = offset;
+   len = 16;
+   bit_offset = curr_offset << 3;
+
+   proto_tree_add_bits_item(tree, hf_gsm_a_rr_seq_code, tvb,bit_offset, 1, FALSE);
+   bit_offset += 1;
+   proto_tree_add_bits_item(tree, hf_gsm_a_rr_dtx_used, tvb, bit_offset, 1, FALSE);
+   bit_offset += 1;
+   for (i=0; i<21; i++)
+   {
+      value = tvb_get_bits8(tvb,bit_offset,6);
+      proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "RXLEV carrier %d: %s (%d)",i,gsm_a_rr_rxlev_vals[value].strptr,value);
+      bit_offset += 6;
+   }
+
+   curr_offset = offset + len;
+
+   return(curr_offset - offset);
+}
+
+/*
  * [3] 10.5.2.46 Extended Measurement Frequency List
  */
+static guint8
+de_rr_ext_meas_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+   guint32 curr_offset;
+
+   curr_offset = offset;
+
+   proto_tree_add_bits_item(tree, hf_gsm_a_rr_seq_code, tvb,(curr_offset<<3)+3, 1, FALSE);
+   
+   return dissect_arfcn_list(tvb, tree, offset, 16, add_string, string_len);
+}
+
 /*
  * [3] 10.5.2.47 Suspension Cause
  */
@@ -5934,6 +6307,35 @@ de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	return(curr_offset - offset);
 }
 
+/*
+ * [3] 10.5.2.69	Carrier Indication
+ */
+static const true_false_string gsm_a_rr_carrier_ind_value  = {
+	"Carrier 2",
+	"Carrier 1"
+};
+
+static guint8
+de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+   proto_tree *subtree;
+   proto_item *item;
+   guint32 curr_offset;
+
+   curr_offset = offset;
+
+   item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
+      gsm_rr_elem_strings[DE_RR_CARRIER_IND].strptr);
+
+   subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CARRIER_IND]);
+
+   proto_tree_add_item(tree, hf_gsm_a_rr_carrier_ind, tvb, curr_offset, 1, FALSE);
+
+   curr_offset += 1;
+
+   return(curr_offset - offset);
+}
+
 guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
 
@@ -5951,6 +6353,7 @@ guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  */
 	de_rr_ch_dsc,					/* [3]  10.5.2.5	Channel Description			*/
 	de_rr_ch_dsc2,					/* [3]  10.5.2.5a   RR Channel Description 2 	*/
+	de_rr_ch_dsc3,					/* [3]  10.5.2.5c   RR Channel Description 3 	*/
 	de_rr_ch_mode,					/* [3]  10.5.2.6	Channel Mode				*/
 	de_rr_ch_mode2,					/* [3]  10.5.2.7	Channel Mode 2				*/
 	de_rr_utran_cm,					/* [3]  10.5.2.7a	UTRAN Classmark */
@@ -5996,10 +6399,10 @@ guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	de_rr_neigh_cell_desc2,				/* [3] 10.5.2.22a Neighbour Cell Description 2	*/
 /*
  * [3] 10.5.2.22b (void)
- * [3] 10.5.2.22c NT/N Rest Octets
- * [3] 10.5.2.23 P1 Rest Octets
- * [3] 10.5.2.24 P2 Rest Octets
- * [3] 10.5.2.25 P3 Rest Octets */
+ * [3] 10.5.2.22c NT/N Rest Octets */
+	de_rr_p1_rest_oct,					/* [3] 10.5.2.23 P1 Rest Octets */
+	de_rr_p2_rest_oct,					/* [3] 10.5.2.24 P2 Rest Octets */
+	de_rr_p3_rest_oct,					/* [3] 10.5.2.25 P3 Rest Octets */
 	de_rr_packet_ch_desc,			/* [3] 10.5.2.25a Packet Channel Description	*/
 	de_rr_ded_mod_or_tbf,			/* [3] 10.5.2.25b Dedicated mode or TBF			*/
 /* [3] 10.5.2.25c RR Packet Uplink Assignment
@@ -6042,15 +6445,14 @@ guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	de_rr_timing_adv,					/* [3] 10.5.2.40 Timing Advance					*/
 	de_rr_time_diff,					/* [3] 10.5.2.41 Time Difference				*/
 	de_rr_tlli,							/* [3] 10.5.2.41a TLLI							*/
-/*
- * [3] 10.5.2.42 TMSI/P-TMSI */
+	de_rr_tmsi_ptmsi,					/* [3] 10.5.2.42 TMSI/P-TMSI */
 	de_rr_vgcs_tar_mode_ind,			/* [3] 10.5.2.42a VGCS target mode Indication	*/
 	/* Pos 40 */
 	de_rr_vgcs_cip_par,					/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
 	de_rr_wait_ind,					/* [3] 10.5.2.43 Wait Indication */
-/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$
- * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List */
+/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
+	de_rr_ext_meas_result,			/* [3] 10.5.2.45 Extended Measurement Results */
+	de_rr_ext_meas_freq_list,		/* [3] 10.5.2.46 Extended Measurement Frequency List */
 	de_rr_sus_cau,						/* [3] 10.5.2.47 Suspension Cause				*/
 /* [3] 10.5.2.48 APDU ID
  * [3] 10.5.2.49 APDU Flags
@@ -6077,12 +6479,37 @@ guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * 10.5.2.66 Token
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
- * 10.5.2.69 Carrier Indication
  */
+	de_rr_carrier_ind,					/* 10.5.2.69 Carrier Indication */
 	NULL,	/* NONE */
 };
 
 /* MESSAGE FUNCTIONS */
+
+/*
+ * 9.1.1 Additional Assignment
+ */
+static void
+dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Channel Description  10.5.2.5  M V 3 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+
+   /* Mobile Allocation  10.5.2.21  C TLV 3-10 */
+   ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+
+   /* Starting Time  10.5.2.38  O TV 3 */
+   ELEM_OPT_TV(0x7c, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+
+   EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * 9.1.2 Assignment command
@@ -6424,6 +6851,111 @@ dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
+ * 9.1.12b Configuration change command
+ */
+static void
+dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Multislot Allocation  10.5.2.21b  M LV 2-11 */
+   ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, "");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x63,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 1");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x11,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 2");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x13,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 3");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x14,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 4");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x15,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 5");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x16,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 6");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x17,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 7");
+
+   /* Channel Mode  10.5.2.6  O TV 2 */
+   ELEM_OPT_TV(0x18,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 8");
+
+   EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
+
+/*
+ * 9.1.12c	Configuration change acknowledge
+ */
+/* empty message */
+
+/*
+ * 9.1.12d	Configuration change reject
+ */
+static void
+dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* RR Cause  10.5.2.31  M V 1 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
+
+   EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+
+/*
+ * 9.1.13 Frequency Redefinition
+ */
+static void
+dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Channel Description  10.5.2.5  M V 3 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+
+   /* Mobile Allocation  10.5.2.21  M LV 1-9 */
+   ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+
+   /* Starting Time  10.5.2.38  M V 2 */
+   ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+
+   /* Cell Channel Description  10.5.2.1b  O TV 17 */
+   ELEM_OPT_TV(0x62,GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, "");
+
+   /* Carrier Indication  10.5.2.69  O TV 1 */
+   ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CARRIER_IND,"");
+
+   /* Mobile Allocation  10.5.2.21  O TLV 1-9 */
+   ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation C2");
+
+   /* Channel Description 3  10.5.2.5c  O TV 3 */
+   ELEM_OPT_TV(0x12,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
+
+   EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+}
+
+/*
  * 9.1.13b GPRS suspension request
  */
 static void
@@ -6671,11 +7203,11 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 
 	/* Page Mode					10.5.2.26	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
 
 	/* Dedicated mode or TBF		10.5.2.25b	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_DED_MOD_OR_TBF);
-	curr_offset++;
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_DED_MOD_OR_TBF);
+
 	if((oct&0x10) == 0){
 	/* Channel Description			10.5.2.5	C V 3m */
 		ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
@@ -6722,10 +7254,9 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	/* Page Mode					10.5.2.26	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
 	/* Spare Half Octet		10.5.1.8	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
-	curr_offset++;
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
 	/* Channel Description 1	Channel Description		10.5.2.5	M V 3 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
 	/* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
@@ -6764,10 +7295,9 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	/* Page Mode					10.5.2.26	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
 	/* Spare Half Octet		10.5.1.8	M V 1/2 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
-	curr_offset++;
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
 	/* Request Reference 1	Request Reference		10.5.2.30	M V 3	*/
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF);
 	/* Wait Indication 1	Wait Indication			10.5.2.43	M V 1	*/
@@ -6808,7 +7338,115 @@ dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.1.25
+ * 9.1.7 Paging Request Type 1
+ */
+static void
+dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+	lower_nibble = FALSE;
+
+	/* RR Page Mode 10.5.2.26 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+
+	/* RR Channel Needed 10.5.2.8 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+
+	/* RR Mobile Identity 10.5.1.4 M LV 2-9 */
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 1");
+
+	/* RR Mobile Identity 10.5.1.4 O TLV 3-10 */
+	ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 2");
+
+	/* RR P1 Rest Octets 10.5.2.23 M V 0-17 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P1_REST_OCT);
+
+}
+
+/*
+ * 9.1.8 Paging Request Type 2
+ */
+static void
+dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+	lower_nibble = FALSE;
+
+	/* RR Page Mode 10.5.2.26 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+
+	/* RR Channel Needed 10.5.2.8 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 1");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 2");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR Mobile Identity 10.5.1.4 O TLV 3-10 */
+	ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 3");
+
+	/* RR P2 Rest Octets 10.5.2.24 M V 1-11 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P2_REST_OCT);
+
+}
+
+/*
+ * 9.1.9 Paging Request Type 3
+ */
+static void
+dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+	lower_nibble = FALSE;
+
+	/* RR Page Mode 10.5.2.26 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
+
+	/* RR Channel Needed 10.5.2.8 M V 1/2 */
+	ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 1");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 2");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 3");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
+	proto_tree_add_text(tree, tvb, curr_offset, 4, "Mobile Identity 4");
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI);
+
+	/* RR P3 Rest Octets 10.5.2.25 M V 3 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_P3_REST_OCT);
+
+}
+
+/*
+ * [4] 9.1.25 Paging response
  */
 static void
 dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -6878,6 +7516,30 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+
+/*
+ * [4] 9.1.26 Partial Release
+ */
+static void
+dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Channel Description  10.5.2.5  M V 3 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
+
+   EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [4] 9.1.27 Partial Release Complete
+ */
+/* empty message */
 
 /*
  * [4] 9.1.29 Physical Information
@@ -7153,6 +7815,40 @@ dtap_rr_sys_info_13(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI13_REST_OCT);
+}
+
+/*
+ * [4] 9.1.51 Extended Measurement Order
+ */
+static void
+dtap_rr_ext_meas_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Extended Measurement Frequency List  10.5.2.46  M V 16 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_FREQ_LIST);
+}
+
+/*
+ * [4] 9.1.52 Extended Measurement Report
+ */
+static void
+dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+   guint32 curr_offset;
+   guint32 consumed;
+   guint curr_len;
+
+   curr_offset = offset;
+   curr_len = len;
+
+   /* Extended Measurement Result  10.5.2.45  M V 16 */
+   ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_EXT_MEAS_RESULT);
 }
 
 /*
@@ -7585,8 +8281,8 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 #define	NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
 static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-	NULL,	/* RR Initialisation Request */
-	NULL,	/* Additional Assignment */
+	NULL,	/* Reserved */
+	dtap_rr_add_ass,	/* Additional Assignment */
 	dtap_rr_imm_ass,	/* 9.1.18 Immediate assignment  */
 	dtap_rr_imm_ass_ext,	/* Immediate Assignment Extended */
 	dtap_rr_imm_ass_rej,	/* Immediate Assignment Reject */
@@ -7600,9 +8296,9 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	dtap_rr_cip_mode_cmd,	/* Ciphering Mode Command */
 	dtap_rr_cip_mode_cpte,	/* Ciphering Mode Complete */
 
-	NULL,	/* Configuration Change Command */
+	dtap_rr_conf_change_cmd,	/* Configuration Change Command */
 	NULL,	/* Configuration Change Ack. */
-	NULL,	/* Configuration Change Reject */
+	dtap_rr_conf_change_rej,	/* Configuration Change Reject */
 
 	dtap_rr_ass_cmd,	/* 9.1.2 Assignment Command */
 	dtap_rr_ass_comp,	/* Assignment Complete */
@@ -7617,12 +8313,12 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* PDCH Assignment Command */
 
 	dtap_rr_ch_rel,	/* Channel Release */
-	NULL,	/* Partial Release */
+	dtap_rr_partial_rel,	/* Partial Release */
 	NULL,	/* Partial Release Complete */
 
-	NULL,	/* Paging Request Type 1 */
-	NULL,	/* Paging Request Type 2 */
-	NULL,	/* Paging Request Type 3 */
+	dtap_rr_paging_req_type_1,	/* Paging Request Type 1 */
+	dtap_rr_paging_req_type_2,	/* Paging Request Type 2 */
+	dtap_rr_paging_req_type_3,	/* Paging Request Type 3 */
 	dtap_rr_paging_resp,	/* Paging Response */
 	NULL,	/* Notification/NCH */
 	NULL,	/* Reserved */
@@ -7631,7 +8327,6 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* Reserved */
 
 	dtap_rr_utran_classmark_change,	/* Utran Classmark Change  */
-	NULL,	/* UE RAB Preconfiguration */
 	NULL,	/* cdma2000 Classmark Change */
 	dtap_rr_inter_syst_to_utran_ho_cmd,	/* Inter System to UTRAN Handover Command */
 	NULL,	/* Inter System to cdma2000 Handover Command */
@@ -7663,12 +8358,12 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	dtap_rr_ch_mode_mod,	/* Channel Mode Modify */
 	dtap_rr_rr_status,	/* RR Status */
 	dtap_rr_ch_mode_mod_ack,	/* Channel Mode Modify Acknowledge */
-	NULL,	/* Frequency Redefinition */
+	dtap_rr_freq_redef,	/* Frequency Redefinition */
 	dtap_rr_meas_rep,		/* 9.1.21 Measurement report */
 	dtap_rr_mm_cm_change,	/* 9.1.11 Classmark Change */
 	dtap_rr_cm_enq,	/* Classmark Enquiry */
-	NULL,	/* Extended Measurement Report */
-	NULL,	/* Extended Measurement Order */
+	dtap_rr_ext_meas_report,	/* Extended Measurement Report */
+	dtap_rr_ext_meas_order,		/* Extended Measurement Order */
 	dtap_rr_gprs_sus_req,	/* 9.1.13b GPRS Suspension Request */
 
 	NULL,	/* VGCS Uplink Grant */
@@ -8275,17 +8970,17 @@ proto_register_gsm_a_rr(void)
 	},
 	{ &hf_gsm_a_rr_sc,
 		{ "SC","gsm_a.rr.SC",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_sc_vals), 0x1,
+		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_sc_vals), 0x00,
 		"SC", HFILL }
 	},
 	{ &hf_gsm_a_algorithm_id,
 		{ "Algorithm identifier","gsm_a.algorithm_identifier",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_algorithm_identifier_vals), 0xe,
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_algorithm_identifier_vals), 0x00,
 		"Algorithm_identifier", HFILL }
 	},
 	{ &hf_gsm_a_rr_cr,
 		{ "CR","gsm_a.rr.CR",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_cr_vals), 0x1,
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_cr_vals), 0x00,
 		"CR", HFILL }
 	},
 	{ &hf_gsm_a_rr_multirate_speech_ver,
@@ -8323,6 +9018,11 @@ proto_register_gsm_a_rr(void)
 		FT_UINT32,BASE_HEX,  NULL, 0x0,
 		"TLLI", HFILL }
 	},
+	{ &hf_gsm_a_rr_tmsi_ptmsi,
+		{ "TMSI/P-TMSI Value","gsm_a.rr.tmsi_ptmsi",
+		FT_UINT32,BASE_HEX,  NULL, 0x0,
+		"TMSI/P-TMSI Value", HFILL }
+	},
 	{ &hf_gsm_a_rr_target_mode,
 		{ "Target mode","gsm_a.rr.target_mode",
 		FT_UINT8,BASE_DEC,  NULL, 0xc0,
@@ -8333,6 +9033,12 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8,BASE_DEC,  NULL, 0x00,
 		"Wait Indication (T3122/T3142)", HFILL }
 	},
+	{ &hf_gsm_a_rr_seq_code,
+		{ "Sequence Code","gsm_a.rr.seq_code",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		"Sequence Code", HFILL }
+	},
+
 	{ &hf_gsm_a_rr_group_cipher_key_number,
 		{ "Group cipher key number","gsm_a.rr.Group_cipher_key_number",
 		FT_UINT8,BASE_DEC,  NULL, 0x3c,
@@ -8352,6 +9058,11 @@ proto_register_gsm_a_rr(void)
 		{ "Last Segment","gsm_a.rr.last_segment",
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_last_segment_value), 0x01,
 		"Last Segment", HFILL }
+	},
+	{ &hf_gsm_a_rr_carrier_ind,
+		{ "Carrier Indication","gsm_a.rr.carrier_ind",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_carrier_ind_value), 0x01,
+		"Carrier Indication", HFILL }
 	},
 	{ &hf_gsm_a_rr_ra,
 		{ "Random Access Information (RA)", "gsm_a_rr_ra",
@@ -8405,13 +9116,23 @@ proto_register_gsm_a_rr(void)
 	},
 	{ &hf_gsm_a_rr_chnl_needed_ch1,
 		{ "Channel 1","gsm_a.rr_chnl_needed_ch1",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x03,
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
 		"Channel 1", HFILL }
 	},
 	{ &hf_gsm_a_rr_chnl_needed_ch2,
-		{ "Channel 2","gsm_a.rr_chnl_needed_ch1",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x0c,
+		{ "Channel 2","gsm_a.rr_chnl_needed_ch2",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
 		"Channel 2", HFILL }
+	},
+	{ &hf_gsm_a_rr_chnl_needed_ch3,
+		{ "Channel 3","gsm_a.rr_chnl_needed_ch3",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+		"Channel 3", HFILL }
+	},
+	{ &hf_gsm_a_rr_chnl_needed_ch4,
+		{ "Channel 4","gsm_a.rr_chnl_needed_ch4",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_needed_vals), 0x00,
+		"Channel 4", HFILL }
 	},
 	{ &hf_gsm_a_rr_suspension_cause,
 		{ "Suspension cause value","gsm_a.rr.suspension_cause",
@@ -9027,6 +9748,16 @@ proto_register_gsm_a_rr(void)
 		{ "NLN Status (SACCH)", "gsm_a.rr.nln_status_sacch",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		"NLN Status (SACCH)", HFILL }
+	},
+	{ &hf_gsm_a_rr_nln_pch,
+		{ "NLN (PCH)", "gsm_a.rr.nln_pch",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"NLN (PCH)", HFILL }
+	},
+	{ &hf_gsm_a_rr_nln_status_pch,
+		{ "NLN Status (PCH)", "gsm_a.rr.nln_status_pch",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"NLN Status (PCH)", HFILL }
 	},
 	{ &hf_gsm_a_rr_vbs_vgcs_inband_notifications,
 		{ "Inband Notifications", "gsm_a.rr.vbs_vgcs_inband_notifications",

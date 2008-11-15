@@ -852,6 +852,7 @@ typedef enum
  */
 	DE_RR_CH_DSC,					/* [3]  10.5.2.5	Channel Description			*/
 	DE_RR_CH_DSC2,					/* [3]  10.5.2.5a   Channel Description 2 		*/
+	DE_RR_CH_DSC3,					/* [3]  10.5.2.5c   Channel Description 3 		*/
 	DE_RR_CH_MODE,					/* [3]  10.5.2.6	Channel Mode				*/
 	DE_RR_CH_MODE2,					/* [3]  10.5.2.7	Channel Mode 2				*/
 	DE_RR_UTRAN_CM,					/* [3]  10.5.2.7a	UTRAN Classmark */
@@ -894,10 +895,10 @@ typedef enum
 	DE_RR_NEIGH_CELL_DESC2,				/* [3] 10.5.2.22a Neighbour Cell Description 2	*/
 /*
  * [3] 10.5.2.22b (void)
- * [3] 10.5.2.22c NT/N Rest Octets
- * [3] 10.5.2.23 P1 Rest Octets
- * [3] 10.5.2.24 P2 Rest Octets
- * [3] 10.5.2.25 P3 Rest Octets */
+ * [3] 10.5.2.22c NT/N Rest Octets */
+	DE_RR_P1_REST_OCT,					/* [3] 10.5.2.23 P1 Rest Octets */
+	DE_RR_P2_REST_OCT,					/* [3] 10.5.2.24 P2 Rest Octets */
+	DE_RR_P3_REST_OCT,					/* [3] 10.5.2.25 P3 Rest Octets */
 	DE_RR_PACKET_CH_DESC,				/* [3] 10.5.2.25a Packet Channel Description	*/
 	DE_RR_DED_MOD_OR_TBF,			/* [3] 10.5.2.25b Dedicated mode or TBF			*/
 /* [3] 10.5.2.25c RR Packet Uplink Assignment
@@ -938,15 +939,14 @@ typedef enum
 	DE_RR_TIMING_ADV,				/* [3] 10.5.2.40 Timing Advance					*/
 	DE_RR_TIME_DIFF,				/* [3] 10.5.2.41 Time Difference				*/
 	DE_RR_TLLI,						/* [3] 10.5.2.41a TLLI							*/
-/*
- * [3] 10.5.2.42 TMSI/P-TMSI */
+	DE_RR_TMSI_PTMSI,				/* [3] 10.5.2.42 TMSI/P-TMSI */
 	DE_RR_VGCS_TAR_MODE_IND,		/* [3] 10.5.2.42a VGCS target mode Indication	*/
 	DE_RR_VGCS_CIP_PAR,				/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
 
 	DE_RR_WAIT_IND,					/* [3] 10.5.2.43 Wait Indication */
-/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$
- * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List */
+/* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
+	DE_RR_EXT_MEAS_RESULT,     	/* [3] 10.5.2.45 Extended Measurement Results */
+	DE_RR_EXT_MEAS_FREQ_LIST,		/* [3] 10.5.2.46 Extended Measurement Frequency List */
 	DE_RR_SUS_CAU,					/* [3] 10.5.2.47 Suspension Cause				*/
 /* [3] 10.5.2.48 APDU ID
  * [3] 10.5.2.49 APDU Flags
@@ -973,8 +973,8 @@ typedef enum
  * 10.5.2.66 Token
  * 10.5.2.67 PS Cause
  * 10.5.2.68 VGCS AMR Configuration
- * 10.5.2.69 Carrier Indication
  */
+	DE_RR_CARRIER_IND,				/* 10.5.2.69 Carrier Indication */
 	DE_RR_NONE							/* NONE */
 }
 rr_elem_idx_t;

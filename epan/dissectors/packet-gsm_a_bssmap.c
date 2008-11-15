@@ -2335,7 +2335,7 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	curr_offset = offset;
 
 	/* no length check possible */
-	proto_tree_add_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_rr_chnl_needed_ch1, tvb, (curr_offset<<3)+6, 2, FALSE);
 
 	curr_offset++;
 
