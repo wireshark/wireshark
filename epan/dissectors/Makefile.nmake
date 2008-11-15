@@ -7,6 +7,8 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
+include Custom.nmake
+
 include Makefile.common
 
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) \
