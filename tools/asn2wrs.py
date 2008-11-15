@@ -644,7 +644,7 @@ class EthCtx:
         v = self.get_val_from_all(nm, self.value[nm]['import'])
         if v is None:
           msg = 'Need value of imported value identifier %s from %s (%s)' % (nm, self.value[nm]['import'], self.value[nm]['proto'])
-          warnings.warn_explicit(msg, UserWarning, '', '')
+          warnings.warn_explicit(msg, UserWarning, '', 0)
         else:
           val = v
       else:
@@ -653,7 +653,7 @@ class EthCtx:
           val = val.to_str(self)
     else:
       msg = 'Need value of unknown value identifier %s' % (nm)
-      warnings.warn_explicit(msg, UserWarning, '', '')
+      warnings.warn_explicit(msg, UserWarning, '', 0)
     return val
 
   def eth_get_type_attr(self, type):
@@ -3471,7 +3471,7 @@ class Module_Body (Node):
           ectx.eth_import_class(s.val, mod, proto)
         else:
           msg = 'Unknown kind of imported symbol %s from %s' % (str(s), mod)
-          warnings.warn_explicit(msg, UserWarning, '', '')
+          warnings.warn_explicit(msg, UserWarning, '', 0)
     # AssignmentList
     for a in self.assign_list:
       a.eth_reg('', ectx)
@@ -3545,7 +3545,7 @@ class Type_Ref (Type):
   def get_components(self, ectx):
     if not ectx.type.has_key(self.val) or ectx.type[self.val]['import']:
       msg = "Can not get COMPONENTS OF %s which is imported type" % (self.val)
-      warnings.warn_explicit(msg, UserWarning, '', '')
+      warnings.warn_explicit(msg, UserWarning, '', 0)
       return []
     else:
       return ectx.type[self.val]['val'].get_components(ectx)
@@ -3557,7 +3557,7 @@ class Type_Ref (Type):
         ttag = ectx.get_ttag_from_all(self.val, ectx.type[self.val]['import'])
         if not ttag and not ectx.conform.check_item('IMPORT_TAG', self.val):
           msg = 'Missing tag information for imported type %s from %s (%s)' % (self.val, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
-          warnings.warn_explicit(msg, UserWarning, '', '')
+          warnings.warn_explicit(msg, UserWarning, '', 0)
           ttag = ('-1/*imported*/', '-1/*imported*/')
         ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=ttag)
       return ectx.type[self.val]['ttag']
@@ -3626,7 +3626,7 @@ class SelectionType (Type):
       if not ectx.type[self.seltype].has_key('ttag'):
         if not ectx.conform.check_item('IMPORT_TAG', self.seltype):
           msg = 'Missing tag information for imported type %s from %s (%s)' % (self.seltype, ectx.type[self.seltype]['import'], ectx.type[self.seltype]['proto'])
-          warnings.warn_explicit(msg, UserWarning, '', '')
+          warnings.warn_explicit(msg, UserWarning, '', 0)
         ectx.type[self.seltype]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.seltype, val_dflt=('-1 /*imported*/', '-1 /*imported*/'))
       return ectx.type[self.seltype]['ttag']
     else:
