@@ -9290,12 +9290,29 @@
 00:24:3B	CssiSPte               # CSSI (S) Pte Ltd
 00:24:3C	SAAA                   # S.A.A.A.
 00:24:3D	EmersonApp             # Emerson Appliance Motors and Controls
-00:24:3E	Charlyrobo             # CHARLYROBOT
+00:24:3E	Private
 00:24:3F	Storwize               # Storwize, Inc.
 00:24:40	HaloMonito             # Halo Monitoring, Inc.
 00:24:41	WanzlMetal             # Wanzl Metallwarenfabrik GmbH
 00:24:42	Axona                  # Axona Limited
 00:24:43	NortelNetw             # Nortel Networks
+00:24:44	Nintendo               # Nintendo Co., Ltd.
+00:24:45	Liquidxstr             # LiquidxStream Systems Inc.
+00:24:46	MmbResearc             # MMB Research Inc.
+00:24:47	Kaztek                 # Kaztek Systems
+00:24:48	Spiderclou             # SpiderCloud Wireless, Inc
+00:24:49	ShenZhenLi             # Shen Zhen Lite Star Electronics Technology Co., Ltd
+00:24:4A	VoyantInte             # Voyant International
+00:24:4B	Perceptron             # PERCEPTRON INC
+00:24:4C	SolartronM             # Solartron Metrology Ltd
+00:24:4D	HokkaidoEl             # Hokkaido Electronics Corporation
+00:24:4E	Radchips               # RadChips, Inc.
+00:24:4F	AsantronTe             # Asantron Technologies Ltd.
+00:24:50	Cisco                  # Cisco Systems
+00:24:51	Cisco                  # Cisco Systems
+00:24:52	SiliconSof             # Silicon Software GmbH
+00:24:53	InitraDOO              # Initra d.o.o.
+00:24:54	SamsungEle             # Samsung Electronics Co., LTD
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12502,6 +12519,12 @@
 00:50:C2:9D:50:00/36	NetpowerLa             # Netpower Labs AB
 00:50:C2:9D:60:00/36	Innovation             # Innovation, Institute, Inc
 00:50:C2:9D:70:00/36	Melex                  # Melex Inc.
+00:50:C2:9D:80:00/36	SamsungHea             # SAMSUNG HEAVY INDUSTRIES CO.,LTD.
+00:50:C2:9D:90:00/36	Cns                    # CNS Systems, Inc.
+00:50:C2:9D:A0:00/36	NeutronikE             # NEUTRONIK e.K.
+00:50:C2:9D:B0:00/36	WalterGrot             # Walter Grotkasten
+00:50:C2:9D:C0:00/36	FtmMarketi             # FTM Marketing Limited
+00:50:C2:9D:D0:00/36	InstitutDr             # Institut Dr. Foerster
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
