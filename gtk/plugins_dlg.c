@@ -67,7 +67,7 @@ plugins_scan(GtkWidget *list)
         if (pt_plug->register_wtap_module)
         {
             type = g_string_append(type, sep);
-            type = g_string_append(type, "file_format");
+            type = g_string_append(type, "file format");
             sep = ", ";
         }
         if (pt_plug->register_codec_module)
