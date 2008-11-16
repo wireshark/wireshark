@@ -68,6 +68,8 @@
 /* No SCTP port registered with IANA for S1AP yet */
 #define SCTP_PORT_S1AP	0
 
+static dissector_handle_t gsm_a_dtap_handle;
+
 
 /*--- Included file: packet-s1ap-val.h ---*/
 #line 1 "packet-s1ap-val.h"
@@ -228,7 +230,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 64 "packet-s1ap-template.c"
+#line 66 "packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -517,7 +519,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 69 "packet-s1ap-template.c"
+#line 71 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -679,7 +681,7 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 74 "packet-s1ap-template.c"
+#line 76 "packet-s1ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2086,8 +2088,18 @@ dissect_s1ap_M_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 199 "s1ap.cnf"
+
+  tvbuff_t *parameter_tvb=NULL;
+  
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+
+  if (parameter_tvb)
+    call_dissector(gsm_a_dtap_handle,parameter_tvb,actx->pinfo, proto_tree_get_root(tree));
+
+
 
   return offset;
 }
@@ -5422,7 +5434,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 101 "packet-s1ap-template.c"
+#line 103 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5648,7 +5660,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 169 "packet-s1ap-template.c"
+#line 171 "packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, s1ap_handle);
@@ -5660,6 +5672,7 @@ proto_reg_handoff_s1ap(void)
 		dissector_add("sctp.port", SctpPort, s1ap_handle);
 	}
 
+	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -6790,7 +6803,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 190 "packet-s1ap-template.c"
+#line 193 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -6953,7 +6966,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 196 "packet-s1ap-template.c"
+#line 199 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
