@@ -763,6 +763,7 @@ typedef enum
 	DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
 	DE_SUP_CODEC_LIST,				/* Supported Codec List */
 	DE_SRVC_CAT,					/* Service Category */
+	DE_REDIAL,						/* 10.5.4.34 Redial */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	DE_CP_USER_DATA,				/* CP-User Data */
 	DE_CP_CAUSE,					/* CP-Cause */

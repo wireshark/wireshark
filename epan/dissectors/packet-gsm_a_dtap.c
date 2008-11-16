@@ -270,7 +270,7 @@ const value_string gsm_dtap_elem_strings[] = {
 	/* 10.5.4.31 Void */
 	{ 0x00,	"Supported Codec List" },				/* 10.5.4.32 Supported codec list */
 	{ 0x00,	"Service Category" },					/* 10.5.4.33 Service category */
-	/* 10.5.4.34 Redial */
+	{ 0x00,	"Redial" },								/* 10.5.4.34 Redial */
 	/* 10.5.4.35 Network-initiated Service Upgrade indicator */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	{ 0x00,	"CP-User Data" },
@@ -3565,6 +3565,7 @@ guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	NULL,	/* Immediate Modification Indicator */
 	NULL,	/* Supported Codec List */
 	NULL,	/* Service Category */
+	NULL,	/* 10.5.4.34 Redial */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	de_cp_user_data,	/* CP-User Data */
 	de_cp_cause,	/* CP-Cause */
@@ -4244,7 +4245,7 @@ dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.2.16
+ * [4] 9.2.16 MM Status
  */
 static void
 dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4264,7 +4265,7 @@ dtap_mm_mm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [3] 9.2.17
+ * [3] 9.2.17 TMSI reallocation command
  */
 static void
 dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4284,9 +4285,18 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+/*
+ * 9.2.18 TMSI reallocation complete
+ * No data
+ */
 
 /*
- * [4] 9.3.1
+ * 9.2.19 MM Null
+ * No data
+ */
+
+/*
+ * [4] 9.3.1 Alerting
  */
 static void
 dtap_cc_alerting(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4314,7 +4324,7 @@ dtap_cc_alerting(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.2
+ * [4] 9.3.2 Call confirmed
  */
 static void
 dtap_cc_call_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4346,7 +4356,7 @@ dtap_cc_call_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.3
+ * [4] 9.3.3 Call proceeding
  */
 static void
 dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4378,7 +4388,7 @@ dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.4
+ * [4] 9.3.4 Congestion control
  */
 static void
 dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4441,7 +4451,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 }
 
 /*
- * [4] 9.3.5
+ * [4] 9.3.5 Connect
  */
 static void
 dtap_cc_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4475,7 +4485,7 @@ dtap_cc_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.7
+ * [4] 9.3.7 Disconnect
  */
 static void
 dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4507,7 +4517,7 @@ dtap_cc_disconnect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.8
+ * [4] 9.3.8 Emergency setup
  */
 static void
 dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4533,7 +4543,7 @@ dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.9
+ * [4] 9.3.9 Facility
  */
 static void
 dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4555,9 +4565,15 @@ dtap_cc_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
-
 /*
- * [4] 9.3.12
+ * 9.3.10 Hold
+ * No data
+ */
+/*
+ * 9.3.11 Hold Acknowledge
+ */
+/*
+ * [4] 9.3.12 Hold Reject
  */
 static void
 dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4577,7 +4593,7 @@ dtap_cc_hold_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.13
+ * [4] 9.3.13 Modify
  */
 static void
 dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4605,7 +4621,7 @@ dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.14
+ * [4] 9.3.14 Modify complete
  */
 static void
 dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4631,7 +4647,7 @@ dtap_cc_modify_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [4] 9.3.15
+ * [4] 9.3.15 Modify reject
  */
 static void
 dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4657,7 +4673,7 @@ dtap_cc_modify_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.16
+ * [4] 9.3.16 Notify
  */
 static void
 dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4677,7 +4693,7 @@ dtap_cc_notify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.17
+ * [4] 9.3.17 Progress
  */
 static void
 dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4699,7 +4715,7 @@ dtap_cc_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.17a
+ * [4] 9.3.17a CC-Establishment $(CCBS)$
  */
 static void
 dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4719,7 +4735,7 @@ dtap_cc_cc_est(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.17b
+ * [4] 9.3.17b CC-Establishment confirmed $(CCBS)$
  */
 static void
 dtap_cc_cc_est_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4747,7 +4763,7 @@ dtap_cc_cc_est_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.18
+ * [4] 9.3.18 Release
  */
 static void
 dtap_cc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4777,7 +4793,7 @@ dtap_cc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.18a
+ * [4] 9.3.18a Recall $(CCBS)$
  */
 static void
 dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4799,7 +4815,7 @@ dtap_cc_recall(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.19
+ * [4] 9.3.19 Release complete
  */
 static void
 dtap_cc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4827,7 +4843,7 @@ dtap_cc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 }
 
 /*
- * [4] 9.3.22
+ * [4] 9.3.22 Retrieve
  */
 static void
 dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4847,7 +4863,15 @@ dtap_cc_retrieve_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.23
+ * 9.3.21 Retrieve Acknowledge
+ * No data
+ */
+/*
+ * 9.3.22 Retrieve Reject
+ * No data
+ */
+/*
+ * [4] 9.3.23 Setup
  * 3GPP TS 24.008 version 7.5.0 Release 7
  */
 static void
@@ -4931,16 +4955,14 @@ dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, "");
 
-	/*A3 Redial Redial O T 1 10.5.4.34
-	 * TODO add this element
-	 * ELEM_OPT_T(0xA3, GSM_A_PDU_TYPE_DTAP, DE_REDIAL, "");
-	 */
+	/*A3 Redial O T 1 10.5.4.34 */
+	ELEM_OPT_T(0xA3, GSM_A_PDU_TYPE_DTAP, DE_REDIAL, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
 /*
- * [4] 9.3.23a
+ * [4] 9.3.23a Start CC $(CCBS)$
  */
 static void
 dtap_cc_start_cc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4960,7 +4982,7 @@ dtap_cc_start_cc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.24
+ * [4] 9.3.24 Start DTMF
  */
 static void
 dtap_cc_start_dtmf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -4980,7 +5002,7 @@ dtap_cc_start_dtmf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [4] 9.3.25
+ * [4] 9.3.25 Start DTMF Acknowledge
  */
 static void
 dtap_cc_start_dtmf_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5000,7 +5022,7 @@ dtap_cc_start_dtmf_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [4] 9.3.26
+ * [4] 9.3.26 Start DTMF reject
  */
 static void
 dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5020,7 +5042,7 @@ dtap_cc_start_dtmf_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 
 /*
- * [4] 9.3.27
+ * [4] 9.3.27 Status
  */
 static void
 dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5042,9 +5064,20 @@ dtap_cc_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
-
 /*
- * [4] 9.3.31
+ * 9.3.28 Status enquiry
+ * No data
+ */
+/*
+ * 9.3.29 Stop DTMF
+ * No data
+ */
+/*
+ * Stop DTMF acknowledge
+ * No data
+ */
+/*
+ * [4] 9.3.31 User information
  */
 static void
 dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5066,6 +5099,7 @@ dtap_cc_user_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
+ * 3GPP TS 24.080
  * [6] 2.4.2
  */
 static void
@@ -5088,6 +5122,7 @@ dtap_ss_register(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
+ * 3GPP TS 24.011
  * [5] 7.2.1
  */
 static void
