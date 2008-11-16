@@ -329,6 +329,8 @@ static const struct {
 	{ 213, 		WTAP_ENCAP_X2E_SERIAL },
 	/* X2E Xoraya frame */
 	{ 214, 		WTAP_ENCAP_X2E_XORAYA },
+	/* IEEE 802.15.4 Wireless PAN non-ASK PHY */
+	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
 
 	/*
 	 * To repeat:

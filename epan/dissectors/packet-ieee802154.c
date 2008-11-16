@@ -95,6 +95,7 @@ void proto_reg_handoff_ieee802154   (void);
 void proto_register_ieee802154      (void);
 
 /* Dissection Routines. */
+static void dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *);
@@ -111,6 +112,12 @@ static void dissect_ieee802154_cmd_realign  (tvbuff_t *, packet_info *, proto_tr
 static void dissect_ieee802154_cmd_gtsrq    (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *, guint *);
 
 /*  Initialize Protocol and Registered fields */
+
+static int proto_ieee802154_nonask_phy = -1;
+static int hf_ieee802154_nonask_phy_preamble = -1;
+static int hf_ieee802154_nonask_phy_sfd = -1;
+static int hf_ieee802154_nonask_phy_length = -1;
+
 static int proto_ieee802154 = -1;
 static int hf_ieee802154_frame_type = -1;
 static int hf_ieee802154_security = -1;
@@ -166,6 +173,8 @@ static int hf_ieee802154_bcn_pending16 = -1;
 static int hf_ieee802154_bcn_pending64 = -1;
 
 /*  Initialize Subtree Pointers */
+static gint ett_ieee802154_nonask_phy = -1;
+static gint ett_ieee802154_nonask_phy_phr = -1;
 static gint ett_ieee802154 = -1;
 static gint ett_ieee802154_fcf = -1;
 static gint ett_ieee802154_fcs = -1;
@@ -379,6 +388,76 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 
     *offset += sizeof(guint16);
 } /* dissect_ieee802154_fcf */
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_ieee802154_nonask_phy
+ *  DESCRIPTION
+ *      Dissector for IEEE 802.15.4 non-ASK PHY packet with an FCS containing
+ *      a 16-bit CRC value.
+ *
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree ethereal uses to display packet.
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree          *ieee802154_tree = NULL;
+    proto_item          *proto_root = NULL;
+
+    guint offset=0;
+    guint32 preamble;
+    guint8 sfd,phr;
+    tvbuff_t* mac;
+
+    /* Create the protocol tree. */
+    if (tree) {
+        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_nonask_phy, tvb, 0, tvb_length(tvb), "IEEE 802.15.4 non-ASK PHY");
+        ieee802154_tree = proto_item_add_subtree(proto_root, ett_ieee802154_nonask_phy);
+    }
+
+    /* Add the protocol name. */
+    if(check_col(pinfo->cinfo, COL_PROTOCOL)){
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
+    }
+    /* Add the packet length. */
+    if(check_col(pinfo->cinfo, COL_PACKET_LENGTH)){
+        col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
+        col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
+    }
+
+    preamble=tvb_get_letohl(tvb,offset);
+    sfd=tvb_get_guint8(tvb,offset+sizeof(guint32));
+    phr=tvb_get_guint8(tvb,offset+sizeof(guint32)+sizeof(guint8));
+
+    if(tree) {
+        proto_tree *phr_tree;
+        proto_item *pi;
+        guint loffset=offset;
+
+        proto_tree_add_uint(ieee802154_tree, hf_ieee802154_nonask_phy_preamble, tvb, loffset, sizeof(guint32), preamble);
+        loffset+=sizeof(guint32);
+        proto_tree_add_uint(ieee802154_tree, hf_ieee802154_nonask_phy_sfd, tvb, loffset, sizeof(guint8), sfd);
+        loffset+=sizeof(guint8);
+
+        pi = proto_tree_add_text(ieee802154_tree, tvb, loffset, sizeof(guint8), "PHR: 0x%02x", phr);
+        phr_tree = proto_item_add_subtree(pi, ett_ieee802154_nonask_phy_phr);
+
+        proto_tree_add_uint(phr_tree, hf_ieee802154_nonask_phy_length, tvb, loffset, sizeof(guint8), phr);
+    }
+
+    offset+=sizeof(guint32)+2*sizeof(guint8);
+    mac=tvb_new_subset(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
+
+    /* Call the common dissector. */
+    dissect_ieee802154(mac, pinfo, ieee802154_tree);
+} /* dissect_ieee802154_nonask_phy */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1450,6 +1529,23 @@ dissect_ieee802154_cmd_gtsrq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 void proto_register_ieee802154(void)
 {
+    static hf_register_info hf_phy[] = {
+        /* PHY level */
+
+        { &hf_ieee802154_nonask_phy_preamble,
+        { "Preamble",                       "wpan-nonask-phy.preamble", FT_UINT32, BASE_HEX, NULL, 0x0,
+            "", HFILL }},
+
+        { &hf_ieee802154_nonask_phy_sfd,
+        { "Start of Frame Delimiter",       "wpan-nonask-phy.sfd", FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }},
+
+        { &hf_ieee802154_nonask_phy_length,
+        { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL, IEEE802154_PHY_LENGTH_MASK,
+            "", HFILL }},
+    };
+
+
     static hf_register_info hf[] = {
         { &hf_ieee802154_frame_type,
         { "Frame Type",                     "wpan.frame_type", FT_UINT16, BASE_HEX, VALS(ieee802154_frame_types), IEEE802154_FCF_TYPE_MASK,
@@ -1653,6 +1749,8 @@ void proto_register_ieee802154(void)
     };
 
     static gint *ett[] = {
+        &ett_ieee802154_nonask_phy,
+        &ett_ieee802154_nonask_phy_phr,
         &ett_ieee802154,
         &ett_ieee802154_fcf,
         &ett_ieee802154_fcs,
@@ -1670,9 +1768,12 @@ void proto_register_ieee802154(void)
 
     /*  Register Protocol name and description. */
     proto_ieee802154 = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN", "IEEE 802.15.4", "wpan");
+    proto_ieee802154_nonask_phy = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN non-ASK PHY", "IEEE 802.15.4 non-ASK PHY", "wpan-nonask-phy");
 
     /*  Register header fields and subtrees. */
     proto_register_field_array(proto_ieee802154, hf, array_length(hf));
+    proto_register_field_array(proto_ieee802154, hf_phy, array_length(hf_phy));
+
     proto_register_subtree_array(ett, array_length(ett));
 
     /* add a user preference to set the 802.15.4 ethertype */
@@ -1690,6 +1791,7 @@ void proto_register_ieee802154(void)
     register_dissector("wpan", dissect_ieee802154, proto_ieee802154);
     register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
+    register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 } /* proto_register_ieee802154 */
 
 /*FUNCTION:------------------------------------------------------
@@ -1709,14 +1811,17 @@ void proto_reg_handoff_ieee802154(void)
 {
     static gboolean prefs_initialized = FALSE;
     static dissector_handle_t  ieee802154_handle;
+	static dissector_handle_t  ieee802154_nonask_phy_handle;
     static unsigned int old_ieee802154_ethertype;
 
     if (!prefs_initialized){
         /* Get the dissector handles. */
         ieee802154_handle   = find_dissector("wpan");
+		ieee802154_nonask_phy_handle = find_dissector("wpan-nonask-phy");
         data_handle         = find_dissector("data");
 
         dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
+		dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
 
         prefs_initialized = TRUE;
     } else {

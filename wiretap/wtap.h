@@ -203,6 +203,7 @@ extern "C" {
 #define WTAP_ENCAP_LAYER1_EVENT                 110
 #define WTAP_ENCAP_X2E_SERIAL                   111
 #define WTAP_ENCAP_I2C                          112
+#define WTAP_ENCAP_IEEE802_15_4_NONASK_PHY      113
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

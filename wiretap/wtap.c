@@ -427,7 +427,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "X2E serial line capture", "x2e-serial" },
 
 	/* WTAP_ENCAP_I2C */
-	{ "I2C", "i2c" }
+	{ "I2C", "i2c" },
+
+	/* WTAP_ENCAP_IEEE802_15_4_NONASK_PHY */
+	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

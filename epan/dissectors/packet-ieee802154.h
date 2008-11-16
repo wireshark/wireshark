@@ -124,6 +124,9 @@
 #define IEEE802154_BCAST_ADDR               0xFFFF
 #define IEEE802154_BCAST_PAN                0xFFFF
 
+/*  Bit mask for PHY length field */
+#define IEEE802154_PHY_LENGTH_MASK          0x7f
+
 /*  Structure containing information regarding all necessary packet feilds. */
 typedef struct {
     /* Frame control field. */
