@@ -1125,9 +1125,15 @@ io_stat_draw(io_stat_t *io)
 
 
 	/* update the scrollbar */
-	io->scrollbar_adjustment->upper=(gfloat) io->max_interval;
-	io->scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
-	io->scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
+	if (io->max_interval == 0) {
+		io->scrollbar_adjustment->upper=(gfloat) io->interval;
+		io->scrollbar_adjustment->step_increment=(gfloat) (io->interval/10);
+		io->scrollbar_adjustment->page_increment=(gfloat) io->interval;
+	} else {
+		io->scrollbar_adjustment->upper=(gfloat) io->max_interval;
+		io->scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
+		io->scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
+	}
 	io->scrollbar_adjustment->page_size=io->scrollbar_adjustment->page_increment;
 	io->scrollbar_adjustment->value=(gfloat)first_interval;
 	gtk_adjustment_changed(io->scrollbar_adjustment);
