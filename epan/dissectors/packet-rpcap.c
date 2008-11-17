@@ -214,7 +214,7 @@ static dissector_handle_t data_handle = NULL;
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
-static gboolean add_packet_info = TRUE;
+static gboolean decode_content = TRUE;
 static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
 
 /* Global variables */
@@ -754,23 +754,6 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   gint caplen, frame_no;
   
-  if (add_packet_info && linktype != WTAP_ENCAP_UNKNOWN && !info_added) {
-    /* Only indicate for known linktype and when not added before */
-    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-      /* Indicate RPCAP in the protocol column */
-      col_set_str (pinfo->cinfo, COL_PROTOCOL, "R|");
-      col_set_fence (pinfo->cinfo, COL_PROTOCOL);
-    }
-
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-      /* Indicate RPCAP in the info column */
-      col_set_str (pinfo->cinfo, COL_INFO, "Remote | ");
-      col_set_fence (pinfo->cinfo, COL_INFO);
-    }
-    info_added = TRUE;
-    register_frame_end_routine(rpcap_frame_end);
-  }
-
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, FALSE);
   tree = proto_item_add_subtree (ti, ett_packet);
 
@@ -794,10 +777,27 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   proto_item_append_text (top_item, " Frame %d", frame_no);
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
-  if (linktype != WTAP_ENCAP_UNKNOWN) {
+  if (decode_content && linktype != WTAP_ENCAP_UNKNOWN) {
     dissector_try_port(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+
+    if (!info_added) {
+      /* Only indicate when not added before */
+      if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
+        /* Indicate RPCAP in the protocol column */
+        col_prepend_fence_fstr(pinfo->cinfo, COL_PROTOCOL, "R|");
+      }
+
+      if (check_col (pinfo->cinfo, COL_INFO)) {
+        /* Indicate RPCAP in the info column */
+        col_prepend_fence_fstr (pinfo->cinfo, COL_INFO, "Remote | ");
+      }
+      info_added = TRUE;
+      register_frame_end_routine(rpcap_frame_end);
+    }
   } else {
-    proto_item_append_text (ti, ", Unknown link-layer type");
+    if (linktype == WTAP_ENCAP_UNKNOWN) {
+      proto_item_append_text (ti, ", Unknown link-layer type");
+    }
     call_dissector (data_handle, new_tvb, pinfo, top_tree);
   }
   offset += caplen;
@@ -1313,16 +1313,16 @@ proto_register_rpcap (void)
 
   prefs_register_bool_preference (rpcap_module, "desegment_pdus",
 				  "Reassemble RPCAP PDUs spanning multiple TCP segments",
-				  "Whether the RPCAP dissector shourd reassemble PDUs"
+				  "Whether the RPCAP dissector should reassemble PDUs"
 				  " spanning multiple TCP segments."
 				  " To use this option, you must also enable \"Allow subdissectors"
 				  " to reassemble TCP streams\" in the TCP protocol settings.",
 				  &rpcap_desegment);
-  prefs_register_bool_preference (rpcap_module, "add_packet_info",
-                                  "Indicate RPCAP in Protocol and Info columns",
-                                  "Indicate that this is a Remote PCAP packet"
-				  " in the Protocol column and the Info column.",
-                                  &add_packet_info);
+  prefs_register_bool_preference (rpcap_module, "decode_content",
+                                  "Decode content according to link-layer type",
+                                  "Whether the packets should be decoded according to"
+				  " the link-layer type.",
+                                  &decode_content);
   prefs_register_uint_preference (rpcap_module, "linktype",
 				  "Default link-layer type",
 				  "Default link-layer type to use if not received a"
