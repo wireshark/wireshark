@@ -53,6 +53,7 @@
 #include "gtk/main_menu.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
+#include "gtk/packet_win.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -397,6 +398,14 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         mark_frames_ready();
         return TRUE;
     }
+
+    if (event->type == GDK_2BUTTON_PRESS && event_button->button == 1 &&
+        event_button->window == GTK_CLIST(w)->clist_window ) {
+
+        new_window_cb(w);
+        return TRUE;
+    }
+
     return FALSE;
 }
 
