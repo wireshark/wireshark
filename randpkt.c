@@ -455,7 +455,7 @@ main(int argc, char **argv)
 	int			produce_max_bytes = 5000;
 	pkt_example		*example;
 
-	while ((opt = getopt(argc, argv, "b:c:t:")) != -1) {
+	while ((opt = getopt(argc, argv, "b:c:ht:")) != -1) {
 		switch (opt) {
 			case 'b':	/* max bytes */
 				produce_max_bytes = atoi(optarg);
@@ -474,6 +474,7 @@ main(int argc, char **argv)
 				produce_type = parse_type(optarg);
 				break;
 
+			case 'h':
 			default:
 				usage();
 				break;
