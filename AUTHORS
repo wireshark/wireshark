@@ -1723,6 +1723,12 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	RRLP Dissection
 	LDAP by asn2wrs
 	SNMP by asn2wrs
+	S1AP by asn2wrs
+	X2AP by asn2wrs
+	RRC by asn2wrs
+	H264 dissection
+	AMR dissection
+	MP4V-ES dissection
 }
 
 Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
@@ -2781,6 +2787,10 @@ Joan Ramió		<joan[AT]ramio.cat> {
 
 David Castleford			<david.castleford [AT] orange-ftgroup.com> {
 	Simulcrypt dissector
+}
+
+Martin Lutz			<MartinL [AT] copadata.at> {
+	IEC 61850 GOOSE Dissector
 }
 
 and by:
