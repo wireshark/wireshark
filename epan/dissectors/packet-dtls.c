@@ -236,8 +236,8 @@ dtls_parse(void)
 
   ssl_set_debug(dtls_debug_file_name);
 
-  /* [re] add dtls dissection to default port in openssl 0.9.8b implementation */
-  ssl_association_add(dtls_associations, dtls_handle, 4433, "http", FALSE,FALSE);
+  dissector_add_handle("sctp.port", dtls_handle);
+  dissector_add_handle("udp.port", dtls_handle);
 }
 
 /*
