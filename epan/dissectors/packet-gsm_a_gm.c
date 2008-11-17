@@ -239,11 +239,14 @@ static gint ett_gmm_rai = -1;
 static gint ett_sm_tft = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t rrc_irat_ho_info_handle;
 
 static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Protocols */
 
 #define	NUM_GSM_GM_ELEM (sizeof(gsm_gm_elem_strings)/sizeof(value_string))
 gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
+
+const	gchar pdp_str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 /*
  * [7] 10.5.5.1
@@ -2822,17 +2825,23 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	return(curr_offset - offset);
 }
 
-/* [7] 10.5.24 Inter RAT information container */
+/* [7] 10.5.5.24 Inter RAT information container */
 static guint8
-de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	tvbuff_t *rrc_irat_ho_info_tvb;
+	static packet_info p_info;
 
 	curr_offset = offset;
 
 /* The value part of the Inter RAT information container information element is the INTER RAT HANDOVER INFO as
 defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are defined in 3GPP TS 25.331 [23c].*/
-	proto_tree_add_text(tree, tvb, curr_offset, len,"INTER RAT HANDOVER INFO - Not decoded");
+	rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	if (rrc_irat_ho_info_handle)
+		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, &p_info , tree);
+	else
+		proto_tree_add_text(tree, tvb, curr_offset, len,"INTER RAT HANDOVER INFO - Not decoded");
 
 	return len;
 
@@ -2849,8 +2858,6 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	guint32	curr_offset;
 	proto_item  *tf = NULL;
 	proto_tree  *tf_tree = NULL;
-
-	gchar 	str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 	curr_offset = offset;
 
@@ -2875,7 +2882,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 			tvb, curr_offset, 1,
 			"NSAPI %d: (%u) %s",pdp_nr,
 			oct&1,
-			str[oct&1]);
+			pdp_str[oct&1]);
 		oct>>=1;
 	}
 
@@ -3045,13 +3052,38 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [8] 10.5.7.6 MBMS context status
  */
 static guint8
-de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8	oct, i, j;
+	proto_item  *tf = NULL;
+	proto_tree  *tf_tree = NULL;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree,tvb, curr_offset, len,	"MBMS context status - Not decoded");
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	tf = proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"MBMS Context Status");
+
+	tf_tree = proto_item_add_subtree(tf, ett_gmm_context_stat );
+
+	for (i=0; i<len; i++)
+	{
+		oct = tvb_get_guint8(tvb, curr_offset);
+
+		for (j=0; j<8; j++)
+		{
+			proto_tree_add_text(tf_tree,
+				tvb, curr_offset, 1,
+				"NSAPI %d: (%u) %s",128+i*8+j,
+				oct&1,
+				pdp_str[oct&1]);
+			oct>>=1;
+		}
+		curr_offset++;
+	}
 
 	return(len);
 }
@@ -5933,4 +5965,5 @@ void
 proto_reg_handoff_gsm_a_gm(void)
 {
 	data_handle = find_dissector("data");
+	rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
 }
