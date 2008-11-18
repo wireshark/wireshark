@@ -371,16 +371,21 @@ typedef struct _mimetype_and_clock {
 	type number assignment.  Each payload format is named by a registered
 	MIME subtype"
 	http://www.iana.org/assignments/rtp-parameters.
+
+	NOTE: Please keep the mimetypes in case insensitive alphabetical order.
 */
 static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"AMR",		8000},			/* [RFC4867][RFC3267] */
 	{"AMR-WB",	16000},			/* [RFC4867][RFC3267] */
-	{"EVRC",	8000},			/* [RFC3558] */
+	{"BMPEG",	90000},			/* [RFC2343],[RFC3555] */
+	{"BT656",	90000},			/* [RFC2431],[RFC3555] */
+	{"DV",		90000},			/* [RFC3189] */
 	{"EVRC0",	8000},			/* [RFC4788] */
 	{"EVRC1",	8000},			/* [RFC4788] */
-	{"EVRCB",	8000},			/* [RFC4788] */
+	{"EVRC",	8000},			/* [RFC3558] */
 	{"EVRCB0",	8000},			/* [RFC4788] */
 	{"EVRCB1",	8000},			/* [RFC4788] */
+	{"EVRCB",	8000},			/* [RFC4788] */
 	{"G7221",	16000},			/* [RFC3047] */
 	{"G726-16",	8000},			/* [RFC3551][RFC4856] */
 	{"G726-24",	8000},			/* [RFC3551][RFC4856] */
@@ -389,23 +394,20 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"G729D",	8000},			/* [RFC3551][RFC4856] */
 	{"G729E",	8000},			/* [RFC3551][RFC4856] */
 	{"GSM-EFR",	8000},			/* [RFC3551] */
-	{"mpa-robust",	90000},		/* [RFC3119] */
-	{"SMV",		8000},			/* [RFC3558] */
-	{"SMV0",	8000},			/* [RFC3558] */
-	{"red",		1000},			/* [RFC4102] */
-	{"t140",	1000},			/* [RFC4103] */
-	{"BMPEG",	90000},			/* [RFC2343],[RFC3555] */
-	{"BT656",	90000},			/* [RFC2431],[RFC3555] */
-	{"DV",		90000},			/* [RFC3189] */
 	{"H263-1998",	90000},		/* [RFC2429],[RFC3555] */
 	{"H263-2000",	90000},		/* [RFC2429],[RFC3555] */
+	{"H264", 90000},            /* [RFC3984] */
 	{"MP1S",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP2P",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP4V-ES",	90000},			/* [RFC3016] */
+	{"mpa-robust",	90000},		/* [RFC3119] */
 	{"pointer",	90000},			/* [RFC2862] */
 	{"raw",		90000},			/* [RFC4175] */
+	{"red",		1000},			/* [RFC4102] */
+	{"SMV0",	8000},			/* [RFC3558] */
+	{"SMV",		8000},			/* [RFC3558] */
+	{"t140",	1000},			/* [RFC4103] */
 	{"telephone-event", 8000},  /* [RFC4733] */
-	{"H264", 90000},            /* [RFC3984] */
 };
 
 #define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
@@ -413,9 +415,11 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 static guint32
 get_dyn_pt_clock_rate(gchar *payload_type_str)
 {
-	size_t i;
-
-	for (i = 0; i < NUM_DYN_CLOCK_VALUES; i++) {
+	int i;
+	
+	/* Search for matching mimetype in reverse order to avoid false matches
+	 * when pt_mime_name_str is the prefix of payload_type_str */
+	for (i = NUM_DYN_CLOCK_VALUES - 1; i > -1 ; i--) {
 		if (g_ascii_strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
 			return mimetype_and_clock_map[i].value;
 	}
