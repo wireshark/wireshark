@@ -902,8 +902,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# against libm.
 		LIBS="$LIBS $LUA_LIBS -lm"
 
-		AC_CHECK_LIB(lua, lua_call,
+		AC_CHECK_LIB(lua, luaL_register,
 		[
+		    #
+		    #  Lua 5.1 found
+		    #
 			if test "x$lua_dir" != "x"
 			then
 				#
@@ -917,56 +920,8 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				LUA_LIBS="-llua -lm"
 				LUA_INCLUDES=""
 			fi
+			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
 
-			#
-			# we got lua, now look for lualib
-			#
-			AC_CHECK_LIB(lualib, luaL_openlib,
-			[
-				#
-				# we have 5.0
-				#
-				LUA_LIBS="$LUA_LIBS -llualib"
-			],[
-				#
-				# no lualib, in 5.1 there's only liblua
-				# do we have 5.1?
-				#
-
-				LIBS="$wireshark_save_LIBS $LUA_LIBS"
-
-				AC_CHECK_LIB(lua, luaL_register,
-				[
-				    #
-				    #  Lua 5.1 found
-				    #
-				    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
-				],[
-				    #
-				    # No, it is not 5.1
-				    #
-				    if test "x$lua_dir" != "x"
-				    then
-					#
-					# Restore the versions of CFLAGS, CPPFLAGS,
-					# LDFLAGS, and LIBS before we added the
-					# "--with-lua=" directory, as we didn't
-					# actually find lua there.
-					#
-					CFLAGS="$wireshark_save_CFLAGS"
-					CPPFLAGS="$wireshark_save_CPPFLAGS"
-					LDFLAGS="$wireshark_save_LDFLAGS"
-					LIBS="$wireshark_save_LIBS"
-					LUA_LIBS=""
-				    fi
-				    # User requested --with-lua but it isn't available
-				    if test "x$want_lua" = "xyes"
-				    then
-					AC_MSG_ERROR(Linking with liblualib failed.)
-				    fi
-				    want_lua=no
-				])
-			])
 		],[
 			#
 			# We could not find the libs, maybe we have version number in the lib name
