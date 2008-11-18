@@ -1389,7 +1389,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	}
 
 	if(ta->flags){
-		item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, 0, FALSE);
 		PROTO_ITEM_SET_GENERATED(item);
 		flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
@@ -3053,7 +3053,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conv=get_tcp_conversation(pinfo);
   tcpd=get_tcp_conversation_data(conv,pinfo);
 
-  item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 4, conv->index);
+  item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, conv->index);
   PROTO_ITEM_SET_GENERATED(item);
 
   /* If this is a SYN packet, then check if it's seq-nr is different
@@ -3133,7 +3133,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (tree) { /* Add the seglen as an invisible field */
 
-        hidden_item = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
+        hidden_item = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset+12, 1, tcph->th_seglen);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
       }
