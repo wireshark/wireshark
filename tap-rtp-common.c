@@ -380,12 +380,12 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"BMPEG",	90000},			/* [RFC2343],[RFC3555] */
 	{"BT656",	90000},			/* [RFC2431],[RFC3555] */
 	{"DV",		90000},			/* [RFC3189] */
+	{"EVRC",	8000},			/* [RFC3558] */
 	{"EVRC0",	8000},			/* [RFC4788] */
 	{"EVRC1",	8000},			/* [RFC4788] */
-	{"EVRC",	8000},			/* [RFC3558] */
+	{"EVRCB",	8000},			/* [RFC4788] */
 	{"EVRCB0",	8000},			/* [RFC4788] */
 	{"EVRCB1",	8000},			/* [RFC4788] */
-	{"EVRCB",	8000},			/* [RFC4788] */
 	{"G7221",	16000},			/* [RFC3047] */
 	{"G726-16",	8000},			/* [RFC3551][RFC4856] */
 	{"G726-24",	8000},			/* [RFC3551][RFC4856] */
@@ -404,8 +404,8 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"pointer",	90000},			/* [RFC2862] */
 	{"raw",		90000},			/* [RFC4175] */
 	{"red",		1000},			/* [RFC4102] */
-	{"SMV0",	8000},			/* [RFC3558] */
 	{"SMV",		8000},			/* [RFC3558] */
+	{"SMV0",	8000},			/* [RFC3558] */
 	{"t140",	1000},			/* [RFC4103] */
 	{"telephone-event", 8000},  /* [RFC4733] */
 };
