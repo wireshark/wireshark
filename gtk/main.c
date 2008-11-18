@@ -524,10 +524,8 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
     }
 
     if (cfile.current_frame) {
-      /* XXX hum, should better have a "cfile->current_row" here ... */
       set_frame_reftime(!cfile.current_frame->flags.ref_time,
-	  	     cfile.current_frame,
-		     packet_list_find_row_from_data(cfile.current_frame));
+			cfile.current_frame, cfile.current_row);
     }
 }
 
@@ -548,10 +546,8 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
                 simple_dialog_primary_start(), simple_dialog_primary_end());
             simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
         } else {
-            /* XXX hum, should better have a "cfile->current_row" here ... */
             set_frame_reftime(!cfile.current_frame->flags.ref_time,
-                              cfile.current_frame,
-                              packet_list_find_row_from_data(cfile.current_frame));
+                              cfile.current_frame, cfile.current_row);
         }
     }
     break;

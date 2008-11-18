@@ -349,6 +349,7 @@ cf_reset_state(capture_file *cf)
 
   /* No frame selected, no field in that frame selected. */
   cf->current_frame = NULL;
+  cf->current_row = 0;
   cf->finfo_selected = NULL;
 
   /* Clear the packet list. */
@@ -566,6 +567,8 @@ cf_read(capture_file *cf)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   cf->current_frame = cf->first_displayed;
+  cf->current_row = 0;
+
   packet_list_thaw();
 
   cf_callback_invoke(cf_cb_file_read_finished, cf);
@@ -3342,6 +3345,7 @@ cf_select_packet(capture_file *cf, int row)
 
   /* Record that this frame is the current frame. */
   cf->current_frame = fdata;
+  cf->current_row = row;
 
   /* Create the logical protocol tree. */
   if (cf->edt != NULL) {
@@ -3371,6 +3375,7 @@ cf_unselect_packet(capture_file *cf)
 
   /* No packet is selected. */
   cf->current_frame = NULL;
+  cf->current_row = 0;
 
   cf_callback_invoke(cf_cb_packet_unselected, cf);
 

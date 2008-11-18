@@ -268,8 +268,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *
   frame_data *fdata;
 
   /* Check if already selected */
-  if (cfile.current_frame && 
-      (gtk_clist_find_row_from_data(GTK_CLIST(packet_list), cfile.current_frame) == row))
+  if (cfile.current_frame && cfile.current_row == row)
     return;
 
   /* Remove the hex display tabbed pages */
@@ -330,11 +329,8 @@ static void mark_frames_ready(void) {
 
 void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {
-    /* XXX hum, should better have a "cfile->current_row" here ... */
     set_frame_mark(!cfile.current_frame->flags.marked,
-		   cfile.current_frame,
-		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-						cfile.current_frame));
+		   cfile.current_frame, cfile.current_row);
     mark_frames_ready();
   }
 }
@@ -934,36 +930,32 @@ packet_list_get_sort_column(void)
 
 void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type)
 {
-    gint row;
     gint col;
     gchar* celltext = NULL;
     GString* text;
 
-	if(CS_CSV == copy_type) {
-		text = g_string_new("\"");
-	} else {
-		text = g_string_new("");
-	}
+    if(CS_CSV == copy_type) {
+        text = g_string_new("\"");
+    } else {
+        text = g_string_new("");
+    }
 
     if (cfile.current_frame) {
-        /* XXX hum, should better have a "cfile->current_row" here ... */
-        row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-			        cfile.current_frame);
         for(col = 0; col < cfile.cinfo.num_cols; ++col) {
             if(col != 0) {
-				if(CS_CSV == copy_type) {
-					g_string_append(text,"\",\"");
-				} else {
-					g_string_append_c(text, '\t');
-				}
+	        if(CS_CSV == copy_type) {
+		    g_string_append(text,"\",\"");
+		} else {
+		    g_string_append_c(text, '\t');
+		}
             }
-            if(0 != gtk_clist_get_text(GTK_CLIST(packet_list),row,col,&celltext)) {
+            if(0 != gtk_clist_get_text(GTK_CLIST(packet_list),cfile.current_row,col,&celltext)) {
                 g_string_append(text,celltext);
             }
         }
-		if(CS_CSV == copy_type) {
-			g_string_append_c(text,'"');
-		}
+	if(CS_CSV == copy_type) {
+	    g_string_append_c(text,'"');
+	}
         copy_to_clipboard(text);
     }
     g_string_free(text,TRUE);

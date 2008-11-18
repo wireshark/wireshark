@@ -82,6 +82,7 @@ typedef struct _capture_file {
   frame_data  *last_displayed;  /* Last frame displayed */
   column_info  cinfo;    /* Column formatting information */
   frame_data  *current_frame;  /* Frame data for current frame */
+  gint         current_row; /* Row number for current frame */
   epan_dissect_t *edt; /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;	/* Field info for currently selected field */
   struct ph_stats_s* pstats; /* accumulated stats (reset on redisplay in GUI)*/
