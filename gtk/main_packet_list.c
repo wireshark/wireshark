@@ -267,6 +267,11 @@ static void
 packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
   frame_data *fdata;
 
+  /* Check if already selected */
+  if (cfile.current_frame && 
+      (gtk_clist_find_row_from_data(GTK_CLIST(packet_list), cfile.current_frame) == row))
+    return;
+
   /* Remove the hex display tabbed pages */
   while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))
     gtk_notebook_remove_page( GTK_NOTEBOOK(byte_nb_ptr), 0);
