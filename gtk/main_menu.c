@@ -2268,16 +2268,19 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         byte_view_select(widget, (GdkEventButton *) event);
     }
 
-    /* context menu handler (but the byte view notebook pages have their own handler) */
-    if(event->type == GDK_BUTTON_PRESS && widget != byte_nb_ptr) {
+    /* context menu handler */
+    if(event->type == GDK_BUTTON_PRESS) {
         event_button = (GdkEventButton *) event;
 
         /* To qoute the "Gdk Event Structures" doc:
          * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
         if(event_button->button == 3) {
-            gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-                           event_button->button,
-                           event_button->time);
+            /* No popup window in the byte view */
+            if(widget != get_notebook_bv_ptr(byte_nb_ptr)) {
+                gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+                               event_button->button,
+                               event_button->time);
+            }
             g_signal_stop_emission_by_name(widget, "button_press_event");
             return TRUE;
         }
