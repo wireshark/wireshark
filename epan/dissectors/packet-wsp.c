@@ -4673,7 +4673,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			redir_address.type = AT_IPv6;
 			redir_address.len = 16;
-			redir_address.data = (const guint8 *)&address_ipv4;
+			redir_address.data = (const guint8 *)&address_ipv6;
 			/* Find a conversation based on redir_address and pinfo->dst */
 			conv = find_conversation(pinfo->fd->num, &redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
