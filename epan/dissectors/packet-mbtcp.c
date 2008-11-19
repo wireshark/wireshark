@@ -1,12 +1,12 @@
 /* packet-mbtcp.c
- * Routines for Modbus/TCP dissection
+ * Routines for Modbus/TCP and Modbus/UDP dissection
  * By Riaan Swart <rswart@cs.sun.ac.za>
  * Copyright 2001, Institute for Applied Computer Science
  * 					 University of Stellenbosch
  *
  * See
  *
- *	http://www.modicon.com/openmbus/
+ *	http://www.modbus.org/
  *
  * for information on Modbus/TCP.
  *
@@ -43,9 +43,7 @@
 
 #include <epan/packet.h>
 
-#define DEBUG
-
-#define TCP_PORT_MBTCP		502	/* Modbus/TCP located on TCP port 502 */
+#define PORT_MBTCP		502	/* Modbus/TCP and Modbus/UDP located on port 502 */
 
 /* Modbus protocol function codes */
 #define READ_COILS		1
@@ -142,9 +140,9 @@ classify_packet(packet_info *pinfo)
 {
 	/* see if nature of packets can be derived from src/dst ports */
 	/* if so, return as found */
-	if (( pinfo->srcport == TCP_PORT_MBTCP ) && ( pinfo->destport != TCP_PORT_MBTCP ))
+	if (( pinfo->srcport == PORT_MBTCP ) && ( pinfo->destport != PORT_MBTCP ))
 		return RESPONSE_PACKET;
-	if (( pinfo->srcport != TCP_PORT_MBTCP ) && ( pinfo->destport == TCP_PORT_MBTCP ))
+	if (( pinfo->srcport != PORT_MBTCP ) && ( pinfo->destport == PORT_MBTCP ))
 		return QUERY_PACKET;
 
 	/* else, cannot classify */
@@ -216,7 +214,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*err_str = "";
 	guint32		byte_cnt, group_byte_cnt, group_word_cnt;
 	guint32		packet_num;	/* num to uniquely identify different mbtcp
-					 * packets in one TCP packet */
+					 * packets in one packet */
 	guint8		exception_code;
 	gboolean	exception_returned;
 	guint8		fc;
@@ -301,7 +299,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					packet_len, "Modbus/TCP");
 			mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
 
-			/* Add items to protocol tree specific to Modbus/TCP Modbus/TCP */
+			/* Add items to protocol tree specific to Modbus/TCP */
 			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_transid, tvb, offset, 2,
 					mh.transaction_id);
 			proto_tree_add_uint(mbtcp_tree, hf_mbtcp_protid, tvb, offset + 2, 2,
@@ -717,5 +715,6 @@ proto_reg_handoff_mbtcp(void)
 	dissector_handle_t mbtcp_handle;
 
 	mbtcp_handle = new_create_dissector_handle(dissect_mbtcp, proto_mbtcp);
-	dissector_add("tcp.port", TCP_PORT_MBTCP, mbtcp_handle);
+	dissector_add("tcp.port", PORT_MBTCP, mbtcp_handle);
+	dissector_add("udp.port", PORT_MBTCP, mbtcp_handle);
 }
