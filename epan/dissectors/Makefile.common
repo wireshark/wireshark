@@ -450,6 +450,7 @@ DISSECTOR_SRC = \
 	packet-gsm_a_rp.c		\
 	packet-gsm_a_rr.c	\
 	packet-gsm_bsslap.c		\
+	packet-gsm_bssmap_le.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
 	packet-gssapi.c		\

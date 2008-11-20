@@ -578,6 +578,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 		case GSM_A_PDU_TYPE_BSSLAP:
 			msg_string = gsm_bsslap_elem_strings[idx].strptr;
 			break;
+		case GSM_PDU_TYPE_BSSMAP_LE:
+			msg_string = gsm_bssmap_le_elem_strings[idx].strptr;
+			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -610,6 +613,9 @@ static int get_hf_elem_id(int pdu_type)
 			break;
 		case GSM_A_PDU_TYPE_BSSLAP:
 			hf_elem_id = hf_gsm_a_bsslap_elem_id;
+			break;
+		case GSM_PDU_TYPE_BSSMAP_LE:
+			hf_elem_id = hf_gsm_bssmap_le_elem_id;
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();

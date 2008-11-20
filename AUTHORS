@@ -2793,6 +2793,10 @@ Martin Lutz			<MartinL [AT] copadata.at> {
 	IEC 61850 GOOSE Dissector
 }
 
+Johnny Mitrevski		<mitrevj [AT] hotmail.com> {
+	BSSAP LE Dissector
+} 
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

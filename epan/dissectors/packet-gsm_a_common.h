@@ -120,6 +120,11 @@ extern gint ett_gsm_bsslap_elem[];
 extern elem_fcn bsslap_elem_fcn[];
 extern int hf_gsm_a_bsslap_elem_id;
 
+extern const value_string gsm_bssmap_le_elem_strings[];
+extern gint ett_gsm_bssmap_le_elem[];
+extern elem_fcn bssmap_le_elem_fcn[];
+extern int hf_gsm_bssmap_le_elem_id;
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
@@ -152,6 +157,7 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_A_PDU_TYPE_GM		5
 #define GSM_A_PDU_TYPE_BSSLAP	6
 #define GSM_A_PDU_TYPE_SACCH  7
+#define GSM_PDU_TYPE_BSSMAP_LE	8
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -240,6 +246,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		SEV_elem_names = gsm_bsslap_elem_strings; \
 		SEV_elem_ett = ett_gsm_bsslap_elem; \
 		SEV_elem_funcs = bsslap_elem_fcn; \
+		break; \
+	case GSM_PDU_TYPE_BSSMAP_LE: \
+		SEV_elem_names = gsm_bssmap_le_elem_strings; \
+		SEV_elem_ett = ett_gsm_bssmap_le_elem; \
+		SEV_elem_funcs = bssmap_le_elem_fcn; \
 		break; \
 	default: \
 		proto_tree_add_text(tree, \
@@ -457,6 +468,8 @@ typedef struct _gsm_a_tap_rec_t {
 
 void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+void dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 void dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
 guint8 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
@@ -468,6 +481,9 @@ guint8 de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 guint8 de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint8 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint8 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint8 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint8 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint8 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 guint8 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint8 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -498,6 +514,10 @@ guint8 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 guint8 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 
 void dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+
+void bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+void bssmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+void bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
 /*
  * the following allows TAP code access to the messages
@@ -665,6 +685,43 @@ typedef enum
 	BE_NONE	/* NONE */
 }
 bssmap_elem_idx_t;
+
+typedef enum
+{
+	/* BSSMAP LE Elements */
+	DE_BMAPLE_LCSQOS,			/* LCS QOS */
+	DE_BMAPLE_LCS_PRIO,			/* LCS Priority */
+	DE_BMAPLE_LOC_TYPE,			/* Location Type */
+	DE_BMAPLE_GANSS_LOC_TYPE,	/* GANSS Location Type */	
+	DE_BMAPLE_GEO_LOC,			/* Geographic Location */	
+	DE_BMAPLE_POS_DATA,			/* Positioning Data */			
+	DE_BMAPLE_GANSS_POS_DATA,	/* GANSS Positioning Data */
+	DE_BMAPLE_VELOC_DATA,		/* Velocity Data */
+	DE_BMAPLE_LCS_CAUSE,		/* LCS Cause */	
+	DE_BMAPLE_LCS_CLIENT_TYPE,	/* LCS Client Type */
+	DE_BMAPLE_APDU,				/* APDU */		
+	DE_BMAPLE_NETWORK_ELEM_ID,	/* Network Element Identity */
+	DE_BMAPLE_REQ_GPS_ASSIST_D, /* Requested GPS Assistance Data */	
+	DE_BMAPLE_REQ_GNSS_ASSIST_D,/* Requested GANSS Assistance Data */
+	DE_BMAPLE_DECIPH_KEYS,		/* Deciphering Keys */
+	DE_BMAPLE_RETURN_ERROR_REQ,	/* Return Error Request */
+	DE_BMAPLE_RETURN_ERROR_CAUSE,	/* Return Error Cause */
+	DE_BMAPLE_SEGMENTATION,		/* Segmentation */
+	DE_BMAPLE_CLASSMARK_TYPE_3,	/* Classmark Information Type 3 */
+	DE_BMAPLE_CAUSE,			/* Cause */
+	DE_BMAPLE_CELL_IDENTIFIER,	/* Cell Identifier */
+	DE_BMAPLE_CHOSEN_CHANNEL,	/* Chosen Channel */
+	DE_BMAPLE_IMSI,				/* IMSI */
+	DE_BMAPLE_RES1,				/* Reserved */
+	DE_BMAPLE_RES2,				/* Reserved */
+	DE_BMAPLE_RES3,				/* Reserved */
+	DE_BMAPLE_LCS_CAPABILITY,	/* LCS Capability */
+	DE_BMAPLE_PACKET_MEAS_REP,	/* Packet Measurement Report */
+	DE_BMAPLE_MEAS_CELL_ID,		/* Measured Cell Identity */
+	DE_BMAPLE_IMEI,				/* IMEI */
+	BMAPLE_NONE					/* NONE */
+}
+bssmap_le_elem_idx_t;
 
 typedef enum
 {

@@ -3377,7 +3377,7 @@ be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  * 3.2.2.95	GANSS Assistance Data
  * The GANSS Assistance Data octets 3 to n are coded as the Requested GANSS Data element of 3GPP TS 49.031 (BSSAP-LE)
  */
-static guint8
+guint8
 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3391,7 +3391,7 @@ be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * 3.2.2.96	GANSS Positioning Data
  */
-static guint8
+guint8
 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3405,7 +3405,7 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * 3.2.2.97	GANSS Location Type
  */
-static guint8
+guint8
 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -4394,7 +4394,7 @@ bssmap_clear_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  *  [2] 3.2.1.23 RESET
  */
-static void
+void
 bssmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
@@ -5327,7 +5327,7 @@ bssmap_lsa_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  *  [2] 3.2.1.70 (void)
  */
-static void
+void
 bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
@@ -5417,7 +5417,7 @@ bssmap_perf_loc_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 3.2.1.73 PERFORM LOCATION ABORT
  */
-static void
+void
 bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
