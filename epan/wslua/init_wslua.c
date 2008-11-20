@@ -90,9 +90,16 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
-            if (lua_isnumber(L, -1)) {
-                consumed_bytes = (int) lua_tonumber(L, -1);
-                lua_pop(L, 1);  /* pop returned value */
+            if (lua_isnumber(L, -1)) { 
+                /* we got the consumed bytes ot the missing bytes as a negative number */
+                if ((consumed_bytes = (int) lua_tonumber(L, -1)) < 0)
+                    pinfo->desegment_len = 0 - consumed_bytes;
+                lua_pop(L, 1);
+            } else  if (lua_isnil(L, -1)) { 
+                /* got nil value, indicating that we need more bytes, but we
+                 * don't know the exact number  */
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                lua_pop(L, 1);
             }
         }
 
