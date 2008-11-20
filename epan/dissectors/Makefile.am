@@ -45,6 +45,7 @@ libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 
 EXTRA_DIST = \
+	Custom.nmake		\
 	Makefile.common		\
 	Makefile.nmake		\
 	ncp2222.py		\
