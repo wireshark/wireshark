@@ -354,8 +354,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_JUNIPER_GGSN */
 	{ "Juniper GGSN", "juniper-ggsn" },
 
- 	/* WTAP_ENCAP_LINUX_LAPD */
- 	{ "LAPD", "lapd" },
+	/* WTAP_ENCAP_LINUX_LAPD */
+	{ "LAPD", "lapd" },
 
 	/* WTAP_ENCAP_CATAPULT_DCT2000 */
 	{ "Catapult DCT2000", "dct2000" },
@@ -455,15 +455,16 @@ int wtap_get_num_encap_types(void) {
 
 
 int wtap_register_encap_type(char* name, char* short_name) {
-	struct encap_type_info* e = g_malloc(sizeof(struct encap_type_info));
+	struct encap_type_info e;
 	wtap_init_encap_types();
 
-	e->name = g_strdup(name);
-	e->short_name = g_strdup(short_name);
+	e.name = g_strdup(name);
+	e.short_name = g_strdup(short_name);
 
 	g_array_append_val(encap_table_arr,e);
 
 	encap_table = (void*)encap_table_arr->data;
+
 	return wtap_num_encap_types++;
 }
 
