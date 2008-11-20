@@ -76,15 +76,57 @@ static const aim_tlv messaging_incoming_ch2_tlvs[] = {
   { 0, NULL, NULL },
 };
 
+#define RENDEZVOUS_TLV_CHANNEL				0x0001
+#define RENDEZVOUS_TLV_IP_ADDR				0x0002
 #define RENDEZVOUS_TLV_INT_IP				0x0003
 #define RENDEZVOUS_TLV_EXT_IP				0x0004
 #define RENDEZVOUS_TLV_EXT_PORT				0x0005
+#define RENDEZVOUS_TLV_DOWNLOAD_URL			0x0006
+#define RENDEZVOUS_TLV_VERIFIED_DOWNLOAD_URL		0x0008
+#define RENDEZVOUS_TLV_SEQ_NUM				0x000A
+#define RENDEZVOUS_TLV_CANCEL_REASON			0x000B
+#define RENDEZVOUS_TLV_INVITATION			0x000C
+#define RENDEZVOUS_TLV_INVITE_MIME_CHARSET		0x000D
+#define RENDEZVOUS_TLV_INVITE_MIME_LANG			0x000E
+#define RENDEZVOUS_TLV_REQ_HOST_CHECK			0x000F
+#define RENDEZVOUS_TLV_REQ_USE_ARS			0x0010
+#define RENDEZVOUS_TLV_REQ_SECURE			0x0011
+#define RENDEZVOUS_TLV_MAX_PROTOCOL_VER			0x0012
+#define RENDEZVOUS_TLV_MIN_PROTOCOL_VER			0x0013
+#define RENDEZVOUS_TLV_COUNTER_REASON			0x0014
+#define RENDEZVOUS_TLV_INVITE_MIME_TYPE			0x0015
+#define RENDEZVOUS_TLV_IP_ADDR_XOR			0x0016
+#define RENDEZVOUS_TLV_PORT_XOR				0x0017
+#define RENDEZVOUS_TLV_ADDR_LIST			0x0018
+#define RENDEZVOUS_TLV_SESSION_ID			0x0019
+#define RENDEZVOUS_TLV_ROLLOVER_ID			0x001A
 #define RENDEZVOUS_TLV_EXTENDED_DATA			0x2711
 
 static const aim_tlv rendezvous_tlvs[] = {
+	{ RENDEZVOUS_TLV_CHANNEL, "Rendezvous ICBM Channel", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_IP_ADDR, "Rendezvous IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_INT_IP, "Internal IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_EXT_IP, "External IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_EXT_PORT, "External Port", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_DOWNLOAD_URL, "Service Support Download URL", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_VERIFIED_DOWNLOAD_URL, "Verified Service Support Download URL", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_SEQ_NUM, "Sequence Number", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_CANCEL_REASON, "Cancel Reason", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_INVITATION, "Invitation Text", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_INVITE_MIME_CHARSET, "Data MIME Type", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_INVITE_MIME_LANG, "Data Language", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_REQ_HOST_CHECK, "Request Host Check", NULL },
+	{ RENDEZVOUS_TLV_REQ_USE_ARS, "Request Data via Rendezvous Server", NULL },
+	{ RENDEZVOUS_TLV_REQ_SECURE, "Request SSL Connection", NULL },
+	{ RENDEZVOUS_TLV_MAX_PROTOCOL_VER, "Maximum Protocol Version", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_MIN_PROTOCOL_VER, "Minimum Protocol Version", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_COUNTER_REASON, "Counter Proposal Reason", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_INVITE_MIME_TYPE, "Data MIME Type", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_IP_ADDR_XOR, "XORed Rendezvous IP", dissect_aim_tlv_value_ipv4 },
+	{ RENDEZVOUS_TLV_PORT_XOR, "XORed Port", dissect_aim_tlv_value_uint16 },
+	{ RENDEZVOUS_TLV_ADDR_LIST, "Address/Port List", dissect_aim_tlv_value_string08_array },
+	{ RENDEZVOUS_TLV_SESSION_ID, "Session ID", dissect_aim_tlv_value_string },
+	{ RENDEZVOUS_TLV_ROLLOVER_ID, "Rollover ID", dissect_aim_tlv_value_string },
 	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", dissect_aim_tlv_value_extended_data },
 	{ 0, NULL, NULL },
 };

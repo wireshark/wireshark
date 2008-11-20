@@ -76,6 +76,7 @@ const aim_family *aim_get_family( guint16 family );
 const aim_subtype *aim_get_subtype( guint16 family, guint16 subtype);
 
 int dissect_aim_tlv_value_string(proto_item *ti, guint16, tvbuff_t *, packet_info *);
+int dissect_aim_tlv_value_string08_array(proto_item *ti, guint16, tvbuff_t *, packet_info *);
 int dissect_aim_tlv_value_uint8(proto_item *ti, guint16, tvbuff_t *, packet_info *);
 int dissect_aim_tlv_value_uint16(proto_item *ti, guint16, tvbuff_t *, packet_info *);
 int dissect_aim_tlv_value_uint32(proto_item *ti, guint16, tvbuff_t *, packet_info *);
