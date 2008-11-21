@@ -63,7 +63,12 @@ void proto_reg_handoff_bssap(void);
 #define BSSAP 0
 #define BSAP  1
 
+#define GSM_INTERFACE 0
+#define LB_INTERFACE  1
+
 #define BSSAP_OR_BSAP_DEFAULT BSSAP
+
+#define GSM_OR_LB_INTERFACE_DEFAULT GSM_INTERFACE
 
 #define PDU_TYPE_OFFSET 0
 #define PDU_TYPE_LENGTH 1
@@ -361,6 +366,8 @@ static dissector_handle_t rrlp_handle;
 static dissector_table_t bssap_dissector_table;
 static dissector_table_t bsap_dissector_table;
 
+static dissector_handle_t bsap_dissector_handle;
+
 /*
  * Keep track of pdu_type so we can call appropriate sub-dissector
  */
@@ -368,6 +375,7 @@ static guint8	pdu_type = 0xFF;
 
 static gint	bssap_or_bsap_global = BSSAP_OR_BSAP_DEFAULT;
 
+static gint    gsm_or_lb_interface_global = GSM_OR_LB_INTERFACE_DEFAULT;
 
 static void
 dissect_bssap_unknown_message(tvbuff_t *message_tvb, proto_tree *bssap_tree)
@@ -396,17 +404,39 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
 	if ((pdu_type <= 0x01))
 	{
 		if (bssap_or_bsap_global == BSSAP)
-		{
-			/* BSSAP */
-			if (dissector_try_port(bssap_dissector_table, pdu_type, tvb, pinfo, tree))
-				return;
-		}
-		else
-		{
-			/* BSAP */
-			if (dissector_try_port(bsap_dissector_table, pdu_type, tvb, pinfo, tree))
-				return;
-		}
+        {
+            /* BSSAP */
+            if((gsm_or_lb_interface_global == LB_INTERFACE) && (pdu_type == BSSAP_PDU_TYPE_BSSMAP))
+            {
+                bsap_dissector_handle = find_dissector("gsm_bssmap_le");
+
+                if(bsap_dissector_handle == NULL) return;
+
+                call_dissector(bsap_dissector_handle, tvb, pinfo, tree);
+
+                return;
+            }
+            else if((gsm_or_lb_interface_global == GSM_INTERFACE) && (pdu_type == BSSAP_PDU_TYPE_BSSMAP))
+            {
+                bsap_dissector_handle = find_dissector("gsm_a_bssmap");
+
+                if(bsap_dissector_handle == NULL) return;
+
+                call_dissector(bsap_dissector_handle, tvb, pinfo, tree);
+
+                return;
+            }
+            else
+            {
+                if (dissector_try_port(bssap_dissector_table, pdu_type, tvb, pinfo, tree)) return;
+            }
+        }
+        else
+        {
+            /* BSAP */
+            if (dissector_try_port(bsap_dissector_table, pdu_type, tvb, pinfo, tree))
+                return;
+        }
 	}
 
 	/* No sub-dissection occured, treat it as raw data */
@@ -2471,6 +2501,12 @@ proto_register_bssap(void)
 		&ett_bssap_plmn,
 	};
 
+    static enum_val_t gsm_or_lb_interface_options[] = {
+	    { "gsm a",    "GSM A",    GSM_INTERFACE },
+	    { "lb",    "Lb",    LB_INTERFACE  },
+	    { NULL,        NULL,        0 }
+    };
+
 	static enum_val_t bssap_or_bsap_options[] = {
 		{ "bssap",	"BSSAP",	BSSAP },
 		{ "bsap",	"BSAP",		BSAP  },
@@ -2499,6 +2535,14 @@ proto_register_bssap(void)
 				       &bssap_or_bsap_global,
 				       bssap_or_bsap_options,
 				       FALSE);
+
+	prefs_register_enum_preference(bssap_module,
+                       "gsm_or_lb_interface",
+                       "Identify the BSSAP interface",
+                       "GSM-A is the interface between the BSC and the MSC. Lb is the interface between the BSC and the SMLC.",
+                       &gsm_or_lb_interface_global,
+                       gsm_or_lb_interface_options,
+                       FALSE);
 
 	prefs_register_uint_preference(bssap_module, "ssn",
 				       "Subsystem number used for BSSAP",
