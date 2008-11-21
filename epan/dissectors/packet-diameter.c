@@ -693,8 +693,9 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-					 "cmd=%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
+			     "cmd=%s%s(%d) flags=%s %s=%s(%d) h2h=%x e2e=%x",
 					 cmd_str,
+				 ((flags_bits>>4)&0x08) ? "Request" : "Answer",
 					 cmd,
 					 msgflags_str[((flags_bits>>4)&0x0f)],
 					 c->version_rfc ? "appl" : "vend",

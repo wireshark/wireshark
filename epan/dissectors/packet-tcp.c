@@ -1544,6 +1544,7 @@ again:
 
 	/* is it completely desegmented? */
 	if(ipfd_head){
+		fprintf(stderr, "in head!\n");
 		/*
 		 * Yes, we think it is.
 		 * We only call subdissector for the last segment.
@@ -1627,8 +1628,10 @@ again:
 				another_pdu_follows=0;
 				offset += last_fragment_len;
 				seq += last_fragment_len;
-				if (tvb_length_remaining(tvb, offset) > 0)
+				if (tvb_length_remaining(tvb, offset) > 0) {
+						fprintf(stderr, "again2!\n");
 					goto again;
+				}
 			} else {
 				/*
 				 * Show the stuff in this TCP segment as
@@ -1830,6 +1833,7 @@ again:
 		col_set_writable(pinfo->cinfo, FALSE);
 		offset += another_pdu_follows;
 		seq += another_pdu_follows;
+	fprintf(stderr, "again1!\n");
 		goto again;
 	}
 }
@@ -2570,6 +2574,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   nstime_t	ts;
 
 
+  fprintf(stderr, "dt: %d\n", pinfo->fd->num);
   tcph=ep_alloc(sizeof(struct tcpheader));
   SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&tcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);

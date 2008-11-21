@@ -58,6 +58,12 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Diameter dissector fails RFC 4005 compliance
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2828">Bug
+          2828</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Compilation broke when compiling without zlib
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2993">Bug
           2993</ulink>)
