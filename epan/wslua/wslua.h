@@ -329,8 +329,8 @@ typedef int dummy##C
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
 
 #define WSLUA_REG_GLOBAL_BOOL(L,n,v) { lua_pushstring(L,n); lua_pushboolean(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
-#define WSLUA_REG_GLOBAL_STRING(n,v) { lua_pushstring(L,n); lua_pushstring(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
-#define WSLUA_REG_GLOBAL_NUMBER(n,v) { lua_pushstring(L,n); lua_pushnumber(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
+#define WSLUA_REG_GLOBAL_STRING(L,n,v) { lua_pushstring(L,n); lua_pushstring(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
+#define WSLUA_REG_GLOBAL_NUMBER(L,n,v) { lua_pushstring(L,n); lua_pushnumber(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
 
 #define WSLUA_RETURN(i) return (i);
 

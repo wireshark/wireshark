@@ -91,14 +91,14 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) { 
-                /* we got the consumed bytes ot the missing bytes as a negative number */
+                /* we got the consumed bytes of the missing bytes as a negative number */
                 if ((consumed_bytes = (int) lua_tonumber(L, -1)) < 0)
                     pinfo->desegment_len = 0 - consumed_bytes;
-                lua_pop(L, 1);
-            } else  if (lua_isnil(L, -1)) { 
-                /* got nil value, indicating that we need more bytes, but we
-                 * don't know the exact number  */
-                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                /* Lua dissectors may return DESEGMENT_ONE_MORE_SEGMENT indicating that 
+                 * it needs need more bytes, but the exact number of needed bytes is not known  */
+                if (consumed_bytes == DESEGMENT_ONE_MORE_SEGMENT)
+                    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+
                 lua_pop(L, 1);
             }
         }
@@ -276,6 +276,10 @@ int wslua_init(lua_State* LS) {
 
     /* set running_superuser variable to it's propper value */
     WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
+    
+    /* special constant used by PDU reassembly handling */
+    /* see dissect_lua() for notes */
+    WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");
