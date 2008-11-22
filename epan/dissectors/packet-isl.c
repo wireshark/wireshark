@@ -149,7 +149,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 {
   proto_tree *volatile fh_tree = NULL;
   proto_item *ti, *hidden_item;
-  guint8 type;
+  volatile guint8 type;
   volatile guint16 length;
   gint captured_length;
   tvbuff_t *volatile payload_tvb = NULL;

@@ -563,7 +563,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options)
 {
-    tvbuff_t            *payload_tvb;
+    tvbuff_t            *volatile payload_tvb;
     proto_tree          *volatile ieee802154_tree = NULL;
     proto_item          *volatile proto_root = NULL;
     proto_item          *ti;

@@ -4099,7 +4099,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       conversation_t *conversation;
       x11_conv_data_t *volatile state;
       int length;
-      tvbuff_t *next_tvb;
+      tvbuff_t *volatile next_tvb;
 
       while (tvb_reported_length_remaining(tvb, offset) != 0) {
 	    /*

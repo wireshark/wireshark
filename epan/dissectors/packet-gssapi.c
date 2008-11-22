@@ -172,8 +172,8 @@ static int
 dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_verifier)
 {
-	proto_item *item;
-	proto_tree *subtree;
+	proto_item *volatile item;
+	proto_tree *volatile subtree;
 	volatile int return_offset = 0;
 	gssapi_conv_info_t *volatile gss_info;
 	gssapi_oid_value *oidvalue;

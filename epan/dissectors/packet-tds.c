@@ -1725,7 +1725,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 type;
 	guint16 plen;
 	guint length;
-	tvbuff_t *next_tvb;
+	tvbuff_t *volatile next_tvb;
 	proto_item *tds_item = NULL;
 	proto_tree *tds_tree = NULL;
 

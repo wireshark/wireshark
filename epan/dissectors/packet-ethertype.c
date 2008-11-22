@@ -193,7 +193,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	guint			length_before;
 	gint			captured_length, reported_length;
 	volatile gboolean	dissector_found = FALSE;
-	const char		*saved_proto;
+	const char		*volatile saved_proto;
 
 	/* Add the Ethernet type to the protocol tree */
 	if (tree) {

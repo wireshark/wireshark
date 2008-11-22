@@ -2623,7 +2623,7 @@ dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
-dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
     gboolean first)
 {
     guint16       bgp_len;       /* Message length             */
@@ -2740,7 +2740,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint         length_remaining;
     guint         length;
     volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
-    tvbuff_t      *next_tvb;
+    tvbuff_t *volatile next_tvb;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");

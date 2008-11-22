@@ -326,10 +326,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti, *hidden_item;
-	int		frame_type;
 	guint8		rcf1, rcf2;
 	tvbuff_t	*next_tvb;
 
+	volatile int		frame_type;
 	volatile int		fixoffset = 0;
 	volatile int		source_routed = 0;
 	volatile guint8		trn_rif_bytes;

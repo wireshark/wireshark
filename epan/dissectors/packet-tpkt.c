@@ -217,7 +217,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int mgcp_version = 0;
     int mgcp_reserved = 0;
     volatile int length;
-    tvbuff_t *next_tvb;
+    tvbuff_t *volatile next_tvb;
     const char *saved_proto;
     guint8 string[4];
     /*
@@ -372,7 +372,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int length_remaining;
 	int data_len;
 	volatile int length;
-	tvbuff_t *next_tvb;
+	tvbuff_t *volatile next_tvb;
 	const char *saved_proto;
 
 	/*

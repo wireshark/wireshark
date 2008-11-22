@@ -241,7 +241,7 @@ extern const value_string scsi_devid_idtype_val[];
  */
 #define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
     {									\
-	gboolean short_packet;						\
+	volatile gboolean short_packet;						\
 	tvbuff_t *new_tvb;						\
 	guint32 end_data_offset=0;					\
 									\

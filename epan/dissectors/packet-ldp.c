@@ -2484,7 +2484,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int length_remaining;
 	guint16 plen;
 	int length;
-	tvbuff_t *next_tvb;
+	tvbuff_t *volatile next_tvb;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		length_remaining = tvb_length_remaining(tvb, offset);

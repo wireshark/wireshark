@@ -74,7 +74,8 @@ static void
 dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *ti;
-  guint16 tci,encap_proto;
+  guint16 tci;
+  volatile guint16 encap_proto;
   volatile gboolean is_802_2;
   proto_tree *volatile vlan_tree;
 
