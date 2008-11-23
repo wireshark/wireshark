@@ -636,8 +636,8 @@ typedef enum
 	BE_LOC_TYPE,	 /* Location Type */
 	BE_LOC_EST,	 /* Location Estimate */
 	BE_POS_DATA,	 /* Positioning Data */
-	BE_LCS_CAUSE,	 /* LCS Cause */
-	BE_LCS_CLIENT,	 /* LCS Client Type */
+	BE_LCS_CAUSE,	 /* 3.2.2.66 LCS Cause */
+	BE_LCS_CLIENT,	 /* 10.14 LCS Client Type */
 	BE_APDU,	 /* APDU */
 	BE_NE_ID,	 /* Network Element Identity */
 	BE_GPS_ASSIST_DATA,	 /* GPS Assistance Data */
@@ -693,25 +693,25 @@ typedef enum
 	DE_BMAPLE_LCS_PRIO,			/* LCS Priority */
 	DE_BMAPLE_LOC_TYPE,			/* Location Type */
 	DE_BMAPLE_GANSS_LOC_TYPE,	/* GANSS Location Type */	
-	DE_BMAPLE_GEO_LOC,			/* Geographic Location */	
+	DE_BMAPLE_GEO_LOC,			/* 10.9 Geographic Location */	
 	DE_BMAPLE_POS_DATA,			/* Positioning Data */			
 	DE_BMAPLE_GANSS_POS_DATA,	/* GANSS Positioning Data */
 	DE_BMAPLE_VELOC_DATA,		/* Velocity Data */
 	DE_BMAPLE_LCS_CAUSE,		/* LCS Cause */	
 	DE_BMAPLE_LCS_CLIENT_TYPE,	/* LCS Client Type */
-	DE_BMAPLE_APDU,				/* APDU */		
+	DE_BMAPLE_APDU,				/* 10.3 APDU */		
 	DE_BMAPLE_NETWORK_ELEM_ID,	/* Network Element Identity */
-	DE_BMAPLE_REQ_GPS_ASSIST_D, /* Requested GPS Assistance Data */	
+	DE_BMAPLE_REQ_GPS_ASSIST_D, /* 10.10 Requested GPS Assistance Data */	
 	DE_BMAPLE_REQ_GNSS_ASSIST_D,/* Requested GANSS Assistance Data */
-	DE_BMAPLE_DECIPH_KEYS,		/* Deciphering Keys */
+	DE_BMAPLE_DECIPH_KEYS,		/* 10.8 Deciphering Keys */
 	DE_BMAPLE_RETURN_ERROR_REQ,	/* Return Error Request */
 	DE_BMAPLE_RETURN_ERROR_CAUSE,	/* Return Error Cause */
 	DE_BMAPLE_SEGMENTATION,		/* Segmentation */
 	DE_BMAPLE_CLASSMARK_TYPE_3,	/* Classmark Information Type 3 */
-	DE_BMAPLE_CAUSE,			/* Cause */
-	DE_BMAPLE_CELL_IDENTIFIER,	/* Cell Identifier */
-	DE_BMAPLE_CHOSEN_CHANNEL,	/* Chosen Channel */
-	DE_BMAPLE_IMSI,				/* IMSI */
+	DE_BMAPLE_CAUSE,			/* 10.4 Cause */
+	DE_BMAPLE_CELL_IDENTIFIER,	/* 10.5 Cell Identifier */
+	DE_BMAPLE_CHOSEN_CHANNEL,	/* 10.6 Chosen Channel */
+	DE_BMAPLE_IMSI,				/* 10.11 IMSI */
 	DE_BMAPLE_RES1,				/* Reserved */
 	DE_BMAPLE_RES2,				/* Reserved */
 	DE_BMAPLE_RES3,				/* Reserved */

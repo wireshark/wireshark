@@ -145,6 +145,43 @@ static const value_string gsm_apdu_protocol_id_strings[] = {
 	{ 0, NULL },
 };
 
+/* Velocity Requested definitions */
+static const value_string bssmap_le_velocity_requested_vals[] = {
+    { 0, "do not report velocity" },
+    { 1, "report velocity if available" },
+    { 0, NULL}
+};
+
+/* Vertical Coordinate definitions */
+static const value_string bssmap_le_vertical_coordinate_indicator_vals[] = {
+    { 0, "vertical coordinate not requested" },
+    { 1, "vertical coordinate is requested" },
+    { 0, NULL}
+};
+
+/* Horizontal Accuracy definitions */
+static const value_string bssmap_le_horizontal_accuracy_indicator_vals[] = {
+    { 0, "horizontal accuracy is not specified" },
+    { 1, "horizontal accuracy is specified" },
+    { 0, NULL}
+};
+
+/* Vertical Accuracy definitions */
+static const value_string bssmap_le_vertical_accuracy_indicator_vals[] = {
+    { 0, "vertical accuracy is not specified" },
+    { 1, "vertical accuracy is specified" },
+    { 0, NULL}
+};
+
+/* Response Time definitions */
+static const value_string bssmap_le_response_time_definitions_vals[] = {
+    { 0, "Response Time is not specified" },
+    { 1, "Low Delay" },
+    { 2, "Delay Tolerant" },
+    { 3, "reserved" },
+    { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_bssmap_le = -1;
 int hf_gsm_bssmap_le_elem_id = -1;
@@ -155,6 +192,26 @@ int hf_gsm_bssmap_le_elem_id = -1;
 */
 static int hf_gsm_bssmap_le_msg_type = -1;
 static int hf_gsm_bssmap_le_apdu_protocol_id = -1;
+static int hf_gsm_bssmap_le_spare = -1;
+static int hf_gsm_bssmap_le_ciphering_key_flag = -1;
+static int hf_gsm_bssmap_le_current_deciphering_key_value = -1;
+static int hf_gsm_bssmap_le_next_deciphering_key_value = -1;
+static int hf_gsm_bssmap_le_lcs_cause_value =-1;
+static int hf_gsm_bssmap_le_diagnostic_value = -1;
+static int hf_gsm_bssmap_le_client_category = -1;
+static int hf_gsm_bssmap_le_client_subtype = -1;
+static int hf_gsm_bssmap_le_velocity_requested = -1;
+static int hf_gsm_bssmap_le_positioning_data_discriminator = -1;
+static int hf_gsm_bssmap_le_positioning_method = -1;
+static int hf_gsm_bssmap_le_positioning_method_usage = -1;
+static int hf_gsm_bssmap_le_location_type_location_information = -1;
+static int hf_gsm_bssmap_le_location_type_positioning_method = -1;
+static int hf_gsm_bssmap_le_vertical_coordinate_indicator = -1;
+static int hf_gsm_bssmap_le_horizontal_accuracy_indicator = -1;
+static int hf_gsm_bssmap_le_horizontal_accuracy = -1;
+static int hf_gsm_bssmap_le_vertical_accuracy_indicator = -1;
+static int hf_gsm_bssmap_le_vertical_accuracy = -1;
+static int hf_gsm_bssmap_le_response_time_category = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_le_msg = -1;
@@ -167,34 +224,9 @@ static proto_tree *g_tree;
 #define	NUM_GSM_BSSMAP_LE_ELEM (sizeof(gsm_bssmap_le_elem_strings)/sizeof(value_string))
 gint ett_gsm_bssmap_le_elem[NUM_GSM_BSSMAP_LE_ELEM];
 
-/* Dissector for the LCS Capability element */
-static guint8
-be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	/* Extract the LCS Capability element and add to protocol tree */
-	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
-	return len;
-}
-
-/* Dissector for the Packet Measurement Report element */
-static guint8
-be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-    /* Extract the Packet Measurement Report element and add to protocol tree */
-    proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
-
-	return len;
-}
-
-/* Dissector for the Measured Cell Identity List element */
-static guint8
-be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	/* Extract the Measured Cell Identity List element and add to protocol tree */
-    proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
-
-	return len;
-}
+/*
+ * 10.3 APDU
+ */
 
 static guint8
 de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -249,6 +281,336 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	return(curr_offset - offset);
 }
+/*
+ * 10.4 Cause
+ * coded as the value part of the Cause IE defined in 3GPP TS 48.008
+ */
+/*
+ * 10.5 Cell Identifier
+ * coded as the value part of the Cell Identifier IE defined in 3GPP TS 48.008
+ */
+/*
+ * 10.6 Chosen Channel
+ * coded as the value part of the Chosen Channel IE defined in 3GPP TS 48.008
+ */
+/*
+ * 10.7 Classmark Information Type 3
+ * coded as the value part of the Classmark Information Type 3 IE defined in 3GPP TS 48.008
+ */
+/*
+ * 10.8 Deciphering Keys
+ */
+static guint8
+de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    gint bit_offset;
+
+    /* Spare bits */
+    bit_offset = (offset<<3);
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bit_offset, 7, FALSE);
+    bit_offset += 7;
+
+    /* Extract the Ciphering Key Flag and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_ciphering_key_flag, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    offset++;
+
+    /* Extract the Current Deciphering Key Value and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_current_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+    bit_offset += 56;
+    offset += 7;
+
+    /* Extract the Next Deciphering Key Value and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+    offset += 7;
+
+	return(len);
+}
+/*
+ * 10.9 Geographic Location
+ * contains an octet sequence identical to that for Geographical Information 
+ * defined in 3GPP TS 23.032..
+ */
+/*
+ * 10.10 Requested GPS Assistance Data
+ */
+/*
+ * 10.11 IMSI
+ * coded as the value part of the Mobile Identity IE defined in 3GPP TS 24.008 (NOTE 1)
+ * NOTE 1: The Type of identity field in the Mobile Identity IE shall
+ * be ignored by the receiver
+ */
+/*
+ * 10.12 (void)
+ */
+/*
+ * 10.13 LCS Cause
+ */
+static const value_string bssmap_le_lcs_cause_values[] = {
+    { 0, "Unspecified" },
+    { 1, "System Failure" },
+    { 2, "Protocol Error" },
+    { 3, "Data missing in position request" },
+    { 4, "Unexpected data value in position request" },
+    { 5, "Position method failure" },
+    { 6, "Target MS Unreachable" },
+    { 7, "Location request aborted" },
+    { 8, "Facility not supported" },
+    { 9, "Inter-BSC Handover Ongoing" },
+    { 10, "Intra-BSC Handover Complete" },
+    { 11, "Congestion" },
+    { 12, "Inter NSE cell change" },
+    { 13, "Routing Area Update" },
+    { 14, "PTMSI reallocation" },
+    { 15, "Suspension of GPRS services" },
+    { 0, NULL}
+};
+
+static const value_string bssmap_le_position_method_failure_diagnostic_vals[] = {
+    { 0, "Congestion" },
+    { 1, "insufficientResources" },
+    { 2, "insufficientMeasurementData" },
+    { 3, "inconsistentMeasurementData" },
+    { 4, "locationProcedureNotCompleted" },
+    { 5, "locationProcedureNotSupportedByTargetMS" },
+    { 6, "qoSNotAttainable" },
+    { 7, "positionMethodNotAvailableInNetwork" },
+    { 8, "positionMethodNotAvailableInLocaitonArea" },
+    { 0, NULL}
+};
+static guint8
+de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+    /* cause value  */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_lcs_cause_value, tvb, curr_offset, 1, FALSE);
+    curr_offset++;
+
+    if (len == 2)
+    {
+        /* Diagnostic value (note) */
+		proto_tree_add_item(tree, hf_gsm_bssmap_le_diagnostic_value, tvb, curr_offset, 1, FALSE);
+        curr_offset++;
+    }
+
+	return(curr_offset - offset);
+}
+/*
+ * 10.14 LCS Client Type
+ */
+/* Client Category definitions */
+static const value_string bssmap_le_client_category[] = {
+    { 0, "Value Added Client" },
+    { 2, "PLMN Operator" },
+    { 3, "Emergency Services"},
+    { 4, "Lawful Intercept Services"},
+    { 0, NULL}
+};
+
+/* Client Subtype definitions */
+static const value_string bssmap_le_client_subtype[] = {
+    { 0, "unspecified" },
+    { 1, "broadcast service" },
+    { 2, "O&M" },
+    { 3, "anonymous statistics" },
+    { 4, "Target MS service support" },
+    { 0, NULL}
+};
+
+static guint8
+de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+    guint8 bitCount;
+
+    bitCount = offset<<3;
+	curr_offset = offset;
+
+    /* Extract the client category and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_category, tvb, bitCount, 4, FALSE);
+    bitCount = bitCount + 4;
+
+    /* Extract the client subtype and add to protocol tree */
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_subtype, tvb, bitCount, 4, FALSE);
+    bitCount = bitCount + 4;
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+/*
+ * 10.15 LCS Priority
+ * coded as the LCS-Priority octet in 3GPP TS 29.002
+ */
+/*
+ * 10.16 LCS QoS
+ */
+static guint8
+de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint64 verticalCoordIndicator, velocityRequested, horizontalAccuracyIndicator, verticalAccuracyIndicator;
+    guint16 bitCount;
+
+    bitCount = offset << 3;
+
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 6, FALSE);
+    bitCount = bitCount + 6;
+
+    /* Extract Velocity requested element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_velocity_requested, tvb, bitCount, 1, &velocityRequested, FALSE);
+    bitCount++;
+
+    /* Extract vertical coordinator element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_coordinate_indicator, tvb, bitCount, 1, &verticalCoordIndicator, FALSE);
+    bitCount++;
+
+    /* Extract horizontal accuracy element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_horizontal_accuracy_indicator, tvb, bitCount, 1, &horizontalAccuracyIndicator, FALSE);
+    bitCount++;
+
+    if(horizontalAccuracyIndicator == 1)
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_horizontal_accuracy, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+    else
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+
+    /* Extract vertical accuracy element */
+    proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_accuracy_indicator, tvb, bitCount, 1, &verticalAccuracyIndicator, FALSE);
+    bitCount++;
+
+    if(verticalAccuracyIndicator == 1)
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_vertical_accuracy, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+    else
+    {
+        proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, FALSE);
+        bitCount = bitCount + 7;
+    }
+
+    proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_response_time_category, tvb, bitCount, 2, FALSE);
+    bitCount = bitCount + 2;
+
+	return(len);
+}
+/*
+ * 10.17 (void)
+ */
+/*
+ * 10.18 Location Type
+ */
+/*
+ * 10.19 Network Element Identity
+ */
+/*
+ * 10.20 Positioning Data
+ */
+static guint8
+de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *data_tvb;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	data_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	dissect_geographical_description(data_tvb, g_pinfo, tree);
+
+	return(len);
+}
+/*
+ * 10.21 Return Error Request
+ */
+/*
+ * 10.22 Return Error Cause
+ */
+/*
+ * 10.23 (void)
+ */
+/*
+ * 10.24 Segmentation
+ */
+/*
+ * 10.25 (void)
+ */
+/*
+ * 10.26 LCS Capability
+ * coded as the value part of the LCS Capability
+ * information element in 3GPP TS 48.018, not including
+ * 3GPP TS 48.018 IEI and length indicator
+ */
+/* Dissector for the LCS Capability element */
+static guint8
+be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	/* Extract the LCS Capability element and add to protocol tree */
+	proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+	return len;
+}
+
+/*
+ * 10.27 Packet Measurement Report
+ * coded as the Packet Measurement Report
+ * message or the Packet Enhanced Measurement Report message
+ * starting with the 6-bit MESSAGE_TYPE (see clause 11 in
+ * 3GPP TS 44.060) and ending with the Non-distribution contents
+ * (i.e. the RLC/MAC padding bits are not included). The end of the
+ * message is padded with 0-bits to the nearest octet boundary.
+ */
+/* Dissector for the Packet Measurement Report element */
+static guint8
+be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    /* Extract the Packet Measurement Report element and add to protocol tree */
+    proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+
+	return len;
+}
+
+/*
+ * 10.28 Cell Identity List
+ * coded as the value part of the Cell Identity List IE 
+ * defined in 3GPP TS 48.071.
+ */
+/* Dissector for the Measured Cell Identity List element */
+static guint8
+be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	/* Extract the Measured Cell Identity List element and add to protocol tree */
+    proto_tree_add_text(tree, tvb, offset, len, "Not decoded yet");
+
+	return len;
+}
+
+/*
+ * 10.29 IMEI
+ * IMEI coded as the value part of the Mobile Identity IE defined in
+ * 3GPP TS 24.008 (NOTE 1)
+ * NOTE 1: The Type of identity field in the Mobile Identity IE shall
+ * be ignored by the receiver.
+ */
+/*
+ * 10.30 Velocity Data
+ * contains an octet sequence identical to that for Description of 
+ * Velocity defined in 3GPP TS 23.032.
+ */
+/*
+ * 10.31 Requested GANSS Assistance Data
+ */
+/*
+ * 10.32 GANSS Positioning Data
+ */
+/*
+ * 10.33 GANSS Location Type
+ */
 
 
 #define	NUM_GSM_BSSMAP_LE_MSG (sizeof(gsm_bssmap_le_msg_strings)/sizeof(value_string))
@@ -265,29 +627,29 @@ Note this enum must be of the same size as the element decoding list below
 
 typedef enum
 {
-	DE_BMAPLE_LCSQOS,			/ LCS QOS /
+	DE_BMAPLE_LCSQOS,			/ 10.16 LCS QoS /
 	DE_BMAPLE_LCS_PRIO,			/ LCS Priority /
-	DE_BMAPLE_LOC_TYPE,			/ Location Type /
+	DE_BMAPLE_LOC_TYPE,			/ 10.18 Location Type /
 	DE_BMAPLE_GANSS_LOC_TYPE,	/ GANSS Location Type /	
-	DE_BMAPLE_GEO_LOC,			/ Geographic Location /	
-	DE_BMAPLE_POS_DATA,			/ Positioning Data /			
+	DE_BMAPLE_GEO_LOC,			/ 10.9 Geographic Location /	
+	DE_BMAPLE_POS_DATA,			/ 10.20 Positioning Data /			
 	DE_BMAPLE_GANSS_POS_DATA,	/ GANSS Positioning Data /
 	DE_BMAPLE_VELOC_DATA,		/ Velocity Data /
-	DE_BMAPLE_LCS_CAUSE,		/ LCS Cause /	
+	DE_BMAPLE_LCS_CAUSE,		/ 10.13 LCS Cause /	
 	DE_BMAPLE_LCS_CLIENT_TYPE,	/ LCS Client Type /
-	DE_BMAPLE_APDU,				/ APDU /		
+	DE_BMAPLE_APDU,				/ 10.3 APDU /		
 	DE_BMAPLE_NETWORK_ELEM_ID,	/ Network Element Identity /
-	DE_BMAPLE_REQ_GPS_ASSIST_D, / Requested GPS Assistance Data /	
+	DE_BMAPLE_REQ_GPS_ASSIST_D, / 10.10 Requested GPS Assistance Data /	
 	DE_BMAPLE_REQ_GNSS_ASSIST_D,/ Requested GANSS Assistance Data /
-	DE_BMAPLE_DECIPH_KEYS,		/ Deciphering Keys /
+	DE_BMAPLE_DECIPH_KEYS,		/ 10.8 Deciphering Keys /
 	DE_BMAPLE_RETURN_ERROR_REQ,	/ Return Error Request /
 	DE_BMAPLE_RETURN_ERROR_CAUSE,	/ Return Error Cause /
 	DE_BMAPLE_SEGMENTATION,		/ Segmentation /
-	DE_BMAPLE_CLASSMARK_TYPE_3,	/ Classmark Information Type 3 /
-	DE_BMAPLE_CAUSE,			/ Cause /
-	DE_BMAPLE_CELL_IDENTIFIER,	/ Cell Identifier /
-	DE_BMAPLE_CHOSEN_CHANNEL,	/ Chosen Channel /
-	DE_BMAPLE_IMSI,				/ IMSI /
+	DE_BMAPLE_CLASSMARK_TYPE_3,	/ 10.7 Classmark Information Type 3 /
+	DE_BMAPLE_CAUSE,			/ 10.4 Cause /
+	DE_BMAPLE_CELL_IDENTIFIER,	/ 10.5 Cell Identifier /
+	DE_BMAPLE_CHOSEN_CHANNEL,	/ 10.6 Chosen Channel /
+	DE_BMAPLE_IMSI,				/ 10.11 IMSI /
 	DE_BMAPLE_RES1,				/ Reserved /
 	DE_BMAPLE_RES2,				/ Reserved /
 	DE_BMAPLE_RES3,				/ Reserved /
@@ -303,29 +665,29 @@ bssmap_le_elem_idx_t;
 
 guint8 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* NOTE: The null types below are defined elsewhere. i.e in packet-gsm_a_bssmap.c */
-	NULL,	/* LCS QoS */
-	NULL,	/* LCS Priority */
-	NULL,	/* Location Type */
-	be_ganss_loc_type,   /* GANSS Location Type */
-	NULL,   /* Geographic Location */
-	NULL,   /* Positioning Data */
+	de_bmaple_lcs_qos,		/* 10.16 LCS QoS */
+	NULL,					/* LCS Priority */
+	NULL,					/* 10.18 Location Type */
+	be_ganss_loc_type,		/* GANSS Location Type */
+	NULL,					/* 10.9 Geographic Location */
+	de_bmaple_pos_dta,		/* 10.20 Positioning Data */
 	be_ganss_pos_dta,   /* GANSS Positioning Data */
 	NULL,	/* Velocity Data */
-	NULL,   /* LCS Cause */
-	NULL,   /* LCS Client Type */
+	de_bmaple_cause,   /* 10.13 LCS Cause */
+	de_bmaple_client,   /* LCS Client Type */
 	de_bmaple_apdu,	/* APDU */
 	NULL,	/* Network Element Identity */
 	NULL,   /* Requested GPS Assitance Data */
 	be_ganss_ass_dta,   /* Requested GANSS Assistance Data */
-	NULL,   /* Deciphering Keys */
+	de_bmaple_decihp_keys,   /* 10.8 Deciphering Keys */
 	NULL,   /* Return Error Request */
 	NULL,	/* Return Error Cause */
 	NULL,   /* Segmentation */
-	NULL,	/* Classmark Information Type 3 */
+	NULL,	/* 10.7 Classmark Information Type 3 */
 	NULL,   /* Cause */
 	NULL,   /* Cell Identifier */
-	NULL,   /* Chosen Channel */
-	de_mid,   /* IMSI */
+	NULL,   /* 10.6 Chosen Channel */
+	de_mid,   /* 10.11 IMSI */
 	NULL,   /* Reserved */
 	NULL,   /* Reserved */
 	NULL,   /* Reserved */
@@ -358,13 +720,13 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* Classmark Information Type 3 9.1.3 O 3-14 */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_3].value, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, "");
 	/* LCS Client Type 9.1.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_CLIENT].value, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_CLIENT, "");
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, "");
 	/* Chosen Channel 9.1.5 O 2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_CHAN].value, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, "");
 	/* LCS Priority 9.1.6 O 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_PRIO].value, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, "");
 	/* LCS QoS 9.1.6a C (note 1) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_QOS].value, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_QOS, "");
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, "");
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_GPS_ASSIST_DATA].value, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, "");
 	/* APDU 9.1.8 O 3-n */
@@ -404,11 +766,11 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Location Estimate 9.2.1 C (note 1) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LOC_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_LOC_EST, "");
 	/* Positioning Data 9.2.2 O 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_POS_DATA].value, BSSAP_PDU_TYPE_BSSMAP, BE_POS_DATA, "");
+	ELEM_OPT_TLV(BE_POS_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, "");
 	/* Deciphering Keys 9.2.3 C (note 2) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_DECIPH_KEYS].value, BSSAP_PDU_TYPE_BSSMAP, BE_DECIPH_KEYS, "");
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BSSMAP_LE_DECIPHERING_KEYS].value, GSM_PDU_TYPE_BSSMAP_LE, BSSMAP_LE_DECIPHERING_KEYS, "");
 	/* LCS Cause 9.2.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_CAUSE].value, BSSAP_PDU_TYPE_BSSMAP, BE_LCS_CAUSE, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[BSSMAP_LE_LCS_CAUSE].value, GSM_PDU_TYPE_BSSMAP_LE, BSSMAP_LE_LCS_CAUSE, "");
 	/* Velocity Estimate	9.2.5	O	3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_VEL_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_VEL_EST, "");
 	/* GANSS Positioning Data	9.2.6	O	3-n */
@@ -518,6 +880,82 @@ proto_register_gsm_bssmap_le(void)
 		FT_UINT8, BASE_DEC, VALS(gsm_apdu_protocol_id_strings), 0x0,
 		"APDU embedded protocol id", HFILL }
 	},
+	{ &hf_gsm_bssmap_le_spare,
+        { "Spare", "gsm_bssmap_le.spare", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Spare", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_ciphering_key_flag,
+        { "Ciphering Key Flag", "gsm_bssmap_le.decipheringKeys.flag", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, 
+		"Ciphering Key Flag", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_current_deciphering_key_value,
+        { "Current Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.current", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, "Current Deciphering Key Value", 
+		HFILL}
+	},
+    { &hf_gsm_bssmap_le_next_deciphering_key_value,
+        { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next", 
+		FT_UINT8, BASE_DEC, NULL, 0x0, 
+		"Next Deciphering Key Value", HFILL}
+	},
+    { &hf_gsm_bssmap_le_lcs_cause_value,
+        { "Cause Value", "gsm_bssmap_le.lcsCauseValue", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_lcs_cause_values), 0x0,
+		"Cause Value", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_diagnostic_value,
+        { "Diagnostic Value", "gsm_bssmap_le.diagnosticValue", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_position_method_failure_diagnostic_vals), 0x0,
+		"Diagnostic Value", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_client_category,
+        { "Client Category", "gsm_bssmap_le.lcsClientType.clientCategory", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_client_category), 0x0,
+		"Client Category", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_client_subtype,
+        { "Client Subtype", "gsm_bssmap_le.lcsClientType.clientSubtype", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_client_subtype), 0x0,
+		"Client Subtype", HFILL}
+	},
+	{ &hf_gsm_bssmap_le_velocity_requested,
+        { "Velocity Requested", "gsm_bssmap_le.lcsQos.velocityRequested", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_velocity_requested_vals), 0x0,
+		"Velocity Requested", HFILL}
+	},
+    { &hf_gsm_bssmap_le_vertical_coordinate_indicator,
+        { "Vertical Coordinate Indicator", "gsm_bssmap_le.lcsQos.verticalCoordinateIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_coordinate_indicator_vals), 0x0,
+		"Vertical Coordinate Indicator", HFILL}
+	},
+    { &hf_gsm_bssmap_le_horizontal_accuracy_indicator,
+        { "Horizontal Accuracy Indicator", "gsm_bssmap_le.lcsQos.horizontalAccuracyIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_horizontal_accuracy_indicator_vals), 0x0,
+		"Horizontal Accuracy Indicator", HFILL}
+	},
+    { &hf_gsm_bssmap_le_horizontal_accuracy,
+        { "Horizontal Accuracy", "gsm_bssmap_le.lcsQos.horizontalAccuracy", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Horizontal Accuracy", HFILL}
+	},
+    { &hf_gsm_bssmap_le_vertical_accuracy,
+        { "Vertical Accuracy", "gsm_bssmap_le.lcsQos.verticalAccuracy", 
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		"Vertical Accuracy", HFILL}
+	},
+    { &hf_gsm_bssmap_le_vertical_accuracy_indicator,
+        { "Vertical Accuracy Indicator", "gsm_bssmap_le.lcsQos.verticalAccuracyIndicator", 
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_accuracy_indicator_vals), 0x0,
+		"Vertical Accuracy Indicator", HFILL}
+	},
+    { &hf_gsm_bssmap_le_response_time_category,
+        { "Response Time Category", "gsm_bssmap_le.lcsQos.responseTimeCategory",
+		FT_UINT8, BASE_HEX, VALS(bssmap_le_response_time_definitions_vals), 0x0,
+		"Response Time Category", HFILL}
+	},
+
 	};
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
