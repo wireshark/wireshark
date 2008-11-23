@@ -191,23 +191,25 @@ dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
 {
   gint next_offset;
 
-  while (tvb_offset_exists(tvb, offset)) {
-    /*
-     * Find the end of the line.
-     */
-    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  if (smtp_tree) {
+    while (tvb_offset_exists(tvb, offset)) {
+      /*
+       * Find the end of the line.
+       */
+      tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-    /*
-     * Put this line.
-     */
-    proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
-			"Message: %s",
-			tvb_format_text(tvb, offset, next_offset - offset));
+      /*
+       * Put this line.
+       */
+      proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
+			  "Message: %s",
+			  tvb_format_text(tvb, offset, next_offset - offset));
 
-    /*
-     * Step to the next line.
-     */
-    offset = next_offset;
+      /*
+       * Step to the next line.
+       */
+      offset = next_offset;
+    }
   }
 }
 
@@ -284,6 +286,20 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       conversation_add_proto_data(conversation, proto_smtp, session_state);
     }
 
+    /* Are we doing TLS? 
+     * FIXME In my understanding of RFC 2487 client and server can send SMTP cmds 
+     * after a rejected TLS negotiation
+    */
+    if (session_state->last_nontls_frame != 0 && pinfo->fd->num > session_state->last_nontls_frame) {
+      guint16 save_can_desegment;
+      /* This is TLS, not raw SMTP. TLS can desegment */
+      save_can_desegment = pinfo->can_desegment;
+      pinfo->can_desegment = pinfo->saved_can_desegment;
+      call_dissector(ssl_handle, tvb, pinfo, tree);
+      pinfo->can_desegment = save_can_desegment;
+      return;
+    }
+
     /* Is this a request or a response? */
     request = pinfo->destport == pinfo->match_port;
 
@@ -302,7 +318,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Create a frame data structure and attach it to the packet.
          */
-        frame_data = se_alloc(sizeof(struct smtp_proto_data));
+        frame_data = se_alloc0(sizeof(struct smtp_proto_data));
 
         frame_data->conversation_id = conversation->index;
         frame_data->more_frags = TRUE;
@@ -329,12 +345,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * We didn't find a line ending, and we're doing desegmentation;
              * tell the TCP dissector where the data for this message starts
-             * in the data it handed us, and tell it we need one more byte
-             * (we may need more, but we'll try again if what we get next
-             * isn't enough), and return.
+             * in the data it handed us, and tell it we need more bytes
              */
             pinfo->desegment_offset = loffset;
-            pinfo->desegment_len = 1;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return;
           } else {
             linelen = tvb_length_remaining(tvb, loffset);
@@ -477,13 +491,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                   session_state->msg_last = FALSE;
                 }
-              } else if (g_ascii_strncasecmp(line, "STARTTLS", 7) == 0) {
+              } else if (g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
                 /*
                  * STARTTLS command.
                  * This is a command, but if the response is 220,
                  * everything after the response is TLS.
                  */
                 session_state->smtp_state = AWAITING_STARTTLS_RESPONSE;
+                frame_data->pdu_type = SMTP_PDU_CMD;
               } else {
                 /*
                  * Regular command.
@@ -506,13 +521,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
-    /* Are we doing TLS? */
-    if (session_state->last_nontls_frame != 0 &&
-        pinfo->fd->num > session_state->last_nontls_frame) {
-      /* This is TLS, not raw SMTP. */
-      call_dissector(ssl_handle, tvb, pinfo, tree);
-      return;
-    }
 
     /*
      * From here, we simply add items to the tree and info to the info
@@ -594,7 +602,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (request) {
-      if (tree) {
         /*
          * Check out whether or not we can see a command in there ...
          * What we are looking for is not data_seen and the word DATA
@@ -720,7 +727,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pinfo->fragmented = TRUE;
           }
         }
-      }
     } else {
       /*
        * Process the response, a line at a time, until we hit a line
