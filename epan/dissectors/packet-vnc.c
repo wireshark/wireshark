@@ -121,20 +121,67 @@ static const value_string button_mask_vs[] = {
 	{ 0,  NULL         }
 };
 
+typedef enum {
+	ENCODING_DESKTOP_SIZE	= -223,
+	ENCODING_LAST_RECT	= -224,
+	ENCODING_POINTER_POS	= -232,
+	ENCODING_RICH_CURSOR	= -239,
+	ENCODING_X_CURSOR	= -240,
+	ENCODING_RAW		= 0,
+	ENCODING_COPY_RECT	= 1,
+	ENCODING_RRE		= 2,
+	ENCODING_CORRE		= 4,
+	ENCODING_HEXTILE	= 5,
+	ENCODING_ZLIB		= 6,
+	ENCODING_TIGHT		= 7,
+	ENCODING_ZLIBHEX	= 8,
+	ENCODING_RLE		= 16,
+} encoding_type_e;
+
 static const value_string encoding_types_vs[] = {
-	{ -239, "Cursor (pseudo)"      },
-	{ -223, "DesktopSize (pseudo)" },
-	{ 0,  "Raw"                    },
-	{ 1,  "CopyRect"               },
-	{ 2,  "RRE"                    },
-	{ 4,  "CoRRE"                  },
-	{ 5,  "Hextile"                },
-	{ 6,  "Zlib"                   },
-	{ 7,  "Tight"                  },
-	{ 8,  "ZlibHex"                },
-	{ 16, "ZRLE"                   },
-	{ 0,  NULL                     }
+	{ ENCODING_DESKTOP_SIZE,	"DesktopSize (pseudo)" },
+	{ ENCODING_LAST_RECT,		"LastRect (pseudo)"    },
+	{ ENCODING_POINTER_POS,		"Pointer pos (pseudo)" },
+	{ ENCODING_RICH_CURSOR,		"Rich Cursor (pseudo)" },
+	{ ENCODING_X_CURSOR,		"X Cursor (pseudo)"    },
+	{ ENCODING_RAW,			"Raw"                  },
+	{ ENCODING_COPY_RECT,		"CopyRect"             },
+	{ ENCODING_RRE,			"RRE"                  },
+	{ ENCODING_CORRE,		"CoRRE"                },
+	{ ENCODING_HEXTILE,		"Hextile"              },
+	{ ENCODING_ZLIB,		"Zlib"                 },
+	{ ENCODING_TIGHT,		"Tight"                },
+	{ ENCODING_ZLIBHEX,		"ZlibHex"              },
+	{ ENCODING_RLE,			"ZRLE"                 },
+	{ 0,				NULL                   }
 };
+
+/* Rectangle types for Tight encoding.  These come in the "control byte" at the
+ * start of a rectangle's payload.  Note that these are with respect to the most
+ * significant bits 4-7 of the control byte, so you must shift it to the right 4
+ * bits before comparing against these values.
+ */
+#define TIGHT_RECT_FILL      0x08
+#define TIGHT_RECT_JPEG      0x09
+#define TIGHT_RECT_MAX_VALUE 0x09
+
+#define TIGHT_RECT_EXPLICIT_FILTER_FLAG 0x04
+
+/* Filter types for Basic encoding of Tight rectangles */
+#define TIGHT_RECT_FILTER_COPY     0x00
+#define TIGHT_RECT_FILTER_PALETTE  0x01
+#define TIGHT_RECT_FILTER_GRADIENT 0x02
+
+/* Minimum number of bytes to compress for Tight encoding */
+#define TIGHT_MIN_BYTES_TO_COMPRESS 12
+
+static const value_string tight_filter_ids_vs[] = {
+	{ TIGHT_RECT_FILTER_COPY,     "Copy"     },
+	{ TIGHT_RECT_FILTER_PALETTE,  "Palette"  },
+	{ TIGHT_RECT_FILTER_GRADIENT, "Gradient" },
+	{ 0, NULL }
+};
+
 
 typedef enum {
 	SERVER_VERSION,
@@ -143,8 +190,10 @@ typedef enum {
 	SECURITY,
 	SECURITY_TYPES,
 
-	TIGHT_UNKNOWN_PACKET1,
-	TIGHT_UNKNOWN_PACKET2,
+	TIGHT_TUNNELING_CAPABILITIES,
+	TIGHT_TUNNEL_TYPE_REPLY,
+	TIGHT_AUTH_CAPABILITIES,
+	TIGHT_AUTH_TYPE_REPLY,
 	TIGHT_AUTH_TYPE_AND_VENDOR_CODE,
 	TIGHT_UNKNOWN_PACKET3,
 
@@ -157,7 +206,7 @@ typedef enum {
 	SERVER_INIT,
 
 	TIGHT_INTERACTION_CAPS,
-	TIGHT_UNKNOWN_PACKET4,
+	TIGHT_INTERACTION_CAPS_LIST,
 
 	NORMAL_TRAFFIC
 } vnc_session_state_e;
@@ -167,12 +216,19 @@ typedef struct {
 	guint8 security_type_selected;
 	gdouble server_proto_ver, client_proto_ver;
 	vnc_session_state_e vnc_next_state;
+
+	/* These are specific to TightVNC */
+	gint num_server_message_types;
+	gint num_client_message_types;
+	gint num_encoding_types;
 } vnc_conversation_t;
 
 /* This structure will be tied to each packet */
 typedef struct {
 	guint8 bytes_per_pixel;
+	guint8 depth;
 	vnc_session_state_e state;
+	gint preferred_encoding;
 } vnc_packet_t;
 
 void proto_reg_handoff_vnc(void);
@@ -213,9 +269,14 @@ static guint vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo,
 				  guint16 width, guint16 height);
 static guint vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			       proto_tree *tree, guint16 width, guint16 height);
-static guint vnc_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				 gint *offset, proto_tree *tree, guint16 width,
-				 guint16 height);
+static guint vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+				proto_tree *tree, guint16 width, guint16 height);
+static guint vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
+				      gint *offset, proto_tree *tree, guint16 width,
+				      guint16 height);
+static guint vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
+				   gint *offset, proto_tree *tree, guint16 width,
+				   guint16 height);
 static guint vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo,
 					     gint *offset, proto_tree *tree);
 static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
@@ -223,6 +284,7 @@ static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
 static guint vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
 static void vnc_set_bytes_per_pixel(packet_info *pinfo, guint8 bytes_per_pixel);
+static void vnc_set_depth(packet_info *pinfo, guint8 depth);
 static guint8 vnc_get_bytes_per_pixel(packet_info *pinfo);
 
 
@@ -322,6 +384,46 @@ static int hf_vnc_client_cut_text = -1;
 
 static int hf_vnc_server_message_type = -1; /* Subtree */
 
+/* Tunneling capabilities (TightVNC extension) */
+static int hf_vnc_tight_num_tunnel_types = -1;
+static int hf_vnc_tight_tunnel_type = -1;
+
+/* Authentication capabilities (TightVNC extension) */
+static int hf_vnc_tight_num_auth_types = -1;
+static int hf_vnc_tight_auth_type = -1;
+
+/* TightVNC capabilities */
+static int hf_vnc_tight_server_message_type = -1;
+static int hf_vnc_tight_server_vendor = -1;
+static int hf_vnc_tight_server_name = -1;
+
+static int hf_vnc_tight_client_message_type = -1;
+static int hf_vnc_tight_client_vendor = -1;
+static int hf_vnc_tight_client_name = -1;
+
+static int hf_vnc_tight_encoding_type = -1;
+static int hf_vnc_tight_encoding_vendor = -1;
+static int hf_vnc_tight_encoding_name = -1;
+
+/* Tight compression parameters */
+static int hf_vnc_tight_reset_stream0 = -1;
+static int hf_vnc_tight_reset_stream1 = -1;
+static int hf_vnc_tight_reset_stream2 = -1;
+static int hf_vnc_tight_reset_stream3 = -1;
+
+static int hf_vnc_tight_rect_type = -1;
+
+static int hf_vnc_tight_image_len = -1;
+static int hf_vnc_tight_image_data = -1;
+
+static int hf_vnc_tight_fill_color = -1;
+
+static int hf_vnc_tight_filter_flag = -1;
+static int hf_vnc_tight_filter_id = -1;
+
+static int hf_vnc_tight_palette_num_colors = -1;
+static int hf_vnc_tight_palette_data = -1;
+
 /* Server Framebuffer Update */
 static int hf_vnc_fb_update_x_pos = -1;
 static int hf_vnc_fb_update_y_pos = -1;
@@ -373,6 +475,7 @@ static int hf_vnc_zrle_raw = -1;
 static int hf_vnc_zrle_palette = -1;
 
 /* Cursor Encoding */
+static int hf_vnc_cursor_x_fore_back = -1;
 static int hf_vnc_cursor_encoding_pixels = -1;
 static int hf_vnc_cursor_encoding_bitmask = -1;
 
@@ -405,7 +508,9 @@ static gint ett_vnc_zrle_subencoding = -1;
 static gint ett_vnc_colormap_num_groups = -1;
 static gint ett_vnc_colormap_color_group = -1;
 
-guint8 vnc_bytes_per_pixel; /* Global so it keeps its value between packets */
+/* Global so they keep their value between packets */
+guint8 vnc_bytes_per_pixel;
+guint8 vnc_depth;
 
 
 /* Code to dissect the packets */
@@ -468,6 +573,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   per_conversation_info);
 
 	vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
+	vnc_set_depth(pinfo, vnc_depth);
 
 	if(!ret) {	
 		if(DEST_PORT_VNC)
@@ -477,6 +583,54 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+/* Returns the new offset after processing the 4-byte vendor string */
+static gint
+process_vendor(proto_tree *tree, gint hfindex, tvbuff_t *tvb, gint offset)
+{
+	gchar *vendor;
+	proto_item *ti;
+
+	vendor = tvb_get_ephemeral_string(tvb, offset, 4);
+
+	ti = proto_tree_add_string(tree, hfindex, tvb, offset, 4, vendor);
+
+	if(g_ascii_strcasecmp(vendor, "STDV") == 0)
+		proto_item_append_text(ti, " (Standard VNC vendor)");
+	else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
+		proto_item_append_text(ti, " (Tridia VNC vendor)");
+	else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
+		proto_item_append_text(ti, " (Tight VNC vendor)");
+			
+	offset += 4;
+	return offset;
+}
+
+/* Returns the new offset after processing the specified number of capabilities */
+static gint
+process_tight_capabilities(proto_tree *tree,
+			   gint type_index, gint vendor_index, gint name_index,
+			   tvbuff_t *tvb, gint offset, gint num_capabilities)
+{
+	gint i;
+
+	/* See vnc_unixsrc/include/rfbproto.h:rfbCapabilityInfo */
+
+	for (i = 0; i < num_capabilities; i++) {
+		char *name;
+
+		proto_tree_add_item(tree, type_index, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		offset = process_vendor(tree, vendor_index, tvb, offset);
+
+		name = tvb_get_ephemeral_string(tvb, offset, 8);
+		proto_tree_add_string(tree, name_index, tvb, offset, 8, name);
+		offset += 8;
+	}
+
+	return offset;
+}
+
 /* Returns true if additional session startup messages follow */
 static gboolean
 vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
@@ -484,10 +638,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		     *per_conversation_info)
 {
 	guint8 num_security_types;
-	gchar *vendor;
 	guint32 desktop_name_len, auth_result, text_len;
 	vnc_packet_t *per_packet_info;
-	proto_item *ti;
+	gint num_tunnel_types;
+	gint num_auth_types;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
@@ -495,6 +649,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		per_packet_info = se_alloc(sizeof(vnc_packet_t));
 
 		per_packet_info->state = per_conversation_info->vnc_next_state;
+		per_packet_info->preferred_encoding = -1;
 
 		p_add_proto_data(pinfo->fd, proto_vnc, per_packet_info);
 	} 
@@ -595,7 +750,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		case 16 : /* Tight */
 			per_conversation_info->vnc_next_state =
-				TIGHT_UNKNOWN_PACKET1;
+				TIGHT_TUNNELING_CAPABILITIES;
 			
 		default :
 			/* Security type not supported by this dissector */
@@ -604,31 +759,72 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		break;
 
-	case TIGHT_UNKNOWN_PACKET1 :
+	case TIGHT_TUNNELING_CAPABILITIES :
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
-                                    "Unknown packet (TightVNC)");
+                                    "TightVNC tunneling capabilities supported");
 
-                proto_tree_add_text(tree, tvb, offset, -1,
-				    "Unknown packet (TightVNC)");
-		
-		per_conversation_info->vnc_next_state =
-			TIGHT_UNKNOWN_PACKET2;
+		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, FALSE);
+		num_tunnel_types = tvb_get_ntohl(tvb, offset);
+		offset += 4;
 
+		{
+			gint i;
+
+			for(i = 0; i < num_tunnel_types; i++) {
+				/* TightVNC and Xvnc don't support any tunnel capabilities yet, but each capability
+				 * is 16 bytes, so skip them.
+				 */
+
+				proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+		}
+
+		if (num_tunnel_types == 0)
+			per_conversation_info->vnc_next_state = TIGHT_AUTH_CAPABILITIES;
+		else
+			per_conversation_info->vnc_next_state = TIGHT_TUNNEL_TYPE_REPLY;
 		break;
 
-	case TIGHT_UNKNOWN_PACKET2 :
+	case TIGHT_TUNNEL_TYPE_REPLY:
+		/* Neither TightVNC nor Xvnc implement this; they just have a placeholder that emits an error
+		 * message and closes the connection (xserver/hw/vnc/auth.c:rfbProcessClientTunnelingType).
+		 * We should actually never get here...
+		 */
+		break;
+
+	case TIGHT_AUTH_CAPABILITIES:
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
-                                    "Unknown packet (TightVNC)");
+                                    "TightVNC authentication capabilities supported");
 
-                proto_tree_add_text(tree, tvb, offset, -1,
-				    "Unknown packet (TightVNC)");
+		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, FALSE);
+		num_auth_types = tvb_get_ntohl(tvb, offset);
+		offset += 4;
 
-		per_conversation_info->vnc_next_state =
-			TIGHT_AUTH_TYPE_AND_VENDOR_CODE;
-		
+		{
+			int i;
+
+			for (i = 0; i < num_auth_types; i++) {
+				/* See xserver/hw/vnc/auth.c:rfbSendAuthCaps()
+				 * We don't actually display the auth types for now.
+				 */
+				proto_tree_add_item(tree, hf_vnc_tight_auth_type, tvb, offset, 16, FALSE);
+				offset += 16;
+			}
+		}
+
+		if (num_auth_types == 0)
+			per_conversation_info->vnc_next_state = CLIENT_INIT;
+		else
+			per_conversation_info->vnc_next_state = TIGHT_AUTH_TYPE_REPLY;
 		break;
+
+	case TIGHT_AUTH_TYPE_REPLY:
+		REPORT_DISSECTOR_BUG("Unimplemented case: TightVNC authentication reply");
+		/* FIXME: implement.  See xserver/hw/vnc/auth.c:rfbProcessClientAuthType() */
+		break;		
 
 	case TIGHT_AUTH_TYPE_AND_VENDOR_CODE :
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -640,22 +836,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		offset += 4;
 
-		/* Display vendor code */		
-		vendor = tvb_get_ephemeral_string(tvb, offset, 4);
-
-		ti = proto_tree_add_string(tree, hf_vnc_vendor_code, tvb,
-					   offset, 4, vendor);
-
-		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
-			proto_item_append_text(ti, " (Standard VNC vendor)");
-
-		else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
-			proto_item_append_text(ti, " (Tridia VNC vendor)");
-
-		else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
-			proto_item_append_text(ti, " (Tight VNC vendor)");
-			
-		offset += 4;
+		offset = process_vendor(tree, hf_vnc_vendor_code, tvb, offset);
 
 		/* Display authentication method string */
 		proto_tree_add_item(tree, hf_vnc_security_type_string, tvb,
@@ -831,43 +1012,52 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case TIGHT_INTERACTION_CAPS :
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
-                                    "Interaction Capabilities");
+                                    "TightVNC Interaction Capabilities");
 
 		proto_tree_add_item(tree, hf_vnc_num_server_message_types,
 				    tvb, offset, 2, FALSE);
-
+		per_conversation_info->num_server_message_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_num_client_message_types,
 				    tvb, offset, 2, FALSE);
-
+		per_conversation_info->num_client_message_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_num_encoding_types,
 				    tvb, offset, 2, FALSE);
-
+		per_conversation_info->num_encoding_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_padding, tvb, offset, 2,
 				    FALSE);
+		offset += 2;
 
-		/* XXX - Display lists of server and client messages, the
-		 * number of each in the packet is found above. */
-
-		per_conversation_info->vnc_next_state = TIGHT_UNKNOWN_PACKET4;
-
+		per_conversation_info->vnc_next_state = TIGHT_INTERACTION_CAPS_LIST;
 		break;
 
-	case TIGHT_UNKNOWN_PACKET4 :
+	case TIGHT_INTERACTION_CAPS_LIST:
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
-                                    "Unknown packet (TightVNC)");
-		
-                proto_tree_add_text(tree, tvb, offset, -1,
-				    "Unknown packet (TightVNC)");
-		
+                                    "TightVNC Interaction Capabilities list");
+
+		offset = process_tight_capabilities(tree,
+						    hf_vnc_tight_server_message_type,
+						    hf_vnc_tight_server_vendor,
+						    hf_vnc_tight_server_name,
+						    tvb, offset, per_conversation_info->num_server_message_types);
+		offset = process_tight_capabilities(tree,
+						    hf_vnc_tight_client_message_type,
+						    hf_vnc_tight_client_vendor,
+						    hf_vnc_tight_client_name,
+						    tvb, offset, per_conversation_info->num_client_message_types);
+		offset = process_tight_capabilities(tree,
+						    hf_vnc_tight_encoding_type,
+						    hf_vnc_tight_encoding_vendor,
+						    hf_vnc_tight_encoding_name,
+						    tvb, offset, per_conversation_info->num_encoding_types);
+
 		per_conversation_info->vnc_next_state = NORMAL_TRAFFIC;
-		
 		break;
 
 	case NORMAL_TRAFFIC :
@@ -942,11 +1132,14 @@ static void
 vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		     proto_tree *tree)
 {
+	gint start_offset;
 	guint8 message_type;
 	gint bytes_needed = 0, length_remaining;
 	
 	proto_item *ti=NULL;
 	proto_tree *vnc_server_message_type_tree;
+
+	start_offset = *offset;
 
 	message_type = tvb_get_guint8(tvb, *offset);
 
@@ -990,9 +1183,8 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	   pinfo->can_desegment) {
 		length_remaining = tvb_length_remaining(tvb, *offset);
 
-		pinfo->desegment_offset = 0;
-		pinfo->desegment_len = tvb_length(tvb) + bytes_needed -
-			length_remaining;
+		pinfo->desegment_offset = start_offset;
+		pinfo->desegment_len = bytes_needed - length_remaining;
 		return;
 	}
 }
@@ -1017,6 +1209,8 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	proto_tree_add_item(tree, hf_vnc_client_depth, tvb, *offset,
 			    1, FALSE);
+	vnc_depth = tvb_get_guint8(tvb, *offset);
+	vnc_set_depth(pinfo, vnc_depth);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_big_endian_flag, tvb, *offset,
@@ -1063,6 +1257,9 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	guint16 number_of_encodings;
 	guint counter;
+	vnc_packet_t *per_packet_info;
+
+	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
@@ -1077,12 +1274,39 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			    "Number of encodings: %d", number_of_encodings);
 	*offset += 2;
 
+	per_packet_info->preferred_encoding = -1;
+
 	for(counter = 1; counter <= number_of_encodings; counter++) {
 		proto_tree_add_item(tree,
 				    hf_vnc_client_set_encodings_encoding_type,
 				    tvb, *offset, 4, FALSE);
+
+		/* Remember the first real encoding as the preferred encoding,
+		 * per xserver/hw/vnc/rfbserver.c:rfbProcessClientNormalMessage().
+		 * Otherwise, use RAW as the preferred encoding.
+		 */
+		if (per_packet_info->preferred_encoding == -1) {
+			int encoding;
+
+			encoding = tvb_get_ntohl(tvb, *offset);
+
+			switch(encoding) {
+			case ENCODING_RAW:
+			case ENCODING_RRE:
+			case ENCODING_CORRE:
+			case ENCODING_HEXTILE:
+			case ENCODING_ZLIB:
+			case ENCODING_TIGHT:
+				per_packet_info->preferred_encoding = encoding;
+				break;
+			}
+		}
+
 		*offset += 4;
 	}
+
+	if (per_packet_info->preferred_encoding == -1)
+		per_packet_info->preferred_encoding = ENCODING_RAW;
 }
 
 
@@ -1187,10 +1411,11 @@ static guint
 vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			      proto_tree *tree)
 {
-	guint16 num_rects, i, width, height;
+	gint num_rects, i;
+	guint16 width, height;
 	guint bytes_needed = 0;
 	gint32 encoding_type;
-	proto_item *ti;
+	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
 	proto_tree *vnc_rect_tree, *vnc_encoding_type_tree;
 	
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1215,78 +1440,103 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		vnc_rect_tree =
 			proto_item_add_subtree(ti, ett_vnc_rect);
 
-		proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_x_pos,
-				    tvb, *offset, 2, FALSE);
+		ti_x = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_x_pos,
+					   tvb, *offset, 2, FALSE);
 		*offset += 2;
 		
-		proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_y_pos,
-				    tvb, *offset, 2, FALSE);
+		ti_y = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_y_pos,
+					   tvb, *offset, 2, FALSE);
 		*offset += 2;
 		
-		proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_width,
-				    tvb, *offset, 2, FALSE);
+		ti_width = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_width,
+					       tvb, *offset, 2, FALSE);
 		width = tvb_get_ntohs(tvb, *offset);
 		*offset += 2;
 		
-		proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_height,
-				    tvb, *offset, 2, FALSE);
+		ti_height = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_height,
+						tvb, *offset, 2, FALSE);
 		height = tvb_get_ntohs(tvb, *offset);
 		*offset += 2;
 
 		ti = proto_tree_add_item(vnc_rect_tree,
 					 hf_vnc_fb_update_encoding_type,
 					 tvb, *offset, 4, FALSE);
-		
-		vnc_encoding_type_tree =
-			proto_item_add_subtree(ti, ett_vnc_encoding_type);
 
 		encoding_type = tvb_get_ntohl(tvb, *offset);
 		*offset += 4;
 
+		if (encoding_type == ENCODING_LAST_RECT)
+			break; /* exit the loop */
+
+		vnc_encoding_type_tree =
+			proto_item_add_subtree(ti, ett_vnc_encoding_type);
+
 		switch(encoding_type) {
 			
-		case 0 :
+		case ENCODING_RAW:
 			bytes_needed = vnc_raw_encoding(tvb, pinfo, offset,
 							vnc_encoding_type_tree,
 							width, height);
 			break;
 			
-		case 1 :
+		case ENCODING_COPY_RECT:
 			bytes_needed =
 				vnc_copyrect_encoding(tvb, pinfo, offset,
 						      vnc_encoding_type_tree,
 						      width, height);
 			break;
 			
-		case 2 :
+		case ENCODING_RRE:
 			bytes_needed = 
 				vnc_rre_encoding(tvb, pinfo, offset,
 						 vnc_encoding_type_tree,
 						 width, height);
 			break;
 			
-		case 5 :
+		case ENCODING_HEXTILE:
 			bytes_needed =
 				vnc_hextile_encoding(tvb, pinfo, offset,
 						     vnc_encoding_type_tree,
 						     width, height);
 			break;
 			
-		case 16 :
+		case ENCODING_RLE:
 			bytes_needed =
 				vnc_zrle_encoding(tvb, pinfo, offset,
 						  vnc_encoding_type_tree,
 						  width, height);
 			break;
-			
-		case -239 :
+
+		case ENCODING_TIGHT:
 			bytes_needed =
-				vnc_cursor_encoding(tvb, pinfo, offset,
-						    vnc_encoding_type_tree,
-						    width, height);
+				vnc_tight_encoding(tvb, pinfo, offset,
+						   vnc_encoding_type_tree,
+						   width, height);
 			break;
-			
-		case -223 : /* DesktopSize */
+
+		case ENCODING_RICH_CURSOR:
+		case ENCODING_X_CURSOR:
+			proto_item_append_text (ti_x,      " (hotspot X)");
+			proto_item_append_text (ti_y,      " (hotspot Y)");
+			proto_item_append_text (ti_width,  " (cursor width)");
+			proto_item_append_text (ti_height, " (cursor height)");
+
+			if (encoding_type == ENCODING_RICH_CURSOR)
+				bytes_needed = vnc_rich_cursor_encoding(tvb, pinfo, offset, vnc_encoding_type_tree, width, height);
+			else
+				bytes_needed = vnc_x_cursor_encoding(tvb, pinfo, offset, vnc_encoding_type_tree, width, height);
+
+			break;
+
+		case ENCODING_POINTER_POS:
+			proto_item_append_text (ti_x,      " (pointer X)");
+			proto_item_append_text (ti_y,      " (pointer Y)");
+			proto_item_append_text (ti_width,  " (unused)");
+			proto_item_append_text (ti_height, " (unused)");
+			bytes_needed = 0;
+			break;
+
+		case ENCODING_DESKTOP_SIZE:
 
 			/* There is no payload for this message type */
 
@@ -1596,23 +1846,286 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 
 
 static guint
-vnc_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		    proto_tree *tree, guint16 width, guint16 height)
+read_compact_len(tvbuff_t *tvb, gint *offset, gint *length, gint *value_length)
 {
-	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
-	guint length;
+	gint b;
 
-	length = width * height * bytes_per_pixel;
-	proto_tree_add_item(tree, hf_vnc_cursor_encoding_pixels, tvb, *offset, 
-			    length, FALSE);
-	*offset += length;
+	VNC_BYTES_NEEDED(1);
 
-	length = (guint) (floor((width + 7)/8) * height);
-	proto_tree_add_item(tree, hf_vnc_cursor_encoding_bitmask, tvb, *offset,
-			    length, FALSE);
+	*value_length = 0;
+
+	b = tvb_get_guint8(tvb, *offset);
+	*offset += 1;
+	*value_length += 1;
+
+	*length = b & 0x7f;
+	if ((b & 0x80) != 0) {
+		VNC_BYTES_NEEDED(1);
+
+		b = tvb_get_guint8(tvb, *offset);
+		*offset += 1;
+		*value_length += 1;
+
+		*length |= (b & 0x7f) << 7;
+
+		if ((b & 0x80) != 0) {
+			VNC_BYTES_NEEDED (1);
+
+			b = tvb_get_guint8(tvb, *offset);
+			*offset += 1;
+			*value_length += 1;
+
+			*length |= (b & 0xff) << 14;
+		}
+	}
+
+	return 0;
+}
+
+
+static guint
+process_compact_length_and_image_data(tvbuff_t *tvb, gint *offset, proto_tree *tree)
+{
+	guint bytes_needed;
+	guint length, value_length;
+
+	bytes_needed = read_compact_len (tvb, offset, &length, &value_length);
+	if (bytes_needed != 0)
+		return bytes_needed;
+
+	proto_tree_add_uint(tree, hf_vnc_tight_image_len, tvb, *offset - value_length, value_length, length);
+
+	VNC_BYTES_NEEDED(length);
+	proto_tree_add_item(tree, hf_vnc_tight_image_data, tvb, *offset, length, FALSE);
 	*offset += length;
 
 	return 0; /* bytes_needed */
+}
+
+
+static guint
+process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+				  proto_tree *tree, gint *bits_per_pixel)
+{
+	vnc_packet_t *per_packet_info;
+	gint num_colors;
+	guint palette_bytes;
+
+	/* See TightVNC's vnc_unixsrc/vncviewer/tight.c:InitFilterPaletteBPP() */
+
+	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+
+	VNC_BYTES_NEEDED(1);
+	proto_tree_add_item(tree, hf_vnc_tight_palette_num_colors, tvb, *offset, 1, FALSE);
+	num_colors = tvb_get_guint8(tvb, *offset);
+	*offset += 1;
+
+	num_colors++;
+	if (num_colors < 2)
+		return 0;
+
+	if (per_packet_info->depth == 24)
+		palette_bytes = num_colors * 3;
+	else
+		palette_bytes = num_colors * per_packet_info->depth / 8;
+
+	VNC_BYTES_NEEDED(palette_bytes);
+	proto_tree_add_item(tree, hf_vnc_tight_palette_data, tvb, *offset, palette_bytes, FALSE);
+	*offset += palette_bytes;
+
+	/* This is the number of bits per pixel *in the image data*, not the actual client depth */
+	if (num_colors == 2)
+		*bits_per_pixel = 1;
+	else
+		*bits_per_pixel = 8;
+
+	return 0;
+}
+
+static guint
+vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+		   proto_tree *tree, guint16 width, guint16 height)
+{
+	vnc_packet_t *per_packet_info;
+	guint8 comp_ctl;
+	proto_item *compression_type_ti;
+	gint bit_offset;
+	gint bytes_needed = -1;
+
+	/* unused arguments */
+	(void) width;
+	(void) height;
+
+	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+
+	/* See xserver/hw/vnc/rfbproto.h and grep for "Tight Encoding." for the following layout */
+
+	VNC_BYTES_NEEDED(1);
+
+	/* least significant bits 0-3 are "reset compression stream N" */
+	bit_offset = *offset * 8;
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream0, tvb, bit_offset + 7, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream1, tvb, bit_offset + 6, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream2, tvb, bit_offset + 5, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream3, tvb, bit_offset + 4, 1, FALSE);
+
+	/* most significant bits 4-7 are "compression type" */
+	compression_type_ti = proto_tree_add_bits_item(tree, hf_vnc_tight_rect_type, tvb, bit_offset + 0, 4, FALSE);
+
+	comp_ctl = tvb_get_guint8(tvb, *offset);
+	*offset += 1;
+
+	comp_ctl >>= 4; /* skip over the "reset compression" bits from above */
+
+	/* compression format */
+
+	if (comp_ctl == TIGHT_RECT_FILL) {
+		/* "fill" encoding (solid rectangle) */
+
+		proto_item_append_text(compression_type_ti, " (fill encoding - solid rectangle)");
+
+		if (per_packet_info->depth == 24) {
+			VNC_BYTES_NEEDED(3);
+			proto_tree_add_item(tree, hf_vnc_tight_fill_color, tvb, *offset, 3, FALSE);
+			*offset += 3;
+		} else {
+			VNC_BYTES_NEEDED(per_packet_info->bytes_per_pixel);
+			proto_tree_add_item(tree, hf_vnc_tight_fill_color, tvb, *offset, per_packet_info->bytes_per_pixel, FALSE);
+			*offset += per_packet_info->bytes_per_pixel;
+		}
+
+		bytes_needed = 0;
+	} else if (comp_ctl == TIGHT_RECT_JPEG) {
+		/* jpeg encoding */
+
+		proto_item_append_text(compression_type_ti, " (JPEG encoding)");
+		bytes_needed = process_compact_length_and_image_data(tvb, offset, tree);
+		if (bytes_needed != 0)
+			return bytes_needed;
+	} else if (comp_ctl > TIGHT_RECT_MAX_VALUE) {
+		/* invalid encoding */
+
+		proto_item_append_text(compression_type_ti, " (invalid encoding)");
+		DISSECTOR_ASSERT_NOT_REACHED();
+	} else {
+		guint row_size;
+		gint bits_per_pixel;
+
+		/* basic encoding */
+
+		proto_item_append_text(compression_type_ti, " (basic encoding)");
+
+		proto_tree_add_bits_item(tree, hf_vnc_tight_filter_flag, tvb, bit_offset + 1, 1, FALSE);
+
+		bits_per_pixel = per_packet_info->depth;
+
+		if ((comp_ctl & TIGHT_RECT_EXPLICIT_FILTER_FLAG) != 0) {
+			guint8 filter_id;
+
+			/* explicit filter */
+
+			VNC_BYTES_NEEDED(1);
+			proto_tree_add_item(tree, hf_vnc_tight_filter_id, tvb, *offset, 1, FALSE);
+			filter_id = tvb_get_guint8(tvb, *offset);
+			*offset += 1;
+
+			switch (filter_id) {
+			case TIGHT_RECT_FILTER_COPY:
+				/* nothing to do */
+				break;
+
+			case TIGHT_RECT_FILTER_PALETTE:
+				bytes_needed = process_tight_rect_filter_palette(tvb, pinfo, offset, tree, &bits_per_pixel);
+				if (bytes_needed != 0)
+					return bytes_needed;
+
+				break;
+
+			case TIGHT_RECT_FILTER_GRADIENT:
+				/* nothing to do */
+				break;
+			}
+		} else {
+			/* this is the same case as TIGHT_RECT_FILTER_COPY, so there's nothing special to do */
+		}
+
+		row_size = ((guint) width * bits_per_pixel + 7) / 8;
+		if (row_size * height < TIGHT_MIN_BYTES_TO_COMPRESS) {
+			guint num_bytes;
+
+			/* The data is not compressed; just skip over it */
+
+			num_bytes = row_size * height;
+			VNC_BYTES_NEEDED(num_bytes);
+			proto_tree_add_item(tree, hf_vnc_tight_image_data, tvb, *offset, num_bytes, FALSE);
+			*offset += num_bytes;
+
+			bytes_needed = 0;
+		} else {
+			/* The data is compressed; read its length and data */
+			bytes_needed = process_compact_length_and_image_data(tvb, offset, tree);
+			if (bytes_needed != 0)
+				return bytes_needed;
+		}
+	}
+
+	DISSECTOR_ASSERT(bytes_needed != -1);
+
+	return bytes_needed;
+}
+
+
+static guint
+decode_cursor(tvbuff_t *tvb, gint *offset, proto_tree *tree,
+	      guint pixels_bytes, guint mask_bytes)
+{
+	guint total_bytes;
+
+	total_bytes = pixels_bytes + mask_bytes;
+	VNC_BYTES_NEEDED (total_bytes);
+
+	proto_tree_add_item(tree, hf_vnc_cursor_encoding_pixels, tvb, *offset, 
+			    pixels_bytes, FALSE);
+	*offset += pixels_bytes;
+
+	proto_tree_add_item(tree, hf_vnc_cursor_encoding_bitmask, tvb, *offset,
+			    mask_bytes, FALSE);
+	*offset += mask_bytes;
+
+	return 0; /* bytes_needed */
+}
+
+
+static guint
+vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+			 proto_tree *tree, guint16 width, guint16 height)
+{
+	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
+	guint pixels_bytes, mask_bytes;
+
+	pixels_bytes = width * height * bytes_per_pixel;
+	mask_bytes = ((width + 7) / 8) * height;
+
+	return decode_cursor(tvb, offset, tree,
+			     pixels_bytes, mask_bytes);
+}
+
+
+static guint
+vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+		      proto_tree *tree, guint16 width, guint16 height)
+{
+	gint bitmap_row_bytes = (width + 7) / 8;
+	gint mask_bytes = bitmap_row_bytes * height;
+	(void) pinfo; /* unused argument */
+
+	VNC_BYTES_NEEDED (6);
+	proto_tree_add_item(tree, hf_vnc_cursor_x_fore_back, tvb, *offset, 6, FALSE);
+	*offset += 6;
+
+	/* The length of the pixel data is the same as the length of the mask data (X cursors are strictly black/white) */
+	return decode_cursor(tvb, offset, tree,
+			     mask_bytes, mask_bytes);
 }
 
 
@@ -1730,6 +2243,18 @@ vnc_set_bytes_per_pixel(packet_info *pinfo, guint8 bytes_per_pixel)
 }
 
 
+static void
+vnc_set_depth(packet_info *pinfo, guint8 depth)
+{
+	vnc_packet_t *per_packet_info;
+
+	/* The per_packet_info has already been created by the
+	 * vnc_startup_messages() routine. */
+	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
+	per_packet_info->depth = depth;
+}
+
+
 static guint8
 vnc_get_bytes_per_pixel(packet_info *pinfo)
 {
@@ -1785,6 +2310,131 @@ proto_register_vnc(void)
 		  { "Security type selected", "vnc.security_type",
 		    FT_UINT8, BASE_DEC, VALS(security_types_vs), 0x0,
 		    "Security type selected by the client", HFILL }
+		},
+		{ &hf_vnc_tight_num_tunnel_types,
+		  { "Number of supported tunnel types",  "vnc.num_tunnel_types",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Number of tunnel types for TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_tunnel_type,
+		  { "Tunnel type", "vnc.tunnel_type",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Tunnel type specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_num_auth_types,
+		  { "Number of supported authentication types", "vnc.num_auth_types",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Authentication types specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_auth_type,
+		  { "Authentication type", "vnc.auth_type",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Authentication type specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_server_message_type,
+		  { "Server message type", "vnc.server_message_type",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    "Server message type specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_server_vendor,
+		  { "Server vendor code", "vnc.server_vendor",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Server vendor code specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_server_name,
+		  { "Server name", "vnc.server_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Server name specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_client_message_type,
+		  { "Client message type", "vnc.client_message_type",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    "Client message type specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_client_vendor,
+		  { "Client vendor code", "vnc.client_vendor",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Client vendor code specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_client_name,
+		  { "Client name", "vnc.client_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Client name specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_encoding_type,
+		  { "Encoding type", "vnc.encoding_type",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    "Encoding type specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_encoding_vendor,
+		  { "Encoding vendor code", "vnc.encoding_vendor",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Encoding vendor code specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_encoding_name,
+		  { "Encoding name", "vnc.encoding_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Encoding name specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_reset_stream0,
+		  { "Reset compression stream 0", "vnc.tight_reset_stream0",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Tight compression, reset compression stream 0", HFILL }
+		},
+		{ &hf_vnc_tight_reset_stream1,
+		  { "Reset compression stream 1", "vnc.tight_reset_stream0",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Tight compression, reset compression stream 1", HFILL }
+		},
+		{ &hf_vnc_tight_reset_stream2,
+		  { "Reset compression stream 2", "vnc.tight_reset_stream0",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Tight compression, reset compression stream 2", HFILL }
+		},
+		{ &hf_vnc_tight_reset_stream3,
+		  { "Reset compression stream 3", "vnc.tight_reset_stream0",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Tight compression, reset compression stream 3", HFILL }
+		},
+		{ &hf_vnc_tight_rect_type,
+		  { "Rectangle type", "vnc.tight_rect_type",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    "Tight compression, rectangle type", HFILL }
+		},
+		{ &hf_vnc_tight_image_len,
+		  { "Image data length", "vnc.tight_image_len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Tight compression, length of image data", HFILL }
+		},
+		{ &hf_vnc_tight_image_data,
+		  { "Image data", "vnc.tight_image_data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Tight compression, image data", HFILL }
+		},
+		{ &hf_vnc_tight_fill_color,
+		  { "Fill color (RGB)", "vnc.tight_fill_color",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Tight compression, fill color for solid rectangle", HFILL }
+		},
+		{ &hf_vnc_tight_filter_flag,
+		  { "Explicit filter flag", "vnc.tight_filter_flag",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Tight compression, explicit filter flag", HFILL }
+		},
+		{ &hf_vnc_tight_filter_id,
+		  { "Filter ID", "vnc.tight_filter_id",
+		    FT_UINT8, BASE_DEC, VALS(tight_filter_ids_vs), 0x0,
+		    "Tight compression, filter ID", HFILL }
+		},
+		{ &hf_vnc_tight_palette_num_colors,
+		  { "Number of colors in palette", "vnc.tight_palette_num_colors",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Tight compression, number of colors in rectangle's palette", HFILL }
+		},
+		{ &hf_vnc_tight_palette_data,
+		  { "Palette data", "vnc.tight_palette_data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Tight compression, palette data for a rectangle", HFILL }
 		},
 		{ &hf_vnc_vendor_code,
 		  { "Vendor code", "vnc.vendor_code",
@@ -2107,6 +2757,12 @@ proto_register_vnc(void)
 		},
 
 		/* Cursor encoding */
+		{ &hf_vnc_cursor_x_fore_back,
+		  { "X Cursor foreground RGB / background RGB", "vnc.cursor_x_fore_back",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "RGB values for the X cursor's foreground and background", HFILL }
+		},
+
 		{ &hf_vnc_cursor_encoding_pixels,
 		  { "Cursor encoding pixels", "vnc.cursor_encoding_pixels",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,

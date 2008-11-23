@@ -2956,6 +2956,7 @@ Magnus Sörman		<magnus.sorman [AT] ericsson.com
 Pascal Quantin		<pascal.quantin [AT] gmail.com>
 Roy Marples		<roy [AT] marples.name>
 Ward van Wanrooij	<ward [AT] ward.nu>
+Federico Mena Quintero	<federico [AT] novell.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
