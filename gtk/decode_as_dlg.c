@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
@@ -537,41 +538,39 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(decode_show_w), main_vb);
 
-    {
-	/* Initialize list */
-        store = gtk_list_store_new(E_LIST_D_COLUMNS, G_TYPE_STRING,
-                                   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
-        list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
-        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), TRUE);
-        gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), FALSE);
-	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(list),
-                                    GTK_SELECTION_NONE);
+    /* Initialize list */
+    store = gtk_list_store_new(E_LIST_D_COLUMNS, G_TYPE_STRING,
+			       G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), FALSE);
+    gtk_tree_selection_set_mode(gtk_tree_view_get_selection(list),
+				GTK_SELECTION_NONE);
 
-	for (column = 0; column < E_LIST_D_COLUMNS; column++) {
-            renderer = gtk_cell_renderer_text_new();
-            tc = gtk_tree_view_column_new_with_attributes(titles[column],
-                                                          renderer, "text",
-                                                          column, NULL);
-	    gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-            gtk_tree_view_append_column(list, tc);
-        }
+    for (column = 0; column < E_LIST_D_COLUMNS; column++) {
+        renderer = gtk_cell_renderer_text_new();
+	tc = gtk_tree_view_column_new_with_attributes(titles[column],
+						      renderer, "text",
+						      column, NULL);
+	gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_append_column(list, tc);
+    }
 
-	/* Add data */
-	dissector_all_tables_foreach_changed(decode_build_show_list, store);
-	g_object_unref(G_OBJECT(store));
+    /* Add data */
+    dissector_all_tables_foreach_changed(decode_build_show_list, store);
+    g_object_unref(G_OBJECT(store));
     decode_dcerpc_add_show_list(store);
 
-	/* Put clist into a scrolled window */
-	scrolled_window = scrolled_window_new(NULL, NULL);
+    /* Put clist into a scrolled window */
+    scrolled_window = scrolled_window_new(NULL, NULL);
     /* this will result to set the width of the dialog to the required size */
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+				   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window), 
-                                   GTK_SHADOW_IN);
-	gtk_container_add(GTK_CONTAINER(scrolled_window),
-                          GTK_WIDGET(list));
-	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
-    }
+					GTK_SHADOW_IN);
+    gtk_container_add(GTK_CONTAINER(scrolled_window),
+		      GTK_WIDGET(list));
+    gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
 
     /* Button row */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_HELP, NULL);
@@ -1210,6 +1209,30 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
 }
 
 
+static gint
+decode_list_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U_)
+{
+  if (event->type == GDK_2BUTTON_PRESS) {
+    GtkWidget *main_w = gtk_widget_get_toplevel(list);
+
+    decode_ok_cb (NULL, main_w);
+  }
+
+  return FALSE;
+}
+
+static gint
+decode_list_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
+{
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+    GtkWidget    *main_w = gtk_widget_get_toplevel(list);
+
+    decode_ok_cb (NULL, main_w);
+  }
+
+  return FALSE;
+}
+
 /*
  * This routine starts the creation of a List on a notebook page.  It
  * creates both a scrolled window and a list, adds the list to the
@@ -1288,6 +1311,8 @@ decode_list_menu_finish(GtkWidget *list)
                        E_LIST_S_TABLE+1, NULL, -1);
 
     gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)), &iter);
+    g_signal_connect(list, "button_press_event", G_CALLBACK(decode_list_button_press_cb), NULL);
+    g_signal_connect(list, "key_release_event", G_CALLBACK(decode_list_key_release_cb), NULL);
 }
 
 /*
@@ -1735,7 +1760,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     requested_action = E_DECODE_YES;
     decode_w = dlg_window_new("Wireshark: Decode As");
-	/* Provide a minimum of a couple of rows worth of data */
+    /* Provide a minimum of a couple of rows worth of data */
     gtk_window_set_default_size(GTK_WINDOW(decode_w), -1, E_DECODE_MIN_HEIGHT);
 
     /* Container for each row of widgets */
@@ -1744,12 +1769,11 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_container_add(GTK_CONTAINER(decode_w), main_vb);
 
     /* First row - Buttons and Notebook */
-    {
-	format_hb = gtk_hbox_new(FALSE, 5);
-	gtk_box_pack_start(GTK_BOX(main_vb), format_hb, TRUE, TRUE, 10);
+    format_hb = gtk_hbox_new(FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(main_vb), format_hb, TRUE, TRUE, 10);
 
-	button_vb = decode_add_yes_no();
-	gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
+    button_vb = decode_add_yes_no();
+    gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
 
     button = gtk_button_new_with_label("Show Current");
     g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), decode_w);
@@ -1765,8 +1789,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_tooltips_set_tip(tooltips, button, 
         "Clear ALL settings.", NULL);
 
-	decode_add_notebook(format_hb);
-    }
+    decode_add_notebook(format_hb);
 
     /* Button row */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
