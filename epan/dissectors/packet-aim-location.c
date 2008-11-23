@@ -43,21 +43,6 @@
 /* SNAC families */
 #define FAMILY_LOCATION   0x0002
 
-#define FAMILY_LOCATION_USERINFO_INFOENCODING  0x0001
-#define FAMILY_LOCATION_USERINFO_INFOMSG       0x0002
-#define FAMILY_LOCATION_USERINFO_AWAYENCODING  0x0003
-#define FAMILY_LOCATION_USERINFO_AWAYMSG       0x0004
-#define FAMILY_LOCATION_USERINFO_CAPS          0x0005
-
-static const aim_tlv msg_tlv[] = {
-  { FAMILY_LOCATION_USERINFO_INFOENCODING, "Info Msg Encoding", dissect_aim_tlv_value_string},
-  { FAMILY_LOCATION_USERINFO_INFOMSG, "Info Message", dissect_aim_tlv_value_string },
-  { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", dissect_aim_tlv_value_string },
-  { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", dissect_aim_tlv_value_string },
-  { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", dissect_aim_tlv_value_bytes },
-  { 0, NULL, 0 }
-};
-
 #define AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH 	0x0001
 #define AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES 	0x0002
 
@@ -67,13 +52,28 @@ static const aim_tlv location_rights_tlvs[] = {
   { 0, NULL, NULL }
 };
 
+#define AIM_LOCATE_TAG_TLV_SIG_TYPE			0x0001
+#define AIM_LOCATE_TAG_TLV_SIG_DATA			0x0002
+#define AIM_LOCATE_TAG_TLV_UNAVAILABLE_TYPE		0x0003
+#define AIM_LOCATE_TAG_TLV_UNAVAILABLE_DATA		0x0004
+#define AIM_LOCATE_TAG_TLV_CAPABILITIES			0x0005
+#define AIM_LOCATE_TAG_TLV_SIG_TIME			0x000A
+#define AIM_LOCATE_TAG_TLV_UNAVAILABLE_TIME		0x000B
+#define AIM_LOCATE_TAG_TLV_SUPPORT_HOST_SIG		0x000C
+#define AIM_LOCATE_TAG_TLV_HTML_INFO_TYPE		0x000D
+#define AIM_LOCATE_TAG_TLV_HTML_INFO_DATA		0x000E
 
-#define AIM_LOCATION_USERINFO_TLV_MIME_TYPE			  0x0001
-#define AIM_LOCATION_USERINFO_TLV_CLIENT_CAPABILITIES 0x0005
-
-static const aim_tlv location_userinfo_tlvs[] = {
-	{ AIM_LOCATION_USERINFO_TLV_MIME_TYPE, "Mime Type", dissect_aim_tlv_value_string },
-	{ AIM_LOCATION_USERINFO_TLV_CLIENT_CAPABILITIES, "Client capabilities", dissect_aim_tlv_value_client_capabilities },
+static const aim_tlv locate_tags_tlvs[] = {
+	{ AIM_LOCATE_TAG_TLV_SIG_TYPE, "Signature MIME Type", dissect_aim_tlv_value_string },
+	{ AIM_LOCATE_TAG_TLV_SIG_DATA, "Signature Data", dissect_aim_tlv_value_string },
+	{ AIM_LOCATE_TAG_TLV_UNAVAILABLE_TYPE, "Away Message MIME Type", dissect_aim_tlv_value_string },
+	{ AIM_LOCATE_TAG_TLV_UNAVAILABLE_DATA, "Away Message Data", dissect_aim_tlv_value_string },
+	{ AIM_LOCATE_TAG_TLV_CAPABILITIES, "Client Capabilities", dissect_aim_tlv_value_client_capabilities },
+	{ AIM_LOCATE_TAG_TLV_SIG_TIME, "Signature Time", dissect_aim_tlv_value_time },
+	{ AIM_LOCATE_TAG_TLV_UNAVAILABLE_TIME, "Away Message Time", dissect_aim_tlv_value_time },
+	{ AIM_LOCATE_TAG_TLV_SUPPORT_HOST_SIG, "Enable Server Based Profiles", dissect_aim_tlv_value_uint8 },
+	{ AIM_LOCATE_TAG_TLV_HTML_INFO_TYPE, "Host Based Buddy MIME Type", dissect_aim_tlv_value_string },
+	{ AIM_LOCATE_TAG_TLV_HTML_INFO_DATA, "Host Bases Buddy Data", dissect_aim_tlv_value_string },
 	{ 0, NULL, NULL }
 };
 
@@ -105,7 +105,7 @@ static int dissect_aim_location_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, pr
 
 static int dissect_aim_location_setuserinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, location_userinfo_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, locate_tags_tlvs);
 }
 
 static int dissect_aim_location_watcher_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
@@ -168,7 +168,7 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 
 	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, msg_tlv);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, locate_tags_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_location[] = {
