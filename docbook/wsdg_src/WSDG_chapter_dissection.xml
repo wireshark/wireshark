@@ -309,7 +309,7 @@ static gint *ett[] = {
 	   <example><title>Registering data structures.</title>
    <programlisting>
 <![CDATA[proto_register_field_array(proto_foo, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));]]>
+proto_register_subtree_array(ett, array_length(ett));]]>
    </programlisting></example>
    	<para>
    	The variables hf_foo_pdu_type and ett_foo also need to be declared
@@ -317,18 +317,16 @@ static gint *ett[] = {
    	</para>
 	   <example><title>Dissector data structure globals.</title>
    <programlisting>
-   <![CDATA[
-static int hf_foo_pdu_type = -1;
+<![CDATA[static int hf_foo_pdu_type = -1;
 
-static gint ett_foo = -1;
-]]>
+static gint ett_foo = -1;]]>
    </programlisting></example>
 	<para>
 	Now we can enhance the protocol display with some detail.
 	</para>
 	   <example><title>Dissector starting to dissect the packets.</title>
    <programlisting>
-<![CDATA[if (tree) { /* we are being asked for details */
+<![CDATA[	if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
 		proto_tree *foo_tree = NULL;
 
@@ -453,7 +451,7 @@ static int hf_foo_initialip = -1;
    </para>
 	   <example><title>Adding Names to the protocol.</title>
    <programlisting>
-<![CDATA[{ &hf_foo_pdu_type,
+<![CDATA[	{ &hf_foo_pdu_type,
 		{ "FOO PDU Type", "foo.type",
 		FT_UINT8, BASE_DEC,
 		VALS(packettypenames), 0x0,
@@ -547,7 +545,9 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
 		foo_tree = proto_item_add_subtree(ti, ett_foo);
 		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE);
-		offset += 1;]]>
+		offset += 1;
+	}
+}]]>
    </programlisting></example>
    <para>
    So here, after grabbing the value of the first 8 bits, we use it with one of the
