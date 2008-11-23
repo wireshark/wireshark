@@ -805,25 +805,26 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
           g_snprintf(buffer, BUFFER_SIZE, "Addr 0x%8.8X ->", data_address);
           break;
         default: /* and ACN_DMP_ADT_A_R, this reserved....so it has no meaning yet */
+          offset += data_size;
           return offset;
       }
 
       switch (data_size) {
         case 1:
           data_value = tvb_get_guint8(tvb, offset);
-          proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
+          proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
           break;
         case 2:
           data_value = tvb_get_ntohs(tvb, offset);
-          proto_tree_add_int_format(tree, hf_acn_data16, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
+          proto_tree_add_uint_format(tree, hf_acn_data16, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
           break;
         case 3:
           data_value = tvb_get_ntoh24(tvb, offset);
-          proto_tree_add_int_format(tree, hf_acn_data24, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
+          proto_tree_add_uint_format(tree, hf_acn_data24, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
           break;
         case 4:
           data_value = tvb_get_ntohl(tvb, offset);
-          proto_tree_add_int_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
+          proto_tree_add_uint_format(tree, hf_acn_data32, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
           break;
         default:
           /* build string of values */
@@ -864,19 +865,19 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         switch (data_size) {
           case 1:
             data_value = tvb_get_guint8(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
             break;
           case 2:
             data_value = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
             break;
           case 3:
             data_value = tvb_get_ntoh24(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
             break;
           case 4:
             data_value = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
             break;
           default:
             /* build string of values */
@@ -918,19 +919,19 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         switch (data_size) {
           case 1:
             data_value = tvb_get_guint8(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %2.2X", buffer, data_value);
             break;
           case 2:
             data_value = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 2, data_value, "%s %4.4X", buffer, data_value);
             break;
           case 3:
             data_value = tvb_get_ntoh24(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 3, data_value, "%s %6.6X", buffer, data_value);
             break;
           case 4:
             data_value = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
+            proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 4, data_value, "%s %8.8X", buffer, data_value);
             break;
           default:
             /* build string of values */
@@ -1004,7 +1005,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       /* convert to string */
       name = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
       /* Add item */
-      proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
+      proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
       offset++;
       break;
 
@@ -1030,7 +1031,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         /* convert to string */
         name = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         /* Add item */
-        proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
+        proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
 
         data_address += adt->increment;
       } /* of (x=0;x<adt->count;x++) */
@@ -1059,7 +1060,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         /* convert to string */
         name = val_to_str(data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         /* Add item */
-        proto_tree_add_int_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
+        proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
         data_address += adt->increment;
         offset++;
       } /* of (x=0;x<adt->count;x++) */
