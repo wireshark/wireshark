@@ -185,8 +185,10 @@ redraw_hex_dump_all(void)
      gtk_text_buffer doesn't seem to trigger an update.
      The only workaround is to freshly select the frame, which will remove any
      existing notebook tabs and "restart" the whole byte view again. */
-  if (cfile.current_frame != NULL)
+  if (cfile.current_frame != NULL) {
+    cfile.current_row = -1;
     cf_goto_frame(&cfile, cfile.current_frame->num);
+  }
 }
 
 static void
