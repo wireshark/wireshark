@@ -68,7 +68,7 @@
 /* No SCTP port registered with IANA for S1AP yet */
 #define SCTP_PORT_S1AP	0
 
-static dissector_handle_t gsm_a_dtap_handle;
+static dissector_handle_t nas_eps_handle;
 
 
 /*--- Included file: packet-s1ap-val.h ---*/
@@ -2097,7 +2097,7 @@ dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
   if (parameter_tvb)
-    call_dissector(gsm_a_dtap_handle,parameter_tvb,actx->pinfo, proto_tree_get_root(tree));
+    call_dissector(nas_eps_handle,parameter_tvb,actx->pinfo, proto_tree_get_root(tree));
 
 
 
@@ -5672,7 +5672,7 @@ proto_reg_handoff_s1ap(void)
 		dissector_add("sctp.port", SctpPort, s1ap_handle);
 	}
 
-	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+	nas_eps_handle = find_dissector("nas_eps");
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
