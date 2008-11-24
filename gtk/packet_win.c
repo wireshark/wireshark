@@ -89,6 +89,36 @@ static void new_tree_view_selection_changed_cb(GtkTreeSelection *sel,
 
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
+static gint
+button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
+{
+  if (widget == NULL || event == NULL) {
+    return FALSE;
+  }
+
+  tree_view_select(widget, (GdkEventButton *) event);
+
+  /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
+  if (event->type == GDK_2BUTTON_PRESS) {
+    GtkTreePath      *path;
+
+    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+				      (gint) (((GdkEventButton *)event)->x),
+				      (gint) (((GdkEventButton *)event)->y),
+				      &path, NULL, NULL, NULL))
+    {
+      if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(widget), path)) {
+	gtk_tree_view_collapse_row(GTK_TREE_VIEW(widget), path);
+      }	else {
+	gtk_tree_view_expand_row(GTK_TREE_VIEW(widget), path, FALSE);
+      }
+      gtk_tree_path_free(path);
+    }
+  }
+
+  return FALSE;
+}
+
 void new_window_cb(GtkWidget *w _U_)
 {
 #define NewWinTitleLen 1000
@@ -162,7 +192,7 @@ void new_window_cb(GtkWidget *w _U_)
   /* load callback handlers */
   g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
                  "changed", G_CALLBACK(new_tree_view_selection_changed_cb), DataPtr);
-
+  g_signal_connect(tree_view, "button_press_event", G_CALLBACK(button_press_handler), NULL);
   g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
