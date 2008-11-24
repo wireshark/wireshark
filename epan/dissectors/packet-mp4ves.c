@@ -59,6 +59,8 @@ static int hf_mp4ves_video_object_type_indication = -1;
 static int hf_mp4ves_random_accessible_vol = -1;
 static int hf_mp4ves_is_object_layer_identifier = -1;
 static int hf_mp4ves_aspect_ratio_info = -1;
+static int hf_mp4ves_vol_control_parameters = -1;
+static int hf_mp4ves_video_object_layer_shape = -1;
 
 /* Initialize the subtree pointers */
 static int ett_mp4ves = -1;
@@ -380,11 +382,23 @@ static const value_string mp4ves_aspect_ratio_info_vals[] = {
 	{ 0xf,	"Extended PAR" },
 	{ 0,	NULL }
 };
+
+/* Table 6-14 Video Object Layer shape type */
+static const value_string mp4ves_video_object_layer_shape_vals[] = {
+	{ 0x0,	"rectangular" },
+	{ 0x1,	"binary" },
+	{ 0x2,	"binary only" },
+	{ 0x3,	"grayscale" },
+	{ 0,	NULL }
+};
+
 static int
 dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int bit_offset)
 {
 	guint32 dword;
-	guint8 octet, is_object_layer_identifier, aspect_ratio_info;
+	int current_bit_offset;
+	guint8 octet, is_object_layer_identifier, aspect_ratio_info, vol_control_parameters, vbv_parameters;
+	guint8 video_object_layer_shape, video_object_layer_verid = 0;
 
 	/* if(next_bits() == video_object_layer_start_code) { */
 	dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
@@ -430,10 +444,62 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		bit_offset+=8;
 	}
 	/* vol_control_parameters 1 bslbf */
-	/* if (vol_control_parameters) { */
-	/* chroma_format 2 uimsbf */
-	/* low_delay 1 uimsbf */
-	/* vbv_parameters 1 blsbf */
+	/* vol_control_parameters 1 bslbf */
+	vol_control_parameters = tvb_get_bits8(tvb,bit_offset, 1);
+	proto_tree_add_bits_item(tree, hf_mp4ves_vol_control_parameters, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	current_bit_offset = bit_offset;
+	if (vol_control_parameters) { 
+		/* chroma_format 2 uimsbf */
+		bit_offset+=2;
+		/* low_delay 1 uimsbf */
+		bit_offset++;
+		/* vbv_parameters 1 blsbf */
+		vbv_parameters = tvb_get_bits8(tvb,bit_offset, 1);
+		bit_offset++;
+		if (vbv_parameters) {
+			/* first_half_bit_rate 15 uimsbf */
+			bit_offset+=15;
+			/* marker_bit 1 bslbf */
+			bit_offset++;
+			/* latter_half_bit_rate 15 uimsbf */
+			bit_offset+=15;
+			/* marker_bit 1 bslbf */
+			bit_offset++;
+			/* first_half_vbv_buffer_size 15 uimsbf */
+			bit_offset+=15;
+			/* marker_bit 1 bslbf */
+			bit_offset++;
+			/* latter_half_vbv_buffer_size 3 uimsbf */
+			bit_offset+=3;
+			/* first_half_vbv_occupancy 11 uimsbf */
+			bit_offset+=11;
+			/* marker_bit 1 blsbf */
+			bit_offset++;
+			/* latter_half_vbv_occupancy 15 uimsbf */
+			bit_offset+=15;
+			/* marker_bit 1 blsbf */
+			bit_offset++;
+		}
+	}
+	if(bit_offset-current_bit_offset > 0)
+		proto_tree_add_text(tree, tvb, current_bit_offset>>3, (bit_offset+7)>>3, "Not disected bits");
+	/* video_object_layer_shape 2 uimsbf */
+	video_object_layer_shape = tvb_get_bits8(tvb,bit_offset, 2);
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, FALSE);
+	bit_offset+=2;
+	if (video_object_layer_shape == 3/*"grayscale"*/&& video_object_layer_verid != 1){
+		/* video_object_layer_shape_extension 4 uimsbf */
+		bit_offset+=4;
+	}
+	/* marker_bit 1 bslbf */
+	bit_offset++;
+	/* vop_time_increment_resolution 16 uimsbf */
+	bit_offset+=16;
+	/* marker_bit 1 bslbf */
+	bit_offset++;
+	/* fixed_vop_rate 1 bslbf */
+	bit_offset++;
 
 
 	return bit_offset;
@@ -478,6 +544,7 @@ VisualObject() {
 static int
 dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
 {
+	proto_item *item;
 	guint8 is_visual_object_identifier, visual_object_type;
 	guint32 dword;
 	guint8 octet;
@@ -529,6 +596,11 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bit_offset+=24;
 		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
 		bit_offset+= 8;
+		if(tvb_length_remaining(tvb,(bit_offset>>3))==0){
+			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string to short");
+			PROTO_ITEM_SET_GENERATED(item);
+			return -1;
+		}
 		/*
 		VideoObjectLayer()
 		*/
@@ -537,16 +609,11 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	return bit_offset;
 }
-void 
-dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	proto_item *item;
-	proto_tree *mp4ves_tree;
-	int bit_offset = 0;
-	guint32 dword;
 
-	item = proto_tree_add_item(tree, hf_mp4ves_config, tvb, 0, -1, FALSE);
-	mp4ves_tree = proto_item_add_subtree(item, ett_mp4ves_config);
+static int
+dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int bit_offset)
+{
+	guint32 dword;
 
 	/*VisualObjectSequence() { 
 	do {
@@ -557,7 +624,7 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
 	if ((dword & 0x00000100) != 0x00000100){
 		/* No start code prefix */
-		return;
+		return -1;
 	}
 	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
 	bit_offset+= 24;
@@ -567,7 +634,7 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Expect visual_object_sequence_start_code */
 	if(dword != 0x1b0)
-		return;
+		return -1;
 	/* 	profile_and_level_indication */
 	proto_tree_add_bits_item(tree, hf_mp4ves_profile_and_level_indication, tvb, bit_offset, 8, FALSE);
 	bit_offset+= 8;
@@ -580,14 +647,14 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bit_offset+= 32;
 	if ((dword & 0x00000100) != 0x00000100){
 		/* No start code prefix */
-		return;
+		return -1;
 	}
 	if(dword==0x1b2){
 		/* 
 		 * user_data_start_code
 		 * XXX call user data dissection here 
 		 */
-		return;
+		return -1;
 	}
 	if(dword==0x1b5){
 	/*
@@ -598,10 +665,21 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 	} while ( next_bits() != visual_object_sequence_end_code)
 	visual_object_sequence_end_code 
-}
-*/
+	*/
+	return bit_offset;
 }
 
+void 
+dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *mp4ves_tree;
+
+	item = proto_tree_add_item(tree, hf_mp4ves_config, tvb, 0, -1, FALSE);
+	mp4ves_tree = proto_item_add_subtree(item, ett_mp4ves_config);
+
+	dissect_mp4ves_VisualObjectSequence(tvb, pinfo, tree, 0);
+}
 
 void
 dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -673,18 +751,23 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "Data");
 			return;
 		}
-		proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
-		bit_offset = bit_offset+24;
-		dword = tvb_get_bits8(tvb,bit_offset, 8);
-		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+		dword = tvb_get_bits8(tvb,24, 8);
 		bit_offset = bit_offset+8;
 		switch(dword){
 		/* vop_start_code */
 		case 0xb6:
+			proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+			bit_offset = bit_offset+24;
 			/* vop_coding_type 2 bits */
 			proto_tree_add_bits_item(tree, hf_mp4ves_vop_coding_type, tvb, bit_offset, 2, FALSE);
 			break;
+		case 0xb0:
+			/* VS start code */
+			bit_offset = dissect_mp4ves_VisualObjectSequence(tvb, pinfo, tree, 0);
+			break;
 		default:
+			proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+			bit_offset = bit_offset+24;
 			break;
 		}
 	}
@@ -888,6 +971,16 @@ proto_register_mp4ves(void)
 	      { "aspect_ratio_info",		"mp4ves.aspect_ratio_info",
 		  FT_UINT8, BASE_DEC, VALS(mp4ves_aspect_ratio_info_vals), 0x0,
 	        "aspect_ratio_info", HFILL }
+		},
+		{ &hf_mp4ves_vol_control_parameters,
+	      { "vol_control_parameters",		"mp4ves.vol_control_parameters",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+	        "vol_control_parameters", HFILL }
+		},
+		{ &hf_mp4ves_video_object_layer_shape,
+	      { "video_object_layer_shape",		"mp4ves.video_object_layer_shape",
+		  FT_UINT8, BASE_DEC, VALS(mp4ves_video_object_layer_shape_vals), 0x0,
+	        "video_object_layer_shape", HFILL }
 		},
 	};
 
