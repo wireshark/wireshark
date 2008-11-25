@@ -829,7 +829,6 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static int
 dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-  int offset = 0;
   asn1_ctx_t *actx;
 
   actx = get_asn1_ctx(pinfo->private_data);
