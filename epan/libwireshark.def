@@ -966,6 +966,7 @@ tvb_length
 tvb_length_remaining
 tvb_memcpy
 tvb_memdup
+tvb_memeql
 tvb_new_real_data
 tvb_new_subset
 tvb_offset_exists

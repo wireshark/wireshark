@@ -3628,6 +3628,10 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tapinfo->completed_calls++;
         if (pi->call_state != VOIP_NO_STATE)
 			callsinfo->call_state = pi->call_state;
+		if (pi->call_comment) {
+			if (callsinfo->call_comment) g_free(callsinfo->call_comment);
+			callsinfo->call_comment=g_strdup(pi->call_comment);
+		}
 		callsinfo->stop_sec=(gint32)(pinfo->fd->rel_ts.secs);
 		callsinfo->stop_usec=pinfo->fd->rel_ts.nsecs/1000;
 		callsinfo->last_frame_num=pinfo->fd->num;
