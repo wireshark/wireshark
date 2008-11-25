@@ -745,6 +745,11 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	*/
+		if (tvb_length(tvb)< 4){
+			/* To short to be a start code */
+			proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "Data");
+			return;
+		}
 		dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
 		if (dword != 1){
 			/* if it's not 23 zeros followed by 1 it isn't a start code */
@@ -821,6 +826,20 @@ dissect_mp4ves_par_video_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, prot
   return offset;
 }
 
+static int
+dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+  int offset = 0;
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+
+  dissect_mp4ves_config(tvb, pinfo, tree);
+
+  return tvb_length(tvb);
+}
+
 typedef struct _mp4ves_capability_t {
   const gchar *id;
   const gchar *name;
@@ -831,7 +850,7 @@ static mp4ves_capability_t mp4ves_capability_tab[] = {
   /* ITU-T H.245  capabilities ISO/IEC 14496-2(m*/
   { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/0", "profileAndLevel", dissect_mp4ves_par_profile },
   { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/1", "object", dissect_mp4ves_par_video_object_type },
-  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/2", "decoderConfigurationInformation", NULL },
+  { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/2", "decoderConfigurationInformation", dissect_mp4ves_par_decoderConfigurationInformation },
   { "GenericCapability/0.0.8.245.1.0.0/nonCollapsing/3", "drawingOrder", NULL },
   { "GenericCapability/0.0.8.245.1.0.0/collapsing/4", "visualBackChannelHandle", NULL },
   { NULL, NULL, NULL },
