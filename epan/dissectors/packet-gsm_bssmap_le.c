@@ -765,7 +765,7 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Deciphering Keys 9.2.3 C (note 2) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_DECIPH_KEYS].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, "");
 	/* LCS Cause 9.2.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CAUSE].value, GSM_PDU_TYPE_BSSMAP_LE, BSSMAP_LE_LCS_CAUSE, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CAUSE].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, "");
 	/* Velocity Estimate	9.2.5	O	3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_VEL_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_VEL_EST, "");
 	/* GANSS Positioning Data	9.2.6	O	3-n */
