@@ -1433,6 +1433,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(ospf_header_tree, tvb, ospflen, crypto_len,
 				    "Auth Data: %s",
 				    tvb_bytes_to_str(tvb, ospflen, crypto_len));
+		    proto_tree_set_appendix(ospf_header_tree, tvb, ospflen, crypto_len);
 	        }
 	        break;
 
