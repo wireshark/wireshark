@@ -715,13 +715,13 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	/* Classmark Information Type 3 9.1.3 O 3-14 */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_3].value, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, "");
 	/* LCS Client Type 9.1.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(BSSMAP_LE_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CLIENT_TYPE].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, "");
 	/* Chosen Channel 9.1.5 O 2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_CHAN].value, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, "");
 	/* LCS Priority 9.1.6 O 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_PRIO].value, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, "");
 	/* LCS QoS 9.1.6a C (note 1) 3-n */
-	ELEM_OPT_TLV(BSSMAP_LE_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCSQOS].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, "");
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_GPS_ASSIST_DATA].value, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, "");
 	/* APDU 9.1.8 O 3-n */
@@ -761,9 +761,9 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	/* Location Estimate 9.2.1 C (note 1) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LOC_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_LOC_EST, "");
 	/* Positioning Data 9.2.2 O 3-n */
-	ELEM_OPT_TLV(BE_POS_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_POS_DATA].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, "");
 	/* Deciphering Keys 9.2.3 C (note 2) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BSSMAP_LE_DECIPHERING_KEYS].value, GSM_PDU_TYPE_BSSMAP_LE, BSSMAP_LE_DECIPHERING_KEYS, "");
+	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_DECIPH_KEYS].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, "");
 	/* LCS Cause 9.2.4 C (note 3) 3-n */
 	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CAUSE].value, GSM_PDU_TYPE_BSSMAP_LE, BSSMAP_LE_LCS_CAUSE, "");
 	/* Velocity Estimate	9.2.5	O	3-n */
