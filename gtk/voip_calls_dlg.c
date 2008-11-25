@@ -220,9 +220,7 @@ static void voip_calls_remove_tap_listener(void)
 		remove_tap_listener_voip_calls();
 	}
 	remove_tap_listener_rtp_event();
-	if (find_tap_id("mgcp")) {
-		remove_tap_listener_mgcp_calls();
-	}
+	remove_tap_listener_mgcp_calls();
 	remove_tap_listener_actrace_calls();
 	remove_tap_listener_t38();
 }
@@ -923,10 +921,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	}
 	rtp_init_tap();
 	rtp_event_init_tap();
-	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
-	if (find_tap_id("mgcp")) {
-		mgcp_calls_init_tap();
-	}
+	mgcp_calls_init_tap();
 	actrace_calls_init_tap();
 	t38_init_tap();
 
