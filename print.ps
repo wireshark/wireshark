@@ -12,7 +12,7 @@
 % Copyright 1998 Gerald Combs
 %
 %%Creator: Wireshark
-%%Title: wireshark.ps
+%%Title: Wireshark output
 %%DocumentFonts: Helvetica Courier
 %%EndComments
 %!
@@ -124,7 +124,7 @@ pop pop		% junk
 		lmargin						% X
 		vmax 36 sub					% Y
 		moveto
-		eth_pagetitle show
+		ws_pagetitle show
 
 		% this page number
 		pagenumtab (Page ) stringwidth pop sub thispagenum pagenostr cvs stringwidth pop sub 		% X
@@ -168,7 +168,7 @@ pop pop		% junk
 /Courier findfont 8 scalefont setfont
 
 % the page title
-/eth_pagetitle (Wireshark) def
+/ws_pagetitle (Wireshark) def
 
 % Display our output lines.
 
