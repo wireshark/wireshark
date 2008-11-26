@@ -3321,7 +3321,7 @@ static const value_string bssap_speech_codec_values[] = {
 static guint8
 be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset, consumed;
+	guint32	curr_offset, consumed = 0;
 	guint8 codec;
 	guint8 number = 0;
 	proto_item	*item = NULL;
