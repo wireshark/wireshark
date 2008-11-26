@@ -2408,7 +2408,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_prev_proc,
 			{ "Previous processor", "tipc.prev_proc",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"TIPC Previous processor", HFILL }
 		},
 		{ &hf_tipc_org_port,
@@ -2673,17 +2673,17 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_prev_node,
 			{ "Previous Node", "tipcv2.prev_node",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"TIPC Previous Node", HFILL }
 		},
 		{ &hf_tipcv2_orig_node,
 			{ "Originating Node", "tipcv2.orig_node",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"TIPC Originating Node", HFILL }
 		},
 		{ &hf_tipcv2_dest_node,
 			{ "Destination Node", "tipcv2.dest_node",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"TIPC Destination Node", HFILL }
 		},
 		{ &hf_tipcv2_port_name_type,
@@ -2773,7 +2773,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_cluster_address,
 			{ "Cluster Address", "tipcv2.cluster_address",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"The remote cluster concerned by the table", HFILL }
 		},
 		{ &hf_tipcv2_bitmap,
@@ -2783,12 +2783,12 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_node_address,
 			{ "Node Address", "tipcv2.node_address",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"Which node the route addition/loss concern", HFILL }
 		},
 		{ &hf_tipcv2_destination_domain,
 			{ "Destination Domain", "tipcv2.destination_domain",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"The domain to which the link request is directed", HFILL }
 		},
 		{ &hf_tipcv2_network_id,
@@ -2848,17 +2848,17 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_network_region,
 			{ "Network Region", "tipcv2.network_region",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"Network Region", HFILL }
 		},
 		{ &hf_tipcv2_local_router,
 			{ "Local Router", "tipcv2.local_router",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"Local Router", HFILL }
 		},
 		{ &hf_tipcv2_remote_router,
 			{ "Remote Router", "tipcv2.remote_router",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"Remote Router", HFILL }
 		},
 		{ &hf_tipcv2_dist_dist,
@@ -2873,7 +2873,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_name_dist_port_id_node,
 			{ "Port Id Node", "tipcv2.port_id_node",
-				FT_STRING, BASE_NONE, NULL, 0xffffffff,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				"Port Id Node", HFILL }
 		},
 		{ &hf_tipcv2_media_id,
