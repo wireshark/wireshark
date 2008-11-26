@@ -3300,12 +3300,20 @@ static const true_false_string bssmap_pt_vals = {
 	"Transport of PCM over A-Interface via TDM is supported by the BSS or preferred by the MSC",
 	"PCM over A-Interface with TDM as transport is not supported by the BSS or not preferred by the MSC for this Codec Type"
 };
+/* 26.103 Table 6.3-1: Coding of the selected Codec_Type (long form) */
 static const value_string bssap_speech_codec_values[] = {
+	{ 0x00,		"GSM FR " },
+	{ 0x01,		"GSM HR " },
+	{ 0x02,		"GSM EFR" },
 	{ 0x03,		"FR_AMR" },
 	{ 0x04,		"HR_AMR" },
-	{ 0x0b,		"OHR_AMR" },
-
+	{ 0x05,		"UMTS AMR" },
+	{ 0x06,		"UMTS AMR 2" },
+	{ 0x07,		"TDMA EFR" },
+	{ 0x08,		"PDC EFR" },
 	{ 0x09,		"FR_AMR-WB" },
+	{ 0x0a,		"UMTS AMR-WB" },
+	{ 0x0b,		"OHR_AMR" },
 	{ 0x0c,		"OFR_AMR-WB" },
 	{ 0x0d,		"OHR_AMR-WB" },
 	{ 0,		NULL } 
@@ -3339,25 +3347,38 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 		proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
 		consumed++;
-		if((codec==3)||(codec==4)||(codec==0xb)){
-			/* FR_AMR is coded '011' 
-			 * HR_AMR is coded '100'
-			 * OHR_AMR is coded '011'
-			 */
-			proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
-			curr_offset+=2;
-			consumed+=2;
-		}else{
-			/* FR_AMR-WB is coded '001'  
-			 * OFR_AMR-WB is coded '100'  
-			 * OHR_AMR-WB is coded '101'
-			 */
-			proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
-			curr_offset++;
-			consumed++;
-		}
-		proto_item_set_len(item, consumed);
+		switch(codec){
+			case 3:
+				/* fall trough */
+			case 4:
+				/* fall trough */
+			case 0xb:
+				/* FR_AMR is coded '011' 
+				 * HR_AMR is coded '100'
+				 * OHR_AMR is coded '1011'
+				 */
+				proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
+				curr_offset+=2;
+				consumed+=2;
+				break;
+			case 0x9:
+				/* fall trough */
+			case 0xc:
+				/* fall trough */
+			case 0xd:
+				/* FR_AMR-WB is coded '1001'  
+				 * OFR_AMR-WB is coded ‘1100’  
+				 * OHR_AMR-WB is coded '1101'
+				 */
+				proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
+				curr_offset++;
+				consumed++;
+				break;
+			default:
+				break;
+		}	
 	}
+	proto_item_set_len(item, consumed);
 	return(len);
 }
 /*

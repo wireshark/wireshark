@@ -1586,7 +1586,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	guint32 bit_offset; /* Offset in bits */
 	proto_tree	*subtree;
 	proto_item	*item;
-	guint64 multi_bnd_sup_fields,rsupport, multislotCapability, msMeasurementCapability; 
+	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability; 
 
 	curr_offset = offset;
 
@@ -1608,6 +1608,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * < spare bit >(4)
 	 * < Associated Radio Capability 1 : bit(4) > }
 	 */
+	
 	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, FALSE);
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
@@ -1621,18 +1622,18 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     bit_offset++;
 
 	/* < A5 bits > */
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
     bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+    bit_offset++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
     bit_offset++;
 
 	switch(multi_bnd_sup_fields){
 		case 0:
-			/* A5 bits dissected so done */
+			/* A5 bits dissected is done */
 			break;
 		/*
 		 * | < Multiband supported : { 001 | 010 | 100 } >
@@ -1644,7 +1645,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 4, FALSE);
 			bit_offset+=4;
 			/* < Associated Radio Capability 1 : bit(4) > */
-			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
 			bit_offset+=4;
 			break;
 		/* < Multiband supported : { 101 | 110 } > */
@@ -1652,7 +1653,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 			/* fall trough */
 		case 6:
 			/* < Associated Radio Capability 2 : bit(4) > */
-			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, FALSE);
 			bit_offset+=4;
 			/* < Associated Radio Capability 1 : bit(4) > */
 			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
@@ -1755,6 +1756,8 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 the mobile station supports dual carrier in the downlink during DTM
 < spare bits > ;
 */
+	/* translate to byte offset */
+	curr_offset = (bit_offset+7)>>3;
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
@@ -2219,7 +2222,7 @@ proto_register_gsm_a_common(void)
 		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
 	},
 	{ &hf_gsm_a_ass_radio_cap2,
-		{ "Associated Radio Capability 1", "gsm_a.classmark3.ass_radio_cap2",
+		{ "Associated Radio Capability 2", "gsm_a.classmark3.ass_radio_cap2",
 		FT_UINT8, BASE_DEC, NULL, 0x0,"Associated Radio Capability 1", HFILL}
 	},
 	{ &hf_gsm_a_rsupport,
