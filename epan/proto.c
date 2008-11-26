@@ -3840,7 +3840,10 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 		break;
 
 	case FT_FRAMENUM:
-		/* Don't allow bitfields or value strings for frame numbers */
+	case FT_STRING:
+	case FT_STRINGZ:
+	case FT_EBCDIC:
+		/* Don't allow bitfields or value strings for frame numbers and strings */
 		DISSECTOR_ASSERT(hfinfo->bitmask == 0);
 		DISSECTOR_ASSERT(hfinfo->strings == NULL);
 		break;
