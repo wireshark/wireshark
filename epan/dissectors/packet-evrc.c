@@ -294,6 +294,9 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
             hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
             break;
+
+        default:
+            return;
         }
 
         proto_tree_add_item(evrc_tree, hf_mode_request, tvb, offset, 1, FALSE);
