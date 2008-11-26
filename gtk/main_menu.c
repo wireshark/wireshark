@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <epan/tap.h>
 #include <epan/timestamp.h>
 #include <epan/etypes.h>
@@ -89,6 +90,7 @@
 #include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
+#include "gtk/uat_gui.h"
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
 #include <ige-mac-menu.h>
@@ -1016,8 +1018,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_WIKI,},
     {"/Filter Field Reference", NULL, GTK_MENU_FUNC(selected_ptree_ref_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_INTERNET,},
-    {"/Protocol Preferences...", NULL, GTK_MENU_FUNC(properties_cb),
-                       0, NULL, NULL,},
+    {"/Protocol Preferences", NULL, NULL, 0, NULL, NULL,},
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
     {"/Disable Protocol...", NULL, GTK_MENU_FUNC(proto_disable_cb), 0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
@@ -2720,6 +2721,140 @@ walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
 	return node_data->enabled;
 }
 
+static void
+menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
+{
+  gboolean *value = data;
+  module_t *module = g_object_get_data (G_OBJECT(w), "module");
+  
+  module->prefs_changed = TRUE;
+  *value = !(*value);
+
+  prefs_apply (module);
+  cf_redissect_packets(&cfile);
+}
+
+static void
+menu_prefs_change_enum (GtkWidget *w, gpointer data)
+{
+  gint *value = data;
+  module_t *module = g_object_get_data (G_OBJECT(w), "module");
+  gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
+
+  module->prefs_changed = TRUE;
+  *value = new_value;
+
+  prefs_apply (module);
+  cf_redissect_packets(&cfile);
+}
+
+static guint
+add_protocol_prefs_menu (pref_t *pref, gpointer data)
+{
+  GtkWidget *menu_preferences;
+  GtkWidget *menu_item, *menu_sub_item, *sub_menu;
+  module_t *module = data;
+  const enum_val_t *enum_valp;
+  gchar *label;
+
+  switch (pref->type) {
+  case PREF_UINT:
+    label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
+    menu_item = gtk_menu_item_new_with_label(label);
+    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_free (label);
+    break;
+  case PREF_BOOL:
+    menu_item = gtk_check_menu_item_new_with_label(pref->title);
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), *pref->varp.boolp);
+    gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+    g_object_set_data (G_OBJECT(menu_item), "module", module);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_toggle_bool), pref->varp.boolp);
+    break;
+  case PREF_ENUM:
+    menu_item = gtk_menu_item_new_with_label(pref->title);
+    sub_menu = gtk_menu_new();
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
+    enum_valp = pref->info.enum_info.enumvals;
+    while (enum_valp->name != NULL) {
+      menu_sub_item = gtk_check_menu_item_new_with_label(enum_valp->description);
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), enum_valp->value == *pref->varp.enump);
+      gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
+      g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
+      g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
+      g_object_set (G_OBJECT(menu_sub_item), "draw-as-radio", TRUE, NULL);
+      g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
+      gtk_menu_append (sub_menu, menu_sub_item);
+      gtk_widget_show (menu_sub_item);
+      enum_valp++;
+    }
+    break;
+  case PREF_STRING:
+    label = g_strdup_printf ("%s: %s", pref->title, *pref->varp.string);
+    menu_item = gtk_menu_item_new_with_label(label);
+    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_free (label);
+    break;
+  case PREF_RANGE:
+    label = g_strdup_printf ("%s: %s", pref->title, range_convert_range (*pref->varp.range));
+    menu_item = gtk_menu_item_new_with_label(label);
+    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_free (label);
+    break;
+  case PREF_UAT:
+    label = g_strdup_printf ("%s...", pref->title);
+    menu_item = gtk_menu_item_new_with_label(label);
+    g_signal_connect (menu_item, "activate", G_CALLBACK(uat_window_cb), pref->varp.uat);
+    g_free (label);
+    break;
+  case PREF_STATIC_TEXT:
+  case PREF_OBSOLETE:
+  default:
+    /* Nothing to add */
+    return 0;
+  }
+
+  menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
+  sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
+  gtk_menu_append (sub_menu, menu_item);
+  gtk_widget_show (menu_item);
+
+  return 0;
+}
+
+static void
+rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
+{
+  GtkWidget *menu_preferences, *menu_item;
+  GtkWidget *sub_menu;
+  gchar *label;
+
+  menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
+  
+  if (preferences) {
+    sub_menu = gtk_menu_new();
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
+
+    label = g_strdup_printf ("%s Preferences...", prefs->description);
+    menu_item = gtk_menu_item_new_with_label (label);
+    gtk_menu_append (sub_menu, menu_item);
+    g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+			     G_CALLBACK(properties_cb), (GtkObject *) menu_item);
+    gtk_widget_show (menu_item);
+    g_free (label);
+
+    menu_item = gtk_menu_item_new();
+    gtk_menu_append (sub_menu, menu_item);
+    gtk_widget_show (menu_item);
+
+    prefs_pref_foreach(prefs, add_protocol_prefs_menu, prefs);
+  } else {
+    /* No preferences, remove sub menu */
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
+  }
+
+}
+
 void
 set_menus_for_selected_tree_row(capture_file *cf)
 {
@@ -2728,13 +2863,18 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
+	const char *abbrev;
+	char *prev_abbrev;
+
 	if (hfinfo->parent == -1) {
-	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
+	  abbrev = hfinfo->abbrev;
 	  id = (hfinfo->type == FT_PROTOCOL) ? proto_get_id((protocol_t *)hfinfo->strings) : -1;
 	} else {
-	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
+	  abbrev = proto_registrar_get_abbrev(hfinfo->parent);
 	  id = hfinfo->parent;
 	}
+	properties = prefs_is_registered_protocol(abbrev);
+
 	set_menu_sensitivity(main_menu_factory,
 	  "/File/Export/Selected Packet Bytes...", TRUE);
 	set_menu_sensitivity(main_menu_factory,
@@ -2757,7 +2897,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
 	  properties);
 	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...",
 	  (id == -1) ? FALSE : proto_can_toggle_protocol(id));
@@ -2767,6 +2907,18 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  TRUE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
 	  TRUE);
+        
+	prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
+	if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
+	  /* No previous protocol or protocol changed - update Protocol Preferences menu */
+	  module_t *prefs = prefs_find_module(abbrev);
+	  rebuild_protocol_prefs_menu (prefs, properties);
+
+	  g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
+	  if (prev_abbrev) {
+	    g_free (prev_abbrev);
+	  }
+	}
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	  "/File/Export/Selected Packet Bytes...", FALSE);
@@ -2781,7 +2933,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
+	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences",
 	  FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
