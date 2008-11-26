@@ -628,11 +628,11 @@ typedef struct nfs_name_snoop {
 	int fh_length;
 	unsigned char *fh;
 	int name_len;
-	unsigned char *name;
+	char *name;
 	int parent_len;
 	unsigned char *parent;
 	int full_name_len;
-	unsigned char *full_name;
+	char *full_name;
 } nfs_name_snoop_t;
 
 typedef struct nfs_name_snoop_key {
@@ -792,14 +792,14 @@ nfs_name_snoop_init(void)
 }
 
 void
-nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name)
+nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, char *name)
 {
 	nfs_name_snoop_t *nns, *old_nns;
-	const unsigned char *ptr=NULL;
+	const char *ptr=NULL;
 
 	/* filter out all '.' and '..' names */
 	if(!name){
-		ptr=(const unsigned char *)tvb_get_ptr(tvb, name_offset, name_len);
+		ptr=(const char *)tvb_get_ptr(tvb, name_offset, name_len);
 	} else {
 		ptr=name;
 	}
@@ -901,7 +901,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 }
 
 static void
-nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsigned char **pos)
+nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 {
 	nfs_name_snoop_t *parent_nns = NULL;
 	nfs_name_snoop_key_t key;
@@ -971,7 +971,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 			g_free(fhdata);
 
 			if(nfs_file_name_full_snooping){
-				unsigned char *name=NULL, *pos=NULL;
+				char *name=NULL, *pos=NULL;
 				int len=0;
 
 				nfs_full_name_snoop(nns, &len, &name, &pos);

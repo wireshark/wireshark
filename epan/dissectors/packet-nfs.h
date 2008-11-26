@@ -158,7 +158,7 @@ extern int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
 		const char* name);
 
-void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name);
+void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, char *name);
 
 
 extern gboolean nfs_fhandle_reqrep_matching;
