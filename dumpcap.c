@@ -460,6 +460,7 @@ print_statistics_loop(gboolean machine_readable)
     /* handle SIGPIPE signal to default action */
     act.sa_handler = SIG_DFL;
     sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_RESTART;
     sigaction(SIGPIPE,&act,NULL);
 #endif	
 
