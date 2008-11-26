@@ -5,12 +5,14 @@
  * In association with Telos Technology Inc.
  * Copyright 2008, Michael Lum <michael.lum [AT] utstar.com>
  * In association with UTStarcom Inc.
+ * Copyright 2008, Michael Lum <michael.lum [AT] starsolutions.com>
+ * In association with Star Solutions
  *
- * Title		3GPP2			Other
+ * Title                3GPP2                   Other
  *
  *   Inter-operability Specification (IOS) for CDMA
  *   2000 Access Network Interfaces
- *			3GPP2 A.S0001-1		TIA/EIA-2001
+ *                      3GPP2 A.S0001-1         TIA/EIA-2001
  *
  * $Id$
  *
@@ -47,6 +49,7 @@
 #include <epan/strutil.h>
 #include <epan/emem.h>
 
+#include "packet-rtp.h"
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"
 
@@ -67,14 +70,14 @@ my_match_strval_idx(guint32 val, const ext_value_string_t *vs, gint *idx, gint *
 
     while (vs[i].strptr)
     {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    *dec_idx = vs[i].dec_index;
-	    return(vs[i].strptr);
-	}
+        if (vs[i].value == val)
+        {
+            *idx = i;
+            *dec_idx = vs[i].dec_index;
+            return(vs[i].strptr);
+        }
 
-	i++;
+        i++;
     }
 
     *idx = -1;
@@ -84,291 +87,291 @@ my_match_strval_idx(guint32 val, const ext_value_string_t *vs, gint *idx, gint *
 
 const ext_value_string_t ansi_a_ios401_bsmap_strings[] =
 {
-    { 0x69,	"Additional Service Notification",	0 },
-    { 0x65,	"ADDS Page",	1 },
-    { 0x66,	"ADDS Page Ack",	2 },
-    { 0x67,	"ADDS Transfer",	3 },
-    { 0x68,	"ADDS Transfer Ack",	4 },
-    { 0x02,	"Assignment Complete",	5 },
-    { 0x03,	"Assignment Failure",	6 },
-    { 0x01,	"Assignment Request",	7 },
-    { 0x45,	"Authentication Request",	8 },
-    { 0x46,	"Authentication Response",	9 },
-    { 0x48,	"Base Station Challenge",	10 },
-    { 0x49,	"Base Station Challenge Response",	11 },
-    { 0x40,	"Block",	12 },
-    { 0x41,	"Block Acknowledge",	13 },
-    { 0x09,	"BS Service Request",	14 },
-    { 0x0A,	"BS Service Response",	15 },
-    { 0x20,	"Clear Command",	16 },
-    { 0x21,	"Clear Complete",	17 },
-    { 0x22,	"Clear Request",	18 },
-    { 0x57,	"Complete Layer 3 Information",	19 },
-    { 0x60,	"Feature Notification",	20 },
-    { 0x61,	"Feature Notification Ack",	21 },
-    { 0x13,	"Handoff Command",	22 },
-    { 0x15,	"Handoff Commenced",	23 },
-    { 0x14,	"Handoff Complete",	24 },
-    { 0x16,	"Handoff Failure",	25 },
-    { 0x17,	"Handoff Performed",	26 },
-    { 0x10,	"Handoff Request",	27 },
-    { 0x12,	"Handoff Request Acknowledge",	28 },
-    { 0x11,	"Handoff Required",	29 },
-    { 0x1A,	"Handoff Required Reject",	30 },
-    { 0x6C,	"PACA Command",	31 },
-    { 0x6D,	"PACA Command Ack",	32 },
-    { 0x6E,	"PACA Update",	33 },
-    { 0x6F,	"PACA Update Ack",	34 },
-    { 0x52,	"Paging Request",	35 },
-    { 0x53,	"Privacy Mode Command",	36 },
-    { 0x55,	"Privacy Mode Complete",	37 },
-    { 0x23,	"Radio Measurements for Position Request",	38 },
-    { 0x25,	"Radio Measurements for Position Response",	39 },
-    { 0x56,	"Rejection",	40 },
-    { 0x05,	"Registration Request",	41 },
-    { 0x30,	"Reset",	42 },
-    { 0x31,	"Reset Acknowledge",	43 },
-    { 0x34,	"Reset Circuit",	44 },
-    { 0x35,	"Reset Circuit Acknowledge",	45 },
-    { 0x47,	"SSD Update Request",	46 },
-    { 0x4A,	"SSD Update Response",	47 },
-    { 0x6A,	"Status Request",	48 },
-    { 0x6B,	"Status Response",	49 },
-    { 0x39,	"Transcoder Control Acknowledge",	50 },
-    { 0x38,	"Transcoder Control Request",	51 },
-    { 0x42,	"Unblock",	52 },
-    { 0x43,	"Unblock Acknowledge",	53 },
-    { 0x0B,	"User Zone Reject",	54 },
-    { 0x04,	"User Zone Update",	55 },
-    { 0, NULL, 0 },
+    { 0x69,     "Additional Service Notification",      0 },
+    { 0x65,     "ADDS Page",    1 },
+    { 0x66,     "ADDS Page Ack",        2 },
+    { 0x67,     "ADDS Transfer",        3 },
+    { 0x68,     "ADDS Transfer Ack",    4 },
+    { 0x02,     "Assignment Complete",  5 },
+    { 0x03,     "Assignment Failure",   6 },
+    { 0x01,     "Assignment Request",   7 },
+    { 0x45,     "Authentication Request",       8 },
+    { 0x46,     "Authentication Response",      9 },
+    { 0x48,     "Base Station Challenge",       10 },
+    { 0x49,     "Base Station Challenge Response",      11 },
+    { 0x40,     "Block",        12 },
+    { 0x41,     "Block Acknowledge",    13 },
+    { 0x09,     "BS Service Request",   14 },
+    { 0x0A,     "BS Service Response",  15 },
+    { 0x20,     "Clear Command",        16 },
+    { 0x21,     "Clear Complete",       17 },
+    { 0x22,     "Clear Request",        18 },
+    { 0x57,     "Complete Layer 3 Information", 19 },
+    { 0x60,     "Feature Notification", 20 },
+    { 0x61,     "Feature Notification Ack",     21 },
+    { 0x13,     "Handoff Command",      22 },
+    { 0x15,     "Handoff Commenced",    23 },
+    { 0x14,     "Handoff Complete",     24 },
+    { 0x16,     "Handoff Failure",      25 },
+    { 0x17,     "Handoff Performed",    26 },
+    { 0x10,     "Handoff Request",      27 },
+    { 0x12,     "Handoff Request Acknowledge",  28 },
+    { 0x11,     "Handoff Required",     29 },
+    { 0x1A,     "Handoff Required Reject",      30 },
+    { 0x6C,     "PACA Command", 31 },
+    { 0x6D,     "PACA Command Ack",     32 },
+    { 0x6E,     "PACA Update",  33 },
+    { 0x6F,     "PACA Update Ack",      34 },
+    { 0x52,     "Paging Request",       35 },
+    { 0x53,     "Privacy Mode Command", 36 },
+    { 0x55,     "Privacy Mode Complete",        37 },
+    { 0x23,     "Radio Measurements for Position Request",      38 },
+    { 0x25,     "Radio Measurements for Position Response",     39 },
+    { 0x56,     "Rejection",    40 },
+    { 0x05,     "Registration Request", 41 },
+    { 0x30,     "Reset",        42 },
+    { 0x31,     "Reset Acknowledge",    43 },
+    { 0x34,     "Reset Circuit",        44 },
+    { 0x35,     "Reset Circuit Acknowledge",    45 },
+    { 0x47,     "SSD Update Request",   46 },
+    { 0x4A,     "SSD Update Response",  47 },
+    { 0x6A,     "Status Request",       48 },
+    { 0x6B,     "Status Response",      49 },
+    { 0x39,     "Transcoder Control Acknowledge",       50 },
+    { 0x38,     "Transcoder Control Request",   51 },
+    { 0x42,     "Unblock",      52 },
+    { 0x43,     "Unblock Acknowledge",  53 },
+    { 0x0B,     "User Zone Reject",     54 },
+    { 0x04,     "User Zone Update",     55 },
+    { 0, NULL, 0 }
 };
 
 const ext_value_string_t ansi_a_ios401_dtap_strings[] =
 {
-    { 0x62,	"Additional Service Request",	0 },
-    { 0x53,	"ADDS Deliver",	1 },
-    { 0x54,	"ADDS Deliver Ack",	2 },
-    { 0x26,	"Alert With Information",	3 },
-    { 0x45,	"Authentication Request",	4 },
-    { 0x46,	"Authentication Response",	5 },
-    { 0x48,	"Base Station Challenge",	6 },
-    { 0x49,	"Base Station Challenge Response",	7 },
-    { 0x24,	"CM Service Request",	8 },
-    { 0x25,	"CM Service Request Continuation",	9 },
-    { 0x07,	"Connect",	10 },
-    { 0x10,	"Flash with Information",	11 },
-    { 0x50,	"Flash with Information Ack",	12 },
-    { 0x02,	"Location Updating Accept",	13 },
-    { 0x04,	"Location Updating Reject",	14 },
-    { 0x08,	"Location Updating Request",	15 },
-    { 0x27,	"Paging Response",	16 },
-    { 0x2B,	"Parameter Update Confirm",	17 },
-    { 0x2C,	"Parameter Update Request",	18 },
-    { 0x56,	"Rejection",	19 },
-    { 0x03,	"Progress",	20 },
-    { 0x70,	"Service Redirection",	21 },
-    { 0x2E,	"Service Release",	22 },
-    { 0x2F,	"Service Release Complete",	23 },
-    { 0x47,	"SSD Update Request",	24 },
-    { 0x4A,	"SSD Update Response",	25 },
-    { 0x6A,	"Status Request",	26 },
-    { 0x6B,	"Status Response",	27 },
-    { 0x0B,	"User Zone Reject",	28 },
-    { 0x0C,	"User Zone Update",	29 },
-    { 0x0D,	"User Zone Update Request",	30 },
-    { 0, NULL, 0 },
+    { 0x62,     "Additional Service Request",   0 },
+    { 0x53,     "ADDS Deliver", 1 },
+    { 0x54,     "ADDS Deliver Ack",     2 },
+    { 0x26,     "Alert With Information",       3 },
+    { 0x45,     "Authentication Request",       4 },
+    { 0x46,     "Authentication Response",      5 },
+    { 0x48,     "Base Station Challenge",       6 },
+    { 0x49,     "Base Station Challenge Response",      7 },
+    { 0x24,     "CM Service Request",   8 },
+    { 0x25,     "CM Service Request Continuation",      9 },
+    { 0x07,     "Connect",      10 },
+    { 0x10,     "Flash with Information",       11 },
+    { 0x50,     "Flash with Information Ack",   12 },
+    { 0x02,     "Location Updating Accept",     13 },
+    { 0x04,     "Location Updating Reject",     14 },
+    { 0x08,     "Location Updating Request",    15 },
+    { 0x27,     "Paging Response",      16 },
+    { 0x2B,     "Parameter Update Confirm",     17 },
+    { 0x2C,     "Parameter Update Request",     18 },
+    { 0x56,     "Rejection",    19 },
+    { 0x03,     "Progress",     20 },
+    { 0x70,     "Service Redirection",  21 },
+    { 0x2E,     "Service Release",      22 },
+    { 0x2F,     "Service Release Complete",     23 },
+    { 0x47,     "SSD Update Request",   24 },
+    { 0x4A,     "SSD Update Response",  25 },
+    { 0x6A,     "Status Request",       26 },
+    { 0x6B,     "Status Response",      27 },
+    { 0x0B,     "User Zone Reject",     28 },
+    { 0x0C,     "User Zone Update",     29 },
+    { 0x0D,     "User Zone Update Request",     30 },
+    { 0, NULL, 0 }
 };
 
 const ext_value_string_t ansi_a_ios401_elem_1_strings[] =
 {
-    { 0x20,	"Access Network Identifiers",	0 },
-    { 0x3D,	"ADDS User Part",	1 },
-    { 0x25,	"AMPS Hard Handoff Parameters",	2 },
-    { 0x30,	"Anchor PDSN Address",	3 },
-    { 0x7C,	"Anchor P-P Address",	4 },
-    { 0x41,	"Authentication Challenge Parameter",	5 },
-    { 0x28,	"Authentication Confirmation Parameter (RANDC)",	6 },
-    { 0x59,	"Authentication Data",	7 },
-    { 0x4A,	"Authentication Event",	8 },
-    { 0x40,	"Authentication Parameter COUNT",	9 },
-    { 0x42,	"Authentication Response Parameter",	10 },
-    { 0x37,	"Band Class",	11 },
-    { 0x5B,	"Called Party ASCII Number",	12 },
-    { 0x5E,	"Called Party BCD Number",	13 },
-    { 0x4B,	"Calling Party ASCII Number",	14 },
-    { 0x04,	"Cause",	15 },
-    { 0x08,	"Cause Layer 3",	16 },
-    { 0x0C,	"CDMA Serving One Way Delay",	17 },
-    { 0x05,	"Cell Identifier",	18 },
-    { 0x1A,	"Cell Identifier List",	19 },
-    { 0x23,	"Channel Number",	20 },
-    { 0x0B,	"Channel Type",	21 },
-    { 0x19,	"Circuit Group",	22 },
-    { 0x01,	"Circuit Identity Code",	23 },
-    { 0x24,	"Circuit Identity Code Extension",	24 },
-    { 0x12,	"Classmark Information Type 2",	25 },
-    { 0x29,	"Downlink Radio Environment",	26 },
-    { 0x2B,	"Downlink Radio Environment List",	27 },
-    { 0x0A,	"Encryption Information",	28 },
-    { 0x10,	"Extended Handoff Direction Parameters",	29 },
-    { 0x2C,	"Geographic Location",	30 },
-    { 0x5A,	"Special Service Call Indicator",	31 },
-    { 0x26,	"Handoff Power Level",	32 },
-    { 0x16,	"Hard Handoff Parameters",	33 },
-    { 0x2E,	"Information Element Requested",	34 },
-    { 0x09,	"IS-2000 Channel Identity",	35 },
-    { 0x27,	"IS-2000 Channel Identity 3X",	36 },
-    { 0x11,	"IS-2000 Mobile Capabilities",	37 },
-    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record",	38 },
-    { 0x0E,	"IS-2000 Service Configuration Record",	39 },
-    { 0x62,	"IS-95/IS-2000 Cause Value",	40 },
-    { 0x67,	"IS-2000 Redirection Record",	41 },
-    { 0x22,	"IS-95 Channel Identity",	42 },
-    { 0x64,	"IS-95 MS Measured Channel Identity",	43 },
-    { 0x17,	"Layer 3 Information",	44 },
-    { 0x13,	"Location Area Information",	45 },
-    { 0x38,	"Message Waiting Indication",	46 },
-    { 0x0D,	"Mobile Identity",	47 },
-    { 0x15,	"MS Information Records (Forward)",	48 },
-    { 0xA0,	"Origination Continuation Indicator",	49 },
-    { 0x5F,	"PACA Order",	50 },
-    { 0x60,	"PACA Reorigination Indicator",	51 },
-    { 0x4E,	"PACA Timestamp",	52 },
-    { 0x70,	"Packet Session Parameters",	53 },
-    { 0x14,	"PDSN IP Address",	54 },
-    { 0xA2,	"Power Down Indicator",	55 },
-    { 0x06,	"Priority",	56 },
-    { 0x3B,	"Protocol Revision",	57 },
-    { 0x18,	"Protocol Type",	58 },
-    { 0x2D,	"PSMM Count",	59 },
-    { 0x07,	"Quality of Service Parameters",	60 },
-    { 0x1D,	"Radio Environment and Resources",	61 },
-    { 0x1F,	"Registration Type",	62 },
-    { 0x44,	"Reject Cause",	63 },
-    { 0x1B,	"Response Request",	64 },
-    { 0x68,	"Return Cause",	65 },
-    { 0x21,	"RF Channel Identity",	66 },
-    { 0x03,	"Service Option",	67 },
-    { 0x1E,	"Service Option Connection Identifier (SOCI)",	68 },
-    { 0x2A,	"Service Option List",	69 },
-    { 0x69,	"Service Redirection Info",	70 },
-    { 0x71,	"Service Reference Identifier (SR_ID)",	71 },
-    { 0x32,	"SID",	72 },
-    { 0x34,	"Signal",	73 },
-    { 0x35,	"Slot Cycle Index",	74 },
-    { 0x31,	"Software Version",	75 },
-    { 0x39,	"Source RNC to Target RNC Transparent Container",	76 },
-    { 0x14,	"Source PDSN Address",	77 },
-    { 0x33,	"Tag",	78 },
-    { 0x3A,	"Target RNC to Source RNC Transparent Container",	79 },
-    { 0x36,	"Transcoder Mode",	80 }, /* XXX 0x1C in IOS 4.0.1 */
-    { 0x02,	"User Zone ID",	81 },
-    { 0xA1,	"Voice Privacy Request",	82 },
-    { 0x15,	"MS Information Records (Reverse)",	88 },
-    { 0, NULL, 0 },
+    { 0x20,     "Access Network Identifiers",   0 },
+    { 0x3D,     "ADDS User Part",       1 },
+    { 0x25,     "AMPS Hard Handoff Parameters", 2 },
+    { 0x30,     "Anchor PDSN Address",  3 },
+    { 0x7C,     "Anchor P-P Address",   4 },
+    { 0x41,     "Authentication Challenge Parameter",   5 },
+    { 0x28,     "Authentication Confirmation Parameter (RANDC)",        6 },
+    { 0x59,     "Authentication Data",  7 },
+    { 0x4A,     "Authentication Event", 8 },
+    { 0x40,     "Authentication Parameter COUNT",       9 },
+    { 0x42,     "Authentication Response Parameter",    10 },
+    { 0x37,     "Band Class",   11 },
+    { 0x5B,     "Called Party ASCII Number",    12 },
+    { 0x5E,     "Called Party BCD Number",      13 },
+    { 0x4B,     "Calling Party ASCII Number",   14 },
+    { 0x04,     "Cause",        15 },
+    { 0x08,     "Cause Layer 3",        16 },
+    { 0x0C,     "CDMA Serving One Way Delay",   17 },
+    { 0x05,     "Cell Identifier",      18 },
+    { 0x1A,     "Cell Identifier List", 19 },
+    { 0x23,     "Channel Number",       20 },
+    { 0x0B,     "Channel Type", 21 },
+    { 0x19,     "Circuit Group",        22 },
+    { 0x01,     "Circuit Identity Code",        23 },
+    { 0x24,     "Circuit Identity Code Extension",      24 },
+    { 0x12,     "Classmark Information Type 2", 25 },
+    { 0x29,     "Downlink Radio Environment",   26 },
+    { 0x2B,     "Downlink Radio Environment List",      27 },
+    { 0x0A,     "Encryption Information",       28 },
+    { 0x10,     "Extended Handoff Direction Parameters",        29 },
+    { 0x2C,     "Geographic Location",  30 },
+    { 0x5A,     "Special Service Call Indicator",       31 },
+    { 0x26,     "Handoff Power Level",  32 },
+    { 0x16,     "Hard Handoff Parameters",      33 },
+    { 0x2E,     "Information Element Requested",        34 },
+    { 0x09,     "IS-2000 Channel Identity",     35 },
+    { 0x27,     "IS-2000 Channel Identity 3X",  36 },
+    { 0x11,     "IS-2000 Mobile Capabilities",  37 },
+    { 0x0F,     "IS-2000 Non-Negotiable Service Configuration Record",  38 },
+    { 0x0E,     "IS-2000 Service Configuration Record", 39 },
+    { 0x62,     "IS-95/IS-2000 Cause Value",    40 },
+    { 0x67,     "IS-2000 Redirection Record",   41 },
+    { 0x22,     "IS-95 Channel Identity",       42 },
+    { 0x64,     "IS-95 MS Measured Channel Identity",   43 },
+    { 0x17,     "Layer 3 Information",  44 },
+    { 0x13,     "Location Area Information",    45 },
+    { 0x38,     "Message Waiting Indication",   46 },
+    { 0x0D,     "Mobile Identity",      47 },
+    { 0x15,     "MS Information Records (Forward)",     48 },
+    { 0xA0,     "Origination Continuation Indicator",   49 },
+    { 0x5F,     "PACA Order",   50 },
+    { 0x60,     "PACA Reorigination Indicator", 51 },
+    { 0x4E,     "PACA Timestamp",       52 },
+    { 0x70,     "Packet Session Parameters",    53 },
+    { 0x14,     "PDSN IP Address",      54 },
+    { 0xA2,     "Power Down Indicator", 55 },
+    { 0x06,     "Priority",     56 },
+    { 0x3B,     "Protocol Revision",    57 },
+    { 0x18,     "Protocol Type",        58 },
+    { 0x2D,     "PSMM Count",   59 },
+    { 0x07,     "Quality of Service Parameters",        60 },
+    { 0x1D,     "Radio Environment and Resources",      61 },
+    { 0x1F,     "Registration Type",    62 },
+    { 0x44,     "Reject Cause", 63 },
+    { 0x1B,     "Response Request",     64 },
+    { 0x68,     "Return Cause", 65 },
+    { 0x21,     "RF Channel Identity",  66 },
+    { 0x03,     "Service Option",       67 },
+    { 0x1E,     "Service Option Connection Identifier (SOCI)",  68 },
+    { 0x2A,     "Service Option List",  69 },
+    { 0x69,     "Service Redirection Info",     70 },
+    { 0x71,     "Service Reference Identifier (SR_ID)", 71 },
+    { 0x32,     "SID",  72 },
+    { 0x34,     "Signal",       73 },
+    { 0x35,     "Slot Cycle Index",     74 },
+    { 0x31,     "Software Version",     75 },
+    { 0x39,     "Source RNC to Target RNC Transparent Container",       76 },
+    { 0x14,     "Source PDSN Address",  77 },
+    { 0x33,     "Tag",  78 },
+    { 0x3A,     "Target RNC to Source RNC Transparent Container",       79 },
+    { 0x36,     "Transcoder Mode",      80 }, /* XXX 0x1C in IOS 4.0.1 */
+    { 0x02,     "User Zone ID", 81 },
+    { 0xA1,     "Voice Privacy Request",        82 },
+    { 0x15,     "MS Information Records (Reverse)",     88 },
+    { 0, NULL, 0 }
 };
 
 const ext_value_string_t ansi_a_ios501_bsmap_strings[] =
 {
-    { 0x69,	"Additional Service Notification",	0 },
-    { 0x65,	"ADDS Page",	1 },
-    { 0x66,	"ADDS Page Ack",	2 },
-    { 0x67,	"ADDS Transfer",	3 },
-    { 0x68,	"ADDS Transfer Ack",	4 },
-    { 0x02,	"Assignment Complete",	5 },
-    { 0x03,	"Assignment Failure",	6 },
-    { 0x01,	"Assignment Request",	7 },
-    { 0x45,	"Authentication Request",	8 },
-    { 0x46,	"Authentication Response",	9 },
-    { 0x48,	"Base Station Challenge",	10 },
-    { 0x49,	"Base Station Challenge Response",	11 },
-    { 0x40,	"Block",	12 },
-    { 0x41,	"Block Acknowledge",	13 },
-    { 0x09,	"BS Service Request",	14 },
-    { 0x0A,	"BS Service Response",	15 },
-    { 0x20,	"Clear Command",	16 },
-    { 0x21,	"Clear Complete",	17 },
-    { 0x22,	"Clear Request",	18 },
-    { 0x57,	"Complete Layer 3 Information",	19 },
-    { 0x60,	"Feature Notification",	20 },
-    { 0x61,	"Feature Notification Ack",	21 },
-    { 0x13,	"Handoff Command",	22 },
-    { 0x15,	"Handoff Commenced",	23 },
-    { 0x14,	"Handoff Complete",	24 },
-    { 0x16,	"Handoff Failure",	25 },
-    { 0x17,	"Handoff Performed",	26 },
-    { 0x10,	"Handoff Request",	27 },
-    { 0x12,	"Handoff Request Acknowledge",	28 },
-    { 0x11,	"Handoff Required",	29 },
-    { 0x1A,	"Handoff Required Reject",	30 },
-    { 0x6C,	"PACA Command",	31 },
-    { 0x6D,	"PACA Command Ack",	32 },
-    { 0x6E,	"PACA Update",	33 },
-    { 0x6F,	"PACA Update Ack",	34 },
-    { 0x52,	"Paging Request",	35 },
-    { 0x53,	"Privacy Mode Command",	36 },
-    { 0x55,	"Privacy Mode Complete",	37 },
-    { 0x23,	"Radio Measurements for Position Request",	38 },
-    { 0x25,	"Radio Measurements for Position Response",	39 },
-    { 0x56,	"Rejection",	40 },
-    { 0x05,	"Registration Request",	41 },
-    { 0x30,	"Reset",	42 },
-    { 0x31,	"Reset Acknowledge",	43 },
-    { 0x34,	"Reset Circuit",	44 },
-    { 0x35,	"Reset Circuit Acknowledge",	45 },
-    { 0x47,	"SSD Update Request",	46 },
-    { 0x4A,	"SSD Update Response",	47 },
-    { 0x6A,	"Status Request",	48 },
-    { 0x6B,	"Status Response",	49 },
-    { 0x39,	"Transcoder Control Acknowledge",	50 },
-    { 0x38,	"Transcoder Control Request",	51 },
-    { 0x42,	"Unblock",	52 },
-    { 0x43,	"Unblock Acknowledge",	53 },
-    { 0x0B,	"User Zone Reject",	54 },
-    { 0x04,	"User Zone Update",	55 },
-    { 0x58,	"Bearer Update Request",	56 },
-    { 0x59,	"Bearer Update Response",	58 },
-    { 0x5A,	"Bearer Update Required",	57 },
-    { 0x71,	"Mobile Station Registered Notification",	59 },
-    { 0x07,	"BS Authentication Request",	60 },
-    { 0x08,	"BS Authentication Request Ack",	61 },
-    { 0, NULL, 0 },
+    { 0x69,     "Additional Service Notification",      0 },
+    { 0x65,     "ADDS Page",    1 },
+    { 0x66,     "ADDS Page Ack",        2 },
+    { 0x67,     "ADDS Transfer",        3 },
+    { 0x68,     "ADDS Transfer Ack",    4 },
+    { 0x02,     "Assignment Complete",  5 },
+    { 0x03,     "Assignment Failure",   6 },
+    { 0x01,     "Assignment Request",   7 },
+    { 0x45,     "Authentication Request",       8 },
+    { 0x46,     "Authentication Response",      9 },
+    { 0x48,     "Base Station Challenge",       10 },
+    { 0x49,     "Base Station Challenge Response",      11 },
+    { 0x40,     "Block",        12 },
+    { 0x41,     "Block Acknowledge",    13 },
+    { 0x09,     "BS Service Request",   14 },
+    { 0x0A,     "BS Service Response",  15 },
+    { 0x20,     "Clear Command",        16 },
+    { 0x21,     "Clear Complete",       17 },
+    { 0x22,     "Clear Request",        18 },
+    { 0x57,     "Complete Layer 3 Information", 19 },
+    { 0x60,     "Feature Notification", 20 },
+    { 0x61,     "Feature Notification Ack",     21 },
+    { 0x13,     "Handoff Command",      22 },
+    { 0x15,     "Handoff Commenced",    23 },
+    { 0x14,     "Handoff Complete",     24 },
+    { 0x16,     "Handoff Failure",      25 },
+    { 0x17,     "Handoff Performed",    26 },
+    { 0x10,     "Handoff Request",      27 },
+    { 0x12,     "Handoff Request Acknowledge",  28 },
+    { 0x11,     "Handoff Required",     29 },
+    { 0x1A,     "Handoff Required Reject",      30 },
+    { 0x6C,     "PACA Command", 31 },
+    { 0x6D,     "PACA Command Ack",     32 },
+    { 0x6E,     "PACA Update",  33 },
+    { 0x6F,     "PACA Update Ack",      34 },
+    { 0x52,     "Paging Request",       35 },
+    { 0x53,     "Privacy Mode Command", 36 },
+    { 0x55,     "Privacy Mode Complete",        37 },
+    { 0x23,     "Radio Measurements for Position Request",      38 },
+    { 0x25,     "Radio Measurements for Position Response",     39 },
+    { 0x56,     "Rejection",    40 },
+    { 0x05,     "Registration Request", 41 },
+    { 0x30,     "Reset",        42 },
+    { 0x31,     "Reset Acknowledge",    43 },
+    { 0x34,     "Reset Circuit",        44 },
+    { 0x35,     "Reset Circuit Acknowledge",    45 },
+    { 0x47,     "SSD Update Request",   46 },
+    { 0x4A,     "SSD Update Response",  47 },
+    { 0x6A,     "Status Request",       48 },
+    { 0x6B,     "Status Response",      49 },
+    { 0x39,     "Transcoder Control Acknowledge",       50 },
+    { 0x38,     "Transcoder Control Request",   51 },
+    { 0x42,     "Unblock",      52 },
+    { 0x43,     "Unblock Acknowledge",  53 },
+    { 0x0B,     "User Zone Reject",     54 },
+    { 0x04,     "User Zone Update",     55 },
+    { 0x58,     "Bearer Update Request",        56 },
+    { 0x59,     "Bearer Update Response",       58 },
+    { 0x5A,     "Bearer Update Required",       57 },
+    { 0x71,     "Mobile Station Registered Notification",       59 },
+    { 0x07,     "BS Authentication Request",    60 },
+    { 0x08,     "BS Authentication Request Ack",        61 },
+    { 0, NULL, 0 }
 };
 
 const ext_value_string_t ansi_a_ios501_dtap_strings[] =
 {
-    { 0x62,	"Additional Service Request",	0 },
-    { 0x53,	"ADDS Deliver",	1 },
-    { 0x54,	"ADDS Deliver Ack",	2 },
-    { 0x26,	"Alert With Information",	3 },
-    { 0x45,	"Authentication Request",	4 },
-    { 0x46,	"Authentication Response",	5 },
-    { 0x48,	"Base Station Challenge",	6 },
-    { 0x49,	"Base Station Challenge Response",	7 },
-    { 0x24,	"CM Service Request",	8 },
-    { 0x25,	"CM Service Request Continuation",	9 },
-    { 0x07,	"Connect",	10 },
-    { 0x10,	"Flash with Information",	11 },
-    { 0x50,	"Flash with Information Ack",	12 },
-    { 0x02,	"Location Updating Accept",	13 },
-    { 0x04,	"Location Updating Reject",	14 },
-    { 0x08,	"Location Updating Request",	15 },
-    { 0x27,	"Paging Response",	16 },
-    { 0x2B,	"Parameter Update Confirm",	17 },
-    { 0x2C,	"Parameter Update Request",	18 },
-    { 0x56,	"Rejection",	19 },
-    { 0x03,	"Progress",	20 },
-    { 0x70,	"Service Redirection",	21 },
-    { 0x2E,	"Service Release",	22 },
-    { 0x2F,	"Service Release Complete",	23 },
-    { 0x47,	"SSD Update Request",	24 },
-    { 0x4A,	"SSD Update Response",	25 },
-    { 0x6A,	"Status Request",	26 },
-    { 0x6B,	"Status Response",	27 },
-    { 0x0B,	"User Zone Reject",	28 },
-    { 0x0C,	"User Zone Update",	29 },
-    { 0x0D,	"User Zone Update Request",	30 },
-    { 0, NULL, 0 },
+    { 0x62,     "Additional Service Request",   0 },
+    { 0x53,     "ADDS Deliver", 1 },
+    { 0x54,     "ADDS Deliver Ack",     2 },
+    { 0x26,     "Alert With Information",       3 },
+    { 0x45,     "Authentication Request",       4 },
+    { 0x46,     "Authentication Response",      5 },
+    { 0x48,     "Base Station Challenge",       6 },
+    { 0x49,     "Base Station Challenge Response",      7 },
+    { 0x24,     "CM Service Request",   8 },
+    { 0x25,     "CM Service Request Continuation",      9 },
+    { 0x07,     "Connect",      10 },
+    { 0x10,     "Flash with Information",       11 },
+    { 0x50,     "Flash with Information Ack",   12 },
+    { 0x02,     "Location Updating Accept",     13 },
+    { 0x04,     "Location Updating Reject",     14 },
+    { 0x08,     "Location Updating Request",    15 },
+    { 0x27,     "Paging Response",      16 },
+    { 0x2B,     "Parameter Update Confirm",     17 },
+    { 0x2C,     "Parameter Update Request",     18 },
+    { 0x56,     "Rejection",    19 },
+    { 0x03,     "Progress",     20 },
+    { 0x70,     "Service Redirection",  21 },
+    { 0x2E,     "Service Release",      22 },
+    { 0x2F,     "Service Release Complete",     23 },
+    { 0x47,     "SSD Update Request",   24 },
+    { 0x4A,     "SSD Update Response",  25 },
+    { 0x6A,     "Status Request",       26 },
+    { 0x6B,     "Status Response",      27 },
+    { 0x0B,     "User Zone Reject",     28 },
+    { 0x0C,     "User Zone Update",     29 },
+    { 0x0D,     "User Zone Update Request",     30 },
+    { 0, NULL, 0 }
 };
 
 /*
@@ -378,234 +381,234 @@ const ext_value_string_t ansi_a_ios501_dtap_strings[] =
  */
 const ext_value_string_t ansi_a_ios501_elem_1_strings[] =
 {
-    { 0x20,	"Access Network Identifiers",	0 },
-    { 0x3D,	"ADDS User Part",	1 },
-    { 0x25,	"AMPS Hard Handoff Parameters",	2 },
-    { 0x30,	"Anchor PDSN Address",	3 },
-    { 0x7C,	"Anchor P-P Address",	4 },
-    { 0x41,	"Authentication Challenge Parameter",	5 },
-    { 0x28,	"Authentication Confirmation Parameter (RANDC)",	6 },
-    { 0x59,	"Authentication Data",	7 },
-    { 0x4A,	"Authentication Event",	8 },
-    { 0x40,	"Authentication Parameter COUNT",	9 },
-    { 0x42,	"Authentication Response Parameter",	10 },
-    { 0x37,	"Band Class",	11 },
-    { 0x5B,	"Called Party ASCII Number",	12 },
-    { 0x5E,	"Called Party BCD Number",	13 },
-    { 0x4B,	"Calling Party ASCII Number",	14 },
-    { 0x04,	"Cause",	15 },
-    { 0x08,	"Cause Layer 3",	16 },
-    { 0x0C,	"CDMA Serving One Way Delay",	17 },
-    { 0x05,	"Cell Identifier",	18 },
-    { 0x1A,	"Cell Identifier List",	19 },
-    { 0x23,	"Channel Number",	20 },
-    { 0x0B,	"Channel Type",	21 },
-    { 0x19,	"Circuit Group",	22 },
-    { 0x01,	"Circuit Identity Code",	23 },
-    { 0x24,	"Circuit Identity Code Extension",	24 },
-    { 0x12,	"Classmark Information Type 2",	25 },
-    { 0x29,	"Downlink Radio Environment",	26 },
-    { 0x2B,	"Downlink Radio Environment List",	27 },
-    { 0x0A,	"Encryption Information",	28 },
-    { 0x10,	"Extended Handoff Direction Parameters",	29 },
-    { 0x2C,	"Geographic Location",	30 },
-    { 0x5A,	"Special Service Call Indicator",	31 },
-    { 0x26,	"Handoff Power Level",	32 },
-    { 0x16,	"Hard Handoff Parameters",	33 },
-    { 0x2E,	"Information Element Requested",	34 },
-    { 0x09,	"IS-2000 Channel Identity",	35 },
-    { 0x27,	"IS-2000 Channel Identity 3X",	36 },
-    { 0x11,	"IS-2000 Mobile Capabilities",	37 },
-    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record",	38 },
-    { 0x0E,	"IS-2000 Service Configuration Record",	39 },
-    { 0x62,	"IS-95/IS-2000 Cause Value",	40 },
-    { 0x67,	"IS-2000 Redirection Record",	41 },
-    { 0x22,	"IS-95 Channel Identity",	42 },
-    { 0x64,	"IS-95 MS Measured Channel Identity",	43 },
-    { 0x17,	"Layer 3 Information",	44 },
-    { 0x13,	"Location Area Information",	45 },
-    { 0x38,	"Message Waiting Indication",	46 },
-    { 0x0D,	"Mobile Identity",	47 },
-    { 0x15,	"MS Information Records (Forward)",	48 },
-    { 0xA0,	"Origination Continuation Indicator",	49 },
-    { 0x5F,	"PACA Order",	50 },
-    { 0x60,	"PACA Reorigination Indicator",	51 },
-    { 0x4E,	"PACA Timestamp",	52 },
-    { 0x70,	"Packet Session Parameters",	53 },
-    { 0x14,	"PDSN IP Address",	54 },
-    { 0xA2,	"Power Down Indicator",	55 },
-    { 0x06,	"Priority",	56 },
-    { 0x3B,	"Protocol Revision",	57 },
-    { 0x18,	"Protocol Type",	58 },
-    { 0x2D,	"PSMM Count",	59 },
-    { 0x07,	"Quality of Service Parameters",	60 },
-    { 0x1D,	"Radio Environment and Resources",	61 },
-    { 0x1F,	"Registration Type",	62 },
-    { 0x44,	"Reject Cause",	63 },
-    { 0x1B,	"Response Request",	64 },
-    { 0x68,	"Return Cause",	65 },
-    { 0x21,	"RF Channel Identity",	66 },
-    { 0x03,	"Service Option",	67 },
-    { 0x1E,	"Service Option Connection Identifier (SOCI)",	68 },
-    { 0x2A,	"Service Option List",	69 },
-    { 0x69,	"Service Redirection Info",	70 },
-    { 0x71,	"Service Reference Identifier (SR_ID)",	71 },
-    { 0x32,	"SID",	72 },
-    { 0x34,	"Signal",	73 },
-    { 0x35,	"Slot Cycle Index",	74 },
-    { 0x31,	"Software Version",	75 },
-    { 0x39,	"Source RNC to Target RNC Transparent Container",	76 },
-    { 0x14,	"Source PDSN Address",	77 },
-    { 0x33,	"Tag",	78 },
-    { 0x3A,	"Target RNC to Source RNC Transparent Container",	79 },
-    { 0x36,	"Transcoder Mode",	80 }, /* XXX 0x1C in IOS 4.0.1 */
-    { 0x02,	"User Zone ID",	81 },
-    { 0xA1,	"Voice Privacy Request",	82 },
-    { 0x45,	"A2p Bearer Session-Level Parameters",	83 },
-    { 0x46,	"A2p Bearer Format-Specific Parameters",	84 },
-    { 0x73,	"MS Designated Frequency",	85 },
-    { 0x7D,	"Mobile Subscription Information",	86 },
-    { 0x72,	"Public Long Code Mask Identification",	87 },
-    { 0x15,	"MS Information Records (Reverse)",	88 },
-    { 0, NULL, 0 },
+    { 0x20,     "Access Network Identifiers",   0 },
+    { 0x3D,     "ADDS User Part",       1 },
+    { 0x25,     "AMPS Hard Handoff Parameters", 2 },
+    { 0x30,     "Anchor PDSN Address",  3 },
+    { 0x7C,     "Anchor P-P Address",   4 },
+    { 0x41,     "Authentication Challenge Parameter",   5 },
+    { 0x28,     "Authentication Confirmation Parameter (RANDC)",        6 },
+    { 0x59,     "Authentication Data",  7 },
+    { 0x4A,     "Authentication Event", 8 },
+    { 0x40,     "Authentication Parameter COUNT",       9 },
+    { 0x42,     "Authentication Response Parameter",    10 },
+    { 0x37,     "Band Class",   11 },
+    { 0x5B,     "Called Party ASCII Number",    12 },
+    { 0x5E,     "Called Party BCD Number",      13 },
+    { 0x4B,     "Calling Party ASCII Number",   14 },
+    { 0x04,     "Cause",        15 },
+    { 0x08,     "Cause Layer 3",        16 },
+    { 0x0C,     "CDMA Serving One Way Delay",   17 },
+    { 0x05,     "Cell Identifier",      18 },
+    { 0x1A,     "Cell Identifier List", 19 },
+    { 0x23,     "Channel Number",       20 },
+    { 0x0B,     "Channel Type", 21 },
+    { 0x19,     "Circuit Group",        22 },
+    { 0x01,     "Circuit Identity Code",        23 },
+    { 0x24,     "Circuit Identity Code Extension",      24 },
+    { 0x12,     "Classmark Information Type 2", 25 },
+    { 0x29,     "Downlink Radio Environment",   26 },
+    { 0x2B,     "Downlink Radio Environment List",      27 },
+    { 0x0A,     "Encryption Information",       28 },
+    { 0x10,     "Extended Handoff Direction Parameters",        29 },
+    { 0x2C,     "Geographic Location",  30 },
+    { 0x5A,     "Special Service Call Indicator",       31 },
+    { 0x26,     "Handoff Power Level",  32 },
+    { 0x16,     "Hard Handoff Parameters",      33 },
+    { 0x2E,     "Information Element Requested",        34 },
+    { 0x09,     "IS-2000 Channel Identity",     35 },
+    { 0x27,     "IS-2000 Channel Identity 3X",  36 },
+    { 0x11,     "IS-2000 Mobile Capabilities",  37 },
+    { 0x0F,     "IS-2000 Non-Negotiable Service Configuration Record",  38 },
+    { 0x0E,     "IS-2000 Service Configuration Record", 39 },
+    { 0x62,     "IS-95/IS-2000 Cause Value",    40 },
+    { 0x67,     "IS-2000 Redirection Record",   41 },
+    { 0x22,     "IS-95 Channel Identity",       42 },
+    { 0x64,     "IS-95 MS Measured Channel Identity",   43 },
+    { 0x17,     "Layer 3 Information",  44 },
+    { 0x13,     "Location Area Information",    45 },
+    { 0x38,     "Message Waiting Indication",   46 },
+    { 0x0D,     "Mobile Identity",      47 },
+    { 0x15,     "MS Information Records (Forward)",     48 },
+    { 0xA0,     "Origination Continuation Indicator",   49 },
+    { 0x5F,     "PACA Order",   50 },
+    { 0x60,     "PACA Reorigination Indicator", 51 },
+    { 0x4E,     "PACA Timestamp",       52 },
+    { 0x70,     "Packet Session Parameters",    53 },
+    { 0x14,     "PDSN IP Address",      54 },
+    { 0xA2,     "Power Down Indicator", 55 },
+    { 0x06,     "Priority",     56 },
+    { 0x3B,     "Protocol Revision",    57 },
+    { 0x18,     "Protocol Type",        58 },
+    { 0x2D,     "PSMM Count",   59 },
+    { 0x07,     "Quality of Service Parameters",        60 },
+    { 0x1D,     "Radio Environment and Resources",      61 },
+    { 0x1F,     "Registration Type",    62 },
+    { 0x44,     "Reject Cause", 63 },
+    { 0x1B,     "Response Request",     64 },
+    { 0x68,     "Return Cause", 65 },
+    { 0x21,     "RF Channel Identity",  66 },
+    { 0x03,     "Service Option",       67 },
+    { 0x1E,     "Service Option Connection Identifier (SOCI)",  68 },
+    { 0x2A,     "Service Option List",  69 },
+    { 0x69,     "Service Redirection Info",     70 },
+    { 0x71,     "Service Reference Identifier (SR_ID)", 71 },
+    { 0x32,     "SID",  72 },
+    { 0x34,     "Signal",       73 },
+    { 0x35,     "Slot Cycle Index",     74 },
+    { 0x31,     "Software Version",     75 },
+    { 0x39,     "Source RNC to Target RNC Transparent Container",       76 },
+    { 0x14,     "Source PDSN Address",  77 },
+    { 0x33,     "Tag",  78 },
+    { 0x3A,     "Target RNC to Source RNC Transparent Container",       79 },
+    { 0x36,     "Transcoder Mode",      80 }, /* XXX 0x1C in IOS 4.0.1 */
+    { 0x02,     "User Zone ID", 81 },
+    { 0xA1,     "Voice Privacy Request",        82 },
+    { 0x45,     "A2p Bearer Session-Level Parameters",  83 },
+    { 0x46,     "A2p Bearer Format-Specific Parameters",        84 },
+    { 0x73,     "MS Designated Frequency",      85 },
+    { 0x7D,     "Mobile Subscription Information",      86 },
+    { 0x72,     "Public Long Code Mask Identification", 87 },
+    { 0x15,     "MS Information Records (Reverse)",     88 },
+    { 0, NULL, 0 }
 };
 
 /*
  * From Table 3.7.5-1 C.S0005-D v1.0 L3
  */
-#define	ANSI_FWD_MS_INFO_REC_DISPLAY		0x01
-#define	ANSI_FWD_MS_INFO_REC_CLD_PN		0x02
-#define	ANSI_FWD_MS_INFO_REC_CLG_PN		0x03
-#define	ANSI_FWD_MS_INFO_REC_CONN_N		0x04
-#define	ANSI_FWD_MS_INFO_REC_SIGNAL		0x05
-#define	ANSI_FWD_MS_INFO_REC_MW			0x06
-#define	ANSI_FWD_MS_INFO_REC_SC			0x07
-#define	ANSI_FWD_MS_INFO_REC_CLD_PSA		0x08
-#define	ANSI_FWD_MS_INFO_REC_CLG_PSA		0x09
-#define	ANSI_FWD_MS_INFO_REC_CONN_SA		0x0a
-#define	ANSI_FWD_MS_INFO_REC_RED_N		0x0b
-#define	ANSI_FWD_MS_INFO_REC_RED_SA		0x0c
-#define	ANSI_FWD_MS_INFO_REC_MP			0x0d
-#define	ANSI_FWD_MS_INFO_REC_PA			0x0e
-#define	ANSI_FWD_MS_INFO_REC_LC			0x0f
-#define	ANSI_FWD_MS_INFO_REC_EDISPLAY		0x10
-#define	ANSI_FWD_MS_INFO_REC_NNSC		0x13
-#define	ANSI_FWD_MS_INFO_REC_MC_EDISPLAY	0x14
-#define	ANSI_FWD_MS_INFO_REC_CWI		0x15
-#define	ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY	0x16
-#define	ANSI_FWD_MS_INFO_REC_ERTI		0xfe
+#define ANSI_FWD_MS_INFO_REC_DISPLAY            0x01
+#define ANSI_FWD_MS_INFO_REC_CLD_PN             0x02
+#define ANSI_FWD_MS_INFO_REC_CLG_PN             0x03
+#define ANSI_FWD_MS_INFO_REC_CONN_N             0x04
+#define ANSI_FWD_MS_INFO_REC_SIGNAL             0x05
+#define ANSI_FWD_MS_INFO_REC_MW                 0x06
+#define ANSI_FWD_MS_INFO_REC_SC                 0x07
+#define ANSI_FWD_MS_INFO_REC_CLD_PSA            0x08
+#define ANSI_FWD_MS_INFO_REC_CLG_PSA            0x09
+#define ANSI_FWD_MS_INFO_REC_CONN_SA            0x0a
+#define ANSI_FWD_MS_INFO_REC_RED_N              0x0b
+#define ANSI_FWD_MS_INFO_REC_RED_SA             0x0c
+#define ANSI_FWD_MS_INFO_REC_MP                 0x0d
+#define ANSI_FWD_MS_INFO_REC_PA                 0x0e
+#define ANSI_FWD_MS_INFO_REC_LC                 0x0f
+#define ANSI_FWD_MS_INFO_REC_EDISPLAY           0x10
+#define ANSI_FWD_MS_INFO_REC_NNSC               0x13
+#define ANSI_FWD_MS_INFO_REC_MC_EDISPLAY        0x14
+#define ANSI_FWD_MS_INFO_REC_CWI                0x15
+#define ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY       0x16
+#define ANSI_FWD_MS_INFO_REC_ERTI               0xfe
 
 static const value_string ansi_fwd_ms_info_rec_str[] = {
-    { ANSI_FWD_MS_INFO_REC_DISPLAY,		"Display" },
-    { ANSI_FWD_MS_INFO_REC_CLD_PN,		"Called Party Number" },
-    { ANSI_FWD_MS_INFO_REC_CLG_PN,		"Calling Party Number" },
-    { ANSI_FWD_MS_INFO_REC_CONN_N,		"Connected Number" },
-    { ANSI_FWD_MS_INFO_REC_SIGNAL,		"Signal" },
-    { ANSI_FWD_MS_INFO_REC_MW,			"Message Waiting" },
-    { ANSI_FWD_MS_INFO_REC_SC,			"Service Configuration" },
-    { ANSI_FWD_MS_INFO_REC_CLD_PSA,		"Called Party Subaddress" },
-    { ANSI_FWD_MS_INFO_REC_CLG_PSA,		"Calling Party Subaddress" },
-    { ANSI_FWD_MS_INFO_REC_CONN_SA,		"Connected Subaddress" },
-    { ANSI_FWD_MS_INFO_REC_RED_N,		"Redirecting Number" },
-    { ANSI_FWD_MS_INFO_REC_RED_SA,		"Redirecting Subaddress" },
-    { ANSI_FWD_MS_INFO_REC_MP,			"Meter Pulses" },
-    { ANSI_FWD_MS_INFO_REC_PA,			"Parametric Alerting" },
-    { ANSI_FWD_MS_INFO_REC_LC,			"Line Control" },
-    { ANSI_FWD_MS_INFO_REC_EDISPLAY,		"Extended Display" },
-    { ANSI_FWD_MS_INFO_REC_NNSC,		"Non-Negotiable Service Configuration" },
-    { ANSI_FWD_MS_INFO_REC_MC_EDISPLAY,		"Multiple Character Extended Display" },
-    { ANSI_FWD_MS_INFO_REC_CWI,			"Call Waiting Indicator" },
-    { ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY,	"Enhanced Multiple Character Extended Display" },
-    { ANSI_FWD_MS_INFO_REC_ERTI,		"Extended Record Type International" },
-    { 0, NULL },
+    { ANSI_FWD_MS_INFO_REC_DISPLAY,             "Display" },
+    { ANSI_FWD_MS_INFO_REC_CLD_PN,              "Called Party Number" },
+    { ANSI_FWD_MS_INFO_REC_CLG_PN,              "Calling Party Number" },
+    { ANSI_FWD_MS_INFO_REC_CONN_N,              "Connected Number" },
+    { ANSI_FWD_MS_INFO_REC_SIGNAL,              "Signal" },
+    { ANSI_FWD_MS_INFO_REC_MW,                  "Message Waiting" },
+    { ANSI_FWD_MS_INFO_REC_SC,                  "Service Configuration" },
+    { ANSI_FWD_MS_INFO_REC_CLD_PSA,             "Called Party Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_CLG_PSA,             "Calling Party Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_CONN_SA,             "Connected Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_RED_N,               "Redirecting Number" },
+    { ANSI_FWD_MS_INFO_REC_RED_SA,              "Redirecting Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_MP,                  "Meter Pulses" },
+    { ANSI_FWD_MS_INFO_REC_PA,                  "Parametric Alerting" },
+    { ANSI_FWD_MS_INFO_REC_LC,                  "Line Control" },
+    { ANSI_FWD_MS_INFO_REC_EDISPLAY,            "Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_NNSC,                "Non-Negotiable Service Configuration" },
+    { ANSI_FWD_MS_INFO_REC_MC_EDISPLAY,         "Multiple Character Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_CWI,                 "Call Waiting Indicator" },
+    { ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY,        "Enhanced Multiple Character Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_ERTI,                "Extended Record Type International" },
+    { 0, NULL }
 };
-#define	NUM_FWD_MS_INFO_REC (sizeof(ansi_fwd_ms_info_rec_str)/sizeof(value_string))
+#define NUM_FWD_MS_INFO_REC (sizeof(ansi_fwd_ms_info_rec_str)/sizeof(value_string))
 static gint ett_ansi_fwd_ms_info_rec[NUM_FWD_MS_INFO_REC];
 
 /*
  * From Table 2.7.4-1 C.S0005-D v1.0 L3
  */
-#define	ANSI_REV_MS_INFO_REC_KEYPAD_FAC		0x03
-#define	ANSI_REV_MS_INFO_REC_CLD_PN		0x04
-#define	ANSI_REV_MS_INFO_REC_CLG_PN		0x05
-#define	ANSI_REV_MS_INFO_REC_CALL_MODE		0x07
-#define	ANSI_REV_MS_INFO_REC_TERM_INFO		0x08
-#define	ANSI_REV_MS_INFO_REC_ROAM_INFO		0x09
-#define	ANSI_REV_MS_INFO_REC_SECUR_STS		0x0a
-#define	ANSI_REV_MS_INFO_REC_CONN_N		0x0b
-#define	ANSI_REV_MS_INFO_REC_IMSI		0x0c
-#define	ANSI_REV_MS_INFO_REC_ESN		0x0d
-#define	ANSI_REV_MS_INFO_REC_BAND_INFO		0x0e
-#define	ANSI_REV_MS_INFO_REC_POWER_INFO		0x0f
-#define	ANSI_REV_MS_INFO_REC_OP_MODE_INFO	0x10
-#define	ANSI_REV_MS_INFO_REC_SO_INFO		0x11
-#define	ANSI_REV_MS_INFO_REC_MO_INFO		0x12
-#define	ANSI_REV_MS_INFO_REC_SC_INFO		0x13
-#define	ANSI_REV_MS_INFO_REC_CLD_PSA		0x14
-#define	ANSI_REV_MS_INFO_REC_CLG_PSA		0x15
-#define	ANSI_REV_MS_INFO_REC_CONN_SA		0x16
-#define	ANSI_REV_MS_INFO_REC_PCI		0x17
-#define	ANSI_REV_MS_INFO_REC_IMSI_M		0x18
-#define	ANSI_REV_MS_INFO_REC_IMSI_T		0x19
-#define	ANSI_REV_MS_INFO_REC_CAP_INFO		0x1a
-#define	ANSI_REV_MS_INFO_REC_CCC_INFO		0x1b
-#define	ANSI_REV_MS_INFO_REC_EMO_INFO		0x1c
-#define	ANSI_REV_MS_INFO_REC_GEO_CAP		0x1e
-#define	ANSI_REV_MS_INFO_REC_BAND_SUB		0x1f
-#define	ANSI_REV_MS_INFO_REC_GECO		0x20
-#define	ANSI_REV_MS_INFO_REC_HOOK		0x21
-#define	ANSI_REV_MS_INFO_REC_QOS_PARAM		0x22
-#define	ANSI_REV_MS_INFO_REC_ENCRYPT_CAP	0x23
-#define	ANSI_REV_MS_INFO_REC_SMI_CAP		0x24
-#define	ANSI_REV_MS_INFO_REC_UIM_ID		0x25
-#define	ANSI_REV_MS_INFO_REC_ESN_ME		0x26
-#define	ANSI_REV_MS_INFO_REC_MEID		0x27
-#define	ANSI_REV_MS_INFO_REC_EKEYPAD_FAC	0x28
-#define	ANSI_REV_MS_INFO_REC_SYNC_ID		0x29
-#define	ANSI_REV_MS_INFO_REC_ERTI		0xfe
+#define ANSI_REV_MS_INFO_REC_KEYPAD_FAC         0x03
+#define ANSI_REV_MS_INFO_REC_CLD_PN             0x04
+#define ANSI_REV_MS_INFO_REC_CLG_PN             0x05
+#define ANSI_REV_MS_INFO_REC_CALL_MODE          0x07
+#define ANSI_REV_MS_INFO_REC_TERM_INFO          0x08
+#define ANSI_REV_MS_INFO_REC_ROAM_INFO          0x09
+#define ANSI_REV_MS_INFO_REC_SECUR_STS          0x0a
+#define ANSI_REV_MS_INFO_REC_CONN_N             0x0b
+#define ANSI_REV_MS_INFO_REC_IMSI               0x0c
+#define ANSI_REV_MS_INFO_REC_ESN                0x0d
+#define ANSI_REV_MS_INFO_REC_BAND_INFO          0x0e
+#define ANSI_REV_MS_INFO_REC_POWER_INFO         0x0f
+#define ANSI_REV_MS_INFO_REC_OP_MODE_INFO       0x10
+#define ANSI_REV_MS_INFO_REC_SO_INFO            0x11
+#define ANSI_REV_MS_INFO_REC_MO_INFO            0x12
+#define ANSI_REV_MS_INFO_REC_SC_INFO            0x13
+#define ANSI_REV_MS_INFO_REC_CLD_PSA            0x14
+#define ANSI_REV_MS_INFO_REC_CLG_PSA            0x15
+#define ANSI_REV_MS_INFO_REC_CONN_SA            0x16
+#define ANSI_REV_MS_INFO_REC_PCI                0x17
+#define ANSI_REV_MS_INFO_REC_IMSI_M             0x18
+#define ANSI_REV_MS_INFO_REC_IMSI_T             0x19
+#define ANSI_REV_MS_INFO_REC_CAP_INFO           0x1a
+#define ANSI_REV_MS_INFO_REC_CCC_INFO           0x1b
+#define ANSI_REV_MS_INFO_REC_EMO_INFO           0x1c
+#define ANSI_REV_MS_INFO_REC_GEO_CAP            0x1e
+#define ANSI_REV_MS_INFO_REC_BAND_SUB           0x1f
+#define ANSI_REV_MS_INFO_REC_GECO               0x20
+#define ANSI_REV_MS_INFO_REC_HOOK               0x21
+#define ANSI_REV_MS_INFO_REC_QOS_PARAM          0x22
+#define ANSI_REV_MS_INFO_REC_ENCRYPT_CAP        0x23
+#define ANSI_REV_MS_INFO_REC_SMI_CAP            0x24
+#define ANSI_REV_MS_INFO_REC_UIM_ID             0x25
+#define ANSI_REV_MS_INFO_REC_ESN_ME             0x26
+#define ANSI_REV_MS_INFO_REC_MEID               0x27
+#define ANSI_REV_MS_INFO_REC_EKEYPAD_FAC        0x28
+#define ANSI_REV_MS_INFO_REC_SYNC_ID            0x29
+#define ANSI_REV_MS_INFO_REC_ERTI               0xfe
 
 static const value_string ansi_rev_ms_info_rec_str[] = {
-    { ANSI_REV_MS_INFO_REC_KEYPAD_FAC,		"Keypad Facility" },
-    { ANSI_REV_MS_INFO_REC_CLD_PN,		"Called Party Number" },
-    { ANSI_REV_MS_INFO_REC_CLG_PN,		"Calling Party Number" },
-    { ANSI_REV_MS_INFO_REC_CALL_MODE,		"Call Mode" },
-    { ANSI_REV_MS_INFO_REC_TERM_INFO,		"Terminal Information" },
-    { ANSI_REV_MS_INFO_REC_ROAM_INFO,		"Roaming Information" },
-    { ANSI_REV_MS_INFO_REC_SECUR_STS,		"Security Status" },
-    { ANSI_REV_MS_INFO_REC_CONN_N,		"Connected Number" },
-    { ANSI_REV_MS_INFO_REC_IMSI,		"IMSI" },
-    { ANSI_REV_MS_INFO_REC_ESN,			"ESN" },
-    { ANSI_REV_MS_INFO_REC_BAND_INFO,		"Band Class Information" },
-    { ANSI_REV_MS_INFO_REC_POWER_INFO,		"Power Class Information" },
-    { ANSI_REV_MS_INFO_REC_OP_MODE_INFO,	"Operating Mode Information" },
-    { ANSI_REV_MS_INFO_REC_SO_INFO,		"Service Option Information" },
-    { ANSI_REV_MS_INFO_REC_MO_INFO,		"Multiplex Option Information" },
-    { ANSI_REV_MS_INFO_REC_SC_INFO,		"Service Configuration Information" },
-    { ANSI_REV_MS_INFO_REC_CLD_PSA,		"Called Party Subaddress" },
-    { ANSI_REV_MS_INFO_REC_CLG_PSA,		"Calling Party Subaddress" },
-    { ANSI_REV_MS_INFO_REC_CONN_SA,		"Connected Subaddress" },
-    { ANSI_REV_MS_INFO_REC_PCI,			"Power Control Information" },
-    { ANSI_REV_MS_INFO_REC_IMSI_M,		"IMSI_M" },
-    { ANSI_REV_MS_INFO_REC_IMSI_T,		"IMSI_T" },
-    { ANSI_REV_MS_INFO_REC_CAP_INFO,		"Capability Information" },
-    { ANSI_REV_MS_INFO_REC_CCC_INFO,		"Channel Configuration Capability Information" },
-    { ANSI_REV_MS_INFO_REC_EMO_INFO,		"Extended Multiplex Option Information" },
-    { ANSI_REV_MS_INFO_REC_GEO_CAP,		"Geo-Location Capability" },
-    { ANSI_REV_MS_INFO_REC_BAND_SUB,		"Band Subclass Information" },
-    { ANSI_REV_MS_INFO_REC_GECO,		"Global Emergency Call" },
-    { ANSI_REV_MS_INFO_REC_HOOK,		"Hook Status" },
-    { ANSI_REV_MS_INFO_REC_QOS_PARAM,		"QoS Parameters" },
-    { ANSI_REV_MS_INFO_REC_ENCRYPT_CAP,		"Encryption Capability" },
-    { ANSI_REV_MS_INFO_REC_SMI_CAP,		"Signaling Message Integrity Capability" },
-    { ANSI_REV_MS_INFO_REC_UIM_ID,		"UIM_ID" },
-    { ANSI_REV_MS_INFO_REC_ESN_ME,		"ESN_ME" },
-    { ANSI_REV_MS_INFO_REC_MEID,		"MEID" },
-    { ANSI_REV_MS_INFO_REC_EKEYPAD_FAC,		"Extended Keypad Facility" },
-    { ANSI_REV_MS_INFO_REC_SYNC_ID,		"SYNC_ID" },
-    { ANSI_REV_MS_INFO_REC_ERTI,		"Extended Record Type International" },
-    { 0, NULL },
+    { ANSI_REV_MS_INFO_REC_KEYPAD_FAC,          "Keypad Facility" },
+    { ANSI_REV_MS_INFO_REC_CLD_PN,              "Called Party Number" },
+    { ANSI_REV_MS_INFO_REC_CLG_PN,              "Calling Party Number" },
+    { ANSI_REV_MS_INFO_REC_CALL_MODE,           "Call Mode" },
+    { ANSI_REV_MS_INFO_REC_TERM_INFO,           "Terminal Information" },
+    { ANSI_REV_MS_INFO_REC_ROAM_INFO,           "Roaming Information" },
+    { ANSI_REV_MS_INFO_REC_SECUR_STS,           "Security Status" },
+    { ANSI_REV_MS_INFO_REC_CONN_N,              "Connected Number" },
+    { ANSI_REV_MS_INFO_REC_IMSI,                "IMSI" },
+    { ANSI_REV_MS_INFO_REC_ESN,                 "ESN" },
+    { ANSI_REV_MS_INFO_REC_BAND_INFO,           "Band Class Information" },
+    { ANSI_REV_MS_INFO_REC_POWER_INFO,          "Power Class Information" },
+    { ANSI_REV_MS_INFO_REC_OP_MODE_INFO,        "Operating Mode Information" },
+    { ANSI_REV_MS_INFO_REC_SO_INFO,             "Service Option Information" },
+    { ANSI_REV_MS_INFO_REC_MO_INFO,             "Multiplex Option Information" },
+    { ANSI_REV_MS_INFO_REC_SC_INFO,             "Service Configuration Information" },
+    { ANSI_REV_MS_INFO_REC_CLD_PSA,             "Called Party Subaddress" },
+    { ANSI_REV_MS_INFO_REC_CLG_PSA,             "Calling Party Subaddress" },
+    { ANSI_REV_MS_INFO_REC_CONN_SA,             "Connected Subaddress" },
+    { ANSI_REV_MS_INFO_REC_PCI,                 "Power Control Information" },
+    { ANSI_REV_MS_INFO_REC_IMSI_M,              "IMSI_M" },
+    { ANSI_REV_MS_INFO_REC_IMSI_T,              "IMSI_T" },
+    { ANSI_REV_MS_INFO_REC_CAP_INFO,            "Capability Information" },
+    { ANSI_REV_MS_INFO_REC_CCC_INFO,            "Channel Configuration Capability Information" },
+    { ANSI_REV_MS_INFO_REC_EMO_INFO,            "Extended Multiplex Option Information" },
+    { ANSI_REV_MS_INFO_REC_GEO_CAP,             "Geo-Location Capability" },
+    { ANSI_REV_MS_INFO_REC_BAND_SUB,            "Band Subclass Information" },
+    { ANSI_REV_MS_INFO_REC_GECO,                "Global Emergency Call" },
+    { ANSI_REV_MS_INFO_REC_HOOK,                "Hook Status" },
+    { ANSI_REV_MS_INFO_REC_QOS_PARAM,           "QoS Parameters" },
+    { ANSI_REV_MS_INFO_REC_ENCRYPT_CAP,         "Encryption Capability" },
+    { ANSI_REV_MS_INFO_REC_SMI_CAP,             "Signaling Message Integrity Capability" },
+    { ANSI_REV_MS_INFO_REC_UIM_ID,              "UIM_ID" },
+    { ANSI_REV_MS_INFO_REC_ESN_ME,              "ESN_ME" },
+    { ANSI_REV_MS_INFO_REC_MEID,                "MEID" },
+    { ANSI_REV_MS_INFO_REC_EKEYPAD_FAC,         "Extended Keypad Facility" },
+    { ANSI_REV_MS_INFO_REC_SYNC_ID,             "SYNC_ID" },
+    { ANSI_REV_MS_INFO_REC_ERTI,                "Extended Record Type International" },
+    { 0, NULL }
 };
-#define	NUM_REV_MS_INFO_REC (sizeof(ansi_rev_ms_info_rec_str)/sizeof(value_string))
+#define NUM_REV_MS_INFO_REC (sizeof(ansi_rev_ms_info_rec_str)/sizeof(value_string))
 static gint ett_ansi_rev_ms_info_rec[NUM_REV_MS_INFO_REC];
 
 static const gchar *band_class_str[] = {
@@ -623,7 +626,7 @@ static const gchar *band_class_str[] = {
     "400 MHz European PAMR Band",
     "800 MHz European PAMR Band"
 };
-#define	NUM_BAND_CLASS_STR	(sizeof(band_class_str)/sizeof(gchar *))
+#define NUM_BAND_CLASS_STR      (sizeof(band_class_str)/sizeof(gchar *))
 
 static const gchar *cell_disc_str[] = {
     "whole Cell Global Identification (CGI)",
@@ -636,7 +639,7 @@ static const gchar *cell_disc_str[] = {
     "IS-41 whole Cell Global Identification (ICGI)",
     "Enhanced whole Cell Global Identification (ECGI)"
 };
-#define	NUM_CELL_DISC_STR	(sizeof(cell_disc_str)/sizeof(gchar *))
+#define NUM_CELL_DISC_STR       (sizeof(cell_disc_str)/sizeof(gchar *))
 
 /* Initialize the protocol and registered fields */
 static int proto_a_bsmap = -1;
@@ -672,8 +675,8 @@ static int hf_ansi_a_a2p_bearer_ipv4_addr = -1;
 static int hf_ansi_a_a2p_bearer_ipv6_addr = -1;
 static int hf_ansi_a_a2p_bearer_udp_port = -1;
 static int hf_ansi_a_so = -1;
-static int hf_ansi_a_cause_1 = -1;	/* 1 octet cause */
-static int hf_ansi_a_cause_2 = -1;	/* 2 octet cause */
+static int hf_ansi_a_cause_1 = -1;      /* 1 octet cause */
+static int hf_ansi_a_cause_2 = -1;      /* 2 octet cause */
 
 
 /* Initialize the subtree pointers */
@@ -695,6 +698,7 @@ static gint ett_scr = -1;
 static gint ett_srvc_con_rec = -1;
 
 static char a_bigbuf[1024];
+static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
@@ -702,6 +706,10 @@ static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
+static address rtp_src_addr;
+static guint32 rtp_ipv4_addr;
+static struct e_in6_addr rtp_ipv6_addr;
+static guint16 rtp_port;
 
 
 typedef struct dgt_set_t
@@ -738,10 +746,10 @@ static dgt_set_t Dgt_msid = {
  */
 static int
 my_dgt_tbcd_unpack(
-    char	*out,		/* ASCII pattern out */
-    guchar	*in,		/* packed pattern in */
-    int		num_octs,	/* Number of octets to unpack */
-    dgt_set_t	*dgt		/* Digit definitions */
+    char        *out,           /* ASCII pattern out */
+    guchar      *in,            /* packed pattern in */
+    int         num_octs,       /* Number of octets to unpack */
+    dgt_set_t   *dgt            /* Digit definitions */
     )
 {
     int cnt = 0;
@@ -749,24 +757,24 @@ my_dgt_tbcd_unpack(
 
     while (num_octs)
     {
-	/*
-	 * unpack first value in byte
-	 */
-	i = *in++;
-	*out++ = dgt->out[i & 0x0f];
-	cnt++;
+        /*
+         * unpack first value in byte
+         */
+        i = *in++;
+        *out++ = dgt->out[i & 0x0f];
+        cnt++;
 
-	/*
-	 * unpack second value in byte
-	 */
-	i >>= 4;
+        /*
+         * unpack second value in byte
+         */
+        i >>= 4;
 
-	if (i == 0x0f)	/* odd number bytes - hit filler */
-	    break;
+        if (i == 0x0f)  /* odd number bytes - hit filler */
+            break;
 
-	*out++ = dgt->out[i];
-	cnt++;
-	num_octs--;
+        *out++ = dgt->out[i];
+        cnt++;
+        num_octs--;
     }
 
     *out = '\0';
@@ -776,7 +784,7 @@ my_dgt_tbcd_unpack(
 
 const gchar *
 ansi_a_so_int_to_str(
-    gint32	so)
+    gint32      so)
 {
     const gchar *str = NULL;
 
@@ -803,7 +811,7 @@ ansi_a_so_int_to_str(
     case 32798: /* 0x801e */ str = "Qualcomm Loopback"; break;
     case 32799: /* 0x801f */ str = "Qualcomm Markov 8 kbps Loopback"; break;
     case 32800: /* 0x8020 */ str = "Qualcomm Packet Data"; break;
-    case 32801:	/* 0x8021 */ str = "Qualcomm Async Data"; break;
+    case 32801: /* 0x8021 */ str = "Qualcomm Async Data"; break;
     case 18: str = "Over-the-Air Parameter Administration (Rate Set 1)"; break;
     case 19: str = "Over-the-Air Parameter Administration (Rate Set 2)"; break;
     case 20: str = "Group 3 Analog Facsimile (Rate Set 1)"; break;
@@ -846,32 +854,32 @@ ansi_a_so_int_to_str(
     case 4103: str = "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
     case 4104: str = "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
     default:
-	if ((so >= 4105) && (so <= 32767)) { str = "Reserved for standard service options"; }
-	else if ((so >= 32769) && (so <= 32771)) { str = "Proprietary QUALCOMM Incorporated"; }
-	else if ((so >= 32772) && (so <= 32775)) { str = "Proprietary OKI Telecom"; }
-	else if ((so >= 32776) && (so <= 32779)) { str = "Proprietary Lucent Technologies"; }
-	else if ((so >= 32780) && (so <=32783)) { str = "Nokia"; }
-	else if ((so >= 32784) && (so <=32787)) { str = "NORTEL NETWORKS"; }
-	else if ((so >= 32788) && (so <=32791)) { str = "Sony Electronics Inc."; }
-	else if ((so >= 32792) && (so <=32795)) { str = "Motorola"; }
-	else if ((so >= 32796) && (so <=32799)) { str = "QUALCOMM Incorporated"; }
-	else if ((so >= 32800) && (so <=32803)) { str = "QUALCOMM Incorporated"; }
-	else if ((so >= 32804) && (so <=32807)) { str = "QUALCOMM Incorporated"; }
-	else if ((so >= 32808) && (so <=32811)) { str = "QUALCOMM Incorporated"; }
-	else if ((so >= 32812) && (so <=32815)) { str = "Lucent Technologies"; }
-	else if ((so >= 32816) && (so <=32819)) { str = "Denso International"; }
-	else if ((so >= 32820) && (so <=32823)) { str = "Motorola"; }
-	else if ((so >= 32824) && (so <=32827)) { str = "Denso International"; }
-	else if ((so >= 32828) && (so <=32831)) { str = "Denso International"; }
-	else if ((so >= 32832) && (so <=32835)) { str = "Denso International"; }
-	else if ((so >= 32836) && (so <=32839)) { str = "NEC America"; }
-	else if ((so >= 32840) && (so <=32843)) { str = "Samsung Electronics"; }
-	else if ((so >= 32844) && (so <=32847)) { str = "Texas Instruments Incorporated"; }
-	else if ((so >= 32848) && (so <=32851)) { str = "Toshiba Corporation"; }
-	else if ((so >= 32852) && (so <=32855)) { str = "LG Electronics Inc."; }
-	else if ((so >= 32856) && (so <=32859)) { str = "VIA Telecom Inc."; }
-	else { str = "Reserved"; }
-	break;
+        if ((so >= 4105) && (so <= 32767)) { str = "Reserved for standard service options"; }
+        else if ((so >= 32769) && (so <= 32771)) { str = "Proprietary QUALCOMM Incorporated"; }
+        else if ((so >= 32772) && (so <= 32775)) { str = "Proprietary OKI Telecom"; }
+        else if ((so >= 32776) && (so <= 32779)) { str = "Proprietary Lucent Technologies"; }
+        else if ((so >= 32780) && (so <=32783)) { str = "Nokia"; }
+        else if ((so >= 32784) && (so <=32787)) { str = "NORTEL NETWORKS"; }
+        else if ((so >= 32788) && (so <=32791)) { str = "Sony Electronics Inc."; }
+        else if ((so >= 32792) && (so <=32795)) { str = "Motorola"; }
+        else if ((so >= 32796) && (so <=32799)) { str = "QUALCOMM Incorporated"; }
+        else if ((so >= 32800) && (so <=32803)) { str = "QUALCOMM Incorporated"; }
+        else if ((so >= 32804) && (so <=32807)) { str = "QUALCOMM Incorporated"; }
+        else if ((so >= 32808) && (so <=32811)) { str = "QUALCOMM Incorporated"; }
+        else if ((so >= 32812) && (so <=32815)) { str = "Lucent Technologies"; }
+        else if ((so >= 32816) && (so <=32819)) { str = "Denso International"; }
+        else if ((so >= 32820) && (so <=32823)) { str = "Motorola"; }
+        else if ((so >= 32824) && (so <=32827)) { str = "Denso International"; }
+        else if ((so >= 32828) && (so <=32831)) { str = "Denso International"; }
+        else if ((so >= 32832) && (so <=32835)) { str = "Denso International"; }
+        else if ((so >= 32836) && (so <=32839)) { str = "NEC America"; }
+        else if ((so >= 32840) && (so <=32843)) { str = "Samsung Electronics"; }
+        else if ((so >= 32844) && (so <=32847)) { str = "Texas Instruments Incorporated"; }
+        else if ((so >= 32848) && (so <=32851)) { str = "Toshiba Corporation"; }
+        else if ((so >= 32852) && (so <=32855)) { str = "LG Electronics Inc."; }
+        else if ((so >= 32856) && (so <=32859)) { str = "VIA Telecom Inc."; }
+        else { str = "Reserved"; }
+        break;
     }
 
     return(str);
@@ -880,33 +888,33 @@ ansi_a_so_int_to_str(
 
 /* ELEMENT FUNCTIONS */
 
-#define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
+#define EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
     if ((edc_len) > (edc_max_len)) \
     { \
-	proto_tree_add_text(tree, tvb, \
-	    curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
-	curr_offset += ((edc_len) - (edc_max_len)); \
+        proto_tree_add_text(tree, tvb, \
+            curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
+        curr_offset += ((edc_len) - (edc_max_len)); \
     }
 
-#define	SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
+#define SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
     if ((sdc_len) < (sdc_min_len)) \
     { \
-	proto_tree_add_text(tree, tvb, \
-	    curr_offset, (sdc_len), "Short Data (?)"); \
-	curr_offset += (sdc_len); \
-	return(curr_offset - offset); \
+        proto_tree_add_text(tree, tvb, \
+            curr_offset, (sdc_len), "Short Data (?)"); \
+        curr_offset += (sdc_len); \
+        return(curr_offset - offset); \
     }
 
-#define	EXACT_DATA_CHECK(edc_len, edc_eq_len) \
+#define EXACT_DATA_CHECK(edc_len, edc_eq_len) \
     if ((edc_len) != (edc_eq_len)) \
     { \
-	proto_tree_add_text(tree, tvb, \
-	    asn1->offset, (edc_len), "Unexpected Data Length"); \
-	asn1->offset += (edc_len); \
-	return; \
+        proto_tree_add_text(tree, tvb, \
+            asn1->offset, (edc_len), "Unexpected Data Length"); \
+        asn1->offset += (edc_len); \
+        return; \
     }
 
-#define	NO_MORE_DATA_CHECK(nmdc_len) \
+#define NO_MORE_DATA_CHECK(nmdc_len) \
     if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
 
 
@@ -916,8 +924,8 @@ ansi_a_so_int_to_str(
 static guint8
 elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -927,34 +935,34 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 2,
-	    "Channel Number: %u",
-	    value);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 2,
+            "Channel Number: %u",
+            value);
 
-	g_snprintf(add_string, string_len, " - (%u)", value);
-	break;
+        g_snprintf(add_string, string_len, " - (%u)", value);
+        break;
 
     case A_VARIANT_IOS501:
-	other_decode_bitfield_value(a_bigbuf, value >> 8, 0xf8, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, value >> 8, 0xf8, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, value >> 8, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (MSB): %u",
-	    a_bigbuf,
-	    value & 0x07ff);
+        other_decode_bitfield_value(a_bigbuf, value >> 8, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ARFCN (MSB): %u",
+            a_bigbuf,
+            value & 0x07ff);
 
-	other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
-	    "%s :  ARFCN (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
+            "%s :  ARFCN (LSB)",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
-	break;
+        g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+        break;
     }
 
     curr_offset += 2;
@@ -970,10 +978,10 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 static guint8
 elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str = NULL;
-    gboolean	data;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str = NULL;
+    gboolean    data;
 
     curr_offset = offset;
     data = FALSE;
@@ -987,14 +995,14 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     case 2: str = "Data"; data = TRUE; break;
     case 3: str = "Signaling"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Speech or Data Indicator: %s",
-	str);
+        tvb, curr_offset, 1,
+        "Speech or Data Indicator: %s",
+        str);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -1012,14 +1020,14 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     case 8: str = "Full rate TCH channel Bm"; break;
     case 9: str = "Half rate TCH channel Lm"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Channel Rate and Type: %s",
-	str);
+        tvb, curr_offset, 1,
+        "Channel Rate and Type: %s",
+        str);
 
     curr_offset++;
 
@@ -1029,45 +1037,45 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     if (data)
     {
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Extension",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  %sTransparent service",
-	    a_bigbuf,
-	    (oct & 0x40) ? "Non-" : "");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  %sTransparent service",
+            a_bigbuf,
+            (oct & 0x40) ? "Non-" : "");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
     }
     else
     {
-	switch (oct)
-	{
-	case 0: str = "No Resources Required (invalid)"; break;
-	case 1: str = "Reserved"; break;
-	case 2: str = "Reserved"; break;
-	case 3: str = "TIA/EIA-IS-2000 8 kb/s vocoder"; break;
-	case 4: str = "8 kb/s enhanced vocoder (EVRC)"; break;
-	case 5: str = "13 kb/s vocoder"; break;
-	case 6: str = "ADPCM"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch (oct)
+        {
+        case 0: str = "No Resources Required (invalid)"; break;
+        case 1: str = "Reserved"; break;
+        case 2: str = "Reserved"; break;
+        case 3: str = "TIA/EIA-IS-2000 8 kb/s vocoder"; break;
+        case 4: str = "8 kb/s enhanced vocoder (EVRC)"; break;
+        case 5: str = "13 kb/s vocoder"; break;
+        case 6: str = "ADPCM"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Speech Encoding Algorithm/data rate + Transparency Indicator: %s",
-	    str);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Speech Encoding Algorithm/data rate + Transparency Indicator: %s",
+            str);
     }
 
     curr_offset++;
@@ -1083,9 +1091,9 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    const gchar	*str;
-    guint32	curr_offset;
+    guint8      oct;
+    const gchar *str;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -1093,8 +1101,8 @@ elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x0f)
     {
@@ -1105,15 +1113,15 @@ elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
     case 4: str = "Service redirection failed as a result of wrong SID"; break;
     case 5: str = "Service redirection failed as a result of wrong NID"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Return Cause: %s",
-	a_bigbuf,
-	str);
+        "%s :  Return Cause: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -1128,15 +1136,15 @@ elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 static guint8
 elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Color Code");
+        "Color Code");
 
     curr_offset++;
 
@@ -1144,18 +1152,18 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  N-AMPS",
-	a_bigbuf);
+        "%s :  N-AMPS",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ANSI/EIA/TIA-553",
-	a_bigbuf);
+        "%s :  ANSI/EIA/TIA-553",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -1163,13 +1171,13 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Timeslot Number",
-	a_bigbuf);
+        "%s :  Timeslot Number",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -1177,19 +1185,19 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0xf8, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ARFCN (MSB): %u",
-	a_bigbuf,
-	value & 0x07ff);
+        "%s :  ARFCN (MSB): %u",
+        a_bigbuf,
+        value & 0x07ff);
 
     other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
-	"%s :  ARFCN (LSB)",
-	a_bigbuf);
+        "%s :  ARFCN (LSB)",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
 
@@ -1206,8 +1214,8 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -1215,16 +1223,16 @@ elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  SR_ID: %u",
-	a_bigbuf,
-	oct & 0x07);
+        tvb, curr_offset, 1,
+        "%s :  SR_ID: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     g_snprintf(add_string, string_len, " - (%u)", oct);
 
@@ -1241,8 +1249,8 @@ elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -1251,19 +1259,19 @@ elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0x7f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  SID (MSB), %u",
-	a_bigbuf,
-	value & 0x7fff);
+        "%s :  SID (MSB), %u",
+        a_bigbuf,
+        value & 0x7fff);
 
     other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
-	"%s :  SID (LSB)",
-	a_bigbuf);
+        "%s :  SID (LSB)",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (SID: %u)", value & 0x7fff);
 
@@ -1280,9 +1288,9 @@ elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -1290,21 +1298,21 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Hard Handoff",
-	a_bigbuf);
+        "%s :  Hard Handoff",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Number of Channels to Add: %u",
-	a_bigbuf,
-	(oct & 0x70) >> 4);
+        "%s :  Number of Channels to Add: %u",
+        a_bigbuf,
+        (oct & 0x70) >> 4);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Frame Offset: (%u), %.2f ms",
-	a_bigbuf,
-	oct & 0x0f,
-	(oct & 0x0f) * 1.25);
+        "%s :  Frame Offset: (%u), %.2f ms",
+        a_bigbuf,
+        oct & 0x0f,
+        (oct & 0x0f) * 1.25);
 
     curr_offset++;
 
@@ -1314,69 +1322,69 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     do
     {
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "Walsh Code Channel Index: %u",
-	    oct);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "Walsh Code Channel Index: %u",
+            oct);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Pilot PN Code (LSB)",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	value = oct;
-	oct = tvb_get_guint8(tvb, curr_offset);
-	value |= ((guint32) (oct & 0x80)) << 1;
+        value = oct;
+        oct = tvb_get_guint8(tvb, curr_offset);
+        value |= ((guint32) (oct & 0x80)) << 1;
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (MSB): %u",
-	    a_bigbuf,
-	    value);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Pilot PN Code (MSB): %u",
+            a_bigbuf,
+            value);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Power Combined",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Power Combined",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Frequency Included",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Frequency Included",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
+        value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (MSB): %u",
-	    a_bigbuf,
-	    value);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ARFCN (MSB): %u",
+            a_bigbuf,
+            value);
 
-	curr_offset++;
+        curr_offset++;
 
-	other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ARFCN (LSB)",
+            a_bigbuf);
 
-	if (add_string[0] == '\0')
-	{
-	    g_snprintf(add_string, string_len, " - (ARFCN: %u)", value);
-	}
+        if (add_string[0] == '\0')
+        {
+            g_snprintf(add_string, string_len, " - (ARFCN: %u)", value);
+        }
 
-	curr_offset++;
+        curr_offset++;
     }
     while ((len - (curr_offset - offset)) >= 4);
 
@@ -1396,13 +1404,13 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint8
 elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	oct_len;
-    guint32	curr_offset;
-    const gchar	*str;
-    guint8	num_recs;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint8      oct;
+    guint8      oct_len;
+    guint32     curr_offset;
+    const gchar *str;
+    guint8      num_recs;
+    proto_tree  *subtree;
+    proto_item  *item;
 
     curr_offset = offset;
 
@@ -1410,80 +1418,80 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     while ((len - (curr_offset - offset)) >= 2)
     {
-	num_recs++;
+        num_recs++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ((oct & 0x7c) >> 2)
-	{
-	case 0: str = "Not Used - Invalid value"; break;
-	case 1: str = "SME Key: Signaling Message Encryption Key"; break;
-	case 2: str = "Reserved (VPM: Voice Privacy Mask)"; break;
-	case 3: str = "Reserved"; break;
-	case 4: str = "Private Longcode"; break;
-	case 5: str = "Data Key (ORYX)"; break;
-	case 6: str = "Initial RAND"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch ((oct & 0x7c) >> 2)
+        {
+        case 0: str = "Not Used - Invalid value"; break;
+        case 1: str = "SME Key: Signaling Message Encryption Key"; break;
+        case 2: str = "Reserved (VPM: Voice Privacy Mask)"; break;
+        case 3: str = "Reserved"; break;
+        case 4: str = "Private Longcode"; break;
+        case 5: str = "Data Key (ORYX)"; break;
+        case 6: str = "Initial RAND"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Encryption Info - %u: (%u) %s",
-		num_recs,
-		(oct & 0x7c) >> 2,
-		str);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "Encryption Info [%u]: (%u) %s",
+                num_recs,
+                (oct & 0x7c) >> 2,
+                str);
 
-	subtree = proto_item_add_subtree(item, ett_ansi_enc_info);
+        subtree = proto_item_add_subtree(item, ett_ansi_enc_info);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Extension",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x7c, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Encryption Parameter Identifier: (%u) %s",
-	    a_bigbuf,
-	    (oct & 0x7c) >> 2,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x7c, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Encryption Parameter Identifier: (%u) %s",
+            a_bigbuf,
+            (oct & 0x7c) >> 2,
+            str);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Status: %s",
-	    a_bigbuf,
-	    (oct & 0x02) ? "active" : "inactive");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Status: %s",
+            a_bigbuf,
+            (oct & 0x02) ? "active" : "inactive");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Available: algorithm is %savailable",
-	    a_bigbuf,
-	    (oct & 0x01) ? "" : "not ");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Available: algorithm is %savailable",
+            a_bigbuf,
+            (oct & 0x01) ? "" : "not ");
 
-	curr_offset++;
+        curr_offset++;
 
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-	    curr_offset, 1, oct_len);
+        proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+            curr_offset, 1, oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    proto_tree_add_text(subtree, tvb, curr_offset, oct_len,
-		"Encryption Parameter value");
+            proto_tree_add_text(subtree, tvb, curr_offset, oct_len,
+                "Encryption Parameter value");
 
-	    curr_offset += oct_len;
-	}
+            curr_offset += oct_len;
+        }
     }
 
     g_snprintf(add_string, string_len, " - %u record%s",
-	num_recs, plurality(num_recs, "", "s"));
+        num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -1506,13 +1514,13 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 static guint8
 elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	num_bands;
-    guint32	curr_offset;
-    gint	temp_int;
-    proto_tree	*subtree;
-    proto_item	*item;
-    const gchar	*str;
+    guint8      oct;
+    guint8      num_bands;
+    guint32     curr_offset;
+    gint        temp_int;
+    proto_tree  *subtree;
+    proto_item  *item;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -1520,21 +1528,21 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Mobile P_REV: %u",
-	a_bigbuf,
-	(oct & 0xe0) >> 5);
+        "%s :  Mobile P_REV: %u",
+        a_bigbuf,
+        (oct & 0xe0) >> 5);
 
     g_snprintf(add_string, string_len, " - P_REV (%u)", (oct & 0xe0) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  See List of Entries",
-	a_bigbuf);
+        "%s :  See List of Entries",
+        a_bigbuf);
 
     switch (oct & 0x07)
     {
@@ -1546,20 +1554,20 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case 5: str = "Class 6, handheld"; break;
     case 6: str = "Class 7, handheld"; break;
     default:
-	str = "Class 8, handheld";
-	break;
+        str = "Class 8, handheld";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  RF Power Capability: %s",
-	a_bigbuf,
-	str);
+        "%s :  RF Power Capability: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Reserved");
+        "Reserved");
 
     curr_offset++;
 
@@ -1567,50 +1575,50 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  NAR_AN_CAP: N-AMPS %ssupported",
-	a_bigbuf,
-	(oct & 0x80) ? "" : "not ");
+        "%s :  NAR_AN_CAP: N-AMPS %ssupported",
+        a_bigbuf,
+        (oct & 0x80) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  IS-95: %ssupported",
-	a_bigbuf,
-	(oct & 0x40) ? "" : "not ");
+        "%s :  IS-95: %ssupported",
+        a_bigbuf,
+        (oct & 0x40) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Slotted: mobile is %sin slotted mode",
-	a_bigbuf,
-	(oct & 0x20) ? "" : "not ");
+        "%s :  Slotted: mobile is %sin slotted mode",
+        a_bigbuf,
+        (oct & 0x20) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DTX: mobile is %scapable of DTX",
-	a_bigbuf,
-	(oct & 0x04) ? "" : "not ");
+        "%s :  DTX: mobile is %scapable of DTX",
+        a_bigbuf,
+        (oct & 0x04) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Mobile Term: mobile is %scapable of receiving incoming calls",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+        "%s :  Mobile Term: mobile is %scapable of receiving incoming calls",
+        a_bigbuf,
+        (oct & 0x02) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Reserved");
+        "Reserved");
 
     curr_offset++;
 
@@ -1620,20 +1628,20 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Mobile Term: mobile is %scapable of receiving incoming calls",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+        "%s :  Mobile Term: mobile is %scapable of receiving incoming calls",
+        a_bigbuf,
+        (oct & 0x02) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  PACA Supported Indicator (PSI): mobile station %s PACA",
-	a_bigbuf,
-	(oct & 0x01) ? "supports" : "does not support");
+        "%s :  PACA Supported Indicator (PSI): mobile station %s PACA",
+        a_bigbuf,
+        (oct & 0x01) ? "supports" : "does not support");
 
     curr_offset++;
 
@@ -1642,59 +1650,59 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"SCM Length: %u",
-	oct);
+        "SCM Length: %u",
+        oct);
 
     curr_offset++;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     item =
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "Station Class Mark: %u",
-	    oct);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "Station Class Mark: %u",
+            oct);
 
     /*
      * following SCM decode is from:
-     *	3GPP2 C.S0005-0 section 2.3.3
-     *	3GPP2 C.S0072-0 section 2.1.2
+     *  3GPP2 C.S0005-0 section 2.3.3
+     *  3GPP2 C.S0072-0 section 2.1.2
      */
     subtree = proto_item_add_subtree(item, ett_scm);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  Extended SCM Indicator: %s",
-	a_bigbuf,
-	(oct & 0x80) ? "Band Classes 1,4" : "Other bands");
+        "%s :  Extended SCM Indicator: %s",
+        a_bigbuf,
+        (oct & 0x80) ? "Band Classes 1,4" : "Other bands");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  %s",
-	a_bigbuf,
-	(oct & 0x40) ? "Dual Mode" : "CDMA Only");
+        "%s :  %s",
+        a_bigbuf,
+        (oct & 0x40) ? "Dual Mode" : "CDMA Only");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  %s",
-	a_bigbuf,
-	(oct & 0x20) ? "Slotted" : "Non-Slotted");
+        "%s :  %s",
+        a_bigbuf,
+        (oct & 0x20) ? "Slotted" : "Non-Slotted");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  MEID %sconfigured",
-	a_bigbuf,
-	(oct & 0x10) ? "" : "not ");
+        "%s :  MEID %sconfigured",
+        a_bigbuf,
+        (oct & 0x10) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  25 MHz Bandwidth",
-	a_bigbuf);
+        "%s :  25 MHz Bandwidth",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  %s Transmission",
-	a_bigbuf,
-	(oct & 0x04) ? "Discontinuous" : "Continuous");
+        "%s :  %s Transmission",
+        a_bigbuf,
+        (oct & 0x04) ? "Discontinuous" : "Continuous");
 
     switch (oct & 0x03)
     {
@@ -1706,17 +1714,17 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  Power Class for Band Class 0 Analog Operation: %s",
-	a_bigbuf,
-	str);
+        "%s :  Power Class for Band Class 0 Analog Operation: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Count of Band Class Entries: %u",
-	oct);
+        "Count of Band Class Entries: %u",
+        oct);
 
     curr_offset++;
 
@@ -1725,8 +1733,8 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Band Class Entry Length: %u",
-	oct);
+        "Band Class Entry Length: %u",
+        oct);
 
     curr_offset++;
 
@@ -1737,62 +1745,62 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     num_bands = 0;
     do
     {
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	temp_int = oct & 0x1f;
-	if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
-	{
-	    str = "Reserved";
-	}
-	else
-	{
-	    str = band_class_str[temp_int];
-	}
+        temp_int = oct & 0x1f;
+        if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
+        {
+            str = "Reserved";
+        }
+        else
+        {
+            str = band_class_str[temp_int];
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Band Class: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Band Class: %s",
+            a_bigbuf,
+            str);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Band Class %u Air Interfaces Supported: %u",
-	    a_bigbuf,
-	    num_bands,
-	    oct & 0x1f);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Band Class %u Air Interfaces Supported: %u",
+            a_bigbuf,
+            num_bands,
+            oct & 0x1f);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Band Class %u MS Protocol Level: %u",
-	    num_bands,
-	    oct);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Band Class %u MS Protocol Level: %u",
+            num_bands,
+            oct);
 
-	curr_offset++;
+        curr_offset++;
 
-	num_bands++;
+        num_bands++;
     }
     while ((len - (curr_offset - offset)) >= 3);
 
@@ -1807,12 +1815,12 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct, nib;
-    guint8	*poctets;
-    guint32	value;
-    guint32	curr_offset;
-    gint	i;
-    const gchar	*str;
+    guint8      oct, nib;
+    guint8      *poctets;
+    guint32     value;
+    guint32     curr_offset;
+    gint        i;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -1821,393 +1829,393 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     switch (oct & 0x07)
     {
     case 1:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  MEID Hex Digit 1: %hhX",
-	    a_bigbuf,
-	    (oct & 0xf0) >> 4);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  MEID Hex Digit 1: %hhX",
+            a_bigbuf,
+            (oct & 0xf0) >> 4);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: MEID",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: MEID",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	i = 0;
-	nib = (oct & 0xf0) >> 4;
-	if (nib < 10)
-	{
-	    a_bigbuf[i++] = nib + 0x30;  /* + '0' */
-	}
-	else
-	{
-	    a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
-	}
+        i = 0;
+        nib = (oct & 0xf0) >> 4;
+        if (nib < 10)
+        {
+            a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+        }
+        else
+        {
+            a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+        }
 
-	while ((len - (curr_offset - offset)) > 0)
-	{
-	    oct = tvb_get_guint8(tvb, curr_offset);
+        while ((len - (curr_offset - offset)) > 0)
+        {
+            oct = tvb_get_guint8(tvb, curr_offset);
 
-	    nib = oct & 0x0f;
-	    if (nib < 10)
-	    {
-		a_bigbuf[i++] = nib + 0x30;  /* + '0' */
-	    }
-	    else
-	    {
-		a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
-	    }
+            nib = oct & 0x0f;
+            if (nib < 10)
+            {
+                a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+            }
+            else
+            {
+                a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+            }
 
-	    nib = (oct & 0xf0) >> 4;
-	    if (nib < 10)
-	    {
-		a_bigbuf[i++] = nib + 0x30;  /* + '0' */
-	    }
-	    else
-	    {
-		a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
-	    }
+            nib = (oct & 0xf0) >> 4;
+            if (nib < 10)
+            {
+                a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+            }
+            else
+            {
+                a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+            }
 
-	    curr_offset++;
-	}
-	a_bigbuf[i] = '\0';
+            curr_offset++;
+        }
+        a_bigbuf[i] = '\0';
 
-	proto_tree_add_string_format(tree,
-	    hf_ansi_a_meid,
-	    tvb, offset + 1, len - 1,
-	    a_bigbuf,
-	    "MEID: %s",
-	    a_bigbuf);
+        proto_tree_add_string_format(tree,
+            hf_ansi_a_meid,
+            tvb, offset + 1, len - 1,
+            a_bigbuf,
+            "MEID: %s",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - %s (%s)",
-	    "MEID",
-	    a_bigbuf);
-	break;
+        g_snprintf(add_string, string_len, " - %s (%s)",
+            "MEID",
+            a_bigbuf);
+        break;
 
     case 2:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: Broadcast",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: Broadcast",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ((oct & 0xc0) >> 6)
-	{
-	case 0: str = "Normal"; break;
-	case 1: str = "Interactive"; break;
-	case 2: str = "Urgent"; break;
-	default:
-	    str = "Emergency";
-	    break;
-	}
+        switch ((oct & 0xc0) >> 6)
+        {
+        case 0: str = "Normal"; break;
+        case 1: str = "Interactive"; break;
+        case 2: str = "Urgent"; break;
+        default:
+            str = "Emergency";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Priority: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Priority: %s",
+            a_bigbuf,
+            str);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Message ID: %u",
-	    a_bigbuf,
-	    oct & 0x3f);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Message ID: %u",
+            a_bigbuf,
+            oct & 0x3f);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Zone ID: %u",
-	    oct);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Zone ID: %u",
+            oct);
 
-	g_snprintf(add_string, string_len, " - Broadcast (Zone ID: %u)", oct);
+        g_snprintf(add_string, string_len, " - Broadcast (Zone ID: %u)", oct);
 
-	curr_offset++;
+        curr_offset++;
 
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	switch (value)
-	{
-	case 0x0000: str = "Unknown or unspecified"; break;
-	case 0x0001: str = "Emergency Broadcasts"; break;
-	case 0x0002: str = "Administrative"; break;
-	case 0x0003: str = "Maintenance"; break;
-	case 0x0004: str = "General News - Local"; break;
-	case 0x0005: str = "General News - Regional"; break;
-	case 0x0006: str = "General News - National"; break;
-	case 0x0007: str = "General News - International"; break;
-	case 0x0008: str = "Business/Financial News - Local"; break;
-	case 0x0009: str = "Business/Financial News - Regional"; break;
-	case 0x000A: str = "Business/Financial News - National"; break;
-	case 0x000B: str = "Business/Financial News - International"; break;
-	case 0x000C: str = "Sports News - Local"; break;
-	case 0x000D: str = "Sports News - Regional"; break;
-	case 0x000E: str = "Sports News - National"; break;
-	case 0x000F: str = "Sports News - International"; break;
-	case 0x0010: str = "Entertainment News - Local"; break;
-	case 0x0011: str = "Entertainment News - Regional"; break;
-	case 0x0012: str = "Entertainment News - National"; break;
-	case 0x0013: str = "Entertainment News - International"; break;
-	case 0x0014: str = "Local Weather"; break;
-	case 0x0015: str = "Area Traffic Reports"; break;
-	case 0x0016: str = "Local Airport Flight Schedules"; break;
-	case 0x0017: str = "Restaurants"; break;
-	case 0x0018: str = "Lodgings"; break;
-	case 0x0019: str = "Retail Directory"; break;
-	case 0x001A: str = "Advertisements"; break;
-	case 0x001B: str = "Stock Quotes"; break;
-	case 0x001C: str = "Employment Opportunities"; break;
-	case 0x001D: str = "Medical/Health/Hospitals"; break;
-	case 0x001E: str = "Technology News"; break;
-	case 0x001F: str = "Multi-category"; break;
-	default:
-	    if ((value >= 0x0020) && (value <= 0x8000)) { str = "Reserved for standard service categories"; }
-	    else { str = "Reserved for proprietary service categories"; }
-	    break;
-	}
+        switch (value)
+        {
+        case 0x0000: str = "Unknown or unspecified"; break;
+        case 0x0001: str = "Emergency Broadcasts"; break;
+        case 0x0002: str = "Administrative"; break;
+        case 0x0003: str = "Maintenance"; break;
+        case 0x0004: str = "General News - Local"; break;
+        case 0x0005: str = "General News - Regional"; break;
+        case 0x0006: str = "General News - National"; break;
+        case 0x0007: str = "General News - International"; break;
+        case 0x0008: str = "Business/Financial News - Local"; break;
+        case 0x0009: str = "Business/Financial News - Regional"; break;
+        case 0x000A: str = "Business/Financial News - National"; break;
+        case 0x000B: str = "Business/Financial News - International"; break;
+        case 0x000C: str = "Sports News - Local"; break;
+        case 0x000D: str = "Sports News - Regional"; break;
+        case 0x000E: str = "Sports News - National"; break;
+        case 0x000F: str = "Sports News - International"; break;
+        case 0x0010: str = "Entertainment News - Local"; break;
+        case 0x0011: str = "Entertainment News - Regional"; break;
+        case 0x0012: str = "Entertainment News - National"; break;
+        case 0x0013: str = "Entertainment News - International"; break;
+        case 0x0014: str = "Local Weather"; break;
+        case 0x0015: str = "Area Traffic Reports"; break;
+        case 0x0016: str = "Local Airport Flight Schedules"; break;
+        case 0x0017: str = "Restaurants"; break;
+        case 0x0018: str = "Lodgings"; break;
+        case 0x0019: str = "Retail Directory"; break;
+        case 0x001A: str = "Advertisements"; break;
+        case 0x001B: str = "Stock Quotes"; break;
+        case 0x001C: str = "Employment Opportunities"; break;
+        case 0x001D: str = "Medical/Health/Hospitals"; break;
+        case 0x001E: str = "Technology News"; break;
+        case 0x001F: str = "Multi-category"; break;
+        default:
+            if ((value >= 0x0020) && (value <= 0x8000)) { str = "Reserved for standard service categories"; }
+            else { str = "Reserved for proprietary service categories"; }
+            break;
+        }
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 2,
-	    "Service: (%u) %s",
-	    value,
-	    str);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 2,
+            "Service: (%u) %s",
+            value,
+            str);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch (oct)
-	{
-	case 0: str = "Unknown or unspecified"; break;
-	case 1: str = "English"; break;
-	case 2: str = "French"; break;
-	case 3: str = "Spanish"; break;
-	case 4: str = "Japanese"; break;
-	case 5: str = "Korean"; break;
-	case 6: str = "Chinese"; break;
-	case 7: str = "Hebrew"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch (oct)
+        {
+        case 0: str = "Unknown or unspecified"; break;
+        case 1: str = "English"; break;
+        case 2: str = "French"; break;
+        case 3: str = "Spanish"; break;
+        case 4: str = "Japanese"; break;
+        case 5: str = "Korean"; break;
+        case 6: str = "Chinese"; break;
+        case 7: str = "Hebrew"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Language: (%u) %s",
-	    oct,
-	    str);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Language: (%u) %s",
+            oct,
+            str);
 
-	curr_offset++;
-	break;
+        curr_offset++;
+        break;
 
     case 0:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Unused",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: No Identity Code",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: No Identity Code",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - No Identity Code");
+        g_snprintf(add_string, string_len, " - No Identity Code");
 
-	curr_offset++;
+        curr_offset++;
 
-	if (len > 1)
-	{
-	    proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-		"Format not supported");
-	}
+        if (len > 1)
+        {
+            proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+                "Format not supported");
+        }
 
-	curr_offset += len - 1;
-	break;
+        curr_offset += len - 1;
+        break;
 
     case 6:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Identity Digit 1: %c",
-	    a_bigbuf,
-	    Dgt_msid.out[(oct & 0xf0) >> 4]);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Identity Digit 1: %c",
+            a_bigbuf,
+            Dgt_msid.out[(oct & 0xf0) >> 4]);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: %s",
-	    a_bigbuf,
-	    ((oct & 0x07) == 1) ? "MIN" : "IMSI");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: %s",
+            a_bigbuf,
+            ((oct & 0x07) == 1) ? "MIN" : "IMSI");
 
-	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
-	curr_offset++;
+        a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
+        curr_offset++;
 
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+        poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
-	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-	    &Dgt_msid);
+        my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
+            &Dgt_msid);
 
-	proto_tree_add_string_format(tree,
-	    ((oct & 0x07) == 1) ? hf_ansi_a_min : hf_ansi_a_imsi,
-	    tvb, curr_offset, len - (curr_offset - offset),
-	    a_bigbuf,
-	    "BCD Digits: %s",
-	    a_bigbuf);
+        proto_tree_add_string_format(tree,
+            ((oct & 0x07) == 1) ? hf_ansi_a_min : hf_ansi_a_imsi,
+            tvb, curr_offset, len - (curr_offset - offset),
+            a_bigbuf,
+            "BCD Digits: %s",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - %s (%s)",
-	    ((oct & 0x07) == 1) ? "MIN" : "IMSI",
-	    a_bigbuf);
+        g_snprintf(add_string, string_len, " - %s (%s)",
+            ((oct & 0x07) == 1) ? "MIN" : "IMSI",
+            a_bigbuf);
 
-	curr_offset += len - (curr_offset - offset);
-	break;
+        curr_offset += len - (curr_offset - offset);
+        break;
 
     case 3:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Unused",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: Interface Directory Number",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: Interface Directory Number",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - Interface Directory Number");
+        g_snprintf(add_string, string_len, " - Interface Directory Number");
 
-	curr_offset++;
+        curr_offset++;
 
-	if (len > 1)
-	{
-	    proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-		"Format not supported");
-	}
+        if (len > 1)
+        {
+            proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+                "Format not supported");
+        }
 
-	curr_offset += len - 1;
-	break;
+        curr_offset += len - 1;
+        break;
 
     case 4:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Unused",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: TMSI",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: TMSI",
+            a_bigbuf);
 
-	g_snprintf(add_string, string_len, " - TMSI");
+        g_snprintf(add_string, string_len, " - TMSI");
 
-	curr_offset++;
+        curr_offset++;
 
-	if (len > 1)
-	{
-	    proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-		"Format not supported");
-	}
+        if (len > 1)
+        {
+            proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+                "Format not supported");
+        }
 
-	curr_offset += len - 1;
-	break;
+        curr_offset += len - 1;
+        break;
 
     case 5:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Unused",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Unused",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Odd/Even Indicator: %s",
+            a_bigbuf,
+            (oct & 0x08) ? "ODD" : "EVEN");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: ESN",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Type of Identity: ESN",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	value = tvb_get_ntohl(tvb, curr_offset);
+        value = tvb_get_ntohl(tvb, curr_offset);
 
-	proto_tree_add_uint(tree, hf_ansi_a_esn,
-	    tvb, curr_offset, 4,
-	    value);
+        proto_tree_add_uint(tree, hf_ansi_a_esn,
+            tvb, curr_offset, 4,
+            value);
 
-	g_snprintf(add_string, string_len, " - ESN (0x%04x)", value);
+        g_snprintf(add_string, string_len, " - ESN (0x%04x)", value);
 
-	curr_offset += 4;
-	break;
+        curr_offset += 4;
+        break;
 
     default:
-	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    "Format Unknown");
+        proto_tree_add_text(tree, tvb, curr_offset, len,
+            "Format Unknown");
 
-	g_snprintf(add_string, string_len, " - Format Unknown");
+        g_snprintf(add_string, string_len, " - Format Unknown");
 
-	curr_offset += len;
-	break;
+        curr_offset += len;
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -2221,8 +2229,8 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -2231,16 +2239,16 @@ elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Slot Cycle Index: %u",
-	a_bigbuf,
-	oct & 0x07);
+        tvb, curr_offset, 1,
+        "%s :  Slot Cycle Index: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     g_snprintf(add_string, string_len, " - (%u)", oct & 0x07);
 
@@ -2257,8 +2265,8 @@ elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -2266,30 +2274,30 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3c, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Call Priority Level: %u",
-	a_bigbuf,
-	(oct & 0x3c) >> 2);
+        tvb, curr_offset, 1,
+        "%s :  Call Priority Level: %u",
+        a_bigbuf,
+        (oct & 0x3c) >> 2);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Queuing %sallowed",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+        tvb, curr_offset, 1,
+        "%s :  Queuing %sallowed",
+        a_bigbuf,
+        (oct & 0x02) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Preemption %sallowed",
-	a_bigbuf,
-	(oct & 0x01) ? "" : "not ");
+        tvb, curr_offset, 1,
+        "%s :  Preemption %sallowed",
+        a_bigbuf,
+        (oct & 0x01) ? "" : "not ");
 
     g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
 
@@ -2306,15 +2314,15 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 static guint8
 elem_p_rev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"MOB_P_REV");
+        "MOB_P_REV");
 
     g_snprintf(add_string, string_len, " - (%u)", oct);
 
@@ -2331,10 +2339,10 @@ elem_p_rev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str = NULL;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -2342,196 +2350,196 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Extension",
+        a_bigbuf);
 
     if (oct & 0x80)
     {
-	/* 2 octet cause */
+        /* 2 octet cause */
 
-	if ((oct & 0x0f) == 0x00)
-	{
-	    /* national cause */
-	    switch ((oct & 0x70) >> 4)
-	    {
-	    case 0: str = "Normal Event"; break;
-	    case 1: str = "Normal Event"; break;
-	    case 2: str = "Resource Unavailable"; break;
-	    case 3: str = "Service or option not available"; break;
-	    case 4: str = "Service or option not implemented"; break;
-	    case 5: str = "Invalid message (e.g., parameter out of range)"; break;
-	    case 6: str = "Protocol error"; break;
-	    default:
-		str = "Interworking";
-		break;
-	    }
+        if ((oct & 0x0f) == 0x00)
+        {
+            /* national cause */
+            switch ((oct & 0x70) >> 4)
+            {
+            case 0: str = "Normal Event"; break;
+            case 1: str = "Normal Event"; break;
+            case 2: str = "Resource Unavailable"; break;
+            case 3: str = "Service or option not available"; break;
+            case 4: str = "Service or option not implemented"; break;
+            case 5: str = "Invalid message (e.g., parameter out of range)"; break;
+            case 6: str = "Protocol error"; break;
+            default:
+                str = "Interworking";
+                break;
+            }
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Cause Class: %s",
-		a_bigbuf,
-		str);
+            other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "%s :  Cause Class: %s",
+                a_bigbuf,
+                str);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  National Cause",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "%s :  National Cause",
+                a_bigbuf);
 
-	    curr_offset++;
+            curr_offset++;
 
-	    value = tvb_get_guint8(tvb, curr_offset);
+            value = tvb_get_guint8(tvb, curr_offset);
 
-	    proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
-		curr_offset, 1,
-		((oct & 0x7f) << 8) | value,
-		"Cause Value");
+            proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
+                curr_offset, 1,
+                ((oct & 0x7f) << 8) | value,
+                "Cause Value");
 
-	    curr_offset++;
+            curr_offset++;
 
-	    g_snprintf(add_string, string_len, " - (National Cause)");
-	}
-	else
-	{
-	    value = tvb_get_guint8(tvb, curr_offset + 1);
+            g_snprintf(add_string, string_len, " - (National Cause)");
+        }
+        else
+        {
+            value = tvb_get_guint8(tvb, curr_offset + 1);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+            other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 
-	    proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
-		curr_offset, 1,
-		((oct & 0x7f) << 8) | value,
-		"%s :  Cause (MSB): %u",
-		a_bigbuf,
-		((oct & 0x7f) << 8) | value);
+            proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
+                curr_offset, 1,
+                ((oct & 0x7f) << 8) | value,
+                "%s :  Cause (MSB): %u",
+                a_bigbuf,
+                ((oct & 0x7f) << 8) | value);
 
-	    curr_offset++;
+            curr_offset++;
 
-	    other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Cause (LSB)",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Cause (LSB)",
+                a_bigbuf);
 
-	    curr_offset++;
-	}
+            curr_offset++;
+        }
     }
     else
     {
-	switch (oct)
-	{
-	case 0x00: str = "Radio interface message failure"; break;
-	case 0x01: str = "Radio interface failure"; break;
-	case 0x02: str = "Uplink Quality"; break;
-	case 0x03: str = "Uplink strength"; break;
-	case 0x04: str = "Downlink quality"; break;
-	case 0x05: str = "Downlink strength"; break;
-	case 0x06: str = "Distance"; break;
-	case 0x07: str = "OAM&P intervention"; break;
-	case 0x08: str = "MS busy"; break;
-	case 0x09: str = "Call processing"; break;
-	case 0x0A: str = "Reversion to old channel"; break;
-	case 0x0B: str = "Handoff successful"; break;
-	case 0x0C: str = "No response from MS"; break;
-	case 0x0D: str = "Timer expired"; break;
-	case 0x0E: str = "Better cell (power budget)"; break;
-	case 0x0F: str = "Interference"; break;
-	case 0x10: str = "Packet call going dormant"; break;
-	case 0x11: str = "Service option not available"; break;
+        switch (oct)
+        {
+        case 0x00: str = "Radio interface message failure"; break;
+        case 0x01: str = "Radio interface failure"; break;
+        case 0x02: str = "Uplink Quality"; break;
+        case 0x03: str = "Uplink strength"; break;
+        case 0x04: str = "Downlink quality"; break;
+        case 0x05: str = "Downlink strength"; break;
+        case 0x06: str = "Distance"; break;
+        case 0x07: str = "OAM&P intervention"; break;
+        case 0x08: str = "MS busy"; break;
+        case 0x09: str = "Call processing"; break;
+        case 0x0A: str = "Reversion to old channel"; break;
+        case 0x0B: str = "Handoff successful"; break;
+        case 0x0C: str = "No response from MS"; break;
+        case 0x0D: str = "Timer expired"; break;
+        case 0x0E: str = "Better cell (power budget)"; break;
+        case 0x0F: str = "Interference"; break;
+        case 0x10: str = "Packet call going dormant"; break;
+        case 0x11: str = "Service option not available"; break;
 
-	case 0x12: str = "Invalid Call"; break;
-	case 0x13: str = "Successful operation"; break;
-	case 0x14: str = "Normal call release"; break;
+        case 0x12: str = "Invalid Call"; break;
+        case 0x13: str = "Successful operation"; break;
+        case 0x14: str = "Normal call release"; break;
 
-	/* IOS 5 */
-	case 0x15: str = "Short data burst authentication failure"; break;
-	case 0x17: str = "Time critical relocation/handoff"; break;
-	case 0x18: str = "Network optimization"; break;
-	case 0x19: str = "Power down from dormant state"; break;
-	case 0x1A: str = "Authentication failure"; break;
+        /* IOS 5 */
+        case 0x15: str = "Short data burst authentication failure"; break;
+        case 0x17: str = "Time critical relocation/handoff"; break;
+        case 0x18: str = "Network optimization"; break;
+        case 0x19: str = "Power down from dormant state"; break;
+        case 0x1A: str = "Authentication failure"; break;
 
-	case 0x1B: str = "Inter-BS Soft Handoff Drop Target"; break;
-	case 0x1D: str = "Intra-BS Soft Handoff Drop Target"; break;
+        case 0x1B: str = "Inter-BS Soft Handoff Drop Target"; break;
+        case 0x1D: str = "Intra-BS Soft Handoff Drop Target"; break;
 
-	/* IOS 5 */
-	case 0x1E: str = "Autonomous Registration by the Network"; break;
+        /* IOS 5 */
+        case 0x1E: str = "Autonomous Registration by the Network"; break;
 
-	case 0x20: str = "Equipment failure"; break;
-	case 0x21: str = "No radio resource available"; break;
-	case 0x22: str = "Requested terrestrial resource unavailable"; break;
+        case 0x20: str = "Equipment failure"; break;
+        case 0x21: str = "No radio resource available"; break;
+        case 0x22: str = "Requested terrestrial resource unavailable"; break;
 
-	/* IOS 5 */
-	case 0x23: str = "A2p RTP Payload Type not available"; break;
-	case 0x24: str = "A2p Bearer Format Address Type not available"; break;
+        /* IOS 5 */
+        case 0x23: str = "A2p RTP Payload Type not available"; break;
+        case 0x24: str = "A2p Bearer Format Address Type not available"; break;
 
-	case 0x25: str = "BS not equipped"; break;
-	case 0x26: str = "MS not equipped (or incapable)"; break;
+        case 0x25: str = "BS not equipped"; break;
+        case 0x26: str = "MS not equipped (or incapable)"; break;
 
-	/* IOS 5 */
-	case 0x27: str = "2G only sector"; break;
-	case 0x28: str = "3G only sector"; break;
+        /* IOS 5 */
+        case 0x27: str = "2G only sector"; break;
+        case 0x28: str = "3G only sector"; break;
 
-	case 0x29: str = "PACA Call Queued"; break;
+        case 0x29: str = "PACA Call Queued"; break;
 
-	/* IOS 5 */
-	case 0x2A: str = "PCF resources are not available"; break;
+        /* IOS 5 */
+        case 0x2A: str = "PCF resources are not available"; break;
 
-	case 0x2B: str = "Alternate signaling type reject"; break;
+        case 0x2B: str = "Alternate signaling type reject"; break;
 
-	/* IOS 5 */
-	case 0x2C: str = "A2p Resource not available"; break;
+        /* IOS 5 */
+        case 0x2C: str = "A2p Resource not available"; break;
 
-	case 0x2D: str = "PACA Queue Overflow"; break;
-	case 0x2E: str = "PACA Cancel Request Rejected"; break;
-	case 0x30: str = "Requested transcoding/rate adaptation unavailable"; break;
-	case 0x31: str = "Lower priority radio resources not available"; break;
-	case 0x32: str = "PCF resources not available"; break;	/* IOS 4 */
-	case 0x33: str = "TFO Control request Failed"; break;
+        case 0x2D: str = "PACA Queue Overflow"; break;
+        case 0x2E: str = "PACA Cancel Request Rejected"; break;
+        case 0x30: str = "Requested transcoding/rate adaptation unavailable"; break;
+        case 0x31: str = "Lower priority radio resources not available"; break;
+        case 0x32: str = "PCF resources not available"; break;  /* IOS 4 */
+        case 0x33: str = "TFO Control request Failed"; break;
 
-	/* IOS 5 */
-	case 0x34: str = "MS rejected order"; break;
+        /* IOS 5 */
+        case 0x34: str = "MS rejected order"; break;
 
-	case 0x40: str = "Ciphering algorithm not supported"; break;
-	case 0x41: str = "Private Long Code not available or not supported."; break;
-	case 0x42: str = "Requested MUX option or rates not available."; break;
-	case 0x43: str = "Requested Privacy Configuration unavailable"; break;
+        case 0x40: str = "Ciphering algorithm not supported"; break;
+        case 0x41: str = "Private Long Code not available or not supported."; break;
+        case 0x42: str = "Requested MUX option or rates not available."; break;
+        case 0x43: str = "Requested Privacy Configuration unavailable"; break;
 
-	/* IOS 5 */
-	case 0x45: str = "PDS-related capability not available or not supported"; break;
+        /* IOS 5 */
+        case 0x45: str = "PDS-related capability not available or not supported"; break;
 
-	case 0x50: str = "Terrestrial circuit already allocated"; break;
-	case 0x60: str = "Protocol Error between BS and MSC"; break;
-	case 0x71: str = "ADDS message too long for delivery on the paging channel"; break;
-	case 0x72: str = "MS-to-IWF TCP connection failure"; break;
-	case 0x73: str = "ATH0 (Modem hang up) Command"; break;
-	case 0x74: str = "+FSH/+FHNG (Fax session ended) Command"; break;
-	case 0x75: str = "No carrier"; break;
-	case 0x76: str = "PPP protocol failure"; break;
-	case 0x77: str = "PPP session closed by the MS"; break;
-	case 0x78: str = "Do not notify MS"; break;
-	case 0x79: str = "PCF (or PDSN) resources are not available"; break;
-	case 0x7A: str = "Data ready to send"; break;
+        case 0x50: str = "Terrestrial circuit already allocated"; break;
+        case 0x60: str = "Protocol Error between BS and MSC"; break;
+        case 0x71: str = "ADDS message too long for delivery on the paging channel"; break;
+        case 0x72: str = "MS-to-IWF TCP connection failure"; break;
+        case 0x73: str = "ATH0 (Modem hang up) Command"; break;
+        case 0x74: str = "+FSH/+FHNG (Fax session ended) Command"; break;
+        case 0x75: str = "No carrier"; break;
+        case 0x76: str = "PPP protocol failure"; break;
+        case 0x77: str = "PPP session closed by the MS"; break;
+        case 0x78: str = "Do not notify MS"; break;
+        case 0x79: str = "PCF (or PDSN) resources are not available"; break;
+        case 0x7A: str = "Data ready to send"; break;
 
-	/* IOS 5 */
-	case 0x7B: str = "Concurrent authentication"; break;
+        /* IOS 5 */
+        case 0x7B: str = "Concurrent authentication"; break;
 
-	case 0x7F: str = "Handoff procedure time-out"; break;
-	default:
-	    str = "Reserved for future use";
-	    break;
-	}
+        case 0x7F: str = "Handoff procedure time-out"; break;
+        default:
+            str = "Reserved for future use";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_uint_format(tree, hf_ansi_a_cause_1, tvb,
-	    curr_offset, 1, oct,
-	    "%s :  Cause: (%u) %s",
-	    a_bigbuf,
-	    oct & 0x7f,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
+        proto_tree_add_uint_format(tree, hf_ansi_a_cause_1, tvb,
+            curr_offset, 1, oct,
+            "%s :  Cause: (%u) %s",
+            a_bigbuf,
+            oct & 0x7f,
+            str);
 
-	curr_offset++;
+        curr_offset++;
 
-	g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
+        g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -2546,69 +2554,69 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
 {
-    guint32	value;
-    guint32	market_id;
-    guint32	switch_num;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     market_id;
+    guint32     switch_num;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     switch (disc)
     {
     case 0x02:
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
-	    curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
+            curr_offset, 2, value);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	g_snprintf(add_string, string_len, " - CI (%u)", value);
-	break;
+        g_snprintf(add_string, string_len, " - CI (%u)", value);
+        break;
 
     case 0x05:
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_uint(tree, hf_ansi_a_cell_lac, tvb,
-	    curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_lac, tvb,
+            curr_offset, 2, value);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	g_snprintf(add_string, string_len, " - LAC (%u)", value);
-	break;
+        g_snprintf(add_string, string_len, " - LAC (%u)", value);
+        break;
 
     case 0x07:
-	market_id = tvb_get_ntohs(tvb, curr_offset);
-	switch_num = tvb_get_guint8(tvb, curr_offset + 2);
+        market_id = tvb_get_ntohs(tvb, curr_offset);
+        switch_num = tvb_get_guint8(tvb, curr_offset + 2);
 
-	value = tvb_get_ntoh24(tvb, curr_offset);
+        value = tvb_get_ntoh24(tvb, curr_offset);
 
-	proto_tree_add_uint_format(tree, hf_ansi_a_cell_mscid, tvb,
-	    curr_offset, 3, value,
-	    "Market ID %u  Switch Number %u",
-	    market_id, switch_num);
+        proto_tree_add_uint_format(tree, hf_ansi_a_cell_mscid, tvb,
+            curr_offset, 3, value,
+            "Market ID %u  Switch Number %u",
+            market_id, switch_num);
 
-	curr_offset += 3;
+        curr_offset += 3;
 
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
-	    curr_offset, 2, value);
+        proto_tree_add_uint(tree, hf_ansi_a_cell_ci, tvb,
+            curr_offset, 2, value);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	g_snprintf(add_string, string_len, " - Market ID (%u) Switch Number (%u) CI (%u)",
-	    market_id,
-	    switch_num,
-	    value);
-	break;
+        g_snprintf(add_string, string_len, " - Market ID (%u) Switch Number (%u) CI (%u)",
+            market_id,
+            switch_num,
+            value);
+        break;
 
     default:
-	proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-	    "Cell ID - Non IOS format");
+        proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+            "Cell ID - Non IOS format");
 
-	curr_offset += (len - 1);
-	break;
+        curr_offset += (len - 1);
+        break;
     }
 
     return(curr_offset - offset);
@@ -2617,9 +2625,9 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 static guint8
 elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str = NULL;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str = NULL;
 
     len = len;
     add_string = add_string;
@@ -2629,23 +2637,23 @@ elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     if (oct >= (gint) NUM_CELL_DISC_STR)
     {
-	str = "Unknown";
+        str = "Unknown";
     }
     else
     {
-	str = cell_disc_str[oct];
+        str = cell_disc_str[oct];
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%u) %s",
-	oct,
-	str);
+        tvb, curr_offset, 1,
+        "Cell Identification Discriminator: (%u) %s",
+        oct,
+        str);
 
     curr_offset++;
 
     curr_offset +=
-	elem_cell_id_aux(tvb, tree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
+        elem_cell_id_aux(tvb, tree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
 
     /* no length check possible */
 
@@ -2658,13 +2666,13 @@ elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	consumed;
-    guint8	num_cells;
-    guint32	curr_offset;
-    proto_item	*item = NULL;
-    proto_tree	*subtree = NULL;
-    const gchar	*str = NULL;
+    guint8      oct;
+    guint8      consumed;
+    guint8      num_cells;
+    guint32     curr_offset;
+    proto_item  *item = NULL;
+    proto_tree  *subtree = NULL;
+    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -2672,18 +2680,18 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     if (oct >= (gint) NUM_CELL_DISC_STR)
     {
-	str = "Unknown";
+        str = "Unknown";
     }
     else
     {
-	str = cell_disc_str[oct];
+        str = cell_disc_str[oct];
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%u) %s",
-	oct,
-	str);
+        tvb, curr_offset, 1,
+        "Cell Identification Discriminator: (%u) %s",
+        oct,
+        str);
 
     curr_offset++;
 
@@ -2692,33 +2700,33 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     num_cells = 0;
     do
     {
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Cell %u",
-		num_cells + 1);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "Cell [%u]",
+                num_cells + 1);
 
-	subtree = proto_item_add_subtree(item, ett_cell_list);
+        subtree = proto_item_add_subtree(item, ett_cell_list);
 
-	add_string[0] = '\0';
-	consumed =
-	    elem_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
+        add_string[0] = '\0';
+        consumed =
+            elem_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len, oct);
 
-	if (add_string[0] != '\0')
-	{
-	    proto_item_append_text(item, "%s", add_string);
-	}
+        if (add_string[0] != '\0')
+        {
+            proto_item_append_text(item, "%s", add_string);
+        }
 
-	proto_item_set_len(item, consumed);
+        proto_item_set_len(item, consumed);
 
-	curr_offset += consumed;
+        curr_offset += consumed;
 
-	num_cells++;
+        num_cells++;
     }
     while ((len - (curr_offset - offset)) > 0);
 
     g_snprintf(add_string, string_len, " - %u cell%s",
-	num_cells, plurality(num_cells, "", "s"));
+        num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2731,8 +2739,8 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint8
 elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -2741,17 +2749,17 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     other_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %u",
-	a_bigbuf,
-	(value & 0xffe0) >> 5);
+        tvb, curr_offset, 2,
+        "%s :  PCM Multiplexer: %u",
+        a_bigbuf,
+        (value & 0xffe0) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Timeslot: %u",
-	a_bigbuf,
-	value & 0x001f);
+        tvb, curr_offset, 2,
+        "%s :  Timeslot: %u",
+        a_bigbuf,
+        value & 0x001f);
 
     curr_offset += 2;
 
@@ -2768,10 +2776,10 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -2780,17 +2788,17 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     other_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %u",
-	a_bigbuf,
-	(value & 0xffe0) >> 5);
+        tvb, curr_offset, 2,
+        "%s :  PCM Multiplexer: %u",
+        a_bigbuf,
+        (value & 0xffe0) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Timeslot: %u",
-	a_bigbuf,
-	value & 0x001f);
+        tvb, curr_offset, 2,
+        "%s :  Timeslot: %u",
+        a_bigbuf,
+        value & 0x001f);
 
     curr_offset += 2;
 
@@ -2800,24 +2808,24 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x0f)
     {
     case 0x00: str = "Full-rate"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Circuit Mode: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Circuit Mode: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -2832,8 +2840,8 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -2842,21 +2850,21 @@ elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Mobile Originated Position Determination",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Mobile Originated Position Determination",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Global Emergency Call Indication",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Global Emergency Call Indication",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -2870,7 +2878,7 @@ elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * UNUSED
  */
 
-#define	ANSI_A_CELL_ID_LEN(_disc) ((_disc == 7) ? 5 : 2)
+#define ANSI_A_CELL_ID_LEN(_disc) ((_disc == 7) ? 5 : 2)
 
 /*
  * IOS 6.2.2.25
@@ -2879,24 +2887,24 @@ elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 static guint8
 elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	disc;
-    guint8	consumed;
-    guint8	num_cells;
-    guint8	curr_cell;
-    guint32	value;
-    guint32	curr_offset;
-    proto_item	*item = NULL;
-    proto_tree	*subtree = NULL;
-    const gchar	*str;
+    guint8      oct;
+    guint8      disc;
+    guint8      consumed;
+    guint8      num_cells;
+    guint8      curr_cell;
+    guint32     value;
+    guint32     curr_offset;
+    proto_item  *item = NULL;
+    proto_tree  *subtree = NULL;
+    const gchar *str;
 
     curr_offset = offset;
 
     num_cells = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Number of Cells: %u",
-	num_cells);
+        "Number of Cells: %u",
+        num_cells);
 
     curr_offset++;
 
@@ -2906,18 +2914,18 @@ elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     if (disc >= (gint) NUM_CELL_DISC_STR)
     {
-	str = "Unknown";
+        str = "Unknown";
     }
     else
     {
-	str = cell_disc_str[disc];
+        str = cell_disc_str[disc];
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Cell Identification Discriminator: (%u) %s",
-	disc,
-	str);
+        tvb, curr_offset, 1,
+        "Cell Identification Discriminator: (%u) %s",
+        disc,
+        str);
 
     curr_offset++;
 
@@ -2929,58 +2937,58 @@ elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     do
     {
-	curr_cell++;
+        curr_cell++;
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Cell %u",
-		curr_cell);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "Cell [%u]",
+                curr_cell);
 
-	subtree = proto_item_add_subtree(item, ett_cell_list);
+        subtree = proto_item_add_subtree(item, ett_cell_list);
 
-	add_string[0] = '\0';
-	consumed =
-	    elem_cell_id_aux(tvb, subtree, curr_offset,
-		len - (curr_offset - offset), add_string, string_len, disc);
+        add_string[0] = '\0';
+        consumed =
+            elem_cell_id_aux(tvb, subtree, curr_offset,
+                len - (curr_offset - offset), add_string, string_len, disc);
 
-	if (add_string[0] != '\0')
-	{
-	    proto_item_append_text(item, "%s", add_string);
-	}
+        if (add_string[0] != '\0')
+        {
+            proto_item_append_text(item, "%s", add_string);
+        }
 
-	proto_item_set_len(item, consumed);
+        proto_item_set_len(item, consumed);
 
-	curr_offset += consumed;
+        curr_offset += consumed;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Downlink Signal Strength Raw: %u",
-	    a_bigbuf,
-	    oct & 0x3f);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Downlink Signal Strength Raw: %u",
+            a_bigbuf,
+            oct & 0x3f);
 
-	curr_offset++;
+        curr_offset++;
 
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 2,
-	    "CDMA Target One Way Delay: %u",
-	    value);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 2,
+            "CDMA Target One Way Delay: %u",
+            value);
 
-	curr_offset += 2;
+        curr_offset += 2;
     }
     while (curr_cell < num_cells);
 
     g_snprintf(add_string, string_len, " - %u cell%s",
-	num_cells, plurality(num_cells, "", "s"));
+        num_cells, plurality(num_cells, "", "s"));
 
     return(curr_offset - offset);
 }
@@ -2991,12 +2999,12 @@ elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint8
 elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     curr_offset +=
-	elem_downlink_re_aux(tvb, tree, offset, len, add_string, string_len);
+        elem_downlink_re_aux(tvb, tree, offset, len, add_string, string_len);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3009,12 +3017,12 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 static guint8
 elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	consumed;
-    guint8	num_envs;
-    guint8	oct_len;
-    guint32	curr_offset;
-    proto_item	*item = NULL;
-    proto_tree	*subtree = NULL;
+    guint8      consumed;
+    guint8      num_envs;
+    guint8      oct_len;
+    guint32     curr_offset;
+    proto_item  *item = NULL;
+    proto_tree  *subtree = NULL;
 
     curr_offset = offset;
 
@@ -3022,44 +3030,44 @@ elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     while ((len - (curr_offset - offset)) > 0)
     {
-	num_envs++;
+        num_envs++;
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Environment %u",
-		num_envs);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "Environment [%u]",
+                num_envs);
 
-	subtree = proto_item_add_subtree(item, ett_re_list);
+        subtree = proto_item_add_subtree(item, ett_re_list);
 
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 1,
-	    "Environment Length: %u",
-	    oct_len);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 1,
+            "Environment Length: %u",
+            oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	add_string[0] = '\0';
-	consumed =
-	    elem_downlink_re_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len);
+        add_string[0] = '\0';
+        consumed =
+            elem_downlink_re_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len);
 
-	if (add_string[0] != '\0')
-	{
-	    proto_item_append_text(item, "%s", add_string);
-	}
+        if (add_string[0] != '\0')
+        {
+            proto_item_append_text(item, "%s", add_string);
+        }
 
-	/*
-	 * +1 is for environment length
-	 */
-	proto_item_set_len(item, consumed + 1);
+        /*
+         * +1 is for environment length
+         */
+        proto_item_set_len(item, consumed + 1);
 
-	curr_offset += consumed;
+        curr_offset += consumed;
     }
 
     g_snprintf(add_string, string_len, " - %u environment%s",
-	num_envs, plurality(num_envs, "", "s"));
+        num_envs, plurality(num_envs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3092,7 +3100,7 @@ elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint8
 elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -3111,7 +3119,7 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint8
 elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -3130,20 +3138,20 @@ elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	consumed;
-    guint8	num_cells;
-    proto_item	*item = NULL;
-    proto_tree	*subtree = NULL;
-    guint32	curr_offset;
+    guint8      oct;
+    guint8      consumed;
+    guint8      num_cells;
+    proto_item  *item = NULL;
+    proto_tree  *subtree = NULL;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Number of Cells: %u",
-	oct);
+        "Number of Cells: %u",
+        oct);
 
     curr_offset++;
 
@@ -3153,38 +3161,38 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ID Type: %u",
-	a_bigbuf,
-	(oct & 0x60) >> 5);
+        "%s :  ID Type: %u",
+        a_bigbuf,
+        (oct & 0x60) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Handoff Power Level: %u",
-	a_bigbuf,
-	oct & 0x1f);
+        "%s :  Handoff Power Level: %u",
+        a_bigbuf,
+        oct & 0x1f);
 
     curr_offset++;
 
     item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, -1,
-	    "Cell 1");
+        proto_tree_add_text(tree,
+            tvb, curr_offset, -1,
+            "Cell [1]");
 
     subtree = proto_item_add_subtree(item, ett_cell_list);
 
     add_string[0] = '\0';
     consumed =
-	elem_cell_id_aux(tvb, subtree, curr_offset,
-	    len - (curr_offset - offset), add_string, string_len, 0x7);
+        elem_cell_id_aux(tvb, subtree, curr_offset,
+            len - (curr_offset - offset), add_string, string_len, 0x7);
 
     if (add_string[0] != '\0')
     {
-	proto_item_append_text(item, "%s", add_string);
+        proto_item_append_text(item, "%s", add_string);
     }
 
     proto_item_set_len(item, consumed);
@@ -3195,48 +3203,48 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     while ((len - (curr_offset - offset)) >= 3)
     {
-	num_cells++;
+        num_cells++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Handoff Power Level: %u",
-	    a_bigbuf,
-	    oct & 0x1f);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Handoff Power Level: %u",
+            a_bigbuf,
+            oct & 0x1f);
 
-	curr_offset++;
+        curr_offset++;
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Cell %u",
-		num_cells);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "Cell [%u]",
+                num_cells);
 
-	subtree = proto_item_add_subtree(item, ett_cell_list);
+        subtree = proto_item_add_subtree(item, ett_cell_list);
 
-	add_string[0] = '\0';
-	consumed =
-	    elem_cell_id_aux(tvb, subtree, curr_offset,
-		len - (curr_offset - offset), add_string, string_len, 0x2);
+        add_string[0] = '\0';
+        consumed =
+            elem_cell_id_aux(tvb, subtree, curr_offset,
+                len - (curr_offset - offset), add_string, string_len, 0x2);
 
-	if (add_string[0] != '\0')
-	{
-	    proto_item_append_text(item, "%s", add_string);
-	}
+        if (add_string[0] != '\0')
+        {
+            proto_item_append_text(item, "%s", add_string);
+        }
 
-	proto_item_set_len(item, consumed);
+        proto_item_set_len(item, consumed);
 
-	curr_offset += consumed;
+        curr_offset += consumed;
     }
 
     g_snprintf(add_string, string_len, " - %u cell%s",
-	num_cells, plurality(num_cells, "", "s"));
+        num_cells, plurality(num_cells, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3249,16 +3257,16 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 2,
-	"UZID: %u",
-	value);
+        "UZID: %u",
+        value);
 
     curr_offset += 2;
 
@@ -3280,11 +3288,11 @@ elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	rec_type;
-    guint8	num_recs;
-    guint32	curr_offset;
-    const gchar	*str;
-    gint	ett_elem_idx, idx;
+    guint8      rec_type;
+    guint8      num_recs;
+    guint32     curr_offset;
+    const gchar *str;
+    gint        ett_elem_idx, idx;
 
     curr_offset = offset;
 
@@ -3292,34 +3300,34 @@ elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     while ((len - (curr_offset - offset)) > 0)
     {
-	num_recs++;
+        num_recs++;
 
-	rec_type = tvb_get_guint8(tvb, curr_offset);
+        rec_type = tvb_get_guint8(tvb, curr_offset);
 
-	str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+        str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
 
-	if (str == NULL)
-	{
-	    str = "Reserved";
-	    ett_elem_idx = ett_ansi_ms_info_rec_reserved;
-	}
-	else
-	{
-	    ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
-	}
+        if (str == NULL)
+        {
+            str = "Reserved";
+            ett_elem_idx = ett_ansi_ms_info_rec_reserved;
+        }
+        else
+        {
+            ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
+        }
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "Information Record Type - %u: (%u) %s",
-	    num_recs,
-	    rec_type,
-	    str);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "Information Record Type - %u: (%u) %s",
+            num_recs,
+            rec_type,
+            str);
 
-	curr_offset++;
+        curr_offset++;
     }
 
     g_snprintf(add_string, string_len, " - %u request%s",
-	num_recs, plurality(num_recs, "", "s"));
+        num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3332,11 +3340,11 @@ elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint8
 elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint8	num_chan;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint8      num_chan;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -3344,24 +3352,24 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  OTD: Mobile will %sbe using OTD",
-	a_bigbuf,
-	(oct & 0x80) ? "" : "not ");
+        "%s :  OTD: Mobile will %sbe using OTD",
+        a_bigbuf,
+        (oct & 0x80) ? "" : "not ");
 
     num_chan = (oct & 0x70) >> 4;
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Channel Count: %u",
-	a_bigbuf,
-	num_chan);
+        "%s :  Channel Count: %u",
+        a_bigbuf,
+        num_chan);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Frame Offset: (%u), %.2f ms",
-	a_bigbuf,
-	oct & 0x0f,
-	(oct & 0x0f) * 1.25);
+        "%s :  Frame Offset: (%u), %.2f ms",
+        a_bigbuf,
+        oct & 0x0f,
+        (oct & 0x0f) * 1.25);
 
     curr_offset++;
 
@@ -3371,144 +3379,144 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     do
     {
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch (oct)
-	{
-	case 0x01: str = "Fundamental Channel (FCH) TIA/EIA/IS-2000"; break;
-	case 0x02: str = "Dedicated Control Channel (DCCH) TIA/EIA/IS-2000"; break;
-	case 0x03: str = "Supplemental Channel (SCH) TIA/EIA/IS-2000"; break;
-	default:
-	    if ((oct >= 0x80) && (oct <= 0x9f)) { str = "Reserved for UMTS"; }
-	    else { str = "Reserved"; }
-	    break;
-	}
+        switch (oct)
+        {
+        case 0x01: str = "Fundamental Channel (FCH) TIA/EIA/IS-2000"; break;
+        case 0x02: str = "Dedicated Control Channel (DCCH) TIA/EIA/IS-2000"; break;
+        case 0x03: str = "Supplemental Channel (SCH) TIA/EIA/IS-2000"; break;
+        default:
+            if ((oct >= 0x80) && (oct <= 0x9f)) { str = "Reserved for UMTS"; }
+            else { str = "Reserved"; }
+            break;
+        }
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "Physical Channel Type: %s",
-	    str);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "Physical Channel Type: %s",
+            str);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch (global_a_variant)
-	{
-	case A_VARIANT_IOS401:
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Reserved",
-		a_bigbuf);
-	    break;
+        switch (global_a_variant)
+        {
+        case A_VARIANT_IOS401:
+            other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Reserved",
+                a_bigbuf);
+            break;
 
-	case A_VARIANT_IOS501:
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Rev_FCH_Gating",
-		a_bigbuf);
-	    break;
-	}
+        case A_VARIANT_IOS501:
+            other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Rev_FCH_Gating",
+                a_bigbuf);
+            break;
+        }
 
-	switch ((oct & 0x60) >> 5)
-	{
-	case 0: str = "Gating rate 1"; break;
-	case 1: str = "Gating rate 1/2"; break;
-	case 2: str = "Gating rate 1/4"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch ((oct & 0x60) >> 5)
+        {
+        case 0: str = "Gating rate 1"; break;
+        case 1: str = "Gating rate 1/2"; break;
+        case 2: str = "Gating rate 1/4"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot Gating Rate: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Pilot Gating Rate: %s",
+            a_bigbuf,
+            str);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  QOF Mask",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  QOF Mask",
+            a_bigbuf);
 
-	value = tvb_get_guint8(tvb, curr_offset + 1);
+        value = tvb_get_guint8(tvb, curr_offset + 1);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Walsh Code Channel Index (MSB): %u",
-	    a_bigbuf,
-	    ((guint32) (oct & 0x07) << 8) | value);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Walsh Code Channel Index (MSB): %u",
+            a_bigbuf,
+            ((guint32) (oct & 0x07) << 8) | value);
 
-	curr_offset++;
+        curr_offset++;
 
-	other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Walsh Code Channel Index (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Walsh Code Channel Index (LSB)",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Pilot PN Code (LSB)",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
 
-	value = oct;
-	oct = tvb_get_guint8(tvb, curr_offset);
-	value |= ((guint32) (oct & 0x80)) << 1;
+        value = oct;
+        oct = tvb_get_guint8(tvb, curr_offset);
+        value |= ((guint32) (oct & 0x80)) << 1;
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Pilot PN Code (MSB): %u",
-	    a_bigbuf,
-	    value);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Pilot PN Code (MSB): %u",
+            a_bigbuf,
+            value);
 
-	switch (global_a_variant)
-	{
-	case A_VARIANT_IOS401:
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Reserved",
-		a_bigbuf);
-	    break;
+        switch (global_a_variant)
+        {
+        case A_VARIANT_IOS401:
+            other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Reserved",
+                a_bigbuf);
+            break;
 
-	case A_VARIANT_IOS501:
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Reserved",
-		a_bigbuf);
+        case A_VARIANT_IOS501:
+            other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Reserved",
+                a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Power Combined",
-		a_bigbuf);
-	    break;
-	}
+            other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+            proto_tree_add_text(tree, tvb, curr_offset, 1,
+                "%s :  Power Combined",
+                a_bigbuf);
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Frequency Included",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Frequency Included",
+            a_bigbuf);
 
-	value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
+        value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (MSB): %u",
-	    a_bigbuf,
-	    value);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ARFCN (MSB): %u",
+            a_bigbuf,
+            value);
 
-	curr_offset++;
+        curr_offset++;
 
-	other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ARFCN (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ARFCN (LSB)",
+            a_bigbuf);
 
-	curr_offset++;
+        curr_offset++;
     }
     while ((len - (curr_offset - offset)) >= 6);
 
@@ -3528,11 +3536,11 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    gint	temp_int;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     value;
+    gint        temp_int;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -3541,34 +3549,34 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
     temp_int = (oct & 0xf8) >> 3;
     if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
     {
-	str = "Reserved";
+        str = "Reserved";
     }
     else
     {
-	str = band_class_str[temp_int];
+        str = band_class_str[temp_int];
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Band Class: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Band Class: %s",
+        a_bigbuf,
+        str);
 
     value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ARFCN (MSB): %u",
-	a_bigbuf,
-	value);
+        "%s :  ARFCN (MSB): %u",
+        a_bigbuf,
+        value);
 
     curr_offset++;
 
     other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ARFCN (LSB)",
-	a_bigbuf);
+        "%s :  ARFCN (LSB)",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (ARFCN: %u)", value);
 
@@ -3585,10 +3593,10 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 static guint8
 elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    guint8	*poctets;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    guint8      *poctets;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -3596,9 +3604,9 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Extension: %s",
-	a_bigbuf,
-	(oct & 0x80) ? "Not extended" : "Extended");
+        "%s :  Extension: %s",
+        a_bigbuf,
+        (oct & 0x80) ? "Not extended" : "Extended");
 
     switch ((oct & 0x70) >> 4)
     {
@@ -3610,15 +3618,15 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     case 5: str = "Reserved"; break;
     case 6: str = "Reserved"; break;
     default:
-	str = "Reserved for extension";
-	break;
+        str = "Reserved for extension";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Type of Number: %s",
-	a_bigbuf,
-	str);
+        "%s :  Type of Number: %s",
+        a_bigbuf,
+        str);
 
     switch (oct & 0x0f)
     {
@@ -3630,76 +3638,76 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     case 0x08: str = "National Numbering"; break;
     case 0x09: str = "Private Numbering"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Number Plan Identification: %s",
-	a_bigbuf,
-	str);
+        "%s :  Number Plan Identification: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     if (!(oct & 0x80))
     {
-	/* octet 3a */
+        /* octet 3a */
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Extension",
+            a_bigbuf);
 
-	switch ((oct & 0x60) >> 5)
-	{
-	case 0: str = "Presentation allowed"; break;
-	case 1: str = "Presentation restricted"; break;
-	case 2: str = "Number not available due to interworking"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch ((oct & 0x60) >> 5)
+        {
+        case 0: str = "Presentation allowed"; break;
+        case 1: str = "Presentation restricted"; break;
+        case 2: str = "Number not available due to interworking"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Presentation Indicator: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Presentation Indicator: %s",
+            a_bigbuf,
+            str);
 
-	switch (oct & 0x03)
-	{
-	case 0: str = "User-provided, not screened"; break;
-	case 1: str = "User-provided, verified and passed"; break;
-	case 2: str = "User-provided, verified and failed"; break;
-	default:
-	    str = "Network-provided";
-	    break;
-	}
+        switch (oct & 0x03)
+        {
+        case 0: str = "User-provided, not screened"; break;
+        case 1: str = "User-provided, verified and passed"; break;
+        case 2: str = "User-provided, verified and failed"; break;
+        default:
+            str = "Network-provided";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Screening Indicator: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Screening Indicator: %s",
+            a_bigbuf,
+            str);
 
-	curr_offset++;
+        curr_offset++;
     }
 
     poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
-	tvb, curr_offset, len - (curr_offset - offset),
-	(gchar *) poctets,
-	"Digits: %s",
-	(gchar *) format_text(poctets, len - (curr_offset - offset)));
+        tvb, curr_offset, len - (curr_offset - offset),
+        (gchar *) poctets,
+        "Digits: %s",
+        (gchar *) format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -3716,13 +3724,13 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static guint8
 elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
-    tvbuff_t	*l3_tvb;
+    guint32     curr_offset;
+    tvbuff_t    *l3_tvb;
 
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
-	"Layer 3 Information");
+        "Layer 3 Information");
 
     /*
      * dissect the embedded DTAP message
@@ -3765,11 +3773,11 @@ elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint16	value;
-    guint32	curr_offset;
-    gchar	mcc[4];
-    gchar	mnc[4];
+    guint8      oct;
+    guint16     value;
+    guint32     curr_offset;
+    gchar       mcc[4];
+    gchar       mnc[4];
 
     len = len;
     curr_offset = offset;
@@ -3793,20 +3801,20 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     mnc[3] = '\0';
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 3,
-	"Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
-	mcc,
-	mnc);
+        tvb, curr_offset, 3,
+        "Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
+        mcc,
+        mnc);
 
     curr_offset += 3;
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"Location Area Code (LAC): 0x%04x (%u)",
-	value,
-	value);
+        tvb, curr_offset, 2,
+        "Location Area Code (LAC): 0x%04x (%u)",
+        value,
+        value);
 
     curr_offset += 2;
 
@@ -3821,9 +3829,9 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -3853,15 +3861,15 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     case 0x6e: str = "Invalid message, unspecified"; break;
     case 0x6f: str = "Mandatory information element error"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Reject Cause Value: (%u) %s",
-	oct,
-	str);
+        tvb, curr_offset, 1,
+        "Reject Cause Value: (%u) %s",
+        oct,
+        str);
 
     curr_offset++;
 
@@ -3878,7 +3886,7 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -3897,7 +3905,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint8
 elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -3916,9 +3924,9 @@ elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -3926,9 +3934,9 @@ elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x0f)
     {
@@ -3937,23 +3945,23 @@ elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     case 4: str = "RANDSSD 56 bits"; break;
     case 8: str = "RANDBS 32 bits"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Random Number Type: (%u) %s",
-	a_bigbuf,
-	oct & 0x0f,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Random Number Type: (%u) %s",
+        a_bigbuf,
+        oct & 0x0f,
+        str);
 
     curr_offset++;
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, len - (curr_offset - offset),
-	"RAND/RANDU/RANDBS/RANDSSD Value");
+        tvb, curr_offset, len - (curr_offset - offset),
+        "RAND/RANDU/RANDBS/RANDSSD Value");
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -3970,9 +3978,9 @@ elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint8
 elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -3980,9 +3988,9 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x0f)
     {
@@ -3990,23 +3998,23 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     case 2: str = "AUTHU"; break;
     case 4: str = "AUTHBS"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Auth Signature Type: (%u) %s",
-	a_bigbuf,
-	oct & 0x0f,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Auth Signature Type: (%u) %s",
+        a_bigbuf,
+        oct & 0x0f,
+        str);
 
     curr_offset++;
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, len - (curr_offset - offset),
-	"Auth Signature");
+        tvb, curr_offset, len - (curr_offset - offset),
+        "Auth Signature");
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -4023,8 +4031,8 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint8
 elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -4033,16 +4041,16 @@ elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Count: %u",
-	a_bigbuf,
-	oct & 0x3f);
+        tvb, curr_offset, 1,
+        "%s :  Count: %u",
+        a_bigbuf,
+        oct & 0x3f);
 
     curr_offset++;
 
@@ -4059,8 +4067,8 @@ elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint8
 elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -4068,9 +4076,9 @@ elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Number of Messages: %u",
-	oct);
+        tvb, curr_offset, 1,
+        "Number of Messages: %u",
+        oct);
 
     curr_offset++;
 
@@ -4093,9 +4101,9 @@ elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -4126,15 +4134,15 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     case 0x65: str = "Abbreviated reorder"; break;
     case 0x4f: str = "Alerting off"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Signal Value: (%u) %s",
-	oct,
-	str);
+        tvb, curr_offset, 1,
+        "Signal Value: (%u) %s",
+        oct,
+        str);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -4144,9 +4152,9 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x03)
     {
@@ -4154,15 +4162,15 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     case 1: str = "High pitch"; break;
     case 2: str = "Low pitch"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s : Alert Pitch: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s : Alert Pitch: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -4182,10 +4190,10 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 static guint8
 elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	*poctets;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint8      *poctets;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -4193,9 +4201,9 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Extension",
+        a_bigbuf);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -4206,16 +4214,16 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     case 4: str = "Dedicated PAD access, short code"; break;
     case 7: str = "Reserved for extension"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Type of Number: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Type of Number: %s",
+        a_bigbuf,
+        str);
 
     switch (oct & 0x0f)
     {
@@ -4227,29 +4235,29 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     case 0x08: str = "National numbering plan"; break;
     case 0x09: str = "Private numbering plan"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Numbering Plan Identification: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Numbering Plan Identification: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
-	&Dgt_tbcd);
+        &Dgt_tbcd);
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_bcd_num,
-	tvb, curr_offset, len - (curr_offset - offset),
-	a_bigbuf,
-	"BCD Digits: %s",
-	a_bigbuf);
+        tvb, curr_offset, len - (curr_offset - offset),
+        a_bigbuf,
+        "BCD Digits: %s",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
@@ -4268,10 +4276,10 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static guint8
 elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	*poctets;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint8      *poctets;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -4279,9 +4287,9 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Extension: %s",
-	a_bigbuf,
-	(oct & 0x80) ? "Not extended" : "Extended");
+        "%s :  Extension: %s",
+        a_bigbuf,
+        (oct & 0x80) ? "Not extended" : "Extended");
 
     switch ((oct & 0x70) >> 4)
     {
@@ -4292,16 +4300,16 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     case 4: str = "Dedicated PAD access, short code"; break;
     case 7: str = "Reserved for extension"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Type of Number: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Type of Number: %s",
+        a_bigbuf,
+        str);
 
     switch (oct & 0x0f)
     {
@@ -4313,80 +4321,80 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     case 0x08: str = "National numbering plan"; break;
     case 0x09: str = "Private numbering plan"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Numbering Plan Identification: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Numbering Plan Identification: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     if (!(oct & 0x80))
     {
-	/* octet 3a */
+        /* octet 3a */
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Extension",
+            a_bigbuf);
 
-	switch ((oct & 0x60) >> 5)
-	{
-	case 0: str = "Presentation allowed"; break;
-	case 1: str = "Presentation restricted"; break;
-	case 2: str = "Number not available due to interworking"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch ((oct & 0x60) >> 5)
+        {
+        case 0: str = "Presentation allowed"; break;
+        case 1: str = "Presentation restricted"; break;
+        case 2: str = "Number not available due to interworking"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Presentation Indicator: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Presentation Indicator: %s",
+            a_bigbuf,
+            str);
 
-	switch (oct & 0x03)
-	{
-	case 0: str = "User-provided, not screened"; break;
-	case 1: str = "User-provided, verified and passed"; break;
-	case 2: str = "User-provided, verified and failed"; break;
-	default:
-	    str = "Network-provided";
-	    break;
-	}
+        switch (oct & 0x03)
+        {
+        case 0: str = "User-provided, not screened"; break;
+        case 1: str = "User-provided, verified and passed"; break;
+        case 2: str = "User-provided, verified and failed"; break;
+        default:
+            str = "Network-provided";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Screening Indicator: %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Screening Indicator: %s",
+            a_bigbuf,
+            str);
 
-	curr_offset++;
+        curr_offset++;
     }
 
     poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
-	&Dgt_tbcd);
+        &Dgt_tbcd);
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_bcd_num,
-	tvb, curr_offset, len - (curr_offset - offset),
-	a_bigbuf,
-	"BCD Digits: %s",
-	a_bigbuf);
+        tvb, curr_offset, len - (curr_offset - offset),
+        a_bigbuf,
+        "BCD Digits: %s",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
@@ -4404,8 +4412,8 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static guint8
 elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -4413,16 +4421,16 @@ elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Packet Priority: %u",
-	a_bigbuf,
-	oct & 0x0f);
+        tvb, curr_offset, 1,
+        "%s :  Packet Priority: %u",
+        a_bigbuf,
+        oct & 0x0f);
 
     g_snprintf(add_string, string_len, " - (%u)", oct & 0x0f);
 
@@ -4439,9 +4447,9 @@ elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str = NULL;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -4449,9 +4457,9 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Extension",
+        a_bigbuf);
 
     switch ((oct & 0x60) >> 5)
     {
@@ -4459,22 +4467,22 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 1: str = "Reserved for other international standards"; break;
     case 2: str = "National standard"; break;
     default:
-	str = "Reserved for other international standards";
-	break;
+        str = "Reserved for other international standards";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Coding Standard: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Coding Standard: %s",
+        a_bigbuf,
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x0f)
     {
@@ -4487,16 +4495,16 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 7: str = "International network"; break;
     case 10: str = "Network beyond interworking point"; break;
     default:
-	str = "Reserved"; break;
-	break;
+        str = "Reserved"; break;
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Location: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Location: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -4504,9 +4512,9 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Extension",
+        a_bigbuf);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -4518,17 +4526,17 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 5: str = "invalid message (e.g., parameter out of range)"; break;
     case 6: str = "protocol error (e.g., unknown message)"; break;
     default:
-	str = "interworking";
-	break;
+        str = "interworking";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Class: (%u) %s",
-	a_bigbuf,
-	(oct & 0x70) >> 4,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Class: (%u) %s",
+        a_bigbuf,
+        (oct & 0x70) >> 4,
+        str);
 
     switch (oct & 0x7f)
     {
@@ -4577,16 +4585,16 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 0x6F: str = "Protocol error, unspecified"; break;
     case 0x7F: str = "Interworking, unspecified"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Value: (%u)",
-	a_bigbuf,
-	oct & 0x0f);
+        tvb, curr_offset, 1,
+        "%s :  Value: (%u)",
+        a_bigbuf,
+        oct & 0x0f);
 
     g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, str);
 
@@ -4613,8 +4621,8 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 static guint8
 elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -4622,19 +4630,19 @@ elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  TFO Mode: %s",
-	a_bigbuf,
-	(oct & 0x01) ? "TFO" : "tandem");
+        tvb, curr_offset, 1,
+        "%s :  TFO Mode: %s",
+        a_bigbuf,
+        (oct & 0x01) ? "TFO" : "tandem");
 
     g_snprintf(add_string, string_len, " - (%s)",
-	(oct & 0x01) ? "TFO" : "tandem");
+        (oct & 0x01) ? "TFO" : "tandem");
 
     curr_offset++;
 
@@ -4659,9 +4667,9 @@ elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -4680,14 +4688,14 @@ elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 0x07: str = "User Zone-based"; break;
     case 0x09: str = "BCMC Registration"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Location Registration Type: %s",
-	str);
+        tvb, curr_offset, 1,
+        "Location Registration Type: %s",
+        str);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -4704,8 +4712,8 @@ elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 static guint8
 elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -4713,9 +4721,9 @@ elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     value = tvb_get_ntohl(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 4,
-	"Tag Value: %u",
-	value);
+        tvb, curr_offset, 4,
+        "Tag Value: %u",
+        value);
 
     g_snprintf(add_string, string_len, " - (%u)", value);
 
@@ -4732,10 +4740,10 @@ elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 static guint8
 elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    gint	temp_int;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    gint        temp_int;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -4744,26 +4752,26 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     temp_int = oct & 0x1f;
     if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
     {
-	str = "Reserved";
+        str = "Reserved";
     }
     else
     {
-	str = band_class_str[temp_int];
+        str = band_class_str[temp_int];
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Band Class: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Band Class: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -4773,47 +4781,47 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Number of Preamble Frames: %u",
-	a_bigbuf,
-	(oct & 0xe0) >> 5);
+        tvb, curr_offset, 1,
+        "%s :  Number of Preamble Frames: %u",
+        a_bigbuf,
+        (oct & 0xe0) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reset L2: %s Layer 2 Acknowledgement",
-	a_bigbuf,
-	(oct & 0x10) ? "Reset" : "Do not reset");
+        tvb, curr_offset, 1,
+        "%s :  Reset L2: %s Layer 2 Acknowledgement",
+        a_bigbuf,
+        (oct & 0x10) ? "Reset" : "Do not reset");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reset FPC: %s counters",
-	a_bigbuf,
-	(oct & 0x10) ? "Reset" : "Do not reset");
+        tvb, curr_offset, 1,
+        "%s :  Reset FPC: %s counters",
+        a_bigbuf,
+        (oct & 0x10) ? "Reset" : "Do not reset");
 
     switch ((oct & 0x06) >> 1)
     {
     case 0: str = "Encryption disabled"; break;
     case 1: str = "Encryption enabled"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x06, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Encryption Mode: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Encryption Mode: %s",
+        a_bigbuf,
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Private LCM: %s Private Long Code Mask",
-	a_bigbuf,
-	(oct & 0x01) ? "Use" : "Do not use");
+        tvb, curr_offset, 1,
+        "%s :  Private LCM: %s Private Long Code Mask",
+        a_bigbuf,
+        (oct & 0x01) ? "Use" : "Do not use");
 
     curr_offset++;
 
@@ -4822,39 +4830,39 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
+        break;
 
     case A_VARIANT_IOS501:
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Rev_Pwr_Cntl_Delay_Incl",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "%s :  Rev_Pwr_Cntl_Delay_Incl",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Rev_Pwr_Cntl_Delay",
-	    a_bigbuf);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Rev_Pwr_Cntl_Delay",
+            a_bigbuf);
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Nom_Pwr_Ext",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Nom_Pwr_Ext",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Nom_Pwr: %u",
-	a_bigbuf,
-	oct & 0x0f);
+        tvb, curr_offset, 1,
+        "%s :  Nom_Pwr: %u",
+        a_bigbuf,
+        oct & 0x0f);
 
     curr_offset++;
 
@@ -4862,22 +4870,22 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3e, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  FPC Subchannel Information: %u",
-	a_bigbuf,
-	(oct & 0x3e) >> 1);
+        tvb, curr_offset, 1,
+        "%s :  FPC Subchannel Information: %u",
+        a_bigbuf,
+        (oct & 0x3e) >> 1);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  FPC SubChannel Information Included",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  FPC SubChannel Information Included",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -4885,22 +4893,22 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0e, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Power Control Step: %u",
-	a_bigbuf,
-	(oct & 0x0e) >> 1);
+        tvb, curr_offset, 1,
+        "%s :  Power Control Step: %u",
+        a_bigbuf,
+        (oct & 0x0e) >> 1);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Power Control Step Included",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Power Control Step Included",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -4920,35 +4928,35 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	major, minor, point;
-    guint32	curr_offset;
+    guint8      major, minor, point;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
     major = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"IOS Major Revision Level: %u",
-	major);
+        tvb, curr_offset, 1,
+        "IOS Major Revision Level: %u",
+        major);
 
     curr_offset++;
 
     minor = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"IOS Minor Revision Level: %u",
-	minor);
+        tvb, curr_offset, 1,
+        "IOS Minor Revision Level: %u",
+        minor);
 
     curr_offset++;
 
     point = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"IOS Point Revision Level: %u",
-	point);
+        tvb, curr_offset, 1,
+        "IOS Point Revision Level: %u",
+        point);
 
     curr_offset++;
 
@@ -4956,10 +4964,10 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     if (len > 3)
     {
-	proto_tree_add_text(tree, tvb, curr_offset, len - 3,
-	    "Manufacturer/Carrier Software Information");
+        proto_tree_add_text(tree, tvb, curr_offset, len - 3,
+            "Manufacturer/Carrier Software Information");
 
-	curr_offset += len - 3;
+        curr_offset += len - 3;
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -4973,8 +4981,8 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 static guint8
 elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint16	value;
-    guint32	curr_offset;
+    guint16     value;
+    guint32     curr_offset;
 
     len = len;
     curr_offset = offset;
@@ -4983,29 +4991,29 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 
     other_decode_bitfield_value(a_bigbuf, value, 0x8000, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Proprietary Indicator",
-	a_bigbuf);
+        tvb, curr_offset, 2,
+        "%s :  Proprietary Indicator",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, value, 0x7000, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Service Option Revision",
-	a_bigbuf);
+        tvb, curr_offset, 2,
+        "%s :  Service Option Revision",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, value, 0x0fff, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Base Service Option Number",
-	a_bigbuf);
+        tvb, curr_offset, 2,
+        "%s :  Base Service Option Number",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
 
     proto_tree_add_uint_format(tree, hf_ansi_a_so, tvb,
-	curr_offset, 2, value,
-	"%s %s",
-	&add_string[3],
-	ansi_a_so_int_to_str(value));
+        curr_offset, 2, value,
+        "%s %s",
+        &add_string[3],
+        ansi_a_so_int_to_str(value));
 
     curr_offset += 2;
 
@@ -5020,8 +5028,8 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 static guint8
 elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -5029,16 +5037,16 @@ elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  SOCI: %u",
-	a_bigbuf,
-	oct & 0x07);
+        tvb, curr_offset, 1,
+        "%s :  SOCI: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     g_snprintf(add_string, string_len, " - (%u)", oct);
 
@@ -5055,20 +5063,20 @@ elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 static guint8
 elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	num_so;
-    guint8	inst;
-    guint32	curr_offset;
-    proto_item	*item;
-    proto_tree	*subtree;
+    guint8      oct;
+    guint8      num_so;
+    guint8      inst;
+    guint32     curr_offset;
+    proto_item  *item;
+    proto_tree  *subtree;
 
     curr_offset = offset;
 
     num_so = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Number of Service Option instances: %u",
-	num_so);
+        "Number of Service Option instances: %u",
+        num_so);
 
     /*
      * this is in case we leave the function before the
@@ -5086,42 +5094,42 @@ elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     do
     {
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Service Option Instance - %u",
-		inst);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "Service Option Instance [%u]",
+                inst);
 
-	subtree = proto_item_add_subtree(item, ett_so_list);
+        subtree = proto_item_add_subtree(item, ett_so_list);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x38, 8);
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 1,
-	    "%s :  SR_ID: %u",
-	    a_bigbuf,
-	    (oct & 0x38) >> 3);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x38, 8);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 1,
+            "%s :  SR_ID: %u",
+            a_bigbuf,
+            (oct & 0x38) >> 3);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 1,
-	    "%s :  SOCI: %u",
-	    a_bigbuf,
-	    oct & 0x07);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 1,
+            "%s :  SOCI: %u",
+            a_bigbuf,
+            oct & 0x07);
 
-	curr_offset++;
+        curr_offset++;
 
-	curr_offset += elem_so(tvb, subtree, curr_offset, len, add_string, string_len);
-	add_string[0] = '\0';
+        curr_offset += elem_so(tvb, subtree, curr_offset, len, add_string, string_len);
+        add_string[0] = '\0';
 
-	inst++;
+        inst++;
     }
     while ((len - (curr_offset - offset)) >= 3);
 
@@ -5141,9 +5149,9 @@ elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_acc_net_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	sid, nid, pzid;
-    guint32	curr_offset;
+    guint32     value;
+    guint32     sid, nid, pzid;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -5152,37 +5160,37 @@ elem_acc_net_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, value >> 8, 0x7f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  SID (MSB), %u",
-	a_bigbuf,
-	sid);
+        "%s :  SID (MSB), %u",
+        a_bigbuf,
+        sid);
 
     other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
-	"%s :  SID (LSB)",
-	a_bigbuf);
+        "%s :  SID (LSB)",
+        a_bigbuf);
 
     curr_offset += 2;
 
     nid = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"NID: %u",
-	nid);
+        tvb, curr_offset, 2,
+        "NID: %u",
+        nid);
 
     curr_offset += 2;
 
     pzid = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"PZID: %u",
-	pzid);
+        tvb, curr_offset, 2,
+        "PZID: %u",
+        pzid);
 
     curr_offset += 2;
 
@@ -5194,29 +5202,29 @@ elem_acc_net_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 
 
-#define	ADDS_APP_UNKNOWN	0x00
-#define	ADDS_APP_ADS		0x01
-#define	ADDS_APP_FAX		0x02
-#define	ADDS_APP_SMS		0x03
-#define	ADDS_APP_OTA		0x04
-#define	ADDS_APP_PDS		0x05		/* aka PLD */
-#define	ADDS_APP_SDB		0x06
-#define	ADDS_APP_HRPD		0x07
-#define	ADDS_APP_EXT_INTL	0x3E
-#define	ADDS_APP_EXT		0x3F
+#define ADDS_APP_UNKNOWN        0x00
+#define ADDS_APP_ADS            0x01
+#define ADDS_APP_FAX            0x02
+#define ADDS_APP_SMS            0x03
+#define ADDS_APP_OTA            0x04
+#define ADDS_APP_PDS            0x05            /* aka PLD */
+#define ADDS_APP_SDB            0x06
+#define ADDS_APP_HRPD           0x07
+#define ADDS_APP_EXT_INTL       0x3E
+#define ADDS_APP_EXT            0x3F
 
 static const value_string ansi_a_adds_strings[] = {
-    { ADDS_APP_UNKNOWN,		"UNKNOWN" },
-    { ADDS_APP_ADS,		"ADS" },
-    { ADDS_APP_FAX,		"FAX" },
-    { ADDS_APP_SMS,		"SMS" },
-    { ADDS_APP_OTA,		"OTA" },
-    { ADDS_APP_PDS,		"PDS" },
-    { ADDS_APP_SDB,		"SDB" },
-    { ADDS_APP_HRPD,		"HRPD" },
-    { ADDS_APP_EXT_INTL,	"EXT_INTL" },
-    { ADDS_APP_EXT,		"EXT" },
-    { 0,			NULL}
+    { ADDS_APP_UNKNOWN,         "UNKNOWN" },
+    { ADDS_APP_ADS,             "ADS" },
+    { ADDS_APP_FAX,             "FAX" },
+    { ADDS_APP_SMS,             "SMS" },
+    { ADDS_APP_OTA,             "OTA" },
+    { ADDS_APP_PDS,             "PDS" },
+    { ADDS_APP_SDB,             "SDB" },
+    { ADDS_APP_HRPD,            "HRPD" },
+    { ADDS_APP_EXT_INTL,        "EXT_INTL" },
+    { ADDS_APP_EXT,             "EXT" },
+    { 0,                        NULL}
 };
 
 /*
@@ -5225,15 +5233,15 @@ static const value_string ansi_a_adds_strings[] = {
 static guint8
 elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint8	adds_app;
-    guint32	curr_offset;
-    const gchar	*str;
-    tvbuff_t	*adds_tvb;
-    gint	idx;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint8      oct;
+    guint32     value;
+    guint8      adds_app;
+    guint32     curr_offset;
+    const gchar *str;
+    tvbuff_t    *adds_tvb;
+    gint        idx;
+    proto_tree  *subtree;
+    proto_item  *item;
 
     curr_offset = offset;
     adds_app = 0;
@@ -5242,109 +5250,109 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     adds_app = oct & 0x3f;
 
     str = match_strval_idx((guint32) adds_app, ansi_a_adds_strings, &idx);
     if (str == NULL)
     {
-	str = "Reserved";
+        str = "Reserved";
     }
     g_snprintf(add_string, string_len, " - (%s)", str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Data Burst Type: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Data Burst Type: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     item =
-	proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-	    "Application Data Message");
+        proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+            "Application Data Message");
 
     subtree = proto_item_add_subtree(item, ett_adds_user_part);
 
     switch (adds_app)
     {
     case ADDS_APP_SMS:
-	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-	dissector_try_port(is637_dissector_table,
-	    0, adds_tvb, g_pinfo, g_tree);
+        dissector_try_port(is637_dissector_table,
+            0, adds_tvb, g_pinfo, g_tree);
 
-	curr_offset += (len - 1);
-	break;
+        curr_offset += (len - 1);
+        break;
 
     case ADDS_APP_OTA:
-	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-	dissector_try_port(is683_dissector_table,
-	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+        dissector_try_port(is683_dissector_table,
+            (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
 
-	curr_offset += (len - 1);
-	break;
+        curr_offset += (len - 1);
+        break;
 
     case ADDS_APP_PDS:
-	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+        adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-	dissector_try_port(is801_dissector_table,
-	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+        dissector_try_port(is801_dissector_table,
+            (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
 
-	curr_offset += (len - 1);
-	break;
+        curr_offset += (len - 1);
+        break;
 
     case ADDS_APP_SDB:
-	/*
-	 * no SDB dissector, push to GRE/A11 dissector ?
-	 */
-	curr_offset += (len - 1);
-	break;
+        /*
+         * no SDB dissector, push to GRE/A11 dissector ?
+         */
+        curr_offset += (len - 1);
+        break;
 
     case ADDS_APP_EXT_INTL:
-	/*
-	 * no generic External International dissector
-	 */
-	value = tvb_get_ntohs(tvb, curr_offset);
+        /*
+         * no generic External International dissector
+         */
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 2,
-	    "Extended Burst Type - International: 0x%04x", value);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 2,
+            "Extended Burst Type - International: 0x%04x", value);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len - (curr_offset - offset),
-	    "Data");
+        proto_tree_add_text(tree, tvb, curr_offset, len - (curr_offset - offset),
+            "Data");
 
-	curr_offset += len - (curr_offset - offset);
-	break;
+        curr_offset += len - (curr_offset - offset);
+        break;
 
     case ADDS_APP_EXT:
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_text(subtree,
-	    tvb, curr_offset, 2,
-	    "Extended Burst Type: 0x%04x", value);
+        proto_tree_add_text(subtree,
+            tvb, curr_offset, 2,
+            "Extended Burst Type: 0x%04x", value);
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	proto_tree_add_text(subtree, tvb, curr_offset, len - (curr_offset - offset),
-	    "Data");
+        proto_tree_add_text(subtree, tvb, curr_offset, len - (curr_offset - offset),
+            "Data");
 
-	curr_offset += len - (curr_offset - offset);
-	break;
+        curr_offset += len - (curr_offset - offset);
+        break;
 
     default:
-	/*
-	 * no sub-dissectors
-	 */
-	curr_offset += (len - 1);
-	break;
+        /*
+         * no sub-dissectors
+         */
+        curr_offset += (len - 1);
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -5358,8 +5366,8 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -5367,15 +5375,15 @@ elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Encryption Mode: (%u) %s",
-	a_bigbuf,
-	oct & 0x03,
-	(oct & 0x03) ? "enabled" : "disabled");
+        "%s :  Encryption Mode: (%u) %s",
+        a_bigbuf,
+        oct & 0x03,
+        (oct & 0x03) ? "enabled" : "disabled");
 
     curr_offset++;
 
@@ -5390,13 +5398,13 @@ elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct, num_con_rec, i;
-    guint8	bit_mask, bit_offset;
-    guint32	curr_offset, saved_offset;
-    guint32	value;
-    guint	is2000_portion_len;
-    proto_tree	*scr_subtree, *subtree;
-    proto_item	*item = NULL;
+    guint8      oct, num_con_rec, i;
+    guint8      bit_mask, bit_offset;
+    guint32     curr_offset, saved_offset;
+    guint32     value;
+    guint       is2000_portion_len;
+    proto_tree  *scr_subtree, *subtree;
+    proto_item  *item = NULL;
     const gchar *str = NULL;
 
     curr_offset = offset;
@@ -5405,14 +5413,14 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Bit-Exact Length Fill Bits: %u",
-	a_bigbuf,
-	oct & 0x07);
+        "%s :  Bit-Exact Length Fill Bits: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     curr_offset++;
 
@@ -5427,324 +5435,324 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     saved_offset = curr_offset;
 
     item =
-	proto_tree_add_text(tree, tvb, curr_offset,
-	    is2000_portion_len,
-	    "IS-2000 Service Configuration Record Content");
+        proto_tree_add_text(tree, tvb, curr_offset,
+            is2000_portion_len,
+            "IS-2000 Service Configuration Record Content");
 
     scr_subtree =
-	proto_item_add_subtree(item, ett_scr);
+        proto_item_add_subtree(item, ett_scr);
 
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 2,
-	"FOR_MUX_OPTION:  Forward Traffic Channel multiplex option");
+        curr_offset, 2,
+        "FOR_MUX_OPTION:  Forward Traffic Channel multiplex option");
 
     curr_offset += 2;
 
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 2,
-	"REV_MUX_OPTION:  Reverse Traffic Channel multiplex option");
+        curr_offset, 2,
+        "REV_MUX_OPTION:  Reverse Traffic Channel multiplex option");
 
     curr_offset += 2;
 
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 1,
-	"FOR_RATES:  Transmission rates of the Forward Fundamental Channel");
+        curr_offset, 1,
+        "FOR_RATES:  Transmission rates of the Forward Fundamental Channel");
 
     curr_offset += 1;
 
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 1,
-	"REV_RATES:  Transmission rates of the Reverse Fundamental Channel");
+        curr_offset, 1,
+        "REV_RATES:  Transmission rates of the Reverse Fundamental Channel");
 
     curr_offset += 1;
 
     num_con_rec = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 1,
-	"NUM_CON_REC:  Number of service option connection records, %u",
-	num_con_rec);
+        curr_offset, 1,
+        "NUM_CON_REC:  Number of service option connection records, %u",
+        num_con_rec);
 
     curr_offset += 1;
 
     for (i=1; i <= num_con_rec; i++)
     {
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	item =
-	    proto_tree_add_text(scr_subtree, tvb,
-		curr_offset, oct /* oct already includes the length octet itself */,
-		"Service option connection record - %u",
-		i);
+        item =
+            proto_tree_add_text(scr_subtree, tvb,
+                curr_offset, oct /* oct already includes the length octet itself */,
+                "Service option connection record [%u]",
+                i);
 
-	subtree =
-	    proto_item_add_subtree(item, ett_srvc_con_rec);
+        subtree =
+            proto_item_add_subtree(item, ett_srvc_con_rec);
 
-	curr_offset += 1;
+        curr_offset += 1;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "CON_REF:  Service option connection reference, %u",
-	    oct);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "CON_REF:  Service option connection reference, %u",
+            oct);
 
-	curr_offset += 1;
+        curr_offset += 1;
 
-	value = tvb_get_ntohs(tvb, curr_offset);
+        value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 2,
-	    "SERVICE_OPTION:  %s",
-	    ansi_a_so_int_to_str(value));
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 2,
+            "SERVICE_OPTION:  %s",
+            ansi_a_so_int_to_str(value));
 
-	curr_offset += 2;
+        curr_offset += 2;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ((oct & 0xf0) >> 4)
-	{
-	case 0x00: str = "The service option connection does not use Forward Traffic Channel traffic."; break;
-	case 0x01: str = "The service option connection uses primary traffic on the Forward Traffic Channel."; break;
-	case 0x02: str = "The service option connection uses secondary traffic on the Forward Traffic Channel."; break;
-	default: str = "Reserved"; break;
-	}
+        switch ((oct & 0xf0) >> 4)
+        {
+        case 0x00: str = "The service option connection does not use Forward Traffic Channel traffic."; break;
+        case 0x01: str = "The service option connection uses primary traffic on the Forward Traffic Channel."; break;
+        case 0x02: str = "The service option connection uses secondary traffic on the Forward Traffic Channel."; break;
+        default: str = "Reserved"; break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  FOR_TRAFFIC:  Forward Traffic Channel traffic type, %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "%s :  FOR_TRAFFIC:  Forward Traffic Channel traffic type, %s",
+            a_bigbuf,
+            str);
 
-	switch (oct & 0x0f)
-	{
-	case 0x00: str = "The service option connection does not use Reverse Traffic Channel traffic."; break;
-	case 0x01: str = "The service option connection uses primary traffic on the Reverse Traffic Channel."; break;
-	case 0x02: str = "The service option connection uses secondary traffic on the Reverse Traffic Channel."; break;
-	default: str = "Reserved"; break;
-	}
+        switch (oct & 0x0f)
+        {
+        case 0x00: str = "The service option connection does not use Reverse Traffic Channel traffic."; break;
+        case 0x01: str = "The service option connection uses primary traffic on the Reverse Traffic Channel."; break;
+        case 0x02: str = "The service option connection uses secondary traffic on the Reverse Traffic Channel."; break;
+        default: str = "Reserved"; break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  REV_TRAFFIC:  Reverse Traffic Channel traffic type, %s",
-	    a_bigbuf,
-	    str);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "%s :  REV_TRAFFIC:  Reverse Traffic Channel traffic type, %s",
+            a_bigbuf,
+            str);
 
-	curr_offset += 1;
+        curr_offset += 1;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  UI_ENCRYPT_MODE:  Encryption mode indicator for user information privacy",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "%s :  UI_ENCRYPT_MODE:  Encryption mode indicator for user information privacy",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  SR_ID:  Service reference identifier",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "%s :  SR_ID:  Service reference identifier",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-	proto_tree_add_text(subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  RLP_INFO_INCL:  RLP information included indicator",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+        proto_tree_add_text(subtree, tvb,
+            curr_offset, 1,
+            "%s :  RLP_INFO_INCL:  RLP information included indicator",
+            a_bigbuf);
 
-	if (oct & 0x02)
-	{
-	    value = (oct & 0x01) << 3;
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+        if (oct & 0x02)
+        {
+            value = (oct & 0x01) << 3;
+            other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 
-	    curr_offset += 1;
+            curr_offset += 1;
 
-	    oct = tvb_get_guint8(tvb, curr_offset);
+            oct = tvb_get_guint8(tvb, curr_offset);
 
-	    value |= (oct & 0xe0) >> 5;
+            value |= (oct & 0xe0) >> 5;
 
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset - 1, 1,
-		"%s :  RLP_BLOB_LEN (MSB), %u",
-		a_bigbuf,
-		value);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset - 1, 1,
+                "%s :  RLP_BLOB_LEN (MSB), %u",
+                a_bigbuf,
+                value);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset, 1,
-		"%s :  RLP_BLOB_LEN (LSB)",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset, 1,
+                "%s :  RLP_BLOB_LEN (LSB)",
+                a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset, 1,
-		"%s :  RLP_BLOB (MSB)",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset, 1,
+                "%s :  RLP_BLOB (MSB)",
+                a_bigbuf);
 
-	    curr_offset += 1;
+            curr_offset += 1;
 
-	    if (value > 1)
-	    {
-		proto_tree_add_text(subtree, tvb,
-		    curr_offset, value - 1,
-		    "RLP_BLOB");
+            if (value > 1)
+            {
+                proto_tree_add_text(subtree, tvb,
+                    curr_offset, value - 1,
+                    "RLP_BLOB");
 
-		curr_offset += value - 1;
-	    }
+                curr_offset += value - 1;
+            }
 
-	    oct = tvb_get_guint8(tvb, curr_offset);
+            oct = tvb_get_guint8(tvb, curr_offset);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset, 1,
-		"%s :  RLP_BLOB (LSB)",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset, 1,
+                "%s :  RLP_BLOB (LSB)",
+                a_bigbuf);
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset, 1,
-		"%s :  Reserved",
-		a_bigbuf);
-	}
-	else
-	{
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	    proto_tree_add_text(subtree, tvb,
-		curr_offset, 1,
-		"%s :  Reserved",
-		a_bigbuf);
-	}
+            other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset, 1,
+                "%s :  Reserved",
+                a_bigbuf);
+        }
+        else
+        {
+            other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+            proto_tree_add_text(subtree, tvb,
+                curr_offset, 1,
+                "%s :  Reserved",
+                a_bigbuf);
+        }
 
-	curr_offset += 1;
+        curr_offset += 1;
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 1,
-	"%s :  FCH_CC_INCL:  Channel configuration for the Fundamental Channel included indicator",
-	a_bigbuf);
+        curr_offset, 1,
+        "%s :  FCH_CC_INCL:  Channel configuration for the Fundamental Channel included indicator",
+        a_bigbuf);
 
     if (oct & 0x80)
     {
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  FCH_FRAME_SIZE:  Fundamental Channel frame size supported indicator",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset, 1,
+            "%s :  FCH_FRAME_SIZE:  Fundamental Channel frame size supported indicator",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3e, 8);
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  FOR_FCH_RC:  Forward Fundamental Channel Radio Configuration, %u",
-	    a_bigbuf,
-	    (oct & 0x3e) >> 1);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x3e, 8);
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset, 1,
+            "%s :  FOR_FCH_RC:  Forward Fundamental Channel Radio Configuration, %u",
+            a_bigbuf,
+            (oct & 0x3e) >> 1);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	value = (oct & 0x01) << 4;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+        value = (oct & 0x01) << 4;
 
-	curr_offset += 1;
+        curr_offset += 1;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	value |= (oct & 0xf0) >> 4;
+        value |= (oct & 0xf0) >> 4;
 
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset - 1, 1,
-	    "%s :  REV_FCH_RC:  Reverse Fundamental Channel Radio Configuration (MSB), %u",
-	    a_bigbuf,
-	    value);
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset - 1, 1,
+            "%s :  REV_FCH_RC:  Reverse Fundamental Channel Radio Configuration (MSB), %u",
+            a_bigbuf,
+            value);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  REV_FCH_RC:  (LSB)",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset, 1,
+            "%s :  REV_FCH_RC:  (LSB)",
+            a_bigbuf);
 
-	bit_mask = 0x08;
-	bit_offset = 3;
+        bit_mask = 0x08;
+        bit_offset = 3;
     }
     else
     {
-	bit_mask = 0x40;
-	bit_offset = 6;
+        bit_mask = 0x40;
+        bit_offset = 6;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
     proto_tree_add_text(scr_subtree, tvb,
-	curr_offset, 1,
-	"%s :  DCCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
-	a_bigbuf);
+        curr_offset, 1,
+        "%s :  DCCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+        a_bigbuf);
 
     if (oct & bit_mask)
     {
-	/* can't be bothered to do the rest of the decode */
+        /* can't be bothered to do the rest of the decode */
 
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
-	    "DCCH + ? + Reserved");
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+            "DCCH + ? + Reserved");
 
-	curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+        curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
     }
     else
     {
-	bit_mask >>= 1;
-	bit_offset--;
+        bit_mask >>= 1;
+        bit_offset--;
 
-	other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
-	proto_tree_add_text(scr_subtree, tvb,
-	    curr_offset, 1,
-	    "%s :  FOR_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+        proto_tree_add_text(scr_subtree, tvb,
+            curr_offset, 1,
+            "%s :  FOR_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+            a_bigbuf);
 
-	if (oct & bit_mask)
-	{
-	    /* can't be bothered to do the rest of the decode */
+        if (oct & bit_mask)
+        {
+            /* can't be bothered to do the rest of the decode */
 
-	    proto_tree_add_text(scr_subtree, tvb,
-		curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
-		"FOR_SCH + ? + Reserved");
+            proto_tree_add_text(scr_subtree, tvb,
+                curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+                "FOR_SCH + ? + Reserved");
 
-	    curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
-	}
-	else
-	{
-	    bit_mask >>= 1;
-	    bit_offset--;
+            curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+        }
+        else
+        {
+            bit_mask >>= 1;
+            bit_offset--;
 
-	    other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
-	    proto_tree_add_text(scr_subtree, tvb,
-		curr_offset, 1,
-		"%s :  REV_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
-		a_bigbuf);
+            other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+            proto_tree_add_text(scr_subtree, tvb,
+                curr_offset, 1,
+                "%s :  REV_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+                a_bigbuf);
 
-	    if (oct & bit_mask)
-	    {
-		/* can't be bothered to do the rest of the decode */
+            if (oct & bit_mask)
+            {
+                /* can't be bothered to do the rest of the decode */
 
-		proto_tree_add_text(scr_subtree, tvb,
-		    curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
-		    "REV_SCH + ? + Reserved");
+                proto_tree_add_text(scr_subtree, tvb,
+                    curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+                    "REV_SCH + ? + Reserved");
 
-		curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
-	    }
-	    else
-	    {
-		bit_mask = (0xff << (8 - bit_offset));
-		bit_mask >>= (8 - bit_offset);
+                curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+            }
+            else
+            {
+                bit_mask = (0xff << (8 - bit_offset));
+                bit_mask >>= (8 - bit_offset);
 
-		other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
-		proto_tree_add_text(scr_subtree, tvb,
-		    curr_offset, 1,
-		    "%s :  Reserved",
-		    a_bigbuf);
+                other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+                proto_tree_add_text(scr_subtree, tvb,
+                    curr_offset, 1,
+                    "%s :  Reserved",
+                    a_bigbuf);
 
-		curr_offset += 1;
-	    }
-	}
+                curr_offset += 1;
+            }
+        }
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -5758,9 +5766,9 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    guint	is2000_portion_len;
+    guint8      oct;
+    guint32     curr_offset;
+    guint       is2000_portion_len;
 
     curr_offset = offset;
 
@@ -5768,14 +5776,14 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Bit-Exact Length Fill Bits: %u",
-	a_bigbuf,
-	oct & 0x07);
+        "%s :  Bit-Exact Length Fill Bits: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     curr_offset++;
 
@@ -5787,12 +5795,12 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     if (is2000_portion_len > 0)
     {
-	SHORT_DATA_CHECK(len - (curr_offset - offset), is2000_portion_len);
+        SHORT_DATA_CHECK(len - (curr_offset - offset), is2000_portion_len);
 
-	proto_tree_add_text(tree, tvb, curr_offset, is2000_portion_len,
-	    "IS-2000 Non-Negotiable Service Configuration Record Content");
+        proto_tree_add_text(tree, tvb, curr_offset, is2000_portion_len,
+            "IS-2000 Non-Negotiable Service Configuration Record Content");
 
-	curr_offset += is2000_portion_len;
+        curr_offset += is2000_portion_len;
     }
 
 #else
@@ -5811,13 +5819,13 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 static guint8
 elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint8	oct_len;
-    guint32	curr_offset;
-    gboolean	rev_pdch_supported = FALSE;
-    gboolean	for_pdch_supported = FALSE;
-    gboolean	dcch_supported;
-    const gchar	*str;
+    guint8      oct;
+    guint8      oct_len;
+    guint32     curr_offset;
+    gboolean    rev_pdch_supported = FALSE;
+    gboolean    for_pdch_supported = FALSE;
+    gboolean    dcch_supported;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -5826,65 +5834,65 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
+        break;
 
     case A_VARIANT_IOS501:
-	rev_pdch_supported = (oct & 0x80) ? TRUE : FALSE;
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  REV_PDCH Supported: IS-2000 R-PDCH %ssupported",
-	    a_bigbuf,
-	    rev_pdch_supported ? "" : "not ");
+        rev_pdch_supported = (oct & 0x80) ? TRUE : FALSE;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  REV_PDCH Supported: IS-2000 R-PDCH %ssupported",
+            a_bigbuf,
+            rev_pdch_supported ? "" : "not ");
 
-	for_pdch_supported = (oct & 0x40) ? TRUE : FALSE;
-	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  FOR_PDCH Supported: IS-2000 F-PDCH %ssupported",
-	    a_bigbuf,
-	    for_pdch_supported ? "" : "not ");
+        for_pdch_supported = (oct & 0x40) ? TRUE : FALSE;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  FOR_PDCH Supported: IS-2000 F-PDCH %ssupported",
+            a_bigbuf,
+            for_pdch_supported ? "" : "not ");
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  ERAM Supported: Enhanced Rate Adaptation Mode %ssupported",
-	    a_bigbuf,
-	    (oct & 0x20) ? "" : "not ");
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  ERAM Supported: Enhanced Rate Adaptation Mode %ssupported",
+            a_bigbuf,
+            (oct & 0x20) ? "" : "not ");
+        break;
     }
 
     dcch_supported = (oct & 0x10) ? TRUE : FALSE;
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DCCH Supported: IS-2000 DCCH %ssupported",
-	a_bigbuf,
-	dcch_supported ? "" : "not ");
+        "%s :  DCCH Supported: IS-2000 DCCH %ssupported",
+        a_bigbuf,
+        dcch_supported ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  FCH Supported: IS-2000 FCH %ssupported",
-	a_bigbuf,
-	(oct & 0x08) ? "" : "not ");
+        "%s :  FCH Supported: IS-2000 FCH %ssupported",
+        a_bigbuf,
+        (oct & 0x08) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  OTD Supported: Orthogonal Transmit Diversity %ssupported",
-	a_bigbuf,
-	(oct & 0x04) ? "" : "not ");
+        "%s :  OTD Supported: Orthogonal Transmit Diversity %ssupported",
+        a_bigbuf,
+        (oct & 0x04) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Enhanced RC CFG Supported: Radio configuration in radio class 2 %ssupported",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+        "%s :  Enhanced RC CFG Supported: Radio configuration in radio class 2 %ssupported",
+        a_bigbuf,
+        (oct & 0x02) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  QPCH Supported: Quick Paging Channel %ssupported",
-	a_bigbuf,
-	(oct & 0x01) ? "" : "not ");
+        "%s :  QPCH Supported: Quick Paging Channel %ssupported",
+        a_bigbuf,
+        (oct & 0x01) ? "" : "not ");
 
     curr_offset++;
 
@@ -5893,9 +5901,9 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     oct_len = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"FCH Information: Bit-Exact Length Octet Count: %u",
-	oct_len);
+        tvb, curr_offset, 1,
+        "FCH Information: Bit-Exact Length Octet Count: %u",
+        oct_len);
 
     curr_offset++;
 
@@ -5905,8 +5913,8 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -5915,26 +5923,26 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case 2: str = "IS801 capable (Advanced Forward Link Triangulation and Global Positioning Systems"; break;
     case 3: str = "Global Positioning Systems Only"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Geo Location Type: %s",
-	a_bigbuf,
-	str);
+        "%s :  Geo Location Type: %s",
+        a_bigbuf,
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Geo Location Included",
-	a_bigbuf);
+        "%s :  Geo Location Included",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  FCH Information: Bit-Exact Length Fill Bits: %u",
-	a_bigbuf,
-	oct & 0x07);
+        "%s :  FCH Information: Bit-Exact Length Fill Bits: %u",
+        a_bigbuf,
+        oct & 0x07);
 
     curr_offset++;
 
@@ -5942,143 +5950,143 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     if (oct_len > 0)
     {
-	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-	    "FCH Information Content");
+        proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+            "FCH Information Content");
 
-	curr_offset += oct_len;
+        curr_offset += oct_len;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
     }
 
     if (dcch_supported)
     {
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "DCCH Information: Bit-Exact Length Octet Count: %u",
-	    oct_len);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "DCCH Information: Bit-Exact Length Octet Count: %u",
+            oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
-	    a_bigbuf,
-	    oct & 0x07);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
+            a_bigbuf,
+            oct & 0x07);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-		"DCCH Information Content");
+            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+                "DCCH Information Content");
 
-	    curr_offset += oct_len;
+            curr_offset += oct_len;
 
-	    NO_MORE_DATA_CHECK(len);
-	}
+            NO_MORE_DATA_CHECK(len);
+        }
     }
 
     if (for_pdch_supported)
     {
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "FOR_PDCH Information: Bit-Exact Length Octet Count: %u",
-	    oct_len);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "FOR_PDCH Information: Bit-Exact Length Octet Count: %u",
+            oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  FOR_PDCH Information: Bit-Exact Length Fill Bits: %u",
-	    a_bigbuf,
-	    oct & 0x07);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  FOR_PDCH Information: Bit-Exact Length Fill Bits: %u",
+            a_bigbuf,
+            oct & 0x07);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-		"FOR_PDCH Information Content");
+            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+                "FOR_PDCH Information Content");
 
-	    curr_offset += oct_len;
+            curr_offset += oct_len;
 
-	    NO_MORE_DATA_CHECK(len);
-	}
+            NO_MORE_DATA_CHECK(len);
+        }
     }
 
     if (rev_pdch_supported)
     {
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "REV_PDCH Information: Bit-Exact Length Octet Count: %u",
-	    oct_len);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "REV_PDCH Information: Bit-Exact Length Octet Count: %u",
+            oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  REV_PDCH Information: Bit-Exact Length Fill Bits: %u",
-	    a_bigbuf,
-	    oct & 0x07);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  REV_PDCH Information: Bit-Exact Length Fill Bits: %u",
+            a_bigbuf,
+            oct & 0x07);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-		"REV_PDCH Information Content");
+            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+                "REV_PDCH Information Content");
 
-	    curr_offset += oct_len;
+            curr_offset += oct_len;
 
-	    NO_MORE_DATA_CHECK(len);
-	}
+            NO_MORE_DATA_CHECK(len);
+        }
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -6092,9 +6100,9 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -6105,15 +6113,15 @@ elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     case 0x880b: str = "PPP"; break;
     case 0x8881: str = "Unstructured Byte Stream"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"(%u) %s",
-	value,
-	str);
+        tvb, curr_offset, 2,
+        "(%u) %s",
+        value,
+        str);
 
     g_snprintf(add_string, string_len, " - (%s)", str);
 
@@ -6130,16 +6138,16 @@ elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 static guint8
 elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	oct_len;
-    guint8	rec_type;
-    guint8	num_recs;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
-    gint	ett_elem_idx, idx, i;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint8      oct;
+    guint8      oct_len;
+    guint8      rec_type;
+    guint8      num_recs;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str;
+    gint        ett_elem_idx, idx, i;
+    proto_tree  *subtree;
+    proto_item  *item;
 
     curr_offset = offset;
 
@@ -6147,267 +6155,267 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     while ((len - (curr_offset - offset)) >= 2)
     {
-	num_recs++;
+        num_recs++;
 
-	rec_type = tvb_get_guint8(tvb, curr_offset);
+        rec_type = tvb_get_guint8(tvb, curr_offset);
 
-	str = match_strval_idx((guint32) rec_type, ansi_fwd_ms_info_rec_str, &idx);
+        str = match_strval_idx((guint32) rec_type, ansi_fwd_ms_info_rec_str, &idx);
 
-	if (str == NULL)
-	{
-	    str = "Reserved";
-	    ett_elem_idx = ett_ansi_ms_info_rec_reserved;
-	}
-	else
-	{
-	    ett_elem_idx = ett_ansi_fwd_ms_info_rec[idx];
-	}
+        if (str == NULL)
+        {
+            str = "Reserved";
+            ett_elem_idx = ett_ansi_ms_info_rec_reserved;
+        }
+        else
+        {
+            ett_elem_idx = ett_ansi_fwd_ms_info_rec[idx];
+        }
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Information Record Type - %u: (%u) %s",
-		num_recs,
-		rec_type,
-		str);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "Information Record Type [%u]: (%u) %s",
+                num_recs,
+                rec_type,
+                str);
 
-	subtree = proto_item_add_subtree(item, ett_elem_idx);
+        subtree = proto_item_add_subtree(item, ett_elem_idx);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-	    curr_offset, 1, oct_len);
+        proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+            curr_offset, 1, oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    switch (rec_type)
-	    {
-	    case ANSI_FWD_MS_INFO_REC_CLD_PN:
-		oct = tvb_get_guint8(tvb, curr_offset);
+            switch (rec_type)
+            {
+            case ANSI_FWD_MS_INFO_REC_CLD_PN:
+                oct = tvb_get_guint8(tvb, curr_offset);
 
-		switch ((oct & 0xe0) >> 5)
-		{
-		case 0: str = "Unknown"; break;
-		case 1: str = "International number"; break;
-		case 2: str = "National number"; break;
-		case 3: str = "Network-specific number"; break;
-		case 4: str = "Subscriber number"; break;
-		case 5: str = "Reserved"; break;
-		case 6: str = "Abbreviated number"; break;
-		default:
-		    str = "Reserved for extension";
-		    break;
-		}
+                switch ((oct & 0xe0) >> 5)
+                {
+                case 0: str = "Unknown"; break;
+                case 1: str = "International number"; break;
+                case 2: str = "National number"; break;
+                case 3: str = "Network-specific number"; break;
+                case 4: str = "Subscriber number"; break;
+                case 5: str = "Reserved"; break;
+                case 6: str = "Abbreviated number"; break;
+                default:
+                    str = "Reserved for extension";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Number Type: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Number Type: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((oct & 0x1e) >> 1)
-		{
-		case 0x00: str = "Unknown"; break;
-		case 0x01: str = "ISDN/Telephony Numbering"; break;
-		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
-		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
-		case 0x09: str = "Private Numbering"; break;
-		case 0x0f: str = "Reserved for extension"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((oct & 0x1e) >> 1)
+                {
+                case 0x00: str = "Unknown"; break;
+                case 0x01: str = "ISDN/Telephony Numbering"; break;
+                case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+                case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+                case 0x09: str = "Private Numbering"; break;
+                case 0x0f: str = "Reserved for extension"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Number Plan: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Number Plan: %s",
+                    a_bigbuf,
+                    str);
 
-		if (oct_len > 1)
-		{
-		    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-			"%s :  MSB of first digit",
-			a_bigbuf);
+                if (oct_len > 1)
+                {
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                        "%s :  MSB of first digit",
+                        a_bigbuf);
 
-		    curr_offset++;
+                    curr_offset++;
 
-		    for (i=0; i < (oct_len - 1); i++)
-		    {
-			a_bigbuf[i] = (oct & 0x01) << 7;
+                    for (i=0; i < (oct_len - 1); i++)
+                    {
+                        a_bigbuf[i] = (oct & 0x01) << 7;
 
-			oct = tvb_get_guint8(tvb, curr_offset + i);
+                        oct = tvb_get_guint8(tvb, curr_offset + i);
 
-			a_bigbuf[i] |= (oct & 0xfe) >> 1;
-		    }
-		    a_bigbuf[i] = '\0';
+                        a_bigbuf[i] |= (oct & 0xfe) >> 1;
+                    }
+                    a_bigbuf[i] = '\0';
 
-		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 1,
-			"Digits: %s",
-			a_bigbuf);
+                    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 1,
+                        "Digits: %s",
+                        a_bigbuf);
 
-		    curr_offset += (oct_len - 2);
-		}
+                    curr_offset += (oct_len - 2);
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Reserved",
-		    a_bigbuf);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Reserved",
+                    a_bigbuf);
 
-		curr_offset++;
-		break;
+                curr_offset++;
+                break;
 
-	    case ANSI_FWD_MS_INFO_REC_CLG_PN:
-		value = tvb_get_ntohs(tvb, curr_offset);
+            case ANSI_FWD_MS_INFO_REC_CLG_PN:
+                value = tvb_get_ntohs(tvb, curr_offset);
 
-		oct = (value & 0xff00) >> 8;
+                oct = (value & 0xff00) >> 8;
 
-		switch ((oct & 0xe0) >> 5)
-		{
-		case 0: str = "Unknown"; break;
-		case 1: str = "International number"; break;
-		case 2: str = "National number"; break;
-		case 3: str = "Network-specific number"; break;
-		case 4: str = "Subscriber number"; break;
-		case 5: str = "Reserved"; break;
-		case 6: str = "Abbreviated number"; break;
-		default:
-		    str = "Reserved for extension";
-		    break;
-		}
+                switch ((oct & 0xe0) >> 5)
+                {
+                case 0: str = "Unknown"; break;
+                case 1: str = "International number"; break;
+                case 2: str = "National number"; break;
+                case 3: str = "Network-specific number"; break;
+                case 4: str = "Subscriber number"; break;
+                case 5: str = "Reserved"; break;
+                case 6: str = "Abbreviated number"; break;
+                default:
+                    str = "Reserved for extension";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0xe000, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Number Type: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0xe000, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Number Type: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((oct & 0x1e) >> 1)
-		{
-		case 0x00: str = "Unknown"; break;
-		case 0x01: str = "ISDN/Telephony Numbering"; break;
-		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
-		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
-		case 0x09: str = "Private Numbering"; break;
-		case 0x0f: str = "Reserved for extension"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((oct & 0x1e) >> 1)
+                {
+                case 0x00: str = "Unknown"; break;
+                case 0x01: str = "ISDN/Telephony Numbering"; break;
+                case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+                case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+                case 0x09: str = "Private Numbering"; break;
+                case 0x0f: str = "Reserved for extension"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x1e00, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Number Plan: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x1e00, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Number Plan: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((value & 0x0180) >> 7)
-		{
-		case 0: str = "Presentation allowed"; break;
-		case 1: str = "Presentation restricted"; break;
-		case 2: str = "Number not available"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((value & 0x0180) >> 7)
+                {
+                case 0: str = "Presentation allowed"; break;
+                case 1: str = "Presentation restricted"; break;
+                case 2: str = "Number not available"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x0180, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Presentation Indicator (PI): %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x0180, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Presentation Indicator (PI): %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((value & 0x0060) >> 5)
-		{
-		case 0: str = "User-provided, not screened"; break;
-		case 1: str = "User-provided, verified and passed"; break;
-		case 2: str = "User-provided, verified and failed"; break;
-		default:
-		    str = "Network-provided";
-		    break;
-		}
+                switch ((value & 0x0060) >> 5)
+                {
+                case 0: str = "User-provided, not screened"; break;
+                case 1: str = "User-provided, verified and passed"; break;
+                case 2: str = "User-provided, verified and failed"; break;
+                default:
+                    str = "Network-provided";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x0060, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Screening Indicator (SI): %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x0060, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Screening Indicator (SI): %s",
+                    a_bigbuf,
+                    str);
 
-		if (oct_len > 2)
-		{
-		    oct = (value & 0x00ff);
+                if (oct_len > 2)
+                {
+                    oct = (value & 0x00ff);
 
-		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
-			"%s :  MSB of first digit",
-			a_bigbuf);
+                    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                        "%s :  MSB of first digit",
+                        a_bigbuf);
 
-		    curr_offset += 2;
+                    curr_offset += 2;
 
-		    for (i=0; i < (oct_len - 2); i++)
-		    {
-			a_bigbuf[i] = (oct & 0x1f) << 3;
+                    for (i=0; i < (oct_len - 2); i++)
+                    {
+                        a_bigbuf[i] = (oct & 0x1f) << 3;
 
-			oct = tvb_get_guint8(tvb, curr_offset + i);
+                        oct = tvb_get_guint8(tvb, curr_offset + i);
 
-			a_bigbuf[i] |= (oct & 0xe0) >> 5;
-		    }
-		    a_bigbuf[i] = '\0';
+                        a_bigbuf[i] |= (oct & 0xe0) >> 5;
+                    }
+                    a_bigbuf[i] = '\0';
 
-		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 2,
-			"Digits: %s",
-			a_bigbuf);
+                    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 2,
+                        "Digits: %s",
+                        a_bigbuf);
 
-		    curr_offset += (oct_len - 3);
+                    curr_offset += (oct_len - 3);
 
-		    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-			"%s :  Reserved",
-			a_bigbuf);
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                        "%s :  Reserved",
+                        a_bigbuf);
 
-		    curr_offset++;
-		}
-		else
-		{
-		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
-			"%s :  Reserved",
-			a_bigbuf);
+                    curr_offset++;
+                }
+                else
+                {
+                    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                        "%s :  Reserved",
+                        a_bigbuf);
 
-		    curr_offset += 2;
-		}
-		break;
+                    curr_offset += 2;
+                }
+                break;
 
-	    case ANSI_FWD_MS_INFO_REC_MW:
-		oct = tvb_get_guint8(tvb, curr_offset);
+            case ANSI_FWD_MS_INFO_REC_MW:
+                oct = tvb_get_guint8(tvb, curr_offset);
 
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "Number of messages waiting: %u",
-		    oct);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "Number of messages waiting: %u",
+                    oct);
 
-		curr_offset++;
-		break;
+                curr_offset++;
+                break;
 
-	    default:
-		proto_tree_add_text(subtree,
-		    tvb, curr_offset, oct_len,
-		    "Record Content");
+            default:
+                proto_tree_add_text(subtree,
+                    tvb, curr_offset, oct_len,
+                    "Record Content");
 
-		curr_offset += oct_len;
-		break;
-	    }
-	}
+                curr_offset += oct_len;
+                break;
+            }
+        }
     }
 
     g_snprintf(add_string, string_len, " - %u record%s",
-	num_recs, plurality(num_recs, "", "s"));
+        num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6420,16 +6428,16 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint8
 elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint8	oct_len;
-    guint8	rec_type;
-    guint8	num_recs;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
-    gint	ett_elem_idx, idx, i;
-    proto_tree	*subtree;
-    proto_item	*item;
+    guint8      oct;
+    guint8      oct_len;
+    guint8      rec_type;
+    guint8      num_recs;
+    guint32     value;
+    guint32     curr_offset, saved_offset;
+    const gchar *str;
+    gint        ett_elem_idx, idx, i;
+    proto_tree  *subtree, *subtree2;
+    proto_item  *item;
 
     curr_offset = offset;
 
@@ -6437,257 +6445,307 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     while ((len - (curr_offset - offset)) >= 2)
     {
-	num_recs++;
+        num_recs++;
 
-	rec_type = tvb_get_guint8(tvb, curr_offset);
+        rec_type = tvb_get_guint8(tvb, curr_offset);
 
-	str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+        str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
 
-	if (str == NULL)
-	{
-	    str = "Reserved";
-	    ett_elem_idx = ett_ansi_ms_info_rec_reserved;
-	}
-	else
-	{
-	    ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
-	}
+        if (str == NULL)
+        {
+            str = "Reserved";
+            ett_elem_idx = ett_ansi_ms_info_rec_reserved;
+        }
+        else
+        {
+            ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
+        }
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Information Record Type - %u: (%u) %s",
-		num_recs,
-		rec_type,
-		str);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, 1,
+                "Information Record Type [%u]: (%u) %s",
+                num_recs,
+                rec_type,
+                str);
 
-	subtree = proto_item_add_subtree(item, ett_elem_idx);
+        subtree = proto_item_add_subtree(item, ett_elem_idx);
 
-	curr_offset++;
+        curr_offset++;
 
-	oct_len = tvb_get_guint8(tvb, curr_offset);
+        oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-	    curr_offset, 1, oct_len);
+        proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+            curr_offset, 1, oct_len);
 
-	curr_offset++;
+        curr_offset++;
 
-	if (oct_len > 0)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+        if (oct_len > 0)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-	    switch (rec_type)
-	    {
-	    case ANSI_REV_MS_INFO_REC_CLD_PN:
-		oct = tvb_get_guint8(tvb, curr_offset);
+            switch (rec_type)
+            {
+            case ANSI_REV_MS_INFO_REC_CLD_PN:
+                oct = tvb_get_guint8(tvb, curr_offset);
 
-		switch ((oct & 0xe0) >> 5)
-		{
-		case 0: str = "Unknown"; break;
-		case 1: str = "International number"; break;
-		case 2: str = "National number"; break;
-		case 3: str = "Network-specific number"; break;
-		case 4: str = "Subscriber number"; break;
-		case 5: str = "Reserved"; break;
-		case 6: str = "Abbreviated number"; break;
-		default:
-		    str = "Reserved for extension";
-		    break;
-		}
+                switch ((oct & 0xe0) >> 5)
+                {
+                case 0: str = "Unknown"; break;
+                case 1: str = "International number"; break;
+                case 2: str = "National number"; break;
+                case 3: str = "Network-specific number"; break;
+                case 4: str = "Subscriber number"; break;
+                case 5: str = "Reserved"; break;
+                case 6: str = "Abbreviated number"; break;
+                default:
+                    str = "Reserved for extension";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Number Type: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Number Type: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((oct & 0x1e) >> 1)
-		{
-		case 0x00: str = "Unknown"; break;
-		case 0x01: str = "ISDN/Telephony Numbering"; break;
-		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
-		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
-		case 0x09: str = "Private Numbering"; break;
-		case 0x0f: str = "Reserved for extension"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((oct & 0x1e) >> 1)
+                {
+                case 0x00: str = "Unknown"; break;
+                case 0x01: str = "ISDN/Telephony Numbering"; break;
+                case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+                case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+                case 0x09: str = "Private Numbering"; break;
+                case 0x0f: str = "Reserved for extension"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Number Plan: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Number Plan: %s",
+                    a_bigbuf,
+                    str);
 
-		if (oct_len > 1)
-		{
-		    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-			"%s :  MSB of first digit",
-			a_bigbuf);
+                if (oct_len > 1)
+                {
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                        "%s :  MSB of first digit",
+                        a_bigbuf);
 
-		    curr_offset++;
+                    curr_offset++;
 
-		    for (i=0; i < (oct_len - 1); i++)
-		    {
-			a_bigbuf[i] = (oct & 0x01) << 7;
+                    for (i=0; i < (oct_len - 1); i++)
+                    {
+                        a_bigbuf[i] = (oct & 0x01) << 7;
 
-			oct = tvb_get_guint8(tvb, curr_offset + i);
+                        oct = tvb_get_guint8(tvb, curr_offset + i);
 
-			a_bigbuf[i] |= (oct & 0xfe) >> 1;
-		    }
-		    a_bigbuf[i] = '\0';
+                        a_bigbuf[i] |= (oct & 0xfe) >> 1;
+                    }
+                    a_bigbuf[i] = '\0';
 
-		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 1,
-			"Digits: %s",
-			a_bigbuf);
+                    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 1,
+                        "Digits: %s",
+                        a_bigbuf);
 
-		    curr_offset += (oct_len - 2);
-		}
+                    curr_offset += (oct_len - 2);
+                }
 
-		other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-		proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		    "%s :  Reserved",
-		    a_bigbuf);
+                other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+                proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                    "%s :  Reserved",
+                    a_bigbuf);
 
-		curr_offset++;
-		break;
+                curr_offset++;
+                break;
 
-	    case ANSI_REV_MS_INFO_REC_CLG_PN:
-		value = tvb_get_ntohs(tvb, curr_offset);
+            case ANSI_REV_MS_INFO_REC_CLG_PN:
+                value = tvb_get_ntohs(tvb, curr_offset);
 
-		oct = (value & 0xff00) >> 8;
+                oct = (value & 0xff00) >> 8;
 
-		switch ((oct & 0xe0) >> 5)
-		{
-		case 0: str = "Unknown"; break;
-		case 1: str = "International number"; break;
-		case 2: str = "National number"; break;
-		case 3: str = "Network-specific number"; break;
-		case 4: str = "Subscriber number"; break;
-		case 5: str = "Reserved"; break;
-		case 6: str = "Abbreviated number"; break;
-		default:
-		    str = "Reserved for extension";
-		    break;
-		}
+                switch ((oct & 0xe0) >> 5)
+                {
+                case 0: str = "Unknown"; break;
+                case 1: str = "International number"; break;
+                case 2: str = "National number"; break;
+                case 3: str = "Network-specific number"; break;
+                case 4: str = "Subscriber number"; break;
+                case 5: str = "Reserved"; break;
+                case 6: str = "Abbreviated number"; break;
+                default:
+                    str = "Reserved for extension";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0xe000, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Number Type: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0xe000, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Number Type: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((oct & 0x1e) >> 1)
-		{
-		case 0x00: str = "Unknown"; break;
-		case 0x01: str = "ISDN/Telephony Numbering"; break;
-		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
-		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
-		case 0x09: str = "Private Numbering"; break;
-		case 0x0f: str = "Reserved for extension"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((oct & 0x1e) >> 1)
+                {
+                case 0x00: str = "Unknown"; break;
+                case 0x01: str = "ISDN/Telephony Numbering"; break;
+                case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+                case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+                case 0x09: str = "Private Numbering"; break;
+                case 0x0f: str = "Reserved for extension"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x1e00, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Number Plan: %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x1e00, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Number Plan: %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((value & 0x0180) >> 7)
-		{
-		case 0: str = "Presentation allowed"; break;
-		case 1: str = "Presentation restricted"; break;
-		case 2: str = "Number not available"; break;
-		default:
-		    str = "Reserved";
-		    break;
-		}
+                switch ((value & 0x0180) >> 7)
+                {
+                case 0: str = "Presentation allowed"; break;
+                case 1: str = "Presentation restricted"; break;
+                case 2: str = "Number not available"; break;
+                default:
+                    str = "Reserved";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x0180, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Presentation Indicator (PI): %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x0180, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Presentation Indicator (PI): %s",
+                    a_bigbuf,
+                    str);
 
-		switch ((value & 0x0060) >> 5)
-		{
-		case 0: str = "User-provided, not screened"; break;
-		case 1: str = "User-provided, verified and passed"; break;
-		case 2: str = "User-provided, verified and failed"; break;
-		default:
-		    str = "Network-provided";
-		    break;
-		}
+                switch ((value & 0x0060) >> 5)
+                {
+                case 0: str = "User-provided, not screened"; break;
+                case 1: str = "User-provided, verified and passed"; break;
+                case 2: str = "User-provided, verified and failed"; break;
+                default:
+                    str = "Network-provided";
+                    break;
+                }
 
-		other_decode_bitfield_value(a_bigbuf, value, 0x0060, 16);
-		proto_tree_add_text(subtree, tvb, curr_offset, 2,
-		    "%s :  Screening Indicator (SI): %s",
-		    a_bigbuf,
-		    str);
+                other_decode_bitfield_value(a_bigbuf, value, 0x0060, 16);
+                proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                    "%s :  Screening Indicator (SI): %s",
+                    a_bigbuf,
+                    str);
 
-		if (oct_len > 2)
-		{
-		    oct = (value & 0x00ff);
+                if (oct_len > 2)
+                {
+                    oct = (value & 0x00ff);
 
-		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
-			"%s :  MSB of first digit",
-			a_bigbuf);
+                    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                        "%s :  MSB of first digit",
+                        a_bigbuf);
 
-		    curr_offset += 2;
+                    curr_offset += 2;
 
-		    for (i=0; i < (oct_len - 2); i++)
-		    {
-			a_bigbuf[i] = (oct & 0x1f) << 3;
+                    for (i=0; i < (oct_len - 2); i++)
+                    {
+                        a_bigbuf[i] = (oct & 0x1f) << 3;
 
-			oct = tvb_get_guint8(tvb, curr_offset + i);
+                        oct = tvb_get_guint8(tvb, curr_offset + i);
 
-			a_bigbuf[i] |= (oct & 0xe0) >> 5;
-		    }
-		    a_bigbuf[i] = '\0';
+                        a_bigbuf[i] |= (oct & 0xe0) >> 5;
+                    }
+                    a_bigbuf[i] = '\0';
 
-		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 2,
-			"Digits: %s",
-			a_bigbuf);
+                    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 2,
+                        "Digits: %s",
+                        a_bigbuf);
 
-		    curr_offset += (oct_len - 3);
+                    curr_offset += (oct_len - 3);
 
-		    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-			"%s :  Reserved",
-			a_bigbuf);
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                        "%s :  Reserved",
+                        a_bigbuf);
 
-		    curr_offset++;
-		}
-		else
-		{
-		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
-		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
-			"%s :  Reserved",
-			a_bigbuf);
+                    curr_offset++;
+                }
+                else
+                {
+                    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+                    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+                        "%s :  Reserved",
+                        a_bigbuf);
 
-		    curr_offset += 2;
-		}
-		break;
+                    curr_offset += 2;
+                }
+                break;
 
-	    default:
-		proto_tree_add_text(subtree,
-		    tvb, curr_offset, oct_len,
-		    "Record Content");
+            case ANSI_REV_MS_INFO_REC_SO_INFO:
+                i = 0;
+                saved_offset = curr_offset;
 
-		curr_offset += oct_len;
-		break;
-	    }
-	}
+                while ((oct_len - (curr_offset - saved_offset)) > 2)
+                {
+                    item =
+                        proto_tree_add_text(subtree,
+                            tvb, curr_offset, 3,
+                            "Service Option [%u]",
+                            i + 1);
+
+                    subtree2 = proto_item_add_subtree(item, ett_so_list);
+
+                    oct = tvb_get_guint8(tvb, curr_offset);
+
+                    other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
+                    proto_tree_add_text(subtree2, tvb, curr_offset, 1,
+                        "%s :  Reserved",
+                        a_bigbuf);
+
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+                    proto_tree_add_text(subtree2, tvb, curr_offset, 1,
+                        "%s :  Forward Support: %s",
+                        a_bigbuf,
+                        (oct & 0x02) ? "TRUE" : "FALSE");
+
+                    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+                    proto_tree_add_text(subtree2, tvb, curr_offset, 1,
+                        "%s :  Reverse Support: %s",
+                        a_bigbuf,
+                        (oct & 0x01) ? "TRUE" : "FALSE");
+
+                    curr_offset++;
+
+                    value = tvb_get_ntohs(tvb, curr_offset);
+
+                    str = ansi_a_so_int_to_str(value);
+                    proto_tree_add_text(subtree2, tvb, curr_offset, 2,
+                        "Service Option:  %s (%hu)",
+                        str,
+                        value);
+
+                    proto_item_append_text(item, " - (%hu) %s", value, str);
+
+                    i++;
+                    curr_offset += 2;
+                }
+                break;
+
+            default:
+                proto_tree_add_text(subtree,
+                    tvb, curr_offset, oct_len,
+                    "Record Content");
+
+                curr_offset += oct_len;
+                break;
+            }
+        }
     }
 
     g_snprintf(add_string, string_len, " - %u record%s",
-	num_recs, plurality(num_recs, "", "s"));
+        num_recs, plurality(num_recs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6700,10 +6758,10 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint8
 elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -6711,15 +6769,15 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window A Size (Srch_Win_A): %u",
-	a_bigbuf,
-	(oct & 0xf0) >> 4);
+        "%s :  Search Window A Size (Srch_Win_A): %u",
+        a_bigbuf,
+        (oct & 0xf0) >> 4);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window N Size (Srch_Win_N): %u",
-	a_bigbuf,
-	oct & 0x0f);
+        "%s :  Search Window N Size (Srch_Win_N): %u",
+        a_bigbuf,
+        oct & 0x0f);
 
     curr_offset++;
 
@@ -6729,17 +6787,17 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Search Window R Size (Srch_Win_R): %u",
-	a_bigbuf,
-	(oct & 0xf0) >> 4);
+        "%s :  Search Window R Size (Srch_Win_R): %u",
+        a_bigbuf,
+        (oct & 0xf0) >> 4);
 
     value = tvb_get_guint8(tvb, curr_offset + 1);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Add Pilot Threshold (T_Add) (MSB): %u",
-	a_bigbuf,
-	(oct & 0x0f) << 2 | (value & 0xc0) >> 6);
+        "%s :  Add Pilot Threshold (T_Add) (MSB): %u",
+        a_bigbuf,
+        (oct & 0x0f) << 2 | (value & 0xc0) >> 6);
 
     curr_offset++;
 
@@ -6747,14 +6805,14 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Add Pilot Threshold (T_Add) (LSB)",
-	a_bigbuf);
+        "%s :  Add Pilot Threshold (T_Add) (LSB)",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Drop Pilot Threshold (T_Drop): %u",
-	a_bigbuf,
-	oct & 0x3f);
+        "%s :  Drop Pilot Threshold (T_Drop): %u",
+        a_bigbuf,
+        oct & 0x3f);
 
     curr_offset++;
 
@@ -6764,15 +6822,15 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Compare Threshold (T_Comp): %u",
-	a_bigbuf,
-	(oct & 0xf0) >> 4);
+        "%s :  Compare Threshold (T_Comp): %u",
+        a_bigbuf,
+        (oct & 0xf0) >> 4);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Drop Timer Value (T_TDrop): %u",
-	a_bigbuf,
-	oct & 0x0f);
+        "%s :  Drop Timer Value (T_TDrop): %u",
+        a_bigbuf,
+        oct & 0x0f);
 
     curr_offset++;
 
@@ -6782,41 +6840,41 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Neighbor Max Age (Nghbor_Max_AGE): %u",
-	a_bigbuf,
-	(oct & 0xf0) >> 4);
+        "%s :  Neighbor Max Age (Nghbor_Max_AGE): %u",
+        a_bigbuf,
+        (oct & 0xf0) >> 4);
 
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
+        break;
 
     case A_VARIANT_IOS501:
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Reserved",
+            a_bigbuf);
 
-	switch (oct & 0x03)
-	{
-	case 0: str = "Only Search Window A Size is valid"; break;
-	case 1: str = "Subset is valid"; break;
-	case 2: str = "All fields valid"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        switch (oct & 0x03)
+        {
+        case 0: str = "Only Search Window A Size is valid"; break;
+        case 1: str = "Subset is valid"; break;
+        case 2: str = "All fields valid"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Target BS Values Included: %s",
-	    a_bigbuf,
-	    str);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+        proto_tree_add_text(tree, tvb, curr_offset, 1,
+            "%s :  Target BS Values Included: %s",
+            a_bigbuf,
+            str);
+        break;
     }
 
     curr_offset++;
@@ -6827,14 +6885,14 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  SOFT_SLOPE: %u",
-	a_bigbuf,
-	oct & 0x3f);
+        "%s :  SOFT_SLOPE: %u",
+        a_bigbuf,
+        oct & 0x3f);
 
     curr_offset++;
 
@@ -6844,14 +6902,14 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  ADD_INTERCEPT: %u",
-	a_bigbuf,
-	oct & 0x3f);
+        "%s :  ADD_INTERCEPT: %u",
+        a_bigbuf,
+        oct & 0x3f);
 
     curr_offset++;
 
@@ -6861,14 +6919,14 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DROP_INTERCEPT: %u",
-	a_bigbuf,
-	oct & 0x3f);
+        "%s :  DROP_INTERCEPT: %u",
+        a_bigbuf,
+        oct & 0x3f);
 
     curr_offset++;
 
@@ -6877,8 +6935,8 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Target BS P_REV: %u",
-	oct);
+        "Target BS P_REV: %u",
+        oct);
 
     curr_offset++;
 
@@ -6918,10 +6976,10 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static guint8
 elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
-    const gchar	*str = NULL;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
+    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -6931,9 +6989,9 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     value = tvb_get_ntohs(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"CDMA Serving One Way Delay: %u",
-	value);
+        tvb, curr_offset, 2,
+        "CDMA Serving One Way Delay: %u",
+        value);
 
     curr_offset += 2;
 
@@ -6941,9 +6999,9 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x03)
     {
@@ -6955,20 +7013,20 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Resolution: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Resolution: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     if ((len - (curr_offset - offset)) > 1)
     {
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 2,
-	    "Timestamp");
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 2,
+            "Timestamp");
 
-	curr_offset += 2;
+        curr_offset += 2;
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -6992,9 +7050,9 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -7003,16 +7061,16 @@ elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Include Priority: MSC %s include priority in Assignment Request",
-	a_bigbuf,
-	(oct & 0x40) ? "should" : "does not need to");
+        tvb, curr_offset, 1,
+        "%s :  Include Priority: MSC %s include priority in Assignment Request",
+        a_bigbuf,
+        (oct & 0x40) ? "should" : "does not need to");
 
     switch ((oct & 0x30) >> 4)
     {
@@ -7020,16 +7078,16 @@ elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     case 1: str = "radio environment is acceptable"; break;
     case 2: str = "radio environment is marginally acceptable"; break;
     default:
-	str = "radio environment is poor";
-	break;
+        str = "radio environment is poor";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Forward: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Forward: %s",
+        a_bigbuf,
+        str);
 
     switch ((oct & 0x0c) >> 2)
     {
@@ -7037,30 +7095,30 @@ elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     case 1: str = "radio environment is acceptable"; break;
     case 2: str = "radio environment is marginally acceptable"; break;
     default:
-	str = "radio environment is poor";
-	break;
+        str = "radio environment is poor";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reverse: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Reverse: %s",
+        a_bigbuf,
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Alloc: resources are %sallocated",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
+        tvb, curr_offset, 1,
+        "%s :  Alloc: resources are %sallocated",
+        a_bigbuf,
+        (oct & 0x02) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Avail: resources are %savailable",
-	a_bigbuf,
-	(oct & 0x01) ? "" : "not ");
+        tvb, curr_offset, 1,
+        "%s :  Avail: resources are %savailable",
+        a_bigbuf,
+        (oct & 0x01) ? "" : "not ");
 
     curr_offset++;
 
@@ -7185,10 +7243,10 @@ elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 static guint8
 elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    guint8	*poctets;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    guint8      *poctets;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7196,8 +7254,8 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Extension",
-	a_bigbuf);
+        "%s :  Extension",
+        a_bigbuf);
 
     switch ((oct & 0x70) >> 4)
     {
@@ -7208,16 +7266,16 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     case 4: str = "Dedicated PAD access, short code"; break;
     case 7: str = "Reserved for extension"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Type of Number: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Type of Number: %s",
+        a_bigbuf,
+        str);
 
     switch (oct & 0x0f)
     {
@@ -7229,26 +7287,26 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     case 0x08: str = "National numbering plan"; break;
     case 0x09: str = "Private numbering plan"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Numbering Plan Identification: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Numbering Plan Identification: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
     poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
-	tvb, curr_offset, len - (curr_offset - offset),
-	(gchar *) poctets,
-	"Digits: %s",
-	(gchar *) format_text(poctets, len - (curr_offset - offset)));
+        tvb, curr_offset, len - (curr_offset - offset),
+        (gchar *) poctets,
+        "Digits: %s",
+        (gchar *) format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -7265,10 +7323,10 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static guint8
 elem_band_class(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    gint	temp_int;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    gint        temp_int;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7276,26 +7334,26 @@ elem_band_class(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     temp_int = oct & 0x1f;
     if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
     {
-	str = "Reserved";
+        str = "Reserved";
     }
     else
     {
-	str = band_class_str[temp_int];
+        str = band_class_str[temp_int];
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Band Class: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Band Class: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -7327,7 +7385,7 @@ elem_band_class(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_is2000_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     add_string = add_string;
     curr_offset = offset;
@@ -7362,33 +7420,33 @@ elem_is2000_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 static guint8
 elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
     if (len == 1)
     {
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch (oct)
-	{
-	case 0x01: str = "Event: Authentication parameters were NOT received from mobile"; break;
-	case 0x02: str = "Event: RANDC mis-match"; break;
-	case 0x03: str = "Event: Recently requested"; break;
-	case 0x04: str = "Event: Direct channel assignment"; break;
-	default:
-	    str = "Event";
-	    break;
-	}
+        switch (oct)
+        {
+        case 0x01: str = "Event: Authentication parameters were NOT received from mobile"; break;
+        case 0x02: str = "Event: RANDC mis-match"; break;
+        case 0x03: str = "Event: Recently requested"; break;
+        case 0x04: str = "Event: Direct channel assignment"; break;
+        default:
+            str = "Event";
+            break;
+        }
 
-	proto_tree_add_text(tree, tvb, curr_offset, len,
-	    "%s", str);
+        proto_tree_add_text(tree, tvb, curr_offset, len,
+            "%s", str);
     }
     else
     {
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Event");
+        proto_tree_add_text(tree, tvb, curr_offset, len, "Event");
     }
 
     curr_offset += len;
@@ -7519,8 +7577,8 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7528,16 +7586,16 @@ elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  PSMM Count: %u",
-	a_bigbuf,
-	oct & 0x0f);
+        tvb, curr_offset, 1,
+        "%s :  PSMM Count: %u",
+        a_bigbuf,
+        oct & 0x0f);
 
     curr_offset++;
 
@@ -7552,7 +7610,7 @@ elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7611,9 +7669,9 @@ elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     value;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7621,21 +7679,21 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  All Circuits",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  All Circuits",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Inclusive",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Inclusive",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -7644,12 +7702,12 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Count: %u circuit%s",
-	oct, plurality(oct, "", "s"));
+        tvb, curr_offset, 1,
+        "Count: %u circuit%s",
+        oct, plurality(oct, "", "s"));
 
     g_snprintf(add_string, string_len, " - %u circuit%s",
-	oct, plurality(oct, "", "s"));
+        oct, plurality(oct, "", "s"));
 
     curr_offset++;
 
@@ -7657,25 +7715,25 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     other_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  PCM Multiplexer: %u",
-	a_bigbuf,
-	(value & 0xffe0) >> 5);
+        tvb, curr_offset, 2,
+        "%s :  PCM Multiplexer: %u",
+        a_bigbuf,
+        (value & 0xffe0) >> 5);
 
     other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"%s :  Timeslot: %u",
-	a_bigbuf,
-	value & 0x001f);
+        tvb, curr_offset, 2,
+        "%s :  Timeslot: %u",
+        a_bigbuf,
+        value & 0x001f);
 
     curr_offset += 2;
 
     NO_MORE_DATA_CHECK(len);
 
     proto_tree_add_text(tree,
-	tvb, curr_offset, len - (curr_offset - offset),
-	"Circuit Bitmap");
+        tvb, curr_offset, len - (curr_offset - offset),
+        "Circuit Bitmap");
 
     curr_offset += len - (curr_offset - offset);
 
@@ -7690,7 +7748,7 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 elem_paca_ts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7709,9 +7767,9 @@ elem_paca_ts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 static guint8
 elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7719,9 +7777,9 @@ elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     switch (oct & 0x07)
     {
@@ -7732,16 +7790,16 @@ elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     case 4: str = "MS Requested PACA Cancel"; break;
     case 5: str = "BS Requested PACA Cancel"; break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  PACA Action Required: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  PACA Action Required: %s",
+        a_bigbuf,
+        str);
 
     curr_offset++;
 
@@ -7758,8 +7816,8 @@ elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 static guint8
 elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7767,15 +7825,15 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  PACA Reorigination Indicator (PRI)",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  PACA Reorigination Indicator (PRI)",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -7792,8 +7850,8 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8      oct;
+    guint32     curr_offset;
 
     curr_offset = offset;
 
@@ -7801,59 +7859,73 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x38, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Max Frames: %u",
-	a_bigbuf,
-	(oct & 0x38) >> 3);
+        tvb, curr_offset, 1,
+        "%s :  Max Frames: %u",
+        a_bigbuf,
+        (oct & 0x38) >> 3);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x06, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Session IP Address Type: Internet Protocol IPv%s",
-	a_bigbuf,
-	((oct & 0x06) >> 1) ? "6" : "4");
+        tvb, curr_offset, 1,
+        "%s :  Session IP Address Type: Internet Protocol IPv%s",
+        a_bigbuf,
+        ((oct & 0x06) >> 1) ? "6" : "4");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Session Address Flag",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Session Address Flag",
+        a_bigbuf);
 
     curr_offset++;
 
     if (oct & 0x01)
     {
-	/* session address included */
+        /* session address included */
 
-	if ((oct & 0x06) >> 1)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
+        if ((oct & 0x06) >> 1)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
 
-	    proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv6_addr,
-		tvb, curr_offset, 16, FALSE);
+            proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv6_addr,
+                tvb, curr_offset, 16, FALSE);
 
-	    curr_offset += 16;
-	}
-	else
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
+            rtp_src_addr.type = AT_IPv6;
+            rtp_src_addr.len = 16;
+            rtp_src_addr.data = (guint8 *) &rtp_ipv6_addr;
 
-	    proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv4_addr,
-		tvb, curr_offset, 4, FALSE);
+            tvb_get_ipv6(tvb, curr_offset, &rtp_ipv6_addr);
 
-	    curr_offset += 4;
-	}
+            curr_offset += 16;
+        }
+        else
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
 
-	proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_udp_port,
-	    tvb, curr_offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv4_addr,
+                tvb, curr_offset, 4, FALSE);
 
-	curr_offset += 2;
+            rtp_src_addr.type = AT_IPv4;
+            rtp_src_addr.len = 4;
+            rtp_src_addr.data = (guint8 *) &rtp_ipv4_addr;
+
+            rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
+
+            curr_offset += 4;
+        }
+
+        proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_udp_port,
+            tvb, curr_offset, 2, FALSE);
+
+        rtp_port = tvb_get_ntohs(tvb, curr_offset);
+
+        curr_offset += 2;
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -7867,15 +7939,25 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 static guint8
 elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    proto_item	*item;
-    proto_tree	*subtree;
-    guint8	num_bearers;
-    guint32	curr_offset, orig_offset;
-    guint8	ip_addr_type;
-    gboolean	ext;
-    guint8	ext_len;
-    const gchar	*str;
+    guint8      oct;
+    proto_item  *item;
+    proto_tree  *subtree;
+    guint8      num_bearers;
+    guint32     curr_offset, orig_offset;
+    guint8      ip_addr_type;
+    gboolean    ext;
+    guint8      ext_len;
+    const gchar *str;
+    const gchar                         *mime_type;
+    gboolean                            format_assigned;
+    gboolean                            first_assigned_found;
+    guint8                              rtp_payload_type;
+    GHashTable                          *rtp_dyn_payload;
+    gint                                *key;
+
+    rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+
+    first_assigned_found = FALSE;
 
     curr_offset = offset;
 
@@ -7883,17 +7965,17 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Number of Bearer Formats: %u",
-	a_bigbuf,
-	(oct & 0xfc) >> 2);
+        tvb, curr_offset, 1,
+        "%s :  Number of Bearer Formats: %u",
+        a_bigbuf,
+        (oct & 0xfc) >> 2);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Session IP Address Type: Internet Protocol IPv%s",
-	a_bigbuf,
-	(oct & 0x03) ? "6" : "4");
+        tvb, curr_offset, 1,
+        "%s :  Session IP Address Type: Internet Protocol IPv%s",
+        a_bigbuf,
+        (oct & 0x03) ? "6" : "4");
 
     ip_addr_type = (oct & 0x03);
 
@@ -7903,162 +7985,216 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     while ((len - (curr_offset - offset)) > 0)
     {
-	orig_offset = curr_offset;
+        orig_offset = curr_offset;
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"Bearer Format %u",
-		num_bearers + 1);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "Bearer Format [%u]",
+                num_bearers + 1);
 
-	subtree = proto_item_add_subtree(item, ett_bearer_list);
+        subtree = proto_item_add_subtree(item, ett_bearer_list);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "Bearer Format Length: %u",
-	    oct);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "Bearer Format Length: %u",
+            oct);
 
-	curr_offset++;
+        curr_offset++;
 
-	NO_MORE_DATA_CHECK(len);
+        NO_MORE_DATA_CHECK(len);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Extension",
-	    a_bigbuf);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Extension",
+            a_bigbuf);
 
-	ext = (oct & 0x80) ? TRUE : FALSE;
+        ext = (oct & 0x80) ? TRUE : FALSE;
 
-	switch ((oct & 0x70) >> 4)
-	{
-	case 0: str = "Unknown"; break;
-	case 1: str = "In-band signaling"; break;
-	case 2: str = "Assigned"; break;
-	case 3: str = "Unassigned"; break;
-	case 4: str = "Transcoded"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        format_assigned = FALSE;
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Bearer Format Tag Type: %s",
-	    a_bigbuf,
-	    str);
+        switch ((oct & 0x70) >> 4)
+        {
+        case 0: str = "Unknown"; break;
+        case 1: str = "In-band signaling"; break;
+        case 2:
+            str = "Assigned";
+            format_assigned = TRUE;
+            break;
+        case 3: str = "Unassigned"; break;
+        case 4: str = "Transcoded"; break;
+        default:
+            str = "Reserved";
+            break;
+        }
 
-	switch (oct & 0x0f)
-	{
-	case 0: str = "PCMU"; break;
-	case 1: str = "PCMA"; break;
-	case 2: str = "13K Vocoder"; break;
-	case 3: str = "EVRC"; break;
-	case 4: str = "EVRC0"; break;
-	case 5: str = "SMV"; break;
-	case 6: str = "SMV0"; break;
-	case 7: str = "telephone-event"; break;
-	case 8: str = "EVRCB"; break;
-	case 9: str = "EVRCB0"; break;
-	case 10: str = "EVRCWB"; break;
-	case 11: str = "EVRCWB0"; break;
-	default:
-	    str = "Reserved";
-	    break;
-	}
+        other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Bearer Format Tag Type: %s",
+            a_bigbuf,
+            str);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Bearer Format ID: %s",
-	    a_bigbuf,
-	    str);
+        switch (oct & 0x0f)
+        {
+        case 0: mime_type = str = "PCMU"; break;
+        case 1: mime_type = str = "PCMA"; break;
+        case 2:
+            str = "13K Vocoder";
+            mime_type = "QCELP";
+            break;
+        case 3: mime_type = str = "EVRC"; break;
+        case 4: mime_type = str = "EVRC0"; break;
+        case 5: mime_type = str = "SMV"; break;
+        case 6: mime_type = str = "SMV0"; break;
+        case 7: mime_type = str = "telephone-event"; break;
+        case 8: mime_type = str = "EVRCB"; break;
+        case 9: mime_type = str = "EVRCB0"; break;
+        case 10: mime_type = str = "EVRCWB"; break;
+        case 11: mime_type = str = "EVRCWB0"; break;
+        default:
+            mime_type = str = "Reserved";
+            break;
+        }
 
-	curr_offset++;
+        other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Bearer Format ID: %s",
+            a_bigbuf,
+            str);
 
-	NO_MORE_DATA_CHECK(len);
+        proto_item_append_text(item, " - (%s)", str);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+        curr_offset++;
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  RTP Payload Type: %u",
-	    a_bigbuf,
-	    (oct & 0xfe) >> 1);
+        NO_MORE_DATA_CHECK(len);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	    "%s :  Bearer Address Flag",
-	    a_bigbuf);
+        oct = tvb_get_guint8(tvb, curr_offset);
 
-	curr_offset++;
+        rtp_payload_type = (oct & 0xfe) >> 1;
 
-	if (oct & 0x01)
-	{
-	    /* bearer address included */
+        other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  RTP Payload Type: %u",
+            a_bigbuf,
+            rtp_payload_type);
 
-	    if (ip_addr_type != 0)
-	    {
-		SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
+        other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+        proto_tree_add_text(subtree, tvb, curr_offset, 1,
+            "%s :  Bearer Address Flag",
+            a_bigbuf);
 
-		proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv6_addr,
-		    tvb, curr_offset, 16, FALSE);
+        curr_offset++;
 
-		curr_offset += 16;
-	    }
-	    else
-	    {
-		SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
+        if (oct & 0x01)
+        {
+            /* bearer address included */
 
-		proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv4_addr,
-		    tvb, curr_offset, 4, FALSE);
+            if (ip_addr_type != 0)
+            {
+                SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
 
-		curr_offset += 4;
-	    }
+                proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv6_addr,
+                    tvb, curr_offset, 16, FALSE);
 
-	    proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_udp_port,
-		tvb, curr_offset, 2, FALSE);
+                if (format_assigned)
+                {
+                    rtp_src_addr.type = AT_IPv6;
+                    rtp_src_addr.len = 16;
+                    rtp_src_addr.data = (guint8 *) &rtp_ipv6_addr;
 
-	    curr_offset += 2;
-	}
+                    tvb_get_ipv6(tvb, curr_offset, &rtp_ipv6_addr);
+                }
 
-	if (ext)
-	{
-	    SHORT_DATA_CHECK(len - (curr_offset - offset), 1);
+                curr_offset += 16;
+            }
+            else
+            {
+                SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
 
-	    oct = tvb_get_guint8(tvb, curr_offset);
+                proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv4_addr,
+                    tvb, curr_offset, 4, FALSE);
 
-	    ext_len = (oct & 0xf0) >> 4;
+                if (format_assigned)
+                {
+                    rtp_src_addr.type = AT_IPv4;
+                    rtp_src_addr.len = 4;
+                    rtp_src_addr.data = (guint8 *) &rtp_ipv4_addr;
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-	    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		"%s :  Extension Length: %u",
-		a_bigbuf,
-		ext_len);
+                    rtp_ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
+                }
 
-	    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		"%s :  Extension ID: %u",
-		a_bigbuf,
-		(oct & 0x0f));
+                curr_offset += 4;
+            }
 
-	    curr_offset++;
+            proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_udp_port,
+                tvb, curr_offset, 2, FALSE);
 
-	    if (ext_len > 0)
-	    {
-		SHORT_DATA_CHECK(len - (curr_offset - offset), ext_len);
+            if (format_assigned)
+            {
+                rtp_port = tvb_get_ntohs(tvb, curr_offset);
+            }
 
-		proto_tree_add_text(subtree, tvb, curr_offset, ext_len,
-		    "Extension Parameter value");
+            curr_offset += 2;
+        }
 
-		curr_offset += ext_len;
-	    }
-	}
+        if (ext)
+        {
+            SHORT_DATA_CHECK(len - (curr_offset - offset), 1);
 
-	proto_item_set_len(item, curr_offset - orig_offset);
+            oct = tvb_get_guint8(tvb, curr_offset);
 
-	num_bearers++;
+            ext_len = (oct & 0xf0) >> 4;
+
+            other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+            proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                "%s :  Extension Length: %u",
+                a_bigbuf,
+                ext_len);
+
+            other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+            proto_tree_add_text(subtree, tvb, curr_offset, 1,
+                "%s :  Extension ID: %u",
+                a_bigbuf,
+                (oct & 0x0f));
+
+            curr_offset++;
+
+            if (ext_len > 0)
+            {
+                SHORT_DATA_CHECK(len - (curr_offset - offset), ext_len);
+
+                proto_tree_add_text(subtree, tvb, curr_offset, ext_len,
+                    "Extension Parameter value");
+
+                curr_offset += ext_len;
+            }
+        }
+
+        proto_item_set_len(item, curr_offset - orig_offset);
+
+        if (rtp_handle &&
+            format_assigned &&
+            (first_assigned_found == FALSE))
+        {
+            key = g_malloc(sizeof(gint));
+            *key = rtp_payload_type;
+            g_hash_table_insert(rtp_dyn_payload, key, g_strdup(mime_type));
+
+            first_assigned_found = TRUE;
+
+            rtp_add_address(g_pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
+                g_pinfo->fd->num, rtp_dyn_payload);
+        }
+
+        num_bearers++;
+    }
+
+    if (first_assigned_found == FALSE)
+    {
+        rtp_free_hash_dyn_payload(rtp_dyn_payload);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -8072,11 +8208,11 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static guint8
 elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
-    guint32	value;
-    gint	temp_int;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     value;
+    gint        temp_int;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -8085,34 +8221,34 @@ elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     temp_int = (oct & 0xf8) >> 3;
     if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
     {
-	str = "Reserved";
+        str = "Reserved";
     }
     else
     {
-	str = band_class_str[temp_int];
+        str = band_class_str[temp_int];
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Band Class: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Band Class: %s",
+        a_bigbuf,
+        str);
 
     value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  CDMA Channel (MSB): %u",
-	a_bigbuf,
-	value);
+        "%s :  CDMA Channel (MSB): %u",
+        a_bigbuf,
+        value);
 
     curr_offset++;
 
     other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  CDMA Channel (LSB)",
-	a_bigbuf);
+        "%s :  CDMA Channel (LSB)",
+        a_bigbuf);
 
     g_snprintf(add_string, string_len, " - (CDMA Channel: %u)", value);
 
@@ -8129,9 +8265,9 @@ elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 static guint8
 elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    const gchar	*str;
+    guint8      oct;
+    guint32     curr_offset;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -8146,29 +8282,29 @@ elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     case 0x01: str = "PLCM specified by the base station"; break;
     case 0x02: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_M"; break;
     case 0x03: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_T"; break;
-	break;
+        break;
     default:
-	str = "Reserved";
-	break;
+        str = "Reserved";
+        break;
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  PLCM_TYPE: %s",
-	a_bigbuf,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  PLCM_TYPE: %s",
+        a_bigbuf,
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
     proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  PLCM_42 (MSB)",
-	a_bigbuf);
+        "%s :  PLCM_42 (MSB)",
+        a_bigbuf);
 
     curr_offset++;
 
@@ -8200,194 +8336,194 @@ elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  */
 typedef enum
 {
-    ANSI_A_E_ACC_NET_ID,	/* Access Network Identifiers */
-    ANSI_A_E_ADDS_USER_PART,	/* ADDS User Part */
-    ANSI_A_E_AMPS_HHO_PARAM,	/* AMPS Hard Handoff Parameters */
-    ANSI_A_E_ANCH_PDSN_ADDR,	/* Anchor PDSN Address */
-    ANSI_A_E_ANCH_PP_ADDR,	/* Anchor P-P Address */
-    ANSI_A_E_AUTH_CHLG_PARAM,	/* Authentication Challenge Parameter */
-    ANSI_A_E_AUTH_CNF_PARAM,	/* Authentication Confirmation Parameter (RANDC) */
-    ANSI_A_E_AUTH_DATA,	/* Authentication Data */
-    ANSI_A_E_AUTH_EVENT,	/* Authentication Event */
-    ANSI_A_E_AUTH_PARAM_COUNT,	/* Authentication Parameter COUNT */
-    ANSI_A_E_AUTH_RESP_PARAM,	/* Authentication Response Parameter */
-    ANSI_A_E_BAND_CLASS,	/* Band Class */
-    ANSI_A_E_CLD_PARTY_ASCII_NUM,	/* Called Party ASCII Number */
-    ANSI_A_E_CLD_PARTY_BCD_NUM,	/* Called Party BCD Number */
-    ANSI_A_E_CLG_PARTY_ASCII_NUM,	/* Calling Party ASCII Number */
-    ANSI_A_E_CAUSE,	/* Cause */
-    ANSI_A_E_CAUSE_L3,	/* Cause Layer 3 */
-    ANSI_A_E_CDMA_SOWD,	/* CDMA Serving One Way Delay */
-    ANSI_A_E_CELL_ID,	/* Cell Identifier */
-    ANSI_A_E_CELL_ID_LIST,	/* Cell Identifier List */
-    ANSI_A_E_CHAN_NUM,	/* Channel Number */
-    ANSI_A_E_CHAN_TYPE,	/* Channel Type */
-    ANSI_A_E_CCT_GROUP,	/* Circuit Group */
-    ANSI_A_E_CIC,	/* Circuit Identity Code */
-    ANSI_A_E_CIC_EXT,	/* Circuit Identity Code Extension */
-    ANSI_A_E_CM_INFO_TYPE_2,	/* Classmark Information Type 2 */
-    ANSI_A_E_DOWNLINK_RE,	/* Downlink Radio Environment */
-    ANSI_A_E_DOWNLINK_RE_LIST,	/* Downlink Radio Environment List */
-    ANSI_A_E_ENC_INFO,	/* Encryption Information */
-    ANSI_A_E_EXT_HO_DIR_PARAMS,	/* Extended Handoff Direction Parameters */
-    ANSI_A_E_GEO_LOC,	/* Geographic Location */
-    ANSI_A_E_SSCI,	/* Special Service Call Indicator */
-    ANSI_A_E_HO_POW_LEV,	/* Handoff Power Level */
-    ANSI_A_E_HHO_PARAMS,	/* Hard Handoff Parameters */
-    ANSI_A_E_IE_REQD,	/* Information Element Requested */
-    ANSI_A_E_IS2000_CHAN_ID,	/* IS-2000 Channel Identity */
-    ANSI_A_E_IS2000_CHAN_ID_3X,	/* IS-2000 Channel Identity 3X */
-    ANSI_A_E_IS2000_MOB_CAP,	/* IS-2000 Mobile Capabilities */
-    ANSI_A_E_IS2000_NN_SCR,	/* IS-2000 Non-Negotiable Service Configuration Record */
-    ANSI_A_E_IS2000_SCR,	/* IS-2000 Service Configuration Record */
-    ANSI_A_E_IS2000_CAUSE,	/* IS-95/IS-2000 Cause Value */
-    ANSI_A_E_IS2000_RED_RECORD,	/* IS-2000 Redirection Record */
-    ANSI_A_E_IS95_CHAN_ID,	/* IS-95 Channel Identity */
-    ANSI_A_E_IS95_MS_MEAS_CHAN_ID,	/* IS-95 MS Measured Channel Identity */
-    ANSI_A_E_L3_INFO,	/* Layer 3 Information */
-    ANSI_A_E_LAI,	/* Location Area Information */
-    ANSI_A_E_MWI,	/* Message Waiting Indication */
-    ANSI_A_E_MID,	/* Mobile Identity */
-    ANSI_A_E_FWD_MS_INFO_RECS,	/* (Forward) MS Information Records */
-    ANSI_A_E_ORIG_CI,	/* Origination Continuation Indicator */
-    ANSI_A_E_PACA_ORDER,	/* PACA Order */
-    ANSI_A_E_PACA_REOI,	/* PACA Reorigination Indicator */
-    ANSI_A_E_PACA_TS,	/* PACA Timestamp */
-    ANSI_A_E_PSP,	/* Packet Session Parameters */
-    ANSI_A_E_PDSN_IP_ADDR,	/* PDSN IP Address */
-    ANSI_A_E_PDI,	/* Power Down Indicator */
-    ANSI_A_E_PRIO,	/* Priority */
-    ANSI_A_E_P_REV,	/* Protocol Revision */
-    ANSI_A_E_PTYPE,	/* Protocol Type */
-    ANSI_A_E_PSMM_COUNT,	/* PSMM Count */
-    ANSI_A_E_QOS_PARAMS,	/* Quality of Service Parameters */
-    ANSI_A_E_RE_RES,	/* Radio Environment and Resources */
-    ANSI_A_E_REG_TYPE,	/* Registration Type */
-    ANSI_A_E_REJ_CAUSE,	/* Reject Cause */
-    ANSI_A_E_RESP_REQ,	/* Response Request */
-    ANSI_A_E_RETURN_CAUSE,	/* Return Cause */
-    ANSI_A_E_RF_CHAN_ID,	/* RF Channel Identity */
-    ANSI_A_E_SO,	/* Service Option */
-    ANSI_A_E_SOCI,	/* Service Option Connection Identifier (SOCI) */
-    ANSI_A_E_SO_LIST,	/* Service Option List */
-    ANSI_A_E_S_RED_INFO,	/* Service Redirection Info */
-    ANSI_A_E_SR_ID,	/* Service Reference Identifier (SR_ID) */
-    ANSI_A_E_SID,	/* SID */
-    ANSI_A_E_SIGNAL,	/* Signal */
-    ANSI_A_E_SCI,	/* Slot Cycle Index */
-    ANSI_A_E_SW_VER,	/* Software Version */
-    ANSI_A_E_SRNC_TRNC_TC,	/* Source RNC to Target RNC Transparent Container */
-    ANSI_A_E_S_PDSN_ADDR,	/* Source PDSN Address */
-    ANSI_A_E_TAG,	/* Tag */
-    ANSI_A_E_TRNC_SRNC_TC,	/* Target RNC to Source RNC Transparent Container */
-    ANSI_A_E_XMODE,	/* Transcoder Mode */
-    ANSI_A_E_UZ_ID,	/* User Zone ID */
-    ANSI_A_E_VP_REQ,	/* Voice Privacy Request */
-    ANSI_A_E_A2P_BEARER_SESSION,	/* A2p Bearer Session-Level Parameters */
-    ANSI_A_E_A2P_BEARER_FORMAT,	/* A2p Bearer Format-Specific Parameters */
-    ANSI_A_E_MS_DES_FREQ,	/* MS Designated Frequency */
-    ANSI_A_E_MOB_SUB_INFO,	/* Mobile Subscription Information */
-    ANSI_A_E_PLCM_ID,	/* Public Long Code Mask Identifier */
-    ANSI_A_E_REV_MS_INFO_RECS,	/* (Reverse) MS Information Records */
-    ANSI_A_E_NONE	/* NONE */
+    ANSI_A_E_ACC_NET_ID,        /* Access Network Identifiers */
+    ANSI_A_E_ADDS_USER_PART,    /* ADDS User Part */
+    ANSI_A_E_AMPS_HHO_PARAM,    /* AMPS Hard Handoff Parameters */
+    ANSI_A_E_ANCH_PDSN_ADDR,    /* Anchor PDSN Address */
+    ANSI_A_E_ANCH_PP_ADDR,      /* Anchor P-P Address */
+    ANSI_A_E_AUTH_CHLG_PARAM,   /* Authentication Challenge Parameter */
+    ANSI_A_E_AUTH_CNF_PARAM,    /* Authentication Confirmation Parameter (RANDC) */
+    ANSI_A_E_AUTH_DATA, /* Authentication Data */
+    ANSI_A_E_AUTH_EVENT,        /* Authentication Event */
+    ANSI_A_E_AUTH_PARAM_COUNT,  /* Authentication Parameter COUNT */
+    ANSI_A_E_AUTH_RESP_PARAM,   /* Authentication Response Parameter */
+    ANSI_A_E_BAND_CLASS,        /* Band Class */
+    ANSI_A_E_CLD_PARTY_ASCII_NUM,       /* Called Party ASCII Number */
+    ANSI_A_E_CLD_PARTY_BCD_NUM, /* Called Party BCD Number */
+    ANSI_A_E_CLG_PARTY_ASCII_NUM,       /* Calling Party ASCII Number */
+    ANSI_A_E_CAUSE,     /* Cause */
+    ANSI_A_E_CAUSE_L3,  /* Cause Layer 3 */
+    ANSI_A_E_CDMA_SOWD, /* CDMA Serving One Way Delay */
+    ANSI_A_E_CELL_ID,   /* Cell Identifier */
+    ANSI_A_E_CELL_ID_LIST,      /* Cell Identifier List */
+    ANSI_A_E_CHAN_NUM,  /* Channel Number */
+    ANSI_A_E_CHAN_TYPE, /* Channel Type */
+    ANSI_A_E_CCT_GROUP, /* Circuit Group */
+    ANSI_A_E_CIC,       /* Circuit Identity Code */
+    ANSI_A_E_CIC_EXT,   /* Circuit Identity Code Extension */
+    ANSI_A_E_CM_INFO_TYPE_2,    /* Classmark Information Type 2 */
+    ANSI_A_E_DOWNLINK_RE,       /* Downlink Radio Environment */
+    ANSI_A_E_DOWNLINK_RE_LIST,  /* Downlink Radio Environment List */
+    ANSI_A_E_ENC_INFO,  /* Encryption Information */
+    ANSI_A_E_EXT_HO_DIR_PARAMS, /* Extended Handoff Direction Parameters */
+    ANSI_A_E_GEO_LOC,   /* Geographic Location */
+    ANSI_A_E_SSCI,      /* Special Service Call Indicator */
+    ANSI_A_E_HO_POW_LEV,        /* Handoff Power Level */
+    ANSI_A_E_HHO_PARAMS,        /* Hard Handoff Parameters */
+    ANSI_A_E_IE_REQD,   /* Information Element Requested */
+    ANSI_A_E_IS2000_CHAN_ID,    /* IS-2000 Channel Identity */
+    ANSI_A_E_IS2000_CHAN_ID_3X, /* IS-2000 Channel Identity 3X */
+    ANSI_A_E_IS2000_MOB_CAP,    /* IS-2000 Mobile Capabilities */
+    ANSI_A_E_IS2000_NN_SCR,     /* IS-2000 Non-Negotiable Service Configuration Record */
+    ANSI_A_E_IS2000_SCR,        /* IS-2000 Service Configuration Record */
+    ANSI_A_E_IS2000_CAUSE,      /* IS-95/IS-2000 Cause Value */
+    ANSI_A_E_IS2000_RED_RECORD, /* IS-2000 Redirection Record */
+    ANSI_A_E_IS95_CHAN_ID,      /* IS-95 Channel Identity */
+    ANSI_A_E_IS95_MS_MEAS_CHAN_ID,      /* IS-95 MS Measured Channel Identity */
+    ANSI_A_E_L3_INFO,   /* Layer 3 Information */
+    ANSI_A_E_LAI,       /* Location Area Information */
+    ANSI_A_E_MWI,       /* Message Waiting Indication */
+    ANSI_A_E_MID,       /* Mobile Identity */
+    ANSI_A_E_FWD_MS_INFO_RECS,  /* (Forward) MS Information Records */
+    ANSI_A_E_ORIG_CI,   /* Origination Continuation Indicator */
+    ANSI_A_E_PACA_ORDER,        /* PACA Order */
+    ANSI_A_E_PACA_REOI, /* PACA Reorigination Indicator */
+    ANSI_A_E_PACA_TS,   /* PACA Timestamp */
+    ANSI_A_E_PSP,       /* Packet Session Parameters */
+    ANSI_A_E_PDSN_IP_ADDR,      /* PDSN IP Address */
+    ANSI_A_E_PDI,       /* Power Down Indicator */
+    ANSI_A_E_PRIO,      /* Priority */
+    ANSI_A_E_P_REV,     /* Protocol Revision */
+    ANSI_A_E_PTYPE,     /* Protocol Type */
+    ANSI_A_E_PSMM_COUNT,        /* PSMM Count */
+    ANSI_A_E_QOS_PARAMS,        /* Quality of Service Parameters */
+    ANSI_A_E_RE_RES,    /* Radio Environment and Resources */
+    ANSI_A_E_REG_TYPE,  /* Registration Type */
+    ANSI_A_E_REJ_CAUSE, /* Reject Cause */
+    ANSI_A_E_RESP_REQ,  /* Response Request */
+    ANSI_A_E_RETURN_CAUSE,      /* Return Cause */
+    ANSI_A_E_RF_CHAN_ID,        /* RF Channel Identity */
+    ANSI_A_E_SO,        /* Service Option */
+    ANSI_A_E_SOCI,      /* Service Option Connection Identifier (SOCI) */
+    ANSI_A_E_SO_LIST,   /* Service Option List */
+    ANSI_A_E_S_RED_INFO,        /* Service Redirection Info */
+    ANSI_A_E_SR_ID,     /* Service Reference Identifier (SR_ID) */
+    ANSI_A_E_SID,       /* SID */
+    ANSI_A_E_SIGNAL,    /* Signal */
+    ANSI_A_E_SCI,       /* Slot Cycle Index */
+    ANSI_A_E_SW_VER,    /* Software Version */
+    ANSI_A_E_SRNC_TRNC_TC,      /* Source RNC to Target RNC Transparent Container */
+    ANSI_A_E_S_PDSN_ADDR,       /* Source PDSN Address */
+    ANSI_A_E_TAG,       /* Tag */
+    ANSI_A_E_TRNC_SRNC_TC,      /* Target RNC to Source RNC Transparent Container */
+    ANSI_A_E_XMODE,     /* Transcoder Mode */
+    ANSI_A_E_UZ_ID,     /* User Zone ID */
+    ANSI_A_E_VP_REQ,    /* Voice Privacy Request */
+    ANSI_A_E_A2P_BEARER_SESSION,        /* A2p Bearer Session-Level Parameters */
+    ANSI_A_E_A2P_BEARER_FORMAT, /* A2p Bearer Format-Specific Parameters */
+    ANSI_A_E_MS_DES_FREQ,       /* MS Designated Frequency */
+    ANSI_A_E_MOB_SUB_INFO,      /* Mobile Subscription Information */
+    ANSI_A_E_PLCM_ID,   /* Public Long Code Mask Identifier */
+    ANSI_A_E_REV_MS_INFO_RECS,  /* (Reverse) MS Information Records */
+    ANSI_A_E_NONE       /* NONE */
 }
 elem_idx_t;
 
-#define	MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
-#define	MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
+#define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
+#define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
 static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
 static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
 {
-    elem_acc_net_id,	/* Access Network Identifiers */
-    elem_adds_user_part,	/* ADDS User Part */
-    elem_amps_hho_param,	/* AMPS Hard Handoff Parameters */
-    elem_anchor_pdsn_addr,	/* Anchor PDSN Address */
-    elem_anchor_pp_addr,	/* Anchor P-P Address */
-    elem_auth_chlg_param,	/* Authentication Challenge Parameter */
-    NULL /* no decode required */,	/* Authentication Confirmation Parameter (RANDC) */
-    NULL /* no decode required */,	/* Authentication Data */
-    elem_auth_event,	/* Authentication Event */
-    elem_auth_param_count,	/* Authentication Parameter COUNT */
-    elem_auth_resp_param,	/* Authentication Response Parameter */
-    elem_band_class,	/* Band Class */
-    elem_cld_party_ascii_num,	/* Called Party ASCII Number */
-    elem_cld_party_bcd_num,	/* Called Party BCD Number */
-    elem_clg_party_ascii_num,	/* Calling Party ASCII Number */
-    elem_cause,	/* Cause */
-    elem_cause_l3,	/* Cause Layer 3 */
-    elem_cdma_sowd,	/* CDMA Serving One Way Delay */
-    elem_cell_id,	/* Cell Identifier */
-    elem_cell_id_list,	/* Cell Identifier List */
-    elem_chan_num,	/* Channel Number */
-    elem_chan_type,	/* Channel Type */
-    elem_cct_group,	/* Circuit Group */
-    elem_cic,	/* Circuit Identity Code */
-    elem_cic_ext,	/* Circuit Identity Code Extension */
-    elem_cm_info_type_2,	/* Classmark Information Type 2 */
-    elem_downlink_re,	/* Downlink Radio Environment */
-    elem_downlink_re_list,	/* Downlink Radio Environment List */
-    elem_enc_info,	/* Encryption Information */
-    elem_ext_ho_dir_params,	/* Extended Handoff Direction Parameters */
-    elem_geo_loc,	/* Geographic Location */
-    elem_ssci,	/* Special Service Call Indicator */
-    elem_ho_pow_lev,	/* Handoff Power Level */
-    elem_hho_params,	/* Hard Handoff Parameters */
-    elem_info_rec_req,	/* Information Element Requested */
-    elem_is2000_chan_id,	/* IS-2000 Channel Identity */
-    NULL,	/* IS-2000 Channel Identity 3X */
-    elem_is2000_mob_cap,	/* IS-2000 Mobile Capabilities */
-    elem_is2000_nn_scr,	/* IS-2000 Non-Negotiable Service Configuration Record */
-    elem_is2000_scr,	/* IS-2000 Service Configuration Record */
-    elem_is2000_cause,	/* IS-95/IS-2000 Cause Value */
-    NULL,	/* IS-2000 Redirection Record */
-    elem_is95_chan_id,	/* IS-95 Channel Identity */
-    elem_is95_ms_meas_chan_id,	/* IS-95 MS Measured Channel Identity */
-    elem_l3_info,	/* Layer 3 Information */
-    elem_lai,	/* Location Area Information */
-    elem_mwi,	/* Message Waiting Indication */
-    elem_mid,	/* Mobile Identity */
-    elem_fwd_ms_info_recs,	/* (Forward) MS Information Records */
-    NULL /* no associated data */,	/* Origination Continuation Indicator */
-    elem_paca_order,	/* PACA Order */
-    elem_paca_reoi,	/* PACA Reorigination Indicator */
-    elem_paca_ts,	/* PACA Timestamp */
-    NULL,	/* Packet Session Parameters */
-    elem_pdsn_ip_addr,	/* PDSN IP Address */
-    NULL /* no associated data */,	/* Power Down Indicator */
-    elem_prio,	/* Priority */
-    elem_p_rev,	/* Protocol Revision */
-    elem_ptype,	/* Protocol Type */
-    elem_psmm_count,	/* PSMM Count */
-    elem_qos_params,	/* Quality of Service Parameters */
-    elem_re_res,	/* Radio Environment and Resources */
-    elem_reg_type,	/* Registration Type */
-    elem_rej_cause,	/* Reject Cause */
-    NULL /* no associated data */,	/* Response Request */
-    elem_return_cause,	/* Return Cause */
-    elem_rf_chan_id,	/* RF Channel Identity */
-    elem_so,	/* Service Option */
-    elem_soci,	/* Service Option Connection Identifier (SOCI) */
-    elem_so_list,	/* Service Option List */
-    NULL,	/* Service Redirection Info */
-    elem_sr_id,	/* Service Reference Identifier (SR_ID) */
-    elem_sid,	/* SID */
-    elem_signal,	/* Signal */
-    elem_sci,	/* Slot Cycle Index */
-    elem_sw_ver,	/* Software Version */
-    NULL /* transparent */,	/* Source RNC to Target RNC Transparent Container */
-    elem_s_pdsn_ip_addr,	/* Source PDSN Address */
-    elem_tag,	/* Tag */
-    NULL /* transparent */,	/* Target RNC to Source RNC Transparent Container */
-    elem_xmode,	/* Transcoder Mode */
-    elem_uz_id,	/* User Zone ID */
-    NULL /* no associated data */,	/* Voice Privacy Request */
-    elem_a2p_bearer_session,	/* A2p Bearer Session-Level Parameters */
-    elem_a2p_bearer_format,	/* A2p Bearer Format-Specific Parameters */
-    elem_ms_des_freq,	/* MS Designated Frequency */
-    NULL,	/* Mobile Subscription Information */
-    elem_plcm_id,	/* Public Long Code Mask Identification */
-    elem_rev_ms_info_recs,	/* (Reverse) MS Information Records */
-    NULL,	/* NONE */
+    elem_acc_net_id,    /* Access Network Identifiers */
+    elem_adds_user_part,        /* ADDS User Part */
+    elem_amps_hho_param,        /* AMPS Hard Handoff Parameters */
+    elem_anchor_pdsn_addr,      /* Anchor PDSN Address */
+    elem_anchor_pp_addr,        /* Anchor P-P Address */
+    elem_auth_chlg_param,       /* Authentication Challenge Parameter */
+    NULL /* no decode required */,      /* Authentication Confirmation Parameter (RANDC) */
+    NULL /* no decode required */,      /* Authentication Data */
+    elem_auth_event,    /* Authentication Event */
+    elem_auth_param_count,      /* Authentication Parameter COUNT */
+    elem_auth_resp_param,       /* Authentication Response Parameter */
+    elem_band_class,    /* Band Class */
+    elem_cld_party_ascii_num,   /* Called Party ASCII Number */
+    elem_cld_party_bcd_num,     /* Called Party BCD Number */
+    elem_clg_party_ascii_num,   /* Calling Party ASCII Number */
+    elem_cause, /* Cause */
+    elem_cause_l3,      /* Cause Layer 3 */
+    elem_cdma_sowd,     /* CDMA Serving One Way Delay */
+    elem_cell_id,       /* Cell Identifier */
+    elem_cell_id_list,  /* Cell Identifier List */
+    elem_chan_num,      /* Channel Number */
+    elem_chan_type,     /* Channel Type */
+    elem_cct_group,     /* Circuit Group */
+    elem_cic,   /* Circuit Identity Code */
+    elem_cic_ext,       /* Circuit Identity Code Extension */
+    elem_cm_info_type_2,        /* Classmark Information Type 2 */
+    elem_downlink_re,   /* Downlink Radio Environment */
+    elem_downlink_re_list,      /* Downlink Radio Environment List */
+    elem_enc_info,      /* Encryption Information */
+    elem_ext_ho_dir_params,     /* Extended Handoff Direction Parameters */
+    elem_geo_loc,       /* Geographic Location */
+    elem_ssci,  /* Special Service Call Indicator */
+    elem_ho_pow_lev,    /* Handoff Power Level */
+    elem_hho_params,    /* Hard Handoff Parameters */
+    elem_info_rec_req,  /* Information Element Requested */
+    elem_is2000_chan_id,        /* IS-2000 Channel Identity */
+    NULL,       /* IS-2000 Channel Identity 3X */
+    elem_is2000_mob_cap,        /* IS-2000 Mobile Capabilities */
+    elem_is2000_nn_scr, /* IS-2000 Non-Negotiable Service Configuration Record */
+    elem_is2000_scr,    /* IS-2000 Service Configuration Record */
+    elem_is2000_cause,  /* IS-95/IS-2000 Cause Value */
+    NULL,       /* IS-2000 Redirection Record */
+    elem_is95_chan_id,  /* IS-95 Channel Identity */
+    elem_is95_ms_meas_chan_id,  /* IS-95 MS Measured Channel Identity */
+    elem_l3_info,       /* Layer 3 Information */
+    elem_lai,   /* Location Area Information */
+    elem_mwi,   /* Message Waiting Indication */
+    elem_mid,   /* Mobile Identity */
+    elem_fwd_ms_info_recs,      /* (Forward) MS Information Records */
+    NULL /* no associated data */,      /* Origination Continuation Indicator */
+    elem_paca_order,    /* PACA Order */
+    elem_paca_reoi,     /* PACA Reorigination Indicator */
+    elem_paca_ts,       /* PACA Timestamp */
+    NULL,       /* Packet Session Parameters */
+    elem_pdsn_ip_addr,  /* PDSN IP Address */
+    NULL /* no associated data */,      /* Power Down Indicator */
+    elem_prio,  /* Priority */
+    elem_p_rev, /* Protocol Revision */
+    elem_ptype, /* Protocol Type */
+    elem_psmm_count,    /* PSMM Count */
+    elem_qos_params,    /* Quality of Service Parameters */
+    elem_re_res,        /* Radio Environment and Resources */
+    elem_reg_type,      /* Registration Type */
+    elem_rej_cause,     /* Reject Cause */
+    NULL /* no associated data */,      /* Response Request */
+    elem_return_cause,  /* Return Cause */
+    elem_rf_chan_id,    /* RF Channel Identity */
+    elem_so,    /* Service Option */
+    elem_soci,  /* Service Option Connection Identifier (SOCI) */
+    elem_so_list,       /* Service Option List */
+    NULL,       /* Service Redirection Info */
+    elem_sr_id, /* Service Reference Identifier (SR_ID) */
+    elem_sid,   /* SID */
+    elem_signal,        /* Signal */
+    elem_sci,   /* Slot Cycle Index */
+    elem_sw_ver,        /* Software Version */
+    NULL /* transparent */,     /* Source RNC to Target RNC Transparent Container */
+    elem_s_pdsn_ip_addr,        /* Source PDSN Address */
+    elem_tag,   /* Tag */
+    NULL /* transparent */,     /* Target RNC to Source RNC Transparent Container */
+    elem_xmode, /* Transcoder Mode */
+    elem_uz_id, /* User Zone ID */
+    NULL /* no associated data */,      /* Voice Privacy Request */
+    elem_a2p_bearer_session,    /* A2p Bearer Session-Level Parameters */
+    elem_a2p_bearer_format,     /* A2p Bearer Format-Specific Parameters */
+    elem_ms_des_freq,   /* MS Designated Frequency */
+    NULL,       /* Mobile Subscription Information */
+    elem_plcm_id,       /* Public Long Code Mask Identification */
+    elem_rev_ms_info_recs,      /* (Reverse) MS Information Records */
+    NULL,       /* NONE */
 };
 
 /* MESSAGE FUNCTIONS */
@@ -8398,12 +8534,12 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 static guint8
 elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len, const gchar *name_add)
 {
-    guint8	oct, parm_len;
-    guint8	consumed;
-    guint32	curr_offset;
-    proto_tree	*subtree;
-    proto_item	*item;
-    gint	dec_idx;
+    guint8      oct, parm_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    gint        dec_idx;
 
     len = len;
     curr_offset = offset;
@@ -8419,54 +8555,54 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
     if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
-	dec_idx = ansi_a_elem_1_strings[idx].dec_index;
+        dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
-	parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+        parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, parm_len + 2,
-		"%s%s",
-		ansi_a_elem_1_strings[idx].strptr,
-		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, parm_len + 2,
+                "%s%s",
+                ansi_a_elem_1_strings[idx].strptr,
+                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
+        subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-	proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-	    curr_offset, 1, oct,
-	    "Element ID");
+        proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
+            curr_offset, 1, oct,
+            "Element ID");
 
-	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-	    curr_offset + 1, 1, parm_len);
+        proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+            curr_offset + 1, 1, parm_len);
 
-	if (parm_len > 0)
-	{
-	    if (elem_1_fcn[dec_idx] == NULL)
-	    {
-		proto_tree_add_text(subtree,
-		    tvb, curr_offset + 2, parm_len,
-		    "Element Value");
+        if (parm_len > 0)
+        {
+            if (elem_1_fcn[dec_idx] == NULL)
+            {
+                proto_tree_add_text(subtree,
+                    tvb, curr_offset + 2, parm_len,
+                    "Element Value");
 
-		consumed = parm_len;
-	    }
-	    else
-	    {
-		gchar *a_add_string;
+                consumed = parm_len;
+            }
+            else
+            {
+                gchar *a_add_string;
 
-		a_add_string=ep_alloc(1024);
-		a_add_string[0] = '\0';
-		consumed =
-		    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
-			parm_len, a_add_string, 1024);
+                a_add_string=ep_alloc(1024);
+                a_add_string[0] = '\0';
+                consumed =
+                    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
+                        parm_len, a_add_string, 1024);
 
-		if (a_add_string[0] != '\0')
-		{
-		    proto_item_append_text(item, "%s", a_add_string);
-		}
-	    }
-	}
+                if (a_add_string[0] != '\0')
+                {
+                    proto_item_append_text(item, "%s", a_add_string);
+                }
+            }
+        }
 
-	consumed += 2;
+        consumed += 2;
     }
 
     return(consumed);
@@ -8481,12 +8617,12 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 static guint8
 elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
 {
-    guint8	oct;
-    guint8	consumed;
-    guint32	curr_offset;
-    proto_tree	*subtree;
-    proto_item	*item;
-    gint	dec_idx;
+    guint8      oct;
+    guint8      consumed;
+    guint32     curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    gint        dec_idx;
 
 
     curr_offset = offset;
@@ -8502,48 +8638,48 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
 
     if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
-	dec_idx = ansi_a_elem_1_strings[idx].dec_index;
+        dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
-	item =
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, -1,
-		"%s%s",
-		ansi_a_elem_1_strings[idx].strptr,
-		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        item =
+            proto_tree_add_text(tree,
+                tvb, curr_offset, -1,
+                "%s%s",
+                ansi_a_elem_1_strings[idx].strptr,
+                (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
+        subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-	proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
-	    curr_offset, 1, oct,
-	    "Element ID");
+        proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
+            curr_offset, 1, oct,
+            "Element ID");
 
-	if (elem_1_fcn[dec_idx] == NULL)
-	{
-	    /* BAD THING, CANNOT DETERMINE LENGTH */
+        if (elem_1_fcn[dec_idx] == NULL)
+        {
+            /* BAD THING, CANNOT DETERMINE LENGTH */
 
-	    proto_tree_add_text(subtree,
-		tvb, curr_offset + 1, 1,
-		"No element dissector, rest of dissection may be incorrect");
+            proto_tree_add_text(subtree,
+                tvb, curr_offset + 1, 1,
+                "No element dissector, rest of dissection may be incorrect");
 
-	    consumed = 1;
-	}
-	else
-	{
-	    gchar *a_add_string;
+            consumed = 1;
+        }
+        else
+        {
+            gchar *a_add_string;
 
-	    a_add_string=ep_alloc(1024);
-	    a_add_string[0] = '\0';
-	    consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
+            a_add_string=ep_alloc(1024);
+            a_add_string[0] = '\0';
+            consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
-	    if (a_add_string[0] != '\0')
-	    {
-		proto_item_append_text(item, "%s", a_add_string);
-	    }
-	}
+            if (a_add_string[0] != '\0')
+            {
+                proto_item_append_text(item, "%s", a_add_string);
+            }
+        }
 
-	consumed++;
+        consumed++;
 
-	proto_item_set_len(item, consumed);
+        proto_item_set_len(item, consumed);
     }
 
     return(consumed);
@@ -8558,9 +8694,9 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
 static guint8
 elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
 {
-    guint8	oct;
-    guint32	curr_offset;
-    guint8	consumed;
+    guint8      oct;
+    guint32     curr_offset;
+    guint8      consumed;
 
 
     curr_offset = offset;
@@ -8576,12 +8712,12 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
 
     if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
-	proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
-	    "%s%s",
-	    ansi_a_elem_1_strings[idx].strptr,
-	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
+            "%s%s",
+            ansi_a_elem_1_strings[idx].strptr,
+            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-	consumed = 1;
+        consumed = 1;
     }
 
     return(consumed);
@@ -8593,12 +8729,12 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
 static guint8
 elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
-    guint8	parm_len;
-    guint8	consumed;
-    guint32	curr_offset;
-    proto_tree	*subtree;
-    proto_item	*item;
-    gint	dec_idx;
+    guint8      parm_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    proto_tree  *subtree;
+    proto_item  *item;
+    gint        dec_idx;
 
 
     curr_offset = offset;
@@ -8615,42 +8751,42 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
     item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, parm_len + 1,
-	    "%s%s",
-	    ansi_a_elem_1_strings[idx].strptr,
-	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, parm_len + 1,
+            "%s%s",
+            ansi_a_elem_1_strings[idx].strptr,
+            (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
     proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
-	curr_offset, 1, parm_len);
+        curr_offset, 1, parm_len);
 
     if (parm_len > 0)
     {
-	if (elem_1_fcn[dec_idx] == NULL)
-	{
-	    proto_tree_add_text(subtree,
-		tvb, curr_offset + 1, parm_len,
-		"Element Value");
+        if (elem_1_fcn[dec_idx] == NULL)
+        {
+            proto_tree_add_text(subtree,
+                tvb, curr_offset + 1, parm_len,
+                "Element Value");
 
-	    consumed = parm_len;
-	}
-	else
-	{
-	    gchar *a_add_string;
+            consumed = parm_len;
+        }
+        else
+        {
+            gchar *a_add_string;
 
-	    a_add_string=ep_alloc(1024);
-	    a_add_string[0] = '\0';
-	    consumed =
-		(*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
-		    parm_len, a_add_string, 1024);
+            a_add_string=ep_alloc(1024);
+            a_add_string[0] = '\0';
+            consumed =
+                (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
+                    parm_len, a_add_string, 1024);
 
-	    if (a_add_string[0] != '\0')
-	    {
-		proto_item_append_text(item, "%s", a_add_string);
-	    }
-	}
+            if (a_add_string[0] != '\0')
+            {
+                proto_item_append_text(item, "%s", a_add_string);
+            }
+        }
     }
 
     return(consumed + 1);
@@ -8665,9 +8801,9 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 static guint8
 elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    gint	dec_idx;
+    guint8      consumed;
+    guint32     curr_offset;
+    gint        dec_idx;
 
     curr_offset = offset;
     consumed = 0;
@@ -8682,21 +8818,21 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
     if (elem_1_fcn[dec_idx] == NULL)
     {
-	/* BAD THING, CANNOT DETERMINE LENGTH */
+        /* BAD THING, CANNOT DETERMINE LENGTH */
 
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "No element dissector, rest of dissection may be incorrect");
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "No element dissector, rest of dissection may be incorrect");
 
-	consumed = 1;
+        consumed = 1;
     }
     else
     {
-	gchar *a_add_string;
+        gchar *a_add_string;
 
-	a_add_string=ep_alloc(1024);
-	a_add_string[0] = '\0';
-	consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
+        a_add_string=ep_alloc(1024);
+        a_add_string[0] = '\0';
+        consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
     }
 
     return(consumed);
@@ -8707,18 +8843,18 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_tlv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     else \
     { \
-	proto_tree_add_text(tree, \
-	    tvb, curr_offset, 0, \
-	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_a_elem_1_strings[elem_idx].value, \
-		ansi_a_elem_1_strings[elem_idx].strptr, \
-		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
-	    ); \
+        proto_tree_add_text(tree, \
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+                ansi_a_elem_1_strings[elem_idx].value, \
+                ansi_a_elem_1_strings[elem_idx].strptr, \
+                (elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
+            ); \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8727,8 +8863,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_tlv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8737,18 +8873,18 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_tv(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     else \
     { \
-	proto_tree_add_text(tree, \
-	    tvb, curr_offset, 0, \
-	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_a_elem_1_strings[elem_idx].value, \
-		ansi_a_elem_1_strings[elem_idx].strptr, \
-		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
-	    ); \
+        proto_tree_add_text(tree, \
+            tvb, curr_offset, 0, \
+            "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+                ansi_a_elem_1_strings[elem_idx].value, \
+                ansi_a_elem_1_strings[elem_idx].strptr, \
+                (elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
+            ); \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8757,8 +8893,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_tv(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8767,8 +8903,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_t(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8777,12 +8913,12 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_lv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     else \
     { \
-	/* Mandatory, but nothing we can do */ \
+        /* Mandatory, but nothing we can do */ \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8791,12 +8927,12 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {\
     if ((consumed = elem_v(tvb, tree, elem_idx, curr_offset)) > 0) \
     { \
-	curr_offset += consumed; \
-	curr_len -= consumed; \
+        curr_offset += consumed; \
+        curr_len -= consumed; \
     } \
     else \
     { \
-	/* Mandatory, but nothing we can do */ \
+        /* Mandatory, but nothing we can do */ \
     } \
     if (curr_len <= 0) return; \
 }
@@ -8808,9 +8944,9 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 static void
 bsmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8828,13 +8964,13 @@ bsmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
-    guint8	oct;
-    proto_tree	*subtree;
-    proto_item	*item;
-    const gchar	*str;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
+    guint8      oct;
+    proto_tree  *subtree;
+    proto_item  *item;
+    const gchar *str;
 
     curr_offset = offset;
     curr_len = len;
@@ -8848,31 +8984,31 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     {
     case 0x01: str = "Mobile Originating Call"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "CM Service Type: %s",
-	    str);
+        proto_tree_add_text(tree,
+            tvb, curr_offset, 1,
+            "CM Service Type: %s",
+            str);
 
     subtree = proto_item_add_subtree(item, ett_cm_srvc_type);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
     proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  Element ID",
-	a_bigbuf);
+        tvb, curr_offset, 1,
+        "%s :  Element ID",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
     proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  Service Type: (%u) %s",
-	a_bigbuf,
-	oct & 0x0f,
-	str);
+        tvb, curr_offset, 1,
+        "%s :  Service Type: (%u) %s",
+        a_bigbuf,
+        oct & 0x0f,
+        str);
 
     curr_offset++;
     curr_len--;
@@ -8920,22 +9056,22 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
+        ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+        ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
-	ELEM_OPT_T(ANSI_A_E_ORIG_CI, "");
+        ELEM_OPT_T(ANSI_A_E_ORIG_CI, "");
 
-	ELEM_OPT_TV(ANSI_A_E_RETURN_CAUSE, "");
+        ELEM_OPT_TV(ANSI_A_E_RETURN_CAUSE, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -8947,9 +9083,9 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_cm_srvc_req_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8969,9 +9105,9 @@ dtap_cm_srvc_req_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -8991,16 +9127,16 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+        ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+        ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -9012,9 +9148,9 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9056,14 +9192,14 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+        ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -9075,9 +9211,9 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9097,9 +9233,9 @@ dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_srvc_redirection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9125,9 +9261,9 @@ dtap_srvc_redirection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 dtap_srvc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9147,9 +9283,9 @@ dtap_srvc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_srvc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9165,9 +9301,9 @@ dtap_srvc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 static void
 bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9195,18 +9331,18 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+        ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_SR_ID, "");
+        ELEM_OPT_TLV(ANSI_A_E_SR_ID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -9218,9 +9354,9 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9234,14 +9370,14 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+        ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -9253,9 +9389,9 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9273,9 +9409,9 @@ bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_clr_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9293,9 +9429,9 @@ bsmap_clr_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_clr_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9313,9 +9449,9 @@ bsmap_clr_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint8	consumed;
-    guint32	curr_offset;
-    guint	curr_len;
+    guint8      consumed;
+    guint32     curr_offset;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9333,9 +9469,9 @@ bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9353,9 +9489,9 @@ dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9383,9 +9519,9 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9409,9 +9545,9 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_add_srvc_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9431,9 +9567,9 @@ bsmap_add_srvc_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_add_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9465,9 +9601,9 @@ dtap_add_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9483,9 +9619,9 @@ dtap_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9515,9 +9651,9 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9535,9 +9671,9 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static void
 bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9575,9 +9711,9 @@ bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_feat_noti_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9595,9 +9731,9 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_paca_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9615,9 +9751,9 @@ bsmap_paca_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_paca_command_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9633,9 +9769,9 @@ bsmap_paca_command_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static void
 bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9671,9 +9807,9 @@ bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9693,9 +9829,9 @@ bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_rm_pos_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9711,9 +9847,9 @@ bsmap_rm_pos_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_rm_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9735,9 +9871,9 @@ bsmap_rm_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9766,9 +9902,9 @@ bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9786,9 +9922,9 @@ dtap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9813,9 +9949,9 @@ bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bearer_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9834,9 +9970,9 @@ bsmap_bearer_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bearer_upd_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9857,9 +9993,9 @@ bsmap_bearer_upd_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_bearer_upd_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9876,9 +10012,9 @@ bsmap_bearer_upd_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 dtap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9894,9 +10030,9 @@ dtap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9912,9 +10048,9 @@ bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static void
 dtap_user_zone_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9930,9 +10066,9 @@ dtap_user_zone_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 static void
 dtap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9948,9 +10084,9 @@ dtap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9980,9 +10116,9 @@ bsmap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static void
 dtap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9998,9 +10134,9 @@ dtap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10028,9 +10164,9 @@ bsmap_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ms_reg_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10046,9 +10182,9 @@ bsmap_ms_reg_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bs_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10064,9 +10200,9 @@ bsmap_bs_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_bs_auth_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10082,9 +10218,9 @@ bsmap_bs_auth_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 dtap_ssd_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10100,9 +10236,9 @@ dtap_ssd_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_bs_challenge(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10118,9 +10254,9 @@ dtap_bs_challenge(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_bs_challenge_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10136,9 +10272,9 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 static void
 dtap_ssd_update_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10154,9 +10290,9 @@ dtap_ssd_update_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10204,9 +10340,9 @@ dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10214,16 +10350,16 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	ELEM_OPT_TV(ANSI_A_E_LAI, "");
-	break;
+        ELEM_OPT_TV(ANSI_A_E_LAI, "");
+        break;
 
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+        ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+        ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -10235,9 +10371,9 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10247,10 +10383,10 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+        ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -10262,9 +10398,9 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_priv_mode_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10280,9 +10416,9 @@ bsmap_priv_mode_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 static void
 bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10300,9 +10436,9 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static void
 bsmap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10338,9 +10474,9 @@ bsmap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10357,9 +10493,9 @@ dtap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10383,9 +10519,9 @@ bsmap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10401,9 +10537,9 @@ dtap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10441,12 +10577,12 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+        break;
 
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+        break;
     }
 
     ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
@@ -10484,9 +10620,9 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10526,12 +10662,12 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS401:
-	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+        break;
 
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+        break;
     }
 
     ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
@@ -10539,34 +10675,34 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
+        ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
 
-	ELEM_OPT_TV(ANSI_A_E_SCI, "");
+        ELEM_OPT_TV(ANSI_A_E_SCI, "");
 
-	ELEM_OPT_TV(ANSI_A_E_ACC_NET_ID, "");
+        ELEM_OPT_TV(ANSI_A_E_ACC_NET_ID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+        ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+        ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+        ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_ANCH_PDSN_ADDR, "");
+        ELEM_OPT_TLV(ANSI_A_E_ANCH_PDSN_ADDR, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_ANCH_PP_ADDR, "");
+        ELEM_OPT_TLV(ANSI_A_E_ANCH_PP_ADDR, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_PSP, "");
+        ELEM_OPT_TLV(ANSI_A_E_PSP, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+        ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+        ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -10578,9 +10714,9 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10602,20 +10738,20 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+        ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+        ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+        ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+        ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+        ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -10627,9 +10763,9 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10645,9 +10781,9 @@ bsmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10675,18 +10811,18 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+        ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+        ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+        ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_AMPS_HHO_PARAM, "");
+        ELEM_OPT_TLV(ANSI_A_E_AMPS_HHO_PARAM, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+        ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
 
-	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
-	break;
+        ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+        break;
     }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -10698,9 +10834,9 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10716,9 +10852,9 @@ bsmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10734,9 +10870,9 @@ bsmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10760,9 +10896,9 @@ bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10782,9 +10918,9 @@ bsmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10800,9 +10936,9 @@ bsmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10820,9 +10956,9 @@ bsmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10838,9 +10974,9 @@ bsmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10858,9 +10994,9 @@ bsmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10876,9 +11012,9 @@ bsmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10898,9 +11034,9 @@ bsmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10916,9 +11052,9 @@ bsmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_xmode_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10934,9 +11070,9 @@ bsmap_xmode_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_xmode_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10952,9 +11088,9 @@ bsmap_xmode_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -10986,9 +11122,9 @@ bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11040,9 +11176,9 @@ bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_adds_transfer_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11062,9 +11198,9 @@ bsmap_adds_transfer_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 static void
 dtap_adds_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11084,9 +11220,9 @@ dtap_adds_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11112,9 +11248,9 @@ bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_adds_deliver_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11132,9 +11268,9 @@ dtap_adds_deliver_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static void
 bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11153,9 +11289,9 @@ bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11171,122 +11307,122 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define	ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
-#define	ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
 static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
 {
-    bsmap_add_srvc_noti,	/* Additional Service Notification */
-    bsmap_adds_page,	/* ADDS Page */
-    bsmap_adds_page_ack,	/* ADDS Page Ack */
-    bsmap_adds_transfer,	/* ADDS Transfer */
-    bsmap_adds_transfer_ack,	/* ADDS Transfer Ack */
-    bsmap_ass_complete,	/* Assignment Complete */
-    bsmap_ass_failure,	/* Assignment Failure */
-    bsmap_ass_req,	/* Assignment Request */
-    bsmap_auth_req,	/* Authentication Request */
-    bsmap_auth_resp,	/* Authentication Response */
-    NULL /* no BSMAP definition */,	/* Base Station Challenge */
-    NULL /* no BSMAP definition */,	/* Base Station Challenge Response */
-    bsmap_block,	/* Block */
-    bsmap_block_ack,	/* Block Acknowledge */
-    bsmap_bs_srvc_req,	/* BS Service Request */
-    bsmap_bs_srvc_resp,	/* BS Service Response */
-    bsmap_clr_command,	/* Clear Command */
-    bsmap_clr_complete,	/* Clear Complete */
-    bsmap_clr_req,	/* Clear Request */
-    bsmap_cl3_info,	/* Complete Layer 3 Information */
-    bsmap_feat_noti,	/* Feature Notification */
-    bsmap_feat_noti_ack,	/* Feature Notification Ack */
-    bsmap_ho_command,	/* Handoff Command */
-    NULL /* no associated data */,	/* Handoff Commenced */
-    bsmap_ho_complete,	/* Handoff Complete */
-    bsmap_ho_failure,	/* Handoff Failure */
-    bsmap_ho_performed,	/* Handoff Performed */
-    bsmap_ho_req,	/* Handoff Request */
-    bsmap_ho_req_ack,	/* Handoff Request Acknowledge */
-    bsmap_ho_reqd,	/* Handoff Required */
-    bsmap_ho_reqd_rej,	/* Handoff Required Reject */
-    bsmap_paca_command,	/* PACA Command */
-    bsmap_paca_command_ack,	/* PACA Command Ack */
-    bsmap_paca_update,	/* PACA Update */
-    bsmap_paca_update_ack,	/* PACA Update Ack */
-    bsmap_page_req,	/* Paging Request */
-    bsmap_priv_mode_command,	/* Privacy Mode Command */
-    bsmap_priv_mode_complete,	/* Privacy Mode Complete */
-    bsmap_rm_pos_req,	/* Radio Measurements for Position Request */
-    bsmap_rm_pos_resp,	/* Radio Measurements for Position Response */
-    bsmap_rejection,	/* Rejection */
-    bsmap_reg_req,	/* Registration Request */
-    bsmap_reset,	/* Reset */
-    bsmap_reset_ack,	/* Reset Acknowledge */
-    bsmap_reset_cct,	/* Reset Circuit */
-    bsmap_reset_cct_ack,	/* Reset Circuit Acknowledge */
-    NULL /* no BSMAP definition */,	/* SSD Update Request */
-    NULL /* no BSMAP definition */,	/* SSD Update Response */
-    bsmap_status_req,	/* Status Request */
-    bsmap_status_resp,	/* Status Response */
-    bsmap_xmode_ack,	/* Transcoder Control Acknowledge */
-    bsmap_xmode_req,	/* Transcoder Control Request */
-    bsmap_unblock,	/* Unblock */
-    bsmap_unblock_ack,	/* Unblock Acknowledge */
-    bsmap_user_zone_reject,	/* User Zone Reject */
-    bsmap_user_zone_update,	/* User Zone Update */
-    bsmap_bearer_upd_req,	/* Bearer Update Request *//* IOS 5.0.1 */
-    bsmap_bearer_upd_resp,	/* Bearer Update Response *//* IOS 5.0.1 */
-    bsmap_bearer_upd_reqd,	/* Bearer Update Required *//* IOS 5.0.1 */
-    bsmap_ms_reg_noti,	/* Mobile Station Registered Notification *//* IOS 5.0.1 */
-    bsmap_bs_auth_req,	/* BS Authentication Request *//* IOS 5.0.1 */
-    bsmap_bs_auth_req_ack,	/* BS Authentication Request Ack *//* IOS 5.0.1 */
-    NULL,	/* NONE */
+    bsmap_add_srvc_noti,        /* Additional Service Notification */
+    bsmap_adds_page,    /* ADDS Page */
+    bsmap_adds_page_ack,        /* ADDS Page Ack */
+    bsmap_adds_transfer,        /* ADDS Transfer */
+    bsmap_adds_transfer_ack,    /* ADDS Transfer Ack */
+    bsmap_ass_complete, /* Assignment Complete */
+    bsmap_ass_failure,  /* Assignment Failure */
+    bsmap_ass_req,      /* Assignment Request */
+    bsmap_auth_req,     /* Authentication Request */
+    bsmap_auth_resp,    /* Authentication Response */
+    NULL /* no BSMAP definition */,     /* Base Station Challenge */
+    NULL /* no BSMAP definition */,     /* Base Station Challenge Response */
+    bsmap_block,        /* Block */
+    bsmap_block_ack,    /* Block Acknowledge */
+    bsmap_bs_srvc_req,  /* BS Service Request */
+    bsmap_bs_srvc_resp, /* BS Service Response */
+    bsmap_clr_command,  /* Clear Command */
+    bsmap_clr_complete, /* Clear Complete */
+    bsmap_clr_req,      /* Clear Request */
+    bsmap_cl3_info,     /* Complete Layer 3 Information */
+    bsmap_feat_noti,    /* Feature Notification */
+    bsmap_feat_noti_ack,        /* Feature Notification Ack */
+    bsmap_ho_command,   /* Handoff Command */
+    NULL /* no associated data */,      /* Handoff Commenced */
+    bsmap_ho_complete,  /* Handoff Complete */
+    bsmap_ho_failure,   /* Handoff Failure */
+    bsmap_ho_performed, /* Handoff Performed */
+    bsmap_ho_req,       /* Handoff Request */
+    bsmap_ho_req_ack,   /* Handoff Request Acknowledge */
+    bsmap_ho_reqd,      /* Handoff Required */
+    bsmap_ho_reqd_rej,  /* Handoff Required Reject */
+    bsmap_paca_command, /* PACA Command */
+    bsmap_paca_command_ack,     /* PACA Command Ack */
+    bsmap_paca_update,  /* PACA Update */
+    bsmap_paca_update_ack,      /* PACA Update Ack */
+    bsmap_page_req,     /* Paging Request */
+    bsmap_priv_mode_command,    /* Privacy Mode Command */
+    bsmap_priv_mode_complete,   /* Privacy Mode Complete */
+    bsmap_rm_pos_req,   /* Radio Measurements for Position Request */
+    bsmap_rm_pos_resp,  /* Radio Measurements for Position Response */
+    bsmap_rejection,    /* Rejection */
+    bsmap_reg_req,      /* Registration Request */
+    bsmap_reset,        /* Reset */
+    bsmap_reset_ack,    /* Reset Acknowledge */
+    bsmap_reset_cct,    /* Reset Circuit */
+    bsmap_reset_cct_ack,        /* Reset Circuit Acknowledge */
+    NULL /* no BSMAP definition */,     /* SSD Update Request */
+    NULL /* no BSMAP definition */,     /* SSD Update Response */
+    bsmap_status_req,   /* Status Request */
+    bsmap_status_resp,  /* Status Response */
+    bsmap_xmode_ack,    /* Transcoder Control Acknowledge */
+    bsmap_xmode_req,    /* Transcoder Control Request */
+    bsmap_unblock,      /* Unblock */
+    bsmap_unblock_ack,  /* Unblock Acknowledge */
+    bsmap_user_zone_reject,     /* User Zone Reject */
+    bsmap_user_zone_update,     /* User Zone Update */
+    bsmap_bearer_upd_req,       /* Bearer Update Request *//* IOS 5.0.1 */
+    bsmap_bearer_upd_resp,      /* Bearer Update Response *//* IOS 5.0.1 */
+    bsmap_bearer_upd_reqd,      /* Bearer Update Required *//* IOS 5.0.1 */
+    bsmap_ms_reg_noti,  /* Mobile Station Registered Notification *//* IOS 5.0.1 */
+    bsmap_bs_auth_req,  /* BS Authentication Request *//* IOS 5.0.1 */
+    bsmap_bs_auth_req_ack,      /* BS Authentication Request Ack *//* IOS 5.0.1 */
+    NULL,       /* NONE */
 };
 
-#define	ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
-#define	ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
+#define ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
 static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
 {
-    dtap_add_srvc_req,	/* Additional Service Request */
-    dtap_adds_deliver,	/* ADDS Deliver */
-    dtap_adds_deliver_ack,	/* ADDS Deliver Ack */
-    dtap_alert_with_info,	/* Alert With Information */
-    dtap_auth_req,	/* Authentication Request */
-    dtap_auth_resp,	/* Authentication Response */
-    dtap_bs_challenge,	/* Base Station Challenge */
-    dtap_bs_challenge_resp,	/* Base Station Challenge Response */
-    dtap_cm_srvc_req,	/* CM Service Request */
-    dtap_cm_srvc_req_cont,	/* CM Service Request Continuation */
-    dtap_connect,	/* Connect */
-    dtap_flash_with_info,	/* Flash with Information */
-    dtap_flash_with_info_ack,	/* Flash with Information Ack */
-    dtap_lu_accept,	/* Location Updating Accept */
-    dtap_lu_reject,	/* Location Updating Reject */
-    dtap_lu_req,	/* Location Updating Request */
-    dtap_page_resp,	/* Paging Response */
-    NULL /* no associated data */,	/* Parameter Update Confirm */
-    NULL /* no associated data */,	/* Parameter Update Request */
-    dtap_rejection,	/* Rejection */
-    dtap_progress,	/* Progress */
-    dtap_srvc_redirection,	/* Service Redirection */
-    dtap_srvc_release,	/* Service Release */
-    dtap_srvc_release_complete,	/* Service Release Complete */
-    dtap_ssd_update_req,	/* SSD Update Request */
-    dtap_ssd_update_resp,	/* SSD Update Response */
-    dtap_status_req,	/* Status Request */
-    dtap_status_resp,	/* Status Response */
-    dtap_user_zone_reject,	/* User Zone Reject */
-    dtap_user_zone_update,	/* User Zone Update */
-    dtap_user_zone_update_req,	/* User Zone Update Request */
-    NULL,	/* NONE */
+    dtap_add_srvc_req,  /* Additional Service Request */
+    dtap_adds_deliver,  /* ADDS Deliver */
+    dtap_adds_deliver_ack,      /* ADDS Deliver Ack */
+    dtap_alert_with_info,       /* Alert With Information */
+    dtap_auth_req,      /* Authentication Request */
+    dtap_auth_resp,     /* Authentication Response */
+    dtap_bs_challenge,  /* Base Station Challenge */
+    dtap_bs_challenge_resp,     /* Base Station Challenge Response */
+    dtap_cm_srvc_req,   /* CM Service Request */
+    dtap_cm_srvc_req_cont,      /* CM Service Request Continuation */
+    dtap_connect,       /* Connect */
+    dtap_flash_with_info,       /* Flash with Information */
+    dtap_flash_with_info_ack,   /* Flash with Information Ack */
+    dtap_lu_accept,     /* Location Updating Accept */
+    dtap_lu_reject,     /* Location Updating Reject */
+    dtap_lu_req,        /* Location Updating Request */
+    dtap_page_resp,     /* Paging Response */
+    NULL /* no associated data */,      /* Parameter Update Confirm */
+    NULL /* no associated data */,      /* Parameter Update Request */
+    dtap_rejection,     /* Rejection */
+    dtap_progress,      /* Progress */
+    dtap_srvc_redirection,      /* Service Redirection */
+    dtap_srvc_release,  /* Service Release */
+    dtap_srvc_release_complete, /* Service Release Complete */
+    dtap_ssd_update_req,        /* SSD Update Request */
+    dtap_ssd_update_resp,       /* SSD Update Response */
+    dtap_status_req,    /* Status Request */
+    dtap_status_resp,   /* Status Response */
+    dtap_user_zone_reject,      /* User Zone Reject */
+    dtap_user_zone_update,      /* User Zone Update */
+    dtap_user_zone_update_req,  /* User Zone Update Request */
+    NULL,       /* NONE */
 };
 
 /* Utillity function to dissect CDMA200 A1 elements in ANSI MAP messages */
 void
 dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
-    guint32	curr_offset;
-    guint32	consumed;
-    guint	curr_len;
+    guint32     curr_offset;
+    guint32     consumed;
+    guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -11343,30 +11479,30 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
 static void
 dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    static ansi_a_tap_rec_t	tap_rec[4];
-    static ansi_a_tap_rec_t	*tap_p;
-    static int			tap_current=0;
-    guint8			oct;
-    guint32			offset, saved_offset;
-    guint32			len;
-    gint			idx, dec_idx;
-    proto_item			*bsmap_item = NULL;
-    proto_tree			*bsmap_tree = NULL;
-    const gchar			*msg_str;
+    static ansi_a_tap_rec_t     tap_rec[16];
+    static ansi_a_tap_rec_t     *tap_p;
+    static int                  tap_current=0;
+    guint8                      oct;
+    guint32                     offset, saved_offset;
+    guint32                     len;
+    gint                        idx, dec_idx;
+    proto_item                  *bsmap_item = NULL;
+    proto_tree                  *bsmap_tree = NULL;
+    const gchar                 *msg_str;
 
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-	col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
+        col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
     }
 
     /*
      * set tap record pointer
      */
     tap_current++;
-    if (tap_current == 4)
+    if (tap_current == array_length(tap_rec))
     {
-	tap_current = 0;
+        tap_current = 0;
     }
     tap_p = &tap_rec[tap_current];
 
@@ -11391,33 +11527,33 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-	bsmap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
-		"ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
-		oct);
+        bsmap_item =
+            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, len,
+                "ANSI A-I/F BSMAP - Unknown BSMAP Message Type (%u)",
+                oct);
 
-	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap);
+        bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap);
     }
     else
     {
-	bsmap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, -1,
-		"ANSI A-I/F BSMAP - %s",
-		msg_str);
+        bsmap_item =
+            proto_tree_add_protocol_format(tree, proto_a_bsmap, tvb, 0, -1,
+                "ANSI A-I/F BSMAP - %s",
+                msg_str);
 
-	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
+        bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-	}
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+        }
     }
 
     /*
      * add BSMAP message name
      */
     proto_tree_add_uint_format(bsmap_tree, hf_ansi_a_bsmap_msgtype,
-	tvb, saved_offset, 1, oct, "Message Type");
+        tvb, saved_offset, 1, oct, "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSMAP;
     tap_p->message_type = oct;
@@ -11433,58 +11569,58 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (bsmap_msg_fcn[dec_idx] == NULL)
     {
-	proto_tree_add_text(bsmap_tree,
-	    tvb, offset, len - offset,
-	    "Message Elements");
+        proto_tree_add_text(bsmap_tree,
+            tvb, offset, len - offset,
+            "Message Elements");
     }
     else
     {
-	(*bsmap_msg_fcn[dec_idx])(tvb, bsmap_tree, offset, len - offset);
+        (*bsmap_msg_fcn[dec_idx])(tvb, bsmap_tree, offset, len - offset);
     }
 }
 
 static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    static ansi_a_tap_rec_t	tap_rec[4];
-    static ansi_a_tap_rec_t	*tap_p;
-    static int			tap_current=0;
-    guint8			oct;
-    guint32			offset, saved_offset;
-    guint32			len;
-    guint32			oct_1, oct_2;
-    gint			idx, dec_idx;
-    proto_item			*dtap_item = NULL;
-    proto_tree			*dtap_tree = NULL;
-    proto_item			*oct_1_item = NULL;
-    proto_tree			*oct_1_tree = NULL;
-    const gchar			*msg_str;
-    const gchar			*str;
+    static ansi_a_tap_rec_t     tap_rec[16];
+    static ansi_a_tap_rec_t     *tap_p;
+    static int                  tap_current=0;
+    guint8                      oct;
+    guint32                     offset, saved_offset;
+    guint32                     len;
+    guint32                     oct_1, oct_2;
+    gint                        idx, dec_idx;
+    proto_item                  *dtap_item = NULL;
+    proto_tree                  *dtap_tree = NULL;
+    proto_item                  *oct_1_item = NULL;
+    proto_tree                  *oct_1_tree = NULL;
+    const gchar                 *msg_str;
+    const gchar                 *str;
 
 
     len = tvb_length(tvb);
 
     if (len < 3)
     {
-	/*
-	 * too short to be DTAP
-	 */
-	call_dissector(data_handle, tvb, pinfo, tree);
-	return;
+        /*
+         * too short to be DTAP
+         */
+        call_dissector(data_handle, tvb, pinfo, tree);
+        return;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-	col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
+        col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
     }
 
     /*
      * set tap record pointer
      */
     tap_current++;
-    if (tap_current == 4)
+    if (tap_current == array_length(tap_rec))
     {
-	tap_current = 0;
+        tap_current = 0;
     }
     tap_p = &tap_rec[tap_current];
 
@@ -11514,26 +11650,26 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (msg_str == NULL)
     {
-	dtap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
-		"ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
-		oct);
+        dtap_item =
+            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, len,
+                "ANSI A-I/F DTAP - Unknown DTAP Message Type (%u)",
+                oct);
 
-	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap);
+        dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap);
     }
     else
     {
-	dtap_item =
-	    proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, -1,
-		"ANSI A-I/F DTAP - %s",
-		msg_str);
+        dtap_item =
+            proto_tree_add_protocol_format(tree, proto_a_dtap, tvb, 0, -1,
+                "ANSI A-I/F DTAP - %s",
+                msg_str);
 
-	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
+        dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-	}
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+        }
     }
 
     /*
@@ -11548,30 +11684,30 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 11: str = "Other Signaling Procedures"; break;
     case 15: str = "Reserved for tests"; break;
     default:
-	str = "Unknown";
-	break;
+        str = "Unknown";
+        break;
     }
 
     oct_1_item =
-	proto_tree_add_text(dtap_tree,
-	    tvb, 0, 1,
-	    "Protocol Discriminator: %s",
-	    str);
+        proto_tree_add_text(dtap_tree,
+            tvb, 0, 1,
+            "Protocol Discriminator: %s",
+            str);
 
     oct_1_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0xf0, 8);
     proto_tree_add_text(oct_1_tree,
-	tvb, 0, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+        tvb, 0, 1,
+        "%s :  Reserved",
+        a_bigbuf);
 
     other_decode_bitfield_value(a_bigbuf, oct_1, 0x0f, 8);
     proto_tree_add_text(oct_1_tree,
-	tvb, 0, 1,
-	"%s :  Protocol Discriminator: %u",
-	a_bigbuf,
-	oct_1 & 0x0f);
+        tvb, 0, 1,
+        "%s :  Protocol Discriminator: %u",
+        a_bigbuf,
+        oct_1 & 0x0f);
 
     /*
      * octet 2
@@ -11579,40 +11715,40 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (global_a_variant)
     {
     case A_VARIANT_IS634:
-	other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
-	proto_tree_add_text(dtap_tree,
-	    tvb, 1, 1,
-	    "%s :  Transaction Identifier (TI) Flag: %s",
-	    a_bigbuf,
-	    ((oct_2 & 0x80) ?  "allocated by receiver" : "allocated by sender"));
+        other_decode_bitfield_value(a_bigbuf, oct_2, 0x80, 8);
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Transaction Identifier (TI) Flag: %s",
+            a_bigbuf,
+            ((oct_2 & 0x80) ?  "allocated by receiver" : "allocated by sender"));
 
-	other_decode_bitfield_value(a_bigbuf, oct_2, 0x70, 8);
-	proto_tree_add_text(dtap_tree,
-	    tvb, 1, 1,
-	    "%s :  Transaction Identifier (TI): %u",
-	    a_bigbuf,
-	    (oct_2 & 0x70) >> 4);
+        other_decode_bitfield_value(a_bigbuf, oct_2, 0x70, 8);
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Transaction Identifier (TI): %u",
+            a_bigbuf,
+            (oct_2 & 0x70) >> 4);
 
-	other_decode_bitfield_value(a_bigbuf, oct_2, 0x0f, 8);
-	proto_tree_add_text(dtap_tree,
-	    tvb, 1, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
-	break;
+        other_decode_bitfield_value(a_bigbuf, oct_2, 0x0f, 8);
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "%s :  Reserved",
+            a_bigbuf);
+        break;
 
     default:
-	proto_tree_add_text(dtap_tree,
-	    tvb, 1, 1,
-	    "Reserved Octet");
-	break;
+        proto_tree_add_text(dtap_tree,
+            tvb, 1, 1,
+            "Reserved Octet");
+        break;
     }
 
     /*
      * add DTAP message name
      */
     proto_tree_add_uint_format(dtap_tree, hf_ansi_a_dtap_msgtype,
-	tvb, saved_offset, 1, oct,
-	"Message Type");
+        tvb, saved_offset, 1, oct,
+        "Message Type");
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
     tap_p->message_type = oct;
@@ -11628,13 +11764,13 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (dtap_msg_fcn[dec_idx] == NULL)
     {
-	proto_tree_add_text(dtap_tree,
-	    tvb, offset, len - offset,
-	    "Message Elements");
+        proto_tree_add_text(dtap_tree,
+            tvb, offset, len - offset,
+            "Message Elements");
     }
     else
     {
-	(*dtap_msg_fcn[dec_idx])(tvb, dtap_tree, offset, len - offset);
+        (*dtap_msg_fcn[dec_idx])(tvb, dtap_tree, offset, len - offset);
     }
 }
 
@@ -11643,163 +11779,163 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ansi_a(void)
 {
-    module_t		*ansi_a_module;
-    guint		i;
-    gint		last_offset;
+    module_t            *ansi_a_module;
+    guint               i;
+    gint                last_offset;
 
     /* Setup list of header fields */
 
     static hf_register_info hf[] =
     {
-	{ &hf_ansi_a_bsmap_msgtype,
-	    { "BSMAP Message Type",	"ansi_a_bsmap.msgtype",
-	    FT_UINT8, BASE_HEX, NULL, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_dtap_msgtype,
-	    { "DTAP Message Type",	"ansi_a_bsmap.dtap_msgtype",
-	    FT_UINT8, BASE_HEX, NULL, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_elem_id,
-	    { "Element ID",	"ansi_a_bsmap.elem_id",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_length,
-	    { "Length",		"ansi_a_bsmap.len",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_none,
-	    { "Sub tree",	"ansi_a_bsmap.none",
-	    FT_NONE, 0, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_esn,
-	    { "ESN",	"ansi_a_bsmap.esn",
-	    FT_UINT32, BASE_HEX, 0, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_imsi,
-	    { "IMSI",	"ansi_a_bsmap.imsi",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_min,
-	    { "MIN",	"ansi_a_bsmap.min",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_meid,
-	    { "MEID",	"ansi_a_bsmap.meid",
-	    FT_STRING, BASE_HEX, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cld_party_bcd_num,
-	    { "Called Party BCD Number",	"ansi_a_bsmap.cld_party_bcd_num",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_clg_party_bcd_num,
-	    { "Calling Party BCD Number",	"ansi_a_bsmap.clg_party_bcd_num",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cld_party_ascii_num,
-	    { "Called Party ASCII Number",	"ansi_a_bsmap.cld_party_ascii_num",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_clg_party_ascii_num,
-	    { "Calling Party ASCII Number",	"ansi_a_bsmap.clg_party_ascii_num",
-	    FT_STRING, BASE_DEC, 0, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cell_ci,
-	    { "Cell CI",	"ansi_a_bsmap.cell_ci",
-	    FT_UINT16, BASE_HEX, 0, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cell_lac,
-	    { "Cell LAC",	"ansi_a_bsmap.cell_lac",
-	    FT_UINT16, BASE_HEX, 0, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cell_mscid,
-	    { "Cell MSCID",	"ansi_a_bsmap.cell_mscid",
-	    FT_UINT24, BASE_HEX, 0, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_pdsn_ip_addr,
-	    { "PDSN IP Address", "ansi_a_bsmap.pdsn_ip_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "IP Address", HFILL }
-	},
-	{ &hf_ansi_a_s_pdsn_ip_addr,
-	    { "Source PDSN Address", "ansi_a_bsmap.s_pdsn_ip_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "IP Address", HFILL }
-	},
-	{ &hf_ansi_a_anchor_ip_addr,
-	    { "Anchor PDSN Address", "ansi_a_bsmap.anchor_pdsn_ip_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "IP Address", HFILL }
-	},
-	{ &hf_ansi_a_anchor_pp_ip_addr,
-	    { "Anchor P-P Address", "ansi_a_bsmap.anchor_pp_ip_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "IP Address", HFILL }
-	},
-	{ &hf_ansi_a_a2p_bearer_ipv4_addr,
-	    { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv4_addr",
-	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_a2p_bearer_ipv6_addr,
-	    { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv6_addr",
-	    FT_IPv6, BASE_NONE, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_a2p_bearer_udp_port,
-	    { "A2p Bearer UDP Port", "ansi_a_bsmap.a2p_bearer_udp_port",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_so,
-	    { "Service Option",	"ansi_a_bsmap.so",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cause_1,
-	    { "Cause",	"ansi_a_bsmap.cause_1",
-	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_a_cause_2,
-	    { "Cause",	"ansi_a_bsmap.cause_2",
-	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
+        { &hf_ansi_a_bsmap_msgtype,
+            { "BSMAP Message Type",     "ansi_a_bsmap.msgtype",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_dtap_msgtype,
+            { "DTAP Message Type",      "ansi_a_bsmap.dtap_msgtype",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_elem_id,
+            { "Element ID",     "ansi_a_bsmap.elem_id",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_length,
+            { "Length",         "ansi_a_bsmap.len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_none,
+            { "Sub tree",       "ansi_a_bsmap.none",
+            FT_NONE, 0, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_esn,
+            { "ESN",    "ansi_a_bsmap.esn",
+            FT_UINT32, BASE_HEX, 0, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_imsi,
+            { "IMSI",   "ansi_a_bsmap.imsi",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_min,
+            { "MIN",    "ansi_a_bsmap.min",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_meid,
+            { "MEID",   "ansi_a_bsmap.meid",
+            FT_STRING, BASE_HEX, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cld_party_bcd_num,
+            { "Called Party BCD Number",        "ansi_a_bsmap.cld_party_bcd_num",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_clg_party_bcd_num,
+            { "Calling Party BCD Number",       "ansi_a_bsmap.clg_party_bcd_num",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cld_party_ascii_num,
+            { "Called Party ASCII Number",      "ansi_a_bsmap.cld_party_ascii_num",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_clg_party_ascii_num,
+            { "Calling Party ASCII Number",     "ansi_a_bsmap.clg_party_ascii_num",
+            FT_STRING, BASE_DEC, 0, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cell_ci,
+            { "Cell CI",        "ansi_a_bsmap.cell_ci",
+            FT_UINT16, BASE_HEX, 0, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cell_lac,
+            { "Cell LAC",       "ansi_a_bsmap.cell_lac",
+            FT_UINT16, BASE_HEX, 0, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cell_mscid,
+            { "Cell MSCID",     "ansi_a_bsmap.cell_mscid",
+            FT_UINT24, BASE_HEX, 0, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_pdsn_ip_addr,
+            { "PDSN IP Address", "ansi_a_bsmap.pdsn_ip_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IP Address", HFILL }
+        },
+        { &hf_ansi_a_s_pdsn_ip_addr,
+            { "Source PDSN Address", "ansi_a_bsmap.s_pdsn_ip_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IP Address", HFILL }
+        },
+        { &hf_ansi_a_anchor_ip_addr,
+            { "Anchor PDSN Address", "ansi_a_bsmap.anchor_pdsn_ip_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IP Address", HFILL }
+        },
+        { &hf_ansi_a_anchor_pp_ip_addr,
+            { "Anchor P-P Address", "ansi_a_bsmap.anchor_pp_ip_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "IP Address", HFILL }
+        },
+        { &hf_ansi_a_a2p_bearer_ipv4_addr,
+            { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv4_addr",
+            FT_IPv4, BASE_NONE, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_a2p_bearer_ipv6_addr,
+            { "A2p Bearer IP Address", "ansi_a_bsmap.a2p_bearer_ipv6_addr",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_a2p_bearer_udp_port,
+            { "A2p Bearer UDP Port", "ansi_a_bsmap.a2p_bearer_udp_port",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_so,
+            { "Service Option", "ansi_a_bsmap.so",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cause_1,
+            { "Cause",  "ansi_a_bsmap.cause_1",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "", HFILL }
+        },
+        { &hf_ansi_a_cause_2,
+            { "Cause",  "ansi_a_bsmap.cause_2",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "", HFILL }
+        }
     };
 
     static enum_val_t a_variant_options[] = {
-	    { "is-634-rev0",	"IS-634 rev. 0",	A_VARIANT_IS634 },
-	    { "tsb-80",		"TSB-80",		A_VARIANT_TSB80 },
-	    { "is-634-a",	"IS-634-A",		A_VARIANT_IS634A },
-	    { "ios-2.x",	"IOS 2.x",		A_VARIANT_IOS2 },
-	    { "ios-3.x",	"IOS 3.x",		A_VARIANT_IOS3 },
-	    { "ios-4.0.1",	"IOS 4.0.1",		A_VARIANT_IOS401 },
-	    { "ios-5.0.1",	"IOS 5.0.1",		A_VARIANT_IOS501 },
-	    { NULL,		NULL,			0 }
+            { "is-634-rev0",    "IS-634 rev. 0",        A_VARIANT_IS634 },
+            { "tsb-80",         "TSB-80",               A_VARIANT_TSB80 },
+            { "is-634-a",       "IS-634-A",             A_VARIANT_IS634A },
+            { "ios-2.x",        "IOS 2.x",              A_VARIANT_IOS2 },
+            { "ios-3.x",        "IOS 3.x",              A_VARIANT_IOS3 },
+            { "ios-4.0.1",      "IOS 4.0.1",            A_VARIANT_IOS401 },
+            { "ios-5.0.1",      "IOS 5.0.1",            A_VARIANT_IOS501 },
+            { NULL,             NULL,                   0 }
 
     };
 
     /* Setup protocol subtree array */
-#define	MAX_NUM_DTAP_MSG	MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)
-#define	MAX_NUM_BSMAP_MSG	MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
-#define	MAX_NUM_ELEM_1		MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
-#define	NUM_INDIVIDUAL_ELEMS	16
+#define MAX_NUM_DTAP_MSG        MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)
+#define MAX_NUM_BSMAP_MSG       MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
+#define MAX_NUM_ELEM_1          MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
+#define NUM_INDIVIDUAL_ELEMS    16
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
@@ -11839,50 +11975,50 @@ proto_register_ansi_a(void)
 
     for (i=0; i < MAX_NUM_DTAP_MSG; i++, last_offset++)
     {
-	ett[last_offset] = &ett_dtap_msg[i];
+        ett[last_offset] = &ett_dtap_msg[i];
     }
 
     for (i=0; i < MAX_NUM_BSMAP_MSG; i++, last_offset++)
     {
-	ett[last_offset] = &ett_bsmap_msg[i];
+        ett[last_offset] = &ett_bsmap_msg[i];
     }
 
     for (i=0; i < MAX_NUM_ELEM_1; i++, last_offset++)
     {
-	ett[last_offset] = &ett_ansi_elem_1[i];
+        ett[last_offset] = &ett_ansi_elem_1[i];
     }
 
     for (i=0; i < NUM_FWD_MS_INFO_REC; i++, last_offset++)
     {
-	ett[last_offset] = &ett_ansi_fwd_ms_info_rec[i];
+        ett[last_offset] = &ett_ansi_fwd_ms_info_rec[i];
     }
 
     for (i=0; i < NUM_REV_MS_INFO_REC; i++, last_offset++)
     {
-	ett[last_offset] = &ett_ansi_rev_ms_info_rec[i];
+        ett[last_offset] = &ett_ansi_rev_ms_info_rec[i];
     }
 
     /* Register the protocol name and description */
 
     proto_a_bsmap =
-	proto_register_protocol("ANSI A-I/F BSMAP", "ANSI BSMAP", "ansi_a_bsmap");
+        proto_register_protocol("ANSI A-I/F BSMAP", "ANSI BSMAP", "ansi_a_bsmap");
 
     proto_register_field_array(proto_a_bsmap, hf, array_length(hf));
 
     proto_a_dtap =
-	proto_register_protocol("ANSI A-I/F DTAP", "ANSI DTAP", "ansi_a_dtap");
+        proto_register_protocol("ANSI A-I/F DTAP", "ANSI DTAP", "ansi_a_dtap");
 
     is637_dissector_table =
-	register_dissector_table("ansi_a.sms", "IS-637-A (SMS)",
-	FT_UINT8, BASE_DEC);
+        register_dissector_table("ansi_a.sms", "IS-637-A (SMS)",
+        FT_UINT8, BASE_DEC);
 
     is683_dissector_table =
-	register_dissector_table("ansi_a.ota", "IS-683-A (OTA)",
-	FT_UINT8, BASE_DEC);
+        register_dissector_table("ansi_a.ota", "IS-683-A (OTA)",
+        FT_UINT8, BASE_DEC);
 
     is801_dissector_table =
-	register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
-	FT_UINT8, BASE_DEC);
+        register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
+        FT_UINT8, BASE_DEC);
 
     proto_register_subtree_array(ett, ett_len / sizeof(gint *));
 
@@ -11894,12 +12030,12 @@ proto_register_ansi_a(void)
     ansi_a_module = prefs_register_protocol(proto_a_bsmap, proto_reg_handoff_ansi_a);
 
     prefs_register_enum_preference(ansi_a_module,
-	"global_variant",
-	"Dissect PDU as",
-	"(if other than the default of IOS 4.0.1)",
-	&global_a_variant,
-	a_variant_options,
-	FALSE);
+        "global_variant",
+        "Dissect PDU as",
+        "(if other than the default of IOS 4.0.1)",
+        &global_a_variant,
+        a_variant_options,
+        FALSE);
 
     g_free(ett);
 }
@@ -11912,30 +12048,31 @@ proto_reg_handoff_ansi_a(void)
 
     if (!ansi_a_prefs_initialized)
     {
-	dissector_handle_t bsmap_handle;
-	bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
-	dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
-	data_handle = find_dissector("data");
+        dissector_handle_t bsmap_handle;
+        bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
+        dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
+        data_handle = find_dissector("data");
+        rtp_handle = find_dissector("rtp");
 
-	dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
-	dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
+        dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
+        dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
 
-	ansi_a_prefs_initialized = TRUE;
+        ansi_a_prefs_initialized = TRUE;
     }
 
     switch (global_a_variant)
     {
     case A_VARIANT_IOS501:
-	ansi_a_bsmap_strings = ansi_a_ios501_bsmap_strings;
-	ansi_a_dtap_strings = ansi_a_ios501_dtap_strings;
-	ansi_a_elem_1_strings = ansi_a_ios501_elem_1_strings;
-	break;
+        ansi_a_bsmap_strings = ansi_a_ios501_bsmap_strings;
+        ansi_a_dtap_strings = ansi_a_ios501_dtap_strings;
+        ansi_a_elem_1_strings = ansi_a_ios501_elem_1_strings;
+        break;
 
     default:
-	ansi_a_bsmap_strings = ansi_a_ios401_bsmap_strings;
-	ansi_a_dtap_strings = ansi_a_ios401_dtap_strings;
-	ansi_a_elem_1_strings = ansi_a_ios401_elem_1_strings;
-	break;
+        ansi_a_bsmap_strings = ansi_a_ios401_bsmap_strings;
+        ansi_a_dtap_strings = ansi_a_ios401_dtap_strings;
+        ansi_a_elem_1_strings = ansi_a_ios401_elem_1_strings;
+        break;
     }
 
 }

@@ -407,6 +407,7 @@ DISSECTOR_SRC = \
 	packet-etheric.c	\
 	packet-etherip.c	\
 	packet-ethertype.c	\
+	packet-evrc.c		\
 	packet-exec.c		\
 	packet-extreme.c	\
 	packet-fc.c		\
