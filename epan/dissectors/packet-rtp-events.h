@@ -139,6 +139,16 @@
 #define RTP_MWATTTONE	172
 #define RTP_NEWMWATTTN	173
 
+#define RTP_CISCO_NSE_FAX_PASSTHROUGH_IND    192
+#define RTP_CISCO_NSE_MODEM_PASSTHROUGH_IND  193
+#define RTP_CISCO_NSE_VOICE_MODE_IND         194
+#define RTP_CISCO_NSE_MODEM_RELAY_CAP_IND    199
+#define RTP_CISCO_NSE_FAX_RELAY_IND          200
+#define RTP_CISCO_NSE_ACK                    201
+#define RTP_CISCO_NSE_NACK                   202
+#define RTP_CISCO_NSE_MODEM_RELAY_IND        203
+
+
 static const value_string rtp_event_type_values[] =
 {
 
@@ -249,6 +259,14 @@ static const value_string rtp_event_type_values[] =
 	{ RTP_LOOPBACK,         "Loopback"},
 	{ RTP_MWATTTONE,        "Old milliwatt tone (1000 Hz)"},
 	{ RTP_NEWMWATTTN,       "New milliwatt tone (1004 Hz)"},
+	{ RTP_CISCO_NSE_FAX_PASSTHROUGH_IND,    "Cisco NSE: Shift to voiceband data mode"},
+	{ RTP_CISCO_NSE_MODEM_PASSTHROUGH_IND,  "Cisco NSE: Disable echo cancellation"},
+	{ RTP_CISCO_NSE_VOICE_MODE_IND,         "Cisco NSE: Shift to voice mode"},
+	{ RTP_CISCO_NSE_MODEM_RELAY_CAP_IND,    "Cisco NSE: Advertise Modem relay capability"},
+	{ RTP_CISCO_NSE_FAX_RELAY_IND,          "Cisco NSE: Shift to fax relay mode"},
+	{ RTP_CISCO_NSE_ACK,                    "Positive acknowledgement of Cisco NSE"},
+	{ RTP_CISCO_NSE_NACK,                   "Negative acknowledgement of Cisco NSE"},
+	{ RTP_CISCO_NSE_MODEM_RELAY_IND ,       "Cisco NSE: Shift to modem relay mode"},
 	{ 0,               NULL },
 };
 

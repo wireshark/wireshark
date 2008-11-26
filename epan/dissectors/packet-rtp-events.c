@@ -26,6 +26,11 @@
 
 /*
  * This dissector tries to dissect RTP Events.
+ *
+ * Cisco NSE is now supported, additions by
+ *                Gonzalo Salgueiro <gsalguei@cisco.com>
+ *          Chidambaram Arunachalam <carunach@cisco.com>
+ * Copyright 2008, Cisco Systems, Inc.
  */
 
 
@@ -48,6 +53,11 @@
 	to set the appropriate payload type
 */
 static guint rtp_event_payload_type_value = 101;
+
+/*  cisco_nse_pt_value is used globally
+	to set the appropriate Cisco NSE payload type value
+ */
+static guint cisco_nse_pt_value = 100;
 
 
 /* RTP Event Fields */
@@ -230,8 +240,16 @@ proto_register_rtp_events(void)
 	prefs_register_uint_preference (rtp_events_module,
                                     "event_payload_type_value", "Payload Type for RFC2833 RTP Events",
                                     "This is the value of the Payload Type field"
-                                    "that specifies RTP Events", 10,
+                                    " that specifies RTP Events", 10,
                                     &rtp_event_payload_type_value);
+
+
+	prefs_register_uint_preference (rtp_events_module,
+                                    "cisco_nse_payload_type_value", "Payload Type for Cisco Named Signaling Events",
+                                    "This is the value of the Payload Type field"
+                                    " that specifies Cisco Named Signaling Events", 10,
+                                    &cisco_nse_pt_value);
+
 	register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
 	rtp_event_tap = register_tap("rtpevent");
 }
@@ -244,21 +262,27 @@ proto_reg_handoff_rtp_events(void)
 	static dissector_handle_t rtp_events_handle;
 	/* saved_payload_type_value is a temporary place to save */
 	/* the value so we can properly reinitialize when the    */
-    	/* settings get changed.                                 */
+	/* settings get changed.                                 */
 	static guint saved_payload_type_value;
+	static guint saved_cisco_nse_pt_value;
 	static gboolean rtp_events_prefs_initialized = FALSE;
 
-  	if (!rtp_events_prefs_initialized) {
+	if (!rtp_events_prefs_initialized) {
 		rtp_events_handle = find_dissector("rtpevent");
 		dissector_add_string("rtp_dyn_payload_type", "telephone-event", rtp_events_handle);
+		dissector_add_string("rtp_dyn_payload_type", "X-NSE", rtp_events_handle);
 		rtp_events_prefs_initialized = TRUE;
 	}
 	else {
 		dissector_delete("rtp.pt", saved_payload_type_value, rtp_events_handle);
+		dissector_delete("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
 	}
 
 	saved_payload_type_value = rtp_event_payload_type_value;
 	/* rtp_event_payload_type_value is set from preferences */
+	saved_cisco_nse_pt_value = cisco_nse_pt_value;
+	/* cisco_nse_pt_value is set from preferences */
 
 	dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
+	dissector_add("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
 }
