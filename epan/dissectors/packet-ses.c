@@ -40,7 +40,7 @@
 #include "packet-ses.h"
 #include "packet-frame.h"
 
-#include <epan/prefs.h>
+/* #include <epan/prefs.h> */
 #include <epan/emem.h>
 #include <epan/strutil.h>
 
@@ -1772,15 +1772,16 @@ proto_register_ses(void)
 		&ett_token_item_flags,
 		&ett_ses_req_options_flags,
 	};
-	module_t *ses_module;
+/* 	module_t *ses_module; */
 
 
 	proto_ses = proto_register_protocol(PROTO_STRING_SES, "SES", "ses");
 	proto_register_field_array(proto_ses, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	ses_module = prefs_register_protocol(proto_ses, NULL);
 /*
+	ses_module = prefs_register_protocol(proto_ses, NULL);
+
 	prefs_register_bool_preference(ses_module, "desegment",
 	    "Reassemble session packets ",
 	    "Whether the session dissector should reassemble messages spanning multiple SES segments",
