@@ -1199,14 +1199,7 @@ class TVB(Test):
 		# string matches the 'eth' protocol, protocols cannot
 		# work in an '==' comparison yet.
 		return self.DFilterCount(pkt_http,
-			"eth == 00:e0:81:00:b0:28:00:09:6b:88:f6:c9:08:00", None)
-
-	def ck_eq_2(self):
-		# We expect 0 because even though this byte
-		# string matches the 'eth' protocol, protocols cannot
-		# work in an '==' comparison yet.
-		return self.DFilterCount(pkt_http,
-			"00:e0:81:00:b0:28:00:09:6b:88:f6:c9:08:00 == eth", None)
+			"eth == 00:e0:81:00:b0:28:00:09:6b:88:f6:c9:08:00", 0)
 
 	def ck_slice_1(self):
 		return self.DFilterCount(pkt_http,
@@ -1253,7 +1246,6 @@ class TVB(Test):
 
 	tests = [
 		ck_eq_1,
-		ck_eq_2,
 
 		ck_slice_1,
 		ck_slice_2,
