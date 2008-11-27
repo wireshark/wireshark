@@ -925,13 +925,16 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
     /* UDP is only used for packets */
     return FALSE;
   }
+  if (match_strval(msg_type, message_type) == NULL)
+    /* Unknown message type */
+    return FALSE;
   offset++;
 
   msg_value = tvb_get_ntohs (tvb, offset);
   if (msg_value > 0) {
     if (msg_type == RPCAP_MSG_ERROR) {
       /* Must have a valid error code */
-      if (msg_value < RPCAP_ERR_NETW || msg_value > RPCAP_ERR_WRONGVER)
+      if (match_strval(msg_value, error_codes) == NULL)
 	return FALSE;
     } else if (msg_type != RPCAP_MSG_FINDALLIF_REPLY) {
       return FALSE;
