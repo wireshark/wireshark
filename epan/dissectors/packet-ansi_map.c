@@ -523,6 +523,19 @@ static int hf_ansi_map_qualificationInformationCode = -1;  /* QualificationInfor
 static int hf_ansi_map_authorizationDenied = -1;  /* AuthorizationDenied */
 static int hf_ansi_map_authorizationPeriod = -1;  /* AuthorizationPeriod */
 static int hf_ansi_map_deniedAuthorizationPeriod = -1;  /* DeniedAuthorizationPeriod */
+static int hf_ansi_map_authenticationCapability = -1;  /* AuthenticationCapability */
+static int hf_ansi_map_callingFeaturesIndicator = -1;  /* CallingFeaturesIndicator */
+static int hf_ansi_map_geographicAuthorization = -1;  /* GeographicAuthorization */
+static int hf_ansi_map_meidValidated = -1;        /* MEIDValidated */
+static int hf_ansi_map_originationIndicator = -1;  /* OriginationIndicator */
+static int hf_ansi_map_restrictionDigits = -1;    /* RestrictionDigits */
+static int hf_ansi_map_sms_OriginationRestrictions = -1;  /* SMS_OriginationRestrictions */
+static int hf_ansi_map_sms_TerminationRestrictions = -1;  /* SMS_TerminationRestrictions */
+static int hf_ansi_map_spinipin = -1;             /* SPINIPIN */
+static int hf_ansi_map_spiniTriggers = -1;        /* SPINITriggers */
+static int hf_ansi_map_terminationRestrictionCode = -1;  /* TerminationRestrictionCode */
+static int hf_ansi_map_userGroup = -1;            /* UserGroup */
+static int hf_ansi_map_lirMode = -1;              /* LIRMode */
 static int hf_ansi_map_randValidTime = -1;        /* RANDValidTime */
 static int hf_ansi_map_redirectionReason = -1;    /* RedirectionReason */
 static int hf_ansi_map_cancellationType = -1;     /* CancellationType */
@@ -537,21 +550,8 @@ static int hf_ansi_map_sms_Address = -1;          /* SMS_Address */
 static int hf_ansi_map_mpcAddress = -1;           /* MPCAddress */
 static int hf_ansi_map_mpcAddressList = -1;       /* MPCAddressList */
 static int hf_ansi_map_digits_Carrier = -1;       /* Digits */
-static int hf_ansi_map_authenticationCapability = -1;  /* AuthenticationCapability */
-static int hf_ansi_map_callingFeaturesIndicator = -1;  /* CallingFeaturesIndicator */
-static int hf_ansi_map_geographicAuthorization = -1;  /* GeographicAuthorization */
-static int hf_ansi_map_meidValidated = -1;        /* MEIDValidated */
-static int hf_ansi_map_originationIndicator = -1;  /* OriginationIndicator */
-static int hf_ansi_map_restrictionDigits = -1;    /* RestrictionDigits */
-static int hf_ansi_map_sms_OriginationRestrictions = -1;  /* SMS_OriginationRestrictions */
-static int hf_ansi_map_sms_TerminationRestrictions = -1;  /* SMS_TerminationRestrictions */
-static int hf_ansi_map_spinipin = -1;             /* SPINIPIN */
-static int hf_ansi_map_spiniTriggers = -1;        /* SPINITriggers */
-static int hf_ansi_map_terminationRestrictionCode = -1;  /* TerminationRestrictionCode */
-static int hf_ansi_map_lirMode = -1;              /* LIRMode */
 static int hf_ansi_map_digitCollectionControl = -1;  /* DigitCollectionControl */
 static int hf_ansi_map_trunkStatus = -1;          /* TrunkStatus */
-static int hf_ansi_map_userGroup = -1;            /* UserGroup */
 static int hf_ansi_map_voiceMailboxNumber = -1;   /* VoiceMailboxNumber */
 static int hf_ansi_map_voiceMailboxPIN = -1;      /* VoiceMailboxPIN */
 static int hf_ansi_map_sms_BearerData = -1;       /* SMS_BearerData */
@@ -9505,6 +9505,178 @@ dissect_ansi_map_DeniedAuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
+
+static int
+dissect_ansi_map_AuthenticationCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_CallingFeaturesIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 81 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,actx->pinfo,tree, actx);
+	}
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_GeographicAuthorization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MEIDValidated(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_OriginationIndicator_vals[] = {
+  {   0, "not-used" },
+  {   1, "prior-agreement" },
+  {   2, "origination-denied" },
+  {   3, "local-calls-only" },
+  {   4, "selected-leading-digits-of-directorynumberor-of-international-E164-number" },
+  {   5, "selected-leading-digits-of-directorynumberor-of-international-E164-numbe-and-local-calls-only" },
+  {   6, "national-long-distance" },
+  {   7, "international-calls" },
+  {   8, "single-directory-number-or-international-E164-number" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_OriginationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_RestrictionDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_SMS_OriginationRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 301 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,actx->pinfo,tree, actx);
+	}
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_SMS_TerminationRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_SPINIPIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_SPINITriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_TerminationRestrictionCode_vals[] = {
+  {   0, "not-used" },
+  {   1, "termination-denied" },
+  {   2, "unrestricted" },
+  {   3, "the-treatment-for-this-value-is-not-specified" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_TerminationRestrictionCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_UserGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_LIRMode_vals[] = {
+  {   0, "not-used" },
+  {   1, "unconditionally-Restricted" },
+  {   2, "pre-Authorized-LCS-Clients-Only" },
+  {   3, "pre-Authorized-LCS-Clients-and-User-Authorized-LCS-Clients" },
+  {   4, "unrestricted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_LIRMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t QualificationDirective_U_set[] = {
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
   { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
@@ -9519,6 +9691,40 @@ static const ber_sequence_t QualificationDirective_U_set[] = {
   { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
+  { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_pSID_RSIDList, BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDList },
+  { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
+  { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
+  { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
+  { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
+  { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { &hf_ansi_map_lirMode    , BER_CLASS_CON, 369, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRMode },
   { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
   { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
   { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
@@ -10014,168 +10220,6 @@ dissect_ansi_map_RegistrationNotification(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-
-static int
-dissect_ansi_map_AuthenticationCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_CallingFeaturesIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 81 "ansi_map.cnf"
-	tvbuff_t *parameter_tvb = NULL;
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-	if (parameter_tvb){
-		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,actx->pinfo,tree, actx);
-	}
-
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_GeographicAuthorization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_MEIDValidated(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const value_string ansi_map_OriginationIndicator_vals[] = {
-  {   0, "not-used" },
-  {   1, "prior-agreement" },
-  {   2, "origination-denied" },
-  {   3, "local-calls-only" },
-  {   4, "selected-leading-digits-of-directorynumberor-of-international-E164-number" },
-  {   5, "selected-leading-digits-of-directorynumberor-of-international-E164-numbe-and-local-calls-only" },
-  {   6, "national-long-distance" },
-  {   7, "international-calls" },
-  {   8, "single-directory-number-or-international-E164-number" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_OriginationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_RestrictionDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_SMS_OriginationRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 301 "ansi_map.cnf"
-	tvbuff_t *parameter_tvb = NULL;
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-	if (parameter_tvb){
-		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,actx->pinfo,tree, actx);
-	}
-
-
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_SMS_TerminationRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_SPINIPIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_SPINITriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const value_string ansi_map_TerminationRestrictionCode_vals[] = {
-  {   0, "not-used" },
-  {   1, "termination-denied" },
-  {   2, "unrestricted" },
-  {   3, "the-treatment-for-this-value-is-not-specified" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_TerminationRestrictionCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string ansi_map_LIRMode_vals[] = {
-  {   0, "not-used" },
-  {   1, "unconditionally-Restricted" },
-  {   2, "pre-Authorized-LCS-Clients-Only" },
-  {   3, "pre-Authorized-LCS-Clients-and-User-Authorized-LCS-Clients" },
-  {   4, "unrestricted" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_LIRMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
 static const ber_sequence_t RegistrationNotificationRes_U_set[] = {
   { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
@@ -10191,6 +10235,7 @@ static const ber_sequence_t RegistrationNotificationRes_U_set[] = {
   { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
   { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
   { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
   { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
   { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
   { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
@@ -10204,15 +10249,21 @@ static const ber_sequence_t RegistrationNotificationRes_U_set[] = {
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
   { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
   { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
   { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_pSID_RSIDList, BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDList },
   { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
   { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
   { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
   { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
   { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
   { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
   { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
   { &hf_ansi_map_lirMode    , BER_CLASS_CON, 369, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRMode },
   { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
@@ -10361,16 +10412,6 @@ static int
 dissect_ansi_map_ResetCircuitRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_ResetCircuitRes_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ansi_map_UserGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -17413,6 +17454,58 @@ void proto_register_ansi_map(void) {
       { "deniedAuthorizationPeriod", "ansi_map.deniedAuthorizationPeriod",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.DeniedAuthorizationPeriod", HFILL }},
+    { &hf_ansi_map_authenticationCapability,
+      { "authenticationCapability", "ansi_map.authenticationCapability",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_AuthenticationCapability_vals), 0,
+        "ansi_map.AuthenticationCapability", HFILL }},
+    { &hf_ansi_map_callingFeaturesIndicator,
+      { "callingFeaturesIndicator", "ansi_map.callingFeaturesIndicator",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CallingFeaturesIndicator", HFILL }},
+    { &hf_ansi_map_geographicAuthorization,
+      { "geographicAuthorization", "ansi_map.geographicAuthorization",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_GeographicAuthorization_vals), 0,
+        "ansi_map.GeographicAuthorization", HFILL }},
+    { &hf_ansi_map_meidValidated,
+      { "meidValidated", "ansi_map.meidValidated",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.MEIDValidated", HFILL }},
+    { &hf_ansi_map_originationIndicator,
+      { "originationIndicator", "ansi_map.originationIndicator",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_OriginationIndicator_vals), 0,
+        "ansi_map.OriginationIndicator", HFILL }},
+    { &hf_ansi_map_restrictionDigits,
+      { "restrictionDigits", "ansi_map.restrictionDigits",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.RestrictionDigits", HFILL }},
+    { &hf_ansi_map_sms_OriginationRestrictions,
+      { "sms-OriginationRestrictions", "ansi_map.sms_OriginationRestrictions",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.SMS_OriginationRestrictions", HFILL }},
+    { &hf_ansi_map_sms_TerminationRestrictions,
+      { "sms-TerminationRestrictions", "ansi_map.sms_TerminationRestrictions",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.SMS_TerminationRestrictions", HFILL }},
+    { &hf_ansi_map_spinipin,
+      { "spinipin", "ansi_map.spinipin",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.SPINIPIN", HFILL }},
+    { &hf_ansi_map_spiniTriggers,
+      { "spiniTriggers", "ansi_map.spiniTriggers",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.SPINITriggers", HFILL }},
+    { &hf_ansi_map_terminationRestrictionCode,
+      { "terminationRestrictionCode", "ansi_map.terminationRestrictionCode",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_TerminationRestrictionCode_vals), 0,
+        "ansi_map.TerminationRestrictionCode", HFILL }},
+    { &hf_ansi_map_userGroup,
+      { "userGroup", "ansi_map.userGroup",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.UserGroup", HFILL }},
+    { &hf_ansi_map_lirMode,
+      { "lirMode", "ansi_map.lirMode",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_LIRMode_vals), 0,
+        "ansi_map.LIRMode", HFILL }},
     { &hf_ansi_map_randValidTime,
       { "randValidTime", "ansi_map.randValidTime",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -17469,54 +17562,6 @@ void proto_register_ansi_map(void) {
       { "digits-Carrier", "ansi_map.digits_Carrier",
         FT_NONE, BASE_DEC, NULL, 0,
         "ansi_map.Digits", HFILL }},
-    { &hf_ansi_map_authenticationCapability,
-      { "authenticationCapability", "ansi_map.authenticationCapability",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_AuthenticationCapability_vals), 0,
-        "ansi_map.AuthenticationCapability", HFILL }},
-    { &hf_ansi_map_callingFeaturesIndicator,
-      { "callingFeaturesIndicator", "ansi_map.callingFeaturesIndicator",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.CallingFeaturesIndicator", HFILL }},
-    { &hf_ansi_map_geographicAuthorization,
-      { "geographicAuthorization", "ansi_map.geographicAuthorization",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_GeographicAuthorization_vals), 0,
-        "ansi_map.GeographicAuthorization", HFILL }},
-    { &hf_ansi_map_meidValidated,
-      { "meidValidated", "ansi_map.meidValidated",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ansi_map.MEIDValidated", HFILL }},
-    { &hf_ansi_map_originationIndicator,
-      { "originationIndicator", "ansi_map.originationIndicator",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_OriginationIndicator_vals), 0,
-        "ansi_map.OriginationIndicator", HFILL }},
-    { &hf_ansi_map_restrictionDigits,
-      { "restrictionDigits", "ansi_map.restrictionDigits",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.RestrictionDigits", HFILL }},
-    { &hf_ansi_map_sms_OriginationRestrictions,
-      { "sms-OriginationRestrictions", "ansi_map.sms_OriginationRestrictions",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.SMS_OriginationRestrictions", HFILL }},
-    { &hf_ansi_map_sms_TerminationRestrictions,
-      { "sms-TerminationRestrictions", "ansi_map.sms_TerminationRestrictions",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.SMS_TerminationRestrictions", HFILL }},
-    { &hf_ansi_map_spinipin,
-      { "spinipin", "ansi_map.spinipin",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.SPINIPIN", HFILL }},
-    { &hf_ansi_map_spiniTriggers,
-      { "spiniTriggers", "ansi_map.spiniTriggers",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.SPINITriggers", HFILL }},
-    { &hf_ansi_map_terminationRestrictionCode,
-      { "terminationRestrictionCode", "ansi_map.terminationRestrictionCode",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_TerminationRestrictionCode_vals), 0,
-        "ansi_map.TerminationRestrictionCode", HFILL }},
-    { &hf_ansi_map_lirMode,
-      { "lirMode", "ansi_map.lirMode",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_LIRMode_vals), 0,
-        "ansi_map.LIRMode", HFILL }},
     { &hf_ansi_map_digitCollectionControl,
       { "digitCollectionControl", "ansi_map.digitCollectionControl",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -17525,10 +17570,6 @@ void proto_register_ansi_map(void) {
       { "trunkStatus", "ansi_map.trunkStatus",
         FT_UINT32, BASE_DEC, VALS(ansi_map_TrunkStatus_vals), 0,
         "ansi_map.TrunkStatus", HFILL }},
-    { &hf_ansi_map_userGroup,
-      { "userGroup", "ansi_map.userGroup",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.UserGroup", HFILL }},
     { &hf_ansi_map_voiceMailboxNumber,
       { "voiceMailboxNumber", "ansi_map.voiceMailboxNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
