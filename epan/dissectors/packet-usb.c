@@ -1230,13 +1230,13 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
      */
     if (pinfo->pseudo_header->linux_usb.setup_flag == 0) {
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            0, sizeof(struct usb_device_setup_hdr),
+            0, 0,
             &(pinfo->pseudo_header->linux_usb.setup_flag),
             "present (%d)",
             pinfo->pseudo_header->linux_usb.setup_flag);
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
-            0, sizeof(struct usb_device_setup_hdr),
+            0, 0,
             &(pinfo->pseudo_header->linux_usb.setup_flag),
             "not present ('%c')",
             pinfo->pseudo_header->linux_usb.setup_flag);
@@ -1244,13 +1244,13 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (pinfo->pseudo_header->linux_usb.data_flag == 0) {
         proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            sizeof(struct usb_device_setup_hdr), -1,
+            0, 0,
             &(pinfo->pseudo_header->linux_usb.data_flag),
             "present (%d)",
             pinfo->pseudo_header->linux_usb.data_flag);
     } else {
         proto_tree_add_string_format_value(tree, hf_usb_data_flag, tvb,
-            sizeof(struct usb_device_setup_hdr), -1,
+            0, 0,
             &(pinfo->pseudo_header->linux_usb.data_flag),
             "not present ('%c')",
             pinfo->pseudo_header->linux_usb.data_flag);
@@ -1268,9 +1268,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 0, 0,
                         pinfo->pseudo_header->linux_usb.urb_len);
 
-    proto_tree_add_uint(tree, hf_usb_data_len, tvb,
-                        sizeof(struct usb_device_setup_hdr),
-                        pinfo->pseudo_header->linux_usb.data_len,
+    proto_tree_add_uint(tree, hf_usb_data_len, tvb, 0, 0,
                         pinfo->pseudo_header->linux_usb.data_len);
 
 }
