@@ -201,7 +201,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   
 %(DEFAULT_BODY)s
 
-  if (parameter_tvb)
+  if ((parameter_tvb)&&(nas_eps_handle))
     call_dissector(nas_eps_handle,parameter_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
 
 #.TYPE_ATTR
