@@ -430,7 +430,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "I2C", "i2c" },
 
 	/* WTAP_ENCAP_IEEE802_15_4_NONASK_PHY */
-	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" }
+	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" },
+
+	/* WTAP_ENCAP_TNEF */
+	{ "Transport-Neutral Encapsulation Format", "tnef" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

@@ -204,6 +204,7 @@ extern "C" {
 #define WTAP_ENCAP_X2E_SERIAL                   111
 #define WTAP_ENCAP_I2C                          112
 #define WTAP_ENCAP_IEEE802_15_4_NONASK_PHY      113
+#define WTAP_ENCAP_TNEF                         114
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -263,6 +264,7 @@ extern "C" {
 #define WTAP_FILE_PCAPNG                        50
 #define WTAP_FILE_BTSNOOP                       51
 #define WTAP_FILE_X2E_XORAYA                    52
+#define WTAP_FILE_TNEF                          53
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

@@ -34,10 +34,13 @@
 #include <time.h>
 #include <glib.h>
 #include <string.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
+
+#include <wiretap/tnef.h>
 
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nspi.h"
@@ -46,8 +49,6 @@
 #define PNAME  "Transport-Neutral Encapsulation Format"
 #define PSNAME "TNEF"
 #define PFNAME "tnef"
-
-#define TNEF_SIGNATURE 0x223E9F78
 
 #define ATP_TRIPLES   (0x0000)
 #define ATP_STRING    (0x0001)
@@ -629,6 +630,20 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);    
 }
 
+static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+
+  if (check_col(pinfo->cinfo, COL_DEF_SRC))
+    col_set_str(pinfo->cinfo, COL_DEF_SRC, PSNAME " encoded file");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, PNAME);
+
+  dissect_tnef(tvb, pinfo, tree);
+}
+
 /* Register all the bits needed by the filtering engine */
 
 void
@@ -810,12 +825,15 @@ proto_register_tnef(void)
 void
 proto_reg_handoff_tnef(void)
 {
-  dissector_handle_t tnef_handle;
+  dissector_handle_t tnef_handle, tnef_file_handle;
 
   tnef_handle = find_dissector(PFNAME);
+  tnef_file_handle = create_dissector_handle(dissect_tnef_file, proto_tnef);
+
   dissector_add_string("media_type", "application/ms-tnef", tnef_handle);
 
   /* X.400 file transfer bodypart */
   register_ber_oid_dissector("1.2.840.113556.3.10.1", dissect_tnef, proto_tnef, "id-et-tnef");
 
+  dissector_add("wtap_encap", WTAP_ENCAP_TNEF, tnef_file_handle);
 }
