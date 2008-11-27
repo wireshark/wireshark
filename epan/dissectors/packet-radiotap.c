@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/crc32.h>
 #include <epan/frequency-utils.h>
+#include <epan/tap.h>
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
 
@@ -285,6 +286,8 @@ static gint ett_radiotap_xchannel_flags = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
+
+static int radiotap_tap = -1;
 
 static void
 dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -785,6 +788,7 @@ proto_register_radiotap(void)
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("radiotap", dissect_radiotap, proto_radiotap);
 
+  radiotap_tap = register_tap("radiotap");
 }
 
 static void
@@ -807,6 +811,11 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 db, rflags;
     guint32 present, next_present;
     int bit;
+    
+    struct _radiotap_info *radiotap_info;
+    static struct _radiotap_info rtp_info_arr[1];
+    
+    radiotap_info = &rtp_info_arr[0];
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -817,6 +826,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     version = tvb_get_guint8(tvb, offset);
     length = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
+    
+    radiotap_info->radiotap_length = length;
 
     if(check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%u, Length %u",
@@ -951,6 +962,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    offset++;
 	    length_remaining--;
+            radiotap_info->rate = rate;
 	    break;
 	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
 	    if (length_remaining < 1)
@@ -967,6 +979,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    offset++;
 	    length_remaining--;
+            radiotap_info->dbm_antsignal=dbm;
 	    break;
 	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
 	    if (length_remaining < 1)
@@ -996,6 +1009,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    offset++;
 	    length_remaining--;
+            radiotap_info->dbm_antnoise=dbm;
 	    break;
 	case IEEE80211_RADIOTAP_DB_ANTNOISE:
 	    if (length_remaining < 1)
@@ -1080,6 +1094,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, offset+3, 1, flags);
 		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_quarter,
 			tvb, offset+3, 1, flags);
+                radiotap_info->freq=freq;
+                radiotap_info->flags=flags;
 	    }
 	    offset+=4 /* Channel + flags */;
 	    length_remaining-=4;
@@ -1189,9 +1205,10 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining -= align_offset;
 	    if (length_remaining < 8)
 		break;
+            radiotap_info->tsft=tvb_get_letoh64(tvb, offset);
 	    if (tree) {
 		proto_tree_add_uint64(radiotap_tree, hf_radiotap_mactime,
-				tvb, offset, 8, tvb_get_letoh64(tvb, offset));
+				tvb, offset, 8,radiotap_info->tsft );
 	    }
 	    offset+=8;
 	    length_remaining-=8;
@@ -1278,6 +1295,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
         ieee80211_datapad_handle : ieee80211_handle,
         next_tvb, pinfo, tree);
+    
+    tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
 }
 
 void
