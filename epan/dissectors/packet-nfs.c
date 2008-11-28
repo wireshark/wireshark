@@ -102,6 +102,8 @@ static int hf_nfs_fh_version = -1;
 static int hf_nfs_fh_auth_type = -1;
 static int hf_nfs_fh_fsid_type = -1;
 static int hf_nfs_fh_fileid_type = -1;
+static int hf_nfs_fh_flag = -1;
+static int hf_nfs_fh_endianness = -1;
 static int hf_gxfh3_utlfield = -1;
 static int hf_gxfh3_utlfield_tree_r = -1;
 static int hf_gxfh3_utlfield_tree_w = -1;
@@ -1046,12 +1048,76 @@ static const value_string names_fhtype[] =
 };
 
 
-/* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45) */
+const true_false_string tfs_endianness = { "Little Endian", "Big Endian" };
+
+/* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45), OpenSolaris (build 101a) */
 
 static void
 dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 nof=0;
+	gboolean	little_endian;	/* We support little endian and big endian. */
+	gboolean	have_flag;	/* The flag field at the end is optional. */
+	gboolean	found;		/* Did we really detect the file handle format? */
+	guint32		nof=0;
+	guint32		len1;
+	guint32		len2;
+	guint32		fhlen;		/* File handle length. */
+
+	/* By default we assume big endianness. */
+	little_endian = FALSE;
+
+	/* By default, we aassume, that the flag is no there. */
+	have_flag = FALSE;
+
+	/* Not detected yet. */
+	found = FALSE;
+
+	/* Somehow this is no calling argument, so we have to re-calculate it. */
+	fhlen = tvb_reported_length(tvb);
+
+	/* Check for little endianness. */
+	len1 = tvb_get_letohs(tvb, 8);
+	if (tvb_bytes_exist(tvb, 10+len1, 2)) {
+		len2 = tvb_get_letohs(tvb, 10+len1);
+
+		if (12+len1+len2 == fhlen) {
+			little_endian = TRUE;
+			have_flag = FALSE;
+			found = TRUE;
+		}
+		if (16+len1+len2 == fhlen) {
+			little_endian = TRUE;
+			have_flag = TRUE;
+			found = TRUE;
+		}
+	}
+
+	if (!found) {
+		/* Check for big endianness. */
+		len1 = tvb_get_ntohs(tvb, 8);
+		if (tvb_bytes_exist(tvb, 10+len1, 2)) {
+			len2 = tvb_get_ntohs(tvb, 10+len1);
+
+			if (12+len1+len2 == fhlen) {
+				little_endian = FALSE;
+				have_flag = FALSE;
+				found = TRUE;
+			}
+			if (16+len1+len2 == fhlen) {
+				little_endian = FALSE;
+				have_flag = TRUE;
+				found = TRUE;
+			}
+		}
+	}
+
+	if (tree) {
+		proto_tree_add_boolean(tree, hf_nfs_fh_endianness, tvb,
+                        0, fhlen, little_endian);
+	}
+
+	/* We are fairly sure, that when found==FALSE, the following code will
+	throw an exception. */
 
 	/* file system id */
 	{
@@ -1063,7 +1129,10 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	fsid_O = nof;
 	fsid_L = 4;
-	temp = tvb_get_ntohl(tvb, fsid_O);
+	if (little_endian)
+		temp = tvb_get_letohl(tvb, fsid_O);
+	else
+		temp = tvb_get_ntohl(tvb, fsid_O);
 	fsid_major = ( temp>>18 ) &  0x3fff; /* 14 bits */
 	fsid_minor = ( temp     ) & 0x3ffff; /* 18 bits */
 	if (tree) {
@@ -1075,10 +1144,18 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 			"file system ID: %d,%d", fsid_major, fsid_minor);
 		fsid_tree = proto_item_add_subtree(fsid_item,
 					ett_nfs_fh_fsid);
-		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
-				tvb, fsid_O,   2, fsid_major);
-		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
-				tvb, fsid_O+1, 3, fsid_minor);
+		if (little_endian) {
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+					tvb, fsid_O+2, 2, fsid_major);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+					tvb, fsid_O,   3, fsid_minor);
+		}
+		else {
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+					tvb, fsid_O,   2, fsid_major);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+					tvb, fsid_O+1, 3, fsid_minor);
+		}
 	}
 	nof = fsid_O + fsid_L;
 	}
@@ -1091,7 +1168,10 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	fstype_O = nof;
 	fstype_L = 4;
-	fstype = tvb_get_ntohl(tvb, fstype_O);
+	if (little_endian)
+		fstype = tvb_get_letohl(tvb, fstype_O);
+	else
+		fstype = tvb_get_ntohl(tvb, fstype_O);
 	if (tree) {
 		proto_tree_add_uint(tree, hf_nfs_fh_fstype, tvb,
 			fstype_O, fstype_L, fstype);
@@ -1117,14 +1197,26 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	fn_O = nof;
 	fn_len_O = fn_O;
 	fn_len_L = 2;
-	fn_len = tvb_get_ntohs(tvb, fn_len_O);
+	if (little_endian)
+		fn_len = tvb_get_letohs(tvb, fn_len_O);
+	else
+		fn_len = tvb_get_ntohs(tvb, fn_len_O);
 	fn_data_O = fn_O + fn_len_L;
 	fn_data_inode_O = fn_data_O + 2;
 	fn_data_inode_L = 4;
-	inode = tvb_get_ntohl(tvb, fn_data_inode_O);
-	fn_data_gen_O = fn_data_inode_O + fn_data_inode_L;
+	if (little_endian)
+		inode = tvb_get_letohl(tvb, fn_data_inode_O);
+	else
+		inode = tvb_get_ntohl(tvb, fn_data_inode_O);
+	if (little_endian)
+		fn_data_gen_O = fn_data_inode_O + fn_data_inode_L;
+	else
+		fn_data_gen_O = fn_data_inode_O + fn_data_inode_L;
 	fn_data_gen_L = 4;
-	gen = tvb_get_ntohl(tvb, fn_data_gen_O);
+	if (little_endian)
+		gen = tvb_get_letohl(tvb, fn_data_gen_O);
+	else
+		gen = tvb_get_ntohl(tvb, fn_data_gen_O);
 	fn_L = fn_len_L + fn_len;
 	if (tree) {
 		proto_item* fn_item;
@@ -1162,14 +1254,23 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	xfn_O = nof;
 	xfn_len_O = xfn_O;
 	xfn_len_L = 2;
-	xfn_len = tvb_get_ntohs(tvb, xfn_len_O);
+	if (little_endian)
+		xfn_len = tvb_get_letohs(tvb, xfn_len_O);
+	else
+		xfn_len = tvb_get_ntohs(tvb, xfn_len_O);
 	xfn_data_O = xfn_O + xfn_len_L;
 	xfn_data_inode_O = xfn_data_O + 2;
 	xfn_data_inode_L = 4;
-	xinode = tvb_get_ntohl(tvb, xfn_data_inode_O);
+	if (little_endian)
+		xinode = tvb_get_letohl(tvb, xfn_data_inode_O);
+	else
+		xinode = tvb_get_ntohl(tvb, xfn_data_inode_O);
 	xfn_data_gen_O = xfn_data_inode_O + xfn_data_inode_L;
 	xfn_data_gen_L = 4;
-	xgen = tvb_get_ntohl(tvb, xfn_data_gen_O);
+	if (little_endian)
+		xgen = tvb_get_letohl(tvb, xfn_data_gen_O);
+	else
+		xgen = tvb_get_ntohl(tvb, xfn_data_gen_O);
 	xfn_L = xfn_len_L + xfn_len;
 	if (tree) {
 		proto_item* xfn_item;
@@ -1186,6 +1287,26 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 		proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_generation,
 				tvb, xfn_data_gen_O, xfn_data_gen_L, xgen);
 	}
+	nof = xfn_O + xfn_len_L + xfn_len;
+	}
+
+	/* flag */
+	if (have_flag) {
+		guint32	flag_O;
+		guint32	flag_L;
+		guint32	flag_value;
+		
+		flag_O = nof;
+		flag_L = 4;
+		if (little_endian)
+			flag_value = tvb_get_letohl(tvb, flag_O);
+		else
+			flag_value = tvb_get_ntohl(tvb, flag_O);
+		if (tree) {
+			proto_item* flag_item;
+			flag_item = proto_tree_add_uint(tree, hf_nfs_fh_flag, tvb,
+				flag_O, flag_L, flag_value);
+		}
 	}
 }
 
@@ -9645,6 +9766,12 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_fileid_type, {
 			"fileid_type", "nfs.fh.fileid_type", FT_UINT8, BASE_DEC,
 			VALS(fileid_type_names), 0, "file ID type", HFILL }},
+		{ &hf_nfs_fh_flag, {
+			"flag", "nfs.fh.flag", FT_UINT32, BASE_HEX,
+			NULL, 0, "file handle flag", HFILL }},
+		{ &hf_nfs_fh_endianness, {
+			"endianness", "nfs.fh.endianness", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_endianness), 0, "server native endianness", HFILL }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.stat", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
