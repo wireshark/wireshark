@@ -282,6 +282,8 @@ rtp_stream_value_destroy(gpointer rsi_arg)
 	
 		rtp_packets_list = g_list_next(rtp_packets_list);
 	}
+	g_free((void *)(rsi->src_addr.data));
+	g_free((void *)(rsi->dest_addr.data));
 	g_free(rsi);
 	rsi = NULL;
 }
