@@ -2731,6 +2731,9 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
   *value = !(*value);
 
   prefs_apply (module);
+  if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+  }
   cf_redissect_packets(&cfile);
 }
 
@@ -2741,11 +2744,16 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
   module_t *module = g_object_get_data (G_OBJECT(w), "module");
   gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
-  module->prefs_changed = TRUE;
-  *value = new_value;
+  if (*value != new_value) {
+    module->prefs_changed = TRUE;
+    *value = new_value;
 
-  prefs_apply (module);
-  cf_redissect_packets(&cfile);
+    prefs_apply (module);
+    if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+    }
+    cf_redissect_packets(&cfile);
+  }
 }
 
 static guint
@@ -2836,7 +2844,9 @@ rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
     gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
 
     label = g_strdup_printf ("%s Preferences...", prefs->description);
-    menu_item = gtk_menu_item_new_with_label (label);
+    menu_item = gtk_image_menu_item_new_with_label (label);
+    gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
+				   gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
     gtk_menu_append (sub_menu, menu_item);
     g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
 			     G_CALLBACK(properties_cb), (GtkObject *) menu_item);

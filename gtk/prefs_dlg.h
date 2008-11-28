@@ -171,4 +171,8 @@ GtkWidget *
 create_preference_uat(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text, void *uat);
 
+/** Save all preferences */
+void
+prefs_main_write(void);
+
 #endif

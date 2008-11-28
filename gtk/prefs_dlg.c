@@ -1342,7 +1342,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
 }
 
 
-static void
+void
 prefs_main_write(void)
 {
   int err;
