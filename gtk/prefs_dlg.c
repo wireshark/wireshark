@@ -382,9 +382,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 /* add a page to the tree */
 static prefs_tree_iter
 prefs_tree_page_add(const gchar *title, gint page_nr,
-                    gpointer store, prefs_tree_iter *parent_iter,
-                    gboolean has_child
-                    _U_)
+                    gpointer store, prefs_tree_iter *parent_iter)
 {
   prefs_tree_iter   iter;
 
@@ -507,26 +505,26 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* GUI prefs */
   g_strlcpy(label_str, "User Interface", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, gui_prefs_show(), E_GUI_PAGE_KEY);
-  gui_iter = prefs_tree_page_add(label_str, cts.page, store, NULL, TRUE);
+  gui_iter = prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
   /* GUI layout prefs */
   g_strlcpy(label_str, "Layout", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, layout_prefs_show(), E_GUI_LAYOUT_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
   /* GUI Column prefs */
   g_strlcpy(label_str, "Columns", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, column_prefs_show(prefs_w), E_GUI_COLUMN_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
   /* GUI Font prefs */
   g_strlcpy(label_str, "Font", MAX_TREE_NODE_NAME_LEN);
   gui_font_pg = gui_font_prefs_show();
   prefs_nb_page_add(prefs_nb, label_str, gui_font_pg, E_GUI_FONT_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
   gtk_container_set_border_width( GTK_CONTAINER(gui_font_pg), 5 );
@@ -544,7 +542,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* GUI Colors prefs */
   g_strlcpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
   /* select the main GUI page as the default page and expand it's children */
@@ -560,7 +558,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* capture prefs */
   g_strlcpy(label_str, "Capture", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, capture_prefs_show(), E_CAPTURE_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 #ifdef _WIN32
   }
@@ -570,19 +568,19 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* Printing prefs */
   g_strlcpy(label_str, "Printing", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, printer_prefs_show(), E_PRINT_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
   /* Name resolution prefs */
   g_strlcpy(label_str, "Name Resolution", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, nameres_prefs_show(), E_NAMERES_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
   /* TAPS player prefs */
   g_strlcpy(label_str, "Statistics", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, stats_prefs_show(), E_TAPS_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
+  prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
   /* Registered prefs */
