@@ -192,7 +192,7 @@ typedef enum
 	DE_EMM_GPRS_S_MAC,			/* 9.9.3.25	Short MAC */
 	DE_EMM_GPRS_TZ,				/* 9.9.3.26	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
 	DE_EMM_GPRS_TZ_AND_T,		/* 9.9.3.27	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
-	DE_EMM_GPRS_´TMSI_STAT,		/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_TMSI_STAT,		/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
 	DE_EMM_GPRS_TRAC_AREA_ID,	/* 9.9.3.28	Tracking area identity */
 	DE_EMM_GPRS_TRAC_AREA_ID_LST, /* 9.9.3.29	Tracking area identity list */
 	DE_EMM_GPRS_UE_SEC_CAP,		/* 9.9.3.30	UE security capability */
