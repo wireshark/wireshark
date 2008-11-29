@@ -323,19 +323,19 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 	switch (pd){
-		case 0:
-			break;
-		case 1:
-			break;
 		case 8:
 			get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
 			break;
 		default:
+			proto_tree_add_text(nas_eps_tree, tvb, offset, len - offset, "PD not decoded yet");
+			return;
 			break;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
+	if(msg_str){
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
+		}
 	}
 
 	/*
