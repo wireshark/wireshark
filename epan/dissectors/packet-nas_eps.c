@@ -105,6 +105,21 @@ static const value_string security_header_type_vals[] = {
 	{ 0,	NULL }
 };
 
+/* 9.9.2	Common information elements
+ * 9.9.2.1	EPS bearer context status
+ * 9.9.2.2	Location area identification
+ * See subclause 10.5.1.3 in 3GPP TS 24.008 [6].
+ * 9.9.2.3	Mobile identity
+ * See subclause 10.5.1.4 in 3GPP TS 24.008 [6].
+ * 9.9.2.4	PLMN list
+ * See subclause 10.5.1.13 in 3GPP TS 24.008 [6].
+ * 9.9.2.5	Spare half octet
+ * This element is used in the description of EMM and ESM messages when an odd number of 
+ * half octet type 1 information elements are used. This element is filled with spare bits 
+ * set to zero and is placed in bits 5 to 8 of the octet unless otherwise specified.
+ *
+ */
+
 const value_string nas_emm_elem_strings[] = {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
 	{ 0x00,	"Authentication failure parameter" },	/* 9.9.3.1	Authentication failure parameter */
@@ -117,6 +132,29 @@ const value_string nas_emm_elem_strings[] = {
 	{ 0x00,	"EMM cause" },							/* 9.9.3.7	EMM cause */
 	{ 0x00,	"EPS attach result" },					/* 9.9.3.8	EPS attach result */
 	{ 0x00,	"EPS attach type" },					/* 9.9.3.9	EPS attach type */
+	{ 0x00,	"EPS mobile identity" },				/* 9.9.3.10	EPS mobile identity */
+	{ 0x00,	"EPS update resul" },					/* 9.9.3.11	EPS update result */
+	{ 0x00,	"EPS update type" },					/* 9.9.3.12	EPS update type */
+	{ 0x00,	"ESM message container" },				/* 9.9.3.13	ESM message container */
+	{ 0x00,	"GPRS timer" },							/* 9.9.3.14	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Identity type 2" },					/* 9.9.3.15	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"IMEISV request" },						/* 9.9.3.16	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"KSI and sequence number" },			/* 9.9.3.17	KSI and sequence number */
+	{ 0x00,	"MS network capability" },				/* 9.9.3.18	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"NAS key set identifier" },				/* 9.9.3.19	NAS key set identifier */
+	{ 0x00,	"NAS security algorithms" },			/* 9.9.3.20	NAS security algorithms */
+	{ 0x00,	"Network name" },						/* 9.9.3.21	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Nonce" },								/* 9.9.3.21a	Nonce */
+	{ 0x00,	"P-TMSI" },								/* 9.9.3.22	P-TMSI, See subclause 10.5.1.4 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"P-TMSI signature" },					/* 9.9.3.23	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Routing area identification" },		/* 9.9.3.24	Routing area identification ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Short MAC" },							/* 9.9.3.25	Short MAC */
+	{ 0x00,	"Time zone" },							/* 9.9.3.26	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Time zone and time" },					/* 9.9.3.27	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"TMSI status" },						/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Tracking area identity" },				/* 9.9.3.28	Tracking area identity */
+	{ 0x00,	"Tracking area identity list" },		/* 9.9.3.29	Tracking area identity list */
+	{ 0x00,	"UE security capability" },				/* 9.9.3.30	UE security capability */
 	{ 0, NULL }
 };
 #define	NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
@@ -135,6 +173,29 @@ typedef enum
 	DE_EMM_CAUSE,				/* 9.9.3.7	EMM cause */
 	DE_EMM_ATT_RES,				/* 9.9.3.8	EPS attach result */
 	DE_EMM_ATT_TYPE,			/* 9.9.3.9	EPS attach type */
+	DE_EMM_EPS_MID,				/* 9.9.3.10	EPS mobile identity */
+	DE_EMM_EPS_UPD_RES,			/* 9.9.3.11	EPS update result */
+	DE_EMM_EPS_UPD_TYPE,		/* 9.9.3.12	EPS update type */
+	DE_EMM_ESM_MSG_CONT,		/* 9.9.3.13	ESM message container */
+	DE_EMM_GPRS_TIMER,			/* 9.9.3.14	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_ID_TYPE_2,		/* 9.9.3.15	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_IMEISV_REQ,		/* 9.9.3.16	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_KSI_AND_SEQ_NO,	/* 9.9.3.17	KSI and sequence number */
+	DE_EMM_GPRS_MS_NET_CAP,		/* 9.9.3.18	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_NAS_KEY_SET_ID,	/* 9.9.3.19	NAS key set identifier */
+	DE_EMM_GPRS_NAS_SEC_ALGS,	/* 9.9.3.20	NAS security algorithms */
+	DE_EMM_GPRS_NET_NAME,		/* 9.9.3.21	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_NONCE,			/* 9.9.3.21a	Nonce */
+	DE_EMM_GPRS_P_TMSI,			/* 9.9.3.22	P-TMSI, See subclause 10.5.1.4 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_P_TMSI_SIGN,	/* 9.9.3.23	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_RAI,			/* 9.9.3.24	Routing area identification ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_S_MAC,			/* 9.9.3.25	Short MAC */
+	DE_EMM_GPRS_TZ,				/* 9.9.3.26	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_TZ_AND_T,		/* 9.9.3.27	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_´TMSI_STAT,		/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+	DE_EMM_GPRS_TRAC_AREA_ID,	/* 9.9.3.28	Tracking area identity */
+	DE_EMM_GPRS_TRAC_AREA_ID_LST, /* 9.9.3.29	Tracking area identity list */
+	DE_EMM_GPRS_UE_SEC_CAP,		/* 9.9.3.30	UE security capability */
 	DE_EMM_NONE							/* NONE */
 }
 nas_emm_elem_idx_t;
@@ -190,6 +251,64 @@ de_emm_att_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * 9.9.3.10	EPS mobile identity
  * 9.9.3.11	EPS update result
  * 9.9.3.12	EPS update type
+ * 9.9.3.13	ESM message container
+ * 9.9.3.14	GPRS timer
+ * See subclause 10.5.7.3 in 3GPP TS 24.008 [6].
+ * 9.9.3.15	Identity type 2
+ * See subclause 10.5.5.9 in 3GPP TS 24.008 [6].
+ * 9.9.3.16	IMEISV request
+ * See subclause 10.5.5.10 in 3GPP TS 24.008 [6].
+ * 9.9.3.17	KSI and sequence number
+ * 9.9.3.18	MS network capability
+ * See subclause 10.5.5.12 in 3GPP TS 24.008 [6].
+ * 9.9.3.19	NAS key set identifier
+ * 9.9.3.20	NAS security algorithms
+ * 9.9.3.21	Network name
+ * See subclause 10.5.3.5a in 3GPP TS 24.008 [6].
+ * 9.9.3.21a	Nonce
+ * Editor's note: The coding of this information element is FFS.
+ * 9.9.3.22	P-TMSI
+ * See subclause 10.5.1.4 in 3GPP TS 24.008 [6].
+ * 9.9.3.23	P-TMSI signature
+ * See subclause 10.5.5.8 in 3GPP TS 24.008 [6].
+ * 9.9.3.24	Routing area identification
+ * See subclause 10.5.5.15 in 3GPP TS 24.008 [6].
+ * 9.9.3.25	Short MAC
+ * 9.9.3.26	Time zone
+ * See subclause 10.5.3.8 in 3GPP TS 24.008 [6].
+ * 9.9.3.27	Time zone and time
+ * See subclause 10.5.3.9 in 3GPP TS 24.008 [6].
+ * 9.9.3.27a	TMSI status
+ * See subclause 10.5.5.4 in 3GPP TS 24.008 [6].
+ * 9.9.3.28	Tracking area identity
+ * 9.9.3.29	Tracking area identity list
+ * 9.9.3.30	UE security capability
+ * 
+ * 9.9.4	EPS Session Management (ESM) information elements
+ *
+ * 9.9.4.1	Access point name
+ * See subclause 10.5.6.1 in 3GPP TS 24.008 [6].
+ * 9.9.4.2	ESM cause
+ * 9.9.4.2a	ESM information transfer flag
+ * Editor's note: The coding of this information element is FFS.
+ * 9.9.4.3	Linked EPS bearer identity
+ * 9.9.4.4	LLC service access point identifier
+ * See subclause 10.5.6.9 in 3GPP TS 24.008 [6].
+ * 9.9.4.5	Packet flow identifier
+ * See subclause 10.5.6.11 in 3GPP TS 24.008 [6].
+ * 9.9.4.6	PDN address
+ * 9.9.4.7	PDN type
+ * 9.9.4.8	Protocol configuration options
+ * See subclause 10.5.6.3 in 3GPP TS 24.008 [6].
+ * 9.9.4.9	Quality of service
+ * See subclause 10.5.6.5 in 3GPP TS 24.008 [6].
+ * 9.9.4.10	Radio priority
+ * See subclause 10.5.7.2 in 3GPP TS 24.008 [6].
+ * 9.9.4.11	Request type
+ * 9.9.4.12	SDF quality of service
+ * 9.9.4.13	Traffic flow template
+ * See subclause 10.5.6.12 in 3GPP TS 24.008 [6].
+ * 9.9.4.14	Transaction identifier
  */
 
 guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -204,6 +323,29 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	NULL,						/* 9.9.3.7	EMM cause */
 	NULL,						/* 9.9.3.8	EPS attach result */
 	de_emm_att_type,			/* 9.9.3.9	EPS attach type */
+	NULL,						/* 9.9.3.10	EPS mobile identity */
+	NULL,						/* 9.9.3.11	EPS update result */
+	NULL,						/* 9.9.3.12	EPS update type */
+	NULL,						/* 9.9.3.13	ESM message container */
+	NULL,						/* 9.9.3.14	GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.15	Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.16	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.17	KSI and sequence number */
+	NULL,						/* 9.9.3.18	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.19	NAS key set identifier */
+	NULL,						/* 9.9.3.20	NAS security algorithms */
+	NULL,						/* 9.9.3.21	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.21a	Nonce */
+	NULL,						/* 9.9.3.22	P-TMSI, See subclause 10.5.1.4 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.23	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.24	Routing area identification ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.25	Short MAC */
+	NULL,						/* 9.9.3.26	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.27	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+	NULL,						/* 9.9.3.28	Tracking area identity */
+	NULL,						/* 9.9.3.29	Tracking area identity list */
+	NULL,						/* 9.9.3.30	UE security capability */
 	NULL,	/* NONE */
 };
 
