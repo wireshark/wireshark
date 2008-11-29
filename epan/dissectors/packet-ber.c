@@ -108,6 +108,8 @@ static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
 static gint hf_ber_constructed_OCTETSTRING = -1;
+static gint hf_ber_no_oid = -1;
+static gint hf_ber_oid_not_implemented = -1;
 static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
 static gint hf_ber_indirect_reference = -1;       /* INTEGER */
 static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -598,11 +600,11 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		length_remaining = tvb_length_remaining(tvb, offset);
 
 		if (oid == NULL) {
-		  item=proto_tree_add_text(tree, next_tvb, 0, length_remaining, "BER: No OID supplied to call_ber_oid_callback");
+		  item=proto_tree_add_none_format(tree, hf_ber_no_oid, next_tvb, 0, length_remaining, "BER: No OID supplied to call_ber_oid_callback");
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: No OID supplied");
 		} else {
-		  item=proto_tree_add_text(tree, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		  item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error Dissector for OID not implemented");
 		}
@@ -650,9 +652,9 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 	  proto_tree *next_tree=NULL;
 
 	  if (syntax == NULL)
-	    item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No syntax supplied to call_ber_syntax_callback");
+	    item=proto_tree_add_none_format(tree, hf_ber_no_oid, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No syntax supplied to call_ber_syntax_callback");
 	  else
-	    item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported", syntax);
+	    item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported", syntax);
 	  if(item){
 	    next_tree=proto_item_add_subtree(item, ett_ber_unknown);
 	  }
@@ -2722,7 +2724,7 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n",name);
 
 #ifdef REMOVED
 	/*XXX here we should have another flag to the CHOICE to distinguish
-	 * between teh case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
+	 * between the case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
 
 	/* oops no more entries and we still havent found
 	 * our guy :-(
@@ -2952,7 +2954,7 @@ printf("CHOICE dissect_ber_old_choice(%s) trying again\n",name);
 
 #ifdef REMOVED
 	/*XXX here we should have another flag to the CHOICE to distinguish
-	 * between teh case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
+	 * between the case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
 
 	/* oops no more entries and we still havent found
 	 * our guy :-(
@@ -4315,6 +4317,12 @@ proto_register_ber(void)
 	{ &hf_ber_constructed_OCTETSTRING, {
 	    "OCTETSTRING", "ber.constructed.OCTETSTRING", FT_BYTES, BASE_HEX,
 	    NULL, 0, "This is a component of an constructed OCTETSTRING", HFILL }},
+	{ &hf_ber_no_oid, {
+	    "No OID", "ber.no_oid", FT_NONE, BASE_NONE,
+	    NULL, 0, "No OID supplied to call_ber_oid_callback", HFILL }},
+	{ &hf_ber_oid_not_implemented, {
+	    "OID not implemented", "ber.oid_not_implemented", FT_NONE, BASE_NONE,
+	    NULL, 0, "Dissector for OID not implemented", HFILL }},
     { &hf_ber_direct_reference,
       { "direct-reference", "ber.direct_reference",
         FT_OID, BASE_NONE, NULL, 0,
