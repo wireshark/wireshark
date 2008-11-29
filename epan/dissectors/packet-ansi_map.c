@@ -805,6 +805,7 @@ static int hf_ansi_map_handoffMeasurementRequestRes = -1;  /* HandoffMeasurement
 static int hf_ansi_map_facilitiesDirectiveRes = -1;  /* FacilitiesDirectiveRes */
 static int hf_ansi_map_handoffBackRes = -1;       /* HandoffBackRes */
 static int hf_ansi_map_facilitiesReleaseRes = -1;  /* FacilitiesReleaseRes */
+static int hf_ansi_map_qualificationDirectiveRes = -1;  /* QualificationDirectiveRes */
 static int hf_ansi_map_qualificationRequestRes = -1;  /* QualificationRequestRes */
 static int hf_ansi_map_resetCircuitRes = -1;      /* ResetCircuitRes */
 static int hf_ansi_map_registrationNotificationRes = -1;  /* RegistrationNotificationRes */
@@ -959,6 +960,7 @@ static gint ett_ansi_map_MSInactive_U = -1;
 static gint ett_ansi_map_OriginationRequest_U = -1;
 static gint ett_ansi_map_OriginationRequestRes_U = -1;
 static gint ett_ansi_map_QualificationDirective_U = -1;
+static gint ett_ansi_map_QualificationDirectiveRes_U = -1;
 static gint ett_ansi_map_QualificationRequest_U = -1;
 static gint ett_ansi_map_QualificationRequestRes_U = -1;
 static gint ett_ansi_map_RandomVariableRequest_U = -1;
@@ -8322,7 +8324,7 @@ static const ber_sequence_t InformationForward_U_set[] = {
   { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
-  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
   { NULL, 0, 0, 0, NULL }
@@ -9682,7 +9684,7 @@ static const ber_sequence_t QualificationDirective_U_set[] = {
   { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
   { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
   { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
-  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
   { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
   { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
   { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
@@ -9702,7 +9704,7 @@ static const ber_sequence_t QualificationDirective_U_set[] = {
   { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
   { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
-  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
@@ -9745,6 +9747,29 @@ static int
 dissect_ansi_map_QualificationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_QualificationDirective_U);
+
+  return offset;
+}
+
+
+static const ber_sequence_t QualificationDirectiveRes_U_set[] = {
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_QualificationDirectiveRes_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationDirectiveRes_U_set, hf_index, ett_ansi_map_QualificationDirectiveRes_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_QualificationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_QualificationDirectiveRes_U);
 
   return offset;
 }
@@ -10243,7 +10268,7 @@ static const ber_sequence_t RegistrationNotificationRes_U_set[] = {
   { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
   { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
-  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
@@ -15020,6 +15045,7 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_facilitiesDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirectiveRes },
   { &hf_ansi_map_handoffBackRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffBackRes },
   { &hf_ansi_map_facilitiesReleaseRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesReleaseRes },
+  { &hf_ansi_map_qualificationDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationDirectiveRes },
   { &hf_ansi_map_qualificationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationRequestRes },
   { &hf_ansi_map_resetCircuitRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ResetCircuitRes },
   { &hf_ansi_map_registrationNotificationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RegistrationNotificationRes },
@@ -15508,6 +15534,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	   break;
   case 6: /*Qualification Request*/
 	   offset = dissect_ansi_map_QualificationRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequestRes);
+	   break;
+   case 7: /*Qualification Directive*/
+	   offset = dissect_ansi_map_QualificationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationDirectiveRes);
 	   break;
    case 10: /*Reset Circuit*/
 	   offset = dissect_ansi_map_ResetCircuitRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_resetCircuitRes);
@@ -18582,6 +18611,10 @@ void proto_register_ansi_map(void) {
       { "facilitiesReleaseRes", "ansi_map.facilitiesReleaseRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.FacilitiesReleaseRes", HFILL }},
+    { &hf_ansi_map_qualificationDirectiveRes,
+      { "qualificationDirectiveRes", "ansi_map.qualificationDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationDirectiveRes", HFILL }},
     { &hf_ansi_map_qualificationRequestRes,
       { "qualificationRequestRes", "ansi_map.qualificationRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18836,7 +18869,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5210 "packet-ansi_map-template.c"
+#line 5213 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -18926,6 +18959,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_OriginationRequest_U,
     &ett_ansi_map_OriginationRequestRes_U,
     &ett_ansi_map_QualificationDirective_U,
+    &ett_ansi_map_QualificationDirectiveRes_U,
     &ett_ansi_map_QualificationRequest_U,
     &ett_ansi_map_QualificationRequestRes_U,
     &ett_ansi_map_RandomVariableRequest_U,
@@ -19089,7 +19123,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5243 "packet-ansi_map-template.c"
+#line 5246 "packet-ansi_map-template.c"
   };
 
 

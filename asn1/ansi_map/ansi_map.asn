@@ -1306,7 +1306,7 @@ InformationForward ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63 a
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 a
-	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 a
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 b
@@ -1923,7 +1923,7 @@ QualificationDirective ::= [PRIVATE 18] SET {
 	-- M 6.5.2.99
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
 	-- (HLR or VLR) M 6.5.2.147
-	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord,
+	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
 	-- O 6.5.2.bd k
 	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
 	-- O 6.5.2.13 a
@@ -1964,7 +1964,7 @@ QualificationDirective ::= [PRIVATE 18] SET {
 	-- O 3.2.2.98
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
-	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
@@ -2021,7 +2021,9 @@ QualificationDirective ::= [PRIVATE 18] SET {
 
 -- QualificationDirective RETURN RESULT Parameters
 -- Zero octets
+QualificationDirectiveRes ::= [PRIVATE 18] SET {
 
+}
 -- 6.4.2.32 QualificationRequest
 
 QualificationRequest ::= [PRIVATE 18] SET {
@@ -2309,7 +2311,7 @@ RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	-- O 3.2.2.98
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
-	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
@@ -5446,7 +5448,7 @@ MessageWaitingNotificationCount::= OCTET STRING
 -- 6.5.2.79
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
--- 0 0 0 1 0 0 0 1 (0x11)(289)
+-- 0 0 0 1 0 0 0 1 (0x11)(145)
 MessageWaitingNotificationType ::=  OCTET STRING
 
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -5511,7 +5513,7 @@ OriginationIndicator ::= ENUMERATED {
 	}
 -- 6.5.2.90
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 0 1 1 0 0 0 1 0
+-- 0 1 1 0 0 0 1 0 (0x62)
 OriginationTriggers ::= OCTET STRING
 
 -- 6.5.2.91
@@ -5570,7 +5572,7 @@ PreferredLanguageIndicator ::= OCTET STRING
 	-- O 6.5.2.68 e
 --	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
---	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+--	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 g
 --	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
@@ -5628,7 +5630,7 @@ PreferredLanguageIndicator ::= OCTET STRING
 --	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL, O 6.5.2.61 d
 --	geographicAuthorization					[143] IMPLICIT GeographicAuthorization OPTIONAL, O 6.5.2.68 e
 --	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL, O 6.5.2.78 f
---	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL, O 6.5.2.79 g
+--	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL, O 6.5.2.79 g
 --	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,  O 6.5.2.80 d
 --	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL, O 6.5.2.89 h
 --	originationTriggers						[98] IMPLICIT OriginationTriggers,  O 6.5.2.90 i
@@ -8027,10 +8029,11 @@ ReturnData ::= SEQUENCE {
 	facilitiesDirectiveRes FacilitiesDirectiveRes,
 	handoffBackRes HandoffBackRes,
 	facilitiesReleaseRes FacilitiesReleaseRes,
+	qualificationDirectiveRes QualificationDirectiveRes,
 	qualificationRequestRes QualificationRequestRes,
 	resetCircuitRes ResetCircuitRes,
 	registrationNotificationRes RegistrationNotificationRes,
-      	registrationCancellationRes RegistrationCancellationRes,
+    registrationCancellationRes RegistrationCancellationRes,
 	locationRequestRes LocationRequestRes,
 	routingRequestRes RoutingRequestRes,
 	featureRequestRes FeatureRequestRes,

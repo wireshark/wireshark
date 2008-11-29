@@ -4028,6 +4028,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 6: /*Qualification Request*/
 	   offset = dissect_ansi_map_QualificationRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequestRes);
 	   break;
+   case 7: /*Qualification Directive*/
+	   offset = dissect_ansi_map_QualificationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationDirectiveRes);
+	   break;
    case 10: /*Reset Circuit*/
 	   offset = dissect_ansi_map_ResetCircuitRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_resetCircuitRes);
 	   break;
