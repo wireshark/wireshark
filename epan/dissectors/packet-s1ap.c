@@ -1142,8 +1142,10 @@ dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-
-	 if (!parameter_tvb)
+	if(tvb_length(tvb)==0) 
+		return offset;
+		
+	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
 
@@ -1669,7 +1671,7 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 173 "s1ap.cnf"
+#line 175 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2088,7 +2090,7 @@ dissect_s1ap_M_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 199 "s1ap.cnf"
+#line 201 "s1ap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
   
