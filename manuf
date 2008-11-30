@@ -9336,6 +9336,21 @@
 00:24:69	SmartDoorp             # Smart Doorphones
 00:24:6A	SolidYear              # Solid Year Co., Ltd.
 00:24:6B	Coventive
+00:24:6C	ArubaNetwo             # ARUBA NETWORKS, INC.
+00:24:6D	WeinzierlE             # Weinzierl Engineering GmbH
+00:24:6E	PhihongUsa             # Phihong USA Corp.
+00:24:6F	OndaCommun             # Onda Communication spa
+00:24:70	AurotechUl             # AUROTECH ultrasound AS.
+00:24:71	FusionMult             # Fusion MultiSystems dba Fusion-io
+00:24:72	RedrivenPo             # ReDriven Power Inc.
+00:24:73	3comEurope             # 3Com Europe Ltd
+00:24:74	AutronicaF             # Autronica Fire And Securirty
+00:24:75	CompassSys             # Compass System(Embedded Dept.)
+00:24:76	TapTv                  # TAP.tv
+00:24:77	TibboTechn             # Tibbo Technology
+00:24:78	MagTechEle             # Mag Tech Electronics Co Limited
+00:24:79	OptecDispl             # Optec Displays, Inc.
+00:24:7A	FuYiChengT             # FU YI CHENG Technology Co., Ltd.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12556,6 +12571,14 @@
 00:50:C2:9E:30:00/36	BeonAutoma             # beON Automatenmanagement GmbH
 00:50:C2:9E:40:00/36	PyxisContr             # Pyxis Controls WLL
 00:50:C2:9E:50:00/36	Halliburto             # Halliburton Far East Pte Ltd
+00:50:C2:9E:60:00/36	KumhoElect             # Kumho Electric, Inc.
+00:50:C2:9E:70:00/36	DorletSA               # DORLET S.A.
+00:50:C2:9E:80:00/36	Hammock                # Hammock Corporation
+00:50:C2:9E:90:00/36	CiemmeSist             # Ciemme Sistemi Spa
+00:50:C2:9E:A0:00/36	Sismodular             # SISMODULAR - Engenharia, Lda
+00:50:C2:9E:B0:00/36	AforeSolut             # AFORE Solutions Inc.
+00:50:C2:9E:C0:00/36	TopexSa                # TOPEX SA
+00:50:C2:9E:D0:00/36	PicellBV               # Picell B.V.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
