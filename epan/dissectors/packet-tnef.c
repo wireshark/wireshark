@@ -147,6 +147,8 @@ static int hf_tnef_PropValue_i = -1;
 static int hf_tnef_PropValue_l = -1;
 static int hf_tnef_PropValue_b = -1;
 static int hf_tnef_PropValue_lpszA = -1;
+static int hf_tnef_PropValue_lpszW = -1;
+static int hf_tnef_PropValue_lpguid = -1;
 static int hf_tnef_PropValue_bin = -1;
 static int hf_tnef_PropValue_ft = -1;
 static int hf_tnef_PropValue_err = -1;
@@ -245,7 +247,7 @@ static const value_string tnef_Attribute_vals[] = {
 	{ 0, NULL }
 };
 
-static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packet_info *pinfo _U_, proto_tree *tree, gboolean single)
+static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packet_info *pinfo _U_, proto_tree *tree, gboolean single, gboolean unicode)
 {
 	 proto_item *item;
 	 guint32 length, count, i;
@@ -271,7 +273,12 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 		 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, TRUE);
 		 offset += 4;
 
-		 proto_tree_add_item(tree, hf_id, tvb, offset, length, FALSE);
+		 if (unicode) {
+			 char *unicode_str = tvb_get_ephemeral_faked_unicode(tvb, offset, length/2, TRUE);
+			 proto_tree_add_string(tree, hf_id, tvb, offset, length, unicode_str);
+		 } else {
+			 proto_tree_add_item(tree, hf_id, tvb, offset, length, FALSE);
+		 }
 		 offset += length;
 
 		 /* XXX: may be padding ? */
@@ -433,16 +440,16 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_b, 0);
 				break;
 			case PT_STRING8:
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE);
+				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, FALSE);
 				break;
 			case PT_BINARY:
-				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE);
+				offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, FALSE);
 				break;
-			case PT_UNICODE: /* XXX */
-				/* offset = nspi_dissect_element_SPropValue_CTR_lpszW(tvb, offset, pinfo, prop_tree, drep); */
+			case PT_UNICODE:
+				offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, TRUE);
 				break;
-			case PT_CLSID: /* XXX */
-				/* offset = nspi_dissect_element_SPropValue_CTR_lpguid(tvb, offset, pinfo, prop_tree, drep); */
+			case PT_CLSID:
+				offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, drep, hf_tnef_PropValue_lpguid, 0);
 				break;
 			case PT_SYSTIME:
 				offset = nspi_dissect_struct_FILETIME(tvb,offset,pinfo,prop_tree,drep,hf_tnef_PropValue_ft,0);
@@ -774,6 +781,10 @@ proto_register_tnef(void)
       { "B", "tnef.PropValue.b", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_tnef_PropValue_lpszA, 
       { "Lpsza", "tnef.PropValue.lpszA", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+    { &hf_tnef_PropValue_lpszW, 
+      { "Lpszw", "tnef.PropValue.lpszW", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+    { &hf_tnef_PropValue_lpguid, 
+      { "Lpguid", "tnef.PropValue.lpguid", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
     { &hf_tnef_PropValue_bin, 
       { "Bin", "tnef.PropValue.bin", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
     { &hf_tnef_PropValue_ft, 
