@@ -2745,7 +2745,7 @@ proto_register_vnc(void)
 		},
 
 		{ &hf_vnc_fb_update_height,
-		  { "Height", "vnc.fb_update_width",
+		  { "Height", "vnc.fb_update_height",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "Height of this server framebuffer update", HFILL }
 		},
