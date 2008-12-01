@@ -1006,7 +1006,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	
 		if (version == 5) {
 			record_length = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(tree, hf_sflow_fs_recordlength, tvb, offset, 4, FALSE);
+			ti = proto_tree_add_item(tree, hf_sflow_fs_recordlength, tvb, offset, 4, FALSE);
+			extended_data_tree = proto_item_add_subtree(ti, ett_sflow_extended_data);
 			offset += 4;
 			nextoffset = offset + record_length;
 	
@@ -1072,28 +1073,28 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 				    hf_sflow4_extended_information_type, tvb, offset, 4,
 				    ext_type);
 				offset += 4;
-			}
 	
-			switch (ext_type) {
-			case SFLOW_EXTENDED_SWITCH:
-				offset = dissect_sflow_extended_switch(tvb, extended_data_tree, offset);
-				break;
-			case SFLOW_EXTENDED_ROUTER:
-				offset = dissect_sflow_extended_router(tvb, extended_data_tree, offset);
-				break;
-			case SFLOW_EXTENDED_GATEWAY:
-				offset = dissect_sflow_extended_gateway(tvb, extended_data_tree, offset);
-				break;
-			case SFLOW_EXTENDED_URL:
-				offset = dissect_sflow_extended_url(tvb, extended_data_tree, offset);
-				break;
-			case SFLOW_EXTENDED_USER:
-				offset = dissect_sflow_extended_user(tvb, extended_data_tree, offset);
-				break;
-			default:
-				break;
+				switch (ext_type) {
+				case SFLOW_EXTENDED_SWITCH:
+					offset = dissect_sflow_extended_switch(tvb, extended_data_tree, offset);
+					break;
+				case SFLOW_EXTENDED_ROUTER:
+					offset = dissect_sflow_extended_router(tvb, extended_data_tree, offset);
+					break;
+				case SFLOW_EXTENDED_GATEWAY:
+					offset = dissect_sflow_extended_gateway(tvb, extended_data_tree, offset);
+					break;
+				case SFLOW_EXTENDED_URL:
+					offset = dissect_sflow_extended_url(tvb, extended_data_tree, offset);
+					break;
+				case SFLOW_EXTENDED_USER:
+					offset = dissect_sflow_extended_user(tvb, extended_data_tree, offset);
+					break;
+				default:
+					break;
+				}
+				proto_item_set_end(ti, tvb, offset);
 			}
-			proto_item_set_end(ti, tvb, offset);
 		}
 	}
 	if (version == 5)
@@ -1148,6 +1149,7 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 				"%s record", val_to_str(counters_type, sflow_counterstype, "%u"));
 	        	record_tree = proto_item_add_subtree(ti, ett_sflow_counters_record);
 		} else {
+			record_length = 0;
 			record_tree = tree;
 		}
 		proto_tree_add_item(record_tree, hf_sflow_cs_record_type, tvb, offset, 4, FALSE);
