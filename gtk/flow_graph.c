@@ -487,11 +487,11 @@ static void flow_graph_dlg_create (void)
 
 	flow_graph_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Flow Graph");
 
-	gtk_window_set_default_size(GTK_WINDOW(flow_graph_dlg_w), 350, 150);
+	gtk_window_set_default_size(GTK_WINDOW(flow_graph_dlg_w), 250, 150);
 
 	main_vb = gtk_vbox_new (FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(flow_graph_dlg_w), main_vb);
-	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
+	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 7);
 
 #if 0
 	top_label = gtk_label_new ("Choose packets to include in the graph");
@@ -502,10 +502,10 @@ static void flow_graph_dlg_create (void)
 
 	/*** Packet range frame ***/
 	range_fr = gtk_frame_new("Choose packets");
-	gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 5);
 
-    range_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
+	range_tb = gtk_table_new(4, 4, FALSE);
+	gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
 	gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
 
 	/* Process all packets */
@@ -524,22 +524,21 @@ static void flow_graph_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, select_displayed_rb,
 		("Process displayed packets"), NULL);
 	g_signal_connect(select_displayed_rb, "toggled", G_CALLBACK(toggle_select_displayed), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_displayed_rb, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_displayed_rb, 0, 1, 1, 2);
 	if (type_of_packets == DISPLAYED) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_displayed_rb),TRUE);
 	}
   	gtk_widget_show(select_displayed_rb);
 
 	gtk_widget_show(range_tb);
-
 	gtk_widget_show(range_fr);
 
 	/*** Flow type frame ***/
 	flow_type_fr = gtk_frame_new("Choose flow type");
-	gtk_box_pack_start(GTK_BOX(main_vb), flow_type_fr, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), flow_type_fr, FALSE, FALSE, 5);
 
-    flow_type_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(flow_type_tb), 5);
+	flow_type_tb = gtk_table_new(4, 4, FALSE);
+	gtk_container_set_border_width(GTK_CONTAINER(flow_type_tb), 5);
 	gtk_container_add(GTK_CONTAINER(flow_type_fr), flow_type_tb);
 
 	/* General information */
@@ -558,11 +557,10 @@ static void flow_graph_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, select_tcp_rb,
 		("Show only TCP packets, with TCP specific information"), NULL);
 	g_signal_connect(select_tcp_rb, "toggled", G_CALLBACK(toggle_select_tcp), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_tcp_rb, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_tcp_rb, 0, 1, 1, 2);
 	if (type_of_flow == TCP) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_tcp_rb),TRUE);
 	}
-
   	gtk_widget_show(select_tcp_rb);
 
 	gtk_widget_show(flow_type_tb);
@@ -570,10 +568,10 @@ static void flow_graph_dlg_create (void)
 
 	/*** Node address type frame ***/
 	node_addr_fr = gtk_frame_new("Choose node address type");
-	gtk_box_pack_start(GTK_BOX(main_vb), node_addr_fr, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), node_addr_fr, FALSE, FALSE, 5);
 
-    node_addr_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(node_addr_tb), 5);
+	node_addr_tb = gtk_table_new(4, 4, FALSE);
+	gtk_container_set_border_width(GTK_CONTAINER(node_addr_tb), 5);
 	gtk_container_add(GTK_CONTAINER(node_addr_fr), node_addr_tb);
 
 	/* Source / Dest address */
@@ -592,11 +590,10 @@ static void flow_graph_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, net_src_dst_rb,
 		("Nodes in the diagram are identified with network source and destination addresses"), NULL);
 	g_signal_connect(net_src_dst_rb, "toggled", G_CALLBACK(toggle_select_netsrcdst), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 1, 2, 0, 1);
+	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 0, 1, 1, 2);
 	if (node_addr_type == NET_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
 	}
-
   	gtk_widget_show(net_src_dst_rb);
 
 	gtk_widget_show(node_addr_tb);
@@ -604,7 +601,7 @@ static void flow_graph_dlg_create (void)
 
         /* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
-	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 5);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 
