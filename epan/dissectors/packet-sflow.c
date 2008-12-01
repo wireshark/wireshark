@@ -1299,6 +1299,7 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* decide what kind of sample it is. */
 	if (version != 5) {
 		sample_type = tvb_get_ntohl(tvb, offset);
+		sample_enterprise = 0;
 		ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
 			val_to_str(sample_type, sflow4_sampletype,
 			"Unknown sample type (v4)"));
