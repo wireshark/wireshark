@@ -1694,9 +1694,6 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	if(!segment){
 		segment=g_malloc(sizeof (struct segment));
-		if(!segment){
-			perror ("malloc failed");
-		}
 	}
 
 
