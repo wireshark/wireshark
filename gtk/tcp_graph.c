@@ -772,7 +772,7 @@ static void create_drawing_area (struct graph *g)
 	 * and we don't have the GC's at all. so we just postpone installation
 	 * of configure handler until we're ready to deal with it.
 	 *
-	 * !!! NEMÌLO BY TO BÝT NA KONCI graph_init_sequence()? !!!
+	 * !!! NEMLLO BY TO BYT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
 	g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),

@@ -1422,7 +1422,7 @@ capture_remote_combo_add_recent(gchar *s)
 
   prefs_clear_string_list(vals);
 
-  g_hash_table_insert (remote_host_list, strdup(rh->remote_host), rh);
+  g_hash_table_insert (remote_host_list, g_strdup(rh->remote_host), rh);
 
   return TRUE;
 }

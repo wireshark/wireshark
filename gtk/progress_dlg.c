@@ -98,7 +98,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     /* limit the item_title to some reasonable length */
     item_title_dup = g_strdup(item_title);
     if (strlen(item_title_dup) > 110) {
-        strncpy(&item_title_dup[100], "...", 4);
+        g_strlcpy(&item_title_dup[100], "...", 4);
     }
 
     dlg->title = g_strdup_printf("%s: %s", task_title, item_title_dup);
