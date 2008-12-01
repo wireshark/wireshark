@@ -94,17 +94,19 @@ nameres_prefs_show(void)
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
 	GtkTooltips *tooltips = gtk_tooltips_new();
+	GtkWidget	*c_resolv_cb;
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
-	GtkWidget	*c_resolv_cb, *resolv_concurrency_te;
+	GtkWidget	*resolv_concurrency_te;
 	char		concur_str[10+1];
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
+	GtkWidget	*sm_resolv_bt;
 #ifdef HAVE_LIBSMI
-	GtkWidget	*sp_resolv_bt, *sm_resolv_bt;
+	GtkWidget	*sp_resolv_bt;
 	uat_t *smi_paths_uat;
 	uat_t *smi_modules_uat;
 #endif
-#ifdef HAVE_GEOIP
 	GtkWidget	*geoip_resolv_bt;
+#ifdef HAVE_GEOIP
 	uat_t		*geoip_db_paths_uat;
 #endif
 	/*
@@ -165,6 +167,11 @@ nameres_prefs_show(void)
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	g_object_set_data(G_OBJECT(main_vb), RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
+#else /* HAVE_C_ARES || HAVE_GNU_ADNS */
+	table_row++;
+	c_resolv_cb = create_preference_static_text(main_tb, table_row,
+	    "Enable concurrent DNS name resolution: N/A",
+	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	/* SMI paths UAT */
@@ -190,6 +197,11 @@ nameres_prefs_show(void)
                     smi_modules_uat);
 		g_object_set_data(G_OBJECT(main_vb), SM_RESOLVE_KEY, sm_resolv_bt);
 	}
+#else /* HAVE_LIBSMI */
+	table_row++;
+	sm_resolv_bt = create_preference_static_text(main_tb, table_row,
+	    "SMI (MIB and PIB) modules and paths: N/A",
+	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_LIBSMI */
 
 #ifdef HAVE_GEOIP
@@ -207,6 +219,11 @@ nameres_prefs_show(void)
                     geoip_db_paths_uat);
 		g_object_set_data(G_OBJECT(main_vb), GEOIP_RESOLVE_KEY, geoip_resolv_bt);
 	}
+#else /* HAVE_GEOIP */
+	table_row++;
+	geoip_resolv_bt = create_preference_static_text(main_tb, table_row,
+	    "GeoIP database search paths: N/A",
+	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_GEOIP */
 
 	/* Show 'em what we got */
