@@ -403,6 +403,10 @@ static int hf_gsm_a_bssmap_tf = -1;
 static int hf_gsm_a_bssmap_pi = -1;
 static int hf_gsm_a_bssmap_pt = -1;
 static int hf_gsm_a_bssap_speech_codec = -1;
+static int hf_gsm_a_bssmap_fi2 = -1;
+static int hf_gsm_a_bssmap_tf2 = -1;
+static int hf_gsm_a_bssmap_pi2 = -1;
+static int hf_gsm_a_bssmap_pt2 = -1;
 static int hf_gsm_a_bssmap_call_id = -1;
 static int hf_gsm_a_bssmap_spare = -1;
 static int hf_gsm_a_bssmap_positioning_data_discriminator = -1;
@@ -3384,16 +3388,84 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * 3.2.2.104	Speech Codec
  */
-
+static const true_false_string bssmap_fi2_vals = {
+   "AoIP with compressed speech via RTP/UDP/IP is selected for this Codec Type",
+   "Compressed speech via RTP/UDP/IP is not selected for this Codec Type"
+};
+static const true_false_string bssmap_tf2_vals = {
+	"TFO Support is selected for this Codec Type",
+	"TFO Support is not selected for this Codec Type"
+};
+static const true_false_string bssmap_pi2_vals = {
+	"PCM over A-Interface via RTP/UPD/IP is selected for this Codec Type",
+	"PCM over A interface with RTP/UDP/IP is not selected for this Codec Type"
+};
+static const true_false_string bssmap_pt2_vals = {
+	"PCM over A-Interface with TDM as transport is selected for this Codec Type",
+	"PCM over A-Interface with TDM as transport is not selected for this Codec Type"
+};
 static guint8
 be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, consumed = 0;
+	guint8 codec;
+	guint8 number = 0;
+	proto_item	*item = NULL;
+	proto_tree	*subtree = NULL;
 
 	curr_offset = offset;
-
-	/* Speech Codec Element 1 - n */
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	
+	while (curr_offset-offset < len){
+		number++;
+		consumed=0;
+		item = proto_tree_add_text(tree, tvb, curr_offset, 1, "Speech Codec Element %u",number);
+		subtree = proto_item_add_subtree(item, ett_codec_lst);
+		codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
+		/* FI indicates Full IP */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, FALSE);
+		/* TF indicates TFO support */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, FALSE);
+		/* PI indicates PCMoIP */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, FALSE);
+		/* PT indicates PCMoTDM */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, FALSE);
+		/* Codec Type */
+		proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+		consumed++;
+		switch(codec){
+			case 3:
+				/* fall trough */
+			case 4:
+				/* fall trough */
+			case 0xb:
+				/* FR_AMR is coded '011' 
+				 * HR_AMR is coded '100'
+				 * OHR_AMR is coded '1011'
+				 */
+				proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
+				curr_offset+=2;
+				consumed+=2;
+				break;
+			case 0x9:
+				/* fall trough */
+			case 0xc:
+				/* fall trough */
+			case 0xd:
+				/* FR_AMR-WB is coded '1001'  
+				 * OFR_AMR-WB is coded ‘1100’  
+				 * OHR_AMR-WB is coded '1101'
+				 */
+				proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
+				curr_offset++;
+				consumed++;
+				break;
+			default:
+				break;
+		}	
+	}
+	proto_item_set_len(item, consumed);
+	return(len);
 
 	return(len);
 }
@@ -5951,6 +6023,27 @@ proto_register_gsm_a_bssmap(void)
 		FT_UINT8, BASE_DEC,VALS(bssap_speech_codec_values), 0x0f,
 		"Codec Type ", HFILL }
 	},
+	{ &hf_gsm_a_bssmap_fi2,
+		{ "FI(Full IP)","gsm_a_bssmap.fi2",
+		FT_BOOLEAN,8, TFS(&bssmap_fi2_vals), 0x80,
+		"FI(Full IP)", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_tf2,
+		{ "TF","gsm_a_bssmap.tf2",
+		FT_BOOLEAN,8, TFS(&bssmap_tf2_vals), 0x40,
+		"TF", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_pi2,
+		{ "PI","gsm_a_bssmap.pi2",
+		FT_BOOLEAN,8, TFS(&bssmap_pi2_vals), 0x20,
+		"PI", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_pt2,
+		{ "PT","gsm_a_bssmap.pt2",
+		FT_BOOLEAN,8, TFS(&bssmap_pt2_vals), 0x10,
+		"PT", HFILL }
+	},
+
 	{ &hf_gsm_a_bssmap_call_id,
 		{ "Call Identifier","gsm_a_bssmap.callid",
 		FT_UINT32, BASE_DEC,NULL, 0x0,
