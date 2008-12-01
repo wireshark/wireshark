@@ -1173,8 +1173,8 @@ proto_register_bpdu(void)
 
   bpdu_module = prefs_register_protocol(proto_bpdu, NULL);
   prefs_register_bool_preference(bpdu_module, "use_system_id_extension",
-    "Use 801.1t System ID Extensions",
-    "Whether the BPDU dissector should use 801.1t System ID Extensions when dissecting the Bridge Identifier",
+    "Use 802.1t System ID Extensions",
+    "Whether the BPDU dissector should use 802.1t System ID Extensions when dissecting the Bridge Identifier",
     &bpdu_use_system_id_extensions);
 }
 
