@@ -138,6 +138,17 @@ static const true_false_string if_status_up_down = {
 #define SFLOW_COUNTERS_VLAN 7
 #define SFLOW_COUNTERS_CPU 1001
 
+static const value_string sflow_counterstype_short [] = {
+	{ SFLOW_COUNTERS_GENERIC, "Generic" },
+	{ SFLOW_COUNTERS_ETHERNET, "Ethernet" },
+	{ SFLOW_COUNTERS_FDDI, "FDDI" },
+	{ SFLOW_COUNTERS_VG, "100baseVG" },
+	{ SFLOW_COUNTERS_WAN, "WAN" },
+	{ SFLOW_COUNTERS_VLAN, "VLAN" },
+	{ SFLOW_COUNTERS_CPU, "CPU" },
+	{ 0, NULL }
+};
+
 static const value_string sflow_counterstype [] = {
 	{ SFLOW_COUNTERS_GENERIC, "Generic counters" },
 	{ SFLOW_COUNTERS_ETHERNET, "Ethernet counters" },
@@ -146,12 +157,6 @@ static const value_string sflow_counterstype [] = {
 	{ SFLOW_COUNTERS_WAN, "WAN counters" },
 	{ SFLOW_COUNTERS_VLAN, "VLAN counters" },
 	{ SFLOW_COUNTERS_CPU, "CPU counters" },
-	{ 0, NULL }
-};
-
-/* flow sample types */
-
-static const value_string sflow_flowsamplestype [] = {
 	{ 0, NULL }
 };
 
@@ -401,6 +406,7 @@ static int hf_sflow_numsamples = -1;
 static int hf_sflow_sample_type = -1;
 static int hf_sflow_sample_type_enterprise = -1;
 static int hf_sflow_sample_type_enterprisetype = -1;
+static int hf_sflow_sample_type_defaulttype = -1;
 static int hf_sflow_sample_length = -1;
 
 /* Flowsample header */
@@ -421,7 +427,6 @@ static int hf_sflow_fs_recordlength = -1;
 static int hf_sflow_cs_seqno = -1;
 static int hf_sflow_cs_sourceid_type = -1;
 static int hf_sflow_cs_sourceid_index = -1;
-static int hf_sflow_cs_samplingrate = -1;
 static int hf_sflow_cs_samplinginterval = -1;
 static int hf_sflow_cs_numrecords = -1;
 static int hf_sflow_cs_record_type = -1;
@@ -454,12 +459,16 @@ static int hf_sflow_fs_ip_tos = -1;
 static int hf_sflow_fs_ip_priority = -1;
 
 /* Flowsample Tokenring packet */
+/* XXX */
 
 /* Flowsample 100BaseVG packet */
+/* XXX */
 
 /* Flowsample VLAN packet */
+/* XXX */
 
 /* Flowsample CPU packet */
+/* XXX */
 
 /* sflow record */
 static int hf_sflow4_fs_record_type = -1;
@@ -484,7 +493,6 @@ static int hf_sflow_dst_as_entries = -1; /* aka length */
 static int hf_sflow_dst_as = -1;
 /* extended gateway (>= version 4) */
 static int hf_sflow_community_entries = -1;
-static int hf_sflow_community = -1;
 static int hf_sflow_localpref = -1;
 
 /* generic counters */
@@ -964,9 +972,10 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item_append_text(parent, ", seq %u", sequence_number);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_sflow_fs_sourceid_type, tvb, offset, 4, FALSE);
-	proto_tree_add_item(tree, hf_sflow_fs_sourceid_index, tvb, offset, 4, FALSE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_sflow_fs_sourceid_type, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_sflow_fs_sourceid_index, tvb, offset, 3, FALSE);
+	offset += 3;
 
 	proto_tree_add_item(tree, hf_sflow_fs_samplingrate, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -998,16 +1007,19 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	for (j = 0; j < num_records; j++) {
 		/* what kind of flow sample is it? */
 		packet_type = tvb_get_ntohl(tvb, offset);
-		if (version == 5)
+		if (version == 5) {
 			proto_tree_add_item(tree, hf_sflow5_fs_record_type, tvb, offset, 4, FALSE);
-		else
+			proto_item_append_text(parent, ", %s",
+				val_to_str(packet_type, sflow5_packet_fs_record_type, "%u"));
+		} else {
 			proto_tree_add_item(tree, hf_sflow4_fs_record_type, tvb, offset, 4, FALSE);
+		}
 		offset += 4;
 	
 		if (version == 5) {
 			record_length = tvb_get_ntohl(tvb, offset);
-			ti = proto_tree_add_item(tree, hf_sflow_fs_recordlength, tvb, offset, 4, FALSE);
-			extended_data_tree = proto_item_add_subtree(ti, ett_sflow_extended_data);
+			proto_tree_add_item(tree, hf_sflow_fs_recordlength, tvb, offset, 4, FALSE);
+			extended_data_tree = tree;
 			offset += 4;
 			nextoffset = offset + record_length;
 	
@@ -1033,8 +1045,12 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 			case SFLOW5_PACKET_DATA_TYPE_GATEWAY:
 				offset = dissect_sflow_extended_gateway(tvb, extended_data_tree, offset);
 				break;
-			case SFLOW5_PACKET_DATA_TYPE_USER:
 			case SFLOW5_PACKET_DATA_TYPE_URL:
+				offset = dissect_sflow_extended_url(tvb, extended_data_tree, offset);
+				break;
+			case SFLOW5_PACKET_DATA_TYPE_USER:
+				offset = dissect_sflow_extended_user(tvb, extended_data_tree, offset);
+				break;
 			case SFLOW5_PACKET_DATA_TYPE_MPLS:
 			case SFLOW5_PACKET_DATA_TYPE_MPLSTUN:
 			case SFLOW5_PACKET_DATA_TYPE_MPLSVC:
@@ -1065,13 +1081,11 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 				 * the end, so more info can be correct.
 				 */
 				ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-										 val_to_str(ext_type,
-													sflow_extended_data_types,
-													"Unknown extended information"));
+					val_to_str(ext_type, sflow_extended_data_types,
+						"Unknown extended information"));
 				extended_data_tree = proto_item_add_subtree(ti, ett_sflow_extended_data);
 				proto_tree_add_uint(extended_data_tree,
-				    hf_sflow4_extended_information_type, tvb, offset, 4,
-				    ext_type);
+				    hf_sflow4_extended_information_type, tvb, offset, 4, ext_type);
 				offset += 4;
 	
 				switch (ext_type) {
@@ -1125,9 +1139,10 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 	proto_item_append_text(parent, ", seq %u", sequence_number);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_sflow_cs_sourceid_type, tvb, offset, 4, FALSE);
-	proto_tree_add_item(tree, hf_sflow_cs_sourceid_index, tvb, offset, 4, FALSE);
-	offset += 4;
+	proto_tree_add_item(tree, hf_sflow_cs_sourceid_type, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_sflow_cs_sourceid_index, tvb, offset, 3, FALSE);
+	offset += 3;
 
 	if (version == 5) {
 		num_records = tvb_get_ntohl(tvb, offset);
@@ -1147,6 +1162,8 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 			record_length = tvb_get_ntohl(tvb, offset + 4);
 			ti = proto_tree_add_text(tree, tvb, offset, record_length + 8,
 				"%s record", val_to_str(counters_type, sflow_counterstype, "%u"));
+			proto_item_append_text(parent, ", %s",
+				val_to_str(counters_type, sflow_counterstype_short, "%u"));
 	        	record_tree = proto_item_add_subtree(ti, ett_sflow_counters_record);
 		} else {
 			record_length = 0;
@@ -1300,7 +1317,19 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	sflow_sample_tree = proto_item_add_subtree(ti, ett_sflow_sample);
 
-	proto_tree_add_item(sflow_sample_tree, hf_sflow_sample_type, tvb, offset, 4, FALSE);
+	if (version != 5) {
+		proto_tree_add_item(sflow_sample_tree, hf_sflow_sample_type, tvb, offset, 4, FALSE);
+	} else {
+		proto_tree_add_item(sflow_sample_tree, hf_sflow_sample_type_enterprise,
+			tvb, offset, 4, FALSE);
+		if (sample_enterprise == 0) {
+			proto_tree_add_item(sflow_sample_tree, hf_sflow_sample_type_defaulttype,
+				tvb, offset, 4, FALSE);
+		} else {
+			proto_tree_add_item(sflow_sample_tree, hf_sflow_sample_type_enterprisetype,
+				tvb, offset, 4, FALSE);
+		}
+	}
 	offset += 4;
 
 	switch (sample_type) {
@@ -1514,6 +1543,11 @@ proto_register_sflow(void)
 			FT_UINT32, BASE_DEC, NULL, 0xfffff000,
 			"Enterprise of sFlow sample", HFILL }
 		},
+		{ &hf_sflow_sample_type_defaulttype,
+		  { "sFlow sample type", "sflow.sample.enterprisetype",
+			FT_UINT32, BASE_DEC, VALS(sflow5_sampletype), 0x00000fff,
+			"Enterprisetype of sFlow sample", HFILL }
+		},
 		{ &hf_sflow_sample_type_enterprisetype,
 		  { "sFlow sample type", "sflow.sample.enterprisetype",
 			FT_UINT32, BASE_DEC, NULL, 0x00000fff,
@@ -1533,12 +1567,12 @@ proto_register_sflow(void)
 		},
 		{ &hf_sflow_fs_sourceid_type,
 		  { "Source ID type", "sflow.fs.sourceidtype",
-			FT_UINT32, BASE_DEC, VALS(sflow_sample_sourceidtype), 0xff000000,
+			FT_UINT8, BASE_DEC, VALS(sflow_sample_sourceidtype), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sflow_fs_sourceid_index,
 		  { "Source ID index", "sflow.fs.sourceidindex",
-			FT_UINT32, BASE_DEC, NULL, 0x00ffffff,
+			FT_UINT24, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sflow_fs_samplingrate,
@@ -1605,18 +1639,13 @@ proto_register_sflow(void)
 		},
 		{ &hf_sflow_cs_sourceid_type,
 		  { "Source ID type", "sflow.cs.sourceidtype",
-			FT_UINT32, BASE_DEC, VALS(sflow_sample_sourceidtype), 0xff000000,
+			FT_UINT8, BASE_DEC, VALS(sflow_sample_sourceidtype), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sflow_cs_sourceid_index,
 		  { "Source ID index", "sflow.cs.sourceidindex",
-			FT_UINT32, BASE_DEC, NULL, 0x00ffffff,
+			FT_UINT24, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
-		},
-		{ &hf_sflow_cs_samplingrate,
-		  { "Sampling rate", "sflow.cs.samplingrate",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Sample 1 out of N packets", HFILL }
 		},
 		{ &hf_sflow_cs_samplinginterval,
 		  { "Sampling interval", "sflow.cs.samplinginterval",
@@ -1824,11 +1853,6 @@ proto_register_sflow(void)
 		/* Needed for sFlow >= 4.  If I had a capture to test... */
 		{ &hf_sflow_community_entries,
 		  { "Gateway Communities", "sflow.communityEntries",
-			FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Gateway Communities", HFILL }
-		},
-		{ &hf_sflow_community,
-		  { "Gateway Community", "sflow.community",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Gateway Communities", HFILL }
 		},
