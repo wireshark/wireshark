@@ -1569,7 +1569,7 @@ proto_register_sflow(void)
 
 		/* Flowsample */
 		{ &hf_sflow_fs_seqno,
-		  { "Sequence number", "sflow.fs.seqno",
+		  { "Sample sequence number", "sflow.fs.seqno",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
