@@ -789,8 +789,19 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x0b:
    /*Call Duration Timer*/
-         proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
-         offset+=msg_len;
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_call_timer_mode,tvb,offset,
+                             1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_call_timer_reset,tvb,offset,
+                             1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_call_timer_display,tvb,offset,
+                             1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_call_timer_delay,tvb,offset,
+                             1,FALSE);
+         offset+=1;msg_len-=1;
+         proto_tree_add_item(msg_tree,hf_display_call_timer_id,tvb,offset,
+                             1,FALSE);
+         offset+=1;msg_len-=1;
          break;
       case 0x0c:
    /*Query Display Manager*/

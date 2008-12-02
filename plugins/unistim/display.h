@@ -118,6 +118,11 @@ static int hf_display_layer_skey_id=-1;
 static int hf_display_layer_all_skeys=-1;
 static int hf_display_once_or_cyclic=-1;
 static int hf_display_layer_duration=-1;
+static int hf_display_call_timer_mode=-1;
+static int hf_display_call_timer_reset=-1;
+static int hf_display_call_timer_display=-1;
+static int hf_display_call_timer_delay=-1;
+static int hf_display_call_timer_id=-1;
 
 
 static const value_string arrow_dirs[]={
@@ -246,6 +251,25 @@ static const value_string icon_types[]={
  {0,NULL}
 };
 
+static const true_false_string call_duration_timer_mode={
+  "Mode = start timer",
+  "Mode = stop timer"
+};
+
+static const true_false_string call_duration_timer_reset={
+  "Reset time to zero",
+  "Do not reset timer"
+};
+
+static const true_false_string call_duration_display_timer={
+  "Call Duration timer is shown on the display",
+  "Call Duration timer is not shown on the display"
+};
+
+static const true_false_string call_duration_timer_delay={
+  "Action occurs after Call Duration Timer Delay",
+  "Action occurs immediately"
+};
 
 #endif
 

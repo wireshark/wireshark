@@ -1296,6 +1296,27 @@ static hf_register_info hf[] = {
           {"User Activity Timeout Value","unistim.keys.user.timeout.value",FT_UINT8,
              BASE_DEC,NULL,0x00,NULL,HFILL}
        },
+       { &hf_display_call_timer_mode,
+         {"Call Timer Mode","unistim.display.call.timer.mode",FT_BOOLEAN,
+           8,TFS(&call_duration_timer_mode),DISPLAY_CALL_TIMER_MODE,NULL,HFILL}
+       },
+       { &hf_display_call_timer_reset,
+         {"Call Timer Reset","unistim.display.call.timer.reset",FT_BOOLEAN,
+           8,TFS(&call_duration_timer_reset),DISPLAY_CALL_TIMER_RESET,NULL,HFILL}
+       },
+       { &hf_display_call_timer_display,
+         {"Call Timer Display","unistim.display.call.timer.display",FT_BOOLEAN,
+           8,TFS(&call_duration_display_timer),DISPLAY_CALL_TIMER_DISPLAY,NULL,HFILL}
+       },
+       { &hf_display_call_timer_delay,
+         {"Call Timer Delay","unistim.display.call.timer.delay",FT_BOOLEAN,
+           8,TFS(&call_duration_timer_delay),DISPLAY_CALL_TIMER_DELAY,NULL,HFILL}
+       },
+       { &hf_display_call_timer_id,
+         {"Call Timer ID","unistim.display.call.timer.id",FT_UINT8,
+           BASE_DEC,NULL,DISPLAY_CALL_TIMER_ID,NULL,HFILL}
+       },
+
 /****LAST****/   
       { &hf_generic_string,
          {"DATA","unistim.generic.data",FT_STRING,
