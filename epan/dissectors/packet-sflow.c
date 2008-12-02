@@ -778,11 +778,11 @@ dissect_sflow_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static gint
 dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-	guint32 address_type;
+	guint32 nh_address_type;
 
-	address_type = tvb_get_ntohl(tvb, offset);
+	nh_address_type = tvb_get_ntohl(tvb, offset);
 	offset += 4;
-	switch (address_type) {
+	switch (nh_address_type) {
 	case ADDRESS_IPV4:
 		proto_tree_add_item(tree, hf_sflow_nexthop_v4, tvb, offset, 4, FALSE);
 		offset += 4;
@@ -793,7 +793,7 @@ dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset - 4, 4,
-			"Unknown address type (%d)", address_type);
+			"Unknown address type (%d)", nh_address_type);
 		offset += 4;  /* not perfect, but what else to do? */
 		return offset;  /* again, this is wrong.  but... ? */
 	};
@@ -834,7 +834,8 @@ dissect_sflow_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	sflow_dst_as_tree = proto_item_add_subtree(ti, ett_sflow_gw_as_dst);
 	offset += 4;
 
-	for (i = 0; i < dst_len; i++) {
+	i = 0;
+	while (i++ < dst_len) {
 		if( version < 4 ) {
 			/* Version 2 AS paths are different than versions >= 4 as
 			   follows:
@@ -869,7 +870,8 @@ dissect_sflow_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			sflow_dst_as_seg_tree = proto_item_add_subtree(ti, ett_sflow_gw_as_dst_seg);
 		}
 
-		for (j = 0; j < dst_seg_len; j++) {
+		j = 0;
+		while (j++ < dst_seg_len) {
 			proto_tree_add_item(sflow_dst_as_seg_tree, hf_sflow_dst_as,
 				tvb, offset, 4, FALSE);
 			offset += 4;
@@ -883,7 +885,8 @@ dissect_sflow_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ti = proto_tree_add_uint(tree, hf_sflow_community_entries, tvb, offset, 4, comm_len);
 		sflow_comm_tree = proto_item_add_subtree(ti, ett_sflow_gw_community);
 		offset += 4;
-		for (i = 0; i < comm_len; i++) {
+		i = 0;
+		while (i++ < comm_len) {
 			proto_tree_add_item(sflow_comm_tree, hf_sflow_dst_as, tvb,
 				offset, 4, FALSE);
 			offset += 4;
@@ -1004,7 +1007,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	} else {
 		num_records = 1;
 	}
-	for (j = 0; j < num_records; j++) {
+	j = 0;
+	while (j++ < num_records) {
 		/* what kind of flow sample is it? */
 		packet_type = tvb_get_ntohl(tvb, offset);
 		if (version == 5) {
@@ -1073,7 +1077,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 			/* still need to dissect extended data */
 			extended_data = tvb_get_ntohl(tvb,offset);
 			offset += 4;
-			for (i=0; i < extended_data; i++) {
+			i = 0;
+			while (i++ < extended_data) {
 				/* figure out what kind of extended data it is */
 				ext_type = tvb_get_ntohl(tvb,offset);
 		
@@ -1154,7 +1159,8 @@ dissect_sflow_counters_sample(tvbuff_t *tvb, proto_tree *tree,
 		offset += 4;
 	}
 
-	for (j = 0; j < num_records; j++) {
+	j = 0;
+	while (j++ < num_records) {
 		counters_type = tvb_get_ntohl(tvb, offset);
 		if (version == 5) {
 			/* To put the version 4 stuff also into a subree we'd need to calculate
@@ -1440,7 +1446,8 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * dissectors.
 	 */
 
-	for (i=0; i < numsamples; i++)
+	i = 0;
+	while (i++ < numsamples)
 		offset = dissect_sflow_samples(tvb, pinfo, sflow_tree, offset, version);
 
 	return tvb_length(tvb);
