@@ -2174,7 +2174,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
     }
 }
 
-static void subnet_name_lookup_init()
+static void subnet_name_lookup_init(void)
 {
     gchar* subnetspath;
 

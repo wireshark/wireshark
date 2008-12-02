@@ -1780,7 +1780,7 @@ get_sensor_info(unsigned int stype)
 	}
 
 	return &si_rsrv;
-};
+}
 
 static void
 parse_platform_event(tvbuff_t *tvb, proto_tree *tree)

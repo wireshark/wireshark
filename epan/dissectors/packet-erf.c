@@ -197,7 +197,7 @@ static gboolean erf_rawcell_first = FALSE;
 
 typedef enum {
   ERF_AAL5_GUESS = 0,
-  ERF_AAL5_LLC = 1,
+  ERF_AAL5_LLC = 1
 } erf_aal5_type_val;
 static gint erf_aal5_type = ERF_AAL5_GUESS;
 static dissector_handle_t atm_untruncated_handle;

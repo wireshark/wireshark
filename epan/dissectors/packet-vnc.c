@@ -135,7 +135,7 @@ typedef enum {
 	ENCODING_ZLIB		= 6,
 	ENCODING_TIGHT		= 7,
 	ENCODING_ZLIBHEX	= 8,
-	ENCODING_RLE		= 16,
+	ENCODING_RLE		= 16
 } encoding_type_e;
 
 static const value_string encoding_types_vs[] = {

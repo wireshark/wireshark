@@ -29,7 +29,7 @@
 GtkWidget *welcome_new(void);
 
 /* reset the list of recently used files */
-void main_welcome_reset_recent_capture_files();
+void main_welcome_reset_recent_capture_files(void);
 
 /* add a new file to the list of recently used files */
 void main_welcome_add_recent_capture_files(const char *widget_cf_name);

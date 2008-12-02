@@ -428,7 +428,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 
 /* reset the list of recent files */
 void
-main_welcome_reset_recent_capture_files()
+main_welcome_reset_recent_capture_files(void)
 {
     GtkWidget *child_box;
     GList* child_list;

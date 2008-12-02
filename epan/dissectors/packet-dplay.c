@@ -1210,7 +1210,7 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return FALSE;
 }
 
-void proto_register_dplay()
+void proto_register_dplay(void)
 {
     static hf_register_info hf [] = {
     /* Common data fields */

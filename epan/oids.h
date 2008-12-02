@@ -51,7 +51,7 @@ typedef enum _oid_key_type_t {
 	OID_KEY_TYPE_IMPLIED_OID,
 	OID_KEY_TYPE_IMPLIED_STRING,
 	OID_KEY_TYPE_IMPLIED_BYTES,
-	OID_KEY_TYPE_ETHER,
+	OID_KEY_TYPE_ETHER
 } oid_key_type_t;
 
 typedef struct _oid_value_type_t {
