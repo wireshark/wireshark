@@ -42,6 +42,7 @@
 #include <epan/reassemble.h>
 #include <epan/emem.h>
 
+#include <epan/sctpppids.h>
 #include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"
 
@@ -151,7 +152,7 @@ static dissector_handle_t q931_tpkt_pdu_handle;
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_tpkt, int offset, int initial_codeset);
+    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset);
 
 const value_string q931_message_type_vals[] = {
 	{ Q931_ESCAPE,			"ESCAPE" },
@@ -2425,7 +2426,7 @@ dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 
 static void
 dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_tpkt)
+    gboolean is_over_ip)
 {
 	int		offset = 0;
 	proto_tree	*q931_tree = NULL;
@@ -2504,13 +2505,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if ((message_type != Q931_SEGMENT) || !q931_reassembly || 
 			(tvb_reported_length_remaining(tvb, offset) <= 4)) {
-		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset, 0);
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0);
 		return;
 	}
 	info_element = tvb_get_guint8(tvb, offset);
 	info_element_len = tvb_get_guint8(tvb, offset + 1);
 	if ((info_element != Q931_IE_SEGMENTED_MESSAGE) || (info_element_len < 2)) {
-		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset, 0);
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0);
 		return;
 	}
 	/* Segmented message IE */
@@ -2556,7 +2557,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 	if (next_tvb)
-		dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_tpkt, 0, 0);
+		dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_over_ip, 0, 0);
 }
 
 static const value_string q931_codeset_vals[] = {
@@ -2570,7 +2571,7 @@ static const value_string q931_codeset_vals[] = {
 
 static void
 dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
-    proto_tree *q931_tree, gboolean is_tpkt, int offset, int initial_codeset)
+    proto_tree *q931_tree, gboolean is_over_ip, int offset, int initial_codeset)
 {
 	proto_item	*ti;
 	proto_tree	*ie_tree = NULL;
@@ -2700,7 +2701,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 		 * be H.225 traffic, and check for the IE being a user-user
 		 * IE with ASN.1 encoding of the user information.
 		 */
-		if (is_tpkt && tvb_bytes_exist(tvb, offset, 4) &&
+		if (is_over_ip && tvb_bytes_exist(tvb, offset, 4) &&
 		    codeset == 0 && tvb_get_guint8(tvb, offset) == Q931_IE_USER_USER &&
 		    tvb_get_guint8(tvb, offset + 3) == Q931_PROTOCOL_DISCRIMINATOR_ASN1)  {
 			info_element_len = tvb_get_ntohs(tvb, offset + 1);
@@ -3167,6 +3168,12 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_q931_over_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_q931_pdu(tvb, pinfo, tree, TRUE);
+}
+
+static void
 dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0);
@@ -3374,6 +3381,7 @@ proto_register_q931(void)
 	q931_tpkt_handle = find_dissector("q931.tpkt");
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
 	    proto_q931);
+	register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);
 	register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
 	register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
@@ -3399,9 +3407,13 @@ void
 proto_reg_handoff_q931(void)
 {
 	dissector_handle_t q931_handle;
+	dissector_handle_t q931_over_ip_handle;
 
 	q931_handle = find_dissector("q931");
 	dissector_add("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
+
+	q931_over_ip_handle = find_dissector("q931.over_ip");
+	dissector_add("sctp.ppi", H323_PAYLOAD_PROTOCOL_ID, q931_over_ip_handle);
 
 	/*
 	 * Attempt to get a handle for the H.225 dissector.
