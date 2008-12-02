@@ -1305,9 +1305,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (ip_tso_supported && !iph->ip_len) 
 	  iph->ip_len = tvb_reported_length(tvb);
 
-  /* Adjust the length of this tvbuff to include only the IP datagram. */
-  set_actual_length(tvb, iph->ip_len);
-
   if (iph->ip_len < hlen) {
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP length (%u, less than header length %u)",
@@ -1319,6 +1316,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
     return;
   }
+
+  /*
+   * Now that we know that the total length of this IP datagram isn't
+   * obviously bogus, adjust the length of this tvbuff to include only
+   * the IP datagram.
+   */
+  set_actual_length(tvb, iph->ip_len);
+
   if (tree)
 	proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
 
