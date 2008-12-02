@@ -48,16 +48,13 @@
 #include "broadcast.h"
 #include "uftp.h"
 
-/* Don't set this to 5000 until this dissector is made a heuristic one!
-   It collides (at least) with tapa. */
-static guint global_unistim_port = 0;
-
+static guint global_unistim_port = 5000;
 static unistim_info_t *uinfo;
 static int unistim_tap = -1;
 
 void proto_reg_handoff_unistim(void);
 static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
-static void dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
@@ -197,7 +194,7 @@ proto_reg_handoff_unistim(void) {
    static guint unistim_port;
 
    if (!initialized) {
-      unistim_handle=create_dissector_handle(dissect_unistim,proto_unistim);
+      unistim_handle=new_create_dissector_handle(dissect_unistim,proto_unistim);
       dissector_add_handle("udp.port", unistim_handle);  /* for "decode as" */
       initialized=TRUE;
    } else {
@@ -213,13 +210,38 @@ proto_reg_handoff_unistim(void) {
 }
 
 
-static void
+static int
 dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
    gint offset=0;
    proto_item *ti= NULL;
    proto_item *ti1= NULL;
    proto_tree *overall_unistim_tree = NULL;
    proto_tree *rudpm_tree=NULL;
+   gint size;
+
+   /* heuristic*/
+   switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
+      case 0x0:/*NAK*/
+      case 0x1:/*ACK*/
+         break;
+      case 0x2:/*PAYLOAD*/
+         switch(tvb_get_guint8(tvb,offset+5)){/*payload type 0,1,2,3,ff only */
+            case 0x0:/*NULL*/
+            case 0x1:/*UNISTIM*/
+            case 0x2:/*UNISTIM WITH TERM ID*/
+            case 0x3:/*UFTP*/
+            case 0xff:/*UNKNOWN BUT VALID*/
+               break;
+            default:
+               return 0;
+         }
+         break;
+      default:
+         return 0;
+   }
+
+
+   size=tvb_length_remaining(tvb, offset);
    if(check_col(pinfo->cinfo,COL_PROTOCOL))
          col_set_str(pinfo->cinfo,COL_PROTOCOL,"UNISTIM");
       /* Clear out stuff in the info column */
@@ -278,14 +300,13 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
               dissect_payload(overall_unistim_tree,tvb,offset,pinfo);
               break;
           default:
-              if (check_col(pinfo->cinfo, COL_INFO))
-                     col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown seq -   0x%X",
-                                   tvb_get_ntohl(tvb, offset-4));
+              return 0;
               break;
     }
 
     /* Queue packet for tap */
     tap_queue_packet(unistim_tap, pinfo, uinfo);
+    return size;
 }
 
 static void
