@@ -13,7 +13,7 @@
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Copyright 2005 - 2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2008, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -3550,7 +3550,7 @@ same as that of Service Configuration Record in TSB74, and J-STD-008.
 
 /* 6.5.2.f CDMAServiceOption N.S0010-0 v 1.0 */
 
-/* values copied from old ANSi map dissector */
+/* values copied from old ANSI map dissector */
 static const range_string cdmaserviceoption_vals[] = {
 	{ 1, 1, "Basic Variable Rate Voice Service (8 kbps)" }, 
 	{ 2, 2, "Mobile Station Loopback (8 kbps)" }, 
@@ -3602,7 +3602,16 @@ static const range_string cdmaserviceoption_vals[] = {
 	{ 59, 59, "HRPD Accounting Records Identifier" }, 
 	{ 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" }, 
 	{ 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" }, 
-	{ 62, 4099, "None Reserved for standard service options" }, 
+	{ 62, 62, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 2" },
+	{ 63, 63, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 1" },
+	{ 64, 64, "HRPD auxiliary Packet Data Service instance" },
+	{ 65, 65, "cdma2000/GPRS Inter-working" },
+	{ 66, 66, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
+	{ 67, 67, "HRPD Packet Data IP Service where Higher Layer Protocol is IP or ROHC" },
+	{ 68, 68, "Enhanced Variable Rate Voice Service (EVRC-B)" }, 
+	{ 69, 69, "HRPD Packet Data Service, which when used in paging over the 1x air interface, a page response is required" },
+	{ 70, 70, "Enhanced Variable Rate Voice Service (EVRC-WB)" }, 
+	{ 71, 4099, "None Reserved for standard service options" }, 
 	{ 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" }, 
 	{ 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" }, 
 	{ 4102, 4102, "Reserved for standard service option" },
@@ -9824,6 +9833,34 @@ static const ber_sequence_t QualificationRequestRes_U_set[] = {
   { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
+  { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
+  { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
+  { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
+  { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { &hf_ansi_map_lirMode    , BER_CLASS_CON, 369, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRMode },
   { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
   { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
   { NULL, 0, 0, 0, NULL }
@@ -15122,7 +15159,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3619 "packet-ansi_map-template.c"
+#line 3628 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -18869,7 +18906,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5213 "packet-ansi_map-template.c"
+#line 5222 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19123,7 +19160,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5246 "packet-ansi_map-template.c"
+#line 5255 "packet-ansi_map-template.c"
   };
 
 

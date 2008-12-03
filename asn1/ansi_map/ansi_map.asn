@@ -2085,6 +2085,63 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (HLR) O 6.5.2.82 f
 --	Profile **Macro** O 6.5.2.97 g	
+	authenticationCapability				[78] IMPLICIT AuthenticationCapability OPTIONAL,
+	-- O 6.5.2.8 a
+	callingFeaturesIndicator				[25] IMPLICIT CallingFeaturesIndicator OPTIONAL,
+	-- O 6.5.2.20 b
+	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
+	-- O 6.5.2.28 c
+	cdmaServiceOptionList					[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
+	-- O 6.5.2.g f, g
+	controlNetworkID						[307] IMPLICIT ControlNetworkID OPTIONAL,
+	-- O 6.5.2.ek u
+	dmh-AccountCodeDigits					[140] IMPLICIT DMH-AccountCodeDigits OPTIONAL,
+	-- O 6.5.2.59 d
+	dmh-AlternateBillingDigits				[141] IMPLICIT DMH-AlternateBillingDigits OPTIONAL,
+	-- O 6.5.2.60 d
+	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
+	-- O 6.5.2.61 d
+	geographicAuthorization					[143] IMPLICIT GeographicAuthorization OPTIONAL,
+	-- O 6.5.2.68 e
+	meidValidated							[401] IMPLICIT MEIDValidated OPTIONAL,
+	-- O 3.2.2.98
+	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
+	-- O 6.5.2.78 f
+	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	-- O 6.5.2.79 g
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	--  O 6.5.2.80 d
+	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
+	-- O 6.5.2.89 h
+	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
+	-- O 6.5.2.90 i
+	pACAIndicator							[146] IMPLICIT PACAIndicator OPTIONAL,
+	-- O 6.5.2.91 j
+	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
+	-- O 6.5.2.96 k
+	restrictionDigits						[227] IMPLICIT RestrictionDigits OPTIONAL,
+	-- O 6.5.2.113 l
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
+	-- O 6.5.2.114 m
+	sms-OriginationRestrictions				[115] IMPLICIT SMS-OriginationRestrictions OPTIONAL,
+	-- O 6.5.2.136 n
+	sms-TerminationRestrictions				[117] IMPLICIT SMS-TerminationRestrictions OPTIONAL,
+	-- O 6.5.2.138 o
+	spinipin								[154] IMPLICIT SPINIPIN OPTIONAL,
+	-- O 6.5.2.139 p
+	spiniTriggers							[155] IMPLICIT SPINITriggers OPTIONAL,
+	-- O 6.5.2.140 q
+	terminationRestrictionCode				[24] IMPLICIT TerminationRestrictionCode OPTIONAL,
+	-- O 6.5.2.157 r
+	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
+	-- O 6.5.2.159 s
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL,
+	-- O 6.5.2.de t
+	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
+	-- O 6.5.2.gl z
+	lirMode									[369] IMPLICIT LIRMode OPTIONAL,
+	-- O 6.5.2.gz z
+-- END MACRO
 	serviceRedirectionInfo					[238] IMPLICIT ServiceRedirectionInfo OPTIONAL,
 	-- O 6.5.2.bq h, i
 	roamingIndication						[239] IMPLICIT RoamingIndication OPTIONAL
@@ -6247,7 +6304,7 @@ CDMAServiceOption ::=  OCTET STRING
 --		Service Option in TSB74 and J-STD-008.
 
 -- 6.5.2.g N.S0010-0 v 1.0
--- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 1 1 1 1 1 1 (0xbf)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 0 0 (0x30)(176)
 CDMAServiceOptionList ::= SEQUENCE OF [175] IMPLICIT CDMAServiceOption

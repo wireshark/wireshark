@@ -5,7 +5,7 @@
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Copyright 2005 - 2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2008, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -2779,7 +2779,7 @@ same as that of Service Configuration Record in TSB74, and J-STD-008.
 
 /* 6.5.2.f CDMAServiceOption N.S0010-0 v 1.0 */
 
-/* values copied from old ANSi map dissector */
+/* values copied from old ANSI map dissector */
 static const range_string cdmaserviceoption_vals[] = {
 	{ 1, 1, "Basic Variable Rate Voice Service (8 kbps)" }, 
 	{ 2, 2, "Mobile Station Loopback (8 kbps)" }, 
@@ -2831,7 +2831,16 @@ static const range_string cdmaserviceoption_vals[] = {
 	{ 59, 59, "HRPD Accounting Records Identifier" }, 
 	{ 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" }, 
 	{ 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" }, 
-	{ 62, 4099, "None Reserved for standard service options" }, 
+	{ 62, 62, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 2" },
+	{ 63, 63, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 1" },
+	{ 64, 64, "HRPD auxiliary Packet Data Service instance" },
+	{ 65, 65, "cdma2000/GPRS Inter-working" },
+	{ 66, 66, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
+	{ 67, 67, "HRPD Packet Data IP Service where Higher Layer Protocol is IP or ROHC" },
+	{ 68, 68, "Enhanced Variable Rate Voice Service (EVRC-B)" }, 
+	{ 69, 69, "HRPD Packet Data Service, which when used in paging over the 1x air interface, a page response is required" },
+	{ 70, 70, "Enhanced Variable Rate Voice Service (EVRC-WB)" }, 
+	{ 71, 4099, "None Reserved for standard service options" }, 
 	{ 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" }, 
 	{ 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" }, 
 	{ 4102, 4102, "Reserved for standard service option" },
