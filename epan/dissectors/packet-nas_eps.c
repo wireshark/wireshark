@@ -51,6 +51,7 @@ static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
+static int hf_nas_eps_emm_spare_half_octet = -1;
 
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
@@ -176,8 +177,8 @@ typedef enum
 	DE_EMM_DET_TYPE,			/* 9.9.3.6	Detach type */
 	DE_EMM_DRX_PAR,				/* 9.9.3.6a	DRX parameter */
 	DE_EMM_CAUSE,				/* 9.9.3.7	EMM cause */
-	DE_EMM_ATT_RES,				/* 9.9.3.8	EPS attach result */
-	DE_EMM_ATT_TYPE,			/* 9.9.3.9	EPS attach type */
+	DE_EMM_ATT_RES,				/* 9.9.3.8	EPS attach result (Coded inline */
+	DE_EMM_ATT_TYPE,			/* 9.9.3.9	EPS attach type (Coded Inline)*/
 	DE_EMM_EPS_MID,				/* 9.9.3.10	EPS mobile identity */
 	DE_EMM_EPS_UPD_RES,			/* 9.9.3.11	EPS update result */
 	DE_EMM_EPS_UPD_TYPE,		/* 9.9.3.12	EPS update type */
@@ -187,7 +188,7 @@ typedef enum
 	DE_EMM_GPRS_IMEISV_REQ,		/* 9.9.3.16	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
 	DE_EMM_GPRS_KSI_AND_SEQ_NO,	/* 9.9.3.17	KSI and sequence number */
 	DE_EMM_GPRS_MS_NET_CAP,		/* 9.9.3.18	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-	DE_EMM_NAS_KEY_SET_ID,	/* 9.9.3.19	NAS key set identifier */
+	DE_EMM_NAS_KEY_SET_ID,		/* 9.9.3.19	NAS key set identifier (coded inline)*/
 	DE_EMM_GPRS_NAS_SEC_ALGS,	/* 9.9.3.20	NAS security algorithms */
 	DE_EMM_GPRS_NET_NAME,		/* 9.9.3.21	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
 	DE_EMM_GPRS_NONCE,			/* 9.9.3.21a	Nonce */
@@ -234,19 +235,8 @@ static const value_string nas_eps_emm_EPS_attach_result_values[] = {
 	{ 7,	"reserved"},
 	{ 0, NULL }
 };
+/* Coded in line */
 
-static guint8
-de_emm_att_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 1, FALSE);
-	proto_tree_add_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, curr_offset, 1, FALSE);
-
-	return(len);
-}
 /*
  * 9.9.3.9	EPS attach type
  */
@@ -262,23 +252,8 @@ static const value_string nas_eps_emm_eps_att_type_vals[] = {
 	{ 7,	"EPS attach"},
 	{ 0, NULL }
 };
+/* Coded inline */
 
-static guint8
-de_emm_att_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	/* 8	7	6	5		4	3	2	1
-	 *EPS attach type IEI	0   EPS attach type value
-	 *                     Spare	
-	 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_eps_att_type, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
-
-	return(curr_offset - offset);
-}
 /*
  * 9.9.3.10	EPS mobile identity
  */
@@ -343,25 +318,7 @@ static const value_string nas_eps_emm_NAS_key_set_identifier_vals[] = {
 	{ 7,	"No key is available"},
 	{ 0, NULL }
 };
-static guint8
-de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	/* 8	7	6	5				4	3	2	1
-	 * NAS key set identifier IEI	0	NAS key set identifier
-	 *								Spare	
-	 */
-	/*
-	 * NAS key set identifier
-	 */
-	proto_tree_add_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
-
-	return(curr_offset - offset);
-}
+/* Coded Inline */
 /*
  * 9.9.3.20	NAS security algorithms
  * 9.9.3.21	Network name
@@ -422,8 +379,8 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	NULL,						/* 9.9.3.6	Detach type */
 	NULL,						/* 9.9.3.6a	DRX parameter */
 	NULL,						/* 9.9.3.7	EMM cause */
-	de_emm_att_res,				/* 9.9.3.8	EPS attach result */
-	de_emm_att_type,			/* 9.9.3.9	EPS attach type */
+	NULL,						/* 9.9.3.8	EPS attach result (coded inline) */
+	NULL,						/* 9.9.3.9	EPS attach type(Coded Inline) */
 	de_emm_eps_mid,				/* 9.9.3.10	EPS mobile identity */
 	NULL,						/* 9.9.3.11	EPS update result */
 	NULL,						/* 9.9.3.12	EPS update type */
@@ -433,7 +390,7 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	NULL,						/* 9.9.3.16	IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
 	NULL,						/* 9.9.3.17	KSI and sequence number */
 	NULL,						/* 9.9.3.18	MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-	de_emm_nas_key_set_id,		/* 9.9.3.19	NAS key set identifier */
+	NULL,						/* 9.9.3.19	NAS key set identifier (Coded Inline) */
 	NULL,						/* 9.9.3.20	NAS security algorithms */
 	NULL,						/* 9.9.3.21	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
 	NULL,						/* 9.9.3.21a	Nonce */
@@ -459,7 +416,7 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static void
 nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, bit_offset;
 	guint32	consumed;
 	guint	curr_len;
 
@@ -467,8 +424,18 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* 	EPS attach result	EPS attach result 9.9.3.8	M	V	1/2 */
-	ELEM_MAND_V_SHORT(NAS_PDU_TYPE_EMM, DE_EMM_ATT_RES);
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
 	/* 	Spare half octet	Spare half octet 9.9.2.5	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix up the lengths */
+	consumed = 1;/*Remove later */
+	curr_len--;
+	curr_offset++;
 	/* 	T3412 value	GPRS timer 9.9.3.14	M	V	1 */
 	/* 	TAI list	Tracking area identity list 9.9.3.29	M	LV	7-97 */
 	/* 	ESM message container	ESM message container 9.9.3.13	M	LV-E	2-n */
@@ -496,18 +463,30 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, bit_offset;
 	guint32	consumed;
 	guint	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
 
-	/* EPS attach type	EPS attach type 9.9.3.9	M	V	1/2  */
-	ELEM_MAND_V_SHORT(NAS_PDU_TYPE_EMM, DE_EMM_ATT_TYPE);
+	/* EPS attach type	EPS attach type 9.9.3.9	M	V	1/2  
+	 * Inline:
+	 */
+	bit_offset = curr_offset<<3;
+	
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
 	/* NAS key set identifier	NAS key set identifier 9.9.3.19	M	V	1/2 */
-	ELEM_MAND_V_SHORT(NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID);
-	offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+	/* Fix up the lengths */
+	curr_len--;
+	curr_offset++;
 	/* Old GUTI or IMSI	EPS mobile identity 9.9.3.10	M	LV	5-12 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Old GUTI or IMSI");
 	/* MS network capability	MS network capability 9.9.3.18	M	LV	3-9 */
@@ -790,7 +769,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 	switch (pd){
-		case 8:
+		case 7:
 			get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
 			break;
 		default:
@@ -856,12 +835,12 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_eps_att_type,
 		{ "EPS attach type","nas_eps.emm.eps_att_type",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_att_type_vals), 0xf0,
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_att_type_vals), 0x0,
 		"EPS attach type", HFILL }
 	},
 	{ &hf_nas_eps_emm_nas_key_set_id,
 		{ "NAS key set identifier","nas_eps.emm.nas_key_set_id",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_NAS_key_set_identifier_vals), 0x07,
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_NAS_key_set_identifier_vals), 0x0,
 		"NAS key set identifier", HFILL }
 	},
 	{ &hf_nas_eps_emm_odd_even,
@@ -876,8 +855,13 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_emm_EPS_attach_result,
 		{ "Type of identity","nas_eps.emm.EPS_attach_result",
-		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_EPS_attach_result_values), 0xe0,
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_EPS_attach_result_values), 0x0,
 		"Type of identity", HFILL }
+	},
+	{ &hf_nas_eps_emm_spare_half_octet,
+		{ "Spare half octet","nas_eps.emm.EPS_attach_result",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		"Spare half octet", HFILL }
 	},
   };
 
