@@ -769,7 +769,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 	switch (pd){
-		case 7:
+		case 8:
 			get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
 			break;
 		default:
