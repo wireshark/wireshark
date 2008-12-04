@@ -185,6 +185,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &bg_color);
     gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &fg_color);
 #else
+    style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
     color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
     color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
 	gtk_widget_set_style(filt_name_entry, style);
