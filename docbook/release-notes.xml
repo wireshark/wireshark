@@ -147,9 +147,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Error parsing the BSSGP protocol
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3085">Bug
+          3085</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Assertion thrown in fvalue_get_uinteger when decoding TIPC
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3086">Bug
           3086</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LUA script : Wireshark crashes after closing and opening again a window used by a listener.draw() function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3090">Bug
+          3090</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -176,6 +188,8 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+ANSI MAP,
+BSSGP,
 CIP,
 Diameter,
 ENIP,

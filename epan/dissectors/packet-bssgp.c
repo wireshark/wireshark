@@ -2777,9 +2777,7 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   value = get_masked_guint8(data, MASK_T_BIT);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_T_BIT);
   proto_item_append_text(pi, "T: The SDU contains %s",
-			 value == 0 ?
-			 "data" :
-			 "signalling (e.g. related to GMM)");
+			 value == 0 ? "signalling (e.g. related to GMM)" : "data");
 
   value = get_masked_guint8(data, MASK_A_BIT);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_A_BIT);

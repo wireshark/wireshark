@@ -79,6 +79,11 @@ struct _wslua_tvbrange {
     int len;
 };
 
+struct _wslua_tw {
+    funnel_text_window_t* ws_tw;
+    gboolean expired;
+};
+
 typedef struct _wslua_field_t {
     int hfid;
     int ett;
@@ -128,7 +133,7 @@ typedef struct _wslua_pref_t {
   					   the preferences tab */
   	} enum_info;			/* for PREF_ENUM */
     } info;			        /* display/text file information */
-    
+
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;
 } wslua_pref_t;
@@ -165,7 +170,7 @@ struct _wslua_treeitem {
 	proto_item* item;
 	proto_tree* tree;
     	gboolean expired;
-	
+
 };
 
 typedef void (*tap_extractor_t)(lua_State*,const void*);
@@ -217,7 +222,7 @@ typedef struct _wslua_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
 typedef GByteArray* ByteArray;
 typedef struct _wslua_tvb* Tvb;
-typedef struct _wslua_tvbrange* TvbRange; 
+typedef struct _wslua_tvbrange* TvbRange;
 typedef struct _wslua_col_info* Column;
 typedef struct _wslua_cols* Columns;
 typedef struct _wslua_pinfo* Pinfo;
@@ -226,7 +231,7 @@ typedef address* Address;
 typedef header_field_info** Field;
 typedef field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
-typedef funnel_text_window_t* TextWindow;
+typedef struct _wslua_tw* TextWindow;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
 typedef tvbparse_t* Parser;
@@ -299,7 +304,7 @@ int dummy##C
 	lua_pop(L, 1); \
 }
 
-#define WSLUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta); 
+#define WSLUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta);
 
 #define WSLUA_INIT(L) \
 	luaL_openlibs(L); \
@@ -309,17 +314,17 @@ int dummy##C
 
 #endif
 
-#define WSLUA_FUNCTION extern int 
+#define WSLUA_FUNCTION extern int
 #define WSLUA_REGISTER_FUNCTION(name)     { lua_pushstring(L, #name); lua_pushcfunction(L, wslua_## name); lua_settable(L, LUA_GLOBALSINDEX); }
 #define WSLUA_REGISTER extern int
 
-#define WSLUA_METHOD static int 
-#define WSLUA_CONSTRUCTOR static int 
-#define WSLUA_ATTR_SET static int 
-#define WSLUA_ATTR_GET static int 
+#define WSLUA_METHOD static int
+#define WSLUA_CONSTRUCTOR static int
+#define WSLUA_ATTR_SET static int
+#define WSLUA_ATTR_GET static int
 #define WSLUA_METAMETHOD static int
 
-#define WSLUA_METHODS static const luaL_reg 
+#define WSLUA_METHODS static const luaL_reg
 #define WSLUA_META static const luaL_reg
 #define WSLUA_CLASS_FNREG(class,name) { #name, class##_##name }
 
@@ -349,7 +354,7 @@ int dummy##C
                 g_free(p); \
         } \
     } \
-} 
+}
 
 
 #define WSLUA_CLASS_DECLARE(C) \
