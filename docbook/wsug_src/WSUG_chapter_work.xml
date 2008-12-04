@@ -47,9 +47,9 @@
   
   <section id="ChWorkDisplayPopUpSection"><title>Pop-up menus</title>
     <para>
-      You can bring up a pop-up menu over either the "Packet List", 
-      "Packet Details" or "Packet Bytes" pane by clicking your right 
-	  mouse button at the corresponding pane.
+      You can bring up a pop-up menu over either the "Packet List" or 
+      "Packet Details" pane by clicking your right mouse button at the
+      corresponding pane.
     </para>	
   <section id="ChWorkPacketListPanePopUpMenuSection">
     <title>Pop-up menu of the "Packet List" pane</title>
