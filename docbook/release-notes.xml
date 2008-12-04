@@ -37,9 +37,20 @@ Wireshark Info
 
         <listitem>
           <para>
-            The Bluetooth L2CAP dissector could crash.
+            The SMTP dissector could consume excessive amounts of CPU and memory.
             <!-- Fixed in r26759 -->
 	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3054">3054</ulink>)
+          </para>
+          <para>Versions affected: 0.99.0 to 1.0.4</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The WLCCP dissector could go into an infinte loop.
+            <!-- Fixed in r26734 -->
           </para>
           <para>Versions affected: 0.99.0 to 1.0.4</para>
           <para>
@@ -58,15 +69,75 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Missing CRLF during HTTP POST in the "packet details" window
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2534">Bug
+          2534</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Diameter dissector fails RFC 4005 compliance
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2828">Bug
           2828</ulink>)
         </para></listitem>
 
         <listitem><para>
+          Wireshark on MacOS does not run when there are spaces in its path
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2844">Bug
+          2844</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          OS X Intel package incorrectly claims to be Universal
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2979">Bug
+          2979</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Compilation broke when compiling without zlib
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2993">Bug
           2993</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: saved_repoid
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3017">Bug
+          3017</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: follow_info
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3018">Bug
+          3018</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: follow_info
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3019">Bug
+          3019</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=30">Bug
+          30</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: tacplus_data
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3020">Bug
+          3020</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: col_arrows
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3021">Bug
+          3021</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak: col_arrows
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3022">Bug
+          3022</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -93,7 +164,18 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-None
+CIP,
+Diameter,
+ENIP,
+GIOP,
+H.263,
+H.264,
+HTTP,
+MPEG PES,
+SMTP,
+SNMP,
+TACACS,
+WLCCP,
 
     </para>
     </section>

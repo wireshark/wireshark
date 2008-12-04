@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -717,6 +717,7 @@ show_oid_index:
 										break;
 									case OID_KEY_TYPE_IMPLIED_STRING:
 									case OID_KEY_TYPE_IMPLIED_BYTES:
+									case OID_KEY_TYPE_ETHER:
 										suboid = &(subids[key_start]);
 										buf_len = key_len;
 										break;
@@ -753,6 +754,9 @@ show_oid_index:
 									case OID_KEY_TYPE_NSAP:
 									case OID_KEY_TYPE_IMPLIED_BYTES:
 										proto_tree_add_bytes(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
+										break;
+									case OID_KEY_TYPE_ETHER:
+										proto_tree_add_ether(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_IPADDR: {
 										guint32* ipv4_p = (void*)buf;
@@ -2592,7 +2596,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1399 "packet-snmp-template.c"
+#line 1407 "packet-snmp-template.c"
 
 
 guint
@@ -3371,7 +3375,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1913 "packet-snmp-template.c"
+#line 1921 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3411,7 +3415,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1929 "packet-snmp-template.c"
+#line 1937 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {

@@ -615,6 +615,7 @@ show_oid_index:
 										break;
 									case OID_KEY_TYPE_IMPLIED_STRING:
 									case OID_KEY_TYPE_IMPLIED_BYTES:
+									case OID_KEY_TYPE_ETHER:
 										suboid = &(subids[key_start]);
 										buf_len = key_len;
 										break;
@@ -651,6 +652,9 @@ show_oid_index:
 									case OID_KEY_TYPE_NSAP:
 									case OID_KEY_TYPE_IMPLIED_BYTES:
 										proto_tree_add_bytes(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
+										break;
+									case OID_KEY_TYPE_ETHER:
+										proto_tree_add_ether(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_IPADDR: {
 										guint32* ipv4_p = (void*)buf;

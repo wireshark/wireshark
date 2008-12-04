@@ -1020,7 +1020,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
       /* F3 is the CCO */
       if ( temp_data == 0xF3 )
       {
- 	 collision = 1;
+         collision = 1;
          proto_item_append_text( rrsc_item, "%s (%s)",
                      val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
                         cip_sc_vals_cco , "Unknown Service (%x)"),
@@ -1089,8 +1089,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
          pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific data" );
          cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
 
-	 if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
-	 {
+         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         {
 	     /* Success responses */
 
 	     if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_OPEN )
@@ -1146,7 +1146,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                 } /* End of if reply data */
 
             } /* End of if forward open response */
-	    else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_CLOSE )
+            else if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_CLOSE )
             {
                /* Forward close response (Success) */
 
@@ -1480,7 +1480,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
          else if( tvb_get_guint8( tvb, offset ) == SC_UNCON_SEND )
          {
 	    /* check for collision */
- 	    if ( collision )
+	    if ( collision )
 	    {
 	       /* Audit Change */
 
@@ -1496,7 +1496,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
 	    }
 	    else
 	    {
- 	       /* Unconnected send */
+	       /* Unconnected send */
 
                /* Display the priority/tick timer */
 	       temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size );
@@ -1644,7 +1644,7 @@ static int
 dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti;
-   proto_tree *cip_tree;
+   proto_tree *cip_tree = NULL;
 
    /* Make entries in Protocol column and Info column on summary display */
    if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
@@ -1658,9 +1658,9 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Create display subtree for the protocol */
       ti = proto_tree_add_item(tree, proto_cip, tvb, 0, -1, FALSE);
       cip_tree = proto_item_add_subtree( ti, ett_cip );
-
-      dissect_cip_data( cip_tree, tvb, 0, tvb_length(tvb), pinfo );
    }
+
+   dissect_cip_data( cip_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }

@@ -104,7 +104,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     GtkWidget      *edit_dialog;
     GtkWidget      *dialog_vbox;
     GtkTooltips    *tooltips;
-    GtkStyle       *style;
+    GdkColor       bg_color, fg_color;
 
     GtkWidget *filter_fr;
     GtkWidget *filter_fr_vbox;
@@ -178,14 +178,11 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     filt_name_entry = gtk_entry_new ();
     gtk_entry_set_text(GTK_ENTRY(filt_name_entry), colorf->filter_name);
 
-    style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
-    color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
-#if GTK_MAJOR_VERSION < 2
-    color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
-#else
-    color_t_to_gdkcolor(&style->text[GTK_STATE_NORMAL], &colorf->fg_color);
-#endif
-    gtk_widget_set_style(filt_name_entry, style);
+    color_t_to_gdkcolor(&bg_color, &colorf->bg_color);
+    color_t_to_gdkcolor(&fg_color, &colorf->fg_color);
+
+    gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &bg_color);
+    gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &fg_color);
 
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, filt_name_entry, ("This is the editable name of the filter. (No @ characters allowed.)"), NULL);
@@ -202,7 +199,6 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     SIGNAL_CONNECT(filt_text_entry, "changed", filter_te_syntax_check_cb, NULL);
     gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
-    gtk_style_unref(style);
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), filt_text_entry, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, filt_text_entry, ("This is the editable text of the filter"), NULL);
 
@@ -248,7 +244,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(disabled_cb), colorf->disabled);
     gtk_box_pack_start (GTK_BOX (status_vbox), disabled_cb, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, disabled_cb, ("Color rule won't be checked if this box is selected"), NULL);
-    
+
     /* button box */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), bbox, FALSE, FALSE, 0);
@@ -589,7 +585,6 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
   gdouble new_colors[4];  /* red, green, blue, "opacity" */
 #endif
   GtkWidget *color_dialog;
-  GtkStyle  *style;
   GtkWidget *parent;
   GtkWidget *color_selection_fg, *color_selection_bg;
   gboolean is_bg;
@@ -625,15 +620,10 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 	color_sel_win_destroy(color_dialog);
 
 	/* now apply the change to the fore/background */
-
-	style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
 	if (is_bg)
-	  style->base[GTK_STATE_NORMAL] = new_color;
+	  gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &new_color);
         else
-	  style->text[GTK_STATE_NORMAL] = new_color;
-
-	gtk_widget_set_style(filt_name_entry, style);
-	gtk_style_unref(style);
+	  gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &new_color);
   }
 }
 

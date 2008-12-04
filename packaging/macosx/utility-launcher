@@ -14,6 +14,6 @@ if [ ! -d "$WIRESHARK_APP_DIR" ] ; then
 	exit 1
 fi
 
-APPNAME=`basename $0`
+APPNAME=`basename "$0"`
 exec "$WIRESHARK_APP_DIR/Contents/Resources/bin/$APPNAME" "$@"
 

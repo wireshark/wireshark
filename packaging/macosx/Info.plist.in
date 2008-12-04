@@ -8,7 +8,7 @@
     <key>CFBundleExecutable</key>
     <string>Wireshark</string>
     <key>CFBundleGetInfoString</key>
-    <string>@VERSION@, Copyright 2003-2007 Wireshark Development Team</string>
+    <string>@VERSION@, Copyright 1998-2008 Wireshark Development Team</string>
     <key>CFBundleIconFile</key>
     <string>Wireshark.icns</string>
     <key>CFBundleIdentifier</key>

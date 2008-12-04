@@ -173,6 +173,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Error creating filter for this stream.\n"
                       "A network layer header is needed");
+	g_free(follow_info);
         return;
     }
 
@@ -208,6 +209,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Can't register ssl tap: %s\n",msg->str);
+	g_free(follow_info);
         return;
     }
     gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);

@@ -16,7 +16,7 @@ TOP="`dirname \"$CWD\"`"
 # We might be exec'ed from wireshark, tshark, dumpcap, or any other binary
 # from the Wireshark distribution.
 # XXX - Should we verify that we have a valid name?
-APPNAME=`basename $0`
+APPNAME=`basename "$0"`
 
 # Brutally add many things to the PATH. If the directories do not exist, they won't be used anyway.
 # People should really use ~/.macosx/environment.plist to set environment variables as explained by Apple:
