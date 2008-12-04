@@ -426,7 +426,7 @@ proto_register_bvlc(void)
 void
 proto_reg_handoff_bvlc(void)
 {
-	static int bvlc_initialized = FALSE;
+	static gboolean bvlc_initialized = FALSE;
 	static dissector_handle_t bvlc_handle;
 	static guint additional_bvlc_udp_port;
 	

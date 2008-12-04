@@ -1817,7 +1817,7 @@ proto_reg_handoff_h264(void)
 {
 	static dissector_handle_t h264_handle;
 	static guint dynamic_payload_type;
-	static int h264_prefs_initialized = FALSE;
+	static gboolean h264_prefs_initialized = FALSE;
 
 	if (!h264_prefs_initialized) {
 		dissector_handle_t h264_name_handle;
@@ -1845,7 +1845,7 @@ proto_reg_handoff_h264(void)
 	}
 }
 
-/* this format is require because a script is used to build the C function
+/* this format is required because a script is used to build the C function
    that calls all the protocol registration.
 */
 
