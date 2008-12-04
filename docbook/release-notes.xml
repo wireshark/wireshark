@@ -117,12 +117,6 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=30">Bug
-          30</ulink>)
-        </para></listitem>
-
-        <listitem><para>
           Memory leak: tacplus_data
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3020">Bug
           3020</ulink>)
@@ -138,6 +132,24 @@ Wireshark Info
           Memory leak: col_arrows
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3022">Bug
           3022</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect address structure assigned for find_conversation() in WSP
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3071">Bug
+          3071</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory leak with unistim in voip_calls
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3079">Bug
+          3079</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Assertion thrown in fvalue_get_uinteger when decoding TIPC
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3086">Bug
+          3086</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -175,7 +187,9 @@ MPEG PES,
 SMTP,
 SNMP,
 TACACS,
+TIPC,
 WLCCP,
+WSP
 
     </para>
     </section>
