@@ -190,6 +190,7 @@ static int hf_pn_io_error_code1_pnio = -1;
 static int hf_pn_io_error_code2 = -1;
 static int hf_pn_io_error_code2_pniorw = -1;
 static int hf_pn_io_error_code2_pnio_22 = -1;
+static int hf_pn_io_error_code2_pnio_64 = -1;
 static int hf_pn_io_error_code2_pnio_253 = -1;
 
 static int hf_pn_io_alarm_type = -1;
@@ -316,6 +317,17 @@ static int hf_pn_io_ethertype = -1;
 static int hf_pn_io_rx_port = -1;
 static int hf_pn_io_frame_details = -1;
 static int hf_pn_io_nr_of_tx_port_groups = -1;
+
+static int hf_pn_io_start_of_red_frame_id = -1;
+static int hf_pn_io_end_of_red_frame_id = -1;
+static int hf_pn_io_ir_begin_end_port = -1;
+static int hf_pn_io_number_of_assignments = -1;
+static int hf_pn_io_number_of_phases = -1;
+static int hf_pn_io_red_orange_period_begin = -1;
+static int hf_pn_io_orange_period_begin = -1;
+static int hf_pn_io_green_period_begin = -1;
+static int hf_pn_io_tx_phase_assignment = -1;
+static int hf_pn_io_rx_phase_assignment = -1;
 
 static int hf_pn_io_slot = -1;
 static int hf_pn_io_subslot = -1;
@@ -465,6 +477,7 @@ static gint ett_pn_io_control_block_properties = -1;
 static gint ett_pn_io_check_sync_mode = -1;
 static gint ett_pn_io_ir_frame_data = -1;
 static gint ett_pn_io_ar_info = -1;
+static gint ett_pn_io_ir_begin_end_port = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -554,6 +567,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0205, "PDIRData"},
 	{ 0x0206, "PDIRGlobalData"},
 	{ 0x0207, "PDIRFrameData"},
+	{ 0x0208, "PDIRBeginEndData"},
 	{ 0x0209, "AdjustDomainBoundary"},
 	{ 0x020A, "CheckPeers"},
 	{ 0x020B, "CheckLineDelay"},
@@ -760,6 +774,11 @@ static const value_string pn_io_error_code1_pnio[] = {
 static const value_string pn_io_error_code2_pnio_22[] = {
     {  0, "Error in Parameter BlockType" },
     {  7, "Error in Parameter ControlBlockProperties" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_64[] = {
+    {  5, "AR UUID unknown" },
     { 0, NULL }
 };
 
@@ -1642,6 +1661,11 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep,
                             hf_pn_io_error_code2_pnio_22, &u8ErrorCode2);
             error_code2_vals = pn_io_error_code2_pnio_22;
+            break;
+        case(64):
+	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep,
+                            hf_pn_io_error_code2_pnio_64, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_64;
             break;
         case(253):
 	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep,
@@ -4005,7 +4029,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
     pnio_ar_t *ar = NULL;
 
 
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1) ) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4025,8 +4049,15 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 
     /* PDIRGlobalData */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
-    /* PDIRFrameData */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+	if(u8BlockVersionLow != 1) {
+		/* PDIRFrameData */
+		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+	} else {
+		/* [PDIRFrameData] */
+		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+		/* PDIRBeginEndData */
+		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+	}
 
     return offset;
 }
@@ -4035,7 +4066,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 /* dissect the PDIRGlobalData block */
 static int
 dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
     e_uuid_t uuid;
 	guint32 u32MaxBridgeDelay;
@@ -4074,6 +4105,10 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
 										 hf_pn_io_max_port_rx_delay, &u32MaxPortRxDelay);
 		}
+
+		proto_item_append_text(item, ": MaxBridgeDelay:%u, NumberOfPorts:%u",
+							 u32MaxBridgeDelay, u32NumberOfPorts);
+
 	}
 
     return offset;
@@ -4098,6 +4133,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     guint16  u16EndOffset;
     proto_tree *ir_frame_data_tree = NULL;
     proto_item *ir_frame_data_sub_item = NULL;
+	guint16 n=0;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -4113,6 +4149,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     /* dissect all IR frame data */
     while (offset < u16EndOffset)
     {
+	  n++;
 
      /* new subtree for each IR frame */
       ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, FALSE);
@@ -4155,7 +4192,91 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
 
     }
 
+	proto_item_append_text(item, ": Frames:%u", n);
+
     return offset;
+}
+
+
+static int
+dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+	guint16 u16BodyLength)
+{
+    guint16 u16StartOfRedFrameID;
+    guint16 u16EndOfRedFrameID;
+	guint32 u32NumberOfPorts;
+	guint32 u32NumberOfAssignments;
+	guint32 u32NumberOfPhases;
+	guint32 u32RedOrangePeriodBegin;
+	guint32 u32OrangePeriodBegin;
+	guint32 u32GreenPeriodBegin;
+	guint16 u16TXPhaseAssignment;
+	guint16 u16RXPhaseAssignment;
+    proto_tree *ir_begin_end_port_tree = NULL;
+    proto_item *ir_begin_end_port_sub_item = NULL;
+	guint32 u32SubStart;
+	guint32 u32Tmp;
+	guint32 u32Tmp2;
+	
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_start_of_red_frame_id, &u16StartOfRedFrameID);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_end_of_red_frame_id, &u16EndOfRedFrameID);
+
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_number_of_ports, &u32NumberOfPorts);
+	u32Tmp2 = u32NumberOfPorts;
+    while(u32Tmp2--) {
+		/* new subtree for each Port */
+		ir_begin_end_port_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_begin_end_port, tvb, offset, 0, FALSE);
+		ir_begin_end_port_tree = proto_item_add_subtree(ir_begin_end_port_sub_item, ett_pn_io_ir_begin_end_port);
+		u32SubStart = offset;
+
+		offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+							hf_pn_io_number_of_assignments, &u32NumberOfAssignments);
+		u32Tmp = u32NumberOfAssignments;
+		while(u32Tmp--) {
+			// TXBeginEndAssignment
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_red_orange_period_begin, &u32RedOrangePeriodBegin);
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_orange_period_begin, &u32OrangePeriodBegin);
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_green_period_begin, &u32GreenPeriodBegin);
+
+			// RXBeginEndAssignment
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_red_orange_period_begin, &u32RedOrangePeriodBegin);
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_orange_period_begin, &u32OrangePeriodBegin);
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+								hf_pn_io_green_period_begin, &u32GreenPeriodBegin);
+		}
+
+		offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+							hf_pn_io_number_of_phases, &u32NumberOfPhases);
+		u32Tmp = u32NumberOfPhases;
+		while(u32Tmp--) {
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+							hf_pn_io_tx_phase_assignment, &u16TXPhaseAssignment);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
+							hf_pn_io_rx_phase_assignment, &u16RXPhaseAssignment);
+		}
+
+		proto_item_append_text(ir_begin_end_port_sub_item, ": Assignments:%u, Phases:%u",
+            u32NumberOfAssignments, u32NumberOfPhases);
+
+        proto_item_set_len(ir_begin_end_port_sub_item, offset - u32SubStart);
+	}
+
+	proto_item_append_text(item, ": StartOfRed:%u, EndOfRed:%u, Ports:%u",
+        u16StartOfRedFrameID, u16EndOfRedFrameID, u32NumberOfPorts);
+
+	return offset+u16BodyLength;
 }
 
 
@@ -5752,6 +5873,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
 			u16BodyLength);
         break;
+    case(0x0208):
+        dissect_PDIRBeginEndData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
+			u16BodyLength);
+        break;
     case(0x0209):
         dissect_AdjustDomainBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -6919,6 +7044,8 @@ proto_register_pn_io (void)
       { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pnio), 0x0, "", HFILL }},
     { &hf_pn_io_error_code2_pnio_22,
       { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_22), 0x0, "", HFILL }},
+    { &hf_pn_io_error_code2_pnio_64,
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_64), 0x0, "", HFILL }},
     { &hf_pn_io_error_code2_pnio_253,
       { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0, "", HFILL }},
 
@@ -7078,13 +7205,13 @@ proto_register_pn_io (void)
     { &hf_pn_io_ir_data_id,
       { "IRDataID", "pn_io.ir_data_id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_max_bridge_delay,
-      { "MaxBridgeDelay", "pn_io.max_bridge_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "MaxBridgeDelay", "pn_io.max_bridge_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_number_of_ports,
-      { "hf_pn_io_number_of_ports", "pn_io.number_of_ports", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "NumberOfPorts", "pn_io.number_of_ports", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_max_port_tx_delay,
-      { "MaxPortTxDelay", "pn_io.max_port_tx_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "MaxPortTxDelay", "pn_io.max_port_tx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_max_port_rx_delay,
-      { "MaxPortRxDelay", "pn_io.max_port_rx_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "MaxPortRxDelay", "pn_io.max_port_rx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_reserved_interval_begin,
       { "ReservedIntervalBegin", "pn_io.reserved_interval_begin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_reserved_interval_end,
@@ -7163,6 +7290,27 @@ proto_register_pn_io (void)
       { "FrameDetails", "pn_io.frame_details", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_nr_of_tx_port_groups,
       { "NumberOfTxPortGroups", "pn_io.nr_of_tx_port_groups", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_start_of_red_frame_id,
+      { "StartOfRedFrameID", "pn_io.start_of_red_frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_end_of_red_frame_id,
+      { "EndOfRedFrameID", "pn_io.end_of_red_frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ir_begin_end_port,
+      { "Port", "pn_io.ir_begin_end_port", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_assignments,
+      { "NumberOfAssignments", "pn_io.number_of_assignments", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_phases,
+      { "NumberOfPhases", "pn_io.number_of_phases", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_red_orange_period_begin,
+      { "RedOrangePeriodBegin", "pn_io.red_orange_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_orange_period_begin,
+      { "OrangePeriodBegin", "pn_io.orange_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_green_period_begin,
+      { "GreenPeriodBegin", "pn_io.green_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_tx_phase_assignment,
+      { "TXPhaseAssignment", "pn_io.tx_phase_assignment", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_rx_phase_assignment,
+      { "RXPhaseAssignment", "pn_io.rx_phase_assignment", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_slot,
       { "Slot", "pn_io.slot", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
@@ -7407,7 +7555,8 @@ proto_register_pn_io (void)
         &ett_pn_io_control_block_properties,
         &ett_pn_io_check_sync_mode,
         &ett_pn_io_ir_frame_data,
-        &ett_pn_io_ar_info
+        &ett_pn_io_ar_info,
+		&ett_pn_io_ir_begin_end_port
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
