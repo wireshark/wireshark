@@ -663,7 +663,7 @@ proto_reg_handoff_mp2t(void)
 
 	mp2t_handle = create_dissector_handle(dissect_mp2t, proto_mp2t);
 	dissector_add("rtp.pt", PT_MP2T, mp2t_handle);
-	dissector_add("udp.port", 0, mp2t_handle);
+	dissector_add_handle("udp.port", mp2t_handle);  /* for decode-as */
 
 	pes_handle = find_dissector("mpeg-pes");
 }
