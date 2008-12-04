@@ -208,8 +208,8 @@ static gint ett_findalldevs_ifaddr = -1;
 static gint ett_ifaddr = -1;
 static gint ett_sampling_request = -1;
 
-static dissector_handle_t rpcap_handle = NULL;
-static dissector_handle_t data_handle = NULL;
+static dissector_handle_t rpcap_handle;
+static dissector_handle_t data_handle;
 
 
 /* User definable values */
@@ -1336,7 +1336,7 @@ proto_register_rpcap (void)
 void
 proto_reg_handoff_rpcap (void)
 {
-  static int rpcap_prefs_initialized = FALSE;
+  static gboolean rpcap_prefs_initialized = FALSE;
 
   if (!rpcap_prefs_initialized) {
     rpcap_handle = find_dissector (PFNAME);
@@ -1357,7 +1357,7 @@ proto_reg_handoff_rpcap (void)
  * Local Variables:
  * c-basic-offset: 2
  * tab-width: 8
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
  * ex: set shiftwidth=2 tabstop=8 noexpandtab
