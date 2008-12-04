@@ -1343,7 +1343,15 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_ubit, tvb, offset, 1, FALSE);
 
 		type=tvb_get_ntohs(tvb, offset)&0x7FFF;
-		proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+		/*chk for vendor-private*/
+		if(type>=LDP_VENDOR_PRIVATE_START && type<=LDP_VENDOR_PRIVATE_END){
+			proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: Vendor Private (0x%X)", type);
+		/*chk for experimental*/
+		} else if(type>=LDP_EXPERIMENTAL_MESSAGE_START && type<=LDP_EXPERIMENTAL_MESSAGE_END){
+			proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: Experimental (0x%X)", type);
+		} else {
+			proto_tree_add_uint_format(val_tree, hf_ldp_tlv_returned_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+		}
 
 		proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_len, tvb, offset+2, 2, FALSE);
 		offset += 4;
@@ -2055,21 +2063,33 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		if(type>=TLV_VENDOR_PRIVATE_START && type<=TLV_VENDOR_PRIVATE_END){
 			typebak=type;		/*keep type*/
 			type=TLV_VENDOR_PRIVATE_START;
-
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "Vendor Private TLV");
 		/*chk for experimental*/
 		} else if(type>=TLV_EXPERIMENTAL_START && type<=TLV_EXPERIMENTAL_END){
 			typebak=type;		/*keep type*/
 			type=TLV_EXPERIMENTAL_START;
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "Experimental TLV");
+		} else {
+			typebak=0;
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
+				val_to_str(type, tlv_type_names, "Unknown TLV type (0x%04X)"));
 		}
 
-		ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-	     		val_to_str(type, tlv_type_names, "Unknown TLV type (0x%04X)"));
 		tlv_tree = proto_item_add_subtree(ti, ett_ldp_tlv);
 		if(tlv_tree == NULL) return length+4;
 
 		proto_tree_add_item(tlv_tree, hf_ldp_tlv_unknown, tvb, offset, 1, FALSE);
 
-		proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, type, "TLV Type: %s (0x%X)", val_to_str(type, tlv_type_names, "Unknown TLV type"), type );
+		switch (type) {
+		case TLV_VENDOR_PRIVATE_START:
+			proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, typebak, "TLV Type: Vendor Private (0x%X)", typebak);
+			break;
+		case TLV_EXPERIMENTAL_START:
+			proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, typebak, "TLV Type: Experimental (0x%X)", typebak);
+			break;
+		default:
+			proto_tree_add_uint_format(tlv_tree, hf_ldp_tlv_type, tvb, offset, 2, type, "TLV Type: %s (0x%X)", val_to_str(type, tlv_type_names, "Unknown TLV type"), type );
+		}
 
 		proto_tree_add_item(tlv_tree, hf_ldp_tlv_len, tvb, offset + 2, 2, FALSE);
 
@@ -2345,6 +2365,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 		typebak=type;		/*keep type*/
 		type=LDP_EXPERIMENTAL_MESSAGE_START;
 		extra=4;
+	} else {
+		typebak=0;
+		extra=0;
 	}
 
 	if( (length = tvb_get_ntohs(tvb, offset + 2)) < (4+extra) ) {/*not enough data for type*/
@@ -2360,24 +2383,51 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 	length = MIN(length, rem);  /* Don't go haywire if a problem ... */
 
 	if( check_col(pinfo->cinfo, COL_INFO) ){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, ldp_message_types, "Unknown Message (0x%04X)"));
+		switch (type) {
+		case LDP_VENDOR_PRIVATE_START:
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor-Private Message (0x%04X) ", typebak);
+			break;
+		case LDP_EXPERIMENTAL_MESSAGE_START:
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Experimental Message (0x%04X) ", typebak);
+			break;
+		default:
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, ldp_message_types, "Unknown Message (0x%04X)"));
+		}
 	}
 
 	if( tree ){
-		ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-	     		val_to_str(type, ldp_message_types, "Unknown Message type (0x%04X)"));
+		switch (type) {
+		case LDP_VENDOR_PRIVATE_START:
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "Vendor-Private Message");
+			break;
+		case LDP_EXPERIMENTAL_MESSAGE_START:
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "Experimental Message");
+			break;
+		default:
+			ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
+				val_to_str(type, ldp_message_types, "Unknown Message type (0x%04X)"));
+		}
+
 		msg_tree = proto_item_add_subtree(ti, ett_ldp_message);
 		if(msg_tree == NULL) return length+4;
 
 		proto_tree_add_item(msg_tree, hf_ldp_msg_ubit, tvb, offset, 1, FALSE);
 
-		type=tvb_get_ntohs(tvb, offset)&0x7FFF;
-		proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+		switch (type) {
+		case LDP_VENDOR_PRIVATE_START:
+			proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, typebak, "Message Type: Vendor Private (0x%X)", typebak);
+			break;
+		case LDP_EXPERIMENTAL_MESSAGE_START:
+			proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, typebak, "Message Type: Experimental (0x%X)", typebak);
+			break;
+		default:
+			proto_tree_add_uint_format(msg_tree, hf_ldp_msg_type, tvb, offset, 2, type, "Message Type: %s (0x%X)", val_to_str(type, ldp_message_types,"Unknown Message Type"), type);
+		}
 
 		proto_tree_add_item(msg_tree, hf_ldp_msg_len, tvb, offset+2, 2, FALSE);
 		proto_tree_add_item(msg_tree, hf_ldp_msg_id, tvb, offset+4, 4, FALSE);
 		if(extra){
-			int hf_tmp=0;
+			int hf_tmp;
 
 			switch(type){
 				case LDP_VENDOR_PRIVATE_START:
@@ -2386,6 +2436,8 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 				case LDP_EXPERIMENTAL_MESSAGE_START:
 					hf_tmp=hf_ldp_msg_experiment_id;
 					break;
+				default:
+					hf_tmp = 0;
 			}
 			proto_tree_add_item(msg_tree, hf_tmp, tvb, offset+8, extra, FALSE);
 		}
