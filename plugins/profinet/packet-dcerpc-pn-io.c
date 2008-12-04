@@ -4220,6 +4220,12 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
 	guint32 u32Tmp2;
 	
 
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+	}
+
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
