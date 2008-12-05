@@ -82,7 +82,7 @@ static dissector_handle_t rsync_handle;
 
 #define TCP_PORT_RSYNC	873
 
-static unsigned int glb_rsync_tcp_port = TCP_PORT_RSYNC;
+static guint glb_rsync_tcp_port = TCP_PORT_RSYNC;
 
 /* Packet dissection routine called by tcp (& udp) when port 873 detected */
 static void
@@ -274,6 +274,9 @@ dissect_rsync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register protocol with Wireshark. */
+
+void proto_reg_handoff_rsync(void);
+
 void
 proto_register_rsync(void)
 {
@@ -324,7 +327,7 @@ proto_register_rsync(void)
     proto_register_field_array(proto_rsync, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    rsync_module = prefs_register_protocol(proto_rsync, NULL);
+    rsync_module = prefs_register_protocol(proto_rsync, proto_reg_handoff_rsync);
     prefs_register_uint_preference(rsync_module, "tcp_port",
 				   "rsync TCP Port",
 				   "Set the TCP port for RSYNC messages",
@@ -339,6 +342,16 @@ proto_register_rsync(void)
 void
 proto_reg_handoff_rsync(void)
 {
-    rsync_handle = create_dissector_handle(dissect_rsync, proto_rsync);
+    static gboolean initialized = FALSE;
+    static guint saved_rsync_tcp_port;
+
+    if (!initialized) {
+        rsync_handle = create_dissector_handle(dissect_rsync, proto_rsync);
+        initialized = TRUE;
+    } else {
+        dissector_delete("tcp.port", saved_rsync_tcp_port, rsync_handle);
+    }
+        
     dissector_add("tcp.port", glb_rsync_tcp_port, rsync_handle);
+    saved_rsync_tcp_port = glb_rsync_tcp_port;
 }

@@ -81,6 +81,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          LDP vendor private TLV type is not correctly shown
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2832">Bug
+          2832</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark on MacOS does not run when there are spaces in its path
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2844">Bug
           2844</ulink>)
@@ -198,9 +204,13 @@ H.263,
 H.264,
 HTTP,
 MPEG PES,
+PostgreSQL,
 PTP,
+Rsync,
+RTP,
 SMTP,
 SNMP,
+STANAG 5066,
 TACACS,
 TIPC,
 WLCCP,
