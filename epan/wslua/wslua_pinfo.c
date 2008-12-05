@@ -643,6 +643,8 @@ PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->ws_pinfo->fd->del_cap_ts.secs) 
 PINFO_GET_NUMBER(Pinfo_delta_dis_ts,(((double)pinfo->ws_pinfo->fd->del_dis_ts.secs) + (((double)pinfo->ws_pinfo->fd->del_dis_ts.nsecs) / 1000000000.0) ))
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ws_pinfo->ipproto)
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->ws_pinfo->circuit_id)
+PINFO_GET_NUMBER(Pinfo_desegment_len,pinfo->ws_pinfo->desegment_len)
+PINFO_GET_NUMBER(Pinfo_desegment_offset,pinfo->ws_pinfo->desegment_offset)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ws_pinfo->ptype)
 PINFO_GET_NUMBER(Pinfo_src_port,pinfo->ws_pinfo->srcport)
 PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->ws_pinfo->destport)
@@ -723,6 +725,8 @@ typedef enum {
     PARAM_PORT_SRC,
     PARAM_PORT_DST,
     PARAM_CIRCUIT_ID,
+    PARAM_DESEGMENT_LEN,
+    PARAM_DESEGMENT_OFFSET,
     PARAM_PORT_TYPE
 } pinfo_param_type_t;
 
@@ -774,7 +778,7 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
 }
 
 int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
-    guint v = luaL_checkint(L,1);
+    gint64 v = luaL_checkint(L,1);
 
     if (!pinfo) {
         luaL_error(L,"expired_pinfo");
@@ -783,13 +787,19 @@ int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     
     switch(pt) {
         case PARAM_PORT_SRC:
-            pinfo->srcport = v;
+            pinfo->srcport = (guint32)v;
             return 0;
         case PARAM_PORT_DST:
-            pinfo->destport = v;
+            pinfo->destport = (guint32)v;
             return 0;
         case PARAM_CIRCUIT_ID:
-            pinfo->circuit_id = v;
+            pinfo->circuit_id = (guint32)v;
+            return 0;
+        case PARAM_DESEGMENT_LEN:
+            pinfo->desegment_len = (guint32)v;
+            return 0;
+        case PARAM_DESEGMENT_OFFSET:
+            pinfo->desegment_offset = (int)v;
             return 0;
         default:
             g_assert(!"BUG: A bad parameter");
@@ -922,6 +932,12 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.cols) */
     {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
+
+	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU */
+    {"desegment_len", Pinfo_desegment_len, Pinfo_set_int,  PARAM_DESEGMENT_LEN },
+
+	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Offset in the tvbuff at which the dissector will continue processing when next called*/
+    {"desegment_offset", Pinfo_desegment_offset, Pinfo_set_int,  PARAM_DESEGMENT_OFFSET },
 	
 	{NULL,NULL,NULL,PARAM_NONE}
 };
