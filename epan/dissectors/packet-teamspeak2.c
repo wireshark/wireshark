@@ -769,60 +769,38 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		switch(type)
 		{
 			case TS2T_LOGINPART2:
-			{
 				ts2_parse_loginpart2(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_CHANNELLIST:
-			{
 				ts2_parse_channellist(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_PLAYERLIST:
-			{
 				ts2_parse_playerlist(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_NEWPLAYERJOINED:
-			{
 				ts2_parse_newplayerjoined(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_KNOWNPLAYERUPDATE:
-			{
 				ts2_parse_knownplayerupdate(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_PLAYERLEFT:
-			{
 				ts2_parse_playerleft(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_PLAYERKICKED:
-			{
 				ts2_parse_playerleft(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_LOGINEND:
-			{
 				ts2_parse_loginend(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_CHANGESTATUS:
-			{
 				ts2_parse_changestatus(next_tvb, ts2_tree);
 				break;
-			}
 			case TS2T_SWITCHCHANNEL:
-			{
 				ts2_parse_switchchannel(next_tvb, ts2_tree);
 				break;	
-			}
 			case TS2T_CHANNELCHANGE:
-			{
 				ts2_parse_channelchange(next_tvb, ts2_tree);
 				break;
-			}
 		}
 	}
 	/* The packet is out of order, update the cinfo and ignore the packet */
@@ -1081,8 +1059,6 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti = NULL;
 		proto_tree *ts2_tree = NULL;
 
-		
-
 		ti = proto_tree_add_item(tree, proto_ts2, tvb, 0, -1, TRUE);
 		ts2_tree = proto_item_add_subtree(ti, ett_ts2);
 		
@@ -1097,23 +1073,17 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(class)
 		{
 			case TS2C_CONNECTION:
-			{
 				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
 				ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 16, tvb_get_letohl(tvb, 16));
 
 				switch(type)
 				{
 					case TS2T_PING:
-					{
 						break;
-					}
 					case TS2T_PINGREPLY:
-					{ 
 						proto_tree_add_item(ts2_tree, hf_ts2_ackto, tvb, 20, 4, TRUE);
 						break;
-					}
 					case TS2T_LOGINREQUEST:
-					{
 						proto_tree_add_item(ts2_tree, hf_ts2_protocol_string, tvb, 20, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_platform_string, tvb, 50, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, TRUE);
@@ -1126,9 +1096,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						conversation_data->server_addr=pinfo->dst;
 
 						break;
-					}
 					case TS2T_LOGINREPLY:
-					{
 						proto_tree_add_item(ts2_tree, hf_ts2_server_name, tvb, 20, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_platform_string, tvb, 50, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, TRUE);
@@ -1137,25 +1105,19 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 172, 4, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 178, 3, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_server_welcome_message, tvb, 180, 1, TRUE);
-	
-					}
+                                                break;
 				}
 				break;
-			}
 			case TS2C_ACK:
-			{
 				/* Ignore the type for ACK, its always zero and clashes with CELP_5_1 */
 				
 				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
 				break;
-			}
 			case TS2C_STANDARD:
-			{
 				ts2_standard_dissect(tvb, pinfo, ts2_tree, conversation_data);
 				break;
-			}
 		}
-	}	
+	} /* if (tree) */	
 }
 
 
