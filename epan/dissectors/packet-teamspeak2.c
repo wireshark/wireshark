@@ -590,7 +590,18 @@ static void ts2_add_statusflags(tvbuff_t *tvb, proto_tree *ts2_tree, guint32 off
 static void ts2_parse_channelchange(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree);
 
+static void ts2_init(void) {
+	fragment_table_init(&msg_fragment_table);
+	reassembled_table_init(&msg_reassembled_table);
+    	if (conv_vals)
+		g_mem_chunk_destroy(conv_vals);
 
+	/* now create memory chunks */
+	conv_vals = g_mem_chunk_new("ts2_conv_vals",
+				    sizeof(ts2_conversation),
+				    my_init_count * sizeof(ts2_conversation),
+				    G_ALLOC_AND_FREE);
+}
 
 /* 
  * proto_register_ts2()
@@ -605,17 +616,8 @@ void proto_register_ts2(void)
 		);
 	proto_register_field_array(proto_ts2, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
-	fragment_table_init(&msg_fragment_table);
-	reassembled_table_init(&msg_reassembled_table);
-    	if (conv_vals)
-		g_mem_chunk_destroy(conv_vals);
 
-	/* now create memory chunks */
-	conv_vals = g_mem_chunk_new("ts2_conv_vals",
-				    sizeof(ts2_conversation),
-				    my_init_count * sizeof(ts2_conversation),
-				    G_ALLOC_AND_FREE);
+	register_init_routine(ts2_init);
 }
 
 /*
@@ -693,15 +695,16 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint16 fragment_number;
 	ts2_frag *frag;
 	gboolean outoforder;
+
 	guint16 type = tvb_get_letohs(tvb, 2);
 	/*guint16 class = tvb_get_letohs(tvb, 0);*/
 	proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
 
-    
+	/* XXX: Following fragmentation stuff should be separate from the GUI stuff ??    */
 	/* Get our stored fragmentation data or create one! */
 	if ( ! ( frag = p_get_proto_data(pinfo->fd, proto_ts2) ) ) {
-        frag = se_alloc(sizeof(ts2_frag));
-        frag->frag_num=0;
+		frag = se_alloc(sizeof(ts2_frag));
+		frag->frag_num=0;
 	}
 
 	/* decide if the packet is server to client or client to server
@@ -1054,6 +1057,26 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s, Class: %s", val_to_str(type, typenames, "Unknown (0x%02x)"), val_to_str(class, classnames, "Unknown (0x%02x)"));
 	}
+
+	/* XXX: We need to do all the non GUI stuff whether or not if(tree) */
+        /*      Do only once by checking visited ?                          */
+        /*      ToDo: Rewrite ??                                            */
+	if (!tree) {
+		switch(class) {
+			case TS2C_CONNECTION:
+				switch(type) {
+					case TS2T_LOGINREQUEST:
+						conversation_data->server_port=pinfo->destport;
+						conversation_data->server_addr=pinfo->dst;
+						break;
+				}
+				break;
+			case TS2C_STANDARD:
+				ts2_standard_dissect(tvb, pinfo, tree, conversation_data);
+				break;
+		}
+	}
+
 	if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
 		proto_tree *ts2_tree = NULL;
@@ -1129,8 +1152,8 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case TS2C_STANDARD:
 			{
 				ts2_standard_dissect(tvb, pinfo, ts2_tree, conversation_data);
+				break;
 			}
-			break;
 		}
 	}	
 }
