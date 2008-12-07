@@ -9253,7 +9253,7 @@
 00:24:16	AnyUse                 # Any Use
 00:24:17	ThomsonTel             # Thomson Telecom Belgium
 00:24:18	NextwaveSe             # Nextwave Semiconductor
-00:24:19	PatronicsI             # Patronics International LTD
+00:24:19	Private
 00:24:1A	RedBeetle              # Red Beetle Inc.
 00:24:1B	IwowCommun             # iWOW Communications Pte Ltd
 00:24:1C	FugangElec             # FuGang Electronic (DG) Co.,Ltd
@@ -9351,6 +9351,43 @@
 00:24:78	MagTechEle             # Mag Tech Electronics Co Limited
 00:24:79	OptecDispl             # Optec Displays, Inc.
 00:24:7A	FuYiChengT             # FU YI CHENG Technology Co., Ltd.
+00:24:7B	ActiontecE             # Actiontec Electronics, Inc
+00:24:7C	NokiaDanma             # Nokia Danmark A/S
+00:24:7D	NokiaDanma             # Nokia Danmark A/S
+00:24:7E	Usi
+00:24:7F	NortelNetw             # Nortel Networks
+00:24:80	Meteocontr             # Meteocontrol GmbH
+00:24:81	HewlettPac             # Hewlett Packard
+00:24:82	RuckusWire             # Ruckus Wireless
+00:24:83	LgElectron             # LG Electronics
+00:24:84	BangAndOlu             # Bang and Olufsen Medicom a/s
+00:24:85	Contextrea             # ConteXtream Ltd
+00:24:86	DesignartN             # DesignArt Networks
+00:24:87	Blackboard             # Blackboard Inc.
+00:24:88	CentreForD             # Centre For Development Of Telematics
+00:24:89	VodafoneOm             # Vodafone Omnitel N.V.
+00:24:8A	KagaElectr             # Kaga Electronics Co., Ltd.
+00:24:8B	Hybus                  # HYBUS CO., LTD.
+00:24:8C	AsustekCom             # ASUSTek COMPUTER INC.
+00:24:8D	SonyComput             # Sony Computer Entertainment Inc.
+00:24:8E	InfowareZr             # Infoware ZRt.
+00:24:8F	Do-Monix
+00:24:90	SamsungEle             # Samsung Electronics Co.,LTD
+00:24:91	SamsungEle             # Samsung Electronics
+00:24:92	MotorolaBr             # Motorola, Broadband Solutions Group
+00:24:93	Motorola               # Motorola, Inc
+00:24:94	ShenzhenBa             # Shenzhen Baoxin Tech CO., Ltd.
+00:24:95	MotorolaMo             # Motorola Mobile Devices
+00:24:96	GinzingerE             # Ginzinger electronic systems
+00:24:97	Cisco                  # Cisco Systems
+00:24:98	Cisco                  # Cisco Systems
+00:24:99	AquilaTech             # Aquila Technologies
+00:24:9A	BeijingZho             # Beijing Zhongchuang Telecommunication Test Co., Ltd.
+00:24:9B	ActionStar             # Action Star Enterprise Co., Ltd.
+00:24:9C	BimengComu             # Bimeng Comunication System Co. Ltd
+00:24:9D	NesTechnol             # NES Technology Inc.
+00:24:9E	Adc-Elektr             # ADC-Elektronik GmbH
+00:24:9F	RimTesting             # RIM Testing Services
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12579,6 +12616,25 @@
 00:50:C2:9E:B0:00/36	AforeSolut             # AFORE Solutions Inc.
 00:50:C2:9E:C0:00/36	TopexSa                # TOPEX SA
 00:50:C2:9E:D0:00/36	PicellBV               # Picell B.V.
+00:50:C2:9E:E0:00/36	MichaelSte             # Michael Stevens & Partners Ltd
+00:50:C2:9E:F0:00/36	Woka-Elekt             # WoKa-Elektronik GmbH
+00:50:C2:9F:00:00/36	VeracityUk             # Veracity UK Ltd
+00:50:C2:9F:10:00/36	IdeasSRL               # IDEAS s.r.l.
+00:50:C2:9F:20:00/36	KeithKoep              # Keith & Koep GmbH
+00:50:C2:9F:30:00/36	VisionTech             # Vision Technologies, Inc.
+00:50:C2:9F:40:00/36	Fsr                    # FSR Inc.
+00:50:C2:9F:50:00/36	CommexTech             # Commex Technologies
+00:50:C2:9F:60:00/36	IonSense               # Ion Sense Inc.
+00:50:C2:9F:70:00/36	DaveJonesD             # Dave Jones Design
+00:50:C2:9F:80:00/36	AustcoComm             # Austco Communication Systems Pty Ltd
+00:50:C2:9F:90:00/36	AbbTransmi             # ABB Transmission and Distribution Auto Eqip(Xiamen.China)
+00:50:C2:9F:A0:00/36	TeranexADi             # Teranex A Division of Silicon Optix
+00:50:C2:9F:B0:00/36	VillbauKft             # Villbau Kft.
+00:50:C2:9F:C0:00/36	Ectec                  # ECTEC INC.
+00:50:C2:9F:D0:00/36	BittTechno             # Bitt technology-A Ltd.
+00:50:C2:9F:E0:00/36	SpectraEmb             # SPECTRA EMBEDDED SYSTEMS
+00:50:C2:9F:F0:00/36	HumphreyPr             # Humphrey Products
+00:50:C2:A0:00:00/36	Technovare             # Technovare Systems
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
