@@ -209,13 +209,23 @@ nas_emm_elem_idx_t;
 /* 9.9.3	EPS Mobility Management (EMM) information elements
  * 9.9.3.1	Authentication failure parameter
  * See subclause 10.5.3.2.2 in 3GPP TS 24.008 [6].
+ */
+/*
  * 9.9.3.2	Authentication parameter AUTN
  * See subclause 10.5.3.1.1 in 3GPP TS 24.008 [6].
+ */
+/*
  * 9.9.3.3	Authentication parameter RAND
  * See subclause 10.5.3.1 in 3GPP TS 24.008 [6].
+ */
+/*
  * 9.9.3.4	Authentication response parameter
+ */
+/*
  * 9.9.3.5	Daylight saving time
  * See subclause 10.5.3.12 in 3GPP TS 24.008 [6].
+ */
+/*
  * 9.9.3.6	Detach type
  * 9.9.3.6a	DRX parameter
  * 9.9.3.7	EMM cause
@@ -372,7 +382,7 @@ static const value_string nas_eps_emm_NAS_key_set_identifier_vals[] = {
 guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
 	NULL,						/* 9.9.3.1	Authentication failure parameter */
-	NULL,						/* 9.9.3.2	Authentication parameter AUTN */
+	NULL,						/* 9.9.3.2	Authentication parameter AUTN(packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.3	Authentication parameter RAND */
 	NULL,						/* 9.9.3.4	Authentication response parameter */
 	NULL,						/* 9.9.3.5	Daylight saving time */
@@ -508,11 +518,49 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  */
 /*
  * 8.2.7	Authentication request
+ */
+/*
  * NAS key set identifierASME 	NAS key set identifier 9.9.3.19	M	V	1/2
  * Spare half octet	Spare half octet 9.9.2.5	M	V	1/2
  * Authentication parameter RAND (EPS challenge)	Authentication parameter RAND 9.9.3.3	M	V	16
  * Authentication parameter AUTN (EPS challenge)	Authentication parameter AUTN 9.9.3.2	M	LV	17
  */
+static void
+nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 
+	 * NAS key set identifierASME 	NAS key set identifier 9.9.3.19	M	V	1/2  
+	 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+	
+	/* 	Spare half octet	Spare half octet 9.9.2.5	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix up the lengths */
+	curr_len--;
+	curr_offset++;
+
+	/*
+	 * Authentication parameter RAND (EPS challenge) 9.9.3.3	M	V	16
+	 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND);
+	/*
+	 * Authentication parameter AUTN (EPS challenge) 9.9.3.2	M	LV	17
+	 */
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_AUTH_PARAM_AUTN, " EPS challenge");
+
+}
 /*
  * 8.2.8	Authentication response
  * Authentication response parameter	Authentication response parameter 9.9.3.4	M	LV	5-17
@@ -700,7 +748,7 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 									
 	NULL,	/* GUTI reallocation command */
 	NULL,	/* GUTI reallocation complete */
-	NULL,	/* Authentication request */
+	nas_emm_auth_req,	/* Authentication request */
 	NULL,	/* Authentication response */
 	NULL,	/* Authentication reject */
 	NULL,	/* Authentication failure */
