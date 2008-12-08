@@ -1253,6 +1253,11 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 
   end_offset = offset + tokenlen;
 
+  /*
+  proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; Analysed string: '%s'",
+	  tvb_get_ephemeral_string(tvb, offset, tokenlen));
+	  */
+
   /* Look for an '=' within this value - this may indicate that there is a
      profile-level-id parameter to find if the MPEG4 media type is in use */
   next_offset = tvb_find_guint8(tvb,offset,-1,'=');
@@ -1265,11 +1270,12 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   /* Find the name of the parameter */
   tokenlen = next_offset - offset;
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+  /*proto_tree_add_text(tree, tvb, offset, tokenlen, "Debug; MIMEtype '%s'Parameter name: '%s'", mime_type, field_name); */
 
   offset = next_offset;
 
   /* Dissect the MPEG4 profile-level-id parameter if present */
-  if (mime_type != NULL && strcmp((char*)mime_type, "MP4V-ES") == 0) {
+  if (mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "MP4V-ES") == 0) {
     if (strcmp((char*)field_name, "profile-level-id") == 0) {
       offset++;
       tokenlen = end_offset - offset;
@@ -1290,7 +1296,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   }
 
   /* Dissect the H263-2000 profile parameter if present */
-  if (mime_type != NULL && strcmp((char*)mime_type, "H263-2000") == 0) {
+  if (mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-2000") == 0) {
     if (strcmp((char*)field_name, "profile") == 0) {
       offset++;
       tokenlen = end_offset - offset;
@@ -1314,7 +1320,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
    * in bit-significance order, starting from the
    * most significant bit, and 3) level_idc.
    */
-  if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
+  if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
 		int length;
  	
@@ -1422,7 +1428,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_tree *sdp_media_attribute_tree;
   proto_item *fmtp_item, *media_format_item;
   proto_tree *fmtp_tree;
-  gint offset, next_offset, tokenlen, n;
+  gint offset, next_offset, tokenlen, n, colon_offset;
   guint8 *field_name;
   guint8 *payload_type;
   guint8 *attribute_value;
@@ -1441,13 +1447,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   sdp_media_attribute_tree = proto_item_add_subtree(ti,
                                                     ett_sdp_media_attribute);
   /* Find end of field */
-  next_offset = tvb_find_guint8(tvb,offset,-1,':');
+  colon_offset = tvb_find_guint8(tvb,offset,-1,':');
 
-  if(next_offset == -1)
+  if(colon_offset == -1)
     return;
 
   /* Attribute field name is token before ':' */
-  tokenlen = next_offset - offset;
+  tokenlen = colon_offset - offset;
   proto_tree_add_item(sdp_media_attribute_tree,
                       hf_media_attribute_field,
                       tvb, offset, tokenlen, FALSE);
@@ -1455,7 +1461,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
   /* Skip colon */
-  offset = next_offset + 1;
+  offset = colon_offset + 1;
+  /* skip leading wsp */
+  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
 
   /* Value is the remainder of the line */
   attribute_value = tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
@@ -1494,7 +1502,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                         offset, tokenlen, FALSE);
 	  /* get_string is needed here as the string is "saved" in a hashtable */
 	  transport_info->encoding_name = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
-
+	
 	  key=g_malloc( sizeof(gint) );
 	  *key=atol((char*)payload_type);
 
@@ -1548,6 +1556,9 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   case SDP_FMTP:
 	  if(sdp_media_attribute_tree){
 		  /* Reading the Format parameter(fmtp) */
+		  /* Skip leading space, if any */
+		  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
+		  /* Media format extends to the next space */
 		  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
 		  if(next_offset == -1)
@@ -1555,7 +1566,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		  tokenlen = next_offset - offset;
 
-		  /* Media format extends to the next space */
+		  
 		  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
@@ -1565,7 +1576,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                              transport_info->encoding_name);
 
 		  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-		  /* Offset past space after ':' */
+		  /* Move offset past the payload type */
 		  offset = next_offset + 1;
 
 		  while(has_more_pars==TRUE){
@@ -1579,7 +1590,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 	
 			  }
 
-			  /* There are 2 - add the first parameter */
+			  /* There are at least 2 - add the first parameter */
 			  tokenlen = next_offset - offset;
 			  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
                                       hf_media_format_specific_parameter, tvb,
