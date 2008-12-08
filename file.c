@@ -1729,6 +1729,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	   we'll select the previous frame */
         selected_row = preceding_row;
       }
+      if (selected_row == 0) {
+	/* Set to invalid to force update of packet list and packet details */
+	cf->current_row = -1;
+      }
     }
   }
 
