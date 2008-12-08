@@ -585,16 +585,15 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Pa
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State"
 StrCmp $0 "0" SecRequired_skip_StartMenu
 SetOutPath $PROFILE
-CreateDirectory "$SMPROGRAMS\Wireshark"
+;CreateDirectory "$SMPROGRAMS\Wireshark"
 ; To qoute "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch11d.asp":
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\Wireshark\Wireshark Web Site.lnk"
 ;WriteINIStr "$SMPROGRAMS\Wireshark\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
-CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
+CreateShortCut "$SMPROGRAMS\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR\wireshark.exe" 0 "" "" "The Wireshark Network Protocol Analyzer"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
-CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" \
-          "$INSTDIR"
+;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" "$INSTDIR"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Uninstall Wireshark.lnk" "$INSTDIR\uninstall.exe"
 SecRequired_skip_StartMenu:
 
@@ -1007,6 +1006,7 @@ Delete "$INSTDIR\example_snmp_users_file"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Wireshark\*.*"
+Delete "$SMPROGRAMS\Wireshark.lnk"
 Delete "$DESKTOP\Wireshark.lnk"
 Delete "$QUICKLAUNCH\Wireshark.lnk"
 
@@ -1269,6 +1269,7 @@ lbl_npf_done:
 	; (we use the "all users" start menu, so select it first)
 	SetShellVarContext all
 	IfFileExists "$SMPROGRAMS\Wireshark\Wireshark.lnk" lbl_have_startmenu
+	IfFileExists "$SMPROGRAMS\Wireshark.lnk" lbl_have_startmenu
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
 lbl_have_startmenu:
 
