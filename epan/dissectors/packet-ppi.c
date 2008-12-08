@@ -68,8 +68,7 @@
 
 /*
  * Per-Packet Information (PPI) header.
- * See the PPI Packet Header documentation at
- * www.cacetech.com/documents/PPI_Header_format_1.0.pdf
+ * See the PPI Packet Header documentation at http://www.cacetech.com/documents
  * for details.
  */
 
@@ -170,6 +169,7 @@ typedef enum {
     /* 30000 - 65535: Private types */
     INTEL_CORP_PRIVATE          = 30000,
     MOHAMED_THAGA_PRIVATE       = 30001,
+    GPS_TAGGING_PRIVATE         = 30002,
     CACE_PRIVATE                = 0xCACE
     /* All others RESERVED.  Contact the WinPcap team for an assignment */
 } ppi_field_type;
@@ -283,12 +283,11 @@ static int hf_aggregation_extension_interface_id = -1;
 /* 802.3 Extension */
 static int hf_8023_extension_flags = -1;
 static int hf_8023_extension_flags_fcs_present = -1;
-static int hf_8023_extension_flags_flag2 = -1;
-static int hf_8023_extension_flags_flag3 = -1;
 static int hf_8023_extension_errors = -1;
-static int hf_8023_extension_errors_error1 = -1;
-static int hf_8023_extension_errors_error2 = -1;
-static int hf_8023_extension_errors_error3 = -1;
+static int hf_8023_extension_errors_fcs = -1;
+static int hf_8023_extension_errors_sequence = -1;
+static int hf_8023_extension_errors_symbol = -1;
+static int hf_8023_extension_errors_data = -1;
 
 static gint ett_ppi_pph = -1;
 static gint ett_ppi_flags = -1;
@@ -325,6 +324,11 @@ static const value_string vs_ppi_field_type[] = {
     {PPI_CAPTURE_INFO, "Capture-Info"},
     {PPI_AGGREGATION_EXTENSION, "Aggregation Extension"},
     {PPI_8023_EXTENSION, "802.3 Extension"},
+
+    {INTEL_CORP_PRIVATE, "Intel Corporation (private)"},
+    {MOHAMED_THAGA_PRIVATE, "Mohamed Thaga (private)"},
+    {GPS_TAGGING_PRIVATE, "GPS Tagging (private)"},
+    {CACE_PRIVATE, "CACE Technologies (private)"},
     {0, NULL}
 };
 
@@ -703,15 +707,14 @@ static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     csr = ptvcursor_new(ftree, tvb, offset);
 
     ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, TRUE, ett_8023_extension_flags);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_flags_fcs_present, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_flags_flag2, 4, TRUE);
-    ptvcursor_add(csr, hf_8023_extension_flags_flag3, 4, TRUE);
+    ptvcursor_add(csr, hf_8023_extension_flags_fcs_present, 4, TRUE);
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, TRUE, ett_8023_extension_errors);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error1, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error2, 4, TRUE);
-    ptvcursor_add(csr, hf_8023_extension_errors_error3, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_fcs, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_sequence, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_symbol, 4, TRUE);
+    ptvcursor_add(csr, hf_8023_extension_errors_data, 4, TRUE);
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_free(csr);
@@ -1241,24 +1244,25 @@ proto_register_ppi(void)
     { &hf_8023_extension_flags_fcs_present,
        { "FCS Present Flag", "ppi.8023_extension.flags.fcs_present",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, "FCS (4 bytes) is present at the end of the packet", HFILL } },
-    { &hf_8023_extension_flags_flag2,
-       { "Flag 2", "ppi.8023_extension.flags.flag2",
-            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, "Debug Flag 2", HFILL } },
-    { &hf_8023_extension_flags_flag3,
-       { "Flag 3", "ppi.8023_extension.flags.flag3",
-            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004, "Debug Flag 3", HFILL } },
     { &hf_8023_extension_errors,
        { "Errors", "ppi.8023_extension.errors",
             FT_UINT32, BASE_HEX, NULL, 0x0, "PPI 802.3 Extension Errors", HFILL } },
-    { &hf_8023_extension_errors_error1,
-       { "Error 1", "ppi.8023_extension.errors.error1",
-            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, "Debug Error 1", HFILL } },
-    { &hf_8023_extension_errors_error2,
-       { "Error 2", "ppi.8023_extension.errors.error2",
-            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, "Debug Error 2", HFILL } },
-    { &hf_8023_extension_errors_error3,
-       { "Error 3", "ppi.8023_extension.errors.error3",
-            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004, "Debug Error 3", HFILL } },
+    { &hf_8023_extension_errors_fcs,
+       { "FCS Error", "ppi.8023_extension.errors.fcs",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001,
+            "PPI 802.3 Extension FCS Error", HFILL } },
+    { &hf_8023_extension_errors_sequence,
+       { "Sequence Error", "ppi.8023_extension.errors.sequence",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002,
+            "PPI 802.3 Extension Sequence Error", HFILL } },
+    { &hf_8023_extension_errors_symbol,
+       { "Symbol Error", "ppi.8023_extension.errors.symbol",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004,
+            "PPI 802.3 Extension Symbol Error", HFILL } },
+    { &hf_8023_extension_errors_data,
+       { "Data Error", "ppi.8023_extension.errors.data",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0008,
+            "PPI 802.3 Extension Data Error", HFILL } },
 
     };
 
