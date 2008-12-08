@@ -144,7 +144,7 @@ static ULONG num_legacy_channels = 14;
  * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key
  */
 static guint
-get_wep_key(pref_t *pref, gpointer ud _U_)
+get_wep_key(pref_t *pref, gpointer ud)
 {
     gchar *my_string = NULL;
     keys_cb_data_t* user_data;
