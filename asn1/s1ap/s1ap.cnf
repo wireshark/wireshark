@@ -548,4 +548,7 @@ LocationReport							N s1ap.proc.imsg id-LocationReport
 OverloadStart							N s1ap.proc.imsg id-OverloadStart
 
 OverloadStop							N s1ap.proc.imsg id-OverloadStop
+
+#.TYPE_ATTR
+BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END
