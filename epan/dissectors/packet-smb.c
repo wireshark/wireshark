@@ -2185,7 +2185,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	const char *dialect_name = NULL;
 
 	DISSECTOR_ASSERT(si);
-	
+
 	WORD_COUNT;
 
 	/* Dialect Index */
@@ -16258,7 +16258,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	conversation_t *conversation;
 	nstime_t t, deltat;
 
-	si=ep_alloc(sizeof(smb_info_t));
+	si=ep_alloc0(sizeof(smb_info_t));
 
 	top_tree=parent_tree;
 

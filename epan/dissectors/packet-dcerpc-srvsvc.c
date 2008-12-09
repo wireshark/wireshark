@@ -1,10 +1,10 @@
 /* DO NOT EDIT
 	This filter was automatically generated
 	from srvsvc.idl and srvsvc.cnf.
-	
-	Pidl is a perl based IDL compiler for DCE/RPC idl files. 
+
+	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
-	Instructions on how to download and install Pidl can be 
+	Instructions on how to download and install Pidl can be
 	found at http://wiki.wireshark.org/Pidl
 */
 
@@ -2126,7 +2126,7 @@ srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset=dissect_smb_server_type_flags(tvb, offset, pinfo, tree, 
+	offset=dissect_smb_server_type_flags(tvb, offset, pinfo, tree,
 		drep, 0);
 	return offset;
 }
@@ -2199,7 +2199,7 @@ srvsvc_dissect_struct_NetCharDevInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevInfo0_device(tvb, offset, pinfo, tree, drep);
 
 
@@ -2261,7 +2261,7 @@ srvsvc_dissect_struct_NetCharDevCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -2343,7 +2343,7 @@ srvsvc_dissect_struct_NetCharDevInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevInfo1_device(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevInfo1_status(tvb, offset, pinfo, tree, drep);
@@ -2411,7 +2411,7 @@ srvsvc_dissect_struct_NetCharDevCtr1(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -2602,7 +2602,7 @@ srvsvc_dissect_struct_NetCharDevQInfo0(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevQInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevQInfo0_device(tvb, offset, pinfo, tree, drep);
 
 
@@ -2664,7 +2664,7 @@ srvsvc_dissect_struct_NetCharDevQCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevQCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevQCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevQCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -2755,7 +2755,7 @@ srvsvc_dissect_struct_NetCharDevQInfo1(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevQInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevQInfo1_device(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevQInfo1_priority(tvb, offset, pinfo, tree, drep);
@@ -2825,7 +2825,7 @@ srvsvc_dissect_struct_NetCharDevQCtr1(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetCharDevQCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetCharDevQCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetCharDevQCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -3008,7 +3008,7 @@ srvsvc_dissect_struct_NetConnInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetConnInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetConnInfo0_conn_id(tvb, offset, pinfo, tree, drep);
 
 
@@ -3070,7 +3070,7 @@ srvsvc_dissect_struct_NetConnCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetConnCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetConnCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetConnCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -3179,7 +3179,7 @@ srvsvc_dissect_struct_NetConnInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetConnInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetConnInfo1_conn_id(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetConnInfo1_conn_type(tvb, offset, pinfo, tree, drep);
@@ -3253,7 +3253,7 @@ srvsvc_dissect_struct_NetConnCtr1(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetConnCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetConnCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetConnCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -3364,7 +3364,7 @@ srvsvc_dissect_struct_NetFileInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetFileInfo2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetFileInfo2_fid(tvb, offset, pinfo, tree, drep);
 
 
@@ -3426,7 +3426,7 @@ srvsvc_dissect_struct_NetFileCtr2(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetFileCtr2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetFileCtr2_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetFileCtr2_array(tvb, offset, pinfo, tree, drep);
@@ -3517,7 +3517,7 @@ srvsvc_dissect_struct_NetFileInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetFileInfo3);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetFileInfo3_fid(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetFileInfo3_permissions(tvb, offset, pinfo, tree, drep);
@@ -3587,7 +3587,7 @@ srvsvc_dissect_struct_NetFileCtr3(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetFileCtr3);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetFileCtr3_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetFileCtr3_array(tvb, offset, pinfo, tree, drep);
@@ -3827,7 +3827,7 @@ srvsvc_dissect_struct_NetSessInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessInfo0_client(tvb, offset, pinfo, tree, drep);
 
 
@@ -3889,7 +3889,7 @@ srvsvc_dissect_struct_NetSessCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -3989,7 +3989,7 @@ srvsvc_dissect_struct_NetSessInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessInfo1_client(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessInfo1_user(tvb, offset, pinfo, tree, drep);
@@ -4061,7 +4061,7 @@ srvsvc_dissect_struct_NetSessCtr1(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -4178,7 +4178,7 @@ srvsvc_dissect_struct_NetSessInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessInfo2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessInfo2_client(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessInfo2_user(tvb, offset, pinfo, tree, drep);
@@ -4252,7 +4252,7 @@ srvsvc_dissect_struct_NetSessCtr2(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessCtr2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessCtr2_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessCtr2_array(tvb, offset, pinfo, tree, drep);
@@ -4334,7 +4334,7 @@ srvsvc_dissect_struct_NetSessInfo10(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessInfo10);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessInfo10_client(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessInfo10_user(tvb, offset, pinfo, tree, drep);
@@ -4402,7 +4402,7 @@ srvsvc_dissect_struct_NetSessCtr10(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessCtr10);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessCtr10_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessCtr10_array(tvb, offset, pinfo, tree, drep);
@@ -4536,7 +4536,7 @@ srvsvc_dissect_struct_NetSessInfo502(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessInfo502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessInfo502_client(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessInfo502_user(tvb, offset, pinfo, tree, drep);
@@ -4612,7 +4612,7 @@ srvsvc_dissect_struct_NetSessCtr502(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSessCtr502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSessCtr502_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSessCtr502_array(tvb, offset, pinfo, tree, drep);
@@ -4824,7 +4824,7 @@ srvsvc_dissect_struct_NetShareInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo0_name(tvb, offset, pinfo, tree, drep);
 
 
@@ -4895,7 +4895,7 @@ srvsvc_dissect_struct_NetShareInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo1_name(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareInfo1_type(tvb, offset, pinfo, tree, drep);
@@ -5031,7 +5031,7 @@ srvsvc_dissect_struct_NetShareInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo2_name(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareInfo2_type(tvb, offset, pinfo, tree, drep);
@@ -5125,7 +5125,7 @@ srvsvc_dissect_struct_NetShareInfo501(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo501);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo501_name(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareInfo501_type(tvb, offset, pinfo, tree, drep);
@@ -5281,7 +5281,7 @@ srvsvc_dissect_struct_NetShareInfo502(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo502_name(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareInfo502_type(tvb, offset, pinfo, tree, drep);
@@ -5344,7 +5344,7 @@ srvsvc_dissect_struct_NetShareInfo1004(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo1004);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo1004_comment(tvb, offset, pinfo, tree, drep);
 
 
@@ -5381,7 +5381,7 @@ srvsvc_dissect_struct_NetShareInfo1006(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo1006);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo1006_max_users(tvb, offset, pinfo, tree, drep);
 
 
@@ -5546,7 +5546,7 @@ srvsvc_dissect_struct_NetShareCtr0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -5610,7 +5610,7 @@ srvsvc_dissect_struct_NetShareCtr1(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -5674,7 +5674,7 @@ srvsvc_dissect_struct_NetShareCtr2(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr2_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr2_array(tvb, offset, pinfo, tree, drep);
@@ -5738,7 +5738,7 @@ srvsvc_dissect_struct_NetShareCtr501(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr501);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr501_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr501_array(tvb, offset, pinfo, tree, drep);
@@ -5802,7 +5802,7 @@ srvsvc_dissect_struct_NetShareCtr502(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr502_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr502_array(tvb, offset, pinfo, tree, drep);
@@ -5866,7 +5866,7 @@ srvsvc_dissect_struct_NetShareCtr1004(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1004);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1004_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1004_array(tvb, offset, pinfo, tree, drep);
@@ -5905,7 +5905,7 @@ srvsvc_dissect_struct_NetShareInfo1005(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo1005);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo1005_dfs_flags(tvb, offset, pinfo, tree, drep);
 
 
@@ -5967,7 +5967,7 @@ srvsvc_dissect_struct_NetShareCtr1005(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1005);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1005_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1005_array(tvb, offset, pinfo, tree, drep);
@@ -6031,7 +6031,7 @@ srvsvc_dissect_struct_NetShareCtr1006(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1006);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1006_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1006_array(tvb, offset, pinfo, tree, drep);
@@ -6087,7 +6087,7 @@ srvsvc_dissect_struct_NetShareInfo1007(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareInfo1007);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareInfo1007_flags(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareInfo1007_alternate_directory_name(tvb, offset, pinfo, tree, drep);
@@ -6151,7 +6151,7 @@ srvsvc_dissect_struct_NetShareCtr1007(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1007);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1007_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1007_array(tvb, offset, pinfo, tree, drep);
@@ -6207,7 +6207,7 @@ srvsvc_dissect_struct_NetShareCtr1501(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetShareCtr1501);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetShareCtr1501_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetShareCtr1501_array(tvb, offset, pinfo, tree, drep);
@@ -6631,7 +6631,7 @@ srvsvc_dissect_NetShareCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	guint32 level = (guint32) -1;
 
 	ALIGN_TO_4_BYTES;
 
@@ -6758,7 +6758,7 @@ srvsvc_dissect_struct_NetSrvInfo100(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo100);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo100_platform_id(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo100_server_name(tvb, offset, pinfo, tree, drep);
@@ -6850,7 +6850,7 @@ srvsvc_dissect_struct_NetSrvInfo101(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo101);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo101_platform_id(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo101_server_name(tvb, offset, pinfo, tree, drep);
@@ -7021,7 +7021,7 @@ srvsvc_dissect_struct_NetSrvInfo102(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo102);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo102_platform_id(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo102_server_name(tvb, offset, pinfo, tree, drep);
@@ -7367,7 +7367,7 @@ srvsvc_dissect_struct_NetSrvInfo402(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo402);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo402_ulist_mtime(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo402_glist_mtime(tvb, offset, pinfo, tree, drep);
@@ -7782,7 +7782,7 @@ srvsvc_dissect_struct_NetSrvInfo403(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo403);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo403_ulist_mtime(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo403_glist_mtime(tvb, offset, pinfo, tree, drep);
@@ -8036,7 +8036,7 @@ srvsvc_dissect_struct_NetSrvInfo502(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo502_sessopen(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo502_sesssvc(tvb, offset, pinfo, tree, drep);
@@ -8484,7 +8484,7 @@ srvsvc_dissect_struct_NetSrvInfo503(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo503);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo503_sessopen(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo503_sesssvc(tvb, offset, pinfo, tree, drep);
@@ -9097,7 +9097,7 @@ srvsvc_dissect_struct_NetSrvInfo599(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo599);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo599_sessopen(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetSrvInfo599_sesssvc(tvb, offset, pinfo, tree, drep);
@@ -9250,7 +9250,7 @@ srvsvc_dissect_struct_NetSrvInfo1005(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1005);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1005_comment(tvb, offset, pinfo, tree, drep);
 
 
@@ -9287,7 +9287,7 @@ srvsvc_dissect_struct_NetSrvInfo1010(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1010);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1010_disc(tvb, offset, pinfo, tree, drep);
 
 
@@ -9324,7 +9324,7 @@ srvsvc_dissect_struct_NetSrvInfo1016(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1016);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1016_hidden(tvb, offset, pinfo, tree, drep);
 
 
@@ -9361,7 +9361,7 @@ srvsvc_dissect_struct_NetSrvInfo1017(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1017);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1017_announce(tvb, offset, pinfo, tree, drep);
 
 
@@ -9398,7 +9398,7 @@ srvsvc_dissect_struct_NetSrvInfo1018(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1018);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1018_anndelta(tvb, offset, pinfo, tree, drep);
 
 
@@ -9435,7 +9435,7 @@ srvsvc_dissect_struct_NetSrvInfo1107(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1107);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1107_users(tvb, offset, pinfo, tree, drep);
 
 
@@ -9472,7 +9472,7 @@ srvsvc_dissect_struct_NetSrvInfo1501(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1501);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1501_sessopens(tvb, offset, pinfo, tree, drep);
 
 
@@ -9509,7 +9509,7 @@ srvsvc_dissect_struct_NetSrvInfo1502(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1502);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1502_sessvcs(tvb, offset, pinfo, tree, drep);
 
 
@@ -9546,7 +9546,7 @@ srvsvc_dissect_struct_NetSrvInfo1503(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1503);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1503_opensearch(tvb, offset, pinfo, tree, drep);
 
 
@@ -9583,7 +9583,7 @@ srvsvc_dissect_struct_NetSrvInfo1506(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1506);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1506_maxworkitems(tvb, offset, pinfo, tree, drep);
 
 
@@ -9620,7 +9620,7 @@ srvsvc_dissect_struct_NetSrvInfo1509(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1509);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1509_maxrawbuflen(tvb, offset, pinfo, tree, drep);
 
 
@@ -9657,7 +9657,7 @@ srvsvc_dissect_struct_NetSrvInfo1510(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1510);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1510_sessusers(tvb, offset, pinfo, tree, drep);
 
 
@@ -9694,7 +9694,7 @@ srvsvc_dissect_struct_NetSrvInfo1511(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1511);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1511_sesscons(tvb, offset, pinfo, tree, drep);
 
 
@@ -9731,7 +9731,7 @@ srvsvc_dissect_struct_NetSrvInfo1512(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1512);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1512_maxnonpagedmemoryusage(tvb, offset, pinfo, tree, drep);
 
 
@@ -9768,7 +9768,7 @@ srvsvc_dissect_struct_NetSrvInfo1513(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1513);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1513_maxpagedmemoryusage(tvb, offset, pinfo, tree, drep);
 
 
@@ -9805,7 +9805,7 @@ srvsvc_dissect_struct_NetSrvInfo1514(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1514);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1514_enablesoftcompat(tvb, offset, pinfo, tree, drep);
 
 
@@ -9842,7 +9842,7 @@ srvsvc_dissect_struct_NetSrvInfo1515(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1515);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1515_enableforcedlogoff(tvb, offset, pinfo, tree, drep);
 
 
@@ -9879,7 +9879,7 @@ srvsvc_dissect_struct_NetSrvInfo1516(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1516);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1516_timesource(tvb, offset, pinfo, tree, drep);
 
 
@@ -9916,7 +9916,7 @@ srvsvc_dissect_struct_NetSrvInfo1518(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1518);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1518_lmannounce(tvb, offset, pinfo, tree, drep);
 
 
@@ -9953,7 +9953,7 @@ srvsvc_dissect_struct_NetSrvInfo1520(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1520);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1520_maxcopyreadlen(tvb, offset, pinfo, tree, drep);
 
 
@@ -9990,7 +9990,7 @@ srvsvc_dissect_struct_NetSrvInfo1521(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1521);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1521_maxcopywritelen(tvb, offset, pinfo, tree, drep);
 
 
@@ -10027,7 +10027,7 @@ srvsvc_dissect_struct_NetSrvInfo1522(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1522);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1522_minkeepsearch(tvb, offset, pinfo, tree, drep);
 
 
@@ -10064,7 +10064,7 @@ srvsvc_dissect_struct_NetSrvInfo1523(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1523);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1523_maxkeepsearch(tvb, offset, pinfo, tree, drep);
 
 
@@ -10101,7 +10101,7 @@ srvsvc_dissect_struct_NetSrvInfo1524(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1524);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1524_minkeepcomplsearch(tvb, offset, pinfo, tree, drep);
 
 
@@ -10138,7 +10138,7 @@ srvsvc_dissect_struct_NetSrvInfo1525(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1525);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1525_maxkeepcomplsearch(tvb, offset, pinfo, tree, drep);
 
 
@@ -10175,7 +10175,7 @@ srvsvc_dissect_struct_NetSrvInfo1528(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1528);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1528_scavtimeout(tvb, offset, pinfo, tree, drep);
 
 
@@ -10212,7 +10212,7 @@ srvsvc_dissect_struct_NetSrvInfo1529(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1529);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1529_minrcvqueue(tvb, offset, pinfo, tree, drep);
 
 
@@ -10249,7 +10249,7 @@ srvsvc_dissect_struct_NetSrvInfo1530(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1530);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1530_minfreeworkitems(tvb, offset, pinfo, tree, drep);
 
 
@@ -10286,7 +10286,7 @@ srvsvc_dissect_struct_NetSrvInfo1533(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1533);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1533_maxmpxct(tvb, offset, pinfo, tree, drep);
 
 
@@ -10323,7 +10323,7 @@ srvsvc_dissect_struct_NetSrvInfo1534(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1534);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1534_oplockbreakwait(tvb, offset, pinfo, tree, drep);
 
 
@@ -10360,7 +10360,7 @@ srvsvc_dissect_struct_NetSrvInfo1535(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1535);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1535_oplockbreakresponsewait(tvb, offset, pinfo, tree, drep);
 
 
@@ -10397,7 +10397,7 @@ srvsvc_dissect_struct_NetSrvInfo1536(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1536);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1536_enableoplocks(tvb, offset, pinfo, tree, drep);
 
 
@@ -10434,7 +10434,7 @@ srvsvc_dissect_struct_NetSrvInfo1537(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1537);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1537_enableoplockforceclose(tvb, offset, pinfo, tree, drep);
 
 
@@ -10471,7 +10471,7 @@ srvsvc_dissect_struct_NetSrvInfo1538(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1538);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1538_enablefcbopens(tvb, offset, pinfo, tree, drep);
 
 
@@ -10508,7 +10508,7 @@ srvsvc_dissect_struct_NetSrvInfo1539(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1539);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1539_enableraw(tvb, offset, pinfo, tree, drep);
 
 
@@ -10545,7 +10545,7 @@ srvsvc_dissect_struct_NetSrvInfo1540(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1540);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1540_enablesharednetdrives(tvb, offset, pinfo, tree, drep);
 
 
@@ -10582,7 +10582,7 @@ srvsvc_dissect_struct_NetSrvInfo1541(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1541);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1541_minfreeconnections(tvb, offset, pinfo, tree, drep);
 
 
@@ -10619,7 +10619,7 @@ srvsvc_dissect_struct_NetSrvInfo1542(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1542);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1542_maxfreeconnections(tvb, offset, pinfo, tree, drep);
 
 
@@ -10656,7 +10656,7 @@ srvsvc_dissect_struct_NetSrvInfo1543(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1543);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1543_initsesstable(tvb, offset, pinfo, tree, drep);
 
 
@@ -10693,7 +10693,7 @@ srvsvc_dissect_struct_NetSrvInfo1544(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1544);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1544_initconntable(tvb, offset, pinfo, tree, drep);
 
 
@@ -10730,7 +10730,7 @@ srvsvc_dissect_struct_NetSrvInfo1545(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1545);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1545_initfiletable(tvb, offset, pinfo, tree, drep);
 
 
@@ -10767,7 +10767,7 @@ srvsvc_dissect_struct_NetSrvInfo1546(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1546);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1546_initsearchtable(tvb, offset, pinfo, tree, drep);
 
 
@@ -10804,7 +10804,7 @@ srvsvc_dissect_struct_NetSrvInfo1547(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1547);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1547_alertsched(tvb, offset, pinfo, tree, drep);
 
 
@@ -10841,7 +10841,7 @@ srvsvc_dissect_struct_NetSrvInfo1548(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1548);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1548_errortreshold(tvb, offset, pinfo, tree, drep);
 
 
@@ -10878,7 +10878,7 @@ srvsvc_dissect_struct_NetSrvInfo1549(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1549);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1549_networkerrortreshold(tvb, offset, pinfo, tree, drep);
 
 
@@ -10915,7 +10915,7 @@ srvsvc_dissect_struct_NetSrvInfo1550(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1550);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1550_diskspacetreshold(tvb, offset, pinfo, tree, drep);
 
 
@@ -10952,7 +10952,7 @@ srvsvc_dissect_struct_NetSrvInfo1552(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1552);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1552_maxlinkdelay(tvb, offset, pinfo, tree, drep);
 
 
@@ -10989,7 +10989,7 @@ srvsvc_dissect_struct_NetSrvInfo1553(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1553);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1553_minlinkthroughput(tvb, offset, pinfo, tree, drep);
 
 
@@ -11026,7 +11026,7 @@ srvsvc_dissect_struct_NetSrvInfo1554(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1554);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1554_linkinfovalidtime(tvb, offset, pinfo, tree, drep);
 
 
@@ -11063,7 +11063,7 @@ srvsvc_dissect_struct_NetSrvInfo1555(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1555);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1555_scavqosinfoupdatetime(tvb, offset, pinfo, tree, drep);
 
 
@@ -11100,7 +11100,7 @@ srvsvc_dissect_struct_NetSrvInfo1556(tvbuff_t *tvb _U_, int offset _U_, packet_i
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetSrvInfo1556);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetSrvInfo1556_maxworkitemidletime(tvb, offset, pinfo, tree, drep);
 
 
@@ -12405,7 +12405,7 @@ srvsvc_dissect_struct_NetDiskInfo0(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetDiskInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetDiskInfo0_disk(tvb, offset, pinfo, tree, drep);
 
 
@@ -12467,7 +12467,7 @@ srvsvc_dissect_struct_NetDiskInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetDiskInfo);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetDiskInfo_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetDiskInfo_disks(tvb, offset, pinfo, tree, drep);
@@ -12650,7 +12650,7 @@ srvsvc_dissect_struct_Statistics(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_Statistics);
 	}
-	
+
 	offset = srvsvc_dissect_element_Statistics_start(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_Statistics_fopens(tvb, offset, pinfo, tree, drep);
@@ -12787,7 +12787,7 @@ srvsvc_dissect_struct_NetTransportInfo0(tvbuff_t *tvb _U_, int offset _U_, packe
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportInfo0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportInfo0_vcs(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportInfo0_name(tvb, offset, pinfo, tree, drep);
@@ -12857,7 +12857,7 @@ srvsvc_dissect_struct_NetTransportCtr0(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportCtr0);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportCtr0_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportCtr0_array(tvb, offset, pinfo, tree, drep);
@@ -12981,7 +12981,7 @@ srvsvc_dissect_struct_NetTransportInfo1(tvbuff_t *tvb _U_, int offset _U_, packe
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportInfo1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportInfo1_vcs(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportInfo1_name(tvb, offset, pinfo, tree, drep);
@@ -13053,7 +13053,7 @@ srvsvc_dissect_struct_NetTransportCtr1(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportCtr1);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportCtr1_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportCtr1_array(tvb, offset, pinfo, tree, drep);
@@ -13226,7 +13226,7 @@ srvsvc_dissect_struct_NetTransportInfo2(tvbuff_t *tvb _U_, int offset _U_, packe
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportInfo2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportInfo2_vcs(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportInfo2_name(tvb, offset, pinfo, tree, drep);
@@ -13300,7 +13300,7 @@ srvsvc_dissect_struct_NetTransportCtr2(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportCtr2);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportCtr2_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportCtr2_array(tvb, offset, pinfo, tree, drep);
@@ -13461,7 +13461,7 @@ srvsvc_dissect_struct_NetTransportInfo3(tvbuff_t *tvb _U_, int offset _U_, packe
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportInfo3);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportInfo3_vcs(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportInfo3_name(tvb, offset, pinfo, tree, drep);
@@ -13539,7 +13539,7 @@ srvsvc_dissect_struct_NetTransportCtr3(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetTransportCtr3);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetTransportCtr3_count(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetTransportCtr3_array(tvb, offset, pinfo, tree, drep);
@@ -13791,7 +13791,7 @@ srvsvc_dissect_struct_NetRemoteTODInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_srvsvc_srvsvc_NetRemoteTODInfo);
 	}
-	
+
 	offset = srvsvc_dissect_element_NetRemoteTODInfo_elapsed(tvb, offset, pinfo, tree, drep);
 
 	offset = srvsvc_dissect_element_NetRemoteTODInfo_msecs(tvb, offset, pinfo, tree, drep);
@@ -18319,1507 +18319,1507 @@ static dcerpc_sub_dissector srvsvc_dissectors[] = {
 void proto_register_dcerpc_srvsvc(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_srvsvc_srvsvc_NetDiskInfo0_disk, 
+	{ &hf_srvsvc_srvsvc_NetDiskInfo0_disk,
 	  { "Disk", "srvsvc.srvsvc_NetDiskInfo0.disk", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_user, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_user,
 	  { "User", "srvsvc.srvsvc_NetConnInfo1.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_SHARE_1005_FLAGS_DFS_ROOT, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHARE_1005_FLAGS_DFS_ROOT,
 	  { "Share 1005 Flags Dfs Root", "srvsvc.srvsvc_DFSFlags.SHARE_1005_FLAGS_DFS_ROOT", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHARE_1005_FLAGS_DFS_ROOT_tfs), ( 0x00000002 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetTransportCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1536, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1536,
 	  { "Info1536", "srvsvc.srvsvc_NetSrvInfo.info1536", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info502, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info502,
 	  { "Info502", "srvsvc.srvsvc_NetShareInfo.info502", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetFileEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_threadcountadd, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_threadcountadd,
 	  { "Threadcountadd", "srvsvc.srvsvc_NetSrvInfo599.threadcountadd", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_hunds, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_hunds,
 	  { "Hunds", "srvsvc.srvsvc_NetRemoteTODInfo.hunds", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareAdd_level, 
+	{ &hf_srvsvc_srvsvc_NetShareAdd_level,
 	  { "Level", "srvsvc.srvsvc_NetShareAdd.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelCommit_hnd, 
+	{ &hf_srvsvc_srvsvc_NetShareDelCommit_hnd,
 	  { "Hnd", "srvsvc.srvsvc_NetShareDelCommit.hnd", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_networkerrortreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_networkerrortreshold,
 	  { "Networkerrortreshold", "srvsvc.srvsvc_NetSrvInfo599.networkerrortreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetServerTransportAddEx.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxkeepcomplsearch,
 	  { "Maxkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo503.maxkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_maxlen, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_maxlen,
 	  { "Maxlen", "srvsvc.srvsvc_NetDiskEnum.maxlen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_mins, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_mins,
 	  { "Mins", "srvsvc.srvsvc_NetRemoteTODInfo.mins", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_accessalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_accessalert,
 	  { "Accessalert", "srvsvc.srvsvc_NetSrvInfo403.accessalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo_info0, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo_info0,
 	  { "Info0", "srvsvc.srvsvc_NetTransportInfo.info0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initsesstable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initsesstable,
 	  { "Initsesstable", "srvsvc.srvsvc_NetSrvInfo599.initsesstable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_num_open, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_num_open,
 	  { "Num Open", "srvsvc.srvsvc_NetSessInfo1.num_open", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1509_maxrawbuflen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1509_maxrawbuflen,
 	  { "Maxrawbuflen", "srvsvc.srvsvc_NetSrvInfo1509.maxrawbuflen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sesssvc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sesssvc,
 	  { "Sesssvc", "srvsvc.srvsvc_NetSrvInfo599.sesssvc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetSessEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1007, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1007,
 	  { "Ctr1007", "srvsvc.srvsvc_NetShareCtr.ctr1007", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetCharDevQCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareSetInfo_share_name, 
+	{ &hf_srvsvc_srvsvc_NetShareSetInfo_share_name,
 	  { "Share Name", "srvsvc.srvsvc_NetShareSetInfo.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1501_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1501_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1501.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_vcs, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_vcs,
 	  { "Vcs", "srvsvc.srvsvc_NetTransportInfo3.vcs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minfreeconnections,
 	  { "Minfreeconnections", "srvsvc.srvsvc_NetSrvInfo599.minfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPRNameCompare_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetPRNameCompare_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetPRNameCompare.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxfreeconnections,
 	  { "Maxfreeconnections", "srvsvc.srvsvc_NetSrvInfo599.maxfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_bytessent_low, 
+	{ &hf_srvsvc_srvsvc_Statistics_bytessent_low,
 	  { "Bytessent Low", "srvsvc.srvsvc_Statistics.bytessent_low", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1529, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1529,
 	  { "Info1529", "srvsvc.srvsvc_NetSrvInfo.info1529", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alertsched, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alertsched,
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo403.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numfiletasks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numfiletasks,
 	  { "Numfiletasks", "srvsvc.srvsvc_NetSrvInfo402.numfiletasks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_diskspacetreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_diskspacetreshold,
 	  { "Diskspacetreshold", "srvsvc.srvsvc_NetSrvInfo599.diskspacetreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_announce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_announce,
 	  { "Announce", "srvsvc.srvsvc_NetSrvInfo102.announce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_accessalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_accessalert,
 	  { "Accessalert", "srvsvc.srvsvc_NetSrvInfo402.accessalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_transport, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_transport,
 	  { "Transport", "srvsvc.srvsvc_NetSessInfo502.transport", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetTransportCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1501, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1501,
 	  { "Info1501", "srvsvc.srvsvc_NetShareInfo.info1501", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_name, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_name,
 	  { "Name", "srvsvc.srvsvc_NetTransportInfo3.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileClose_fid, 
+	{ &hf_srvsvc_srvsvc_NetFileClose_fid,
 	  { "Fid", "srvsvc.srvsvc_NetFileClose.fid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_auditedevents, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_auditedevents,
 	  { "Auditedevents", "srvsvc.srvsvc_NetSrvInfo403.auditedevents", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1554_linkinfovalidtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1554_linkinfovalidtime,
 	  { "Linkinfovalidtime", "srvsvc.srvsvc_NetSrvInfo1554.linkinfovalidtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_user_flags, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_user_flags,
 	  { "User Flags", "srvsvc.srvsvc_NetSessInfo2.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxlinkdelay, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxlinkdelay,
 	  { "Maxlinkdelay", "srvsvc.srvsvc_NetSrvInfo599.maxlinkdelay", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_eroralert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_eroralert,
 	  { "Eroralert", "srvsvc.srvsvc_NetSrvInfo403.eroralert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr2_count, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr2_count,
 	  { "Count", "srvsvc.srvsvc_NetSessCtr2.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1540_enablesharednetdrives, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1540_enablesharednetdrives,
 	  { "Enablesharednetdrives", "srvsvc.srvsvc_NetSrvInfo1540.enablesharednetdrives", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo_info3, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo_info3,
 	  { "Info3", "srvsvc.srvsvc_NetFileInfo.info3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_comment, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_comment,
 	  { "Comment", "srvsvc.srvsvc_NetShareInfo2.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_start, 
+	{ &hf_srvsvc_srvsvc_Statistics_start,
 	  { "Start", "srvsvc.srvsvc_Statistics.start", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetShareEnumAll.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_user, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_user,
 	  { "User", "srvsvc.srvsvc_NetSessInfo502.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetTransportEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numfiletasks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numfiletasks,
 	  { "Numfiletasks", "srvsvc.srvsvc_NetSrvInfo403.numfiletasks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_queue_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_queue_name,
 	  { "Queue Name", "srvsvc.srvsvc_NetCharDevQGetInfo.queue_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessconns, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessconns,
 	  { "Sessconns", "srvsvc.srvsvc_NetSrvInfo599.sessconns", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sesssvc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sesssvc,
 	  { "Sesssvc", "srvsvc.srvsvc_NetSrvInfo503.sesssvc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo_info1, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo_info1,
 	  { "Info1", "srvsvc.srvsvc_NetCharDevInfo.info1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_sd_buf, 
+	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_sd_buf,
 	  { "Sd Buf", "srvsvc.srvsvc_NetGetFileSecurity.sd_buf", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo0_conn_id, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo0_conn_id,
 	  { "Conn Id", "srvsvc.srvsvc_NetConnInfo0.conn_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxmpxct, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxmpxct,
 	  { "Maxmpxct", "srvsvc.srvsvc_NetSrvInfo599.maxmpxct", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetFileEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessconns, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessconns,
 	  { "Sessconns", "srvsvc.srvsvc_NetSrvInfo502.sessconns", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_rawworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_rawworkitems,
 	  { "Rawworkitems", "srvsvc.srvsvc_NetSrvInfo599.rawworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetShareEnumAll.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minrcvqueue, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minrcvqueue,
 	  { "Minrcvqueue", "srvsvc.srvsvc_NetSrvInfo503.minrcvqueue", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo_info1, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo_info1,
 	  { "Info1", "srvsvc.srvsvc_NetTransportInfo.info1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_threadcountadd, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_threadcountadd,
 	  { "Threadcountadd", "srvsvc.srvsvc_NetSrvInfo503.threadcountadd", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo3_user, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo3_user,
 	  { "User", "srvsvc.srvsvc_NetFileInfo3.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_weekday, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_weekday,
 	  { "Weekday", "srvsvc.srvsvc_NetRemoteTODInfo.weekday", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_addr_len, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_addr_len,
 	  { "Addr Len", "srvsvc.srvsvc_NetTransportInfo3.addr_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_bytesrcvd_low, 
+	{ &hf_srvsvc_srvsvc_Statistics_bytesrcvd_low,
 	  { "Bytesrcvd Low", "srvsvc.srvsvc_Statistics.bytesrcvd_low", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1549_networkerrortreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1549_networkerrortreshold,
 	  { "Networkerrortreshold", "srvsvc.srvsvc_NetSrvInfo1549.networkerrortreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_servicebitsofinterest, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_servicebitsofinterest,
 	  { "Servicebitsofinterest", "srvsvc.srvsvc_NetServerSetServiceBitsEx.servicebitsofinterest", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetTransportEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1542_maxfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1542_maxfreeconnections,
 	  { "Maxfreeconnections", "srvsvc.srvsvc_NetSrvInfo1542.maxfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableoplockforceclose, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableoplockforceclose,
 	  { "Enableoplockforceclose", "srvsvc.srvsvc_NetSrvInfo599.enableoplockforceclose", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetSrvGetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetNameValidate_name, 
+	{ &hf_srvsvc_srvsvc_NetNameValidate_name,
 	  { "Name", "srvsvc.srvsvc_NetNameValidate.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1511, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1511,
 	  { "Info1511", "srvsvc.srvsvc_NetSrvInfo.info1511", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr501, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr501,
 	  { "Ctr501", "srvsvc.srvsvc_NetShareCtr.ctr501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo0_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo0_addr,
 	  { "Addr", "srvsvc.srvsvc_NetTransportInfo0.addr", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo599.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr3_array, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr3_array,
 	  { "Array", "srvsvc.srvsvc_NetFileCtr3.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetSessCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1552_maxlinkdelay, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1552_maxlinkdelay,
 	  { "Maxlinkdelay", "srvsvc.srvsvc_NetSrvInfo1552.maxlinkdelay", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxkeepcomplsearch,
 	  { "Maxkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo599.maxkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablefcbopens, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablefcbopens,
 	  { "Enablefcbopens", "srvsvc.srvsvc_NetSrvInfo503.enablefcbopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_version_minor, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_version_minor,
 	  { "Version Minor", "srvsvc.srvsvc_NetSrvInfo102.version_minor", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1501, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1501,
 	  { "Info1501", "srvsvc.srvsvc_NetSrvInfo.info1501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetDiskEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1107, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1107,
 	  { "Info1107", "srvsvc.srvsvc_NetSrvInfo.info1107", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1520, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1520,
 	  { "Info1520", "srvsvc.srvsvc_NetSrvInfo.info1520", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo_info0, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo_info0,
 	  { "Info0", "srvsvc.srvsvc_NetCharDevInfo.info0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1006_max_users, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1006_max_users,
 	  { "Max Users", "srvsvc.srvsvc_NetShareInfo1006.max_users", FT_INT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_openfiles, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_openfiles,
 	  { "Openfiles", "srvsvc.srvsvc_NetSrvInfo402.openfiles", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetCharDevQEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_rawworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_rawworkitems,
 	  { "Rawworkitems", "srvsvc.srvsvc_NetSrvInfo502.rawworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_oplockbreakresponsewait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_oplockbreakresponsewait,
 	  { "Oplockbreakresponsewait", "srvsvc.srvsvc_NetSrvInfo599.oplockbreakresponsewait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetCharDevQEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password,
 	  { "Password", "srvsvc.srvsvc_NetTransportInfo3.password", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info502, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info502,
 	  { "Info502", "srvsvc.srvsvc_NetSrvInfo.info502", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_initworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_initworkitems,
 	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo503.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportAdd_level, 
+	{ &hf_srvsvc_srvsvc_NetTransportAdd_level,
 	  { "Level", "srvsvc.srvsvc_NetTransportAdd.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_timesource, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_timesource,
 	  { "Timesource", "srvsvc.srvsvc_NetSrvInfo502.timesource", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetFileEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetServiceBits_updateimmediately, 
+	{ &hf_srvsvc_srvsvc_NetSetServiceBits_updateimmediately,
 	  { "Updateimmediately", "srvsvc.srvsvc_NetSetServiceBits.updateimmediately", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1537, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1537,
 	  { "Info1537", "srvsvc.srvsvc_NetSrvInfo.info1537", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1534, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1534,
 	  { "Info1534", "srvsvc.srvsvc_NetSrvInfo.info1534", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1525_maxkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1525_maxkeepcomplsearch,
 	  { "Maxkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo1525.maxkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr3_count, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr3_count,
 	  { "Count", "srvsvc.srvsvc_NetFileCtr3.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCheck_device_name, 
+	{ &hf_srvsvc_srvsvc_NetShareCheck_device_name,
 	  { "Device Name", "srvsvc.srvsvc_NetShareCheck.device_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetFileEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1528, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1528,
 	  { "Info1528", "srvsvc.srvsvc_NetSrvInfo.info1528", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_scavtimeout, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_scavtimeout,
 	  { "Scavtimeout", "srvsvc.srvsvc_NetSrvInfo503.scavtimeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_guestaccount, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_guestaccount,
 	  { "Guestaccount", "srvsvc.srvsvc_NetSrvInfo402.guestaccount", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetShareEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1538_enablefcbopens, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1538_enablefcbopens,
 	  { "Enablefcbopens", "srvsvc.srvsvc_NetSrvInfo1538.enablefcbopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alist_mtime,
 	  { "Alist Mtime", "srvsvc.srvsvc_NetSrvInfo402.alist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetTransportCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alertsched, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alertsched,
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo402.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetFileEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1529_minrcvqueue, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1529_minrcvqueue,
 	  { "Minrcvqueue", "srvsvc.srvsvc_NetSrvInfo1529.minrcvqueue", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_transport_flags, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_transport_flags,
 	  { "Transport Flags", "srvsvc.srvsvc_NetTransportInfo3.transport_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_erroralert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_erroralert,
 	  { "Erroralert", "srvsvc.srvsvc_NetSrvInfo402.erroralert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_share, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_share,
 	  { "Share", "srvsvc.srvsvc_NetConnInfo1.share", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info599, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info599,
 	  { "Info599", "srvsvc.srvsvc_NetSrvInfo.info599", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxcopywritelen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxcopywritelen,
 	  { "Maxcopywritelen", "srvsvc.srvsvc_NetSrvInfo503.maxcopywritelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareSetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetShareSetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetShareSetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_num_open, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_num_open,
 	  { "Num Open", "srvsvc.srvsvc_NetSessInfo502.num_open", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_share, 
+	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_share,
 	  { "Share", "srvsvc.srvsvc_NetGetFileSecurity.share", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablesharednetdrives, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablesharednetdrives,
 	  { "Enablesharednetdrives", "srvsvc.srvsvc_NetSrvInfo503.enablesharednetdrives", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxcopyreadlen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxcopyreadlen,
 	  { "Maxcopyreadlen", "srvsvc.srvsvc_NetSrvInfo503.maxcopyreadlen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1509, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1509,
 	  { "Info1509", "srvsvc.srvsvc_NetSrvInfo.info1509", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_client, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_client,
 	  { "Client", "srvsvc.srvsvc_NetSessInfo1.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1540, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1540,
 	  { "Info1540", "srvsvc.srvsvc_NetSrvInfo.info1540", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1005_dfs_flags,
 	  { "Dfs Flags", "srvsvc.srvsvc_NetShareInfo1005.dfs_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessusers, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessusers,
 	  { "Sessusers", "srvsvc.srvsvc_NetSrvInfo599.sessusers", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo0_device, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo0_device,
 	  { "Device", "srvsvc.srvsvc_NetCharDevInfo0.device", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_sd, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_sd,
 	  { "Sd", "srvsvc.srvsvc_NetShareInfo502.sd", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_domain, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_domain,
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo3.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevjobs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevjobs,
 	  { "Chdevjobs", "srvsvc.srvsvc_NetSrvInfo403.chdevjobs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_threadpriority, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_threadpriority,
 	  { "Threadpriority", "srvsvc.srvsvc_NetSrvInfo599.threadpriority", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetCharDevCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1017_announce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1017_announce,
 	  { "Announce", "srvsvc.srvsvc_NetSrvInfo1017.announce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxpagedmemoryusage,
 	  { "Maxpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo599.maxpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_guestaccount, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_guestaccount,
 	  { "Guestaccount", "srvsvc.srvsvc_NetSrvInfo403.guestaccount", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_client, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_client,
 	  { "Client", "srvsvc.srvsvc_NetSessInfo502.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDel_share_name, 
+	{ &hf_srvsvc_srvsvc_NetShareDel_share_name,
 	  { "Share Name", "srvsvc.srvsvc_NetShareDel.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxmpxct, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxmpxct,
 	  { "Maxmpxct", "srvsvc.srvsvc_NetSrvInfo503.maxmpxct", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetCharDevCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alerts, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_alerts,
 	  { "Alerts", "srvsvc.srvsvc_NetSrvInfo402.alerts", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxpagedmemoryusage,
 	  { "Maxpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo503.maxpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_comment, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_comment,
 	  { "Comment", "srvsvc.srvsvc_NetSrvInfo101.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1556_maxworkitemidletime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1556_maxworkitemidletime,
 	  { "Maxworkitemidletime", "srvsvc.srvsvc_NetSrvInfo1556.maxworkitemidletime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelStart_hnd, 
+	{ &hf_srvsvc_srvsvc_NetShareDelStart_hnd,
 	  { "Hnd", "srvsvc.srvsvc_NetShareDelStart.hnd", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info403, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info403,
 	  { "Info403", "srvsvc.srvsvc_NetSrvInfo.info403", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo501_csc_policy, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo501_csc_policy,
 	  { "Csc Policy", "srvsvc.srvsvc_NetShareInfo501.csc_policy", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_addr_len, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_addr_len,
 	  { "Addr Len", "srvsvc.srvsvc_NetTransportInfo1.addr_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetServiceBits_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSetServiceBits_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSetServiceBits.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_srvheuristics, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_srvheuristics,
 	  { "Srvheuristics", "srvsvc.srvsvc_NetSrvInfo402.srvheuristics", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_version_major, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_version_major,
 	  { "Version Major", "srvsvc.srvsvc_NetSrvInfo102.version_major", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1004, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1004,
 	  { "Ctr1004", "srvsvc.srvsvc_NetShareCtr.ctr1004", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1510, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1510,
 	  { "Info1510", "srvsvc.srvsvc_NetSrvInfo.info1510", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo_info2, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo_info2,
 	  { "Info2", "srvsvc.srvsvc_NetFileInfo.info2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetSrvGetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelSticky_share_name, 
+	{ &hf_srvsvc_srvsvc_NetShareDelSticky_share_name,
 	  { "Share Name", "srvsvc.srvsvc_NetShareDelSticky.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetConnEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES, 
+	{ &hf_srvsvc_srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES,
 	  { "Svti2 Remap Pipe Names", "srvsvc.srvsvc_TransportFlags.SVTI2_REMAP_PIPE_NAMES", FT_BOOLEAN, 32, TFS(&srvsvc_TransportFlags_SVTI2_REMAP_PIPE_NAMES_tfs), ( 0x00000001 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr501_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr501_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr501.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableoplockforceclose, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableoplockforceclose,
 	  { "Enableoplockforceclose", "srvsvc.srvsvc_NetSrvInfo503.enableoplockforceclose", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_vcs, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_vcs,
 	  { "Vcs", "srvsvc.srvsvc_NetTransportInfo2.vcs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_lmannounce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_lmannounce,
 	  { "Lmannounce", "srvsvc.srvsvc_NetSrvInfo502.lmannounce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_irpstacksize, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_irpstacksize,
 	  { "Irpstacksize", "srvsvc.srvsvc_NetSrvInfo502.irpstacksize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1018_anndelta, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1018_anndelta,
 	  { "Anndelta", "srvsvc.srvsvc_NetSrvInfo1018.anndelta", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_diskalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_diskalert,
 	  { "Diskalert", "srvsvc.srvsvc_NetSrvInfo402.diskalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileGetInfo_fid, 
+	{ &hf_srvsvc_srvsvc_NetFileGetInfo_fid,
 	  { "Fid", "srvsvc.srvsvc_NetFileGetInfo.fid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1544_initconntable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1544_initconntable,
 	  { "Initconntable", "srvsvc.srvsvc_NetSrvInfo1544.initconntable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportAdd_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetTransportAdd_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetTransportAdd.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelStart_reserved, 
+	{ &hf_srvsvc_srvsvc_NetShareDelStart_reserved,
 	  { "Reserved", "srvsvc.srvsvc_NetShareDelStart.reserved", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetNameValidate_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetNameValidate_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetNameValidate.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetCharDevQCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo501_type, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo501_type,
 	  { "Type", "srvsvc.srvsvc_NetShareInfo501.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetConnEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minfreeworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minfreeworkitems,
 	  { "Minfreeworkitems", "srvsvc.srvsvc_NetSrvInfo599.minfreeworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_initworkitems,
 	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo502.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_securityinformation, 
+	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_securityinformation,
 	  { "Securityinformation", "srvsvc.srvsvc_NetGetFileSecurity.securityinformation", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetConnEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_permissions, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_permissions,
 	  { "Permissions", "srvsvc.srvsvc_NetShareInfo2.permissions", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1555_scavqosinfoupdatetime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1555_scavqosinfoupdatetime,
 	  { "Scavqosinfoupdatetime", "srvsvc.srvsvc_NetSrvInfo1555.scavqosinfoupdatetime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minfreeconnections,
 	  { "Minfreeconnections", "srvsvc.srvsvc_NetSrvInfo503.minfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_elapsed, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_elapsed,
 	  { "Elapsed", "srvsvc.srvsvc_NetRemoteTODInfo.elapsed", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_maxaudits, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_maxaudits,
 	  { "Maxaudits", "srvsvc.srvsvc_NetSrvInfo402.maxaudits", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_timesource, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_timesource,
 	  { "Timesource", "srvsvc.srvsvc_NetSrvInfo503.timesource", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessDel_client, 
+	{ &hf_srvsvc_srvsvc_NetSessDel_client,
 	  { "Client", "srvsvc.srvsvc_NetSessDel.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevjobs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevjobs,
 	  { "Chdevjobs", "srvsvc.srvsvc_NetSrvInfo402.chdevjobs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo0_name, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo0_name,
 	  { "Name", "srvsvc.srvsvc_NetTransportInfo0.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQSetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1534_oplockbreakwait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1534_oplockbreakwait,
 	  { "Oplockbreakwait", "srvsvc.srvsvc_NetSrvInfo1534.oplockbreakwait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info0, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info0,
 	  { "Info0", "srvsvc.srvsvc_NetShareInfo.info0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_secs, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_secs,
 	  { "Secs", "srvsvc.srvsvc_NetRemoteTODInfo.secs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1007_flags, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1007_flags,
 	  { "Flags", "srvsvc.srvsvc_NetShareInfo1007.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepcomplsearch,
 	  { "Minkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo503.minkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_user, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_user,
 	  { "User", "srvsvc.srvsvc_NetCharDevQEnum.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_priority, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_priority,
 	  { "Priority", "srvsvc.srvsvc_NetCharDevQInfo1.priority", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo0_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo0_name,
 	  { "Name", "srvsvc.srvsvc_NetShareInfo0.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr2_count, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr2_count,
 	  { "Count", "srvsvc.srvsvc_NetTransportCtr2.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTOD_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTOD_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetRemoteTOD.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo0_addr_len, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo0_addr_len,
 	  { "Addr Len", "srvsvc.srvsvc_NetTransportInfo0.addr_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxcopyreadlen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxcopyreadlen,
 	  { "Maxcopyreadlen", "srvsvc.srvsvc_NetSrvInfo599.maxcopyreadlen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo0_device, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo0_device,
 	  { "Device", "srvsvc.srvsvc_NetCharDevQInfo0.device", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sesssvc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sesssvc,
 	  { "Sesssvc", "srvsvc.srvsvc_NetSrvInfo502.sesssvc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_VDO, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_VDO,
 	  { "Csc Cache Vdo", "srvsvc.srvsvc_DFSFlags.CSC_CACHE_VDO", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_CSC_CACHE_VDO_tfs), ( 0x00000020 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1501_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1501_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1501.array", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareSetInfo_parm_error, 
+	{ &hf_srvsvc_srvsvc_NetShareSetInfo_parm_error,
 	  { "Parm Error", "srvsvc.srvsvc_NetShareSetInfo.parm_error", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_ctr, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetShareEnumAll.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_platform_id, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_platform_id,
 	  { "Platform Id", "srvsvc.srvsvc_NetSrvInfo102.platform_id", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_PlatformId_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr10, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr10,
 	  { "Ctr10", "srvsvc.srvsvc_NetSessCtr.ctr10", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_version_minor, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_version_minor,
 	  { "Version Minor", "srvsvc.srvsvc_NetSrvInfo101.version_minor", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_parm_error, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_parm_error,
 	  { "Parm Error", "srvsvc.srvsvc_NetCharDevQSetInfo.parm_error", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1550_diskspacetreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1550_diskspacetreshold,
 	  { "Diskspacetreshold", "srvsvc.srvsvc_NetSrvInfo1550.diskspacetreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableoplocks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableoplocks,
 	  { "Enableoplocks", "srvsvc.srvsvc_NetSrvInfo599.enableoplocks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr501_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr501_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr501.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDel_reserved, 
+	{ &hf_srvsvc_srvsvc_NetShareDel_reserved,
 	  { "Reserved", "srvsvc.srvsvc_NetShareDel.reserved", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_acceptdownlevelapis, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_acceptdownlevelapis,
 	  { "Acceptdownlevelapis", "srvsvc.srvsvc_NetSrvInfo599.acceptdownlevelapis", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_security, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_security,
 	  { "Security", "srvsvc.srvsvc_NetSrvInfo402.security", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_id, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_id,
 	  { "Conn Id", "srvsvc.srvsvc_NetConnInfo1.conn_id", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_user_flags, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_user_flags,
 	  { "User Flags", "srvsvc.srvsvc_NetSessInfo502.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1502, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1502,
 	  { "Info1502", "srvsvc.srvsvc_NetSrvInfo.info1502", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1541_minfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1541_minfreeconnections,
 	  { "Minfreeconnections", "srvsvc.srvsvc_NetSrvInfo1541.minfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_linkinfovalidtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_linkinfovalidtime,
 	  { "Linkinfovalidtime", "srvsvc.srvsvc_NetSrvInfo599.linkinfovalidtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sessreqs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sessreqs,
 	  { "Sessreqs", "srvsvc.srvsvc_NetSrvInfo403.sessreqs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareAdd_parm_error, 
+	{ &hf_srvsvc_srvsvc_NetShareAdd_parm_error,
 	  { "Parm Error", "srvsvc.srvsvc_NetShareAdd.parm_error", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info100, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info100,
 	  { "Info100", "srvsvc.srvsvc_NetSrvInfo.info100", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr502_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr502_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr502.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1514_enablesoftcompat, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1514_enablesoftcompat,
 	  { "Enablesoftcompat", "srvsvc.srvsvc_NetSrvInfo1514.enablesoftcompat", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minlinkthroughput, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minlinkthroughput,
 	  { "Minlinkthroughput", "srvsvc.srvsvc_NetSrvInfo599.minlinkthroughput", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_NOENCRYPTION, 
+	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_NOENCRYPTION,
 	  { "Sess Noencryption", "srvsvc.srvsvc_SessionUserFlags.SESS_NOENCRYPTION", FT_BOOLEAN, 32, TFS(&srvsvc_SessionUserFlags_SESS_NOENCRYPTION_tfs), ( 0x00000002 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_updateimmediately, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_updateimmediately,
 	  { "Updateimmediately", "srvsvc.srvsvc_NetServerSetServiceBitsEx.updateimmediately", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_time, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_time,
 	  { "Conn Time", "srvsvc.srvsvc_NetConnInfo1.conn_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1543_initsesstable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1543_initsesstable,
 	  { "Initsesstable", "srvsvc.srvsvc_NetSrvInfo1543.initsesstable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_xactmemsize, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_xactmemsize,
 	  { "Xactmemsize", "srvsvc.srvsvc_NetSrvInfo503.xactmemsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetCharDevGetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_FORCE_SHARED_DELETE, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_FORCE_SHARED_DELETE,
 	  { "Flags Force Shared Delete", "srvsvc.srvsvc_DFSFlags.FLAGS_FORCE_SHARED_DELETE", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_FLAGS_FORCE_SHARED_DELETE_tfs), ( 0x00000200 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_stimeouts, 
+	{ &hf_srvsvc_srvsvc_Statistics_stimeouts,
 	  { "Stimeouts", "srvsvc.srvsvc_Statistics.stimeouts", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessopen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sessopen,
 	  { "Sessopen", "srvsvc.srvsvc_NetSrvInfo599.sessopen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_bytessent_high, 
+	{ &hf_srvsvc_srvsvc_Statistics_bytessent_high,
 	  { "Bytessent High", "srvsvc.srvsvc_Statistics.bytessent_high", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_domain, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_domain,
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo1.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1007_alternate_directory_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1007_alternate_directory_name,
 	  { "Alternate Directory Name", "srvsvc.srvsvc_NetShareInfo1007.alternate_directory_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetConnCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minkeepsearch,
 	  { "Minkeepsearch", "srvsvc.srvsvc_NetSrvInfo503.minkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_acceptdownlevelapis, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_acceptdownlevelapis,
 	  { "Acceptdownlevelapis", "srvsvc.srvsvc_NetSrvInfo503.acceptdownlevelapis", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr2_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr2_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr2.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetGetFileSecurity.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxpagedmemoryusage,
 	  { "Maxpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo502.maxpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo10_client, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo10_client,
 	  { "Client", "srvsvc.srvsvc_NetSessInfo10.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetTransportCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQPurge_queue_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQPurge_queue_name,
 	  { "Queue Name", "srvsvc.srvsvc_NetCharDevQPurge.queue_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_jobsqueued, 
+	{ &hf_srvsvc_srvsvc_Statistics_jobsqueued,
 	  { "Jobsqueued", "srvsvc.srvsvc_Statistics.jobsqueued", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1550, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1550,
 	  { "Info1550", "srvsvc.srvsvc_NetSrvInfo.info1550", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1007, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1007,
 	  { "Info1007", "srvsvc.srvsvc_NetShareInfo.info1007", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1513, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1513,
 	  { "Info1513", "srvsvc.srvsvc_NetSrvInfo.info1513", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_file, 
+	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_file,
 	  { "File", "srvsvc.srvsvc_NetSetFileSecurity.file", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_activelocks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_activelocks,
 	  { "Activelocks", "srvsvc.srvsvc_NetSrvInfo402.activelocks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_addr,
 	  { "Addr", "srvsvc.srvsvc_NetTransportInfo2.addr", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_anndelta, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_anndelta,
 	  { "Anndelta", "srvsvc.srvsvc_NetSrvInfo102.anndelta", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileGetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetFileGetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetFileGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_threadpriority, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_threadpriority,
 	  { "Threadpriority", "srvsvc.srvsvc_NetSrvInfo503.threadpriority", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_idle_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_idle_time,
 	  { "Idle Time", "srvsvc.srvsvc_NetSessInfo502.idle_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1537_enableoplockforceclose, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1537_enableoplockforceclose,
 	  { "Enableoplockforceclose", "srvsvc.srvsvc_NetSrvInfo1537.enableoplockforceclose", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxnonpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxnonpagedmemoryusage,
 	  { "Maxnonpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo503.maxnonpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo503.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableforcedlogoff, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableforcedlogoff,
 	  { "Enableforcedlogoff", "srvsvc.srvsvc_NetSrvInfo599.enableforcedlogoff", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_parm_error, 
+	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_parm_error,
 	  { "Parm Error", "srvsvc.srvsvc_NetSrvSetInfo.parm_error", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareEnumAll.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_glist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_glist_mtime,
 	  { "Glist Mtime", "srvsvc.srvsvc_NetSrvInfo403.glist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_comment, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_comment,
 	  { "Comment", "srvsvc.srvsvc_NetShareInfo502.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1552, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1552,
 	  { "Info1552", "srvsvc.srvsvc_NetSrvInfo.info1552", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1004_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1004_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1004.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minkeepcomplsearch,
 	  { "Minkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo599.minkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_type, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_conn_type,
 	  { "Conn Type", "srvsvc.srvsvc_NetConnInfo1.conn_type", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_year, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_year,
 	  { "Year", "srvsvc.srvsvc_NetRemoteTODInfo.year", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetTransportCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo2_fid, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo2_fid,
 	  { "Fid", "srvsvc.srvsvc_NetFileInfo2.fid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_time, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_time,
 	  { "Time", "srvsvc.srvsvc_NetCharDevInfo1.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetShareEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_prefix, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_prefix,
 	  { "Prefix", "srvsvc.srvsvc_NetPathCanonicalize.prefix", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_syserrors, 
+	{ &hf_srvsvc_srvsvc_Statistics_syserrors,
 	  { "Syserrors", "srvsvc.srvsvc_Statistics.syserrors", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetShareCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_path, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_path,
 	  { "Path", "srvsvc.srvsvc_NetPathCanonicalize.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetCharDevQSetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_device, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_device,
 	  { "Device", "srvsvc.srvsvc_NetCharDevQInfo1.device", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetServiceBits_servicebits, 
+	{ &hf_srvsvc_srvsvc_NetSetServiceBits_servicebits,
 	  { "Servicebits", "srvsvc.srvsvc_NetSetServiceBits.servicebits", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1522_minkeepsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1522_minkeepsearch,
 	  { "Minkeepsearch", "srvsvc.srvsvc_NetSrvInfo1522.minkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_idle_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_idle_time,
 	  { "Idle Time", "srvsvc.srvsvc_NetSessInfo1.idle_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_pathflags, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_pathflags,
 	  { "Pathflags", "srvsvc.srvsvc_NetPathCanonicalize.pathflags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_logonalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_logonalert,
 	  { "Logonalert", "srvsvc.srvsvc_NetSrvInfo402.logonalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareGetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetShareGetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetShareGetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetDiskEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minfreeworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_minfreeworkitems,
 	  { "Minfreeworkitems", "srvsvc.srvsvc_NetSrvInfo503.minfreeworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_connections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_connections,
 	  { "Connections", "srvsvc.srvsvc_NetSrvInfo402.connections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetCharDevQCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxfreeconnections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxfreeconnections,
 	  { "Maxfreeconnections", "srvsvc.srvsvc_NetSrvInfo503.maxfreeconnections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_lanmask, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_lanmask,
 	  { "Lanmask", "srvsvc.srvsvc_NetSrvInfo402.lanmask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetShareEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo10_idle_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo10_idle_time,
 	  { "Idle Time", "srvsvc.srvsvc_NetSessInfo10.idle_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetServiceBits_transport, 
+	{ &hf_srvsvc_srvsvc_NetSetServiceBits_transport,
 	  { "Transport", "srvsvc.srvsvc_NetSetServiceBits.transport", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_emulated_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_emulated_server_unc,
 	  { "Emulated Server Unc", "srvsvc.srvsvc_NetServerSetServiceBitsEx.emulated_server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_tinterval, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_tinterval,
 	  { "Tinterval", "srvsvc.srvsvc_NetRemoteTODInfo.tinterval", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1536_enableoplocks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1536_enableoplocks,
 	  { "Enableoplocks", "srvsvc.srvsvc_NetSrvInfo1536.enableoplocks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_hours, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_hours,
 	  { "Hours", "srvsvc.srvsvc_NetRemoteTODInfo.hours", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_num_ahead, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_num_ahead,
 	  { "Num Ahead", "srvsvc.srvsvc_NetCharDevQInfo1.num_ahead", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_timesource, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_timesource,
 	  { "Timesource", "srvsvc.srvsvc_NetSrvInfo599.timesource", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_domain, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_domain,
 	  { "Domain", "srvsvc.srvsvc_NetSrvInfo599.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo402.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1006, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1006,
 	  { "Ctr1006", "srvsvc.srvsvc_NetShareCtr.ctr1006", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetShareEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetTransportEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareAdd_info, 
+	{ &hf_srvsvc_srvsvc_NetShareAdd_info,
 	  { "Info", "srvsvc.srvsvc_NetShareAdd.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetTransportCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetConnCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_queue_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_queue_name,
 	  { "Queue Name", "srvsvc.srvsvc_NetCharDevQSetInfo.queue_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo100_server_name, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo100_server_name,
 	  { "Server Name", "srvsvc.srvsvc_NetSrvInfo100.server_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetShareEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetShareEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1535, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1535,
 	  { "Info1535", "srvsvc.srvsvc_NetSrvInfo.info1535", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_time,
 	  { "Time", "srvsvc.srvsvc_NetSessInfo1.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_sd_buf, 
+	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_sd_buf,
 	  { "Sd Buf", "srvsvc.srvsvc_NetSetFileSecurity.sd_buf", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1521, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1521,
 	  { "Info1521", "srvsvc.srvsvc_NetSrvInfo.info1521", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareGetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetShareGetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetShareGetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_level, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_level,
 	  { "Level", "srvsvc.srvsvc_NetShareEnumAll.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo10_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo10_time,
 	  { "Time", "srvsvc.srvsvc_NetSessInfo10.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1004_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1004_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1004.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1502_sessvcs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1502_sessvcs,
 	  { "Sessvcs", "srvsvc.srvsvc_NetSrvInfo1502.sessvcs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numadmin, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numadmin,
 	  { "Numadmin", "srvsvc.srvsvc_NetSrvInfo403.numadmin", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1548_errortreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1548_errortreshold,
 	  { "Errortreshold", "srvsvc.srvsvc_NetSrvInfo1548.errortreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskInfo_disks, 
+	{ &hf_srvsvc_srvsvc_NetDiskInfo_disks,
 	  { "Disks", "srvsvc.srvsvc_NetDiskInfo.disks", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr10_array, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr10_array,
 	  { "Array", "srvsvc.srvsvc_NetSessCtr10.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_opnum, 
+	{ &hf_srvsvc_opnum,
 	  { "Operation", "srvsvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetConnCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1006_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1006_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1006.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCheck_type, 
+	{ &hf_srvsvc_srvsvc_NetShareCheck_type,
 	  { "Type", "srvsvc.srvsvc_NetShareCheck.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSrvGetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSrvGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_diskalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_diskalert,
 	  { "Diskalert", "srvsvc.srvsvc_NetSrvInfo403.diskalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_server_type, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_server_type,
 	  { "Server Type", "srvsvc.srvsvc_NetSrvInfo102.server_type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1542, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1542,
 	  { "Info1542", "srvsvc.srvsvc_NetSrvInfo.info1542", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1512, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1512,
 	  { "Info1512", "srvsvc.srvsvc_NetSrvInfo.info1512", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1503, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1503,
 	  { "Info1503", "srvsvc.srvsvc_NetSrvInfo.info1503", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_client, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_client,
 	  { "Client", "srvsvc.srvsvc_NetSessEnum.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetConnCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_transport_flags, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_transport_flags,
 	  { "Transport Flags", "srvsvc.srvsvc_NetTransportInfo2.transport_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr502, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr502,
 	  { "Ctr502", "srvsvc.srvsvc_NetShareCtr.ctr502", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_ulist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_ulist_mtime,
 	  { "Ulist Mtime", "srvsvc.srvsvc_NetSrvInfo403.ulist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1006, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1006,
 	  { "Info1006", "srvsvc.srvsvc_NetShareInfo.info1006", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1_type, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1_type,
 	  { "Type", "srvsvc.srvsvc_NetShareInfo1.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetCharDevEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_shares, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_shares,
 	  { "Shares", "srvsvc.srvsvc_NetSrvInfo403.shares", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1016_hidden, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1016_hidden,
 	  { "Hidden", "srvsvc.srvsvc_NetSrvInfo1016.hidden", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_user, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_user,
 	  { "User", "srvsvc.srvsvc_NetSessInfo1.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileGetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetFileGetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetFileGetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1543, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1543,
 	  { "Info1543", "srvsvc.srvsvc_NetSrvInfo.info1543", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxrawbuflen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxrawbuflen,
 	  { "Maxrawbuflen", "srvsvc.srvsvc_NetSrvInfo599.maxrawbuflen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo403.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetDiskEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetCharDevQEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_client, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_client,
 	  { "Client", "srvsvc.srvsvc_NetSessInfo2.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr2_array, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr2_array,
 	  { "Array", "srvsvc.srvsvc_NetSessCtr2.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessDel_user, 
+	{ &hf_srvsvc_srvsvc_NetSessDel_user,
 	  { "User", "srvsvc.srvsvc_NetSessDel.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr3_count, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr3_count,
 	  { "Count", "srvsvc.srvsvc_NetTransportCtr3.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetSrvSetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_serrorout, 
+	{ &hf_srvsvc_srvsvc_Statistics_serrorout,
 	  { "Serrorout", "srvsvc.srvsvc_Statistics.serrorout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1005_comment, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1005_comment,
 	  { "Comment", "srvsvc.srvsvc_NetSrvInfo1005.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_sopens, 
+	{ &hf_srvsvc_srvsvc_Statistics_sopens,
 	  { "Sopens", "srvsvc.srvsvc_Statistics.sopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1544, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1544,
 	  { "Info1544", "srvsvc.srvsvc_NetSrvInfo.info1544", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1010, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1010,
 	  { "Info1010", "srvsvc.srvsvc_NetSrvInfo.info1010", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1515, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1515,
 	  { "Info1515", "srvsvc.srvsvc_NetSrvInfo.info1515", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numbigbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numbigbufs,
 	  { "Numbigbufs", "srvsvc.srvsvc_NetSrvInfo402.numbigbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_addr,
 	  { "Addr", "srvsvc.srvsvc_NetTransportInfo3.addr", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1511_sesscons, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1511_sesscons,
 	  { "Sesscons", "srvsvc.srvsvc_NetSrvInfo1511.sesscons", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1545_initfiletable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1545_initfiletable,
 	  { "Initfiletable", "srvsvc.srvsvc_NetSrvInfo1545.initfiletable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSetFileSecurity.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_acceptdownlevelapis, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_acceptdownlevelapis,
 	  { "Acceptdownlevelapis", "srvsvc.srvsvc_NetSrvInfo502.acceptdownlevelapis", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_file, 
+	{ &hf_srvsvc_srvsvc_NetGetFileSecurity_file,
 	  { "File", "srvsvc.srvsvc_NetGetFileSecurity.file", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_ulist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_ulist_mtime,
 	  { "Ulist Mtime", "srvsvc.srvsvc_NetSrvInfo402.ulist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1522, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1522,
 	  { "Info1522", "srvsvc.srvsvc_NetSrvInfo.info1522", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_version_major, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_version_major,
 	  { "Version Major", "srvsvc.srvsvc_NetSrvInfo101.version_major", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetNameValidate_name_type, 
+	{ &hf_srvsvc_srvsvc_NetNameValidate_name_type,
 	  { "Name Type", "srvsvc.srvsvc_NetNameValidate.name_type", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_scavqosinfoupdatetime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_scavqosinfoupdatetime,
 	  { "Scavqosinfoupdatetime", "srvsvc.srvsvc_NetSrvInfo599.scavqosinfoupdatetime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablesoftcompat, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablesoftcompat,
 	  { "Enablesoftcompat", "srvsvc.srvsvc_NetSrvInfo599.enablesoftcompat", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_xactmemsize, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_xactmemsize,
 	  { "Xactmemsize", "srvsvc.srvsvc_NetSrvInfo599.xactmemsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareGetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareGetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name2, 
+	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name2,
 	  { "Name2", "srvsvc.srvsvc_NetPRNameCompare.name2", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_time,
 	  { "Time", "srvsvc.srvsvc_NetSessInfo502.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxrawbuflen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxrawbuflen,
 	  { "Maxrawbuflen", "srvsvc.srvsvc_NetSrvInfo503.maxrawbuflen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_oplockbreakwait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_oplockbreakwait,
 	  { "Oplockbreakwait", "srvsvc.srvsvc_NetSrvInfo503.oplockbreakwait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelSticky_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareDelSticky_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareDelSticky.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1524, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1524,
 	  { "Info1524", "srvsvc.srvsvc_NetSrvInfo.info1524", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_maxaudits, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_maxaudits,
 	  { "Maxaudits", "srvsvc.srvsvc_NetSrvInfo403.maxaudits", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_info, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_info,
 	  { "Info", "srvsvc.srvsvc_NetDiskEnum.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr_ctr2, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr_ctr2,
 	  { "Ctr2", "srvsvc.srvsvc_NetFileCtr.ctr2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_securityinformation, 
+	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_securityinformation,
 	  { "Securityinformation", "srvsvc.srvsvc_NetSetFileSecurity.securityinformation", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info2, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info2,
 	  { "Info2", "srvsvc.srvsvc_NetShareInfo.info2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1525, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1525,
 	  { "Info1525", "srvsvc.srvsvc_NetSrvInfo.info1525", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1539_enableraw, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1539_enableraw,
 	  { "Enableraw", "srvsvc.srvsvc_NetSrvInfo1539.enableraw", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alist_mtime,
 	  { "Alist Mtime", "srvsvc.srvsvc_NetSrvInfo403.alist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1515_enableforcedlogoff, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1515_enableforcedlogoff,
 	  { "Enableforcedlogoff", "srvsvc.srvsvc_NetSrvInfo1515.enableforcedlogoff", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_device_name,
 	  { "Device Name", "srvsvc.srvsvc_NetCharDevGetInfo.device_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr2_array, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr2_array,
 	  { "Array", "srvsvc.srvsvc_NetFileCtr2.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetSessEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1516, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1516,
 	  { "Info1516", "srvsvc.srvsvc_NetSrvInfo.info1516", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_licenses, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_licenses,
 	  { "Licenses", "srvsvc.srvsvc_NetSrvInfo102.licenses", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetConnEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetConnCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_platform_id, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_platform_id,
 	  { "Platform Id", "srvsvc.srvsvc_NetSrvInfo101.platform_id", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_PlatformId_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevs,
 	  { "Chdevs", "srvsvc.srvsvc_NetSrvInfo402.chdevs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxnonpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxnonpagedmemoryusage,
 	  { "Maxnonpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo599.maxnonpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_domain, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_domain,
 	  { "Domain", "srvsvc.srvsvc_NetSrvInfo503.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_pathtype, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_pathtype,
 	  { "Pathtype", "srvsvc.srvsvc_NetPathCanonicalize.pathtype", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sizereqbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sizereqbufs,
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo503.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1018, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1018,
 	  { "Info1018", "srvsvc.srvsvc_NetSrvInfo.info1018", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_device, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_device,
 	  { "Device", "srvsvc.srvsvc_NetCharDevInfo1.device", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_openfiles, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_openfiles,
 	  { "Openfiles", "srvsvc.srvsvc_NetSrvInfo403.openfiles", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo0_net_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo0_net_addr,
 	  { "Net Addr", "srvsvc.srvsvc_NetTransportInfo0.net_addr", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_shares, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_shares,
 	  { "Shares", "srvsvc.srvsvc_NetSrvInfo402.shares", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_pwerrors, 
+	{ &hf_srvsvc_srvsvc_Statistics_pwerrors,
 	  { "Pwerrors", "srvsvc.srvsvc_Statistics.pwerrors", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetCharDevEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1512_maxnonpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1512_maxnonpagedmemoryusage,
 	  { "Maxnonpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo1512.maxnonpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1533, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1533,
 	  { "Info1533", "srvsvc.srvsvc_NetSrvInfo.info1533", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxworkitems,
 	  { "Maxworkitems", "srvsvc.srvsvc_NetSrvInfo502.maxworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1549, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1549,
 	  { "Info1549", "srvsvc.srvsvc_NetSrvInfo.info1549", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_numlockthreads, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_numlockthreads,
 	  { "Numlockthreads", "srvsvc.srvsvc_NetSrvInfo599.numlockthreads", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info101, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info101,
 	  { "Info101", "srvsvc.srvsvc_NetSrvInfo.info101", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCompare_pathtype, 
+	{ &hf_srvsvc_srvsvc_NetPathCompare_pathtype,
 	  { "Pathtype", "srvsvc.srvsvc_NetPathCompare.pathtype", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1005, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1005,
 	  { "Info1005", "srvsvc.srvsvc_NetShareInfo.info1005", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1007_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1007_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1007.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1005, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1005,
 	  { "Info1005", "srvsvc.srvsvc_NetSrvInfo.info1005", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathType_pathflags, 
+	{ &hf_srvsvc_srvsvc_NetPathType_pathflags,
 	  { "Pathflags", "srvsvc.srvsvc_NetPathType.pathflags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_oplockbreakwait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_oplockbreakwait,
 	  { "Oplockbreakwait", "srvsvc.srvsvc_NetSrvInfo599.oplockbreakwait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetCharDevCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetCharDevQCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_info, 
+	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_info,
 	  { "Info", "srvsvc.srvsvc_NetServerTransportAddEx.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr2_count, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr2_count,
 	  { "Count", "srvsvc.srvsvc_NetFileCtr2.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCompare_pathflags, 
+	{ &hf_srvsvc_srvsvc_NetPathCompare_pathflags,
 	  { "Pathflags", "srvsvc.srvsvc_NetPathCompare.pathflags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelStart_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareDelStart_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareDelStart.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_num_open, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_num_open,
 	  { "Num Open", "srvsvc.srvsvc_NetConnInfo1.num_open", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo501_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo501_name,
 	  { "Name", "srvsvc.srvsvc_NetShareInfo501.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info501, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info501,
 	  { "Info501", "srvsvc.srvsvc_NetShareInfo.info501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCompare_path2, 
+	{ &hf_srvsvc_srvsvc_NetPathCompare_path2,
 	  { "Path2", "srvsvc.srvsvc_NetPathCompare.path2", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareAdd_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareAdd_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareAdd.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxnonpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxnonpagedmemoryusage,
 	  { "Maxnonpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo502.maxnonpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_client_type, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_client_type,
 	  { "Client Type", "srvsvc.srvsvc_NetSessInfo2.client_type", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1554, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1554,
 	  { "Info1554", "srvsvc.srvsvc_NetSrvInfo.info1554", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxworkitemidletime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxworkitemidletime,
 	  { "Maxworkitemidletime", "srvsvc.srvsvc_NetSrvInfo599.maxworkitemidletime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathType_path, 
+	{ &hf_srvsvc_srvsvc_NetPathType_path,
 	  { "Path", "srvsvc.srvsvc_NetPathType.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_ALLOW_NAMESPACE_CACHING, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_ALLOW_NAMESPACE_CACHING,
 	  { "Flags Allow Namespace Caching", "srvsvc.srvsvc_DFSFlags.FLAGS_ALLOW_NAMESPACE_CACHING", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_FLAGS_ALLOW_NAMESPACE_CACHING_tfs), ( 0x00000400 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_users, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_users,
 	  { "Users", "srvsvc.srvsvc_NetSrvInfo102.users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr2, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr2,
 	  { "Ctr2", "srvsvc.srvsvc_NetTransportCtr.ctr2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableforcedlogoff, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableforcedlogoff,
 	  { "Enableforcedlogoff", "srvsvc.srvsvc_NetSrvInfo503.enableforcedlogoff", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_time,
 	  { "Time", "srvsvc.srvsvc_NetSessInfo2.time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name_type, 
+	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name_type,
 	  { "Name Type", "srvsvc.srvsvc_NetPRNameCompare.name_type", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_maxbuf, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_maxbuf,
 	  { "Maxbuf", "srvsvc.srvsvc_NetPathCanonicalize.maxbuf", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareGetInfo_share_name, 
+	{ &hf_srvsvc_srvsvc_NetShareGetInfo_share_name,
 	  { "Share Name", "srvsvc.srvsvc_NetShareGetInfo.share_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name1, 
+	{ &hf_srvsvc_srvsvc_NetPRNameCompare_name1,
 	  { "Name1", "srvsvc.srvsvc_NetPRNameCompare.name1", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelSticky_reserved, 
+	{ &hf_srvsvc_srvsvc_NetShareDelSticky_reserved,
 	  { "Reserved", "srvsvc.srvsvc_NetShareDelSticky.reserved", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1005_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1005_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1005.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1524_minkeepcomplsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1524_minkeepcomplsearch,
 	  { "Minkeepcomplsearch", "srvsvc.srvsvc_NetSrvInfo1524.minkeepcomplsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportDel_unknown, 
+	{ &hf_srvsvc_srvsvc_NetTransportDel_unknown,
 	  { "Unknown", "srvsvc.srvsvc_NetTransportDel.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_numlockthreads, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_numlockthreads,
 	  { "Numlockthreads", "srvsvc.srvsvc_NetSrvInfo503.numlockthreads", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_enableforcedlogoff, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_enableforcedlogoff,
 	  { "Enableforcedlogoff", "srvsvc.srvsvc_NetSrvInfo502.enableforcedlogoff", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetCharDevCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_errortreshold, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_errortreshold,
 	  { "Errortreshold", "srvsvc.srvsvc_NetSrvInfo599.errortreshold", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo1_user_flags, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo1_user_flags,
 	  { "User Flags", "srvsvc.srvsvc_NetSessInfo1.user_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1004_comment, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1004_comment,
 	  { "Comment", "srvsvc.srvsvc_NetShareInfo1004.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_reqbufneed, 
+	{ &hf_srvsvc_srvsvc_Statistics_reqbufneed,
 	  { "Reqbufneed", "srvsvc.srvsvc_Statistics.reqbufneed", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablesharednetdrives, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablesharednetdrives,
 	  { "Enablesharednetdrives", "srvsvc.srvsvc_NetSrvInfo599.enablesharednetdrives", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_permissions, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_permissions,
 	  { "Permissions", "srvsvc.srvsvc_NetShareInfo502.permissions", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetFileEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_addr,
 	  { "Addr", "srvsvc.srvsvc_NetTransportInfo1.addr", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_type, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_type,
 	  { "Type", "srvsvc.srvsvc_NetShareInfo502.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCheck_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareCheck_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareCheck.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_RESTRICT_EXCLUSIVE_OPENS, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_RESTRICT_EXCLUSIVE_OPENS,
 	  { "Flags Restrict Exclusive Opens", "srvsvc.srvsvc_DFSFlags.FLAGS_RESTRICT_EXCLUSIVE_OPENS", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_FLAGS_RESTRICT_EXCLUSIVE_OPENS_tfs), ( 0x00000100 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_level, 
+	{ &hf_srvsvc_srvsvc_NetServerTransportAddEx_level,
 	  { "Level", "srvsvc.srvsvc_NetServerTransportAddEx.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevControl_opcode, 
+	{ &hf_srvsvc_srvsvc_NetCharDevControl_opcode,
 	  { "Opcode", "srvsvc.srvsvc_NetCharDevControl.opcode", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetConnCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetConnCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1516_timesource, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1516_timesource,
 	  { "Timesource", "srvsvc.srvsvc_NetSrvInfo1516.timesource", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetCharDevQGetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_SHARE_1005_FLAGS_IN_DFS, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_SHARE_1005_FLAGS_IN_DFS,
 	  { "Share 1005 Flags In Dfs", "srvsvc.srvsvc_DFSFlags.SHARE_1005_FLAGS_IN_DFS", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_SHARE_1005_FLAGS_IN_DFS_tfs), ( 0x00000001 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetShareCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info503, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info503,
 	  { "Info503", "srvsvc.srvsvc_NetSrvInfo.info503", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevqs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_chdevqs,
 	  { "Chdevqs", "srvsvc.srvsvc_NetSrvInfo402.chdevqs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_rawworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_rawworkitems,
 	  { "Rawworkitems", "srvsvc.srvsvc_NetSrvInfo503.rawworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1017, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1017,
 	  { "Info1017", "srvsvc.srvsvc_NetSrvInfo.info1017", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_idle_time, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_idle_time,
 	  { "Idle Time", "srvsvc.srvsvc_NetSessInfo2.idle_time", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_comment, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_comment,
 	  { "Comment", "srvsvc.srvsvc_NetSrvInfo102.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sesssvc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sesssvc,
 	  { "Sesssvc", "srvsvc.srvsvc_NetSrvInfo402.sesssvc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_status, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_status,
 	  { "Status", "srvsvc.srvsvc_NetCharDevInfo1.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetSessEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQPurge_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQPurge_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQPurge.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_path, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_path,
 	  { "Path", "srvsvc.srvsvc_NetFileEnum.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_servicebits, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_servicebits,
 	  { "Servicebits", "srvsvc.srvsvc_NetServerSetServiceBitsEx.servicebits", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr0_array, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr0_array,
 	  { "Array", "srvsvc.srvsvc_NetSessCtr0.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCompare_path1, 
+	{ &hf_srvsvc_srvsvc_NetPathCompare_path1,
 	  { "Path1", "srvsvc.srvsvc_NetPathCompare.path1", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetServerSetServiceBitsEx.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileGetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetFileGetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetFileGetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetCharDevQCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_connections, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_connections,
 	  { "Connections", "srvsvc.srvsvc_NetSrvInfo403.connections", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sizereqbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_sizereqbufs,
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo599.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileCtr_ctr3, 
+	{ &hf_srvsvc_srvsvc_NetFileCtr_ctr3,
 	  { "Ctr3", "srvsvc.srvsvc_NetFileCtr.ctr3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initfiletable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initfiletable,
 	  { "Initfiletable", "srvsvc.srvsvc_NetSrvInfo599.initfiletable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1528_scavtimeout, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1528_scavtimeout,
 	  { "Scavtimeout", "srvsvc.srvsvc_NetSrvInfo1528.scavtimeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetCharDevEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetPathCanonicalize.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_password, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_password,
 	  { "Password", "srvsvc.srvsvc_NetShareInfo2.password", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr_ctr0, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr_ctr0,
 	  { "Ctr0", "srvsvc.srvsvc_NetCharDevCtr.ctr0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileClose_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetFileClose_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetFileClose.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_lmannounce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_lmannounce,
 	  { "Lmannounce", "srvsvc.srvsvc_NetSrvInfo503.lmannounce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetTransportEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDelStart_share, 
+	{ &hf_srvsvc_srvsvc_NetShareDelStart_share,
 	  { "Share", "srvsvc.srvsvc_NetShareDelStart.share", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_num_open, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_num_open,
 	  { "Num Open", "srvsvc.srvsvc_NetSessInfo2.num_open", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_server_name, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_server_name,
 	  { "Server Name", "srvsvc.srvsvc_NetSrvInfo101.server_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr3, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr_ctr3,
 	  { "Ctr3", "srvsvc.srvsvc_NetTransportCtr.ctr3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr2_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr2_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr2.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1518, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1518,
 	  { "Info1518", "srvsvc.srvsvc_NetSrvInfo.info1518", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_netioalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_netioalert,
 	  { "Netioalert", "srvsvc.srvsvc_NetSrvInfo402.netioalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1004, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1004,
 	  { "Info1004", "srvsvc.srvsvc_NetShareInfo.info1004", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numadmin, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_numadmin,
 	  { "Numadmin", "srvsvc.srvsvc_NetSrvInfo402.numadmin", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_lmannounce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_lmannounce,
 	  { "Lmannounce", "srvsvc.srvsvc_NetSrvInfo599.lmannounce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sizereqbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sizereqbufs,
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo402.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1523, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1523,
 	  { "Info1523", "srvsvc.srvsvc_NetSrvInfo.info1523", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_share, 
+	{ &hf_srvsvc_srvsvc_NetSetFileSecurity_share,
 	  { "Share", "srvsvc.srvsvc_NetSetFileSecurity.share", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxrawbuflen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_maxrawbuflen,
 	  { "Maxrawbuflen", "srvsvc.srvsvc_NetSrvInfo502.maxrawbuflen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1548, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1548,
 	  { "Info1548", "srvsvc.srvsvc_NetSrvInfo.info1548", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTOD_info, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTOD_info,
 	  { "Info", "srvsvc.srvsvc_NetRemoteTOD.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetConnEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr1_count, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr1_count,
 	  { "Count", "srvsvc.srvsvc_NetSessCtr1.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1518_lmannounce, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1518_lmannounce,
 	  { "Lmannounce", "srvsvc.srvsvc_NetSrvInfo1518.lmannounce", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo2_user, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo2_user,
 	  { "User", "srvsvc.srvsvc_NetSessInfo2.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_vcs, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_vcs,
 	  { "Vcs", "srvsvc.srvsvc_NetTransportInfo1.vcs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_queue_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_queue_name,
 	  { "Queue Name", "srvsvc.srvsvc_NetCharDevQPurgeSelf.queue_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnInfo1_num_users, 
+	{ &hf_srvsvc_srvsvc_NetConnInfo1_num_users,
 	  { "Num Users", "srvsvc.srvsvc_NetConnInfo1.num_users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportDel_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetTransportDel_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetTransportDel.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessopen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessopen,
 	  { "Sessopen", "srvsvc.srvsvc_NetSrvInfo503.sessopen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetCharDevCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetCharDevCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr1_array, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr1_array,
 	  { "Array", "srvsvc.srvsvc_NetSessCtr1.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initconntable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initconntable,
 	  { "Initconntable", "srvsvc.srvsvc_NetSrvInfo599.initconntable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareSetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareSetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareSetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1545, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1545,
 	  { "Info1545", "srvsvc.srvsvc_NetSrvInfo.info1545", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1553, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1553,
 	  { "Info1553", "srvsvc.srvsvc_NetSrvInfo.info1553", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetSessEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1514, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1514,
 	  { "Info1514", "srvsvc.srvsvc_NetSrvInfo.info1514", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareSetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetShareSetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetShareSetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_fopens, 
+	{ &hf_srvsvc_srvsvc_Statistics_fopens,
 	  { "Fopens", "srvsvc.srvsvc_Statistics.fopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1016, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1016,
 	  { "Info1016", "srvsvc.srvsvc_NetSrvInfo.info1016", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxworkitems,
 	  { "Maxworkitems", "srvsvc.srvsvc_NetSrvInfo599.maxworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskInfo_count, 
+	{ &hf_srvsvc_srvsvc_NetDiskInfo_count,
 	  { "Count", "srvsvc.srvsvc_NetDiskInfo.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_glist_mtime, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_glist_mtime,
 	  { "Glist Mtime", "srvsvc.srvsvc_NetSrvInfo402.glist_mtime", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_bigbufneed, 
+	{ &hf_srvsvc_srvsvc_Statistics_bigbufneed,
 	  { "Bigbufneed", "srvsvc.srvsvc_Statistics.bigbufneed", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr2, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr2,
 	  { "Ctr2", "srvsvc.srvsvc_NetShareCtr.ctr2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1510_sessusers, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1510_sessusers,
 	  { "Sessusers", "srvsvc.srvsvc_NetSrvInfo1510.sessusers", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportDel_transport, 
+	{ &hf_srvsvc_srvsvc_NetTransportDel_transport,
 	  { "Transport", "srvsvc.srvsvc_NetTransportDel.transport", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_enablesoftcompat, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_enablesoftcompat,
 	  { "Enablesoftcompat", "srvsvc.srvsvc_NetSrvInfo502.enablesoftcompat", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathType_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetPathType_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetPathType.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1513_maxpagedmemoryusage, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1513_maxpagedmemoryusage,
 	  { "Maxpagedmemoryusage", "srvsvc.srvsvc_NetSrvInfo1513.maxpagedmemoryusage", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_service, 
+	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_service,
 	  { "Service", "srvsvc.srvsvc_NetServerStatisticsGet.service", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr3_array, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr3_array,
 	  { "Array", "srvsvc.srvsvc_NetTransportCtr3.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_devices, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_devices,
 	  { "Devices", "srvsvc.srvsvc_NetCharDevQInfo1.devices", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_GUEST, 
+	{ &hf_srvsvc_srvsvc_SessionUserFlags_SESS_GUEST,
 	  { "Sess Guest", "srvsvc.srvsvc_SessionUserFlags.SESS_GUEST", FT_BOOLEAN, 32, TFS(&srvsvc_SessionUserFlags_SESS_GUEST_tfs), ( 0x00000001 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo502_client_type, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo502_client_type,
 	  { "Client Type", "srvsvc.srvsvc_NetSessInfo502.client_type", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_activelocks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_activelocks,
 	  { "Activelocks", "srvsvc.srvsvc_NetSrvInfo403.activelocks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetServerStatisticsGet.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr502, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr502,
 	  { "Ctr502", "srvsvc.srvsvc_NetSessCtr.ctr502", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_netioalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_netioalert,
 	  { "Netioalert", "srvsvc.srvsvc_NetSrvInfo403.netioalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1553_minlinkthroughput, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1553_minlinkthroughput,
 	  { "Minlinkthroughput", "srvsvc.srvsvc_NetSrvInfo1553.minlinkthroughput", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_current_users, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_current_users,
 	  { "Current Users", "srvsvc.srvsvc_NetShareInfo2.current_users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessusers, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessusers,
 	  { "Sessusers", "srvsvc.srvsvc_NetSrvInfo502.sessusers", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_irpstacksize, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_irpstacksize,
 	  { "Irpstacksize", "srvsvc.srvsvc_NetSrvInfo599.irpstacksize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQSetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetCharDevQSetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sizereqbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sizereqbufs,
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo403.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1530_minfreeworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1530_minfreeworkitems,
 	  { "Minfreeworkitems", "srvsvc.srvsvc_NetSrvInfo1530.minfreeworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_max_users, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_max_users,
 	  { "Max Users", "srvsvc.srvsvc_NetShareInfo2.max_users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_domain, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_domain,
 	  { "Domain", "srvsvc.srvsvc_NetTransportInfo2.domain", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_type, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_type,
 	  { "Type", "srvsvc.srvsvc_NetShareInfo2.type", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_ShareType_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minrcvqueue, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minrcvqueue,
 	  { "Minrcvqueue", "srvsvc.srvsvc_NetSrvInfo599.minrcvqueue", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetSessCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevControl_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevControl_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevControl.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_name,
 	  { "Name", "srvsvc.srvsvc_NetShareInfo2.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxcopywritelen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_maxcopywritelen,
 	  { "Maxcopywritelen", "srvsvc.srvsvc_NetSrvInfo599.maxcopywritelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_info, 
+	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_info,
 	  { "Info", "srvsvc.srvsvc_NetCharDevGetInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sizereqbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sizereqbufs,
 	  { "Sizereqbufs", "srvsvc.srvsvc_NetSrvInfo502.sizereqbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password_len, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_password_len,
 	  { "Password Len", "srvsvc.srvsvc_NetTransportInfo3.password_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_user, 
+	{ &hf_srvsvc_srvsvc_NetCharDevInfo1_user,
 	  { "User", "srvsvc.srvsvc_NetCharDevInfo1.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_security, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_security,
 	  { "Security", "srvsvc.srvsvc_NetSrvInfo403.security", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevGetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevGetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessDel_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSessDel_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSessDel.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1547_alertsched, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1547_alertsched,
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo1547.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1546, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1546,
 	  { "Info1546", "srvsvc.srvsvc_NetSrvInfo.info1546", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetCharDevQGetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_unknown, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_unknown,
 	  { "Unknown", "srvsvc.srvsvc_NetShareInfo502.unknown", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_avresponse, 
+	{ &hf_srvsvc_srvsvc_Statistics_avresponse,
 	  { "Avresponse", "srvsvc.srvsvc_Statistics.avresponse", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareDel_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetShareDel_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetShareDel.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_addr_len, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_addr_len,
 	  { "Addr Len", "srvsvc.srvsvc_NetTransportInfo2.addr_len", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alerts, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_alerts,
 	  { "Alerts", "srvsvc.srvsvc_NetSrvInfo403.alerts", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevControl_device_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevControl_device_name,
 	  { "Device Name", "srvsvc.srvsvc_NetCharDevControl.device_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessopen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_sessopen,
 	  { "Sessopen", "srvsvc.srvsvc_NetSrvInfo502.sessopen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableraw, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enableraw,
 	  { "Enableraw", "srvsvc.srvsvc_NetSrvInfo599.enableraw", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1523_maxkeepsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1523_maxkeepsearch,
 	  { "Maxkeepsearch", "srvsvc.srvsvc_NetSrvInfo1523.maxkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sessopen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sessopen,
 	  { "Sessopen", "srvsvc.srvsvc_NetSrvInfo403.sessopen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1107_users, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1107_users,
 	  { "Users", "srvsvc.srvsvc_NetSrvInfo1107.users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_scavtimeout, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_scavtimeout,
 	  { "Scavtimeout", "srvsvc.srvsvc_NetSrvInfo599.scavtimeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1520_maxcopyreadlen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1520_maxcopyreadlen,
 	  { "Maxcopyreadlen", "srvsvc.srvsvc_NetSrvInfo1520.maxcopyreadlen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1506, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1506,
 	  { "Info1506", "srvsvc.srvsvc_NetSrvInfo.info1506", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo0_client, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo0_client,
 	  { "Client", "srvsvc.srvsvc_NetSessInfo0.client", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initsearchtable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initsearchtable,
 	  { "Initsearchtable", "srvsvc.srvsvc_NetSrvInfo599.initsearchtable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxworkitems,
 	  { "Maxworkitems", "srvsvc.srvsvc_NetSrvInfo503.maxworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_reserved, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_reserved,
 	  { "Reserved", "srvsvc.srvsvc_NetSrvInfo599.reserved", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSrvSetInfo.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileEnum_user, 
+	{ &hf_srvsvc_srvsvc_NetFileEnum_user,
 	  { "User", "srvsvc.srvsvc_NetFileEnum.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_path, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_path,
 	  { "Path", "srvsvc.srvsvc_NetShareInfo502.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo3_fid, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo3_fid,
 	  { "Fid", "srvsvc.srvsvc_NetFileInfo3.fid", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1538, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1538,
 	  { "Info1538", "srvsvc.srvsvc_NetSrvInfo.info1538", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_permerrors, 
+	{ &hf_srvsvc_srvsvc_Statistics_permerrors,
 	  { "Permerrors", "srvsvc.srvsvc_Statistics.permerrors", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportAdd_info, 
+	{ &hf_srvsvc_srvsvc_NetTransportAdd_info,
 	  { "Info", "srvsvc.srvsvc_NetTransportAdd.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetDiskEnum_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetDiskEnum_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetDiskEnum.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo0_vcs, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo0_vcs,
 	  { "Vcs", "srvsvc.srvsvc_NetTransportInfo0.vcs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo3_path, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo3_path,
 	  { "Path", "srvsvc.srvsvc_NetFileInfo3.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_level, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_level,
 	  { "Level", "srvsvc.srvsvc_NetCharDevEnum.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1_name,
 	  { "Name", "srvsvc.srvsvc_NetShareInfo1.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_ctr, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_ctr,
 	  { "Ctr", "srvsvc.srvsvc_NetCharDevQEnum.ctr", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr10_count, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr10_count,
 	  { "Count", "srvsvc.srvsvc_NetSessCtr10.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_sec_desc_buf_len, 
+	{ &hf_srvsvc_sec_desc_buf_len,
 	  { "Sec Desc Buf Len", "srvsvc.sec_desc_buf_len", FT_UINT32, BASE_DEC, NULL, 0, " ", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1005, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1005,
 	  { "Ctr1005", "srvsvc.srvsvc_NetShareCtr.ctr1005", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessconns, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessconns,
 	  { "Sessconns", "srvsvc.srvsvc_NetSrvInfo503.sessconns", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_initworkitems,
 	  { "Initworkitems", "srvsvc.srvsvc_NetSrvInfo599.initworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_password, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_password,
 	  { "Password", "srvsvc.srvsvc_NetShareInfo502.password", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1521_maxcopywritelen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1521_maxcopywritelen,
 	  { "Maxcopywritelen", "srvsvc.srvsvc_NetSrvInfo1521.maxcopywritelen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minkeepsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_minkeepsearch,
 	  { "Minkeepsearch", "srvsvc.srvsvc_NetSrvInfo599.minkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_srvheuristics, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_srvheuristics,
 	  { "Srvheuristics", "srvsvc.srvsvc_NetSrvInfo403.srvheuristics", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo_info2, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo_info2,
 	  { "Info2", "srvsvc.srvsvc_NetTransportInfo.info2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_lanmask, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_lanmask,
 	  { "Lanmask", "srvsvc.srvsvc_NetSrvInfo403.lanmask", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1541, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1541,
 	  { "Info1541", "srvsvc.srvsvc_NetSrvInfo.info1541", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr2, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr2,
 	  { "Ctr2", "srvsvc.srvsvc_NetSessCtr.ctr2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo1_comment, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo1_comment,
 	  { "Comment", "srvsvc.srvsvc_NetShareInfo1.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr502_count, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr502_count,
 	  { "Count", "srvsvc.srvsvc_NetSessCtr502.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1506_maxworkitems, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1506_maxworkitems,
 	  { "Maxworkitems", "srvsvc.srvsvc_NetSrvInfo1506.maxworkitems", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_current_users, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_current_users,
 	  { "Current Users", "srvsvc.srvsvc_NetShareInfo502.current_users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_stat, 
+	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_stat,
 	  { "Stat", "srvsvc.srvsvc_NetServerStatisticsGet.stat", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo_info1, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo_info1,
 	  { "Info1", "srvsvc.srvsvc_NetCharDevQInfo.info1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetSessEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevs,
 	  { "Chdevs", "srvsvc.srvsvc_NetSrvInfo403.chdevs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetCharDevEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetCharDevEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info402, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info402,
 	  { "Info402", "srvsvc.srvsvc_NetSrvInfo.info402", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_name, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_name,
 	  { "Name", "srvsvc.srvsvc_NetTransportInfo2.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablesoftcompat, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enablesoftcompat,
 	  { "Enablesoftcompat", "srvsvc.srvsvc_NetSrvInfo503.enablesoftcompat", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo_info3, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo_info3,
 	  { "Info3", "srvsvc.srvsvc_NetTransportInfo.info3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_month, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_month,
 	  { "Month", "srvsvc.srvsvc_NetRemoteTODInfo.month", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1501_sessopens, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1501_sessopens,
 	  { "Sessopens", "srvsvc.srvsvc_NetSrvInfo1501.sessopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_werror, 
+	{ &hf_srvsvc_werror,
 	  { "Windows Error", "srvsvc.werror", FT_UINT32, BASE_HEX, VALS(WERR_errors), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_day, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_day,
 	  { "Day", "srvsvc.srvsvc_NetRemoteTODInfo.day", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetNameValidate_flags, 
+	{ &hf_srvsvc_srvsvc_NetNameValidate_flags,
 	  { "Flags", "srvsvc.srvsvc_NetNameValidate.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo3_permissions, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo3_permissions,
 	  { "Permissions", "srvsvc.srvsvc_NetFileInfo3.permissions", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessusers, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_sessusers,
 	  { "Sessusers", "srvsvc.srvsvc_NetSrvInfo503.sessusers", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetConnEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableoplocks, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableoplocks,
 	  { "Enableoplocks", "srvsvc.srvsvc_NetSrvInfo503.enableoplocks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo100_platform_id, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo100_platform_id,
 	  { "Platform Id", "srvsvc.srvsvc_NetSrvInfo100.platform_id", FT_UINT32, BASE_DEC, VALS(srvsvc_srvsvc_PlatformId_vals), 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr502_array, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr502_array,
 	  { "Array", "srvsvc.srvsvc_NetSessCtr502.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_msecs, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_msecs,
 	  { "Msecs", "srvsvc.srvsvc_NetRemoteTODInfo.msecs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_irpstacksize, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_irpstacksize,
 	  { "Irpstacksize", "srvsvc.srvsvc_NetSrvInfo503.irpstacksize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableraw, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_enableraw,
 	  { "Enableraw", "srvsvc.srvsvc_NetSrvInfo503.enableraw", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_level, 
+	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_level,
 	  { "Level", "srvsvc.srvsvc_NetServerStatisticsGet.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sesssvc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_sesssvc,
 	  { "Sesssvc", "srvsvc.srvsvc_NetSrvInfo403.sesssvc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_options, 
+	{ &hf_srvsvc_srvsvc_NetServerStatisticsGet_options,
 	  { "Options", "srvsvc.srvsvc_NetServerStatisticsGet.options", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info102, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info102,
 	  { "Info102", "srvsvc.srvsvc_NetSrvInfo.info102", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_bytesrcvd_high, 
+	{ &hf_srvsvc_srvsvc_Statistics_bytesrcvd_high,
 	  { "Bytesrcvd High", "srvsvc.srvsvc_Statistics.bytesrcvd_high", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numbigbufs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_numbigbufs,
 	  { "Numbigbufs", "srvsvc.srvsvc_NetSrvInfo403.numbigbufs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_can_path, 
+	{ &hf_srvsvc_srvsvc_NetPathCanonicalize_can_path,
 	  { "Can Path", "srvsvc.srvsvc_NetPathCanonicalize.can_path", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo_info1, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo_info1,
 	  { "Info1", "srvsvc.srvsvc_NetShareInfo.info1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_totalentries, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_totalentries,
 	  { "Totalentries", "srvsvc.srvsvc_NetTransportEnum.totalentries", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1007_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1007_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1007.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareEnumAll_resume_handle, 
+	{ &hf_srvsvc_srvsvc_NetShareEnumAll_resume_handle,
 	  { "Resume Handle", "srvsvc.srvsvc_NetShareEnumAll.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPRNameCompare_flags, 
+	{ &hf_srvsvc_srvsvc_NetPRNameCompare_flags,
 	  { "Flags", "srvsvc.srvsvc_NetPRNameCompare.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathType_pathtype, 
+	{ &hf_srvsvc_srvsvc_NetPathType_pathtype,
 	  { "Pathtype", "srvsvc.srvsvc_NetPathType.pathtype", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1533_maxmpxct, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1533_maxmpxct,
 	  { "Maxmpxct", "srvsvc.srvsvc_NetSrvInfo1533.maxmpxct", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_Statistics_devopens, 
+	{ &hf_srvsvc_srvsvc_Statistics_devopens,
 	  { "Devopens", "srvsvc.srvsvc_Statistics.devopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1556, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1556,
 	  { "Info1556", "srvsvc.srvsvc_NetSrvInfo.info1556", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_max_buffer, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQEnum_max_buffer,
 	  { "Max Buffer", "srvsvc.srvsvc_NetCharDevQEnum.max_buffer", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetConnEnum_path, 
+	{ &hf_srvsvc_srvsvc_NetConnEnum_path,
 	  { "Path", "srvsvc.srvsvc_NetConnEnum.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sessopen, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sessopen,
 	  { "Sessopen", "srvsvc.srvsvc_NetSrvInfo402.sessopen", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_disc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_disc,
 	  { "Disc", "srvsvc.srvsvc_NetSrvInfo102.disc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetFileInfo3_num_locks, 
+	{ &hf_srvsvc_srvsvc_NetFileInfo3_num_locks,
 	  { "Num Locks", "srvsvc.srvsvc_NetFileInfo3.num_locks", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo3_net_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo3_net_addr,
 	  { "Net Addr", "srvsvc.srvsvc_NetTransportInfo3.net_addr", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_level, 
+	{ &hf_srvsvc_srvsvc_NetSrvSetInfo_level,
 	  { "Level", "srvsvc.srvsvc_NetSrvSetInfo.level", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1006_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1006_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr1006.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sessreqs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo402_sessreqs,
 	  { "Sessreqs", "srvsvc.srvsvc_NetSrvInfo402.sessreqs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_autopath, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_autopath,
 	  { "Autopath", "srvsvc.srvsvc_NetSrvInfo403.autopath", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_server_name, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_server_name,
 	  { "Server Name", "srvsvc.srvsvc_NetSrvInfo102.server_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1546_initsearchtable, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1546_initsearchtable,
 	  { "Initsearchtable", "srvsvc.srvsvc_NetSrvInfo1546.initsearchtable", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr1005_count, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr1005_count,
 	  { "Count", "srvsvc.srvsvc_NetShareCtr1005.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo2_path, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo2_path,
 	  { "Path", "srvsvc.srvsvc_NetShareInfo2.path", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetSessEnum.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevqs, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_chdevqs,
 	  { "Chdevqs", "srvsvc.srvsvc_NetSrvInfo403.chdevqs", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo2_net_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo2_net_addr,
 	  { "Net Addr", "srvsvc.srvsvc_NetTransportInfo2.net_addr", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_transport, 
+	{ &hf_srvsvc_srvsvc_NetServerSetServiceBitsEx_transport,
 	  { "Transport", "srvsvc.srvsvc_NetServerSetServiceBitsEx.transport", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_logonalert, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_logonalert,
 	  { "Logonalert", "srvsvc.srvsvc_NetSrvInfo403.logonalert", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo403_auditprofile, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo403_auditprofile,
 	  { "Auditprofile", "srvsvc.srvsvc_NetSrvInfo403.auditprofile", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablefcbopens, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_enablefcbopens,
 	  { "Enablefcbopens", "srvsvc.srvsvc_NetSrvInfo599.enablefcbopens", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessEnum_user, 
+	{ &hf_srvsvc_srvsvc_NetSessEnum_user,
 	  { "User", "srvsvc.srvsvc_NetSessEnum.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_timezone, 
+	{ &hf_srvsvc_srvsvc_NetRemoteTODInfo_timezone,
 	  { "Timezone", "srvsvc.srvsvc_NetRemoteTODInfo.timezone", FT_INT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_oplockbreakresponsewait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_oplockbreakresponsewait,
 	  { "Oplockbreakresponsewait", "srvsvc.srvsvc_NetSrvInfo503.oplockbreakresponsewait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_net_addr, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_net_addr,
 	  { "Net Addr", "srvsvc.srvsvc_NetTransportInfo1.net_addr", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT,
 	  { "Csc Cache Auto Reint", "srvsvc.srvsvc_DFSFlags.CSC_CACHE_AUTO_REINT", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_CSC_CACHE_AUTO_REINT_tfs), ( 0x00000010 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_user, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQGetInfo_user,
 	  { "User", "srvsvc.srvsvc_NetCharDevQGetInfo.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxkeepsearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo503_maxkeepsearch,
 	  { "Maxkeepsearch", "srvsvc.srvsvc_NetSrvInfo503.maxkeepsearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQCtr0_count, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQCtr0_count,
 	  { "Count", "srvsvc.srvsvc_NetCharDevQCtr0.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1503_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1503_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo1503.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_userpath, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_userpath,
 	  { "Userpath", "srvsvc.srvsvc_NetSrvInfo102.userpath", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1555, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1555,
 	  { "Info1555", "srvsvc.srvsvc_NetSrvInfo.info1555", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessInfo10_user, 
+	{ &hf_srvsvc_srvsvc_NetSessInfo10_user,
 	  { "User", "srvsvc.srvsvc_NetSessInfo10.user", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo599_alertsched, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo599_alertsched,
 	  { "Alertsched", "srvsvc.srvsvc_NetSrvInfo599.alertsched", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetPathCompare_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetPathCompare_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetPathCompare.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1547, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1547,
 	  { "Info1547", "srvsvc.srvsvc_NetSrvInfo.info1547", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportInfo1_name, 
+	{ &hf_srvsvc_srvsvc_NetTransportInfo1_name,
 	  { "Name", "srvsvc.srvsvc_NetTransportInfo1.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_max_users, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_max_users,
 	  { "Max Users", "srvsvc.srvsvc_NetShareInfo502.max_users", FT_INT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo502_opensearch, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo502_opensearch,
 	  { "Opensearch", "srvsvc.srvsvc_NetSrvInfo502.opensearch", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_ACCESS_BASED_DIRECTORY_ENUM, 
+	{ &hf_srvsvc_srvsvc_DFSFlags_FLAGS_ACCESS_BASED_DIRECTORY_ENUM,
 	  { "Flags Access Based Directory Enum", "srvsvc.srvsvc_DFSFlags.FLAGS_ACCESS_BASED_DIRECTORY_ENUM", FT_BOOLEAN, 32, TFS(&srvsvc_DFSFlags_FLAGS_ACCESS_BASED_DIRECTORY_ENUM_tfs), ( 0x00000800 ), "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo_info0, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo_info0,
 	  { "Info0", "srvsvc.srvsvc_NetCharDevQInfo.info0", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo102_hidden, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo102_hidden,
 	  { "Hidden", "srvsvc.srvsvc_NetSrvInfo102.hidden", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1501, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr_ctr1501,
 	  { "Ctr1501", "srvsvc.srvsvc_NetShareCtr.ctr1501", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1539, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1539,
 	  { "Info1539", "srvsvc.srvsvc_NetSrvInfo.info1539", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo501_comment, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo501_comment,
 	  { "Comment", "srvsvc.srvsvc_NetShareInfo501.comment", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportEnum_transports, 
+	{ &hf_srvsvc_srvsvc_NetTransportEnum_transports,
 	  { "Transports", "srvsvc.srvsvc_NetTransportEnum.transports", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetTransportCtr2_array, 
+	{ &hf_srvsvc_srvsvc_NetTransportCtr2_array,
 	  { "Array", "srvsvc.srvsvc_NetTransportCtr2.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareInfo502_name, 
+	{ &hf_srvsvc_srvsvc_NetShareInfo502_name,
 	  { "Name", "srvsvc.srvsvc_NetShareInfo502.name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1535_oplockbreakresponsewait, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1535_oplockbreakresponsewait,
 	  { "Oplockbreakresponsewait", "srvsvc.srvsvc_NetSrvInfo1535.oplockbreakresponsewait", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_users, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQInfo1_users,
 	  { "Users", "srvsvc.srvsvc_NetCharDevQInfo1.users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr1, 
+	{ &hf_srvsvc_srvsvc_NetSessCtr_ctr1,
 	  { "Ctr1", "srvsvc.srvsvc_NetSessCtr.ctr1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_server_unc,
 	  { "Server Unc", "srvsvc.srvsvc_NetCharDevQPurgeSelf.server_unc", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo1010_disc, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo1010_disc,
 	  { "Disc", "srvsvc.srvsvc_NetSrvInfo1010.disc", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_computer_name, 
+	{ &hf_srvsvc_srvsvc_NetCharDevQPurgeSelf_computer_name,
 	  { "Computer Name", "srvsvc.srvsvc_NetCharDevQPurgeSelf.computer_name", FT_STRING, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo101_server_type, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo101_server_type,
 	  { "Server Type", "srvsvc.srvsvc_NetSrvInfo101.server_type", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetShareCtr502_array, 
+	{ &hf_srvsvc_srvsvc_NetShareCtr502_array,
 	  { "Array", "srvsvc.srvsvc_NetShareCtr502.array", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1530, 
+	{ &hf_srvsvc_srvsvc_NetSrvInfo_info1530,
 	  { "Info1530", "srvsvc.srvsvc_NetSrvInfo.info1530", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	};
 
