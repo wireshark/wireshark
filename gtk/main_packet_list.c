@@ -71,13 +71,13 @@ static gboolean last_at_end = FALSE;
 
 /* GtkClist compare routine, overrides default to allow numeric comparison */
 
-#define COMPARE_FRAME_NUM()	((fdata1->num < fdata2->num) ? -1 : \
-				 (fdata1->num > fdata2->num) ? 1 : \
-				 0)
+#define COMPARE_FRAME_NUM()     ((fdata1->num < fdata2->num) ? -1 : \
+                                 (fdata1->num > fdata2->num) ? 1 : \
+                                 0)
 
-#define COMPARE_NUM(f)	((fdata1->f < fdata2->f) ? -1 : \
-			 (fdata1->f > fdata2->f) ? 1 : \
-			 COMPARE_FRAME_NUM())
+#define COMPARE_NUM(f)  ((fdata1->f < fdata2->f) ? -1 : \
+                         (fdata1->f > fdata2->f) ? 1 : \
+                         COMPARE_FRAME_NUM())
 
 /* Compare time stamps.
    A packet whose time is a reference time is considered to have
@@ -85,13 +85,13 @@ static gboolean last_at_end = FALSE;
    if both packets' times are reference times, we compare the
    times of the packets. */
 #define COMPARE_TS(ts) \
-		((fdata1->flags.ref_time && !fdata2->flags.ref_time) ? -1 : \
-		 (!fdata1->flags.ref_time && fdata2->flags.ref_time) ? 1 : \
-		 (fdata1->ts.secs < fdata2->ts.secs) ? -1 : \
-		 (fdata1->ts.secs > fdata2->ts.secs) ? 1 : \
-		 (fdata1->ts.nsecs < fdata2->ts.nsecs) ? -1 :\
-		 (fdata1->ts.nsecs > fdata2->ts.nsecs) ? 1 : \
-		 COMPARE_FRAME_NUM())
+                ((fdata1->flags.ref_time && !fdata2->flags.ref_time) ? -1 : \
+                 (!fdata1->flags.ref_time && fdata2->flags.ref_time) ? 1 : \
+                 (fdata1->ts.secs < fdata2->ts.secs) ? -1 : \
+                 (fdata1->ts.secs > fdata2->ts.secs) ? 1 : \
+                 (fdata1->ts.nsecs < fdata2->ts.nsecs) ? -1 :\
+                 (fdata1->ts.nsecs > fdata2->ts.nsecs) ? 1 : \
+                 COMPARE_FRAME_NUM())
 static gint
 packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 {
@@ -185,7 +185,7 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     num1 = atof(text1);
     num2 = atof(text2);
     if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
-	(custom_numeric) || 
+        (custom_numeric) || 
         ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) ||
                                         (col_fmt == COL_RES_SRC_PORT) || 
                                         (col_fmt == COL_DEF_DST_PORT) ||
@@ -264,7 +264,8 @@ packet_list_resize_column_cb(GtkCList *clist _U_, gint column, gint width, gpoin
 
 /* What to do when a list item is selected/unselected */
 static void
-packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
+packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) 
+{
   frame_data *fdata;
 
   /* Check if already selected */
@@ -286,14 +287,15 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *
 }
 
 static void
-packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
-
+packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) 
+{
   cf_unselect_packet(&cfile);
 }
 
 /* mark packets */
 static void
-set_frame_mark(gboolean set, frame_data *frame, gint row) {
+set_frame_mark(gboolean set, frame_data *frame, gint row)
+{
   GdkColor fg, bg;
 
   if (row == -1)
@@ -322,32 +324,36 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 }
 
 /* call this after last set_frame_mark is done */
-static void mark_frames_ready(void) {
+static void mark_frames_ready(void) 
+{
   file_save_update_dynamics();
   packets_bar_update();
 }
 
-void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 
+{
   if (cfile.current_frame) {
     set_frame_mark(!cfile.current_frame->flags.marked,
-		   cfile.current_frame, cfile.current_row);
+                   cfile.current_frame, cfile.current_row);
     mark_frames_ready();
   }
 }
 
-static void mark_all_frames(gboolean set) {
+static void mark_all_frames(gboolean set) 
+{
   frame_data *fdata;
 
   /* XXX: we might need a progressbar here */
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
-		   fdata,
-		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
+                   fdata,
+                   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
   }
   mark_frames_ready();
 }
 
-void packet_list_update_marked_frames(void) {
+void packet_list_update_marked_frames(void) 
+{
   frame_data *fdata;
 
   if (cfile.plist == NULL) return;
@@ -355,25 +361,26 @@ void packet_list_update_marked_frames(void) {
   /* XXX: we might need a progressbar here */
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     if (fdata->flags.marked)
-      set_frame_mark(TRUE,
-		     fdata,
-		     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-						  fdata));
+      set_frame_mark(TRUE, fdata,
+                     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+                                                  fdata));
   }
   mark_frames_ready();
 }
 
-void packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) 
+{
   mark_all_frames(TRUE);
 }
 
-void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) 
+{
   mark_all_frames(FALSE);
 }
 
 gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
-				 gint *row, gint *column)
+                                 gint *row, gint *column)
 {
     return gtk_clist_get_selection_info(GTK_CLIST(w),
                                  (gint) event_button->x, (gint) event_button->y,
@@ -393,8 +400,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         event_button->window == GTK_CLIST(w)->clist_window &&
         gtk_clist_get_selection_info(GTK_CLIST(w), (gint) event_button->x,
                                      (gint) event_button->y, &row, &column)) {
-        frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w),
-                                                                 row);
+        frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w), row);
         set_frame_mark(!fdata->flags.marked, fdata, row);
         mark_frames_ready();
         return TRUE;
@@ -414,67 +420,65 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 void
 packet_list_set_sel_browse(gboolean val, gboolean force_set)
 {
-        GtkSelectionMode new_mode;
-        /* initialize with a mode we don't use, so that the mode == new_mode
-         * test will fail the first time */
-        static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
+    GtkSelectionMode new_mode;
+    /* initialize with a mode we don't use, so that the mode == new_mode
+     * test will fail the first time */
+    static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
 
-        /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
-         * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
-        new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
+    /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
+     * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
+    new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
 
-	if ((mode == new_mode) && !force_set) {
-		/*
-		 * The mode isn't changing, so don't do anything.
-		 * In particular, don't gratuitiously unselect the
-		 * current packet.
-		 *
-		 * XXX - why do we have to unselect the current packet
-		 * ourselves?  The documentation for the GtkCList at
-		 *
-		 *	http://developer.gnome.org/doc/API/gtk/gtkclist.html
-		 *
-		 * says "Note that setting the widget's selection mode to
-		 * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
-		 * cause all the items in the GtkCList to become deselected."
-		 */
-		return;
-	}
+    if ((mode == new_mode) && !force_set) {
+        /*
+         * The mode isn't changing, so don't do anything.
+         * In particular, don't gratuitiously unselect the
+         * current packet.
+         *
+         * XXX - why do we have to unselect the current packet
+         * ourselves?  The documentation for the GtkCList at
+         *
+         *      http://developer.gnome.org/doc/API/gtk/gtkclist.html
+         *
+         * says "Note that setting the widget's selection mode to
+         * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
+         * cause all the items in the GtkCList to become deselected."
+         */
+      return;
+    }
 
-	if (cfile.finfo_selected)
-		cf_unselect_field(&cfile);
+    if (cfile.finfo_selected)
+        cf_unselect_field(&cfile);
 
-        mode = new_mode;
-        gtk_clist_set_selection_mode(GTK_CLIST(packet_list), mode);
+    mode = new_mode;
+    gtk_clist_set_selection_mode(GTK_CLIST(packet_list), mode);
 }
 
 /* Set the font of the packet list window. */
 void
 packet_list_set_font(PangoFontDescription *font)
 {
-	int i;
-	gint col_width;
-        PangoLayout *layout;
+    int i;
+    gint col_width;
+    PangoLayout *layout;
 
-	/* Manually set the font so it can be used right away in the
-	 * pango_layout_get_pixel_size call below.  The gtk_widget_modify_font
-	 * function only takes effect after the widget is displayed. */
-	packet_list->style->font_desc = pango_font_description_copy(font);
+    /* Manually set the font so it can be used right away in the
+     * pango_layout_get_pixel_size call below.  The gtk_widget_modify_font
+     * function only takes effect after the widget is displayed. */
+    packet_list->style->font_desc = pango_font_description_copy(font);
 
-        gtk_widget_modify_font(packet_list, font);
+    gtk_widget_modify_font(packet_list, font);
 
-	/* Compute default column sizes. */
-	for (i = 0; i < cfile.cinfo.num_cols; i++) {
-		col_width = recent_get_column_width(i);
-		if (col_width == -1) {
-			layout = gtk_widget_create_pango_layout(packet_list,
-			   get_column_width_string(get_column_format(i), i));
-			pango_layout_get_pixel_size(layout, &col_width, NULL);
-			g_object_unref(G_OBJECT(layout));
-		}
-		gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-					   col_width);
-	}
+    /* Compute default column sizes. */
+    for (i = 0; i < cfile.cinfo.num_cols; i++) {
+        col_width = recent_get_column_width(i);
+        if (col_width == -1) {
+            layout = gtk_widget_create_pango_layout(packet_list, get_column_width_string(get_column_format(i), i));
+            pango_layout_get_pixel_size(layout, &col_width, NULL);
+            g_object_unref(G_OBJECT(layout));
+        }
+        gtk_clist_set_column_width(GTK_CLIST(packet_list), i, col_width);
+    }
 }
 
 GtkWidget *
@@ -483,7 +487,7 @@ packet_list_new(e_prefs *prefs)
     GtkWidget *pkt_scrollw;
     header_field_info *hfi;
     gboolean custom_right_justify;
-    int            i;
+    int      i;
 
     /* Packet list */
     pkt_scrollw = scrolled_window_new(NULL, NULL);
@@ -519,10 +523,10 @@ packet_list_new(e_prefs *prefs)
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
           hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
           if ((hfi != NULL) && (hfi->strings == NULL) && 
-	      ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-	       (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-		(IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
-		 (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
+              ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+               (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+                (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
+                 (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
             custom_right_justify = TRUE;
           }
         }
@@ -611,10 +615,8 @@ packet_list_set_column_titles(void)
         gtk_widget_show(col_arrows[i].table);
     }
     gtk_clist_column_titles_show(GTK_CLIST(packet_list));
-    g_signal_connect(packet_list, "click-column", G_CALLBACK(packet_list_click_column_cb),
-		     col_arrows);
-    g_signal_connect(packet_list, "resize-column", G_CALLBACK(packet_list_resize_column_cb),
-		     NULL);
+    g_signal_connect(packet_list, "click-column", G_CALLBACK(packet_list_click_column_cb), col_arrows);
+    g_signal_connect(packet_list, "resize-column", G_CALLBACK(packet_list_resize_column_cb), NULL);
 }
 
 void
@@ -633,7 +635,8 @@ packet_list_freeze(void)
 }
 
 static void
-packet_list_resize_columns(void) {
+packet_list_resize_columns(void) 
+{
     int         i;
     int         progbar_nextstep;
     int         progbar_quantum;
@@ -825,8 +828,8 @@ packet_list_set_time_width(gint col_fmt, gint column)
     if (width == -1) {
         layout = gtk_widget_create_pango_layout(packet_list,
                      get_column_longest_string(col_fmt));
-	pango_layout_get_pixel_size(layout, &width, NULL);
-	g_object_unref(G_OBJECT(layout));
+        pango_layout_get_pixel_size(layout, &width, NULL);
+        g_object_unref(G_OBJECT(layout));
     }
     gtk_clist_set_column_width(GTK_CLIST(packet_list), column, width);
 }
@@ -840,32 +843,28 @@ packet_list_get_row_data(gint row)
 
 /* get the first fully visible row number, given row MUST be visible */
 static gint
-packet_list_first_full_visible_row(gint row) {
+packet_list_first_full_visible_row(gint row) 
+{
+        g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL);
 
-	g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
-        GTK_VISIBILITY_FULL);
+        while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL) {
+                row--;
+        }
 
-	while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
-        GTK_VISIBILITY_FULL) {
-		row--;
-	}
-
-	return ++row;
+        return ++row;
 }
 
 /* get the last fully visible row number, given row MUST be visible */
 static gint
-packet_list_last_full_visible_row(gint row) {
+packet_list_last_full_visible_row(gint row) 
+{
+        g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL);
 
-	g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
-        GTK_VISIBILITY_FULL);
+        while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL) {
+                row++;
+        }
 
-	while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
-        GTK_VISIBILITY_FULL) {
-		row++;
-	}
-
-	return --row;
+        return --row;
 }
 
 /* Set the selected row and the focus row of the packet list to the specified
@@ -873,13 +872,11 @@ packet_list_last_full_visible_row(gint row) {
 void
 packet_list_set_selected_row(gint row)
 {
-	gint visible_rows;
-	gint first_row;
-	gboolean full_visible;
+    gint visible_rows;
+    gint first_row;
+    gboolean full_visible;
 
-
-	full_visible = gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
-        GTK_VISIBILITY_FULL;
+    full_visible = gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==  GTK_VISIBILITY_FULL;
 
     /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
      * can make the row for the frame we found the focus row?
@@ -891,34 +888,32 @@ packet_list_set_selected_row(gint row)
     gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
 
     if (!full_visible) {
-
         gtk_clist_freeze(GTK_CLIST(packet_list));
 
         gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
 
-		/* even after move still invisible (happens with empty list) -> give up */
-		if(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) !=
-			GTK_VISIBILITY_FULL) {
-			gtk_clist_thaw(GTK_CLIST(packet_list));
-			return;
-		}
+        /* even after move still invisible (happens with empty list) -> give up */
+        if(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) != GTK_VISIBILITY_FULL) {
+            gtk_clist_thaw(GTK_CLIST(packet_list));
+            return;
+        }
 
-		/* The now selected row will be the first visible row in the list.
-		 * This is inconvenient, as the user is usually interested in some
-		 * packets *before* the currently selected one too.
-		 *
-		 * Try to adjust the visible rows, so the currently selected row will
-		 * be shown around the first third of the list screen.
-		 *
-		 * (This won't even do any harm if the current row is the first or the
-		 * last in the list) */
-		visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
-		first_row = row - visible_rows / 3;
+        /* The now selected row will be the first visible row in the list.
+         * This is inconvenient, as the user is usually interested in some
+         * packets *before* the currently selected one too.
+         *
+         * Try to adjust the visible rows, so the currently selected row will
+         * be shown around the first third of the list screen.
+         *
+         * (This won't even do any harm if the current row is the first or the
+         * last in the list) */
+        visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
+        first_row = row - visible_rows / 3;
 
-		gtk_clist_moveto(GTK_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
+        gtk_clist_moveto(GTK_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
 
-		gtk_clist_thaw(GTK_CLIST(packet_list));
-	}
+        gtk_clist_thaw(GTK_CLIST(packet_list));
+    }
 }
 
 /* Return the column number that the clist is currently sorted by */
@@ -943,19 +938,19 @@ void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summ
     if (cfile.current_frame) {
         for(col = 0; col < cfile.cinfo.num_cols; ++col) {
             if(col != 0) {
-	        if(CS_CSV == copy_type) {
-		    g_string_append(text,"\",\"");
-		} else {
-		    g_string_append_c(text, '\t');
-		}
+                if(CS_CSV == copy_type) {
+                    g_string_append(text,"\",\"");
+                } else {
+                    g_string_append_c(text, '\t');
+                }
             }
             if(0 != gtk_clist_get_text(GTK_CLIST(packet_list),cfile.current_row,col,&celltext)) {
                 g_string_append(text,celltext);
             }
         }
-	if(CS_CSV == copy_type) {
-	    g_string_append_c(text,'"');
-	}
+        if(CS_CSV == copy_type) {
+            g_string_append_c(text,'"');
+        }
         copy_to_clipboard(text);
     }
     g_string_free(text,TRUE);
