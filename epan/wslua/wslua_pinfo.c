@@ -936,7 +936,7 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU */
     {"desegment_len", Pinfo_desegment_len, Pinfo_set_int,  PARAM_DESEGMENT_LEN },
 
-	/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Offset in the tvbuff at which the dissector will continue processing when next called*/
+	/* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called*/
     {"desegment_offset", Pinfo_desegment_offset, Pinfo_set_int,  PARAM_DESEGMENT_OFFSET },
 	
 	{NULL,NULL,NULL,PARAM_NONE}
