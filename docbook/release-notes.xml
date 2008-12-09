@@ -38,10 +38,9 @@ Wireshark Info
         <listitem>
           <para>
             The SMTP dissector could consume excessive amounts of CPU and memory.
-            <!-- Fixed in r26759 -->
-	    (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3054">3054</ulink>)
+            <!-- Fixed in r24989 -->
           </para>
-          <para>Versions affected: 0.99.0 to 1.0.4</para>
+          <para>Versions affected: 1.0.4</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -52,7 +51,7 @@ Wireshark Info
             The WLCCP dissector could go into an infinte loop.
             <!-- Fixed in r26734 -->
           </para>
-          <para>Versions affected: 0.99.0 to 1.0.4</para>
+          <para>Versions affected: 0.99.7 to 1.0.4</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -72,6 +71,12 @@ Wireshark Info
           Missing CRLF during HTTP POST in the "packet details" window
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2534">Bug
           2534</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Memory assertion in time_secs_to_str_buf() when compiled with GCC 4.2.3
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2777">Bug
+          2777</ulink>)
         </para></listitem>
 
         <listitem><para>

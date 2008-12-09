@@ -346,7 +346,8 @@ usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 /*
  * Maximum length of a string showing days/hours/minutes/seconds.
  * (Does not include the terminating '\0'.)
- * Includes space for a '-' sign for any negative compunents.
+ * Includes space for a '-' sign for any negative components.
+ * -12345 days, 12 hours, 12 minutes, 12.123 seconds
  */
 #define TIME_SECS_LEN	(10+1+4+2+2+5+2+2+7+2+2+7+4)
 
@@ -367,14 +368,14 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   const gchar *msign = "";
   gboolean do_comma = FALSE;
 
-  if(time<0){
-    time= -time;
-    msign="-";
-  }
-
-  if(time<0){	/* We've overflowed. */
+  if(time == G_MININT32) {	/* That Which Shall Not Be Negated */
     g_snprintf(buf, buf_len, "Unable to cope with time value %d", time);
     return;
+  }
+
+  if(time < 0){
+    time = -time;
+    msign = "-";
   }
 
   secs = time % 60;
@@ -387,16 +388,19 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   /* This would probably be cleaner if we used GStrings instead. */
   p = buf;
   if (time != 0) {
-    p += g_snprintf(p, buf_len, "%s%u day%s", time?msign:"", time, PLURALIZE(time));
+    p += g_snprintf(p, buf_len, "%s%u day%s", msign, time, PLURALIZE(time));
     do_comma = TRUE;
+    msign="";
   }
   if (hours != 0) {
-    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u hour%s", COMMA(do_comma), hours?msign:"", hours, PLURALIZE(hours));
+    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
     do_comma = TRUE;
+    msign="";
   }
   if (mins != 0) {
-    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u minute%s", COMMA(do_comma), mins?msign:"", mins, PLURALIZE(mins));
+    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
     do_comma = TRUE;
+    msign="";
   }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
@@ -476,7 +480,7 @@ abs_time_to_str(nstime_t *abs_time)
 
         buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1+9+1);
 
-        
+
 #ifdef _MSC_VER
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
         /* XXX - find the exact value that still does work */
