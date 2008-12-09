@@ -4246,7 +4246,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
 							hf_pn_io_number_of_assignments, &u32NumberOfAssignments);
 		u32Tmp = u32NumberOfAssignments;
 		while(u32Tmp--) {
-			// TXBeginEndAssignment
+			/* TXBeginEndAssignment */
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
 								hf_pn_io_red_orange_period_begin, &u32RedOrangePeriodBegin);
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
@@ -4254,7 +4254,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
 								hf_pn_io_green_period_begin, &u32GreenPeriodBegin);
 
-			// RXBeginEndAssignment
+			/* RXBeginEndAssignment */
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
 								hf_pn_io_red_orange_period_begin, &u32RedOrangePeriodBegin);
 			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_begin_end_port_tree, drep,
