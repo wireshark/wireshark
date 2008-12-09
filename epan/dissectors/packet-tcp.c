@@ -245,38 +245,12 @@ init_tcp_conversation_data(packet_info *pinfo)
 	struct tcp_analysis *tcpd=NULL;
 
 	/* Initialize the tcp protocol datat structure to add to the tcp conversation */
-	tcpd=se_alloc(sizeof(struct tcp_analysis));
-	tcpd->flow1.segments=NULL;
-	tcpd->flow1.base_seq=0;
-	tcpd->flow1.lastack=0;
-	tcpd->flow1.lastacktime.secs=0;
-	tcpd->flow1.lastacktime.nsecs=0;
-	tcpd->flow1.lastnondupack=0;
-	tcpd->flow1.nextseq=0;
-	tcpd->flow1.nextseqtime.secs=0;
-	tcpd->flow1.nextseqtime.nsecs=0;
-	tcpd->flow1.nextseqframe=0;
-	tcpd->flow1.window=0;
+	tcpd=se_alloc0(sizeof(struct tcp_analysis));
+	memset(&tcpd->flow1, 0, sizeof(tcp_flow_t));
+	memset(&tcpd->flow2, 0, sizeof(tcp_flow_t));
 	tcpd->flow1.win_scale=-1;
-	tcpd->flow1.scps_capable=0;
-	tcpd->flow1.maxsizeacked=0;
-	tcpd->flow1.flags=0;
 	tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
-	tcpd->flow2.segments=NULL;
-	tcpd->flow2.base_seq=0;
-	tcpd->flow2.lastack=0;
-	tcpd->flow2.lastacktime.secs=0;
-	tcpd->flow2.lastacktime.nsecs=0;
-	tcpd->flow2.lastnondupack=0;
-	tcpd->flow2.nextseq=0;
-	tcpd->flow2.nextseqtime.secs=0;
-	tcpd->flow2.nextseqtime.nsecs=0;
-	tcpd->flow2.nextseqframe=0;
-	tcpd->flow2.window=0;
 	tcpd->flow2.win_scale=-1;
-	tcpd->flow2.scps_capable=0;
-	tcpd->flow2.maxsizeacked=0;
-	tcpd->flow2.flags=0;
 	tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 	tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 	tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
@@ -284,7 +258,7 @@ init_tcp_conversation_data(packet_info *pinfo)
 	tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
 	tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
 
-        return tcpd;
+	return tcpd;
 }
 
 conversation_t *
@@ -314,7 +288,7 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 	tcpd=conversation_get_proto_data(conv, proto_tcp);
 
 	/* If the conversation was just created or it matched a
-	 * conversation with template options, tcpd will not 
+	 * conversation with template options, tcpd will not
 	 * have been initialized. So, initialize
 	 * a new tcpd structure for the conversation.
 	 */
@@ -2294,7 +2268,7 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
-		    int offset, guint optlen, packet_info *pinfo, 
+		    int offset, guint optlen, packet_info *pinfo,
 		    proto_tree *opt_tree)
 {
   struct tcp_analysis *tcpd=NULL;
@@ -2323,7 +2297,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   else
     flow =&(tcpd->flow2);
 
-  /* If the option length == 4, this is a real SCPS capability option 
+  /* If the option length == 4, this is a real SCPS capability option
    * See "CCSDS 714.0-B-2 (CCSDS Recommended Standard for SCPS Transport Protocol
    * (SCPS-TP)" Section 3.2.3 for definition.
    */
@@ -2425,7 +2399,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 	/* 2nd octet (upper 4-bits) has binding space length in 16-bit words.
 	 * As defined by the specification, this length is exclusive of the
-	 * octets containing the extended capability type and length 
+	 * octets containing the extended capability type and length
 	 */
 
 	extended_cap_length =
@@ -2465,9 +2439,9 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
   }
 }
 
-/* This is called for SYN+ACK packets and the purpose is to verify that 
+/* This is called for SYN+ACK packets and the purpose is to verify that
  * the SCPS capabilities option has been successfully negotiated for the flow.
- * If the SCPS capabilities option was offered by only one party, the 
+ * If the SCPS capabilities option was offered by only one party, the
  * proactively set scps_capable attribute of the flow (set upon seeing
  * the first instance of the SCPS option) is revoked.
  */
@@ -2493,7 +2467,7 @@ verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
  */
 static void
 dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
-		    int offset, guint optlen, packet_info *pinfo, 
+		    int offset, guint optlen, packet_info *pinfo,
 		    proto_tree *opt_tree)
 {
   struct tcp_analysis *tcpd=NULL;
@@ -2514,10 +2488,10 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   relative_hole_offset = tvb_get_ntohs(tvb, offset + 2);
   relative_hole_size = tvb_get_ntohs(tvb, offset + 4);
 
-  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_snack, tvb, 
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_snack, tvb,
 				offset, optlen, TRUE);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
-  
+
   hidden_item = proto_tree_add_uint(opt_tree, hf_tcp_option_snack_offset,
 			       tvb, offset, optlen, relative_hole_offset);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
