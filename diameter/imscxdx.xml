@@ -113,16 +113,16 @@
                         </grouped>
 		</avp>
 		<avp name="Primary-Event-Charging-Function-Name" code="20" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Secondary-Event-Charging-Function-Name" code="21" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Primary-Charging-Collection-Function-Name" code="22" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Secondary-Charging-Collection-Function-Name" code="23" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="User-Authorization-Type" code="24" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
@@ -193,13 +193,15 @@
 		<!-- GROUPED -->
 		<avp name="SIP-Auth-Data-Item" code="612" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
                         <grouped>
-                                <gavp name="SIP-Item-Number"/>
-                                <gavp name="SIP-Authentication-Scheme"/>
-                                <gavp name="SIP-Authenticate"/>
-                                <gavp name="SIP-Authorization"/>
-                                <gavp name="SIP-Authentication-Context"/>
-                                <gavp name="Confidentiality-Key"/>
-                                <gavp name="Integrity-Key"/>
+                          <gavp name="SIP-Item-Number"/>
+                          <gavp name="SIP-Authentication-Scheme"/>
+                          <gavp name="SIP-Authenticate"/>
+                          <gavp name="SIP-Authorization"/>
+                          <gavp name="SIP-Authentication-Context"/>
+                          <gavp name="Confidentiality-Key"/>
+                          <gavp name="Integrity-Key"/>
+                          <gavp name="SIP-Digest-Authenticate"/>
+                          <gavp name="Line-Identifier"/>
                         </grouped>
 		</avp>
 		<avp name="SIP-Item-Number" code="613" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -247,16 +249,16 @@
                         </grouped>
 		</avp>
 		<avp name="Primary-Event-Charging-Function-Name" code="619" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Secondary-Event-Charging-Function-Name" code="620" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Primary-Charging-Collection-Function-Name" code="621" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="Secondary-Charging-Collection-Function-Name" code="622" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-			<type type-name="DiameterIdentity"/>
+			<type type-name="DiameterURI"/>
 		</avp>
 		<avp name="User-Authorization-Type" code="623" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
@@ -317,7 +319,19 @@
 		<avp name="Wildcarded-PSI" code="634" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="UTF8String"/>
 		</avp>
+    <avp name="SIP-Digest-Authenticate AVP" code="635" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="Digest-Realm"/>
+        <gavp name="Digest-Domain"/>
+        <gavp name="Digest-Algorithm"/>
+        <gavp name="Digest-QoP"/>
+        <gavp name="Digest-HA1"/>
+      </grouped>
+    </avp>
+    <avp name="Wildcarded-IMPU" code="636" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="UTF8String"/>
+    </avp>
 
-		<!-- ************************ END IMS Cx Dx AVPS ******************* -->
+    <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 
 	</application>
