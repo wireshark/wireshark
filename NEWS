@@ -1,4 +1,4 @@
-Wireshark 1.0.4 Release Notes
+Wireshark 1.0.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,65 +15,59 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Florent Drouin and David Maciejak found that the Bluetooth ACL
-       dissector could crash or abort. (Bug 1513)
+     o The SMTP dissector could consume excessive amounts of CPU and
+       memory.
 
-       Versions affected: 0.99.2 to 1.0.3
+       Versions affected: 1.0.4
 
-     o The Q.931 dissector could crash or abort. (Bug 2870)
+     o The WLCCP dissector could go into an infinte loop.
 
-       Versions affected: 0.10.3 to 1.0.3
-
-     o Wireshark could abort while reading Tamos CommView capture
-       files. (Bug 2926)
-
-       Versions affected: 0.99.7 to 1.0.3
-
-     o David Maciejak found that the USB dissector could crash or
-       abort. This led to the disovery of a similar problem in the
-       Bluetooth RFCOMM dissector. (Bug 2922)
-
-       Versions affected: 0.99.7 to 1.0.3
-
-     o Vivek Gupta and David Maciejak found that the PRP and MATE
-       dissectors could make Wireshark crash. (Neither PRP nor MATE
-       are enabled by default.) (Bug 2549)
-
-       Versions affected: 0.99.2 to 1.0.3
+       Versions affected: 0.99.7 to 1.0.4
 
    The following bugs have been fixed:
 
-     o Let MP2T call its subdissectors, even without tree (Bug 2627)
+     o Missing CRLF during HTTP POST in the "packet details" window
+       (Bug 2534)
 
-     o Wireless Toolbar not enabled (using AirPcap) if PCAP_REMOTE=1
-       (Bug 2685)
+     o Memory assertion in time_secs_to_str_buf() when compiled with
+       GCC 4.2.3 (Bug 2777)
 
-     o Failure to dissect long SASL wrapped LDAP response (Bug 2687)
+     o Diameter dissector fails RFC 4005 compliance (Bug 2828)
 
-     o Fix compiler warnings (Bug 2823)
+     o LDP vendor private TLV type is not correctly shown (Bug 2832)
 
-     o Homeplug dissection bugs (Bug 2859)
+     o Wireshark on MacOS does not run when there are spaces in its
+       path (Bug 2844)
 
-     o Malformed Packet DCP ETSI error (Bug 2860)
+     o OS X Intel package incorrectly claims to be Universal (Bug
+       2979)
 
-     o Wrong size of selected_registrar in WPS dissector (Bug 2865)
+     o Compilation broke when compiling without zlib (Bug 2993)
 
-     o Dissector assertion displaying cookies in DTLS frames (Bug
-       2876)
+     o Memory leak: saved_repoid (Bug 3017)
 
-     o Missing field type in documentation (Bug 2889)
+     o Memory leak: follow_info (Bug 3018)
 
-     o Wireshark -p switch seems to have no effect to PROMISCUOUS
-       mode (Bug 2891)
+     o Memory leak: follow_info (Bug 3019)
 
-     o Misspelled PPI error vector magnitude filter (Bug 2903)
+     o Memory leak: tacplus_data (Bug 3020)
 
-     o Modbus Function 43 Encapsulated Interface Transport decoding
-       (Bug 2917)
+     o Memory leak: col_arrows (Bug 3021)
 
-     o Crash when printing or exporting some protocol data (Bug 2934)
+     o Memory leak: col_arrows (Bug 3022)
 
-     o Crash when selecting "Export Selected Packet Bytes" (Bug 2964)
+     o Incorrect address structure assigned for find_conversation()
+       in WSP (Bug 3071)
+
+     o Memory leak with unistim in voip_calls (Bug 3079)
+
+     o Error parsing the BSSGP protocol (Bug 3085)
+
+     o Assertion thrown in fvalue_get_uinteger when decoding TIPC
+       (Bug 3086)
+
+     o LUA script : Wireshark crashes after closing and opening again
+       a window used by a listener.draw() function. (Bug 3090)
 
   New and Updated Features
 
@@ -85,13 +79,13 @@ What's New
 
   Updated Protocol Support
 
-   AFP, Bluetooth ACL, Bluetooth RFCOMM, DCP ETSI, DTLS, Homeplug,
-   IEEE 802.11, IP, Modbus TCP, MP2T, NSIP, NCP, PPI, Q.931, SASL,
-   SNMP, USB, WPS
+   ANSI MAP, BSSGP, CIP, Diameter, ENIP, GIOP, H.263, H.264, HTTP,
+   MPEG PES, PostgreSQL, PPI, PTP, Rsync, RTP, SMTP, SNMP, STANAG
+   5066, TACACS, TIPC, WLCCP, WSP
 
   New and Updated Capture File Support
 
-   AiroPeek, CommView
+   None
 
 Getting Wireshark
 

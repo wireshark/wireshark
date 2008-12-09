@@ -1,440 +1,585 @@
 ------------------------------------------------------------------------
-r26359 | gerald | 2008-10-06 12:27:04 -0700 (Mon, 06 Oct 2008) | 87 lines
+r26508 | gerald | 2008-10-21 09:33:24 -0700 (Tue, 21 Oct 2008) | 2 lines
 Changed paths:
    M /trunk-1.0/config.nmake
    M /trunk-1.0/configure.in
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-bthci_acl.c
-   M /trunk-1.0/epan/dissectors/packet-gprs-llc.c
-   M /trunk-1.0/epan/dissectors/packet-homeplug.c
-   M /trunk-1.0/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.0/epan/dissectors/packet-ip.c
-   M /trunk-1.0/epan/dissectors/packet-ncp2222.inc
-   M /trunk-1.0/epan/dissectors/packet-nsip.c
-   M /trunk-1.0/epan/dissectors/packet-q931.c
-   M /trunk-1.0/epan/libwireshark.def
-   M /trunk-1.0/epan/value_string.c
    M /trunk-1.0/version.conf
-   M /trunk-1.0/wiretap/airopeek9.c
-   M /trunk-1.0/wiretap/k12text.l
 
-Copy over revisions from the trunk:
+Resume our normal programming. Fix a typo.
 
 ------------------------------------------------------------------------
-r25195 | morriss | 2008-04-29 08:20:19 -0700 (Tue, 29 Apr 2008) | 1 line
+r26510 | gerald | 2008-10-21 16:25:50 -0700 (Tue, 21 Oct 2008) | 2 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-bthci_acl.c
-
-Fix http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1513 : don't tvb_memcpy() more bytes than are in the (se_alloc()'d) buffer.  tvb_memcpy()ing more bytes than are the TVB is okay (it'll except out).
-------------------------------------------------------------------------
-r25377 | martinm | 2008-05-25 16:55:36 -0700 (Sun, 25 May 2008) | 1 line
-Changed paths:
-   M /trunk/epan/libwireshark.def
-
-Add these functions as requested in bug 2553.
-------------------------------------------------------------------------
-r25487 | etxrab | 2008-06-19 07:39:43 -0700 (Thu, 19 Jun 2008) | 1 line
-Changed paths:
-   M /trunk/epan/libwireshark.def
-
-Export the tvb_get_bits functions.
-------------------------------------------------------------------------
-r26160 | etxrab | 2008-09-07 06:36:56 -0700 (Sun, 07 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-gprs-llc.c
-
-From Neil Piercy: 
-Empty GPRS LLC S frames cause truncated data exception
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2855
-------------------------------------------------------------------------
-r26161 | etxrab | 2008-09-07 06:43:49 -0700 (Sun, 07 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/wiretap/k12text.l
-
-From Neil Piercy: 
-VC6 Build problem: wiretap/k12text.c includes unistd.
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2851
-------------------------------------------------------------------------
-r26164 | jake | 2008-09-07 23:02:35 -0700 (Sun, 07 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-nsip.c
-
-From Neil Piercy:
-The IP Address IE did not decode correctly - the address fetch did not skip the
-Address Type field.
-------------------------------------------------------------------------
-r26166 | wmeier | 2008-09-08 09:13:39 -0700 (Mon, 08 Sep 2008) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ncp2222.inc
-
-From Pavol Rusnak: Add missing break statement....
-
-------------------------------------------------------------------------
-r26173 | guy | 2008-09-10 14:48:15 -0700 (Wed, 10 Sep 2008) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ieee80211.c
-
-In the radio-information dissector, set the current protocol name before
-calling the 802.11 dissector, so if we have a malformed frame or short
-frame the right protocol name will be shown.
-------------------------------------------------------------------------
-r26174 | guy | 2008-09-10 14:55:02 -0700 (Wed, 10 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/wiretap/airopeek9.c
-
-A network type of 2 appears to be similar to a network type of 1
-(including 0's rather than an FCS in the packet).
-------------------------------------------------------------------------
-r26169 | jake | 2008-09-09 14:17:17 -0700 (Tue, 09 Sep 2008) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-homeplug.c
-
-Fix for bug 2859:
-Skip data portion of unknown TLV.
-
-Expand type interpretation and several other cleanups.
-------------------------------------------------------------------------
-r26190 | jake | 2008-09-14 06:09:14 -0700 (Sun, 14 Sep 2008) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-q931.c
-
-Fix for bug 2870:
-Wrap dissect_q931_cause_ie() in a save version which clears the have_valid_q931_pi semaphore. This may remain set if a malformed q931 message causes an exception.
-------------------------------------------------------------------------
-
-Bump the version to 1.0.4. Update the release notes.
-
-
-------------------------------------------------------------------------
-r26364 | gerald | 2008-10-06 14:13:46 -0700 (Mon, 06 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-gprs-llc.c
-
-Back out copying over r26160 for now.
-
-------------------------------------------------------------------------
-r26372 | gerald | 2008-10-07 12:39:49 -0700 (Tue, 07 Oct 2008) | 105 lines
-Changed paths:
-   M /trunk-1.0/asn1/ldap/packet-ldap-template.c
-   M /trunk-1.0/asn1/snmp/snmp.cnf
-   M /trunk-1.0/doc/README.developer
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-btrfcomm.c
-   M /trunk-1.0/epan/dissectors/packet-dcp-etsi.c
-   M /trunk-1.0/epan/dissectors/packet-dtls.c
-   M /trunk-1.0/epan/dissectors/packet-ldap.c
-   M /trunk-1.0/epan/dissectors/packet-mbtcp.c
-   M /trunk-1.0/epan/dissectors/packet-ppi.c
-   M /trunk-1.0/epan/dissectors/packet-snmp.c
-   M /trunk-1.0/epan/dissectors/packet-snmp.h
-   M /trunk-1.0/epan/dissectors/packet-ssl-utils.c
-   M /trunk-1.0/epan/dissectors/packet-usb.c
-   M /trunk-1.0/epan/dissectors/packet-vnc.c
-   M /trunk-1.0/epan/dissectors/packet-wps.c
-   M /trunk-1.0/gtk/main.c
-   M /trunk-1.0/wiretap/commview.c
+
+http://bugs.wireshark.org -> https://bugs.wireshark.org.
+
+------------------------------------------------------------------------
+r26524 | gerald | 2008-10-23 09:38:52 -0700 (Thu, 23 Oct 2008) | 2 lines
+Changed paths:
    M /trunk-1.0/wiretap/file_access.c
 
+Add a missing closing bracket. Fixes bug 2993.
+
+------------------------------------------------------------------------
+r26525 | gerald | 2008-10-23 09:50:47 -0700 (Thu, 23 Oct 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r26766 | gerald | 2008-11-12 16:41:57 -0800 (Wed, 12 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Add bug 3054 (Bluetooth L2CAP crash).
+
+------------------------------------------------------------------------
+r26819 | gerald | 2008-11-20 17:12:59 -0800 (Thu, 20 Nov 2008) | 51 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-diameter.c
+   M /trunk-1.0/epan/dissectors/packet-mpeg-pes.c
+   M /trunk-1.0/epan/dissectors/packet-smtp.c
+   M /trunk-1.0/epan/dissectors/packet-tcp.c
+
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r26207 | jake | 2008-09-15 12:49:43 -0700 (Mon, 15 Sep 2008) | 2 lines
+r24989 | gal | 2008-04-13 09:33:44 -0700 (Sun, 13 Apr 2008) | 9 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-dtls.c
+   M /trunk/epan/dissectors/packet-smtp.c
 
-From Michael Bernhard:
-The dissector asserted displaying cookies in DTLS frames because it was registered as FT_NONE.
-------------------------------------------------------------------------
-r26214 | jake | 2008-09-15 22:43:36 -0700 (Mon, 15 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-wps.c
+Support for RFC 2920 SMTP Command Pipelining. 
+The client can send multiple requests before waiting for responses.
+Multiple requests/responses are delimited in the info column using  " | ".
 
-From Vladimir Koutny:
-The size of selected_registrar fiels in WPS IE should be 1b, not 2b 
-(it is defined as BOOL in WPS specs).
-------------------------------------------------------------------------
-r26228 | gerald | 2008-09-18 10:19:15 -0700 (Thu, 18 Sep 2008) | 2 lines
-Changed paths:
-   M /trunk/asn1/snmp/snmp.cnf
-   M /trunk/epan/dissectors/packet-snmp.c
-   M /trunk/epan/dissectors/packet-snmp.h
+Also changed to using "C:" (client) and "S:" (server) to save space in the info column and align with examples in RFC 2821.
 
-Fix a spelling error pointed out by Noam Rathaus.
+Lack of support for PIPELINING was shown up during Sake's session at SharkFest08!
 
 ------------------------------------------------------------------------
-r26248 | jake | 2008-09-22 14:53:44 -0700 (Mon, 22 Sep 2008) | 2 lines
+r24994 | stig | 2008-04-13 09:58:57 -0700 (Sun, 13 Apr 2008) | 2 lines
 Changed paths:
-   M /trunk/doc/README.developer
+   M /trunk/epan/dissectors/packet-smtp.c
 
-Fix for bug 2889:
-Add description of FT_UINT_BYTES.
-------------------------------------------------------------------------
-r26272 | etxrab | 2008-09-25 12:21:44 -0700 (Thu, 25 Sep 2008) | 2 lines
-Changed paths:
-   M /trunk/asn1/ldap/packet-ldap-template.c
-   M /trunk/epan/dissectors/packet-ldap.c
-
-Add the missing part of the fix for "Failure to dissect long SASL wrapped LDAP response".
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2687
-------------------------------------------------------------------------
-r26311 | etxrab | 2008-09-30 11:15:09 -0700 (Tue, 30 Sep 2008) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-dcp-etsi.c
-
-Fix Bug 2860 Malformed Packet DCP ETSI error with UDP packet length 9 by
-not accepting packages shorter than 10 bytes in the heuristic(min header length).
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2860
-------------------------------------------------------------------------
-r26314 | jake | 2008-09-30 14:23:19 -0700 (Tue, 30 Sep 2008) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-mbtcp.c
-
-Fix for bug 2917:
-Modbus Application Protocol Specification V1.1b includes a function 43 (0x2b)
-Encapsulated Interface Transport.  When Wireshark encounters this message it is
-shown as a TCP message, not a Modbus message.
-------------------------------------------------------------------------
-r26327 | morriss | 2008-10-01 06:57:41 -0700 (Wed, 01 Oct 2008) | 4 lines
-Changed paths:
-   M /trunk/wiretap/commview.c
-
-Fix for: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2926 :
-provide a default case (returning an error) to prevent wiretap from asserting
-out because we didn't set the packet encapsulation.
+Initialize linelen to avoid a warning.
 
 ------------------------------------------------------------------------
-
-
-Copied over the following revisions by hand:
-
-------------------------------------------------------------------------
-r26212 | jake | 2008-09-15 14:50:50 -0700 (Mon, 15 Sep 2008) | 3 lines
+r26328 | etxrab | 2008-10-01 11:30:16 -0700 (Wed, 01 Oct 2008) | 2 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-ssl-utils.c
-   M /trunk/epan/dissectors/packet-vnc.c
-   M /trunk/wiretap/file_access.c
-   M /trunk/wiretap/file_wrappers.h
+   M /trunk/epan/dissectors/packet-mpeg-pes.c
 
-Fix for bug 2875:
-Fix a final eth_fopen -> ws_fopen
-When configuring with --without-zlib these functions need to have some parameters tagged _U_
+Fix:MPEG PES decode reports "Malformed Packet" when PES packet length is 0
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
 ------------------------------------------------------------------------
-r26268 | sake | 2008-09-24 23:21:02 -0700 (Wed, 24 Sep 2008) | 6 lines
+r26420 | sake | 2008-10-12 02:38:40 -0700 (Sun, 12 Oct 2008) | 6 lines
 Changed paths:
-   M /trunk/gtk/main.c
+   M /trunk/epan/dissectors/packet-iec104.c
+   M /trunk/epan/dissectors/packet-mpeg-pes.c
 
-Fix for Bug 2891:
+From SUZUKI, Shinsuke <suz@kame.net> (bug 2956):
 
-Read the capture setting from the preferences *before* parsing the
-capture command line arguments.
+Remove non-ascii characters to prevent compilation failure on
+non-european windows.
 ------------------------------------------------------------------------
-r26333 | gerald | 2008-10-01 21:55:51 -0700 (Wed, 01 Oct 2008) | 3 lines
+r26088 | etxrab | 2008-08-25 14:15:55 -0700 (Mon, 25 Aug 2008) | 3 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-btrfcomm.c
-   M /trunk/epan/dissectors/packet-usb.c
+   M /trunk/epan/dissectors/packet-diameter.c
 
-Make sure any data structures we allocate are properly initialized. Fixes
-bug 2922.
-
+Add Answer or  Request to the Command name in the info column depending on
+if the R bit is set or not.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2828
 ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r26375 | jake | 2008-10-07 23:30:53 -0700 (Tue, 07 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk-1.0/debian/changelog
-
-Bump the Debian package version number.
-
-------------------------------------------------------------------------
-r26380 | gerald | 2008-10-08 11:11:30 -0700 (Wed, 08 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk-1.0/gtk/rtp_analysis.c
-
-Fix the RTP file export confusion in bug 2867.
-
-------------------------------------------------------------------------
-r26382 | gerald | 2008-10-08 13:17:00 -0700 (Wed, 08 Oct 2008) | 11 lines
-Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-gprs-llc.c
-
-Copy over r26369 from the trunk:
-
-------------------------------------------------------------------------
-r26369 | jake | 2008-10-07 00:29:32 -0700 (Tue, 07 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-gprs-llc.c
-
-Fix for bug 2944:
-Textual correction: Unnumbered Information format-> Unconfirmed Information format, among others.
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r26385 | gerald | 2008-10-08 16:16:21 -0700 (Wed, 08 Oct 2008) | 2 lines
+r26829 | gerald | 2008-11-23 08:04:58 -0800 (Sun, 23 Nov 2008) | 1 line
 Changed paths:
    M /trunk-1.0/manuf
-   M /trunk-1.0/services
 
-Add recent manuf and services updates.
-
+[Automatic manuf update for 2008-11-23]
 ------------------------------------------------------------------------
-r26394 | gerald | 2008-10-09 09:53:34 -0700 (Thu, 09 Oct 2008) | 32 lines
+r26876 | gerald | 2008-11-29 09:36:59 -0800 (Sat, 29 Nov 2008) | 11 lines
 Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-frame.c
-   M /trunk-1.0/epan/packet.c
-   M /trunk-1.0/epan/packet.h
-   M /trunk-1.0/print.c
+   M /trunk-1.0/make-manuf
 
-Copy over revisions from the trunk:
-
+Copy over r25867:
 ------------------------------------------------------------------------
-r26393 | jake | 2008-10-08 23:24:24 -0700 (Wed, 08 Oct 2008) | 2 lines
+r25867 | etxrab | 2008-07-30 04:57:16 -0700 (Wed, 30 Jul 2008) | 2 lines
 Changed paths:
-   M /trunk/print.c
+   M /trunk/make-manuf
+   M /trunk/manuf
 
-Fix for bug 2934.
-Check that tvb backing is available before accessing it.
+From   Thomas Boehne :
+Support for IAB MAC address resolution
 ------------------------------------------------------------------------
-r25339 | morriss | 2008-05-21 07:18:37 -0700 (Wed, 21 May 2008) | 1 line
+
+------------------------------------------------------------------------
+r26885 | gerald | 2008-11-30 08:04:03 -0800 (Sun, 30 Nov 2008) | 1 line
 Changed paths:
-   M /trunk/epan/dissectors/packet-frame.c
+   M /trunk-1.0/manuf
 
-Fix http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2549 : make the frame dissector catch exceptions generated by post dissectors.
+[Automatic manuf update for 2008-11-30]
 ------------------------------------------------------------------------
-r25342 | wmeier | 2008-05-21 09:40:15 -0700 (Wed, 21 May 2008) | 2 lines
+r26913 | gerald | 2008-12-04 12:07:09 -0800 (Thu, 04 Dec 2008) | 138 lines
 Changed paths:
-   M /trunk/epan/packet.c
-   M /trunk/epan/packet.h
-
-Add missing have_postdissector(); (Hopefully what was intended).
-------------------------------------------------------------------------
-r25347 | morriss | 2008-05-21 13:20:37 -0700 (Wed, 21 May 2008) | 1 line
-Changed paths:
-   M /trunk/epan/packet.c
-
-A slightly more complicated have_postdissector() (missed in my previous checkin--thanks Bill) which also checks if the postdissectors are enabled.
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r26483 | gerald | 2008-10-16 13:21:55 -0700 (Thu, 16 Oct 2008) | 63 lines
-Changed paths:
-   M /trunk-1.0/Makefile.nmake
-   M /trunk-1.0/airpcap_loader.c
    M /trunk-1.0/asn1/snmp/packet-snmp-template.c
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-dtls.c
-   M /trunk-1.0/epan/dissectors/packet-mp2t.c
+   M /trunk-1.0/epan/dissectors/packet-cip.c
+   M /trunk-1.0/epan/dissectors/packet-enip.c
+   M /trunk-1.0/epan/dissectors/packet-giop.c
+   M /trunk-1.0/epan/dissectors/packet-h263.c
+   M /trunk-1.0/epan/dissectors/packet-h264.c
+   M /trunk-1.0/epan/dissectors/packet-http.c
    M /trunk-1.0/epan/dissectors/packet-snmp.c
-   M /trunk-1.0/gtk/airpcap_dlg.c
-   M /trunk-1.0/gtk/main.c
-   M /trunk-1.0/gtk/menu.c
-   M /trunk-1.0/rawshark.c
+   M /trunk-1.0/epan/dissectors/packet-tacacs.c
+   M /trunk-1.0/epan/dissectors/packet-tcp.c
+   M /trunk-1.0/epan/dissectors/packet-wlccp.c
+   M /trunk-1.0/epan/oids.c
+   M /trunk-1.0/epan/oids.h
+   M /trunk-1.0/gtk/color_edit_dlg.c
+   M /trunk-1.0/gtk/filter_dlg.c
+   M /trunk-1.0/gtk/follow_ssl.c
+   M /trunk-1.0/gtk/follow_udp.c
+   M /trunk-1.0/gtk/sctp_chunk_stat_dlg.c
+   M /trunk-1.0/gtk/sctp_error_dlg.c
+   M /trunk-1.0/packaging/macosx/Info.plist.in
+   M /trunk-1.0/packaging/macosx/Resources/bin/wireshark
+   M /trunk-1.0/packaging/macosx/ScriptExec/ScriptExec.xcodeproj/project.pbxproj
+   M /trunk-1.0/packaging/macosx/utility-launcher
 
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r26409 | jake | 2008-10-10 10:55:51 -0700 (Fri, 10 Oct 2008) | 1 line
+r26522 | jake | 2008-10-22 23:57:31 -0700 (Wed, 22 Oct 2008) | 1 line
 Changed paths:
-   M /trunk/epan/dissectors/packet-mp2t.c
+   M /trunk/epan/dissectors/packet-http.c
 
-Let the dissector call its subdissectors, even when tree==NULL.
+Add the Content-Length header as a header string, while maintaining the content-length filter option.
 ------------------------------------------------------------------------
-r26425 | jake | 2008-10-12 23:54:19 -0700 (Sun, 12 Oct 2008) | 2 lines
+r26531 | jake | 2008-10-23 14:01:04 -0700 (Thu, 23 Oct 2008) | 1 line
 Changed paths:
-   M /trunk/rawshark.c
+   M /trunk/epan/dissectors/packet-cip.c
+   M /trunk/epan/dissectors/packet-enip.c
 
-Fix for bug 2823:
-Do not pass automatic variable back into caller space.
+Let the dissectors fill the Protocol and Info columns by calling the even when tree == NULL.
 ------------------------------------------------------------------------
-r26437 | gerald | 2008-10-13 11:32:49 -0700 (Mon, 13 Oct 2008) | 2 lines
+r26597 | sfisher | 2008-10-27 23:26:42 -0700 (Mon, 27 Oct 2008) | 11 lines
 Changed paths:
-   M /trunk/Makefile.nmake
+   M /trunk/packaging/macosx/ScriptExec/ScriptExec.xcodeproj/project.pbxproj
 
-Create a manifest for rawshark.exe.
+Fix issue reported in bug #2979:
+
+Change Xcode project for ScriptExec to build only i386 ("Intel") instead of
+i386 & ppc ("Universal")) since none of the rest of Wireshark or its libraries
+are universal.  ScriptExec is placed in Wireshark.app/Contents/MacOS/Wireshark,
+which then calls Wireshark.app/Contents/Resources/bin/wireshark-bin.  This
+will make Wireshark show up as an Intel only binary instead of universal.
+ScriptExec comes from the Platypus application's source code. 
 ------------------------------------------------------------------------
-r26475 | tuexen | 2008-10-16 03:11:24 -0700 (Thu, 16 Oct 2008) | 2 lines
+r26598 | stig | 2008-10-28 06:46:31 -0700 (Tue, 28 Oct 2008) | 2 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-dtls.c
+   M /trunk/packaging/macosx/ScriptExec/ScriptExec.xcodeproj/project.pbxproj
 
-Bugfix from Robin Seggelmann for Certificate Request messages.
+Removed ARCHS to make it build on Intel or PowerPC.
+------------------------------------------------------------------------
+r26600 | stig | 2008-10-28 08:14:17 -0700 (Tue, 28 Oct 2008) | 2 lines
+Changed paths:
+   M /trunk/packaging/macosx/Info.plist.in
 
+Show correct dates in application info.
+------------------------------------------------------------------------
+r26612 | stig | 2008-10-28 14:53:39 -0700 (Tue, 28 Oct 2008) | 3 lines
+Changed paths:
+   M /trunk/packaging/macosx/Resources/bin/wireshark
+   M /trunk/packaging/macosx/utility-launcher
+
+Fix bug 2844:
+Make the OSX application launch when having space in the path.
+------------------------------------------------------------------------
+r26626 | wmeier | 2008-10-30 12:41:27 -0700 (Thu, 30 Oct 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-giop.c
+
+Fix bug #3017: remove un-necessary code (and thus fix a small memory leak)
+------------------------------------------------------------------------
+r26634 | sfisher | 2008-10-30 17:23:40 -0700 (Thu, 30 Oct 2008) | 4 lines
+Changed paths:
+   M /trunk/gtk/follow_ssl.c
+
+Fix bug #3018: Fix potential memory leaks
+------------------------------------------------------------------------
+r26635 | sfisher | 2008-10-30 17:30:23 -0700 (Thu, 30 Oct 2008) | 4 lines
+Changed paths:
+   M /trunk/gtk/follow_udp.c
+
+Fix bug #3019: Fix potential memory leaks
+------------------------------------------------------------------------
+r26636 | sfisher | 2008-10-30 17:36:51 -0700 (Thu, 30 Oct 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tacacs.c
+
+Fix bug #3020: Fix potential memory leaks
+------------------------------------------------------------------------
+r26637 | sfisher | 2008-10-30 17:41:48 -0700 (Thu, 30 Oct 2008) | 4 lines
+Changed paths:
+   M /trunk/gtk/sctp_chunk_stat_dlg.c
+
+Fix bug #3021: Fix potential memory leak
+------------------------------------------------------------------------
+r26638 | sfisher | 2008-10-30 17:45:01 -0700 (Thu, 30 Oct 2008) | 4 lines
+Changed paths:
+   M /trunk/gtk/sctp_error_dlg.c
+
+Fix bug #3022: Fix potential memory leak
+------------------------------------------------------------------------
+r26734 | gerald | 2008-11-07 16:07:43 -0800 (Fri, 07 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-wlccp.c
+
+Make sure we always increment our offset. Fixes an infinite loop.
+------------------------------------------------------------------------
+r26744 | etxrab | 2008-11-10 12:20:11 -0800 (Mon, 10 Nov 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-h264.c
+
+Bugfixes:
+- Wrong item lengths.
+- rtsp traling bits gave"Malformed packet" if not present.
+- Frame_num removed as length needs info from previous packet.
+------------------------------------------------------------------------
+r26752 | etxrab | 2008-11-11 12:36:44 -0800 (Tue, 11 Nov 2008) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-h263.c
+
+Fix a couple of wrong offsets, terminate dissecton where it is incomplete.
 ------------------------------------------------------------------------
 
 
-Copy over the following revisions by hand:
+Copy over revisions by hand:
+
 ------------------------------------------------------------------------
-r26426 | jake | 2008-10-12 23:56:27 -0700 (Sun, 12 Oct 2008) | 3 lines
+r26421 | stig | 2008-10-12 06:41:04 -0700 (Sun, 12 Oct 2008) | 8 lines
+Changed paths:
+   M /trunk/gtk/color_edit_dlg.c
+   M /trunk/gtk/filter_dlg.c
+
+Rewrote to use gtk_widget_modify_text() and gtk_widget_modify_base()
+to change the background color for filter text edit boxes, because
+gtk_widget_set_style() interacts badly with themes.
+
+Go back to default values when filter is empty (instead of white).
+
+Also rewrote the same in the "Edit Color Filter" dialog.
+------------------------------------------------------------------------
+r26746 | etxrab | 2008-11-10 12:25:38 -0800 (Mon, 10 Nov 2008) | 2 lines
 Changed paths:
    M /trunk/asn1/snmp/packet-snmp-template.c
    M /trunk/epan/dissectors/packet-snmp.c
+   M /trunk/epan/oids.c
+   M /trunk/epan/oids.h
 
-Fix for bug 2823
-Do not pass automatic variables back into caller space.
+From   Paul Stath:
+Dissector fails for OIDs with MacAddress in index.
 ------------------------------------------------------------------------
-r26458 | jake | 2008-10-14 13:04:06 -0700 (Tue, 14 Oct 2008) | 3 lines
+
+Back out some debugging statements that snuck into the last checkin.
+Update the release notes.
+
+------------------------------------------------------------------------
+r26915 | gerald | 2008-12-04 12:38:37 -0800 (Thu, 04 Dec 2008) | 50 lines
 Changed paths:
-   M /trunk/gtk/main_menu.c
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-tipc.c
+   M /trunk-1.0/epan/dissectors/packet-wsp.c
+   M /trunk-1.0/gtk/rtp_player.c
+   M /trunk-1.0/gtk/voip_calls.c
+   M /trunk-1.0/tools/asn2wrs.py
+   M /trunk-1.0/wiretap/wtap.c
 
-Fix for bug 2964.
-When right click on any packet (From Packet List) - > "Export Selected Packet Bytes" you 
-get "No data selected to save!" MessageBox. This option should not be in this menu at all.
+Copy over revisions from the trunk:
+
 ------------------------------------------------------------------------
-r26469 | gerald | 2008-10-15 14:43:00 -0700 (Wed, 15 Oct 2008) | 10 lines
+r26809 | jake | 2008-11-18 23:27:02 -0800 (Tue, 18 Nov 2008) | 2 lines
 Changed paths:
-   M /trunk/airpcap_loader.c
-   M /trunk/gtk/airpcap_dlg.c
-   M /trunk/gtk/main_airpcap_toolbar.c
+   M /trunk/epan/dissectors/packet-wsp.c
 
-Keep the wireless toolbar extension channel entry from inadvertently
-setting its value to -1. Fix a bug that kept the wireless toolbar from
-being enabled if HAVE_PCAP_REMOTE was defined. Fix a couple of other
-minor issues.
+Fix for bug 3071:
+Incorrect address structure assigned for find_conversation()
 ------------------------------------------------------------------------
+r26816 | jake | 2008-11-20 12:16:07 -0800 (Thu, 20 Nov 2008) | 3 lines
+Changed paths:
+   M /trunk/wiretap/wtap.c
+
+From yami:
+The code in wiretap/wtap.c is not right. Because g_array_append_val should accept a value
+of type 'struct encap_type_info' rather than a pointer to this type.
+------------------------------------------------------------------------
+r26841 | jake | 2008-11-25 00:21:53 -0800 (Tue, 25 Nov 2008) | 4 lines
+Changed paths:
+   M /trunk/gtk/voip_calls.c
+
+Fix for bug 3079:
+Remove memory leaks from allocated labels by making full use of graph helper functions, and 
+from unneeded address copies. 
+Avoid GLIb warning on empty dynamic RTP payload type hash table.
+------------------------------------------------------------------------
+r26848 | jake | 2008-11-25 23:20:11 -0800 (Tue, 25 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tipc.c
+
+Fix for bug 3086:
+Remove bitmask from FT_STRING fields, causing assert when printing.
+------------------------------------------------------------------------
+r26873 | jake | 2008-11-28 14:54:08 -0800 (Fri, 28 Nov 2008) | 1 line
+Changed paths:
+   M /trunk/gtk/rtp_player.c
+
+Plug memory leak.
+------------------------------------------------------------------------
+r26452 | gerald | 2008-10-14 09:37:47 -0700 (Tue, 14 Oct 2008) | 3 lines
+Changed paths:
+   M /trunk/config.nmake
+
+If PYTHON hasn't been defined, look for Python 2.6, 2.5, and 2.4 (in
+that order). If found, set up Python automatically.
+------------------------------------------------------------------------
+
+Copy over asn2wrs from the trunk. Update the release notes.
+
+------------------------------------------------------------------------
+r26918 | gerald | 2008-12-04 13:46:50 -0800 (Thu, 04 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/gtk/color_edit_dlg.c
+   M /trunk-1.0/gtk/filter_dlg.c
+
+Try to fix GTK1 breakage from the last checkin.
+
+------------------------------------------------------------------------
+r26920 | gerald | 2008-12-04 15:09:12 -0800 (Thu, 04 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/gtk/color_edit_dlg.c
+
+More GTK1 fixin'? You betcha.
+
+------------------------------------------------------------------------
+r26921 | gerald | 2008-12-04 15:11:46 -0800 (Thu, 04 Dec 2008) | 72 lines
+Changed paths:
+   M /trunk-1.0/asn1/ansi_map/ansi_map.asn
+   M /trunk-1.0/asn1/ansi_map/packet-ansi_map-template.c
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-ansi_map.c
+   M /trunk-1.0/epan/dissectors/packet-bssgp.c
+   M /trunk-1.0/epan/dissectors/packet-ip.c
+   M /trunk-1.0/epan/dissectors/packet-ptp.c
+   M /trunk-1.0/epan/wslua/wslua.h
+   M /trunk-1.0/epan/wslua/wslua_gui.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r26901 | guy | 2008-12-02 01:42:57 -0800 (Tue, 02 Dec 2008) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ip.c
+
+Don't set the tvbuff actual length based on the IP total length until
+after we've checked whether the total length is less than the header
+length, so that we don't believe an obviously bogus total length.  (This
+doesn't catch all cases of bogus total lengths, but it catches, for
+example, a total length of 0.)
+------------------------------------------------------------------------
+r26908 | jake | 2008-12-02 23:08:33 -0800 (Tue, 02 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-bssgp.c
+
+Fix for bug 3085:
+Correct interpretation of QoS T-bit.
+------------------------------------------------------------------------
+r26909 | jake | 2008-12-03 14:56:46 -0800 (Wed, 03 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ptp.c
+
+From Markus Renz:
+Bugfix for ptp dissector.
+------------------------------------------------------------------------
+
+
+Copy over revisions by hand:
+
+------------------------------------------------------------------------
+r26700 | rbalint | 2008-11-05 07:00:46 -0800 (Wed, 05 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/wslua/wslua.h
+   M /trunk/epan/wslua/wslua_gui.c
+
+fix double free bug caused by Lua GC after opening and closing Lua console 
+------------------------------------------------------------------------
+r26867 | etxrab | 2008-11-27 11:38:41 -0800 (Thu, 27 Nov 2008) | 1 line
+Changed paths:
+   M /trunk/asn1/ansi_map/ansi_map.asn
+   M /trunk/epan/dissectors/packet-ansi_map.c
+
+The updated Profile wasn't expanded in all places.
+------------------------------------------------------------------------
+r26877 | etxrab | 2008-11-29 13:21:16 -0800 (Sat, 29 Nov 2008) | 4 lines
+Changed paths:
+   M /trunk/asn1/ansi_map/ansi_map.asn
+   M /trunk/asn1/ansi_map/packet-ansi_map-template.c
+   M /trunk/epan/dissectors/packet-ansi_map.c
+
+Bug fixes:
+- Put QualificationDirectiveRes in the tree.
+- Use correct tag value for messageWaitingNotificationType (145)
+- analogRedirectRecord is OPTIONAL.
+------------------------------------------------------------------------
+r26905 | etxrab | 2008-12-02 22:46:23 -0800 (Tue, 02 Dec 2008) | 4 lines
+Changed paths:
+   M /trunk/asn1/ansi_map/ansi_map.asn
+   M /trunk/asn1/ansi_map/packet-ansi_map-template.c
+   M /trunk/epan/dissectors/packet-ansi_map.c
+
+From Michael Lum:
+- new service options
+- one comment was incorrect
+- Expanded a profile in one of the messages
+------------------------------------------------------------------------
+
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r26498 | gerald | 2008-10-20 09:10:11 -0700 (Mon, 20 Oct 2008) | 18 lines
+r26923 | gerald | 2008-12-04 15:14:52 -0800 (Thu, 04 Dec 2008) | 2 lines
 Changed paths:
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/gtk/airpcap_dlg.c
-   M /trunk-1.0/gtk/airpcap_gui_utils.c
-   M /trunk-1.0/gtk/main.c
 
-Copy over r26487 by hand:
+Add PTP.
+
 ------------------------------------------------------------------------
-r26487 | gerald | 2008-10-17 16:48:33 -0700 (Fri, 17 Oct 2008) | 7 lines
+r26927 | gerald | 2008-12-05 15:32:25 -0800 (Fri, 05 Dec 2008) | 50 lines
 Changed paths:
-   M /trunk/gtk/airpcap_dlg.c
-   M /trunk/gtk/airpcap_gui_utils.c
-   M /trunk/gtk/main_airpcap_toolbar.c
+   M /trunk-1.0/asn1/ansi_map/packet-ansi_map-template.c
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-ansi_map.c
+   M /trunk-1.0/epan/dissectors/packet-ldp.c
+   M /trunk-1.0/epan/dissectors/packet-pgsql.c
+   M /trunk-1.0/epan/dissectors/packet-rsync.c
+   M /trunk-1.0/epan/dissectors/packet-rtp.c
+   M /trunk-1.0/epan/dissectors/packet-s5066.c
 
-When we set the channel and offset entries in the wireless toolbar,
-set the offset first.  This makes sure the offset entry is initialized
-correctly.  In the advanced wireless settings dialog, don't bother
-enabling/disabling the toolbar.  Remove some leftover debugging
-code. Remove some checks for data we don't use (and mark it as unused).
-Fixup whitespace.
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r26922 | jake | 2008-12-04 15:13:55 -0800 (Thu, 04 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ldp.c
+
+Fix for bug 2832:
+Show the actual Private or Experimental TLV/LDP msg value.
+------------------------------------------------------------------------
+r26586 | wmeier | 2008-10-27 13:34:44 -0700 (Mon, 27 Oct 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-pgsql.c
+   M /trunk/epan/dissectors/packet-rsync.c
+
+Fix bug in each dissector: port pref change was ignored; Related: proto_reg_handoff rework.
+------------------------------------------------------------------------
+r25709 | morriss | 2008-07-11 12:48:30 -0700 (Fri, 11 Jul 2008) | 1 line
+Changed paths:
+   M /trunk/epan/dissectors/packet-rtp.c
+
+In a call to proto_tree_add_bytes_format(): actually pass a pointer to the start of the bytes
+------------------------------------------------------------------------
+
+
+Copy over revisions (mostly) by hand:
+
+------------------------------------------------------------------------
+r26205 | wmeier | 2008-09-15 12:33:38 -0700 (Mon, 15 Sep 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rtp.c
+
+Fix so pkt_ccc port pref works; proto_reg_handoff's: gen'l cleanup.
+------------------------------------------------------------------------
+r26718 | wmeier | 2008-11-06 14:05:59 -0800 (Thu, 06 Nov 2008) | 9 lines
+Changed paths:
+   M /trunk/asn1/ansi_map/packet-ansi_map-template.c
+
+Fix bug wherein proto_reg_handoff... wasn't being called during dissector init;
+ (definition of proto_reg_hand_off... wasn't left-justified and thus was not
+  found when generating register.c)
+Also: slight changes related to proto_reg_handoff and proto_register:
+  Use find_dissector;
+  gboolean for intiialized flag;
+  localize saved range pref;
+------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r26928 | jake | 2008-12-05 22:53:25 -0800 (Fri, 05 Dec 2008) | 1 line
+Changed paths:
+   M /trunk-1.0/debian/changelog
+
+Bump version, to match configure.in again.
+------------------------------------------------------------------------
+r26930 | gerald | 2008-12-07 08:03:37 -0800 (Sun, 07 Dec 2008) | 1 line
+Changed paths:
+   M /trunk-1.0/manuf
+
+[Automatic manuf update for 2008-12-07]
+------------------------------------------------------------------------
+r26935 | gerald | 2008-12-08 11:04:45 -0800 (Mon, 08 Dec 2008) | 13 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-ppi.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r26934 | gerald | 2008-12-08 10:54:42 -0800 (Mon, 08 Dec 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ppi.c
+
+Updates for PPI 1.0.8.
+
 ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r26499 | gerald | 2008-10-20 10:47:52 -0700 (Mon, 20 Oct 2008) | 2 lines
+r26947 | gerald | 2008-12-09 09:26:21 -0800 (Tue, 09 Dec 2008) | 15 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-dcerpc-srvsvc.c
+   M /trunk-1.0/epan/dissectors/packet-smb.c
+   M /trunk-1.0/epan/to_str.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r26302 | gerald | 2008-09-29 19:56:11 -0700 (Mon, 29 Sep 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/to_str.c
+
+Check in a modified version of Alexey Neyman's patch from bug 2777. This should
+also fix bug 2899. Make sure we only print a minus sign once and fixup a
+comment.
+------------------------------------------------------------------------
+
+Squelch a couple of Valgrind warnings. Fixup whitespace. Update the
+release notes.
+
+------------------------------------------------------------------------
+r26949 | gerald | 2008-12-09 09:52:54 -0800 (Tue, 09 Dec 2008) | 2 lines
 Changed paths:
    M /trunk-1.0/version.conf
 
-Build 1.0.4.
-
-------------------------------------------------------------------------
-r26500 | gerald | 2008-10-20 12:01:00 -0700 (Mon, 20 Oct 2008) | 2 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-
-We're at version 1.0.4.
+Build 1.0.5
 
 ------------------------------------------------------------------------
