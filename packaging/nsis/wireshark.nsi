@@ -261,7 +261,50 @@ un.unlink.end:
 	pop $R1
 FunctionEnd
 
+Var OLD_UNINSTALLER
+Var OLD_INSTDIR
+Var OLD_DISPLAYNAME
+Var TMP_UNINSTALLER
+
 Function .onInit
+  ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
+  ReadRegStr $OLD_UNINSTALLER HKLM \
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
+    "UninstallString"
+  StrCmp $OLD_UNINSTALLER "" done
+
+  ReadRegStr $OLD_INSTDIR HKLM \
+    "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe" \
+    "Path"
+  StrCmp $OLD_INSTDIR "" done
+
+  ReadRegStr $OLD_DISPLAYNAME HKLM \
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" \
+    "DisplayName"
+  StrCmp $OLD_DISPLAYNAME "" done
+
+  MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+    "$OLD_DISPLAYNAME is already installed.\
+    $\n$\nWould you like to uninstall it first?" \
+      IDYES uninst \
+      IDNO done
+  Abort
+ 
+; Copy the uninstaller to $TEMP and run it.
+; The uninstaller normally does this by itself, but doesn't wait around
+; for the executable to finish, which means ExecWait won't work correctly.
+uninst:
+  ClearErrors
+  StrCpy $TMP_UNINSTALLER "$TEMP\wireshark_uninstaller.exe"
+  ; ...because we surround UninstallString in quotes.
+  StrCpy $0 $OLD_UNINSTALLER -1 1
+  StrCpy $1 "$TEMP\wireshark_uninstaller.exe"
+  StrCpy $2 1
+  System::Call 'kernel32::CopyFile(t r0, t r1, b r2) 1'
+  ExecWait "$TMP_UNINSTALLER _?=$OLD_INSTDIR"
+  Delete "$TMP_UNINSTALLER"
+  
+done:
   ;Extract InstallOptions INI files
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"
@@ -383,7 +426,7 @@ File "..\..\colorfilters"
 ;IfFileExists dfilters dont_overwrite_dfilters
 File "..\..\dfilters"
 ;dont_overwrite_dfilters:
-;IfFileExists dfilters dont_overwrite_smi_modules
+;IfFileExists smi_modules dont_overwrite_smi_modules
 File "..\..\smi_modules"
 ;dont_overwrite_smi_modules:
 
@@ -405,6 +448,7 @@ File "..\..\diameter\nasreq.xml"
 File "..\..\diameter\sip.xml"
 File "..\..\diameter\sunping.xml"
 File "..\..\diameter\TGPPGmb.xml"
+File "..\..\diameter\TGPPRx.xml"
 File "..\..\diameter\TGPPSh.xml"
 SetOutPath $INSTDIR
 
@@ -425,6 +469,7 @@ File "..\..\radius\dictionary.alteon"
 File "..\..\radius\dictionary.altiga"
 File "..\..\radius\dictionary.aptis"
 File "..\..\radius\dictionary.ascend"
+File "..\..\radius\dictionary.aruba"
 File "..\..\radius\dictionary.bay"
 File "..\..\radius\dictionary.bintec"
 File "..\..\radius\dictionary.bristol"
@@ -1235,25 +1280,6 @@ Var WINPCAP_NAME ; DisplayName from WinPcap installation
 Var WINPCAP_VERSION ; DisplayVersion from WinPcap installation
 
 Function myShowCallback
-
-; Uinstall old Wireshark first
-; XXX - doesn't work, but kept here for further experiments
-;ReadRegStr $WIRESHARK_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
-;IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Wireshark version first (recommended)?"
-; Hide the installer while uninstalling
-;GetDlgItem $0 $HWNDPARENT 1
-;FindWindow $0 "#32770" "" $HWNDPARENT
-;MessageBox MB_OK "Window $0"
-;ShowWindow $0 ${SW_HIDE}
-;HideWindow
-;ExecWait '$WIRESHARK_UNINSTALL' $0
-;DetailPrint "WinPcap uninstaller returned $0"
-;GetDlgItem $0 $HWNDPARENT 1
-;ShowWindow $0 ${SW_SHOW}
-;MessageBox MB_OK "Uninstalled"
-;lbl_wireshark_notinstalled:
-
 
 	; Get the Windows version
 	Call GetWindowsVersion

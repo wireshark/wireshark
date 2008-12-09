@@ -123,6 +123,7 @@ diameter_DATA = \
 	diameter/sip.xml \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
+	diameter/TGPPRx.xml \
 	diameter/TGPPSh.xml
 
 #
@@ -160,6 +161,7 @@ radius_DATA = \
 	radius/dictionary.altiga  \
 	radius/dictionary.aptis  \
 	radius/dictionary.ascend  \
+	radius/dictionary.aruba  \
 	radius/dictionary.bay  \
 	radius/dictionary.bintec  \
 	radius/dictionary.bristol  \
