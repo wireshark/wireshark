@@ -164,6 +164,7 @@ radius_DATA = \
 	radius/dictionary.altiga  \
 	radius/dictionary.aptis  \
 	radius/dictionary.ascend  \
+	radius/dictionary.aruba  \
 	radius/dictionary.bay  \
 	radius/dictionary.bintec  \
 	radius/dictionary.bristol  \

@@ -31,6 +31,7 @@ $INCLUDE dictionary.alcatel
 $INCLUDE dictionary.alteon
 $INCLUDE dictionary.altiga
 $INCLUDE dictionary.aptis
+$INCLUDE dictionary.aruba
 $INCLUDE dictionary.bay
 $INCLUDE dictionary.bintec
 $INCLUDE dictionary.cablelabs
