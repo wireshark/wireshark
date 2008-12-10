@@ -746,6 +746,8 @@ SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
+File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules

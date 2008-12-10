@@ -713,9 +713,9 @@ process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.14"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.14/glib_2.18.2-1_win32.zip
+		glib gtk2.14/glib_2.18.3-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.14/glib-dev_2.18.2-1_win32.zip
+		glib gtk2.14/glib-dev_2.18.3-1_win32.zip
 !ELSEIF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.12/glib_2.18.0-1_win32.zip
@@ -781,9 +781,9 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.14"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+_2.14.4-2_win32.zip
+		gtk2 gtk2.14/gtk+_2.14.5-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+-dev_2.14.4-2_win32.zip
+		gtk2 gtk2.14/gtk+-dev_2.14.5-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.14/cairo_1.8.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -1019,7 +1019,7 @@ install-all: install-generated-files
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0 mkdir $(INSTALL_DIR)\lib\gtk-2.0
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\modules mkdir $(INSTALL_DIR)\lib\gtk-2.0\modules
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)
-#	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders
 #	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
 #	if not exist $(INSTALL_DIR)\lib\pango mkdir $(INSTALL_DIR)\lib\pango
@@ -1027,7 +1027,7 @@ install-all: install-generated-files
 #	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
 	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
-#	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
+	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
 #	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
