@@ -770,7 +770,7 @@ decode_transport(GtkWidget *notebook_pg)
     	   ppid = 0;
         else
            if (requested_srcdst - E_DECODE_PPID - 1 < MAX_NUMBER_OF_PPIDS)
-             ppid = cfile.edt->pi.ppid[requested_srcdst - E_DECODE_PPID - 1];
+             ppid = cfile.edt->pi.ppids[requested_srcdst - E_DECODE_PPID - 1];
            else 
              return;
         decode_change_one_dissector(table_name, ppid, list);
@@ -1100,8 +1100,8 @@ decode_add_ppid_menu (GtkWidget *page)
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
-        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+      if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
         g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1498,8 +1498,8 @@ decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
-        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+      if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
         g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);

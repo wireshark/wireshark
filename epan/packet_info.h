@@ -163,7 +163,8 @@ typedef struct _packet_info {
   tvbuff_t *gssapi_decrypted_tvb;
   gboolean gssapi_data_encrypted;
  
-  guint32 ppid[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
+  guint32 ppid;  /* SCTP PPI of current DATA chunk */
+  guint32 ppids[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
                                       * in the SCTP packet
                                       */
   void    *private_data;	/* pointer to data passed from one dissector to another */

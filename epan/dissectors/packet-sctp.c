@@ -1901,6 +1901,8 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 {
   guint32 low_port, high_port;
 
+  pinfo->ppid = ppi;
+
   if (enable_ulp_dissection) {
     if (try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
@@ -2640,10 +2642,10 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   /* insert the PPID in the pinfo structure if it is non-zero, not already there and there is still room */
   if (payload_proto_id) {
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-      if ((pinfo->ppid[number_of_ppid] == 0) || (pinfo->ppid[number_of_ppid] == payload_proto_id))
+      if ((pinfo->ppids[number_of_ppid] == 0) || (pinfo->ppids[number_of_ppid] == payload_proto_id))
         break;
-    if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppid[number_of_ppid] == 0))
-      pinfo->ppid[number_of_ppid] = payload_proto_id;
+    if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppids[number_of_ppid] == 0))
+      pinfo->ppids[number_of_ppid] = payload_proto_id;
   }
 
   e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
@@ -3653,7 +3655,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "");
 
-  memset(&pinfo->ppid, 0, sizeof(pinfo->ppid));
+  memset(&pinfo->ppids, 0, sizeof(pinfo->ppids));
 
   /*  The tvb array in struct _sctp_info is huge: currently 2k pointers.
    *  We know (by the value of 'number_of_tvbs') which of these entries have

@@ -2537,9 +2537,9 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		col_custom_set_fstr(fi->hfinfo, "%s", integer ? tfstring->true_string : tfstring->false_string);
 	} else if (hfinfo->strings) {
 		if (hfinfo->display & BASE_RANGE_STRING) {
-			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
+			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%u"));
 		} else {
-			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%u"));
 		}
 	} else if (IS_BASE_DUAL(hfinfo->display)) {
 		col_custom_set_fstr(fi->hfinfo, hfinfo_uint_value_format(hfinfo), integer, integer);
