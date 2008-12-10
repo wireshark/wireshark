@@ -73,6 +73,7 @@
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
+#include <epan/greproto.h>
 #include <epan/oui.h>
 #include <epan/crc32.h>
 #include <epan/tap.h>
@@ -535,33 +536,6 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define WAVE_IPV6ADDR   0x0020
 #define WAVE_PEERMAC    0x0040
 
-/* ************************************************************************* */
-/*              Aruba GRE Encapulsation ID                                   */
-/* ************************************************************************* */
-#define GRE_ARUBA_8200  0x8200
-#define GRE_ARUBA_8210  0x8210
-#define GRE_ARUBA_8220  0x8220
-#define GRE_ARUBA_8230  0x8230
-#define GRE_ARUBA_8240  0x8240
-#define GRE_ARUBA_8250  0x8250
-#define GRE_ARUBA_8260  0x8260
-#define GRE_ARUBA_8270  0x8270
-#define GRE_ARUBA_8280  0x8280
-#define GRE_ARUBA_8290  0x8290
-#define GRE_ARUBA_82A0  0x82A0
-#define GRE_ARUBA_82B0  0x82B0
-#define GRE_ARUBA_82C0  0x82C0
-#define GRE_ARUBA_82D0  0x82D0
-#define GRE_ARUBA_82E0  0x82E0
-#define GRE_ARUBA_82F0  0x82F0
-#define GRE_ARUBA_8300  0x8300
-#define GRE_ARUBA_8310  0x8310
-#define GRE_ARUBA_8320  0x8320
-#define GRE_ARUBA_8330  0x8330
-#define GRE_ARUBA_8340  0x8340
-#define GRE_ARUBA_8350  0x8350
-#define GRE_ARUBA_8360  0x8360
-#define GRE_ARUBA_8370  0x8370
 
 
 /* ************************************************************************* */
