@@ -141,21 +141,23 @@ static gint hf_gsm_sms_tp_oa = -1;
 static gint hf_gsm_sms_tp_da = -1;
 static gint hf_gsm_sms_tp_pid = -1;
 static gint hf_gsm_sms_tp_dcs = -1;
+static gint hf_gsm_sms_tp_ra = -1;
+static gint hf_gsm_sms_tp_rp = -1;
+static gint hf_gsm_sms_tp_udhi = -1;
+static gint hf_gsm_sms_tp_rd = -1;
+static gint hf_gsm_sms_tp_srq = -1;
+#if 0
 static gint hf_gsm_sms_tp_scts = -1;
 static gint hf_gsm_sms_tp_vp = -1;
 static gint hf_gsm_sms_tp_dt = -1;
-static gint hf_gsm_sms_tp_ra = -1;
 static gint hf_gsm_sms_tp_st = -1;
 static gint hf_gsm_sms_tp_udl = -1;
-static gint hf_gsm_sms_tp_rp = -1;
 static gint hf_gsm_sms_tp_mn = -1;
 static gint hf_gsm_sms_tp_ct = -1;
 static gint hf_gsm_sms_tp_cdl = -1;
 static gint hf_gsm_sms_tp_cd = -1;
-static gint hf_gsm_sms_tp_udhi = -1;
 static gint hf_gsm_sms_tp_ud = -1;
-static gint hf_gsm_sms_tp_rd = -1;
-static gint hf_gsm_sms_tp_srq = -1;
+#endif
  
 static gboolean msg_udh_frag = FALSE;
 static char bigbuf[1024];
@@ -3005,7 +3007,6 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8	oct;
     guint8	vp_form;
     guint8	udl;
-    const gchar	*str = NULL;
     gboolean	seven_bit;
     gboolean	eight_bit;
     gboolean	ucs2;
