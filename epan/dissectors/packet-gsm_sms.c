@@ -11,6 +11,9 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
+ * Header field support for TPDU Parameters added by
+ * Abhik Sarkar.
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -127,10 +130,32 @@ static gint  hf_gsm_sms_ud_multiple_messages_msg_parts = -1;
 static gint  hf_gsm_sms_ud_multiple_messages_msg_part = -1;
 
 /* TPDU Parameters */
+static gint hf_gsm_sms_tp_mti_up = -1;
+static gint hf_gsm_sms_tp_mti_down = -1;
+static gint hf_gsm_sms_tp_mms = -1;
+static gint hf_gsm_sms_tp_vpf = -1;
+static gint hf_gsm_sms_tp_sri = -1;
+static gint hf_gsm_sms_tp_srr = -1;
+static gint hf_gsm_sms_tp_mr = -1;
 static gint hf_gsm_sms_tp_oa = -1;
 static gint hf_gsm_sms_tp_da = -1;
 static gint hf_gsm_sms_tp_pid = -1;
 static gint hf_gsm_sms_tp_dcs = -1;
+static gint hf_gsm_sms_tp_scts = -1;
+static gint hf_gsm_sms_tp_vp = -1;
+static gint hf_gsm_sms_tp_dt = -1;
+static gint hf_gsm_sms_tp_ra = -1;
+static gint hf_gsm_sms_tp_st = -1;
+static gint hf_gsm_sms_tp_udl = -1;
+static gint hf_gsm_sms_tp_rp = -1;
+static gint hf_gsm_sms_tp_mn = -1;
+static gint hf_gsm_sms_tp_ct = -1;
+static gint hf_gsm_sms_tp_cdl = -1;
+static gint hf_gsm_sms_tp_cd = -1;
+static gint hf_gsm_sms_tp_udhi = -1;
+static gint hf_gsm_sms_tp_ud = -1;
+static gint hf_gsm_sms_tp_rd = -1;
+static gint hf_gsm_sms_tp_srq = -1;
  
 static gboolean msg_udh_frag = FALSE;
 static char bigbuf[1024];
@@ -234,81 +259,67 @@ static const value_string msg_type_strings[] = {
     { 0, NULL },
 };
 
+static const value_string msg_type_strings_sc_to_ms[] = {
+    { 0,	"SMS-DELIVER" },
+    { 1,	"SMS-SUBMIT REPORT" },
+    { 2,	"SMS-STATUS REPORT" },
+    { 3,	"Reserved" },
+    { 0, NULL },
+};
+
+static const value_string msg_type_strings_ms_to_sc[] = {
+    { 0,	"SMS-DELIVER REPORT" },
+    { 1,	"SMS-SUBMIT" },
+    { 2,	"SMS-COMMAND" },
+    { 3,	"Reserved" },
+    { 0, NULL },
+};
+
+static const value_string vp_type_strings[] = {
+    { 0,	"TP VP field not present"},
+    { 1,	"TP VP field present - relative format"},
+    { 2,	"TP-VP field present - enhanced format"},
+    { 3,	"TP VP field present - absolute format"},
+    { 0, NULL },
+};
+
+static const true_false_string mms_bool_strings = {
+	"No more messages are waiting for the MS in this SC",
+	"More messages are waiting for the MS in this SC"
+};
+
+static const true_false_string sri_bool_strings = {
+	"A status report shall be returned to the SME",
+	"A status report shall not be returned to the SME"
+};
+
+static const true_false_string srr_bool_strings = {
+	"A status report is requested",
+	"A status report is not requested"
+};
+
+static const true_false_string udhi_bool_strings = {
+	"The beginning of the TP UD field contains a Header in addition to the short message",
+	"The TP UD field contains only the short message"
+};
+
+static const true_false_string rp_bool_strings = {
+	"TP Reply Path parameter is set in this SMS SUBMIT/DELIVER",
+	"TP Reply Path parameter is not set in this SMS SUBMIT/DELIVER"
+};
+
+static const true_false_string rd_bool_strings = {
+	"Instruct SC to reject duplicates",
+	"Instruct SC to accept duplicates"
+};
+
+static const true_false_string srq_bool_strings = {
+	"The SMS STATUS REPORT is the result of an SMS COMMAND e.g. an Enquiry.",
+	"SMS STATUS REPORT is the result of a SMS SUBMIT."
+};
+
 #define	NUM_UDH_IEIS	256
 static gint ett_udh_ieis[NUM_UDH_IEIS];
-
-/* FUNCTIONS */
-
-/* 9.2.3.1 */
-#define DIS_FIELD_MTI(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Message-Type-Indicator", \
-	bigbuf); \
-}
-
-/* 9.2.3.2 */
-#define DIS_FIELD_MMS(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-More-Messages-to-Send: %s messages are waiting for the MS in this SC", \
-	bigbuf, \
-	(oct & m_bitmask) ? "No more" : "More"); \
-}
-
-/* 9.2.3.3 */
-#define DIS_FIELD_VPF(m_tree, m_bitmask, m_offset, m_form) \
-{ \
-    SMS_SHIFTMASK(oct & m_bitmask, m_bitmask, *m_form); \
-    switch (*m_form) \
-    { \
-    case 0: str = "TP-VP field not present"; break; \
-    case 1: str = "TP-VP field present - enhanced format"; break; \
-    case 2: str = "TP-VP field present - relative format"; break; \
-    case 3: str = "TP-VP field present - absolute format"; break; \
-    } \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Validity-Period-Format: %s", \
-	bigbuf, \
-	str); \
-}
-
-/* 9.2.3.4 */
-#define DIS_FIELD_SRI(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Status-Report-Indication: A status report shall %sbe returned to the SME", \
-	bigbuf, \
-	(oct & m_bitmask) ? "" : "not "); \
-}
-
-/* 9.2.3.5 */
-#define DIS_FIELD_SRR(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Status-Report-Request: A status report is %srequested", \
-	bigbuf, \
-	(oct & m_bitmask) ? "" : "not "); \
-}
-
-/* 9.2.3.6 */
-#define DIS_FIELD_MR(m_tree, m_offset) \
-{ \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"TP-Message-Reference %d", \
-	oct); \
-}
 
 #define MAX_ADDR_SIZE 20
 static void
@@ -435,6 +446,9 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
 		offset, numdigocts, bigbuf);
     } else if (g_ascii_strncasecmp(title, "TP-D", 4) == 0) {
 	proto_tree_add_string(subtree, hf_gsm_sms_tp_da, tvb,
+		offset, numdigocts, bigbuf);
+    } else if (g_ascii_strncasecmp(title, "TP-R", 4) == 0) {
+	proto_tree_add_string(subtree, hf_gsm_sms_tp_ra, tvb,
 		offset, numdigocts, bigbuf);
     } else {
     	proto_tree_add_text(subtree,
@@ -2749,32 +2763,6 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		g_pinfo->fragmented = save_fragmented;
 }
 
-/* 9.2.3.25 */
-#define DIS_FIELD_RD(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Reject-Duplicates: Instruct SC to %s duplicates", \
-	bigbuf, \
-	(oct & m_bitmask) ? \
-	"reject" : \
-	"accept"); \
-}
-
-/* 9.2.3.26 */
-#define DIS_FIELD_SRQ(m_tree, m_bitmask, m_offset) \
-{ \
-    other_decode_bitfield_value(bigbuf, oct, m_bitmask, 8); \
-    proto_tree_add_text(m_tree, tvb, \
-	m_offset, 1, \
-	"%s :  TP-Status-Report-Qualifier: The SMS-STATUS-REPORT is the result of %s", \
-	bigbuf, \
-	(oct & m_bitmask) ? \
-	"an SMS-COMMAND e.g. an Enquiry" : \
-	"a SMS-SUBMIT"); \
-}
-
 /* 9.2.3.27 */
 static void
 dis_field_pi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
@@ -2847,16 +2835,13 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
+    udhi = oct & 0x40;
 
-    DIS_FIELD_RP(tree, 0x80, offset);
-
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-    DIS_FIELD_SRI(tree, 0x20, offset);
-
-    DIS_FIELD_MMS(tree, 0x04, offset);
-
-    DIS_FIELD_MTI(tree, 0x03, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_sri, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
 
     offset++;
 
@@ -2912,11 +2897,11 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
+    udhi = oct & 0x40;
 
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-	DIS_FIELD_MMS(tree, 0x04, offset); /* Bit 2			*/
-    DIS_FIELD_MTI(tree, 0x03, offset); /* Bit 0 and 1	*/
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
 
     if (length < 2)
     {
@@ -3032,23 +3017,20 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
+    udhi = oct & 0x40;
+    vp_form = ((oct & 0x18) >> 3);
 
-    DIS_FIELD_RP(tree, 0x80, offset);
-
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-    DIS_FIELD_SRR(tree, 0x20, offset);
-
-    DIS_FIELD_VPF(tree, 0x18, offset, &vp_form);
-
-    DIS_FIELD_RD(tree, 0x04, offset);
-
-    DIS_FIELD_MTI(tree, 0x03, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_vpf, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rd, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_MR(tree, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
 
     offset++;
 
@@ -3104,10 +3086,10 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
-
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-    DIS_FIELD_MTI(tree, 0x03, offset);
+    udhi = oct & 0x40;
+    
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
 
     /*
      * there does not seem to be a way to determine that this
@@ -3206,7 +3188,7 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     gboolean	eight_bit;
     gboolean	ucs2;
     gboolean	compressed;
-    gboolean	udhi;
+    gboolean	udhi; 
 
 
     udl = 0;
@@ -3214,19 +3196,17 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
+    udhi = oct & 0x40;
 
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-    DIS_FIELD_SRQ(tree, 0x20, offset);
-
-    DIS_FIELD_MMS(tree, 0x04, offset);
-
-    DIS_FIELD_MTI(tree, 0x03, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srq, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_MR(tree, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
 
     offset++;
 
@@ -3332,17 +3312,16 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     length = tvb_length_remaining(tvb, offset);
 
     oct = tvb_get_guint8(tvb, offset);
+    udhi = oct & 0x40;
 
-    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
-
-    DIS_FIELD_SRR(tree, 0x20, offset);
-
-    DIS_FIELD_MTI(tree, 0x03, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_MR(tree, offset);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -3597,26 +3576,86 @@ proto_register_gsm_sms(void)
 	    }
 	},
 	/* TPDU parameters */
+        { &hf_gsm_sms_tp_mti_up,
+	      { "TP-MTI", "gsm_sms.tp-mti",
+	        FT_UINT8, BASE_DEC, VALS(msg_type_strings_ms_to_sc), 0x03,
+	        "TP-Message-Type-Indicator (in the direction MS to SC)", HFILL }
+	},	
+        { &hf_gsm_sms_tp_mti_down,
+	      { "TP-MTI", "gsm_sms.tp-mti",
+	        FT_UINT8, BASE_DEC, VALS(msg_type_strings_sc_to_ms), 0x03,
+	        "TP-Message-Type-Indicator (in the direction SC to MS)", HFILL }
+	},	
         { &hf_gsm_sms_tp_oa,
-	      { "TP-Originating-Address Digits", "gsm_sms.tp-oa",
+	      { "TP-OA Digits", "gsm_sms.tp-oa",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
-	        "Originating Address Digits", HFILL }
+	        "TP-Originating-Address Digits", HFILL }
 	},
         { &hf_gsm_sms_tp_da,
-	      { "TP-Destination-Address Digits", "gsm_sms.tp-da",
+	      { "TP-DA Digits", "gsm_sms.tp-da",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
-	        "Destination Address Digits", HFILL }
+	        "TP-Destination-Address Digits", HFILL }
+	},
+        { &hf_gsm_sms_tp_ra,
+	      { "TP-RA Digits", "gsm_sms.tp-ra",
+	        FT_STRING, BASE_NONE, NULL, 0x00,
+	        "TP-Recipient-Address Digits", HFILL }
 	},
         { &hf_gsm_sms_tp_pid,
-	      { "TP-Protocol-Identifier", "gsm_sms.tp-pid",
+	      { "TP-PID", "gsm_sms.tp-pid",
 	        FT_UINT8, BASE_DEC, NULL, 0x00,
-	        "Protocol Identifier", HFILL }
+	        "TP-Protocol-Identifier", HFILL }
 	},
         { &hf_gsm_sms_tp_dcs,
-	      { "TP-Data-Coding-Scheme", "gsm_sms.tp-dcs",
+	      { "TP-DCS", "gsm_sms.tp-dcs",
 	        FT_UINT8, BASE_DEC, NULL, 0x00,
-	        "Data Coding Scheme", HFILL }
+	        "TP-Data-Coding-Scheme", HFILL }
 	},
+        { &hf_gsm_sms_tp_mr,
+	      { "TP-MR", "gsm_sms.tp-mr",
+	        FT_UINT8, BASE_DEC, NULL, 0x00,
+	        "TP-Message-Reference", HFILL }
+	},
+        { &hf_gsm_sms_tp_mms,
+	      { "TP-MMS", "gsm_sms.tp-mms",
+	        FT_BOOLEAN, 8, TFS(&mms_bool_strings), 0x04,
+	        "TP-More-Messages-to-Send", HFILL }
+	},
+        { &hf_gsm_sms_tp_sri,
+	      { "TP-SRI", "gsm_sms.tp-sri",
+	        FT_BOOLEAN, 8, TFS(&sri_bool_strings), 0x20,
+	        "TP-Status-Report-Indication", HFILL }
+	},
+        { &hf_gsm_sms_tp_srr,
+	      { "TP-SRR", "gsm_sms.tp-srr",
+	        FT_BOOLEAN, 8, TFS(&srr_bool_strings), 0x20,
+	        "TP-Status-Report-Request", HFILL }
+	},
+        { &hf_gsm_sms_tp_udhi,
+	      { "TP-UDHI", "gsm_sms.tp-udhi",
+	        FT_BOOLEAN, 8, TFS(&udhi_bool_strings), 0x40,
+	        "TP-User-Data-Header-Indicator", HFILL }
+	},
+        { &hf_gsm_sms_tp_rp,
+	      { "TP-RP", "gsm_sms.tp-rp",
+	        FT_BOOLEAN, 8, TFS(&rp_bool_strings), 0x80,
+	        "TP-Reply-Path", HFILL }
+	},	
+        { &hf_gsm_sms_tp_vpf,
+	      { "TP-VPF", "gsm_sms.tp-vpf",
+	        FT_UINT8, BASE_DEC, VALS(vp_type_strings), 0x18,
+	        "TP-Validity-Period-Format", HFILL }
+	},	
+        { &hf_gsm_sms_tp_rd,
+	      { "TP-RD", "gsm_sms.tp-rd",
+	        FT_BOOLEAN, 8, TFS(&rd_bool_strings), 0x04,
+	        "TP-Reject-Duplicates", HFILL }
+	},	
+        { &hf_gsm_sms_tp_srq,
+	      { "TP-SRQ", "gsm_sms.tp-srq",
+	        FT_BOOLEAN, 8, TFS(&srq_bool_strings), 0x20,
+	        "TP-Status-Report-Qualifier", HFILL }
+	},	
     };
 
     /* Setup protocol subtree array */
