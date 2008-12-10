@@ -114,6 +114,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TIPC,					"Transparent Inter Process Communication" },
     {ETHERTYPE_LLDP,					"802.1 Link Layer Discovery Protocol (LLDP)" },
     {ETHERTYPE_3GPP2,					"CDMA2000 A10 3GPP2 Packet" },
+    {ETHERTYPE_TTE_PCF,					"TTEthernet Protocol Control Frame" },
     {ETHERTYPE_LLTD,					"Link Layer Topology Discovery (LLTD)" },
     {ETHERTYPE_WSMP,					"(WAVE) Short Message Protocol (WSM)" },
     {ETHERTYPE_COBRANET,				"Cirrus Cobranet Packet" },

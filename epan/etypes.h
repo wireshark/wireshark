@@ -390,6 +390,10 @@
 #define ETHERTYPE_FIP		0x8914	/* FCoE Initialization Protocol */
 #endif
 
+#ifndef ETHERTYPE_TTE_PCF
+#define ETHERTYPE_TTE_PCF	0x891d  /* TTEthernet Protocol Control Frame */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
