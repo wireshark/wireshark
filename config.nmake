@@ -205,7 +205,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.3ws
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.6.0ws
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
