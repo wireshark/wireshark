@@ -533,6 +533,7 @@ DISSECTOR_SRC = \
 	packet-isns.c		\
 	packet-isup.c		\
 	packet-isup_thin.c	\
+	packet-itch.c		\
 	packet-iua.c		\
 	packet-iuup.c		\
 	packet-iwarp-ddp-rdmap.c\
@@ -755,6 +756,7 @@ DISSECTOR_SRC = \
 	packet-sndcp.c		\
 	packet-sndcp-xid.c	\
 	packet-socks.c		\
+	packet-soup.c		\
 	packet-spp.c		\
 	packet-spray.c		\
 	packet-srp.c		\
