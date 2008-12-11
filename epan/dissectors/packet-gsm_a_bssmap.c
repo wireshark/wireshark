@@ -3341,12 +3341,12 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 		codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
 		/* FI indicates Full IP */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, FALSE);
-		/* TF indicates TFO support */
-		proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, FALSE);
 		/* PI indicates PCMoIP */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, FALSE);
 		/* PT indicates PCMoTDM */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, FALSE);
+		/* TF indicates TFO support */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, FALSE);
 		/* Codec Type */
 		proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
@@ -3423,12 +3423,12 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 		codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
 		/* FI indicates Full IP */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi2, tvb, curr_offset, 1, FALSE);
-		/* TF indicates TFO support */
-		proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, FALSE);
 		/* PI indicates PCMoIP */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi2, tvb, curr_offset, 1, FALSE);
 		/* PT indicates PCMoTDM */
 		proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt2, tvb, curr_offset, 1, FALSE);
+		/* TF indicates TFO support */
+		proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, FALSE);
 		/* Codec Type */
 		proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
@@ -6003,20 +6003,20 @@ proto_register_gsm_a_bssmap(void)
 		FT_BOOLEAN,8, TFS(&bssmap_fi_vals), 0x80,
 		"FI(Full IP)", HFILL }
 	},
-	{ &hf_gsm_a_bssmap_tf,
-		{ "TF","gsm_a_bssmap.tf",
-		FT_BOOLEAN,8, TFS(&bssmap_tf_vals), 0x40,
-		"TF", HFILL }
-	},
 	{ &hf_gsm_a_bssmap_pi,
 		{ "PI","gsm_a_bssmap.pi",
-		FT_BOOLEAN,8, TFS(&bssmap_pi_vals), 0x20,
+		FT_BOOLEAN,8, TFS(&bssmap_pi_vals), 0x40,
 		"PI", HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pt,
 		{ "PT","gsm_a_bssmap.pt",
-		FT_BOOLEAN,8, TFS(&bssmap_pt_vals), 0x10,
+		FT_BOOLEAN,8, TFS(&bssmap_pt_vals), 0x20,
 		"PT", HFILL }
+	},
+	{ &hf_gsm_a_bssmap_tf,
+		{ "TF","gsm_a_bssmap.tf",
+		FT_BOOLEAN,8, TFS(&bssmap_tf_vals), 0x10,
+		"TF", HFILL }
 	},
 	{ &hf_gsm_a_bssap_speech_codec,
 		{ "Codec Type","gsm_a_bssmap.speech_codec",
@@ -6028,22 +6028,21 @@ proto_register_gsm_a_bssmap(void)
 		FT_BOOLEAN,8, TFS(&bssmap_fi2_vals), 0x80,
 		"FI(Full IP)", HFILL }
 	},
-	{ &hf_gsm_a_bssmap_tf2,
-		{ "TF","gsm_a_bssmap.tf2",
-		FT_BOOLEAN,8, TFS(&bssmap_tf2_vals), 0x40,
-		"TF", HFILL }
-	},
 	{ &hf_gsm_a_bssmap_pi2,
 		{ "PI","gsm_a_bssmap.pi2",
-		FT_BOOLEAN,8, TFS(&bssmap_pi2_vals), 0x20,
+		FT_BOOLEAN,8, TFS(&bssmap_pi2_vals), 0x40,
 		"PI", HFILL }
 	},
 	{ &hf_gsm_a_bssmap_pt2,
 		{ "PT","gsm_a_bssmap.pt2",
-		FT_BOOLEAN,8, TFS(&bssmap_pt2_vals), 0x10,
+		FT_BOOLEAN,8, TFS(&bssmap_pt2_vals), 0x20,
 		"PT", HFILL }
 	},
-
+	{ &hf_gsm_a_bssmap_tf2,
+		{ "TF","gsm_a_bssmap.tf2",
+		FT_BOOLEAN,8, TFS(&bssmap_tf2_vals), 0x10,
+		"TF", HFILL }
+	},
 	{ &hf_gsm_a_bssmap_call_id,
 		{ "Call Identifier","gsm_a_bssmap.callid",
 		FT_UINT32, BASE_DEC,NULL, 0x0,
