@@ -1098,7 +1098,7 @@ dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, g
 }
 
 /* Ref 7.3.2.1 Sequence parameter set RBSP syntax */
-static void
+static int
 dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	proto_item *level_item;
@@ -1192,7 +1192,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 			}
 			*/
 			proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
-			return;
+			return -1;
 		}
 
 	}
@@ -1277,6 +1277,9 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	/* 	rbsp_trailing_bits( ) 0 */
 	bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset); 
 
+	offset = bit_offset>>3;
+
+	return offset;
 }
 
 /* 7.3.2.2 Picture parameter set RBSP syntax */
@@ -1467,7 +1470,10 @@ dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, p
 }
 
 
-/* Dissect NAL unit as recived in sprop-parameter-sets of SDP */
+/* 
+ * Dissect NAL unit as recived in sprop-parameter-sets of SDP
+ * or "DecoderConfiguration parameter in H.245
+ */
 void
 dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1475,9 +1481,17 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree *h264_nal_tree;
 	gint	offset = 0;
 	guint8 nal_unit_type;
+	guint32 dword;
 	item = proto_tree_add_item(tree, hf_h264_nal_unit, tvb, offset, -1, FALSE);
 	h264_nal_tree = proto_item_add_subtree(item, ett_h264_nal_unit);
 
+startover:
+	/* In decoder configuration start code may be pressent */
+	dword = tvb_get_bits32(tvb,0,32,FALSE);
+	if(dword==1){
+		/* Start code */
+		offset+=4;
+	}
 	/* Ref: 7.3.1 NAL unit syntax */
 	nal_unit_type = tvb_get_guint8(tvb,offset) & 0x1f;
 
@@ -1512,7 +1526,15 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		dissect_h264_sei_rbsp(h264_nal_tree, tvb, pinfo, offset);
 		break;
 	case H264_SEQ_PAR_SET:	/* 7 Sequence parameter set*/
-		dissect_h264_seq_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
+		offset = dissect_h264_seq_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
+		/* A bit ugly */
+		if(tvb_length_remaining(tvb,offset) > 0){
+			/* In this case length = offset as we start from zero */
+			proto_item_set_len(item, offset/*Length */);
+			item = proto_tree_add_item(tree, hf_h264_nal_unit, tvb, offset, -1, FALSE);
+			h264_nal_tree = proto_item_add_subtree(item, ett_h264_nal_unit);
+			goto startover;
+		}
 		break;
 	case H264_PIC_PAR_SET:	/* 8 Picture parameter set */
 		dissect_h264_pic_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
@@ -1747,6 +1769,18 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
   offset += 2;
   return offset;
 }
+static int
+dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+
+  dissect_h264_nal_unit(tvb, pinfo, tree);
+
+  return tvb_length(tvb);
+}
 
 typedef struct _h264_capability_t {
   const gchar *id;
@@ -1770,7 +1804,7 @@ static h264_capability_t h264_capability_tab[] = {
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/11", "AdditionalModesSupported", dissect_h264_par_AdditionalModesSupported },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/12", "AdditionalDisplayCapabilities", NULL },
   /* TS 26.111  H.264 */
-  { "GenericCapability/0.0.8.241.0.0.1/collapsing/43" , "DecoderConfigurationInformation", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/nonCollapsing/43" , "DecoderConfigurationInformation", dissect_h264_par_DecoderConfigurationInformation },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/44" , "AcceptRedundantSlices", NULL },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/45" , "NalAlignedMode", NULL },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/46" , "ProfileIOP", dissect_h264_ProfileIOP },
