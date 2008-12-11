@@ -853,6 +853,7 @@ process_libs:
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05ws
+    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.3ws
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.6.0ws
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
