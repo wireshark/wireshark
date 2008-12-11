@@ -270,7 +270,7 @@
 	  <listitem>
 	    <para>
 	      This menu contains items to find a packet, time reference or mark one
-		  or more packets, set your preferences,
+		  or more packets, handle configuration profiles, and set your preferences;
 	      (cut, copy, and paste are not presently implemented).
 		  See <xref linkend="ChUseEditMenuSection"/>.
 	    </para>
@@ -331,7 +331,7 @@
 	<varlistentry><term><command>Help</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains items to help the user, like access to some basic
+	      This menu contains items to help the user, e.g. access to some basic
 		  help, a list of the supported protocols, manual pages, online access
 		  to some of the webpages, and the usual about dialog.
 		  See <xref linkend="ChUseHelpMenuSection"/>.
@@ -345,7 +345,7 @@
 	<tip><title>Tip!</title>
 	<para>
 	You can access menu items directly or by pressing the corresponding
-	accelerator keys, which are shown at the right side of the
+	accelerator keys which are shown at the right side of the
 	menu. For example, you can press the Control (or Strg in German) and the K
 	keys together to open the capture dialog.
 	</para>
@@ -432,7 +432,7 @@
 		  </note><note>
 		    <title>Note!</title>
 		    <para>
-		      You cannot save a live capture while it is in
+		      You cannot save a live capture while the capture is in
 		      progress.  You must stop the capture in order to
 		      save.
 		    </para>
@@ -600,8 +600,8 @@
 		<entry>Ctrl+Q</entry>
 		<entry><para>
 		    This menu item allows you to quit from Wireshark.
-			Wireshark will ask to save your capture file if you haven't saved
-			it before (this can be disabled by a preference setting).
+			Wireshark will ask to save your capture file if you haven't previously saved
+			it (this can be disabled by a preference setting).
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -2510,7 +2510,7 @@
 	<para>
 	  <command>The right side</command> shows the selected configuration profile.  
 	  Clicking in this part of the statusbar will bring up a menu with all available
-	  configuration profiles, and selecting from this list will change configuration profile.
+	  configuration profiles, and selecting from this list will change the configuration profile.
 	</para>
       </listitem>
     </itemizedlist>
