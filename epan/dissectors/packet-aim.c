@@ -56,15 +56,15 @@
 #define CHANNEL_CLOSE_CONN  0x04
 #define CHANNEL_KEEP_ALIVE  0x05
 
-#define FAMILY_ALL_ERROR_INVALID_HEADER				   0x0001
+#define FAMILY_ALL_ERROR_INVALID_HEADER                0x0001
 #define FAMILY_ALL_ERROR_SERVER_RATE_LIMIT_EXCEEDED    0x0002
 #define FAMILY_ALL_ERROR_CLIENT_RATE_LIMIT_EXCEEDED    0x0003
 #define FAMILY_ALL_ERROR_RECIPIENT_NOT_LOGGED_IN       0x0004
 #define FAMILY_ALL_ERROR_REQUESTED_SERVICE_UNAVAILABLE 0x0005
 #define FAMILY_ALL_ERROR_REQUESTED_SERVICE_NOT_DEFINED 0x0006
-#define FAMILY_ALL_ERROR_OBSOLETE_SNAC				   0x0007
-#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_SERVER	   0x0008
-#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_CLIENT	   0x0009
+#define FAMILY_ALL_ERROR_OBSOLETE_SNAC                 0x0007
+#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_SERVER       0x0008
+#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_CLIENT       0x0009
 #define FAMILY_ALL_ERROR_REFUSED_BY_CLIENT             0x000a
 #define FAMILY_ALL_ERROR_REPLY_TOO_BIG                 0x000b
 #define FAMILY_ALL_ERROR_RESPONSES_LOST                0x000c
@@ -118,96 +118,96 @@ static const value_string aim_snac_errors[] = {
   { 0, NULL }
 };
 
-#define AIM_CLIENT_TLV_SCREEN_NAME				0x0001
-#define AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD        			0x0002
-#define AIM_CLIENT_TLV_CLIENT_ID_STRING       			0x0003
-#define AIM_CLIENT_TLV_ERRORURL                                 0x0004
+#define AIM_CLIENT_TLV_SCREEN_NAME             0x0001
+#define AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD    0x0002
+#define AIM_CLIENT_TLV_CLIENT_ID_STRING        0x0003
+#define AIM_CLIENT_TLV_ERRORURL                0x0004
 #define AIM_CLIENT_TLV_BOS_SERVER_STRING       0x0005
 #define AIM_CLIENT_TLV_AUTH_COOKIE             0x0006
-#define AIM_CLIENT_TLV_ERRORCODE			    0x0008
-#define AIM_CLIENT_TLV_DISCONNECT_REASON		0x0009
-#define AIM_CLIENT_TLV_RECONNECT_HOST		   0x000a
-#define AIM_CLIENT_TLV_URL					   0x000b
-#define AIM_CLIENT_TLV_DEBUG_DATA			   0x000c
-#define AIM_CLIENT_TLV_FAMILY_ID		       0x000d
+#define AIM_CLIENT_TLV_ERRORCODE               0x0008
+#define AIM_CLIENT_TLV_DISCONNECT_REASON       0x0009
+#define AIM_CLIENT_TLV_RECONNECT_HOST          0x000a
+#define AIM_CLIENT_TLV_URL                     0x000b
+#define AIM_CLIENT_TLV_DEBUG_DATA              0x000c
+#define AIM_CLIENT_TLV_FAMILY_ID               0x000d
 #define AIM_CLIENT_TLV_CLIENT_COUNTRY          0x000e
 #define AIM_CLIENT_TLV_CLIENT_LANGUAGE         0x000f
-#define AIM_CLIENT_TLV_EMAILADDR			    0x0011
-#define AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD	0x0012
-#define AIM_CLIENT_TLV_REGSTATUS			    0x0013
+#define AIM_CLIENT_TLV_EMAILADDR               0x0011
+#define AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD    0x0012
+#define AIM_CLIENT_TLV_REGSTATUS               0x0013
 #define AIM_CLIENT_TLV_CLIENT_DISTRIBUTION_NUM 0x0014
-#define AIM_CLIENT_TLV_INVITEMESSAGE			0x0015
+#define AIM_CLIENT_TLV_INVITEMESSAGE           0x0015
 #define AIM_CLIENT_TLV_CLIENT_ID               0x0016
 #define AIM_CLIENT_TLV_CLIENT_MAJOR_VERSION    0x0017
 #define AIM_CLIENT_TLV_CLIENT_MINOR_VERSION    0x0018
 #define AIM_CLIENT_TLV_CLIENT_LESSER_VERSION   0x0019
 #define AIM_CLIENT_TLV_CLIENT_BUILD_NUMBER     0x001a
-#define AIM_CLIENT_TLV_PASSWORD_MD5 			0x0025
-#define AIM_CLIENT_TLV_LATESTBETABUILD     	0x0040
-#define AIM_CLIENT_TLV_LATESTBETAURL       	0x0041
-#define AIM_CLIENT_TLV_LATESTBETAINFO      	0x0042
-#define AIM_CLIENT_TLV_LATESTBETANAME      	0x0043
-#define AIM_CLIENT_TLV_LATESTRELEASEBUILD  	0x0044
-#define AIM_CLIENT_TLV_LATESTRELEASEURL    	0x0045
-#define AIM_CLIENT_TLV_LATESTRELEASEINFO   	0x0046
-#define AIM_CLIENT_TLV_LATESTRELEASENAME   	0x0047
-#define AIM_CLIENT_TLV_BETA_DIGEST_SIG		0x0048
-#define AIM_CLIENT_TLV_RELEASE_DIGEST_SIG   0x0049
-#define AIM_CLIENT_TLV_CLIENTUSESSI   			0x004a
-#define AIM_CLIENT_TLV_CHANGE_PASSWORD_URL		0x0054
-#define AIM_CLIENT_TLV_AWAITING_AUTH		0x0066
-#define AIM_CLIENT_TLV_MEMBERS				0x00c8
-#define AIM_CLIENT_TLV_VISIBILITY_BITS		0x00c9
-#define AIM_CLIENT_TLV_PRIVACY				0x00ca
-#define AIM_CLIENT_TLV_VISIBLE_CLASS		0x00cb
-#define AIM_CLIENT_TLV_VISIBLE_MISC			0x00cc
-#define AIM_CLIENT_TLV_ICQ2K_SHORTCUT		0x00cd
-#define AIM_CLIENT_TLV_FIRST_LOADED_TIME	0x00d4
-#define AIM_CLIENT_TLV_BUDDY_ICON_MD5SUM	0x00d5
-#define AIM_CLIENT_TLV_GIVEN_NAME			0x0131
-#define AIM_CLIENT_TLV_LOCAL_EMAIL			0x0137
-#define AIM_CLIENT_TLV_LOCAL_SMS			0x013a
-#define AIM_CLIENT_TLV_LOCAL_COMMENT		0x013c
-#define AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT 0x013d
-#define AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND	0x013e
-#define AIM_CLIENT_TLV_FIRST_MESSAGE_SENT	0x0145
+#define AIM_CLIENT_TLV_PASSWORD_MD5            0x0025
+#define AIM_CLIENT_TLV_LATESTBETABUILD         0x0040
+#define AIM_CLIENT_TLV_LATESTBETAURL           0x0041
+#define AIM_CLIENT_TLV_LATESTBETAINFO          0x0042
+#define AIM_CLIENT_TLV_LATESTBETANAME          0x0043
+#define AIM_CLIENT_TLV_LATESTRELEASEBUILD      0x0044
+#define AIM_CLIENT_TLV_LATESTRELEASEURL        0x0045
+#define AIM_CLIENT_TLV_LATESTRELEASEINFO       0x0046
+#define AIM_CLIENT_TLV_LATESTRELEASENAME       0x0047
+#define AIM_CLIENT_TLV_BETA_DIGEST_SIG         0x0048
+#define AIM_CLIENT_TLV_RELEASE_DIGEST_SIG      0x0049
+#define AIM_CLIENT_TLV_CLIENTUSESSI            0x004a
+#define AIM_CLIENT_TLV_CHANGE_PASSWORD_URL     0x0054
+#define AIM_CLIENT_TLV_AWAITING_AUTH           0x0066
+#define AIM_CLIENT_TLV_MEMBERS                 0x00c8
+#define AIM_CLIENT_TLV_VISIBILITY_BITS         0x00c9
+#define AIM_CLIENT_TLV_PRIVACY                 0x00ca
+#define AIM_CLIENT_TLV_VISIBLE_CLASS           0x00cb
+#define AIM_CLIENT_TLV_VISIBLE_MISC            0x00cc
+#define AIM_CLIENT_TLV_ICQ2K_SHORTCUT          0x00cd
+#define AIM_CLIENT_TLV_FIRST_LOADED_TIME       0x00d4
+#define AIM_CLIENT_TLV_BUDDY_ICON_MD5SUM       0x00d5
+#define AIM_CLIENT_TLV_GIVEN_NAME              0x0131
+#define AIM_CLIENT_TLV_LOCAL_EMAIL             0x0137
+#define AIM_CLIENT_TLV_LOCAL_SMS               0x013a
+#define AIM_CLIENT_TLV_LOCAL_COMMENT           0x013c
+#define AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT    0x013d
+#define AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND    0x013e
+#define AIM_CLIENT_TLV_FIRST_MESSAGE_SENT      0x0145
 
 const aim_tlv client_tlvs[] = {
-  {  AIM_CLIENT_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
-  {  AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD, "Old roasted password array", dissect_aim_tlv_value_bytes  },
-  {  AIM_CLIENT_TLV_CLIENT_ID_STRING, "Client id string (name, version)", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_CLIENT_ID, "Client id number", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_CLIENT_MAJOR_VERSION, "Client major version", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_CLIENT_MINOR_VERSION, "Client minor version", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_CLIENT_LESSER_VERSION, "Client lesser version", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_CLIENT_BUILD_NUMBER, "Client build number", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_PASSWORD_MD5, "Password Hash (MD5)", dissect_aim_tlv_value_bytes },
-  {  AIM_CLIENT_TLV_CLIENT_DISTRIBUTION_NUM, "Client distribution number", dissect_aim_tlv_value_uint32 },
-  {  AIM_CLIENT_TLV_CLIENT_LANGUAGE, "Client language", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_CLIENT_COUNTRY, "Client country", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_BOS_SERVER_STRING, "BOS server string", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_bytes },
-  {  AIM_CLIENT_TLV_ERRORURL, "Error URL", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_ERRORCODE, "Error Code", dissect_aim_tlv_value_uint16 }, 
-  {  AIM_CLIENT_TLV_DISCONNECT_REASON, "Disconnect Reason", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_RECONNECT_HOST, "Reconnect Hostname", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_URL, "URL", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_DEBUG_DATA, "Debug Data", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_EMAILADDR, "Account Email address", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_REGSTATUS, "Registration Status", dissect_aim_tlv_value_uint16 },
-  {  AIM_CLIENT_TLV_LATESTBETABUILD, "Latest Beta Build", dissect_aim_tlv_value_uint32 },
-  {  AIM_CLIENT_TLV_LATESTBETAURL, "Latest Beta URL", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_LATESTBETAINFO, "Latest Beta Info", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_LATESTBETANAME, "Latest Beta Name", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_LATESTRELEASEBUILD, "Latest Release Build", dissect_aim_tlv_value_uint32 },
-  {  AIM_CLIENT_TLV_LATESTRELEASEURL, "Latest Release URL", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_LATESTRELEASEINFO, "Latest Release Info", dissect_aim_tlv_value_string  },
-  {  AIM_CLIENT_TLV_LATESTRELEASENAME, "Latest Release Name", dissect_aim_tlv_value_string },
-  {  AIM_CLIENT_TLV_BETA_DIGEST_SIG, "Beta Digest Signature (MD5)" , dissect_aim_tlv_value_bytes },
-  {  AIM_CLIENT_TLV_RELEASE_DIGEST_SIG, "Release Digest Signature (MD5)", dissect_aim_tlv_value_bytes },
-  {  AIM_CLIENT_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
-  {  AIM_CLIENT_TLV_FAMILY_ID, "Service (SNAC Family) ID", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
+  { AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD, "Old roasted password array", dissect_aim_tlv_value_bytes  },
+  { AIM_CLIENT_TLV_CLIENT_ID_STRING, "Client id string (name, version)", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_CLIENT_ID, "Client id number", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_CLIENT_MAJOR_VERSION, "Client major version", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_CLIENT_MINOR_VERSION, "Client minor version", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_CLIENT_LESSER_VERSION, "Client lesser version", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_CLIENT_BUILD_NUMBER, "Client build number", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_PASSWORD_MD5, "Password Hash (MD5)", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_CLIENT_DISTRIBUTION_NUM, "Client distribution number", dissect_aim_tlv_value_uint32 },
+  { AIM_CLIENT_TLV_CLIENT_LANGUAGE, "Client language", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_CLIENT_COUNTRY, "Client country", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_BOS_SERVER_STRING, "BOS server string", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_ERRORURL, "Error URL", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_ERRORCODE, "Error Code", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_DISCONNECT_REASON, "Disconnect Reason", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_RECONNECT_HOST, "Reconnect Hostname", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_URL, "URL", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_DEBUG_DATA, "Debug Data", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_EMAILADDR, "Account Email address", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_REGSTATUS, "Registration Status", dissect_aim_tlv_value_uint16 },
+  { AIM_CLIENT_TLV_LATESTBETABUILD, "Latest Beta Build", dissect_aim_tlv_value_uint32 },
+  { AIM_CLIENT_TLV_LATESTBETAURL, "Latest Beta URL", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LATESTBETAINFO, "Latest Beta Info", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LATESTBETANAME, "Latest Beta Name", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LATESTRELEASEBUILD, "Latest Release Build", dissect_aim_tlv_value_uint32 },
+  { AIM_CLIENT_TLV_LATESTRELEASEURL, "Latest Release URL", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_LATESTRELEASEINFO, "Latest Release Info", dissect_aim_tlv_value_string  },
+  { AIM_CLIENT_TLV_LATESTRELEASENAME, "Latest Release Name", dissect_aim_tlv_value_string },
+  { AIM_CLIENT_TLV_BETA_DIGEST_SIG, "Beta Digest Signature (MD5)" , dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_RELEASE_DIGEST_SIG, "Release Digest Signature (MD5)", dissect_aim_tlv_value_bytes },
+  { AIM_CLIENT_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
+  { AIM_CLIENT_TLV_FAMILY_ID, "Service (SNAC Family) ID", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_CHANGE_PASSWORD_URL, "Change password url", dissect_aim_tlv_value_string },
   { AIM_CLIENT_TLV_AWAITING_AUTH, "Awaiting Authorization", dissect_aim_tlv_value_bytes },
   { AIM_CLIENT_TLV_MEMBERS, "Members of this Group", dissect_aim_tlv_value_bytes },
@@ -224,8 +224,8 @@ const aim_tlv client_tlvs[] = {
   { AIM_CLIENT_TLV_LOCAL_COMMENT, "Locally Specified Buddy Comment", dissect_aim_tlv_value_string },
   { AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT, "Personal Alert for Buddy", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND, "Personal Sound for Buddy", dissect_aim_tlv_value_string },
-  { AIM_CLIENT_TLV_FIRST_MESSAGE_SENT, " First Time Message Sent to Buddy (Unix Timestamp)", dissect_aim_tlv_value_uint32 },
-  { 0, NULL, NULL },
+  { AIM_CLIENT_TLV_FIRST_MESSAGE_SENT, "First Time Message Sent to Buddy (Unix Timestamp)", dissect_aim_tlv_value_uint32 },
+  { 0, NULL, NULL }
 };
 
 
@@ -235,31 +235,43 @@ static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvb
 #define AIM_ONLINEBUDDY_USERCLASS      0x0001
 #define AIM_ONLINEBUDDY_ONSINCE        0x0003
 #define AIM_ONLINEBUDDY_IDLETIME       0x0004
-#define AIM_ONLINEBUDDY_MEMBERSINCE	   0x0005
+#define AIM_ONLINEBUDDY_MEMBERSINCE    0x0005
 #define AIM_ONLINEBUDDY_STATUS         0x0006
-#define AIM_ONLINEBUDDY_TIMEUPDATE	   0x0011
 #define AIM_ONLINEBUDDY_IPADDR         0x000a
-#define AIM_ONLINEBUDDY_DCINFO		   0x000c
+#define AIM_ONLINEBUDDY_DCINFO         0x000c
 #define AIM_ONLINEBUDDY_CAPINFO        0x000d
-#define AIM_ONLINEBUDDY_UNKNOWN        0x000e
 #define AIM_ONLINEBUDDY_SESSIONLEN     0x000f
 #define AIM_ONLINEBUDDY_ICQSESSIONLEN  0x0010
-#define AIM_ONLINEBUDDY_AVAILMSG	   0x001d
+#define AIM_ONLINEBUDDY_TIMEUPDATE     0x0011
+#define AIM_ONLINEBUDDY_MYINSTANCENUM  0x0014
+#define AIM_ONLINEBUDDY_SHORTCAPS      0x0019
+#define AIM_ONLINEBUDDY_BARTINFO       0x001d
+#define AIM_ONLINEBUDDY_NICKFLAGS2     0x001f
+#define AIM_ONLINEBUDDY_BUDDYFEEDTIME  0x0023
+#define AIM_ONLINEBUDDY_SIGTIME        0x0026
+#define AIM_ONLINEBUDDY_AWAYTIME       0x0027
+#define AIM_ONLINEBUDDY_GEOCOUNTRY     0x002a
 
 const aim_tlv onlinebuddy_tlvs[] = {
   { AIM_ONLINEBUDDY_USERCLASS, "User class", dissect_aim_tlv_value_userclass },
   { AIM_ONLINEBUDDY_ONSINCE, "Online since", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_IDLETIME, "Idle time (sec)", dissect_aim_tlv_value_uint16 },
+  { AIM_ONLINEBUDDY_MEMBERSINCE, "Member since", dissect_aim_tlv_value_time },
   { AIM_ONLINEBUDDY_STATUS, "Online status", dissect_aim_tlv_value_userstatus },
   { AIM_ONLINEBUDDY_IPADDR, "User IP Address", dissect_aim_tlv_value_ipv4 },
   { AIM_ONLINEBUDDY_DCINFO, "DC Info", dissect_aim_tlv_value_dcinfo},
   { AIM_ONLINEBUDDY_CAPINFO, "Capability Info", dissect_aim_tlv_value_client_capabilities },
-  { AIM_ONLINEBUDDY_MEMBERSINCE, "Member since", dissect_aim_tlv_value_time },
-  { AIM_ONLINEBUDDY_UNKNOWN, "Unknown", dissect_aim_tlv_value_uint16 },
   { AIM_ONLINEBUDDY_TIMEUPDATE, "Time update", dissect_aim_tlv_value_bytes },
   { AIM_ONLINEBUDDY_SESSIONLEN, "Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_ICQSESSIONLEN, "ICQ Session Length (sec)", dissect_aim_tlv_value_uint32 },
-  { AIM_ONLINEBUDDY_AVAILMSG, "Available Message", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_MYINSTANCENUM, "Client instance number", dissect_aim_tlv_value_uint8 },
+  { AIM_ONLINEBUDDY_SHORTCAPS, "Short Capabilities", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_BARTINFO, "BART Info", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_NICKFLAGS2, "Upper bytes of Nick Flags", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_BUDDYFEEDTIME, "Last Buddy Feed update", dissect_aim_tlv_value_time },
+  { AIM_ONLINEBUDDY_SIGTIME, "Profile set time", dissect_aim_tlv_value_time },
+  { AIM_ONLINEBUDDY_AWAYTIME, "Away set time", dissect_aim_tlv_value_time },
+  { AIM_ONLINEBUDDY_GEOCOUNTRY, "Country code", dissect_aim_tlv_value_string },
   { 0, NULL, NULL }
 };
 
@@ -304,18 +316,26 @@ const aim_tlv motd_tlvs[] = {
   { 0, NULL, NULL }
 };
 
-#define CLASS_UNCONFIRMED            0x0001
-#define CLASS_ADMINISTRATOR          0x0002
-#define CLASS_AOL                    0x0004
-#define CLASS_COMMERCIAL             0x0008
-#define CLASS_FREE                   0x0010
-#define CLASS_AWAY                   0x0020
-#define CLASS_ICQ                    0x0040
-#define CLASS_WIRELESS               0x0080
-#define CLASS_UNKNOWN100             0x0100
-#define CLASS_UNKNOWN200             0x0200
-#define CLASS_UNKNOWN400             0x0400
-#define CLASS_UNKNOWN800             0x0800
+#define CLASS_UNCONFIRMED            0x00000001
+#define CLASS_ADMINISTRATOR          0x00000002
+#define CLASS_AOL                    0x00000004
+#define CLASS_COMMERCIAL             0x00000008
+#define CLASS_AIM                    0x00000010
+#define CLASS_AWAY                   0x00000020
+#define CLASS_ICQ                    0x00000040
+#define CLASS_WIRELESS               0x00000080
+#define CLASS_UNKNOWN100             0x00000100
+#define CLASS_IMF                    0x00000200
+#define CLASS_BOT                    0x00000400
+#define CLASS_UNKNOWN800             0x00000800
+#define CLASS_ONE_WAY_WIRELESS       0x00001000
+#define CLASS_UNKNOWN2000            0x00002000
+#define CLASS_UNKNOWN4000            0x00004000
+#define CLASS_UNKNOWN8000            0x00008000
+#define CLASS_UNKNOWN10000           0x00010000
+#define CLASS_UNKNOWN20000           0x00020000
+#define CLASS_NO_KNOCK_KNOCK         0x00040000
+#define CLASS_FORWARD_MOBILE         0x00080000
 
 #define FNAC_FLAG_NEXT_IS_RELATED 	 0x0001
 #define FNAC_FLAG_CONTAINS_VERSION	 0x8000
@@ -406,14 +426,22 @@ static int hf_aim_userclass_unconfirmed = -1;
 static int hf_aim_userclass_administrator = -1;
 static int hf_aim_userclass_aol = -1;
 static int hf_aim_userclass_commercial = -1;
-static int hf_aim_userclass_free = -1;
+static int hf_aim_userclass_aim = -1;
 static int hf_aim_userclass_away = -1;
 static int hf_aim_userclass_icq = -1;
 static int hf_aim_userclass_wireless = -1;
 static int hf_aim_userclass_unknown100 = -1;
-static int hf_aim_userclass_unknown200 = -1;
-static int hf_aim_userclass_unknown400 = -1;
+static int hf_aim_userclass_imf = -1;
+static int hf_aim_userclass_bot = -1;
 static int hf_aim_userclass_unknown800 = -1;
+static int hf_aim_userclass_one_way_wireless = -1;
+static int hf_aim_userclass_unknown2000 = -1;
+static int hf_aim_userclass_unknown4000 = -1;
+static int hf_aim_userclass_unknown8000 = -1;
+static int hf_aim_userclass_unknown10000 = -1;
+static int hf_aim_userclass_unknown20000 = -1;
+static int hf_aim_userclass_no_knock_knock = -1;
+static int hf_aim_userclass_forward_mobile = -1;
 static int hf_aim_messageblock_featuresdes = -1;
 static int hf_aim_messageblock_featureslen = -1;
 static int hf_aim_messageblock_features = -1;
@@ -1129,14 +1157,22 @@ int dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, gu
 	proto_tree_add_boolean(entry, hf_aim_userclass_administrator, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_aol, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_commercial, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_free, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_aim, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_away, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_icq, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_wireless, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_unknown100, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown200, tvb, offset, len, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown400, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_imf, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_bot, tvb, offset, len, flags);
 	proto_tree_add_boolean(entry, hf_aim_userclass_unknown800, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_one_way_wireless, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown2000, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown4000, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown8000, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown10000, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown20000, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_no_knock_knock, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_forward_mobile, tvb, offset, len, flags);
 	return offset+len;
 }
 
@@ -1417,13 +1453,13 @@ proto_register_aim(void)
       { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_data,
-      { "Data", "aim.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Data", "aim.data", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_signon_challenge_len,
       { "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_signon_challenge,
-      { "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_fnac_family,
       { "FNAC Family ID", "aim.fnac.family", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
@@ -1450,11 +1486,10 @@ proto_register_aim(void)
       { "TLV Count", "aim.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
     },
 	{ &hf_aim_snac_error,
-	  { "SNAC Error", "aim.snac.error", FT_UINT16,
-		  BASE_HEX, VALS(aim_snac_errors), 0x0, "", HFILL },
+	  { "SNAC Error", "aim.snac.error", FT_UINT16, BASE_HEX, VALS(aim_snac_errors), 0x0, "", HFILL },
 	},
 	{ &hf_aim_userclass_unconfirmed,
-		{ "AOL Unconfirmed user flag", "aim.userclass.unconfirmed", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNCONFIRMED, "", HFILL },
+		{ "AOL Unconfirmed account flag", "aim.userclass.unconfirmed", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNCONFIRMED, "", HFILL },
 	},
 	{ &hf_aim_userclass_administrator,
 		{ "AOL Administrator flag", "aim.userclass.administrator", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_ADMINISTRATOR, "", HFILL },
@@ -1465,8 +1500,8 @@ proto_register_aim(void)
 	{ &hf_aim_userclass_commercial,
 		{ "AOL commercial account flag", "aim.userclass.commercial", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_COMMERCIAL, "", HFILL },
 	},
-	{ &hf_aim_userclass_free,
-		{ "ICQ non-commercial account flag", "aim.userclass.noncommercial", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_FREE, "", HFILL },
+	{ &hf_aim_userclass_aim,
+		{ "AIM user flag", "aim.userclass.free", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_AIM, "", HFILL },
 	},
 	{ &hf_aim_userclass_away,
 		{ "AOL away status flag", "aim.userclass.away", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_AWAY, "", HFILL },
@@ -1480,14 +1515,38 @@ proto_register_aim(void)
 	{ &hf_aim_userclass_unknown100,
 		{ "Unknown bit", "aim.userclass.unknown100", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN100, "", HFILL },
 	},
-	{ &hf_aim_userclass_unknown200,
-		{ "Unknown bit", "aim.userclass.unknown200", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN200, "", HFILL },
+	{ &hf_aim_userclass_imf,
+		{ "Using IM Forwarding", "aim.userclass.imf", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_IMF, "", HFILL },
 	},
-	{ &hf_aim_userclass_unknown400,
-		{ "Unknown bit", "aim.userclass.unknown400", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN400, "", HFILL },
+	{ &hf_aim_userclass_bot,
+		{ "Bot User", "aim.userclass.bot", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_BOT, "", HFILL },
 	},
 	{ &hf_aim_userclass_unknown800,
 		{ "Unknown bit", "aim.userclass.unknown800", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN800, "", HFILL },
+	},
+	{ &hf_aim_userclass_one_way_wireless,
+		{ "One Way Wireless Device", "aim.userclass.one_way_wireless", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_ONE_WAY_WIRELESS, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown2000,
+		{ "Unknown bit", "aim.userclass.unknown2000", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN2000, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown4000,
+		{ "Unknown bit", "aim.userclass.unknown4000", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN4000, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown8000,
+		{ "Unknown bit", "aim.userclass.unknown8000", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN8000, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown10000,
+		{ "Unknown bit", "aim.userclass.unknown10000", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN10000, "", HFILL },
+	},
+	{ &hf_aim_userclass_unknown20000,
+		{ "Unknown bit", "aim.userclass.unknown20000", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN20000, "", HFILL },
+	},
+	{ &hf_aim_userclass_no_knock_knock,
+		{ "Do not display the 'not on Buddy List' knock-knock", "aim.userclass.no_knock_knock", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_NO_KNOCK_KNOCK, "", HFILL },
+	},
+	{ &hf_aim_userclass_forward_mobile,
+		{ "Forward to mobile if not active", "aim.userclass.forward_mobile", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_FORWARD_MOBILE, "", HFILL },
 	},
 	{ &hf_aim_fnac_flag_next_is_related,
 		{ "Followed By SNAC with related information", "aim.fnac.flags.next_is_related", FT_BOOLEAN, 16, TFS(&flags_set_truth), FNAC_FLAG_NEXT_IS_RELATED, "", HFILL },
@@ -1505,7 +1564,7 @@ proto_register_aim(void)
 		{ "Features Length", "aim.messageblock.featureslen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
     { &hf_aim_messageblock_features,
-		{ "Features", "aim.messageblock.features", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL },
+		{ "Features", "aim.messageblock.features", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
 	},
     { &hf_aim_messageblock_info,
 		{ "Block info", "aim.messageblock.info", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
@@ -1556,9 +1615,8 @@ proto_register_aim(void)
 		{ "Unknown", "aim.dcinfo.unknown", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
 	{ &hf_aim_ssi_result_code,
-	  { "Last SSI operation result code", "aim.ssi.code", FT_UINT16,
-		  BASE_HEX, VALS(aim_ssi_result_codes), 0x0, "", HFILL },
-	},
+	  { "Last SSI operation result code", "aim.ssi.code", FT_UINT16, BASE_HEX, VALS(aim_ssi_result_codes), 0x0, "", HFILL },
+	}
   };
 
   /* Setup protocol subtree array */
@@ -1590,8 +1648,7 @@ proto_register_aim(void)
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &aim_desegment);
 
-  subdissector_table = register_dissector_table("aim.family", 
-		"Family ID", FT_UINT16, BASE_HEX);
+  subdissector_table = register_dissector_table("aim.family", "Family ID", FT_UINT16, BASE_HEX);
 }
 
 void
