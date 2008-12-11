@@ -2508,7 +2508,7 @@
       </listitem>
       <listitem>
 	<para>
-	  <command>The left side</command> shows the selected configuration profile.  
+	  <command>The right side</command> shows the selected configuration profile.  
 	  Clicking in this part of the statusbar will bring up a menu with all available
 	  configuration profiles, and selecting from this list will change configuration profile.
 	</para>
