@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.5">
+  <!ENTITY WiresharkCurrentVersion "1.0.6">
 
 ]>
 
@@ -31,27 +31,17 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-07.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-08.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The SMTP dissector could consume excessive amounts of CPU and memory.
+            capinfos could become self-aware and attempt to take over any
+            nearby reciprocating saws.
             <!-- Fixed in r24989 -->
           </para>
-          <para>Versions affected: 1.0.4</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The WLCCP dissector could go into an infinte loop.
-            <!-- Fixed in r26734 -->
-          </para>
-          <para>Versions affected: 0.99.7 to 1.0.4</para>
+          <para>Versions affected: 0.99.2 to 1.0.5</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -68,111 +58,9 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Missing CRLF during HTTP POST in the "packet details" window
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2534">Bug
-          2534</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory assertion in time_secs_to_str_buf() when compiled with GCC 4.2.3
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2777">Bug
-          2777</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Diameter dissector fails RFC 4005 compliance
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2828">Bug
-          2828</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          LDP vendor private TLV type is not correctly shown
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2832">Bug
-          2832</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark on MacOS does not run when there are spaces in its path
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2844">Bug
-          2844</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          OS X Intel package incorrectly claims to be Universal
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2979">Bug
-          2979</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Compilation broke when compiling without zlib
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2993">Bug
-          2993</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: saved_repoid
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3017">Bug
-          3017</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: follow_info
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3018">Bug
-          3018</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: follow_info
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3019">Bug
-          3019</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: tacplus_data
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3020">Bug
-          3020</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: col_arrows
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3021">Bug
-          3021</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak: col_arrows
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3022">Bug
-          3022</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect address structure assigned for find_conversation() in WSP
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3071">Bug
-          3071</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak with unistim in voip_calls
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3079">Bug
-          3079</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Error parsing the BSSGP protocol
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3085">Bug
-          3085</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Assertion thrown in fvalue_get_uinteger when decoding TIPC
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3086">Bug
-          3086</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          LUA script : Wireshark crashes after closing and opening again a window used by a listener.draw() function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3090">Bug
-          3090</ulink>)
+          Build with GLib 1.2 fails with error: 'G_MININT32' undeclared
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3109">Bug
+          3109</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -199,28 +87,6 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-ANSI MAP,
-BSSGP,
-CIP,
-Diameter,
-ENIP,
-GIOP,
-H.263,
-H.264,
-HTTP,
-MPEG PES,
-PostgreSQL,
-PPI,
-PTP,
-Rsync,
-RTP,
-SMTP,
-SNMP,
-STANAG 5066,
-TACACS,
-TIPC,
-WLCCP,
-WSP
 
     </para>
     </section>

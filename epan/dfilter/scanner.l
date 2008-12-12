@@ -57,18 +57,6 @@
 #pragma warning (disable:4018)
 #endif
 
-/*
- * GLib 1.2[.x] doesn't define G_MAXINT32 or G_MININT32; if they're not
- * defined, we define them as the maximum and minimum 32-bit signed
- * 2's-complement number.
- */
-#ifndef G_MAXINT32
-#define G_MAXINT32	((gint32)0x7FFFFFFF)
-#endif
-#ifndef G_MININT32
-#define G_MININT32	((gint32)0x80000000)
-#endif
-
 #define LVAL		df_lval
 #define LVAL_TYPE	stnode_t*
 #define LVAL_INIT_VAL	NULL
