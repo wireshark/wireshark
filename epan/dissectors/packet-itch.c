@@ -25,10 +25,12 @@
  * Documentation:
  * http://www.nasdaqtrader.com/Trader.aspx?id=DPSpecs
  * ex:
+ * http://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/tv-itch2a.pdf
  * http://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/tvitch-v3.pdf
  *
  * Chi-X
  * http://www.chi-x.com/docs/Chi-X%20CHIXMD.pdf
+
  */
 
 #ifdef HAVE_CONFIG_H

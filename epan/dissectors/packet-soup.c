@@ -22,7 +22,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * Documentation: http://www.nasdaqtrader.com/trader/mds/nasdaqfeeds/souptcp.pdf
+ * Documentation: http://www.nasdaqtrader.com/Trader.aspx?id=DPSpecs
+ * ex:
+ * http://www.nasdaqtrader.com/content/technicalsupport/specifications/dataproducts/souptcp.pdf
  */
 
 #ifdef HAVE_CONFIG_H
@@ -294,7 +296,6 @@ proto_register_soup(void)
     prefs_register_range_preference(soup_module, "tcp.port", "TCP Ports", "TCP Ports range", &global_soup_tcp_range, 65535);
 
     soup_tcp_range = range_empty();
-
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -304,9 +305,8 @@ proto_register_soup(void)
 void
 proto_reg_handoff_soup(void)
 {
-    /* Register soup to TCP port 0 to be able to do "dissect as", */
     soup_handle = create_dissector_handle(dissect_soup, proto_soup);
     itch_handle = find_dissector("itch");
-    dissector_add("tcp.port", 0, soup_handle);
+    dissector_add_handle("tcp.port", soup_handle); /* for "decode-as" */
 }
 
