@@ -538,8 +538,8 @@
       format), and some other capture file formats, such as the
       Windows Sniffer, EtherPeek, AiroPeek, and Sun snoop formats,
       save the arrival time of packets as UTC values. UN*X systems,
-      and "Windows NT based" systems (Windows NT 4.0, Windows 2000,
-      Windows XP, Windows Server 2003, Windows Vista) represent
+      and "Windows NT based" systems (Windows NT 4.0, 2000, XP, 
+	  Server 2003, Vista, Server 2008) represent
       time internally as UTC. When Wireshark is capturing, no
       conversion is necessary. However, if the system time zone is
       not set correctly, the system's UTC time might not be
