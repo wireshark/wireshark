@@ -231,6 +231,9 @@ static int hf_gtp_no_of_mbms_sa_codes = -1;
 static int hf_gtp_mbms_sa_code = -1;
 static int hf_gtp_mbs_2g_3g_ind = -1;
 static int hf_gtp_time_2_dta_tr = -1;
+static int hf_gtp_ext_ei = -1;
+static int hf_gtp_ext_gcsi = -1;
+static int hf_gtp_ext_dti = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -553,15 +556,15 @@ static const value_string message_type[] = {
 #define GTP_EXT_BSS_CONT			0xAD	/* 3G   173 TLV BSS Container 7.7.72 */
 #define GTP_EXT_CELL_ID				0xAE	/* 3G   174 TLV Cell Identification 7.7.73 */
 #define GTP_EXT_PDU_NO				0xAF	/* 3G   175 TLV PDU Numbers 7.7.74 */
-#define GTP_EXT_BSSGP_CAUSE			0xA0	/* 3G   176 TLV BSSGP Cause 7.7.75 */
-#define GTP_EXT_REQ_MBMS_BEARER_CAP 0xA1	/* 3G   177     TLV     Required MBMS bearer capabilities       7.7.76 */
-#define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xA2	/* 3G   178     TLV     RIM Routing Address Discriminator       7.7.77 */
-#define GTP_EXT_LIST_OF_SETUP_PFCS	0xA3	/* 3G   179     TLV     List of set-up PFCs     7.7.78 */
-#define GTP_EXT_PS_HANDOVER_XIP_PAR 0xA4	/* 3G   180     TLV     PS Handover XID Parameters      7.7.79 */
-#define GTP_EXT_MS_INF_CHG_REP_ACT	0xA5	/* 3G   181     TLV     MS Info Change Reporting Action 7.7.80 */
-#define GTP_EXT_DIRECT_TUNNEL_FLGS	0xA6	/* 3G   182     TLV     Direct Tunnel Flags     7.7.81 */
-#define GTP_EXT_CORRELATION_ID		0xA7	/* 3G   183     TLV     Correlation-ID  7.7.82 */
-#define GTP_EXT_BEARER_CONTROL_MODE 0xA8	/* 3G   184     TLV     Bearer Control Mode     7.7.83 */
+#define GTP_EXT_BSSGP_CAUSE			0xB0	/* 3G   176 TLV BSSGP Cause 7.7.75 */
+#define GTP_EXT_REQ_MBMS_BEARER_CAP 0xB1	/* 3G   177 TLV Required MBMS bearer capabilities       7.7.76 */
+#define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xB2	/* 3G   178 TLV RIM Routing Address Discriminator       7.7.77 */
+#define GTP_EXT_LIST_OF_SETUP_PFCS	0xB3	/* 3G   179 TLV List of set-up PFCs     7.7.78 */
+#define GTP_EXT_PS_HANDOVER_XIP_PAR 0xB4	/* 3G   180 TLV PS Handover XID Parameters      7.7.79 */
+#define GTP_EXT_MS_INF_CHG_REP_ACT	0xB5	/* 3G   181 TLV MS Info Change Reporting Action 7.7.80 */
+#define GTP_EXT_DIRECT_TUNNEL_FLGS	0xB6	/* 3G   182 TLV Direct Tunnel Flags     7.7.81 */
+#define GTP_EXT_CORRELATION_ID		0xB7	/* 3G   183 TLV Correlation-ID  7.7.82 */
+#define GTP_EXT_BEARER_CONTROL_MODE 0xB8	/* 3G   184 TLV Bearer Control Mode     7.7.83 */
 /* 239-250	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
 #define GTP_EXT_C1			0xC1
@@ -1424,8 +1427,14 @@ static int decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 static int decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-
+static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1520,7 +1529,14 @@ static const gtp_opt_t gtpopt[] = {
     {GTP_EXT_CELL_ID, decode_gtp_cell_id},	/* 7.7.73 */
     {GTP_EXT_PDU_NO, decode_gtp_pdu_no},	/* 7.7.74 */
     {GTP_EXT_BSSGP_CAUSE, decode_gtp_bssgp_cause},	/* 7.7.75 */
+    {GTP_EXT_REQ_MBMS_BEARER_CAP, decode_gtp_mbms_bearer_cap},	/* 7.7.76 */
+    {GTP_EXT_RIM_ROUTING_ADDR_DISC, decode_gtp_rim_ra_disc},	/* 7.7.77 */
+    {GTP_EXT_LIST_OF_SETUP_PFCS, decode_gtp_lst_set_up_pfc},	/* 7.7.78 */
     {GTP_EXT_PS_HANDOVER_XIP_PAR, decode_gtp_ps_handover_xid},	/* 7.7.79 */
+    {GTP_EXT_MS_INF_CHG_REP_ACT, decode_gtp_ms_inf_chg_rep_act},	/* 7.7.80 */
+    {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},	/* 7.7.81 */
+	{GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},	/* 7.7.82 */
+    {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod},	/* 7.7.83 */
 
     {GTP_EXT_REL_PACK, decode_gtp_rel_pack},	/* charging */
     {GTP_EXT_CAN_PACK, decode_gtp_can_pack},	/* charging */
@@ -2044,6 +2060,7 @@ static _gtp_mess_items umts_mess_items[] = {
 			       {GTP_EXT_RECOVER, GTP_OPTIONAL},
 			       {GTP_EXT_TEID, GTP_CONDITIONAL},
 			       {GTP_EXT_TEID_CP, GTP_CONDITIONAL},
+				   {GTP_EXT_NSAPI, GTP_CONDITIONAL},
 			       {GTP_EXT_CHRG_ID, GTP_CONDITIONAL},
 			       {GTP_EXT_USER_ADDR, GTP_CONDITIONAL},
 			       {GTP_EXT_PROTO_CONF, GTP_OPTIONAL},
@@ -2053,9 +2070,9 @@ static _gtp_mess_items umts_mess_items[] = {
 			       {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},
 			       /* TS 29.060 V6.11.0 */
 			       {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},	/* Alternative Charging Gateway Address Optional 7.7.44 */
-			       {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
 			       {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},	/* Common Flags Optional 7.7.48 */
 			       {GTP_EXT_APN_RES, GTP_OPTIONAL},	/* APN Restriction Optional 7.7.49 */
+			       {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
 			       {0, 0}
 			       }
      },
@@ -2078,11 +2095,12 @@ static _gtp_mess_items umts_mess_items[] = {
 			      {GTP_EXT_TFT, GTP_OPTIONAL},
 			      {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL},
 			      {GTP_EXT_OMC_ID, GTP_OPTIONAL},
-			      {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
-			      {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},	/* RAT Type Optional 7.7.50 */
-			      {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},	/* User Location Information Optional 7.7.51 */
-			      {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},	/* MS Time Zone Optional 7.7.52 */
-			      {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},	/* Additonal Trace Info Optional 7.7.62 */
+			      {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},			/* Common Flags Optional 7.7.48 */
+			      {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},				/* RAT Type Optional 7.7.50 */
+			      {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},			/* User Location Information Optional 7.7.51 */
+			      {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},			/* MS Time Zone Optional 7.7.52 */
+			      {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},			/* Additonal Trace Info Optional 7.7.62 */
+			      {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL},	/* Direct Tunnel Flags     7.7.81 */
 			      {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
 			      {0, 0}
 			      }
@@ -5704,7 +5722,8 @@ static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_in
  * UMTS:	29.060 v6.11.0, chapter 7.7.71
  * PS Handover Request Context
  */
-static int decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
     guint16 length;
@@ -5729,7 +5748,8 @@ static int decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pi
  * UMTS:	29.060 v6.11.0, chapter 7.7.72
  * BSS Container
  */
-static int decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
     guint16 length;
@@ -5757,7 +5777,8 @@ static int decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * UMTS:	29.060 v6.11.0, chapter 7.7.73
  * Cell Identification
  */
-static int decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
     guint16 length;
@@ -5789,7 +5810,8 @@ static int decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  * UMTS:	29.060 v6.11.0, chapter 7.7.74
  * PDU Numbers
  */
-static int decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
     guint16 length;
@@ -5814,7 +5836,8 @@ static int decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
  * UMTS:	29.060 v6.11.0, chapter 7.7.75
  * BSSGP Cause
  */
-static int decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
     guint16 length;
@@ -5838,11 +5861,11 @@ static int decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinf
 
 }
 
-#if 0
 /*
  * Required MBMS bearer capabilities	7.7.76
  */
-static int decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int 
+decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16 length;
     proto_tree *ext_tree;
@@ -5860,15 +5883,57 @@ static int decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * 
      * excluding the AVP Header fields (as defined in IETF RFC 3588 [36], section 4.1).
      */
     /* TODO Add decoding (call Diameter dissector???) */
+	return 3 + length;
 }
-#endif				/* 0 */
 
 /*
  * RIM Routing Address Discriminator	7.7.77
  */
+static int 
+decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_RIM_ROUTING_ADDR_DISC, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    return 3 + length;
+
+}
 /*
  * List of set-up PFCs	7.7.78
  */
+static int 
+decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_LIST_OF_SETUP_PFCS, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    return 3 + length;
+
+}
 /*
  * PS Handover XID Parameters	7.7.79
  */
@@ -5911,16 +5976,99 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
 /*
  * MS Info Change Reporting Action	7.7.80
  */
+static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MS_INF_CHG_REP_ACT, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    return 3 + length;
+
+}
 /*
  * Direct Tunnel Flags	7.7.81
  */
+static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_DIRECT_TUNNEL_FLGS, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	proto_tree_add_item(ext_tree, hf_gtp_ext_ei, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ext_tree, hf_gtp_ext_gcsi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ext_tree, hf_gtp_ext_dti, tvb, offset, 1, FALSE);
+	offset++;
+
+    return 3 + length;
+
+}
 /*
  * Correlation-ID	7.7.82
  */
+static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_CORRELATION_ID, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    return 3 + length;
+
+}
 /*
  * Bearer Control Mode	7.7.83
  */
+static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
 
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_BEARER_CONTROL_MODE, gtp_val, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    /* TODO add decoding of data */
+    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    return 3 + length;
+
+}
 /* GPRS:	12.15
  * UMTS:	33.015
  */
@@ -6766,6 +6914,21 @@ void proto_register_gtp(void)
 	 {"Time to MBMS Data Transfer", "gtp.time_2_dta_tr",
 	  FT_UINT8, BASE_DEC, NULL, 0x0,
 	  "Time to MBMS Data Transfer", HFILL}
+	 },
+	 { &hf_gtp_ext_ei,
+	 {"Error Indication (EI)", "gtp.ei",
+	  FT_UINT8, BASE_DEC, NULL, 0x04,
+	  "Error Indication (EI)", HFILL}
+	 },
+	 {&hf_gtp_ext_gcsi,
+	 {"GPRS-CSI (GCSI)", "gtp.gcsi",
+	  FT_UINT8, BASE_DEC, NULL, 0x02,
+	  "GPRS-CSI (GCSI)", HFILL}
+	 },
+	 { &hf_gtp_ext_dti,
+	 {"Direct Tunnel Indicator (DTI)", "gtp.dti",
+	  FT_UINT8, BASE_DEC, NULL, 0x01,
+	  "Direct Tunnel Indicator (DTI)", HFILL}
 	 },
     };
 
