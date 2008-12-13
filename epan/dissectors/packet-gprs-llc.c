@@ -377,6 +377,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 		if (tmp == 0xB) /* L3 XID parameters, call the SNDCP-XID dissector */
 		{
 			tvbuff_t	*sndcp_xid_tvb;
+                        guint8 sndcp_xid_offset;
 
 			uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
 				"XID parameter Type: L3 parameters");
@@ -387,12 +388,21 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 			if (byte1 & 0x80) {
 				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location+1, 1, byte2);
 				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location+1, 1, byte2);
+                                sndcp_xid_offset = 2;
 			}
+                        else
+                        {
+                          sndcp_xid_offset = 1;
+                        }
 
 			if (xid_param_len) {
-				sndcp_xid_tvb = tvb_new_subset (tvb, location+2, xid_param_len, xid_param_len);
+
+				sndcp_xid_tvb = tvb_new_subset (tvb, location+sndcp_xid_offset, xid_param_len, xid_param_len);
+
 				if(sndcp_xid_handle)
-					call_dissector(sndcp_xid_handle, sndcp_xid_tvb, pinfo, uinfo_tree);
+                                {
+                                  call_dissector(sndcp_xid_handle, sndcp_xid_tvb, pinfo, uinfo_tree);
+                                }
 			}
 
 			location += item_len;
