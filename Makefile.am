@@ -103,7 +103,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 #
 # Wireshark configuration files are put in $(pkgdatadir).
 #
-pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
+pkgdata_DATA = AUTHORS-SHORT COPYING FAQ manuf services wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
 	rawshark.html ws.css cfilters colorfilters dfilters smi_modules
@@ -786,6 +786,11 @@ SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIR
 else
 SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
 endif
+
+FAQ: help/faq.txt help/faq.py
+	(cd help ; \
+	$(MAKE) faq.txt ; \
+	cp faq.txt ../FAQ )
 
 wireshark.1: doc/wireshark.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \

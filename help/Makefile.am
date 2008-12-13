@@ -34,10 +34,15 @@ help_DATA = \
 	faq.txt			\
 	overview.txt
 
-EXTRA_DIST = $(help_DATA) Makefile.nmake
+EXTRA_DIST = $(help_DATA) Makefile.nmake faq.py
 
-CLEANFILES = 
+CLEANFILES = faq.txt
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
+# Try our best to convert the FAQ to text.
+faq.txt: faq.py
+	elinks -dump -dump-width 72 < $< > $@		|| \
+	links -dump -width 72 < $< > $@			|| \
+	lynx -dump -width=72 -nolist -stdin -force-html < $< > $@

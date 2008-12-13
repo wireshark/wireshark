@@ -3,12 +3,12 @@
 # faq.py
 #
 # Routines to assemble a FAQ list for the Wireshark web site.
-# Reduces the amount of HTML and WML formatting that the person
-# who wanted to add to the FAQ has to deal with.
-# It numbers the sections and questions automatically, too.
+# Questions and answer content can be found below. Section and
+# question numbers will be automatically generated.
 #
 # $Id$
 
+import sys
 import string
 
 class faq_section:
@@ -212,13 +212,39 @@ def create_index():
 
 
 # Print result
-def create_output():
+def create_output(header='', footer=''):
 
+	print(header)
 	create_index()
 
 	for sec in sections:
 		sec.print_contents()
 
+	print(footer)
+
+def main():
+	header = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Wireshark FAQ</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+'''
+	footer = '''\
+</body>
+</html>
+'''
+
+	if len(sys.argv) > 1 and sys.argv[1] == '-b': # Only print the document body
+		header = ''
+		footer = ''
+
+	create_output(header, footer)
 
 #################################################################
 section("General Questions")
@@ -343,7 +369,7 @@ version, with limitations not present in a "full" version; it
 
 The license under which Wireshark is issued is <a
 href="http://www.gnu.org/licenses/gpl.html">the GNU General Public
-License</a>.  See <a href="http://www.gnu.org/licenses/gpl-faq.html">the
+License version 2</a>.  See <a href="http://www.gnu.org/licenses/gpl-faq.html">the
 GNU GPL FAQ</a> for some more information.
 """)
 
@@ -622,7 +648,7 @@ this problem; upgrade to a later version of automake (1.6 or later).
 
 question("""
 Why does the linker fail with a number of "Output line too long." messages
-followed by linker errors when I try to buil Wireshark?
+followed by linker errors when I try to build Wireshark?
 """)
 
 answer("""
@@ -2074,5 +2100,6 @@ worms, and the like.
 """)
 
 #################################################################
-create_output()
+if __name__ == '__main__':
+	sys.exit(main())
 #################################################################
