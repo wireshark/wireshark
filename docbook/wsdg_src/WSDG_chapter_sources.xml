@@ -817,6 +817,14 @@ Index: file.h
 	  </para>
 	  </listitem>
 	  <listitem><para>
+	  <command>Verify that your dissector code does not use prohibited or deprecated APIs</command> 
+	  This can be done as follows:
+	  </para>
+	  <para>
+	  <userinput>perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)></userinput>
+	  </para>
+	  </listitem>
+	  <listitem><para>
 	  <command>Fuzz test your changes!</command> Fuzz testing is a very
 	  effective way to automatically find a lot of dissector related bugs.
 	  You'll take a capture file containing packets affecting your dissector
