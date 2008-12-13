@@ -821,7 +821,7 @@ Index: file.h
 	  This can be done as follows:
 	  </para>
 	  <para>
-	  <userinput>perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)></userinput>
+	  <userinput>perl &lt;wireshark_root&gt;/tools/checkAPIs.pl &lt;source-filename(s)&gt;</userinput>
 	  </para>
 	  </listitem>
 	  <listitem><para>
