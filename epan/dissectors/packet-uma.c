@@ -1608,8 +1608,8 @@ proto_reg_handoff_uma(void)
 	static range_t *uma_tcp_port_range;
 
 	if (!Initialized) {
-		uma_tcp_handle = create_dissector_handle(dissect_uma_tcp, proto_uma);
-		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
+		uma_tcp_handle = find_dissector("umatcp");
+		uma_udp_handle = find_dissector("umaudp");
 		dissector_add_handle("udp.port", uma_udp_handle);  /* for "decode-as" */
 		data_handle = find_dissector("data");
 		rtp_handle = find_dissector("rtp");
@@ -2188,7 +2188,7 @@ proto_register_uma(void)
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
 	/* subdissector code */
 	register_dissector("umatcp", dissect_uma_tcp, proto_uma);
-        register_dissector("umaudp", dissect_uma_urlc_udp, proto_uma);
+        new_register_dissector("umaudp", dissect_uma_urlc_udp, proto_uma);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_uma, hf, array_length(hf));
