@@ -296,7 +296,7 @@ void
 get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 {
 #if defined(_WIN32)
-	OSVERSIONINFO info;
+	OSVERSIONINFOEX info;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
@@ -325,7 +325,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	 * older versions of the SDK.
 	 */
 	info.dwOSVersionInfoSize = sizeof info;
-	if (!GetVersionEx(&info)) {
+	if (!GetVersionEx((OSVERSIONINFO *)&info)) {
 		/*
 		 * XXX - get the failure reason.
 		 */
@@ -407,7 +407,10 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			break;
 
 		case 6:
-			g_string_append_printf(str, "Windows Vista");
+			if (info.wProductType == VER_NT_WORKSTATION)
+				g_string_append_printf(str, "Windows Vista");
+			else
+				g_string_append_printf(str, "Windows Server 2008");
 			break;
 
 		default:
