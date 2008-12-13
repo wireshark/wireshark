@@ -481,7 +481,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	/* Set up structures needed to add the protocol subtree and manage it 
 	*/
 	proto_item *ti, *version_item, *dcomp_item, *pcomp_item;
-	proto_tree *sndcp_xid_tree = NULL, *version_tree = NULL, *dcomp_tree, *pcomp_tree = NULL;
+	proto_tree *version_tree = NULL, *dcomp_tree, *pcomp_tree = NULL;
 	guint16 offset = 0, l3_param_len;
 	guint8 parameter_type, parameter_len;
 
@@ -489,11 +489,10 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	*/
 	if (tree) {
 		ti         = proto_tree_add_item(tree, proto_sndcp_xid, tvb, 0, -1, FALSE);
-		sndcp_xid_tree = proto_item_add_subtree(ti, ett_sndcp_xid);
 	}
 	l3_param_len = tvb_reported_length(tvb);
 
-	while (offset < l3_param_len)
+	while (offset < l3_param_len-1)
 	{
 		parameter_type = tvb_get_guint8(tvb, offset);
 		parameter_len = tvb_get_guint8(tvb, offset+1);
