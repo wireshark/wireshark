@@ -608,7 +608,7 @@ codecs::
         $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
         cd ..
 
-gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
+gtk:: help FAQ config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
@@ -644,11 +644,8 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
-FAQ: help\faq.txt help\faq.py
-	cd help
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake faq.txt
-	cp faq.txt ..\FAQ
-	cd ..
+FAQ: help\faq.txt
+	cp --preserve $? $@
 	
 
 ################################################################################
