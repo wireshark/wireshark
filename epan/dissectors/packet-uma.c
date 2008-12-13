@@ -2186,6 +2186,9 @@ proto_register_uma(void)
 
 /* Register the protocol name and description */
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
+	/* subdissector code */
+	register_dissector("umatcp", dissect_uma_tcp, proto_uma);
+        register_dissector("umaudp", dissect_uma_urlc_udp, proto_uma);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_uma, hf, array_length(hf));
