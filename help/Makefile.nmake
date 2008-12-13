@@ -8,7 +8,11 @@ include ..\config.nmake
 ############### no need to modify below this line #########
 
 clean:
+	rm -rf faq.txt
 
 distclean: clean
 
 maintainer-clean: distclean
+
+faq.txt: faq.py
+	$(PYTHON) faq.py | lynx -dump -width=72 -nolist -stdin -force-html > $@

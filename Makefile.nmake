@@ -644,6 +644,13 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
+FAQ: help\faq.txt help\faq.py
+	cd help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake faq.txt
+	cp faq.txt ..\FAQ
+	cd ..
+	
+
 ################################################################################
 # Prepare build environment by downloading and installing required libraries
 ################################################################################
@@ -664,6 +671,7 @@ REQUIRED_TOOLS=\
 	$(YACC)	\
 	$(LEX)	\
 	env	\
+	lynx	\
 	grep	\
 	/usr/bin/find	\
 	$(PERL)	\
