@@ -2637,7 +2637,7 @@
 00:0A:3D	EloSistema             # Elo Sistemas Eletronicos S.A.
 00:0A:3E	EadsTeleco             # EADS Telecom
 00:0A:3F	DataEast               # Data East Corporation
-00:0A:40	CrownAudio             # Crown Audio
+00:0A:40	CrownAudio             # Crown Audio -- Harmanm International
 00:0A:41	Cisco                  # Cisco Systems
 00:0A:42	Cisco                  # Cisco Systems
 00:0A:43	ChunghwaTe             # Chunghwa Telecom Co., Ltd.
@@ -3723,7 +3723,7 @@
 00:0E:7B	Toshiba
 00:0E:7C	TelevesSA              # Televes S.A.
 00:0E:7D	Electronic             # Electronics Line 3000 Ltd.
-00:0E:7E	ComprogOy              # Comprog Oy
+00:0E:7E	IonsignOy              # ionSign Oy
 00:0E:7F	HewlettPac             # Hewlett Packard
 00:0E:80	ThomsonTec             # Thomson Technology Inc
 00:0E:81	Devicescap             # Devicescape Software, Inc.
@@ -3776,7 +3776,7 @@
 00:0E:B0	SolutionsR             # Solutions Radio BV
 00:0E:B1	Newcotech              # Newcotech,Ltd
 00:0E:B2	Micro-Rese             # Micro-Research Finland Oy
-00:0E:B3	LefthandNe             # LeftHand Networks
+00:0E:B3	Hewlett-Pa             # Hewlett-Packard
 00:0E:B4	GuangzhouG             # GUANGZHOU GAOKE COMMUNICATIONS TECHNOLOGY CO.LTD.
 00:0E:B5	EcastleEle             # Ecastle Electronics Co., Ltd.
 00:0E:B6	RiverbedTe             # Riverbed Technology, Inc.
@@ -4364,7 +4364,7 @@
 00:10:FD	Cocom                  # COCOM A/S
 00:10:FE	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 00:10:FF	Cisco                  # CISCO SYSTEMS, INC.
-00:11:00	RamIndustr             # RAM Industries, LLC
+00:11:00	SchneiderE             # Schneider Electric
 00:11:01	CetTechnol             # CET Technologies Pte Ltd
 00:11:02	AuroraMult             # Aurora Multimedia Corp.
 00:11:03	KawamuraEl             # kawamura electric inc.
@@ -5725,7 +5725,7 @@
 00:16:4E	NokiaDanma             # Nokia Danmark A/S
 00:16:4F	WorldEthni             # World Ethnic Broadcastin Inc.
 00:16:50	EyalMicrow             # EYAL MICROWAVE
-00:16:51	Private
+00:16:51	Exeo                   # Exeo Systems
 00:16:52	HoatechTec             # Hoatech Technologies, Inc.
 00:16:53	LegoSystem             # LEGO System A/S IE Electronics Division
 00:16:54	Flex-PIndu             # Flex-P Industries Sdn. Bhd.
@@ -6257,7 +6257,7 @@
 00:18:62	SeagateTec             # Seagate Technology
 00:18:63	VeritechEl             # Veritech Electronics Limited
 00:18:64	Cybectec               # Cybectec Inc.
-00:18:65	SiemensMed             # Siemens Medical Solutions Diagnostics Manufacturing Ltd
+00:18:65	SiemensHea             # Siemens Healthcare Diagnostics Manufacturing Ltd
 00:18:66	LeutronVis             # Leutron Vision
 00:18:67	EvolutionR             # Evolution Robotics Retail
 00:18:68	Scientific             # Scientific Atlanta, A Cisco Company
@@ -7393,7 +7393,7 @@
 00:1C:D2	KingChampi             # King Champion (Hong Kong) Limited
 00:1C:D3	ZpEngineer             # ZP Engineering SEL
 00:1C:D4	NokiaDanma             # Nokia Danmark A/S
-00:1C:D5	ZazzleTech             # Zazzle Technologies, Inc.
+00:1C:D5	Zeevee                 # ZeeVee, Inc.
 00:1C:D6	NokiaDanma             # Nokia Danmark A/S
 00:1C:D7	Harman/Bec             # Harman/Becker Automotive Systems GmbH
 00:1C:D8	BlueantWir             # BlueAnt Wireless
@@ -7884,7 +7884,7 @@
 00:1E:BD	Cisco                  # Cisco Systems
 00:1E:BE	Cisco                  # Cisco Systems
 00:1E:BF	HaasAutoma             # Haas Automation Inc.
-00:1E:C0	Private
+00:1E:C0	ZerogWirel             # ZeroG Wireless Inc.
 00:1E:C1	3comEurope             # 3COM EUROPE LTD
 00:1E:C2	Apple                  # Apple, Inc
 00:1E:C3	Kozio                  # Kozio, Inc.
@@ -9388,6 +9388,23 @@
 00:24:9D	NesTechnol             # NES Technology Inc.
 00:24:9E	Adc-Elektr             # ADC-Elektronik GmbH
 00:24:9F	RimTesting             # RIM Testing Services
+00:24:A0	MotorolaCh             # Motorola CHS
+00:24:A1	MotorolaCh             # Motorola CHS
+00:24:A2	HongKongMi             # Hong Kong Middleware Technology Limited
+00:24:A3	SonimTechn             # Sonim Technologies Inc
+00:24:A4	SikluCommu             # Siklu Communication
+00:24:A5	Buffalo                # Buffalo Inc.
+00:24:A6	TelestarDi             # TELESTAR DIGITAL GmbH
+00:24:A7	AdvancedVi             # Advanced Video Communications Inc.
+00:24:A8	ProcurveNe             # ProCurve Networking by HP
+00:24:A9	LeaderTech             # Ag Leader Technology
+00:24:AA	DycorTechn             # Dycor Technologies Ltd.
+00:24:AB	A7Engineer             # A7 Engineering, Inc.
+00:24:AC	HangzhouDp             # Hangzhou DPtech Technologies Co., Ltd.
+00:24:AD	AdolfThies             # Adolf Thies Gmbh & Co. KG
+00:24:AE	SagemSecur             # SAGEM SECURITE
+00:24:AF	EchostarTe             # EchoStar Technologies
+00:24:B0	Esab                   # ESAB AB
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -9930,7 +9947,7 @@
 00:50:17	RsrSRL                 # RSR S.R.L.
 00:50:18	Amit                   # AMIT, Inc.
 00:50:19	SpringTide             # SPRING TIDE NETWORKS, INC.
-00:50:1A	Uisiqn
+00:50:1A	Iqinvision
 00:50:1B	AblCanada              # ABL CANADA, INC.
 00:50:1C	Jatom                  # JATOM SYSTEMS, INC.
 00:50:1E	MirandaTec             # Miranda Technologies, Inc.
@@ -12635,6 +12652,20 @@
 00:50:C2:9F:E0:00/36	SpectraEmb             # SPECTRA EMBEDDED SYSTEMS
 00:50:C2:9F:F0:00/36	HumphreyPr             # Humphrey Products
 00:50:C2:A0:00:00/36	Technovare             # Technovare Systems
+00:50:C2:A0:10:00/36	PatronicsI             # Patronics International LTD
+00:50:C2:A0:20:00/36	ReferenceL             # Reference, LLC.
+00:50:C2:A0:30:00/36	EegEnterpr             # EEG Enterprises Inc
+00:50:C2:A0:40:00/36	TpRadio                # TP Radio
+00:50:C2:A0:50:00/36	AdgilDesig             # Adgil Design Inc.
+00:50:C2:A0:60:00/36	CloosSchwe             # Cloos Schweisstechnik GmbH
+00:50:C2:A0:70:00/36	DynonInstr             # Dynon Instruments
+00:50:C2:A0:80:00/36	Labjack                # LabJack Corporation
+00:50:C2:A0:90:00/36	Innovative             # Innovative American Technology
+00:50:C2:A0:A0:00/36	AcdElektro             # ACD Elektronik Gmbh
+00:50:C2:A0:B0:00/36	IDSIngegne             # I.D.S. Ingegneria Dei Sistemi  S.p.A.
+00:50:C2:A0:C0:00/36	PhytecMess             # Phytec Messtechnik GmbH
+00:50:C2:A0:D0:00/36	Charlyrobo             # CHARLYROBOT
+00:50:C2:A0:E0:00/36	EngicamSrl             # Engicam srl
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
