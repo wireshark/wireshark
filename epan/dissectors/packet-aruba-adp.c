@@ -143,7 +143,7 @@ proto_register_aruba_adp(void)
     &ett_aruba_adp,
   };
 
-  proto_aruba_adp = proto_register_protocol("Aruba - Aruba Discovery Protocol",
+  proto_aruba_adp = proto_register_protocol("Aruba Discovery Protocol",
                     "ADP", "adp");
   proto_register_field_array(proto_aruba_adp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
