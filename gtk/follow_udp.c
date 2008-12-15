@@ -156,6 +156,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't register udp_follow tap: %s\n",
 			      msg->str);
+		g_free(follow_info->filter_out_filter);
 		g_free(follow_info);
 		return;
 	}

@@ -201,6 +201,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			  "The packets in the capture file for that stream have no data.");
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
+	    g_free(follow_info->filter_out_filter);
 	    g_free(follow_info);
 	    return;
 	}
@@ -231,6 +232,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	    }
 	    ws_close(tmp_fd);
 	    ws_unlink(follow_info->data_out_filename);
+	    g_free(follow_info->filter_out_filter);
 	    g_free(follow_info);
 	    return;
 	}
