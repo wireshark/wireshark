@@ -432,11 +432,11 @@ read_keytab_file(const char *filename)
 	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 
-printf("read keytab file %s\n", filename);
+	printf("read keytab file %s\n", filename);
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
 		if(ret){
 			return;
@@ -500,7 +500,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype,
 			int *datalen)
 {
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 	krb5_error_code ret;
 	enc_key_t *ek;
 	static krb5_data data = {0,0,NULL};
@@ -516,7 +516,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 	/* should this have a destroy context ?  MIT people would know */
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		read_keytab_file(keytab_filename);
 	}
 
@@ -571,10 +571,10 @@ read_keytab_file(const char *filename)
 	krb5_keytab_entry key;
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
 		if(ret){
 			return;
@@ -637,7 +637,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype,
 			int *datalen)
 {
-	static int first_time=1;
+	static gboolean first_time=TRUE;
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
@@ -652,7 +652,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 	/* should this have a destroy context ?  Heimdal people would know */
 	if(first_time){
-		first_time=0;
+		first_time=FALSE;
 		read_keytab_file(keytab_filename);
 	}
 
