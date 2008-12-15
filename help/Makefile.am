@@ -45,6 +45,6 @@ MAINTAINERCLEANFILES = \
 faq.txt: $(srcdir)/faq.py
 	$(srcdir)/faq.py >$@.tmp
 	elinks -dump -dump-width 72 -no-numbering -no-references < $@.tmp > $@  || \
-	links -dump -width 72 -no-numbering -no-references       < $@.tmp > $@	|| \
+	links -width 72 -html-numbered-links 0 -dump               $@.tmp > $@	|| \
 	lynx -dump -width=72 -nolist -stdin -force-html          < $@.tmp > $@
 	rm -f $@.tmp
