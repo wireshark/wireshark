@@ -1,0 +1,125 @@
+/* packet-lte-rrc-template.c
+ * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
+ * Radio Resource Control (RRC) protocol specification
+ * (3GPP TS 36.331 V8.3.0 Release 8) packet dissection
+ * Copyright 2008, Vincent Helfre
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <glib.h>
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/asn1.h>
+
+#include <stdio.h>
+#include <string.h>
+
+#include "packet-ber.h"
+#include "packet-per.h"
+
+
+#define PNAME  "LTE Radio Resource Control (RRC) protocol"
+#define PSNAME "LTE RRC"
+#define PFNAME "lte_rrc"
+
+static dissector_handle_t nas_eps_handle;
+
+/* Include constants */
+#include "packet-lte-rrc-val.h"
+
+/* Initialize the protocol and registered fields */
+static int proto_lte_rrc = -1;
+
+#include "packet-lte-rrc-hf.c"
+
+/* Initialize the subtree pointers */
+static int ett_lte_rrc = -1;
+
+#include "packet-lte-rrc-ett.c"
+
+/* Global variables */
+static proto_tree *top_tree;
+
+#include "packet-lte-rrc-fn.c"
+
+
+
+static void
+dissect_lte_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item	*lte_rrc_item = NULL;
+	proto_tree	*lte_rrc_tree = NULL;
+
+	top_tree = tree;
+
+	/* make entry in the Protocol column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
+
+	/* create the rrc protocol tree */
+	lte_rrc_item = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+	lte_rrc_tree = proto_item_add_subtree(lte_rrc_item, ett_lte_rrc);
+
+}
+/*--- proto_register_rrc -------------------------------------------*/
+void proto_register_lte_rrc(void) {
+
+  /* List of fields */
+  static hf_register_info hf[] = {
+
+#include "packet-lte-rrc-hfarr.c"
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
+		  &ett_lte_rrc,
+#include "packet-lte-rrc-ettarr.c"
+  };
+
+
+  /* Register protocol */
+  proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("lte_rrc", dissect_lte_rrc, proto_lte_rrc);
+
+#include "packet-lte-rrc-dis-reg.c"
+
+}
+
+
+/*--- proto_reg_handoff_rrc ---------------------------------------*/
+void
+proto_reg_handoff_lte_rrc(void)
+{
+
+	nas_eps_handle = find_dissector("nas_eps");
+}
+
+

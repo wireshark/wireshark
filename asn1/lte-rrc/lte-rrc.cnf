@@ -1,0 +1,31 @@
+# lte-rrc.cnf
+# lte-rrc conformation file
+# Copyright 2008 Vincent Helfre 
+# $Id$
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.OMIT_ASSIGNMENT
+#.END
+
+#.PDU
+BCCH-BCH-Message             @bcch.bch
+BCCH-DL-SCH-Message          @bcch.dl.sch
+PCCH-Message                 @pcch
+DL-CCCH-Message              @dl.ccch
+DL-DCCH-Message              @dl.dcch
+UL-CCCH-Message              @ul.ccch
+UL-DCCH-Message              @ul.dcch
+#.END
+
+#.FN_BODY NAS-DedicatedInformation VAL_PTR = &nas_eps_tvb
+  tvbuff_t *nas_eps_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	if (nas_eps_tvb)
+		call_dissector(nas_eps_handle,nas_eps_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
