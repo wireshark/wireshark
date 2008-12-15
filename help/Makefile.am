@@ -43,7 +43,7 @@ MAINTAINERCLEANFILES = \
 
 # Try our best to convert the FAQ to text.
 faq.txt: $(srcdir)/faq.py
-	$(srcdir)/faq.py >$@.tmp
+	$(srcdir)/faq.py >$@.tmp && \
 	(( which elinks > /dev/null && elinks -dump -dump-width 72 -no-numbering -no-references < $@.tmp > $@ )|| \
 	 ( which links  > /dev/null && links -width 72 -html-numbered-links 0 -dump               $@.tmp > $@ )|| \
 	 ( which lynx   > /dev/null && lynx -dump -width=72 -nolist -stdin -force-html          < $@.tmp > $@ )  ) && \
