@@ -5272,7 +5272,7 @@ proto_registrar_dump_values(void)
 	}
 }
 
-/* Dumps the contents of the registration database to stdout. An indepedent
+/* Dumps the contents of the registration database to stdout. An independent
  * program can take this output and format it into nice tables or HTML or
  * whatever.
  *
