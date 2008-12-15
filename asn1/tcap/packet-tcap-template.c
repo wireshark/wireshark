@@ -91,7 +91,7 @@ extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
 static dissector_handle_t	tcap_handle = NULL;
-static dissector_table_t ber_oid_dissector_table=NULL;
+static dissector_table_t ber_oid_dissector_table;
 static const char * cur_oid;
 static const char * tcapext_oid;
 static proto_tree * tcap_top_tree=NULL;
@@ -233,7 +233,6 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 */
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
-			ber_oid_dissector_table = find_dissector_table("ber.oid");
 			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			p_tcap_context->oid_present=TRUE;
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
@@ -254,6 +253,7 @@ proto_reg_handoff_tcap(void)
 
     data_handle = find_dissector("data");
     ansi_tcap_handle = find_dissector("ansi_tcap");
+    ber_oid_dissector_table = find_dissector_table("ber.oid");
 
 #include "packet-tcap-dis-tab.c"
 }
@@ -528,7 +528,6 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   /*
    * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
    */
-  ber_oid_dissector_table = find_dissector_table("ber.oid");
 
   /*
    * Handle The TCAP Service Response Time
