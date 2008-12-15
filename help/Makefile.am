@@ -42,6 +42,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 # Try our best to convert the FAQ to text.
+# Maybe we should use a script (e.g. http://www.aaronsw.com/2002/html2text/) instead.
 faq.txt: $(srcdir)/faq.py
 	$(srcdir)/faq.py >$@.tmp && \
 	(( which elinks > /dev/null && elinks -dump -dump-width 72 -no-numbering -no-references < $@.tmp > $@ )|| \
