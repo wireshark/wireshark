@@ -54,6 +54,7 @@ SUBDIRS = \
 	inap		\
 	ldap		\
 	logotype-cert-extn	\
+	lte-rrc	\
 	mms		\
 	mpeg-audio	\
 	mpeg-pes	\

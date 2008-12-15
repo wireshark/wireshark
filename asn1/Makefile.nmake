@@ -92,6 +92,7 @@ per: \
 	h450-ros	\
 	h460	\
 	h501	\
+	lte-rrc	\
 	nbap	\
 	mpeg-audio	\
 	mpeg-pes	\
@@ -192,6 +193,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ldap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd kerberos
@@ -494,6 +498,11 @@ kerberos::
 
 ldap::
 	cd ldap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+lte-rrc::
+	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 	
