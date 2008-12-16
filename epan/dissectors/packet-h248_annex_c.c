@@ -376,8 +376,8 @@ static const value_string h248_pkg_annexc_uppc_values[] = {
 };
 
 static const value_string h248_pkg_annexc_syncasync_values[] = {
-	{0, "Syncronous Data"},
-	{1, "Asyncronous Data"},
+	{0, "Synchronous Data"},
+	{1, "Asynchronous Data"},
     {0,NULL}
 };
 
@@ -482,8 +482,8 @@ static const value_string h248_pkg_annexc_llidnegot_values[] = {
 };
 
 static const value_string h248_pkg_annexc_assign_values[] = {
-	{0,"Originatior is default asignee"},
-	{1,"Originatior is asignor only"},
+	{0,"Originator is default assignee"},
+	{1,"Originator is assignor only"},
     {0,NULL}
 };
 
@@ -608,10 +608,10 @@ static const value_string h248_pkg_annexc_addlayer3prot_values[] = {
     {0,NULL}
 };
 
-static const value_string h248_pkg_annexc_nci_satelite_values[] _U_ = {
-	{0x0,"no satelite circuit"},
+static const value_string h248_pkg_annexc_nci_satellite_values[] _U_ = {
+	{0x0,"no satellite circuit"},
 	{0x1,"one satellite circuit"},
-	{0x2,"two satelite circiuts"},
+	{0x2,"two satellite circiuts"},
 	{0x3,"spare"},
     {0,NULL}
 };
@@ -1128,7 +1128,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_c2pcdv,
 		{ "C2PCDV", "h248.pkg.annexc.c2pcdv",
 			FT_UINT24, BASE_DEC, NULL, 0,
-			"Cummulative 2 point CDV", HFILL }},
+			"Cumulative 2 point CDV", HFILL }},
 		{ &hf_h248_pkg_annexc_appcdv,
 		{ "APPCDV", "h248.pkg.annexc.appcdv",
 			FT_UINT24, BASE_DEC, NULL, 0,
@@ -1136,7 +1136,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_cppcdv,
 		{ "CPPCDV", "h248.pkg.annexc.cppcdv",
 			FT_UINT24, BASE_DEC, NULL, 0,
-			"Cummulative Point to Point CDV", HFILL }},
+			"Cumulative Point to Point CDV", HFILL }},
 		{ &hf_h248_pkg_annexc_aclr,
 		{ "ACLR", "h248.pkg.annexc.aclr",
 			FT_UINT8, BASE_DEC, NULL, 0,
@@ -1149,7 +1149,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_ceetd,
 		{ "CEETD", "h248.pkg.annexc.ceetd",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Cummulative End-to-End Transit Delay (Q.2965.2 ATMF UNI 4.0)", HFILL }},
+			"Cumulative End-to-End Transit Delay (Q.2965.2 ATMF UNI 4.0)", HFILL }},
 		{ &hf_h248_pkg_annexc_QosClass,
 		{ "QosClass", "h248.pkg.annexc.qosclass",
 			FT_UINT16, BASE_DEC, VALS(h248_pkg_annexc_QosClass_values), 0,
@@ -1225,7 +1225,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_scri,
 		{ "SCRI", "h248.pkg.annexc.scri",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_scri_values), 0,
-			"Source Clock frequency Recovery method", HFILL }},
+			"Source Clock frequency Recovery Method", HFILL }},
 		{ &hf_h248_pkg_annexc_ecm,
 		{ "ECM", "h248.pkg.annexc.ecm",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_ecm_values), 0,
@@ -1271,7 +1271,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_syncasync,
 		{ "SyncAsync", "h248.pkg.annexc.syncasync",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_syncasync_values), 0x80,
-			"Syncronous/Asyncronous", HFILL }},
+			"Synchronous/Asynchronous", HFILL }},
 		{ &hf_h248_pkg_annexc_negotiation,
 		{ "UPPC", "h248.pkg.annexc.negotiation",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_negotiation_values), 0x40,
@@ -1284,15 +1284,15 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_intrate,
 		{ "UPPC", "h248.pkg.annexc.intrate",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_intrate_values), 0xc0,
-			"Intermediare Rate", HFILL }},
+			"Intermediate Rate", HFILL }},
 		{ &hf_h248_pkg_annexc_nictx,
 		{ "nictx", "h248.pkg.annexc.nictx",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_nictx_values), 0xc0,
-			"Intermediare Network indipendent clock in transmission", HFILL }},
+			"Network independent clock on transmission", HFILL }},
 		{ &hf_h248_pkg_annexc_nicrx,
 		{ "nicrx", "h248.pkg.annexc.nicrx",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_nicrx_values), 0xc0,
-			"Intermediare Rate", HFILL }},
+			"Network independent clock on reception", HFILL }},
 		{ &hf_h248_pkg_annexc_flowconttx,
 		{ "flowconttx", "h248.pkg.annexc.flowconttx",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_flowconttx_values), 0xc0,
@@ -1316,12 +1316,12 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_llidnegot,
 		{ "llidnegot", "h248.pkg.annexc.llidnegot",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_llidnegot_values), 0xc0,
-			"Intermediare Rate", HFILL }},
+			"Logical Link Identifier negotiation", HFILL }},
 			
 		{ &hf_h248_pkg_annexc_assign,
 		{ "llidnegot", "h248.pkg.annexc.assign",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_assign_values), 0xc0,
-			"Assignor/Asignee", HFILL }},
+			"Assignor/Assignee", HFILL }},
 		{ &hf_h248_pkg_annexc_inbandneg,
 		{ "inbandneg", "h248.pkg.annexc.inbandneg",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_inbandneg_values), 0xc0,
@@ -1333,7 +1333,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_databits,
 		{ "databits", "h248.pkg.annexc.databits",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_databits_values), 0xc0,
-			"Number of stop bits", HFILL }},
+			"Number of data bits", HFILL }},
 		{ &hf_h248_pkg_annexc_parity,
 		{ "parity", "h248.pkg.annexc.parity",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_parity_values), 0xe0,
