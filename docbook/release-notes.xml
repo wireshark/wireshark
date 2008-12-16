@@ -72,7 +72,11 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-There are no new or updated features in this release.
+<!-- There are no new or updated features in this release. -->
+        <listitem><para>
+          The version of GNUTLS included with the Windows packages has been updated
+	  from 2.3.8 to 2.6.3.
+        </para></listitem>
 
     </para>
     </section>
