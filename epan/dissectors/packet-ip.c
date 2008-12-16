@@ -1537,8 +1537,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
-	ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u, ID=%04x)",
+	ipprotostr(iph->ip_p), iph->ip_p, (iph->ip_off & IP_OFFSET) * 8,
+	iph->ip_id);
     }
     if( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ){
       if (check_col(pinfo->cinfo, COL_INFO)) {
