@@ -206,7 +206,7 @@ static const value_string package_name_vals[] = {
   {   0x005f, "ANSI Test Responder Line Test" },						/* H.248.17 */
   {   0x0060, "ANSI 2225Hz Test Progress Tone Line Test" },				/* H.248.17 */
   {   0x0061, "ANSI Digital Test Signal Line Test" },					/* H.248.17 */
-  {   0x0062, "ANSI Inverting Loopback Line Test Repsonse" },			/* H.248.17 */
+  {   0x0062, "ANSI Inverting Loopback Line Test Response" },			/* H.248.17 */
   {   0x0063, "Extended H.324 Packages H.248.12 Annex A" },
   {   0x0064, "Extended H.245 Command Package H.248.12 Annex A" },
   {   0x0065, "Extended H.245 Indication Package H.248.12 Annex A" },

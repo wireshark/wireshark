@@ -964,7 +964,7 @@ next_attribute:
 	} else {
 		/*
 		 * if we were given a proto_name the namespace will be registered
-		 * as an indipendent protocol with its own hf and ett arrays.
+		 * as an independent protocol with its own hf and ett arrays.
 		 */
 		hfs = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
 		etts = g_array_new(FALSE,FALSE,sizeof(gint*));
@@ -1059,7 +1059,7 @@ next_attribute:
 
 	/*
 	 * if we were given a proto_name the namespace will be registered
-	 * as an indipendent protocol.
+	 * as an independent protocol.
 	 */
 	if( dtd_data->proto_name ) {
 		gint* ett_p;

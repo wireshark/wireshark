@@ -176,8 +176,8 @@ static const value_string audio_profile_type[] = {
 
 static const value_string congestion_level[] = {
     { 0, "Spare" },
-    { 1, "Congestin Level 1 exceeded" },
-    { 2, "Congestin Level 2 exceeded" },
+    { 1, "Congestion Level 1 exceeded" },
+    { 2, "Congestion Level 2 exceeded" },
     { 0, NULL }
 };
 
