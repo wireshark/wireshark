@@ -735,6 +735,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
         /* unicode string */
         str=tvb_get_ephemeral_faked_unicode(tvb, offset, (len-2)/2, TRUE);
         proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
+        offset += len-2;
     }
 
     if(item){
@@ -1064,7 +1065,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
 }
 
 
-static void
+static int
 dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
     if(is_request){
@@ -1115,15 +1116,18 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
             break;
         default:
             /* XXX dissect the descriptor coming back from the device */
-            proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "get descriptor  data...");
+            proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data");
+            offset += tvb_length_remaining(tvb, offset);
+            break;
         }
     }
+    return offset;
 }
 
 
 
 
-typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+typedef int (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
 
 typedef struct _usb_setup_dissector_table_t {
     guint8 request;
@@ -1463,7 +1467,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(item);
-        if(tvb_length_remaining(tvb, offset)){
+        if(tvb_reported_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
 
             pinfo->usb_conv_info=usb_conv_info;
@@ -1576,11 +1580,15 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 }
 
                 if(dissector){
-                    dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
+                    offset = dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
+                } else {
+                    proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                    offset += tvb_length_remaining(tvb, offset);
                 }
             } else {
                 /* no matching request available */
-                ;
+                proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                offset += tvb_length_remaining(tvb, offset);
             }
         }
         }
@@ -1615,8 +1623,8 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         }
         break;
     }
-
-    proto_tree_add_item(tree, hf_usb_data, tvb, offset, -1, FALSE);
+    if (tvb_reported_length_remaining(tvb, offset) != 0)
+        proto_tree_add_item(tree, hf_usb_data, tvb, offset, -1, FALSE);
 }
 
 void
