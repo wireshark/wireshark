@@ -107,6 +107,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-dsp.c \
 	packet-ess.c \
 	packet-ftam.c \
+	packet-goose.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -138,7 +139,9 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c \
 	packet-ranap.c \
 	packet-ros.c \
+	packet-rrlp.c \
 	packet-rtse.c \
+	packet-s1ap.c \
 	packet-s4406.c \
 	packet-sabp.c \
 	packet-smrse.c \
@@ -148,6 +151,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-x224.c \
 	packet-x509af.c \
 	packet-x509ce.c \
+	packet-x509if.c \
 	packet-x509sat.c 
 
 #
@@ -156,7 +160,6 @@ ASN1_DISSECTOR_SRC = \
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
 	packet-gnm.c \
-	packet-goose.c \
 	packet-gsm_map.c \
 	packet-inap.c \
 	packet-ldap.c \
@@ -165,15 +168,12 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-pkcs12.c \
 	packet-rnsap.c \
 	packet-rrc.c \
-	packet-rrlp.c \
-	packet-s1ap.c \
 	packet-snmp.c \
 	packet-t125.c \
 	packet-tcap.c \
 	packet-x2ap.c \
 	packet-x411.c \
-	packet-x420.c \
-	packet-x509if.c
+	packet-x420.c
 
 #
 # Dissectors without warnings.
