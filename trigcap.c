@@ -68,7 +68,7 @@ static void usage(int err) {
 	"   -p promiscuous mode\n"
 	"   -s snapshot length\n"
 	"   -q quiet\n"
-	"   -d increase deug level\n"
+	"   -d increase debug level\n"
 	"   -h prints this message\n"
 	;
 
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
 
 	dprintf(1,"starting with:\n interface: %s\n snaplen: %d\n promisc: %d"
 			"\n outfile: %s\n capture filter: %s\n start: %s\n stop: %s\n debug level: %d\n",
-			interface ? interface : "to be choosen",
+			interface ? interface : "to be chosen",
 			snaplen,
 			promisc,
 			outfile ? outfile : "** missing **",

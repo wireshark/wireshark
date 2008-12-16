@@ -54,12 +54,12 @@ typedef struct _radiusstat_t {
 } radiusstat_t;
 
 static const value_string radius_message_code[] = {
-  {  0,	"Overall       "},
-  {  1,	"Access        "},
-  {  2,	"Accounting    "},
-  {  3,	"Access Passw  "},
+  {  0, "Overall       "},
+  {  1, "Access        "},
+  {  2, "Accounting    "},
+  {  3, "Access Passw  "},
   {  4, "Ascend Acce Ev"},
-  {  5, "Diconnect     "},
+  {  5, "Disconnect    "},
   {  6, "Change Filter "},
   {  7, "Other         "},
   {  0, NULL}
