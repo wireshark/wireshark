@@ -65,7 +65,7 @@ static int ett_lte_rrc = -1;
 static proto_tree *top_tree;
 
 /* Forward declarations */
-static void dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 #include "packet-lte-rrc-fn.c"
 
 

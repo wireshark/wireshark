@@ -11,7 +11,7 @@ UNALIGNED
 #.OMIT_ASSIGNMENT
 #.END
 
-#.PDU
+#.PDU_NEW
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 PCCH-Message                 @pcch
