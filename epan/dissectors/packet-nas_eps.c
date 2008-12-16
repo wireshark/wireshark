@@ -52,6 +52,7 @@ static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
+static int hf_nas_eps_emm_res = -1;
 
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
@@ -221,6 +222,17 @@ nas_emm_elem_idx_t;
 /*
  * 9.9.3.4	Authentication response parameter
  */
+static guint8
+de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, FALSE);
+
+	return len;
+}
 /*
  * 9.9.3.5	Daylight saving time
  * See subclause 10.5.3.12 in 3GPP TS 24.008 [6].
@@ -303,8 +315,13 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * 9.9.3.11	EPS update result
  * 9.9.3.12	EPS update type
  * 9.9.3.13	ESM message container
+ */
+/*
  * 9.9.3.14	GPRS timer
  * See subclause 10.5.7.3 in 3GPP TS 24.008 [6].
+ * packet-gsm_a_gm.c
+ */
+/*
  * 9.9.3.15	Identity type 2
  * See subclause 10.5.5.9 in 3GPP TS 24.008 [6].
  * 9.9.3.16	IMEISV request
@@ -384,7 +401,7 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	NULL,						/* 9.9.3.1	Authentication failure parameter */
 	NULL,						/* 9.9.3.2	Authentication parameter AUTN(packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.3	Authentication parameter RAND */
-	NULL,						/* 9.9.3.4	Authentication response parameter */
+	de_emm_auth_resp_par,		/* 9.9.3.4	Authentication response parameter */
 	NULL,						/* 9.9.3.5	Daylight saving time */
 	NULL,						/* 9.9.3.6	Detach type */
 	NULL,						/* 9.9.3.6a	DRX parameter */
@@ -447,6 +464,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len--;
 	curr_offset++;
 	/* 	T3412 value	GPRS timer 9.9.3.14	M	V	1 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER);
 	/* 	TAI list	Tracking area identity list 9.9.3.29	M	LV	7-97 */
 	/* 	ESM message container	ESM message container 9.9.3.13	M	LV-E	2-n */
 	/* 50	GUTI	EPS mobile identity 9.9.3.10	O	TLV	13 */
@@ -519,12 +537,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 8.2.7	Authentication request
  */
-/*
- * NAS key set identifierASME 	NAS key set identifier 9.9.3.19	M	V	1/2
- * Spare half octet	Spare half octet 9.9.2.5	M	V	1/2
- * Authentication parameter RAND (EPS challenge)	Authentication parameter RAND 9.9.3.3	M	V	16
- * Authentication parameter AUTN (EPS challenge)	Authentication parameter AUTN 9.9.3.2	M	LV	17
- */
+
 static void
 nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
@@ -558,13 +571,28 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/*
 	 * Authentication parameter AUTN (EPS challenge) 9.9.3.2	M	LV	17
 	 */
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_AUTH_PARAM_AUTN, " EPS challenge");
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_AUTH_PARAM_AUTN, " - EPS challenge");
 
 }
 /*
  * 8.2.8	Authentication response
- * Authentication response parameter	Authentication response parameter 9.9.3.4	M	LV	5-17
  */
+static void
+nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	consumed = len;
+	/*
+	 * Authentication response parameter 9.9.3.4	M	LV	5-17
+	 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_AUTH_RESP_PAR, "");
+}
 /*
  * 8.2.9	Detach accept
  * 8.2.9.1	Detach accept (UE originating detach)
@@ -749,7 +777,7 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* GUTI reallocation command */
 	NULL,	/* GUTI reallocation complete */
 	nas_emm_auth_req,	/* Authentication request */
-	NULL,	/* Authentication response */
+	nas_emm_auth_resp,	/* Authentication response */
 	NULL,	/* Authentication reject */
 	NULL,	/* Authentication failure */
 	NULL,	/* Identity request */
@@ -910,6 +938,11 @@ void proto_register_nas_eps(void) {
 		{ "Spare half octet","nas_eps.emm.EPS_attach_result",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
 		"Spare half octet", HFILL }
+	},
+	{ &hf_nas_eps_emm_res,
+		{ "RES","nas_eps.emm.res",
+		FT_BYTES, BASE_HEX, NULL, 0x0,
+		"RES", HFILL }
 	},
   };
 
