@@ -3374,7 +3374,7 @@ RemoveOpenRights		= bitfield8("remove_open_rights", "Remove Open Rights", [
 ])
 RenameFlag			= bitfield8("rename_flag", "Rename Flag", [
 	bf_boolean8(0x01, "rename_flag_ren", "Rename to Myself allows file to be renamed to it's original name"),
-	bf_boolean8(0x02, "rename_flag_comp", "Compatability allows files that are marked read only to be opened with read/write access"),
+	bf_boolean8(0x02, "rename_flag_comp", "Compatibility allows files that are marked read only to be opened with read/write access"),
 	bf_boolean8(0x04, "rename_flag_no", "Name Only renames only the specified name space entry name"),
 ])
 RepliesCancelled 		= uint16("replies_cancelled", "Replies Cancelled")
@@ -3547,7 +3547,7 @@ SecretStoreVerb                         = val_string8("ss_verb", "Secret Store V
 ])
 SecurityEquivalentList			= fw_string("security_equiv_list", "Security Equivalent List", 128)
 SecurityFlag				= bitfield8("security_flag", "Security Flag", [
-	bf_boolean8(0x01, "checksuming", "Checksumming"),
+	bf_boolean8(0x01, "checksumming", "Checksumming"),
 	bf_boolean8(0x02, "signature", "Signature"),
 	bf_boolean8(0x04, "complete_signatures", "Complete Signatures"),
 	bf_boolean8(0x08, "encryption", "Encryption"),
@@ -4951,7 +4951,7 @@ PacketBurstInformation		= struct("packet_burst_information", [
 	uint32("write_timeout", "Write Time Out Count"),
 	uint32("write_got_an_ack0", "Write Got An ACK Count 0"),
 	uint32("write_got_an_ack1", "Write Got An ACK Count 1"),
-	uint32("poll_abort_conn", "Poller Aborted The Connnection Count"),
+	uint32("poll_abort_conn", "Poller Aborted The Connection Count"),
 	uint32("may_had_out_of_order", "Maybe Had Out Of Order Writes Count"),
 	uint32("had_an_out_of_order", "Had An Out Of Order Write Count"),
 	uint32("moved_the_ack_bit_dn", "Moved The ACK Bit Down Count"),

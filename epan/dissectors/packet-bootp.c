@@ -587,7 +587,7 @@ static struct opt_info bootp_opt[] = {
 /* 107 */ { "Removed/unassigned",			opaque, NULL },
 /* 108 */ { "Swap Path Option",				opaque, NULL },
 /* 109 */ { "Unassigned",				opaque, NULL },
-/* 110 */ { "IPX Compability",				opaque, NULL },
+/* 110 */ { "IPX Compatibility",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
 /* 112 */ { "NetInfo Parent Server Address",		ipv4_list, NULL },
 /* 113 */ { "NetInfo Parent Server Tag",		string, NULL },

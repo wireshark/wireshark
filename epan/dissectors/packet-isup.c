@@ -520,7 +520,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { ANSI_ISUP_PARAM_TYPE_EGRESS,		"Egress"},
   { ANSI_ISUP_PARAM_TYPE_JURISDICTION,	"Jurisdiction"},
   { ANSI_ISUP_PARAM_TYPE_CARRIER_ID,	"Carrier identification"},
-  { ANSI_ISUP_PARAM_TYPE_BUSINESS_GRP,	"Buisiness group"},
+  { ANSI_ISUP_PARAM_TYPE_BUSINESS_GRP,	"Business group"},
   { ANSI_ISUP_PARAM_TYPE_GENERIC_NAME,	"Generic name"},
   { ANSI_ISUP_PARAM_TYPE_NOTIF_IND,		"Notification indicator"},
   { ANSI_ISUP_PARAM_TYPE_CG_CHAR_IND,	"Circuit group characteristic indicator"},
@@ -1303,7 +1303,7 @@ static const value_string isup_auto_congestion_level_value[] = {
 
 static const true_false_string isup_inband_information_ind_value = {
   /* according 3.37/Q.763 */
-  "in-band information or an appropirate pattern is now available",
+  "in-band information or an appropriate pattern is now available",
   "no indication"
 };
 static const true_false_string isup_call_diversion_may_occur_ind_value = {
@@ -1813,7 +1813,7 @@ dissect_isup_circuit_group_char_ind_parameter(tvbuff_t *parameter_tvb, proto_tre
 	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cg_alarm_car_ind, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
 	proto_tree_add_uint(parameter_tree, hf_isup_cvr_cont_chk_ind, parameter_tvb, 0, CG_CHAR_IND_LENGTH, cvr_cg_char_ind );
 
-	proto_item_set_text(parameter_item, "Circuit Validation Test Response Circuit Group Characterstics: 0x%x", cvr_cg_char_ind );
+	proto_item_set_text(parameter_item, "Circuit Validation Test Response Circuit Group Characteristics: 0x%x", cvr_cg_char_ind );
 }
 
 /* ------------------------------------------------------------------
@@ -3077,7 +3077,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item ,
 			ett_bat_ase_element);
 		if ( identifier != CODEC ) {
-		/* identifier, lengt indicator and compabillity info must be printed inside CODEC */
+		/* identifier, length indicator and compabillity info must be printed inside CODEC */
 		/* dissection in order to use dissect_codec routine for codec list */
 		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb,
 			offset - length_ind_len, 1, identifier );
@@ -5775,11 +5775,11 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
   dissect_isup_cvr_response_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += CVR_RESP_IND_LENGTH;
 
-  /* Do stuff for second mandatory fixed parameter: CG Characterstics Indicator */
+  /* Do stuff for second mandatory fixed parameter: CG Characteristics Indicator */
   parameter_type = ANSI_ISUP_PARAM_TYPE_CG_CHAR_IND;
   parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
 									   CG_CHAR_IND_LENGTH,
-								       "Circuit Group Characterstics Indicators");
+								       "Circuit Group Characteristics Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"Circuit Group Characters"));
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
@@ -7959,7 +7959,7 @@ proto_register_isup(void)
 			"", HFILL }},
 
 		{ &hf_BAT_ASE_Comp_Report_Reason,
-			{ "Compabillity report reason",  "bat_ase.Comp_Report_Reason",
+			{ "Compatibility report reason",  "bat_ase.Comp_Report_Reason",
 			FT_UINT8, BASE_HEX, VALS(BAT_ASE_Report_Reason_vals),0x0,
 			"", HFILL }},
 

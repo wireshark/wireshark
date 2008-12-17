@@ -253,7 +253,7 @@ proto_register_ipvs_syncd(void)
 
 		{ &hf_syncid,
 			{ "Synchronization ID", "ipvs.syncid", FT_UINT8, BASE_DEC,
-			  NULL, 0, "Syncronization ID", HFILL }},
+			  NULL, 0, "Synchronization ID", HFILL }},
 
 		{ &hf_size,
 			{ "Size", "ipvs.size", FT_UINT16, BASE_DEC,

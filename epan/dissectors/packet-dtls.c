@@ -390,7 +390,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conv_version= & ssl_session->version;
 
   /* try decryption only the first time we see this packet
-   * (to keep cipher syncronized)and only if we have
+   * (to keep cipher synchronized)and only if we have
    * the server private key*/
   if (!ssl_session->private_key || pinfo->fd->flags.visited)
     ssl_session = NULL;

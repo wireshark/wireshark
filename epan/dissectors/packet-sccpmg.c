@@ -342,7 +342,7 @@ proto_register_sccpmg(void)
 	      FT_UINT8, BASE_DEC, NULL, SCCPMG_SMI_MASK,
 	      "", HFILL}},
 	  { &hf_sccpmg_congestion_level,
-	    { "SCCP Congestionl Level (ITU)", "sccpmg.congestion",
+	    { "SCCP Congestion Level (ITU)", "sccpmg.congestion",
 	      FT_UINT8, BASE_DEC, NULL, ITU_SCCPMG_CONGESTION_MASK,
 	      "", HFILL}}
 	};

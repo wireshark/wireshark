@@ -18096,7 +18096,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_create_options_sequential_only,
 		{ "Sequential Only", "smb.nt.create_options.sequential_only", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will accees to thsis file only be sequential?", HFILL }},
+		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will access to thsis file only be sequential?", HFILL }},
 
 	{ &hf_smb_nt_create_options_no_intermediate_buffering,
 		{ "Intermediate Buffering", "smb.nt.create_options.intermediate_buffering", FT_BOOLEAN, 32,

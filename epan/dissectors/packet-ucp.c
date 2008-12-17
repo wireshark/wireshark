@@ -311,7 +311,7 @@ static const value_string vals_parm_EC[] = {	/* Error code	*/
     { 13, "Legitimisation code for priority call, failure" },
     { 14, "Urgent message not allowed" },
     { 15, "Legitimisation code for urgent message, failure" },
-    { 16, "Reverse charging not alllowed" },
+    { 16, "Reverse charging not allowed" },
     { 17, "Legitimisation code for rev. charging, failure" },
     { 18, "Deferred delivery not allowed" },
     { 19, "New AC not valid" },

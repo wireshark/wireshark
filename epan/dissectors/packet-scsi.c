@@ -369,10 +369,10 @@ static const value_string scsi_spc_vals[] = {
 
 
 static const value_string log_flags_tmc_vals[] = {
-    {0, "Every update of the culmulative value"},
-    {1, "Culmulative value equal to treshold value"},
-    {2, "Culmulative value not equal to treshold value"},
-    {3, "Culmulative value greater than treshold value"},
+    {0, "Every update of the cumulative value"},
+    {1, "Cumulative value equal to treshold value"},
+    {2, "Cumulative value not equal to treshold value"},
+    {3, "Cumulative value greater than treshold value"},
     {0, NULL},
 };
 
@@ -2071,8 +2071,8 @@ static const value_string inq_rdf_vals[] = {
 #define SCSI_INQ_SCCSFLAGS_PROTECT	0x01
 
 static const value_string inq_tpgs_vals[] = {
-    { 0, "Assymetric LU Access not supported" },
-    { 1, "Implicit Assymetric LU Access supported" },
+    { 0, "Asymmetric LU Access not supported" },
+    { 1, "Implicit Asymmetric LU Access supported" },
     { 2, "Explicit LU Access supported" },
     { 3, "Both Implicit and Explicit LU Access supported" },
     { 0, NULL }

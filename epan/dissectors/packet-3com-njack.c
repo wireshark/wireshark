@@ -746,7 +746,7 @@ proto_register_njack(void)
                         0x0, "", HFILL }},
 
                 { &hf_njack_tlv_countermode,
-                { "TlvTypeCountermode",   "njack.tlv.contermode", FT_UINT8, BASE_DEC, VALS(&njack_countermode),
+                { "TlvTypeCountermode",   "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(&njack_countermode),
                         0x0, "", HFILL }},
 
                 { &hf_njack_tlv_powerforwarding,

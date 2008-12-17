@@ -2502,7 +2502,7 @@ proto_register_smpp(void)
 	{   &hf_smpp_system_type,
 	    {   "System type", "smpp.system_type",
 		FT_STRING, BASE_NONE, NULL, 0x00,
-		"Categorises the system.",
+		"Categorizes the system.",
 		HFILL
 	    }
 	},

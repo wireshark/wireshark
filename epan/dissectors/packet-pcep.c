@@ -389,10 +389,10 @@ static const value_string pcep_close_reason_obj_vals[] = {
 	{0,			         NULL            					}
 };
 
-static const value_string pcep_xro_atribute_obj_vals[] = {
-	{ATTR_INTERFACE,	 	"Atribute = 0 Interface"	},
-	{ATTR_NODE,			"Atribute = 1 Node "		},
-	{ATTR_SRLG, 			"Atribute = 2 SRLG"		},
+static const value_string pcep_xro_attribute_obj_vals[] = {
+	{ATTR_INTERFACE,	 	"Attribute = 0 Interface"	},
+	{ATTR_NODE,			"Attribute = 1 Node "		},
+	{ATTR_SRLG, 			"Attribute = 2 SRLG"		},
 	{0,			         NULL           	}
 };
 
@@ -439,7 +439,7 @@ enum pcep_filter_keys{
     PCEPF_SUBOBJ_SRLG,
     PCEPF_SUBOBJ_EXRS,
     PCEPF_SUBOBJ_XRO,
-    PCEPF_SUB_XRO_ATRIB,
+    PCEPF_SUB_XRO_ATTRIB,
 
     PCEPF_MAX
 };
@@ -644,7 +644,7 @@ static hf_register_info pcepf_info[] = {
      { "SUBOBJECT: Unnumbered Interface ID", "pcep.subobj.unnum.interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM],
-     { "SUBOBJECT: Autonomous System Number", "pcep.subobj.auntonomus.sys.num", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "SUBOBJECT: Autonomous System Number", "pcep.subobj.autonomous.sys.num", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
     {&pcep_filter[PCEPF_SUBOBJ_SRLG],
      { "SUBOBJECT: SRLG", "pcep.subobj.srlg", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -658,8 +658,8 @@ static hf_register_info pcepf_info[] = {
     {&pcep_xro_flags_f,
      { "Fail (F)", "pcep.xro.flags.f", FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_XRO_F,
 	"", HFILL }},
-    {&pcep_filter[PCEPF_SUB_XRO_ATRIB],
-     { "Attribute", "pcep.xro.sub.atribute", FT_UINT32, BASE_DEC, VALS(pcep_xro_atribute_obj_vals), 0x0,
+    {&pcep_filter[PCEPF_SUB_XRO_ATTRIB],
+     { "Attribute", "pcep.xro.sub.attribute", FT_UINT32, BASE_DEC, VALS(pcep_xro_attribute_obj_vals), 0x0,
 	"", HFILL }},
 
     {&pcep_subobj_flags_lpa,
@@ -769,7 +769,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
 		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
-		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+7, 1,  "%s",val_to_str(resvd, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv4, tvb, offset+7, 1,  "%s",val_to_str(resvd, pcep_xro_attribute_obj_vals, "Unknown Attribute (%u). "));
 		break;
 
 	default:
@@ -836,7 +836,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
 		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
-		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+19, 1, "%s", val_to_str(resv, pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_ipv6, tvb, offset+19, 1, "%s", val_to_str(resv, pcep_xro_attribute_obj_vals, "Unknown Attribute (%u). "));
 		break;
 
 	default:
@@ -961,7 +961,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
 		proto_tree_add_uint(pcep_subobj_unnumb_interfaceID, pcep_filter[PCEPF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
 		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+2, 1, "Reserved: 0x%02x", (reserved_flags & 0xff00)>>4);
-		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+3, 1, "%s", val_to_str((reserved_flags & 0x00ff), pcep_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		proto_tree_add_text(pcep_subobj_unnumb_interfaceID, tvb, offset+3, 1, "%s", val_to_str((reserved_flags & 0x00ff), pcep_xro_attribute_obj_vals, "Unknown Attribute (%u). "));
 		break;
 
 	default:
@@ -1005,7 +1005,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+1, 1, "Length: %u", length);
 
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+2, 1, "Reserved: 0x%02x", reserved);
-		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+3, 1, "%s", val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
+		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+3, 1, "%s", val_to_str(attribute, pcep_xro_attribute_obj_vals, "Unknown Object (%u)."));
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+4, 2, "Optional AS Number High Octets: 0x%04x", AS_number);
 		proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset+6, 2, "AS Number: 0x%04x", AS_number);
 	} else {
@@ -1058,7 +1058,7 @@ dissect_subobj_srlg(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, gui
 
 	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+2, 4, "SRLG ID: 0x%08x", srlg_id);
 	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+6, 1, "Reserved: 0x%02x", reserved);
-	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+7, 1, "%s", val_to_str(attribute, pcep_xro_atribute_obj_vals, "Unknown Object (%u)."));
+	proto_tree_add_text(pcep_subobj_srlg, tvb, offset+7, 1, "%s", val_to_str(attribute, pcep_xro_attribute_obj_vals, "Unknown Object (%u)."));
 }
 
 static void

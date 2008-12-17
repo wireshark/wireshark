@@ -1126,7 +1126,7 @@ dissect_fmp_attrs(tvbuff_t *tvb, int offset, proto_tree *tree)
         proto_tree *attrsTree;
 
         attrstree =  proto_tree_add_text(tree, tvb, offset, 84,
-                                              "Attribut: ");
+                                              "Attribute: ");
         attrsTree = proto_item_add_subtree(attrstree,
                                                 ett_attrs );
         attrs = tvb_get_ntohl(tvb, offset);
@@ -2139,7 +2139,7 @@ proto_register_fmp(void)
 			NULL, 0, "Signature DATA", HFILL }},
 		{ &hf_fmp_mount_path, {
                        "Native Protocol: PATH", "fmp.mount_path", FT_STRING, BASE_NONE,
-                       NULL, 0, "Absoulte path from the root on the server side", HFILL }},
+                       NULL, 0, "Absolute path from the root on the server side", HFILL }},
 		{ &hf_fmp_sig_offset, {
 			"Sig Offset", "fmp.dsi.ds.sig_offset", FT_UINT64, BASE_DEC,
 			NULL, 0, "Sig Offset", HFILL }},

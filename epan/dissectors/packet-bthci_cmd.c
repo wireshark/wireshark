@@ -570,9 +570,9 @@ const value_string bthci_cmd_oob_data_present_vals[] = {
 
 const value_string bthci_cmd_auth_req_vals[] = {
   {0x00, "MITM Protection Not Required - Single Profile. Numeric Comparison, Automatic Accept Allowed" },
-  {0x01, "MITM Protection Required - Single Profile. Use IO Capabilty To Determine Procedure" },
+  {0x01, "MITM Protection Required - Single Profile. Use IO Capability To Determine Procedure" },
   {0x02, "MITM Protection Not Required - All Profiles. Numeric Comparison, Automatic Accept Allowed" },
-  {0x03, "MITM Protection Required - All Profiles. Use IO Capabilty To Determine Procedure" },
+  {0x03, "MITM Protection Required - All Profiles. Use IO Capability To Determine Procedure" },
   {   0, NULL }
 };
 

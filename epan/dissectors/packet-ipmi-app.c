@@ -1086,7 +1086,7 @@ ipmi_register_app(gint proto_ipmi)
 			{ "Product ID",
 				"ipmi.app01.product", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_ipmi_app_01_fw_aux,
-			{ "Auxillary Firmware Revision Information",
+			{ "Auxiliary Firmware Revision Information",
 				"ipmi.app01.fw.aux", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 
 		{ &hf_ipmi_app_04_result,
@@ -1391,7 +1391,7 @@ ipmi_register_app(gint proto_ipmi)
 			{ "OEM ID",
 				"ipmi.app38.rs_oem_iana", FT_UINT24, BASE_DEC, NULL, 0, "", HFILL }},
 		{ &hf_ipmi_app_38_rs_oem_aux,
-			{ "OEM Auxillary data",
+			{ "OEM Auxiliary data",
 				"ipmi.app38.rs_oem_aux", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 		{ &hf_ipmi_app_39_authtype,

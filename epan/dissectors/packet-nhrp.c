@@ -746,7 +746,7 @@ proto_register_nhrp(void)
 		  { "Client Protocol Address",	"nhrp.client.prot.addr", FT_IPv4, 		BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_nhrp_ext_C,
-		  { "Compulsary Flag",			"nhrp.ext.c", 			FT_BOOLEAN, 16, NULL, 0x8000, "", HFILL }},
+		  { "Compulsory Flag",			"nhrp.ext.c", 			FT_BOOLEAN, 16, NULL, 0x8000, "", HFILL }},
 		{ &hf_nhrp_ext_type,
 		  { "Extension Type",			"nhrp.ext.type", 		FT_UINT16,	BASE_HEX, NULL, 0x3FFF, "", HFILL }},
 		{ &hf_nhrp_ext_len,

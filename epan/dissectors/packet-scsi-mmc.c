@@ -525,8 +525,8 @@ static const value_string scsi_disc_info_disc_status_val[] = {
 static const value_string scsi_disc_info_bgfs_val[] = {
     {0x00,	"Blank or not CD-RW/DVD-RW"},
     {0x01,	"Background Format started but is not running nor complete"},
-    {0x02,	"Backgroung Format in progress"},
-    {0x03,	"Backgroung Format has completed"},
+    {0x02,	"Background Format in progress"},
+    {0x03,	"Background Format has completed"},
     {0,NULL}
 };
 

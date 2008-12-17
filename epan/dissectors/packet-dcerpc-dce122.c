@@ -1274,7 +1274,7 @@ const value_string dce_error_vals[] = {
 { 701087993, "CM read starting prefetch for offset .d" },
 { 701087994, "CM swapping out vol structure at .x" },
 { 701087995, "CM async grant RPC vp .x type .#x range(.d:.d)" },
-{ 701087996, "CM asycn grant returns code .d" },
+{ 701087996, "CM async grant returns code .d" },
 { 701087997, "CM async can't find fid's server" },
 { 701087998, "CM async done, states .#x, code .d" },
 { 701087999, "CM TKN_AsyncGrant fid .x..x..x..x, rights .#x" },

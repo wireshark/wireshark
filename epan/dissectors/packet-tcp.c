@@ -1418,7 +1418,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
 #define TCPOPT_MD5              19      /* RFC2385 */
-#define TCPOPT_SCPS             20      /* SCPS Capabilties */
+#define TCPOPT_SCPS             20      /* SCPS Capabilities */
 #define TCPOPT_SNACK            21      /* SCPS SNACK */
 #define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
 #define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
@@ -2652,7 +2652,7 @@ static const ip_tcp_opt tcpopts[] = {
   },
   {
     TCPOPT_SCPS,
-    "SCPS capabilties",
+    "SCPS capabilities",
     &ett_tcp_option_scps,
     VARIABLE_LENGTH,
     TCPOLEN_SCPS,

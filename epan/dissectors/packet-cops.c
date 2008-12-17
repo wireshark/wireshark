@@ -2126,7 +2126,7 @@ void proto_register_cops(void)
     { &hf_cops_pcmm_classifier_dscp_tos_mask,
 	    { "DSCP/TOS Mask", "cops.pc_mm_classifier_dscp_mask",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "PacketCable Multimedia Classifer DSCP/TOS Mask", HFILL }
+	    "PacketCable Multimedia Classifier DSCP/TOS Mask", HFILL }
     },
     { &hf_cops_pcmm_classifier_src_addr,
 	    { "Source address", "cops.pc_mm_classifier_src_addr",

@@ -154,7 +154,7 @@ const value_string E164_country_code_value[] = {
 	{ 0x0385,"Croatia"},
 	{ 0x0386,"Slovenia"},
 	{ 0x0387,"Bosnia and Herzegovina"},
-	{ 0x0388,"Groups of contries:"},
+	{ 0x0388,"Groups of countries:"},
 	{ 0x0389,"Macedonia"},
 	{ 0x039,"Italy"},
 	{ 0x040,"Romania"},

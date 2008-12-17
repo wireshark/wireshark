@@ -605,7 +605,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv_version =& ssl_session->version;
 
     /* try decryption only the first time we see this packet
-     * (to keep cipher syncronized) and only if we have
+     * (to keep cipher synchronized) and only if we have
      * the server private key*/
     if (pinfo->fd->flags.visited)
          ssl_session = NULL;
@@ -2942,7 +2942,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 	proto_tree_add_text(tree, tvb, offset, 32, "Client Session ID Data (32 bytes)");
 	offset += 32;
 
-	proto_tree_add_text(tree, tvb, offset, 32, "Challange Data(32 bytes)");
+	proto_tree_add_text(tree, tvb, offset, 32, "Challenge Data(32 bytes)");
 	offset += 32;
 
 	CH_OFFSET = tvb_get_ntohs(tvb, offset);

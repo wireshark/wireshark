@@ -140,7 +140,7 @@ static gint hf_s5066_st_txmode = -1;
 static const value_string s5066_st_txmode[] = {
 	{ 0, "Ignore service type field"},
 	{ 1, "ARQ"},
-	{ 2, "Non-ARQ (Broacast)"},
+	{ 2, "Non-ARQ (Broadcast)"},
 	{ 3, "Non-ARQ (with errors)"},
 	{ 4, "Other non-ARQ types"},
 	{ 5, "Other non-ARQ types"},

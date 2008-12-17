@@ -835,7 +835,7 @@ proto_register_drda(void)
       { "Chained", "drda.ddm.fmt.bit1", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_CHAINED, "DSSFMT chained", HFILL }},
 
    { &hf_drda_ddm_fmt_errcont,
-      { "Continue", "drda.ddm.fmt.bit2", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_CONTINUE, "DSSFMT contine on error", HFILL }},
+      { "Continue", "drda.ddm.fmt.bit2", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_CONTINUE, "DSSFMT continue on error", HFILL }},
 
    { &hf_drda_ddm_fmt_samecorr,
       { "Same correlation", "drda.ddm.fmt.bit3", FT_BOOLEAN, 4, TFS(&flags_set_truth), DRDA_DSSFMT_SAME_CORR, "DSSFMT same correlation", HFILL }},

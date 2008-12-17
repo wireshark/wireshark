@@ -3305,7 +3305,7 @@ void proto_register_edonkey(void) {
             {"Source", "edonkey.source",
                 FT_NONE, BASE_NONE, NULL, 0, "eDonkey File Source", HFILL } },
         { &hf_emule_source_count,
-            { "Compeleted Sources Count", "edonkey.emule.source_count",
+            { "Completed Sources Count", "edonkey.emule.source_count",
                 FT_UINT16, BASE_DEC, NULL, 0, "eMule Completed Sources Count", HFILL } },
         { &hf_emule_zlib,
             { "Compressed Data", "edonkey.emule.zlib",

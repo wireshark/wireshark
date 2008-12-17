@@ -344,7 +344,7 @@ static const value_string bssmap_positioning_methods_usage[] = {
 static const value_string bssmap_location_information_vals[] = {
     { 0, "current geographic location" },
     { 1, "location assistance information for the target MS" },
-    { 2, "deciphering keys for braodcast assistance data for the target MS" },
+    { 2, "deciphering keys for broadcast assistance data for the target MS" },
     { 0, NULL}
 };
 
@@ -3254,8 +3254,8 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 			curr_offset+=16;
 			break;
 		default:
-			/* Bougus */
-			proto_tree_add_text(tree, tvb, curr_offset, len, "Bougus length %u",len);
+			/* Bogus */
+			proto_tree_add_text(tree, tvb, curr_offset, len, "Bogus length %u",len);
 			return(len);
 	}
 	proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_port, tvb, curr_offset, 2, FALSE);

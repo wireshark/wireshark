@@ -350,10 +350,10 @@ static int dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree
                                                   tvbuff_t *tvb, int offset);
 static int dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
                                                   tvbuff_t *tvb, int offset);
-static int dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+static int dissect_common_dl_synchronisation(packet_info *pinfo, proto_tree *tree,
                                             tvbuff_t *tvb, int offset,
                                             struct fp_info *p_fp_info);
-static int dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+static int dissect_common_ul_synchronisation(packet_info *pinfo, proto_tree *tree,
                                             tvbuff_t *tvb, int offset,
                                             struct fp_info *p_fp_info);
 static int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree,
@@ -820,7 +820,7 @@ int dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-int dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+int dissect_common_dl_synchronisation(packet_info *pinfo, proto_tree *tree,
                                      tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
     guint16 cfn;
@@ -850,7 +850,7 @@ int dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-int dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+int dissect_common_ul_synchronisation(packet_info *pinfo, proto_tree *tree,
                                      tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
     return dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
@@ -1146,10 +1146,10 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset = dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_SYNCHRONISATION:
-            offset = dissect_common_dl_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
+            offset = dissect_common_dl_synchronisation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_UL_SYNCHRONISATION:
-            offset = dissect_common_ul_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
+            offset = dissect_common_ul_synchronisation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_NODE_SYNCHRONISATION:
             offset = dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);

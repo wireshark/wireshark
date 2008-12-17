@@ -231,7 +231,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	
 	if(strcmp(mname,"Unknown") == 0) {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuitation(?) (Tag %u)",(guint)ninemsg);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
 
 		return;
 	}

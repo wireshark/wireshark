@@ -1635,7 +1635,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Applicaton Type: %s (%u)",
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Application Type: %s (%u)",
 							val_to_str(tempByte, media_application_type, "Unknown"), tempByte);
 		tempOffset++;
 		tlvLen--;

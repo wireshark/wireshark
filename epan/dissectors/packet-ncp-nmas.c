@@ -52,7 +52,7 @@ static int hf_msg_version = -1;
 static int hf_session_ident = -1;
 static int hf_msg_verb = -1;
 static int hf_attribute = -1;
-static int hf_clearence = -1;
+static int hf_clearance = -1;
 static int hf_login_sequence = -1;
 static int hf_opaque = -1;
 static int hf_data = -1;
@@ -100,7 +100,7 @@ static const value_string nmas_msgverb_enum[] = {
 static const value_string nmas_attribute_enum[] = {
     { 1, "User Name" },
     { 2, "Tree Name" },
-    { 4, "Clearence" },
+    { 4, "Clearance" },
     { 11, "Login Sequence" },
     { 0,          NULL }
 };
@@ -439,7 +439,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                         foffset = nmas_string(tvb, hf_tree, atree, foffset, FALSE);
                         break;
                     case 4:
-                        foffset = nmas_string(tvb, hf_clearence, atree, foffset, FALSE);
+                        foffset = nmas_string(tvb, hf_clearance, atree, foffset, FALSE);
                         break;
                     case 11:
                         foffset = nmas_string(tvb, hf_login_sequence, atree, foffset, FALSE);
@@ -719,10 +719,10 @@ proto_register_nmas(void)
         { "Attribute Type",        "nmas.attribute", FT_UINT32, BASE_DEC, VALS(nmas_attribute_enum), 0x0,
             "Attribute Type", HFILL }},
 
-        { &hf_clearence,
-        { "Requested Clearence",    "nmas.clearence",
+        { &hf_clearance,
+        { "Requested Clearance",    "nmas.clearance",
           FT_STRING,    BASE_NONE,   NULL,   0x0,
-          "Requested Clearence", HFILL }},
+          "Requested Clearance", HFILL }},
 
         { &hf_login_sequence,
         { "Requested Login Sequence",    "nmas.login_seq",

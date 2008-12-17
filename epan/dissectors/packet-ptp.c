@@ -967,7 +967,7 @@ static const value_string ptp_v2_managementID_infocolumn_vals[] = {
 	{PTP_V2_MM_ID_PRIORITY2							,"Priority 2"},
 	{PTP_V2_MM_ID_DOMAIN							,"Domain"},
 	{PTP_V2_MM_ID_SLAVE_ONLY						,"Slave only"},
-	{PTP_V2_MM_ID_LOG_ANNOUNCE_INTERVAL				,"Log annonce interval"},
+	{PTP_V2_MM_ID_LOG_ANNOUNCE_INTERVAL				,"Log announce interval"},
 	{PTP_V2_MM_ID_ANNOUNCE_RECEIPT_TIMEOUT			,"Announce receipt timeout"},
 	{PTP_V2_MM_ID_LOG_SYNC_INTERVAL					,"Log sync interval"},
 	{PTP_V2_MM_ID_VERSION_NUMBER					,"Version number"},

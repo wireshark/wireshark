@@ -315,7 +315,7 @@ static const value_string sna_th_fid_vals[] = {
 	{ 0xb,	"HPR NLP Frame Routing" },
 	{ 0xc,	"HPR NLP Automatic Network Routing" },
 	{ 0xd,	"HPR NLP Automatic Network Routing" },
-	{ 0xf,	"Adjaced Subarea Nodes, supporting ER and VR" },
+	{ 0xf,	"Adjacent Subarea Nodes, supporting ER and VR" },
 	{ 0x0,	NULL }
 };
 

@@ -783,7 +783,7 @@ void proto_register_hsrp(void)
                 { &hf_hsrp2_passive_group,
                   { "Passive Groups", "hsrp2.passive_groups",
                     FT_UINT16, BASE_DEC, NULL, 0x0,
-                    "Standby group number which doesn't become the acitve router myself", HFILL }},
+                    "Standby group number which doesn't become the active router myself", HFILL }},
 
                 { &hf_hsrp2_md5_algorithm,
                   { "MD5 Algorithm", "hsrp2._md5_algorithm",

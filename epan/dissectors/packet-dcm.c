@@ -109,8 +109,8 @@
  * - Fixed PDV Continuation. Last packet was not found correctly.
  * - Fixed complilation warning (build 56 on solaris)
  * - Fixed tree expansion (hf_dcm_xxx)
- * - Added expert_add_info() for Assoctiation Reject
- * - Added expert_add_info() for Assoctiation Abort
+ * - Added expert_add_info() for Association Reject
+ * - Added expert_add_info() for Association Abort
  * - Added expert_add_info() for short PDVs (i.e. last fragment, but PDV is not completed yet)
  * - Clarified and grouped data structures and its related code (dcmItem, dcmState) to have
  *   consistent _new() & _get() functions and to be be according to coding conventions
@@ -6419,10 +6419,10 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	    proto_tree_add_item(dcm_tree, hf_dcm_pdu_len, tvb, offset+2, 4, FALSE);
 
 	    if (pdu_type==3) {
-		expert_add_info_format(pinfo, ti_pdu_type, PI_RESPONSE_CODE, PI_WARN, "Asscociation rejected");
+		expert_add_info_format(pinfo, ti_pdu_type, PI_RESPONSE_CODE, PI_WARN, "Association rejected");
 	    }
 	    else if (pdu_type==7) {
-		expert_add_info_format(pinfo, ti_pdu_type, PI_RESPONSE_CODE, PI_WARN, "Asscociation aborted");
+		expert_add_info_format(pinfo, ti_pdu_type, PI_RESPONSE_CODE, PI_WARN, "Association aborted");
 	    }
 
 	    switch (pdu_type) {
@@ -6618,7 +6618,7 @@ proto_register_dcm(void)
     prefs_register_bool_preference(dcm_module, "export_header",
 	    "Create Meta Header on Export",
 	    "Create DICOM File Meta Header according to PS 3.10 on export for PDUs. "
-	    "If the cpatured PDV does not contain a SOP Class UID and SOP Instance UID "
+	    "If the captured PDV does not contain a SOP Class UID and SOP Instance UID "
 	    "(e.g. for command PDVs), wireshark spefic ones will be created.",
 	    &global_dcm_export_header);
 

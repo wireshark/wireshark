@@ -1135,7 +1135,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	
 	if (tree) {
 		
-		DBG0("got an icep msg, start analisys\n");
+		DBG0("got an icep msg, start analysis\n");
 		
                 /* create display subtree for the protocol */
 		

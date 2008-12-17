@@ -3867,7 +3867,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_xr_voip_metrics_plc,
 			{
-				"Packet Loss Conealment Algorithm",
+				"Packet Loss Concealment Algorithm",
 				"rtcp.xr.voipmetrics.plc",
 				FT_UINT8,
 				BASE_DEC,

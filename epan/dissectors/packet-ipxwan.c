@@ -98,7 +98,7 @@ static const value_string ipxwan_option_num_vals[] = {
 static const value_string ipxwan_accept_option_vals[] = {
 	{ 0, "No" },
 	{ 1, "Yes" },
-	{ 3, "Not Appplicable" },
+	{ 3, "Not Applicable" },
 	{ 0, NULL }
 };
 

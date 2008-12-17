@@ -3251,7 +3251,7 @@ dissect_krb5_authenticator_vno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
 #define KRB5_GSS_C_INTEG_FLAG		0x20
 #define KRB5_GSS_C_DCE_STYLE		0x1000
 static const true_false_string tfs_gss_flags_deleg = {
-	"Delegate credantials to remote peer",
+	"Delegate credentials to remote peer",
 	"Do NOT delegate"
 };
 static const true_false_string tfs_gss_flags_mutual = {

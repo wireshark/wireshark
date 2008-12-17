@@ -3645,7 +3645,7 @@ decode_iei_requested_gps_assistance_data(bssgp_ie_t *ie, build_info_t *bi, int i
 
   value = get_masked_guint8(data, MASK_H);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_H);
-  proto_item_append_text(pi, "H: Acquisition Asssistance is%s requested",
+  proto_item_append_text(pi, "H: Acquisition Assistance is%s requested",
 			 value == 0 ? " not" : "");
 
   bi->offset++;

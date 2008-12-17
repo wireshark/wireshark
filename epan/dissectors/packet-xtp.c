@@ -84,7 +84,7 @@ static const value_string pformat_vals[] = {
 
 static const value_string diag_code_vals[] = {
 	{ 1, "Context Refused" },
-	{ 2, "Context Abaondoned" },
+	{ 2, "Context Abandoned" },
 	{ 3, "Invalid Context" },
 	{ 4, "Request Refused" },
 	{ 5, "Join Refused" },

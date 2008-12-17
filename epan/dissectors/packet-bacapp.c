@@ -437,7 +437,7 @@ BACnetEngineeringUnits [] = {
 	{35,"Watts Per Sq meter"},
 	{36,"Lumens"},
 	{37,"Lux"},
-	{38,"Foot Candels"},
+	{38,"Foot Candles"},
 	{39,"Kilograms"},
 	{40,"Pounds Mass"},
 	{41,"Tons"},

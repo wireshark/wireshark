@@ -261,7 +261,7 @@ static const value_string rt_disc_reason_vals[] = {
     { 0,    "no error"},
     { 3,    "The node is shutting down"},
     { 4,    "The destination end user does not exist"},
-    { 5,    "A conect message contains an invalid end user name"},
+    { 5,    "A connect message contains an invalid end user name"},
     { 6,    "Destination end user has insufficient resources"},
     { 7,    "Unspecified error"},
     { 8,    "A third party has disconnected the link"},

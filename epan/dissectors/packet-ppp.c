@@ -347,7 +347,7 @@ const value_string ppp_vals[] = {
 	{PPP_IPV6CP,	"IPv6 Control Protocol" },
 	{PPP_MUXCP,     "PPPMux Control Protocol"},
 	{PPP_STAMPEDECP,"Stampede Bridging Control Protocol" },
-	{PPP_MPPCP,	"MP+ Contorol Protocol" },
+	{PPP_MPPCP,	"MP+ Control Protocol" },
 	{PPP_IPICP,	"NTCITS IPI Control Protocol" },
 	{PPP_SLCC,	"single link compression in multilink control" },
 	{PPP_CCP,	"Compression Control Protocol" },

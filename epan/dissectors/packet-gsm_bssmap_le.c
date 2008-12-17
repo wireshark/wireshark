@@ -116,7 +116,7 @@ const value_string gsm_bssmap_le_elem_strings[] = {
     { BSSMAP_LE_LCS_CLIENT_TYPE, "LCS Client Type" },
     { BSSMAP_LE_APDU, "APDU" },
     { BSSMAP_LE_NETWORK_ELEMENT_IDENTITY, "Network Element Identity" },
-    { BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, "Requested GPS Assitance Data" },
+    { BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, "Requested GPS Assistance Data" },
     { BSSMAP_LE_REQUESTED_GANSS_ASSISTANCE_DATA, "Requested GANSS Assistance Data" },
     { BSSMAP_LE_DECIPHERING_KEYS, "Deciphering Keys" },
     { BSSMAP_LE_RETURN_ERROR_REQUEST, "Return Error Request" },

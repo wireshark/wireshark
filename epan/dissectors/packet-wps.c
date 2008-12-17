@@ -1376,7 +1376,7 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
   pi = proto_item_get_parent(pi);
   if (pi != NULL) 
-    proto_item_append_text(pi, " (Wifi Allicance, WifiProtectedSetup)");
+    proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
   if (pinfo != NULL && check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, ", WPS");
 

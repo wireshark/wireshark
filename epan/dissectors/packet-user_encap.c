@@ -185,7 +185,7 @@ void proto_register_user_encap(void)
 	prefs_register_uat_preference(module,
 				      "encaps_table",
 				      "Encapsulations Table",
-				      "A table that enumerates the various protocols to be used against a cartain user DLT",
+				      "A table that enumerates the various protocols to be used against a certain user DLT",
 				      encaps_uat);
 	
 	

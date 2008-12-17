@@ -373,13 +373,13 @@ proto_register_pcnfsd(void)
 			NULL, 0, "Authentication Client", HFILL }},
 		{ &hf_pcnfsd_auth_ident_obscure, {
 			"Obscure Ident", "pcnfsd.auth.ident.obscure", FT_STRING, BASE_DEC,
-			NULL, 0, "Athentication Obscure Ident", HFILL }},
+			NULL, 0, "Authentication Obscure Ident", HFILL }},
 		{ &hf_pcnfsd_auth_ident_clear, {
 			"Clear Ident", "pcnfsd.auth.ident.clear", FT_STRING, BASE_DEC,
 			NULL, 0, "Authentication Clear Ident", HFILL }},
 		{ &hf_pcnfsd_auth_password_obscure, {
 			"Obscure Password", "pcnfsd.auth.password.obscure", FT_STRING, BASE_DEC,
-			NULL, 0, "Athentication Obscure Password", HFILL }},
+			NULL, 0, "Authentication Obscure Password", HFILL }},
 		{ &hf_pcnfsd_auth_password_clear, {
 			"Clear Password", "pcnfsd.auth.password.clear", FT_STRING, BASE_DEC,
 			NULL, 0, "Authentication Clear Password", HFILL }},

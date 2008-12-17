@@ -218,7 +218,7 @@ static gboolean global_rdt_show_setup_info = TRUE;
 static const value_string packet_type_vals[] =
 {
     { RDT_ASMACTIION_PACKET,             "Asm action"  },
-    { RDT_BANDWIDTHREPORT_PACKET,        "Bandwith report"  },
+    { RDT_BANDWIDTHREPORT_PACKET,        "Bandwidth report"  },
     { RDT_ACK_PACKET,                    "Ack"  },
     { RDT_RTTREQUEST_PACKET,             "RTT request"  },
     { RDT_RTTRESPONSE_PACKET,            "RTT response"  },

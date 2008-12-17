@@ -296,7 +296,7 @@ static const value_string h248_annexc_package_properties_vals[] = {
 	{ 0xB007, "SDP_P (phone number)" },
 	{ 0xB008, "SDP_C (connection)" },
 	{ 0xB009, "SDP_B (bandwidth info)" },
-	{ 0xB00A, "SDP_Z (TZ adjustement)" },
+	{ 0xB00A, "SDP_Z (TZ adjustment)" },
 	{ 0xB00B, "SDP_K (encryption key)" },
 	{ 0xB00C, "SDP_A (Session attributes)" },
 	{ 0xB00D, "SDP_T (Active Session Time)" },
@@ -611,7 +611,7 @@ static const value_string h248_pkg_annexc_addlayer3prot_values[] = {
 static const value_string h248_pkg_annexc_nci_satellite_values[] _U_ = {
 	{0x0,"no satellite circuit"},
 	{0x1,"one satellite circuit"},
-	{0x2,"two satellite circiuts"},
+	{0x2,"two satellite circuits"},
 	{0x3,"spare"},
     {0,NULL}
 };

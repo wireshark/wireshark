@@ -4056,7 +4056,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 		case 0x1a: str="Insufficient resources"; break;
 		case 0x1b: str="Missing or unknown APN"; break;
 		case 0x1c: str="Unknown PDP address or PDP type"; break;
-		case 0x1d: str="User Aauthentication failed"; break;
+		case 0x1d: str="User Authentication failed"; break;
 		case 0x1e: str="Activation rejected by GGSN"; break;
 		case 0x1f: str="Activation rejected, unspecified"; break;
 		case 0x20: str="Service option not supported"; break;
@@ -4467,7 +4467,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	 * bit is set to 1; otherwise, the E bit is set to 0.
 	 */
 	if (e_bit == 1){
-		 proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Note: Possible Authorizaton Token/Flow Identifier not decoded yet");
+		 proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Note: Possible Authorization Token/Flow Identifier not decoded yet");
 	}
 	return(curr_offset - offset);
 }
