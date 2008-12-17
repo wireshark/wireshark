@@ -44,6 +44,13 @@ WIRESHARK_LIBS=C:\wireshark-$(PLATFORM)-libs
 PROGRAM_FILES=$(PROGRAMFILES)
 
 #
+# Location of the "tools" directory. This affects HTML2TXT below and should
+# be overridden by makefiles in any subdirectories that use HTML2TXT.
+!IFNDEF TOOLS_DIR
+TOOLS_DIR=tools
+!ENDIF
+
+#
 # Machine type for the compiler and linker
 # TARGET_MACHINE (Used for link /MACHINE) should be one of "X86" or "X64"
 # (sorry ARM, Alpha, MIPS, and Itanium fans).
@@ -579,8 +586,11 @@ HHC_EXE="$(HHC_DIR)\hhc.exe"
 # (cygwin: lynx works, elinks not available, links and true doesn't produce output)
 #HTML2TXT=elinks -dump -dump-width 72
 #HTML2TXT=links -dump -width 72
-HTML2TXT=lynx -dump -width=72 -nolist -stdin
-#HTML2TXT="true"
+#HTML2TXT=lynx -dump -width=72 -nolist -stdin
+
+!IFNDEF HTML2TXT
+HTML2TXT=$(PYTHON) $(TOOLS_DIR)\html2text.py --width=72 --no-links
+!ENDIF
 
 # the XSL processor (part of cygwin's libxslt package)
 XSLTPROC="xsltproc"

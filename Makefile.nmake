@@ -644,6 +644,11 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
+help\faq.txt:
+	cd help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake faq.txt
+	cd ..
+
 FAQ: help\faq.txt
 	cp --preserve $? $@
 	
@@ -668,7 +673,6 @@ REQUIRED_TOOLS=\
 	$(YACC)	\
 	$(LEX)	\
 	env	\
-	lynx	\
 	grep	\
 	/usr/bin/find	\
 	$(PERL)	\

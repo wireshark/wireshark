@@ -3,12 +3,15 @@
 #
 # $Id$
 
+TOOLS_DIR=..\tools
 include ..\config.nmake
 
 ############### no need to modify below this line #########
 
+all: faq.txt
+
 faq.txt: faq.py
-	$(PYTHON) faq.py | lynx -dump -width=72 -nolist -stdin -force-html > $@
+	$(PYTHON) faq.py | $(HTML2TXT) > $@
 
 clean:
 	rm -rf faq.txt
