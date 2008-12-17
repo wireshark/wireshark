@@ -5,6 +5,8 @@
  *
  * 3GPP TS 49.031 version v7.4.0 (2009-09)
  *
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
