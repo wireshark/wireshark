@@ -1,34 +1,82 @@
 #!/usr/bin/env python
 """html2text: Turn HTML into equivalent Markdown-structured text."""
-__version__ = "2.35"
+__version__ = "2.35-Wireshark"
 __author__ = "Aaron Swartz (me@aaronsw.com)"
 __copyright__ = "(C) 2004-2008 Aaron Swartz. GNU GPL 3."
 __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes"]
 
+# NOTE:
+#   This is a modified version of html2text.py from http://www.aaronsw.com/2002/html2text/
+#   Changes:
+#     Options can now be configured from the command line.
+#     SKIP_LINKS and INPUT_ENCODING options have been added.
+#     The script now requires Python 2.3
+
 # TODO:
 #   Support decoded entities with unifiable.
 #   Relative URL resolution
+#   Indent sections and lists similar to elinks/links/lynx
 
 if not hasattr(__builtins__, 'True'): True, False = 1, 0
 import re, sys, urllib, htmlentitydefs, codecs, StringIO, types
 import sgmllib
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
+from optparse import OptionParser
 
 try: from textwrap import wrap
 except: pass
 
-# Use Unicode characters instead of their ascii psuedo-replacements
-UNICODE_SNOB = 0
+oparser = OptionParser()
+options = None
+args = None
 
-# Put the links after each paragraph instead of at the end.
-LINKS_EACH_PARAGRAPH = 0
+oparser.add_option(
+    "--force-unicode",
+    action="store_true",
+    dest="UNICODE_SNOB",
+    default=False,
+    help="Use Unicode characters instead of their ascii psuedo-replacements. [default: False]",
+    )
 
-# Wrap long lines at position. 0 for no wrapping. (Requires Python 2.3.)
-BODY_WIDTH = 78
+oparser.add_option(
+    "--links-after-paragraphs",
+    action="store_true",
+    dest="LINKS_EACH_PARAGRAPH",
+    default=False,
+    help="Put the links after each paragraph instead of at the end. [default: False]",
+    )
 
-# Don't show internal links (href="#local-anchor") -- corresponding link targets
-# won't be visible in the plain text file anyway.
-SKIP_INTERNAL_LINKS = False
+oparser.add_option(
+    "--width",
+    type="int",
+    dest="BODY_WIDTH",
+    default=78,
+    help="Wrap long lines at position. 0 for no wrapping. Requires Python 2.3. [default: 78 characters]",
+    )
+
+oparser.add_option(
+    "--no-internal-links",
+    action="store_true",
+    dest="SKIP_INTERNAL_LINKS",
+    default=False,
+    help='''Don't show internal links (href="#local-anchor"). Corresponding link targets won't be visible in the plain text file anyway. [default: False]''',
+    )
+
+oparser.add_option(
+    "--no-links",
+    action="store_true",
+    dest="SKIP_LINKS",
+    default=False,
+    help='''Don't show links. [default: False]''',
+    )
+
+oparser.add_option(
+    "--input-encoding",
+    type="string",
+    dest="INPUT_ENCODING",
+    default='utf-8',
+    help='''Force the encoding of the input file. [default: utf-8]''',
+    )
 
 ### Entity Nonsense ###
 
@@ -56,18 +104,22 @@ for k in unifiable.keys():
     unifiable_n[name2cp(k)] = unifiable[k]
 
 def charref(name):
+    global options
+    
     if name[0] in ['x','X']:
         c = int(name[1:], 16)
     else:
         c = int(name)
     
-    if not UNICODE_SNOB and c in unifiable_n.keys():
+    if not options.UNICODE_SNOB and c in unifiable_n.keys():
         return unifiable_n[c]
     else:
         return unichr(c)
 
 def entityref(c):
-    if not UNICODE_SNOB and c in unifiable.keys():
+    global options
+    
+    if not options.UNICODE_SNOB and c in unifiable.keys():
         return unifiable[c]
     else:
         try: name2cp(c)
@@ -103,7 +155,8 @@ def onlywhite(line):
 
 def optwrap(text):
     """Wrap all paragraphs in the provided text."""
-    if not BODY_WIDTH:
+    global options
+    if not options.BODY_WIDTH:
         return text
     
     assert wrap, "Requires Python 2.3."
@@ -112,7 +165,7 @@ def optwrap(text):
     for para in text.split("\n"):
         if len(para) > 0:
             if para[0] is not ' ' and para[0] is not '-' and para[0] is not '*':
-                for line in wrap(para, BODY_WIDTH):
+                for line in wrap(para, options.BODY_WIDTH):
                     result += line + "\n"
                 result += "\n"
                 newlines = 2
@@ -156,7 +209,7 @@ class _html2text(sgmllib.SGMLParser):
         self.abbr_title = None # current abbreviation definition
         self.abbr_data = None # last inner HTML (for abbr being defined)
         self.abbr_list = {} # stack of abbreviations to write later
-    
+        
     def outtextf(self, s): 
         self.outtext += s
     
@@ -204,6 +257,7 @@ class _html2text(sgmllib.SGMLParser):
             if match: return i
 
     def handle_tag(self, tag, attrs, start):
+        global options
         attrs = fixattrs(attrs)
     
         if hn(tag):
@@ -258,7 +312,7 @@ class _html2text(sgmllib.SGMLParser):
                 attrsD = {}
                 for (x, y) in attrs: attrsD[x] = y
                 attrs = attrsD
-                if attrs.has_key('href') and not (SKIP_INTERNAL_LINKS and attrs['href'].startswith('#')): 
+                if attrs.has_key('href') and not (options.SKIP_LINKS or (options.SKIP_INTERNAL_LINKS and attrs['href'].startswith('#'))): 
                     self.astack.append(attrs)
                     self.o("[")
                 else:
@@ -381,7 +435,7 @@ class _html2text(sgmllib.SGMLParser):
                 if not self.lastWasNL: self.out(' ')
                 self.space = 0
 
-            if self.a and ((self.p_p == 2 and LINKS_EACH_PARAGRAPH) or force == "end"):
+            if self.a and ((self.p_p == 2 and options.LINKS_EACH_PARAGRAPH) or force == "end"):
                 if force == "end": self.out("\n")
 
                 newa = []
@@ -415,6 +469,10 @@ class _html2text(sgmllib.SGMLParser):
 def wrapwrite(text): sys.stdout.write(text.encode('utf8'))
 
 def html2text_file(html, out=wrapwrite):
+    global options, args, oparser
+    if options is None or args is None:
+        (options, args) = oparser.parse_args(None, None)
+
     h = _html2text(out)
     h.feed(html)
     h.feed("")
@@ -424,8 +482,9 @@ def html2text(html):
     return optwrap(html2text_file(html, None))
 
 if __name__ == "__main__":
-    if sys.argv[1:]:
-        arg = sys.argv[1]
+    (options, args) = oparser.parse_args()
+    if len(args) > 0:
+        arg = args[0]
         if arg.startswith('http://'):
             j = urllib.urlopen(arg)
             try:
@@ -438,11 +497,8 @@ if __name__ == "__main__":
             data = text.decode(encoding)
 
         else:
-            encoding = 'utf8'
-            if len(sys.argv) > 2:
-                encoding = sys.argv[2]
-            data = open(arg, 'r').read().decode(encoding)
+            data = open(arg, 'r').read().decode(options.INPUT_ENCODING)
     else:
-        data = sys.stdin.read().decode('utf8')
+        data = sys.stdin.read().decode(options.INPUT_ENCODING)
     wrapwrite(html2text(data))
 
