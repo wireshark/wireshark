@@ -40,6 +40,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/type_util.h>
 
 /* Chi-X version */
 static gboolean nasdaq_itch_chi_x = TRUE;
@@ -256,7 +257,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 
   if (nasdaq_itch_tree || col_info) {
       const char *str_value = tvb_get_ptr(tvb, offset, size);
-      gdouble value = nasdaq_itch_atoull(str_value, size)/((big)?1000000.0:10000.0);
+      gdouble value = guint64_to_gdouble(nasdaq_itch_atoull(str_value, size))/((big)?1000000.0:10000.0);
 
       proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
       if (col_info) {

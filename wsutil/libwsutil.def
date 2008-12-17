@@ -44,6 +44,10 @@ started_with_special_privs
 ascii_strdown_inplace
 ascii_strup_inplace
 
+; type_util.c
+type_util_gdouble_to_guint64
+type_util_guint64_to_gdouble
+
 ; unicode-utils.c
 utf_16to8
 utf_8to16
