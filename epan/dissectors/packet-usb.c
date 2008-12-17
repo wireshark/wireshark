@@ -1610,14 +1610,18 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     if(dissector){
                         offset = dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
                     } else {
-                        proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
-                        offset += tvb_length_remaining(tvb, offset);
+                        if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                            proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                            offset += tvb_length_remaining(tvb, offset);
+                        }
                     }
                 }
             } else {
                 /* no matching request available */
-                proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
-                offset += tvb_length_remaining(tvb, offset);
+                if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                    proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                    offset += tvb_length_remaining(tvb, offset);
+                }
             }
         }
         }
