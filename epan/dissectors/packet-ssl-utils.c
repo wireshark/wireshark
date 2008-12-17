@@ -755,6 +755,24 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0)
 
+static const gchar* ssl_private_key_to_str(SSL_PRIVATE_KEY* pk) {
+  const gchar *str="NULL";
+  size_t n;
+  gchar *buf; 
+
+  if (!pk) return str;
+#ifndef SSL_FAST
+  n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, NULL, 0);
+  buf = ep_alloc(n);
+  n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, buf, n);
+  str = buf;
+#else /* SSL_FAST */
+  str = "TO DO: dump mpi gcry_mpi_print()";
+#endif /* SSL_FAST */
+
+  return str;
+}
+
 /* decrypt data with private key. Store decrypted data directly into input
  * buffer */
 int
@@ -770,6 +788,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     decr_len = 0;
     encr_len = len;
     text=NULL;
+
     /* build up a mpi rappresentation for encrypted data */
     rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG,encr_data, encr_len, &encr_len);
     if (rc != 0 ) {
@@ -777,6 +796,8 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
             len, gcry_strerror(rc));
         return 0;
     }
+
+	/*ssl_debug_printf("pcry_private_decrypt: pk=%s\n", ssl_private_key_to_str(pk));*/
 
 #ifndef SSL_FAST
     /* put the data into a simple list */
@@ -1868,7 +1889,10 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     size_t tmp_size;
     gcry_sexp_t rsa_priv_key;
     gint major, minor, patch;
-    gint i;
+    gint i, p_idx, q_idx;
+	int ret;
+	size_t buf_len;
+	unsigned char buf_keyid[32];
 
 #ifdef SSL_FAST
     gcry_mpi_t* rsa_params = g_malloc(sizeof(gcry_mpi_t)*RSA_PARS);
@@ -1876,14 +1900,28 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     gcry_mpi_t rsa_params[RSA_PARS];
 #endif
 
+	buf_len = sizeof(buf_keyid);
+	ret = gnutls_x509_privkey_get_key_id(priv_key, 0, buf_keyid, &buf_len);
+	if (ret != 0) {
+		ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
+	} else {
+		ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str_punct(buf_keyid, buf_len, ':'));
+	}
+
     /*
      * note: openssl and gnutls use 'p' and 'q' with opposite meaning:
      * our 'p' must be equal to 'q' as provided from openssl and viceversa
      */
 
+#if (LIBGNUTLS_VERSION_MAJOR>2)||((LIBGNUTLS_VERSION_MAJOR==2)&&(LIBGNUTLS_VERSION_MINOR>=5))
+	p_idx = 3; q_idx = 4;
+#else /* versions 2.4.x and older need 'p' and 'q' swapped */
+	p_idx = 4; q_idx = 3;
+#endif
+
     /* RSA get parameter */
     if (gnutls_x509_privkey_export_rsa_raw(priv_key,
-    	  &rsa_datum[0], &rsa_datum[1], &rsa_datum[2], &rsa_datum[4], &rsa_datum[3], &rsa_datum[5]) != 0) {
+    	  &rsa_datum[0], &rsa_datum[1], &rsa_datum[2], &rsa_datum[p_idx], &rsa_datum[q_idx], &rsa_datum[5]) != 0) {
         ssl_debug_printf("ssl_load_key: can't export rsa param (is a rsa private key file ?!?)\n");
 #ifdef SSL_FAST
         g_free(rsa_params);
@@ -2154,14 +2192,6 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
             g_free(private_key);
             return 0;
           }
-
-          buf_len = sizeof(buf_keyid);
-          ret = gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len);
-          if (ret < 0) {
-            ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
-            return 0;
-          }
-          ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str(buf_keyid, buf_len));
 
           private_key->x509_pkey = ssl_pkey;
           private_key->sexp_pkey = ssl_privkey_to_sexp(ssl_pkey);
