@@ -604,8 +604,8 @@ struct usb_device_setup_hdr {
 
 /*
  * Header prepended by Linux kernel to each USB event.
- * Followed by a struct usb_device_setup_hdr, although that header is valid
- * only if setup_flag is 0.
+ * Always followed by a struct usb_device_setup_hdr, although that header
+ * is valid only if setup_flag is 0; otherwise it's 8 bytes of junk.
  * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
  * See linux/Documentation/usb/usbmon.txt and libpcap/pcap/usb.h for details.
  *
