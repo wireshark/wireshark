@@ -32,11 +32,13 @@ LIBWSUTIL_SRC = 	\
 	encap_util.c	\
 	mpeg-audio.c	\
 	privileges.c	\
-	str_util.c
+	str_util.c		\
+	type_util.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
 	encap_util.h	\
 	mpeg-audio.h	\
 	privileges.h	\
-	str_util.h
+	str_util.h		\
+	type_util.h
