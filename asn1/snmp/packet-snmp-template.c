@@ -546,7 +546,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 						switch(k->key_type) {
 							case OID_KEY_TYPE_WRONG: {
-								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developpers");
+								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developers");
 								expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
 								oid_info_is_ok = FALSE;
 								goto indexing_done;

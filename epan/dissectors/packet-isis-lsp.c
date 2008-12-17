@@ -597,7 +597,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
                         if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+2))) {
                           proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: Not supported");
 			} else {
-                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Exense Metric:  %d, %s",
+                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric:  %d, %s",
                                                ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+2)),
 					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+2)) ? "External" : "Internal");
 			}

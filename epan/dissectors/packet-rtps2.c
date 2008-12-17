@@ -8069,7 +8069,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         tvb,
                         offset-4,
                         4,
-                        "Error: not enough bytes to dissec sample inof");
+                        "Error: not enough bytes to dissect sample inof");
         return;
       }
 

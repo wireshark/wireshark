@@ -1073,7 +1073,7 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_info_mtu,
 			{ "Remote Entity MTU",           "btl2cap.info_mtu",
 				FT_UINT16, BASE_DEC, NULL, 0x0,          
-				"Remote entitiys acceptable connectionless MTU", HFILL }
+				"Remote entity acceptable connectionless MTU", HFILL }
 		},
 		{ &hf_btl2cap_info_flowcontrol,
 			{ "Flow Control Mode",           "btl2cap.info_flowcontrol",
@@ -1163,10 +1163,10 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_option_latency,
 			{ "Latency (microseconds)",           "btl2cap.option_latency",
 				FT_UINT32, BASE_DEC, NULL, 0x0,          
-				"Maximal acceptable dealy (microseconds)", HFILL }
+				"Maximal acceptable delay (microseconds)", HFILL }
 		},
 		{ &hf_btl2cap_option_delayvariation,
-			{ "Delay Variation (microseconds)",           "btl2cap.option_dealyvar",
+			{ "Delay Variation (microseconds)",           "btl2cap.option_delayvar",
 				FT_UINT32, BASE_DEC, NULL, 0x0,          
 				"Difference between maximum and minimum delay (microseconds)", HFILL }
 		},

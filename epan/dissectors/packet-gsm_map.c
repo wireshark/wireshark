@@ -2861,7 +2861,7 @@ if (!actx->value_ptr)
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decdoded send the packet to Wireshark dev");
+			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
 			break;
 		}/* switch(octet) */
 		break;
@@ -14068,7 +14068,7 @@ if (!actx->value_ptr)
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decdoded send the packet to Wireshark dev");
+			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
 			break;
 		}/* switch(octet) */
 		break;

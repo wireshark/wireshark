@@ -351,7 +351,7 @@ static const value_string vals_command_status[] = {	/* Status	*/
     { 0x00000059, "[Reserved]" },
     { 0x00000060, "[Reserved]" },
     { 0x00000061, "Invalid scheduled delivery time" },
-    { 0x00000062, "Invalid message validity period (expirey time)" },
+    { 0x00000062, "Invalid message validity period (expiry time)" },
     { 0x00000063, "Predefined message invalid or not found" },
     { 0x00000064, "ESME receiver temporary app error code" },
     { 0x00000065, "ESME receiver permanent app error code" },

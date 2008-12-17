@@ -374,7 +374,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 			offset+=attribute_length;
 			break;
 		default:
-			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Dont know how to decode this attribute list type:0x%02x",type);
+			proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Don't know how to decode this attribute list type:0x%02x",type);
 			return;
 		}
 	}

@@ -100,7 +100,7 @@ static int hf_a11_ase_gre_proto_type = -1;
 static int hf_a11_ase_gre_key = -1;
 static int hf_a11_ase_pcf_addr_key = -1;
 
-/* Foward QoS Information */
+/* Forward QoS Information */
 static int hf_a11_fqi_length = -1;
 static int hf_a11_fqi_srid = -1;
 static int hf_a11_fqi_flags = -1;
@@ -2007,14 +2007,14 @@ proto_register_a11(void)
 			"Reverse QoS Update Flow Count.", HFILL }
 	  },
 	  { &hf_a11_fqui_updated_qoslen,
-		 { "Foward Updated QoS Sub-Blob Length",   "a11.ext.fqui.updatedqoslen",
+		 { "Forward Updated QoS Sub-Blob Length",   "a11.ext.fqui.updatedqoslen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Foward Updated QoS Sub-Blob Length.", HFILL }
+			"Forward Updated QoS Sub-Blob Length.", HFILL }
 	  },
 	  { &hf_a11_fqui_updated_qos,
-		 { "Foward Updated QoS Sub-Blob",   "a11.ext.fqui.updatedqos",
+		 { "Forward Updated QoS Sub-Blob",   "a11.ext.fqui.updatedqos",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"Foward Updated QoS Sub-Blob.", HFILL }
+			"Forward Updated QoS Sub-Blob.", HFILL }
 	  },
 	  { &hf_a11_rqui_updated_qoslen,
 		 { "Reverse Updated QoS Sub-Blob Length",   "a11.ext.rqui.updatedqoslen",

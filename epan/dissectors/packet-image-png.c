@@ -280,7 +280,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			cd++;
 		}
 		if(chunk_tree){
-			proto_item_append_text(chunk_tree, " %s", cd?cd->name:"(dont know how to dissect this)");
+			proto_item_append_text(chunk_tree, " %s", cd?cd->name:"(don't know how to dissect this)");
 		}
 
 		if(!cd){

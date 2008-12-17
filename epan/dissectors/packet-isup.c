@@ -8069,7 +8069,7 @@ proto_register_isup(void)
 		 FT_UINT8, BASE_HEX, VALS(isup_cvr_cg_car_ind_value), BA_8BIT_MASK,
 		  "", HFILL }},
 		{&hf_isup_cvr_cg_double_seize,
-		 {"Doube Seize Control", "cg_char_ind.doubleSeize",
+		 {"Double Seize Control", "cg_char_ind.doubleSeize",
 		  FT_UINT8, BASE_HEX, VALS(isup_cvr_cg_double_seize_value), DC_8BIT_MASK,
 		  "", HFILL }},
 		{&hf_isup_cvr_cg_alarm_car_ind,

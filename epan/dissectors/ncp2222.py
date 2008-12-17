@@ -2025,7 +2025,7 @@ ExtAttrDataSize 		= uint32("ext_attr_data_size", "Extended Attributes Data Size"
 ExtAttrCount			= uint32("ext_attr_count", "Extended Attributes Count")
 ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
 ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined")
-ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used")
+ExtendedAttributeExtentsUsed	= uint32("extended_attribute_extents_used", "Extended Attribute Extents Used")
 ExtendedInfo	 	        = bitfield16("ext_info", "Extended Return Information", [
 	bf_boolean16(0x0001, "ext_info_update", "Last Update"),
 	bf_boolean16(0x0002, "ext_info_dos_name", "DOS Name"),
@@ -2794,7 +2794,7 @@ ModifyDOSInfoMask		= bitfield16("modify_dos_info_mask", "Modify DOS Info Mask", 
 ])
 Month				= val_string8("s_month", "Month", [
 	[ 0x01, "January"],
-	[ 0x02, "Febuary"],
+	[ 0x02, "February"],
 	[ 0x03, "March"],
 	[ 0x04, "April"],
 	[ 0x05, "May"],
@@ -3807,7 +3807,7 @@ TotalDataStreamDiskSpaceAlloc	= uint32("ttl_data_str_size_space_alloc", "Total D
 TotalDirectorySlots		= uint16("total_directory_slots", "Total Directory Slots")
 TotalDirectoryEntries		= uint32("total_dir_entries", "Total Directory Entries")
 TotalDynamicSpace 		= uint32("total_dynamic_space", "Total Dynamic Space")
-TotalExtendedDirectoryExtants	= uint32("total_extended_directory_extants", "Total Extended Directory Extants")
+TotalExtendedDirectoryExtents	= uint32("total_extended_directory_extents", "Total Extended Directory Extents")
 TotalFileServicePackets		= uint32("total_file_service_packets", "Total File Service Packets")
 TotalFilesOpened		= uint32("total_files_opened", "Total Files Opened")
 TotalLFSCounters		= uint32("total_lfs_counters", "Total LFS Counters")
@@ -3885,7 +3885,7 @@ Unused				= uint8("un_used", "Unused")
 UnusedBlocks			= uint32("unused_blocks", "Unused Blocks")
 UnUsedDirectoryEntries		= uint32("un_used_directory_entries", "Unused Directory Entries")
 UnusedDiskBlocks		= uint32("unused_disk_blocks", "Unused Disk Blocks")
-UnUsedExtendedDirectoryExtants	= uint32("un_used_extended_directory_extants", "Unused Extended Directory Extants")
+UnUsedExtendedDirectoryExtents	= uint32("un_used_extended_directory_extents", "Unused Extended Directory Extents")
 UpdateDate                      = uint16("update_date", "Update Date")
 UpdateDate.NWDate()
 UpdateID			= uint32("update_id", "Update ID", BE)
@@ -5244,10 +5244,10 @@ VolInfoStructure                = struct("vol_info_struct", [
         ClustersUsedByExtendedDirectories,
         TotalDirectoryEntries,
         UnUsedDirectoryEntries,
-        TotalExtendedDirectoryExtants,
-        UnUsedExtendedDirectoryExtants,
+        TotalExtendedDirectoryExtents,
+        UnUsedExtendedDirectoryExtents,
         ExtendedAttributesDefined,
-        ExtendedAttributeExtantsUsed,
+        ExtendedAttributeExtentsUsed,
         DirectoryServicesObjectID,
         VolumeLastModifiedTime,
         VolumeLastModifiedDate,
@@ -7616,7 +7616,7 @@ proto_register_ncp2222(void)
 	{ "RDN", "ncp.nds_rdn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
  	{ &hf_delim_string,
-	{ "Delimeter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Delimiter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_dn_output_type,
 	{ "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
@@ -8174,7 +8174,7 @@ proto_register_ncp2222(void)
         { "Client is a Server", "ncp.nds_prot_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
 
     { &hf_nds_svr_dst_name,
-	{ "Server Distiguished Name", "ncp.nds_svr_dist_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	{ "Server Distinguished Name", "ncp.nds_svr_dist_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 	{ &hf_nds_tune_mark,
         { "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},

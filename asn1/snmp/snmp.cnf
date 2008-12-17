@@ -128,13 +128,13 @@ gint pdu_type=-1;
 
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
-											"Decrypted data not formated as expected, wrong key?");
+											"Decrypted data not formatted as expected, wrong key?");
 				
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-									   "Decrypted data not formated as expected");
+									   "Decrypted data not formatted as expected");
 
 				if (check_col(actx->pinfo->cinfo, COL_INFO))
-					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formated as expected");
+					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 				
 				return offset;
 			}

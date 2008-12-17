@@ -566,17 +566,17 @@ get_evtype_info(unsigned int evtype)
 		struct evtype_info eti;
 	} eti_tab[] = {
 		{ 0x01, { etb2_thr,  etb3_thr,  etoff_01, eti_thr_2,  eti_thr_3,  "Threshold" }},
-		{ 0x02, { etb2_dscr, etb3_dscr, etoff_02, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x03, { etb2_dscr, etb3_dscr, etoff_03, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x04, { etb2_dscr, etb3_dscr, etoff_04, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x05, { etb2_dscr, etb3_dscr, etoff_05, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x06, { etb2_dscr, etb3_dscr, etoff_06, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x07, { etb2_dscr, etb3_dscr, etoff_07, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x08, { etb2_dscr, etb3_dscr, etoff_08, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x09, { etb2_dscr, etb3_dscr, etoff_09, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x0a, { etb2_dscr, etb3_dscr, etoff_0a, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x0b, { etb2_dscr, etb3_dscr, etoff_0b, eti_2_pst_sev, NULL,    "Discreet" }},
-		{ 0x0c, { etb2_dscr, etb3_dscr, etoff_0c, eti_2_pst_sev, NULL,    "Discreet" }},
+		{ 0x02, { etb2_dscr, etb3_dscr, etoff_02, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x03, { etb2_dscr, etb3_dscr, etoff_03, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x04, { etb2_dscr, etb3_dscr, etoff_04, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x05, { etb2_dscr, etb3_dscr, etoff_05, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x06, { etb2_dscr, etb3_dscr, etoff_06, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x07, { etb2_dscr, etb3_dscr, etoff_07, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x08, { etb2_dscr, etb3_dscr, etoff_08, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x09, { etb2_dscr, etb3_dscr, etoff_09, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x0a, { etb2_dscr, etb3_dscr, etoff_0a, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x0b, { etb2_dscr, etb3_dscr, etoff_0b, eti_2_pst_sev, NULL,    "Discrete" }},
+		{ 0x0c, { etb2_dscr, etb3_dscr, etoff_0c, eti_2_pst_sev, NULL,    "Discrete" }},
 		{ 0x6f, { etb2_dscr, etb3_dscr, NULL,     eti_2_pst_sev, NULL,    "Sensor-specific" }}
 	};
 	static const struct evtype_info eti_oem = {

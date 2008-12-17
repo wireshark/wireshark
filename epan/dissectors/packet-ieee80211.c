@@ -10812,9 +10812,9 @@ proto_register_ieee80211 (void)
       "Max antennae station can support when compressed Beamforming feedback required", HFILL }},
 
     {&txbf_csi_max_rows_bf,
-     {"Maximum number of rows of CSI explicit feeback", "wlan_mgt.txbf.csi.maxrows",
+     {"Maximum number of rows of CSI explicit feedback", "wlan_mgt.txbf.csi.maxrows",
       FT_UINT32, BASE_HEX, VALS (&txbf_csi_max_rows_bf_flags), 0x06000000,
-      "Maximum number of rows of CSI explicit feeback", HFILL }},
+      "Maximum number of rows of CSI explicit feedback", HFILL }},
 
     {&txbf_chan_est,
      {"Maximum number of space time streams for which channel dimensions can be simultaneously estimated", "wlan_mgt.txbf.channelest",

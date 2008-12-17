@@ -295,7 +295,7 @@ static guint16 ver_dcerpc_netlogon = 1;
 
 
 static const true_false_string user_account_control_dont_require_preauth= {
-	"This account DONT_REQUIRE_PREAUTHENTICATION",
+	"This account DOESN'T_REQUIRE_PREAUTHENTICATION",
 	"This account REQUIRES preauthentication",
 };
 static const true_false_string user_account_control_use_des_key_only= {
@@ -323,7 +323,7 @@ static const true_false_string user_account_control_account_auto_locked= {
 	"This account is NOT auto_locked",
 };
 static const true_false_string user_account_control_dont_expire_password= {
-	"This account DONT_EXPIRE_PASSWORDs",
+	"This account DOESN'T_EXPIRE_PASSWORDs",
 	"This account might expire_passwords",
 };
 static const true_false_string user_account_control_server_trust_account= {
@@ -4607,7 +4607,7 @@ static const true_false_string trust_attribs_uplevel_only = {
 	"This is a normal trust"
 };
 static const true_false_string trust_attribs_quarantined_domain = {
-	"This is a QUARANTINED DOMAIN (so dont expect lookupsids to work)",
+	"This is a QUARANTINED DOMAIN (so don't expect lookupsids to work)",
 	"This is a normal trust"
 };
 static const true_false_string trust_attribs_forest_transitive = {
@@ -4733,12 +4733,12 @@ static const true_false_string get_dcname_request_flags_good_timeserv_preferred 
 	"we do NOT have a preference for good timeserv servers"
 };
 static const true_false_string get_dcname_request_flags_avoid_self = {
-	"do NOT return self as dc, return someone else",
+	"do NOT return self as dc; return someone else",
 	"you may return yourSELF as the dc"
 };
 static const true_false_string get_dcname_request_flags_only_ldap_needed = {
-	"we ONLY NEED LDAP, you dont have to return a dc",
-	"we need a normal dc, an ldap only server will not do"
+	"we ONLY NEED LDAP; you don't have to return a dc",
+	"we need a normal dc; an ldap only server will not do"
 };
 static const true_false_string get_dcname_request_flags_is_flat_name = {
 	"the name we specify is a NetBIOS name",
@@ -7657,7 +7657,7 @@ static hf_register_info hf[] = {
 		  "The user flags RESOURCE_GROUPS", HFILL }},
 
 	{ &hf_netlogon_user_account_control_dont_require_preauth,
-	        { "Dont Require PreAuth", "netlogon.user.account_control.dont_require_preauth",
+	        { "Don't Require PreAuth", "netlogon.user.account_control.dont_require_preauth",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_require_preauth), 0x00010000,
 		  "The user account control DONT_REQUIRE_PREAUTH flag ", HFILL }},
 
@@ -7692,7 +7692,7 @@ static hf_register_info hf[] = {
 		  "The user account control account_auto_locked flag ", HFILL }},
 
 	{ &hf_netlogon_user_account_control_dont_expire_password,
-	        { "Dont Expire Password", "netlogon.user.account_control.dont_expire_password",
+	        { "Don't Expire Password", "netlogon.user.account_control.dont_expire_password",
 		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_expire_password), 0x00000200,
 		  "The user account control dont_expire_password flag ", HFILL }},
 

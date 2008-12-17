@@ -2605,7 +2605,7 @@ static const true_false_string sctp_data_chunk_b_bit_value = {
 
 static const true_false_string sctp_data_chunk_u_bit_value = {
   "Unordered delivery",
-  "Ordered deliviery"
+  "Ordered delivery"
 };
 
 static const true_false_string sctp_data_chunk_i_bit_value = {

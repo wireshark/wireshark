@@ -322,7 +322,7 @@ static const value_string edonkey_tcp_msgs[] = {
     { EDONKEY_MSG_FILE_REQUEST_ANSWER,   "File Request Answer"      },
     { EDONKEY_MSG_GET_SHARED_DIRS,       "Get Shared Directories"   },
     { EDONKEY_MSG_GET_SHARED_FILES,      "Get Shared Files"         },
-    { EDONKEY_MSG_SHARED_DIRS,           "Shared Directores"        },
+    { EDONKEY_MSG_SHARED_DIRS,           "Shared Directories"       },
     { EDONKEY_MSG_SHARED_FILES,          "Shared Files"             },
     { EDONKEY_MSG_SHARED_DENIED,         "Shared Denied"            },
     { 0,                                 NULL                       }

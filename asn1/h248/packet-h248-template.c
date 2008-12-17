@@ -173,7 +173,7 @@ static const value_string package_name_vals[] = {
   {   0x003e, "H.248.23Multi-Frequency Tone Detection Package H.248.24" }, /* H.248.24 */
   {   0x003f, "Basic CAS Package H.248.25" },							/* H.248.25 */
   {   0x0040, "Robbed Bit Signalling Package H.248.25" },		        /* H.248.25 */
-  {   0x0041, "Operator Services and Emgergency Services Package H.248.25" },
+  {   0x0041, "Operator Services and Emergency Services Package H.248.25" },
   {   0x0042, "Operator Services Extension Package H.248.25" },
   {   0x0043, "Extended Analog Line Supervision Package H.248.26" },
   {   0x0044, "Automatic Metering Package H.248.26" },

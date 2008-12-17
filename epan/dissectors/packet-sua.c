@@ -175,7 +175,7 @@ static const value_string message_class_type_values[] = {
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_REQ ,      "Registration Request (REG_REQ)" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_RSP ,      "Registartion Response (REG_RSP)" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_REQ ,    "Deregistration Request (DEREG_REQ)" },
-  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "Deregistartion Response (DEREG_RSP)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "Deregistration Response (DEREG_RSP)" },
   { 0,                           NULL } };
 
 static const value_string message_class_type_acro_values[] = {

@@ -385,7 +385,7 @@ proto_register_ieee8021ah(void)
 		0, 0xE000, "Priority", HFILL }},
 	{ &hf_ieee8021ad_cfi, {
 		"DEI", "ieee8021ad.dei", FT_UINT16, BASE_DEC,
-		0, 0x1000, "Drop Eligiblity", HFILL }},
+		0, 0x1000, "Drop Eligibility", HFILL }},
 	{ &hf_ieee8021ad_id, {
 		"ID", "ieee8021ad.id", FT_UINT16, BASE_DEC,
 		0, 0x0FFF, "Vlan ID", HFILL }},

@@ -370,7 +370,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
     } else {
       proto_tree_add_text(tree, tvb, offset, 8, "Timestamp not representable");
     }
-    proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Desciptor: %u",
+    proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Descriptor: %u",
 			tvb_get_ntohs(tvb, offset + 8));
     length = tvb_get_ntohs(tvb, offset + 10);
     proto_tree_add_text(tree, tvb, offset + 10, 2, "Authenticator length: %u",

@@ -6931,7 +6931,7 @@ proto_register_cigi(void)
         { &hf_cigi3_wave_control_period,
             { "Period (s)", "cigi.wave_control.period",
                 FT_FLOAT, BASE_DEC, NULL, 0x0,
-                "Specifies the time required fro one complete oscillation of the wave", HFILL }
+                "Specifies the time required for one complete oscillation of the wave", HFILL }
         },
         { &hf_cigi3_wave_control_direction,
             { "Direction (degrees)", "cigi.wave_control.direction",

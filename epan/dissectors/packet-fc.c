@@ -1285,7 +1285,7 @@ proto_register_fc(void)
           {"Reason", "fc.bls_reason", FT_UINT8, BASE_HEX, VALS(fc_bls_barjt_val),
            0x0, "", HFILL}},
         { &hf_fc_bls_rjtdetail,
-          {"Reason Explanantion", "fc.bls_rjtdetail", FT_UINT8, BASE_HEX,
+          {"Reason Explanation", "fc.bls_rjtdetail", FT_UINT8, BASE_HEX,
            VALS (fc_bls_barjt_det_val), 0x0, "", HFILL}},
         { &hf_fc_bls_vendor,
           {"Vendor Unique Reason", "fc.bls_vnduniq", FT_UINT8, BASE_HEX, NULL,

@@ -669,7 +669,7 @@ void proto_register_mysql(void)
 		"", HFILL }},
 
 		{ &hf_mysql_cap_no_schema,
-		{ "Dont Allow database.table.column","mysql.caps.ns",
+		{ "Don't Allow database.table.column","mysql.caps.ns",
 		FT_BOOLEAN, 16, TFS(&flags_set_truth), MYSQL_CAPS_NS,
 		"", HFILL }},
 

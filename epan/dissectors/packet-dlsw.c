@@ -198,7 +198,7 @@ static const value_string dlsw_refuse_vals[] = {
 	{ 0x3	, "vendor Id control vector is missing"},
 	{ 0x4	, "DLSw Version control vector is missing"},
 	{ 0x5	, "initial Pacing Window control vector is missing"},
-	{ 0x6	, "length of control vectors doewn't correlate to the length of the GDS variable"},
+	{ 0x6	, "length of control vectors doesn't correlate to the length of the GDS variable"},
 	{ 0x7	, "invalid control vector id"},
 	{ 0x8	, "length of control vector invalid"},
 	{ 0x9	, "invalid control vector data value"},
@@ -393,8 +393,8 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
   case DLSW_GDSID_ACK:
     break;
   case DLSW_GDSID_REF:
-    proto_tree_add_text (tree,tvb,4,2,"Erorr pointer =  %d",tvb_get_ntohs(tvb,4));
-    proto_tree_add_text (tree,tvb,6,2,"Erorr cause = %s",
+    proto_tree_add_text (tree,tvb,4,2,"Error pointer =  %d",tvb_get_ntohs(tvb,4));
+    proto_tree_add_text (tree,tvb,6,2,"Error cause = %s",
      val_to_str(tvb_get_ntohs(tvb,6), dlsw_refuse_vals, "Unknown refuse cause"));
     break;
   case DLSW_GDSID_SEND:

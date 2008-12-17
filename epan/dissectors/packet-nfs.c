@@ -10914,7 +10914,7 @@ proto_register_nfs(void)
 			"Prot Info hash algorithm", "nfs.prot_info4_hash_alg", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_prot_info4_encr_alg, {
-			"Prot Info encription algorithm", "nfs.prot_info4_encr_alg", FT_UINT32, BASE_HEX,
+			"Prot Info encryption algorithm", "nfs.prot_info4_encr_alg", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_prot_info4_svv_length, {
 			"Prot Info svv_length", "nfs.prot_info4_svv_length", FT_UINT32, BASE_HEX,

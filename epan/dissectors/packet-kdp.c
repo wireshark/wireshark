@@ -329,7 +329,7 @@ void proto_register_kdp(void) {
 	FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}
     },
     { &hf_kdp_body,
-      { "Encyrpted Body", "kdp.body",
+      { "Encrypted Body", "kdp.body",
 	FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
     },
     { &hf_kdp_xml_body,

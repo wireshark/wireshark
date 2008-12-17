@@ -2540,7 +2540,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "Donwlink Advanced Receiver Performance: Downlink Advanced Receiver Performance %s supported",
+  proto_item_append_text(pi, "Downlink Advanced Receiver Performance: Downlink Advanced Receiver Performance %s supported",
 			 value == 0 ? "not" : "- phase 1");
 
 

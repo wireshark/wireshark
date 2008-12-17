@@ -462,7 +462,7 @@ BACnetEngineeringUnits [] = {
 	{60,"Centimeters Of Mercury"},
 	{61,"Inches Of Mercury"},
 	{62,"Degrees Celsius"},
-	{63,"Degress Kelvin"},
+	{63,"Degrees Kelvin"},
 	{64,"Degrees Fahrenheit"},
 	{65,"Degree Days Celsius"},
 	{66,"Degree Days Fahrenheit"},

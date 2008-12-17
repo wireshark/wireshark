@@ -89,7 +89,7 @@
  * 34. For complex TypeCodes need to check final offset against original offset + sequence length.
  * 35. Update REQUEST/REPLY 1_2 according to IDL (eg; ServiceContextList etc).
  * 36. Adding decode_ServiceContextList, incomplete.
- * 37. Helper functions should not ALWAYS rely on header to find  current endianess. It should
+ * 37. Helper functions should not ALWAYS rely on header to find  current endianness. It should
  *     be passed from user, eg Use   stream_is_big_endian. [started]
  * 38. Remove unwanted/unused function parameters, see decode_IOR [started]
  * 40. Add sequence <IOP::TaggedComponent> components to IIOP IOR profile. Perhaps
@@ -318,7 +318,7 @@
 
 
 static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
-                                    guint32 boundary, gboolean new_endianess, gchar *repobuf,
+                                    guint32 boundary, gboolean new_endianness, gchar *repobuf,
                                     gboolean store_flag);
 
 static void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *tree, int *offset,
@@ -408,7 +408,7 @@ static int hf_giop_profile_id = -1;
 static int hf_giop_type_id = -1;
 static int hf_giop_iiop_v_maj = -1;
 static int hf_giop_iiop_v_min = -1;
-static int hf_giop_endianess = -1; /* esp encapsulations */
+static int hf_giop_endianness = -1; /* esp encapsulations */
 static int hf_giop_compressed = -1;
 static int hf_giop_IOR_tag = -1;
 static int hf_giop_IIOP_tag = -1;
@@ -464,9 +464,9 @@ static gint ett_giop_ior = -1;	/* IOR  */
 
 static dissector_handle_t data_handle;
 static dissector_handle_t giop_tcp_handle;
-/* GIOP endianess */
+/* GIOP endianness */
 
-static const value_string giop_endianess_vals[] = {
+static const value_string giop_endianness_vals[] = {
   { 0x0, "Big Endian" },
   { 0x1, "Little Endian" },
   { 0, NULL}
@@ -4168,9 +4168,9 @@ proto_register_giop (void)
        FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
     },
 
-    { &hf_giop_endianess,
-     { "Endianess", "giop.endianess",
-       FT_UINT8, BASE_DEC, VALS(giop_endianess_vals), 0x0, "", HFILL }
+    { &hf_giop_endianness,
+     { "Endianness", "giop.endianness",
+       FT_UINT8, BASE_DEC, VALS(giop_endianness_vals), 0x0, "", HFILL }
     },
 
     { &hf_giop_IIOP_tag,
@@ -4534,7 +4534,7 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   gchar *p_profile_data;	/* printable profile_data pointer */
 
   guint32 new_boundary;		/* for encapsulations encountered */
-  gboolean new_big_endianess;	/* for encapsulations encountered */
+  gboolean new_big_endianness;	/* for encapsulations encountered */
 
   /* Get ProfileId tag */
 
@@ -4549,7 +4549,7 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   seqlen_pd = get_CDR_encap_info(tvb, tree, offset,
 				 stream_is_big_endian, boundary,
-				 &new_big_endianess, &new_boundary);
+				 &new_big_endianness, &new_boundary);
 
   /* return if zero length sequence */
 
@@ -4569,12 +4569,12 @@ static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   switch(pidtag) {
   case IOP_TAG_INTERNET_IOP:
 
-    decode_IIOP_IOR_profile(tvb, pinfo, tree, offset, new_boundary, new_big_endianess, repobuf, TRUE);
+    decode_IIOP_IOR_profile(tvb, pinfo, tree, offset, new_boundary, new_big_endianness, repobuf, TRUE);
     break;
 
   default:
 
-    /* fetch all octets in this sequence , but skip endianess */
+    /* fetch all octets in this sequence , but skip endianness */
 
     get_CDR_octet_seq(tvb, &profile_data, offset, seqlen_pd -1);
 
@@ -5723,7 +5723,7 @@ static void dissect_tk_abstract_interface_params(tvbuff_t *tvb, proto_tree *tree
  * we come across, useful helper function
  *
  * Also, should return immediately if seqlen == 0.
- * ie: Forget about trying to grab endianess for
+ * ie: Forget about trying to grab endianness for
  *     zero length sequence.
  *
  * Caller must always check seqlen == 0, and not assume its value
@@ -5743,7 +5743,7 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 		       gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr ) {
 
   guint32 seqlen;   /* sequence length */
-  guint8  giop_endianess;
+  guint8  giop_endianness;
 
   /* Get sequence length of parameter list */
   seqlen = get_CDR_ulong(tvb,offset,old_stream_is_big_endian,old_boundary);
@@ -5755,7 +5755,7 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 
 
   /*
-   * seqlen == 0, implies no endianess and no data
+   * seqlen == 0, implies no endianness and no data
    * so just return. Populate new_boundary_ptr and
    * new_stream_is_big_endian_ptr with current (old)
    * values, just to keep everyone happy. -- FS
@@ -5773,9 +5773,9 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 
   /*  Start of encapsulation of parameter list */
   *new_boundary_ptr = *offset;	/* remember  */
-  giop_endianess =  get_CDR_octet(tvb,offset);
+  giop_endianness =  get_CDR_octet(tvb,offset);
 
-  *new_stream_is_big_endian_ptr = ! giop_endianess;
+  *new_stream_is_big_endian_ptr = ! giop_endianness;
 
   /*
    * Glib: typedef gint   gboolean;
@@ -5785,8 +5785,8 @@ guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 
 
   if (tree) {
-    proto_tree_add_uint(tree,hf_giop_endianess,tvb,
-			*offset-1,1,giop_endianess);
+    proto_tree_add_uint(tree,hf_giop_endianness,tvb,
+			*offset-1,1,giop_endianness);
   }
 
 

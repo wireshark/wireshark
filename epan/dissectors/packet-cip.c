@@ -352,7 +352,7 @@ const value_string cip_devtype_vals[] = {
    { DP_LIMIT_SWITCH,         "Limit Switch"                },
    { DP_IND_PROX_SWITCH,      "Inductive Proximity Switch"  },
    { DP_PHOTO_SENSOR,         "Photoelectric Sensor"        },
-   { DP_GENP_DISC_IO,         "General Purpose Dicrete I/O" },
+   { DP_GENP_DISC_IO,         "General Purpose Discrete I/O"},
    { DP_RESOLVER,             "Resolver"                    },
    { DP_COM_ADAPTER,          "Communications Adapter"      },
    { DP_POS_CNT,              "Position Controller",        },

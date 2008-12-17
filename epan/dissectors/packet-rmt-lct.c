@@ -504,16 +504,16 @@ void lct_prefs_register(struct _lct_prefs *prefs, module_t *module)
 
 	prefs_register_enum_preference(module,
 		"lct.ext.192",
-		"LCT header extention 192",
-		"How to decode LCT header extention 192",
+		"LCT header extension 192",
+		"How to decode LCT header extension 192",
 		&prefs->ext_192,
 		enum_lct_ext_192,
 		FALSE);
 
 	prefs_register_enum_preference(module,
 		"lct.ext.193",
-		"LCT header extention 193",
-		"How to decode LCT header extention 193",
+		"LCT header extension 193",
+		"How to decode LCT header extension 193",
 		&prefs->ext_193,
 		enum_lct_ext_193,
 		FALSE);

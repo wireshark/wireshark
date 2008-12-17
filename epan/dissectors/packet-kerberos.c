@@ -506,7 +506,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	static krb5_data data = {0,0,NULL};
 	krb5_keytab_entry key;
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return NULL;
 	}
@@ -642,7 +642,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	krb5_data data;
 	enc_key_t *ek;
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return NULL;
 	}
@@ -831,7 +831,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	struct des3_ctx ctx;
 
 
-	/* dont do anything if we are not attempting to decrypt data */
+	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return NULL;
 	}
@@ -1781,7 +1781,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
 		g_snprintf(address_str, 256, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
+		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I don't know how to parse this type of address yet");
 
 	}
 

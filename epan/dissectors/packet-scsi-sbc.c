@@ -146,7 +146,7 @@ static gint ett_scsi_writesame			= -1;
 
 
 static const true_false_string dpo_tfs = {
-    "Disable Page Out (dont cache this data)",
+    "Disable Page Out (don't cache this data)",
     "Disable page out is DISABLED (cache this data)"
 };
 static const true_false_string fua_tfs = {

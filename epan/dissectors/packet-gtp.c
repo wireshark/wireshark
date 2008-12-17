@@ -1192,7 +1192,7 @@ static const value_string ranap_cause_type[] = {
     {5, "Tqueing Expiry"},
     {6, "Relocation Triggered"},
     {7, "TRELOCalloc Expiry"},
-    {8, "Unable to Estabish During Relocation"},
+    {8, "Unable to Establish During Relocation"},
     {9, "Unknown Target RNC"},
     {10, "Relocation Cancelled"},
     {11, "Successful Relocation"},

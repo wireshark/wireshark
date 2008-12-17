@@ -3637,7 +3637,7 @@ static const range_string cdmaserviceoption_vals[] = {
 	{ 32828, 32831, "Denso International" }, 
 	{ 32832, 32835, "Denso International" }, 
 	{ 32836, 32839, "NEC America" },
-	{ 32840, 32843, "Samsung Electrnics" },
+	{ 32840, 32843, "Samsung Electronics" },
 	{ 32844, 32847, "Texas Instruments Incorporated" },
 	{ 32848, 32851, "Toshiba Corporation" },
 	{ 32852, 32855, "LG Electronics Inc." },

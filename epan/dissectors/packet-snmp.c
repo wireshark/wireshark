@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -648,7 +648,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 						switch(k->key_type) {
 							case OID_KEY_TYPE_WRONG: {
-								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developpers");
+								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developers");
 								expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
 								oid_info_is_ok = FALSE;
 								goto indexing_done;
@@ -2214,13 +2214,13 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
-											"Decrypted data not formated as expected, wrong key?");
+											"Decrypted data not formatted as expected, wrong key?");
 				
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
-									   "Decrypted data not formated as expected");
+									   "Decrypted data not formatted as expected");
 
 				if (check_col(actx->pinfo->cinfo, COL_INFO))
-					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formated as expected");
+					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 				
 				return offset;
 			}

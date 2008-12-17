@@ -103,7 +103,7 @@ static const value_string descriptors[] = {
 	{310, "game"},
 	{311, "client_gamestate"},
 	{320, "cycle"},
-	{321, "destinaton"},
+	{321, "destination"},
 	{330, "gAIPlayer"},
 	{331, "gAITeam"},
 	{340, "zone"},

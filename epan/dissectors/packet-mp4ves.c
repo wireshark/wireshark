@@ -483,7 +483,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		}
 	}
 	if(bit_offset-current_bit_offset > 0)
-		proto_tree_add_text(tree, tvb, current_bit_offset>>3, (bit_offset+7)>>3, "Not disected bits");
+		proto_tree_add_text(tree, tvb, current_bit_offset>>3, (bit_offset+7)>>3, "Not dissected bits");
 	/* video_object_layer_shape 2 uimsbf */
 	video_object_layer_shape = tvb_get_bits8(tvb,bit_offset, 2);
 	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, FALSE);

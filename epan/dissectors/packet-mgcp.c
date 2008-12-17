@@ -824,7 +824,7 @@ void proto_register_mgcp(void)
             "Specific Endpoint ID", HFILL }},
         { &hf_mgcp_param_secondendpointid,
           { "SecondEndpointID (Z2)", "mgcp.param.secondendpointid", FT_STRING, BASE_DEC, NULL, 0x0,
-            "Second Endpoing ID", HFILL }},
+            "Second Endpoint ID", HFILL }},
         { &hf_mgcp_param_reqinfo,
           { "RequestedInfo (F)", "mgcp.param.reqinfo", FT_STRING, BASE_DEC, NULL, 0x0,
             "Requested Info", HFILL }},

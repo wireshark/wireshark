@@ -9882,7 +9882,7 @@ proto_register_gsm_a_rr(void)
 	{ &hf_gsm_a_rr_drx_timer_max,
 		{ "DRX Timer Max", "gsm_a.rr.drx_timer_max",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_drx_timer_max_vals), 0x0,
-		"Discontinous Reception Timer Max (DRX Timer Max)", HFILL }
+		"Discontinuous Reception Timer Max (DRX Timer Max)", HFILL }
 	},
 	{ &hf_gsm_a_rr_access_burst_type,
 		{ "Access Burst Type", "gsm_a.rr.access_burst_type",

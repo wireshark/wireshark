@@ -2,7 +2,7 @@
  * Routines for DPNNS/DASS2 dissection
  * Copyright 2007, Anders Broman <anders.broman[at]ericsson.com>
  * 
- * Supplementarry string parameter table and testing by Tomas Muehlhoff.
+ * Supplementary string parameter table and testing by Tomas Muehlhoff.
  *
  * $Id$
  *

@@ -785,8 +785,8 @@ proto_register_s5066(void)
 				       &s5066_desegment);
 	prefs_register_bool_preference(s5066_module, "edition_one",
 				       "Dissect edition 1.0 of STANAG 5066",
-				       "Whether the S5066 dissector should dissect editon 1 of the STANAG."
-				       " This editon was never formally approved and is very rare. The common edition is editon 1.2.",
+				       "Whether the S5066 dissector should dissect this edition of the STANAG."
+				       " This edition was never formally approved and is very rare. The common edition is edition 1.2.",
 				       &s5066_edition_one);
 	prefs_register_uint_preference(s5066_module, "tcp.port",
 				       "STANAG 5066 TCP Port",
