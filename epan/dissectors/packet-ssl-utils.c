@@ -755,7 +755,8 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0)
 
-static const gchar* ssl_private_key_to_str(SSL_PRIVATE_KEY* pk) {
+const gchar* 
+ssl_private_key_to_str(SSL_PRIVATE_KEY* pk) {
   const gchar *str="NULL";
   size_t n;
   gchar *buf; 
