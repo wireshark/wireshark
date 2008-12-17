@@ -1133,13 +1133,33 @@ typedef struct _usb_setup_dissector_table_t {
     guint8 request;
     usb_setup_dissector dissector;
 } usb_setup_dissector_table_t;
+#define USB_SETUP_GET_STATUS		0
+#define USB_SETUP_CLEAR_FEATURE		1
+#define USB_SETUP_SET_FEATURE		2
+#define USB_SETUP_SET_ADDRESS		5
 #define USB_SETUP_GET_DESCRIPTOR	6
+#define USB_SETUP_SET_DESCRIPTOR	7
+#define USB_SETUP_GET_CONFIGURATION	8
+#define USB_SETUP_SET_CONFIGURATION	9
+#define USB_SETUP_GET_INTERFACE		10
+#define USB_SETUP_SET_INTERFACE		11
+#define USB_SETUP_SYNCH_FRAME		12
 static const usb_setup_dissector_table_t setup_dissectors[] = {
     {USB_SETUP_GET_DESCRIPTOR,	dissect_usb_setup_get_descriptor},
     {0, NULL}
 };
 static const value_string setup_request_names_vals[] = {
+    {USB_SETUP_GET_STATUS,		"GET STATUS"},
+    {USB_SETUP_CLEAR_FEATURE,		"CLEAR FEATURE"},
+    {USB_SETUP_SET_FEATURE,		"SET FEATURE"},
+    {USB_SETUP_SET_ADDRESS,		"SET ADDRESS"},
     {USB_SETUP_GET_DESCRIPTOR,		"GET DESCRIPTOR"},
+    {USB_SETUP_SET_DESCRIPTOR,		"SET DESCRIPTOR"},
+    {USB_SETUP_GET_CONFIGURATION,	"GET CONFIGURATION"},
+    {USB_SETUP_SET_CONFIGURATION,	"SET CONFIGURATION"},
+    {USB_SETUP_GET_INTERFACE,		"GET INTERFACE"},
+    {USB_SETUP_SET_INTERFACE,		"SET INTERFACE"},
+    {USB_SETUP_SYNCH_FRAME,		"SYNCH FRAME"},
     {0, NULL}
 };
 
@@ -1558,32 +1578,41 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             tvbuff_t *next_tvb;
 
             /* this is a response */
-            if(usb_conv_info->usb_trans_info){
+            if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset(tvb, offset, -1, -1);
                 if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
                 }
 
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_clear(pinfo->cinfo, COL_INFO);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-                        val_to_str(usb_conv_info->usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
-                }
+                type = (usb_trans_info->requesttype & USB_TYPE_MASK) >>5;
+                switch (type) {
 
-                dissector=NULL;
-                for(tmp=setup_dissectors;tmp->dissector;tmp++){
-                    if(tmp->request==usb_conv_info->usb_trans_info->request){
-                        dissector=tmp->dissector;
-                        break;
+                case RQT_SETUP_TYPE_STANDARD:
+                    /*
+                     * This is a standard reply which is managed by this
+                     * dissector
+                     */
+                    if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_clear(pinfo->cinfo, COL_INFO);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+                            val_to_str(usb_conv_info->usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
                     }
-                }
 
-                if(dissector){
-                    offset = dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
-                } else {
-                    proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
-                    offset += tvb_length_remaining(tvb, offset);
+                    dissector=NULL;
+                    for(tmp=setup_dissectors;tmp->dissector;tmp++){
+                        if(tmp->request==usb_conv_info->usb_trans_info->request){
+                            dissector=tmp->dissector;
+                            break;
+                        }
+                    }
+
+                    if(dissector){
+                        offset = dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
+                    } else {
+                        proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                        offset += tvb_length_remaining(tvb, offset);
+                    }
                 }
             } else {
                 /* no matching request available */
@@ -1699,7 +1728,7 @@ proto_register_usb(void)
                 "", HFILL }},
 
         { &hf_usb_request,
-        { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_HEX, VALS(setup_request_names_vals), 0x0,
+        { "bRequest", "usb.setup.bRequest", FT_UINT8, BASE_DEC, VALS(setup_request_names_vals), 0x0,
                 "", HFILL }},
 
         { &hf_usb_value,
