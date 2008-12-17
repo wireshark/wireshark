@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.3.0 (2008-09)
+-- 3GPP TS 36.413 V8.4.0 (2008-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -39,11 +39,11 @@ id-HandoverResourceAllocation 		ProcedureCode ::= 1
 id-HandoverNotification 			ProcedureCode ::= 2
 id-PathSwitchRequest 				ProcedureCode ::= 3
 id-HandoverCancel 					ProcedureCode ::= 4
-id-SAEBearerSetup						ProcedureCode ::= 5
-id-SAEBearerModify 					ProcedureCode ::= 6
-id-SAEBearerRelease					ProcedureCode ::= 7
-id-SAEBearerReleaseRequest				ProcedureCode ::= 8
-id-InitialContextSetup						ProcedureCode ::= 9
+id-E-RABSetup						ProcedureCode ::= 5
+id-E-RABModify 						ProcedureCode ::= 6
+id-E-RABRelease						ProcedureCode ::= 7
+id-E-RABReleaseIndication			ProcedureCode ::= 8
+id-InitialContextSetup				ProcedureCode ::= 9
 id-Paging							ProcedureCode ::= 10
 id-downlinkNASTransport				ProcedureCode ::= 11
 id-initialUEMessage					ProcedureCode ::= 12
@@ -70,6 +70,11 @@ id-LocationReportingFailureIndication	ProcedureCode ::= 32
 id-LocationReport					ProcedureCode ::= 33
 id-OverloadStart					ProcedureCode ::= 34
 id-OverloadStop						ProcedureCode ::= 35
+id-WriteReplaceWarning				ProcedureCode ::= 36
+id-eNBDirectInformationTransfer			ProcedureCode ::= 37
+id-MMEDirectInformationTransfer			ProcedureCode ::= 38
+id-PrivateMessage					ProcedureCode ::= 39
+
 
 -- **************************************************************
 --
@@ -86,10 +91,11 @@ maxProtocolIEs						INTEGER ::= 65535
 --
 -- **************************************************************
 
-maxNrOfSAEBs							INTEGER ::= 256
+maxNrOfCSGs								INTEGER ::= 256
+maxNrOfE-RABs							INTEGER ::= 256
 maxNrOfInterfaces						INTEGER ::= 3   --FFS
-maxnoofTAI								INTEGER ::= 256 --FFS
-maxnoofTACs								INTEGER ::= 256 --FFS
+maxnoofTAI								INTEGER ::= 256
+maxnoofTACs								INTEGER ::= 256
 maxNrOfErrors							INTEGER ::= 256
 maxnoofBPLMNs							INTEGER ::= 6
 maxnoofPLMNsPerMME						INTEGER ::= 32 -- FFS
@@ -99,7 +105,13 @@ maxnoofForbLACs							INTEGER ::= 4096
 maxnoofForbTACs							INTEGER ::= 4096		
 maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
 maxnoofGUMMEIs							INTEGER ::= 256 -- FFS
-
+maxnoofCells							INTEGER ::= 16		
+maxnoofTAIforWarning					INTEGER ::= 65535 -- FFS
+maxnoofCellID							INTEGER ::= 65535 -- FFS
+maxnoofEmergencyAreaID					INTEGER ::= 65535 -- FFS
+maxnoofCellinTAI						INTEGER ::= 65535 -- FFS
+maxnoofCellinEAI						INTEGER ::= 65535 -- FFS
+maxnoofeNBX2TLAs						INTEGER ::= 2
 
 
 
@@ -114,54 +126,47 @@ id-HandoverType									ProtocolIE-ID ::= 1
 id-Cause										ProtocolIE-ID ::= 2
 id-SourceID										ProtocolIE-ID ::= 3
 id-TargetID										ProtocolIE-ID ::= 4
-id-Intra-LTEHOInformationReq					ProtocolIE-ID ::= 5
-id-LTEtoUTRANHOInformationReq					ProtocolIE-ID ::= 6
-id-LTEtoGERANHOInformationReq					ProtocolIE-ID ::= 7
 id-eNB-UE-S1AP-ID								ProtocolIE-ID ::= 8
-id-Intra-LTEHOInformationRes					ProtocolIE-ID ::= 9
-id-LTEtoUTRANHOInformationRes					ProtocolIE-ID ::= 10
-id-LTEtoGERANHOInformationRes					ProtocolIE-ID ::= 11
-id-SAEBearerSubjecttoDataForwardingList			ProtocolIE-ID ::= 12
-id-SAEBearertoReleaseListHOCmd					ProtocolIE-ID ::= 13
-id-SAEBearerDataForwardingItem					ProtocolIE-ID ::= 14
-id-SAEBearerReleaseItemBearerRelComp			ProtocolIE-ID ::= 15
-id-SAEBearerToBeSetupListBearerSUReq			ProtocolIE-ID ::= 16
-id-SAEBearerToBeSetupItemBearerSUReq			ProtocolIE-ID ::= 17
-id-SAEBearerAdmittedList						ProtocolIE-ID ::= 18
-id-SAEBearerFailedToSetupListHOReqAck			ProtocolIE-ID ::= 19
-id-SAEBearerAdmittedItem						ProtocolIE-ID ::= 20
-id-SAEBearerFailedtoSetupItemHOReqAck			ProtocolIE-ID ::= 21
-id-SAEBearerToBeSwitchedDLList					ProtocolIE-ID ::= 22
-id-SAEBearerToBeSwitchedDLItem					ProtocolIE-ID ::= 23
-id-SAEBearerToBeSetupListCtxtSUReq				ProtocolIE-ID ::= 24
+id-E-RABSubjecttoDataForwardingList			ProtocolIE-ID ::= 12
+id-E-RABtoReleaseListHOCmd					ProtocolIE-ID ::= 13
+id-E-RABDataForwardingItem					ProtocolIE-ID ::= 14
+id-E-RABReleaseItemBearerRelComp			ProtocolIE-ID ::= 15
+id-E-RABToBeSetupListBearerSUReq			ProtocolIE-ID ::= 16
+id-E-RABToBeSetupItemBearerSUReq			ProtocolIE-ID ::= 17
+id-E-RABAdmittedList						ProtocolIE-ID ::= 18
+id-E-RABFailedToSetupListHOReqAck			ProtocolIE-ID ::= 19
+id-E-RABAdmittedItem						ProtocolIE-ID ::= 20
+id-E-RABFailedtoSetupItemHOReqAck			ProtocolIE-ID ::= 21
+id-E-RABToBeSwitchedDLList					ProtocolIE-ID ::= 22
+id-E-RABToBeSwitchedDLItem					ProtocolIE-ID ::= 23
+id-E-RABToBeSetupListCtxtSUReq				ProtocolIE-ID ::= 24
 id-TraceActivation								ProtocolIE-ID ::= 25
 id-NAS-PDU										ProtocolIE-ID ::= 26
-id-SAEBearerToBeSetupItemHOReq					ProtocolIE-ID ::= 27
-id-SAEBearerSetupListBearerSURes				ProtocolIE-ID ::= 28
-id-SAEBearerFailedToSetupListBearerSURes		ProtocolIE-ID ::= 29
-id-SAEBearerToBeModifiedListBearerModReq		ProtocolIE-ID ::= 30
-id-SAEBearerModifyListBearerModRes				ProtocolIE-ID ::= 31
-id-SAEBearerFailedToModifyList					ProtocolIE-ID ::= 32
-id-SAEBearerToBeReleasedList					ProtocolIE-ID ::= 33
-id-SAEBearerFailedToReleaseList					ProtocolIE-ID ::= 34
-id-SAEBearerItem								ProtocolIE-ID ::= 35
-id-SAEBearerToBeModifiedItemBearerModReq		ProtocolIE-ID ::= 36
-id-SAEBearerModifyItemBearerModRes				ProtocolIE-ID ::= 37
-id-SAEBearerReleaseItem							ProtocolIE-ID ::= 38
-id-SAEBearerSetupItemBearerSURes				ProtocolIE-ID ::= 39
-id-Security-Information							ProtocolIE-ID ::= 40
+id-E-RABToBeSetupItemHOReq					ProtocolIE-ID ::= 27
+id-E-RABSetupListBearerSURes				ProtocolIE-ID ::= 28
+id-E-RABFailedToSetupListBearerSURes		ProtocolIE-ID ::= 29
+id-E-RABToBeModifiedListBearerModReq		ProtocolIE-ID ::= 30
+id-E-RABModifyListBearerModRes				ProtocolIE-ID ::= 31
+id-E-RABFailedToModifyList					ProtocolIE-ID ::= 32
+id-E-RABToBeReleasedList					ProtocolIE-ID ::= 33
+id-E-RABFailedToReleaseList					ProtocolIE-ID ::= 34
+id-E-RABItem								ProtocolIE-ID ::= 35
+id-E-RABToBeModifiedItemBearerModReq		ProtocolIE-ID ::= 36
+id-E-RABModifyItemBearerModRes				ProtocolIE-ID ::= 37
+id-E-RABReleaseItem							ProtocolIE-ID ::= 38
+id-E-RABSetupItemBearerSURes				ProtocolIE-ID ::= 39
+id-SecurityContext							ProtocolIE-ID ::= 40
 id-HandoverRestrictionList						ProtocolIE-ID ::= 41
 id-UEPagingID 									ProtocolIE-ID ::= 43
 id-pagingDRX 									ProtocolIE-ID ::= 44
-id-pagingCause									ProtocolIE-ID ::= 45
 id-TAIList										ProtocolIE-ID ::= 46
 id-TAIItem										ProtocolIE-ID ::= 47
-id-SAEBearerFailedToSetupListCtxtSURes			ProtocolIE-ID ::= 48
-id-SAEBearerReleaseItemHOCmd					ProtocolIE-ID ::= 49
-id-SAEBearerSetupItemCtxtSURes					ProtocolIE-ID ::= 50
-id-SAEBearerSetupListCtxtSURes					ProtocolIE-ID ::= 51
-id-SAEBearerToBeSetupItemCtxtSUReq				ProtocolIE-ID ::= 52
-id-SAEBearerToBeSetupListHOReq					ProtocolIE-ID ::= 53
+id-E-RABFailedToSetupListCtxtSURes			ProtocolIE-ID ::= 48
+id-E-RABReleaseItemHOCmd					ProtocolIE-ID ::= 49
+id-E-RABSetupItemCtxtSURes					ProtocolIE-ID ::= 50
+id-E-RABSetupListCtxtSURes					ProtocolIE-ID ::= 51
+id-E-RABToBeSetupItemCtxtSUReq				ProtocolIE-ID ::= 52
+id-E-RABToBeSetupListHOReq					ProtocolIE-ID ::= 53
 id-GERANtoLTEHOInformationRes					ProtocolIE-ID ::= 55
 id-UTRANtoLTEHOInformationRes					ProtocolIE-ID ::= 57
 id-CriticalityDiagnostics 						ProtocolIE-ID ::= 58
@@ -173,14 +178,14 @@ id-SupportedTAs									ProtocolIE-ID ::= 64
 id-TimeToWait									ProtocolIE-ID ::= 65
 id-uEaggregateMaximumBitrate						ProtocolIE-ID ::= 66
 id-TAI											ProtocolIE-ID ::= 67
-id-SAEBearerReleaseListBearerRelComp			ProtocolIE-ID ::= 69
+id-E-RABReleaseListBearerRelComp			ProtocolIE-ID ::= 69
 id-cdma2000PDU									ProtocolIE-ID ::= 70
 id-cdma2000RATType								ProtocolIE-ID ::= 71
 id-cdma2000SectorID								ProtocolIE-ID ::= 72
-id-SecurityInfo									ProtocolIE-ID ::= 73
+id-SecurityKey									ProtocolIE-ID ::= 73
 id-UERadioCapability							ProtocolIE-ID ::= 74
 id-GUMMEI-ID									ProtocolIE-ID ::= 75
-id-SAEBearerInformationListItem					ProtocolIE-ID ::= 78
+id-E-RABInformationListItem					ProtocolIE-ID ::= 78
 id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
 id-cdma2000HOStatus								ProtocolIE-ID ::= 83
@@ -193,8 +198,8 @@ id-eNB-StatusTransfer-TransparentContainer		ProtocolIE-ID ::= 90
 id-UE-associatedLogicalS1-ConnectionItem		ProtocolIE-ID ::= 91
 id-ResetType									ProtocolIE-ID ::= 92
 id-UE-associatedLogicalS1-ConnectionListResAck	ProtocolIE-ID ::= 93
-id-SAEBearerToBeSwitchedULItem					ProtocolIE-ID ::= 94
-id-SAEBearerToBeSwitchedULList					ProtocolIE-ID ::= 95
+id-E-RABToBeSwitchedULItem					ProtocolIE-ID ::= 94
+id-E-RABToBeSwitchedULList					ProtocolIE-ID ::= 95
 id-S-TMSI										ProtocolIE-ID ::= 96
 id-cdma2000OneXRAND								ProtocolIE-ID ::= 97
 id-RequestType									ProtocolIE-ID ::= 98
@@ -202,11 +207,31 @@ id-UE-S1AP-IDs									ProtocolIE-ID ::= 99
 id-EUTRAN-CGI								ProtocolIE-ID ::= 100
 id-OverloadResponse								ProtocolIE-ID ::= 101
 id-cdma2000OneXSRVCCInfo						ProtocolIE-ID ::= 102
-id-SAEBearerFailedToSwitchDLList				ProtocolIE-ID ::= 103
-id-SourceeNodeB-ToTargeteNodeB-TransparentContainer	ProtocolIE-ID ::= 104
+id-E-RABFailedToBeReleasedList				ProtocolIE-ID ::= 103
+id-Source-ToTarget-TransparentContainer	ProtocolIE-ID ::= 104
 id-ServedGUMMEIs								ProtocolIE-ID ::= 105
 id-SubscriberProfileIDforRFP					ProtocolIE-ID ::= 106
+id-UESecurityCapabilities						ProtocolIE-ID ::= 107
+id-CSFallbackIndicator							ProtocolIE-ID ::= 108
+id-CNDomain										ProtocolIE-ID ::= 109
+id-E-RABReleasedList						ProtocolIE-ID ::= 110
+id-MessageIdentifier							ProtocolIE-ID ::= 111
+id-SerialNumber									ProtocolIE-ID ::= 112
+id-WarningAreaList								ProtocolIE-ID ::= 113
+id-RepetitionPeriod								ProtocolIE-ID ::= 114
+id-NumberofBroadcastRequest						ProtocolIE-ID ::= 115
+id-WarningType									ProtocolIE-ID ::= 116
+id-WarningSecurityInfo							ProtocolIE-ID ::= 117
+id-DataCodingScheme								ProtocolIE-ID ::= 118
+id-WarningMessageContents						ProtocolIE-ID ::= 119
+id-BroadcastCompletedAreaList					ProtocolIE-ID ::= 120
+id-Inter-SystemInformationTransferTypeEDT			ProtocolIE-ID ::= 121
+id-Inter-SystemInformationTransferTypeMDT			ProtocolIE-ID ::= 122
+id-Target-ToSource-TransparentContainer			ProtocolIE-ID ::= 123
+id-SRVCCOperationPossible						ProtocolIE-ID ::= 124
+id-SRVCCHOIndication							ProtocolIE-ID ::= 125
+id-NAS-DownlinkCount							ProtocolIE-ID ::= 126
+id-CSG-Id										ProtocolIE-ID ::= 127
+id-CSG-IdList									ProtocolIE-ID ::= 128
+
 END
-
-
-

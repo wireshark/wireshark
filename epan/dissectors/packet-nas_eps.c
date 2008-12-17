@@ -36,8 +36,8 @@
 #include "packet-gsm_a_common.h"
 
 #define PNAME  "Non-Access-Stratum (NAS)PDU"
-#define PSNAME "NAS_EPS"
-#define PFNAME "nas_eps"
+#define PSNAME "NAS-EPS"
+#define PFNAME "nas-eps"
 
 /* Initialize the protocol and registered fields */
 static int proto_nas_eps = -1;
@@ -308,7 +308,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len - curr_offset, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Not decoded yet");
 	return(len);
 }
 /*
@@ -366,7 +366,22 @@ static const value_string nas_eps_emm_NAS_key_set_identifier_vals[] = {
  * 9.9.3.27a	TMSI status
  * See subclause 10.5.5.4 in 3GPP TS 24.008 [6].
  * 9.9.3.28	Tracking area identity
+ */
+/*
  * 9.9.3.29	Tracking area identity list
+ */
+static guint8
+de_emm_gprs_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	return(len);
+}
+/*
  * 9.9.3.30	UE security capability
  * 
  * 9.9.4	EPS Session Management (ESM) information elements
@@ -429,7 +444,7 @@ guint8 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	NULL,						/* 9.9.3.27	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
 	NULL,						/* 9.9.3.27a	TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
 	NULL,						/* 9.9.3.28	Tracking area identity */
-	NULL,						/* 9.9.3.29	Tracking area identity list */
+	de_emm_gprs_trac_area_id_lst,	/* 9.9.3.29	Tracking area identity list */
 	NULL,						/* 9.9.3.30	UE security capability */
 	NULL,	/* NONE */
 };
@@ -466,14 +481,17 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 	T3412 value	GPRS timer 9.9.3.14	M	V	1 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER);
 	/* 	TAI list	Tracking area identity list 9.9.3.29	M	LV	7-97 */
-	/* 	ESM message container	ESM message container 9.9.3.13	M	LV-E	2-n */
+	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_GPRS_TRAC_AREA_ID_LST, "");
+	/* 	ESM message container 9.9.3.13	M	LV-E	2-n */
 	/* 50	GUTI	EPS mobile identity 9.9.3.10	O	TLV	13 */
 	/* 13	Location area identification	Location area identification 9.9.2.2	O	TV	6 */
 	/* 23	MS identity 	Mobile identity 9.9.2.3	O	TLV	7-10 */
 	/* 53	EMM cause	EMM cause 9.9.3.7	O	TV	2 */
 	/* 17	T3402 value	GPRS timer 9.9.3.14	O	TV	2 */
 	/* 4A	Equivalent PLMNs	PLMN list 9.9.2.4	O	TLV	5-47 */
- 
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
 }
 /*
  * 8.2.2	Attach complete
@@ -818,7 +836,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "nas_eps");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NAS-EPS");
 
 	len = tvb_length(tvb);
 

@@ -26,14 +26,7 @@ ProtocolIE-FieldPair
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
-PrivateIE-Container
-PrivateIE-Field
-PrivateIE-ID 
-SAEB-IE-ContainerPairList
-
-UEPagingID
-IMSI
-Presence
+E-RAB-IE-ContainerPairList
 #.END
 
 
@@ -122,31 +115,31 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
 # END
 
-#SAEB-IE-ContainerList                  { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfSAEBs,   {IEsSetParam} }
-#.FN_BODY SAEB-IE-ContainerList
+#E-RAB-IE-ContainerList                  { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfE-RABs,   {IEsSetParam} }
+#.FN_BODY E-RAB-IE-ContainerList
   asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
   asn1_param_push_integer(%(ACTX)s, 1);
-  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
+  asn1_param_push_integer(%(ACTX)s, maxNrOfE_RABs);
 %(DEFAULT_BODY)s
   asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
 #.END
 
-# SAEB-IE-ContainerPairList              { S1AP-PROTOCOL-IES-PAIR : IEsSetParam }	::= ProtocolIE-ContainerPairList { 1, maxNrOfSAEBs,   {IEsSetParam} }
+# E-RAB-IE-ContainerPairList              { S1AP-PROTOCOL-IES-PAIR : IEsSetParam }	::= ProtocolIE-ContainerPairList { 1, maxNrOfE-RABs,   {IEsSetParam} }
 # Currently not used
 # FN_BODY SAEB-IE-ContainerPairList
 #  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerPairList");
 #  asn1_param_push_integer(%(ACTX)s, 1);
-#  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfE_RABs);
 #%(DEFAULT_BODY)s
 #  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerPairList");
-#.END
+# END
 
 # Currently not used
-# ProtocolError-IE-ContainerList        { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfSAEBs,   {IEsSetParam} }
+# ProtocolError-IE-ContainerList        { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfE-RABs,   {IEsSetParam} }
 # FN_BODY ProtocolError-IE-ContainerList
 #  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
 #  asn1_param_push_integer(%(ACTX)s, 1);
-#  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfE_RABs);
 #%(DEFAULT_BODY)s
 #  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
 # END
@@ -217,10 +210,10 @@ id-HandoverResourceAllocation 			ProcedureCode
 id-HandoverNotification 				ProcedureCode
 id-PathSwitchRequest 					ProcedureCode
 id-HandoverCancel 						ProcedureCode
-id-SAEBearerSetup						ProcedureCode
-id-SAEBearerModify 						ProcedureCode
-id-SAEBearerRelease						ProcedureCode
-id-SAEBearerReleaseRequest				ProcedureCode
+id-E-RABSetup							ProcedureCode
+id-E-RABModify 							ProcedureCode
+id-E-RABRelease							ProcedureCode
+id-E-RABReleaseIndication				ProcedureCode
 id-InitialContextSetup					ProcedureCode
 id-Paging								ProcedureCode
 id-downlinkNASTransport					ProcedureCode
@@ -248,59 +241,57 @@ id-LocationReportingFailureIndication	ProcedureCode
 id-LocationReport						ProcedureCode
 id-OverloadStart						ProcedureCode
 id-OverloadStop							ProcedureCode
+id-WriteReplaceWarning					ProcedureCode
+id-eNBDirectInformationTransfer			ProcedureCode
+id-MMEDirectInformationTransfer			ProcedureCode
+id-PrivateMessage						ProcedureCode
+
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
 id-HandoverType										ProtocolIE-ID
 id-Cause											ProtocolIE-ID
 id-TargetID											ProtocolIE-ID
-id-Intra-LTEHOInformationReq						ProtocolIE-ID
-id-LTEtoUTRANHOInformationReq						ProtocolIE-ID
-id-LTEtoGERANHOInformationReq						ProtocolIE-ID
 id-eNB-UE-S1AP-ID									ProtocolIE-ID
-id-Intra-LTEHOInformationRes						ProtocolIE-ID
-id-LTEtoUTRANHOInformationRes						ProtocolIE-ID
-id-LTEtoGERANHOInformationRes						ProtocolIE-ID
-id-SAEBearerSubjecttoDataForwardingList				ProtocolIE-ID
-id-SAEBearertoReleaseListHOCmd						ProtocolIE-ID
-id-SAEBearerDataForwardingItem						ProtocolIE-ID
-id-SAEBearerReleaseItemBearerRelComp				ProtocolIE-ID
-id-SAEBearerToBeSetupListBearerSUReq				ProtocolIE-ID
-id-SAEBearerToBeSetupItemBearerSUReq				ProtocolIE-ID
-id-SAEBearerAdmittedList							ProtocolIE-ID
-id-SAEBearerFailedToSetupListHOReqAck				ProtocolIE-ID
-id-SAEBearerAdmittedItem							ProtocolIE-ID
-id-SAEBearerFailedtoSetupItemHOReqAck				ProtocolIE-ID
-id-SAEBearerToBeSwitchedDLList						ProtocolIE-ID
-id-SAEBearerToBeSwitchedDLItem						ProtocolIE-ID
-id-SAEBearerToBeSetupListCtxtSUReq					ProtocolIE-ID
+id-E-RABSubjecttoDataForwardingList					ProtocolIE-ID
+id-E-RABtoReleaseListHOCmd							ProtocolIE-ID
+id-E-RABDataForwardingItem							ProtocolIE-ID
+id-E-RABReleaseItemBearerRelComp					ProtocolIE-ID
+id-E-RABToBeSetupListBearerSUReq					ProtocolIE-ID
+id-E-RABToBeSetupItemBearerSUReq					ProtocolIE-ID
+id-E-RABAdmittedList								ProtocolIE-ID
+id-E-RABFailedToSetupListHOReqAck					ProtocolIE-ID
+id-E-RABAdmittedItem								ProtocolIE-ID
+id-E-RABFailedtoSetupItemHOReqAck					ProtocolIE-ID
+id-E-RABToBeSwitchedDLList							ProtocolIE-ID
+id-E-RABToBeSwitchedDLItem							ProtocolIE-ID
+id-E-RABToBeSetupListCtxtSUReq						ProtocolIE-ID
 id-TraceActivation									ProtocolIE-ID
 id-NAS-PDU											ProtocolIE-ID
-id-SAEBearerToBeSetupItemHOReq						ProtocolIE-ID
-id-SAEBearerSetupListBearerSURes					ProtocolIE-ID
-id-SAEBearerFailedToSetupListBearerSURes			ProtocolIE-ID
-id-SAEBearerToBeModifiedListBearerModReq			ProtocolIE-ID
-id-SAEBearerModifyListBearerModRes					ProtocolIE-ID
-#id-SAEBearerFailedToModifyList						ProtocolIE-ID
-id-SAEBearerToBeReleasedList						ProtocolIE-ID
-id-SAEBearerFailedToReleaseList						ProtocolIE-ID
-id-SAEBearerItem									ProtocolIE-ID
-id-SAEBearerToBeModifiedItemBearerModReq			ProtocolIE-ID
-id-SAEBearerModifyItemBearerModRes					ProtocolIE-ID
-id-SAEBearerReleaseItem								ProtocolIE-ID
-id-SAEBearerSetupItemBearerSURes					ProtocolIE-ID
-id-Security-Information								ProtocolIE-ID
+id-E-RABToBeSetupItemHOReq							ProtocolIE-ID
+id-E-RABSetupListBearerSURes						ProtocolIE-ID
+id-E-RABFailedToSetupListBearerSURes				ProtocolIE-ID
+id-E-RABToBeModifiedListBearerModReq				ProtocolIE-ID
+id-E-RABModifyListBearerModRes						ProtocolIE-ID
+id-E-RABFailedToModifyList							ProtocolIE-ID
+id-E-RABToBeReleasedList							ProtocolIE-ID
+id-E-RABFailedToReleaseList							ProtocolIE-ID
+id-E-RABItem										ProtocolIE-ID
+id-E-RABToBeModifiedItemBearerModReq				ProtocolIE-ID
+id-E-RABModifyItemBearerModRes						ProtocolIE-ID
+id-E-RABReleaseItem									ProtocolIE-ID
+id-E-RABSetupItemBearerSURes						ProtocolIE-ID
+id-SecurityContext									ProtocolIE-ID
 id-HandoverRestrictionList							ProtocolIE-ID
 id-pagingDRX 										ProtocolIE-ID
-id-pagingCause										ProtocolIE-ID
 id-TAIList											ProtocolIE-ID
 id-TAIItem											ProtocolIE-ID
-id-SAEBearerFailedToSetupListCtxtSURes				ProtocolIE-ID
-id-SAEBearerReleaseItemHOCmd						ProtocolIE-ID
-id-SAEBearerSetupItemCtxtSURes						ProtocolIE-ID
-id-SAEBearerSetupListCtxtSURes						ProtocolIE-ID
-id-SAEBearerToBeSetupItemCtxtSUReq					ProtocolIE-ID
-id-SAEBearerToBeSetupListHOReq						ProtocolIE-ID
+id-E-RABFailedToSetupListCtxtSURes					ProtocolIE-ID
+id-E-RABReleaseItemHOCmd							ProtocolIE-ID
+id-E-RABSetupItemCtxtSURes							ProtocolIE-ID
+id-E-RABSetupListCtxtSURes							ProtocolIE-ID
+id-E-RABToBeSetupItemCtxtSUReq						ProtocolIE-ID
+id-E-RABToBeSetupListHOReq							ProtocolIE-ID
 id-GERANtoLTEHOInformationRes						ProtocolIE-ID
 id-UTRANtoLTEHOInformationRes						ProtocolIE-ID
 id-CriticalityDiagnostics 							ProtocolIE-ID
@@ -312,14 +303,14 @@ id-SupportedTAs										ProtocolIE-ID
 id-TimeToWait										ProtocolIE-ID
 id-uEaggregateMaximumBitrate						ProtocolIE-ID
 id-TAI												ProtocolIE-ID
-id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
+id-E-RABReleaseListBearerRelComp					ProtocolIE-ID
 id-cdma2000PDU										ProtocolIE-ID
 id-cdma2000RATType									ProtocolIE-ID
 id-cdma2000SectorID									ProtocolIE-ID
-id-SecurityInfo										ProtocolIE-ID
+id-SecurityKey										ProtocolIE-ID
 id-UERadioCapability								ProtocolIE-ID
 id-GUMMEI-ID										ProtocolIE-ID
-id-SAEBearerInformationListItem						ProtocolIE-ID
+id-E-RABInformationListItem							ProtocolIE-ID
 id-Direct-Forwarding-Path-Availability				ProtocolIE-ID
 id-UEIdentityIndexValue								ProtocolIE-ID
 id-cdma2000HOStatus									ProtocolIE-ID
@@ -332,8 +323,8 @@ id-eNB-StatusTransfer-TransparentContainer			ProtocolIE-ID
 id-UE-associatedLogicalS1-ConnectionItem			ProtocolIE-ID
 id-ResetType										ProtocolIE-ID
 id-UE-associatedLogicalS1-ConnectionListResAck		ProtocolIE-ID
-id-SAEBearerToBeSwitchedULItem						ProtocolIE-ID
-id-SAEBearerToBeSwitchedULList						ProtocolIE-ID
+id-E-RABToBeSwitchedULItem							ProtocolIE-ID
+id-E-RABToBeSwitchedULList							ProtocolIE-ID
 id-S-TMSI											ProtocolIE-ID
 id-cdma2000OneXRAND									ProtocolIE-ID
 id-RequestType										ProtocolIE-ID
@@ -341,10 +332,34 @@ id-UE-S1AP-IDs										ProtocolIE-ID
 id-EUTRAN-CGI										ProtocolIE-ID
 id-OverloadResponse									ProtocolIE-ID
 id-cdma2000OneXSRVCCInfo							ProtocolIE-ID
-id-SAEBearerFailedToSwitchDLList					ProtocolIE-ID
-id-SourceeNodeB-ToTargeteNodeB-TransparentContainer	ProtocolIE-ID
+id-E-RABFailedToBeReleasedList						ProtocolIE-ID
+id-Source-ToTarget-TransparentContainer				ProtocolIE-ID
 id-ServedGUMMEIs									ProtocolIE-ID
 id-SubscriberProfileIDforRFP						ProtocolIE-ID
+
+id-UESecurityCapabilities							ProtocolIE-ID
+id-CSFallbackIndicator								ProtocolIE-ID
+id-CNDomain											ProtocolIE-ID
+id-E-RABReleasedList								ProtocolIE-ID
+id-MessageIdentifier								ProtocolIE-ID
+id-SerialNumber										ProtocolIE-ID
+id-WarningAreaList									ProtocolIE-ID
+id-RepetitionPeriod									ProtocolIE-ID
+id-NumberofBroadcastRequest							ProtocolIE-ID
+id-WarningType										ProtocolIE-ID
+id-WarningSecurityInfo								ProtocolIE-ID
+id-DataCodingScheme									ProtocolIE-ID
+id-WarningMessageContents							ProtocolIE-ID
+id-BroadcastCompletedAreaList						ProtocolIE-ID
+id-Inter-SystemInformationTransferTypeEDT			ProtocolIE-ID
+id-Inter-SystemInformationTransferTypeMDT			ProtocolIE-ID
+id-Target-ToSource-TransparentContainer				ProtocolIE-ID
+id-SRVCCOperationPossible							ProtocolIE-ID
+id-SRVCCHOIndication								ProtocolIE-ID
+id-NAS-DownlinkCount								ProtocolIE-ID
+id-CSG-Id											ProtocolIE-ID
+id-CSG-IdList										ProtocolIE-ID
+
 #.END
 
 #.REGISTER_NEW
@@ -354,55 +369,47 @@ MME-UE-S1AP-ID							N s1ap.ies id-MME-UE-S1AP-ID
 HandoverType							N s1ap.ies id-HandoverType
 Cause									N s1ap.ies id-Cause
 TargetID								N s1ap.ies id-TargetID
-Intra-LTEHOInformationReq				N s1ap.ies id-Intra-LTEHOInformationReq
-LTEtoUTRANHOInformationReq				N s1ap.ies id-LTEtoUTRANHOInformationReq
-LTEtoGERANHOInformationReq				N s1ap.ies id-LTEtoGERANHOInformationReq
 ENB-UE-S1AP-ID							N s1ap.ies id-eNB-UE-S1AP-ID
-Intra-LTEHOInformationRes				N s1ap.ies id-Intra-LTEHOInformationRes
-LTEtoUTRANHOInformationRes				N s1ap.ies id-LTEtoUTRANHOInformationRes
-LTEtoGERANHOInformationRes				N s1ap.ies id-LTEtoGERANHOInformationRes
-SAEBearerSubjecttoDataForwardingList	N s1ap.ies id-SAEBearerSubjecttoDataForwardingList
-SAEBearertoReleaseListHOCmd				N s1ap.ies id-SAEBearertoReleaseListHOCmd
-SAEBearerDataForwardingItem				N s1ap.ies id-SAEBearerDataForwardingItem
-SAEBearerReleaseItemBearerRelComp		N s1ap.ies id-SAEBearerReleaseItemBearerRelComp
-SAEBearerToBeSetupListBearerSUReq		N s1ap.ies id-SAEBearerToBeSetupListBearerSUReq
-SAEBearerToBeSetupItemBearerSUReq		N s1ap.ies id-SAEBearerToBeSetupItemBearerSUReq
-SAEBearerAdmittedList					N s1ap.ies id-SAEBearerAdmittedList
-SAEBearerFailedtoSetupListHOReqAck		N s1ap.ies id-SAEBearerFailedToSetupListHOReqAck
-SAEBearerAdmittedItem					N s1ap.ies id-SAEBearerAdmittedItem
-SAEBearerFailedToSetupItemHOReqAck		N s1ap.ies id-SAEBearerFailedtoSetupItemHOReqAck
-SAEBearerToBeSwitchedDLList				N s1ap.ies id-SAEBearerToBeSwitchedDLList
-SAEBearerToBeSwitchedDLItem				N s1ap.ies id-SAEBearerToBeSwitchedDLItem
-SAEBearerToBeSetupListCtxtSUReq			N s1ap.ies id-SAEBearerToBeSetupListCtxtSUReq
+E-RABSubjecttoDataForwardingList		N s1ap.ies id-E-RABSubjecttoDataForwardingList
+E-RABList								N s1ap.ies id-E-RABtoReleaseListHOCmd
+E-RABDataForwardingItem					N s1ap.ies id-E-RABDataForwardingItem
+E-RABReleaseItemBearerRelComp			N s1ap.ies id-E-RABReleaseItemBearerRelComp
+E-RABToBeSetupListBearerSUReq			N s1ap.ies id-E-RABToBeSetupListBearerSUReq
+E-RABToBeSetupItemBearerSUReq			N s1ap.ies id-E-RABToBeSetupItemBearerSUReq
+E-RABAdmittedList						N s1ap.ies id-E-RABAdmittedList
+#E-RABFailedtoSetupListHOReqAck			N s1ap.ies id-E-RABFailedToSetupListHOReqAck
+E-RABAdmittedItem						N s1ap.ies id-E-RABAdmittedItem
+E-RABFailedToSetupItemHOReqAck			N s1ap.ies id-E-RABFailedtoSetupItemHOReqAck
+E-RABToBeSwitchedDLList					N s1ap.ies id-E-RABToBeSwitchedDLList
+E-RABToBeSwitchedDLItem					N s1ap.ies id-E-RABToBeSwitchedDLItem
+E-RABToBeSetupListCtxtSUReq				N s1ap.ies id-E-RABToBeSetupListCtxtSUReq
 TraceActivation							N s1ap.ies id-TraceActivation
 NAS-PDU									N s1ap.ies id-NAS-PDU
-SAEBearerToBeSetupItemHOReq				N s1ap.ies id-SAEBearerToBeSetupItemHOReq
-SAEBearerSetupListBearerSURes			N s1ap.ies id-SAEBearerSetupListBearerSURes
-SAEBearerList							N s1ap.ies id-SAEBearerFailedToSetupListBearerSURes
-SAEBearerToBeModifiedListBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedListBearerModReq
-SAEBearerModifyListBearerModRes			N s1ap.ies id-SAEBearerModifyListBearerModRes
-SAEBearerList							N s1ap.ies id-SAEBearerFailedToModifyList
-SAEBearerList							N s1ap.ies id-SAEBearerToBeReleasedList
-SAEBearerList							N s1ap.ies id-SAEBearerFailedToReleaseList
-SAEBearerItem							N s1ap.ies id-SAEBearerItem
-SAEBearerToBeModifiedItemBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedItemBearerModReq
-SAEBearerModifyItemBearerModRes			N s1ap.ies id-SAEBearerModifyItemBearerModRes
-#SAEBearerReleaseItem					N s1ap.ies id-SAEBearerReleaseItem
-SAEBearerSetupItemBearerSURes			N s1ap.ies id-SAEBearerSetupItemBearerSURes
-SecurityInformation						N s1ap.ies id-Security-Information
+E-RABToBeSetupItemHOReq					N s1ap.ies id-E-RABToBeSetupItemHOReq
+E-RABSetupListBearerSURes				N s1ap.ies id-E-RABSetupListBearerSURes
+E-RABList								N s1ap.ies id-E-RABFailedToSetupListBearerSURes
+E-RABList								N s1ap.ies id-E-RABToBeModifiedListBearerModReq
+E-RABModifyListBearerModRes				N s1ap.ies id-E-RABModifyListBearerModRes
+E-RABList								N s1ap.ies id-E-RABFailedToModifyList
+E-RABList								N s1ap.ies id-E-RABToBeReleasedList
+E-RABList								N s1ap.ies id-E-RABFailedToReleaseList
+E-RABItem								N s1ap.ies id-E-RABItem
+E-RABToBeModifiedItemBearerModReq		N s1ap.ies id-E-RABToBeModifiedItemBearerModReq
+E-RABModifyItemBearerModRes				N s1ap.ies id-E-RABModifyItemBearerModRes
+#SAEBearerReleaseItem					N s1ap.ies id-E-RABReleaseItem
+E-RABSetupItemBearerSURes				N s1ap.ies id-E-RABSetupItemBearerSURes
+SecurityContext							N s1ap.ies id-SecurityContext
 HandoverRestrictionList					N s1ap.ies id-HandoverRestrictionList
 PagingDRX								N s1ap.ies id-pagingDRX
-PagingCause								N s1ap.ies id-pagingCause
 TAIList									N s1ap.ies id-TAIList
 TAIItem									N s1ap.ies id-TAIItem
-SAEBearerList							N s1ap.ies id-SAEBearerFailedToSetupListCtxtSURes
-SAEBearerReleaseItemHOCmd				N s1ap.ies id-SAEBearerReleaseItemHOCmd
-SAEBearerSetupItemCtxtSURes				N s1ap.ies id-SAEBearerSetupItemCtxtSURes
-SAEBearerSetupListCtxtSURes				N s1ap.ies id-SAEBearerSetupListCtxtSURes
-SAEBearerToBeSetupItemCtxtSUReq			N s1ap.ies id-SAEBearerToBeSetupItemCtxtSUReq
-SAEBearerToBeSetupListHOReq				N s1ap.ies id-SAEBearerToBeSetupListHOReq
-GERANtoLTEHOInformationRes				N s1ap.ies id-GERANtoLTEHOInformationRes
-UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
+E-RABList								N s1ap.ies id-E-RABFailedToSetupListCtxtSURes
+#E-RABReleaseItemHOCmd					N s1ap.ies id-E-RABReleaseItemHOCmd
+E-RABSetupItemCtxtSURes					N s1ap.ies id-E-RABSetupItemCtxtSURes
+E-RABSetupListCtxtSURes					N s1ap.ies id-E-RABSetupListCtxtSURes
+E-RABToBeSetupItemCtxtSUReq				N s1ap.ies id-E-RABToBeSetupItemCtxtSUReq
+E-RABToBeSetupListHOReq					N s1ap.ies id-E-RABToBeSetupListHOReq
+#UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
 CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
 Global-ENB-ID							N s1ap.ies id-Global-ENB-ID
 ENBname									N s1ap.ies id-eNBname
@@ -412,14 +419,14 @@ SupportedTAs							N s1ap.ies id-SupportedTAs
 TimeToWait								N s1ap.ies id-TimeToWait
 UEAggregateMaximumBitrate				N s1ap.ies id-uEaggregateMaximumBitrate
 TAI										N s1ap.ies id-TAI
-SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp				
+E-RABReleaseListBearerRelComp			N s1ap.ies id-E-RABReleaseListBearerRelComp				
 Cdma2000PDU								N s1ap.ies id-cdma2000PDU										
 Cdma2000RATType							N s1ap.ies id-cdma2000RATType									
 Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID									
-SecurityInfo							N s1ap.ies id-SecurityInfo										
+SecurityKey								N s1ap.ies id-SecurityKey										
 UERadioCapability						N s1ap.ies id-UERadioCapability								
 GUMMEI									N s1ap.ies id-GUMMEI-ID										
-SAEBearerInformationListItem			N s1ap.ies id-SAEBearerInformationListItem						
+E-RABInformationListItem				N s1ap.ies id-E-RABInformationListItem						
 Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability				
 UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
 Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
@@ -432,8 +439,8 @@ ENB-StatusTransfer-TransparentContainer	N s1ap.ies id-eNB-StatusTransfer-Transpa
 UE-associatedLogicalS1-ConnectionItem	N s1ap.ies id-UE-associatedLogicalS1-ConnectionItem
 ResetType								N s1ap.ies id-ResetType
 UE-associatedLogicalS1-ConnectionListResAck	N s1ap.ies id-UE-associatedLogicalS1-ConnectionListResAck
-SAEBearerToBeSwitchedULItem				N s1ap.ies id-SAEBearerToBeSwitchedULItem
-SAEBearerToBeSwitchedULList				N s1ap.ies id-SAEBearerToBeSwitchedULList
+E-RABToBeSwitchedULItem					N s1ap.ies id-E-RABToBeSwitchedULItem
+E-RABToBeSwitchedULList					N s1ap.ies id-E-RABToBeSwitchedULList
 S-TMSI									N s1ap.ies id-S-TMSI
 Cdma2000OneXRAND						N s1ap.ies id-cdma2000OneXRAND
 RequestType								N s1ap.ies id-RequestType
@@ -441,10 +448,32 @@ UE-S1AP-IDs								N s1ap.ies id-UE-S1AP-IDs
 EUTRAN-CGI								N s1ap.ies id-EUTRAN-CGI
 OverloadResponse						N s1ap.ies id-OverloadResponse
 Cdma2000OneXSRVCCInfo					N s1ap.ies id-cdma2000OneXSRVCCInfo
-SAEBearerList							N s1ap.ies id-SAEBearerFailedToSwitchDLList
-SourceeNodeB-ToTargeteNodeB-TransparentContainer	N s1ap.ies id-SourceeNodeB-ToTargeteNodeB-TransparentContainer
+#SAEBearerList							N s1ap.ies id-E-RABFailedToBeReleasedList
+Source-ToTarget-TransparentContainer	N s1ap.ies id-Source-ToTarget-TransparentContainer
 ServedGUMMEIs							N s1ap.ies id-ServedGUMMEIs
 SubscriberProfileIDforRFP				N s1ap.ies id-SubscriberProfileIDforRFP
+UESecurityCapabilities					N s1ap.ies id-UESecurityCapabilities
+CSFallbackIndicator						N s1ap.ies id-CSFallbackIndicator
+CNDomain								N s1ap.ies id-CNDomain
+E-RABList								N s1ap.ies id-E-RABReleasedList
+MessageIdentifier						N s1ap.ies id-MessageIdentifier
+SerialNumber							N s1ap.ies id-SerialNumber
+WarningAreaList							N s1ap.ies id-WarningAreaList
+RepetitionPeriod						N s1ap.ies id-RepetitionPeriod
+NumberofBroadcastRequest				N s1ap.ies id-NumberofBroadcastRequest
+WarningType								N s1ap.ies id-WarningType
+WarningSecurityInfo						N s1ap.ies id-WarningSecurityInfo
+DataCodingScheme						N s1ap.ies id-DataCodingScheme
+WarningMessageContents					N s1ap.ies id-WarningMessageContents
+BroadcastCompletedAreaList				N s1ap.ies id-BroadcastCompletedAreaList
+Inter-SystemInformationTransferType		N s1ap.ies id-Inter-SystemInformationTransferTypeEDT
+Inter-SystemInformationTransferType		N s1ap.ies id-Inter-SystemInformationTransferTypeMDT
+Target-ToSource-TransparentContainer	N s1ap.ies id-Target-ToSource-TransparentContainer
+SRVCCOperationPossible					N s1ap.ies id-SRVCCOperationPossible
+SRVCCHOIndication						N s1ap.ies id-SRVCCHOIndication
+NAS-DownlinkCount						N s1ap.ies id-NAS-DownlinkCount
+CSG-Id									N s1ap.ies id-CSG-Id
+CSG-IdList								N s1ap.ies id-CSG-IdList
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -469,16 +498,16 @@ PathSwitchRequest						N s1ap.proc.imsg id-PathSwitchRequest
 PathSwitchRequestAcknowledge			N s1ap.proc.sout id-PathSwitchRequest
 PathSwitchRequestFailure				N s1ap.proc.uout id-PathSwitchRequest
 
-SAEBearerSetupRequest					N s1ap.proc.imsg id-SAEBearerSetup
-SAEBearerSetupResponse					N s1ap.proc.sout id-SAEBearerSetup
+E-RABSetupRequest						N s1ap.proc.imsg id-E-RABSetup
+E-RABSetupResponse						N s1ap.proc.sout id-E-RABSetup
 
-SAEBearerModifyRequest					N s1ap.proc.imsg id-SAEBearerModify
-SAEBearerModifyResponse					N s1ap.proc.sout id-SAEBearerModify
+E-RABModifyRequest						N s1ap.proc.imsg id-E-RABModify
+E-RABModifyResponse						N s1ap.proc.sout id-E-RABModify
 
-SAEBearerReleaseCommand					N s1ap.proc.imsg id-SAEBearerRelease
-SAEBearerReleaseResponse				N s1ap.proc.sout id-SAEBearerRelease
+E-RABReleaseCommand						N s1ap.proc.imsg id-E-RABRelease
+E-RABReleaseResponse					N s1ap.proc.sout id-E-RABRelease
 
-SAEBearerReleaseRequest					N s1ap.proc.imsg id-SAEBearerReleaseRequest
+E-RABReleaseIndication					N s1ap.proc.imsg id-E-RABReleaseIndication
 
 InitialContextSetupRequest				N s1ap.proc.imsg id-InitialContextSetup
 InitialContextSetupResponse				N s1ap.proc.sout id-InitialContextSetup
@@ -548,6 +577,15 @@ LocationReport							N s1ap.proc.imsg id-LocationReport
 OverloadStart							N s1ap.proc.imsg id-OverloadStart
 
 OverloadStop							N s1ap.proc.imsg id-OverloadStop
+
+WriteReplaceWarningRequest				N s1ap.proc.imsg id-WriteReplaceWarning
+WriteReplaceWarningResponse				N s1ap.proc.sout id-WriteReplaceWarning
+
+ENBDirectInformationTransfer			N s1ap.proc.imsg id-eNBDirectInformationTransfer
+
+MMEDirectInformationTransfer			N s1ap.proc.imsg id-MMEDirectInformationTransfer
+
+PrivateMessage							N s1ap.proc.imsg id-PrivateMessage
 
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

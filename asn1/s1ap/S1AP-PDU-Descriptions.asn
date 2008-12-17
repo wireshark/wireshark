@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.3.0 (2008-09)
+-- 3GPP TS 36.413 V8.4.0 (2008-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -29,6 +29,7 @@ FROM S1AP-CommonDataTypes
 	DeactivateTrace,
 	DownlinkNASTransport,
 	DownlinkS1cdma2000tunneling,
+	ENBDirectInformationTransfer,
 	ENBStatusTransfer,
 	ENBConfigurationUpdate,
 	ENBConfigurationUpdateAcknowledge,
@@ -53,6 +54,7 @@ FROM S1AP-CommonDataTypes
 	MMEConfigurationUpdate,
 	MMEConfigurationUpdateAcknowledge,
 	MMEConfigurationUpdateFailure,
+	MMEDirectInformationTransfer,
 	MMEStatusTransfer,
 	NASNonDeliveryIndication,
 	OverloadStart,
@@ -61,18 +63,19 @@ FROM S1AP-CommonDataTypes
 	PathSwitchRequest,
 	PathSwitchRequestAcknowledge,
 	PathSwitchRequestFailure,	
+	PrivateMessage,
 	Reset,
 	ResetAcknowledge,
 	S1SetupFailure,
 	S1SetupRequest,
 	S1SetupResponse,
-	SAEBearerModifyRequest,
-	SAEBearerModifyResponse,
-	SAEBearerReleaseCommand,
-	SAEBearerReleaseResponse,
-	SAEBearerReleaseRequest,
-	SAEBearerSetupRequest,
-	SAEBearerSetupResponse,
+	E-RABModifyRequest,
+	E-RABModifyResponse,
+	E-RABReleaseCommand,
+	E-RABReleaseResponse,
+	E-RABReleaseIndication,
+	E-RABSetupRequest,
+	E-RABSetupResponse,
 	TraceFailureIndication,
 	TraceStart,
 	UECapabilityInfoIndication,
@@ -83,7 +86,10 @@ FROM S1AP-CommonDataTypes
 	UEContextReleaseComplete,
 	UEContextReleaseRequest,
 	UplinkNASTransport,
-	UplinkS1cdma2000tunneling
+	UplinkS1cdma2000tunneling,
+	WriteReplaceWarningRequest,
+	WriteReplaceWarningResponse
+
 
 FROM S1AP-PDU-Contents
 	
@@ -102,19 +108,22 @@ FROM S1AP-PDU-Contents
 	id-LocationReportingControl,
 	id-LocationReportingFailureIndication,
 	id-LocationReport,
+	id-eNBDirectInformationTransfer,
 	id-MMEConfigurationUpdate,
+	id-MMEDirectInformationTransfer,
 	id-MMEStatusTransfer,
 	id-NASNonDeliveryIndication,
 	id-OverloadStart,
 	id-OverloadStop,
 	id-Paging,
 	id-PathSwitchRequest,
+	id-PrivateMessage,
 	id-Reset,
 	id-S1Setup,
-	id-SAEBearerModify,
-	id-SAEBearerRelease,
-	id-SAEBearerReleaseRequest,
-	id-SAEBearerSetup,
+	id-E-RABModify,
+	id-E-RABRelease,
+	id-E-RABReleaseIndication,
+	id-E-RABSetup,
 	id-TraceFailureIndication,
 	id-TraceStart,
 	id-UECapabilityInfoIndication,
@@ -122,7 +131,8 @@ FROM S1AP-PDU-Contents
 	id-UEContextRelease,
 	id-UEContextReleaseRequest,
 	id-uplinkNASTransport,
-	id-UplinkS1cdma2000tunneling
+	id-UplinkS1cdma2000tunneling,
+	id-WriteReplaceWarning
 FROM S1AP-Constants;
 
 
@@ -195,9 +205,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	handoverPreparation				|
 	handoverResourceAllocation		|
 	pathSwitchRequest 				|
-	sAEbearerSetup					|
-	sAEbearerModify					|
-	sAEbearerRelease				|
+	e-RABSetup					|
+	e-RABModify					|
+	e-RABRelease				|
 	initialContextSetup				|
 	handoverCancel					|
 	reset							|
@@ -205,13 +215,14 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextModification			|
 	uEContextRelease				|
 	eNBConfigurationUpdate			|
-	mMEConfigurationUpdate			,
+	mMEConfigurationUpdate			|
+	writeReplaceWarning				,
 	...
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
 	handoverNotification			|
-	sAEbearerReleaseRequest			|
+	e-RABReleaseIndication			|
 	paging 							|
 	downlinkNASTransport						|
 	initialUEMessage							|
@@ -231,7 +242,10 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	locationReportingFailureIndication		|
 	locationReport					|
 	overloadStart					|
-	overloadStop					,
+	overloadStop					|
+	eNBDirectInformationTransfer	|
+	mMEDirectInformationTransfer	|
+	privateMessage					,
 	...
 }
 
@@ -271,30 +285,30 @@ pathSwitchRequest S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY		reject
 }
 
-sAEbearerSetup S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	SAEBearerSetupRequest
-	SUCCESSFUL OUTCOME	SAEBearerSetupResponse
-	PROCEDURE CODE		id-SAEBearerSetup
+e-RABSetup S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	E-RABSetupRequest
+	SUCCESSFUL OUTCOME	E-RABSetupResponse
+	PROCEDURE CODE		id-E-RABSetup
 	CRITICALITY		reject
 }
 
-sAEbearerModify S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	SAEBearerModifyRequest
-	SUCCESSFUL OUTCOME	SAEBearerModifyResponse
-	PROCEDURE CODE		id-SAEBearerModify
+e-RABModify S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	E-RABModifyRequest
+	SUCCESSFUL OUTCOME	E-RABModifyResponse
+	PROCEDURE CODE		id-E-RABModify
 	CRITICALITY		reject
 }
 
-sAEbearerRelease S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	SAEBearerReleaseCommand
-	SUCCESSFUL OUTCOME	SAEBearerReleaseResponse
-	PROCEDURE CODE		id-SAEBearerRelease
+e-RABRelease S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	E-RABReleaseCommand
+	SUCCESSFUL OUTCOME	E-RABReleaseResponse
+	PROCEDURE CODE		id-E-RABRelease
 	CRITICALITY		reject
 }
 
-sAEbearerReleaseRequest S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	SAEBearerReleaseRequest
-	PROCEDURE CODE		id-SAEBearerReleaseRequest
+e-RABReleaseIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	E-RABReleaseIndication
+	PROCEDURE CODE		id-E-RABReleaseIndication
 	CRITICALITY		ignore
 }
 
@@ -479,5 +493,31 @@ overloadStop S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY		reject
 }
 
+writeReplaceWarning S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	WriteReplaceWarningRequest
+	SUCCESSFUL OUTCOME	WriteReplaceWarningResponse
+	PROCEDURE CODE		id-WriteReplaceWarning
+	CRITICALITY			reject
+}
+
+eNBDirectInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	ENBDirectInformationTransfer
+	PROCEDURE CODE		id-eNBDirectInformationTransfer
+	CRITICALITY			ignore
+}
+
+mMEDirectInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	MMEDirectInformationTransfer
+	PROCEDURE CODE		id-MMEDirectInformationTransfer
+	CRITICALITY			ignore
+}
+
+privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	PrivateMessage
+	PROCEDURE CODE		id-PrivateMessage
+	CRITICALITY			ignore
+}
+
 END
+
 

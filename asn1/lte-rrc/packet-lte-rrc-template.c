@@ -46,7 +46,7 @@
 #define PSNAME "LTE RRC"
 #define PFNAME "lte_rrc"
 
-static dissector_handle_t nas_eps_handle;
+static dissector_handle_t nas_eps_handle = NULL;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -121,7 +121,7 @@ void
 proto_reg_handoff_lte_rrc(void)
 {
 
-	nas_eps_handle = find_dissector("nas_eps");
+	nas_eps_handle = find_dissector("nas-eps");
 }
 
 
