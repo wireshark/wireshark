@@ -60,6 +60,10 @@ static int hf_usb_value = -1;
 static int hf_usb_index = -1;
 static int hf_usb_length = -1;
 static int hf_usb_data = -1;
+static int hf_usb_wFeatureSelector = -1;
+static int hf_usb_wInterface = -1;
+static int hf_usb_wStatus = -1;
+static int hf_usb_wFrameNumber = -1;
 static int hf_usb_bmRequestType = -1;
 static int hf_usb_bmRequestType_direction = -1;
 static int hf_usb_bmRequestType_type = -1;
@@ -169,27 +173,31 @@ static const value_string usb_urb_type_vals[] = {
     {0, NULL}
 };
 
-#define USB_DT_DEVICE                   0x01
-#define USB_DT_CONFIG                   0x02
-#define USB_DT_STRING                   0x03
-#define USB_DT_INTERFACE                0x04
-#define USB_DT_ENDPOINT                 0x05
-#define USB_DT_DEVICE_QUALIFIER         0x06
-#define USB_DT_OTHER_SPEED_CONFIG       0x07
-#define USB_DT_INTERFACE_POWER          0x08
+/*
+ * Descriptor types.
+ */
+#define USB_DT_DEVICE                   1
+#define USB_DT_CONFIG                   2
+#define USB_DT_STRING                   3
+#define USB_DT_INTERFACE                4
+#define USB_DT_ENDPOINT                 5
+#define USB_DT_DEVICE_QUALIFIER         6
+#define USB_DT_OTHER_SPEED_CONFIG       7
+#define USB_DT_INTERFACE_POWER          8
 /* these are from a minor usb 2.0 revision (ECN) */
-#define USB_DT_OTG                      0x09
-#define USB_DT_DEBUG                    0x0a
-#define USB_DT_INTERFACE_ASSOCIATION    0x0b
+#define USB_DT_OTG                      9
+#define USB_DT_DEBUG                    10
+#define USB_DT_INTERFACE_ASSOCIATION    11
 /* these are from the Wireless USB spec */
-#define USB_DT_SECURITY                 0x0c
-#define USB_DT_KEY                      0x0d
-#define USB_DT_ENCRYPTION_TYPE          0x0e
-#define USB_DT_BOS                      0x0f
-#define USB_DT_DEVICE_CAPABILITY        0x10
-#define USB_DT_WIRELESS_ENDPOINT_COMP   0x11
-#define USB_DT_HID			0x21
-#define USB_DT_RPIPE                    0x22
+#define USB_DT_SECURITY                 12
+#define USB_DT_KEY                      13
+#define USB_DT_ENCRYPTION_TYPE          14
+#define USB_DT_BOS                      15
+#define USB_DT_DEVICE_CAPABILITY        16
+#define USB_DT_WIRELESS_ENDPOINT_COMP   17
+#define USB_DT_HID			33
+#define USB_DT_RPIPE                    34
+
 static const value_string descriptor_type_vals[] = {
     {USB_DT_DEVICE,			"DEVICE"},
     {USB_DT_CONFIG,			"CONFIGURATION"},
@@ -210,6 +218,20 @@ static const value_string descriptor_type_vals[] = {
     {USB_DT_WIRELESS_ENDPOINT_COMP,	"WIRELESS ENDPOINT COMP"},
     {USB_DT_HID,			"HID"},
     {USB_DT_RPIPE,			"RPIPE"},
+    {0,NULL}
+};
+
+/*
+ * Feature selectors.
+ */
+#define USB_FS_DEVICE_REMOTE_WAKEUP	1
+#define USB_FS_ENDPOINT_HALT		0
+#define USB_FS_TEST_MODE		2
+
+static const value_string usb_feature_selector_vals[] = {
+    {USB_FS_DEVICE_REMOTE_WAKEUP,	"DEVICE REMOTE WAKEUP"},
+    {USB_FS_ENDPOINT_HALT,		"ENDPOINT HALT"},
+    {USB_FS_TEST_MODE,			"TEST MODE"},
     {0,NULL}
 };
 
@@ -563,7 +585,57 @@ get_usb_conversation(packet_info *pinfo, address *src_addr, address *dst_addr, g
 
 
 /*
- * This dissector is used to dissect the setup part and the data
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / CLEAR FEATURE
+ */
+
+
+/* 9.4.1 */
+static int
+dissect_usb_setup_clear_feature_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* feature selector */
+    proto_tree_add_item(tree, hf_usb_wFeatureSelector, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero/interface/endpoint */
+    /* XXX - check based on request type */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* length */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_clear_feature_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / GET CONFIGURATION
+ */
+
+
+/* 9.4.2 */
+static int
+dissect_usb_setup_get_configuration_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    proto_tree_add_item(tree, hf_usb_bConfigurationValue, tvb, offset, 1, TRUE);
+    offset++;
+
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
  * for URB_CONTROL_INPUT / GET DESCRIPTOR
  */
 
@@ -1064,70 +1136,313 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     return offset;
 }
 
+/* 9.4.3 */
+static int
+dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* descriptor index */
+    proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, TRUE);
+    usb_trans_info->u.get_descriptor.index=tvb_get_guint8(tvb, offset);
+    offset++;
+
+    /* descriptor type */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
+    usb_trans_info->u.get_descriptor.type=tvb_get_guint8(tvb, offset);
+    offset++;
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+            val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %u"));
+    }
+
+    /* language id */
+    proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, TRUE);
+    offset+=2;
+
+    /* length */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
 
 static int
-dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
+dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
-    if(is_request){
-        /* descriptor index */
-        proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, TRUE);
-        usb_trans_info->u.get_descriptor.index=tvb_get_guint8(tvb, offset);
-        offset++;
-
-        /* descriptor type */
-        proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
-        usb_trans_info->u.get_descriptor.type=tvb_get_guint8(tvb, offset);
-        offset++;
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
-        }
-
-        /* language id */
-        proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, TRUE);
-        offset+=2;
-
-        /* length */
-        proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
-        offset += 2;
-    } else {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
-        }
-        switch(usb_trans_info->u.get_descriptor.type){
-        case USB_DT_DEVICE:
-            offset=dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        case USB_DT_CONFIG:
-            offset=dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        case USB_DT_STRING:
-            offset=dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        case USB_DT_INTERFACE:
-            offset=dissect_usb_interface_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        case USB_DT_ENDPOINT:
-            offset=dissect_usb_endpoint_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        case USB_DT_DEVICE_QUALIFIER:
-            offset=dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
-            break;
-        default:
-            /* XXX dissect the descriptor coming back from the device */
-            proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data");
-            offset += tvb_length_remaining(tvb, offset);
-            break;
-        }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+            val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %u"));
     }
+    switch(usb_trans_info->u.get_descriptor.type){
+    case USB_DT_DEVICE:
+        offset=dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    case USB_DT_CONFIG:
+        offset=dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    case USB_DT_STRING:
+        offset=dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    case USB_DT_INTERFACE:
+        offset=dissect_usb_interface_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    case USB_DT_ENDPOINT:
+        offset=dissect_usb_endpoint_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    case USB_DT_DEVICE_QUALIFIER:
+        offset=dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
+        break;
+    default:
+        /* XXX dissect the descriptor coming back from the device */
+        proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data");
+        offset += tvb_length_remaining(tvb, offset);
+        break;
+    }
+
     return offset;
 }
 
 
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / GET INTERFACE
+ */
 
 
-typedef int (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+/* 9.4.4 */
+static int
+dissect_usb_setup_get_interface_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* interface */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* length */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_get_interface_response(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* alternate setting */
+    proto_tree_add_item(tree, hf_usb_bAlternateSetting, tvb, offset, 1, TRUE);
+    offset++;
+
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / GET STATUS
+ */
+
+
+/* 9.4.5 */
+static int
+dissect_usb_setup_get_status_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero/interface/endpoint */
+    /* XXX - check based on request type */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* length */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_get_status_response(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* status */
+    /* XXX - show bits */
+    proto_tree_add_item(tree, hf_usb_wStatus, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / SET ADDRESS
+ */
+
+
+/* 9.4.6 */
+static int
+dissect_usb_setup_set_address_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* device address */
+    proto_tree_add_item(tree, hf_usb_device_address, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_set_address_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / SET CONFIGURATION
+ */
+
+
+/* 9.4.7 */
+static int
+dissect_usb_setup_set_configuration_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* configuration value */
+    proto_tree_add_item(tree, hf_usb_bConfigurationValue, tvb, offset, 1, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_set_configuration_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / SET FEATURE
+ */
+
+
+/* 9.4.9 */
+static int
+dissect_usb_setup_set_feature_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* feature selector */
+    proto_tree_add_item(tree, hf_usb_wFeatureSelector, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero/interface/endpoint or test selector */
+    /* XXX - check based on request type */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_set_feature_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / SET INTERFACE
+ */
+
+
+/* 9.4.10 */
+static int
+dissect_usb_setup_set_interface_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* alternate setting */
+    proto_tree_add_item(tree, hf_usb_bAlternateSetting, tvb, offset, 1, TRUE);
+    offset += 2;
+
+    /* interface */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_set_interface_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    return offset;
+}
+
+
+/*
+ * These dissectors are used to dissect the setup part and the data
+ * for URB_CONTROL_INPUT / SYNCH FRAME
+ */
+
+
+/* 9.4.11 */
+static int
+dissect_usb_setup_synch_frame_request(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* zero */
+    proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* endpoint */
+    /* XXX */
+    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    /* two */
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+static int
+dissect_usb_setup_synch_frame_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    /* frame number */
+    proto_tree_add_item(tree, hf_usb_wFrameNumber, tvb, offset, 2, TRUE);
+    offset += 2;
+
+    return offset;
+}
+
+
+typedef int (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
 
 typedef struct _usb_setup_dissector_table_t {
     guint8 request;
@@ -1144,10 +1459,34 @@ typedef struct _usb_setup_dissector_table_t {
 #define USB_SETUP_GET_INTERFACE		10
 #define USB_SETUP_SET_INTERFACE		11
 #define USB_SETUP_SYNCH_FRAME		12
-static const usb_setup_dissector_table_t setup_dissectors[] = {
-    {USB_SETUP_GET_DESCRIPTOR,	dissect_usb_setup_get_descriptor},
+
+static const usb_setup_dissector_table_t setup_request_dissectors[] = {
+    {USB_SETUP_GET_STATUS,	dissect_usb_setup_get_status_request},
+    {USB_SETUP_CLEAR_FEATURE,	dissect_usb_setup_clear_feature_request},
+    {USB_SETUP_SET_FEATURE,	dissect_usb_setup_set_feature_request},
+    {USB_SETUP_SET_ADDRESS,	dissect_usb_setup_set_address_request},
+    {USB_SETUP_GET_DESCRIPTOR,	dissect_usb_setup_get_descriptor_request},
+    {USB_SETUP_SET_CONFIGURATION, dissect_usb_setup_set_configuration_request},
+    {USB_SETUP_GET_INTERFACE,	dissect_usb_setup_get_interface_request},
+    {USB_SETUP_SET_INTERFACE,	dissect_usb_setup_set_interface_request},
+    {USB_SETUP_SYNCH_FRAME,	dissect_usb_setup_synch_frame_request},
     {0, NULL}
 };
+
+static const usb_setup_dissector_table_t setup_response_dissectors[] = {
+    {USB_SETUP_GET_STATUS,	dissect_usb_setup_get_status_response},
+    {USB_SETUP_CLEAR_FEATURE,	dissect_usb_setup_clear_feature_response},
+    {USB_SETUP_SET_FEATURE,	dissect_usb_setup_set_feature_response},
+    {USB_SETUP_SET_ADDRESS,	dissect_usb_setup_set_address_response},
+    {USB_SETUP_GET_DESCRIPTOR,	dissect_usb_setup_get_descriptor_response},
+    {USB_SETUP_GET_CONFIGURATION, dissect_usb_setup_get_configuration_response},
+    {USB_SETUP_SET_CONFIGURATION, dissect_usb_setup_set_configuration_response},
+    {USB_SETUP_GET_INTERFACE,	dissect_usb_setup_get_interface_response},
+    {USB_SETUP_SET_INTERFACE,	dissect_usb_setup_set_interface_response},
+    {USB_SETUP_SYNCH_FRAME,	dissect_usb_setup_synch_frame_response},
+    {0, NULL}
+};
+
 static const value_string setup_request_names_vals[] = {
     {USB_SETUP_GET_STATUS,		"GET STATUS"},
     {USB_SETUP_CLEAR_FEATURE,		"CLEAR FEATURE"},
@@ -1542,7 +1881,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     }
 
                     dissector=NULL;
-                    for(tmp=setup_dissectors;tmp->dissector;tmp++){
+                    for(tmp=setup_request_dissectors;tmp->dissector;tmp++){
                         if(tmp->request==usb_trans_info->request){
                             dissector=tmp->dissector;
                             break;
@@ -1550,7 +1889,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     }
 
                     if(dissector){
-                        dissector(pinfo, setup_tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+                        dissector(pinfo, setup_tree, tvb, offset, usb_trans_info, usb_conv_info);
                         offset+=6;
                     } else {
                         proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
@@ -1590,7 +1929,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
                 case RQT_SETUP_TYPE_STANDARD:
                     /*
-                     * This is a standard reply which is managed by this
+                     * This is a standard response which is managed by this
                      * dissector
                      */
                     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1600,7 +1939,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     }
 
                     dissector=NULL;
-                    for(tmp=setup_dissectors;tmp->dissector;tmp++){
+                    for(tmp=setup_response_dissectors;tmp->dissector;tmp++){
                         if(tmp->request==usb_conv_info->usb_trans_info->request){
                             dissector=tmp->dissector;
                             break;
@@ -1608,7 +1947,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     }
 
                     if(dissector){
-                        offset = dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info->usb_trans_info, usb_conv_info);
+                        offset = dissector(pinfo, tree, tvb, offset, usb_conv_info->usb_trans_info, usb_conv_info);
                     } else {
                         if (tvb_reported_length_remaining(tvb, offset) != 0) {
                             proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
@@ -1747,6 +2086,22 @@ proto_register_usb(void)
         { "wLength", "usb.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
 
+        { &hf_usb_wFeatureSelector,
+        { "wFeatureSelector", "usb.setup.wFeatureSelector", FT_UINT16, BASE_DEC,
+	   VALS(usb_feature_selector_vals), 0x0, "", HFILL }},
+
+        { &hf_usb_wInterface,
+        { "wInterface", "usb.setup.wInterface", FT_UINT16, BASE_DEC,
+	   NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_wStatus,
+        { "wStatus", "usb.setup.wStatus", FT_UINT16, BASE_HEX,
+	   NULL, 0x0, "", HFILL }},
+
+        { &hf_usb_wFrameNumber,
+        { "wFrameNumber", "usb.setup.wFrameNumber", FT_UINT16, BASE_DEC,
+	   NULL, 0x0, "", HFILL }},
+
     /* --------------------------------- */
         { &hf_usb_data,
         {"Application Data", "usb.data",
@@ -1766,7 +2121,7 @@ proto_register_usb(void)
           VALS(bmrequesttype_recipient_vals), 0x1f, "", HFILL }},
 
         { &hf_usb_bDescriptorType,
-        { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_HEX,
+        { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_DEC,
           VALS(descriptor_type_vals), 0x0, "", HFILL }},
 
         { &hf_usb_descriptor_index,
