@@ -649,7 +649,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
     int old_offset=offset;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "DEVICE QUALIFIER DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE QUALIFIER DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -704,7 +704,7 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
     int old_offset=offset;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "DEVICE DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -781,7 +781,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
     guint8 len;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "STRING DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "STRING DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -828,7 +828,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     int old_offset=offset;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "INTERFACE DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "INTERFACE DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -900,7 +900,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     guint8 endpoint;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "ENDPOINT DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "ENDPOINT DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -998,7 +998,7 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, 
     guint8 bLength;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "UNKNOWN DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "UNKNOWN DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
@@ -1007,10 +1007,15 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, 
     bLength = tvb_get_guint8(tvb, offset);
     offset++;
     if (bLength < 3) {
+        if(item){
+            proto_item_set_len(item, offset-old_offset);
+        }
+
         item = proto_tree_add_text(parent_tree, tvb, offset - 1, 1,
             "Invalid bLength: %u",  bLength);
         expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
             "Invalid bLength: %u",  bLength);
+
         return offset;
     }
 
@@ -1054,7 +1059,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     guint8 power;
 
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "CONFIGURATION DESCRIPTOR");
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "CONFIGURATION DESCRIPTOR");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
     }
 
