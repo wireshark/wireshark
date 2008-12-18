@@ -372,6 +372,7 @@ list_encap_types(void) {
     }
 }
 
+#ifdef HAVE_PLUGINS
 /*
  *  Don't report failures to load plugins because most (non-wiretap) plugins
  *  *should* fail to load (because we're not linked against libwireshark and
@@ -382,6 +383,7 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 {
 	return;
 }
+#endif
 
 int
 main(int argc, char *argv[])
