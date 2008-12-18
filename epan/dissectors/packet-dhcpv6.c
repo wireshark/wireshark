@@ -14,9 +14,9 @@
  * RFC3633.txt (Prefix options)
  * RFC3646.txt (DNS servers/domains)
  * RFC3898.txt (NIS options)
+ * RFC4704.txt (Client FQDN)
  * RFC5007.txt (DHCPv6 Leasequery)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
- * draft-ietf-dhc-dhcpv6-opt-fqdn-00.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
  *
  * Note that protocol constants are still subject to change, based on IANA
@@ -290,9 +290,16 @@ dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int offset, guint16 optlen)
 
         /* read length of the next substring */
         len = tvb_get_guint8(tvb, offset);
+	/* Microsoft dhcpv6 clients aren't currently RFC 4704 conform: They send an
+	 * ASCII string instead of a DNS record encoded domain name. Catch that case
+	 * to allow us to continue after such a malformed record.
+	 */
+	if ( optlen < len ) {
+                proto_tree_add_text(subtree, tvb, start_offset, optlen, "Malformed DNS name record (MS Vista client?)");
+		return;
+	}
         offset++;
         optlen--;
-
         /* if len==0 and pos>0 we have read an entire domain string */
         if(!len){
             if(!pos){
