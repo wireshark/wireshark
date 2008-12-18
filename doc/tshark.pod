@@ -192,12 +192,21 @@ Run with the given configuration profile.
 
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
-Specify that if the layer type in question (for example, B<tcp.port> or
-B<udp.port> for a TCP or UDP port number) has the specified selector
-value, packets should be dissected as the specified protocol.
+Like Wireshark's B<Decode As...> feature, this lets you specify how a
+layer type should be dissected. If the layer type in question (for example,
+B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
+selector value, packets should be dissected as the specified protocol.
 
 Example: B<-d tcp.port==8888,http> will decode any traffic running over
 TCP port 8888 as HTTP.
+
+Using an invalid selector or protocol will print out a list of valid selectors
+and protocol names, respectively.
+
+Example: B<-d .> is a quick way to get a list of valid selectors.
+
+Example: B<-d ethertype==0x0800.> is a quick way to get a list of protocols that can be
+selected with an ethertype.
 
 =item -D
 
