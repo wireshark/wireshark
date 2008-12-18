@@ -10,6 +10,7 @@
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
+TOOLS_DIR=..\tools
 include ..\config.nmake
 include Makefile.common
 
