@@ -82,6 +82,14 @@ static int hf_dns_rr_class_mdns = -1;
 static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
+static int hf_dns_nsec3_algo = -1;
+static int hf_dns_nsec3_flags = -1;
+static int hf_dns_nsec3_flag_optout = -1;
+static int hf_dns_nsec3_iterations = -1;
+static int hf_dns_nsec3_salt_length = -1;
+static int hf_dns_nsec3_salt_value = -1;
+static int hf_dns_nsec3_hash_length = -1;
+static int hf_dns_nsec3_hash_value = -1;
 static int hf_dns_tsig_error = -1;
 static int hf_dns_tsig_fudge = -1;
 static int hf_dns_tsig_mac_size = -1;
@@ -100,6 +108,7 @@ static gint ett_dns_rr = -1;
 static gint ett_dns_qry = -1;
 static gint ett_dns_ans = -1;
 static gint ett_dns_flags = -1;
+static gint ett_nsec3_flags = -1;
 static gint ett_t_key_flags = -1;
 static gint ett_t_key = -1;
 static gint ett_dns_mac = -1;
@@ -190,6 +199,8 @@ typedef struct _dns_conv_info_t {
 #define T_RRSIG         46              /* future RFC 2535bis */
 #define T_NSEC          47              /* future RFC 2535bis */
 #define T_DNSKEY        48              /* future RFC 2535bis */
+#define T_NSEC3         50              /* Next secure hash (RFC 5155) */
+#define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -301,6 +312,21 @@ static const value_string rcode_vals[] = {
 	  { RCODE_NOTZONE,   "Name out of zone"     },
 	  { 0,               NULL                   } };
 
+#define NSEC3_HASH_RESERVED 0
+#define NSEC3_HASH_SHA1     1
+
+#define NSEC3_FLAG_OPTOUT    1
+
+static const value_string hash_algorithms[] = {
+	  { NSEC3_HASH_RESERVED,  "Reserved"        },
+	  { NSEC3_HASH_SHA1,      "SHA-1"           },
+	  { 0,                    NULL              } };
+
+static const true_false_string tfs_flags_nsec3_optout = {
+	"Additional insecure delegations allowed",
+	"Additional insecure delegations forbidden"
+};
+
 /* TSIG/TKEY extended errors */
 #define TSIGERROR_BADSIG   (16)
 #define TSIGERROR_BADKEY   (17)
@@ -390,6 +416,9 @@ static const value_string dns_types[] = {
 	{ T_NSEC,	"NSEC" }, /* future RFC 2535bis */
 	{ T_DNSKEY,	"DNSKEY" }, /* future RFC 2535bis */
 
+	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
+	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
+
 	{ 100,		"UINFO" },
 	{ 101,		"UID" },
 	{ 102,		"GID" },
@@ -468,7 +497,10 @@ dns_type_description (guint type)
     "key to use with IPSEC",            /* draft-ietf-ipseckey-rr */
     "RR signature",                     /* future RFC 2535bis */
     "Next secured",                     /* future RFC 2535bis */
-    "DNS public key"                    /* future RFC 2535bis */
+    "DNS public key",                   /* future RFC 2535bis */
+    NULL,
+    "Next secured hash",                /* RFC 5155 */
+    "NSEC3 parameters"                  /* RFC 5155 */       
   };
   const char *short_name;
   const char *long_name;
@@ -928,30 +960,67 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   return rr_tree;
 }
 
+static int
+dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_len)
+{   
+  int mask, blockbase, blocksize;
+  int i, initial_offset, rr_type;
+  guint8 bits;
+
+  initial_offset = cur_offset;
+  while (rr_len != 0) {
+    blockbase = tvb_get_guint8(tvb, cur_offset);
+    blocksize = tvb_get_guint8(tvb, cur_offset + 1);
+    cur_offset += 2;
+    rr_len -= 2;
+    rr_type = blockbase * 256;
+    for( ; blocksize; blocksize-- ) {	    
+      bits = tvb_get_guint8(tvb, cur_offset);
+      mask = 1<<7;
+      for (i = 0; i < 8; i++) {
+        if (bits & mask) {
+          proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
+            "RR type in bit map: %s",
+            dns_type_description(rr_type));
+        }
+        mask >>= 1;
+        rr_type++;
+      }
+      cur_offset += 1;
+      rr_len -= 1;
+    }
+  }
+  return(initial_offset - cur_offset);
+}
+
 /*
  * SIG, KEY, and CERT RR algorithms.
  */
-#define	DNS_ALGO_RSAMD5		1	/* RSA/MD5 */
-#define	DNS_ALGO_DH		2	/* Diffie-Hellman */
-#define	DNS_ALGO_DSA		3	/* DSA */
-#define	DNS_ALGO_ECC		4	/* Elliptic curve crypto */
-#define DNS_ALGO_RSASHA1        5	/* RSA/SHA1 */
-#define DNS_ALGO_HMACMD5        157	/* HMAC/MD5 */
-#define	DNS_ALGO_INDIRECT	252	/* Indirect key */
-#define	DNS_ALGO_PRIVATEDNS	253	/* Private, domain name  */
-#define	DNS_ALGO_PRIVATEOID	254	/* Private, OID */
+#define	DNS_ALGO_RSAMD5             1	/* RSA/MD5 */
+#define	DNS_ALGO_DH                 2	/* Diffie-Hellman */
+#define	DNS_ALGO_DSA                3	/* DSA */
+#define	DNS_ALGO_ECC                4	/* Elliptic curve crypto */
+#define DNS_ALGO_RSASHA1            5	/* RSA/SHA1 */
+#define DNS_ALGO_DSA_NSEC3_SHA1     6	/* DSA + NSEC3/SHA1 */
+#define DNS_ALGO_RSASHA1_NSEC3_SHA1 7	/* RSA/SHA1 + NSEC3/SHA1 */
+#define DNS_ALGO_HMACMD5            157	/* HMAC/MD5 */
+#define	DNS_ALGO_INDIRECT           252	/* Indirect key */
+#define	DNS_ALGO_PRIVATEDNS         253	/* Private, domain name  */
+#define	DNS_ALGO_PRIVATEOID         254	/* Private, OID */
 
 static const value_string algo_vals[] = {
-	  { DNS_ALGO_RSAMD5,     "RSA/MD5" },
-	  { DNS_ALGO_DH,         "Diffie-Hellman" },
-	  { DNS_ALGO_DSA,        "DSA" },
-	  { DNS_ALGO_ECC,        "Elliptic curve crypto" },
-	  { DNS_ALGO_RSASHA1,    "RSA/SHA1" },
-	  { DNS_ALGO_HMACMD5,    "HMAC/MD5" },
-	  { DNS_ALGO_INDIRECT,   "Indirect key" },
-	  { DNS_ALGO_PRIVATEDNS, "Private, domain name" },
-	  { DNS_ALGO_PRIVATEOID, "Private, OID" },
-	  { 0,                   NULL }
+	  { DNS_ALGO_RSAMD5,            "RSA/MD5" },
+	  { DNS_ALGO_DH,                "Diffie-Hellman" },
+	  { DNS_ALGO_DSA,               "DSA" },
+	  { DNS_ALGO_ECC,               "Elliptic curve crypto" },
+	  { DNS_ALGO_RSASHA1,           "RSA/SHA1" },
+	  { DNS_ALGO_DSA_NSEC3_SHA1,    "DSA + NSEC3/SHA1" },
+	  { DNS_ALGO_RSASHA1_NSEC3_SHA1,"RSA/SHA1 + NSEC3/SHA1" },
+	  { DNS_ALGO_HMACMD5,           "HMAC/MD5" },
+	  { DNS_ALGO_INDIRECT,          "Indirect key" },
+	  { DNS_ALGO_PRIVATEDNS,        "Private, domain name" },
+	  { DNS_ALGO_PRIVATEOID,        "Private, OID" },
+	  { 0,                          NULL }
 };
 
 #define DNS_CERT_PGP		1	/* PGP */
@@ -1793,10 +1862,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int rr_len = data_len;
       const char *next_domain_name;
       int next_domain_name_len;
-      int rr_type;
-      guint8 bits;
-      int mask, blockbase, blocksize;
-      int i;
 
       /* XXX Fix data length */
       next_domain_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset,
@@ -1810,29 +1875,36 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 			"Next domain name: %s", name_out);
 	cur_offset += next_domain_name_len;
 	rr_len -= next_domain_name_len;
-	rr_type = 0;
-	while (rr_len != 0) {
-	  blockbase = tvb_get_guint8(tvb, cur_offset);
-	  blocksize = tvb_get_guint8(tvb, cur_offset + 1);
-	  cur_offset += 2;
-	  rr_len -= 2;
-	  rr_type = blockbase * 256;
-	  for( ; blocksize; blocksize-- ) {	    
-  	       bits = tvb_get_guint8(tvb, cur_offset);
-	       mask = 1<<7;
-	       for (i = 0; i < 8; i++) {
-		 if (bits & mask) {
-		   proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-			"RR type in bit map: %s",
-			dns_type_description(rr_type));
-		 }
-		 mask >>= 1;
-		 rr_type++;
-	       }
-	       cur_offset += 1;
-	       rr_len -= 1;
-	  }
-        }
+        cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+      }
+    }
+    break;
+
+  case T_NSEC3:
+    {
+      int rr_len, initial_offset = cur_offset;
+      guint8 salt_len, hash_len;
+      proto_item *flags_item;
+      proto_tree *flags_tree;
+
+      if (dns_tree != NULL) {
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset++, 1, FALSE);
+        flags_item = proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, FALSE);
+        flags_tree = proto_item_add_subtree(flags_item, ett_nsec3_flags);
+        proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, FALSE);
+        cur_offset++;
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, FALSE);
+        cur_offset += 2;
+        salt_len = tvb_get_guint8(tvb, cur_offset);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset++, 1, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, FALSE);
+        cur_offset += salt_len;
+        hash_len = tvb_get_guint8(tvb, cur_offset);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, FALSE);   
+        cur_offset += hash_len;
+        rr_len = data_len - (cur_offset - initial_offset);
+        cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
       }
     }
     break;
@@ -2952,6 +3024,38 @@ proto_register_dns(void)
       { "Updates",       	"dns.count.updates",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Number of updates records in packet", HFILL }},
+    { &hf_dns_nsec3_algo,
+      { "Hash algorithm", "dns.nsec3.algo",
+        FT_UINT8, BASE_DEC, VALS(hash_algorithms), 0,
+        "Hash algorithm", HFILL }},
+    { &hf_dns_nsec3_flags,
+      { "NSEC3 flags", "dns.nsec3.flags",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "NSEC3 flags", HFILL }},
+    { &hf_dns_nsec3_flag_optout,
+      { "NSEC3 Opt-out flag", "dns.nsec3.flags.opt_out",
+        FT_BOOLEAN, 8, TFS(&tfs_flags_nsec3_optout), NSEC3_FLAG_OPTOUT,
+        "NSEC3 opt-out flag", HFILL }},
+    { &hf_dns_nsec3_iterations,
+      { "NSEC3 iterations", "dns.nsec3.iterations",
+        FT_UINT16, BASE_DEC, NULL, 0,
+        "Number of hashing iterations", HFILL }},
+    { &hf_dns_nsec3_salt_length,
+      { "Salt length", "dns.nsec3.salt_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Length of salt in bytes", HFILL }},
+    { &hf_dns_nsec3_salt_value,
+      { "Salt value", "dns.nsec3.salt_value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Salt value", HFILL }},
+    { &hf_dns_nsec3_hash_length,
+      { "Hash length", "dns.nsec3.hash_length",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Length in bytes of next hashed owner", HFILL }},
+    { &hf_dns_nsec3_hash_value,
+      { "Next hashed owner", "dns.nsec3.hash_value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "Next hashed owner", HFILL }},
     { &hf_dns_tsig_original_id,
       { "Original Id",       	"dns.tsig.original_id",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -3008,6 +3112,7 @@ proto_register_dns(void)
     &ett_dns_qry,
     &ett_dns_ans,
     &ett_dns_flags,
+    &ett_nsec3_flags,
     &ett_t_key_flags,
     &ett_t_key,
     &ett_dns_mac,
