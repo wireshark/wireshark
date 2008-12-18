@@ -660,7 +660,7 @@ static const value_string h248_pkg_annexc_porttype_values[] = {
 
 static const value_string h248_pkg_annexc_aal1st_values[] = {
 	{0x0,"null"},
-	{0x1,"voiceband signall transport on 64kbps"},
+	{0x1,"voiceband signal transport on 64kbps"},
 	{0x2,"circuit transport"},
 	{0x4,"high quality audio signal transport"},
 	{0x5,"video signal transport"},

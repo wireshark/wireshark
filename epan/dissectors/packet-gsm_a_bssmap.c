@@ -488,7 +488,7 @@ typedef enum
 	BE_TIME_IND,	 /. Time Indication ./
 	BE_RES_SIT,	 /. Resource Situation ./
 	BE_CURR_CHAN_1,	 /. Current Channel Type 1 ./
-	BE_QUE_IND,	 /. Queueing Indicator ./
+	BE_QUE_IND,	 /. Queuing Indicator ./
 	BE_SPEECH_VER,	 /. Speech Version ./
 	BE_ASS_REQ,	 /. Assignment Requirement ./
 	BE_TALKER_FLAG,	 /. Talker Flag ./
@@ -3559,7 +3559,7 @@ guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	NULL,				/* Time Indication */
 	NULL,				/* Resource Situation */
 	be_curr_chan_1,		/* Current Channel Type 1 */
-	be_que_ind,			/* Queueing Indicator */
+	be_que_ind,			/* Queuing Indicator */
 	be_speech_ver,		/* Speech Version */
 	be_ass_req,			/* Assignment Requirement */
 	NULL				/* no associated data */,	/* Talker Flag */
@@ -3936,7 +3936,7 @@ bssmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CURR_CHAN_1].value, BSSAP_PDU_TYPE_BSSMAP, BE_CURR_CHAN_1, "");
 	/* Speech Version (Used) 	3.2.2.51	BSS-MSC 	O (note 3)	2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_SPEECH_VER].value, BSSAP_PDU_TYPE_BSSMAP, BE_SPEECH_VER, " (Used)");
-	/* Queueing Indicator	3.2.2.50	BSS-MSC 	O	2 */
+	/* Queuing Indicator	3.2.2.50	BSS-MSC 	O	2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_QUE_IND].value, BSSAP_PDU_TYPE_BSSMAP, BE_QUE_IND, "");
 	/* Old BSS to New BSS Information	3.2.2.58	BSS-MSC	O	2-n */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_OLD2NEW_INFO].value, BSSAP_PDU_TYPE_BSSMAP, BE_OLD2NEW_INFO, "");
@@ -4466,7 +4466,7 @@ bssmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 3.2.1.33	QUEUEING INDICATION
+ * 3.2.1.33	QUEUING INDICATION
  * No data
  */
 

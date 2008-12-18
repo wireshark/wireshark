@@ -4884,7 +4884,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
     proto_tree_add_text(tree,
         tvb, curr_offset, 1,
-        "%s :  FPC SubChannel Information Included",
+        "%s :  FPC Subchannel Information Included",
         a_bigbuf);
 
     curr_offset++;

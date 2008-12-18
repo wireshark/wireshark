@@ -47,7 +47,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int proto_cfm = -1;
 
 static const value_string opcodetypenames[] = {
-	{ IEE8021, 	"Reserved for IEE 802.1" },
+	{ IEEE8021, 	"Reserved for IEEE 802.1" },
 	{ CCM, 		"Continuity Check Message (CCM)" },
 	{ LBR, 		"Loopback Reply (LBR)" },
 	{ LBM, 		"Loopback Message (LBM)" },

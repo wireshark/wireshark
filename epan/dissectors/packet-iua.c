@@ -1,7 +1,7 @@
 /* packet-iua.c
  * Routines for ISDN Q.921-User Adaptation Layer dissection
  *
- * It is hopefully (needs testing) compilant to
+ * It is hopefully (needs testing) compliant to
  *   http://www.ietf.org/rfc/rfc3057.txt
  *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-iua-imp-guide-01.txt
  * To do: - provide better handling of length parameters
@@ -299,7 +299,7 @@ dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 static const value_string error_code_values[] = {
   { INVALID_VERSION_ERROR,                       "Invalid version" },
   { INVALID_INTERFACE_IDENTIFIER_ERROR,          "Invalid interface identifier" },
-  { UNSUPPORTED_MESSAGE_CLASS_ERROR,             "Unsuported message class" },
+  { UNSUPPORTED_MESSAGE_CLASS_ERROR,             "Unsupported message class" },
   { UNSUPPORTED_MESSAGE_TYPE_ERROR,              "Unsupported message type" },
   { UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR,     "Unsupported traffic handling mode" },
   { UNEXPECTED_MESSAGE_ERROR,                    "Unexpected message" },
@@ -314,7 +314,7 @@ static const value_string error_code_values[] = {
 static const value_string error_code_ig_values[] = {
   { INVALID_VERSION_ERROR,                       "Invalid version" },
   { INVALID_INTERFACE_IDENTIFIER_ERROR,          "Invalid interface identifier" },
-  { UNSUPPORTED_MESSAGE_CLASS_ERROR,             "Unsuported message class" },
+  { UNSUPPORTED_MESSAGE_CLASS_ERROR,             "Unsupported message class" },
   { UNSUPPORTED_MESSAGE_TYPE_ERROR,              "Unsupported message type" },
   { UNSUPPORTED_TRAFFIC_HANDLING_MODE_ERROR,     "Unsupported traffic handling mode" },
   { UNEXPECTED_MESSAGE_ERROR,                    "Unexpected message" },
@@ -514,7 +514,7 @@ static const value_string parameter_tag_values[] = {
   { DLCI_PARAMETER_TAG,                                    "DLCI" },
   { DIAGNOSTIC_INFORMATION_PARAMETER_TAG,                  "Diagnostic information" },
   { INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG,      "Integer range interface identifier" },
-  { HEARTBEAT_DATA_PARAMETER_TAG,                          "Hearbeat data" },
+  { HEARTBEAT_DATA_PARAMETER_TAG,                          "Heartbeat data" },
   { ASP_REASON_PARAMETER_TAG,                              "Reason" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,                       "Traffic mode type" },
   { ERROR_CODE_PARAMETER_TAG,                              "Error code" },
@@ -531,7 +531,7 @@ static const value_string parameter_tag_ig_values[] = {
   { DLCI_PARAMETER_TAG,                                    "DLCI" },
   { DIAGNOSTIC_INFORMATION_PARAMETER_TAG,                  "Diagnostic information" },
   { INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG,      "Integer range interface identifier" },
-  { HEARTBEAT_DATA_PARAMETER_TAG,                          "Hearbeat data" },
+  { HEARTBEAT_DATA_PARAMETER_TAG,                          "Heartbeat data" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,                       "Traffic mode type" },
   { ERROR_CODE_PARAMETER_TAG,                              "Error code" },
   { STATUS_TYPE_INDENTIFICATION_PARAMETER_TAG,             "Status type/identification" },

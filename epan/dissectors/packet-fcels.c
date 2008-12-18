@@ -238,7 +238,7 @@ static const value_string fc_prli_fc4_val[] = {
 
 static const value_string cbind_addr_mode_vals[] = {
     {0, "Address Translation mode"},
-    {1, "Address Transperent Mode"},
+    {1, "Address Transparent Mode"},
     {0, NULL},
 };
 

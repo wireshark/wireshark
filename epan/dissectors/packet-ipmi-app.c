@@ -242,7 +242,7 @@ static const struct true_false_string tfs_01_dev_avail = {
 static const value_string vals_04_result[] = {
 	{ 0x55, "No error. All Self Tests Passed" },
 	{ 0x56, "Self Test function not implemented in this controller" },
-	{ 0x57, "Corrupted or inaccesible data or devices" },
+	{ 0x57, "Corrupted or inaccessible data or devices" },
 	{ 0x58, "Fatal hardware error" },
 	{ 0xff, "Reserved" },
 	{ 0, NULL }
@@ -268,7 +268,7 @@ static const value_string vals_06_syspwr[] = {
 	{ 0x06, "Set S4/S5" },
 	{ 0x07, "Set G3" },
 	{ 0x08, "Sleeping" },
-	{ 0x09, "G1 sleping" },
+	{ 0x09, "G1 sleeping" },
 	{ 0x0a, "Set override" },
 	{ 0x20, "Set Legacy On" },
 	{ 0x21, "Set Legacy Off" },
@@ -297,7 +297,7 @@ static const value_string vals_07_syspwr[] = {
 	{ 0x06, "S4/S5" },
 	{ 0x07, "G3" },
 	{ 0x08, "Sleeping" },
-	{ 0x09, "G1 sleping" },
+	{ 0x09, "G1 sleeping" },
 	{ 0x0a, "Override" },
 	{ 0x20, "Legacy On" },
 	{ 0x21, "Legacy Off" },

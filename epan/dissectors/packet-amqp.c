@@ -5237,7 +5237,7 @@ void
 proto_register_amqp(void)
 {
     proto_amqp = proto_register_protocol(
-        "Advanced Message Queueing Protocol", "AMQP", "amqp");
+        "Advanced Message Queuing Protocol", "AMQP", "amqp");
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

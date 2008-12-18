@@ -1,6 +1,6 @@
 /* packet-asap.c
  * Routines for Aggregate Server Access Protocol (ASAP)
- * It is hopefully (needs testing) compilant to
+ * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-17.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-08.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-20.txt

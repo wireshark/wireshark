@@ -1117,15 +1117,15 @@ proto_register_igmp(void)
 
 		{ &hf_max_resp_exp,
 			{ "Exponent", "igmp.max_resp.exp", FT_UINT8, BASE_HEX,
-			NULL, IGMP_MAX_RESP_EXP, "Maxmimum Response Time, Exponent", HFILL }},
+			NULL, IGMP_MAX_RESP_EXP, "Maximum Response Time, Exponent", HFILL }},
 
 		{ &hf_max_resp_mant,
 			{ "Mantissa", "igmp.max_resp.mant", FT_UINT8, BASE_HEX,
-			NULL, IGMP_MAX_RESP_MANT, "Maxmimum Response Time, Mantissa", HFILL }},
+			NULL, IGMP_MAX_RESP_MANT, "Maximum Response Time, Mantissa", HFILL }},
 
 		{ &hf_mtrace_max_hops,
 			{ "# hops", "igmp.mtrace.max_hops", FT_UINT8, BASE_DEC,
-			NULL, 0, "Maxmimum Number of Hops to Trace", HFILL }},
+			NULL, 0, "Maximum Number of Hops to Trace", HFILL }},
 
 		{ &hf_mtrace_saddr,
 			{ "Source Address", "igmp.mtrace.saddr", FT_IPv4, BASE_NONE,

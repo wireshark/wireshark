@@ -267,7 +267,7 @@ static const value_string isup_numbering_plan_ind_value[] = {
 
   static const true_false_string isup_inband_information_ind_value = {
   /* according 3.37/Q.763 */
-  "in-band information or an appropirate pattern is now available",
+  "in-band information or an appropriate pattern is now available",
   "no indication"
 };
 static const true_false_string isup_event_presentation_restricted_ind_value = {

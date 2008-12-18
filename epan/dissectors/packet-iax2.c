@@ -2089,7 +2089,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_absts,
      {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      "The absoulte time of this packet (calculated by adding the IAX timestamp to "
+      "The absolute time of this packet (calculated by adding the IAX timestamp to "
       " the start time of this call)",
       HFILL}},
 

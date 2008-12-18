@@ -1,6 +1,6 @@
 /* packet-sua.c
  * Routines for SS7 SCCP-User Adaptation Layer (SUA) dissection
- * It is hopefully (needs testing) compilant to
+ * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
  * http://www.ietf.org/rfc/rfc3868.txt
  *

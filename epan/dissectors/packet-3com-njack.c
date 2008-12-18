@@ -141,7 +141,7 @@ typedef enum {
 	NJACK_CMD_MASK			= 0x04,
 	NJACK_CMD_MAXFRAMESIZE		= 0x05,
 	NJACK_CMD_COUNTERMODE		= 0x06,
-	NJACK_CMD_QUEUEING		= 0x0a,
+	NJACK_CMD_QUEUING		= 0x0a,
 	NJACK_CMD_ADDTAGSCHEME		= 0x0b,
 	NJACK_CMD_REMOVETAG		= 0x0c,
 	NJACK_CMD_GROUP			= 0x0d,
@@ -177,7 +177,7 @@ static const value_string njack_cmd_vals[] = {
 	{ NJACK_CMD_MASK,		"IP netmask" },
 	{ NJACK_CMD_MAXFRAMESIZE,	"Max frame size" },
 	{ NJACK_CMD_COUNTERMODE,	"Countermode" },
-	{ NJACK_CMD_QUEUEING,		"Priority scheduling policy" },
+	{ NJACK_CMD_QUEUING,		"Priority scheduling policy" },
 	{ NJACK_CMD_ADDTAGSCHEME,	"Add tag scheme" },
 	{ NJACK_CMD_REMOVETAG,		"Remove tag" },
 	{ NJACK_CMD_GROUP,		"Device group" },
@@ -424,7 +424,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 				tvb, offset, 1, FALSE);
 			offset += 1;
 			break;
-		case NJACK_CMD_QUEUEING:
+		case NJACK_CMD_QUEUING:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_scheduling,
 				tvb, offset, 1, FALSE);
 			offset += 1;

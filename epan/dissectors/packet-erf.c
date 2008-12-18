@@ -214,7 +214,7 @@ static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 #define EHDR_CLASS_DROP_MASK 0x04
 #define EHDR_CLASS_STER_MASK 0x03
 
-/* Header for ATM trafic identification */
+/* Header for ATM traffic identification */
 #define ATM_HDR_LENGTH 4
 
 /* Multi Channel HDLC */

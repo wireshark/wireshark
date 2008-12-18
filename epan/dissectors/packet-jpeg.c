@@ -171,7 +171,7 @@ proto_register_jpeg(void)
 			"", HFILL 
 		}},
 		{ &hf_rtp_jpeg_main_hdr_offs, { 
-			"Fragement Offset",
+			"Fragment Offset",
 			"jpeg.main_hdr.offset",
 			FT_UINT24, BASE_DEC, NULL, 0,
 			"", HFILL 

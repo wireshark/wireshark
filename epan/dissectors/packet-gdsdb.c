@@ -1319,7 +1319,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_connect_pref,
-			{ "Prefered version", "gdsdb.connect.pref",
+			{ "Preferred version", "gdsdb.connect.pref",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -1344,7 +1344,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_connect_pref_weight,
-			{ "Prefference weight", "gdsdb.connect.pref.weight",
+			{ "Preference weight", "gdsdb.connect.pref.weight",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -1414,7 +1414,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_receive_transaction,
-			{ "Transaction", "gdsdb.receive.transation",
+			{ "Transaction", "gdsdb.receive.transaction",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},

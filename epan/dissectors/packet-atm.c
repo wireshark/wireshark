@@ -140,7 +140,7 @@ static const value_string le_control_status_vals[] = {
 	{ 8,  "Invalid REQUESTOR-ID" },
 	{ 9,  "Invalid LAN destination" },
 	{ 10, "Invalid ATM address" },
-	{ 20, "No configuraton" },
+	{ 20, "No configuration" },
 	{ 21, "LE_CONFIGURE error" },
 	{ 22, "Insufficient information" },
 	{ 24, "TLV not found" },

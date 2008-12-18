@@ -722,7 +722,7 @@ static const value_string ssoff_12[] = {
 	{ 0x00, "System Reconfigured" },
 	{ 0x01, "OEM System Boot Event" },
 	{ 0x02, "Undetermined system hardware failure" },
-	{ 0x03, "Entry added to Auxillary Log" },
+	{ 0x03, "Entry added to Auxiliary Log" },
 	{ 0x04, "PEF Action" },
 	{ 0x05, "Timestamp Clock Synch" },
 	{ 0, NULL }
@@ -1450,7 +1450,7 @@ ssi_2b_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		{ 0x03, "Management controller device revision" },
 		{ 0x04, "Management controller manufacturer ID" },
 		{ 0x05, "Management controller IPMI version" },
-		{ 0x06, "Management controller auxillary firmware ID" },
+		{ 0x06, "Management controller auxiliary firmware ID" },
 		{ 0x07, "Management controller firmware boot block" },
 		{ 0x08, "Other management controller firmware" },
 		{ 0x09, "System firmware (EFI/BIOS) change" },
@@ -2144,7 +2144,7 @@ static const struct true_false_string tfs_20_pop = {
 static const value_string vals_28_act[] = {
 	{ 0x00, "Do not change individual enables" },
 	{ 0x01, "Enable selected event messages" },
-	{ 0x02, "Disable selescted event messages" },
+	{ 0x02, "Disable selected event messages" },
 	{ 0x03, "Reserved" },
 	{ 0, NULL }
 };

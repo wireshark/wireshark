@@ -136,7 +136,7 @@ dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
         /* no payload */
         break;
     default:
-        /* unknow */
+        /* unknown */
         proto_tree_add_item(tree, hf_nasdaq_soup_message, tvb, offset, linelen -1, FALSE);
         offset += linelen -1;
         break;

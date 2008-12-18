@@ -2190,7 +2190,7 @@ ipmi_register_picmg(gint proto_ipmi)
 			{ "Minor Firmware Revision (BCD encoded)",
 				"ipmi.prop01.fw_minor", FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_ipmi_picmg_prop01_fw_aux,
-			{ "Auxillary Firmware Revision Information",
+			{ "Auxiliary Firmware Revision Information",
 				"ipmi.prop01.fw_aux", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_ipmi_picmg_prop02_desc,
 			{ "Description string",

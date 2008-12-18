@@ -853,7 +853,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         additional = tvb_get_letohs(tvb, offset+2);
         proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
             4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X",
-            profile, val_to_str(profile, epl_device_profiles, "Unkown Profile"), additional);
+            profile, val_to_str(profile, epl_device_profiles, "Unknown Profile"), additional);
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, TRUE);
         offset += 4;
@@ -1436,7 +1436,7 @@ static hf_register_info hf[] = {
 { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7,    { "Manufacturer specific",      "epl.asnd.res.seb.bit7",                FT_UINT8, BASE_DEC, NULL, 0x80, "", HFILL }},
 { &hf_epl_asnd_statusresponse_seb_devicespecific_err,           { "Device profile specific",    "epl.asnd.res.seb.devicespecific_err",FT_BYTES, BASE_DEC,NULL, 0x00, "", HFILL }},
 
-{ &hf_epl_asnd_statusresponse_el,                               { "ErrorsCodeList",             "epl.asnd.sres.el",                     FT_BYTES, BASE_DEC, NULL, 0x00, "", HFILL }},
+{ &hf_epl_asnd_statusresponse_el,                               { "ErrorCodesList",             "epl.asnd.sres.el",                     FT_BYTES, BASE_DEC, NULL, 0x00, "", HFILL }},
 { &hf_epl_asnd_statusresponse_el_entry,                         { "Entry",                      "epl.asnd.sres.el.entry",               FT_BYTES, BASE_DEC, NULL, 0x00, "", HFILL }},
 
 /*List of Errors/Events*/

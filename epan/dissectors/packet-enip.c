@@ -772,7 +772,7 @@ proto_register_enip(void)
 		{ &hf_enip_sendercontex,
 			{ "Sender Context", "enip.context",
 			FT_BYTES, BASE_HEX, NULL, 0,
-			"Information pertient to the sender", HFILL }
+			"Information pertinent to the sender", HFILL }
 		},
 		{ &hf_enip_options,
 			{ "Options", "enip.options",

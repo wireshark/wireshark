@@ -954,7 +954,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     other_decode_bitfield_value(bigbuf, value, 0x003e, 16);
     proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LOC_UNCRTNTY_P: Standard deviation of axis perpindicular to angle specified for position uncertainty (meters): %s",
+	"%s :  LOC_UNCRTNTY_P: Standard deviation of axis perpendicular to angle specified for position uncertainty (meters): %s",
 	bigbuf,
 	str);
 
@@ -1316,7 +1316,7 @@ rev_req_gps_loc_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     proto_tree_add_text(tree, tvb, offset, 1,
 	"%s :  Coordinate type requested: %s coordinates",
 	bigbuf,
-	(oct & 0x80) ? "Sperical" : "Cartesian");
+	(oct & 0x80) ? "Spherical" : "Cartesian");
 
     other_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
     proto_tree_add_text(tree, tvb, offset, 1,

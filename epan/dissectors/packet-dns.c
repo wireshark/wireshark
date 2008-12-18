@@ -1704,7 +1704,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	     rr_len -= gw_name_len;	     
 	     break;
 	   default:
-	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: Unknow gateway type(%u)", gw_type);
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: Unknown gateway type(%u)", gw_type);
 	     break;
 	}
 	if (rr_len != 0)

@@ -217,7 +217,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      {
 		col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
 				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-					     returncode_vals,"Unknown Returcode (0x%2.2x"));
+					     returncode_vals,"Unknown Returncode (0x%2.2x"));
 	      }
 	    break;
 	  case EMPTY_BLOCK:

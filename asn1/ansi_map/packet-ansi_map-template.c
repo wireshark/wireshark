@@ -290,7 +290,7 @@ static int hf_ansi_map_originationtriggers_eightdig = -1;
 static int hf_ansi_map_originationtriggers_ninedig = -1;
 static int hf_ansi_map_originationtriggers_tendig = -1;
 static int hf_ansi_map_originationtriggers_elevendig = -1;
-static int hf_ansi_map_originationtriggers_thwelvedig = -1;
+static int hf_ansi_map_originationtriggers_twelvedig = -1;
 static int hf_ansi_map_originationtriggers_thirteendig = -1;
 static int hf_ansi_map_originationtriggers_fourteendig = -1;
 static int hf_ansi_map_originationtriggers_fifteendig = -1;
@@ -2115,7 +2115,7 @@ static const true_false_string ansi_map_originationtriggers_elevendig_bool_val  
   "Trigger is not active"
 };
 /* 1 digit (octet 4, bit E) */
-static const true_false_string ansi_map_originationtriggers_thwelvdig_bool_val  = {
+static const true_false_string ansi_map_originationtriggers_twelvedig_bool_val  = {
   "Launch an OriginationRequest for any call attempt with 12 digits",
   "Trigger is not active"
 };
@@ -2199,7 +2199,7 @@ dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	/* 13 digit (octet 4, bit F) */
 	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thirteendig, tvb, offset,	1, FALSE);
 	/* 12 digit (octet 4, bit E) */
-	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thwelvedig, tvb, offset,	1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twelvedig, tvb, offset,	1, FALSE);
 	/* 11 digit (octet 4, bit D) */
 	proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_elevendig, tvb, offset,	1, FALSE);
 	/* 10 digit (octet 4, bit C) */
@@ -3554,7 +3554,7 @@ static const value_string ansi_map_ReauthenticationReport_vals[]  = {
     {   1, "Reauthentication not attempted"},
     {   2, "Reauthentication no response"},
     {   3, "Reauthentication successful"},
-    {   4, "RReauthentication failed"},
+    {   4, "Reauthentication failed"},
 	{	0, NULL }
 };
 
@@ -3618,7 +3618,7 @@ static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
     {   0, "Not used"},
     {   1, "Voice Privacy not attempted"},
     {   2, "Voice Privacy no response"},
-    {   3, "Voiec Privacy is active"},
+    {   3, "Voice Privacy is active"},
     {   4, "Voice Privacy failed"},
 	{	0, NULL }
 };
@@ -4466,9 +4466,9 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, TFS(&ansi_map_pi_bool_val),0x02,
         "Presentation Indication", HFILL }},
 	{ &hf_ansi_map_navail,
-      { "Numer available indication", "ansi_map.navail",
+      { "Number available indication", "ansi_map.navail",
         FT_BOOLEAN, 8, TFS(&ansi_map_navail_bool_val),0x04,
-        "Numer available indication", HFILL }},
+        "Number available indication", HFILL }},
 	{ &hf_ansi_map_si,
       { "Screening indication", "ansi_map.si",
         FT_UINT8, BASE_DEC, VALS(ansi_map_si_vals), 0x30,
@@ -4826,7 +4826,7 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cdma_bool_val),0x01,
         "Call Mode", HFILL }},
 	{ &hf_ansi_map_cdmacallmode_amps,
-      { "Call Mode", "ansi_map.ocdmacallmode.amps",
+      { "Call Mode", "ansi_map.cdmacallmode.amps",
         FT_BOOLEAN, 8, TFS(&ansi_map_CallMode_amps_bool_val),0x02,
         "Call Mode", HFILL }},
 	{ &hf_ansi_map_cdmacallmode_namps,
@@ -5094,9 +5094,9 @@ void proto_register_ansi_map(void) {
       { "11 digits", "ansi_map.originationtriggers.eleven",
         FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_elevendig_bool_val),0x08,
         "11 digits", HFILL }},
-	{ &hf_ansi_map_originationtriggers_thwelvedig,
-      { "12 digits", "ansi_map.originationtriggers.thwelv",
-        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_thwelvdig_bool_val),0x10,
+	{ &hf_ansi_map_originationtriggers_twelvedig,
+      { "12 digits", "ansi_map.originationtriggers.twelve",
+        FT_BOOLEAN, 8, TFS(&ansi_map_originationtriggers_twelvedig_bool_val),0x10,
         "12 digits", HFILL }},
 	{ &hf_ansi_map_originationtriggers_thirteendig,
       { "13 digits", "ansi_map.originationtriggers.thirteen",

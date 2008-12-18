@@ -2664,7 +2664,7 @@ proto_register_dnp3(void)
     { "Bad CRC", "dnp3.hdr.CRC_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_dnp3_tr_ctl,
-    { "Transport Control", "dnp3.tr.ctl", FT_UINT8, BASE_HEX, NULL, 0x0, "Tranport Layer Control Byte", HFILL }},
+    { "Transport Control", "dnp3.tr.ctl", FT_UINT8, BASE_HEX, NULL, 0x0, "Transport Layer Control Byte", HFILL }},
 
     { &hf_dnp3_tr_fin,
     { "Final", "dnp3.tr.fin", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_TR_FIN, "", HFILL }},

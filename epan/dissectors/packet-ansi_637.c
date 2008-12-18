@@ -671,7 +671,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 			}
 			else
 			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact wireshark developers");
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-8 contact Wireshark developers");
 			}
 			if(utf8_text)
 				g_free(utf8_text);
@@ -698,7 +698,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 			}
 			else
 			{
-				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact wireshark developers");
+				ucs2_item = proto_tree_add_text(tree, tvb, offset, num_fields, "%s", "Failed on iso-8859-1 contact Wireshark developers");
 			}			
 			if(utf8_text)
 				g_free(utf8_text);

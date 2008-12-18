@@ -363,7 +363,7 @@ const value_string cip_devtype_vals[] = {
    { DP_HMI,                  "Human-Machine Interface"     },
    { DP_MASS_FLOW_CNT,        "Mass Flow Controller"        },
    { DP_PNEUM_VALVE,          "Pneumatic Valve"             },
-   { DP_VACUUM_PRES_GAUGE,    "Vaccuum Pressure Gauge"      },
+   { DP_VACUUM_PRES_GAUGE,    "Vacuum Pressure Gauge"       },
 
    { 0, NULL }
 };

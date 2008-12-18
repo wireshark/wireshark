@@ -244,7 +244,7 @@ proto_register_isup_thin(void)
 			"Version", HFILL }
 		},
 		{ &hf_isup_thin_message_type,
-			{ "Message Type", 		"isup_thin.messaget.type",
+			{ "Message Type", 		"isup_thin.message.type",
 			FT_UINT8, BASE_DEC,VALS(isup_thin_message_type_vals), 0x7f,
 			"Message Type", HFILL }
 		},

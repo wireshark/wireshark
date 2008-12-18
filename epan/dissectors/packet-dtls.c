@@ -1237,7 +1237,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	      }
 	      ssl->state |= SSL_HAVE_SESSION_KEY;
 	      ssl_save_session(ssl, dtls_session_hash);
-	      ssl_debug_printf("dissect_dtls_handshake session keys succesfully generated\n");
+	      ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
 	    }
 	    break;
 

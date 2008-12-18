@@ -173,7 +173,7 @@ static const value_string configuration_result_vals[] = {
 
 static const value_string status_vals[] = {
 	{ 0x0000,	"No further information available" },
-	{ 0x0001,	"Authentication panding" },
+	{ 0x0001,	"Authentication pending" },
 	{ 0x0002,	"Authorization pending" },
 	{ 0, NULL }
 };
@@ -1038,7 +1038,7 @@ proto_register_btl2cap(void)
 		{ &hf_btl2cap_psm,
 			{ "PSM",           "btl2cap.psm",
 				FT_UINT16, BASE_HEX, VALS(psm_vals), 0x0,          
-				"Protocol/Service Multiplexor", HFILL }
+				"Protocol/Service Multiplexer", HFILL }
 		},
 		{ &hf_btl2cap_scid,
 			{ "Source CID",           "btl2cap.scid",

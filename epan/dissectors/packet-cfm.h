@@ -26,7 +26,7 @@
 #ifndef __PACKET_CFM_H__
 #define __PACKET_CFM_H__
 
-#define IEE8021 0x00
+#define IEEE8021 0x00
 #define CCM 0x01
 #define LBR 0x02
 #define LBM 0x03

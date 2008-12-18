@@ -389,7 +389,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	if (tvb_reported_length_remaining(tvb, (bitcount+8)/8)>0)	{
 		item = proto_tree_add_text(tree, tvb, bitcount/8, tvb_reported_length_remaining(tvb, bitcount/8), "Error:");
 		proto_item_append_text(item, " %d Bytes remaining - should be 0!",tvb_reported_length_remaining(tvb, (bitcount+8)/8));
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Superflous data remaining");
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Superfluous data remaining");
 
 		/* Now check the paddings */
 		if (bitcount%8 != 0)	{

@@ -1035,7 +1035,7 @@ dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
                 break;
         default:
                 proto_tree_add_text(tree, tvb, offset, 4,
-                                    "Protocol: UNKNOW (%d)",
+                                    "Protocol: UNKNOWN (%d)",
                                     proto);
                 break;
         }
@@ -1106,7 +1106,7 @@ dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
 
         default:
                 proto_tree_add_text(tree, tvb, offset, 4,
-                                    "CLIENT Error Number:  Unknow Error Number  (%d)",
+                                    "CLIENT Error Number:  Unknown Error Number  (%d)",
                                     errorNum);
                 break;
         }
@@ -2096,8 +2096,8 @@ proto_register_fmp(void)
 			NULL, 0, "Seconds", HFILL }},
 
 		{ &hf_fmp_time_nsec, {
-			"nano seconds", "fmp.btime.nsec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Nano-seconds", HFILL }},
+			"nanoseconds", "fmp.btime.nsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Nanoseconds", HFILL }},
 
 		{ &hf_fmp_notifyPort, {
 			"Notify Port", "fmp.notifyPort", FT_UINT32, BASE_DEC,

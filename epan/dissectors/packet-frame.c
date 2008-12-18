@@ -121,7 +121,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	frame_number=pinfo->fd->num; /* dummy so that the buildbot crashdumps
 					will show the packetnumber where the
-					crash occured.
+					crash occurred.
 				     */
 	tree=parent_tree;
 
@@ -497,14 +497,14 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		item = proto_tree_add_protocol_format(tree, proto_unreassembled,
 		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
 		    pinfo->noreassembly_reason, pinfo->current_proto);
-		expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "Unreassembled Packet (Exception occured)");
+		expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "Unreassembled Packet (Exception occurred)");
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO,
 			    "[Malformed Packet]");
 		item = proto_tree_add_protocol_format(tree, proto_malformed,
 		    tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occured)");
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occurred)");
 	}
 }
 

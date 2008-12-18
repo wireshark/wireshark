@@ -1,6 +1,6 @@
 /* packet-enrp.c
  * Routines for Endpoint Handlespace Redundancy Protocol (ENRP)
- * It is hopefully (needs testing) compilant to
+ * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-17.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-08.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-20.txt

@@ -70,7 +70,7 @@
 
 /* Some definitions and the dissect_options() logic have been taken from Arnaldo Carvalho de Melo's DCCP implementation, thanks! */
 
-#define DCCP_HDR_LEN                    16      /* base DCCP header length, with 48 bits seqnos */
+#define DCCP_HDR_LEN                    16      /* base DCCP header length, with 48 bits seqnums */
 #define DCCP_HDR_LEN_MIN		12      /*                        , with 24 bits seqnum */
 #define DCCP_HDR_PKT_TYPES_LEN_MAX      12      /* max per packet type extra header length */
 #define DCCP_OPT_LEN_MAX                1008
@@ -124,7 +124,7 @@ static const value_string dccp_feature_options_vals[] = {
 
 static const value_string dccp_feature_numbers_vals[] = {
         {0x01, "CCID"},
-        {0x02, "Allow Short Seqnos"},
+        {0x02, "Allow Short Seqnums"},
         {0x03, "Sequence Window"},
         {0x04, "ECN Incapable"},
         {0x05, "Ack Ratio"},
@@ -311,7 +311,7 @@ static void dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb
 	switch (feature_number) {
 	/*		Server Priority features (RFC 4340, 6.3.1)		*/
 	case 1:			/* Congestion Control ID (CCID); fall through	*/
-	case 2:			/* Allow Short Seqnos; fall through		*/
+	case 2:			/* Allow Short Seqnums; fall through		*/
 	case 4:			/* ECN Incapable; fall through			*/
 	case 6:			/* Send Ack Vector; fall through		*/
 	case 7:			/* Send NDP Count; fall through			*/

@@ -139,7 +139,7 @@ static dissector_table_t llcgprs_subdissector_table;
 static const value_string sapi_t[] = {
 	{  0, "Reserved"},
 	{  1, "GPRS Mobility Management" },
-	{  2, "Tunnelling of messages 2" },
+	{  2, "Tunneling of messages 2" },
 	{  3, "User data 3"},
 	{  4, "Reserved" },
 	{  5, "User data 5" },

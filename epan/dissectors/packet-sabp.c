@@ -1657,7 +1657,7 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree);
 }
 
-/* Note a little bit of a hack assumes length max takes two bytes and that lenghth start at byte 4 */
+/* Note a little bit of a hack assumes length max takes two bytes and that the length starts at byte 4 */
 static void
 dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

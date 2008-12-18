@@ -9222,12 +9222,12 @@ proto_register_gsm_a_rr(void)
 	{ &hf_gsm_a_rr_dtx_bcch,
 	  { "DTX (BCCH)", "gsm_a.rr.dtx_bcch",
 		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_bcch_vals), 0x30,
-		"Discontinuous Tranmission (DTX-BCCH)", HFILL }
+		"Discontinuous Transmission (DTX-BCCH)", HFILL }
 	},
 	{ &hf_gsm_a_rr_dtx_sacch,
 	  { "DTX (SACCH)", "gsm_a.rr.dtx_sacch",
 		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_sacch_vals), 0xb0,
-		"Discontinuous Tranmission (DTX-SACCH)", HFILL }
+		"Discontinuous Transmission (DTX-SACCH)", HFILL }
 	},
 	{ &hf_gsm_a_rr_radio_link_timeout,
 	  { "Radio Link Timeout", "gsm_a.rr.radio_link_timeout",
@@ -9237,7 +9237,7 @@ proto_register_gsm_a_rr(void)
 	{ &hf_gsm_a_rr_cell_reselect_hyst,
 	  { "Cell Reselection Hysteresis", "gsm_a.rr.cell_reselect_hyst",
 		FT_UINT8, BASE_DEC,  NULL, 0xe0,
-		"Cell Reslection Hysteresis (dB)", HFILL }
+		"Cell Reselection Hysteresis (dB)", HFILL }
 	},
 	{ &hf_gsm_a_rr_ms_txpwr_max_cch,
 	  { "MS TXPWR MAX CCH", "gsm_a.rr.ms_txpwr_max_cch",

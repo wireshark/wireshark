@@ -590,8 +590,8 @@ static const value_string evt_air_mode_values[] = {
 };
 
 static const value_string evt_flow_direction_values[] = {
-	{0x0, "Outgoing Trafic" },
-	{0x1, "Incoming Trafic" },
+	{0x0, "Outgoing Traffic" },
+	{0x1, "Incoming Traffic" },
 	{0, NULL }
 };
 
@@ -2707,7 +2707,7 @@ proto_register_bthci_evt(void)
 				"Available Peak Bandwidth, in bytes per second", HFILL }
 		},
 		{ &hf_bthci_evt_latency,
-			{ "Available Latecy",        "bthci_evt.latency",
+			{ "Available Latency",        "bthci_evt.latency",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Available Latency, in microseconds", HFILL }
 		},

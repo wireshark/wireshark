@@ -2010,7 +2010,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 }
 
 
-/* determines the lenght of a TIPC package */
+/* determines the length of a TIPC package */
 static guint
 get_tipc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {

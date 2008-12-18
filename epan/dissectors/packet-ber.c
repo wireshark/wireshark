@@ -4235,7 +4235,7 @@ proto_register_ber(void)
 	    VALS(ber_class_codes), 0xc0, "Class of BER TLV Identifier", HFILL }},
 	{ &hf_ber_bitstring_padding, {
 	    "Padding", "ber.bitstring.padding", FT_UINT8, BASE_DEC,
-	    NULL, 0x0, "Number of unsused bits in the last octet of the bitstring", HFILL }},
+	    NULL, 0x0, "Number of unused bits in the last octet of the bitstring", HFILL }},
 	{ &hf_ber_bitstring_empty, {
 	    "Empty", "ber.bitstring.empty", FT_UINT8, BASE_DEC,
 	    NULL, 0x0, "This is an empty bitstring", HFILL }},

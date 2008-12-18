@@ -636,13 +636,13 @@ static const value_string cmd_auto_acc_flag_values[] = {
 };
 
 static const value_string cmd_read_all_flag_values[] = {
-	{0x00, "Return Link Key for speified BD_ADDR" },
+	{0x00, "Return Link Key for specified BD_ADDR" },
 	{0x01, "Return all stored Link Keys" },
 	{0, NULL }
 }; 
 
 static const value_string cmd_delete_all_flag_values[] = {
-	{0x00, "Delete only Link Key for speified BD_ADDR" },
+	{0x00, "Delete only Link Key for specified BD_ADDR" },
 	{0x01, "Delete all stored Link Keys" },
 	{0, NULL }
 }; 
@@ -2240,7 +2240,7 @@ proto_register_bthci_cmd(void)
 				"Peak Bandwidth, in bytes per second", HFILL }
 		},
 		{ &hf_bthci_cmd_latency,
-			{ "Latecy",        "bthci_cmd.latency",
+			{ "Latency",        "bthci_cmd.latency",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Latency, in microseconds", HFILL }
 		},

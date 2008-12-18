@@ -1137,7 +1137,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				}
 				/* else fall to default malformed record */
 			default:
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %u", type);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %u", type);
 				break;
 			}
 			len -= 2;

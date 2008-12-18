@@ -243,7 +243,7 @@ static gint hf_krb_APOptions_mutual_required = -1;
 static gint hf_krb_TicketFlags = -1;
 static gint hf_krb_TicketFlags_forwardable = -1;
 static gint hf_krb_TicketFlags_forwarded = -1;
-static gint hf_krb_TicketFlags_proxyable = -1;
+static gint hf_krb_TicketFlags_proxiable = -1;
 static gint hf_krb_TicketFlags_proxy = -1;
 static gint hf_krb_TicketFlags_allow_postdate = -1;
 static gint hf_krb_TicketFlags_postdated = -1;
@@ -257,7 +257,7 @@ static gint hf_krb_TicketFlags_ok_as_delegate = -1;
 static gint hf_krb_KDCOptions = -1;
 static gint hf_krb_KDCOptions_forwardable = -1;
 static gint hf_krb_KDCOptions_forwarded = -1;
-static gint hf_krb_KDCOptions_proxyable = -1;
+static gint hf_krb_KDCOptions_proxiable = -1;
 static gint hf_krb_KDCOptions_proxy = -1;
 static gint hf_krb_KDCOptions_allow_postdate = -1;
 static gint hf_krb_KDCOptions_postdated = -1;
@@ -1509,7 +1509,7 @@ static const true_false_string krb5_kdcoptions_forwarded = {
 	"This ticket has been FORWARDED",
 	"This is NOT a forwarded ticket"
 };
-static const true_false_string krb5_kdcoptions_proxyable = {
+static const true_false_string krb5_kdcoptions_proxiable = {
 	"PROXIABLE tickets are allowed/requested",
 	"Do NOT use proxiable tickets"
 };
@@ -1561,7 +1561,7 @@ static const true_false_string krb5_kdcoptions_validate = {
 static int* KDCOptions_bits[] = {
   &hf_krb_KDCOptions_forwardable,
   &hf_krb_KDCOptions_forwarded,
-  &hf_krb_KDCOptions_proxyable,
+  &hf_krb_KDCOptions_proxiable,
   &hf_krb_KDCOptions_proxy,
   &hf_krb_KDCOptions_allow_postdate,
   &hf_krb_KDCOptions_postdated,
@@ -2371,7 +2371,7 @@ static const true_false_string krb5_ticketflags_forwarded = {
 	"This ticket has been FORWARDED",
 	"This is NOT a forwarded ticket"
 };
-static const true_false_string krb5_ticketflags_proxyable = {
+static const true_false_string krb5_ticketflags_proxiable = {
 	"PROXIABLE tickets are allowed/requested",
 	"Do NOT use proxiable tickets"
 };
@@ -2419,7 +2419,7 @@ static const true_false_string krb5_ticketflags_ok_as_delegate = {
 static int* TicketFlags_bits[] = {
   &hf_krb_TicketFlags_forwardable,
   &hf_krb_TicketFlags_forwarded,
-  &hf_krb_TicketFlags_proxyable,
+  &hf_krb_TicketFlags_proxiable,
   &hf_krb_TicketFlags_proxy,
   &hf_krb_TicketFlags_allow_postdate,
   &hf_krb_TicketFlags_postdated,
@@ -4908,13 +4908,13 @@ proto_register_kerberos(void)
 	    NULL, 0, "Kerberos Ticket Flags", HFILL }},
 	{ &hf_krb_TicketFlags_forwardable, {
 	    "Forwardable", "kerberos.ticketflags.forwardable", FT_BOOLEAN, 32,
-	    TFS(&krb5_ticketflags_forwardable), 0x40000000, "Flag controlling whether the tickes are forwardable or not", HFILL }},
+	    TFS(&krb5_ticketflags_forwardable), 0x40000000, "Flag controlling whether the tickets are forwardable or not", HFILL }},
 	{ &hf_krb_TicketFlags_forwarded, {
 	    "Forwarded", "kerberos.ticketflags.forwarded", FT_BOOLEAN, 32,
 	    TFS(&krb5_ticketflags_forwarded), 0x20000000, "Has this ticket been forwarded?", HFILL }},
-	{ &hf_krb_TicketFlags_proxyable, {
-	    "Proxyable", "kerberos.ticketflags.proxyable", FT_BOOLEAN, 32,
-	    TFS(&krb5_ticketflags_proxyable), 0x10000000, "Flag controlling whether the tickes are proxyable or not", HFILL }},
+	{ &hf_krb_TicketFlags_proxiable, {
+	    "Proxiable", "kerberos.ticketflags.proxiable", FT_BOOLEAN, 32,
+	    TFS(&krb5_ticketflags_proxiable), 0x10000000, "Flag controlling whether the tickets are proxiable or not", HFILL }},
 	{ &hf_krb_TicketFlags_proxy, {
 	    "Proxy", "kerberos.ticketflags.proxy", FT_BOOLEAN, 32,
 	    TFS(&krb5_ticketflags_proxy), 0x08000000, "Has this ticket been proxied?", HFILL }},
@@ -4959,13 +4959,13 @@ proto_register_kerberos(void)
 	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
 	{ &hf_krb_KDCOptions_forwardable, {
 	    "Forwardable", "kerberos.kdcoptions.forwardable", FT_BOOLEAN, 32,
-	    TFS(&krb5_kdcoptions_forwardable), 0x40000000, "Flag controlling whether the tickes are forwardable or not", HFILL }},
+	    TFS(&krb5_kdcoptions_forwardable), 0x40000000, "Flag controlling whether the tickets are forwardable or not", HFILL }},
 	{ &hf_krb_KDCOptions_forwarded, {
 	    "Forwarded", "kerberos.kdcoptions.forwarded", FT_BOOLEAN, 32,
 	    TFS(&krb5_kdcoptions_forwarded), 0x20000000, "Has this ticket been forwarded?", HFILL }},
-	{ &hf_krb_KDCOptions_proxyable, {
-	    "Proxyable", "kerberos.kdcoptions.proxyable", FT_BOOLEAN, 32,
-	    TFS(&krb5_kdcoptions_proxyable), 0x10000000, "Flag controlling whether the tickes are proxyable or not", HFILL }},
+	{ &hf_krb_KDCOptions_proxiable, {
+	    "Proxiable", "kerberos.kdcoptions.proxiable", FT_BOOLEAN, 32,
+	    TFS(&krb5_kdcoptions_proxiable), 0x10000000, "Flag controlling whether the tickets are proxiable or not", HFILL }},
 	{ &hf_krb_KDCOptions_proxy, {
 	    "Proxy", "kerberos.kdcoptions.proxy", FT_BOOLEAN, 32,
 	    TFS(&krb5_kdcoptions_proxy), 0x08000000, "Has this ticket been proxied?", HFILL }},

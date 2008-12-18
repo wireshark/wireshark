@@ -438,7 +438,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 						ip6_to_str((const struct e_in6_addr *)ip),port);
 				break;
 			default:
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %d", type);
 				break;
 			}
 			len -= 2;

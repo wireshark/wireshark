@@ -317,7 +317,7 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_uint_format_value(tree, hf_ha_mode, tvb, offset, sizeof(hdr.ha_mode), hdr.ha_mode, "%d (%s)", hdr.ha_mode, ha_mode2str(hdr.ha_mode));
   offset += sizeof(hdr.ha_mode);
 
-  proto_tree_add_uint_format_value(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "%d miliseconds", hdr.ha_time_unit);
+  proto_tree_add_uint_format_value(tree, hf_ha_time_unit, tvb, offset, sizeof(hdr.ha_time_unit), hdr.ha_time_unit, "%d milliseconds", hdr.ha_time_unit);
   offset += sizeof(hdr.ha_time_unit);
 
   rep_mode = is_report_ifs(hdr.report_code);

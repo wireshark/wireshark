@@ -1278,7 +1278,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    /* Get the authorize setting */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, 1,
-				"authorization: %s", (auth==0x01)?"Neccessary":"Who needs it");
+				"authorization: %s", (auth==0x01)?"Necessary":"Who needs it");
 	    offset++; left--;
 	    /* Get x2 */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint16),
@@ -1315,7 +1315,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		"First name",
 		"Last name",
 		"Primary email",
-		"Secundary email",
+		"Secondary email",
 		"Old email",
 		"City",
 		"State",

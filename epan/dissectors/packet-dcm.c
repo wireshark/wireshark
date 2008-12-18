@@ -337,11 +337,11 @@ typedef struct dcm_open_tag {
     gchar      *vr;		/* Already decoded VR			    */
 
     gboolean	is_vl_long;	/* If TRUE, Value Length is 4 Bytes, otherwise 2	*/
-    guint16	vl_1;		/* Partially decoded 1st two bytes of lenght  */
-    guint16	vl_2;		/* Partially decoded 2nd two bytes of lenght  */
+    guint16	vl_1;		/* Partially decoded 1st two bytes of length  */
+    guint16	vl_2;		/* Partially decoded 2nd two bytes of length  */
 
     /* These ones are, where the value was truncated */
-    guint32 len_total;		/* Tag lenght of 'oversized' tags. Used for display */
+    guint32 len_total;		/* Tag length of 'oversized' tags. Used for display */
     guint32 len_remaining;	/* Remining tag bytes to 'decoded' as binary data after this PDV */
 
     gchar  *desc;		/* Last decoded description */
@@ -4326,7 +4326,7 @@ dcm_export_create_header(guint32 *dcm_header_len, gchar *sop_class_uid, gchar *s
     offset=dcm_export_create_tag_str(dcm_header, DCM_HEADER_MAX, offset,
 	0x0002, 0x0013, DCM_VR_SH, WIRESHARK_IMPLEMENTATION_VERSION);
 
-    /* Finally write the meta header lenght */
+    /* Finally write the meta header length */
     dcm_export_create_tag_guint32(dcm_header, DCM_HEADER_MAX, offset_header_len,
 	0x0002, 0x0000, DCM_VR_UL, offset-offset_header_len-12);
 
@@ -4362,7 +4362,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     gchar	*sop_class_uid = NULL;
     gchar	*sop_instance_uid = NULL;
 
-    /* Calculate total PDV lenghth, i.e. all packets until last PDV without continuation  */
+    /* Calculate total PDV lengthh, i.e. all packets until last PDV without continuation  */
     pdv_curr = pdv;
     pdv_same_pkt = pdv;
     pdv_combined_len=pdv_curr->data_len;
@@ -4858,7 +4858,7 @@ dissect_dcm_assoc(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti,
 	    item_len  = tvb_get_ntohs(tvb, 2 + offset);
 
 	    if (item_len == 0) {
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid Association Item Lenght");
+		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid Association Item Length");
 		return endpos;
 	    }
 
@@ -5169,7 +5169,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	}
     }
     /* ---------------------------------------------------------------------------
-       Smaller types. vl/vl_max are not used. Fixed item lenght from 2 to 8 bytes
+       Smaller types. vl/vl_max are not used. Fixed item length from 2 to 8 bytes
        ---------------------------------------------------------------------------
     */
     else if (strncmp(vr, "AT", 2) == 0)  {	/* Attribute Tag */
@@ -5565,7 +5565,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    /* Value Length. This is rather cumbersume code to get a 4 byte lenght, but in the
+    /* Value Length. This is rather cumbersume code to get a 4 byte length, but in the
        fragmented case, we have 2*2 bytes. So always use that pattern
     */
 
@@ -5606,7 +5606,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Now we have most of the information, excpet for sequences and items with undefined 
-       length :-/. But, whether we know the lenght or not, we now need to create the tree 
+       length :-/. But, whether we know the length or not, we now need to create the tree 
        item and subtree, before we can loop into sequences and items
 
        Display the information we collected so far. Don't wait until the value is parsed,
@@ -5686,7 +5686,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
     }
 
-    /* Add lenght to tag detail */
+    /* Add length to tag detail */
     proto_tree_add_uint_format(tag_ptree, hf_dcm_tag_vl, tvb, offset_vl, (is_vl_long ? 4 : 2), vl, "%-8.8s%u", "Length:", vl);
 
 
@@ -5718,7 +5718,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    }
 	}
 	else {
-	    /* Defined lenghth */
+	    /* Defined lengthh */
 	    endpos_item = offset + vl_max;
 
 	    while (offset < endpos_item) {
@@ -6047,7 +6047,7 @@ dcm_make_complete_pdu(tvbuff_t *tvb, guint32 offset, gboolean one_pdu_only)
 
 	offset += 2;	    /* PDU header */
 	pdu_len = tvb_get_ntohl(tvb, offset);
-	offset += 4;	    /* PDU Lenght */
+	offset += 4;	    /* PDU Length */
 
 	bytes_remaining = tlen - offset;
 
@@ -6159,7 +6159,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean r
 	a) need to eliminate PDU/PDV/Ctx header (12 bytes)
 	b) not show the true DICOM logic in transfer
 
-	The lenght check is tricky. If not a PDV continuation, 10 Bytes are required. For PDV continuation
+	The length check is tricky. If not a PDV continuation, 10 Bytes are required. For PDV continuation
 	anything seems to be possible, depending on the buffer alignment of the sending process.
 
 	I have seen a 4 Byte PDU 'Header' just at the end of a TCP packet, which will come in here
@@ -6556,7 +6556,7 @@ proto_register_dcm(void)
 	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
     { &hf_dcm_tag_vr, { "VR", "dicom.tag.vr",
 	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
-    { &hf_dcm_tag_vl, { "Lenght", "dicom.tag.vl",
+    { &hf_dcm_tag_vl, { "Length", "dicom.tag.vl",
 	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
 
     { &hf_dcm_tag_value_str, { "Value", "dicom.tag.value.str",
@@ -6631,7 +6631,7 @@ proto_register_dcm(void)
 
     prefs_register_bool_preference(dcm_module, "seq_tree",
 	    "Create subtrees for Sequences and Items",
-	    "Create a node for sequences and items, and show children in a hierachy. "
+	    "Create a node for sequences and items, and show children in a hierarchy. "
 	    "Deselect this option, if you prefer a flat display or e.g. "
 	    "when using TShark to create a text output.",
 	    &global_dcm_seq_subtree);

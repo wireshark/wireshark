@@ -1189,7 +1189,7 @@ static const value_string ranap_cause_type[] = {
     {2, "Trelocoverall Expiry"},
     {3, "Trelocprep Expiry"},
     {4, "Treloccomplete Expiry"},
-    {5, "Tqueing Expiry"},
+    {5, "Tqueuing Expiry"},
     {6, "Relocation Triggered"},
     {7, "TRELOCalloc Expiry"},
     {8, "Unable to Establish During Relocation"},
@@ -1267,7 +1267,7 @@ static const value_string ranap_cause_type[] = {
     {113, "O & M Intervention"},
     {114, "No Resource Available"},
     {115, "Unspecified Failure"},
-    {116, "Network Opimisation"},
+    {116, "Network Optimisation"},
 /* Non-standard Cause (129-->255) */
 
 /* ranap_CauseRadioNetworkExtension ??

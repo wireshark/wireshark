@@ -527,7 +527,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { ANSI_ISUP_PARAM_TYPE_CVR_RESP_IND,	"Circuit validation response indicator"},
   { ANSI_ISUP_PARAM_TYPE_OUT_TRK_GRP_NM,"Outgoing trunk group number"},
   { ANSI_ISUP_PARAM_TYPE_CI_NAME_IND,	"Circuit identification name"},
-  { ANSI_ISUP_PARAM_CLLI_CODE,			"COMMON LANGUAGE location identificatio (CLLI) code"},
+  { ANSI_ISUP_PARAM_CLLI_CODE,			"COMMON LANGUAGE location identification (CLLI) code"},
   { ANSI_ISUP_PARAM_ORIG_LINE_INF,		"Originating line information"},
   { ANSI_ISUP_PARAM_CHRG_NO,			"Charge number"},
   { ANSI_ISUP_PARAM_SERV_CODE_IND,		"Service code indicator"},
@@ -673,12 +673,12 @@ static const true_false_string isup_ISDN_user_part_ind_value = {
   "ISDN user part not used all the way"
 };
 
-#define ISUP_PREFERED_ALL_THE_WAY               0
+#define ISUP_PREFERRED_ALL_THE_WAY              0
 #define ISUP_NOT_REQUIRED_ALL_THE_WAY           1
 #define ISUP_REQUIRED_ALL_WAY                   2
 #define ISUP_ISDN_USER_PART_IND_SPARE           3
 static const value_string isup_preferences_ind_value[] = {
-  { ISUP_PREFERED_ALL_THE_WAY,                   "ISDN user part prefered all the way"},
+  { ISUP_PREFERRED_ALL_THE_WAY,                  "ISDN user part preferred all the way"},
   { ISUP_NOT_REQUIRED_ALL_THE_WAY,               "ISDN user part not required all the way"},
   { ISUP_REQUIRED_ALL_WAY,                       "ISDN user part required all the way"},
   { ISUP_ISDN_USER_PART_IND_SPARE,               "spare"},
@@ -772,13 +772,13 @@ const value_string isup_cvr_cg_car_ind_value[ ] = {
 { 0, NULL }
 };
 
-#define CVR_CG_IND_ALARM_CAR_IND_UNKNOW		0
+#define CVR_CG_IND_ALARM_CAR_IND_UNKNOWN	0
 #define CVR_CG_IND_ALARM_CAR_IND_SOFTWARE	1
 #define CVR_CG_IND_ALARM_CAR_IND_HARDWARE	2
 #define CVR_CG_IND_ALARM_CAR_IND_SPARE		3
 
 const value_string isup_cvr_alarm_car_ind_value[ ] = {
-	{ CVR_CG_IND_ALARM_CAR_IND_UNKNOW     ,	"Alarm Carrier Ind Default"},
+	{ CVR_CG_IND_ALARM_CAR_IND_UNKNOWN    ,	"Alarm Carrier Ind Default"},
 	{ CVR_CG_IND_ALARM_CAR_IND_SOFTWARE   , "Alarm Carrier Ind Software"},
 	{ CVR_CG_IND_ALARM_CAR_IND_HARDWARE   , "Alarm Carrier Ind Hardware"},
 	{ CVR_CG_IND_ALARM_CAR_IND_SPARE 	  , "Alarm Carrier Ind Spare"},
@@ -804,7 +804,7 @@ const value_string isup_cvr_cont_chk_ind_value[ ] = {
 #define MEDIUM_3_1_KHZ_AUDIO                 3
 #define MEDIUM_RESERVED_SERVICE2_1           4
 #define MEDIUM_RESERVED_SERVICE1_2           5
-#define MEDIUM_64KBS_PREFERED                6
+#define MEDIUM_64KBS_PREFERRED               6
 #define MEDIUM_2_64KBS                       7
 #define MEDIUM_384KBS                        8
 #define MEDIUM_1536KBS                       9
@@ -841,7 +841,7 @@ const value_string isup_transmission_medium_requirement_value[] = {
   { MEDIUM_3_1_KHZ_AUDIO,                "3.1 kHz audio"},
   { MEDIUM_RESERVED_SERVICE2_1,          "reserved for alternate speech (service 2)/64 kbit/s unrestricted (service 1)"},
   { MEDIUM_RESERVED_SERVICE1_2,          "reserved for alternate 64 kbit/s unrestricted (service 1)/speech (service 2)"},
-  { MEDIUM_64KBS_PREFERED,               "64 kbit/s prefered"},
+  { MEDIUM_64KBS_PREFERRED,              "64 kbit/s preferred"},
   { MEDIUM_2_64KBS,                      "2x64 kbit/s unrestricted"},
   { MEDIUM_384KBS,                       "384 kbit/s unrestricted"},
   { MEDIUM_1536KBS,                      "1536 kbit/s unrestricted"},
@@ -878,7 +878,7 @@ static const value_string isup_transmission_medium_requirement_prime_value[] = {
   { MEDIUM_3_1_KHZ_AUDIO,                "3.1 kHz audio"},
   { MEDIUM_RESERVED_SERVICE2_1,          "reserved for alternate speech (service 2)/64 kbit/s unrestricted (service 1)"},
   { MEDIUM_RESERVED_SERVICE1_2,          "reserved for alternate 64 kbit/s unrestricted (service 1)/speech (service 2)"},
-  { MEDIUM_64KBS_PREFERED,               "reserved for 64 kbit/s prefered"},
+  { MEDIUM_64KBS_PREFERRED,              "reserved for 64 kbit/s preferred"},
   { MEDIUM_2_64KBS,                      "reserved for 2x64 kbit/s unrestricted"},
   { MEDIUM_384KBS,                       "reserved for 384 kbit/s unrestricted"},
   { MEDIUM_1536KBS,                      "reserved for 1536 kbit/s unrestricted"},
@@ -2157,7 +2157,7 @@ const value_string q850_cause_code_vals[] = {
 	{ 0x60,	"Mandatory information element is missing" },
 	{ 0x61,	"Message type non-existent or not implemented" },
 	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
-	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x63,	"Information element nonexistent or not implemented" },
 	{ 0x64,	"Invalid information element contents" },
 	{ 0x65,	"Message not compatible with call state" },
 	{ 0x66,	"Recovery on timer expiry" },
@@ -2238,7 +2238,7 @@ static const value_string ansi_isup_cause_code_vals[] = {
 	{ 0x60,	"Mandatory information element is missing" },
 	{ 0x61,	"Message type non-existent or not implemented" },
 	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
-	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x63,	"Information element nonexistent or not implemented" },
 	{ 0x64,	"Invalid information element contents" },
 	{ 0x65,	"Message not compatible with call state" },
 	{ 0x66,	"Recovery on timer expiry" },
@@ -4905,11 +4905,11 @@ dissect_isup_collect_call_request_parameter(tvbuff_t *parameter_tvb, proto_tree 
   indicator = tvb_get_guint8(parameter_tvb, 0);
   if ((indicator & A_8BIT_MASK) == 0) {
     proto_tree_add_text(parameter_tree, parameter_tvb, 0, COLLECT_CALL_REQUEST_LENGTH, "Collect call request indicator: no indication");
-    proto_item_set_text(parameter_item, "Collect call reqeust: no indication (0x%x)", indicator);
+    proto_item_set_text(parameter_item, "Collect call request: no indication (0x%x)", indicator);
   }
   else {
     proto_tree_add_text(parameter_tree, parameter_tvb, 0, COLLECT_CALL_REQUEST_LENGTH, "Collect call request indicator: collect call requested");
-    proto_item_set_text(parameter_item, "Collect call reqeust: collect call requested (0x%x)", indicator);
+    proto_item_set_text(parameter_item, "Collect call request: collect call requested (0x%x)", indicator);
   }
 }
 /* ------------------------------------------------------------------
@@ -5764,10 +5764,10 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
 
   /* Do stuff for first mandatory fixed parameter: CVR Repsonse Indicator */
   parameter_type = ANSI_ISUP_PARAM_TYPE_CVR_RESP_IND;
-  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset, CVR_RESP_IND_LENGTH, "CVR Reponse Indicator");
+  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset, CVR_RESP_IND_LENGTH, "CVR Response Indicator");
 
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
-  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"CVR Reponse Indicator"));
+  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"CVR Response Indicator"));
 
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
 

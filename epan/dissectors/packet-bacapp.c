@@ -412,7 +412,7 @@ BACnetEngineeringUnits [] = {
 	{10,"Megavolt Amperes"},
 	{11,"Volt Amperes Reactive"},
 	{12,"Kilovolt Amperes Reactive"},
-	{13,"Megavolt Amperes Ractive"},
+	{13,"Megavolt Amperes Reactive"},
 	{14,"Degrees Phase"},
 	{15,"Power Factor"},
 	{16,"Joules"},
@@ -427,7 +427,7 @@ BACnetEngineeringUnits [] = {
 	{25,"Cycles Per Hour"},
 	{26,"Cycles Per Minute"},
 	{27,"Hertz"},
-	{28,"Gramms Of Water Per Kilogram Dry Air"},
+	{28,"Grams Of Water Per Kilogram Dry Air"},
 	{29,"Relative Humidity"},
 	{30,"Millimeters"},
 	{31,"Meters"},
@@ -6089,7 +6089,7 @@ proto_register_bacapp(void)
 		},
 		{ &hf_bacapp_NAK,
 			{ "NAK",           "bacapp.NAK",
-			FT_BOOLEAN, 8, NULL, 0x02, "negativ ACK", HFILL }
+			FT_BOOLEAN, 8, NULL, 0x02, "negative ACK", HFILL }
 		},
 		{ &hf_bacapp_SRV,
 			{ "SRV",           "bacapp.SRV",

@@ -303,7 +303,7 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	},
 	{
 		ISIS_CLV_PARTITION_DIS,
-		"Parition Designated Level 2 IS",
+		"Partition Designated Level 2 IS",
 		&ett_isis_lsp_clv_partition_dis,
 		dissect_lsp_partition_dis_clv
 	},
@@ -1713,7 +1713,7 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 		if ( mylen > length) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"Interal length of prefix neighbor too long (%d vs %d)",
+				"Integral length of prefix neighbor too long (%d vs %d)",
 				mylen, length );
 			return;
 		}

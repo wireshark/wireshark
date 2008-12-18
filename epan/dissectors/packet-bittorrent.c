@@ -180,7 +180,7 @@ static struct client_information peer_id[] = {
    {"-LT", "libtorrent"},
    {"-BX", "Bittorrent X"},
    {"-TS", "Torrentstorm"},
-   {"-TN", "TorrnetDotNET"},
+   {"-TN", "TorrentDotNET"},
    {"-SS", "SwarmScope"},
    {"-XT", "XanTorrent"},
    {"-BS", "BTSlave"},

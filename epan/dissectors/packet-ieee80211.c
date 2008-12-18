@@ -997,16 +997,16 @@ static int ff_transceiver_noise_floor = -1;
 static int ff_channel_width = -1;
 /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+/*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
 static int ff_qos_info_ap = -1;
 static int ff_qos_info_ap_edca_param_set_counter = -1;
 static int ff_qos_info_ap_q_ack = -1;
 static int ff_qos_info_ap_queue_req = -1;
 static int ff_qos_info_ap_txop_request = -1;
 static int ff_qos_info_ap_reserved = -1;
-/*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+/*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+/*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
 static int ff_qos_info_sta = -1;
 static int ff_qos_info_sta_ac_vo = -1;
 static int ff_qos_info_sta_ac_vi = -1;
@@ -1015,7 +1015,7 @@ static int ff_qos_info_sta_ac_be = -1;
 static int ff_qos_info_sta_q_ack = -1;
 static int ff_qos_info_sta_max_sp_len = -1;
 static int ff_qos_info_sta_more_data_ack = -1;
-/*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+/*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
 /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 static int ff_sm_pwr_save = -1;
@@ -1565,9 +1565,9 @@ static gint ett_ff_ba_ssc_tree = -1;
 static gint ett_ff_delba_param_tree = -1;
 /*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
-/*** Begin: QoS Inforamtion AP/STA Fixed Field - Dustin Johnson ***/
+/*** Begin: QoS Information AP/STA Fixed Field - Dustin Johnson ***/
 static gint ett_ff_qos_info = -1;
-/*** End: QoS Inforamtion AP/STA Fixed Field - Dustin Johnson ***/
+/*** End: QoS Information AP/STA Fixed Field - Dustin Johnson ***/
 
 /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 static gint ett_ff_sm_pwr_save = -1;
@@ -2540,7 +2540,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+    /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
     case FIELD_QOS_INFO_AP:
       {
         guint8 info;
@@ -2560,9 +2560,9 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+    /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+    /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
     case FIELD_QOS_INFO_STA:
       {
         guint8 info;
@@ -2585,7 +2585,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length +=1;
         break;
       }
-    /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+    /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     case FIELD_SM_PWR_CNTRL:
@@ -8400,7 +8400,7 @@ proto_register_ieee80211 (void)
   };
   /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+  /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_qos_info_ap_q_ack_flag = {
       "Implemented",
       "Not Implemented"
@@ -8415,9 +8415,9 @@ proto_register_ieee80211 (void)
       "Can process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames",
       "Can NOT process a nonzero TXOP Duration Requested subfield in the QoS Control field in QoS data frames"
   };
-  /*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+  /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-  /*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+  /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
   static const true_false_string ff_qos_info_sta_ac_flag = {
       "Trigger-enabled and Delivery-enabled",
       "Neither Trigger-enabled nor Delivery-enabled"
@@ -8440,7 +8440,7 @@ proto_register_ieee80211 (void)
       "Can process ACK frames with the More Data bit in the Frame Control field set to 1",
       "Can NOT process ACK frames with the More Data bit in the Frame Control field set to 1"
   };
-  /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+  /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
   /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
   static const true_false_string ff_sm_pwr_save_enabled_flag = {
@@ -9996,10 +9996,10 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, "Supported Channel Width", HFILL }},
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+    /*** Begin: QoS Information AP Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_ap,
-     {"QoS Inforamtion (AP)", "wlan_mgt.fixed.qosinfo.ap",
-      FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (AP)", HFILL }},
+     {"QoS Information (AP)", "wlan_mgt.fixed.qosinfo.ap",
+      FT_UINT8, BASE_HEX, NULL, 0, "QoS Information (AP)", HFILL }},
 
     {&ff_qos_info_ap_edca_param_set_counter,
      {"EDCA Parameter Set Update Count", "wlan_mgt.fixed.qosinfo.ap.edcaupdate",
@@ -10020,12 +10020,12 @@ proto_register_ieee80211 (void)
     {&ff_qos_info_ap_reserved,
      {"Reserved", "wlan_mgt.fixed.qosinfo.ap.reserved",
       FT_BOOLEAN, 8, NULL, 0x80, "Reserved", HFILL }},
-    /*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
+    /*** End: QoS Information AP Fixed Field - Dustin Johnson ***/
 
-    /*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+    /*** Begin: QoS Information STA Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_sta,
-     {"QoS Inforamtion (STA)", "wlan_mgt.fixed.qosinfo.sta",
-      FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (STA)", HFILL }},
+     {"QoS Information (STA)", "wlan_mgt.fixed.qosinfo.sta",
+      FT_UINT8, BASE_HEX, NULL, 0, "QoS Information (STA)", HFILL }},
 
     {&ff_qos_info_sta_ac_vo,
      {"AC_VO", "wlan_mgt.fixed.qosinfo.sta.ac.vo",
@@ -10054,7 +10054,7 @@ proto_register_ieee80211 (void)
     {&ff_qos_info_sta_more_data_ack,
      {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, "More Data Ack", HFILL }},
-    /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
+    /*** End: QoS Information STA Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     {&ff_sm_pwr_save,

@@ -1,6 +1,6 @@
 /* packet-m3ua.c
  * Routines for MTP3 User Adaptation Layer dissection
- * It is hopefully (needs testing) compilant to
+ * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-05.txt (expired)
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt (expired)
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-07.txt (expired)

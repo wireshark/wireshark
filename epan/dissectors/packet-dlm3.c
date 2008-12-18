@@ -335,7 +335,7 @@ static const value_string dlm3_msg[] = {
 
 static const value_string dlm3_status[] = {
   { DLM3_LKSTS_WAITING, "waiting"  },
-  { DLM3_LKSTS_GRANTED, "grandted" },
+  { DLM3_LKSTS_GRANTED, "granted"  },
   { DLM3_LKSTS_CONVERT, "convert"  },
   { 0,                  NULL       }
 };
@@ -1168,7 +1168,7 @@ proto_register_dlm3(void)
     DLM3_REGISTER_HF_ASTS(rl, 8),
 
     { &hf_dlm3_rl_wait_type,
-      { "Message Type the waiter wainting for", "dlm3.rl.wait_type",
+      { "Message Type the waiter is waiting for", "dlm3.rl.wait_type",
         FT_UINT16, BASE_DEC, VALS(dlm3_msg), 0x0,
         NULL, HFILL }},
 

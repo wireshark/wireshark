@@ -114,7 +114,7 @@ static gint ett_bssgp_rrlp_flags = -1;
 static gint ett_bssgp_rim_pdu_indications = -1;
 static gint ett_bssgp_mcc = -1;
 static gint ett_bssgp_mnc = -1;
-static gint ett_bssgp_routeing_area = -1;
+static gint ett_bssgp_routing_area = -1;
 static gint ett_bssgp_location_area = -1;
 static gint ett_bssgp_rai_ci = -1;
 static gint ett_bssgp_rim_routing_information =-1;
@@ -270,7 +270,7 @@ static const value_string tab_bssgp_pdu_types[] = {
 #define BSSGP_IEI_QOS_PROFILE                              0x18
 #define BSSGP_IEI_RADIO_CAUSE                              0x19
 #define BSSGP_IEI_RA_CAP_UPD_CAUSE                         0x1a
-#define BSSGP_IEI_ROUTEING_AREA                            0x1b
+#define BSSGP_IEI_ROUTING_AREA                             0x1b
 #define BSSGP_IEI_R_DEFAULT_MS                             0x1c
 #define BSSGP_IEI_SUSPEND_REFERENCE_NUMBER                 0x1d
 #define BSSGP_IEI_TAG                                      0x1e
@@ -359,7 +359,7 @@ static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_QOS_PROFILE,                 "QoS Profile" },
   { BSSGP_IEI_RADIO_CAUSE,                 "Radio Cause" },
   { BSSGP_IEI_RA_CAP_UPD_CAUSE,            "RA-Cap-UPD-Cause" },
-  { BSSGP_IEI_ROUTEING_AREA,               "Routeing Area" },
+  { BSSGP_IEI_ROUTING_AREA,                "Routing Area" },
   { BSSGP_IEI_R_DEFAULT_MS,                "R_default_MS" },
   { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER,    "Suspend Reference Number" },
   { BSSGP_IEI_TAG,                         "Tag" },
@@ -2851,7 +2851,7 @@ decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
 }
 
 static void
-decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_routing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
   char *rai;
@@ -2861,7 +2861,7 @@ decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
     return;
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-  tf = proto_item_add_subtree(ti, ett_bssgp_routeing_area);
+  tf = proto_item_add_subtree(ti, ett_bssgp_routing_area);
 
   rai = decode_rai(bi, tf);
   proto_item_append_text(ti, ": RAI %s", rai);
@@ -3361,7 +3361,7 @@ decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
 
   value = get_masked_guint8(data, MASK_INR);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_INR);
-  proto_item_append_text(pi, "INR: Inter-NSE re-routeing%s supported",
+  proto_item_append_text(pi, "INR: Inter-NSE re-routing%s supported",
 			 value == 0 ? " not" : "");
 
   value = get_masked_guint8(data, MASK_CBL);
@@ -3778,7 +3778,7 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PDD);
   proto_item_append_text(pi, "Positioning Data Discriminator: %s",
 		      value == 0 ?
-		      "Indicate usage of each positioning method that was attempted either successfully or unseccessfully" :
+		      "Indicate usage of each positioning method that was attempted either successfully or unsuccessfully" :
 		      "Reserved");
   bi->offset++;
 
@@ -3816,8 +3816,9 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
     case 0: proto_item_append_text(pi, " attempted unsuccessfully due to failure or interruption "); break;
     case 1: proto_item_append_text(pi, " attempted successfully: results not used to generate location"); break;
     case 2: proto_item_append_text(pi, " attempted successfully: results used to verify but not generate location"); break;
-    case 3: proto_item_append_text(pi, "attempted successfully: results used to generate location"); break;
-    case 4: proto_item_append_text(pi, "a temmpted successfully: case where MS supports multiple mobile based positioning methods and the actual method or methods used by the MS cannot be determined"); break;
+    case 3: proto_item_append_text(pi, " attempted successfully: results used to generate location"); break;
+    case 4: proto_item_append_text(pi, " attempted successfully: case where MS supports multiple mobile based"
+                                       " positioning methods and the actual method or methods used by the MS cannot be determined"); break;
     default: ; /* ??? */
     }
     proto_item_append_text(pi, " (%#x)", value); /* Usage */
@@ -3887,7 +3888,7 @@ decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     { 10, "Intra-BSC handover ongoing" },
     { 11, "Congestion" },
     { 12, "Inter NSE cell change" },
-    { 13, "Routeing area update" },
+    { 13, "Routing area update" },
     { 14, "PTMSI reallocation" },
     { 15, "Suspension of GPRS services" },
     { 0, NULL },
@@ -4504,8 +4505,8 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   case BSSGP_IEI_RA_CAP_UPD_CAUSE:
     decode_iei_ra_cap_upd_cause(ie, bi, org_offset);
     break;
-  case BSSGP_IEI_ROUTEING_AREA:
-    decode_iei_routeing_area(ie, bi, org_offset);
+  case BSSGP_IEI_ROUTING_AREA:
+    decode_iei_routing_area(ie, bi, org_offset);
     break;
   case BSSGP_IEI_R_DEFAULT_MS:
     decode_bucket_leak_rate(ie, bi, org_offset);
@@ -4781,7 +4782,7 @@ decode_pdu_paging_ps(build_info_t *bi) {
     { BSSGP_IEI_LOCATION_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 7 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_BSS_AREA_INDICATION, NULL,
@@ -4820,7 +4821,7 @@ decode_pdu_paging_cs(build_info_t *bi) {
     { BSSGP_IEI_LOCATION_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 7 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_BSS_AREA_INDICATION, NULL,
@@ -4913,7 +4914,7 @@ decode_pdu_suspend(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
   };
   bi->dl_data = FALSE;
@@ -4928,7 +4929,7 @@ decode_pdu_suspend_ack(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL,
@@ -4946,7 +4947,7 @@ decode_pdu_suspend_nack(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_CAUSE, NULL,
@@ -4964,7 +4965,7 @@ decode_pdu_resume(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL,
@@ -4982,7 +4983,7 @@ decode_pdu_resume_ack(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
   };
@@ -4998,7 +4999,7 @@ decode_pdu_resume_nack(build_info_t *bi) {
     { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL,
+    { BSSGP_IEI_ROUTING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
     { BSSGP_IEI_CAUSE, NULL,
@@ -6166,7 +6167,7 @@ proto_register_bssgp(void)
     &ett_bssgp_rim_pdu_indications,
     &ett_bssgp_mcc,
     &ett_bssgp_mnc,
-    &ett_bssgp_routeing_area,
+    &ett_bssgp_routing_area,
     &ett_bssgp_location_area,
     &ett_bssgp_rai_ci,
     &ett_bssgp_ran_information_request_application_container,

@@ -165,7 +165,7 @@ const value_string DIS_PDU_Domain_Strings[] =
     { DIS_DOMAIN_LAND,       "Land" },
     { DIS_DOMAIN_AIR,        "Air" },
     { DIS_DOMAIN_SURFACE,    "Surface" },
-    { DIS_DOMAIN_SUBSURFACE, "Sursurface" },
+    { DIS_DOMAIN_SUBSURFACE, "Subsurface" },
     { DIS_DOMAIN_SPACE,      "Space" },
     { 0,                     NULL }
 };
@@ -225,7 +225,7 @@ const value_string DIS_PDU_Category_AirPlatform_Strings[] =
     { DIS_CATEGORY_AIRPLATFORM_CARGO_TANKER,                      "Cargo tanker" },
     { DIS_CATEGORY_AIRPLATFORM_ASW_PATROL_OBSERVATION,            "ASW / patrol / observation" },
     { DIS_CATEGORY_AIRPLATFORM_ELECTRONIC_WARFARE,                "Electronic warfare" },
-    { DIS_CATEGORY_AIRPLATFORM_RECONAISSANCE,                     "Reconaissance" },
+    { DIS_CATEGORY_AIRPLATFORM_RECONNAISSANCE,                    "Reconnaissance" },
     { DIS_CATEGORY_AIRPLATFORM_SURVEILLANCE_C2,                   "Surveillance / C2" },
     { DIS_CATEGORY_AIRPLATFORM_ATTACK_HELICOPTER,                 "Attack helicopter" },
     { DIS_CATEGORY_AIRPLATFORM_UTILITY_HELICOPTER,                "Utility helicopter" },
