@@ -1792,25 +1792,6 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         }
     }
 
-    /* For DLT189 it seems
-     * that all INTERRUPT or BULK packets as well as all CONTROL responses
-     * are prepended with 8 mysterious bytes.
-     */
-    switch(type){
-    case URB_CONTROL:
-        if(pinfo->pseudo_header->linux_usb.event_type!=URB_SUBMIT){
-            offset+=8;
-        }
-        break;
-    case URB_BULK:
-    case URB_ISOCHRONOUS:
-    case URB_INTERRUPT:
-        offset+=8;
-        break;
-    default:
-        DISSECTOR_ASSERT_NOT_REACHED();
-    }
-
     tap_data=ep_alloc(sizeof(usb_tap_data_t));
     tap_data->urb_type=(guint8)pinfo->pseudo_header->linux_usb.event_type;
     tap_data->transfer_type=(guint8)type;
@@ -1826,6 +1807,10 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(item);
+
+        /* Skip setup header - it's never present */
+        offset += 8;
+
         if(tvb_reported_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
 
@@ -1853,6 +1838,9 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 tvbuff_t *next_tvb;
 
                 /* this is a request */
+
+                /* Dissect the setup header - it's present */
+
                 ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
                 usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);
@@ -1911,12 +1899,18 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     break;
                 }
             } else {
+                /* Skip setup header - it's not present */
+
                 offset += 8;
             }
         } else {
             tvbuff_t *next_tvb;
 
             /* this is a response */
+
+            /* Skip setup header - it's never present for responses */
+            offset += 8;
+
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset(tvb, offset, -1, -1);
@@ -1973,6 +1967,8 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             guint8 requesttype, request;
             int type;
 
+            /* Dissect the setup header - it's present */
+
             ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
 
@@ -1991,6 +1987,8 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
             offset += 2;
         } else {
+            /* Skip setup header - it's not present */
+
             offset += 8;
         }
         break;
