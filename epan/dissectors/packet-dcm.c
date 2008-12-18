@@ -4362,7 +4362,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     gchar	*sop_class_uid = NULL;
     gchar	*sop_instance_uid = NULL;
 
-    /* Calculate total PDV lengthh, i.e. all packets until last PDV without continuation  */
+    /* Calculate total PDV length, i.e. all packets until last PDV without continuation  */
     pdv_curr = pdv;
     pdv_same_pkt = pdv;
     pdv_combined_len=pdv_curr->data_len;
@@ -5718,7 +5718,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    }
 	}
 	else {
-	    /* Defined lengthh */
+	    /* Defined length */
 	    endpos_item = offset + vl_max;
 
 	    while (offset < endpos_item) {
