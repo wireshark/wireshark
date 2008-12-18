@@ -374,14 +374,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, tvb, offset, 1,
 			dst_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, tvb, offset + 1 , dst_len,
-			       dst_addr,
 			       " DA : %s",
 			       print_nsap_net(dst_addr, dst_len));
     proto_tree_add_uint(clnp_tree, hf_clnp_src_length, tvb,
 			offset + 1 + dst_len, 1, src_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, tvb,
 			       offset + dst_len + 2, src_len,
-			       src_addr,
 			       " SA : %s",
 			       print_nsap_net(src_addr, src_len));
 

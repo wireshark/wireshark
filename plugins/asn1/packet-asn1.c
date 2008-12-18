@@ -1338,7 +1338,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							  ename, empty);
 			      else {
 				      proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
-								 offset - boffset, ename,/* XXX length?*/
+								 offset - boffset,
 								 "(%s)%s: %s ~", tname, name, ename);
 					  if (props.type_id != -1){
 						  hidden_item = proto_tree_add_bytes(pt, props.type_id, tvb,
@@ -1355,7 +1355,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							"(%s)%s: %s", tname, name, ename);
 			      else {
 					proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
-							offset - boffset, ename, /* XXX length ? */
+							offset - boffset,
 							"(%s)%s: %s ~", tname, name, ename);
 					if (props.type_id != -1){
 						hidden_item = proto_tree_add_bytes(pt, props.type_id, tvb,

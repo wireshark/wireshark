@@ -888,7 +888,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
            case WTAP_ENCAP_ETHERNET:
              haddr = tvb_get_ptr(tvb, offset, 6);
              proto_tree_add_bytes_format( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
-                                          haddr, "Client Hardware Address: %02X:%02X:%02X:%02X:%02X:%02X",
+                                          "Client Hardware Address: %02X:%02X:%02X:%02X:%02X:%02X",
                                           *haddr, *(haddr+1), *(haddr+2),
                                           *(haddr+3), *(haddr+4), *(haddr+5) );
              break;

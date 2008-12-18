@@ -1020,10 +1020,10 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 	/* Using NTP routine to calculate the timestamp */
                 	ts_sent = tvb_get_ptr(tvb, 16, 8);
                 	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_sent, tvb,
-                	    offset + 16, 8, ts_sent, "Timestamp Sent: %s", ntp_fmt_ts(ts_sent));
+                	    offset + 16, 8, "Timestamp Sent: %s", ntp_fmt_ts(ts_sent));
                 	ts_rec = tvb_get_ptr(tvb, 24, 8);
                 	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_rec, tvb,
-                	    offset + 24, 8, ts_rec, "Timestamp Received: %s", ntp_fmt_ts(ts_rec));
+                	    offset + 24, 8, "Timestamp Received: %s", ntp_fmt_ts(ts_rec));
 		}
 
         }

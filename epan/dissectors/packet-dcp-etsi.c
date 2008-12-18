@@ -650,16 +650,15 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       bytes++;
     if(tree) {
       proto_item *i = NULL;
-      const guint8 *p = tvb_get_ptr(tvb, offset, bytes);
       if(strcmp(tag, "*ptr")==0) {
         prot = (char*)tvb_get_ephemeral_string (tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
         i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, p, "%s %s rev %d.%d", tag, prot, maj, min);
+              offset-8, bytes+8, "%s %s rev %d.%d", tag, prot, maj, min);
       } else {
         i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, p, "%s (%u bits)", tag, bits);
+              offset-8, bytes+8, "%s (%u bits)", tag, bits);
       }
     }
     offset += bytes;

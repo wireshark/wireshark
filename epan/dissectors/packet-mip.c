@@ -512,7 +512,6 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
 	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
-				      reftime,
 				      "Identification: %s",
 				      ntp_fmt_ts(reftime));
 	  offset += 8;
@@ -555,7 +554,6 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* Identifier - assumed to be an NTP time here */
 	  reftime = tvb_get_ptr(tvb, offset, 8);
 	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
-				      reftime,
 				      "Identification: %s",
 				      ntp_fmt_ts(reftime));
 	  offset += 8;

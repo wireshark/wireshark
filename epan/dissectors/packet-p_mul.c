@@ -1136,7 +1136,6 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
             
             en = proto_tree_add_bytes_format (field_tree, hf_miss_seq_range,
                                               tvb, offset, 6,
-                                              tvb_get_ptr (tvb, offset, 6),
                                              "Missing Data PDU Seq Range: %d - %d",
                                              ack_seq_no, end_seq_no);
             if (ack_seq_no >= end_seq_no) {

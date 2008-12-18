@@ -4100,7 +4100,7 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 	}
 	tvblen = tvb_length_remaining(tvb, offset);
 	if(bc>tvblen){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, tvb_get_ptr(tvb, offset, tvblen),"File Data: Incomplete. Only %d of %u bytes", tvblen, bc);
+		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, "File Data: Incomplete. Only %d of %u bytes", tvblen, bc);
 		offset += tvblen;
 	} else {
 		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
@@ -14450,7 +14450,6 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		CHECK_BYTE_COUNT_TRANS_SUBR(32);
 		proto_tree_add_bytes_format(tree, hf_smb_mac_fndrinfo, tvb,
 					    offset, 32,
-					    tvb_get_ptr(tvb, offset,32),
 					    "Finder Info: %s",
 					    tvb_format_text(tvb, offset, 32));
 		COUNT_BYTES_TRANS_SUBR(32);

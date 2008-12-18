@@ -625,7 +625,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			    TRUE);
 		} else {
 			proto_tree_add_bytes_format(tree, hf_index, tvb,
-			    cptr, count, tvb_get_ptr(tvb, cptr, count),
+			    cptr, count,
 			    "%s: %s (wrong length, should be 21, is %d",
 			    proto_registrar_get_name(hf_index),
 			    tvb_bytes_to_str(tvb, cptr, count), count);

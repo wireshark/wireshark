@@ -582,7 +582,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	}
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
-				   refid,
 				   "Reference Clock ID: %s", buff);
 
 	/* Reference Timestamp: This is the time at which the local clock was
@@ -590,7 +589,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	reftime = tvb_get_ptr(tvb, 16, 8);
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
-				   reftime,
 			           "Reference Clock Update Time: %s",
 				   ntp_fmt_ts(reftime));
 
@@ -599,7 +597,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	org = tvb_get_ptr(tvb, 24, 8);
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
-				   org,
 			           "Originate Time Stamp: %s",
 				   ntp_fmt_ts(org));
 
@@ -608,7 +605,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	rec = tvb_get_ptr(tvb, 32, 8);
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
-				   rec,
 			           "Receive Time Stamp: %s",
 				   ntp_fmt_ts(rec));
 
@@ -617,7 +613,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	xmt = tvb_get_ptr(tvb, 40, 8);
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
-				   xmt,
 			           "Transmit Time Stamp: %s",
 				   ntp_fmt_ts(xmt));
 

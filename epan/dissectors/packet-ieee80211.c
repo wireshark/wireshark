@@ -3021,7 +3021,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 			  oui = tvb_get_ntoh24(tvb, offset);
 			  tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
 			  proto_tree_add_bytes_format (action_tree, tag_oui, tvb, offset, 3,
-				  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+				  "Vendor: %s", get_manuf_name(tag_data_ptr));
 			  offset+=3;
 			  switch(oui){
 				  case OUI_MARVELL:
@@ -3517,7 +3517,6 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       byte2 = tvb_get_guint8(tvb, offset + 1);
       txop = tvb_get_letohs(tvb, offset + 2);
       proto_tree_add_bytes_format(ietree, hf_aironet_ie_qos_val, tvb, offset, 4,
-        tvb_get_ptr(tvb, offset, 4),
           "CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
         (byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
@@ -4977,7 +4976,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
         tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
         proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
-          tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+          "Vendor: %s", get_manuf_name(tag_data_ptr));
         proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
 
 #define WPAWME_OUI  0x0050F2
