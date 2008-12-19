@@ -84,7 +84,7 @@ const char *voip_call_state_name[8]={
 	"COMPLETED",
 	"REJECTED",
 	"UNKNOWN"
-	};
+};
 
 /* defines whether we can consider the call active */
 const char *voip_protocol_name[]={
@@ -135,7 +135,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
 	voip_rtp_stream_info_t *strinfo;
 	graph_analysis_item_t *graph_item;
-	GList* list;
+	GList *list;
 
 #ifdef HAVE_LIBPORTAUDIO
 	/* reset the RTP player */
@@ -213,7 +213,7 @@ void graph_analysis_data_init(void){
 
 /****************************************************************************/
 /* Add a new item into the graph */
-static int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style)
+static void add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style)
 {
 	graph_analysis_item_t *gai;
 
@@ -240,8 +240,6 @@ static int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, c
 
 	tapinfo->graph_analysis->list = g_list_append(tapinfo->graph_analysis->list, gai);
 
-	return 1;
-
 }
 
 /****************************************************************************/
@@ -250,34 +248,33 @@ static int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, c
 static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
 	graph_analysis_item_t *gai;
-	GList* list;
-	gchar *tmp_str = NULL;
-	gchar *tmp_str2 = NULL;
+	GList *list;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
 
 	list = g_list_first(tapinfo->graph_analysis->list);
 	while (list)
 	{
 		gai = list->data;
 		if (gai->frame_num == frame_num){
-			tmp_str = gai->frame_label;
-			tmp_str2 = gai->comment;
+			frame_label = gai->frame_label;
+			comment = gai->comment;
 
 			if (new_frame_label != NULL){
-				gai->frame_label = g_strdup_printf("%s %s", gai->frame_label, new_frame_label);
-				g_free(tmp_str);
+				gai->frame_label = g_strdup_printf("%s %s", frame_label, new_frame_label);
+				g_free(frame_label);
 			}
 
-
 			if (new_comment != NULL){
-				gai->comment = g_strdup_printf("%s %s", gai->comment, new_comment);
-				g_free(tmp_str2);
+				gai->comment = g_strdup_printf("%s %s", comment, new_comment);
+				g_free(comment);
 			}
 			break;
 		}
-		list = g_list_next (list);
+		list = g_list_next(list);
 	}
-	if (tmp_str == NULL) return 0;		/* it is not in the list */
-	return 1;
+
+	return list ? 1 : 0;
 
 }
 
@@ -287,33 +284,33 @@ static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 fram
 static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
 	graph_analysis_item_t *gai;
-	GList* list;
-	gchar *tmp_str = NULL;
-	gchar *tmp_str2 = NULL;
+	GList *list;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
 
 	list = g_list_first(tapinfo->graph_analysis->list);
 	while (list)
 	{
 		gai = list->data;
 		if (gai->frame_num == frame_num){
-			tmp_str = gai->frame_label;
-			tmp_str2 = gai->comment;
+			frame_label = gai->frame_label;
+			comment = gai->comment;
 
 			if (new_frame_label != NULL){
 				gai->frame_label = g_strdup(new_frame_label);
-				g_free(tmp_str);
+				g_free(frame_label);
 			}
 
 			if (new_comment != NULL){
 				gai->comment = g_strdup(new_comment);
-				g_free(tmp_str2);
+				g_free(comment);
 			}
 			break;
 		}
-		list = g_list_next (list);
+		list = g_list_next(list);
 	}
-	if (tmp_str == NULL) return 0;		/* it is not in the list */
-	return 1;
+
+	return list ? 1 : 0;
 
 }
 
@@ -322,7 +319,7 @@ static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_n
 static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
 {
 	graph_analysis_item_t *gai;
-	GList* list;
+	GList *list;
 	guint items_changed;
 
 	items_changed = 0;
@@ -334,20 +331,17 @@ static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 ca
 			gai->conv_num = new_call_num;
 			items_changed++;
 		}
-		list = g_list_next (list);
+		list = g_list_next(list);
 	}
 	return items_changed;
 }
 
-
-
-
 /****************************************************************************/
 /* Insert the item in the graph list */
-void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time, guint32 frame_num)
+void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, const gchar *comment, guint16 call_num, address *src_addr, address *dst_addr, guint16 line_style, double time, guint32 frame_num)
 {
 	graph_analysis_item_t *gai, *new_gai;
-	GList* list;
+	GList *list;
 	guint item_num;
 	gboolean inserted;
 
@@ -383,11 +377,11 @@ void insert_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, cons
 			inserted = TRUE;
 			break;
 		}
-		list = g_list_next (list);
+		list = g_list_next(list);
 		item_num++;
 	}
 
-	if ( !inserted) tapinfo->graph_analysis->list = g_list_append(tapinfo->graph_analysis->list, new_gai);
+	if (!inserted) tapinfo->graph_analysis->list = g_list_append(tapinfo->graph_analysis->list, new_gai);
 }
 
 /****************************************************************************/
@@ -467,7 +461,7 @@ remove_tap_listener_rtp_event(void)
 static void voip_rtp_reset(void *ptr _U_)
 {
 	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
-	GList* list;
+	GList *list;
 	/* free the data items first */
 	list = g_list_first(tapinfo->list);
 	while (list)
@@ -484,12 +478,12 @@ static void voip_rtp_reset(void *ptr _U_)
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
 static int
-RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void const *RTPinfo)
+RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void const *RTPinfo)
 {
 	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
 	voip_rtp_stream_info_t *tmp_listinfo;
 	voip_rtp_stream_info_t *strinfo = NULL;
-	GList* list;
+	GList *list;
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	const struct _rtp_info *pi = RTPinfo;
@@ -520,7 +514,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void con
 				break;
 			}
 		}
-		list = g_list_next (list);
+		list = g_list_next(list);
 	}
 
 	/* if this is a duplicated RTP Event End, just return */
@@ -582,9 +576,9 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void con
 static void RTP_packet_draw(void *prs _U_)
 {
 	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
-	GList* rtp_streams_list;
+	GList *rtp_streams_list;
 	voip_rtp_stream_info_t *rtp_listinfo;
-	GList* voip_calls_graph_list;
+	GList *voip_calls_graph_list;
 	guint item;
 	graph_analysis_item_t *gai;
 	graph_analysis_item_t *new_gai;
@@ -703,8 +697,8 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	voip_calls_info_t *callsinfo = NULL;
 	voip_calls_info_t *tmp_listinfo;
-	GList* voip_calls_graph_list;
-	GList* list;
+	GList *voip_calls_graph_list;
+	GList *list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 	graph_analysis_item_t *tmp_gai, *gai = NULL;
@@ -789,8 +783,8 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 				break;
 			case 2: /* hdlc-fcs-OK */
 			case 4: /* hdlc-fcs-OK-sig-end */
-					frame_label = g_strdup_printf("%s %s", val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals_short, "Ukn (0x%02X)"), pi->desc);
-					comment = g_strdup_printf("t38:%s:HDLC:%s",val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)"), val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals, "Ukn (0x%02X)"));
+				frame_label = g_strdup_printf("%s %s", val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals_short, "Ukn (0x%02X)"), pi->desc);
+				comment = g_strdup_printf("t38:%s:HDLC:%s",val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)"), val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals, "Ukn (0x%02X)"));
 				break;
 			case 3: /* hdlc-fcs-BAD */
 			case 5: /* hdlc-fcs-BAD-sig-end */
@@ -883,7 +877,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	sip_calls_info_t *tmp_sipinfo = NULL;
-	GList* list;
+	GList *list;
 	address tmp_src, tmp_dst;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
@@ -1082,7 +1076,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	gboolean found = FALSE;
 	gboolean forward = FALSE;
 	gboolean right_pair;
-	GList* list;
+	GList *list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 	int i;
@@ -1711,7 +1705,7 @@ static void free_h225_info(gpointer p) {
 	if (tmp_h323info->guid) g_free(tmp_h323info->guid);
 
 	if (tmp_h323info->h245_list) {
-		GList* list2 = g_list_first(tmp_h323info->h245_list);
+		GList *list2 = g_list_first(tmp_h323info->h245_list);
 		while (list2)
 		{
 			h245_address_t *h245_add=list2->data;
@@ -1906,7 +1900,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			}
 		}
 		else if (pi->msg_type == H225_RAS){
-		switch(pi->msg_tag){
+			switch(pi->msg_tag){
 			case 18:  /* LRQ */
 				if (!pi->is_duplicate){
 					g_free(callsinfo->to_identity);
@@ -1921,27 +1915,26 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				break;
 			default:
 				comment = g_strdup("H225 RAS");
+			}
+			frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+		} else {
+			frame_label = g_strdup("H225: Unknown");
+			comment = NULL;
 		}
-		frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
-	} else {
-		frame_label = g_strdup("H225: Unknown");
-		comment = NULL;
-	}
 
-	/* add to graph analysis */
+		/* add to graph analysis */
 
-	/* if the frame number exists in graph, append to it*/
-	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
-		/* if not exist, add to the graph */
-		add_to_graph(tapinfo, pinfo, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-	}
+		/* if the frame number exists in graph, append to it*/
+		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
+			/* if not exist, add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+		}
 
-	/* Add the H245 info if exists to the Graph */
-	h245_add_to_graph(pinfo->fd->num);
+		/* Add the H245 info if exists to the Graph */
+		h245_add_to_graph(pinfo->fd->num);
 
-	g_free(frame_label);
-	g_free(comment);
-
+		g_free(frame_label);
+		g_free(comment);
 	}
 
 	tapinfo->redraw = TRUE;
@@ -2048,8 +2041,8 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	h323_calls_info_t *tmp_h323info;
-	GList* list;
-	GList* list2;
+	GList *list;
+	GList *list2;
 	h245_address_t *h245_add = NULL;
 
 	const h245_packet_info *pi = H245info;
@@ -2076,7 +2069,7 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 					break;
 				}
-			list2 = g_list_next(list2);
+				list2 = g_list_next(list2);
 			}
 			if (callsinfo!=NULL) break;
 		}
@@ -2328,8 +2321,8 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *callsinfo = NULL;
 	mgcp_calls_info_t *tmp_mgcpinfo = NULL;
-	GList* list;
-	GList* listGraph;
+	GList *list;
+	GList *listGraph;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 	graph_analysis_item_t *gai;
@@ -2659,7 +2652,7 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 		comment = g_strdup_printf("AC_CAS  trunk:%u", actrace_trunk);
 
-		add_to_graph(tapinfo, pinfo, pi->cas_frame_label , comment, callsinfo->call_num,
+		add_to_graph(tapinfo, pinfo, pi->cas_frame_label, comment, callsinfo->call_num,
 				actrace_direction?&pstn_add:&(pinfo->src),
 				actrace_direction?&(pinfo->src):&pstn_add,
 				1 );
@@ -2727,11 +2720,11 @@ static gboolean have_megaco_tap_listener = FALSE;
 
 static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
-	const gcp_cmd_t* cmd = prot_info;
-	GList* list;
+	const gcp_cmd_t *cmd = prot_info;
+	GList *list;
 	voip_calls_info_t *callsinfo = NULL;
-	address* mgw;
-	address* mgc;
+	address *mgw;
+	address *mgc;
 	gchar mgw_addr[128];
 
 	if (cmd->ctx->id == NULL_CONTEXT || cmd->ctx->id == ALL_CONTEXTS ) {
@@ -2791,7 +2784,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
 
 	} else {
-		GString* s = g_string_new("");
+		GString *s = g_string_new("");
 		gcp_terms_t *ctx_term;
 
 		g_free(callsinfo->from_identity);
@@ -2901,10 +2894,10 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	const sccp_msg_info_t* msg = prot_info;
 	sccp_assoc_info_t* assoc = msg->data.co.assoc;
-	GList* list;
+	GList *list;
 	voip_calls_info_t *callsinfo = NULL;
-	const gchar* label = NULL;
-	const gchar* comment = NULL;
+	const gchar *label = NULL;
+	const gchar *comment = NULL;
 	/* check whether we already have this assoc in the list */
 
 	for(list = g_list_first(tapinfo->callsinfo_list) ; list ; list = g_list_next (list) ) {
@@ -3629,7 +3622,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
         if (pi->call_state != VOIP_NO_STATE)
 			callsinfo->call_state = pi->call_state;
 		if (pi->call_comment) {
-			if (callsinfo->call_comment) g_free(callsinfo->call_comment);
+			g_free(callsinfo->call_comment);
 			callsinfo->call_comment=g_strdup(pi->call_comment);
 		}
 		callsinfo->stop_sec=(gint32)(pinfo->fd->rel_ts.secs);
