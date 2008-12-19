@@ -1576,6 +1576,8 @@ AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
 		AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
 			[Define to 1 if the the Gtk+ framework or a separate library inclues the Imendio IGE Mac OS X Integration functions.])
 	])
+	CFLAGS="$ac_save_CFLAGS"
+	LIBS="$ac_save_LIBS"
 ])
 
 
