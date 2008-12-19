@@ -2943,7 +2943,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	case 4: str = "Call has returned to the PLMN/ISDN"; break;
 	case 8: str = "In-band information or appropriate pattern now available"; break;
 	case 32: str = "Call is end-to-end PLMN/ISDN"; break;
-	case 64: str = "Queuing"; break;
+	case 64: str = "Queueing"; break;
 	default:
 		str = "Unspecific";
 		break;
