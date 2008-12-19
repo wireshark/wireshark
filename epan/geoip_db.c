@@ -1,4 +1,4 @@
-/* geoip.c
+/* geoip_db.c
  * GeoIP database support
  *
  * Copyright 2008, Gerald Combs <gerald@wireshark.org>
@@ -39,7 +39,7 @@
 #include "GeoIP.h"
 #include "GeoIPCity.h"
 
-#include "geoip.h"
+#include "geoip_db.h"
 #include "uat.h"
 #include "prefs.h"
 #include "report_err.h"
@@ -51,17 +51,17 @@
 
 /* Column names for each database type */
 value_string geoip_type_name_vals[] = {
-	{ GEOIP_COUNTRY_EDITION, 		"Country" },
-	{ GEOIP_REGION_EDITION_REV0, 	"Region" },
-	{ GEOIP_CITY_EDITION_REV0, 	"City" },
-	{ GEOIP_ORG_EDITION, 			"Organization" },
-	{ GEOIP_ISP_EDITION, 			"ISP" },
-	{ GEOIP_CITY_EDITION_REV1, 	"City" },
-	{ GEOIP_REGION_EDITION_REV1, 	"Region" },
-	{ GEOIP_PROXY_EDITION, 		"Proxy" },
-	{ GEOIP_ASNUM_EDITION, 		"AS Number" },
-	{ GEOIP_NETSPEED_EDITION,	 	"Speed" },
-	{ GEOIP_DOMAIN_EDITION, 		"Domain" },
+	{ GEOIP_COUNTRY_EDITION,		"Country" },
+	{ GEOIP_REGION_EDITION_REV0,	"Region" },
+	{ GEOIP_CITY_EDITION_REV0,		"City"},
+	{ GEOIP_ORG_EDITION,			"Organization" },
+	{ GEOIP_ISP_EDITION,			"ISP" },
+	{ GEOIP_CITY_EDITION_REV1,		"City" },
+	{ GEOIP_REGION_EDITION_REV1,	"Region" },
+	{ GEOIP_PROXY_EDITION,			"Proxy" },
+	{ GEOIP_ASNUM_EDITION,			"AS Number" },
+	{ GEOIP_NETSPEED_EDITION,		"Speed" },
+	{ GEOIP_DOMAIN_EDITION,			"Domain" },
 	{ 0, NULL }
 };
 
@@ -105,7 +105,7 @@ geoip_dat_scan_dir(const char *dirname) {
 }
 
 /* UAT callbacks */
-static void* geoip_path_copy_cb(void* dest, const void* orig, unsigned len _U_) {
+static void* geoip_db_path_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 	const geoip_db_path_t *m = orig;
 	geoip_db_path_t *d = dest;
 
@@ -114,7 +114,7 @@ static void* geoip_path_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 	return d;
 }
 
-static void geoip_path_free_cb(void* p) {
+static void geoip_db_path_free_cb(void* p) {
 	geoip_db_path_t *m = p;
 	if (m->path) g_free(m->path);
 }
@@ -123,7 +123,7 @@ static void geoip_path_free_cb(void* p) {
  * Initialize GeoIP lookups
  */
 void
-geoip_init(void) {
+geoip_db_init(void) {
 	guint i;
 	static uat_field_t geoip_db_paths_fields[] = {
 		UAT_FLD_CSTRING(geoip_mod, path, "The database path"),
@@ -141,9 +141,9 @@ geoip_init(void) {
 			&num_geoip_db_paths,
 			UAT_CAT_GENERAL,
 			"ChGeoIPDbPaths",
-			geoip_path_copy_cb,
+			geoip_db_path_copy_cb,
 			NULL,
-			geoip_path_free_cb,
+			geoip_db_path_free_cb,
 			geoip_db_paths_fields);
 
 	uat_load(geoip_db_paths_uat, &geoip_load_error);
@@ -177,15 +177,25 @@ geoip_db_name(guint dbnum) {
 	return "Invalid database";
 }
 
+int
+geoip_db_type(guint dbnum) {
+	GeoIP *gi;
+
+	gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
+	if (gi) {
+		return (gi->databaseType);
+	}
+	return -1;
+}
+
 #define VAL_STR_LEN 100
 const char *
-geoip_db_lookup_ipv4(guint dbnum, guint32 addr) {
+geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
 	GeoIP *gi;
 	GeoIPRecord *gir;
-	const char *ret = NULL;
+	const char *ret = not_found;
 	static char val[VAL_STR_LEN];
 
-	g_snprintf(val, VAL_STR_LEN, "-");
 	gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
 	if (gi) {
 		switch (gi->databaseType) {
@@ -198,8 +208,10 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr) {
 				gir = GeoIP_record_by_ipnum(gi, addr);
 				if (gir && gir->city && gir->region) {
 					g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
+					ret = val;
 				} else if (gir && gir->city) {
 					g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
+					ret = val;
 				}
 				break;
 
@@ -210,18 +222,17 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr) {
 				break;
 
 			default:
-				ret = "Unsupported db type";
+				break;
 		}
-		if (ret) {
-			g_snprintf (val, VAL_STR_LEN, "%s", ret);
-		}
-		return val;
 	}
-	return "Invalid database";
+	if (ret) {
+		return ret;
+	}
+	return not_found;
 }
 
 gchar *
-geoip_get_paths(void) {
+geoip_db_get_paths(void) {
 	GString* path_str = NULL;
 	gchar *path_ret;
 	char path_separator;
@@ -249,7 +260,7 @@ geoip_get_paths(void) {
 
 #else /* HAVE_GEOIP */
 void
-geoip_init(void) {}
+geoip_db_init(void) {}
 
 guint
 geoip_num_dbs(void) {
@@ -261,13 +272,18 @@ geoip_db_name(guint dbnum _U_) {
 	return "Unsupported";
 }
 
+int
+geoip_db_type(guint dbnum _U_) {
+	return -1;
+}
+
 const char *
-geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_) {
-	return "";
+geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_, char *not_found) {
+	return not_found;
 }
 
 gchar *
-geoip_get_paths(void) {
+geoip_db_get_paths(void) {
 	return "";
 }
 
@@ -285,4 +301,3 @@ geoip_get_paths(void) {
  * ex: set shiftwidth=4 tabstop=4 noexpandtab
  * :indentSize=4:tabSize=4:noTabs=false:
  */
-

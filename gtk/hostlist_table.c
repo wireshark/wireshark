@@ -40,7 +40,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #ifdef HAVE_GEOIP
-#include <epan/geoip.h>
+#include <epan/geoip_db.h>
 #endif
 
 #include "../simple_dialog.h"
@@ -1108,7 +1108,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         /* Filled in from the GeoIP config, if any */
         for (i = 0; i < NUM_GEOIP_COLS; i++) {
             if (i < geoip_num_dbs() && talker->address.type == AT_IPv4) {
-                const guchar *name = geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data);
+                const guchar *name = geoip_db_lookup_ipv4(i, *(guint32*)talker->address.data, "-");
                 g_snprintf(geoip[i], COL_STR_LEN, "%s", format_text (name, strlen(name)));
                 entries[NUM_BUILTIN_COLS + i] = geoip[i];
                 gtk_clist_set_column_visibility(hl->table, NUM_BUILTIN_COLS + i, TRUE);

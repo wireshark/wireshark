@@ -56,7 +56,7 @@ LIBWIRESHARK_SRC = 		\
 	frequency-utils.c	\
 	funnel.c    		\
 	gcp.c			\
-	geoip.c			\
+	geoip_db.c		\
         golay.c			\
 	guid-utils.c    	\
 	h225-persistentdata.c	\
@@ -173,7 +173,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	funnel.h		\
 	garrayfix.h		\
 	gcp.h			\
-	geoip.h			\
+	geoip_db.h		\
 	golay.h			\
 	gnuc_format_check.h	\
 	greproto.h		\

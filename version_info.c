@@ -88,7 +88,7 @@
 #endif
 
 #ifdef HAVE_GEOIP
-#include <epan/geoip.h>
+#include <epan/geoip_db.h>
 #endif
 
 #ifdef SVNVERSION

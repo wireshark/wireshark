@@ -60,7 +60,7 @@
 #endif
 
 #ifdef HAVE_GEOIP
-#include "geoip.h"
+#include "geoip_db.h"
 #endif
 
 gchar*
@@ -107,7 +107,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	wslua_init(NULL);
 #endif
 #ifdef HAVE_GEOIP
-	geoip_init();
+	geoip_db_init();
 #endif
 
 }

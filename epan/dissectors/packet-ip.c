@@ -63,6 +63,11 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
+#ifdef HAVE_GEOIP
+#include "GeoIP.h"
+#include <epan/geoip_db.h>
+#endif /* HAVE_GEOIP */
+
 static int ip_tap = -1;
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
@@ -85,6 +90,11 @@ static gboolean ip_check_checksum = TRUE;
 
 /* Assume TSO and correct zero-length IP packets */
 static gboolean ip_tso_supported = FALSE;
+
+#ifdef HAVE_GEOIP
+/* Look up addresses in GeoIP */
+static gboolean ip_use_geoip = FALSE;
+#endif /* HAVE_GEOIP */
 
 static int proto_ip = -1;
 static int hf_ip_version = -1;
@@ -125,6 +135,24 @@ static int hf_ip_fragment_multiple_tails = -1;
 static int hf_ip_fragment_too_long_fragment = -1;
 static int hf_ip_fragment_error = -1;
 static int hf_ip_reassembled_in = -1;
+
+#ifdef HAVE_GEOIP
+static int hf_geoip_country = -1;
+static int hf_geoip_city = -1;
+static int hf_geoip_org = -1;
+static int hf_geoip_isp = -1;
+static int hf_geoip_asnum = -1;
+static int hf_geoip_src_country = -1;
+static int hf_geoip_src_city = -1;
+static int hf_geoip_src_org = -1;
+static int hf_geoip_src_isp = -1;
+static int hf_geoip_src_asnum = -1;
+static int hf_geoip_dst_country = -1;
+static int hf_geoip_dst_city = -1;
+static int hf_geoip_dst_org = -1;
+static int hf_geoip_dst_isp = -1;
+static int hf_geoip_dst_asnum = -1;
+#endif /* HAVE_GEOIP */
 
 static gint ett_ip = -1;
 static gint ett_ip_dsfield = -1;
@@ -380,11 +408,11 @@ static gint ett_icmp_mpls_stack_object = -1;
 
 /* Return true if the address is in the 224.0.0.0/24 network block */
 #define is_a_local_network_control_block_addr(addr) \
-  ((addr & 0xffffff00) == 0xe0000000) 
+  ((addr & 0xffffff00) == 0xe0000000)
 
 /* Return true if the address is in the 224.0.0.0/4 network block */
 #define is_a_multicast_addr(addr) \
-  ((addr & 0xf0000000) == 0xe0000000) 
+  ((addr & 0xf0000000) == 0xe0000000)
 
 /*
  * defragmentation of IPv4
@@ -1186,7 +1214,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti = NULL, *tf;
-  guint32    addr;
+  guint32    src_naddr, dst_naddr;
   int        offset = 0;
   guint      hlen, optlen;
   guint16    flags;
@@ -1205,6 +1233,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree *tree;
   proto_item *item, *ttl_item;
   proto_tree *checksum_tree;
+#ifdef HAVE_GEOIP
+  guint dbnum;
+  int geoip_hf, geoip_src_hf, geoip_dst_hf;
+  const char *geoip_src_str, *geoip_dst_str;
+#endif /* HAVE_GEOIP */
 
   tree=parent_tree;
 
@@ -1259,7 +1292,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
   }
-
+  
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (check_col(pinfo->cinfo, COL_DSCP_VALUE)) {
 	col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
@@ -1302,7 +1335,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    * If ip_len is zero, assume TSO and use the reported length instead.  Note
    * that we need to use the frame/reported length instead of the
    * actually-available length, just in case a snaplen was used on capture. */
-  if (ip_tso_supported && !iph->ip_len) 
+  if (ip_tso_supported && !iph->ip_len)
 	  iph->ip_len = tvb_reported_length(tvb);
 
   if (iph->ip_len < hlen) {
@@ -1407,13 +1440,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     const char *src_host;
 
-    memcpy(&addr, iph->ip_src.data, 4);
-    src_host = get_hostname(addr);
+    memcpy(&src_naddr, iph->ip_src.data, 4);
+    src_host = get_hostname(src_naddr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src: %s (%s)", src_host, ip_to_str(iph->ip_src.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
-    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
+    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, src_naddr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, src_naddr);
     PROTO_ITEM_SET_HIDDEN(item);
     item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4, src_host);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1440,7 +1473,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    */
   if (is_a_local_network_control_block_addr(dst32)) {
     if (ttl != 1) {
-      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, 
+      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
         "\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
     }
   } else if (!is_a_multicast_addr(dst32) && ttl < 5) {
@@ -1450,13 +1483,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     const char *dst_host;
 
-    memcpy(&addr, iph->ip_dst.data, 4);
-    dst_host = get_hostname(addr);
+    memcpy(&dst_naddr, iph->ip_dst.data, 4);
+    dst_host = get_hostname(dst_naddr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s (%s)", dst_host, ip_to_str(iph->ip_dst.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
-    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, dst_naddr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, dst_naddr);
     PROTO_ITEM_SET_HIDDEN(item);
     item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1465,6 +1498,71 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
   }
+
+#ifdef HAVE_GEOIP
+  if (tree && ip_use_geoip) {
+    for (dbnum = 0; dbnum < geoip_num_dbs(); dbnum++) {
+      geoip_src_str = geoip_db_lookup_ipv4(dbnum, src_naddr, NULL);
+      geoip_dst_str = geoip_db_lookup_ipv4(dbnum, dst_naddr, NULL);
+
+      switch (geoip_db_type(dbnum)) {
+        case GEOIP_COUNTRY_EDITION:
+          geoip_hf = hf_geoip_country;
+          geoip_src_hf = hf_geoip_src_country;
+          geoip_dst_hf = hf_geoip_dst_country;
+          break;
+        case GEOIP_CITY_EDITION_REV0:
+          geoip_hf = hf_geoip_city;
+          geoip_src_hf = hf_geoip_src_city;
+          geoip_dst_hf = hf_geoip_dst_city;
+          break;
+        case GEOIP_CITY_EDITION_REV1:
+          geoip_hf = hf_geoip_city;
+          geoip_src_hf = hf_geoip_src_city;
+          geoip_dst_hf = hf_geoip_dst_city;
+          break;
+        case GEOIP_ORG_EDITION:
+          geoip_hf = hf_geoip_org;
+          geoip_src_hf = hf_geoip_src_org;
+          geoip_dst_hf = hf_geoip_dst_org;
+          break;
+        case GEOIP_ISP_EDITION:
+          geoip_hf = hf_geoip_isp;
+          geoip_src_hf = hf_geoip_src_isp;
+          geoip_dst_hf = hf_geoip_dst_isp;
+          break;
+        case GEOIP_ASNUM_EDITION:
+          geoip_hf = hf_geoip_asnum;
+          geoip_src_hf = hf_geoip_src_asnum;
+          geoip_dst_hf = hf_geoip_dst_asnum;
+          break;
+        default:
+          continue;
+          break;
+      }
+
+      if (geoip_src_str) {
+        item = proto_tree_add_string_format_value(ip_tree, geoip_src_hf, tvb,
+          offset + IPH_SRC, 4, geoip_src_str, "%s", geoip_src_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item  = proto_tree_add_string_format_value(ip_tree, geoip_hf, tvb,
+          offset + IPH_SRC, 4, geoip_src_str, "%s", geoip_src_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);        
+      }
+
+      if (geoip_dst_str) {
+        item = proto_tree_add_string_format_value(ip_tree, geoip_dst_hf, tvb,
+          offset + IPH_DST, 4, geoip_dst_str, "%s", geoip_dst_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item  = proto_tree_add_string_format_value(ip_tree, geoip_hf, tvb,
+          offset + IPH_DST, 4, geoip_dst_str, "%s", geoip_dst_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);        
+      }
+    }
+  }
+#endif /* HAVE_GEOIP */
 
   if (tree) {
     /* Decode IP options, if any. */
@@ -2425,7 +2523,53 @@ proto_register_ip(void)
 		{ &hf_ip_host,
 		{ "Source or Destination Host", "ip.host", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-
+#ifdef HAVE_GEOIP
+		{ &hf_geoip_country,
+		{ "Source or Destination GeoIP Country", "ip.geoip.country", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_city,
+		{ "Source or Destination GeoIP City", "ip.geoip.city", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_org,
+		{ "Source or Destination GeoIP Organization", "ip.geoip.org", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_isp,
+		{ "Source or Destination GeoIP ISP", "ip.geoip.isp", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_asnum,
+		{ "Source or Destination GeoIP AS Number", "ip.geoip.asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_country,
+		{ "Source GeoIP Country", "ip.geoip.src_country", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_city,
+		{ "Source GeoIP City", "ip.geoip.src_city", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_org,
+		{ "Source GeoIP Organization", "ip.geoip.src_org", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_isp,
+		{ "Source GeoIP ISP", "ip.geoip.src_isp", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_asnum,
+		{ "Source GeoIP AS Number", "ip.geoip.src_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_country,
+		{ "Destination GeoIP Country", "ip.geoip.dst_country", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_city,
+		{ "Destination GeoIP City", "ip.geoip.dst_city", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_org,
+		{ "Destination GeoIP Organization", "ip.geoip.dst_org", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_isp,
+		{ "Destination GeoIP ISP", "ip.geoip.dst_isp", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_asnum,
+		{ "Destination GeoIP AS Number", "ip.geoip.dst_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+#endif /* HAVE_GEOIP */
 		{ &hf_ip_flags,
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
@@ -2544,6 +2688,12 @@ proto_register_ip(void)
 		  "Support packet-capture from IP TSO-enabled hardware",
 		  "Whether to correct for TSO-enabled hardware captures, such as spoofing the IP packet length",
 		  &ip_tso_supported);
+#ifdef HAVE_GEOIP
+	prefs_register_bool_preference(ip_module, "use_geoip" ,
+		  "Enable GeoIP lookups",
+		  "Whether to look up IP addresses in each GeoIP database we have loaded",
+		  &ip_use_geoip);
+#endif /* HAVE_GEOIP */
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);

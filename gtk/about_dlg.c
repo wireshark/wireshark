@@ -36,7 +36,7 @@
 #include <epan/oids.h>
 #endif
 #ifdef HAVE_GEOIP
-#include <epan/geoip.h>
+#include <epan/geoip_db.h>
 #endif
 
 #include "../globals.h"
@@ -430,7 +430,7 @@ about_folders_page_new(void)
 
 #ifdef HAVE_GEOIP
   /* GeoIP */
-  path = geoip_get_paths();
+  path = geoip_db_get_paths();
 
 #ifdef _WIN32
   resultArray = g_strsplit(path, ";", 10);
