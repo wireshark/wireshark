@@ -615,7 +615,7 @@ dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 	reftime = tvb_get_ptr(tvb, offset + 2, optlen);
 	proto_tree_add_bytes_format(opt_tree, hf_pmip6_timestamp, tvb, offset , 10,
-			"Timestamp: %s", ntp_fmt_ts(reftime));
+			reftime, "Timestamp: %s", ntp_fmt_ts(reftime));
 }
 
 static const ip_tcp_opt mip6_opts[] = {

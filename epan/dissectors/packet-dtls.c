@@ -1318,6 +1318,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 	  tvb_ensure_bytes_exist(tvb, offset, session_id_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
 				      tvb, offset, session_id_length,
+				      tvb_get_ptr(tvb, offset, session_id_length),
 				      "Session ID (%u byte%s)",
 				      session_id_length,
 				      plurality(session_id_length, "", "s"));
@@ -1373,6 +1374,7 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
 
       proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
 				  tvb, offset, ext_len,
+				  tvb_get_ptr(tvb, offset, ext_len),
 				  "Data (%u byte%s)",
 				  ext_len, plurality(ext_len, "", "s"));
       offset += ext_len;
@@ -1434,6 +1436,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 	  tvb_ensure_bytes_exist(tvb, offset, cookie_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
 				      tvb, offset, cookie_length,
+				      tvb_get_ptr(tvb, offset, cookie_length),
 				      "Cookie (%u byte%s)",
 				      cookie_length,
 				      plurality(cookie_length, "", "s"));
@@ -1564,6 +1567,7 @@ static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
 	  tvb_ensure_bytes_exist(tvb, offset, cookie_length);
 	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
 				      tvb, offset, cookie_length,
+				      tvb_get_ptr(tvb, offset, cookie_length),
 				      "Cookie (%u byte%s)",
 				      cookie_length,
 				      plurality(cookie_length, "", "s"));
@@ -1805,6 +1809,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 	      proto_tree_add_bytes_format(subtree,
 					  hf_dtls_handshake_dname,
 					  tvb, offset, name_length,
+					  tvb_get_ptr(tvb, offset, name_length),
 					  "Distinguished Name (%u byte%s)",
 					  name_length,
 					  plurality(name_length, "", "s"));

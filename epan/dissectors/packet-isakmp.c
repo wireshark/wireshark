@@ -1077,13 +1077,14 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       /* IPSEC */
       if (length < 4) {
         proto_tree_add_bytes_format(tree, hf_isakmp_sa_situation, tvb, offset, length,
+			  tvb_get_ptr(tvb, offset, length),
 			  "Situation: %s (length is %u, should be >= 4)",
 			  tvb_bytes_to_str(tvb, offset, length), length);
         return;
       }
       situation = tvb_get_ntohl(tvb, offset);
       proto_tree_add_bytes_format(tree, hf_isakmp_sa_situation, tvb, offset, 4,
-			"Situation: %s (%u)",
+			tvb_get_ptr(tvb, offset, 4), "Situation: %s (%u)",
 			situation2str(situation), situation);
       offset += 4;
       length -= 4;

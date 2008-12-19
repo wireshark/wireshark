@@ -669,6 +669,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		} else {
 			proto_tree_add_bytes_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
+			    string_buffer,
 			    "contents: %s", string_buffer_print);
 		}
 	}

@@ -444,7 +444,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
 	    neighbor_id = tvb_get_ptr(tvb, offset+3, id_length);
 	    proto_tree_add_bytes_format( tree,
 		    hf_isis_hello_clv_restart_neighbor, tvb, offset+3,
-		    id_length, "Restarting Neighbor ID: %s",
+		    id_length, neighbor_id, "Restarting Neighbor ID: %s",
 		    print_system_id( neighbor_id, id_length ) );
 	}
 }
@@ -861,7 +861,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	if (tree) {
 		source_id = tvb_get_ptr(tvb, offset, id_length);
 		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, tvb,
-			            offset, id_length,
+			            offset, id_length, source_id,
 			            "System-ID {Sender of PDU} : %s", 
 			            print_system_id( source_id, id_length ) );
 	}
@@ -904,7 +904,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		if (tree) {
 			lan_id = tvb_get_ptr(tvb, offset, id_length+1);
 			proto_tree_add_bytes_format(hello_tree, hf_isis_hello_lan_id, tvb,
-				     offset, id_length + 1,
+				     offset, id_length + 1, lan_id,
 					 "System-ID {Designated IS} : %s",
 					      print_system_id( lan_id, id_length + 1 ) );
 		}

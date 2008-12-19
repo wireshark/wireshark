@@ -1489,26 +1489,14 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		gint length, const char *format, ...)
+		gint length, const guint8 *start_ptr, const char *format, ...)
 {
 	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
 	va_list			ap;
 
-	if (!tree)
-		return (NULL);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
-
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	DISSECTOR_ASSERT(hfinfo->type == FT_BYTES);
-
-	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 	if (pi == NULL)
 		return (NULL);
-
-	proto_tree_set_bytes_tvb(new_fi, tvb, start, length);
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);

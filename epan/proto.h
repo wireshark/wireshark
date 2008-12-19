@@ -600,7 +600,7 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, const char *format, ...) GNUC_FORMAT_CHECK(printf,6,7);
+	gint length, const guint8* start_ptr, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /** Add a FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree.
  @param tree the tree to append this item to

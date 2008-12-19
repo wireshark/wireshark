@@ -362,13 +362,13 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, (num_neighbors*10) );
 				edp_neighbors_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_neighbors, tvb, 
-					offset, num_neighbors*10, "Neighbors:");
+					offset, num_neighbors*10, neighbors_ptr, "Neighbors:");
 			}
 			else
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, tvb_reported_length_remaining(tvb, offset) );
 				edp_neighbors_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_neighbors, tvb, 
-					offset, num_neighbors *10, "Neighbors:");
+					offset, num_neighbors *10, neighbors_ptr, "Neighbors:");
 			}
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
 			while ( neighbors_count < num_neighbors && tvb_reported_length_remaining(tvb, offset) >= 10)
@@ -416,7 +416,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		{
 			tuples_ptr = tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
 			edp_tuples_ti = proto_tree_add_bytes_format(ismp_edp_tree, hf_ismp_edp_tuples, tvb,
-				offset, tvb_reported_length_remaining(tvb, offset), "Tuples:");
+				offset, tvb_reported_length_remaining(tvb, offset), tuples_ptr, "Tuples:");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
 			while ( (tuples_count < num_tuples) && (tvb_reported_length_remaining(tvb, offset) >= 4) )

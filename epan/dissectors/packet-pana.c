@@ -441,6 +441,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                case PANA_OCTET_STRING: {
                                        proto_tree_add_bytes_format(single_avp_tree, hf_pana_avp_data_bytes, tvb,
                                                        offset, avp_data_length,
+                                                   tvb_get_ptr(tvb, offset, avp_data_length),
                                                        "Hex Data Highlighted Below");
                                        break;
                                }

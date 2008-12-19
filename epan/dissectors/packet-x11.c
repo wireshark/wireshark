@@ -1849,7 +1849,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	        g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
 
 	    tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
-	        *offsetp, keycodes_per_modifier, "item: ");
+	        *offsetp, keycodes_per_modifier, p, "item: ");
 	    for(i = 0; i < keycodes_per_modifier; ++i) {
 		guchar c = p[i];
 

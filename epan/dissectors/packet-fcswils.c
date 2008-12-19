@@ -756,7 +756,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             flags="Class F Invld";
         }
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_clsf_svcp, tvb, offset, 6,
-                                    "Class F Svc Parameters: (%s)", flags);
+                                     &elp.clsf_svcparm[0], "Class F Svc Parameters: (%s)", flags);
         offset += 6;
 
         proto_tree_add_item (elp_tree, hf_swils_elp_clsf_rcvsz, tvb, offset, 2, 0);
@@ -800,6 +800,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
 
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
+                                     tvb_get_ptr (tvb, offset, 2),
                                      "Class 1 Svc Parameters: (%s)", flags);
         offset += 2;
         if (elp.cls1_svcparm[0] & 0x80) {
@@ -821,6 +822,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
 
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls2_svcp, tvb, offset, 2,
+                                     &elp.cls2_svcparm[0],
                                      "Class 2 Svc Parameters: (%s)", flags);
         offset += 2;
 
@@ -842,6 +844,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             flags="Class 3 Invld";
         }
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls3_svcp, tvb, offset, 2,
+                                     &elp.cls3_svcparm[0],
                                      "Class 3 Svc Parameters: (%s)", flags);
         offset += 2;
 

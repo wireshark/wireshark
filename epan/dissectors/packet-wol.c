@@ -268,7 +268,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if ( len == 106 )
             proto_tree_add_bytes_format(wol_tree, hf_wol_passwd, tvb, offset,
-                4, "Password: %s", passwd);
+                4, passwd, "Password: %s", passwd);
         else if ( len == 108 )
             proto_tree_add_bytes_format(wol_tree, hf_wol_passwd, tvb, offset,
                 6, passwd, "Password: %s", passwd);

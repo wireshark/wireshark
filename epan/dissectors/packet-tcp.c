@@ -3445,8 +3445,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
     tvb_ensure_bytes_exist(tvb, offset +  20, optlen);
     if (tcp_tree != NULL) {
+      guint8 *p_options = ep_tvb_memdup(tvb, offset + 20, optlen);
       tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20,
-        optlen, "Options: (%u bytes)", optlen);
+        optlen, p_options, "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     } else
       field_tree = NULL;

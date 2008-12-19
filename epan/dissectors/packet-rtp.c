@@ -1405,7 +1405,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
 		proto_tree_add_bytes_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
-		    4, 8, "NTP timestamp: %s", ntp_fmt_ts(ptime));
+		    4, 8, ptime, "NTP timestamp: %s", ntp_fmt_ts(ptime));
 	}
 
 	dissect_rtp(tvb, pinfo, tree);

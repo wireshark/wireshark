@@ -919,7 +919,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             proto_tree_add_bytes_format(
                 tree, tlv_info->hf_value,
-                tvb, offset, length,
+                tvb, offset, length, p,
                 format1, s);
 
             proto_item_append_text(
@@ -1098,7 +1098,7 @@ static void wimaxasncp_dissect_tlv_value(
             
             proto_tree_add_bytes_format(
                 tree, tlv_info->hf_value,
-                tvb, offset, length,
+                tvb, offset, length, p,
                 format, hex_note, s);
 
             proto_item_append_text(tlv_item, " - TBD");
@@ -1624,7 +1624,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             proto_tree_add_bytes_format(
                 tree, tlv_info->hf_value,
-                tvb, offset, length,
+                tvb, offset, length, p,
                 format1, hex_note, s);
 
             proto_item_append_text(
@@ -1662,7 +1662,7 @@ static void wimaxasncp_dissect_tlv_value(
 
         proto_tree_add_bytes_format(
             tree, hf_wimaxasncp_tlv_value_bytes,
-            tvb, offset, length,
+            tvb, offset, length, p,
             format, hex_note, s);
     }
 }

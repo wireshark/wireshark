@@ -5119,7 +5119,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 
 	valb = tvb_get_ptr(tvb, offset, vl_max);
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    "%-8.8s%s", "Value:", "(binary)");
+	    valb, "%-8.8s%s", "Value:", "(binary)");
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
     }
@@ -5163,7 +5163,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	else {
 	    valb = tvb_get_ptr(tvb, offset, vl_max);
 	    proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-		"%-8.8s%s", "Value:", "(binary)");
+		valb, "%-8.8s%s", "Value:", "(binary)");
 
 	    g_snprintf(*tag_value, MAX_BUF_LEN, "(binary)");
 	}
@@ -5200,7 +5200,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	else		      valf = tvb_get_ntohieee_float(tvb, offset);
 
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 4,
-	    "%-8.8s%f", "Value:", valf);
+	    valb, "%-8.8s%f", "Value:", valf);
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%f", valf);
     }
@@ -5216,7 +5216,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 
 	if (global_dcm_tag_subtree) {
 	    proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, 8,
-		"%-8.8s%f", "Value:", vald);
+		valb, "%-8.8s%f", "Value:", vald);
 	}
 	g_snprintf(*tag_value, MAX_BUF_LEN, "%f", vald);
     }
@@ -5281,7 +5281,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, proto_tree *tree, dcm_state_pdv_t *pdv,
 	valb = tvb_get_ptr(tvb, offset, vl_max);
 
 	proto_tree_add_bytes_format(tree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    "%-8.8s%s", "Value:", (vl > vl_max ? "" : "(unknown VR)"));
+	    valb, "%-8.8s%s", "Value:", (vl > vl_max ? "" : "(unknown VR)"));
 
 	g_snprintf(*tag_value, MAX_BUF_LEN, "(unknown VR)");
     }
@@ -5753,7 +5753,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	valb = tvb_get_ptr(tvb, offset, vl_max);
         proto_tree_add_bytes_format(tag_ptree, hf_dcm_tag_value_byte, tvb, offset, vl_max,
-	    "%-8.8sBytes %d - %d [start]", "Value:", 1, vl_max);
+	    valb, "%-8.8sBytes %d - %d [start]", "Value:", 1, vl_max);
 
 	g_snprintf(tag_value, MAX_BUF_LEN, "<Bytes %d - %d, start>", 1, vl_max);
 	offset += vl_max;
@@ -5869,7 +5869,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (pdv->is_corrupt) {
 	    pitem = proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-		offset, tag_value_fragment_len, "%s <incomplete>",
+		offset, tag_value_fragment_len, val, "%s <incomplete>",
 		pdv->prev->open_tag.desc);
 
 	    expert_add_info_format(pinfo, pitem, PI_MALFORMED, PI_ERROR,
@@ -5878,7 +5878,7 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	else {
 	    proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-		offset, tag_value_fragment_len, "%s <Bytes %d - %d, %s>",
+		offset, tag_value_fragment_len, val, "%s <Bytes %d - %d, %s>",
 		pdv->prev->open_tag.desc,
 		pdv->prev->open_tag.len_total - pdv->prev->open_tag.len_remaining + 1,
 		pdv->prev->open_tag.len_total - pdv->prev->open_tag.len_remaining + tag_value_fragment_len,
@@ -5920,7 +5920,7 @@ dissect_dcm_pdv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	val = tvb_get_ptr(tvb, offset, len);
 	proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-	    offset, len, "(%04x,%04x) %-8x Unparsed data", 0, 0, len);
+	    offset, len, val, "(%04x,%04x) %-8x Unparsed data", 0, 0, len);
 	offset = pdv_len;
     }
     else {
