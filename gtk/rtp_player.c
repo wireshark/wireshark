@@ -29,23 +29,23 @@
  *    packet
  *  - add_rtp_packet() will add the RTP packet in a RTP stream struct, and
  *    create the RTP stream if it is the  first RTP in the stream.
- *  - Each new RTP stream will be added to a list of RTP stream, called
+ *  - Each new RTP stream will be added to a list of RTP streams, called
  *    rtp_streams_list
  *  - When the user clicks "Player" in the VoipCall dialogue,
  *    rtp_player_init() is called.
  *  - rtp_player_init() create the main dialog, and it calls:
  *    + mark_rtp_stream_to_play() to mark the RTP streams that needs to be
- *      displayed. These are the RTP stream that match the selected calls in
+ *      displayed. These are the RTP streams that match the selected calls in
  *      the VoipCall dlg.
  *    + decode_rtp_stream() this will decode the RTP packets in each RTP
- *      stream, and will also create  the RTP channles. An RTP channel is a
- *      group of RTP stream that have in common the source and destination
- *      IP and UPD ports. The RTP channels is what the user will listen in
- *      one of the two Audio channles. 
+ *      stream, and will also create the RTP channels. An RTP channel is a
+ *      group of RTP streams that have in common the source and destination
+ *      IP and UDP ports. The RTP channels is what the user will listen in
+ *      one of the two Audio channels.
  *      The RTP channels are stored in the hash table rtp_channels_hash
  *    + add_channel_to_window() will create and add the Audio graphic
  *      representation in the main window
- *  - When the user click the check box to listen one of the Audio channels,
+ *  - When the user clicks the check box to listen one of the Audio channels,
  *    the structure rtp_channels is filled  to play one or two RTP channels
  *    (a max of two channels can be listened at a given moment)
  */
@@ -232,10 +232,10 @@ typedef struct _rtp_play_channles {
 	PaTime out_diff_time;
 	PaTime pa_start_time;
 #endif /* PORTAUDIO_API_1 */
-} rtp_play_channles_t;
+} rtp_play_channels_t;
 
 /* The two RTP channles to play */
-static rtp_play_channles_t *rtp_channels = NULL;
+static rtp_play_channels_t *rtp_channels = NULL;
 
 typedef struct _rtp_decoder_t {
 	codec_handle_t handle;
@@ -388,7 +388,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 
 		g_hash_table_insert(rtp_streams_hash, g_strdup(key_str->str), stream_info);
 
-		/* Add the element to the List too. The List is used to decode the packets because it is sordted */
+		/* Add the element to the List too. The List is used to decode the packets because it is sorted */
 		rtp_streams_list = g_list_append(rtp_streams_list, stream_info);
 	}
 
@@ -1038,7 +1038,7 @@ draw_cursors(gpointer data _U_)
 static void
 init_rtp_channels_vals(void)
 {
-	rtp_play_channles_t *rpci = rtp_channels; 
+	rtp_play_channels_t *rpci = rtp_channels;
 	
 	/* if we only have one channel to play, we just use the info from that channel */
 	if (rpci->rci[0] == NULL) {
@@ -1097,7 +1097,7 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
                              void *userData)
 {
 #endif /* PORTAUDIO_API_1 */
-	rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
+	rtp_play_channels_t *rpci = (rtp_play_channels_t *)userData;
 	SAMPLE *wptr = (SAMPLE*)outputBuffer;
 	sample_t sample;
 	unsigned int i;
@@ -2016,7 +2016,7 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 #endif /* HAVE_G729_G723 */
 
 	if (!rtp_channels) {
-		rtp_channels = g_malloc(sizeof(rtp_play_channles_t));
+		rtp_channels = g_malloc(sizeof(rtp_play_channels_t));
 	}
 
 	reset_rtp_channels();
