@@ -812,7 +812,7 @@ void proto_register_mip(void)
           { &hf_mip_rext_i,
 		 { "'I' bit Support",          "mip.ext.rev.i",
 			FT_BOOLEAN, 16, NULL, 32768,
-			"Agent surevidpports Inform bit in Revocation", HFILL }
+			"Agent supports Inform bit in Revocation", HFILL }
           },
           { &hf_mip_rext_reserved,
 		 { "Reserved",                 "mip.ext.rev.reserved",

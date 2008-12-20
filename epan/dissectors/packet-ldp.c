@@ -720,7 +720,7 @@ static const value_string tlv_status_data[] = {
   {20, "KeepAlive Timer Expired"},
   {21, "Label Request Aborted"},
   {22, "Missing Message Parameters"},
-  {23, "Unsoported Address Family"},
+  {23, "Unsupported Address Family"},
   {24, "Session Rejected / Bad KeepAlive Time"},
   {25, "Internal Error"},
   {26, "No LDP Session"},

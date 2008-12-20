@@ -495,7 +495,7 @@ proto_register_nsrp(void)
 	{ &hf_nsrp_data,
 	  { "Data", "nsrp.data",
 	    FT_STRING, 0, NULL, 0,
-	    "PADING", HFILL }
+	    "PADDING", HFILL }
 	}
     };
 

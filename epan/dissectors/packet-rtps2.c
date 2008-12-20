@@ -464,7 +464,7 @@ static const struct Flag_definition PAD_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition DATA_FLAGS[] = {
@@ -475,7 +475,7 @@ static const struct Flag_definition DATA_FLAGS[] = {
   { 'H', "Hash key flag" },                     /* Bit 3 */
   { 'D', "Data present" },                      /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition NOKEY_DATA_FLAGS[] = {
@@ -486,7 +486,7 @@ static const struct Flag_definition NOKEY_DATA_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { 'H', "Key Hash" },                          /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition ACKNACK_FLAGS[] = {
@@ -497,7 +497,7 @@ static const struct Flag_definition ACKNACK_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition GAP_FLAGS[] = {
@@ -508,7 +508,7 @@ static const struct Flag_definition GAP_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition HEARTBEAT_FLAGS[] = {
@@ -519,7 +519,7 @@ static const struct Flag_definition HEARTBEAT_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { 'L', "Liveliness flag" },                   /* Bit 2 */
   { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition HEARTBEAT_BATCH_FLAGS[] = {
@@ -530,7 +530,7 @@ static const struct Flag_definition HEARTBEAT_BATCH_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { 'L', "Liveliness flag" },                   /* Bit 2 */
   { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition INFO_TS_FLAGS[] = {
@@ -541,7 +541,7 @@ static const struct Flag_definition INFO_TS_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'I', "Invalidate flag" },                   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition INFO_SRC_FLAGS[] = {
@@ -552,7 +552,7 @@ static const struct Flag_definition INFO_SRC_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition INFO_REPLY_IP4_FLAGS[] = {
@@ -563,7 +563,7 @@ static const struct Flag_definition INFO_REPLY_IP4_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'M', "Multicast flag" },                    /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition INFO_DST_FLAGS[] = {
@@ -574,7 +574,7 @@ static const struct Flag_definition INFO_DST_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition INFO_REPLY_FLAGS[] = {
@@ -585,7 +585,7 @@ static const struct Flag_definition INFO_REPLY_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'M', "Multicast flag" },                    /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition NOKEY_DATA_FRAG_FLAGS[] = {
@@ -596,7 +596,7 @@ static const struct Flag_definition NOKEY_DATA_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition HEARTBEAT_FRAG_FLAGS[] = {
@@ -607,7 +607,7 @@ static const struct Flag_definition HEARTBEAT_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition NACK_FLAGS[] = {
@@ -618,7 +618,7 @@ static const struct Flag_definition NACK_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'F', "Final flag" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition DATA_FRAG_FLAGS[] = {
@@ -629,7 +629,7 @@ static const struct Flag_definition DATA_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { 'H', "Hash key flag" },                     /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition NACK_FRAG_FLAGS[] = {
@@ -640,7 +640,7 @@ static const struct Flag_definition NACK_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition RTPS_DATA_FLAGS[] = {
@@ -651,7 +651,7 @@ static const struct Flag_definition RTPS_DATA_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { 'D', "Data present" },                      /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition RTPS_DATA_FRAG_FLAGS[] = {
@@ -662,7 +662,7 @@ static const struct Flag_definition RTPS_DATA_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition RTPS_DATA_BATCH_FLAGS[] = {
@@ -673,7 +673,7 @@ static const struct Flag_definition RTPS_DATA_BATCH_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
-  { 'E', "Endianess bit" }                      /* Bit 0 */
+  { 'E', "Endianness bit" }                     /* Bit 0 */
 };
 
 static const struct Flag_definition RTPS_SAMPLE_INFO_FLAGS16[] = {

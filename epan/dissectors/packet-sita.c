@@ -111,7 +111,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar	*rx_errors1_str[]	= {"Framing",		"Parity",	"Collision",	"Long-frame",	"Short-frame",	"",			"",		""				};
 	const gchar	*rx_errors2_str[]	= {"Non-Aligned",	"Abort",	"CD-lost",		"DPLL",			"Overrun",		"Length",	"CRC",	"Break"			};
 	/*const gchar	*tx_errors1_str[]	= {"",				"",			"",				"",				"",				"",			"",		""				}; */
-	const gchar	*tx_errors2_str[]	= {"Underun",		"CTS-lost",	"UART",			"ReTx-limit",	"",				"",			"",		""				};
+	const gchar	*tx_errors2_str[]	= {"Underrun",		"CTS-lost",	"UART",			"ReTx-limit",	"",				"",			"",		""				};
 	const gchar	*signals_str[]		= {"DSR",			"DTR",		"CTS",			"RTS",			"DCD",			"",			"",		""				};
 	const gchar	*flags_str[]		= {"",				"",			"",				"",				"",				"",			"",		"No-buffers"	};
 
@@ -238,7 +238,7 @@ proto_register_sita(void)
 		{ &hf_framing,		{ "Framing",		"sita.errors.framing",		FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_FRAMING,			"TRUE if Framing Error",		HFILL }},
 		{ &hf_parity,		{ "Parity",			"sita.errors.parity",		FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_PARITY,			"TRUE if Parity Error",			HFILL }},
 		{ &hf_collision,	{ "Collision",		"sita.errors.collision",	FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_COLLISION,		"TRUE if Collision",			HFILL }},
-		{ &hf_longframe,	{ "Long Frame",		"sita.errors.longfame",		FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_FRAME_LONG,		"TRUE if Long Frame Received",	HFILL }},
+		{ &hf_longframe,	{ "Long Frame",		"sita.errors.longframe",		FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_FRAME_LONG,		"TRUE if Long Frame Received",	HFILL }},
 		{ &hf_shortframe,	{ "Short Frame",	"sita.errors.shortframe",	FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_FRAME_SHORT,		"TRUE if Short Frame",			HFILL }},
 		{ &hf_nonaligned,	{ "NonAligned",		"sita.errors.nonaligned",	FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_RX_NONOCTET_ALIGNED,	"TRUE if NonAligned Frame",		HFILL }},
 		{ &hf_abort,		{ "Abort",			"sita.errors.abort",		FT_BOOLEAN, 8, TFS(&tfs_sita_received),	SITA_ERROR_RX_ABORT,			"TRUE if Abort Received",		HFILL }},

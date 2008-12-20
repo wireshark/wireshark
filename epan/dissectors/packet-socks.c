@@ -225,7 +225,7 @@ static const value_string reply_table_v5[] = {
 };
 
 static const value_string cmd_strings[] = {
-	{0, "Unknow"},
+	{0, "Unknown"},
 	{1, "Connect"},
 	{2, "Bind"},
 	{3, "UdpAssociate"},
@@ -300,7 +300,7 @@ static const char *get_command_name( guint Number){
 
 /* return the name of the command as a string */
 
-	if ( Number == 0) return "Unknow";
+	if ( Number == 0) return "Unknown";
 	if ( Number == 1) return "Connect";
 	if ( Number == 2) return "Bind";
 	if ( Number == 3) return "UdpAssociate";
@@ -874,7 +874,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			if (!pinfo->fd->flags.visited)
 				new_udp_conversation( hash_info, pinfo);
 
-/*XXX may need else statement to handle unknows and generate error message */
+/*XXX may need else statement to handle unknowns and generate error message */
 
 		}
 	}

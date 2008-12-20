@@ -2414,7 +2414,7 @@ proto_register_tipc(void)
 		{ &hf_tipc_org_port,
 			{ "Originating port", "tipc.org_port",
 				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
-				"TIPC Oiginating port", HFILL }
+				"TIPC Originating port", HFILL }
 		},
 		{ &hf_tipc_dst_port,
 			{ "Destination port", "tipc.dst_port",

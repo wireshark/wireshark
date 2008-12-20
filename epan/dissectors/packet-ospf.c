@@ -429,16 +429,16 @@ static const true_false_string tfs_dbd_r = {
 	"OOBResync bit is NOT set"
 };
 static const true_false_string tfs_lls_ext_options_lr = {
-	"LSDB Resynchrinization (LR-bit) is SET",
-	"LSDB Resynchrinization (LR-bit) is NOT set"
+	"LSDB Resynchronization (LR-bit) is SET",
+	"LSDB Resynchronization (LR-bit) is NOT set"
 };
 static const true_false_string tfs_lls_ext_options_rs = {
 	"Restart Signal (RS-bit) is SET",
 	"Restart Signal (RS-bit) is NOT set"
 };
 static const true_false_string tfs_v3_lls_ext_options_lr = {
-	"LSDB Resynchrinization (LR-bit) is SET",
-	"LSDB Resynchrinization (LR-bit) is NOT set"
+	"LSDB Resynchronization (LR-bit) is SET",
+	"LSDB Resynchronization (LR-bit) is NOT set"
 };
 static const true_false_string tfs_v3_lls_ext_options_rs = {
 	"Restart Signal (RS-bit) is SET",

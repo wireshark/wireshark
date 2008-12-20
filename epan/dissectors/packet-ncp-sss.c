@@ -141,7 +141,7 @@ static const value_string sss_msgverb_enum[] _U_ = {
 static const value_string sss_attribute_enum[] _U_ = {
     { 1, "User Name" },
     { 2, "Tree Name" },
-    { 4, "Clearence" },
+    { 4, "Clearance" },
     { 11, "Login Sequence" },
     { 0,          NULL }
 };

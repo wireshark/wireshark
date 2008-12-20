@@ -2368,7 +2368,7 @@ proto_register_per(void)
 		{ "Open Type Length", "per.open_type_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of an open type encoding", HFILL }},
 	{ &hf_per_real_length,
-		{ "Raal Length", "per.real_length", FT_UINT32, BASE_DEC,
+		{ "Real Length", "per.real_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of an real encoding", HFILL }},
 	{ &hf_per_octet_string_length,
 		{ "Octet String Length", "per.octet_string_length", FT_UINT32, BASE_DEC,

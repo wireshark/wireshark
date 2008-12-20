@@ -1450,7 +1450,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	} else {
 		/*
 		 * We didn't create a new tvb, so don't allow sub dissectors
-		 * try to decode the non-existant entity body.
+		 * try to decode the non-existent entity body.
 		 */
 		chunks_decoded = -1;
 	}

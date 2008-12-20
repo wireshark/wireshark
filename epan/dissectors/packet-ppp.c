@@ -613,7 +613,7 @@ static const value_string q931_cause_code_vals[] = {
 	{ 0x60,	"Mandatory information element is missing" },
 	{ 0x61,	"Message type non-existent or not implemented" },
 	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
-	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x63,	"Information element non-existent or not implemented" },
 	{ 0x64,	"Invalid information element contents" },
 	{ 0x65,	"Message not compatible with call state" },
 	{ 0x66,	"Recovery on timer expiry" },

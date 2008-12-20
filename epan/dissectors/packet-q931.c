@@ -1172,7 +1172,7 @@ const value_string q931_cause_code_vals[] = {
 	{ Q931_CAUSE_MAND_IE_MISSING,	"Mandatory information element is missing" },
 	{ Q931_CAUSE_MT_NONEX_OR_UNIMPL,"Message type non-existent or not implemented" },
 	{ 0x62,				"Message not compatible with call state or message type non-existent or not implemented" },
-	{ Q931_CAUSE_IE_NONEX_OR_UNIMPL,"Information element nonexistant or not implemented" },
+	{ Q931_CAUSE_IE_NONEX_OR_UNIMPL,"Information element non-existent or not implemented" },
 	{ Q931_CAUSE_INVALID_IE_CONTENTS,"Invalid information element contents" },
 	{ Q931_CAUSE_MSG_INCOMPAT_W_CS,	"Message not compatible with call state" },
 	{ Q931_CAUSE_REC_TIMER_EXP,	"Recovery on timer expiry" },

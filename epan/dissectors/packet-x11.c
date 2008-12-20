@@ -5303,7 +5303,7 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   "errorcode: %d (%s)",
 				   errorcode,
 				   val_to_str(errorcode, errorcode_vals,
-				   "<Unknown errocode %u>"));
+				   "<Unknown errorcode %u>"));
 	++offset;
 
         proto_item_append_text(ti, ", Error, errorcode: %d (%s)",

@@ -2284,7 +2284,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl)
 void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 {
-    ssl_debug_printf("ssl_change_cipher %s: makes no sence without gnutls. ssl %p\n",
+    ssl_debug_printf("ssl_change_cipher %s: makes no sense without gnutls. ssl %p\n",
         (server)?"SERVER":"CLIENT", ssl_session);
 }
 

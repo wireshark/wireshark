@@ -3041,7 +3041,7 @@ proto_register_vnc(void)
 	/* Register our preferences module */
 	vnc_module = prefs_register_protocol(proto_vnc, proto_reg_handoff_vnc);
 
-	prefs_register_bool_preference(vnc_module, "desegment", "Reassemble VNC messages spanning multiple TCP segments.", "Whether the VNC dissector should reasss emble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &vnc_preference_desegment);
+	prefs_register_bool_preference(vnc_module, "desegment", "Reassemble VNC messages spanning multiple TCP segments.", "Whether the VNC dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &vnc_preference_desegment);
 
 	prefs_register_uint_preference(vnc_module, "alternate_port", "Alternate TCP port", "Decode this port's traffic as VNC in addition to the default ports (5500, 5501, 5900, 5901)", 10, &vnc_preference_alternate_port);
 

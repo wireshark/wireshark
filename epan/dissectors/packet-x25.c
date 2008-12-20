@@ -544,7 +544,7 @@ static const char *clear_diag(unsigned char code)
     if (code == 248)
 	return "Connection rejection - incompatible information in user data";
     if (code == 249)
-	return "Connection rejection - unrecognizable protocol indentifier "
+	return "Connection rejection - unrecognizable protocol identifier "
                "in user data";
     if (code == 250)
 	return "Reset - user resynchronization";

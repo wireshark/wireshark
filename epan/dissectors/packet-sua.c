@@ -173,7 +173,7 @@ static const value_string message_class_type_values[] = {
   { MESSAGE_CLASS_CO_MESSAGE    * 256 + MESSAGE_TYPE_COERR ,        "Connection Oriented Error (COERR)" },
   { MESSAGE_CLASS_CO_MESSAGE    * 256 + MESSAGE_TYPE_COIT ,         "Inactivity Test (COIT)" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_REQ ,      "Registration Request (REG_REQ)" },
-  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_RSP ,      "Registartion Response (REG_RSP)" },
+  { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_REG_RSP ,      "Registration Response (REG_RSP)" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_REQ ,    "Deregistration Request (DEREG_REQ)" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "Deregistration Response (DEREG_RSP)" },
   { 0,                           NULL } };
@@ -478,7 +478,7 @@ static const value_string v8_error_code_values[] = {
   { 0x14, "Destination status unknown" },
   { 0x15, "Invalid network appearance" },
   { 0x16, "Missing parameter" },
-  { 0x17, "Routing key change refuesed" },
+  { 0x17, "Routing key change refused" },
   { 0x18, "Invalid loadsharing label" },
   { 0,    NULL } };
 
@@ -793,7 +793,7 @@ dissect_destination_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tr
 
 static const value_string cause_type_values[] = {
   { 0x1,   "Return Cause" },
-  { 0x2,   "Refusual Cause" },
+  { 0x2,   "Refusal Cause" },
   { 0x3,   "Release Cause" },
   { 0x4,   "Reset Cause" },
   { 0x5,   "Error cause" },
@@ -1160,7 +1160,7 @@ static const value_string nature_of_address_values[] = {
   { UNKNOWN_NATURE_OF_ADDRESS,                     "Unknown" },
   { SUBSCRIBER_NUMBER_NATURE_OF_ADDRESS,           "Subscriber Number" },
   { RESERVED_FOR_NATIONAL_USE_NATURE_OF_ADDRESS,   "Reserved For National Use" },
-  { NATIONAL_SIGNIFICANT_NUMBER_NATURE_OF_ADDRESS, "Natinal Significant Number" },
+  { NATIONAL_SIGNIFICANT_NUMBER_NATURE_OF_ADDRESS, "National Significant Number" },
   { INTERNATION_NUMBER_NATURE_OF_ADDRESS,          "International Number" },
   { 0,                                             NULL } };
 

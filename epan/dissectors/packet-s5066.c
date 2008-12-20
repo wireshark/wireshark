@@ -429,7 +429,7 @@ proto_register_s5066(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_s5066_sync_word,
-			{ "Sync preample", "s5066.sync", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+			{ "Sync preamble", "s5066.sync", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_s5066_version,
 			{ "S5066 version", "s5066.version", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }

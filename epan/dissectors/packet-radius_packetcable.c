@@ -583,7 +583,7 @@ void proto_register_packetcable(void) {
 			"PacketCable QoS Descriptor Attribute Bitmask: Minimum Reserved Traffic Rate", HFILL }
 		},
 		{ &hf_packetcable_qos_desc_flags[9],
-		{ "Minium Packet Size","radius.vendor.pkt.qs.flags.mps",
+		{ "Minimum Packet Size","radius.vendor.pkt.qs.flags.mps",
 			FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MINIMUM_PACKET_SIZE_MASK,
 			"PacketCable QoS Descriptor Attribute Bitmask: Minimum Packet Size", HFILL }
 		},
@@ -663,7 +663,7 @@ void proto_register_packetcable(void) {
 			"PacketCable QoS Descriptor Attribute Minimum Reserved Traffic Rate", HFILL }
 		},
 		{ &hf_packetcable_qos_desc_fields[9],
-		{ "Minium Packet Size","radius.vendor.pkt.qs.mps",
+		{ "Minimum Packet Size","radius.vendor.pkt.qs.mps",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"PacketCable QoS Descriptor Attribute Minimum Packet Size", HFILL }
 		},

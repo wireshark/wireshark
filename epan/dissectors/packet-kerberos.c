@@ -4764,7 +4764,7 @@ proto_register_kerberos(void)
 	    VALS(krb5_transited_types), 0, "Transited Type", HFILL }},
 	{ &hf_krb_transitedcontents, {
 	    "Contents", "kerberos.transited.contents", FT_BYTES, BASE_HEX,
-	    NULL, 0, "Transitent Contents string", HFILL }},
+	    NULL, 0, "Transited Contents string", HFILL }},
 	{ &hf_krb_keytype, {
 	    "Key type", "kerberos.keytype", FT_UINT32, BASE_DEC,
 	    VALS(krb5_encryption_types), 0, "Key Type", HFILL }},

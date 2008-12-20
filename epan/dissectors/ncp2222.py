@@ -5322,7 +5322,7 @@ def define_errors():
     	errors[0x0107] = "Invalid Number of Minutes to Delay"
         errors[0x0108] = "Invalid Start or Network Number"
         errors[0x0109] = "Cannot Obtain License"
-        errors[0x010a] = "No Purgable Files Available"
+        errors[0x010a] = "No Purgeable Files Available"
 
     	errors[0x0200] = "One or more clients in the send list are not logged in"
     	errors[0x0201] = "Queue server cannot attach"
@@ -5426,7 +5426,7 @@ def define_errors():
     	errors[0x9f00] = "The request attempted to delete a directory that is in use by another client"
 
     	errors[0xa000] = "The request attempted to delete a directory that is not empty"
-    	errors[0xa100] = "An unrecoverable error occured on the affected directory"
+    	errors[0xa100] = "An unrecoverable error occurred on the affected directory"
 
     	errors[0xa200] = "The request attempted to read from a file region that is physically locked"
     	errors[0xa201] = "I/O Lock Error"

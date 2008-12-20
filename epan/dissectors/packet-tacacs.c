@@ -1105,7 +1105,7 @@ proto_register_tacplus(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	tacplus_module = prefs_register_protocol (proto_tacplus, tacplus_pref_cb );
 
-        prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reasssemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
+        prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
 
 	prefs_register_string_preference ( tacplus_module, "key",
 	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_opt_key );

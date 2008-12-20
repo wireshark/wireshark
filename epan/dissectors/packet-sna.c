@@ -1933,7 +1933,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 1,
-	    "Transmision Header Byte 1");
+	    "Transmission Header Byte 1");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 1 */
@@ -1950,7 +1950,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 1,
-	    "Transmision Header Byte 2");
+	    "Transmission Header Byte 2");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 2 */
@@ -1971,7 +1971,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 1,
-	    "Transmision Header Byte 3");
+	    "Transmission Header Byte 3");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 3 */
@@ -1985,7 +1985,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 2,
-	    "Transmision Header Bytes 4-5");
+	    "Transmission Header Bytes 4-5");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Bytes 4-5 */
@@ -2005,7 +2005,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 2,
-	    "Transmision Header Bytes 6-7");
+	    "Transmission Header Bytes 6-7");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Bytes 6-7 */
@@ -2039,7 +2039,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, tvb, offset, 2,
-	    "Transmision Header Byte 16");
+	    "Transmission Header Byte 16");
 	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 16 */
@@ -2653,7 +2653,7 @@ proto_register_sna(void)
 		    "TH Byte 0", HFILL }},
 
                 { &hf_sna_th_fid,
-                { "Format Identifer", "sna.th.fid", FT_UINT8, BASE_HEX,
+                { "Format Identifier", "sna.th.fid", FT_UINT8, BASE_HEX,
 		    VALS(sna_th_fid_vals), 0xf0, "", HFILL }},
 
                 { &hf_sna_th_mpf,

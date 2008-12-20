@@ -107,7 +107,7 @@ static const value_string diag_val_vals[] = {
 	{ 10, "Host going down" },
 	{ 11, "Invalid retransmission request" },
 	{ 12, "Context in improper state" },
-	{ 13, "Joing request denied" },
+	{ 13, "Join request denied" },
 	{ 0, NULL }
 };
 

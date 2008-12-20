@@ -726,7 +726,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     case (128+4): str = "Mismatched references"; break;
     case (128+5): str = "Protocol error"; break;
     case (128+7): str = "Reference overflow"; break;
-    case (128+8): str = "Connection requestion refused"; break;
+    case (128+8): str = "Connection request refused"; break;
     case (128+10):str = "Header or parameter length invalid"; break;
     case (0):     str = "Reason not specified"; break;
     case (1):     str = "Congestion at TSAP"; break;

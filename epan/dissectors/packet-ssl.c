@@ -1904,7 +1904,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     }
 
                     ssl_save_session(ssl, ssl_session_hash);
-                    ssl_debug_printf("dissect_ssl3_handshake session keys succesfully generated\n");
+                    ssl_debug_printf("dissect_ssl3_handshake session keys successfully generated\n");
                 }
                 break;
 

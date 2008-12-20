@@ -1923,7 +1923,7 @@ proto_register_uma(void)
 		{ &hf_uma_urr_communication_port,
 			{ "Communication Port","uma.urr.communication_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
-			"Communication Portt", HFILL }
+			"Communication Port", HFILL }
 		},
 		{ &hf_uma_urr_L3_Message,
 			{ "L3 message contents","uma.urr.l3",

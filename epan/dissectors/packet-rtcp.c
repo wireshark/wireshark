@@ -2573,7 +2573,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
      */
     while ( !srtcp_now_encrypted && tvb_bytes_exist( tvb, offset, 4) ) {
         /*
-         * First retreive the packet_type
+         * First retrieve the packet_type
          */
         packet_type = tvb_get_guint8( tvb, offset + 1 );
 
@@ -4373,7 +4373,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_xr_btxnq_jbevents,
 			{
-				"Number of jitter buffer adaptions to date",
+				"Number of jitter buffer adaptations to date",
 				"rtcp.xr.btxnq.jbevents",
 				FT_UINT16,
 				BASE_DEC,
@@ -4409,7 +4409,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_xr_btxnq_tdegjit,
 			{
-				"Time degraded by jitter buffer adaption events",
+				"Time degraded by jitter buffer adaptation events",
 				"rtcp.xr.btxnq.tdegjit",
 				FT_UINT32,
 				BASE_DEC,

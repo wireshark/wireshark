@@ -433,7 +433,7 @@ proto_register_pagp(void)
     { &hf_pagp_flags,
       { "Flags",		"pagp.flags",
 	FT_UINT8,	BASE_HEX,	NULL,	0x0,
-      	"Infomation flags", HFILL }},
+      	"Information flags", HFILL }},
 
     { &hf_pagp_flags_slow_hello,
       { "Slow Hello",		"pagp.flags.slowhello",

@@ -3812,12 +3812,12 @@ void proto_register_rsl(void)
 		{ &hf_rsl_rel_mode,
 			{ "Release Mode",           "rsl.rel_mode",
 			FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,
-			"Relese Mode", HFILL }
+			"Release Mode", HFILL }
 		},
 		{ &hf_rsl_interf_band,
 			{ "Interf Band",           "rsl.interf_band",
 			FT_UINT8, BASE_DEC, NULL, 0xe0,
-			"Relese Mode", HFILL }
+			"Interf Band", HFILL }
 		},
 		{ &hf_rsl_meas_res_no,
 			{ "Measurement result number",           "rsl.meas_res_no",

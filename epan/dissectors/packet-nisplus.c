@@ -886,7 +886,7 @@ static const value_string nis_error[] = {
 #define NIS_NAMEEXISTS		14
 	{	NIS_NAMEEXISTS,		"Can't create over another name"	},
 #define NIS_NOTMASTER		15
-	{	NIS_NOTMASTER,		"I'm justa secondaray, don't ask me"	},
+	{	NIS_NOTMASTER,		"I'm just a secondary, don't ask me"	},
 #define NIS_INVALIDOBJ		16
 	{	NIS_INVALIDOBJ,		"Object is broken somehow"	},
 #define NIS_BADNAME		17

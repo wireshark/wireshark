@@ -531,8 +531,8 @@ proto_register_ymsg(void)
 
 	ymsg_module = prefs_register_protocol(proto_ymsg, NULL);
 	prefs_register_bool_preference(ymsg_module, "desegment",
-				       "Reasssemble YMSG messages spanning multiple TCP segments",
-				       "Whether the YMSG dissector should reasssemble messages spanning multiple TCP segments. "
+				       "Reassemble YMSG messages spanning multiple TCP segments",
+				       "Whether the YMSG dissector should reassemble messages spanning multiple TCP segments. "
 				       "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &ymsg_desegment);
 }

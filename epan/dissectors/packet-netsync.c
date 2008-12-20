@@ -75,7 +75,7 @@ static const value_string netsync_role_vals[] = {
 #define NETSYNC_CMD_SEND_DELTA	9
 #define NETSYNC_CMD_DATA	10
 #define NETSYNC_CMD_DELTA	11
-#define NETSYNC_CMD_NONEXISTANT	12
+#define NETSYNC_CMD_NONEXISTENT	12
 
 static const value_string netsync_cmd_vals[] = {
 	{ NETSYNC_CMD_ERROR,		"Error" },
@@ -90,7 +90,7 @@ static const value_string netsync_cmd_vals[] = {
 	{ NETSYNC_CMD_SEND_DELTA, 	"Send Delta" },
 	{ NETSYNC_CMD_DATA,		"Data" },
 	{ NETSYNC_CMD_DELTA,		"Delta" },
-	{ NETSYNC_CMD_NONEXISTANT, 	"Nonexistant" },
+	{ NETSYNC_CMD_NONEXISTENT, 	"Nonexistent" },
 	{ 0,				NULL }
 };
 
@@ -149,8 +149,8 @@ static int hf_netsync_cmd_send_delta_type = -1;
 static int hf_netsync_cmd_send_delta_base_id = -1;
 static int hf_netsync_cmd_send_delta_ident_id = -1;
 
-static int hf_netsync_cmd_nonexistant_type = -1;
-static int hf_netsync_cmd_nonexistant_id = -1;
+static int hf_netsync_cmd_nonexistent_type = -1;
+static int hf_netsync_cmd_nonexistent_id = -1;
 
 /* Define the tree for netsync */
 static int ett_netsync = -1;
@@ -425,13 +425,13 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 }
 
 
-static gint dissect_netsync_cmd_nonexistant(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
+static gint dissect_netsync_cmd_nonexistent(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	proto_tree_add_item(tree, hf_netsync_cmd_nonexistant_type, tvb,
+	proto_tree_add_item(tree, hf_netsync_cmd_nonexistent_type, tvb,
 				offset, 1, FALSE );
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_netsync_cmd_nonexistant_id, tvb,
+	proto_tree_add_item(tree, hf_netsync_cmd_nonexistent_id, tvb,
 				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
@@ -555,8 +555,8 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_netsync_cmd_delta( tvb, offset, netsync_tree, size );
 				break;
 
-			case NETSYNC_CMD_NONEXISTANT:
-				dissect_netsync_cmd_nonexistant( tvb, offset, netsync_tree, size );
+			case NETSYNC_CMD_NONEXISTENT:
+				dissect_netsync_cmd_nonexistent( tvb, offset, netsync_tree, size );
 				break;
 
 			default:
@@ -728,12 +728,12 @@ proto_register_netsync(void)
 			{ "Ident ID", "netsync.cmd.send_delta.ident_id",
 			  FT_BYTES, BASE_DEC, NULL, 0x0,
 			  "Ident ID", HFILL } },
-		{ &hf_netsync_cmd_nonexistant_id,
-			{ "ID", "netsync.cmd.nonexistant.id",
+		{ &hf_netsync_cmd_nonexistent_id,
+			{ "ID", "netsync.cmd.nonexistent.id",
 			  FT_BYTES, BASE_DEC, NULL, 0x0,
 			  "ID", HFILL } },
-		{ &hf_netsync_cmd_nonexistant_type,
-			{ "Type", "netsync.cmd.nonexistant.type",
+		{ &hf_netsync_cmd_nonexistent_type,
+			{ "Type", "netsync.cmd.nonexistent.type",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  "Type", HFILL } },
 		{ &hf_netsync_cmd_done_type,

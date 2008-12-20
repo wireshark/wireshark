@@ -582,7 +582,7 @@ static const value_string vals_parm_LUR[] = {
 };
 
 static const value_string vals_parm_LRR[] = {
-    {  '1', "Leg. code for repitition requested" },
+    {  '1', "Leg. code for repetition requested" },
     {  0, NULL },
 };
 
@@ -620,7 +620,7 @@ static const value_string vals_parm_REQ_OT[] = {
 
 static const value_string vals_parm_SSTAT[] = {
     {  '0', "All services" },
-    {  '1', "All in the moment active servics" },
+    {  '1', "All in the moment active services" },
     {  '2', "Call diversion" },
     {  '3', "Roaming information status" },
     {  '4', "Call barring status" },
@@ -2119,7 +2119,7 @@ proto_register_ucp(void)
 	{ &hf_ucp_parm_LRR,
 	    { "LRR", "ucp.parm.LRR",
 	      FT_UINT8, BASE_DEC, VALS(vals_parm_LRR), 0x00,
-	      "Leg. code for repitition flag.",
+	      "Leg. code for repetition flag.",
 	      HFILL
 	    }
 	},
@@ -2217,14 +2217,14 @@ proto_register_ucp(void)
 	{ &hf_ucp_parm_RP,
 	    { "RP", "ucp.parm.RP",
 	      FT_UINT8, BASE_DEC, VALS(vals_parm_RP), 0x00,
-	      "Repitition requested.",
+	      "Repetition requested.",
 	      HFILL
 	    }
 	},
 	{ &hf_ucp_parm_LRP,
 	    { "LRP", "ucp.parm.LRP",
 	      FT_STRING, BASE_DEC, NULL, 0x00,
-	      "Legitimisation code for repitition.",
+	      "Legitimisation code for repetition.",
 	      HFILL
 	    }
 	},
@@ -2679,7 +2679,7 @@ proto_register_ucp(void)
 	{ &hf_ucp_parm_MVP,
 	    { "MVP", "ucp.parm.MVP",
 	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
-	      "Mofified validity period.",
+	      "Modified validity period.",
 	      HFILL
 	    }
 	},

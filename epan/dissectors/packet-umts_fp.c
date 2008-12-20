@@ -3417,7 +3417,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_rach_measurement_result,
             { "RACH Measurement Result",
-              "fp.rach-meansurement-result", FT_UINT16, BASE_DEC, 0, 0x0,
+              "fp.rach-measurement-result", FT_UINT16, BASE_DEC, 0, 0x0,
               "RACH Measurement Result", HFILL
             }
         },

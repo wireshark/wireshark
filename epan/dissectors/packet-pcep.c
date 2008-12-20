@@ -1882,10 +1882,10 @@ dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offs
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+2, 1, "Flags: 0x%02x", flags);
 
 	max_LSP = tvb_get_guint8(tvb, offset2+3);
-	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Maximun Number of TE LSPs: 0x%02x", max_LSP);
+	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Maximum Number of TE LSPs: 0x%02x", max_LSP);
 
 	min_bandwidth = tvb_get_ntohl(tvb, offset2+4);
-	proto_tree_add_text(pcep_object_tree, tvb, offset2+4, 4, "Minimun Bandwidth: 0x%08x", min_bandwidth);
+	proto_tree_add_text(pcep_object_tree, tvb, offset2+4, 4, "Minimum Bandwidth: 0x%08x", min_bandwidth);
 }
 
 /*------------------------------------------------------------------------------

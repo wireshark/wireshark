@@ -1830,7 +1830,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* %requested_feedback_location */
 			if ((msg_length-1) < offset){
 				item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, 0, -1,
-						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initalized to Zero");
+						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
 				PROTO_ITEM_SET_GENERATED(item2);
 				return;
 			}
@@ -1841,7 +1841,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			/* returned_parameters_location */
 			if ((msg_length-1) < offset){
 				item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset-1, -1,
-						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initalized to Zero");
+						"All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
 				PROTO_ITEM_SET_GENERATED(item2);
 				return;
 			}
@@ -1897,14 +1897,14 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 					udvm_tvb, start_offset, len, value);
 			}else{
 				item2 = proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, 1,
-						"state_retention_priority = 0(Not in the uploaded code as UDVM buffer initalized to Zero");
+						"state_retention_priority = 0(Not in the uploaded code as UDVM buffer initialized to Zero");
 				PROTO_ITEM_SET_GENERATED(item2);
 			}
 			if ( tvb_reported_length_remaining(udvm_tvb, offset) != 0 ){
 				len = tvb_reported_length_remaining(udvm_tvb, offset);
 				UDVM_address = start_address + offset;
 				proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, len,
-						"Remaning %u bytes starting at UDVM addr %u (0x%x)- State information ?",len, UDVM_address, UDVM_address);
+						"Remaining %u bytes starting at UDVM addr %u (0x%x)- State information ?",len, UDVM_address, UDVM_address);
 			}
 			offset = offset + tvb_reported_length_remaining(udvm_tvb, offset);			
 			break;

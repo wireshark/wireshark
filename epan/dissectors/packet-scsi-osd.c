@@ -55,7 +55,7 @@ static int hf_scsi_osd_get_attributes_page	= -1;
 static int hf_scsi_osd_get_attributes_allocation_length	= -1;
 static int hf_scsi_osd_get_attributes_list_length= -1;
 static int hf_scsi_osd_get_attributes_list_offset= -1;
-static int hf_scsi_osd_retreived_attributes_offset = -1;
+static int hf_scsi_osd_retrieved_attributes_offset = -1;
 static int hf_scsi_osd_set_attributes_page	= -1;
 static int hf_scsi_osd_set_attribute_length	= -1;
 static int hf_scsi_osd_set_attribute_number	= -1;
@@ -180,7 +180,7 @@ typedef struct _scsi_osd_extra_data_t {
 			guint32 get_list_length;
 			guint32 get_list_offset;
 			guint32 get_list_allocation_length;
-			guint32 retreived_list_offset;
+			guint32 retrieved_list_offset;
 			guint32 set_list_length;
 			guint32 set_list_offset;
 		} al;
@@ -237,9 +237,9 @@ static const value_string attributes_page_vals[] = {
 
 
 static const value_string attributes_list_type_vals[] = {
-    {0x01,	"Retreive attributes for this OSD object"},
-    {0x09,	"Retreive/Set attributes for this OSD object"},
-    {0x0f,	"Retreive attributes for a CREATE command"},
+    {0x01,	"Retrieve attributes for this OSD object"},
+    {0x09,	"Retrieve/Set attributes for this OSD object"},
+    {0x0f,	"Retrieve attributes for a CREATE command"},
     {0,NULL}
 };
 
@@ -321,7 +321,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 			offset+=8;
 
 			/* fallthrough to the next case */
-		case 0x09: /* retreived/set attributes 7.1.3.3 */
+		case 0x09: /* retrieved/set attributes 7.1.3.3 */
 			/* attributes page */
 			page=tvb_get_ntohl(tvb, offset);
 			proto_tree_add_item(tree, hf_scsi_osd_attributes_page, tvb, offset, 4, 0);
@@ -480,7 +480,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		offset+=4;
 		proto_tree_add_item(tree, hf_scsi_osd_get_attributes_allocation_length, tvb, offset, 4, 0);
 		offset+=4;
-		proto_tree_add_item(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, 0);
+		proto_tree_add_item(tree, hf_scsi_osd_retrieved_attributes_offset, tvb, offset, 4, 0);
 		offset+=4;
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_page, tvb, offset, 4, 0);
 		offset+=4;
@@ -508,10 +508,10 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		offset+=4;
 
 		/* 4.12.5 */
-		extra_data->u.al.retreived_list_offset=tvb_get_ntohl(tvb, offset);
-		extra_data->u.al.retreived_list_offset=(extra_data->u.al.retreived_list_offset&0x0fffffff)<<((extra_data->u.al.retreived_list_offset>>28)&0x0f);
-		extra_data->u.al.retreived_list_offset<<=8;
-		proto_tree_add_uint(tree, hf_scsi_osd_retreived_attributes_offset, tvb, offset, 4, extra_data->u.al.retreived_list_offset);
+		extra_data->u.al.retrieved_list_offset=tvb_get_ntohl(tvb, offset);
+		extra_data->u.al.retrieved_list_offset=(extra_data->u.al.retrieved_list_offset&0x0fffffff)<<((extra_data->u.al.retrieved_list_offset>>28)&0x0f);
+		extra_data->u.al.retrieved_list_offset<<=8;
+		proto_tree_add_uint(tree, hf_scsi_osd_retrieved_attributes_offset, tvb, offset, 4, extra_data->u.al.retrieved_list_offset);
 		offset+=4;
 
 		proto_tree_add_item(tree, hf_scsi_osd_set_attributes_list_length, tvb, offset, 4, 0);
@@ -578,7 +578,7 @@ dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_,
 		break;
 	case 3: /* 5.2.2.3  attribute list */
 		if(extra_data->u.al.get_list_allocation_length){
-			dissect_osd_attributes_list(pinfo, tvb, extra_data->u.al.retreived_list_offset, tree);
+			dissect_osd_attributes_list(pinfo, tvb, extra_data->u.al.retrieved_list_offset, tree);
 		}
 		break;
 	}
@@ -2994,8 +2994,8 @@ proto_register_scsi_osd(void)
         { &hf_scsi_osd_get_attributes_allocation_length,
           {"Get Attributes Allocation Length", "scsi.osd.get_attributes_allocation_length", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
-        { &hf_scsi_osd_retreived_attributes_offset,
-          {"Retreived Attributes Offset", "scsi.osd.retreived_attributes_offset", FT_UINT32, BASE_HEX,
+        { &hf_scsi_osd_retrieved_attributes_offset,
+          {"Retrieved Attributes Offset", "scsi.osd.retrieved_attributes_offset", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_osd_set_attributes_page,
           {"Set Attributes Page", "scsi.osd.set_attributes_page", FT_UINT32, BASE_HEX,

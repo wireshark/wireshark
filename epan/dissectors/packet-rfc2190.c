@@ -497,7 +497,7 @@ proto_register_rfc2190(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"Reserved field that houls contain zeroes", HFILL
+				"Reserved field that should contain zeroes", HFILL
 			}
 		},
 		{

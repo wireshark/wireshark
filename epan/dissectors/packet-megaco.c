@@ -2850,7 +2850,7 @@ static const value_string MEGACO_error_code_vals[] = {
 	{518, "Event buffer full"},
 	{519, "Out of space to store digit map"},
 	{520, "Digit Map undefined in the MG"},
-	{521, "Termination is ServiceChangeing"},
+	{521, "Termination is ServiceChanging"},
 	{526, "Insufficient bandwidth"},
 	{529, "Internal hardware failure in MG"},
 	{530, "Temporary Network failure"},

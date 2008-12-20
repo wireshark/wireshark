@@ -3950,24 +3950,24 @@ proto_register_netflow(void)
 		  "Flow Source Network", HFILL}
 		},
 		{&hf_cflow_ignore_packets,
-		 {"Ignoreed Packets", "cflow.ignore_packets",
+		 {"Ignored Packets", "cflow.ignore_packets",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Count of ignoreed packets", HFILL}
+		  "Count of ignored packets", HFILL}
 		},
 		{&hf_cflow_ignore_packets64,
-		 {"Ignoreed Packets", "cflow.ignore_packets64",
+		 {"Ignored Packets", "cflow.ignore_packets64",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Count of ignoreed packets", HFILL}
+		  "Count of ignored packets", HFILL}
 		},
 		{&hf_cflow_ignore_octets,
-		 {"Ignoreed Octets", "cflow.ignore_octets",
+		 {"Ignored Octets", "cflow.ignore_octets",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Count of ignoreed octets", HFILL}
+		  "Count of ignored octets", HFILL}
 		},
 		{&hf_cflow_ignore_octets64,
-		 {"Ignoreed Octets", "cflow.ignore_octets64",
+		 {"Ignored Octets", "cflow.ignore_octets64",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Count of ignoreed octets", HFILL}
+		  "Count of ignored octets", HFILL}
 		},
 		{&hf_cflow_notsent_flows,
 		 {"Not Sent Flows", "cflow.notsent_flows",

@@ -370,9 +370,9 @@ static const value_string scsi_spc_vals[] = {
 
 static const value_string log_flags_tmc_vals[] = {
     {0, "Every update of the cumulative value"},
-    {1, "Cumulative value equal to treshold value"},
-    {2, "Cumulative value not equal to treshold value"},
-    {3, "Cumulative value greater than treshold value"},
+    {1, "Cumulative value equal to threshold value"},
+    {2, "Cumulative value not equal to threshold value"},
+    {3, "Cumulative value greater than threshold value"},
     {0, NULL},
 };
 
@@ -682,7 +682,7 @@ log_parameter_2e_0026(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(tree, hf_scsi_log_ta_pefa, tvb, 0, 1, 0);
 }
 
-/* TapeAlert page : diagnostics requiured flag */
+/* TapeAlert page : diagnostics required flag */
 static void
 log_parameter_2e_0027(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -813,7 +813,7 @@ static const log_page_parameters_t tape_alert_log_parameters[] = {
     {0x0024,    "drive temperature", log_parameter_2e_0024},
     {0x0025,    "drive voltage", log_parameter_2e_0025},
     {0x0026,    "periodic failure", log_parameter_2e_0026},
-    {0x0027,    "diagnostics requiured", log_parameter_2e_0027},
+    {0x0027,    "diagnostics required", log_parameter_2e_0027},
     {0x0032,    "lost statistics", log_parameter_2e_0032},
     {0x0033,    "tape directory invalid at unload", log_parameter_2e_0033},
     {0x0034,    "tape system area write failure", log_parameter_2e_0034},
@@ -5084,7 +5084,7 @@ proto_register_scsi (void)
           {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
            VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
         { &hf_scsi_inq_peripheral,
-          {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
+          {"Peripheral", "scsi.inquiry.peripheral", FT_UINT8, BASE_HEX,
            NULL, 0, "", HFILL}},
         { &hf_scsi_inq_vendor_id,
           {"Vendor Id", "scsi.inquiry.vendor_id", FT_STRING, BASE_NONE,
@@ -5477,7 +5477,7 @@ proto_register_scsi (void)
           {"periodic failure", "scsi.log.ta.pefa", FT_BOOLEAN, 8, NULL, 0x01,
            "", HFILL}},
         { &hf_scsi_log_ta_dire,
-          {"diagnostics requiured", "scsi.log.ta.dire", FT_BOOLEAN, 8, NULL, 0x01,
+          {"diagnostics required", "scsi.log.ta.dire", FT_BOOLEAN, 8, NULL, 0x01,
            "", HFILL}},
         { &hf_scsi_log_ta_lost,
           {"lost statistics", "scsi.log.ta.lost", FT_BOOLEAN, 8, NULL, 0x01,
