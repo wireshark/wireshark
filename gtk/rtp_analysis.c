@@ -2758,13 +2758,14 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to clist */
+#define RTP_FIELD_MAX 40
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
                          double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, GdkColor *bg_color)
 {
 	guint added_row;
 	gchar *data[9];
-	gchar field[9][32];
+	gchar field[9][RTP_FIELD_MAX];
 	char *savelocale;
 	GdkColor fg_color = COLOR_FOREGROUND;
 
@@ -2783,15 +2784,15 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 	/* switch to "C" locale to avoid problems with localized decimal separators
 		in g_snprintf("%f") functions */
 	setlocale(LC_NUMERIC, "C");
-	g_snprintf(field[0], 20, "%u", number);
-	g_snprintf(field[1], 20, "%u", seq_num);
-	g_snprintf(field[2], 20, "%.2f", delta);
-	g_snprintf(field[3], 20, "%.2f", jitter);
-	g_snprintf(field[4], 20, "%.2f", bandwidth);
-	g_snprintf(field[5], 20, "%s", marker? "SET" : "");
-	g_snprintf(field[6], 40, "%s", status);
-	g_snprintf(field[7], 32, "%s", timeStr);
-	g_snprintf(field[8], 20, "%u", pkt_len);
+	g_snprintf(field[0], RTP_FIELD_MAX, "%u", number);
+	g_snprintf(field[1], RTP_FIELD_MAX, "%u", seq_num);
+	g_snprintf(field[2], RTP_FIELD_MAX, "%.2f", delta);
+	g_snprintf(field[3], RTP_FIELD_MAX, "%.2f", jitter);
+	g_snprintf(field[4], RTP_FIELD_MAX, "%.2f", bandwidth);
+	g_snprintf(field[5], RTP_FIELD_MAX, "%s", marker? "SET" : "");
+	g_snprintf(field[6], RTP_FIELD_MAX, "%s", status);
+	g_snprintf(field[7], RTP_FIELD_MAX, "%s", timeStr);
+	g_snprintf(field[8], RTP_FIELD_MAX, "%u", pkt_len);
 	/* restore previous locale setting */
 	setlocale(LC_NUMERIC, savelocale);
 

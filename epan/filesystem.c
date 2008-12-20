@@ -951,7 +951,7 @@ get_persconffile_dir(const gchar *profilename)
 	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (),
 						      G_DIR_SEPARATOR_S, profilename);
 	} else {
-	  persconffile_profile_dir = g_strdup (get_persconffile_dir_no_profile ());
+	  persconffile_profile_dir = g_strdup ("%s", get_persconffile_dir_no_profile ());
 	}
 
 	return persconffile_profile_dir;
