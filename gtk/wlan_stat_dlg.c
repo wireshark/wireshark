@@ -1300,7 +1300,7 @@ wlanstat_dlg_create (void)
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 /* 	gtk_button_set_label(GTK_BUTTON(copy_bt), "Copy Overview"); */
 	gtk_tooltips_set_tip(tooltips, copy_bt,
-			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+			     "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

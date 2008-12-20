@@ -741,7 +741,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 

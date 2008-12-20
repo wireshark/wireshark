@@ -226,7 +226,7 @@ gui_prefs_show(void)
 	save_maximized_cb = create_preference_check_button(main_tb, pos++,
 	    "Save maximized state:", NULL, prefs.gui_geometry_save_maximized);
 	gtk_tooltips_set_tip(tooltips, save_maximized_cb, "Whether to save the "
-		"maximed state of the main window.", NULL);
+		"maximized state of the main window.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 #ifdef HAVE_IGE_MAC_INTEGRATION

@@ -83,7 +83,7 @@ static const value_string radius_message_code[] = {
   {  2,	"Accounting"},
   {  3,	"Access Password"},
   {  4, "Ascend Access Event"},
-  {  5, "Diconnect"},
+  {  5, "Disconnect"},
   {  6, "Change Filter"},
   {  7, "Other"},
   {  0, NULL}

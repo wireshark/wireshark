@@ -779,7 +779,7 @@ static void rtpstream_dlg_create (void)
     bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
     gtk_tooltips_set_tip(tooltips, bt_copy, 
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
 
     bt_analyze = gtk_button_new_with_label ("Analyze");
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);

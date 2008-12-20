@@ -2213,7 +2213,7 @@ init_io_stat_window(io_stat_t *io)
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt,
-			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
+			     "Copy values from selected graphs to the clipboard in CSV (Comma Separated Values) format", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
 	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
