@@ -430,7 +430,7 @@ fvalue_to_string_repr
 g_resolv_flags                  DATA
 GatekeeperRejectReason_vals     DATA
 gcamel_StatSRT                  DATA
-geoip_get_paths
+geoip_db_get_paths
 get_addr_name
 get_asn1_ctx
 get_basename
