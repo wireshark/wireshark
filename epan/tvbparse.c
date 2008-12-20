@@ -1137,7 +1137,7 @@ tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
             w->control.number.value.i = va_arg(ap,gdouble);
             break;
         default:
-            g_assert(! "comparision unsupported");
+            g_assert(! "comparison unsupported");
     }
 
     w->control.number.extract = extracts[little_endian][ftenum];

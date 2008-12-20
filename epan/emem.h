@@ -230,12 +230,12 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
 #define se_tree_insert32 emem_tree_insert32
 
 /* se_tree_lookup32 
- * Retreive the data at the search key. the search key is a 32bit integer value
+ * Retrieve the data at the search key. the search key is a 32bit integer value
  */
 #define se_tree_lookup32 emem_tree_lookup32
 
 /* se_tree_lookup32_le
- * Retreive the data for the largest key that is less than or equal
+ * Retrieve the data for the largest key that is less than or equal
  * to the search key.
  */
 #define se_tree_lookup32_le emem_tree_lookup32_le

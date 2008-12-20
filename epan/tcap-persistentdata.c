@@ -1011,7 +1011,7 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   default:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"Unknow %d ", p_tcapsrt_info->ope);
+    dbg(1,"Unknown %d ", p_tcapsrt_info->ope);
 #endif
     break;
   } /* switch tcapop */

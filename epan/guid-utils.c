@@ -118,7 +118,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 }
 
 
-/* retreive the registered name for this GUID */
+/* retrieve the registered name for this GUID */
 const gchar *
 guids_get_guid_name(e_guid_t *guid)
 {

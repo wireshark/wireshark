@@ -98,7 +98,7 @@ const value_string result_code_vals[] = {
 	{ 3,	"state_begin + state_length > size of state" },
 	{ 4,	"Operand_2 is Zero" },
 	{ 5,	"Switch statement failed j >= n" },
-	{ 6,	"Atempt to jump outside of UDVM memory" },
+	{ 6,	"Attempt to jump outside of UDVM memory" },
 	{ 7,	"L in input-bits > 16" },
 	{ 8,	"input_bit_order > 7" },
 	{ 9,	"Instruction Decompression failure encountered" },
@@ -106,7 +106,7 @@ const value_string result_code_vals[] = {
 	{11,	"Input bits requested beyond end of message" },
 	{12,	"more than four state creation requests are made before the END-MESSAGE instruction" },
 	{13,	"state_retention_priority is 65535" },
-	{14,	"Input bytes requested beond end of message" },
+	{14,	"Input bytes requested beyond end of message" },
 	{15,	"Maximum number of UDVM cycles reached" },
 	{16,	"UDVM stack underflow" },
 	{ 255,	"This branch isn't coded yet" },
@@ -3205,7 +3205,7 @@ decomp_dispatch_get_bits(
 			octet = tvb_get_guint8(message_tvb, *input_address);
 			if (print_level_1 ){
 				proto_tree_add_text(udvm_tree, message_tvb, *input_address , 1,
-						"               Geting value: %u (0x%x) From Addr: %u", octet, octet, *input_address);
+						"               Getting value: %u (0x%x) From Addr: %u", octet, octet, *input_address);
 			}
 			*input_address = *input_address + 1;
 
