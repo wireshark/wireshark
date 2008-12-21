@@ -246,6 +246,7 @@ raw_pipe_open(const char *pipe_name)
   struct stat pipe_stat;
 #else
   char *pncopy, *pos;
+  DWORD err;
   wchar_t *err_str;
   HANDLE hPipe = NULL;
 #endif
@@ -268,9 +269,8 @@ raw_pipe_open(const char *pipe_name)
   } else {
 #ifndef _WIN32
     if (ws_stat(pipe_name, &pipe_stat) < 0) {
-      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-        "The capture session could not be initiated "
-        "due to error on pipe: %s", strerror(errno));
+      fprintf(stderr, "rawshark: The pipe %s could not be checked: %s\n",
+              pipe_name, strerror(errno));
       return -1;
     }
     if (! S_ISFIFO(pipe_stat.st_mode)) {
@@ -281,17 +281,15 @@ raw_pipe_open(const char *pipe_name)
          */
       } else
       {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "The capture session could not be initiated because\n"
-            "\"%s\" is neither an interface nor a pipe", pipe_name);
+        fprintf(stderr, "rawshark: \"%s\" is neither an interface nor a pipe\n",
+	        pipe_name);
       }
       return -1;
     }
     rfd = ws_open(pipe_name, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
     if (rfd == -1) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "The capture session could not be initiated "
-          "due to error on pipe open: %s", strerror(errno));
+        fprintf(stderr, "rawshark: \"%s\" could not be opened: %s\n",
+                pipe_name, strerror(errno));
       return -1;
     }
 #else /* _WIN32 */
@@ -309,9 +307,8 @@ raw_pipe_open(const char *pipe_name)
     g_free(pncopy);
 
     if (!pos) {
-      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "The capture session could not be initiated because\n"
-          "\"%s\" is neither an interface nor a pipe", pipe_name);
+      fprintf(stderr, "rawshark: \"%s\" is neither an interface nor a pipe\n",
+              pipe_name);
       return -1;
     }
 
@@ -323,24 +320,22 @@ raw_pipe_open(const char *pipe_name)
       if (hPipe != INVALID_HANDLE_VALUE)
         break;
 
-      if (GetLastError() != ERROR_PIPE_BUSY) {
+      err = GetLastError();
+      if (err != ERROR_PIPE_BUSY) {
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-          NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-          g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "The capture session on \"%s\" could not be initiated "
-            "due to error on pipe open: pipe busy: %s (error %d)",
-	    pipe_name, utf_16to8(err_str), GetLastError());
+          NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
+        fprintf(stderr, "rawshark: \"%s\" could not be opened: %s (error %d)\n",
+	    pipe_name, utf_16to8(err_str), err);
         LocalFree(err_str);
         return -1;
       }
 
       if (!WaitNamedPipe(utf_8to16(pipe_name), 30 * 1000)) {
+      	err = GetLastError();
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-          NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-          g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "The capture session could not be initiated "
-            "due to error on pipe open: %s (error %d)",
-	    utf_16to8(err_str), GetLastError());
+          NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
+        fprintf(stderr, "rawshark: \"%s\" could not be waited for: %s (error %d)\n",
+	    pipe_name, utf_16to8(err_str), err);
         LocalFree(err_str);
         return -1;
       }
@@ -348,9 +343,8 @@ raw_pipe_open(const char *pipe_name)
 
     rfd = _open_osfhandle((long) hPipe, _O_RDONLY);
     if (rfd == -1) {
-      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "The capture session could not be initiated "
-          "due to error on pipe open: %s", strerror(errno));
+      fprintf(stderr, "rawshark: \"%s\" could not be opened: %s\n",
+              pipe_name, strerror(errno));
       return -1;
     }
 #endif /* _WIN32 */
@@ -368,7 +362,9 @@ raw_pipe_open(const char *pipe_name)
 static gboolean
 set_link_type(const char *lt_arg) {
   char *spec_ptr = strchr(lt_arg, ':');
+  char *p;
   int dlt_val;
+  long val;
   dissector_handle_t dhandle;
   GString *pref_str;
 
@@ -379,18 +375,19 @@ set_link_type(const char *lt_arg) {
 
   if (strncmp(lt_arg, "encap:", strlen("encap:")) == 0) {
     dlt_val = linktype_name_to_val(spec_ptr);
-    if (dlt_val >= 0) {
-      encap = dlt_val;
-      return TRUE;
-    }
-    dlt_val = strtol(spec_ptr, NULL, 10);
-    if (errno != EINVAL && dlt_val >= 0) {
-      encap = wtap_pcap_encap_to_wtap_encap(dlt_val);
-      if (encap == WTAP_ENCAP_UNKNOWN) {
+    if (dlt_val == -1) {
+      errno = 0;
+      val = strtol(spec_ptr, &p, 10);
+      if (p == spec_ptr || *p != '\0' || errno != 0 || val > INT_MAX) {
         return FALSE;
       }
-      return TRUE;
+      dlt_val = (int)val;
     }
+    encap = wtap_pcap_encap_to_wtap_encap(dlt_val);
+    if (encap == WTAP_ENCAP_UNKNOWN) {
+      return FALSE;
+    }
+    return TRUE;
   } else if (strncmp(lt_arg, "proto:", strlen("proto:")) == 0) {
     dhandle = find_dissector(spec_ptr);
     if (dhandle) {
@@ -798,7 +795,7 @@ main(int argc, char *argv[])
         epan_cleanup();
         exit(2);
       }
-	  n_rfcodes++;
+      n_rfcodes++;
     }
   }
 
