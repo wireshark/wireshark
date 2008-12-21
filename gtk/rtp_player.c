@@ -1840,6 +1840,9 @@ on_bt_stop_clicked(GtkButton *button _U_, gpointer user_data _U_)
 static void
 rtp_player_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 {
+	PaError err;
+	GtkWidget *dialog;
+
 	/* Stop the channels if necesary */
 	if(rtp_channels && (!rtp_channels->stop)){
 		stop_channels();
@@ -1851,7 +1854,16 @@ rtp_player_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 	g_free(rtp_channels);
 	rtp_channels = NULL;
 
+	/* Terminate the use of PortAudio library */
+	err = Pa_Terminate();
 	initialized = FALSE;
+	if( err != paNoError ) {
+		dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+							  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+							  "Can not terminate the PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+	}
 
 	gtk_widget_destroy(rtp_player_dlg_w);
 	main_scrolled_window = NULL;
