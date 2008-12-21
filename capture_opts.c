@@ -536,17 +536,12 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
     case 'y':        /* Set the pcap data link type */
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = linktype_name_to_val(optarg);
         if (capture_opts->linktype == -1) {
           cmdarg_err("The specified data link type \"%s\" isn't valid",
                   optarg);
           return 1;
         }
-#else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
-        /* we can't get the type name, just treat it as a number */
-        capture_opts->linktype = get_natural_int(optarg, "data link type");
-#endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         break;
     default:
         /* the caller is responsible to send us only the right opt's */

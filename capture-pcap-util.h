@@ -100,12 +100,8 @@ int get_pcap_linktype(pcap_t *pch, const char *devname);
 const char *set_pcap_linktype(pcap_t *pch, char *devname, int dlt);
 
 
-#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 const char *linktype_val_to_name(int dlt);
-#endif
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
 int linktype_name_to_val(const char *linktype);
-#endif
 
 #ifdef __cplusplus
 }

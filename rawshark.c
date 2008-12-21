@@ -378,13 +378,11 @@ set_link_type(const char *lt_arg) {
   spec_ptr++;
 
   if (strncmp(lt_arg, "encap:", strlen("encap:")) == 0) {
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
     dlt_val = linktype_name_to_val(spec_ptr);
     if (dlt_val >= 0) {
       encap = dlt_val;
       return TRUE;
     }
-#endif
     dlt_val = strtol(spec_ptr, NULL, 10);
     if (errno != EINVAL && dlt_val >= 0) {
       encap = wtap_pcap_encap_to_wtap_encap(dlt_val);

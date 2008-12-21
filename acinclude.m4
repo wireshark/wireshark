@@ -521,6 +521,7 @@ install a newer version of the header file.])
 	  AC_DEFINE(HAVE_PCAP_FINDALLDEVS, 1,
 	   [Define to 1 if you have the `pcap_findalldevs' function and a pcap.h that declares pcap_if_t.])
 	  AC_CHECK_FUNCS(pcap_datalink_val_to_name pcap_datalink_name_to_val)
+	  AC_CHECK_FUNCS(pcap_datalink_val_to_description)
 	  AC_CHECK_FUNCS(pcap_list_datalinks pcap_set_datalink pcap_lib_version)
 	  AC_CHECK_FUNCS(pcap_get_selectable_fd pcap_free_datalinks)
 	fi

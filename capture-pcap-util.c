@@ -351,6 +351,95 @@ free_interface_list(GList *if_list)
 	g_list_free(if_list);
 }
 
+#if !defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) || !defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) || !defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION)
+struct dlt_choice {
+	const char *name;
+	const char *description;
+	int	dlt;
+};
+
+#define DLT_CHOICE(code, description) { #code, description, code }
+#define DLT_CHOICE_SENTINEL { NULL, NULL, 0 }
+
+static struct dlt_choice dlt_choices[] = {
+	DLT_CHOICE(DLT_NULL, "BSD loopback"),
+	DLT_CHOICE(DLT_EN10MB, "Ethernet"),
+	DLT_CHOICE(DLT_IEEE802, "Token ring"),
+	DLT_CHOICE(DLT_ARCNET, "ARCNET"),
+	DLT_CHOICE(DLT_SLIP, "SLIP"),
+	DLT_CHOICE(DLT_PPP, "PPP"),
+	DLT_CHOICE(DLT_FDDI, "FDDI"),
+	DLT_CHOICE(DLT_ATM_RFC1483, "RFC 1483 IP-over-ATM"),
+	DLT_CHOICE(DLT_RAW, "Raw IP"),
+	DLT_CHOICE(DLT_SLIP_BSDOS, "BSD/OS SLIP"),
+	DLT_CHOICE(DLT_PPP_BSDOS, "BSD/OS PPP"),
+	DLT_CHOICE(DLT_ATM_CLIP, "Linux Classical IP-over-ATM"),
+	DLT_CHOICE(DLT_PPP_SERIAL, "PPP over serial"),
+	DLT_CHOICE(DLT_PPP_ETHER, "PPPoE"),
+	DLT_CHOICE(DLT_C_HDLC, "Cisco HDLC"),
+	DLT_CHOICE(DLT_IEEE802_11, "802.11"),
+	DLT_CHOICE(DLT_FRELAY, "Frame Relay"),
+	DLT_CHOICE(DLT_LOOP, "OpenBSD loopback"),
+	DLT_CHOICE(DLT_ENC, "OpenBSD encapsulated IP"),
+	DLT_CHOICE(DLT_LINUX_SLL, "Linux cooked"),
+	DLT_CHOICE(DLT_LTALK, "Localtalk"),
+	DLT_CHOICE(DLT_PFLOG, "OpenBSD pflog file"),
+	DLT_CHOICE(DLT_PRISM_HEADER, "802.11 plus Prism header"),
+	DLT_CHOICE(DLT_IP_OVER_FC, "RFC 2625 IP-over-Fibre Channel"),
+	DLT_CHOICE(DLT_SUNATM, "Sun raw ATM"),
+	DLT_CHOICE(DLT_IEEE802_11_RADIO, "802.11 plus BSD radio information header"),
+	DLT_CHOICE(DLT_APPLE_IP_OVER_IEEE1394, "Apple IP-over-IEEE 1394"),
+	DLT_CHOICE(DLT_ARCNET_LINUX, "Linux ARCNET"),
+	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
+	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS, "802.11 plus AVS radio information header"),
+	DLT_CHOICE_SENTINEL
+};
+
+#if !defined(HAVE_PCAP_DATALINK_NAME_TO_VAL)
+static int
+pcap_datalink_name_to_val(const char *name)
+{
+	int i;
+
+	for (i = 0; dlt_choices[i].name != NULL; i++) {
+		if (g_ascii_strcasecmp(dlt_choices[i].name + sizeof("DLT_") - 1,
+		    name) == 0)
+			return (dlt_choices[i].dlt);
+	}
+	return (-1);
+}
+#endif /* defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) */
+
+#if !defined(HAVE_PCAP_DATALINK_VAL_TO_NAME)
+static const char *
+pcap_datalink_val_to_name(int dlt)
+{
+	int i;
+
+	for (i = 0; dlt_choices[i].name != NULL; i++) {
+		if (dlt_choices[i].dlt == dlt)
+			return (dlt_choices[i].name + sizeof("DLT_") - 1);
+	}
+	return (NULL);
+}
+#endif /* defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) */
+
+#if !defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION)
+const char *
+pcap_datalink_val_to_description(int dlt)
+{
+	int i;
+
+	for (i = 0; dlt_choices[i].name != NULL; i++) {
+		if (dlt_choices[i].dlt == dlt)
+			return (dlt_choices[i].description);
+	}
+	return (NULL);
+}
+#endif /* defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION) */
+
+#endif /* !defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) || !defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION) */
+
 /*
  * Get the data-link types available for a libpcap device.
  */
@@ -358,38 +447,20 @@ static data_link_info_t *
 create_data_link_info(int dlt)
 {
 	data_link_info_t *data_link_info;
-#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-	const char *typename;
-#endif
-	int wtap_encap;
+	const char *text;
 
 	data_link_info = g_malloc(sizeof (data_link_info_t));
 	data_link_info->dlt = dlt;
-#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-	typename = pcap_datalink_val_to_name(dlt);
-	if (typename != NULL)
-		data_link_info->name = g_strdup(typename);
+	text = pcap_datalink_val_to_name(dlt);
+	if (text != NULL)
+		data_link_info->name = g_strdup(text);
 	else
-#endif
 		data_link_info->name = g_strdup_printf("DLT %d", dlt);
-	wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
-	if (wtap_encap == WTAP_ENCAP_UNKNOWN) {
-		/*
-		 * We don't support this in Wiretap.
-		 * However, we should, so you can capture on it.
-		 * Put in an entry for it, with no description.
-		 */
+	text = pcap_datalink_val_to_description(dlt);
+	if (text != NULL)
+		data_link_info->description = g_strdup(text);
+	else
 		data_link_info->description = NULL;
-	} else {
-		/*
-		 * If this is null, that's a bug in
-		 * "wtap_pcap_encap_to_wtap_encap()" - it should always
-		 * return a valid encapsulation type - so we assume it's
-		 * not null.
-		 */
-		data_link_info->description =
-		    g_strdup(wtap_encap_string(wtap_encap));
-	}
 	return data_link_info;
 }
 
@@ -510,20 +581,15 @@ set_pcap_linktype(pcap_t *pch, char *devname
 #endif
 }
 
-
-#ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 const char *
 linktype_val_to_name(int dlt)
 {
     return pcap_datalink_val_to_name(dlt);
 }
-#endif
 
-#ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
 int linktype_name_to_val(const char *linktype)
 {
     return pcap_datalink_name_to_val(linktype);
 }
-#endif
 
 #endif /* HAVE_LIBPCAP */
