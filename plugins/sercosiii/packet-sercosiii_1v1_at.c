@@ -40,8 +40,8 @@ static gint ett_siii_at = -1;
 static gint ett_siii_at_svc = -1;
 static gint ett_siii_at_devstats = -1;
 
-static gint ett_siii_at_svc_channel[MAX_SERCOS_DEVICES] = {-1};
-static gint ett_siii_at_dev_status[MAX_SERCOS_DEVICES] = {-1};
+static gint ett_siii_at_svc_channel[MAX_SERCOS_DEVICES];
+static gint ett_siii_at_dev_status[MAX_SERCOS_DEVICES];
 
 void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -65,7 +65,7 @@ void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     if(tfield == 0)
     {
-      g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No SERCOS Addresss", i);
+      g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No SERCOS Address", i);
     }
     else if(tfield == 0xFFFF)
     {
@@ -207,12 +207,14 @@ void dissect_siii_at_init(gint proto_siii _U_)
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {
+    ett_siii_at_svc_channel[idx] = -1;
     etts[idx] = &ett_siii_at_svc_channel[idx];
   }
   proto_register_subtree_array(etts, array_length(etts));
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {
+    ett_siii_at_dev_status[idx] = -1;
     etts[idx] = &ett_siii_at_dev_status[idx];
   }
   proto_register_subtree_array(etts, array_length(etts));

@@ -67,8 +67,8 @@ static const value_string siii_at_devstatus_inactiveportstatus_text[]=
 {
   {0x00, "No link on port"},
   {0x01, "Link on port"},
-  {0x02, "S III P-Telegramm on port"},
-  {0x03, "S III S-Telegramm on port"},
+  {0x02, "S III P-Telegram on port"},
+  {0x03, "S III S-Telegram on port"},
   {0, NULL}
 };
 

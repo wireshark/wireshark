@@ -59,8 +59,8 @@ static gint ett_siii_mdt = -1;
 static gint ett_siii_mdt_svc = -1;
 static gint ett_siii_mdt_devctrls = -1;
 static gint ett_siii_mdt_version = -1;
-static gint ett_siii_mdt_svc_channel[MAX_SERCOS_DEVICES] = {-1};
-static gint ett_siii_mdt_dev_control[MAX_SERCOS_DEVICES] = {-1};
+static gint ett_siii_mdt_svc_channel[MAX_SERCOS_DEVICES];
+static gint ett_siii_mdt_dev_control[MAX_SERCOS_DEVICES];
 
 void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -229,12 +229,14 @@ void dissect_siii_mdt_init(gint proto_siii)
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {
+    ett_siii_mdt_svc_channel[idx] = -1;
     etts[idx] = &ett_siii_mdt_svc_channel[idx];
   }
   proto_register_subtree_array(etts, array_length(etts));
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {
+    ett_siii_mdt_dev_control[idx] = -1;
     etts[idx] = &ett_siii_mdt_dev_control[idx];
   }
   proto_register_subtree_array(etts, array_length(etts));
