@@ -9,10 +9,6 @@
 ;
 EXPORTS
 
-; encap_util.c
-wtap_pcap_encap_to_wtap_encap
-wtap_wtap_encap_to_pcap_encap
-
 ; file_util.c
 ws_stdio_fopen
 ws_stdio_freopen
