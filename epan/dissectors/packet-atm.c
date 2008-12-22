@@ -801,7 +801,7 @@ capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
 /*
  * Charles Michael Heard's CRC-32 code, from
  *
- *	http://cell-relay.indiana.edu/cell-relay/publications/software/CRC/32bitCRC.c.html
+ *	http://www.cell-relay.com/cell-relay/publications/software/CRC/32bitCRC.c.html
  *
  * with the CRC table initialized with values computed by
  * his "gen_crc_table()" routine, rather than by calling that routine
@@ -1208,7 +1208,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
  * Charles Michael Heard's HEC code, from
  *
- *	http://cell-relay.indiana.edu/cell-relay/publications/software/CRC/32bitCRC.tutorial.html
+ *	http://www.cell-relay.com/cell-relay/publications/software/CRC/32bitCRC.tutorial.html
  *
  * with the syndrome and error position tables initialized with values
  * computed by his "gen_syndrome_table()" and "gen_err_posn_table()" routines,
@@ -1329,7 +1329,7 @@ static const value_string pt_vals[] = {
 /*
  * Charles Michael Heard's CRC-10 code, from
  *
- *	http://cell-relay.indiana.edu/cell-relay/publications/software/CRC/crc10.html
+ *	http://www.cell-relay.com/cell-relay/publications/software/CRC/crc10.html
  *
  * with the CRC table initialized with values computed by
  * his "gen_byte_crc10_table()" routine, rather than by calling that
