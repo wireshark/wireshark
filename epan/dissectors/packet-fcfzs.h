@@ -88,7 +88,7 @@ static const value_string fc_fzs_rjt_code_val[] = {
     {FC_FZS_RJT_ZONESTATEUNKNOWN , "Zone State Unknown"},
     {FC_FZS_RJT_INVLDPLEN        , "Incorrect Payload Length"},
     {FC_FZS_RJT_ZSTOOLARGE       , "Zone Set to be Activated Too Large"},
-    {FC_FZS_RJT_DZSFAIL          , "Deactive Zone Set Failed"},
+    {FC_FZS_RJT_DZSFAIL          , "Deactivate Zone Set Failed"},
     {FC_FZS_RJT_NOTSUPPORTED     , "Request Not Supported"},
     {FC_FZS_RJT_CAPNOTSUPPORTED  , "Capability Not Supported"},
     {FC_FZS_RJT_ZMIDTYPEUNKNOWN  , "Zone Member Identifier Type Not Supported"},
