@@ -158,6 +158,7 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 			      msg->str);
 		g_free(follow_info->filter_out_filter);
 		g_free(follow_info);
+		g_free(follow_filter);
 		return;
 	}
 
