@@ -787,7 +787,7 @@ else
 SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
 endif
 
-FAQ: help/faq.txt $(srcdir)/help/faq.py
+FAQ help/faq.txt: $(srcdir)/help/faq.py
 	(cd help ; \
 	$(MAKE) faq.txt ; \
 	cp faq.txt ../FAQ )
