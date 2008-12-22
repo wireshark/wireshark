@@ -113,32 +113,32 @@ static const value_string amr_nb_codec_mode_vals[] = {
 	{6,		"AMR 10,2 kbit/s"},
 	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
 	{AMR_NB_SID,	"AMR SID (Comfort Noise Frame)"},
-	{9,		"GSM-EFR SID"},
-	{10,		"TDMA-EFR SID "},
-	{11,		"PDC-EFR SID"},
-	{12,		"Illegal Frametype - for future use"},
-	{13,		"Illegal Frametype - for future use"},
-	{14,		"Illegal Frametype - for future use"},
+	{9,				"GSM-EFR SID"},
+	{10,			"TDMA-EFR SID "},
+	{11,			"PDC-EFR SID"},
+	{12,			"Illegal Frametype - for future use"},
+	{13,			"Illegal Frametype - for future use"},
+	{14,			"Illegal Frametype - for future use"},
 	{AMR_NO_TRANS,	"No Data (No transmission/No reception)"},
 	{ 0,	NULL }
 };
 
 static const value_string amr_wb_codec_mode_vals[] = {
-	{0, 		"AMR-WB 6.60 kbit/s"},
-	{1, 		"AMR-WB 8.85 kbit/s"},
-	{2, 		"AMR-WB 12.65 kbit/s"},
-	{3, 		"AMR-WB 14.25 kbit/s"},
-	{4, 		"AMR-WB 15.85 kbit/s"},
-	{5, 		"AMR-WB 18.25 kbit/s"},
-	{6, 		"AMR-WB 19.85 kbit/s"},
-	{7, 		"AMR-WB 23.05 kbit/s"},
-	{8, 		"AMR-WB 23.85 kbit/s"},
+	{0, 			"AMR-WB 6.60 kbit/s"},
+	{1, 			"AMR-WB 8.85 kbit/s"},
+	{2, 			"AMR-WB 12.65 kbit/s"},
+	{3, 			"AMR-WB 14.25 kbit/s"},
+	{4, 			"AMR-WB 15.85 kbit/s"},
+	{5, 			"AMR-WB 18.25 kbit/s"},
+	{6, 			"AMR-WB 19.85 kbit/s"},
+	{7, 			"AMR-WB 23.05 kbit/s"},
+	{8, 			"AMR-WB 23.85 kbit/s"},
 	{AMR_WB_SID,	"AMR-WB SID (Comfort Noise Frame)"},
-	{10,		"Illegal Frametype"},
-	{11,		"Illegal Frametype"},
-	{12,		"Illegal Frametype"},
-	{13,		"Illegal Frametype"},
-	{14,		"Speech lost"},
+	{10,			"Illegal Frametype"},
+	{11,			"Illegal Frametype"},
+	{12,			"Illegal Frametype"},
+	{13,			"Illegal Frametype"},
+	{14,			"Speech lost"},
 	{AMR_NO_TRANS,	"No Data (No transmission/No reception)"},
 	{ 0,	NULL }
 };
@@ -163,14 +163,14 @@ static const value_string amr_nb_codec_mode_request_vals[] = {
 	{5,		"AMR 7,95 kbit/s"},
 	{6,		"AMR 10,2 kbit/s"},
 	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
-	{8,		"Illegal Frametype - For future us"},
-	{8,		"Illegal Frametype - For future us"},
-	{10,		"Illegal Frametype - For future us"},
-	{11,		"Illegal Frametype - For future us"},
-	{12,		"Illegal Frametype - For future use"},
-	{13,		"Illegal Frametype - For future use"},
-	{14,		"Illegal Frametype - For future use"},
-	{15,		"No mode request"}, 
+	{8,		"Illegal Frametype - For future use"},
+	{8,		"Illegal Frametype - For future use"},
+	{10,	"Illegal Frametype - For future use"},
+	{11,	"Illegal Frametype - For future use"},
+	{12,	"Illegal Frametype - For future use"},
+	{13,	"Illegal Frametype - For future use"},
+	{14,	"Illegal Frametype - For future use"},
+	{15,	"No mode request"}, 
 	{ 0,	NULL }
 };
 
@@ -190,7 +190,7 @@ static const value_string amr_wb_codec_mode_request_vals[] = {
 	{11,		"Illegal Frametype - For future use"},
 	{12,		"Illegal Frametype - For future use"},
 	{13,		"Illegal Frametype - For future use"},
-	{14,		"Illegal Frametype - For future us"},
+	{14,		"Illegal Frametype - For future use"},
 	{15,		"No mode request"}, 
 	{ 0,	NULL }
 };
@@ -316,11 +316,11 @@ static void
 dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	proto_item *item;
 	int ft;
+	int bit_offset = 0;
 	int bitcount; /*bitcounter, MSB = bit 0, over bytes*/
 	int bits_used_for_frames = 0;
 	int bytes_needed_for_frames;
-	gboolean frame_following;
-	guint16 unit16val;
+	guint8 f_bit, q_bit;
 	
 	/* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
 	/* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
@@ -334,37 +334,57 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 	
 	/* Chapter 4.3 */
+
 	bitcount = 3;
 	if (amr_mode==AMR_NB)
-		item = proto_tree_add_item(tree, hf_amr_nb_cmr, tvb, bitcount/8, 1, FALSE);
+		item = proto_tree_add_bits_item(tree, hf_amr_nb_cmr, tvb, bit_offset, 4, FALSE);
 	else    
-		item = proto_tree_add_item(tree, hf_amr_wb_cmr, tvb, bitcount/8, 1, FALSE);	
+		item = proto_tree_add_bits_item(tree, hf_amr_wb_cmr, tvb, bit_offset, 4, FALSE);	
 	    
+	bit_offset+=4;
+	/* In bandwidth-efficient mode, a ToC entry takes the following format:
+	 *
+	 *    0 1 2 3 4 5
+	 *   +-+-+-+-+-+-+
+	 *   |F|  FT   |Q|
+	 *   +-+-+-+-+-+-+
+	 *
+	 *   F (1 bit): If set to 1, indicates that this frame is followed by
+	 *      another speech frame in this payload; if set to 0, indicates that
+	 *      this frame is the last frame in this payload.
+	 *
+	 *   FT (4 bits): Frame type index, indicating either the AMR or AMR-WB
+	 *      speech coding mode or comfort noise (SID) mode of the
+	 *      corresponding frame carried in this payload.
+	 */
 	do {
 		/* Check F bit */
 		bitcount += 1;
-		frame_following = tvb_get_guint8(tvb,bitcount/8) & 0x80 >> (bitcount % 8);
-		unit16val = tvb_get_ntohs(tvb,bitcount/8);
-		ft = (unit16val >> (11 - (bitcount % 8)))  &0x000F;
+		f_bit = tvb_get_bits8(tvb, bit_offset, 1);
+		proto_tree_add_bits_item(tree, hf_amr_toc_f, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+		ft = tvb_get_bits8(tvb, bit_offset, 4);
 		if (amr_mode==AMR_NB)
-			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-						   "%s", amr_nb_codec_mode_request_vals[ft].strptr);
+			item = proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, FALSE);
 		else
-			item = proto_tree_add_text(tree, tvb, bitcount/8, 1+(bitcount % 8)/5, 
-						   "%s", amr_wb_codec_mode_request_vals[ft].strptr);
+			item = proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, FALSE);
 		    	    
+		bit_offset+=4;
 		bitcount += 4;
 		if (amr_mode==AMR_NB)
 			bits_used_for_frames +=Framebits_NB[ft];
 		else    
 			bits_used_for_frames +=Framebits_WB[ft];
 		/* Check Q bit */
+		q_bit = tvb_get_bits8(tvb, bit_offset, 1);
+		proto_tree_add_bits_item(tree, hf_amr_toc_q, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
 		bitcount += 1;
-		if (tvb_get_guint8(tvb,bitcount/8) & 0x80 >> (bitcount %8))
+		if (q_bit==1)
 			proto_item_append_text(item, " / Frame OK");
 		else    
 			proto_item_append_text(item, " / Frame damaged");
-	} while ((frame_following) && (tvb_reported_length_remaining(tvb, bitcount/8)>2));
+	} while ((f_bit==1) && (tvb_reported_length_remaining(tvb, bitcount/8)>2));
 	
 	if (bits_used_for_frames>0)
 		bytes_needed_for_frames = 1 + (bitcount+bits_used_for_frames)/8-bitcount/8;
@@ -409,6 +429,7 @@ static void
 dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
+	int bit_offset = 0;
 	int toc_offset = 0;
 	guint8 octet;
 	proto_item *item;
@@ -452,10 +473,11 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		
 		if (amr_mode==AMR_NB)
-			proto_tree_add_item(amr_tree, hf_amr_nb_cmr, tvb, offset, 1, FALSE);
+			proto_tree_add_bits_item(amr_tree, hf_amr_nb_cmr, tvb, bit_offset, 4, FALSE);
 		else
-			proto_tree_add_item(amr_tree, hf_amr_wb_cmr, tvb, offset, 1, FALSE);    
+			proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, FALSE);
 		    
+		bit_offset+=4;
 		octet = tvb_get_guint8(tvb,offset) & 0x0f;
 		if ( octet != 0  ){
 			item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Reserved != 0, wrongly encoded or not octet aligned. Decoding as bandwidth-efficient mode");
@@ -466,6 +488,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
 		offset++;
+		bit_offset+=4;
 		toc_offset = offset;
 		/*
 		 *  A ToC entry takes the following format in octet-aligned mode:
@@ -491,12 +514,18 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		while ((( octet& 0x80 ) == 0x80)||(first_time == TRUE)){
 			first_time = FALSE;
 			octet = tvb_get_guint8(tvb,offset);	
-			proto_tree_add_item(amr_tree, hf_amr_toc_f, tvb, offset, 1, FALSE);
+			
+			proto_tree_add_bits_item(amr_tree, hf_amr_toc_f, tvb, bit_offset, 1, FALSE);
+			bit_offset++;
 			if (amr_mode==AMR_NB)
-				proto_tree_add_item(amr_tree, hf_amr_nb_toc_ft, tvb, offset, 1, FALSE);
+				proto_tree_add_bits_item(amr_tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, FALSE);
 			else
-				proto_tree_add_item(amr_tree, hf_amr_wb_toc_ft, tvb, offset, 1, FALSE);    
-			proto_tree_add_item(amr_tree, hf_amr_toc_q, tvb, offset, 1, FALSE);
+				proto_tree_add_bits_item(amr_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, FALSE);
+			bit_offset+=4;
+			proto_tree_add_bits_item(amr_tree, hf_amr_toc_q, tvb, bit_offset, 1, FALSE);
+			bit_offset++;
+			/* 2 pading bits */
+			bit_offset+=2;
 			offset++;
 		}
 
@@ -611,12 +640,12 @@ proto_register_amr(void)
 	static hf_register_info hf[] = {
 		{ &hf_amr_nb_cmr,
 			{ "CMR",           "amr.nb.cmr",
-			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_request_vals), 0xf0,          
+			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_request_vals), 0x0,          
 			"codec mode request", HFILL }
 		},
 		{ &hf_amr_wb_cmr,
 			{ "CMR",           "amr.wb.cmr",
-			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_request_vals), 0xf0,          
+			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_request_vals), 0x0,          
 			"codec mode request", HFILL }
 		},
 		{ &hf_amr_reserved,
@@ -626,22 +655,22 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_toc_f,
 			{ "F bit",           "amr.toc.f",
-			FT_BOOLEAN, 8, TFS(&toc_f_bit_vals), 0x80,          
+			FT_BOOLEAN, 8, TFS(&toc_f_bit_vals), 0x0,          
 			"F bit", HFILL }
 		},
 		{ &hf_amr_nb_toc_ft,
 			{ "FT bits",           "amr.nb.toc.ft",
-			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_request_vals), 0x78,          
+			FT_UINT8, BASE_DEC, VALS(amr_nb_codec_mode_request_vals), 0x0,          
 			"Frame type index", HFILL }
 		},
 		{ &hf_amr_wb_toc_ft,
 			{ "FT bits",           "amr.wb.toc.ft",
-			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_request_vals), 0x78,          
+			FT_UINT8, BASE_DEC, VALS(amr_wb_codec_mode_request_vals), 0x0,          
 			"Frame type index", HFILL }
 		},
 		{ &hf_amr_toc_q,
 			{ "Q bit",           "amr.toc.q",
-			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x04,          
+			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x00,          
 			"Frame quality indicator bit", HFILL }
 		},
 		{ &hf_amr_nb_if1_ft,
