@@ -1572,10 +1572,23 @@ AC_DEFUN([AC_WIRESHARK_IGE_MAC_INTEGRATION_CHECK],
 	ac_save_LIBS="$LIBS"
 	CFLAGS="$CFLAGS $GTK_CFLAGS"
 	LIBS="$GTK_LIBS $LIBS"
-	AC_SEARCH_LIBS(ige_mac_menu_set_menu_bar, Gtk igemacintegration,
+	AC_SEARCH_LIBS(ige_mac_menu_set_menu_bar, Gtk,
 	[
 		AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
 			[Define to 1 if the the Gtk+ framework or a separate library inclues the Imendio IGE Mac OS X Integration functions.])
+		# We don't want gtk stuff in LIBS (which is reset below) so
+		# manually set GTK_LIBS (which is more appropriate)
+		GTK_LIBS="$GTK_LIBS -lGtk"
+	]
+	[
+		AC_SEARCH_LIBS(ige_mac_menu_set_menu_bar, igemacintegration,
+		[
+			AC_DEFINE(HAVE_IGE_MAC_INTEGRATION, 1,
+				[Define to 1 if the the Gtk+ framework or a separate library inclues the Imendio IGE Mac OS X Integration functions.])
+			# We don't want gtk stuff in LIBS (which is reset below) so
+			# manually set GTK_LIBS (which is more appropriate)
+			GTK_LIBS="$GTK_LIBS -ligemacintegration"
+		])
 	])
 	CFLAGS="$ac_save_CFLAGS"
 	LIBS="$ac_save_LIBS"
