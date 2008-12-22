@@ -2818,7 +2818,7 @@ dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
   if ((tvb_length(parameter_tvb)>0)&&(nas_eps_handle))
-    call_dissector(nas_eps_handle,parameter_tvb,actx->pinfo, proto_tree_get_root(tree));
+    call_dissector(nas_eps_handle,parameter_tvb,actx->pinfo, tree);
 
 
 

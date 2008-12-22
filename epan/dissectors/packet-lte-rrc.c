@@ -8789,7 +8789,7 @@ dissect_lte_rrc_NAS_DedicatedInformation(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 	if ((nas_eps_tvb)&&(nas_eps_handle))
-		call_dissector(nas_eps_handle,nas_eps_tvb,actx->pinfo, proto_tree_get_root(tree));
+		call_dissector(nas_eps_handle,nas_eps_tvb,actx->pinfo, tree);
 
 
   return offset;

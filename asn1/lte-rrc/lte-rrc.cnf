@@ -27,5 +27,5 @@ UL-DCCH-Message              @ul.dcch
 %(DEFAULT_BODY)s
 
 	if ((nas_eps_tvb)&&(nas_eps_handle))
-		call_dissector(nas_eps_handle,nas_eps_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+		call_dissector(nas_eps_handle,nas_eps_tvb,%(ACTX)s->pinfo, tree);
 

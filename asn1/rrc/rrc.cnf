@@ -76,7 +76,7 @@ UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info
 %(DEFAULT_BODY)s
 
 	if (nas_message_tvb)
-		call_dissector(gsm_a_dtap_handle,nas_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+		call_dissector(gsm_a_dtap_handle,nas_message_tvb,%(ACTX)s->pinfo, tree);
 
 #.FN_BODY InterRATHandoverInfo/ue-CapabilityContainer/present VAL_PTR = &ue_radio_access_cap_info_tvb
   tvbuff_t *ue_radio_access_cap_info_tvb=NULL;
@@ -84,7 +84,7 @@ UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info
 %(DEFAULT_BODY)s
 
 	if (ue_radio_access_cap_info_tvb)
-		call_dissector(rrc_ue_radio_access_cap_info_handle,ue_radio_access_cap_info_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+		call_dissector(rrc_ue_radio_access_cap_info_handle,ue_radio_access_cap_info_tvb,%(ACTX)s->pinfo, tree);
 
 #.END
 
