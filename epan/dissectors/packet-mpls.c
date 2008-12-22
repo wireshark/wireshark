@@ -575,7 +575,7 @@ static void
 dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset = 0;
-    guint32 label;
+    guint32 label = LABEL_INVALID;
     guint8 exp;
     guint8 bos;
     guint8 ttl;
