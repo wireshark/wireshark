@@ -169,7 +169,7 @@ static const value_string display_switch_msgs[]={
   {0x17,"Time and Date Format"},
   {0x18,"Display Data Write address|no control|no tag|no"},
   {0x19,"Display Data Write address|yes control|no tag|no"},
-  {0x1a,"Display Data Write address|no contral|yes tag|no"},
+  {0x1a,"Display Data Write address|no control|yes tag|no"},
   {0x1b,"Display Data Write address|yes control|yes tag|no"},
   {0x1c,"Display Data Write address|no control|no tag|yes"},
   {0x1d,"Display Data Write address|yes control|no tag|yes"},

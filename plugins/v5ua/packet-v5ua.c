@@ -240,7 +240,7 @@ static const value_string efa_values[] = {
 	{ 8177, "CC Protocol" },
 	{ 8178, "BCC Protocol" },
 	{ 8179, "PROT Protocol" },
-	{ 8180, "Link Contol Protocol" },
+	{ 8180, "Link Control Protocol" },
 	{ 8191, "VALUE RESERVED" },
 	{ 0,    NULL } };
 
@@ -347,7 +347,7 @@ dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 static const value_string error_code_values[] = {
   { MGMT_ERROR_INVALID_VERSION,                       "Invalid version" },
   { MGMT_ERROR_INVALID_IF_ID,                         "Invalid interface identifier" },
-  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsuported message class" },
+  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsupported message class" },
   { MGMT_ERROR_UNSUPPORTED_MSG_TYPE,                  "Unsupported message type" },
   { MGMT_ERROR_UNSUPPORTED_TRAFFIC_HANDLING_MODE,     "Unsupported traffic handling mode" },
   { MGMT_ERROR_UNEXPECTED_MSG,                        "Unexpected message" },
@@ -638,7 +638,7 @@ static const value_string l3_msg_type_values [] = {
 	{ SIGNAL_ACK,            "Signal Ack" },
 	{ DISCONNECT,            "Disconnect" },
 	{ DISCONNECT_COMPLETE,   "Disconnect Complete" },
-	{ STATUS_ENQUIRY,        "Status Enqueiry" },
+	{ STATUS_ENQUIRY,        "Status Enquiry" },
 	{ STATUS,                "Status" },
 	{ PROTOCOL_PARAMETER,    "Protocol Parameter" },
 	{ PORT_CONTROL,          "Port Control" },
@@ -757,7 +757,7 @@ static const value_string l3_steady_signal_values [] = {
 	{ 0x86, "Battery on a-wire" },
 	{ 0x87, "A-wire on earth" },
 	{ 0x88, "No battery on a-wire" },
-	{ 0x89, "No batery on b-wire" },
+	{ 0x89, "No battery on b-wire" },
 	{ 0x8a, "Reduced battery" },
 	{ 0x8b, "No battery" },
 	{ 0x8c, "Alternate reduced power / no power" },
@@ -810,15 +810,15 @@ static const value_string l3_reject_cause_type_values [] = {
 	{ 0x04, "Connection already present at the V5 time slot(s) to a different port or ISDN user port time slot(s)" },
 	{ 0x05, "Connection already present at the ISDN user port time slot(s) to a different V5 time slot(s)" },
 	{ 0x06, "User port unavailable (blocked)" },
-	{ 0x07, "De-allocation cannot completeddue to incompatible data content" },
-	{ 0x08, "De-allocation cannot completeddue to V5 time slot(s) data incompatibility" },
-	{ 0x09, "De-allocation cannot completeddue to port data incompatibility" },
-	{ 0x0a, "De-allocation cannot completeddue to user port time slot(s) data incompatibility" },
+	{ 0x07, "De-allocation cannot complete due to incompatible data content" },
+	{ 0x08, "De-allocation cannot complete due to V5 time slot(s) data incompatibility" },
+	{ 0x09, "De-allocation cannot complete due to port data incompatibility" },
+	{ 0x0a, "De-allocation cannot complete due to user port time slot(s) data incompatibility" },
 	{ 0x0b, "User port not provisioned" },
 	{ 0x0c, "Invalid V5 time slot(s) indication(s)" },
 	{ 0x0d, "Invalid V5 2048 kbit/s link indication" },
 	{ 0x0e, "Invalid user time slot(s) indication(s)" },
-	{ 0x0f, "V5 time slot(s) being used as physikal C-channel(s)" },
+	{ 0x0f, "V5 time slot(s) being used as physical C-channel(s)" },
 	{ 0x10, "V5 link unavailable (blocked)" },
 	{ 0,    NULL } };
 
@@ -830,7 +830,7 @@ static const value_string l3_bcc_protocol_error_cause_type_values [] = {
 	{ 0x07, "Mandatory information element missing" },
 	{ 0x08, "Unrecognized information element" },
 	{ 0x09, "Mandatory information element content error" },
-	{ 0x0a, "Optional infromation element content error" },
+	{ 0x0a, "Optional information element content error" },
 	{ 0x0b, "Message not compatible with the BCC protocol state" },
 	{ 0x0c, "Repeated mandatory information element" },
 	{ 0x0d, "Too many information element" },
@@ -843,7 +843,7 @@ static const value_string l3_connection_incomplete_reason_values [] = {
 	{ 0x02, "User port not provisioned" },
 	{ 0x03, "Invalid V5 time slot identification" },
 	{ 0x04, "Invalid V5 2048 kbit/s link identification" },
-	{ 0x05, "Time slot being used as physikal C-channel" },
+	{ 0x05, "Time slot being used as physical C-channel" },
 	{ 0,    NULL } };
 
 
@@ -937,7 +937,7 @@ static const value_string l3_info_element_values [] = {
 	{ CONTROL_FUNCTION_ID,     "Control function ID" },
 	{ VARIANT,                 "Variant" },
 	{ INTERFACE_ID,            "Interface ID" },
-	{ LINK_CONTROL_FUNCTION,   "Link control funktion" },
+	{ LINK_CONTROL_FUNCTION,   "Link control function" },
 	{ USER_PORT_ID,            "User port ID" },
 	{ ISDN_PORT_CHNL_ID,       "ISDN port channel ID" },
 	{ V5_TIME_SLOT_ID,         "V5 time slot ID" },
@@ -1466,7 +1466,7 @@ static const value_string parameter_tag_values[] = {
   { DLCI_PARAMETER_TAG,                                  "DLCI" },
   { DIAGNOSTIC_INFORMATION_PARAMETER_TAG,                "Diagnostic information" },
   { INTEGER_RANGE_INTERFACE_IDENTIFIER_PARAMETER_TAG,    "Integer range interface identifier" },
-  { HEARTBEAT_DATA_PARAMETER_TAG,                        "Hearbeat data" },
+  { HEARTBEAT_DATA_PARAMETER_TAG,                        "Heartbeat data" },
   { ASP_DOWN_REASON_PARAMETER_TAG,                       "ASP DOWN Reason" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,                     "Traffic mode type" },
   { ERROR_CODE_PARAMETER_TAG,                            "Error code" },
@@ -1761,7 +1761,7 @@ static const value_string msg_class_type_values[] = {
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_IND,              "TEI status indication" },
 
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_REQ,   "TEI status request" },
-  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confimation" },
+  { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confirmation" },
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_IND,   "TEI status indication" },
 
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP,                         "ASP up" },

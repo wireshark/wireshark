@@ -495,7 +495,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_coef_ai,
 		{
-			"Occurences of Antenna Index", "wmx.type2MimoCoefAi",
+			"Occurrences of Antenna Index", "wmx.type2MimoCoefAi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_AI,
 			"", HFILL
 		}
@@ -519,7 +519,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_chan_diuc,
 		{
-			"Prefered DIUC", "wmx.type2DlChanDiuc",
+			"Preferred DIUC", "wmx.type2DlChanDiuc",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DIUC,
 			"", HFILL
 		}

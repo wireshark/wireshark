@@ -2276,7 +2276,7 @@ proto_register_artnet(void) {
         "Block ID", HFILL }},
 
     { &hf_artnet_firmware_master_length,
-      { "Lentgh",
+      { "Length",
         "artnet.firmware_master.length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Length", HFILL }},

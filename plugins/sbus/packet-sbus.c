@@ -411,7 +411,7 @@ static const value_string sbus_command_vals[] = {
 };
 
 static const value_string webserver_aid_vals[] = {
-       {0x01, "Partitial request"},
+       {0x01, "Partial request"},
        {0x02, "Request end"},
        {0x07, "Get Data"},
        {0x10, "Transfer OK"},

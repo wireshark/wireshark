@@ -758,7 +758,7 @@ static hf_register_info hf_sfe[] =
 	},
 	{	/* 26 ARQ Block Size for Corrigendum 2 */
 		&hf_sfe_arq_min_block_size,
-		{"ARQ Minumum Block Size", "wmx.arq.min_block_size", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL}
+		{"ARQ Minimum Block Size", "wmx.arq.min_block_size", FT_UINT8, BASE_DEC, NULL, 0x0F, "", HFILL}
 	},
 	{	/* 26 ARQ Block Size for Corrigendum 2 */
 		&hf_sfe_arq_max_block_size,

@@ -1149,7 +1149,7 @@ gint AAS_UL_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint le
     XBIT(data, 7, "UL_PermBase");
     XBIT(data, 8, "OFDMA symbol offset");
     XBIT(data, 8, "AAS zone length");
-    XBIT(data, 2, "Uplink peramble config");
+    XBIT(data, 2, "Uplink preamble config");
     XBIT(data, 1, "Preamble type");
     XBIT(data, 4, "Reserved");
     return BIT_TO_NIB(bit);
@@ -1202,7 +1202,7 @@ gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gi
             XBIT(data, 2, "Zone type");
             XBIT(data, 2, "Zone PRBS_ID");
             if (zperm == 0 || zperm == 1) {
-                XBIT(mgi, 1, "Major group indicatioon");
+                XBIT(mgi, 1, "Major group indication");
                 if (mgi == 1) {
                     /* PUSC major group bitmap*/
                     XBIT(data, 6, "PUSC Major group bitmap");

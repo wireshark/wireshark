@@ -255,7 +255,7 @@ static hf_register_info hf[] =
     { &hf_opcua_variant_encodingmask, { "Variant Type", "", FT_UINT8, BASE_HEX, VALS(g_VariantTypes), 0x0, "", HFILL } },
     { &hf_opcua_SourceTimestamp, { "SourceTimestamp", "", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL } },
     { &hf_opcua_ServerTimestamp, { "ServerTimestamp", "", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL } },
-    { &hf_opcua_diag_symbolicid,      { "SymblicId", "",       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_opcua_diag_symbolicid,      { "SymbolicId", "",       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_namespace,       { "Namespace", "",       FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_localizedtext,   { "LocaliezdText", "",   FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_opcua_diag_additionalinfo,  { "AdditionalInfo", "",  FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL } },

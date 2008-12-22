@@ -176,7 +176,7 @@ static const value_string audio_switch_msgs[]={
  {0x39,"Query RTCP Bucket's SDES Information"},
  {0x3a,"Jitter Buffer Parameters Configuration"},
  {0x3b,"Resolve Port Mapping"},
- {0x3c,"Port Mpping Discovery"},
+ {0x3c,"Port Mapping Discovery"},
  {0x3d,"Query Audio Stream Status"},
  {0xff,"Reserved"},
  {0,NULL}
@@ -458,7 +458,7 @@ static const value_string stream_based_tone_vals[]={
  {0x01,"Recall Dial Tone F1=0x0B33 - 350 Hz F2=0x0E14 - 440 Hz F3=0x00 - not present F4=0x00 - not present"},
  {0x02,"Line Busy F1 = 0x0F5C - 480 Hz F2 = 0x13D7 - 620 Hz F3 = 0x00 - not present F4 = 0x00 - not present"},
  {0x03,"Reorder F1 = 0x0F5C - 480 Hz F2 = 0x13D7 - 620 Hz F3 = 0x00 - not present F4 = 0x00 - not present"},
- {0x04,"Audible Ringing F1=0x0E14 - 440 Hz F2=0x0F5C - 480 Hz F3=0x00 - not presen F4=0x00 - not present"},
+ {0x04,"Audible Ringing F1=0x0E14 - 440 Hz F2=0x0F5C - 480 Hz F3=0x00 - not present F4=0x00 - not present"},
  {0x05,"Receiver Off Hook (ROH) F1=0x2CCC-1400 Hz F2=0x4851-2260 Hz F3=0x4E66-2450 Hz F4=0x5333 - 2600 Hz"},
  {0x06,"No Tone F1=0x00-0 Hz F2=0x00-0 Hz F3=0x00-0 Hz F4=0x00-0 Hz 0x00 C1=0x00 C2=0x00 C3=0x0 c4=0x0"},
  {0x07,"No Tone F1=0x00-0 Hz F2=0x00-0 Hz F3=0x00-0 Hz F4=0x00-0 Hz 0x00 C1=0x00 C2=0x00 C3=0x0 c4=0x0"},

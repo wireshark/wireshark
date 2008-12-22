@@ -86,7 +86,7 @@ static hf_register_info hf[] = {
             BASE_HEX,VALS(broadcast_switch_msgs),0x0,NULL,HFILL}
       },
       { &hf_broadcast_phone_cmd ,
-         {"Broadcas Cmd (phone)","unistim.broadcast.phone",FT_UINT8,
+         {"Broadcast Cmd (phone)","unistim.broadcast.phone",FT_UINT8,
             BASE_HEX,VALS(broadcast_phone_msgs),0x0,NULL,HFILL}
       },
       { &hf_audio_switch_cmd ,
@@ -273,7 +273,7 @@ static hf_register_info hf[] = {
       },
       { &hf_basic_switch_query_attr,
          {"Query Basic Manager Attributes","unistim.basic.attrs",FT_BOOLEAN,
-           8,NULL,BASIC_QUERY_ATTRIBUTES,"Basic Query Atrributes",HFILL}
+           8,NULL,BASIC_QUERY_ATTRIBUTES,"Basic Query Attributes",HFILL}
       },
       { &hf_basic_switch_query_opts,
          {"Query Basic Manager Options","unistim.basic.opts",FT_BOOLEAN,
@@ -528,7 +528,7 @@ static hf_register_info hf[] = {
             BASE_HEX,NULL,0x00,NULL,HFILL}
       },
       { &hf_display_write_address_numeric,
-         {"Is Address Numberic","unistim.write.address.numeric",FT_BOOLEAN,
+         {"Is Address Numeric","unistim.write.address.numeric",FT_BOOLEAN,
             8,NULL,DISPLAY_WRITE_ADDRESS_NUMERIC_FLAG,NULL,HFILL}
       },
       { &hf_display_write_address_context,
@@ -580,7 +580,7 @@ static hf_register_info hf[] = {
             8,NULL,DISPLAY_WRITE_SHIFT_RIGHT,NULL,HFILL}
       },
       { &hf_display_write_highlight,
-         {"Highlight","unistim.display.hightlight",FT_BOOLEAN,
+         {"Highlight","unistim.display.highlight",FT_BOOLEAN,
             8,NULL,DISPLAY_WRITE_HIGHLIGHT,NULL,HFILL}
       },
       { &hf_display_write_tag,
@@ -864,7 +864,7 @@ static hf_register_info hf[] = {
             8,NULL,AUDIO_SIDETONE_DISABLE,NULL,HFILL}
       },
       { &hf_audio_destruct_additive,
-         {"Distructive/Additive","unistim.distructive.active",FT_BOOLEAN,
+         {"Destructive/Additive","unistim.destructive.active",FT_BOOLEAN,
             8,TFS(&destruct_additive),AUDIO_DESTRUCT_ADD,NULL,HFILL}
       },
       { &hf_audio_dont_force_active,
@@ -952,7 +952,7 @@ static hf_register_info hf[] = {
             BASE_DEC,NULL,DISPLAY_CURSOR_SKEY_ID,NULL,HFILL}
       },
       { &hf_display_cursor_char_pos,
-         {"Character Postition","unistim.phone.char.pos",FT_UINT8,
+         {"Character Position","unistim.phone.char.pos",FT_UINT8,
             BASE_DEC,NULL,DISPLAY_CURSOR_CHAR_POS,NULL,HFILL}
       },
       { &hf_display_cursor_line_number,
@@ -1016,7 +1016,7 @@ static hf_register_info hf[] = {
             BASE_DEC,NULL,0x00,NULL,HFILL}
       },
       { &hf_key_programmable_keys,
-         {"Number of Programable Keys","unistim.num.prog.keys",FT_UINT8,
+         {"Number of Programmable Keys","unistim.num.prog.keys",FT_UINT8,
             BASE_DEC,NULL,KEY_NUM_PROG_KEYS,NULL,HFILL}
       },
       { &hf_keys_soft_keys,
@@ -1072,7 +1072,7 @@ static hf_register_info hf[] = {
             BASE_HEX,VALS(local_dialpad_feedback),KEY_LOCAL_DIAL_PAD_FEED,NULL,HFILL}
       },
       { &hf_audio_source_descr,
-         {"Source Desription Item","unistim.source.desc.item",FT_UINT8,
+         {"Source Description Item","unistim.source.desc.item",FT_UINT8,
             BASE_HEX,VALS(source_descriptions),AUDIO_SOURCE_DESCRIPTION,NULL,HFILL}
       },
       { &hf_audio_sdes_rtcp_bucket,

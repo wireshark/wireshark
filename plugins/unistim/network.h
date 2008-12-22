@@ -220,7 +220,7 @@ static const value_string network_elements[]={
  {0x06,"Second Server Port Number"},
  {0x07,"First Server Action"},
  {0x08,"First Server Retry Count"},
- {0x09,"Boot Modea"},
+ {0x09,"Boot Mode"},
  {0x0b,"Second Server Action"},
  {0x0c,"Second Server Retry Count"},
  {0x0e,"8-byte User PIN"},

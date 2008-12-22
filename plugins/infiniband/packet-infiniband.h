@@ -1377,7 +1377,7 @@ static hf_register_info hf[] = {
 
 	/* Reliable Datagram Extended Transport Header (RDETH) */
 	{&hf_infiniband_RDETH,
-	{"Reliable Datagram Extentded Transport Header", "infiniband.rdeth", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
+	{"Reliable Datagram Extended Transport Header", "infiniband.rdeth", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL}
 	},
 	{&hf_infiniband_reserved8_RDETH,
 	{"Reserved (8 bits)", "infiniband.rdeth.reserved8", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}

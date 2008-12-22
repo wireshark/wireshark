@@ -54,7 +54,7 @@ static gint hf_clk_cmp_message_type = -1;
 static gint hf_clk_cmp_clock_count = -1;
 static gint hf_clk_cmp_clock_id = -1;
 static gint hf_clk_cmp_seq_number = -1;
-static gint hf_clk_cmp_comparision_value = -1;
+static gint hf_clk_cmp_comparison_value = -1;
 static gint hf_clk_cmp_invalid_tlv = -1;
 
 /* CLK_CMP fields display */
@@ -82,9 +82,9 @@ static hf_register_info hf_clk_cmp[] =
 		}
 	},
 	{
-		&hf_clk_cmp_comparision_value,
+		&hf_clk_cmp_comparison_value,
 		{
-			"Comparision Value", "wmx.clk_cmp.comparision_value",
+			"Comparison Value", "wmx.clk_cmp.comparison_value",
 			FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
@@ -142,7 +142,7 @@ void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type CLK_CMP */
-		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, tvb_len, "Clock Comparision (CLK-CMP) (%u bytes)", tvb_len);
+		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, tvb_len, "Clock Comparison (CLK-CMP) (%u bytes)", tvb_len);
 		/* add MAC CLK_CMP subtree */
 		clk_cmp_tree = proto_item_add_subtree(clk_cmp_item, ett_mac_mgmt_msg_clk_cmp_decoder);
 		/* display the Message Type */
@@ -153,15 +153,15 @@ void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		clock_count = tvb_get_guint8(tvb, offset);
 		/* display the clock count */
 		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_count, tvb, offset, 1, FALSE);
-		/* set the offset for clock comparision */
+		/* set the offset for clock comparison */
 		offset++;
 		for (i = 0; i < clock_count; i++ )
 		{	/* display the Clock ID */
 			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_id, tvb, offset++, 1, FALSE);
 			/* display the sequence number */
 			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_seq_number, tvb, offset++, 1, FALSE);
-			/* display the comparision value */
-			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_comparision_value, tvb, offset++, 1, FALSE);
+			/* display the comparison value */
+			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_comparison_value, tvb, offset++, 1, FALSE);
 		}
 	}
 }

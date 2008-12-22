@@ -224,7 +224,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 			(*ip)--;
 		}
 	} else {
-		g_warning("unsusbcribe: not subscribed");
+		g_warning("unsubscribe: not subscribed");
 	}
 }
 

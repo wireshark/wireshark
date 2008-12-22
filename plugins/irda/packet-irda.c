@@ -2217,11 +2217,11 @@ void proto_register_irda(void)
                 FT_UINT_STRING, BASE_NONE, NULL, 0x0,
                 "", HFILL }},
         { &hf_iap_invaloctet,
-            { "Mailformed IAP result: \"", "iap.invaloctet",
+            { "Malformed IAP result: \"", "iap.invaloctet",
                 FT_NONE, BASE_NONE, NULL, 0,
                 "", HFILL }},
         { &hf_iap_invallsap,
-            { "Mailformed IAP result: \"", "iap.invallsap",
+            { "Malformed IAP result: \"", "iap.invallsap",
                 FT_NONE, BASE_NONE, NULL, 0,
                 "", HFILL }}
     };

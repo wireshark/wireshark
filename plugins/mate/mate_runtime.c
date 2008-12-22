@@ -859,7 +859,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 			
 			cfg = g_ptr_array_index(mc->pducfglist,i);
 			
-			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: tryning to extract: %s",cfg->name);
+			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: trying to extract: %s",cfg->name);
 			protos = (GPtrArray*) g_hash_table_lookup(tree->tree_data->interesting_hfids,GINT_TO_POINTER(cfg->hfid_proto));
 			
 			if (protos)  {

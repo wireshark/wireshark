@@ -3757,7 +3757,7 @@ my_signal_handler(GtkTreeView *treeview, GtkTreePath *spath, GtkTreeViewColumn *
 	newpath = gtk_tree_path_to_string(path);
 
 	if (asn1_debug)
-		g_message("my_signal_handler: treeview=%p, moveing from %s to %s",
+		g_message("my_signal_handler: treeview=%p, moving from %s to %s",
 			  treeview, oldpath, newpath);
 
 	g_free(text);
@@ -3816,7 +3816,7 @@ menuitem_cb (gpointer             callback_data,
 		  } else
 			  newpath = g_strdup("** no path **");
 		  if (asn1_debug)
-			  g_message("menueitem_cb: treeview=%p, moveing from %s to %s",
+			  g_message("menueitem_cb: treeview=%p, moving from %s to %s",
 				    treeview, oldpath, newpath);
 		  break;
 
@@ -5006,7 +5006,7 @@ proto_register_asn1(void) {
 				 type_recursion_opts, FALSE);
   prefs_register_bool_preference(asn1_module, "debug",
 				 "ASN.1 debug mode",
-				 "Extra output useful for debuging",
+				 "Extra output useful for debugging",
 				 &asn1_debug);
 #if 0
   prefs_register_bool_preference(asn1_module, "message_win",

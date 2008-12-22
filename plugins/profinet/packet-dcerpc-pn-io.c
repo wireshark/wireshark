@@ -1466,7 +1466,7 @@ static const value_string pn_io_control_properties_vals[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_control_properties_aplication_ready_vals[] = {
+static const value_string pn_io_control_properties_application_ready_vals[] = {
     { 0x0000, "Wait for explicit ControlCommand.ReadyForCompanion" },
     { 0x0001, "Implicit ControlCommand.ReadyForCompanion" },
     { 0, NULL }
@@ -7032,7 +7032,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_control_block_properties_applready,
       { "ControlBlockProperties", "pn_io.control_block_properties.appl_ready", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_control_block_properties_applready0,
-      { "AppicationReady", "pn_io.control_block_properties.appl_ready0", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_aplication_ready_vals), 0x0001, "", HFILL }},
+      { "ApplicationReady", "pn_io.control_block_properties.appl_ready0", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001, "", HFILL }},
 
     { &hf_pn_io_error_code,
       { "ErrorCode  ", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, "", HFILL }},

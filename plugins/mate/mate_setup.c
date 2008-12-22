@@ -628,8 +628,8 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	if ( mate_load_config(filename,matecfg) ) {
 		analyze_config();
 	} else {
-		report_failure("MATE failed to configue!\n"
-					   "It is recommended that you fix your config and restart wireshark.\n"
+		report_failure("MATE failed to configure!\n"
+					   "It is recommended that you fix your config and restart Wireshark.\n"
 					   "The reported error is:\n%s\n",matecfg->config_error->str);
 		
 		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */

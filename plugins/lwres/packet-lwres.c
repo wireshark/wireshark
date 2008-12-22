@@ -109,7 +109,7 @@ static const value_string result_values[]  = {
 	{ LWRES_R_IOERROR,			"I/O Error" },
 	{ LWRES_R_UNEXPECTED,		"Unexpected" },
 	{ LWRES_R_TRAILINGDATA,		"Trailing data" },
-	{ LWRES_R_INCOMPLETE,		"Incompete" },
+	{ LWRES_R_INCOMPLETE,		"Incomplete" },
 	{ LWRES_R_RETRY,			"Retry" },
 	{ LWRES_R_TYPENOTFOUND,		"Type not found" },
 	{ LWRES_R_TOOLARGE,			"Too large" },
