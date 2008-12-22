@@ -1687,11 +1687,21 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         a_bigbuf,
         (oct & 0x20) ? "Slotted" : "Non-Slotted");
 
+    if (oct & 0x10)
+    {
+        str = "";
+        g_strlcat(add_string, " (MEID configured)", string_len);
+    }
+    else
+    {
+        str = "not ";
+    }
+
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
         "%s :  MEID %sconfigured",
         a_bigbuf,
-        (oct & 0x10) ? "" : "not ");
+        str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
@@ -2203,7 +2213,9 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
             tvb, curr_offset, 4,
             value);
 
-        g_snprintf(add_string, string_len, " - ESN (0x%04x)", value);
+        g_snprintf(add_string, string_len, " - %sESN (0x%04x)",
+            (value & 0x80000000) ? "p" : "",
+            value);
 
         curr_offset += 4;
         break;
@@ -12074,5 +12086,4 @@ proto_reg_handoff_ansi_a(void)
         ansi_a_elem_1_strings = ansi_a_ios401_elem_1_strings;
         break;
     }
-
 }
