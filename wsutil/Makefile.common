@@ -29,7 +29,6 @@
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
 LIBWSUTIL_SRC = 	\
-	encap_util.c	\
 	mpeg-audio.c	\
 	privileges.c	\
 	str_util.c		\
@@ -37,7 +36,6 @@ LIBWSUTIL_SRC = 	\
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
-	encap_util.h	\
 	mpeg-audio.h	\
 	privileges.h	\
 	str_util.h		\

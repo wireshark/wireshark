@@ -60,7 +60,8 @@
 #include <epan/range.h>
 #include <epan/frequency-utils.h>
 
-#include <wsutil/encap_util.h>
+/* Needed for wtap_pcap_encap_to_wtap_encap(). */
+#include <wiretap/libpcap.h>
 
 #include "packet-frame.h"
 #include "packet-eth.h"
