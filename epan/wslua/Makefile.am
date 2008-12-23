@@ -55,9 +55,11 @@ BUILT_SOURCES = \
 	declare_wslua.h
 
 dist_pkgdata_DATA = \
-	init.lua \
 	console.lua \
 	dtd_gen.lua
+
+nodist_pkgdata_DATA = \
+	init.lua
 
 CLEANFILES = \
 	*~
