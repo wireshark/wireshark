@@ -1214,7 +1214,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti = NULL, *tf;
-  guint32    src_naddr, dst_naddr;
+  guint32    addr;
   int        offset = 0;
   guint      hlen, optlen;
   guint16    flags;
@@ -1440,13 +1440,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     const char *src_host;
 
-    memcpy(&src_naddr, iph->ip_src.data, 4);
-    src_host = get_hostname(src_naddr);
+    memcpy(&addr, iph->ip_src.data, 4);
+    src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src: %s (%s)", src_host, ip_to_str(iph->ip_src.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, src_naddr);
-    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, src_naddr);
+    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
     PROTO_ITEM_SET_HIDDEN(item);
     item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4, src_host);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1483,13 +1483,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     const char *dst_host;
 
-    memcpy(&dst_naddr, iph->ip_dst.data, 4);
-    dst_host = get_hostname(dst_naddr);
+    memcpy(&addr, iph->ip_dst.data, 4);
+    dst_host = get_hostname(addr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s (%s)", dst_host, ip_to_str(iph->ip_dst.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, dst_naddr);
-    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, dst_naddr);
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
     PROTO_ITEM_SET_HIDDEN(item);
     item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1502,8 +1502,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #ifdef HAVE_GEOIP
   if (tree && ip_use_geoip) {
     for (dbnum = 0; dbnum < geoip_num_dbs(); dbnum++) {
-      geoip_src_str = geoip_db_lookup_ipv4(dbnum, src_naddr, NULL);
-      geoip_dst_str = geoip_db_lookup_ipv4(dbnum, dst_naddr, NULL);
+      geoip_src_str = geoip_db_lookup_ipv4(dbnum, src32, NULL);
+      geoip_dst_str = geoip_db_lookup_ipv4(dbnum, dst32, NULL);
 
       switch (geoip_db_type(dbnum)) {
         case GEOIP_COUNTRY_EDITION:
