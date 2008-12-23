@@ -424,8 +424,14 @@ reset_tcp_reassembly(void)
 static void
 write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
 {
-  DISSECTOR_ASSERT(1 * sizeof(tcp_stream_chunk) == fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file ));
-  DISSECTOR_ASSERT(1 * sc->dlen == fwrite( data, 1, sc->dlen, data_out_file ));
+  size_t ret;
+
+  ret = fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
+  DISSECTOR_ASSERT(sizeof(tcp_stream_chunk) == ret);
+  
+  ret = fwrite( data, 1, sc->dlen, data_out_file );
+  DISSECTOR_ASSERT(sc->dlen == ret);
+
   bytes_written[index] += sc->dlen;
   empty_tcp_stream = FALSE;
 }
