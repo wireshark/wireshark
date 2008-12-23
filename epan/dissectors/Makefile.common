@@ -575,6 +575,7 @@ DISSECTOR_SRC = \
 	packet-m2tp.c		\
 	packet-m2ua.c		\
 	packet-m3ua.c		\
+	packet-mac-lte.c		\
 	packet-maccontrol.c	\
 	packet-manolito.c	\
 	packet-mbtcp.c		\
@@ -1031,6 +1032,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ldp.h	\
 	packet-llc.h	\
 	packet-logotypecertextn.h	\
+	packet-mac-lte.h		\
 	packet-mgcp.h		\
 	packet-mikey.h	\
 	packet-mip6.h	\
