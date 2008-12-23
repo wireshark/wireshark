@@ -747,7 +747,7 @@ gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 10.5.2 Radio Resource management information elements
  * [3] 10.5.2.1a BA Range
  */
-guint8
+guint16
 de_rr_ba_range(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -914,7 +914,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint3
 	return;
 }
 
-static guint8
+static guint16
 dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1000,7 +1000,7 @@ dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	return(curr_offset - offset);
 }
 
-guint8
+guint16
 de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	return dissect_arfcn_list(tvb, tree, offset, 16, add_string, string_len);
@@ -1008,7 +1008,7 @@ de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * [3] 10.5.2.1c BA List Pref
  */
-guint8
+guint16
 de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -1047,7 +1047,7 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.2.1d UTRAN Frequency List
  */
-guint8
+guint16
 de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -1092,7 +1092,7 @@ static const guint8
 convert_n_to_q[32] = {   0,   9,  17,  25,  32, 39, 46, 53, 59, 65, 71, 77, 83, 89, 95, 101,
                        106, 111, 116, 121, 126,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0};
 
-guint8
+guint16
 de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    proto_tree *subtree, *subtree2;
@@ -1305,7 +1305,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 /*
  * [3] 10.5.2.2 Cell Description
  */
-guint8
+guint16
 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -1364,7 +1364,7 @@ static const value_string gsm_a_rr_radio_link_timeout_vals[] = {
 	{ 0x0F,	"64" },
 	{ 0,	NULL } };
 
-static guint8
+static guint16
 de_rr_cell_opt_bcch(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -1401,7 +1401,7 @@ static const value_string gsm_a_rr_dtx_sacch_vals[] = {
 	{ 0x07,	"The MS may use uplink discontinuous transmission on a TCH-F. The MS shall use uplink discontinuous transmission on TCH-H" },
 	{ 0,	NULL } };
 
-static guint8
+static guint16
 de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -1431,7 +1431,7 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * [3] 10.5.2.4 Cell Selection Parameters
  */
-static guint8
+static guint16
 de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -1465,7 +1465,7 @@ de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  * [3] 10.5.2.4a MAC Mode and Channel Coding Requested
  * [3] 10.5.2.5 Channel Description
  */
-guint8
+guint16
 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1559,7 +1559,7 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * [3] 10.5.2.5a Channel Description 2
  */
-static guint8
+static guint16
 de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1674,7 +1674,7 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * [3] 10.5.2.5c Channel Description 3
  */
-static guint8
+static guint16
 de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1753,7 +1753,7 @@ static const value_string gsm_a_rr_channel_mode_vals[] = {
 	{ 0,	NULL }
 };
 
-guint8
+guint16
 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1782,7 +1782,7 @@ static const value_string gsm_a_rr_channel_mode2_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1798,7 +1798,7 @@ de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * [3] 10.5.2.7a UTRAN Classmark information element
  */
-static guint8
+static guint16
 de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -1854,7 +1854,7 @@ static const value_string gsm_a_rr_utran_cm_cng_msg_req_vals[] = {
 	{ 0x7,	"message including status on predefined configurations (i.e. Sequence Description) is not requested."},
 	{ 0,	NULL }
 };
-guint8
+guint16
 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1880,7 +1880,7 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 	{ 0x03,	"TCH/H or TCH/F (Dual rate)"},
 	{ 0,	NULL }
 };
-guint8
+guint16
 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -1924,7 +1924,7 @@ static const value_string gsm_a_rr_sc_vals[] = {
  * bits
  * 4 3 2
  */
-guint8
+guint16
 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1961,7 +1961,7 @@ static const value_string gsm_a_rr_cr_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_cip_mode_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2016,7 +2016,7 @@ static const value_string gsm_a_rr_cbq3_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2077,7 +2077,7 @@ static const value_string gsm_a_rr_gsm_band_vals[] = {
 };
 
 
-static guint8
+static guint16
 de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2113,7 +2113,7 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * [3] 10.5.2.12 Frequency Channel Sequence
  */
-static guint8
+static guint16
 de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2170,7 +2170,7 @@ static const value_string gsm_a_rr_freq_list_format_id_vals[] = {
 	{ 0x47,	"variable bit map"},
 	{ 0x00,	NULL }
 };
-static guint8
+static guint16
 de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	return dissect_arfcn_list(tvb, tree, offset, len, add_string, string_len);
@@ -2185,7 +2185,7 @@ de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
  */
 
- static guint8
+ static guint16
 de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	return dissect_arfcn_list(tvb, tree, offset, 9, add_string, string_len);
@@ -2200,7 +2200,7 @@ de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * except that it has a fixed length instead of a variable length and does
  * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
  */
-static guint8
+static guint16
 de_rr_freq_short_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	return dissect_arfcn_list(tvb, tree, offset, 8, add_string, string_len);
@@ -2217,7 +2217,7 @@ static const true_false_string gsm_a_rr_gprs_resumption_ack_value  = {
 	"Resumption of GPRS services not successfully acknowledged"
 };
 
-static guint8
+static guint16
 de_rr_gprs_resumption(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -2372,7 +2372,7 @@ de_rr_rest_oct_gprs_power_control_parameters(tvbuff_t *tvb, proto_tree *tree, gi
    return (curr_bit_offset - bit_offset);
 }
 
-static guint8
+static guint16
 de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len , gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -2391,7 +2391,7 @@ de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 /*
  * [3] 10.5.2.15 Handover Reference
  */
-static guint8
+static guint16
 de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2418,7 +2418,7 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * [3] 10.5.2.16 IA Rest Octets
  */
 
-static guint8
+static guint16
 de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2449,7 +2449,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [3] 10.5.2.17 IAR Rest Octets
  */
 
-static guint8
+static guint16
 de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2476,7 +2476,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.2.18 IAX Rest Octets
  */
-static guint8
+static guint16
 de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2506,7 +2506,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.2.19 L2 Pseudo Length
  */
-static guint8
+static guint16
 de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2630,7 +2630,7 @@ static const value_string gsm_a_rr_ncell_vals [] = {
 	{7, "Neighbour cell information not available for serving cell"},
 	{0, NULL}
 };
-guint8
+guint16
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -2698,7 +2698,7 @@ de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * [3] 10.5.2.21 Mobile Allocation
  */
-static guint8
+static guint16
 de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2725,7 +2725,7 @@ de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 /*
  * [3] 10.5.2.21a Mobile Time Difference
  */
-static guint8
+static guint16
 de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2856,7 +2856,7 @@ static const value_string gsm_a_rr_amr_hysteresis_vals[] = {
 	{ 0,	NULL }
 };
 
-guint8
+guint16
 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2927,7 +2927,7 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * [3] 10.5.2.21b Multislot Allocation
  */
-static guint8
+static guint16
 de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2952,7 +2952,7 @@ static const value_string gsm_a_rr_ext_ind_vals[] = {
 	{ 1,	"The information element carries only a part of the BA"},
 	{ 0,	NULL }
 };
-static guint8
+static guint16
 de_rr_neigh_cell_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2968,7 +2968,7 @@ de_rr_neigh_cell_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  /*
  * [3] 10.5.2.22a Neighbour Cell Description 2
  */
-static guint8
+static guint16
 de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2989,7 +2989,7 @@ de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 /*
  * [3] 10.5.2.23 P1 Rest Octets
  */
-static guint8
+static guint16
 de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    proto_tree *subtree;
@@ -3088,7 +3088,7 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 /*
  * [3] 10.5.2.24 P2 Rest Octets
  */
-static guint8
+static guint16
 de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 
 {
@@ -3162,7 +3162,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * [3] 10.5.2.25 P3 Rest Octets
  */
-static guint8
+static guint16
 de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    proto_tree *subtree;
@@ -3220,7 +3220,7 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * [3] 10.5.2.25a Packet Channel Description C V 3
  */
-static guint8
+static guint16
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3295,7 +3295,7 @@ static const value_string gsm_a_rr_dedicated_mode_or_tbf_vals[] = {
 	{ 7,	"This message is the first message of two in a two-message assignment of a downlink TBF to the mobile station identified in the IA Rest Octets IE"},
 	{ 0,	NULL }
 };
-static guint8
+static guint16
 de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3332,7 +3332,7 @@ static const value_string gsm_a_rr_page_mode_vals[] = {
 	{ 3,	"Same as before"},
 	{ 0,	NULL }
 };
-static guint8
+static guint16
 de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3363,7 +3363,7 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 /*
  * [3] 10.5.2.27 NCC Permitted
  */
-static guint8
+static guint16
 de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3434,7 +3434,7 @@ static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
  * by the mobile station According to 3GPP TS 45.008.Range: 0 to 31.
  */
 
-static guint8
+static guint16
 de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3466,7 +3466,7 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * [3] 10.5.2.28a Power Command and access type
  */
-static guint8
+static guint16
 de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3537,7 +3537,7 @@ static const value_string gsm_a_rr_re_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3585,7 +3585,7 @@ static guint16 reduced_frame_number(guint16 fn)
 	return frame;
 }
 
-static guint8
+static guint16
 de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3620,7 +3620,7 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * [3] 10.5.2.31
  */
-guint8
+guint16
 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3673,7 +3673,7 @@ static const value_string gsm_a_rr_nch_position_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -3803,7 +3803,7 @@ static const value_string gsm_a_rr_fdd_rscpmin_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+static guint16
 de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree, *subtree2;
@@ -4491,7 +4491,7 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
    return(curr_bit_offset - bit_offset);
 }
 
-static guint8
+static guint16
 de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree, *subtree2, *subtree3;
@@ -4996,7 +4996,7 @@ static const true_false_string gsm_a_rr_si13alt_position_value = {
    "If Iu mode is supported in the cell, SYSTEM INFORMATION TYPE 13alt message is sent on BCCH Norm"
 };
 
-static guint8
+static guint16
 de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -5101,7 +5101,7 @@ static const value_string gsm_a_rr_lsa_offset_vals[] = {
    { 0, NULL }
 };
 
-static guint8
+static guint16
 de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree, *subtree2, *subtree3;
@@ -5280,7 +5280,7 @@ static const true_false_string gsm_a_rr_mnci_support_value = {
    "The cell does not support the distribution of MBMS NEIGHBOURING CELL INFORMATION messages"
 };
 
-static guint8
+static guint16
 de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree, *subtree2;
@@ -5800,7 +5800,7 @@ static const value_string gsm_a_rr_si2n_support_vals[] = {
    { 0, NULL }
 };
 
-static guint8
+static guint16
 de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree, *subtree2;
@@ -5936,7 +5936,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 /*
  * [3] 10.5.2.38 Starting Time
  */
-static guint8
+static guint16
 de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_item *item;
@@ -5982,7 +5982,7 @@ static const true_false_string gsm_a_rr_sync_ind_nci_value  = {
 	"Out of range timing advance shall trigger a handover failure procedure",
 	"Out of range timing advance is ignored"
 };
-static guint8
+static guint16
 de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6004,7 +6004,7 @@ de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * [3] 10.5.2.40 Timing Advance
  */
-static guint8
+static guint16
 de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6020,7 +6020,7 @@ de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * [3] 10.5.2.41 Time Difference
  */
-static guint8
+static guint16
 de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6036,7 +6036,7 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * [3] 10.5.2.41a TLLI
  * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
  */
-guint8
+guint16
 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6052,7 +6052,7 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI
  */
-guint8
+guint16
 de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree	*subtree;
@@ -6087,7 +6087,7 @@ static const value_string gsm_a_rr_target_mode_vals[] _U_ = {
 	{ 1,	"Group transmit mode"},
 	{ 0,	NULL }
 };
-static guint8
+static guint16
 de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6104,7 +6104,7 @@ de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 /*
  * [3] 10.5.2.42b	VGCS Ciphering Parameters
  */
-static guint8
+static guint16
 de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6120,7 +6120,7 @@ de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 /*
  * [3] 10.5.2.43 Wait Indication
  */
-static guint8
+static guint16
 de_rr_wait_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6141,7 +6141,7 @@ de_rr_wait_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * [3] 10.5.2.45 Extended Measurement Results
  */
-static guint8
+static guint16
 de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -6171,7 +6171,7 @@ de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * [3] 10.5.2.46 Extended Measurement Frequency List
  */
-static guint8
+static guint16
 de_rr_ext_meas_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -6197,7 +6197,7 @@ static const value_string gsm_a_rr_suspension_cause_vals[] = {
 	{ 6,	"DTM not supported in the cell"},
 	{ 0,	NULL }
 };
-guint8
+guint16
 de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6219,7 +6219,7 @@ de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * [3] 10.5.2.51 Handover To UTRAN Command
  */
-static guint8
+static guint16
 de_rr_ho_to_utran_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
    guint32 curr_offset;
@@ -6257,7 +6257,7 @@ static const true_false_string gsm_a_rr_MBMS_broadcast_value  = {
 	"mobile station requires notification of broadcast MBMS services",
 	"mobile station does not require notification of broadcast MBMS services"
 };
-static guint8
+static guint16
 de_rr_serv_sup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6293,7 +6293,7 @@ static const true_false_string gsm_a_rr_last_segment_value  = {
 	"Mobile station shall perform Service Information Sending procedure on new cell.",
 	"mobile station shall not perform Service Information Sending procedure on new cell."
 };
-static guint8
+static guint16
 de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -6315,7 +6315,7 @@ static const true_false_string gsm_a_rr_carrier_ind_value  = {
 	"Carrier 1"
 };
 
-static guint8
+static guint16
 de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
    proto_tree *subtree;
@@ -6336,7 +6336,7 @@ de_rr_carrier_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
    return(curr_offset - offset);
 }
 
-guint8 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
 
 	de_rr_ba_range,			      /* [3]  10.5.2.1a	BA Range */

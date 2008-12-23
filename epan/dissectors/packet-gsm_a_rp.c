@@ -104,7 +104,7 @@ gint ett_gsm_rp_elem[NUM_GSM_RP_ELEM];
 /*
  * [5] 8.2.3
  */
-static guint8
+static guint16
 de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -130,7 +130,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * [5] 8.2.5.1
  */
-static guint8
+static guint16
 de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	return(de_cld_party_bcd_num(tvb, tree, offset, len, add_string, string_len));
@@ -139,7 +139,7 @@ de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /*
  * [5] 8.2.5.2
  */
-static guint8
+static guint16
 de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	return(de_cld_party_bcd_num(tvb, tree, offset, len, add_string, string_len));
@@ -148,7 +148,7 @@ de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /*
  * [5] 8.2.5.3
  */
-static guint8
+static guint16
 de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -176,7 +176,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /*
  * [5] 8.2.5.4
  */
-static guint8
+static guint16
 de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -251,7 +251,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	return(curr_offset - offset);
 }
 
-guint8 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Short Message Service Information Elements [5] 8.2 */
 	de_rp_message_ref,	/* RP-Message Reference */
 	de_rp_orig_addr,	/* RP-Origination Address */

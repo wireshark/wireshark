@@ -633,18 +633,18 @@ static int get_hf_elem_id(int pdu_type)
 /*
  * Type Length Value (TLV) element dissector
  */
-guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
+guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
 	guint8		oct;
 	guint16		parm_len;
 	guint8		lengt_length = 1;
-	guint8		consumed;
+	guint16		consumed;
 	guint32		curr_offset;
 	proto_tree		*subtree;
 	proto_item		*item;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -658,7 +658,6 @@ guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int 
 			/* This elements length is in two octets (a bit of a hack here)*/
 			lengt_length = 2;
 			parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
-			lengt_length = 2;
 			if(parm_len > 255){
 				/* The rest of the logic can't handle length > 255 */
 				DISSECTOR_ASSERT_NOT_REACHED();
@@ -717,21 +716,97 @@ guint8 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int 
 }
 
 /*
- * Type Value (TV) element dissector
- *
- * Length cannot be used in these functions, big problem if a element dissector
- * is not defined for these.
+ * Type Length Value Extended(TLV-E) element dissector
+ * TS 24.007 
+ * information elements of format LV-E or TLV-E with value part consisting of zero, 
+ * one or more octets and a maximum of 65535 octets (type 6). This category is used in EPS only.
  */
-guint8 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
 	guint8		oct;
-	guint8		consumed;
+	guint16		parm_len;
+	guint8		lengt_length = 1;
+	guint16		consumed;
 	guint32		curr_offset;
 	proto_tree		*subtree;
 	proto_item		*item;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+
+	curr_offset = offset;
+	consumed = 0;
+
+	SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == iei){
+		parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
+
+		item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 1 + 2,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
+
+		proto_tree_add_uint(subtree,
+			get_hf_elem_id(pdu_type), tvb,
+			curr_offset, 1, oct);
+
+		proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
+			curr_offset + 1, 2, parm_len);
+
+		if (parm_len > 0)
+		{
+			if (elem_funcs[idx] == NULL)
+			{
+				proto_tree_add_text(subtree,
+					tvb, curr_offset + 1 + 2, parm_len,
+					"Element Value");
+				/* See ASSERT above */
+				consumed = parm_len;
+			}
+			else
+			{
+				gchar *a_add_string;
+
+				a_add_string=ep_alloc(1024);
+				a_add_string[0] = '\0';
+				consumed =
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
+					parm_len, a_add_string, 1024);
+
+				if (a_add_string[0] != '\0')
+				{
+					proto_item_append_text(item, "%s", a_add_string);
+				}
+			}
+		}
+
+		consumed += 1 + 2;
+	}
+
+	return(consumed);
+}
+
+/*
+ * Type Value (TV) element dissector
+ *
+ * Length cannot be used in these functions, big problem if a element dissector
+ * is not defined for these.
+ */
+guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+{
+	guint8		oct;
+	guint16		consumed;
+	guint32		curr_offset;
+	proto_tree		*subtree;
+	proto_item		*item;
+	const value_string	*elem_names;
+	gint		*elem_ett;
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -794,16 +869,16 @@ guint8 elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int i
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-guint8 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
 	guint8		oct;
-	guint8		consumed;
+	guint16		consumed;
 	guint32		curr_offset;
 	proto_tree		*subtree;
 	proto_item		*item;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 	char buf[10+1];
 
 	curr_offset = offset;
@@ -863,14 +938,14 @@ guint8 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type,
 /*
  * Type (T) element dissector
  */
-guint8 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
+guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
 	guint8		oct;
 	guint32		curr_offset;
-	guint8		consumed;
+	guint16		consumed;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -897,16 +972,17 @@ guint8 elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int id
 /*
  * Length Value (LV) element dissector
  */
-guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
+guint16
+elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
 	guint8		parm_len;
-	guint8		consumed;
+	guint16		consumed;
 	guint32		curr_offset;
 	proto_tree		*subtree;
 	proto_item		*item;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -958,18 +1034,78 @@ guint8 elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 }
 
 /*
+ * Length Value Extended(LV-E) element dissector
+ */
+guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
+{
+	guint16		parm_len;
+	guint16		consumed;
+	guint32		curr_offset;
+	proto_tree		*subtree;
+	proto_item		*item;
+	const value_string	*elem_names;
+	gint		*elem_ett;
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+
+	curr_offset = offset;
+	consumed = 0;
+
+	SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+
+	parm_len = tvb_get_ntohs(tvb, curr_offset);
+
+	item = proto_tree_add_text(tree, tvb, curr_offset, parm_len + 2,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+
+	subtree = proto_item_add_subtree(item, elem_ett[idx]);
+
+	proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
+		curr_offset, 2, parm_len);
+
+	if (parm_len > 0)
+	{
+		if (elem_funcs[idx] == NULL)
+		{
+			proto_tree_add_text(subtree,
+				tvb, curr_offset + 1, parm_len,
+				"Element Value");
+
+			consumed = parm_len;
+		}
+		else
+		{
+			gchar *a_add_string;
+
+			a_add_string=ep_alloc(1024);
+			a_add_string[0] = '\0';
+			consumed =
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 1,
+					parm_len, a_add_string, 1024);
+
+			if (a_add_string[0] != '\0')
+			{
+				proto_item_append_text(item, "%s", a_add_string);
+			}
+		}
+	}
+
+	return(consumed + 1);
+}
+/*
  * Value (V) element dissector
  *
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-guint8 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset)
+guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset)
 {
-	guint8		consumed;
+	guint16		consumed;
 	guint32		curr_offset;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -1006,13 +1142,13 @@ guint8 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 o
  * This is expected to be used upper nibble first, as the tables of 24.008.
  */
 
-guint8 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset)
+guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset)
 {
-	guint8		consumed;
+	guint16		consumed;
 	guint32		curr_offset;
 	const value_string	*elem_names;
 	gint		*elem_ett;
-	guint8 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 
 	curr_offset = offset;
 	consumed = 0;
@@ -1195,7 +1331,7 @@ mcc_mnc_aux(guint8 *octs, gchar *mcc, gchar *mnc)
 /* 3GPP TS 24.008
  * [3] 10.5.1.1 Cell Identity
  */
-guint8
+guint16
 de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
@@ -1214,7 +1350,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * [3] 10.5.1.3
  */
-guint8
+guint16
 de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	octs[3];
@@ -1275,7 +1411,7 @@ static const true_false_string gsm_a_present_vals = {
 	"Not present"
 };
 
-guint8
+guint16
 de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -1478,7 +1614,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * [3] 10.5.1.5
  */
-guint8
+guint16
 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -1518,7 +1654,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * [3] 10.5.1.6 Mobile Station Classmark 2 
  * 3GPP TS 24.008 version 7.8.0 Release 7
  */
-guint8
+guint16
 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1585,7 +1721,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.7 Mobile Station Classmark 3
  * 3GPP TS 24.008 version 7.8.0 Release 7
  */
-guint8
+guint16
 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1771,7 +1907,7 @@ the mobile station supports dual carrier in the downlink during DTM
 /*
  * [3] 10.5.1.8
  */
-static guint8
+static guint16
 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1792,7 +1928,7 @@ de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 /*
  * [3] 10.5.1.9 Descriptive group or broadcast call reference
  */
-guint8
+guint16
 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -1868,7 +2004,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * [3] 10.5.1.10a PD and SAPI $(CCBS)$
  */
-static guint8
+static guint16
 de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -1932,7 +2068,7 @@ static const value_string gsm_a_call_prio_vals[] = {
 	{ 0,			NULL }
 };
 
-static guint8
+static guint16
 de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -1951,7 +2087,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 /*
  * [3] 10.5.1.13 PLMN list
  */
-static guint8
+static guint16
 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	octs[3];
@@ -1992,7 +2128,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	return(curr_offset - offset);
 }
 
-guint8 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Common Information Elements 10.5.1 */
 	de_cell_id,	/* Cell Identity */
 	NULL /* handled inline */,	/* Ciphering Key Sequence Number */

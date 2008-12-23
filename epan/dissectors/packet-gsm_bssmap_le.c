@@ -225,7 +225,7 @@ gint ett_gsm_bssmap_le_elem[NUM_GSM_BSSMAP_LE_ELEM];
  * 10.3 APDU
  */
 
-static guint8
+static guint16
 de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -297,7 +297,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 /*
  * 10.8 Deciphering Keys
  */
-static guint8
+static guint16
 de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     gint bit_offset;
@@ -375,7 +375,7 @@ static const value_string bssmap_le_position_method_failure_diagnostic_vals[] = 
     { 8, "positionMethodNotAvailableInLocaitonArea" },
     { 0, NULL}
 };
-static guint8
+static guint16
 de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -417,7 +417,7 @@ static const value_string bssmap_le_client_subtype[] = {
     { 0, NULL}
 };
 
-static guint8
+static guint16
 de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -444,7 +444,7 @@ de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * 10.16 LCS QoS
  */
-static guint8
+static guint16
 de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint64 verticalCoordIndicator, velocityRequested, horizontalAccuracyIndicator, verticalAccuracyIndicator;
@@ -510,7 +510,7 @@ de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * 10.20 Positioning Data
  */
-static guint8
+static guint16
 de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *data_tvb;
@@ -545,7 +545,7 @@ de_bmaple_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * 3GPP TS 48.018 IEI and length indicator
  */
 /* Dissector for the LCS Capability element */
-static guint8
+static guint16
 be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the LCS Capability element and add to protocol tree */
@@ -563,7 +563,7 @@ be_lcs_capability(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * message is padded with 0-bits to the nearest octet boundary.
  */
 /* Dissector for the Packet Measurement Report element */
-static guint8
+static guint16
 be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     /* Extract the Packet Measurement Report element and add to protocol tree */
@@ -578,7 +578,7 @@ be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * defined in 3GPP TS 48.071.
  */
 /* Dissector for the Measured Cell Identity List element */
-static guint8
+static guint16
 be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* Extract the Measured Cell Identity List element and add to protocol tree */
@@ -660,7 +660,7 @@ bssmap_le_elem_idx_t;
 */
 
 
-guint8 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* NOTE: The null types below are defined elsewhere. i.e in packet-gsm_a_bssmap.c */
 	de_bmaple_lcs_qos,		/* 10.16 LCS QoS */
 	NULL,					/* LCS Priority */

@@ -436,7 +436,7 @@ static dgt_set_t Dgt_mbcd = {
 /*
  * [3] 10.5.3.1 Authentication parameter RAND
  */
-static guint8
+static guint16
 de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -464,7 +464,7 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.3.1.1 Authentication Parameter AUTN (UMTS authentication challenge only)
  */
-static guint8
+static guint16
 de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -486,7 +486,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.3.2 Authentication Response parameter
  */
-static guint8
+static guint16
 de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -514,7 +514,7 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.3.2.1 Authentication Response Parameter (extension) (UMTS authentication challenge only)
  */
-static guint8
+static guint16
 de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -536,7 +536,7 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 /*
  * [3] 10.5.3.2.2 Authentication Failure parameter (UMTS authentication challenge only)
  */
-static guint8
+static guint16
 de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -570,7 +570,7 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * [3] 10.5.3.5a Network Name
  */
-static guint8
+static guint16
 de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -647,7 +647,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /* 3GPP TS 24.008
  * [3] 10.5.3.6 Reject cause
  */
-guint8
+guint16
 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -719,7 +719,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * [3] 10.5.3.8 Time Zone
  */
-static guint8
+static guint16
 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -755,7 +755,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * [3] 10.5.3.9 Time Zone and Time
  */
-static guint8
+static guint16
 de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct, oct2, oct3;
@@ -828,7 +828,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * [3] 10.5.3.11 LSA Identifier
  * 3GPP TS 24.008 version 6.8.0 Release 6
  */
-static guint8
+static guint16
 de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -851,7 +851,7 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 /*
  * [3] 10.5.3.12 Daylight Saving Time
  */
-static guint8
+static guint16
 de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -894,7 +894,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 /*
  * 10.5.3.13 Emergency Number List 
  */
-static guint8
+static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -910,7 +910,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * [3] 10.5.4.4 Auxiliary states
  */
-static guint8
+static guint16
 de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -975,7 +975,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 /*
  * [3] 10.5.4.5 Bearer capability
  */
-guint8
+guint16
 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2097,7 +2097,7 @@ bc_octet_7:
 }
 
 
-guint8
+guint16
 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	is_uplink = IS_UPLINK_TRUE;
@@ -2109,7 +2109,7 @@ de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.4.5a Call Control Capabilities
  */
 
-static guint8
+static guint16
 de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -2190,7 +2190,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 /*
  * [3] 10.5.4.6 Call state
  */
-static guint8
+static guint16
 de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -2302,7 +2302,7 @@ const value_string gsm_a_numbering_plan_id_values[] = {
 /*
  * [3] 10.5.4.7 Called party BCD number
  */
-guint8
+guint16
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	*poctets;
@@ -2346,7 +2346,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 /*
  * [3] 10.5.4.8 Called party subaddress
  */
-static guint8
+static guint16
 de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -2407,7 +2407,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /* 3GPP TS 24.008
  * [3] 10.5.4.9 Calling party BCD number
  */
-static guint8
+static guint16
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2495,7 +2495,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 /*
  * [3] 10.5.4.10 Calling party subaddress
  */
-static guint8
+static guint16
 de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -2556,7 +2556,7 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * [3] 10.5.4.11 Cause
  */
-static guint8
+static guint16
 de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2751,7 +2751,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * 10.5.4.15 Facility
  */
 
-static guint8
+static guint16
 de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
 {
 	guint	saved_offset;
@@ -2802,7 +2802,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 /*
  * [3] 10.5.4.17 Keypad facility
  */
-static guint8
+static guint16
 de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2838,7 +2838,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 /*
  * 10.5.4.18 Low layer compatibility
  */
-static guint8
+static guint16
 de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -2863,7 +2863,7 @@ de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * [3] 10.5.4.21 Progress indicator
  */
-static guint8
+static guint16
 de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -2975,7 +2975,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 /*
  * [3] 10.5.4.22 Repeat indicator
  */
-static guint8
+static guint16
 de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -3022,7 +3022,7 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 10.5.4.24 SS Version Indicator
  */
-static guint8
+static guint16
 de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
@@ -3091,7 +3091,7 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 /*
  * [5] 8.1.4.1 3GPP TS 24.011 version 6.1.0 Release 6
  */
-static guint8
+static guint16
 de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3119,7 +3119,7 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /*
  * [5] 8.1.4.2
  */
-static guint8
+static guint16
 de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint8	oct;
@@ -3162,7 +3162,7 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3207,7 +3207,7 @@ de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3227,7 +3227,7 @@ de_tp_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3269,7 +3269,7 @@ de_tp_loop_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3315,7 +3315,7 @@ de_tp_loop_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3349,7 +3349,7 @@ de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3373,7 +3373,7 @@ de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3395,7 +3395,7 @@ de_tp_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3417,7 +3417,7 @@ de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3466,7 +3466,7 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3491,7 +3491,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	return(curr_offset - offset);
 }
 
-static guint8
+static guint16
 de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3507,7 +3507,7 @@ de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	return(curr_offset - offset);
 }
 
-guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
 	de_auth_param_rand,	/* Authentication Parameter RAND */
 	de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS authentication challenge only) */
