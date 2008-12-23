@@ -40,6 +40,11 @@
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
+#include "packet-mac-lte.h"
+#if 0
+#include "packet-rlc-lte.h"
+#include "packet-pdcp.h"
+#endif
 
 /* Protocol and registered fields. */
 static int proto_catapult_dct2000 = -1;
@@ -117,7 +122,11 @@ static guint outhdr_values[MAX_OUTHDR_VALUES];
 static gint outhdr_values_found = 0;
 
 extern int proto_fp;
-
+extern int proto_mac_lte;
+#if 0
+extern int proto_rlc_lte;
+extern int proto_pdcp;
+#endif
 
 void proto_register_catapult_dct2000(void);
 
@@ -125,6 +134,12 @@ static dissector_handle_t look_for_dissector(char *protocol_name);
 static void parse_outhdr_string(guchar *outhdr_string);
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
+static void attach_mac_lte_info(packet_info *pinfo);
+#if 0
+static void attach_rlc_lte_info(packet_info *pinfo);
+static void attach_pdcp_info(packet_info *pinfo);
+#endif
+
 
 
 /* Return the number of bytes used to encode the length field
@@ -685,13 +700,19 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     int  tf_start, num_chans_start;
     gint node_type;
 
-    /* Allocate & zero struct */
-    struct fp_info *p_fp_info = se_alloc(sizeof(struct fp_info));
+    /* Only need to set info once per session. */
+    struct fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    if (p_fp_info != NULL)
+    {
+        return;
+    }
+
+    /* Allocate struct */
+    p_fp_info = se_alloc0(sizeof(struct fp_info));
     if (!p_fp_info)
     {
         return;
     }
-    memset(p_fp_info, 0, sizeof(struct fp_info));
 
     /* Check that the number of outhdr values looks sensible */
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
@@ -784,6 +805,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     {
         if (p_fp_info->release == 7)
         {
+            /* Entity (MAC-hs or MAC-ehs) used */
             if (outhdr_values[i++])
             {
                 p_fp_info->hsdsch_entity = ehs;
@@ -863,6 +885,122 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 }
+
+
+/* Fill in a MAC LTE packet info struct and attach it to the packet for that
+   dissector to use */
+static void attach_mac_lte_info(packet_info *pinfo)
+{
+    struct mac_lte_info *p_mac_lte_info;
+    unsigned int i=0;
+
+    /* Only need to set info once per session. */
+    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    if (p_mac_lte_info != NULL)
+    {
+        return;
+    }
+
+    /* Allocate & zero struct */
+    p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+    if (p_mac_lte_info == NULL)
+    {
+        return;
+    }
+
+    /* Populate the struct from outhdr values */
+    p_mac_lte_info->radioType = outhdr_values[i++];
+    p_mac_lte_info->rntiType = outhdr_values[i++];
+    p_mac_lte_info->direction = outhdr_values[i++];
+    p_mac_lte_info->subframeNumber = outhdr_values[i++];
+    p_mac_lte_info->is_predefined_data = outhdr_values[i++];
+    p_mac_lte_info->rnti = outhdr_values[i++];
+    p_mac_lte_info->ueid = outhdr_values[i++];
+    p_mac_lte_info->length = outhdr_values[i++];
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+}
+
+
+/* Fill in a RLC LTE packet info struct and attach it to the packet for that
+   dissector to use */
+#if 0
+static void attach_rlc_lte_info(packet_info *pinfo)
+{
+    struct rlc_lte_info *p_rlc_lte_info;
+    unsigned int i=0;
+
+    /* Only need to set info once per session. */
+    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    if (p_rlc_lte_info != NULL)
+    {
+        return;
+    }
+
+    /* Allocate & zero struct */
+    p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+    if (p_rlc_lte_info == NULL)
+    {
+        printf("Failed to allocate rlc_lte struct!\n");
+        return;
+    }
+
+    p_rlc_lte_info->rlcMode = outhdr_values[i++];
+    p_rlc_lte_info->direction = outhdr_values[i++];
+    p_rlc_lte_info->priority = outhdr_values[i++];
+    p_rlc_lte_info->UMSequenceNumberLength = outhdr_values[i++];
+    p_rlc_lte_info->channelId = outhdr_values[i++];
+    p_rlc_lte_info->channelType = outhdr_values[i++];
+    p_rlc_lte_info->ueid = outhdr_values[i++];
+    p_rlc_lte_info->pduLength = outhdr_values[i++];
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
+}
+#endif
+
+/* Fill in a PDCP packet info struct and attach it to the packet for the PDCP
+   dissector to use */
+#if 0
+static void attach_pdcp_info(packet_info *pinfo)
+{
+    struct pdcp_info *p_pdcp_info;
+    unsigned int i=0;
+
+    /* Only need to set info once per session. */
+    p_pdcp_info = p_get_proto_data(pinfo->fd, proto_pdcp);
+    if (p_pdcp_info != NULL)
+    {
+        return;
+    }
+
+    /* Allocate & zero struct */
+    p_pdcp_info = se_alloc0(sizeof(struct pdcp_info));
+    if (p_pdcp_info == NULL)
+    {
+        printf("Failed to allocated pdcp struct!\n");
+        return;
+    }
+
+    p_pdcp_info->no_header_pdu = outhdr_values[i++];
+    p_pdcp_info->plane = outhdr_values[i++];
+    p_pdcp_info->seqnum_length = outhdr_values[i++];
+
+    p_pdcp_info->rohc_compression = outhdr_values[i++];
+    p_pdcp_info->rohc_ip_version = outhdr_values[i++];
+    p_pdcp_info->cid_inclusion_info = outhdr_values[i++];
+    p_pdcp_info->large_cid_present = outhdr_values[i++];
+    p_pdcp_info->mode = outhdr_values[i++];
+    p_pdcp_info->rnd = outhdr_values[i++];
+    p_pdcp_info->udp_checkum_present = outhdr_values[i++];
+    p_pdcp_info->profile = outhdr_values[i++];
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_pdcp, p_pdcp_info);
+}
+#endif
+
 
 
 /* Attempt to show tty (raw character messages) as text lines. */
@@ -1064,6 +1202,29 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                        atoi((char*)tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
     }
 
+    /* LTE MAC needs info attached */
+    else if (strcmp(protocol_name, "mac_r8_lte") == 0)
+    {
+        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        attach_mac_lte_info(pinfo);
+    }
+
+#if 0
+    /* LTE RLC needs info attached */
+    else if (strcmp(protocol_name, "rlc_r8_lte") == 0)
+    {
+        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        attach_rlc_lte_info(pinfo);
+    }
+
+    /* LTE PDCP needs info attached */
+    else if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
+    {
+        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        attach_pdcp_info(pinfo);
+    }
+#endif
+
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
        the pseudo-header needed (in some cases) by the Wireshark dissector that
@@ -1156,6 +1317,28 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 protocol_handle = find_dissector("sipprim");
             }
+
+            else
+            if (strcmp(protocol_name, "mac_r8_lte") == 0)
+            {
+                protocol_handle = find_dissector("mac-lte");
+            }
+#if 0
+            else
+            if (strcmp(protocol_name, "rlc_r8_lte") == 0)
+            {
+                protocol_handle = find_dissector("rlc-lte");
+            }
+
+            else
+            if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
+            {
+                /* Send to intermediate dissector to parse/strip
+                   proprietary RLC primitive header before passing to actual
+                   PDCP dissector */
+                protocol_handle = find_dissector("pdcp_r8");
+            }
+#endif
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the

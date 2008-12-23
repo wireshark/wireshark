@@ -32,6 +32,9 @@
 #define LTE_DCCH_TAG   0x06
 #define LTE_DTCH_TAG   0x07
 
+#define LTE_SRB_TAG    0x00
+#define LTE_DRB_TAG    0x01
+
 enum pdcp_plane
 {
     Signalling_Plane=1,
@@ -54,9 +57,12 @@ typedef struct pdcp_info
 {
     /* Thread info not really needed for decode */
     guint16         ueid;
+    guint8          rbid_type;
+    guint8          rbid_value;
+
     guint8          channel_type;
     guint8          channel_id;
-
+    
     /* Details of PDCP header */
     gboolean        no_header_pdu;
     enum pdcp_plane plane;
