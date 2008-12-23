@@ -433,7 +433,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" },
 
 	/* WTAP_ENCAP_TNEF */
-	{ "Transport-Neutral Encapsulation Format", "tnef" }
+	{ "Transport-Neutral Encapsulation Format", "tnef" },
+
+	/* WTAP_ENCAP_USB_LINUX_MMAP */
+	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

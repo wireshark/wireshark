@@ -484,6 +484,8 @@ static const struct {
 	{ 214, 		WTAP_ENCAP_X2E_XORAYA },
 	/* IEEE 802.15.4 Wireless PAN non-ASK PHY */
 	{ 215,		WTAP_ENCAP_IEEE802_15_4_NONASK_PHY },
+	/* USB packets with padded Linux-specified header */
+	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAP },
 
 	/*
 	 * To repeat:
@@ -1447,6 +1449,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAP:
 		if (packet_size < sizeof (struct linux_usb_phdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -1698,6 +1701,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAP:
 		if (!libpcap_read_linux_usb_pseudoheader(wth, wth->random_fh,
 		    pseudo_header, err))
 			return FALSE;	/* Read error */
@@ -2628,6 +2632,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAP:
 		hdrsize = sizeof (struct linux_usb_phdr);
 		break;
 
@@ -2871,6 +2876,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
+	case WTAP_ENCAP_USB_LINUX_MMAP:
 		/*
 		 * Write out the pseudo-header; it has the same format
 		 * as the Linux USB header, and that header is supposed

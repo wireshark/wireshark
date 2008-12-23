@@ -1642,7 +1642,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
+                         gboolean padded)
 {
     int offset = 0;
     int type, endpoint;
@@ -1804,7 +1805,6 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     tap_data->trans_info=usb_trans_info;
     tap_queue_packet(usb_tap, pinfo, tap_data);
 
-
     switch(type){
     case URB_BULK:
         {
@@ -1815,6 +1815,20 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
         /* Skip setup header - it's never present */
         offset += 8;
+
+        /*
+         * If this is padded (as is the case if the capture is done in
+         * memory-mapped mode), skip the padding; it's padded to a multiple
+         * of 64 bits *after* the pseudo-header and setup header.  The
+         * pseudo-header is 40 bytes, and the setup header is 8 bytes,
+         * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
+         * was removed from the packet data by Wiretap, so the offset
+         * is relative to the beginning of the setup header, not relative
+         * to the beginning of the raw packet data, so we can't just
+         * round it up to a multiple of 64.)
+         */
+        if (padded)
+            offset += 16;
 
         if(tvb_reported_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
@@ -1892,6 +1906,23 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                         proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
                         offset += 2;
                     }
+
+                    /*
+                     * If this is padded (as is the case if the capture
+                     * is done in memory-mapped mode), skip the padding;
+                     * it's padded to a multiple of 64 bits *after* the
+                     * pseudo-header and setup header.  The pseudo-header
+                     * is 40 bytes, and the setup header is 8 bytes, so
+                     * that's 16 bytes of padding to 64 bytes.  (The
+                     * pseudo-header was removed from the packet data by
+                     * Wiretap, so the offset is relative to the beginning
+                     * of the setup header, not relative to the beginning
+                     * of the raw packet data, so we can't just round it up
+                     * to a multiple of 64.)
+                     */
+                    if (padded)
+                        offset += 16;
+
                     break;
 
                 case RQT_SETUP_TYPE_CLASS:
@@ -1907,6 +1938,21 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 /* Skip setup header - it's not present */
 
                 offset += 8;
+
+                /*
+                 * If this is padded (as is the case if the capture is done
+                 * in memory-mapped mode), skip the padding; it's padded to
+                 * a multiple of 64 bits *after* the pseudo-header and setup
+                 * header.  The pseudo-header is 40 bytes, and the setup
+                 * header is 8 bytes, so that's 16 bytes of padding to 64
+                 * bytes.  (The pseudo-header was removed from the packet
+                 * data by Wiretap, so the offset is relative to the beginning
+                 * of the setup header, not relative to the beginning of the
+                 * raw packet data, so we can't just round it up to a multiple
+                 * of 64.)
+                 */
+                if (padded)
+                    offset += 16;
             }
         } else {
             tvbuff_t *next_tvb;
@@ -1915,6 +1961,20 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
             /* Skip setup header - it's never present for responses */
             offset += 8;
+
+            /*
+             * If this is padded (as is the case if the capture is done in
+             * memory-mapped mode), skip the padding; it's padded to a multiple
+             * of 64 bits *after* the pseudo-header and setup header.  The
+             * pseudo-header is 40 bytes, and the setup header is 8 bytes,
+             * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
+             * was removed from the packet data by Wiretap, so the offset
+             * is relative to the beginning of the setup header, not relative
+             * to the beginning of the raw packet data, so we can't just
+             * round it up to a multiple of 64.)
+             */
+            if (padded)
+                offset += 16;
 
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
@@ -1996,10 +2056,37 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
             offset += 8;
         }
+
+        /*
+         * If this is padded (as is the case if the capture is done in
+         * memory-mapped mode), skip the padding; it's padded to a multiple
+         * of 64 bits *after* the pseudo-header and setup header.  The
+         * pseudo-header is 40 bytes, and the setup header is 8 bytes,
+         * so that's 16 bytes of padding to 64 bytes.  (The pseudo-header
+         * was removed from the packet data by Wiretap, so the offset
+         * is relative to the beginning of the setup header, not relative
+         * to the beginning of the raw packet data, so we can't just
+         * round it up to a multiple of 64.)
+         */
+        if (padded)
+            offset += 16;
+
         break;
     }
     if (tvb_reported_length_remaining(tvb, offset) != 0)
         proto_tree_add_item(tree, hf_usb_data, tvb, offset, -1, FALSE);
+}
+
+static void
+dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+{
+    dissect_linux_usb_common(tvb, pinfo, parent, FALSE);
+}
+
+static void
+dissect_linux_usb_mmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+{
+    dissect_linux_usb_common(tvb, pinfo, parent, TRUE);
 }
 
 void
@@ -2336,9 +2423,12 @@ proto_register_usb(void)
 void
 proto_reg_handoff_usb(void)
 {
-    dissector_handle_t linux_usb_handle;
+    dissector_handle_t linux_usb_handle, linux_usb_mmap_handle;
 
     linux_usb_handle = create_dissector_handle(dissect_linux_usb, proto_usb);
+    linux_usb_mmap_handle = create_dissector_handle(dissect_linux_usb_mmap,
+                                                    proto_usb);
 
     dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
+    dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAP, linux_usb_mmap_handle);
 }
