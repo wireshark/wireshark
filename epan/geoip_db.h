@@ -37,7 +37,7 @@ extern void geoip_db_init(void);
  *
  * @return The number GeoIP databases successfully loaded
  */
-extern guint geoip_num_dbs(void);
+extern guint geoip_db_num_dbs(void);
 
 /**
  * Fetch the name of a database
@@ -45,7 +45,7 @@ extern guint geoip_num_dbs(void);
  * @param dbnum Database index
  * @return The database name or "Invalid database"
  */
-const gchar *geoip_db_name(guint dbnum);
+extern const gchar *geoip_db_name(guint dbnum);
 
 /**
  * Fetch the database type. Types are enumerated in GeoIPDBTypes in GeoIP.h.
@@ -53,7 +53,7 @@ const gchar *geoip_db_name(guint dbnum);
  * @param dbnum Database index
  * @return The database type or -1
  */
-int geoip_db_type(guint dbnum);
+extern int geoip_db_type(guint dbnum);
 
 /**
  * Look up an IPv4 address in a database
@@ -63,7 +63,7 @@ int geoip_db_type(guint dbnum);
  * @param not_found The string to return if the lookup fails. May be NULL.
  * @return The database entry if found, else not_found
  */
-const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found);
+extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found);
 
 /**
  * Get all configured paths

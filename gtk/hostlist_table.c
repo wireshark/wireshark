@@ -604,7 +604,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 
 #ifdef HAVE_GEOIP
     for (i = 0; i < NUM_GEOIP_COLS; i++) {
-        if (i < geoip_num_dbs()) {
+        if (i < geoip_db_num_dbs()) {
             hosttable->default_titles[NUM_BUILTIN_COLS + i]  = geoip_db_name(i);
         } else {
             hosttable->default_titles[NUM_BUILTIN_COLS + i]  = "";
@@ -1108,7 +1108,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 #ifdef HAVE_GEOIP
         /* Filled in from the GeoIP config, if any */
         for (i = 0; i < NUM_GEOIP_COLS; i++) {
-            if (i < geoip_num_dbs() && talker->address.type == AT_IPv4) {
+            if (i < geoip_db_num_dbs() && talker->address.type == AT_IPv4) {
                 const guchar *name = geoip_db_lookup_ipv4(i, pntohl(talker->address.data), "-");
                 g_snprintf(geoip[i], COL_STR_LEN, "%s", format_text (name, strlen(name)));
                 entries[NUM_BUILTIN_COLS + i] = geoip[i];

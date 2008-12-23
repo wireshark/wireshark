@@ -243,6 +243,9 @@
 /* Define to have SMI */
 @HAVE_SMI@
 
+/* Define to have GeoIP */
+@HAVE_GEOIP@
+
 
 #ifndef WIN32
 #define WIN32			1

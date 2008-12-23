@@ -325,6 +325,13 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
 #
 SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 
+#
+# Optional: GeoIP, IP address database lookups
+#
+# Used to map IP addresses to MaxMind GeoIP database entries
+#
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+
 
 ##### Tools #####
 
@@ -873,6 +880,16 @@ SMI_LIBS=$(SMI_DIR)\lib\smi.lib
 SMI_LIBS=
 SMI_CFLAGS=
 SMI_CONFIG=
+!ENDIF
+
+!IFDEF GEOIP_DIR
+GEOIP_CONFIG=^#define HAVE_GEOIP 1
+GEOIP_CFLAGS=/I$(GEOIP_DIR)\libGeoIP
+GEOIP_LIBS=$(GEOIP_DIR)\libGeoIP\GeoIP.lib
+!ELSE
+GeoIP_LIBS=
+GeoIP_CFLAGS=
+GeoIP_CONFIG=
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK

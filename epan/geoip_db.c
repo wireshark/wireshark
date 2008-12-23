@@ -162,7 +162,7 @@ geoip_db_init(void) {
 }
 
 guint
-geoip_num_dbs(void) {
+geoip_db_num_dbs(void) {
 	return geoip_dat_arr->len;
 }
 
@@ -263,7 +263,7 @@ void
 geoip_db_init(void) {}
 
 guint
-geoip_num_dbs(void) {
+geoip_db_num_dbs(void) {
 	return 0;
 }
 

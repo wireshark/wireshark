@@ -21,7 +21,7 @@ CFLAGS=-WX -DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
 	$(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(LUA_CFLAGS) $(SMI_CFLAGS) \
+	$(LUA_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
@@ -348,6 +348,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \
 	    -e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
+	    -e "s/@HAVE_GEOIP@/$(GEOIP_CONFIG)/" \
 	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    < config.h.win32 > $@
 
@@ -786,6 +787,10 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. libsmi-0.4.8.zip
 !ENDIF
+!IFDEF GEOIP_DIR
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		. GeoIP-1.4.5ws.zip
+!ENDIF
 
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.14"
@@ -891,6 +896,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
     rm -r -f $(WIRESHARK_LIBS)/upx301w
+    rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.

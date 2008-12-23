@@ -1292,7 +1292,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
   }
-  
+
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (check_col(pinfo->cinfo, COL_DSCP_VALUE)) {
 	col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
@@ -1501,7 +1501,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 #ifdef HAVE_GEOIP
   if (tree && ip_use_geoip) {
-    for (dbnum = 0; dbnum < geoip_num_dbs(); dbnum++) {
+    for (dbnum = 0; dbnum < geoip_db_num_dbs(); dbnum++) {
       geoip_src_str = geoip_db_lookup_ipv4(dbnum, src32, NULL);
       geoip_dst_str = geoip_db_lookup_ipv4(dbnum, dst32, NULL);
 
@@ -1548,7 +1548,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         item  = proto_tree_add_string_format_value(ip_tree, geoip_hf, tvb,
           offset + IPH_SRC, 4, geoip_src_str, "%s", geoip_src_str);
         PROTO_ITEM_SET_GENERATED(item);
-        PROTO_ITEM_SET_HIDDEN(item);        
+        PROTO_ITEM_SET_HIDDEN(item);
       }
 
       if (geoip_dst_str) {
@@ -1558,7 +1558,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         item  = proto_tree_add_string_format_value(ip_tree, geoip_hf, tvb,
           offset + IPH_DST, 4, geoip_dst_str, "%s", geoip_dst_str);
         PROTO_ITEM_SET_GENERATED(item);
-        PROTO_ITEM_SET_HIDDEN(item);        
+        PROTO_ITEM_SET_HIDDEN(item);
       }
     }
   }

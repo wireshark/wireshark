@@ -14,7 +14,7 @@ LINK= link
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) \
 	$(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
-	$(SMI_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+	$(SMI_CFLAGS) $(GEOIP_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -38,6 +38,7 @@ libwireshark_LIBS = \
 	$(GNUTLS_LIBS) \
 	$(LUA_LIBS) \
 	$(SMI_LIBS) \
+	$(GEOIP_LIBS) \
 	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF ICONV_DIR
