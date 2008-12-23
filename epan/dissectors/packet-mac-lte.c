@@ -731,7 +731,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                 tvb, offset*8 + 1, 7, &length, FALSE);
                     offset++;
                 }
-                pdu_lengths[number_of_headers] = length;
+                pdu_lengths[number_of_headers] = (gint16)length;
             }
             else {
                 pdu_lengths[number_of_headers] = 0;
