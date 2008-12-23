@@ -3353,9 +3353,9 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 		consumed++;
 		switch(codec){
 			case 3:
-				/* fall trough */
+				/* fall through */
 			case 4:
-				/* fall trough */
+				/* fall through */
 			case 0xb:
 				/* FR_AMR is coded '011' 
 				 * HR_AMR is coded '100'
@@ -3366,12 +3366,12 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 				consumed+=2;
 				break;
 			case 0x9:
-				/* fall trough */
+				/* fall through */
 			case 0xc:
-				/* fall trough */
+				/* fall through */
 			case 0xd:
 				/* FR_AMR-WB is coded '1001'  
-				 * OFR_AMR-WB is coded ‘1100’  
+				 * OFR_AMR-WB is coded '1100'
 				 * OHR_AMR-WB is coded '1101'
 				 */
 				proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
@@ -3435,9 +3435,9 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 		consumed++;
 		switch(codec){
 			case 3:
-				/* fall trough */
+				/* fall through */
 			case 4:
-				/* fall trough */
+				/* fall through */
 			case 0xb:
 				/* FR_AMR is coded '011' 
 				 * HR_AMR is coded '100'
@@ -3448,12 +3448,12 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 				consumed+=2;
 				break;
 			case 0x9:
-				/* fall trough */
+				/* fall through */
 			case 0xc:
-				/* fall trough */
+				/* fall through */
 			case 0xd:
 				/* FR_AMR-WB is coded '1001'  
-				 * OFR_AMR-WB is coded ‘1100’  
+				 * OFR_AMR-WB is coded '1100'
 				 * OHR_AMR-WB is coded '1101'
 				 */
 				proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");

@@ -106,9 +106,9 @@ static const value_string security_header_type_vals[] = {
 	{ 10,	"Reserved"},
 	{ 11,	"Reserved"},
 	{ 12,	"Security header for the SERVICE REQUEST message "},
-	{ 13,	"These values are not used in this version of the protocol. If received they shall be interpreted as ‘1100’. (NOTE)"},
-	{ 14,	"These values are not used in this version of the protocol. If received they shall be interpreted as ‘1100’. (NOTE)"},
-	{ 15,	"These values are not used in this version of the protocol. If received they shall be interpreted as ‘1100’. (NOTE)"},
+	{ 13,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
+	{ 14,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
+	{ 15,	"These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\". (NOTE)"},
 	{ 0,	NULL }
 };
 
