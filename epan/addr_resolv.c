@@ -110,6 +110,7 @@
 #  define socklen_t unsigned int
 # endif
 # include <ares.h>
+# include <ares_version.h>
 #else
 # ifdef HAVE_GNU_ADNS
 #  include <errno.h>
@@ -306,7 +307,11 @@ typedef struct _c_ares_queue_msg
   int                 family;
 } c_ares_queue_msg_t;
 
+#if ARES_VERSION <= 0x140
+static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
+#else
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
+#endif
 
 #else
 /* GNU ADNS */
@@ -668,23 +673,25 @@ static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
 #ifdef HAVE_C_ARES
 
 static void
+#if ARES_VERSION <= 0x140
+c_ares_ghba_cb(void *arg, int status, struct hostent *he) {
+#else
 c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
+#endif
   c_ares_queue_msg_t *caqm = arg;
   char **p;
-  char name[MAXNAMELEN];
 
   if (!caqm) return;
   c_ares_in_flight--;
 
   if (status == ARES_SUCCESS) {
     for (p = he->h_addr_list; *p != NULL; p++) {
-      inet_ntop(he->h_addrtype, *p, name, sizeof(name));
       switch(caqm->family) {
         case AF_INET:
-          add_ipv4_name(caqm->addr.ip4, name);
+          add_ipv4_name(caqm->addr.ip4, he->h_name);
           break;
         case AF_INET6:
-          add_ipv6_name(&caqm->addr.ip6, name);
+          add_ipv6_name(&caqm->addr.ip6, he->h_name);
           break;
         default:
           /* Throw an exception? */
