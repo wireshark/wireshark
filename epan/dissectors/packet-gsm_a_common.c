@@ -725,7 +725,6 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, i
 {
 	guint8		oct;
 	guint16		parm_len;
-	guint8		lengt_length = 1;
 	guint16		consumed;
 	guint32		curr_offset;
 	proto_tree		*subtree;
