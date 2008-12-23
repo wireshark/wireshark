@@ -1126,14 +1126,18 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_UUID_E:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_e, tvb, offset+4, 8, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_e, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_uuid_e;
+      if (tlv_len > 16 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
     case WPS_TLV_TYPE_UUID_R:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_r, tvb, offset+4, 8, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_r, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_uuid_r;
+      if (tlv_len > 16 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
