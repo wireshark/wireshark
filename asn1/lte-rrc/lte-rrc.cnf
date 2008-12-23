@@ -29,3 +29,170 @@ UL-DCCH-Message              @ul.dcch
 	if ((nas_eps_tvb)&&(nas_eps_handle))
 		call_dissector(nas_eps_handle,nas_eps_tvb,%(ACTX)s->pinfo, tree);
 
+#.FN_HDR MasterInformationBlock
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock");
+  }
+
+#.FN_HDR SystemInformation
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SystemInformation");
+  }
+
+#.FN_HDR SystemInformationBlockType1
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1");
+  }
+
+#.FN_HDR Paging
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Paging");
+  }
+
+#.FN_HDR RRCConnectionReestablishment
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishment");
+  }
+
+#.FN_HDR RRCConnectionReestablishmentReject
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReject");
+  }
+
+#.FN_HDR RRCConnectionReject
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
+  }
+
+#.FN_HDR RRCConnectionSetup
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
+  }
+
+#.FN_HDR CDMA2000-CSFBParametersResponse
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CDMA2000-CSFBParametersResponse");
+  }
+
+#.FN_HDR DLInformationTransfer
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "DLInformationTransfer");
+  }
+
+#.FN_HDR HandoverFromEUTRAPreparationRequest
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "HandoverFromEUTRAPreparationRequest");
+  }
+
+#.FN_HDR MobilityFromEUTRACommand
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "MobilityFromEUTRACommand");
+  }
+
+#.FN_HDR RRCConnectionReconfiguration
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfiguration");
+  }
+
+#.FN_HDR RRCConnectionRelease
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease");
+  }
+
+#.FN_HDR SecurityModeCommand
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
+  }
+
+#.FN_HDR UECapabilityEnquiry
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry");
+  }
+
+#.FN_HDR RRCConnectionReestablishmentRequest
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest");
+  }
+
+#.FN_HDR RRCConnectionRequest
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
+  }
+
+#.FN_HDR CDMA2000-CSFBParametersRequest
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CDMA2000-CSFBParametersRequest");
+  }
+
+#.FN_HDR MeasurementReport
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "MeasurementReport");
+  }
+
+#.FN_HDR RRCConnectionReconfigurationComplete
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReconfigurationComplete");
+  }
+
+#.FN_HDR RRCConnectionReestablishmentComplete
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComplete");
+  }
+
+#.FN_HDR RRCConnectionSetupComplete
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
+  }
+
+#.FN_HDR SecurityModeComplete
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
+  }
+
+#.FN_HDR SecurityModeFailure
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
+  }
+
+#.FN_HDR UECapabilityInformation
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation");
+  }
+
+#.FN_HDR ULHandoverPreparationTransfer
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "ULHandoverPreparationTransfer");
+  }
+
+#.FN_HDR ULInformationTransfer
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer");
+  }
