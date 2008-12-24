@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# usage:  ./make-version.pl [-p] [--package-version]
+# usage:  ./make-version.pl [-p|--package-version]
 #
 # If "version.conf" is present, it is parsed for configuration values.  
 # Possible values are:
@@ -45,11 +45,10 @@
 # Default configuration:
 #
 # enable: 1
-# svn_client: 0 <- This needs to change in order to support SVN 1.4
+# svn_client: 0
 # format: SVN %Y%m%d%H%M%S
 # pkg_enable: 1
 # pkg_format: -SVN-%#
-# am_init: 0
 
 # XXX - We're pretty dumb about the "%#" substitution, and about having
 # spaces in the package format.
@@ -63,7 +62,7 @@ use Getopt::Long;
 my $version_file = 'svnversion.h';
 my $package_string = "";
 my $vconf_file = 'version.conf';
-my $last = 0;
+my $last_change = 0;
 my $revision = 0;
 my $pkg_version = 0;
 my %version_pref = (
@@ -102,31 +101,32 @@ sub read_svn_info {
 			print ("Unable to open $srcdir/.svn/entries, trying 'svn info'\n");
 			# Fall back to "svn info"
 			$version_pref{"svn_client"} = 1;
+		} else {
+			# We need to find out whether our parser can handle the entries file
+			$line = <ENTRIES>;
+			chomp $line;
+			if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
+				$repo_version = "pre1.4";
+			} elsif ($line =~ /^8$/) {
+				$repo_version = "1.4";
+			} else {
+				$repo_version = "unknown";
+			}
 		}
-
-                else {
-                        # We need to find out whether our parser can handle the entries file
-                        $line = <ENTRIES>;
-                        chomp $line;
-                        if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
-			        $repo_version = "pre1.4";
-                        } elsif ($line =~ /^8$/) {
-                                $repo_version = "1.4";
-                        } else {
-                                $repo_version = "unknown";
-                        }
-                }
 	}
 	if ($version_pref{"svn_client"} || ($repo_version ne "pre1.4")) {
+		if (!$version_pref{"svn_client"}) {
+			close ENTRIES;
+		}
 		$line = qx{svn info $srcdir};
 		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+			$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
 		}
 		if ($line =~ /Last Changed Rev: (\d+)/) {
 			$revision = $1;
 		}
 		if ($line =~ /^\s*$/ || $revision =~ /^\s*$/) {
-			$last = "unknown";
+			$last_change = "unknown";
 			$revision = "unknown";
 		}
 	} else {
@@ -139,13 +139,13 @@ sub read_svn_info {
 			if ($in_entries) {
 				if ($line =~ /name="(.*)"/) { $svn_name = $1; }
 				if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
-					$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
 				}
 				if ($line =~ /revision="(\d+)"/) { $revision = $1; }
 			}
 			if ($line =~ /\/>/) {
 				if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
-						$last && $revision) {
+						$last_change && $revision) {
 					$in_entries = 0;
 					last;
 				}
@@ -156,12 +156,11 @@ sub read_svn_info {
 
 	# If we picked up the revision and modification time, 
 	# generate our strings.
-	if ($revision && $last) {
+	if ($revision && $last_change) {
 		$version_format =~ s/%#/$revision/;
 		$package_format =~ s/%#/$revision/;
-		$package_string = strftime($package_format, gmtime($last));
+		$package_string = strftime($package_format, gmtime($last_change));
 	}
-		
 }
 
 
@@ -228,7 +227,7 @@ sub print_svn_version
 
 	if ($pkg_version) { return; }
 
-	if ($last && $revision) {
+	if ($last_change && $revision) {
 		$svn_version = "#define SVNVERSION \"SVN Rev " . 
 			$revision . "\"\n";
 	} else {
@@ -236,7 +235,6 @@ sub print_svn_version
 	}
 	if (open(OLDVER, "<$version_file")) {
 		if (<OLDVER> eq $svn_version) {
-			print "$version_file is up-to-date.\n";
 			$needs_update = 0;
 		}
 		close OLDVER;
@@ -248,6 +246,8 @@ sub print_svn_version
 		print VER "$svn_version";
 		close VER;
 		print "$version_file has been updated.\n";
+	} else {
+		print "$version_file is up-to-date.\n";
 	}
 }
 
@@ -294,7 +294,7 @@ if (-d "$srcdir/.svn") {
 		&update_config_nmake;
 	} elsif ($version_pref{"enable"} == 0) {
 		print "Version tag disabled in $vconf_file.\n";
-		$last = 0;
+		$last_change = 0;
 		$revision = 0;
 	} else {
 		print "SVN version tag will be computed.\n";
