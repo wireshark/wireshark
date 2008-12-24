@@ -233,7 +233,7 @@ preview_do(GtkWidget *prev, wtap *wth)
         }
 
         packets++;
-        if(packets%1000) {
+        if(packets%1000 == 0) {
             /* do we have a timeout? */
             time(&time_current);
             if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
