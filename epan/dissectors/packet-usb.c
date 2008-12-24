@@ -2084,7 +2084,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 }
 
 static void
-dissect_linux_usb_mmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+dissect_linux_usb_mmapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
     dissect_linux_usb_common(tvb, pinfo, parent, TRUE);
 }
@@ -2423,12 +2423,12 @@ proto_register_usb(void)
 void
 proto_reg_handoff_usb(void)
 {
-    dissector_handle_t linux_usb_handle, linux_usb_mmap_handle;
+    dissector_handle_t linux_usb_handle, linux_usb_mmapped_handle;
 
     linux_usb_handle = create_dissector_handle(dissect_linux_usb, proto_usb);
-    linux_usb_mmap_handle = create_dissector_handle(dissect_linux_usb_mmap,
-                                                    proto_usb);
+    linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
+                                                       proto_usb);
 
     dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
-    dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAP, linux_usb_mmap_handle);
+    dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
 }
