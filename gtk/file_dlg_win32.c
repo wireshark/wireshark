@@ -887,7 +887,6 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 
 
 #define PREVIEW_STR_MAX      200
-#define PREVIEW_TIMEOUT_SECS   3
 
 
 /* If preview_file is NULL, disable the elements.  If not, enable and
@@ -975,7 +974,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
             packet++;
             if(packet%100 == 0) {
                 time(&time_current);
-                if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
+                if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
                     is_breaked = TRUE;
                     break;
                 }
