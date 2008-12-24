@@ -973,7 +973,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
                 stop_time = cur_time;
             }
             packet++;
-            if(packet%100) {
+            if(packet%100 == 0) {
                 time(&time_current);
                 if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
                     is_breaked = TRUE;
