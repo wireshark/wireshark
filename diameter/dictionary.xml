@@ -2703,6 +2703,257 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 1288 Media-Initiator-Party UTF8String
 Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 -->
+<!--    
+3GPP TS 29.281 V8.1.0 (2008-12)
+-->
+		<avp name="Subscription-Data" code="1400" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Subscriber-Status"/>
+					<gavp name="MSISDN"/> 
+					<gavp name="STN-SR"/> 
+					<gavp name="Network-Access-Mode"/>
+					<gavp name="Operator-Determined-Barring"/>
+					<gavp name="HPLMN-ODB"/>
+					<gavp name="Regional-Subscription-Zone-Code"/>
+					<gavp name="Access-Restriction-Data"/>
+					<gavp name="APN-OI-Replacement"/>
+					<gavp name="3GPP-Charging-Characteristics"/> 
+					<gavp name="AMBR"/>
+					<gavp name="APN-Configuration-Profile"/>
+					<gavp name="RAT-Frequency-Selection-Priority-ID"/>
+					<gavp name="Trace-Data"/>
+					<gavp name="GPRS-Subscription Data"/>
+					<gavp name="CSG-Subscription-Data"/> 
+					<gavp name="Roaming-Restricted-Due-To-Unsupported-Feature"/>
+
+		</avp>
+		<avp name="Terminal-Information" code="1401" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="IMEI"/> 
+					<gavp name="3GPP2-MEID"/>
+					<gavp name="Software-Version"/>
+		</avp>
+		<avp name="IMEI" code="1402" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Software-Version" code="1403" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ULR-Flags" code="1405" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="ULA-Flags" code="1406" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Visited-PLMN-Id" code="1407" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Requested-EUTRAN-Authentication-Info" code="1408" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Number-Of-Requested-Vectors"/>
+					<gavp name="Immediate-Response-Preferred"/>
+					<gavp name="Re-synchronization-Info"/>
+		</avp>
+		<avp name="Requested-UTRAN-GERAN-Authentication-Info" code="1409" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Number-Of-Requested-Vectors"/>
+					<gavp name="Immediate-Response-Preferred"/>
+					<gavp name="Re-synchronization-Info"/>
+		</avp>
+		<avp name="Number-Of-Requested-Vectors" code="1410" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Re-Synchronization-Info" code="1411" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Immediate-Response-Preferred" code="1412" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Authentication-Info" code="1413" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="E-UTRAN-Vector"/> 
+					<gavp name="UTRAN-Vector"/>
+					<gavp name="GERAN-Vector"/>
+		</avp>    
+		<avp name="E-UTRAN-Vector"	code="1414" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Item-Number"/>
+					<gavp name="RAND"/>
+					<gavp name="XRES"/>
+					<gavp name="AUTN"/>
+					<gavp name="KASME"/>
+		</avp>
+		<avp name="UMTS-Vector" code="1415" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Item-Number"/>
+					<gavp name="RAND"/>
+					<gavp name="XRES"/>
+					<gavp name="AUTN"/>
+					<gavp name="Confidentiality-Key"/>
+					<gavp name="Integrity-Key"/>
+		</avp>
+		<avp name="GERAN-Vector" code="1416" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Item-Number"/>
+					<gavp name="RAND"/>
+					<gavp name="SRES"/>
+					<gavp name="Kc"/>
+		</avp>
+		<avp name="Network-Access-Mode" code="1417" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="PACKET_AND_CIRCUIT" code="0"/>
+      <enum name="ONLY_CIRCUIT" code="1"/>
+      <enum name="ONLY_PACKET" code="2"/>
+		</avp>
+		<avp name="HPLMN-ODB" code="1418" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Item-Number" code="1419" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Cancellation-Type" code="1420" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="MME_UPDATE_PROCEDURE" code="0"/>
+      <enum name="SGSN_UPDATE_PROCEDURE" code="1"/>
+      <enum name="SUBSCRIPTION_WITHDRAWAL" code="2"/>
+      <enum name="UPDATE_PROCEDURE_IWF" code="3"/>
+		</avp>
+		<avp name="DSR-Flags" code="1421" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="DSA-Flags" code="1422" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Context-Identifier" code="1423" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Subscriber-Status" code="1424" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="SERVICE_GRANTED" code="0"/>
+      <enum name="OPERATOR_DETERMINED_BARRING" code="1"/>
+		</avp>
+		<avp name="Operator-Determined-Barring" code="1425" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Access-Restriction-Data" code="1426" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="APN-OI-Replacement" code="1427" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="UTF8String"/>
+		</avp>
+		<avp name="All-APN-Configurations-Included-Indicator" code="1428" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="ALL_APN_CONFIGURATIONS_INCLUDED " code="0"/>
+      <enum name="MODIFIED/ADDED_APN_CONFIGURATIONS_INCLUDED" code="1"/>
+		</avp>
+		<avp name="APN-Configuration-Profile" code="1429" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Context-Identifier"/>
+					<gavp name="All-APN-Configurations-Included-Indicator"/>
+          <gavp name="APN-Configuration"/>
+    </avp>
+		<avp name="APN-Configuration" code="1430" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Context-Identifier"/> 
+ 					<gavp name="Served-Party-IP-Address"/>
+ 					<gavp name="Served-Party-IP-Address"/>
+					<gavp name="PDN-Type"/>
+					<gavp name="Service-Selection}
+					<gavp name="EPS-Subscribed-QoS Profile"/>
+					<gavp name="VPLMN-Dynamic-Address-Allowed"/>
+					<gavp name="MIP6-Agent-Info"/>
+					<gavp name="PDN-GW-Allocation-Type"/>
+					<gavp name="3GPP-Charging-Characteristics"/>
+					<gavp name="AMBR"/>
+		</avp>
+		<avp name="EPS-Subscribed-QoS-Profile" code="1431" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="QoS-Class-Identifier"/>
+					<gavp name="ARP"/>
+		</avp>
+		<avp name="VPLMN-Dynamic-Address-Allowed" code="1432" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="NOTALLOWED" code="0"/>
+      <enum name="ALLOWED" code="1"/>
+		</avp>
+		<avp name="STN-SR" code="1433" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="ARP" code="1434" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="AMBR" code="1435" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Grouped"/>
+					<gavp name="Max-Requested-Bandwidth-UL"/>
+					<gavp name="Max-Requested-Bandwidth-DL"/>
+		</avp>
+  <avp name="PDN-GW-Allocation-Type" code="1438" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="STATIC" code="0"/>
+      <enum name="DYNAMIC" code="1"/>
+		</avp>
+		<avp name="RAT-Frequency-Selection-Priority-ID" code="1440" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="IDA-Flags" code="1441" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="PUA-Flags" code="1442" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="NOR-Flags" code="1443" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="User-Id" code="1444" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Equipment-Status" code="1445" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="WHITELISTED" code="0"/>
+      <enum name="BLACKLISTED" code="1"/>
+      <enum name="GREYLISTED" code="2"/>
+		</avp>
+		<avp name="Regional-Subscription-Zone-Code" code="1446" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="RAND" code="1447" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="XRES" code="1448" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="AUTN" code="1449" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="KASME" code="1450" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="CK" code="1451" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="IK" code="1452" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Kc" code="1453" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="SRES" code="1454" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="OctetString"/>
+		</avp>
+		<avp name="Requesting-Node-Type" code="1455" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="MME" code="0"/>
+      <enum name="SGSN" code="1"/>
+      <enum name="MME/SGSN" code="2"/>
+		</avp>
+		<avp name="PDN-Type" code="1456" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="Enumerated"/>
+      <enum name="IPv4" code="0"/>
+      <enum name="IPv6" code="1"/>
+      <enum name="IPv4v6" code="2"/>
+		</avp>
+
+
 <!--- 3GPP2 AVP's X.S0013-014-0 
 http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
 -->
