@@ -296,11 +296,11 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, proto_tree *tree, int offset){
 	octet = tvb_get_guint8(tvb,offset);
 	mcc3 = octet & 0x0f;
 	/* MNC, Mobile network code (octet 3 bits 5 to 8, octet 4)  */
-	mnc3 = octet >> 4;
+	mnc1 = octet >> 4;
 	offset++;
 	octet = tvb_get_guint8(tvb,offset);
-	mnc1 = octet & 0x0f;
-	mnc2 = octet >> 4;
+	mnc2 = octet & 0x0f;
+	mnc3 = octet >> 4;
 
 	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
 	mnc = 10 * mnc1 + mnc2;
