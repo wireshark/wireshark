@@ -1507,9 +1507,20 @@ Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 632 Associated-Identities Grouped
 633 Originating-Request Enumerated
 634 Wildcarded-PSI UTF8String
-29.229 [2]
-Note: The AVP codes from 634 to 699 are reserved for TS 29.229.
-
+635	SIP-Digest-Authenticate	Grouped	
+636	Wildcarded-IMPU	UTF8String	
+637	UAR-Flags	Unsigned32	
+638	Loose-Route-Indication	Enumerated	
+639	SCSCF-Restoration-Info	Grouped	
+640	Path	OctetString	
+641	Contact	OctetString	
+642	Subscription-Info	Grouped	
+643	Call-ID-SIP-Header	OctetString	
+644	From-SIP-Header	OctetString	
+645	To-SIP-Header	OctetString	
+646	Record-Route	OctetString	
+647	Associated-Registered-Identities	Grouped	
+Note: The AVP codes from 648 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
@@ -2116,7 +2127,20 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
 -->
-<!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
+    <avp name="RAT-Type" code="1032" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
+      <type type-name="Enumerated" />
+      <enum name="WLAN" code="0" />
+      <enum name="UTRAN" code="1000" />
+      <enum name="GERAN" code="1001" />
+      <enum name="GAN" code="1002" />
+      <enum name="HSPA_EVOLUTION" code="1003" />
+      <enum name="EUTRAN" code="1004" />
+      <enum name="CDMA2000_1X" code="2000" />
+      <enum name="HRPD" code="2001" />
+      <enum name="UMB" code="2002" />
+    </avp>
+
+    <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -2952,8 +2976,136 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
       <enum name="IPv6" code="1"/>
       <enum name="IPv4v6" code="2"/>
 		</avp>
+		<avp name="Service-Selection" code="1457" vendor-bit="must" vendor-id="TGPP">
+    	<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Trace-Data" code="1458" vendor-bit="must" vendor-id="TGPP">	
+      <type type-name="Grouped"/>
+      <gavp name="Trace-Reference"/>
+      <gavp name="Trace-Depth-List"/>
+      <gavp name="Trace-NE-Type-List"/>
+      <gavp name="Trace-Interface-List"/>
+      <gavp name="Trace-Event-List"/>
+      <gavp name="OMC-Id"/>
+    </avp>
+		<avp name="Trace-Reference" code="1459" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>	
+		</avp>
+		<avp name="Trace-Depth-List" code="1460" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Grouped"/>
+      <gavp name="Network-Element-Type"/>
+      <gavp name="Trace-Depth"/>
+    </avp>
+		<avp name="Network-Element-Type" code="1461" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="MME" code="0"/>
+      <enum name="SGSN" code="1"/>
+      <enum name="Serving GW" code="2"/>
+      <enum name="PDN GW" code="3"/>
+      <enum name="eNodeB" code="4"/>
+      <enum name="RNC" code="5"/>
+    </avp>
+		<avp name="Trace-Depth" code="1462" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="Minimum" code="0"/>
+      <enum name="Medium" code="1"/>
+      <enum name="Maximum" code="2"/>
+      <enum name="MinimumWithoutVendorSpecificExtension" code="3"/>
+      <enum name="MediumWithoutVendorSpecificExtension" code="4"/>
+      <enum name="MaximumWithoutVendorSpecificExtension" code="5"/>
+      <!--
+        The Trace-Depth AVP is of type Enumerated. 
+        The possible values are those defined in 3GPP TS 32.422 [23] for Trace Depth.
+      -->
+    </avp>
+		<avp name="Trace-NE-Type-List" code="1463" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+		</avp>
+		<avp name="Trace-Interface-List" code="1464" vendor-bit="must" vendor-id="TGPP">
+     <type type-name="OctetString"/>
+		</avp>
+		<avp name="Trace-Event-List" code="1465" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+		</avp>
+		<avp name="OMC-Id" code="1466" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+		</avp>
+		<avp name="GPRS-Subscription-Data" code="1467" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Grouped"/>
+      <gavp name="Complete-Data-List-Included-Indicator"/>
+      <gavp name="PDP-Context"/>
+    </avp>
+		<avp name="Complete-Data-List-Included-Indicator" code="1468" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="ALL_PDP_CONTEXTS_INCLUDED " code="0"/>
+      <enum name="MODIFIED/ADDED_PDP CONTEXTS_INCLUDED" code="1"/>
+    </avp>
+		<avp name="PDP-Context" code="1469" vendor-bit="must" vendor-id="TGPP">
+     <type type-name="Grouped"/>
+      <gavp name="Context-Identifier"/>
+      <gavp name="PDP-Type"/>
+      <gavp name="PDP-Address"/>
+      <gavp name="QoS-Subscribed"/>
+      <gavp name="VPLMN-Dynamic-Address-Allowed"/>
+      <gavp name="Service-Selection"/>
+      <gavp name="3GPP-Charging-Characteristics"/>
+      </avp>
+		<avp name="PDP-Type" code="1470" vendor-bit="must" vendor-id="TGPP">
+     <type type-name="OctetString"/>	
+		</avp>
+		<avp name="PDP-Address" code="1471" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="OctetString"/>
+		</avp>
+    <!--    
+Note: The AVP codes from 1472 to 1499 are reserved for TS 29.272.
+1500	Non-3GPP-User-Data	Grouped	29.273 [20]
+1501	Non-3GPP-IP-Access	Enumerated	
+1502	Non-3GPP-IP-Access-APN	Enumerated	
+1503	SGW-Address	Address	
+1504	ANID	UTF8String	
+Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
+2000	SMS-Information	Grouped	32.299 [5]
+2001	Data-Coding-Scheme	Integer32	
+2002	Destination-Interface	Grouped	
+2003	Interface-Id	UTF8String	
+2004	Interface-Port	UTF8String	
+2005	Interface-Text	UTF8String	
+2006	Interface-Type	Enumerated	
+2007	Message-Type	Enumerated	
+2008	Originating-SCCP-Address	Address	
+2009	Originator-Interface	Grouped	
+2010	Recipient-SCCP-Address	Address	
+2011	Reply-Path-Requested	Enumerated	
+2012	SM-Discharge-Time	Time	
+2013	SM-Protocol-ID	OctetString	
+2014	SM-Status	Enumerated	
+2015	SM-User-Data-Header	OctetString	
+2016	SMS-Node	Enumerated	
+2017	SMSC-Address	Address	
+2018	Client-Address	Address	
+2019	Number-of-Messages-Sent  	Unsigned32	
+2020	Low-Balance-Indication	Enumerated	
+2021	Remaining-Balance	Grouped	
+2022	Refund-Information	OctetString	
+Note: The AVP codes from 2023 to 2099 are reserved for TS 32.299
+2100	reserved	-	32.299 [5]
+2101	Application-Server-ID	UTF8String	
+2102	Application-Service-Type	Enumerated	
+2103	Application-Session-ID	Unsigned32	
+2104	Delivery-Status	UTF8String	
+2105	reserved	-	
+2106	reserved	-	
+2107	reserved	-	
+2108	reserved	-	
+2109	reserved	-	
+2110	IM-Information	Grouped	
+2111	Number-Of-Messages-Successfully-Exploded	Unsigned32	
+2112	Number-Of-Messages-Successfully-Sent	Unsigned32	
+2113	Total-Number-Of-Messages-Exploded	Unsigned32	
+2114	Total-Number-Of-Messages-Sent	Unsigned32	
+Note: The AVP codes from 2115 to 2199 are reserved for TS 32.299
 
-
+-->
 <!--- 3GPP2 AVP's X.S0013-014-0 
 http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
 -->
