@@ -64,6 +64,14 @@ extern "C" {
 #define ARPHRD_MAPOS	25		/* MAPOS			*/
 #define ARPHRD_TWINAX	26		/* Twinaxial			*/
 #define ARPHRD_EUI_64	27		/* EUI-64			*/
+#define ARPHRD_HIPARP	28		/* HIPARP			*/
+#define ARPHRD_IP_ARP_ISO_7816_3	29	/* IP and ARP over ISO 7816-3	*/
+#define ARPHRD_ARPSEC			30	/* ARPSec			*/
+#define ARPHRD_IPSEC_TUNNEL		31	/* IPsec tunnel			*/
+#define ARPHRD_INFINIBAND		32	/* InfiniBand			*/
+#define ARPHRD_TIA_102_PRJ_25_CAI	33	/* TIA-102 Project 25 CAI	*/
+#define ARPHRD_WIEGAND_INTERFACE	34	/* Wiegand Interface		*/
+#define ARPHRD_PURE_IP			35	/* Pure IP			*/
 
 /* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
 #define ARPHRD_IPGRE	778		/* GRE over IP */

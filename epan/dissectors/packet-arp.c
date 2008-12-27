@@ -288,6 +288,14 @@ static const value_string hrd_vals[] = {
   {ARPHRD_MAPOS,    "MAPOS"                },
   {ARPHRD_TWINAX,   "Twinaxial"            },
   {ARPHRD_EUI_64,   "EUI-64"               },
+  {ARPHRD_HIPARP,   "HIPARP"               },
+  {ARPHRD_IP_ARP_ISO_7816_3,  "IP and ARP over ISO 7816-3"},
+  {ARPHRD_ARPSEC,             "ARPSec"     },
+  {ARPHRD_IPSEC_TUNNEL,       "IPsec tunnel"},
+  {ARPHRD_INFINIBAND,         "InfiniBand" },
+  {ARPHRD_TIA_102_PRJ_25_CAI, "TIA-102 Project 25 CAI"},
+  {ARPHRD_WIEGAND_INTERFACE,  "Wiegand Interface"},
+  {ARPHRD_PURE_IP,            "Pure IP"    },
   {0,                NULL                  } };
 
 const gchar *
