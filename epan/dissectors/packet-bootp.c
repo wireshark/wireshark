@@ -103,6 +103,8 @@ static int hf_bootp_ip_your = -1;
 static int hf_bootp_ip_server = -1;
 static int hf_bootp_ip_relay = -1;
 static int hf_bootp_hw_addr = -1;
+static int hf_bootp_hw_addr_padding = -1;
+static int hf_bootp_hw_ether_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
@@ -119,7 +121,6 @@ static int hf_bootp_fqdn_name = -1;
 static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mtacap_len = -1;
 static int hf_bootp_docsis_cmcap_len = -1;
-static int hf_bootp_hw_ether_addr = -1;
 static int hf_bootp_alu_vid = -1;
 static int hf_bootp_alu_tftp1 = -1;
 static int hf_bootp_alu_tftp2 = -1;
@@ -3734,17 +3735,15 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		haddr = tvb_get_ptr(tvb, 28, hlen);
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
 		    && hlen == 6)
-			proto_tree_add_ether(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, haddr);
+			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, FALSE);
 		else
 			/* The chaddr element is 16 bytes in length,
 			   although only the first hlen bytes are used */
-			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb,
-					   28, 16,
+			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb, 28, 16,
 					   haddr,
-					   "%s",
-					   arphrdaddr_to_str(haddr,
-							     hlen,
-							     htype));
+					   "%s", arphrdaddr_to_str(haddr, hlen, htype));
+		if ((16 - hlen) > 0)
+			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, FALSE);
 	} else {
 		proto_tree_add_text(bp_tree,  tvb,
 					   28, 16, "Client address not given");
@@ -3898,6 +3897,11 @@ proto_register_bootp(void)
 
     { &hf_bootp_hw_addr,
       { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
+        BASE_NONE,			NULL,		 0x0,
+      	"", HFILL }},
+
+    { &hf_bootp_hw_addr_padding,
+      { "Client hardware address padding",	"bootp.hw.addr_padding", FT_BYTES,
         BASE_NONE,			NULL,		 0x0,
       	"", HFILL }},
 
