@@ -795,9 +795,9 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.14"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+_2.14.5-1_win32.zip
+		gtk2 gtk2.14/gtk+_2.14.6-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/gtk+-dev_2.14.5-1_win32.zip
+		gtk2 gtk2.14/gtk+-dev_2.14.6-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.14/cairo_1.8.0-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -836,9 +836,9 @@ process_libs:
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.22"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/pango_1.22.0-1_win32.zip
+		gtk2 gtk2.14/pango_1.22.2-1_win32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.14/pango-dev_1.22.0-1_win32.zip
+		gtk2 gtk2.14/pango-dev_1.22.2-1_win32.zip
 !ELSE
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
