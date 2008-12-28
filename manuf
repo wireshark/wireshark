@@ -4459,7 +4459,7 @@
 00:11:5C	Cisco
 00:11:5D	Cisco
 00:11:5E	ProminentD             # ProMinent Dosiertechnik GmbH
-00:11:5F	Intellix               # Intellix Co., Ltd.
+00:11:5F	ItxSecurit             # ITX Security Co., Ltd.
 00:11:60	Artdio                 # ARTDIO Company Co., LTD
 00:11:61	Netstreams             # NetStreams, LLC
 00:11:62	StarMicron             # STAR MICRONICS CO.,LTD.
@@ -6876,7 +6876,7 @@
 00:1A:CD	TidelEngin             # Tidel Engineering LP
 00:1A:CE	Yupiteru               # YUPITERU CORPORATION
 00:1A:CF	CTElettron             # C.T. ELETTRONICA
-00:1A:D0	SiemensSch             # Siemens Schweiz AG
+00:1A:D0	AlbisTechn             # Albis Technologies AG
 00:1A:D1	Fargo                  # FARGO CO., LTD.
 00:1A:D2	Eletronica             # Eletronica Nitron Ltda
 00:1A:D3	Vamp                   # Vamp Ltd.
@@ -9428,6 +9428,23 @@
 00:24:C5	MeridianAu             # Meridian Audio Limited
 00:24:C6	HagerElect             # Hager Electro SAS
 00:24:C7	Mobilarm               # Mobilarm Ltd
+00:24:C8	BroadbandS             # Broadband Solutions Group
+00:24:C9	BroadbandS             # Broadband Solutions Group
+00:24:CA	TobiiTechn             # Tobii Technology AB
+00:24:CB	AutonetMob             # Autonet Mobile
+00:24:CC	Fascinatio             # Fascinations Toys and Gifts, Inc.
+00:24:CD	WillowGara             # Willow Garage, Inc.
+00:24:CE	Exeltech               # Exeltech Inc
+00:24:CF	InscapeDat             # Inscape Data Corporation
+00:24:D0	ShenzhenSo             # Shenzhen SOGOOD Industry CO.,LTD.
+00:24:D1	Thomson                # Thomson Inc.
+00:24:D2	AskeyCompu             # Askey Computer
+00:24:D3	Qualica                # QUALICA Inc.
+00:24:D4	FreeboxSa              # FREEBOX SA
+00:24:D5	WinwardInd             # Winward Industrial Limited
+00:24:D6	IntelCorpo             # Intel Corporate
+00:24:D7	IntelCorpo             # Intel Corporate
+00:24:D8	IlsungPrec             # IlSung Precision
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12696,6 +12713,9 @@
 00:50:C2:A1:30:00/36	Talyst                 # Talyst, Inc.
 00:50:C2:A1:40:00/36	ElbitOfAme             # Elbit Systems of America - Tallahassee Operations
 00:50:C2:A1:50:00/36	Industrial             # Industrial Computing Ltd
+00:50:C2:A1:60:00/36	BaudischEl             # Baudisch Electronic GmbH
+00:50:C2:A1:70:00/36	WinnersSat             # Winners Satellite Electronics Corp.
+00:50:C2:A1:80:00/36	Eoslink
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
