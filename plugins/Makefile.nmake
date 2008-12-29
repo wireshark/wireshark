@@ -117,44 +117,44 @@ process-plugins:
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake $(PLUGIN_TARGET)
 
 ################################################################################
-# copy all plugins to /plugins/$(VERSION), so Wireshark will load them, when
-# started from within the source tree.
+# copy all plugins to $(INSTALL_DIR)/plugins/$(VERSION), so Wireshark will load them, when
+# started from $(INSTALL_DIR).
 ################################################################################
 
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
-	rm -rf $(VERSION)
-	mkdir $(VERSION)
-	xcopy agentx\*.dll $(VERSION) /d
-	xcopy artnet\*.dll $(VERSION) /d
-	xcopy asn1\*.dll $(VERSION) /d
-	xcopy ciscosm\*.dll $(VERSION) /d
-	xcopy docsis\*.dll $(VERSION) /d
-	xcopy enttec\*.dll $(VERSION) /d
-	xcopy ethercat\*.dll $(VERSION) /d
-	xcopy giop\*.dll $(VERSION) /d
-	xcopy gryphon\*.dll $(VERSION) /d
-	xcopy infiniband\*.dll $(VERSION) /d
-	xcopy irda\*.dll $(VERSION) /d
-	xcopy lwres\*.dll $(VERSION) /d
-	xcopy m2m\*.dll $(VERSION) /d
-	xcopy mate\*.dll $(VERSION) /d
-	xcopy opcua\*.dll $(VERSION) /d
-	xcopy opsi\*.dll $(VERSION) /d
-	xcopy pcli\*.dll $(VERSION) /d
-	xcopy profinet\*.dll $(VERSION) /d
-	xcopy rlm\*.dll $(VERSION) /d
-	xcopy rtnet\*.dll $(VERSION) /d
-	xcopy rudp\*.dll $(VERSION) /d
-	xcopy sbus\*.dll $(VERSION) /d
-	xcopy sercosiii\*.dll $(VERSION) /d
-	xcopy stats_tree\*.dll $(VERSION) /d
-	xcopy unistim\*.dll $(VERSION) /d
-	xcopy v5ua\*.dll $(VERSION) /d
-	xcopy wimax\*.dll $(VERSION) /d
-	xcopy wimaxasncp\*.dll $(VERSION) /d
+	cd..
+	xcopy plugins\agentx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\artnet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\asn1\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\ciscosm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\docsis\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\enttec\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\giop\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\gryphon\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\infiniband\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\irda\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\lwres\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\m2m\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\mate\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\opcua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\opsi\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\pcli\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\profinet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\rlm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\rtnet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\rudp\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\sbus\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\unistim\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\v5ua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\wimax\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy plugins\wimaxasncp\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	cd plugins
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 
 clean-deps:
-	rm -rf $(VERSION)
+	
