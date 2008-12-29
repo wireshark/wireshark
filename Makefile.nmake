@@ -984,38 +984,9 @@ install-generated-files:
 	xcopy ".\wimaxasncp\*.*" $(INSTALL_DIR)\wimaxasncp /d
 	if not exist $(INSTALL_DIR)\plugins mkdir $(INSTALL_DIR)\plugins
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
-	xcopy ".\plugins\agentx\agentx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\artnet\artnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\asn1\asn1.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\ciscosm\ciscosm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\docsis\docsis.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\enttec\enttec.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\ethercat\ethercat.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\giop\coseventcomm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\giop\cosnaming.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\giop\parlay.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\giop\tango.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\infiniband\infiniband.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\m2m\m2m.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\mate\mate.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\opcua\opcua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\opsi\opsi.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\pcli\pcli.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\profinet\profinet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\rlm\rlm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\rtnet\rtnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\rudp\rudp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\sbus\sbus.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\sercosiii\sercosiii.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\stats_tree\stats_tree.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\unistim\unistim.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\wimax\wimax.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\wimaxasncp\wimaxasncp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
+	cd plugins 
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins 
+	cd .. 
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
