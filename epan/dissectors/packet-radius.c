@@ -1539,6 +1539,11 @@ static void register_radius_fields(const char* unused _U_) {
 	g_array_free(ri.vend_vs,FALSE);
 
 	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+
+	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
+	radius_register_avp_dissector(0,14,dissect_login_ip_host);
+	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
+	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
 }
 
 
@@ -1585,10 +1590,6 @@ proto_reg_handoff_radius(void)
 
 		eap_handle = find_dissector("eap");
 
-		radius_register_avp_dissector(0,8,dissect_framed_ip_address);
-		radius_register_avp_dissector(0,14,dissect_login_ip_host);
-		radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
-		radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
 		initialized = TRUE;
 	} else {
 		if (alt_port != 0)

@@ -238,20 +238,30 @@
 %%
 
 void add_vendor(const gchar* name, guint32 vendor_id) {
-	radius_vendor_info_t* v = g_malloc(sizeof(radius_vendor_info_t));
+	radius_vendor_info_t* v;
 
+	v=g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(vendor_id));
+
+	if (!v) {
+		v = g_malloc(sizeof(radius_vendor_info_t));
+		v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+		v->code = vendor_id;
+		v->ett = -1;
+		v->name = NULL;
+	}
+
+	if (v->name)
+		g_free((gpointer) v->name);
 	v->name = g_strdup(name);
-	v->code = vendor_id;
-	v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-	v->ett = -1;
 
 	g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
 	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
 
-void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const  gchar* vendor_name, gboolean crypt, gboolean tagged) {
-	radius_attr_info_t* a = g_malloc(sizeof(radius_attr_info_t));
+void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor_name, gboolean crypt, gboolean tagged) {
+	radius_attr_info_t* a;
 	GHashTable* by_id;
+	guint32 code;
 
 	if (vendor_name) {
 		radius_vendor_info_t* v;
@@ -268,12 +278,20 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 		by_id = dict->attrs_by_id;
 	}
 
-	a->name = g_strdup(name);
-	a->code = strtol(code,NULL,10);
+	code=strtol(codestr, NULL, 10);
+
+	a=g_hash_table_lookup(by_id, GUINT_TO_POINTER(code));
+
+	if (!a) {
+		a = g_malloc(sizeof(radius_attr_info_t));
+		a->name = NULL;
+		a->dissector = NULL;
+	}
+
+	a->code = code;
 	a->encrypt = crypt;
 	a->tagged =  tagged;
 	a->type = type;
-	a->dissector = NULL;
 	a->vs = NULL;
 	a->hf = -1;
 	a->hf64 = -1;
@@ -281,7 +299,11 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 	a->hf_len = -1;
 	a->ett = -1;
 
-	g_hash_table_insert(by_id,GUINT_TO_POINTER(a->code),a);
+	if (a->name)
+		g_free((gpointer) a->name);
+	a->name = g_strdup(name);
+
+	g_hash_table_insert(by_id, GUINT_TO_POINTER(code),a);
 	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
 }
 
