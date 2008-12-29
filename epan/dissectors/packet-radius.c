@@ -117,6 +117,8 @@ static int hf_radius_framed_ipx_network = -1;
 static int hf_radius_cosine_vpi = -1;
 static int hf_radius_cosine_vci = -1;
 
+static int hf_radius_ascend_data_filter = -1;
+
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_eap = -1;
@@ -311,6 +313,73 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb) {
 		    tvb, 0, len, ip, "Login-IP-Host: %s (%s)",
 		    get_hostname(ip), str);
 	}
+
+	return str;
+}
+
+static const value_string ascenddf_filtertype[] = { {0, "generic"}, {1, "ip"}, {0, NULL} };
+static const value_string ascenddf_filteror[] = { {0, "drop"}, {1, "forward"}, {0, NULL} };
+static const value_string ascenddf_inout[] = { {0, "out"}, {1, "in"}, {0, NULL} };
+static const value_string ascenddf_proto[] = { {1, "icmp"}, {6, "tcp"}, {17, "udp"}, {0, NULL} };
+static const value_string ascenddf_portq[] = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
+
+static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb) {
+	const gchar *str;
+	GString	*filterstr;
+	int len;
+	guint8 proto, srclen, dstlen;
+	guint32 srcip, dstip;
+	guint16 srcport, dstport;
+	guint8 srcportq, dstportq;
+
+	len=tvb_length(tvb);
+
+	if (len != 24) {
+		str = ep_strdup_printf("Wrong attribute length %d", len);
+		return str;
+	}
+
+	filterstr=g_string_sized_new(64);
+
+	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, FALSE);
+
+	g_string_printf(filterstr, "%s %s %s",
+		val_to_str(tvb_get_guint8(tvb, 0), ascenddf_filtertype, "%u"),
+		val_to_str(tvb_get_guint8(tvb, 2), ascenddf_inout, "%u"),
+		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
+
+	proto=tvb_get_guint8(tvb, 14);
+	if (proto) {
+		str=val_to_str(proto, ascenddf_proto, "%u");
+		g_string_append_printf(filterstr, " %s", str);
+	}
+
+	srcip=tvb_get_ipv4(tvb, 4);
+	srclen=tvb_get_guint8(tvb, 12);
+	srcport=tvb_get_ntohs(tvb, 16);
+	srcportq=tvb_get_guint8(tvb, 20);
+
+	if (srcip || srclen || srcportq) {
+		g_string_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
+		if (srcportq)
+			g_string_append_printf(filterstr, " srcport %s %d",
+				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
+	}
+
+	dstip=tvb_get_ipv4(tvb, 8);
+	dstlen=tvb_get_guint8(tvb, 13);
+	dstport=tvb_get_ntohs(tvb, 18);
+	dstportq=tvb_get_guint8(tvb, 21);
+
+	if (dstip || dstlen || dstportq) {
+		g_string_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
+		if (dstportq)
+			g_string_append_printf(filterstr, " dstport %s %d",
+				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
+	}
+
+	str=ep_strdup(filterstr->str);
+	g_string_free(filterstr, TRUE);
 
 	return str;
 }
@@ -1479,7 +1548,10 @@ static void register_radius_fields(const char* unused _U_) {
 			 "Duplicate Request", HFILL }},
 		 { &hf_radius_rsp_dup,
 		 { "Duplicate Response", "radius.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-			 "Duplicate Response", HFILL }}
+			 "Duplicate Response", HFILL }},
+		 { &hf_radius_ascend_data_filter,
+		 { "Ascend Data Filter", "radius.ascenddatafilter", FT_BYTES, BASE_HEX, NULL, 0x0,
+			 "Ascend Data Filter", HFILL }}
 	 };
 	 
 	 gint *base_ett[] = {
@@ -1543,7 +1615,10 @@ static void register_radius_fields(const char* unused _U_) {
 	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
 	radius_register_avp_dissector(0,14,dissect_login_ip_host);
 	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
-	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
+	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);
+	radius_register_avp_dissector(VENDOR_ASCEND,242,dissect_ascend_data_filter);
+	radius_register_avp_dissector(VENDOR_REDBACK,242,dissect_ascend_data_filter);
+	radius_register_avp_dissector(0,242,dissect_ascend_data_filter);
 }
 
 
