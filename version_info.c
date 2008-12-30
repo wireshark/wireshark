@@ -407,7 +407,12 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			break;
 
 		case 6:
+#ifndef VER_NT_WORKSTATION
+#define VER_NT_WORKSTATION 0x01
+			if ((info.wReserved[1] & 0xff) == VER_NT_WORKSTATION)
+#else
 			if (info.wProductType == VER_NT_WORKSTATION)
+#endif
 				g_string_append_printf(str, "Windows Vista");
 			else
 				g_string_append_printf(str, "Windows Server 2008");
