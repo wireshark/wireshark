@@ -68,16 +68,20 @@ uat_t* uat_new(const char* name,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
 			   uat_field_t* flds_array) {
+	/* Create new uat */
 	uat_t* uat = g_malloc(sizeof(uat_t));
 	guint i;
 
+	/* Add to global array of uats */
 	if (!all_uats)
 		all_uats = g_ptr_array_new();
 
 	g_ptr_array_add(all_uats,uat);
 
+	/* Check params */
 	g_assert(name && size && filename && data_ptr && numitems_ptr);
 
+	/* Set uat values from inputs */
 	uat->name = g_strdup(name);
 	uat->record_size = size;
 	uat->filename = g_strdup(filename);
@@ -107,7 +111,6 @@ uat_t* uat_new(const char* name,
 	}
 
 	uat->ncols = i;
-
 
 	*data_ptr = NULL;
 	*numitems_ptr = 0;
