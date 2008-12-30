@@ -889,13 +889,21 @@ nextcontext:
 						tempchar = tempchar - 0x20;
 	
 					if ( tempchar == 'P' || tempchar == 'O'){
-						tvb_command_end_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '}');
+						gint tvb_topology_end_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '}');
+						if ( tvb_topology_end_offset == -1 ){
+							proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Missing \"}\" ]");
+							return;
+						}
+
 						tvb_command_start_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '{');
-						dissect_megaco_topologydescriptor(tvb, megaco_tree_command_line, tvb_command_end_offset-1, tvb_command_start_offset+1);
-						tvb_next_offset = tvb_command_end_offset;
+						if ( tvb_command_start_offset == -1 ){
+							proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Missing \"{\" ]");
+							return;
+						}
+						dissect_megaco_topologydescriptor(tvb, megaco_tree_command_line, tvb_topology_end_offset-1, tvb_command_start_offset+1);
 						
 						/* Command after Topology Descriptor */
-						tvb_command_start_offset = tvb_find_guint8(tvb, tvb_command_end_offset +1,
+						tvb_command_start_offset = tvb_find_guint8(tvb, tvb_topology_end_offset + 1,
 							tvb_len, ',');
 
 						if ( tvb_command_start_offset == -1 ){
@@ -905,6 +913,7 @@ nextcontext:
 						} else {
 							/* Try to find the first char of the command */
 							tvb_command_start_offset =  megaco_tvb_skip_wsp_return(tvb, tvb_command_start_offset + 1);
+							tvb_next_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '{');
 							
 						}
 
