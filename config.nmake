@@ -330,11 +330,10 @@ SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0. If
-# you're using MSVC6 and you REALLY want to compile with GeoIP, install the
-# Platform SDK for Windows Server 2003 R2 and comment out the !IF/!ENDIF
-# lines below.
-!IF "$(MSVC_VARIANT)" != "MSVC6"
+# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
+# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
+# these definitions. The SDK's SetEnv.bat script defines INETSDK.
+!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
 GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 !ENDIF
 
