@@ -634,6 +634,17 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
     return 1; \
 }
 
+#define PINFO_GET_LIGHTUSERDATA(name, val) static int name(lua_State *L) { \
+    Pinfo pinfo = checkPinfo(L, 1); \
+    if (!pinfo) return 0; \
+    if (pinfo->expired) { \
+        luaL_error(L, "expired_pinfo"); \
+        return 0; \
+    } \
+    lua_pushlightuserdata(L, (void *) (val)); \
+    return 1; \
+}
+
 PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)
 PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
 PINFO_GET_NUMBER(Pinfo_caplen,pinfo->ws_pinfo->fd->cap_len)
@@ -657,6 +668,8 @@ PINFO_GET_ADDRESS(Pinfo_dl_src,dl_src)
 PINFO_GET_ADDRESS(Pinfo_dl_dst,dl_dst)
 PINFO_GET_ADDRESS(Pinfo_src,src)
 PINFO_GET_ADDRESS(Pinfo_dst,dst)
+
+PINFO_GET_LIGHTUSERDATA(Pinfo_private_data, pinfo->ws_pinfo->private_data)
 
 static int Pinfo_visited(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
@@ -938,6 +951,9 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called*/
     {"desegment_offset", Pinfo_desegment_offset, Pinfo_set_int,  PARAM_DESEGMENT_OFFSET },
+	
+	/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
+    {"private_data", Pinfo_private_data, pushnil_param, PARAM_NONE},
 	
 	{NULL,NULL,NULL,PARAM_NONE}
 };
