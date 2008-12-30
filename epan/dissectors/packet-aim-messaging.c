@@ -63,8 +63,8 @@ static const aim_tlv messaging_incoming_ch1_tlvs[] = {
   { 0, NULL, NULL },
 };
 
-int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
-int dissect_aim_tlv_value_extended_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo);
+static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 
 
 #define INCOMING_CH2_SERVER_ACK_REQ    	   0x0003
@@ -101,6 +101,7 @@ static const aim_tlv messaging_incoming_ch2_tlvs[] = {
 #define RENDEZVOUS_TLV_SESSION_ID			0x0019
 #define RENDEZVOUS_TLV_ROLLOVER_ID			0x001A
 #define RENDEZVOUS_TLV_EXTENDED_DATA			0x2711
+#define RENDEZVOUS_TLV_ICHAT_INVITEES_DATA		0x277E
 
 static const aim_tlv rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_CHANNEL, "Rendezvous ICBM Channel", dissect_aim_tlv_value_uint16 },
@@ -127,7 +128,12 @@ static const aim_tlv rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_ADDR_LIST, "Address/Port List", dissect_aim_tlv_value_string08_array },
 	{ RENDEZVOUS_TLV_SESSION_ID, "Session ID", dissect_aim_tlv_value_string },
 	{ RENDEZVOUS_TLV_ROLLOVER_ID, "Rollover ID", dissect_aim_tlv_value_string },
+/*
+	The dissect_aim_tlv_value_extended_data function does not work for iChat generated rendezvous data 
 	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", dissect_aim_tlv_value_extended_data },
+*/
+	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", NULL },
+	{ RENDEZVOUS_TLV_ICHAT_INVITEES_DATA, "iChat Invitees Data", NULL },
 	{ 0, NULL, NULL },
 };
 
@@ -253,7 +259,7 @@ static gint ett_aim_rendezvous_data = -1;
 static gint ett_aim_extended_data = -1;
 static gint ett_aim_extended_data_message_flags = -1;
 
-int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int offset = 0;
 	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_rendezvous_data);
@@ -477,7 +483,7 @@ static int is_uuid_null(e_uuid_t uuid)
 	       (uuid.Data4[7] == 0);
 }
 
-int dissect_aim_tlv_value_extended_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	guint16 length, protocol_version;
