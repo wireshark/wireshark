@@ -453,12 +453,12 @@ proto_register_k12(void)
 
   k12_uat = uat_new("K12 Protocols",
 		    sizeof(k12_handles_t),
-		    "k12_protos",
-		    TRUE,
-		    (void**) &k12_handles,
-		    &nk12_handles,
-		    UAT_CAT_FFMT,
-		    "ChK12ProtocolsSection",
+		    "k12_protos",             /* filename */
+		    TRUE,                     /* from_profile */
+		    (void**) &k12_handles,    /* data_ptr */
+		    &nk12_handles,            /* numitems_ptr */
+		    UAT_CAT_FFMT,             /* category */
+		    "ChK12ProtocolsSection",  /* help */
 		    k12_copy_cb,
 		    k12_update_cb,
 		    k12_free_cb,
