@@ -912,9 +912,9 @@ nextcontext:
 
 						} else {
 							/* Try to find the first char of the command */
-							tvb_command_start_offset =  megaco_tvb_skip_wsp_return(tvb, tvb_command_start_offset + 1);
+							tvb_command_start_offset =  megaco_tvb_skip_wsp(tvb, tvb_command_start_offset + 1);
 							tvb_next_offset = tvb_find_guint8(tvb, tvb_command_start_offset, tvb_len, '{');
-							
+							continue;
 						}
 
 					}
