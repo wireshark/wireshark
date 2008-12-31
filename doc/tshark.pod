@@ -732,6 +732,23 @@ on those calls that match that filter.
 Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> megaco,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MEGACO. 
+This is similar to B<-z smb,rtt>). Data collected is number of calls
+for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses, 
+unresponded requests, responses ,which don't match with
+any request. 
+Example: use B<-z megaco,rtd>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "megaco,rtd,ip.addr==1.2.3.4"> to only collect stats for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+
 B<-z> h225,counter[I<,filter>]
 
 Count ITU-T H.225 messages and their reasons. In the first column you get a 

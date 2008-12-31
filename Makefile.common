@@ -59,6 +59,7 @@ WIRESHARK_COMMON_SRC =	\
 	sync_pipe_write.c	\
 	timestats.c	\
 	util.c	\
+	tap-megaco-common.c	\
 	tap-rtp-common.c	\
 	version_info.c
 
@@ -103,6 +104,7 @@ TSHARK_TAP_SRC =	\
 	tap-iostat.c	\
 	tap-iousers.c	\
 	tap-mgcpstat.c	\
+	tap-megacostat.c	\
 	tap-protocolinfo.c	\
 	tap-protohierstat.c	\
 	tap-radiusstat.c	\

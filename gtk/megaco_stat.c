@@ -1,7 +1,8 @@
 /* megaco_stat.c
  * megaco-statistics for Wireshark
  * Copyright 2003 Lars Roland
- * Copyright 2008  Balint Reczey <balint.reczey@ericsson.com>
+ * Copyright 2008, Ericsson AB
+ * By Balint Reczey <balint.reczey@ericsson.com>
  *
  * $Id$
  *
@@ -55,61 +56,9 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
 
+#include "tap-megaco-common.h"
 
-#define NUM_TIMESTATS 11
 
-#define GCP_CMD_REPLY_CASE \
-        case GCP_CMD_ADD_REPLY: \
-        case GCP_CMD_MOVE_REPLY: \
-        case GCP_CMD_MOD_REPLY: \
-        case GCP_CMD_SUB_REPLY: \
-        case GCP_CMD_AUDITCAP_REPLY: \
-        case GCP_CMD_AUDITVAL_REPLY: \
-        case GCP_CMD_NOTIFY_REPLY: \
-        case GCP_CMD_SVCCHG_REPLY: \
-        case GCP_CMD_TOPOLOGY_REPLY: \
-        case GCP_CMD_REPLY: 
-
-#define GCP_CMD_REQ_CASE \
-        case GCP_CMD_ADD_REQ: \
-        case GCP_CMD_MOVE_REQ: \
-        case GCP_CMD_MOD_REQ: \
-        case GCP_CMD_SUB_REQ: \
-        case GCP_CMD_AUDITCAP_REQ: \
-        case GCP_CMD_AUDITVAL_REQ: \
-        case GCP_CMD_NOTIFY_REQ: \
-        case GCP_CMD_SVCCHG_REQ: \
-        case GCP_CMD_TOPOLOGY_REQ: \
-        case GCP_CMD_CTX_ATTR_AUDIT_REQ: \
-        case GCP_CMD_OTHER_REQ:
-
-/* used to keep track of the statistics for an entire program interface */
-typedef struct _megacostat_t {
-	GtkWidget *win;
-	GtkWidget *vbox;
-	char *filter;
-	GtkWidget *scrolled_window;
-	GtkCList *table;
-        timestat_t rtd[NUM_TIMESTATS];
-	guint32 open_req_num;
-	guint32 disc_rsp_num;
-	guint32 req_dup_num;
-	guint32 rsp_dup_num;
-} megacostat_t;
-
-static const value_string megaco_message_type[] = {
-  {  0,	"ADD "},
-  {  1,	"MOVE"},
-  {  2,	"MDFY"},
-  {  3,	"SUBT"},
-  {  4,	"AUCP"},
-  {  5,	"AUVL"},
-  {  6,	"NTFY"},
-  {  7, "SVCC"},
-  {  8, "TOPO"},
-  {  9, "NONE"},
-  {  0, NULL}
-};
 
 static void
 megacostat_reset(void *pms)
@@ -135,145 +84,6 @@ megacostat_reset(void *pms)
 	ms->rsp_dup_num=0;
 }
 
-static gboolean
-megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
-{
-	switch (cmd->type) {
-
-        GCP_CMD_REPLY_CASE
-		{
-			gcp_cmd_msg_t *cmd_msg;
-			/* cycle through commands to find same command in the transaction */
-			for (cmd_msg = cmd->trx->cmds; cmd_msg->cmd->msg->framenum != cmd->msg->framenum &&
-					cmd_msg != NULL; cmd_msg = cmd_msg->next) {
-				if (cmd_msg->cmd->type == cmd->type)
-					return TRUE;
-			}
-				
-			return FALSE;
-		}
-		break;
-	default:
-		return FALSE;
-		break;
-	}
-
-	
-}
-
-static gboolean
-megacostat_had_request(const gcp_cmd_t* cmd)
-{
-	switch (cmd->type) {
-
-        GCP_CMD_REPLY_CASE
-		{
-			gcp_cmd_msg_t *cmd_msg;
-			/* cycle through commands to find a request in the transaction */
-			for (cmd_msg = cmd->trx->cmds; cmd_msg->cmd->msg->framenum != cmd->msg->framenum &&
-					cmd_msg != NULL; cmd_msg = cmd_msg->next) {
-				
-				switch (cmd_msg->cmd->type) {
-
-        			GCP_CMD_REQ_CASE
-					return TRUE;
-					break;
-				default:
-					return FALSE;
-					break;
-				}
-			}
-				
-			return FALSE;
-		}
-		break;
-	default:
-		return FALSE;
-		break;
-	}
-}
-
-static int
-megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
-{
-	megacostat_t *ms=(megacostat_t *)pms;
-	const gcp_cmd_t *mi=(gcp_cmd_t*)pmi;
-	nstime_t delta;
-	int ret = 0;
-
-	switch (mi->type) {
-
-        GCP_CMD_REQ_CASE
-		if(mi->trx->initial->framenum != mi->msg->framenum){
-			/* Duplicate is ignored */
-			ms->req_dup_num++;
-		}
-		else {
-			ms->open_req_num++;
-		}
-		break;
-
-        GCP_CMD_REPLY_CASE
-		if(megacostat_is_duplicate_reply(mi)){
-			/* Duplicate is ignored */
-			ms->rsp_dup_num++;
-		}
-		else if (!megacostat_had_request(mi)) {
-			/* no request was seen */
-			ms->disc_rsp_num++;
-		}
-		else {
-			ms->open_req_num--;
-			/* calculate time delta between request and response */
-			nstime_delta(&delta, &pinfo->fd->abs_ts, &mi->trx->initial->time);
-
-			switch(mi->type) {
-			
-			case GCP_CMD_ADD_REPLY:
-				time_stat_update(&(ms->rtd[0]),&delta, pinfo);
-				break;
-			case GCP_CMD_MOVE_REPLY:
-				time_stat_update(&(ms->rtd[1]),&delta, pinfo);
-				break;
-			case GCP_CMD_MOD_REPLY:
-				time_stat_update(&(ms->rtd[2]),&delta, pinfo);
-				break;
-			case GCP_CMD_SUB_REPLY:
-				time_stat_update(&(ms->rtd[3]),&delta, pinfo);
-				break;
-			case GCP_CMD_AUDITCAP_REPLY:
-				time_stat_update(&(ms->rtd[4]),&delta, pinfo);
-				break;
-			case GCP_CMD_AUDITVAL_REPLY:
-				time_stat_update(&(ms->rtd[5]),&delta, pinfo);
-				break;
-			case GCP_CMD_NOTIFY_REPLY:
-				time_stat_update(&(ms->rtd[6]),&delta, pinfo);
-				break;
-			case GCP_CMD_SVCCHG_REPLY:
-				time_stat_update(&(ms->rtd[7]),&delta, pinfo);
-				break;
-			case GCP_CMD_TOPOLOGY_REPLY:
-				time_stat_update(&(ms->rtd[8]),&delta, pinfo);
-				break;
-			case GCP_CMD_REPLY:
-				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
-				break;
-			default:
-				time_stat_update(&(ms->rtd[10]),&delta, pinfo);
-			}
-
-			ret = 1;
-		}
-		break;
-
-	default:
-		break;
-	}
-
-	return ret;
-}
-
 static void
 megacostat_draw(void *pms)
 {
@@ -288,7 +98,7 @@ megacostat_draw(void *pms)
 	/* clear list before printing */
 	gtk_clist_clear(ms->table);
 
-	for(i=0;i<NUM_TIMESTATS;i++) {
+	for(i=0;i<NUM_TIMESTATS-1;i++) {
 		/* nothing seen, nothing to do */
 		if(ms->rtd[i].num==0){
 			continue;
