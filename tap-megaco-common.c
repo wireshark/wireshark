@@ -35,8 +35,6 @@
 
 #include <string.h>
 
-#include <gtk/gtk.h>
-
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 #include <epan/value_string.h>
@@ -49,12 +47,6 @@
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-
-#include "gtk/gui_stat_util.h"
-#include "gtk/dlg_utils.h"
-#include "gtk/tap_dfilter_dlg.h"
-#include "gtk/gui_utils.h"
-#include "gtk/main.h"
 
 #include "tap-megaco-common.h"
 
