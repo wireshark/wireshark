@@ -1,9 +1,10 @@
 /* packet-enrp.c
  * Routines for Endpoint Handlespace Redundancy Protocol (ENRP)
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-17.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-08.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-20.txt
+ * RFC 5353
+ * RFC 5354
+ * RFC 5356
+ * http://www.ietf.org/internet-drafts/draft-dreibholz-enrp-takeover-00.txt
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.
@@ -77,6 +78,9 @@ static int hf_policy_weight = -1;
 static int hf_policy_priority = -1;
 static int hf_policy_load = -1;
 static int hf_policy_degradation = -1;
+static int hf_policy_loaddpf = -1;
+static int hf_policy_weightdpf = -1;
+static int hf_policy_distance = -1;
 static int hf_pool_handle = -1;
 static int hf_pe_pe_identifier = -1;
 static int hf_home_enrp_id = -1;
@@ -94,6 +98,7 @@ static int hf_reply_required_bit = -1;
 static int hf_own_children_only_bit = -1;
 static int hf_more_to_send_bit = -1;
 static int hf_reject_bit = -1;
+static int hf_tos_bit = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enrp = -1;
@@ -369,11 +374,15 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
-#define POLICY_TYPE_LENGTH        4
-#define POLICY_WEIGHT_LENGTH      4
-#define POLICY_PRIORITY_LENGTH    4
-#define POLICY_LOAD_LENGTH        4
-#define POLICY_DEGRADATION_LENGTH 4
+#define POLICY_TYPE_LENGTH               4
+#define POLICY_WEIGHT_LENGTH             4
+#define POLICY_PRIORITY_LENGTH           4
+#define POLICY_LOAD_LENGTH               4
+#define POLICY_DEGRADATION_LENGTH        4
+#define POLICY_LUDPF_LOADDPF_LENGTH      4
+#define POLICY_LUDPF_DISTANCE_LENGTH     4
+#define POLICY_WRANDDPF_WEIGHTDPF_LENGTH 4
+#define POLICY_WRANDDPF_DISTANCE_LENGTH  4
 
 #define POLICY_TYPE_OFFSET        PARAMETER_VALUE_OFFSET
 #define POLICY_VALUE_OFFSET       (POLICY_TYPE_OFFSET + POLICY_TYPE_LENGTH)
@@ -381,6 +390,12 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 #define POLICY_PRIORITY_OFFSET    POLICY_VALUE_OFFSET
 #define POLICY_LOAD_OFFSET        POLICY_VALUE_OFFSET
 #define POLICY_DEGRADATION_OFFSET (POLICY_LOAD_OFFSET + POLICY_LOAD_LENGTH)
+
+#define POLICY_LUDPF_LOADDPF_OFFSET      (POLICY_LOAD_OFFSET + POLICY_LOAD_LENGTH)
+#define POLICY_LUDPF_DISTANCE_OFFSET     (POLICY_LUDPF_LOADDPF_OFFSET + POLICY_LUDPF_LOADDPF_LENGTH)
+#define POLICY_WRANDDPF_WEIGHTDPF_OFFSET (POLICY_WEIGHT_OFFSET + POLICY_WEIGHT_LENGTH)
+#define POLICY_WRANDDPF_DISTANCE_OFFSET  (POLICY_WRANDDPF_WEIGHTDPF_OFFSET + POLICY_WRANDDPF_WEIGHTDPF_LENGTH)
+
 
 #define ROUND_ROBIN_POLICY           0x00000001
 #define WEIGHTED_ROUND_ROBIN_POLICY  0x00000002
@@ -392,58 +407,80 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 #define PRIORITY_LEAST_USED_POLICY   0x40000003
 #define RANDOMIZED_LEAST_USED_POLICY 0x40000004
 
+#define PRIORITY_LEAST_USED_DEG_POLICY 0xb0001003
+#define WEIGHTED_RANDOM_DPF_POLICY     0xb0002001
+#define LEAST_USED_DPF_POLICY          0xb0002002
+
 static const value_string policy_type_values[] = {
-  { ROUND_ROBIN_POLICY,           "Round robin" },
-  { WEIGHTED_ROUND_ROBIN_POLICY,  "Weighted round robin" },
-  { RANDOM_POLICY,                "Random"},
-  { WEIGHTED_RANDOM_POLICY,       "Weighted random" },
-  { PRIORITY_POLICY,              "Priority" },
-  { LEAST_USED_POLICY,            "Least used" },
-  { LEAST_USED_WITH_DEG_POLICY,   "Least used with degradation" },
-  { PRIORITY_LEAST_USED_POLICY,   "Priority least used" },
-  { RANDOMIZED_LEAST_USED_POLICY, "Randomized least used" },
-  { 0,                            NULL } };
+  { ROUND_ROBIN_POLICY,             "Round Robin (RR)" },
+  { WEIGHTED_ROUND_ROBIN_POLICY,    "Weighted Round Robin (WRR)" },
+  { RANDOM_POLICY,                  "Random (RAND)"},
+  { WEIGHTED_RANDOM_POLICY,         "Weighted Random (WRAND)" },
+  { PRIORITY_POLICY,                "Priority (PRI)" },
+  { LEAST_USED_POLICY,              "Least Used (LU)" },
+  { LEAST_USED_WITH_DEG_POLICY,     "Least Used with Degradation (LUD)" },
+  { PRIORITY_LEAST_USED_POLICY,     "Priority Least Used (PLU)" },
+  { PRIORITY_LEAST_USED_DEG_POLICY, "Priority Least Used with Degradation (PLUD)" },
+  { RANDOMIZED_LEAST_USED_POLICY,   "Randomized Least Used (RLU)" },
+  { LEAST_USED_DPF_POLICY,          "Least Used with Delay Penalty Factor (LU-DPF)" },
+  { WEIGHTED_RANDOM_DPF_POLICY,     "Weighted Random with Delay Penalty Factor (WRAND-DPF)" },
+  { 0,                              NULL } };
 
 static void
 dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   guint32 type;
-  guint length;
+  guint   length;
 
   proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
   type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
   switch (type) {
+  case RANDOM_POLICY:
   case ROUND_ROBIN_POLICY:
     break;
+  case WEIGHTED_RANDOM_POLICY:
   case WEIGHTED_ROUND_ROBIN_POLICY:
     proto_tree_add_item(parameter_tree, hf_policy_weight, parameter_tvb, POLICY_WEIGHT_OFFSET, POLICY_WEIGHT_LENGTH, NETWORK_BYTE_ORDER);
     break;
-  case RANDOM_POLICY:
-    break;
-  case WEIGHTED_RANDOM_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_weight, parameter_tvb, POLICY_WEIGHT_OFFSET, POLICY_WEIGHT_LENGTH, NETWORK_BYTE_ORDER);
-    break;
   case PRIORITY_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_weight, parameter_tvb, POLICY_PRIORITY_OFFSET, POLICY_PRIORITY_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_policy_priority, parameter_tvb, POLICY_PRIORITY_OFFSET, POLICY_PRIORITY_LENGTH, NETWORK_BYTE_ORDER);
     break;
   case LEAST_USED_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH, NETWORK_BYTE_ORDER);
+  case RANDOMIZED_LEAST_USED_POLICY:
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH,
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff, "%1.2f%%",
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff);
     break;
   case LEAST_USED_WITH_DEG_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_policy_degradation, parameter_tvb, POLICY_DEGRADATION_OFFSET, POLICY_DEGRADATION_LENGTH, NETWORK_BYTE_ORDER);
-    break;
   case PRIORITY_LEAST_USED_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_policy_degradation, parameter_tvb, POLICY_DEGRADATION_OFFSET, POLICY_DEGRADATION_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH,
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff, "%1.2f%%",
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff);
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_degradation, parameter_tvb, POLICY_DEGRADATION_OFFSET, POLICY_DEGRADATION_LENGTH,
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_DEGRADATION_OFFSET) / (double)0xffffffff, "%1.2f%%",
+                                       100.0 * tvb_get_ntohl(parameter_tvb, POLICY_DEGRADATION_OFFSET) / (double)0xffffffff);
     break;
-  case RANDOMIZED_LEAST_USED_POLICY:
-    proto_tree_add_item(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH, NETWORK_BYTE_ORDER);
+  case LEAST_USED_DPF_POLICY:
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_load, parameter_tvb, POLICY_LOAD_OFFSET, POLICY_LOAD_LENGTH,
+                                      100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff, "%1.2f%%",
+                                      100.0 * tvb_get_ntohl(parameter_tvb, POLICY_LOAD_OFFSET) / (double)0xffffffff);
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_loaddpf, parameter_tvb, POLICY_LUDPF_LOADDPF_OFFSET, POLICY_LUDPF_LOADDPF_LENGTH,
+                                      tvb_get_ntohl(parameter_tvb, POLICY_LUDPF_LOADDPF_OFFSET) / (double)0xffffffff, "%1.5f",
+                                      tvb_get_ntohl(parameter_tvb, POLICY_LUDPF_LOADDPF_OFFSET) / (double)0xffffffff);
+    proto_tree_add_item(parameter_tree, hf_policy_distance, parameter_tvb, POLICY_LUDPF_DISTANCE_OFFSET, POLICY_LUDPF_DISTANCE_LENGTH, NETWORK_BYTE_ORDER);
+    break;
+  case WEIGHTED_RANDOM_DPF_POLICY:
+    proto_tree_add_item(parameter_tree, hf_policy_weight, parameter_tvb, POLICY_WEIGHT_OFFSET, POLICY_WEIGHT_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_double_format_value(parameter_tree, hf_policy_weightdpf, parameter_tvb, POLICY_WRANDDPF_WEIGHTDPF_OFFSET, POLICY_WRANDDPF_WEIGHTDPF_LENGTH,
+                                       tvb_get_ntohl(parameter_tvb, POLICY_WRANDDPF_WEIGHTDPF_OFFSET) / (double)0xffffffff, "%1.5f",
+                                       tvb_get_ntohl(parameter_tvb, POLICY_WRANDDPF_WEIGHTDPF_OFFSET) / (double)0xffffffff);
+    proto_tree_add_item(parameter_tree, hf_policy_distance, parameter_tvb, POLICY_WRANDDPF_DISTANCE_OFFSET, POLICY_WRANDDPF_DISTANCE_LENGTH, NETWORK_BYTE_ORDER);
     break;
   default:
-    length = tvb_length(parameter_tvb) - POLICY_TYPE_LENGTH;
+    length = tvb_length(parameter_tvb) - POLICY_VALUE_OFFSET;
     if (length > 0) {
-      proto_tree_add_item(parameter_tree, hf_policy_value, parameter_tvb, POLICY_VALUE_OFFSET, length, NETWORK_BYTE_ORDER);
+      proto_tree_add_bytes(parameter_tree, hf_policy_value, parameter_tvb, POLICY_VALUE_OFFSET, length,
+                           tvb_get_ptr(parameter_tvb, POLICY_VALUE_OFFSET, length));
     }
     break;
   }
@@ -455,9 +492,14 @@ static void
 dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   guint16 handle_length;
+  proto_item*    pi;
+  char*          tmp;
 
   handle_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, NETWORK_BYTE_ORDER);
+  pi = proto_tree_add_item(parameter_tree, hf_pool_handle, parameter_tvb, POOL_HANDLE_OFFSET, handle_length, NETWORK_BYTE_ORDER);
+
+  tmp = (gchar*)tvb_get_ephemeral_string(parameter_tvb, POOL_HANDLE_OFFSET, handle_length);
+  proto_item_append_text(pi, " (%s)", tmp);
 }
 
 #define PE_PE_IDENTIFIER_LENGTH         4
@@ -472,11 +514,13 @@ dissect_pool_handle_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 static void
 dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  tvbuff_t *parameters_tvb;
+  tvbuff_t*   parameters_tvb;
+  proto_item* pi;
 
   proto_tree_add_item(parameter_tree, hf_pe_pe_identifier, parameter_tvb, PE_PE_IDENTIFIER_OFFSET,      PE_PE_IDENTIFIER_LENGTH,      NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_home_enrp_id,     parameter_tvb, HOME_ENRP_INDENTIFIER_OFFSET, HOME_ENRP_INDENTIFIER_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_reg_life,         parameter_tvb, REGISTRATION_LIFE_OFFSET,     REGISTRATION_LIFE_LENGTH,     NETWORK_BYTE_ORDER);
+  pi = proto_tree_add_item(parameter_tree, hf_reg_life,    parameter_tvb, REGISTRATION_LIFE_OFFSET,     REGISTRATION_LIFE_LENGTH,     NETWORK_BYTE_ORDER);
+  proto_item_append_text(pi, "ms");
 
   parameters_tvb = tvb_new_subset(parameter_tvb, USER_TRANSPORT_PARAMETER_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree);
@@ -779,11 +823,19 @@ static const value_string update_action_values[] = {
   { 1, "Delete pool element" },
   { 0, NULL                  } };
 
+#define TOS_BIT_MASK 0x01
+
+static const true_false_string tos_bit_value = {
+  "Takeover suggested",
+  "Takeover not suggested"
+};
+
 static void
 dissect_enrp_handle_update_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {
   tvbuff_t *parameters_tvb;
 
+  proto_tree_add_item(flags_tree,   hf_tos_bit,             message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_update_action,       message_tvb, UPDATE_ACTION_OFFSET,       UPDATE_ACTION_LENGTH,       NETWORK_BYTE_ORDER);
@@ -992,12 +1044,15 @@ proto_register_enrp(void)
     { &hf_udp_reserved,           { "Reserved",                    "enrp.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_lite_port,          { "Port",                        "enrp.udp_lite_transport_port",                  FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_lite_reserved,      { "Reserved",                    "enrp.udp_lite_transport_reserved",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_type,            { "Policy Type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),          0x0,                        "", HFILL } },
-    { &hf_policy_weight,          { "Policy Weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_priority,        { "Policy Priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_load,            { "Policy Load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_degradation,     { "Policy Degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_value,           { "Policy Value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_type,            { "Policy Type",                 "enrp.pool_member_selection_policy_type",        FT_UINT32,  BASE_HEX,  VALS(policy_type_values),          0x0,                        "", HFILL } },
+    { &hf_policy_weight,          { "Policy Weight",               "enrp.pool_member_selection_policy_weight",      FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_priority,        { "Policy Priority",             "enrp.pool_member_selection_policy_priority",    FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_load,            { "Policy Load",                 "enrp.pool_member_selection_policy_load",        FT_DOUBLE,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_degradation,     { "Policy Degradation",          "enrp.pool_member_selection_policy_degradation", FT_DOUBLE,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_loaddpf,         { "Policy Load DPF",             "enrp.pool_member_selection_policy_load_dpf",    FT_DOUBLE,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_weightdpf,       { "Policy Weight DPF",           "enrp.pool_member_selection_policy_weight_dpf",  FT_DOUBLE,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_distance,        { "Policy Distance",             "enrp.pool_member_selection_policy_distance",    FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_value,           { "Policy Value",                "enrp.pool_member_selection_policy_value",       FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_pool_handle,            { "Pool Handle",                 "enrp.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_pe_identifier,       { "PE Identifier",               "enrp.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_home_enrp_id,           { "Home ENRP Server Identifier", "enrp.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
@@ -1015,6 +1070,7 @@ proto_register_enrp(void)
     { &hf_own_children_only_bit,  { "W Bit",                       "enrp.w_bit",                                    FT_BOOLEAN, 8,         TFS(&own_children_only_bit_value), OWN_CHILDREN_ONLY_BIT_MASK, "", HFILL } },
     { &hf_more_to_send_bit,       { "M Bit",                       "enrp.m_bit",                                    FT_BOOLEAN, 8,         TFS(&more_to_send_bit_value),      MORE_TO_SEND_BIT_MASK,      "", HFILL } },
     { &hf_reject_bit,             { "R Bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),            REJECT_BIT_MASK,            "", HFILL } },
+    { &hf_tos_bit,                { "T Bit",                       "enrp.t_bit",                                    FT_BOOLEAN, 8,         TFS(&tos_bit_value),               TOS_BIT_MASK,               "", HFILL } },
   };
 
   /* Setup protocol subtree array */
