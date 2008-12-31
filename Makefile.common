@@ -85,6 +85,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 	tempfile.h	\
 	timestats.h	\
 	util.h	\
+	tap-megaco-common.h	\
 	tap-rtp-common.h	\
 	version_info.h
 
