@@ -106,6 +106,7 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
         } else {
             m = se_alloc(sizeof(gcp_msg_t));
             m->framenum = framenum;
+            m->time = pinfo->fd->abs_ts;
             m->trxs = NULL;
             m->commited = FALSE;
 

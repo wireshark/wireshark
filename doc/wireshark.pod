@@ -631,6 +631,20 @@ on those calls that match that filter.
 Example: use B<-z "mgcp,srt,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> megaco,srt[I<,filter>]
+
+Collect requests/response SRT (Service Response Time) data for MEGACO.
+This is similar to B<-z smb,srt>). Data collected is number of calls
+for each known MEGACO Command, Minimum SRT, Maximum SRT and Average SRT.
+Example: use B<-z megaco,srt>.
+
+This option can be used multiple times on the command line.
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "megaco,srt,ip.addr==1.2.3.4"> to only collect stats for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+
 B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the

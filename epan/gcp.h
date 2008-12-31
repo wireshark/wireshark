@@ -110,6 +110,7 @@ typedef struct _gcp_msg_t {
     guint32 lo_addr;
     guint32 hi_addr;
     guint32 framenum;
+    nstime_t time;
     struct _gcp_trx_msg_t* trxs;
     gboolean commited;
 } gcp_msg_t;
