@@ -98,7 +98,7 @@ megacostat_draw(void *pms)
 	/* clear list before printing */
 	gtk_clist_clear(ms->table);
 
-	for(i=0;i<NUM_TIMESTATS-1;i++) {
+	for(i=0;i<NUM_TIMESTATS;i++) {
 		/* nothing seen, nothing to do */
 		if(ms->rtd[i].num==0){
 			continue;
