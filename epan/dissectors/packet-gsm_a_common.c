@@ -581,6 +581,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 		case GSM_PDU_TYPE_BSSMAP_LE:
 			msg_string = gsm_bssmap_le_elem_strings[idx].strptr;
 			break;
+		case NAS_PDU_TYPE_COMMON:
+			msg_string = nas_eps_common_elem_strings[idx].strptr;
+			break;
 		case NAS_PDU_TYPE_EMM:
 			msg_string = nas_emm_elem_strings[idx].strptr;
 			break;
@@ -619,6 +622,9 @@ static int get_hf_elem_id(int pdu_type)
 			break;
 		case GSM_PDU_TYPE_BSSMAP_LE:
 			hf_elem_id = hf_gsm_bssmap_le_elem_id;
+			break;
+		case NAS_PDU_TYPE_COMMON:
+			hf_elem_id = hf_nas_eps_common_elem_id;
 			break;
 		case NAS_PDU_TYPE_EMM:
 			hf_elem_id = hf_nas_emm_elem_id;
@@ -2086,7 +2092,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 /*
  * [3] 10.5.1.13 PLMN list
  */
-static guint16
+guint16
 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	octs[3];

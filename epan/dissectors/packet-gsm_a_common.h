@@ -125,6 +125,11 @@ extern gint ett_gsm_bssmap_le_elem[];
 extern elem_fcn bssmap_le_elem_fcn[];
 extern int hf_gsm_bssmap_le_elem_id;
 
+extern const value_string nas_eps_common_elem_strings[];
+extern gint ett_nas_eps_common_elem[];
+extern elem_fcn nas_eps_common_elem_fcn[];
+extern int hf_nas_eps_common_elem_id;
+
 extern const value_string nas_emm_elem_strings[];
 extern gint ett_nas_emm_elem[];
 extern elem_fcn emm_elem_fcn[];
@@ -163,7 +168,8 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_A_PDU_TYPE_BSSLAP	6
 #define GSM_A_PDU_TYPE_SACCH	7
 #define GSM_PDU_TYPE_BSSMAP_LE	8
-#define NAS_PDU_TYPE_EMM		9
+#define NAS_PDU_TYPE_COMMON		9
+#define NAS_PDU_TYPE_EMM		10
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -257,6 +263,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		SEV_elem_names = gsm_bssmap_le_elem_strings; \
 		SEV_elem_ett = ett_gsm_bssmap_le_elem; \
 		SEV_elem_funcs = bssmap_le_elem_fcn; \
+		break; \
+	case NAS_PDU_TYPE_COMMON: \
+		SEV_elem_names = nas_eps_common_elem_strings; \
+		SEV_elem_ett = ett_nas_eps_common_elem; \
+		SEV_elem_funcs = nas_eps_common_elem_fcn; \
 		break; \
 	case NAS_PDU_TYPE_EMM: \
 		SEV_elem_names = nas_emm_elem_strings; \
@@ -548,7 +559,7 @@ guint16 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 guint16 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
-
+guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
