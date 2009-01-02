@@ -84,6 +84,12 @@ static int hf_catapult_dct2000_sctpprim_addr_v4 = -1;
 static int hf_catapult_dct2000_sctpprim_addr_v6 = -1;
 static int hf_catapult_dct2000_sctpprim_dst_port = -1;
 
+static int hf_catapult_dct2000_lte_ueid = -1;
+static int hf_catapult_dct2000_lte_srbid = -1;
+static int hf_catapult_dct2000_lte_drbid = -1;
+static int hf_catapult_dct2000_lte_cellid = -1;
+static int hf_catapult_dct2000_lte_bcch_transport = -1;
+
 
 /* Variables used for preferences */
 gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
@@ -114,6 +120,14 @@ static const value_string encap_vals[] = {
     { DCT2000_ENCAP_UNHANDLED,           "No Direct Encapsulation" },
     { 0,                                 NULL },
 };
+
+static const value_string bcch_transport_vals[] = {
+    { 1,   "BCH" },
+    { 2,   "DLSCH" },
+    { 0,   NULL },
+};
+
+
 
 
 #define MAX_OUTHDR_VALUES 32
@@ -564,6 +578,185 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     }
 
     return FALSE;
+}
+
+
+typedef enum LogicalChannelType
+{
+    Channel_DCCH=1,
+    Channel_BCCH=2,
+    Channel_CCCH=3,
+    Channel_PCCH=4
+} LogicalChannelType;
+    
+
+/* Dissect an RRC LTE frame by first parsing the header entries then passing
+   the data to the RRC dissector, according to direction and channel type */
+void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
+                     packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8  tag;
+    dissector_handle_t protocol_handle = 0;
+    gboolean isUplink = FALSE;
+    LogicalChannelType logicalChannelType;
+    guint8   bcch_transport = 0;
+    tvbuff_t *rrc_tvb;
+
+    tag = tvb_get_guint8(tvb, offset++);
+    switch (tag) {
+        case 0x00:    /* Data_Req_UE */
+        case 0x04:    /* Data_Ind_eNodeB */
+            isUplink = TRUE;
+            break;
+
+        case 0x02:    /* Data_Req_eNodeB */
+        case 0x03:    /* Data_Ind_UE */
+            isUplink = FALSE;
+            break;
+
+        default:
+            /* Unexpected opcode tag! */
+            return;
+    }
+
+    /* Skip length */
+    offset += skipASNLength(tvb_get_guint8(tvb, offset));
+
+    /* Get next tag */
+    tag = tvb_get_guint8(tvb, offset++);
+    switch (tag) {
+        case 0x12:    /* UE_Id_LCId */
+            /* Length will fit in one byte here */
+            offset++;
+
+            logicalChannelType = Channel_DCCH;
+
+            /* UEId */
+            proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Get tag of channel type */
+            tag = tvb_get_guint8(tvb, offset++);
+
+            switch (tag) {
+                case 0:
+                    offset++;
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
+                                        tvb, offset, 1, FALSE);
+                    break;
+                case 1:
+                    offset++;
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
+                                        tvb, offset, 1, FALSE);
+                    break;
+
+                default:
+                    /* Unexpected channel type */
+                    return;
+            }
+            break;
+
+        case 0x1a:     /* Cell_LCId */
+
+            /* Skip length */
+            offset++;
+
+            /* Cell-id */
+            proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+                                tvb, offset, 2, FALSE);
+            offset += 2;
+
+            logicalChannelType = tvb_get_guint8(tvb, offset++);
+            switch (logicalChannelType) {
+                case Channel_BCCH:
+                    /* Skip length */
+                    offset++;
+
+                    /* Transport channel type */
+                    bcch_transport = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
+                                        tvb, offset, 1, FALSE);
+                    offset++;
+                    break;
+
+                case Channel_CCCH:
+                    /* Skip length */
+                    offset++;
+
+                    /* UEId */
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                                        tvb, offset, 2, FALSE);
+                    offset += 2;
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        default:
+            /* Unexpected tag */
+            return;
+    }
+
+    /* Data tag should follow */
+    tag = tvb_get_guint8(tvb, offset++);
+    if (tag != 0xaa) {
+        return;
+    }
+
+    /* Skip length */
+    offset += skipASNLength(tvb_get_guint8(tvb, offset));
+
+    /* Look up dissector handle corresponding to direction and channel type */
+    if (isUplink) {
+
+        /* Uplink channel types */
+        switch (logicalChannelType) {
+            case Channel_DCCH:
+                protocol_handle = find_dissector("lte-rrc.ul.dcch");
+                break;
+            case Channel_CCCH:
+                protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                break;
+
+            default:
+                /* Unknown Uplink channel type */
+                break;
+        }
+    } else {
+
+        /* Downlink channel types */
+        switch (logicalChannelType) {
+            case Channel_DCCH:
+                protocol_handle = find_dissector("lte-rrc.dl.dcch");
+                break;
+            case Channel_CCCH:
+                protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                break;
+            case Channel_PCCH:
+                protocol_handle = find_dissector("lte-rrc.pcch");
+                break;
+            case Channel_BCCH:
+                if (bcch_transport == 1) {
+                    protocol_handle = find_dissector("lte-rrc.bcch.bch");
+                }
+                else {
+                    protocol_handle = find_dissector("lte-rrc.bcch.dl.sch");
+                }
+                break;
+
+            default:
+                /* Unknown Downlink channel type */
+                break;
+        }
+    }
+
+    /* Send to RRC dissector, if got here, have sub-dissector and some data left */
+    if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
+        rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+    }
 }
 
 
@@ -1323,6 +1516,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 protocol_handle = find_dissector("mac-lte");
             }
+
 #if 0
             else
             if (strcmp(protocol_name, "rlc_r8_lte") == 0)
@@ -1339,6 +1533,16 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 protocol_handle = find_dissector("pdcp_r8");
             }
 #endif
+
+            else
+            if (strcmp(protocol_name, "rrc_r8_lte") == 0)
+                /* Dissect proprietary header, then pass remainder
+                   to RRC (depending upon direction and channel type) */
+            {
+                dissect_rrc_lte(tvb, offset, pinfo, tree);
+                return;
+            }
+
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the
@@ -1892,6 +2096,38 @@ void proto_register_catapult_dct2000(void)
               "tty line", HFILL
             }
         },
+
+        { &hf_catapult_dct2000_lte_ueid,
+            { "UE Id",
+              "dct2000.lte.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "User Equipment Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_srbid,
+            { "srbid",
+              "dct2000.lte.srbid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Signalling Radio Bearer Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_drbid,
+            { "drbid",
+              "dct2000.lte.drbid", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Data Radio Bearer Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_cellid,
+            { "Cell-Id",
+              "dct2000.lte.cellid", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Cell Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_bcch_transport,
+            { "BCCH Transport",
+              "dct2000.lte.bcch-transport", FT_UINT16, BASE_DEC, VALS(bcch_transport_vals), 0x0,
+              "BCCH Transport Channel", HFILL
+            }
+        },
+
     };
 
     static gint *ett[] =
