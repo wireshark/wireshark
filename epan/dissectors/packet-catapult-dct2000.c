@@ -732,7 +732,7 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                 protocol_handle = find_dissector("lte-rrc.dl.dcch");
                 break;
             case Channel_CCCH:
-                protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                protocol_handle = find_dissector("lte-rrc.dl.ccch");
                 break;
             case Channel_PCCH:
                 protocol_handle = find_dissector("lte-rrc.pcch");
@@ -1535,7 +1535,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
             else
-            if (strcmp(protocol_name, "rrc_r8_lte") == 0)
+            if ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
+                (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0))
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
             {
