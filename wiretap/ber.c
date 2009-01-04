@@ -172,7 +172,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0; /* not ASN.1 */
     }
   }else{
-	  /* XXX what if indefinet length? */
+	  /* XXX what if indefinite length? */
 	  return 0;
   }
 

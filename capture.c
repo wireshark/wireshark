@@ -191,10 +191,10 @@ capture_start(capture_options *capture_opts)
       capture_opts->state = CAPTURE_STOPPED;
   } else {
       /* the capture child might not respond shortly after bringing it up */
-      /* (especially it will block, if no input coming from an input capture pipe (e.g. mkfifo) is coming in) */
+      /* (for example: it will block if no input arrives from an input capture pipe (e.g. mkfifo)) */
 
-      /* to prevent problems, bring the main GUI into "capture mode" right after successfully */
-      /* spawn/exec the capture child, without waiting for any response from it */
+      /* to prevent problems, bring the main GUI into "capture mode" right after a successful */
+      /* spawn/exec of the capture child, without waiting for any response from it */
       capture_callback_invoke(capture_cb_capture_prepared, capture_opts);
 
       if(capture_opts->show_info)
@@ -238,7 +238,7 @@ capture_kill_child(capture_options *capture_opts)
 
 
 
-/* We've succeeded a (non real-time) capture, try to read it into a new capture file */
+/* We've succeeded in doing a (non real-time) capture; try to read it into a new capture file */
 static gboolean
 capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
 guint32 drops)
@@ -248,13 +248,12 @@ guint32 drops)
 
   /* Capture succeeded; attempt to open the capture file. */
   if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
-    /* We're not doing a capture any more, so we don't have a save
-       file. */
+    /* We're not doing a capture any more, so we don't have a save file. */
     return FALSE;
   }
 
   /* Set the read filter to NULL. */
-  /* XXX - this is odd here, try to put it somewhere, where it fits better */
+  /* XXX - this is odd here; try to put it somewhere where it fits better */
   cf_set_rfcode(capture_opts->cf, NULL);
 
   /* Get the packet-drop statistics.
@@ -306,7 +305,7 @@ guint32 drops)
     return FALSE;
   }
 
-  /* if we didn't captured even a single packet, close the file again */
+  /* if we didn't capture even a single packet, close the file again */
   if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
 "%sNo packets captured!%s\n"
@@ -348,7 +347,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
   /* free the old filename */
   if(capture_opts->save_file != NULL) {
-    /* we start a new capture file, close the old one (if we had one before) */
+    /* we start a new capture file, close the old one (if we had one before). */
     /* (we can only have an open capture file in real_time_mode!) */
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
         capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
@@ -359,7 +358,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     is_tempfile = FALSE;
     cf_set_tempfile(capture_opts->cf, FALSE);
   } else {
-    /* we didn't had a save_file before, must be a tempfile */
+    /* we didn't have a save_file before; must be a tempfile */
     is_tempfile = TRUE;
     cf_set_tempfile(capture_opts->cf, TRUE);
   }
@@ -428,14 +427,14 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
       break;
     }
   } else {
-    /* increase capture file packet counter by the number or incoming packets */
+    /* increase the capture file packet counter by the number of incoming packets */
     cf_set_packet_count(capture_opts->cf,
         cf_get_packet_count(capture_opts->cf) + to_read);
 
     capture_callback_invoke(capture_cb_capture_fixed_continue, capture_opts);
   }
 
-  /* update the main window, so we get events (e.g. from the stop toolbar button) */
+  /* update the main window so we get events (e.g. from the stop toolbar button) */
   main_window_update();
 
   if(capture_opts->show_info)
@@ -550,8 +549,8 @@ capture_input_closed(capture_options *capture_opts)
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
     g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
-    /* if we didn't started the capture, do a fake start */
-    /* (happens if we got an error message - we won't get a filename then) */
+    /* if we didn't start the capture, do a fake start. */
+    /* (happens if we got an error message - we won't get a filename then). */
     if(capture_opts->state == CAPTURE_PREPARING) {
         if(capture_opts->real_time_mode) {
             capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
@@ -568,9 +567,9 @@ capture_input_closed(capture_options *capture_opts)
 
         /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
 	packet_count_save = cf_get_packet_count(capture_opts->cf);
-        /* Tell the GUI, we are not doing a capture any more.
-		   Must be done after the cf_finish_tail(), so file lengths are displayed
-		   correct. */
+        /* Tell the GUI we are not doing a capture any more.
+		   Must be done after the cf_finish_tail(), so file lengths are 
+                   correctly displayed */
         capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
 
         /* Finish the capture. */
