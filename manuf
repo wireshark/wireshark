@@ -1676,7 +1676,7 @@
 00:06:55	Yipee                  # Yipee, Inc.
 00:06:56	Tactel                 # Tactel AB
 00:06:57	MarketCent             # Market Central, Inc.
-00:06:58	HelmutFisc             # Helmut Fischer GmbH & Co. KG
+00:06:58	HelmutFisc             # Helmut Fischer GmbH Institut für Elektronik und Messtechnik
 00:06:59	EalApeldoo             # EAL (Apeldoorn) B.V.
 00:06:5A	Strix                  # Strix Systems
 00:06:5B	DellComput             # Dell Computer Corp.
@@ -5425,7 +5425,7 @@
 00:15:22	DeaSecurit             # Dea Security
 00:15:23	MeteorComm             # Meteor Communications Corporation
 00:15:24	Numatics               # Numatics, Inc.
-00:15:25	PtiIntegra             # PTI Integrated Systems, Inc.
+00:15:25	Chamberlai             # Chamberlain Access Solutions
 00:15:26	RemoteTech             # Remote Technologies Inc
 00:15:27	BalboaInst             # Balboa Instruments
 00:15:28	BeaconMedi             # Beacon Medical Products LLC d.b.a. BeaconMedaes
@@ -5546,7 +5546,7 @@
 00:15:9B	Nortel
 00:15:9C	B-KyungSys             # B-KYUNG SYSTEM Co.,Ltd.
 00:15:9D	MinicomAdv             # Minicom Advanced Systems ltd
-00:15:9E	Saitek                 # Saitek plc
+00:15:9E	MadCatzInt             # Mad Catz Interactive Inc
 00:15:9F	Terascala              # Terascala, Inc.
 00:15:A0	NokiaDanma             # Nokia Danmark A/S
 00:15:A1	Eca-Sinter             # ECA-SINTERS
@@ -6182,7 +6182,7 @@
 00:18:17	DEShawRese             # D. E. Shaw Research, LLC
 00:18:18	Cisco                  # Cisco Systems
 00:18:19	Cisco                  # Cisco Systems
-00:18:1A	AvermediaT             # AVerMedia Technologies Inc.
+00:18:1A	AvermediaI             # AVerMedia Information Inc.
 00:18:1B	TaijinMeta             # TaiJin Metal Co., Ltd.
 00:18:1C	Exterity               # Exterity Limited
 00:18:1D	AsiaElectr             # ASIA ELECTRONICS CO.,LTD
@@ -6284,7 +6284,7 @@
 00:18:7D	ArmorlinkS             # Armorlink shanghai Co. Ltd
 00:18:7E	RgbSpectru             # RGB Spectrum
 00:18:7F	Zodianet
-00:18:80	Mobilygen
+00:18:80	MaximInteg             # Maxim Integrated Circuits
 00:18:81	BuyangElec             # Buyang Electronics Industrial Co., Ltd
 00:18:82	HuaweiTech             # Huawei Technologies Co., Ltd.
 00:18:83	Formosa21              # FORMOSA21 INC.
@@ -7057,7 +7057,7 @@
 00:1B:82	TaiwanSemi             # Taiwan Semiconductor Co., Ltd.
 00:1B:83	Finsoft                # Finsoft Ltd
 00:1B:84	ScanEngine             # Scan Engineering Telecom
-00:1B:85	ManDiesel              # MAN Diesel A/S
+00:1B:85	ManDieselS             # MAN Diesel SE
 00:1B:86	BoschAcces             # Bosch Access Systems GmbH
 00:1B:87	DeepsoundT             # Deepsound Tech. Co., Ltd
 00:1B:88	DivinetAcc             # Divinet Access Technologies Ltd
@@ -7519,7 +7519,7 @@
 00:1D:50	SpinetixSa             # SPINETIX SA
 00:1D:51	GeEnergy               # GE Energy
 00:1D:52	DefzoneBV              # Defzone B.V.
-00:1D:53	Sharp-Roxy             # SHARP-ROXY CORP.(M) SDN. BHD.
+00:1D:53	S&OElectro             # S&O Electronics (Malaysia) Sdn. Bhd.
 00:1D:54	SunnicTech             # Sunnic Technology & Merchandise INC.
 00:1D:55	Zantaz                 # ZANTAZ, Inc
 00:1D:56	KramerElec             # Kramer Electronics Ltd.
@@ -8265,7 +8265,7 @@
 00:20:3A	DigitalBi0             # DIGITAL BI0METRICS INC.
 00:20:3B	Wisdm                  # WISDM LTD.
 00:20:3C	Eurotime               # EUROTIME AB
-00:20:3D	NovarElect             # NOVAR ELECTRONICS CORPORATION
+00:20:3D	HoneywellE             # Honeywell ECC
 00:20:3E	LogicanTec             # LogiCan Technologies, Inc.
 00:20:3F	Juki                   # JUKI CORPORATION
 00:20:40	MotorolaBr             # Motorola Broadband Communications Sector
@@ -9445,6 +9445,13 @@
 00:24:D6	IntelCorpo             # Intel Corporate
 00:24:D7	IntelCorpo             # Intel Corporate
 00:24:D8	IlsungPrec             # IlSung Precision
+00:24:D9	Bicom                  # BICOM, Inc.
+00:24:DA	Innovar                # Innovar Systems Limited
+00:24:DB	AlcoholMon             # Alcohol Monitoring Systems
+00:24:DC	JuniperNet             # Juniper Networks
+00:24:DD	Centrak                # Centrak, Inc.
+00:24:DE	GlobalTech             # GLOBAL Technology Inc.
+00:24:DF	Digitalbox             # Digitalbox Europe GmbH
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12716,6 +12723,11 @@
 00:50:C2:A1:60:00/36	BaudischEl             # Baudisch Electronic GmbH
 00:50:C2:A1:70:00/36	WinnersSat             # Winners Satellite Electronics Corp.
 00:50:C2:A1:80:00/36	Eoslink
+00:50:C2:A1:90:00/36	IconTime               # Icon Time Systems
+00:50:C2:A1:A0:00/36	Ddl
+00:50:C2:A1:B0:00/36	Realtime               # Realtime Systems Ltd.
+00:50:C2:A1:C0:00/36	Microtechn             # Microtechnica
+00:50:C2:A1:D0:00/36	SamhEngine             # SAMH Engineering Services
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -13275,7 +13287,7 @@
 00:80:F2	Raycom                 # RAYCOM SYSTEMS INC
 00:80:F3	SunElectro             # SUN ELECTRONICS CORP.
 00:80:F4	Telemecani             # TELEMECANIQUE ELECTRIQUE
-00:80:F5	Quantel                # QUANTEL LTD
+00:80:F5	Quantel                # Quantel Ltd
 00:80:F6	SynergyMic             # SYNERGY MICROSYSTEMS
 00:80:F7	ZenithElec             # ZENITH ELECTRONICS
 00:80:F8	Mizar                  # MIZAR, INC.
@@ -13323,7 +13335,7 @@
 00:90:22	Ivex
 00:90:23	Zilog                  # ZILOG INC.
 00:90:24	Pipelinks              # PIPELINKS, INC.
-00:90:25	VisionPty              # VISION SYSTEMS LTD. PTY
+00:90:25	BaeAustral             # BAE Systems Australia (Electronic Systems) Pty Ltd
 00:90:26	AdvancedSw             # ADVANCED SWITCHING COMMUNICATIONS, INC.
 00:90:27	Intel                  # INTEL CORPORATION
 00:90:28	NipponSign             # NIPPON SIGNAL CO., LTD.
