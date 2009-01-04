@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/crypt/crypt-md5.h>
 
 #include "color.h"
 #include "color_filters.h"
@@ -56,6 +57,7 @@ int hf_frame_len = -1;
 int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
+static int hf_frame_md5_hash = -1;
 static int hf_frame_marked = -1;
 static int hf_frame_ref_time = -1;
 static int hf_link_number = -1;
@@ -77,6 +79,7 @@ static dissector_handle_t docsis_handle;
 /* Preferences */
 static gboolean show_file_off = FALSE;
 static gboolean force_docsis_encap;
+static gboolean generate_md5_hash = FALSE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_SENT,	"Sent" },
@@ -249,6 +252,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   * See proto.h for details.
 	   */
 	  proto_tree_set_visible(fh_tree, TRUE);
+
+	  if (generate_md5_hash) {
+		  const guint8 *cp;
+		  md5_state_t md_ctx;
+		  md5_byte_t digest[16];
+		  gchar *digest_string;
+
+		  cp = tvb_get_ptr(tvb, 0, cap_len);
+
+		  md5_init(&md_ctx);
+		  md5_append(&md_ctx, cp, cap_len);
+		  md5_finish(&md_ctx, digest);
+
+		  digest_string = bytestring_to_str(digest, 16, '\0');
+		  ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
+		  PROTO_ITEM_SET_GENERATED(ti);
+	  }
 
 	  if(pinfo->fd->flags.ref_time){
 		ti = proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
@@ -552,6 +572,10 @@ proto_register_frame(void)
 		{ "Frame length stored into the capture file",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_frame_md5_hash,
+		{ "Frame MD5 Hash",	"frame.md5_hash", FT_STRING, 0, NULL, 0x0,
+			NULL, HFILL }},
+
 		{ &hf_frame_p2p_dir,
 		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
 			"", HFILL }},
@@ -620,6 +644,10 @@ proto_register_frame(void)
 	    "Show File Offset", "Show File Offset", &show_file_off);
 	prefs_register_bool_preference(frame_module, "force_docsis_encap",
 	    "Treat all frames as DOCSIS frames", "Treat all frames as DOCSIS Frames", &force_docsis_encap);
+	prefs_register_bool_preference(frame_module, "generate_md5_hash",
+	    "Generate an MD5 hash of each frame",
+	    "Whether or not MD5 hashes should be generated for each frame, useful for finding duplicate frames.",
+	    &generate_md5_hash);
 
 	frame_tap=register_tap("frame");
 }
