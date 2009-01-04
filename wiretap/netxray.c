@@ -1606,7 +1606,6 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 	    else
 		*err = WTAP_ERR_SHORT_WRITE;
 	}
-	g_free(wdh->dump.netxray);
 	return FALSE;
     }
 
@@ -1631,11 +1630,9 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 	    else
 		*err = WTAP_ERR_SHORT_WRITE;
 	}
-	g_free(wdh->dump.netxray);
 	return FALSE;
     }
 
-    g_free(wdh->dump.netxray);
     return TRUE;
 }
 
@@ -1819,7 +1816,6 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 	    else
 		*err = WTAP_ERR_SHORT_WRITE;
 	}
-	g_free(wdh->dump.netxray);
 	return FALSE;
     }
 
@@ -1867,10 +1863,8 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 	    else
 		*err = WTAP_ERR_SHORT_WRITE;
 	}
-	g_free(wdh->dump.netxray);
 	return FALSE;
     }
 
-    g_free(wdh->dump.netxray);
     return TRUE;
 }
