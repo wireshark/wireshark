@@ -207,7 +207,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */
 wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
-    gboolean do_random)
+			gboolean do_random)
 {
 	struct stat statb;
 	wtap	*wth;
@@ -715,7 +715,7 @@ gboolean wtap_dump_can_compress(int filetype _U_)
 
 static gboolean wtap_dump_open_check(int filetype, int encap, gboolean comressed, int *err);
 static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
-    gboolean compressed, int *err);
+					gboolean compressed, int *err);
 static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean compressed, int *err);
 
 static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
@@ -791,9 +791,9 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 		return NULL;	/* couldn't allocate it */
 
 #ifdef _WIN32
-    if(fd == 1) {
+	if(fd == 1) {
 		setmode(fileno(stdout), O_BINARY);
-    }
+	}
 #endif
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
@@ -878,11 +878,11 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 	} else {
 		fd = fileno(wdh->fh);
 		if (lseek(fd, 1, SEEK_CUR) == -1)
-		  cant_seek = TRUE;
+			cant_seek = TRUE;
 		else {
-		  /* Undo the seek. */
-		  lseek(fd, 0, SEEK_SET);
-		  cant_seek = FALSE;
+			/* Undo the seek. */
+			lseek(fd, 0, SEEK_SET);
+			cant_seek = FALSE;
 		}
 	}
 
@@ -895,7 +895,7 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 }
 
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
+		   const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
 }
@@ -934,10 +934,10 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 			}
 			ret = FALSE;
 		}
-    } else {
-        /* as we don't close stdout, at least try to flush it */
-        wtap_dump_flush(wdh);
-    }
+	} else {
+		/* as we don't close stdout, at least try to flush it */
+		wtap_dump_flush(wdh);
+	}
 	if (wdh->dump.opaque != NULL)
 		g_free(wdh->dump.opaque);
 	g_free(wdh);
