@@ -132,6 +132,7 @@ static int hf_sm_tag = -1;
 static gint ett_sm = -1;
 
 static dissector_handle_t sdp_handle;
+static dissector_handle_t mtp3_handle;
 static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
@@ -146,7 +147,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 msg_type = 0;
 	guint16 length;
 	guint16 tag;
-	int		offset=0;
+	int     offset = 0;
 
 	sm_message_type = tvb_get_ntohl(tvb,offset);
 
@@ -157,129 +158,140 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
 			val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, FALSE);
-		sm_tree = proto_item_add_subtree(ti, ett_sm);
+	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, FALSE);
+	sm_tree = proto_item_add_subtree(ti, ett_sm);
 
-		proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
-			"SM Message type: %s (0x%0x)", val_to_str(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
+	proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
+		"SM Message type: %s (0x%0x)", val_to_str(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
 
-		offset = offset + 4;
-		if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-			proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, FALSE);
-			protocol = tvb_get_ntohs(tvb,offset);
+	offset = offset + 4;
+	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
+		proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, FALSE);
+		protocol = tvb_get_ntohs(tvb,offset);
+		offset = offset + 2;
+		switch(protocol){
+		case SM_PROTOCOL_X100:
+		case SM_PROTOCOL_X122:
+			if (!tree)
+				return;
+			/* Protocol 0x100/0x122 only contains a length and then an EISUP packet */
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			length = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
-			switch(protocol){
-			case SM_PROTOCOL_X100:
-			case SM_PROTOCOL_X122:
-				/* Protocol 0x100/0x122 only contains a length and then an EISUP packet */
+			proto_item_set_len(ti, 8);
+
+			/* This should be the EISUP dissector but we havent got one
+			 * right now - so decode it as data for now ... */
+			next_tvb = tvb_new_subset(tvb, offset, length, length);
+			call_dissector(data_handle, next_tvb, pinfo, sm_tree);
+
+			break;
+		case SM_PROTOCOL_X101:
+			if (!tree)
+				return;
+			/* XXX Reveres enginered so this may not be correct!!! 
+			 * EISUP - used between Cisco HSI and Cisco PGW devices, 
+			 * uses RUDP with default port number 8003. 
+			 * Protocol stack is RUDP->Cisco SM->SDP. 
+			 * This implementation is PROPRIETARY 
+			 */
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			length = tvb_get_ntohs(tvb,offset);
+			offset = offset + 2;
+			proto_item_set_len(ti, length + offset);
+			/* The next stuff seems to be IP addr */
+			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+			offset = offset + 4;
+			/* This part looks to be the same per session */
+			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+			offset = offset +4;
+			/* Some sort of message type? */
+			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+			offset = offset + 1;
+			/* XXX Problem are tags 1 or two bytes???*/
+			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+
+			tag = tvb_get_ntohs(tvb,offset);
+			offset = offset +2;
+			if (tag== 0x01ac) {
 				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
 				length = tvb_get_ntohs(tvb,offset);
-				offset = offset + 2;
-				proto_item_set_len(ti, 8);
-
-				/* This should be the EISUP dissector but we havent got one
-				 * right now - so decode it as data for now ... */
+				offset = offset +2;
 				next_tvb = tvb_new_subset(tvb, offset, length, length);
-				call_dissector(data_handle, next_tvb, pinfo, sm_tree);
+				call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
+				offset = offset+length;
 
-				break;
-			case SM_PROTOCOL_X101:
-				/* XXX Reveres enginered so this may not be correct!!! 
-				 * EISUP - used between Cisco HSI and Cisco PGW devices, 
-				 * uses RUDP with default port number 8003. 
-				 * Protocol stack is RUDP->Cisco SM->SDP. 
-				 * This implementation is PROPRIETARY 
-				 */
+			}
+			/*return;*/
+			break;
+		case SM_PROTOCOL_X114:
+			if (!tree)
+				return;
+			/* XXX Reveres enginered so this may not be correct!!! */
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			length = tvb_get_ntohs(tvb,offset);
+			offset = offset + 2;
+			proto_item_set_len(ti, length + offset);
+			/* The next stuff seems to be IP addr */
+			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+			offset = offset + 4;
+			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+			offset = offset +4;
+			/* Some sort of message type? */
+			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+			offset = offset + 1;
+			/* XXX Problem are tags 1 or two bytes???*/
+			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+
+			tag = tvb_get_ntohs(tvb,offset);
+			offset = offset +2;
+			if (tag== 0x01ac) {
 				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
 				length = tvb_get_ntohs(tvb,offset);
-				offset = offset + 2;
-				proto_item_set_len(ti, length + offset);
-				/* The next stuff seems to be IP addr */
-				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
-				offset = offset + 4;
-				/* This part looks to be the same per session */
-				proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
-				offset = offset +4;
-				/* Some sort of message type? */
-				proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
-				offset = offset + 1;
-				/* XXX Problem are tags 1 or two bytes???*/
-				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-
-				tag = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
-				if (tag== 0x01ac) {
-					proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
-					length = tvb_get_ntohs(tvb,offset);
-					offset = offset +2;
-					next_tvb = tvb_new_subset(tvb, offset, length, length);
-					call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
-					offset = offset+length;
+				next_tvb = tvb_new_subset(tvb, offset, length, length);
+				call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
+				offset = offset+length;
 
+			}
+			break;
+		default:
+			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
+			offset = offset +2;
+			msg_type = tvb_get_ntohs(tvb,offset);
+			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
+				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
+				msg_type);
+			msg_type = tvb_get_ntohs(tvb,offset);
+			offset = offset + 2;
+			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
+			offset = offset + 2;
+			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
+			offset = offset +2;
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			length = tvb_get_ntohs(tvb,offset);
+			offset = offset +2;
+			proto_item_set_len(ti, 16);
+
+			if (length > 0) {
+				next_tvb = tvb_new_subset(tvb, offset, length, length);
+
+				if ((msg_type == PDU_MTP3_TO_SLT || msg_type == PDU_MTP3_FROM_SLT)) {
+					call_dissector(mtp3_handle, next_tvb, pinfo, tree);
+				} else {
+					call_dissector(data_handle, next_tvb, pinfo, tree);
 				}
-				/*return;*/
-				break;
-			case SM_PROTOCOL_X114:
-				/* XXX Reveres enginered so this may not be correct!!! */
-				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
-				length = tvb_get_ntohs(tvb,offset);
-				offset = offset + 2;
-				proto_item_set_len(ti, length + offset);
-				/* The next stuff seems to be IP addr */
-				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
-				offset = offset + 4;
-				proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
-				offset = offset +4;
-				/* Some sort of message type? */
-				proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
-				offset = offset + 1;
-				/* XXX Problem are tags 1 or two bytes???*/
-				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-
-				tag = tvb_get_ntohs(tvb,offset);
-				offset = offset +2;
-				if (tag== 0x01ac) {
-					proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
-					length = tvb_get_ntohs(tvb,offset);
-					offset = offset +2;
-					next_tvb = tvb_new_subset(tvb, offset, length, length);
-					call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
-					offset = offset+length;
-
-				}
-				break;
-			default:
-				proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
-				offset = offset +2;
-				msg_type = tvb_get_ntohs(tvb,offset);
-				proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
-					"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
-					msg_type);
-				msg_type = tvb_get_ntohs(tvb,offset);
-				offset = offset + 2;
-				proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
-				offset = offset + 2;
-				proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
-				offset = offset +2;
-				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
-				offset = offset +2;
-				proto_item_set_len(ti, 16);
 			}
 		}
 	}
 
-	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		if ((msg_type == PDU_MTP3_TO_SLT || msg_type == PDU_MTP3_FROM_SLT) && tvb_length(next_tvb) && find_dissector("mtp3"))
-			call_dissector(find_dissector("mtp3"), next_tvb, pinfo, tree);
-	}
 }
 
 void
 proto_reg_handoff_sm(void)
 {
-	sdp_handle = find_dissector("sdp");
+	sdp_handle  = find_dissector("sdp");
+	mtp3_handle = find_dissector("mtp3");
 	data_handle = find_dissector("data");
 }
 
