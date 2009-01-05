@@ -175,7 +175,7 @@ static void finalize_frame(void) {
 static void k12text_reset(FILE_T fh) {
 	yy_fh = fh;
 	yyrestart(0);
-        encap = WTAP_ENCAP_PER_PACKET;
+        encap = WTAP_ENCAP_UNKNOWN;
         ok_frame = FALSE;
         is_k12text = FALSE;
         at_eof = FALSE;
