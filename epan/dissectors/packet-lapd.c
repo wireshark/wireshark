@@ -116,11 +116,6 @@ static const value_string lapd_sapi_vals[] = {
 	{ 0,			NULL }
 };
 
-#define LAPD_GSM_SAPI_RA_SIG_PROC	0
-#define LAPD_GSM_SAPI_NOT_USED_1	1
-#define LAPD_GSM_SAPI_NOT_USED_16	16
-#define LAPD_GSM_SAPI_OM_PROC		62
-
 static const value_string lapd_gsm_sapi_vals[] = {
 	{ LAPD_GSM_SAPI_RA_SIG_PROC,		"Radio signalling procedures" },
 	{ LAPD_GSM_SAPI_NOT_USED_1,			"(Not used in GSM PLMN)" },
