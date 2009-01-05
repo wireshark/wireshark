@@ -41,8 +41,8 @@
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
 #include "packet-mac-lte.h"
-#if 0
 #include "packet-rlc-lte.h"
+#if 0
 #include "packet-pdcp.h"
 #endif
 
@@ -137,8 +137,8 @@ static gint outhdr_values_found = 0;
 
 extern int proto_fp;
 extern int proto_mac_lte;
-#if 0
 extern int proto_rlc_lte;
+#if 0
 extern int proto_pdcp;
 #endif
 
@@ -149,8 +149,8 @@ static void parse_outhdr_string(guchar *outhdr_string);
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
 static void attach_mac_lte_info(packet_info *pinfo);
-#if 0
 static void attach_rlc_lte_info(packet_info *pinfo);
+#if 0
 static void attach_pdcp_info(packet_info *pinfo);
 #endif
 
@@ -1118,7 +1118,6 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
 /* Fill in a RLC LTE packet info struct and attach it to the packet for that
    dissector to use */
-#if 0
 static void attach_rlc_lte_info(packet_info *pinfo)
 {
     struct rlc_lte_info *p_rlc_lte_info;
@@ -1151,7 +1150,6 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
 }
-#endif
 
 /* Fill in a PDCP packet info struct and attach it to the packet for the PDCP
    dissector to use */
@@ -1402,7 +1400,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         attach_mac_lte_info(pinfo);
     }
 
-#if 0
     /* LTE RLC needs info attached */
     else if (strcmp(protocol_name, "rlc_r8_lte") == 0)
     {
@@ -1410,6 +1407,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         attach_rlc_lte_info(pinfo);
     }
 
+#if 0
     /* LTE PDCP needs info attached */
     else if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
     {
@@ -1517,13 +1515,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 protocol_handle = find_dissector("mac-lte");
             }
 
-#if 0
             else
             if (strcmp(protocol_name, "rlc_r8_lte") == 0)
             {
                 protocol_handle = find_dissector("rlc-lte");
             }
 
+#if 0
             else
             if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
             {

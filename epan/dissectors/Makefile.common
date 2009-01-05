@@ -691,6 +691,7 @@ DISSECTOR_SRC = \
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\
+	packet-rlc-lte.c		\
 	packet-rlogin.c		\
 	packet-rmcp.c		\
 	packet-rmi.c		\
@@ -1091,6 +1092,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rdt.h	\
 	packet-rgmp.h	\
 	packet-ripng.h	\
+	packet-rlc-lte.h		\
 	packet-rmi.h	\
 	packet-rmt-alc.h	\
 	packet-rmt-common.h	\
