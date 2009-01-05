@@ -16,6 +16,25 @@
 
 %option outfile="k12text.c"
 
+/* Options useful for debugging                    */
+/* noline:  Prevent generation of #line directives */
+/*          Seems to be required when using the    */
+/*           Windows VS debugger so as to be able  */
+/*           to properly step through the code and */
+/*           set breakpoints & etc using the       */
+/*           k12text.c file rather than the        */
+/*           k12text.l file                        */
+/*     XXX: %option noline gives an error message: */
+/*          "unrecognized %option: line"           */
+/*          with Cygwin flex 2.5.35; the --noline  */
+/*          command-line option works OK.          */
+/*                                                 */
+/* debug:   Do output of "rule acceptance" info    */
+/*           during parse                          */ 
+/*                                                 */
+/* %option line  */
+/* %option debug */
+
 %{
 /* k12text.l
  *
@@ -69,31 +88,28 @@ static guint s;
 static guint ms;
 static guint ns;
 static gint encap;
-static guint8 b[65536];
+static guint8 b[WTAP_MAX_PACKET_SIZE];
 static guint i;
 static gboolean is_k12text;
 static gboolean at_eof;
-static guint junk_chars = 0;
+static guint junk_chars;
 static void finalize_frame(void);
 static gchar* error_str;
-static gint64 cum_offset;
+static guint file_bytes_read;
 static gboolean ok_frame;
 static FILE_T yy_fh;
 
-#define RESET() do { ok_frame = FALSE; h=0; m=0; s=0; ns=0; ms=0; i=0; is_k12text=FALSE; junk_chars = 0; error_str = NULL; } while(0)
-
 #define KERROR(text) do { error_str = g_strdup(text); yyterminate(); } while(0)
-#define START_PACKET RESET
 #define SET_HOURS(text) h = strtoul(text,NULL,10)
 #define SET_MINUTES(text) m = strtoul(text,NULL,10)
 #define SET_SECONDS(text) s = strtoul(text,NULL,10)
 #define SET_MS(text) ms = strtoul(text,NULL,10)
 #define SET_NS(text) ns = strtoul(text,NULL,10)
 #define SET_ENCAP(text) set_encap(text)
-#define ADD_BYTE(text) do {if (i >= 65536) {KERROR("frame too large");} b[i++] = (guint8)strtoul(text,NULL,16); } while(0)
+#define ADD_BYTE(text) do {if (i >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} b[i++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() finalize_frame()
 /*~ #define ECHO*/
-#define YY_USER_ACTION cum_offset += yyleng;
+#define YY_USER_ACTION file_bytes_read += yyleng;
 #define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
 
 #define MAX_JUNK 400000
@@ -108,20 +124,20 @@ threedigits [0-9][0-9][0-9]
 start_bytes \174\060\040\040\040\174
 bytes_junk \174[A-F0-9][A-F0-9\040][A-F0-9\040][A-F0-9\040]\174
 byte [a-f0-9][a-f0-9]\174
-end_bytes \015\012\015\012
+end_bytes \015?\012\015?\012
 eth ETHER
 mtp2 MTP-L2
 sscop SSCOP
 sscfnni SSCF
 hdlc HDLC
 
-%START NEXT_FRAME HOURS H2M MINUTES M2S S2M MS M2N NS ENCAP STARTBYTES BYTE ENDBYTES MAGIC SECONDS
+%START MAGIC NEXT_FRAME HOURS MINUTES M2S SECONDS S2M MS M2N NS ENCAP STARTBYTES BYTE
 %%
 <MAGIC>{start_timestamp}  { is_k12text = TRUE; yyterminate(); }
 
 <MAGIC>. { if (++ junk_chars > MAX_JUNK) { is_k12text = FALSE;  yyterminate(); } }
 
-<NEXT_FRAME>{start_timestamp} { START_PACKET(); BEGIN(HOURS); }
+<NEXT_FRAME>{start_timestamp} {BEGIN(HOURS); }
 <HOURS>{oneormoredigits} { SET_HOURS(yytext); BEGIN(MINUTES); }
 <MINUTES>{twodigits} { SET_MINUTES(yytext); BEGIN(M2S);}
 <M2S>{colon} { BEGIN(SECONDS);}
@@ -149,11 +165,42 @@ static void finalize_frame(void) {
 	ok_frame = TRUE;
 }
 
-static gboolean k12text_read(wtap *wth, int *err, char ** err_info _U_, gint64 *data_offset) {
-	gint64 start_offset = cum_offset;
+/* Note: k12text_reset is called each time data is to be processed from  */
+/*       a file. This ensures that no "state" from a previous read is    */
+/*       used (such as the lexer look-ahead buffer, file_handle, file    */
+/*       position and so on. This allows a single lexer buffer to be     */
+/*       used even when multiple files are open simultaneously (as for   */
+/*       a file merge).                                                  */
 
-	encap = WTAP_ENCAP_UNKNOWN;
-	ok_frame = FALSE;
+static void k12text_reset(FILE_T fh) {
+	yy_fh = fh;
+	yyrestart(0);
+        encap = WTAP_ENCAP_PER_PACKET;
+        ok_frame = FALSE;
+        is_k12text = FALSE;
+        at_eof = FALSE;
+        junk_chars = 0;
+        error_str = NULL;
+	file_bytes_read=0;
+	h=0;
+	m=0;
+	s=0;
+	ns=0;
+	ms=0;
+	i=0;
+}
+
+static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset) {
+
+	/* We seek to the file position after the end of the previous frame processed by         */
+        /* k12text_read (kept in wth->data_offset). We do this each time since the lexer         */
+        /* undoubtedly did some amount of look-ahead when processing the previous frame.         */ 
+        /* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer. */
+
+	if ( file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+		return FALSE;
+	}
+	k12text_reset(wth->fh);          /* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
@@ -169,8 +216,8 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info _U_, gint64 *
 		return FALSE;
 	}
 
-	wth->data_offset = *data_offset = start_offset ;
-
+	*data_offset = wth->data_offset;       /* file position for beginning of this frame   */
+	wth->data_offset += file_bytes_read;   /* file position after end of this frame       */
 
 	wth->phdr.ts.secs = 946681200 + (3600*h) + (60*m) + s;
 	wth->phdr.ts.nsecs = 1000000*ms + 1000*ns;
@@ -186,30 +233,36 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info _U_, gint64 *
 }
 
 static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guint8 *pd, int length, int *err, char **err_info) {
-	gint64 save_offset = cum_offset;
 
-	ok_frame = FALSE;
-	RESET();
-
-	yy_fh = wth->random_fh;
-
-
-	if ( file_seek(yy_fh, seek_off, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
+	k12text_reset(wth->random_fh);            /* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
 
 	if (ok_frame == FALSE) {
-		*err_info = error_str;
+		if (at_eof) {
+			/* What happened ? The desired frame was previously read without a problem */
+			*err_info = g_strdup("Unexpected EOF (program error ?)");
+		} else {
+			*err_info = error_str;
+		}
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+
+	/* verify frame length parsed this time against original frame length */
+	if (i != length) {
+		/* What happened ? This now seems to have a different length than originally */
+		*err_info = g_strdup("Incorrect frame length (program error ?)");
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
 
 	memcpy(pd, b, length);
 
-	cum_offset = save_offset ;
 	return TRUE;
 }
 
@@ -219,20 +272,16 @@ static void k12text_close(wtap *wth _U_) {
 
 int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
 
-	cum_offset = 0;
+	k12text_reset(wth->fh);       /* init lexer buffer and vars set by lexer */
 
-	RESET();
-	yy_fh = wth->fh;
 	BEGIN(MAGIC);
 	yylex();
 
 	if (! is_k12text) return 0;
 
-	if ( file_seek(yy_fh, 0, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 		return -1;
 	}
-
-	cum_offset = 0;
 
 	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_K12TEXT;
