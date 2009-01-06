@@ -385,7 +385,7 @@ File "..\..\epan\wslua\dtd_gen.lua"
 !ifdef SMI_DIR
 File "${SMI_DIR}\lib\smi.dll"
 !endif
-File "..\..\FAQ"
+File /oname=FAQ "..\..\help\faq.txt"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\AUTHORS-SHORT"

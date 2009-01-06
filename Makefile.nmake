@@ -171,7 +171,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
+all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
 
 packaging: all
 	cd packaging
@@ -215,7 +215,7 @@ wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\
 	$(BSCMAKE) @<<
 		/o $@ $?
 <<
-	xcopy $@ wireshark-gtk2\ /d
+	xcopy $@ $(INSTALL_DIR)\ /d
 
 $(RESOURCES): image
 
@@ -609,7 +609,7 @@ codecs::
         $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
         cd ..
 
-gtk:: help FAQ config.h svnversion.h AUTHORS-SHORT doxygen
+gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
@@ -644,14 +644,6 @@ doxygen-run:
 !ENDIF
 
 doxygen: doxygen.cfg doxygen-run
-
-help\faq.txt:
-	cd help
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake faq.txt
-	cd ..
-
-FAQ: help\faq.txt
-	cp --preserve $? $@
 	
 
 ################################################################################
@@ -919,10 +911,10 @@ debug-dumpcap: dumpcap.exe install-generated-files
 # install generated files (exe, "our" libs, ...)
 install-generated-files:
 	set copycmd=/y
+	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IF "$(MSVC_VARIANT)" == "MSVC2008"
 	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)\*.*
 !ENDIF
-	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IFDEF ENABLE_LIBWIRESHARK
 	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d
 !ENDIF
@@ -952,7 +944,6 @@ install-generated-files:
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\services" $(INSTALL_DIR) /d
-	xcopy ".\FAQ" $(INSTALL_DIR) /d
 	xcopy ".\README" $(INSTALL_DIR) /d
 	xcopy ".\README.win32" $(INSTALL_DIR) /d
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
@@ -969,6 +960,9 @@ install-generated-files:
 	xcopy doc\*.html $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
+# Oh for crying out loud. Xcopy has a "the destination is a directory"
+# flag, but no corresponding "the destination is a file" flag.
+	echo f | xcopy ".\help\faq.txt" $(INSTALL_DIR)\FAQ /d
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1

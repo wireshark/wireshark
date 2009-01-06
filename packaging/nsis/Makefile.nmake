@@ -30,7 +30,6 @@ DOC=../../doc/ws.css			\
 	../../doc/tshark.html		\
 	../../doc/wireshark-filter.html	\
 	../../doc/wireshark.html	\
-	../../FAQ			\
 	../../README			\
 	../../README.win32
 DOC_dos=NEWS.txt
