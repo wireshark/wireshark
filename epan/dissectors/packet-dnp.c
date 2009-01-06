@@ -61,6 +61,21 @@
  * Application Layer Decoding based on information available in
  * DNP3 Basic 4 Documentation Set, specifically the document:
  * "DNP V3.00 Application Layer" v0.03 P009-0PD.APP & Technical Bulletins
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Several command codes were missing, causing the dissector to abort decoding
+ * on valid packets.  Those commands have been added.
+ * 
+ * The semantics of Variation 0 have been cleaned up.  Variation 0 is the 
+ * "Default Variation".  It is used only in Master -> Slave read commands
+ * to request the data in whatever variation the Slave is configured to use by 
+ * default. Decoder strings have been added to the Binary Output and 
+ * Analog Output objects (10 and 40) so that group read commands will 
+ * decode properly.
+ *
+ * Roy M. Silvernail <roy@rant-central.com> 01/05/2009
+ *
  */
 
 /***************************************************************************/
@@ -141,8 +156,19 @@
 #define AL_FUNC_DISSPMSG   0x15    /* 21  - Disable Spontaneous Msg */
 #define AL_FUNC_ASSIGNCL   0x16    /* 22  - Assign Classes */
 #define AL_FUNC_DELAYMST   0x17    /* 23  - Delay Measurement */
+#define AL_FUNC_RECCT      0x18    /* 24  - Record Current Time */
+#define AL_FUNC_OPENFILE   0x19    /* 25  - Open File */
+#define AL_FUNC_CLOSEFILE  0x1A    /* 26  - Close File */
+#define AL_FUNC_DELETEFILE 0x1B    /* 27  - Delete File */
+#define AL_FUNC_GETFILEINF 0x1C    /* 28  - Get File Info */
+#define AL_FUNC_AUTHFILE   0x1D    /* 29  - Authenticate File */
+#define AL_FUNC_ABORTFILE  0x1E    /* 30  - Abort File */
+#define AL_FUNC_ACTCNF     0x1F    /* 31  - Activate Config */
+#define AL_FUNC_AUTHREQ    0x20    /* 32  - Authentication Request */
+#define AL_FUNC_AUTHERR    0x21    /* 33  - Authentication Error */
 #define AL_FUNC_RESPON     0x81    /* 129 - Response */
 #define AL_FUNC_UNSOLI     0x82    /* 130 - Unsolicited Response */
+#define AL_FUNC_AUTHRESP   0x83    /* 131 - Authentication Response */
 
 /***************************************************************************/
 /* Application Layer Internal Indication (IIN) bits */
@@ -213,16 +239,16 @@
 /* Application Layer Data Object Definitions                               */
 /***************************************************************************/
 /* Binary Input Objects */
-#define AL_OBJ_BI_ALL      0x0100   /* 01 00 Binary Input All Variations */
+#define AL_OBJ_BI_ALL      0x0100   /* 01 00 Binary Input Default Variation */
 #define AL_OBJ_BI_1BIT     0x0101   /* 01 01 Single-bit Binary Input */
 #define AL_OBJ_BI_STAT     0x0102   /* 01 02 Binary Input With Status */
-#define AL_OBJ_BIC_ALL     0x0200   /* 02 00 Binary Input Change All Variations */
+#define AL_OBJ_BIC_ALL     0x0200   /* 02 00 Binary Input Change Default Variation */
 #define AL_OBJ_BIC_NOTIME  0x0201   /* 02 01 Binary Input Change Without Time */
 #define AL_OBJ_BIC_TIME    0x0202   /* 02 02 Binary Input Change With Time */
 #define AL_OBJ_BIC_RTIME   0x0203   /* 02 03 Binary Input Change With Relative Time */
 
 /* Double-bit Input Objects */
-#define AL_OBJ_2BI_ALL     0x0300   /* 03 00 Double-bit Input All Variations */
+#define AL_OBJ_2BI_ALL     0x0300   /* 03 00 Double-bit Input Default Variation */
 #define AL_OBJ_2BI_NF      0x0301   /* 03 01 Double-bit Input No Flags */
 #define AL_OBJ_2BI_STAT    0x0302   /* 03 02 Double-bit Input With Status */
 #define AL_OBJ_2BIC_NOTIME 0x0401   /* 04 01 Double-bit Input Change Without Time */
@@ -241,6 +267,7 @@
 
 /***************************************************************************/
 /* Binary Output Objects */
+#define AL_OBJ_BO_ALL      0x0A00   /* 10 00 Binary Output Default Variation */
 #define AL_OBJ_BO          0x0A01   /* 10 01 Binary Output */
 #define AL_OBJ_BO_STAT     0x0A02   /* 10 02 Binary Output Status */
 #define AL_OBJ_CTLOP_BLK   0x0C01   /* 12 01 Control Relay Output Block */
@@ -289,7 +316,7 @@
 
 /***************************************************************************/
 /* Counter Objects */
-#define AL_OBJ_CTR_ALL     0x1400   /* 20 00 Binary Counter All Variations */
+#define AL_OBJ_CTR_ALL     0x1400   /* 20 00 Binary Counter Default Variation */
 #define AL_OBJ_CTR_32      0x1401   /* 20 01 32-Bit Binary Counter */
 #define AL_OBJ_CTR_16      0x1402   /* 20 02 16-Bit Binary Counter */
 #define AL_OBJ_DCTR_32     0x1403   /* 20 03 32-Bit Delta Counter */
@@ -298,7 +325,7 @@
 #define AL_OBJ_CTR_16NF    0x1406   /* 20 06 16-Bit Binary Counter Without Flag */
 #define AL_OBJ_DCTR_32NF   0x1407   /* 20 07 32-Bit Delta Counter Without Flag */
 #define AL_OBJ_DCTR_16NF   0x1408   /* 20 08 16-Bit Delta Counter Without Flag */
-#define AL_OBJ_FCTR_ALL    0x1500   /* 21 00 Frozen Binary Counter All Variations */
+#define AL_OBJ_FCTR_ALL    0x1500   /* 21 00 Frozen Binary Counter Default Variation */
 #define AL_OBJ_FCTR_32     0x1501   /* 21 01 32-Bit Frozen Counter */
 #define AL_OBJ_FCTR_16     0x1502   /* 21 02 16-Bit Frozen Counter */
 #define AL_OBJ_FDCTR_32    0x1503   /* 21 03 32-Bit Frozen Delta Counter */
@@ -311,7 +338,7 @@
 #define AL_OBJ_FCTR_16NF   0x1510   /* 21 10 16-Bit Frozen Counter Without Flag */
 #define AL_OBJ_FDCTR_32NF  0x1511   /* 21 11 32-Bit Frozen Delta Counter Without Flag */
 #define AL_OBJ_FDCTR_16NF  0x1512   /* 21 12 16-Bit Frozen Delta Counter Without Flag */
-#define AL_OBJ_CTRC_ALL    0x1600   /* 22 00 Counter Change Event All Variations */
+#define AL_OBJ_CTRC_ALL    0x1600   /* 22 00 Counter Change Event Default Variation */
 #define AL_OBJ_CTRC_32     0x1601   /* 22 01 32-Bit Counter Change Event w/o Time */
 #define AL_OBJ_CTRC_16     0x1602   /* 22 02 16-Bit Counter Change Event w/o Time */
 #define AL_OBJ_DCTRC_32    0x1603   /* 22 03 32-Bit Delta Counter Change Event w/o Time */
@@ -320,7 +347,7 @@
 #define AL_OBJ_CTRC_16T    0x1606   /* 22 06 16-Bit Counter Change Event with Time */
 #define AL_OBJ_DCTRC_32T   0x1607   /* 22 07 32-Bit Delta Counter Change Event with Time */
 #define AL_OBJ_DCTRC_16T   0x1608   /* 22 08 16-Bit Delta Counter Change Event with Time */
-#define AL_OBJ_FCTRC_ALL   0x1700   /* 21 00 Frozen Binary Counter Change Event All Variations */
+#define AL_OBJ_FCTRC_ALL   0x1700   /* 21 00 Frozen Binary Counter Change Event Default Variation */
 #define AL_OBJ_FCTRC_32    0x1701   /* 21 01 32-Bit Frozen Counter Change Event */
 #define AL_OBJ_FCTRC_16    0x1702   /* 21 02 16-Bit Frozen Counter Change Event */
 #define AL_OBJ_FDCTRC_32   0x1703   /* 21 03 32-Bit Frozen Delta Counter Change Event */
@@ -342,7 +369,7 @@
 
 /***************************************************************************/
 /* Analog Input Objects */
-#define AL_OBJ_AI_ALL      0x1E00   /* 30 00 Analog Input All Variations */
+#define AL_OBJ_AI_ALL      0x1E00   /* 30 00 Analog Input Default Variation */
 #define AL_OBJ_AI_32       0x1E01   /* 30 01 32-Bit Analog Input */
 #define AL_OBJ_AI_16       0x1E02   /* 30 02 16-Bit Analog Input */
 #define AL_OBJ_AI_32NF     0x1E03   /* 30 03 32-Bit Analog Input Without Flag */
@@ -357,7 +384,7 @@
                         /* 0x1F06      31 06 16-Bit Frozen Analog Input Without Flag */
 #define AL_OBJ_AIF_FLT     0x1F07   /* 31 07 32-Bit Frozen Floating Point Input */
 #define AL_OBJ_AIF_DBL     0x1F08   /* 31 08 64-Bit Frozen Floating Point Input */
-#define AL_OBJ_AIC_ALL     0x2000   /* 32 00 Analog Input Change All Variations */
+#define AL_OBJ_AIC_ALL     0x2000   /* 32 00 Analog Input Change Default Variation */
 #define AL_OBJ_AIC_32NT    0x2001   /* 32 01 32-Bit Analog Change Event w/o Time */
 #define AL_OBJ_AIC_16NT    0x2002   /* 32 02 16-Bit Analog Change Event w/o Time */
 #define AL_OBJ_AIC_32T     0x2003   /* 32 03 32-Bit Analog Change Event w/ Time */
@@ -388,6 +415,7 @@
 
 /***************************************************************************/
 /* Analog Output Objects */
+#define AL_OBJ_AO_ALL      0x2800   /* 40 00 Analog Output Default Variation */
 #define AL_OBJ_AO_32       0x2801   /* 40 01 32-Bit Analog Output Status */
 #define AL_OBJ_AO_16       0x2802   /* 40 02 16-Bit Analog Output Status */
 #define AL_OBJ_AO_FLT      0x2803   /* 40 03 32-Bit Floating Point Output Status */
@@ -409,8 +437,10 @@
 
 /***************************************************************************/
 /* Time Objects */
+#define AL_OBJ_TD_ALL      0x3200   /* 50 00 Time and Date Default Variation */
 #define AL_OBJ_TD          0x3201   /* 50 01 Time and Date */
 #define AL_OBJ_TDI         0x3202   /* 50 02 Time and Date w/ Interval */
+#define AL_OBJ_TDR         0x3203   /* 50 03 Last Recorded Time and Date */
 #define AL_OBJ_TDCTO       0x3301   /* 51 01 Time and Date CTO */
 #define AL_OBJ_UTDCTO      0x3302   /* 51 02 Unsynchronized Time and Date CTO */
 #define AL_OBJ_TDELAYC     0x3401   /* 52 01 Time Delay Coarse */
@@ -631,8 +661,19 @@ static const value_string dnp3_al_func_vals[] = {
   { AL_FUNC_DISSPMSG,   "Disable Spontaneous Messages" },
   { AL_FUNC_ASSIGNCL,   "Assign Classes" },
   { AL_FUNC_DELAYMST,   "Delay Measurement" },
+  { AL_FUNC_RECCT,      "Record Current Time" },
+  { AL_FUNC_OPENFILE,   "Open File" },
+  { AL_FUNC_CLOSEFILE,  "Close File" },
+  { AL_FUNC_DELETEFILE, "Delete File" },
+  { AL_FUNC_GETFILEINF, "Get File Info" },
+  { AL_FUNC_AUTHFILE,   "Authenticate File" },
+  { AL_FUNC_ABORTFILE,  "Abort File" },
+  { AL_FUNC_ACTCNF,     "Activate Config" },
+  { AL_FUNC_AUTHREQ,    "Authentication Request" },
+  { AL_FUNC_AUTHERR,    "Authentication Error" },
   { AL_FUNC_RESPON,     "Response" },
   { AL_FUNC_UNSOLI,     "Unsolicited Response" },
+  { AL_FUNC_AUTHRESP,   "Authentication Response" },
   { 0, NULL }
 };
 
@@ -684,23 +725,24 @@ static const value_string dnp3_al_objq_code_vals[] = {
 
 /* Application Layer Data Object Values */
 static const value_string dnp3_al_obj_vals[] = {
-  { AL_OBJ_BI_ALL,     "Binary Input All Variations (Obj:01, Var:All)" },
+  { AL_OBJ_BI_ALL,     "Binary Input Default Variation (Obj:01, Var:Default)" },
   { AL_OBJ_BI_1BIT,    "Single-Bit Binary Input (Obj:01, Var:01)" },
   { AL_OBJ_BI_STAT,    "Binary Input With Status (Obj:01, Var:02)" },
-  { AL_OBJ_BIC_ALL,    "Binary Input Change All Variations (Obj:02, Var:All)" },
+  { AL_OBJ_BIC_ALL,    "Binary Input Change Default Variation (Obj:02, Var:Default)" },
   { AL_OBJ_BIC_NOTIME, "Binary Input Change Without Time (Obj:02, Var:01)" },
   { AL_OBJ_BIC_TIME,   "Binary Input Change With Time (Obj:02, Var:02)" },
   { AL_OBJ_BIC_RTIME,  "Binary Input Change With Relative Time (Obj:02, Var:03)" },
-  { AL_OBJ_2BI_ALL,    "Double-bit Input All Variations (Obj:03, Var:All)" },
+  { AL_OBJ_2BI_ALL,    "Double-bit Input Default Variation (Obj:03, Var:Default)" },
   { AL_OBJ_2BI_NF,     "Double-bit Input No Flags (Obj:03, Var:01)" },
   { AL_OBJ_2BI_STAT,   "Double-bit Input With Status (Obj:03, Var:02)" },
   { AL_OBJ_2BIC_NOTIME, "Double-bit Input Change Without Time (Obj:04, Var:01)" },
   { AL_OBJ_2BIC_TIME,  "Double-bit Input Change With Time (Obj:04, Var:02)" },
   { AL_OBJ_2BIC_RTIME, "Double-bit Input Change With Relative Time (Obj:04, Var:03)" },
+  { AL_OBJ_BO_ALL,     "Binary Output Default Variation (Obj:10, Var:Default)" },
   { AL_OBJ_BO,         "Binary Output (Obj:10, Var:01)" },
   { AL_OBJ_BO_STAT,    "Binary Output Status (Obj:10, Var:02)" },
   { AL_OBJ_CTLOP_BLK,  "Control Relay Output Block (Obj:12, Var:01)" },
-  { AL_OBJ_CTR_ALL,    "Binary Counter All Variations (Obj:20, Var:All)" },
+  { AL_OBJ_CTR_ALL,    "Binary Counter Default Variation (Obj:20, Var:Default)" },
   { AL_OBJ_CTR_32,     "32-Bit Binary Counter (Obj:20, Var:01)" },
   { AL_OBJ_CTR_16,     "16-Bit Binary Counter (Obj:20, Var:02)" },
   { AL_OBJ_DCTR_32,    "32-Bit Binary Delta Counter (Obj:20, Var:03)" },
@@ -709,7 +751,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CTR_16NF,   "16-Bit Binary Counter Without Flag (Obj:20, Var:06)" },
   { AL_OBJ_DCTR_32NF,  "32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07)" },
   { AL_OBJ_DCTR_16NF,  "16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08)" },
-  { AL_OBJ_FCTR_ALL,   "Frozen Binary Counter All Variations (Obj:21, Var:All)" },
+  { AL_OBJ_FCTR_ALL,   "Frozen Binary Counter Default Variation (Obj:21, Var:Default)" },
   { AL_OBJ_FCTR_32,    "32-Bit Frozen Binary Counter (Obj:21, Var:01)" },
   { AL_OBJ_FCTR_16,    "16-Bit Frozen Binary Counter (Obj:21, Var:02)" },
   { AL_OBJ_FDCTR_32,   "32-Bit Frozen Binary Delta Counter (Obj:21, Var:03)" },
@@ -722,7 +764,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_FCTR_16NF,  "16-Bit Frozen Binary Counter Without Flag (Obj:21, Var:06)" },
   { AL_OBJ_FDCTR_32NF, "32-Bit Frozen Binary Delta Counter Without Flag (Obj:21, Var:07)" },
   { AL_OBJ_FDCTR_16NF, "16-Bit Frozen Binary Delta Counter Without Flag (Obj:21, Var:08)" },
-  { AL_OBJ_CTRC_ALL,   "Binary Counter Change All Variations (Obj:22, Var:All)" },
+  { AL_OBJ_CTRC_ALL,   "Binary Counter Change Default Variation (Obj:22, Var:Default)" },
   { AL_OBJ_CTRC_32,    "32-Bit Counter Change Event w/o Time (Obj:22, Var:01)" },
   { AL_OBJ_CTRC_16,    "16-Bit Counter Change Event w/o Time (Obj:22, Var:02)" },
   { AL_OBJ_DCTRC_32,   "32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03)" },
@@ -731,7 +773,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CTRC_16T,   "16-Bit Counter Change Event with Time (Obj:22, Var:06)" },
   { AL_OBJ_DCTRC_32T,  "32-Bit Delta Counter Change Event with Time (Obj:22, Var:07)" },
   { AL_OBJ_DCTRC_16T,  "16-Bit Delta Counter Change Event with Time (Obj:22, Var:08)" },
-  { AL_OBJ_FCTRC_ALL,  "Frozen Binary Counter Change All Variations (Obj:23, Var:All)" },
+  { AL_OBJ_FCTRC_ALL,  "Frozen Binary Counter Change Default Variation (Obj:23, Var:Default)" },
   { AL_OBJ_FCTRC_32,   "32-Bit Frozen Counter Change Event w/o Time (Obj:23, Var:01)" },
   { AL_OBJ_FCTRC_16,   "16-Bit Frozen Counter Change Event w/o Time (Obj:23, Var:02)" },
   { AL_OBJ_FDCTRC_32,  "32-Bit Frozen Delta Counter Change Event w/o Time (Obj:23, Var:03)" },
@@ -740,7 +782,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_FCTRC_16T,  "16-Bit Frozen Counter Change Event with Time (Obj:23, Var:06)" },
   { AL_OBJ_FDCTRC_32T, "32-Bit Frozen Delta Counter Change Event with Time (Obj:23, Var:07)" },
   { AL_OBJ_FDCTRC_16T, "16-Bit Frozen Delta Counter Change Event with Time (Obj:23, Var:08)" },
-  { AL_OBJ_AI_ALL,     "Analog Input All Variations (Obj:30, Var:All)" },
+  { AL_OBJ_AI_ALL,     "Analog Input Default Variation (Obj:30, Var:Default)" },
   { AL_OBJ_AI_32,      "32-Bit Analog Input (Obj:30, Var:01)" },
   { AL_OBJ_AI_16,      "16-Bit Analog Input (Obj:30, Var:02)" },
   { AL_OBJ_AI_32NF,    "32-Bit Analog Input Without Flag (Obj:30, Var:03)" },
@@ -749,7 +791,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AI_DBL,     "64-Bit Floating Point Input (Obj:30, Var:06)" },
   { AL_OBJ_AIF_FLT,    "32-Bit Frozen Floating Point Input (Obj:31, Var:07)" },
   { AL_OBJ_AIF_DBL,    "64-Bit Frozen Floating Point Input (Obj:31, Var:08)" },
-  { AL_OBJ_AIC_ALL,    "Analog Input Change All Variations (Obj:32, Var:All)" },
+  { AL_OBJ_AIC_ALL,    "Analog Input Change Default Variation (Obj:32, Var:Default)" },
   { AL_OBJ_AIC_32NT,   "32-Bit Analog Change Event w/o Time (Obj:32, Var:01)" },
   { AL_OBJ_AIC_16NT,   "16-Bit Analog Change Event w/o Time (Obj:32, Var:02)" },
   { AL_OBJ_AIC_32T,    "32-Bit Analog Change Event with Time (Obj:32, Var:03)" },
@@ -762,6 +804,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AIFC_DBLNT, "64-Bit Floating Point Frozen Change Event w/o Time (Obj:33, Var:06)" },
   { AL_OBJ_AIFC_FLTT,  "32-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:07)" },
   { AL_OBJ_AIFC_DBLT,  "64-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:08)" },
+  { AL_OBJ_AO_ALL,     "Analog Output Default Variation (Obj:40, Var:Default)" },
   { AL_OBJ_AO_32,      "32-Bit Analog Output Status (Obj:40, Var:01)" },
   { AL_OBJ_AO_16,      "16-Bit Analog Output Status (Obj:40, Var:02)" },
   { AL_OBJ_AO_FLT,     "32-Bit Floating Point Output Status (Obj:40, Var:03)" },
@@ -770,7 +813,10 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AO_16OPB,   "16-Bit Analog Output Block (Obj:41, Var:02)" },
   { AL_OBJ_AO_FLTOPB,  "32-Bit Floating Point Output Block (Obj:41, Var:03)" },
   { AL_OBJ_AO_DBLOPB,  "64-Bit Floating Point Output Block (Obj:41, Var:04)" },
+  { AL_OBJ_TD_ALL,     "Time and Date Default Variations (Obj:50, Var:Default)" },
   { AL_OBJ_TD,         "Time and Date (Obj:50, Var:01)" },
+  { AL_OBJ_TDI,        "Time and Date w/Interval (Obj:50, Var:02)" },
+  { AL_OBJ_TDR,        "Last Recorded Time and Date (Obj:50, Var:03)" },
   { AL_OBJ_TDCTO,      "Time and Date CTO (Obj:51, Var:01)" },
   { AL_OBJ_TDELAYF,    "Time Delay - Fine (Obj:52, Var:02)" },
   { AL_OBJ_CLASS0,     "Class 0 Data (Obj:60, Var:01)" },
@@ -1402,13 +1448,13 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
         switch (al_obj)
         {
 
-          case AL_OBJ_BI_ALL:      /* Binary Input All Var (Obj:01, Var:All) */
-          case AL_OBJ_BIC_ALL:     /* Binary Input Change All Var (Obj:02, Var:All) */
-          case AL_OBJ_2BI_ALL:     /* Double-bit Input All Var (Obj:03, Var:All) */
-          case AL_OBJ_CTR_ALL:     /* Binary Counter All Var (Obj:20, Var:All) */
-          case AL_OBJ_CTRC_ALL:    /* Binary Counter Change All Var (Obj:22 Var:All) */
-          case AL_OBJ_AI_ALL:      /* Analog Input All Var (Obj:30, Var:All) */
-          case AL_OBJ_AIC_ALL:     /* Analog Input Change All Var (Obj:32 Var:All) */
+          case AL_OBJ_BI_ALL:      /* Binary Input Default Variation (Obj:01, Var:Default) */
+          case AL_OBJ_BIC_ALL:     /* Binary Input Change Default Variation (Obj:02, Var:Default) */
+          case AL_OBJ_2BI_ALL:     /* Double-bit Input Default Variation (Obj:03, Var:Default) */
+          case AL_OBJ_CTR_ALL:     /* Binary Counter Default Variation (Obj:20, Var:Default) */
+          case AL_OBJ_CTRC_ALL:    /* Binary Counter Change Default Variation (Obj:22 Var:Default) */
+          case AL_OBJ_AI_ALL:      /* Analog Input Default Variation (Obj:30, Var:Default) */
+          case AL_OBJ_AIC_ALL:     /* Analog Input Change Default Variation (Obj:32 Var:Default) */
 
             offset = data_pos;
             break;
