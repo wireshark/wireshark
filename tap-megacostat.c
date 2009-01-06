@@ -42,6 +42,7 @@
 #include "register.h"
 #include "epan/gcp.h"
 #include "timestats.h"
+#include <epan/prefs-int.h>
 
 #include "tap-megaco-common.h"
 
@@ -84,7 +85,16 @@ megacostat_init(const char *optarg, void* userdata _U_)
 	int i;
 	const char *filter=NULL;
 	GString *error_string;
-
+	pref_t *megaco_ctx_track,*h248_ctx_track;
+	
+	megaco_ctx_track = prefs_find_preference(prefs_find_module("megaco"),"ctx_info");
+	h248_ctx_track = prefs_find_preference(prefs_find_module("h248"),"ctx_info");
+	if (!*megaco_ctx_track->varp.boolp || !*h248_ctx_track->varp.boolp) {
+		printf("Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences\n");
+		printf("has to be set to true to enable measurement of service reponse times.\n");
+		exit(1);
+	}
+	
 	if(!strncmp(optarg,"megaco,rtd,",11)){
 		filter=optarg+11;
 	} else {

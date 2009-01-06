@@ -42,6 +42,7 @@
 #include <epan/value_string.h>
 #include <epan/tap.h>
 #include "epan/gcp.h"
+#include <epan/prefs-int.h>
 
 #include "../register.h"
 #include "../timestats.h"
@@ -153,7 +154,16 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 	GString *error_string;
 	GtkWidget *bt_close;
 	GtkWidget *bbox;
+	pref_t *megaco_ctx_track,*h248_ctx_track;
 
+	megaco_ctx_track = prefs_find_preference(prefs_find_module("megaco"),"ctx_info");
+	h248_ctx_track = prefs_find_preference(prefs_find_module("h248"),"ctx_info");
+	
+	if (!*megaco_ctx_track->varp.boolp || !*h248_ctx_track->varp.boolp) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences has to be set to true to enable measurement of service reponse times.");
+		return;
+	}
+	
 	if(strncmp(optarg,"megaco,srt,",11) == 0){
 		filter=optarg+11;
 	} else {

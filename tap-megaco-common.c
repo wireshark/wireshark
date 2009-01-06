@@ -119,7 +119,13 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	switch (mi->type) {
 
         GCP_CMD_REQ_CASE
-		if(mi->trx->initial->framenum != mi->msg->framenum){
+		if(!mi->trx->initial) {
+			/* Track Context is probably disabled, we cannot 
+			 * measure service response time */
+			return 0;
+		}
+			
+		else if(mi->trx->initial->framenum != mi->msg->framenum){
 			/* Duplicate is ignored */
 			ms->req_dup_num++;
 		}
