@@ -294,6 +294,17 @@ extern const char *prefs_get_title_by_name(const char *name);
  */
 extern module_t *prefs_find_module(const char *name);
 
+/** Given a module name, and a preference name return a pointer to the given 
+ * module's given preference or NULL if it's not found.
+ *
+ * @param module The preference module name.  Usually the same as the protocol
+ * name, e.g. "tcp".
+ * @param pref The preference name, e.g. "desegment".
+ * @return A pointer to the corresponding preference, or NULL if it
+ * wasn't found.
+ */
+extern pref_t *prefs_find_preference(module_t * module, const char *pref);
+
 /*
  * Register a preference with an unsigned integral value.
  */
