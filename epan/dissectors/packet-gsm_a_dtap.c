@@ -3077,6 +3077,18 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 /*
  * 10.5.4.32 Supported codec list
  */
+static guint16
+de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.33 Service category
  */
@@ -3563,24 +3575,24 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	NULL,	/* Network Call Control Capabilities */
 	NULL,	/* Cause of No CLI */
 	NULL,	/* Immediate Modification Indicator */
-	NULL,	/* Supported Codec List */
-	NULL,	/* Service Category */
-	NULL,	/* 10.5.4.34 Redial */
+	de_sup_codec_list,	/* Supported Codec List */
+	NULL,				/* Service Category */
+	NULL,				/* 10.5.4.34 Redial */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	de_cp_user_data,	/* CP-User Data */
-	de_cp_cause,	/* CP-Cause */
+	de_cp_cause,		/* CP-Cause */
 	/* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
-	de_tp_sub_channel,	/* Close TCH Loop Cmd Sub-channel */
-	de_tp_ack,	/* Open Loop Cmd Ack */
-	de_tp_loop_type,			/* Close Multi-slot Loop Cmd Loop type */
-	de_tp_loop_ack,			/* Close Multi-slot Loop Ack Result */
-	de_tp_tested_device,			/* Test Interface Tested device */
-	de_tp_pdu_description,			/* GPRS Test Mode Cmd PDU description */
-	de_tp_mode_flag,			/* GPRS Test Mode Cmd Mode flag */
-	de_tp_egprs_mode_flag,			/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+	de_tp_sub_channel,					/* Close TCH Loop Cmd Sub-channel */
+	de_tp_ack,							/* Open Loop Cmd Ack */
+	de_tp_loop_type,					/* Close Multi-slot Loop Cmd Loop type */
+	de_tp_loop_ack,						/* Close Multi-slot Loop Ack Result */
+	de_tp_tested_device,				/* Test Interface Tested device */
+	de_tp_pdu_description,				/* GPRS Test Mode Cmd PDU description */
+	de_tp_mode_flag,					/* GPRS Test Mode Cmd Mode flag */
+	de_tp_egprs_mode_flag,				/* EGPRS Start Radio Block Loopback Cmd Mode flag */
 	de_tp_ue_test_loop_mode,			/* Close UE Test Loop Mode */
-	de_tp_ue_positioning_technology,			/* UE Positioning Technology */
-	de_tp_rlc_sdu_counter_value,			/* RLC SDU Counter Value */
+	de_tp_ue_positioning_technology,	/* UE Positioning Technology */
+	de_tp_rlc_sdu_counter_value,		/* RLC SDU Counter Value */
 	NULL,	/* NONE */
 };
 
