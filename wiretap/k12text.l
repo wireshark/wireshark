@@ -105,7 +105,6 @@ static FILE_T yy_fh;
 #define SET_SECONDS(text) s = strtoul(text,NULL,10)
 #define SET_MS(text) ms = strtoul(text,NULL,10)
 #define SET_NS(text) ns = strtoul(text,NULL,10)
-#define SET_ENCAP(text) set_encap(text)
 #define ADD_BYTE(text) do {if (i >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} b[i++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() finalize_frame()
 /*~ #define ECHO*/
@@ -126,8 +125,8 @@ bytes_junk \174[A-F0-9][A-F0-9\040][A-F0-9\040][A-F0-9\040]\174
 byte [a-f0-9][a-f0-9]\174
 end_bytes \015?\012\015?\012
 eth ETHER
-mtp2 MTP-L2
-sscop SSCOP
+ /* mtp2 MTP-L2 ;; XXX: Not supported until it's determined how to fill in the pseudo_header req'd by packet-mtp2 */
+ /* sscop SSCOP ;; XXX: Not supported until it's determined how to fill in the pseudo_header req'd by packet-atm  */
 sscfnni SSCF
 hdlc HDLC
 
@@ -147,8 +146,8 @@ hdlc HDLC
 <M2N>{comma}  { BEGIN(NS); }
 <NS>{threedigits} { SET_NS(yytext); BEGIN(ENCAP);}
 <ENCAP>{eth} {encap = WTAP_ENCAP_ETHERNET; BEGIN(STARTBYTES); }
-<ENCAP>{mtp2} {encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }
-<ENCAP>{sscop} {encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); }
+ /* <ENCAP>{mtp2} {encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }      Not supported as yet */
+ /* <ENCAP>{sscop} {encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); } Not supported as yet */
 <ENCAP>{sscfnni} {encap = WTAP_ENCAP_MTP3; BEGIN(STARTBYTES); }
 <ENCAP>{hdlc} {encap = WTAP_ENCAP_CHDLC; BEGIN(STARTBYTES); }
 <ENCAP,STARTBYTES>{start_bytes} { BEGIN(BYTE); }
@@ -165,6 +164,33 @@ static void finalize_frame(void) {
 	ok_frame = TRUE;
 }
 
+/* Fill in pseudo-header according to the encapsulation type             */
+
+static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header) {
+	/* The file-encap is WTAP_ENCAP_PER_PACKET */
+	switch(wth->phdr.pkt_encap) {
+	    case WTAP_ENCAP_ETHERNET:
+		    pseudo_header->eth.fcs_len = 0;
+		    break;
+	    case WTAP_ENCAP_MTP3:
+	    case WTAP_ENCAP_CHDLC:
+		    /* no pseudo_header to fill in for these types */
+		    break;
+#if 0
+	    case WTAP_ENCAP_MTP2:      /* not (yet) supported       */
+	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported       */
+		    /* XXX: I don't know how to fill in the         */
+                    /* pseudo_header for these types. So: The Lexer */
+                    /* has recognition for these types commented    */
+		    /* out ....                                     */
+		    break;
+#endif
+	    case WTAP_ENCAP_UNKNOWN:
+	    default:
+		    break;
+	}
+}
+
 /* Note: k12text_reset is called each time data is to be processed from  */
 /*       a file. This ensures that no "state" from a previous read is    */
 /*       used (such as the lexer look-ahead buffer, file_handle, file    */
@@ -175,12 +201,12 @@ static void finalize_frame(void) {
 static void k12text_reset(FILE_T fh) {
 	yy_fh = fh;
 	yyrestart(0);
-        encap = WTAP_ENCAP_UNKNOWN;
-        ok_frame = FALSE;
-        is_k12text = FALSE;
-        at_eof = FALSE;
-        junk_chars = 0;
-        error_str = NULL;
+	encap = WTAP_ENCAP_UNKNOWN;
+	ok_frame = FALSE;
+	is_k12text = FALSE;
+	at_eof = FALSE;
+	junk_chars = 0;
+	error_str = NULL;
 	file_bytes_read=0;
 	h=0;
 	m=0;
@@ -193,9 +219,9 @@ static void k12text_reset(FILE_T fh) {
 static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset) {
 
 	/* We seek to the file position after the end of the previous frame processed by         */
-        /* k12text_read (kept in wth->data_offset). We do this each time since the lexer         */
-        /* undoubtedly did some amount of look-ahead when processing the previous frame.         */ 
-        /* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer. */
+	/* k12text_read (kept in wth->data_offset). We do this each time since the lexer         */
+	/* undoubtedly did some amount of look-ahead when processing the previous frame.         */ 
+	/* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer. */
 
 	if ( file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
 		return FALSE;
@@ -225,6 +251,7 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 	wth->phdr.caplen = wth->phdr.len = i;
 
 	wth->phdr.pkt_encap = encap;
+	k12text_set_pseudo_header(wth, &wth->pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), b, wth->phdr.caplen);
@@ -232,7 +259,7 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 	return TRUE;
 }
 
-static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guint8 *pd, int length, int *err, char **err_info) {
+static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err, char **err_info) {
 
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
@@ -260,6 +287,8 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
+
+	k12text_set_pseudo_header(wth, pseudo_header);
 
 	memcpy(pd, b, length);
 
@@ -372,14 +401,14 @@ gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
 
 int k12text_dump_can_write_encap(int encap) {
     switch (encap) {
-	case WTAP_ENCAP_PER_PACKET:
+        case WTAP_ENCAP_PER_PACKET:
 	case WTAP_ENCAP_ETHERNET:
-	case WTAP_ENCAP_MTP2:
-	case WTAP_ENCAP_ATM_PDUS:
 	case WTAP_ENCAP_MTP3:
 	case WTAP_ENCAP_CHDLC:
 	case WTAP_ENCAP_UNKNOWN:
 		return 0;
+	case WTAP_ENCAP_MTP2:
+	case WTAP_ENCAP_ATM_PDUS:
 	default:
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
     }
