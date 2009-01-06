@@ -3057,20 +3057,119 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * 10.5.4.25 User-user
  */
 /*
+User-user protocol discriminator (octet 3)
+Bits
+8	7	6	5	4	3	2	1		
+0	0	0	0	0	0	0	0		User specific protocol (Note 1)
+0	0	0	0	0	0	0	1		OSI high layer protocols
+0	0	0	0	0	0	1	0		X.244 (Note 2)
+0	0	0	0	0	0	1	1		Reserved for system management convergence function
+0	0	0	0	0	1	0	0		IA5 characters (Note 3)
+0	0	0	0	0	1	1	1		Rec.V.120 rate adaption
+0	0	0	0	1	0	0	0		Q.931 (I.451) user-network call control messages
+									
+0	0	0	1	0	0	0	0		Reserved for other network layer or
+through		layer 3 protocols
+0	0	1	1	1	1	1	1		
+									
+0	1	0	0	0	0	0	0		
+through		National use
+0	1	0	0	1	1	1	0		
+0	1	0	0	1	1	1	1		3GPP capability exchange protocol (NOTE 4)
+									
+0	1	0	1	0	0	0	0		Reserved for other network
+through		layer or layer 3 protocols
+1	1	1	1	1	1	1	0		
+									
+All other values are reserved.
+*/
+static guint16
+de_u2u(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
+/*
  * 10.5.4.26 Alerting Pattern $(NIA)$
  */
+static guint16
+de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.27 Allowed actions $(CCBS)$
  */
+static guint16
+de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.28 Stream Identifier
  */
+static guint16
+de_stream_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.29 Network Call Control Capabilities
  */
+static guint16
+de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.30 Cause of No CLI
- */ 
+ */
+static guint16
+de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+
+
+	return(len);
+}
 /*
  * 10.5.4.31 Void
  */
@@ -3085,6 +3184,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	/*  System Identification 1 (SysID 1) octet 3 */
 
 
 	return(len);
@@ -3567,13 +3667,13 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	NULL /* no associated data */,	/* Reverse Call Setup Direction */
 	NULL,	/* SETUP Container $(CCBS)$ */
 	NULL,	/* Signal */
-	de_ss_ver_ind,	/* SS Version Indicator */
-	NULL,	/* User-user */
-	NULL,	/* Alerting Pattern $(NIA)$ */
-	NULL,	/* Allowed Actions $(CCBS)$ */
-	NULL,	/* Stream Identifier */
-	NULL,	/* Network Call Control Capabilities */
-	NULL,	/* Cause of No CLI */
+	de_ss_ver_ind,			/* SS Version Indicator */
+	de_u2u,					/* User-user */
+	de_alert_pat,			/* Alerting Pattern $(NIA)$ */
+	de_allowed_act,			/* Allowed Actions $(CCBS)$ */
+	de_stream_id,			/* Stream Identifier */
+	de_nw_call_ctrl_cap,	/* Network Call Control Capabilities */
+	de_ca_of_no_cli,		/* Cause of No CLI */
 	NULL,	/* Immediate Modification Indicator */
 	de_sup_codec_list,	/* Supported Codec List */
 	NULL,				/* Service Category */
