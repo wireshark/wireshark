@@ -78,7 +78,7 @@ struct netxray_hdr {
 
 	guint8	xxx_x40[12];	/* unknown [other stuff]			*/
 	guint8	realtick[4];	/* (ticks/sec for Ethernet/Ndis/Timeunit=2 ?)	*/
-				/* (realtick[1], realtick[2] also curently	*/
+				/* (realtick[1], realtick[2] also currently	*/
 				/*  used as flag for 'FCS presence')		*/
 
 	guint8	xxx_x50[4];	/* unknown [other stuff]			*/
