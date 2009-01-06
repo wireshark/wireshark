@@ -191,10 +191,41 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     packet_checksum = tvb_get_ntohs(tvb, offset);
     
     data_length = tvb_reported_length(tvb);
-    
-    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, data_length);
-    cksum_vec[0].len = data_length;
-    
+
+    /* CDP doesn't adhere to RFC 1071 section 2. (B). It incorrectly assumes
+     * checksums are calculated on a big endian platform, therefore i.s.o.
+     * padding odd sized data with a zero byte _at the end_ it sets the last
+     * big endian _word_ to contain the last network _octet_. This byteswap
+     * has to be done on the last octet of network data before feeding it to
+     * the Internet checksum routine.
+     * CDP checksumming code has a bug in the addition of this last _word_
+     * as a signed number into the long word intermediate checksum. When
+     * reducing this long to word size checksum an off-by-one error can be
+     * made. This off-by-one error is compensated for in the last _word_ of
+     * the network data.
+     */
+    if (data_length & 1) {
+        guint8 *padded_buffer;
+        /* Allocate new buffer */
+        padded_buffer = ep_alloc(data_length+1);
+        tvb_memcpy(tvb, padded_buffer, 0, data_length);
+        /* Swap bytes in last word */
+        padded_buffer[data_length] = padded_buffer[data_length-1];
+        padded_buffer[data_length-1] = 0;
+        /* Compensate off-by-one error */
+        if (padded_buffer[data_length] & 0x80) {
+          padded_buffer[data_length]--;
+          padded_buffer[data_length-1]--;
+        }
+        /* Setup checksum routine data buffer */
+        cksum_vec[0].ptr = padded_buffer;
+        cksum_vec[0].len = data_length+1;
+    } else {
+        /* Setup checksum routine data buffer */
+        cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, data_length);
+        cksum_vec[0].len = data_length;
+    }
+
     computed_checksum = in_cksum(cksum_vec, 1);
     checksum_good = (computed_checksum == 0);
     checksum_bad = !checksum_good;
