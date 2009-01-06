@@ -307,7 +307,8 @@ typedef struct _c_ares_queue_msg
   int                 family;
 } c_ares_queue_msg_t;
 
-#if (( ARES_VERSION_MAJOR <= 1 ) && ( ARES_VERSION_MINOR  < 5 ) )
+#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
+ || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
 static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
 #else
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
@@ -673,7 +674,8 @@ static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
 #ifdef HAVE_C_ARES
 
 static void
-#if (( ARES_VERSION_MAJOR <= 1 ) && ( ARES_VERSION_MINOR  < 5 ) )
+#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
+ || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
 c_ares_ghba_cb(void *arg, int status, struct hostent *he) {
 #else
 c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
