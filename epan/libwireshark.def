@@ -614,6 +614,7 @@ prefs_apply_all
 prefs_clear_string_list
 prefs_is_capture_device_hidden
 prefs_find_module
+prefs_find_preference
 prefs_get_string_list
 prefs_get_title_by_name
 prefs_is_registered_protocol
