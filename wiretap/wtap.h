@@ -206,6 +206,7 @@ extern "C" {
 #define WTAP_ENCAP_IEEE802_15_4_NONASK_PHY      113
 #define WTAP_ENCAP_TNEF                         114
 #define WTAP_ENCAP_USB_LINUX_MMAPPED            115
+#define WTAP_ENCAP_GSM_UM                       116
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -266,6 +267,7 @@ extern "C" {
 #define WTAP_FILE_BTSNOOP                       51
 #define WTAP_FILE_X2E_XORAYA                    52
 #define WTAP_FILE_TNEF                          53
+#define WTAP_FILE_DCT3TRACE                     54
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 
@@ -751,6 +753,28 @@ struct i2c_phdr {
 	guint8 bus;
 	guint32 flags;
 };
+
+/* pseudo header for WTAP_ENCAP_GSM_UM */
+struct gsm_um_phdr {
+	gboolean uplink;
+	guint8 channel;
+	/* The following are only populated for downlink */
+	guint8 bsic;
+	guint16 arfcn;
+	guint32 tdma_frame;
+	guint8 error;
+	guint16 timeshift;
+};
+
+#define GSM_UM_CHANNEL_UNKNOWN	0
+#define GSM_UM_CHANNEL_BCCH	1
+#define GSM_UM_CHANNEL_SDCCH	2
+#define GSM_UM_CHANNEL_SACCH	3
+#define GSM_UM_CHANNEL_FACCH	4
+#define GSM_UM_CHANNEL_CCCH	5
+#define GSM_UM_CHANNEL_RACH	6
+#define GSM_UM_CHANNEL_AGCH	7
+#define GSM_UM_CHANNEL_PCH	8
   
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
@@ -773,6 +797,7 @@ union wtap_pseudo_header {
 	struct bthci_phdr	bthci;
 	struct l1event_phdr	l1event;
 	struct i2c_phdr		i2c;
+	struct gsm_um_phdr	gsm_um;
 };
 
 struct wtap_nstime {

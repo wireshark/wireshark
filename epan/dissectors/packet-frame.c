@@ -173,6 +173,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used;
 			break;
 
+		case WTAP_ENCAP_GSM_UM:
+			pinfo->p2p_dir = pinfo->pseudo_header->gsm_um.uplink ?
+			    P2P_DIR_SENT : P2P_DIR_RECV;
+			break;
+
 		}
 	}
 

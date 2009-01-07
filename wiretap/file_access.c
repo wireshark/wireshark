@@ -78,6 +78,7 @@
 #include "pcapng.h"
 #include "btsnoop.h"
 #include "tnef.h"
+#include "dct3trace.h"
 
 
 /* The open_file_* routines should return:
@@ -123,6 +124,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	pcapng_open,
 	btsnoop_open,
 	tnef_open,
+	dct3trace_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -590,7 +592,10 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ NULL, NULL, NULL, NULL, FALSE, NULL, NULL },
 
 	/* WTAP_FILE_TNEF */
-	{ "Transport-Neutral Encapsulation Format", "tnef", "*.*", NULL, FALSE, NULL, NULL }
+	{ "Transport-Neutral Encapsulation Format", "tnef", "*.*", NULL, FALSE, NULL, NULL },
+
+	/* WTAP_FILE_DCT3TRACE */
+	{ "Gammu DCT3 trace", "dct3trace", "*.xml", NULL, FALSE, NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

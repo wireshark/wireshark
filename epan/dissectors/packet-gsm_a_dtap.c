@@ -6019,6 +6019,8 @@ proto_reg_handoff_gsm_a_dtap(void)
 	dissector_add("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
 	dissector_add("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
 	dissector_add("llcgprs.sapi", 7 , dtap_handle); /* SMS */
+	dissector_add("lapdm.sapi", 0 , dtap_handle); /* LAPDm: CC/RR/MM */
+	dissector_add("lapdm.sapi", 3 , dtap_handle); /* LAPDm: SMS/SS */
 
 	data_handle = find_dissector("data");
 	gsm_map_handle = find_dissector("gsm_map");

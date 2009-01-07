@@ -455,6 +455,7 @@ DISSECTOR_SRC = \
 	packet-gsm_bssmap_le.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
+	packet-gsm_um.c	\
 	packet-gssapi.c		\
 	packet-gtp.c		\
 	packet-gvrp.c		\
@@ -557,6 +558,7 @@ DISSECTOR_SRC = \
 	packet-lapb.c		\
 	packet-lapbether.c	\
 	packet-lapd.c		\
+	packet-lapdm.c		\
 	packet-laplink.c	\
 	packet-l1-events.c	\
 	packet-ldp.c		\

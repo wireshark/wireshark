@@ -41,6 +41,7 @@ NONGENERATED_C_FILES = \
 	cosine.c		\
 	csids.c			\
 	dbs-etherwatch.c	\
+	dct3trace.c		\
 	erf.c			\
 	etherpeek.c             \
 	eyesdn.c		\
@@ -85,6 +86,7 @@ NONGENERATED_HEADER_FILES = \
 	cosine.h		\
 	csids.h			\
 	dbs-etherwatch.h	\
+	dct3trace.h		\
 	erf.h			\
 	etherpeek.h             \
 	eyesdn.h		\
