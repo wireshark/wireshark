@@ -1,12 +1,12 @@
 /* tap-rtp-common.h
  * MEGACO statistics handler functions used by tshark and wireshark
  *
- * $Id: tap-megaco-common.h 26244 2008-09-21 14:50:05Z morriss $
+ * $Id$
  *
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
- * most functions are copied from gtk/rtp_stream.c and gtk/rtp_analisys.c
+ * most functions are copied from gtk/rtp_stream.c and gtk/rtp_analysis.c
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
  *
