@@ -59,6 +59,7 @@ static int hf_nas_eps_emm_short_mac = -1;
 static int hf_nas_eps_active_flg = -1;
 static int hf_nas_eps_eps_update_result_value = -1;
 static int hf_nas_eps_eps_update_type_value = -1;
+static int hf_nas_eps_service_type = -1;
 
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
@@ -217,6 +218,7 @@ const value_string nas_emm_elem_strings[] = {
 	{ 0x00,	"Authentication parameter AUTN" },		/* 9.9.3.2	Authentication parameter AUTN */
 	{ 0x00,	"Authentication parameter RAND" },		/* 9.9.3.3	Authentication parameter RAND */
 	{ 0x00,	"Authentication response parameter" },	/* 9.9.3.4	Authentication response parameter */
+	{ 0x00,	"CSFB response" },						/* 9.9.3.5	CSFB response */
 	{ 0x00,	"Daylight saving time" },				/* 9.9.3.6	Daylight saving time */
 	{ 0x00,	"Detach type" },						/* 9.9.3.7	Detach type */
 	{ 0x00,	"DRX parameter" },						/* 9.9.3.8	DRX parameter */
@@ -238,7 +240,7 @@ const value_string nas_emm_elem_strings[] = {
 	{ 0x00,	"Network name" },						/* 9.9.3.24	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
 	{ 0x00,	"Nonce" },								/* 9.9.3.25	Nonce */
 	{ 0x00,	"P-TMSI signature" },					/* 9.9.3.26	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-	{ 0x00,	"Routing area identification" },		/* 9.9.3.27	Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+	{ 0x00,	"Service type" },						/* 9.9.3.27	Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
 	{ 0x00,	"Short MAC" },							/* 9.9.3.28	Short MAC */
 	{ 0x00,	"Time zone" },							/* 9.9.3.29	Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
 	{ 0x00,	"Time zone and time" },					/* 9.9.3.30	Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
@@ -328,6 +330,19 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * 9.9.3.5	CSFB response
  */
+static guint16
+de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, 1, "Not decoded yet");
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
 /*
  * 9.9.3.6	Daylight saving time
  * See subclause 10.5.3.12 in 3GPP TS 24.008 [6].
@@ -637,15 +652,13 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * 9.9.3.27	Service type
  */
-/*
-Service type value
-Bits
-4	3	2	1	
-0	0	0	0	mobile originating CS fallback
-0	0	0	1	mobile terminating CS fallback
-0	0	1	0	mobile originating CS fallback emergency call
+static const value_string nas_eps_service_type_vals[] = {
+	{ 0,	"Mobile originating CS fallback"},
+	{ 1,	"Mobile terminating CS fallback"},
+	{ 2,	"Mobile originating CS fallback emergency call"},
+	{ 0, NULL }
+};
 
-*/
 /*
  * 9.9.3.28	Short MAC
  */
@@ -723,6 +736,20 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 /*
  * 9.9.3.35	UE radio capability information update needed
  */
+
+static guint16
+de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, 1 , "Not decoded yet");
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
 /*
  * 9.9.3.36	UE security capability
  */
@@ -773,7 +800,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	NULL,						/* 9.9.3.2	Authentication parameter AUTN(packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.3	Authentication parameter RAND */
 	de_emm_auth_resp_par,		/* 9.9.3.4	Authentication response parameter */
-	NULL,						/* 9.9.3.5	CSFB response */
+	de_emm_csfb_resp,			/* 9.9.3.5	CSFB response */
 	NULL,						/* 9.9.3.6	Daylight saving time (packet-gsm_a_dtap.c)*/
 	NULL,						/* 9.9.3.7	Detach type */
 	NULL,						/* 9.9.3.8	DRX parameter */
@@ -803,7 +830,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	de_emm_trac_area_id,		/* 9.9.3.32	Tracking area identity */
 	de_emm_trac_area_id_lst,	/* 9.9.3.33	Tracking area identity list */
 	de_emm_ue_net_cap,			/* 9.9.3.34	UE network capability */
-	NULL,						/* 9.9.3.35	UE radio capability information update needed */
+	de_emm_ue_ra_cap_inf_upd_need, /* 9.9.3.35	UE radio capability information update needed */
 	de_emm_ue_sec_cap,			/* 9.9.3.36	UE security capability */
 	NULL,	/* NONE */
 };
@@ -1144,7 +1171,7 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	guint32	curr_offset;
+	guint32	curr_offset,bit_offset;
 	guint32	consumed;
 	guint	curr_len;
 
@@ -1154,10 +1181,23 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	consumed = len;
 
 
-	/* Service type	Service type 9.9.3.27	M	V	1/2 */
+	/* Service type	Service type 9.9.3.27	M	V	1/2 Service type*/
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_service_type, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
 	/* NAS key set identifier	NAS key set identifier 9.9.3.21	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+	/* Fix up the lengths */
+	curr_len--;
+	curr_offset++;
+
 	/* M-TMSI	Mobile identity 9.9.2.3	M	LV	6 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "M-TMSI");
 	/* B-	CSFB response	CSFB response 9.9.3.5	C	TV	1 */
+	ELEM_OPT_TV_SHORT(0xb0, NAS_PDU_TYPE_EMM, DE_EMM_CSFB_RESP, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1196,7 +1236,7 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 static void
 nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, bit_offset;
 	guint32	consumed;
 	guint	curr_len;
 
@@ -1206,7 +1246,14 @@ nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	consumed = 1;
 
 	/* Identity type	Identity type 2 9.9.3.17	M	V	1/2 */
+	bit_offset=curr_offset<<3;
+
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix up the lengths */
+	curr_len--;
+	curr_offset++;
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1224,7 +1271,7 @@ nas_emm_id_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* Mobile identity	Mobile identity 9.9.2.3	M	LV	4-10 */
-	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "");
+	ELEM_MAND_LV(NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "");
 	
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1257,7 +1304,6 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_item_append_text(item," - ASME");
 	bit_offset+=3;
 	/* 	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
@@ -1271,7 +1317,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 	Replayed UE security capabilities	UE security capability 9.9.3.36	M	LV	3-6 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_SEC_CAP, " - Replayed UE security capabilities");
 	/* C-	IMEISV request	IMEISV request 9.9.3.18	O	TV	1 */
-
+	ELEM_OPT_TV_SHORT( 0xC0 , GSM_A_PDU_TYPE_GM, DE_IMEISV_REQ , "" );
 	/* 55	Replayed NonceUE	Nonce 9.9.3.25	O	TV	5 */
 	ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - Replayed NonceUE");
 	/* 56	NonceMME	Nonce 9.9.3.25	O	TV	5 */
@@ -1354,6 +1400,7 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
 
 	/* 5B	T3442 value	GPRS timer 9.9.3.16	C	TV	2 */
+	ELEM_OPT_TV(0x5b, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3442 value");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1474,7 +1521,6 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	proto_item_append_text(item," - ASME");
 	bit_offset+=3;
 	/* 	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
@@ -1496,7 +1542,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* 5C	DRX parameter	DRX parameter 9.9.3.8	O	TV	3 */
 	ELEM_OPT_TV(0x5c, GSM_A_PDU_TYPE_GM, DE_DRX_PARAM, "" );
 	/* A-	UE radio capability information update needed	UE radio capability information update needed 9.9.3.35	O	TV	1 */
-
+	ELEM_OPT_TV_SHORT( 0xA0 , NAS_PDU_TYPE_EMM, DE_EMM_UE_RA_CAP_INF_UPD_NEED , "" );
 	/* 57	EPS bearer context status	EPS bearer context status 9.9.2.1	O	TLV	4 */
 	ELEM_OPT_TLV(0x57, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_EPS_BE_CTX_STATUS, "");
 	/* 31	MS network capability	MS network capability 9.9.3.20	O	TLV	4-10 */
@@ -1803,9 +1849,14 @@ void proto_register_nas_eps(void) {
 		"EPS update result value", HFILL }
 	},
 	{ &hf_nas_eps_eps_update_type_value,
-		{ "EPS update type value","nas_eps.emm.update_type_value",
+		{ "EPS update type value", "nas_eps.emm.update_type_value",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_update_type_vals), 0x0,
 		"EPS update type value", HFILL }
+	},
+	{ &hf_nas_eps_service_type,
+		{ "Service type", "nas_eps.emm.service_type",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_service_type_vals), 0x0,
+		"Service type", HFILL }
 	},
   };
 
