@@ -31,7 +31,8 @@ EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	EUTRA-RRC-Definitions.asn \
-	EUTRA-UE-Variables.asn
+	EUTRA-UE-Variables.asn \
+	EUTRA-InterNodeDefinitions.asn
 	
 EXTRA_DIST = \
 	Makefile.nmake \
