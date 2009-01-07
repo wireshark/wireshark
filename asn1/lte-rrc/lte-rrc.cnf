@@ -167,6 +167,12 @@ if (check_col(actx->pinfo->cinfo, COL_INFO)){
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
   }
 
+#.FN_HDR RRCStatus
+
+if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "RRCStatus");
+  }
+
 #.FN_HDR SecurityModeComplete
 
 if (check_col(actx->pinfo->cinfo, COL_INFO)){

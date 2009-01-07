@@ -68,25 +68,6 @@ static proto_tree *top_tree;
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 #include "packet-lte-rrc-fn.c"
 
-
-
-static void
-dissect_lte_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	proto_item	*lte_rrc_item = NULL;
-	proto_tree	*lte_rrc_tree = NULL;
-
-	top_tree = tree;
-
-	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
-
-	/* create the rrc protocol tree */
-	lte_rrc_item = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
-	lte_rrc_tree = proto_item_add_subtree(lte_rrc_item, ett_lte_rrc);
-
-}
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -109,8 +90,7 @@ void proto_register_lte_rrc(void) {
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("lte_rrc", dissect_lte_rrc, proto_lte_rrc);
-
+  /* Register the dissectors defined in lte-rrc.conf */
 #include "packet-lte-rrc-dis-reg.c"
 
 }

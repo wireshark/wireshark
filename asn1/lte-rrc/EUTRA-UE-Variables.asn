@@ -1,24 +1,9 @@
--- 3GPP TS 36.331 V8.3.0 Release 8
+-- 3GPP TS 36.331 V8.4.0 Release 8
 -- $Id:$
 --
-
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
-
+ 
 BEGIN
-
-IMPORTS
-	ConnectedModeSpeedDependentScalingParameters,
-	CDMA2000-SystemTimeInfo,
-	MeasId,
-	MeasIdToAddModifyList,
-	MeasObjectToAddModifyList,
-	MobilityStateParameters,
-	PhysicalCellIdentity,
-	QuantityConfig,
-	ReportConfigToAddModifyList,
-	maxCellMeas,
-	maxMeasId
-FROM EUTRA-RRC-Definitions;
 
 
 VarMeasurementConfiguration ::=		SEQUENCE {
@@ -30,20 +15,20 @@ VarMeasurementConfiguration ::=		SEQUENCE {
 	reportConfigList					ReportConfigToAddModifyList			OPTIONAL,
 	-- Other parameters
 	quantityConfig						QuantityConfig						OPTIONAL,
-	s-Measure							INTEGER (0)							OPTIONAL,
+	s-Measure							RSRP-Range							OPTIONAL,
 	cdma2000-SystemTimeInfo				CDMA2000-SystemTimeInfo				OPTIONAL,
-	mbsfn-NeighbourCellConfig			SEQUENCE {}						OPTIONAL, -- 2-bit field FFS
+	neighbourCellConfiguration			NeighbourCellConfiguration			OPTIONAL,
 	speedDependentParameters			SEQUENCE {
 		mobilityStateParameters				MobilityStateParameters,
 		speedDependentScalingParameters		ConnectedModeSpeedDependentScalingParameters
-	}
+	}																		OPTIONAL
 }
 
 
 VarMeasurementReports ::=				SEQUENCE (SIZE (1..maxMeasId)) OF SEQUENCE {
 	-- List of measurement that have been triggered
 	measId								MeasId,
-	cellsTriggeredList					CellsTriggeredList,
+	cellsTriggeredList					CellsTriggeredList				OPTIONAL,
 	numberOfReportsSent					INTEGER
 }
 
@@ -52,172 +37,12 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF SEQUENCE {
 }
 
 
-
-
-END
-
-
-EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
-
-BEGIN
-
-IMPORTS
-	MasterInformationBlock,
-	MeasurementConfiguration,
-	NextHopChainingCount,
-	PhysicalCellIdentity, 
-	RadioResourceConfigDedicated,
-	DL-DCCH-Message,
-	SecurityConfiguration,
-	SystemInformationBlockType1,
-	SystemInformationBlockType2,
-	UECapabilityInformation,
-	UE-RelatedInformation
-FROM EUTRA-RRC-Definitions;
-
-
-InterNode-Message ::= SEQUENCE {
-	message					InterNode-MessageType
+VarShortMAC-Input ::=					SEQUENCE {
+	cellIdentity							CellIdentity,
+	physicalCellIdentity					PhysicalCellIdentity,
+	c-RNTI									C-RNTI
 }
 
-InterNode-MessageType ::= CHOICE {
-	c1						CHOICE {
-		interRAT-Message						InterRAT-Message,
-		handoverCommand							HandoverCommand,
-		handoverPreparationInformation			HandoverPreparationInformation,
-		ueRadioAccessCapabilityInformation		UERadioAccessCapabilityInformation
-	},
-	messageClassExtension	SEQUENCE {}
-}
-
-
-InterRAT-Message ::=				SEQUENCE {
-	criticalExtensions					CHOICE {
-		c1									CHOICE{
-			interRAT-Message-r8					InterRAT-Message-r8-IEs,
-			spare7 NULL,
-			spare6 NULL, spare5 NULL, spare4 NULL,
-			spare3 NULL, spare2 NULL, spare1 NULL
-		},
-		criticalExtensions					SEQUENCE {}
-	}
-}
-
-InterRAT-Message-r8-IEs ::=			SEQUENCE {
-	interRAT-Message					OCTET STRING,
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
-}
-
-
-HandoverCommand ::=					SEQUENCE {
-	criticalExtensions					CHOICE {
-		c1									CHOICE{
-			handoverCommand-r8					HandoverCommand-r8-IEs,
-			spare7 NULL,
-			spare6 NULL, spare5 NULL, spare4 NULL,
-			spare3 NULL, spare2 NULL, spare1 NULL
-		},
-		criticalExtensions					SEQUENCE {}
-	}
-}
-
-HandoverCommand-r8-IEs ::=			SEQUENCE {
-	handoverCommandMessage				OCTET STRING (CONTAINING DL-DCCH-Message),
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
-}
-
-
-HandoverPreparationInformation ::=	SEQUENCE {
-	criticalExtensions					CHOICE {
-		c1									CHOICE{
-			handoverPreparationInformation-r8	HandoverPreparationInformation-r8-IEs,
-			spare7 NULL,
-			spare6 NULL, spare5 NULL, spare4 NULL,
-			spare3 NULL, spare2 NULL, spare1 NULL
-		},
-		criticalExtensions					SEQUENCE {}
-	}
-}
-
-HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
-	as-Configuration					AS-Configuration					OPTIONAL,
-	rrm-Configuration					RRM-Configuration					OPTIONAL,
-	as-Context							AS-Context,
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
-}
-
-
-UERadioAccessCapabilityInformation ::= SEQUENCE {
-	criticalExtensions					CHOICE {
-		c1									CHOICE{
-			ueRadioAccessCapabilityInformation-r8
-												UERadioAccessCapabilityInformation-r8-IEs,
-			spare7 NULL,
-			spare6 NULL, spare5 NULL, spare4 NULL,
-			spare3 NULL, spare2 NULL, spare1 NULL
-		},
-		criticalExtensions					SEQUENCE {}
-	}
-}
-
-UERadioAccessCapabilityInformation-r8-IEs ::= SEQUENCE {
-	ue-RadioAccessCapabilityInfo		OCTET STRING (CONTAINING UECapabilityInformation),
-	nonCriticalExtension				SEQUENCE {}							OPTIONAL
-}
-
-
-AS-Configuration ::=				SEQUENCE {
-	sourceMeasurementConfiguration		MeasurementConfiguration,
-	sourceRadioResourceConfiguration	RadioResourceConfigDedicated,
-	sourceSecurityConfiguration			SecurityConfiguration,
-	sourceUE-RelatedInformation			UE-RelatedInformation,
-	sourceMasterInformationBlock		MasterInformationBlock,
-	sourceSystemInformationBlockType1	SystemInformationBlockType1,
-	sourceSystemInformationBlockType2	SystemInformationBlockType2,
-	...
-}
-
-
-AS-Context ::=							SEQUENCE {
-	ue-RadioAccessCapabilityInfo			OCTET STRING (CONTAINING UECapabilityInformation),
-	ue-SecurityCapabilityInfo				OCTET STRING,
-	reestablishmentInfo						ReestablishmentInfo, 
-	securityContextInfo						SecurityContextInfo
-}
-
-
-Key-eNodeB-Star ::=					SEQUENCE {
-	-- Enter the IEs here.																	   FFS
-}
-
-
-ReestablishmentInfo ::=				SEQUENCE {
-	sourcePhysicalCellIdentity			PhysicalCellIdentity,
-	sourceShortMAC-I					BIT STRING (SIZE (16)),
-	...
-}
-
-
-RRM-Configuration ::=		SEQUENCE {
-	ue-InactiveTime				ENUMERATED {
-									v1sec, v2sec, v3sec, v5sec, v7sec, v10sec, v15sec, v20sec,
-									v25sec, v30sec, v40sec, v50sec, v1min, v1min20sec, v1min40sec,
-									v2min, v2min30sec, v3min, v3min30sec, v4min, v5min, v6min,
-									v7min, v8min, v9min, v10min, v12min, v14min, v17min, v20min,
-									v24min, v28min, v33min, v38min, v44min, v50min, v1hr,
-									v1hr30min, v2hr, v2hr30min, v3hr, v3hr30min, v4hr, v5hr, v6hr,
-									v8hr, v10hr, v13hr, v16hr, v20hr, v1day, v1day12hr, v2day,
-									v2day12hr, v3day, v4day, v5day, v7day, v10day, v14day, v19day,
-									v24day, v30day, morethan30day}		OPTIONAL,
-	...
-}
-
-
-SecurityContextInfo ::=							SEQUENCE {
-	key-eNodeB-Star									Key-eNodeB-Star,
-	indexIncreaseIndicator							BOOLEAN,
-	nextHopChainingCount							NextHopChainingCount
-}
 
 
 END
