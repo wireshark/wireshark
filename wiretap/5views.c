@@ -231,7 +231,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 		TimeStamped_Header.RecSize =
 		    pletohl(&TimeStamped_Header.RecSize);
 		if(TimeStamped_Header.RecSubType != CST_5VW_FRAME_RECORD) {
-			if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_SET, err) == -1)
+			if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
 				return FALSE;
 			wth->data_offset += TimeStamped_Header.RecSize;
 		} else
