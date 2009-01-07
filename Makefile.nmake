@@ -143,7 +143,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
+all: $(LIBS_CHECK) config.h tools image codecs $(ADNS_DLL) $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
 
 packaging: all
 	cd packaging
@@ -221,7 +221,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 !ENDIF
@@ -234,7 +234,7 @@ wireshark-gtk2.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) ge
 	$(LINK) @<<
 		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "wireshark-gtk2.exe.manifest" -outputresource:wireshark-gtk2.exe;1
 !ENDIF
 !ENDIF
@@ -244,7 +244,7 @@ tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj in
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj inet_ntop.obj image\tshark.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
@@ -262,7 +262,7 @@ capinfos.exe	: $(LIBS_CHECK) config.h capinfos.obj getopt.obj epan/unicode-utils
 	$(LINK) @<<
 		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(capinfos_LIBS) image\capinfos.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
 !ENDIF
 
@@ -271,7 +271,7 @@ editcap.exe	: $(LIBS_CHECK) config.h editcap.obj getopt.obj strptime.obj epan\cr
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan/unicode-utils.obj epan\crypt\crypt-md5.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(editcap_LIBS) image\editcap.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
@@ -280,7 +280,7 @@ mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getop
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
@@ -289,7 +289,7 @@ text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getop
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj $(text2pcap_LIBS) strptime.obj image\text2pcap.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
 !ENDIF
 
@@ -298,7 +298,7 @@ dftest.exe	: $(dftest_OBJECTS) epan
 	$(LINK) @<<
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
 !ENDIF
 
@@ -307,7 +307,7 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) getopt.obj
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
@@ -316,7 +316,7 @@ dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj 
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
 <<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1
 !ENDIF
 
@@ -453,6 +453,11 @@ clean: clean-local
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
+!IFDEF ADNS_DIR
+!IF "$(MSVC_VARIANT)" != "MSVC6"
+	rm -f $(ADNS_DLL) $(ADNS_LIBS)
+!ENDIF
+!ENDIF
 !IFDEF ZLIB_DIR
 	rm -f $(ZLIB_DIR)\zlib1.dll $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
@@ -530,6 +535,39 @@ image::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+!IFDEF ADNS_DIR
+# Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
+# therefore compile the adns dll from source ADNS_DIR package.
+# To avoid path problems, copy the adns sources to a temp dir,
+# compile and copy the resulting files back to (source) ADNS_DIR
+#
+# Unfortunately:
+# - we need to "patch" adns_dll.rep and adns_dll.rc (at least for MSVC2005EE)
+# - on MSVC6 we can't easily rebuild, because iphlpapi.h is needed
+#
+$(ADNS_DLL):
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
+	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.dll $(ADNS_DLL)
+	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.lib $(ADNS_LIBS)
+!ELSE
+	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
+	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
+	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
+	cd adns.tmp\adns_win32\adns_dll
+	set CFG=adns_dll - Win32 Release
+	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="$(LOCAL_CFLAGS)"
+	cd ..\lib
+!IF $(MSC_VER_REQUIRED) >= 1400
+	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
+!ENDIF
+	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
+	copy adns_dll.dll $(ADNS_DLL)
+	copy adns_dll.lib $(ADNS_LIBS)
+	cd ..\..\..
+	rm -r -f adns.tmp
+!ENDIF
+!ENDIF
 !IFDEF ZLIB_DIR
 # Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
 # therefore compile the zlib dll from source ZLIB_DIR package.
@@ -538,11 +576,11 @@ image::
 $(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="$(LOCAL_CFLAGS)"
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "zlib1.dll.manifest" -outputresource:zlib1.dll;2
 !ENDIF
 	copy zlib1.dll $(ZLIB_DIR)
@@ -711,7 +749,7 @@ process_libs:
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. adns-1.0-win32-05.zip
+		. adns-1.0-win32-05ws.zip
 !ENDIF
 !IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -900,8 +938,8 @@ install-files2:
 
 install-common-files:
 	set copycmd=/y
-!IF "$(MSVC_VARIANT)" == "MSVC2008EE"
-	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)
+!IF "$(MSVC_VARIANT)" == "MSVC2008"
+	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)\*.*
 !ENDIF
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IFDEF ENABLE_LIBWIRESHARK
@@ -1076,7 +1114,7 @@ install-common-deps:
 	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF ADNS_DIR
-	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll $(INSTALL_DIR) /d
+	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF PCRE_DIR
 	xcopy $(PCRE_DIR)\bin\pcre3.dll $(INSTALL_DIR) /d

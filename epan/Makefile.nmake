@@ -90,7 +90,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt fty
 		$(libwireshark_LIBS) ..\image\libwireshark.res \
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "libwireshark.dll.manifest" -outputresource:libwireshark.dll;2
 !ENDIF
 
@@ -107,8 +107,8 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 
 clean-local:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
-		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp libwireshark.pdb \
-		vc60.pdb vc80.pdb doxygen.cfg html/*.* \
+		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
+		*.pdb doxygen.cfg html/*.* \
 		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
 	if exist html rmdir html	
 
@@ -218,7 +218,7 @@ exntest.exe: exntest.obj except.obj
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) exntest.obj except.obj
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
@@ -226,7 +226,7 @@ tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) $(ZLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 
@@ -236,7 +236,7 @@ reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
                 $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
                 except.obj strutil.obj emem.obj reassemble.obj
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+!IF $(MSC_VER_REQUIRED) >= 1400
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF
 

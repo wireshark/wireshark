@@ -140,6 +140,9 @@ win32_open_file (HWND h_wnd) {
     char  *dirname;
     dfilter_t *dfp;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* Remarks on OPENFILENAME_SIZE_VERSION_400:
 	 *
@@ -159,7 +162,21 @@ win32_open_file (HWND h_wnd) {
 	 * NT4 is the question here. However, even if it fails, we must calculate
 	 * the length based on the runtime, not the compiler version anyway ...
 	 */
+   /* This assumption does not work when compiling with MSVC2008EE as
+    * the open dialog window does not appear.
+    * Instead detect Windows version at runtime and choose size accordingly */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -227,9 +244,23 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     gchar *dirname;
     int save_index;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -339,9 +370,23 @@ win32_merge_file (HWND h_wnd) {
     char       *tmpname;
     dfilter_t *dfp;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -447,9 +492,23 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     char             *dirname;
     cf_print_status_t status;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -550,6 +609,9 @@ win32_export_raw_file(HWND h_wnd) {
     const char   *file = NULL;
     int           fd;
 	int           ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
     if (!cfile.finfo_selected) {
 	/* This shouldn't happen */
@@ -558,7 +620,18 @@ win32_export_raw_file(HWND h_wnd) {
     }
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -623,9 +696,23 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
@@ -670,9 +757,23 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
 	int    ofnsize;
+#if (_MSC_VER >= 1500)
+    OSVERSIONINFO osvi;
+#endif
 
 	/* see OPENFILENAME comment in win32_open_file */
+#if (_MSC_VER >= 1500)
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osvi);
+    if (osvi.dwMajorVersion >= 5) {
+        ofnsize = sizeof(OPENFILENAME);
+    } else {
+        ofnsize = OPENFILENAME_SIZE_VERSION_400;
+    }
+#else
     ofnsize = sizeof(OPENFILENAME) + 12;
+#endif
 	ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;

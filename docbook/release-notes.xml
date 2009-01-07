@@ -63,6 +63,10 @@ Wireshark Info
           3109</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          The 1.0 branch can now be built with Visual Studio 2008.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
