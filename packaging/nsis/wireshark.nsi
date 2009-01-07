@@ -385,7 +385,6 @@ File "..\..\epan\wslua\dtd_gen.lua"
 !ifdef SMI_DIR
 File "${SMI_DIR}\lib\smi.dll"
 !endif
-File /oname=FAQ "..\..\help\faq.txt"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\AUTHORS-SHORT"
@@ -999,7 +998,6 @@ Delete "$INSTDIR\*.manifest"
 ; previous versions installed this file
 Delete "$INSTDIR\AUTHORS-SHORT-FORMAT"
 Delete "$INSTDIR\README*"
-Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\services"
