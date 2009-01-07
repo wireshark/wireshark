@@ -88,6 +88,7 @@ EXTRA_DIST = \
 	asn2wrs.py					\
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
+	extract_asn1_from_spec.pl	\
 	fuzz-test.sh					\
 	idl2wrs.sh					\
 	idl2wrs.sh.in					\
