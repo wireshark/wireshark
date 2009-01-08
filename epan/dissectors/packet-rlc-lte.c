@@ -293,8 +293,8 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
    whether or not the beginning and end are included in this packet */
 static void show_PDU_in_info(packet_info *pinfo,
                              guint16 length,
-                             guint8 first_includes_start,
-                             guint8 last_includes_end)
+                             gboolean first_includes_start,
+                             gboolean last_includes_end)
 {
     /* Reflect this PDU in the info column */
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -314,8 +314,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                rlc_lte_info *p_rlc_lte_info)
 {
     guint64 framing_info;
-    guint8  first_includes_start;
-    guint8  last_includes_end;
+    gboolean first_includes_start;
+    gboolean last_includes_end;
     guint64 fixed_extension;
     guint64 sn;
     gint    start_offset = offset;
@@ -429,7 +429,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     proto_tree_add_item(tree, hf_rlc_lte_um_data, tvb, offset, -1, FALSE);
-    show_PDU_in_info(pinfo, tvb_length_remaining(tvb, offset),
+    show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
 }
@@ -533,8 +533,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     guint8 is_segment;
     guint8 fixed_extension;
     guint8 framing_info;
-    guint8 first_includes_start;
-    guint8 last_includes_end;
+    gboolean first_includes_start;
+    gboolean last_includes_end;
     proto_tree *am_header_tree;
     proto_item *am_header_ti;
     gint   start_offset = offset;
@@ -635,7 +635,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, -1, FALSE);
-    show_PDU_in_info(pinfo, tvb_length_remaining(tvb, offset),
+    show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
 }

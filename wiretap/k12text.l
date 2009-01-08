@@ -281,7 +281,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	}
 
 	/* verify frame length parsed this time against original frame length */
-	if (i != length) {
+	if (i != (guint)length) {
 		/* What happened ? This now seems to have a different length than originally */
 		*err_info = g_strdup("Incorrect frame length (program error ?)");
 		*err = WTAP_ERR_BAD_RECORD;
