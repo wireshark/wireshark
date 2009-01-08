@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include "packet-mac-lte.h"
 
@@ -39,7 +40,7 @@
 
 /* TODO:
    - more testing of control bodies
-   - TDD
+   - TDD mode
 */
 
 /* Initialize the protocol and registered fields. */
@@ -342,9 +343,72 @@ static const value_string predefined_frame_vals[] =
 };
 
 
+/* By default expect to find complete RAR PDUs for frames received on RA_RNTIs */
+static gboolean global_mac_lte_single_rar = FALSE;
+
+
+
+/* Dissect a single Random Access Reponse body */
+static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                              gint offset)
+{
+    guint8 reserved;
+    guint start_body_offset = offset;
+    proto_item *ti;
+    proto_item *rar_body_ti;
+    proto_tree *rar_body_tree;
+    guint16 timing_advance;
+    guint32 ul_grant;
+    guint16 temp_crnti;
+
+    /* Create tree for this Body */
+    rar_body_ti = proto_tree_add_item(tree,
+                                      hf_mac_lte_rar_body,
+                                      tvb, offset, 0, FALSE);
+    rar_body_tree = proto_item_add_subtree(rar_body_ti, ett_mac_lte_rar_body);
+
+    /* Dissect an RAR entry */
+
+    /* Check reserved bit */
+    reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
+    ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, FALSE);
+    if (reserved != 0) {
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "MAC RAR header Reserved bit not zero (found 0x%x)", reserved);
+    }
+
+    /* Timing Advance */
+    timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
+    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
+    offset++;
+
+    /* UL Grant */
+    ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
+    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, FALSE);
+    offset += 3;
+
+    /* Temporary C-RNTI */
+    temp_crnti = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    proto_item_append_text(rar_body_ti, " (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+                           timing_advance, ul_grant, temp_crnti);
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
+                           timing_advance, ul_grant, temp_crnti);
+    }
+
+    proto_item_set_len(rar_body_ti, offset-start_body_offset);
+
+    return offset;
+}
+
+
 /* Dissect Random Access Reponse (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        int offset)
+                        gint offset)
 {
     gint    number_of_rars = 0;   /* No of RAR bodies expected following headers */
     gboolean backoff_indicator_seen = FALSE;
@@ -442,55 +506,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /***************************/
     /* Read any indicated RARs */
     for (n=0; n < number_of_rars; n++) {
-        guint8 reserved;
-        guint start_body_offset = offset;
-        proto_item *ti;
-        proto_item *rar_body_ti;
-        proto_tree *rar_body_tree;
-        guint16 timing_advance;
-        guint32 ul_grant;
-        guint16 temp_crnti;
-
-        /* Create tree for this header */
-        rar_body_ti = proto_tree_add_item(tree,
-                                          hf_mac_lte_rar_body,
-                                          tvb, offset, 0, FALSE);
-        rar_body_tree = proto_item_add_subtree(rar_body_ti, ett_mac_lte_rar_body);
-
-        /* Dissect an RAR entry */
-
-        /* Check reserved bit */
-        reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-        ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, FALSE);
-        if (reserved != 0) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                          "MAC RAR header Reserved bit not zero (found 0x%x)", reserved);
-        }
-
-        /* Timing Advance */
-        timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
-        proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
-        offset++;
-
-        /* UL Grant */
-        ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
-        proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, FALSE);
-        offset += 3;
-
-        /* Temporary C-RNTI */
-        temp_crnti = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, FALSE);
-        offset += 2;
-
-        proto_item_append_text(rar_body_ti, " (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                               timing_advance, ul_grant, temp_crnti);
-
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (TA=%u, UL-Grant=%u, Temp C-RNTI=%u)",
-                               timing_advance, ul_grant, temp_crnti);
-        }
-
-        proto_item_set_len(rar_body_ti, offset-start_body_offset);
+        offset = dissect_rar_entry(tvb, pinfo, tree, offset);
     }
 }
 
@@ -942,7 +958,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                   offset = 0;
     struct mac_lte_info   *p_mac_lte_info = NULL;
 
-    /* Append this protocol name rather than replace. */
+    /* Set protocol name */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
     }
@@ -1020,7 +1036,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RA_RNTI:
             /* RAR PDU */
-            dissect_rar(tvb, pinfo, mac_lte_tree, offset);
+            if (!global_mac_lte_single_rar) {
+                dissect_rar(tvb, pinfo, mac_lte_tree, offset);
+            }
+            else {
+                dissect_rar_entry(tvb, pinfo, mac_lte_tree, offset);
+            }
             break;
 
         case C_RNTI:
@@ -1371,6 +1392,8 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_pch
     };
 
+    module_t *mac_lte_module;
+
     /* Register protocol. */
     proto_mac_lte = proto_register_protocol("MAC-LTE", "MAC-LTE", "mac-lte");
     proto_register_field_array(proto_mac_lte, hf, array_length(hf));
@@ -1378,6 +1401,15 @@ void proto_register_mac_lte(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
+
+    /* Preferences */
+    mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
+
+    prefs_register_bool_preference(mac_lte_module, "single_rar",
+        "Expect single RAR bodies",
+        "When dissecting an RA_RNTI frame, expect to find only one RAR body "
+        "instead of a complete RAR PDU complete with headers",
+        &global_mac_lte_single_rar);
 }
 
 
