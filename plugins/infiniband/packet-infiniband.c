@@ -105,12 +105,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
 		if(check_col(pinfo->cinfo, COL_INFO))
 			col_clear(pinfo->cinfo, COL_INFO);
-
-		g_cinfo = pinfo->cinfo;
 	}
-
-	/* Global ref to Pinfo for dissection routines where necessary */
-	g_pinfo = pinfo;
 
 	/* Get the parent tree from the ERF dissector.  We don't want to nest under ERF */
 	if(tree && tree->parent)
@@ -307,7 +302,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 4; /* RDETH */
 				packetLength -= 8; /* DETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_DETH_RETH_PAYLD:
 				parse_RDETH(all_headers_tree, tvb, &offset);
@@ -318,7 +313,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 8; /* DETH */
 				packetLength -= 16; /* RETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_DETH_IMMDT_PAYLD:
 				parse_RDETH(all_headers_tree, tvb, &offset);
@@ -329,7 +324,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 8; /* DETH */
 				packetLength -= 4; /* IMMDT */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_DETH_RETH_IMMDT_PAYLD:
 				parse_RDETH(all_headers_tree, tvb, &offset);
@@ -342,7 +337,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 16; /* RETH */
 				packetLength -= 4; /* IMMDT */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_DETH_RETH:
 				parse_RDETH(all_headers_tree, tvb, &offset);
@@ -361,14 +356,14 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 4; /* RDETH */
 				packetLength -= 4; /* AETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_PAYLD:
 				parse_RDETH(all_headers_tree, tvb, &offset);
 
 				packetLength -= 4; /* RDETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RDETH_AETH:
 				parse_AETH(all_headers_tree, tvb, &offset);
@@ -412,25 +407,25 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				packetLength -= 8; /* DETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case PAYLD:
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case IMMDT_PAYLD:
 				parse_IMMDT(all_headers_tree, tvb, &offset);
 
 				packetLength -= 4; /* IMMDT */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RETH_PAYLD:
 				parse_RETH(all_headers_tree, tvb, &offset);
 
 				packetLength -= 16; /* RETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case RETH:
 				parse_RETH(all_headers_tree, tvb, &offset);
@@ -443,7 +438,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				packetLength -= 4; /* AETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case AETH:
 				parse_AETH(all_headers_tree, tvb, &offset);
@@ -470,7 +465,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				packetLength -= 4; /* IETH */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			case DETH_IMMDT_PAYLD:
 				parse_DETH(all_headers_tree, tvb, &offset);
@@ -479,7 +474,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packetLength -= 8; /* DETH */
 				packetLength -= 4; /* IMMDT */
 
-				parse_PAYLOAD(all_headers_tree, tvb, &offset, packetLength, virtualLane);
+				parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, virtualLane);
 				break;
 			default:
 				parse_VENDOR(all_headers_tree, tvb, &offset);
@@ -780,10 +775,11 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 
 /* Parse Payload - Packet Payload / Invariant CRC / Variant CRC
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
+* IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset
 * IN: Length of Payload */
-static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, gint length, guint8 virtualLane)
+static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length, guint8 virtualLane)
 {
 	gint local_offset = *offset;
 	/* Payload - Packet Payload */
@@ -798,10 +794,10 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
  
 	if(!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
 	{
-		if (check_col(g_cinfo, COL_INFO))
+		if (check_col(pinfo->cinfo, COL_INFO))
 		{
-			col_set_str(g_cinfo, COL_INFO, "Invalid Packet Length from LRH! [Malformed Packet]");
-			col_set_fence(g_cinfo, COL_INFO);
+			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Packet Length from LRH! [Malformed Packet]");
+			col_set_fence(pinfo->cinfo, COL_INFO);
 		}
 		return;
 	}
@@ -833,15 +829,15 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
 			{
 				case SUBN_LID_ROUTED:
 					/* parse subn man lid routed */
-					parse_SUBN_LID_ROUTED(parentTree, tvb, &local_offset);
+					parse_SUBN_LID_ROUTED(parentTree, pinfo, tvb, &local_offset);
 				break;
 				case SUBN_DIRECTED_ROUTE:
 					/* parse subn directed route */
-					parse_SUBN_DIRECTED_ROUTE(parentTree, tvb, &local_offset);
+					parse_SUBN_DIRECTED_ROUTE(parentTree, pinfo, tvb, &local_offset);
 				break;
 				case SUBNADMN:
 					/* parse sub admin */
-					parse_SUBNADMN(parentTree, tvb, &local_offset);
+					parse_SUBNADMN(parentTree, pinfo, tvb, &local_offset);
 				break;
 				case PERF:
 					/* parse performance */
@@ -900,16 +896,16 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
 			next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length,
 						  reported_length);
 			
-			g_pinfo->ethertype = etype;
+			pinfo->ethertype = etype;
 			
 			/* Look for sub-dissector, and call it if found.
 			   Catch exceptions, so that if the reported length of "next_tvb"
 			   was reduced by some dissector before an exception was thrown,
 			   we can still put in an item for the trailer. */
-			saved_proto = g_pinfo->current_proto;
+			saved_proto = pinfo->current_proto;
 			TRY {
 				dissector_found = dissector_try_port(ethertype_dissector_table,
-								     etype, next_tvb, g_pinfo, top_tree);
+								     etype, next_tvb, pinfo, top_tree);
 			}
 			CATCH(BoundsError) {
 				/* Somebody threw BoundsError, which means that:
@@ -940,9 +936,9 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
 				   to show the trailer, after noting that a dissector was
 				   found and restoring the protocol value that was in effect
 				   before we called the subdissector. */
-				show_exception(next_tvb, g_pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
+				show_exception(next_tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
 				dissector_found = TRUE;
-				g_pinfo->current_proto = saved_proto;
+				pinfo->current_proto = saved_proto;
 			}
 			ENDTRY;
 			
@@ -983,12 +979,12 @@ static void parse_PAYLOAD(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, 
 						  captured_length,
 						  reported_length);
 			
-			call_dissector(data_handle, next_tvb, g_pinfo, top_tree);
+			call_dissector(data_handle, next_tvb, pinfo, top_tree);
 			
 		}
 		
 
-		/*parse_RWH(parentTree, tvb, &local_offset, g_pinfo);*/
+		/*parse_RWH(parentTree, tvb, &local_offset, pinfo);*/
 		
 		/* Will contain ICRC and VCRC = 4+2 */
 		local_offset = tvb_reported_length(tvb) - 6;
@@ -1017,7 +1013,8 @@ static void parse_VENDOR(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 /* Parse IPv6 - Parse an IPv6 Packet
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset */
+* IN/OUT: The current and updated offset
+* IN: pinfo - packet info from wireshark */
 static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
 {
 	tvbuff_t *ipv6_tvb;
@@ -1036,8 +1033,9 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
 /* Parse EtherType - Parse a generic IP packaet with an EtherType of IP or ARP
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset */
-static void parse_RWH(proto_tree * ah_tree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
+* IN/OUT: The current and updated offset
+* IN: pinfo - packet info from wireshark */
+static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_info *pinfo)
 {
 	guint16 ether_type;
 
@@ -1070,9 +1068,10 @@ static void parse_RWH(proto_tree * ah_tree, tvbuff_t *tvb, gint *offset, packet_
 
 /* Parse Subnet Management (LID Routed)
 * IN: parentTree to add the dissection to
+* IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
 	/* Parse the Common MAD Header */
 	MAD_Data MadData;
@@ -1095,8 +1094,8 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 	proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_m_key,			tvb, local_offset, 8, FALSE); local_offset +=8;
 	proto_tree_add_item(SUBN_LID_ROUTED_header_tree, hf_infiniband_reserved256,		tvb, local_offset, 32, FALSE); local_offset +=32;
 
-	label_SUBM_Method(SUBN_LID_ROUTED_header_item, &MadData);
-	label_SUBM_Attribute(SUBN_LID_ROUTED_header_item, &MadData);
+	label_SUBM_Method(SUBN_LID_ROUTED_header_item, &MadData, pinfo);
+	label_SUBM_Attribute(SUBN_LID_ROUTED_header_item, &MadData, pinfo);
 
 	/* Try to do the detail parse of the attribute.  If there is an error, or the attribute is unknown, we'll just highlight the generic data. */
 	if(!parse_SUBM_Attribute(SUBN_LID_ROUTED_header_tree, tvb, &local_offset, &MadData))
@@ -1112,7 +1111,7 @@ static void parse_SUBN_LID_ROUTED(proto_tree *parentTree, tvbuff_t *tvb, gint *o
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
 	/* Parse the Common MAD Header */
 	MAD_Data MadData;
@@ -1134,8 +1133,8 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, tvbuff_t *tvb, gin
 	proto_item_set_text(SUBN_DIRECTED_ROUTE_header_item, "%s", "SMP (Directed Route) ");
 	SUBN_DIRECTED_ROUTE_header_tree = proto_item_add_subtree(SUBN_DIRECTED_ROUTE_header_item, ett_subn_directed_route);
 
-	label_SUBM_Method(SUBN_DIRECTED_ROUTE_header_item, &MadData);
-	label_SUBM_Attribute(SUBN_DIRECTED_ROUTE_header_item, &MadData);
+	label_SUBM_Method(SUBN_DIRECTED_ROUTE_header_item, &MadData, pinfo);
+	label_SUBM_Attribute(SUBN_DIRECTED_ROUTE_header_item, &MadData, pinfo);
 
 	/* Place us at offset 4, the "D" Bit (Direction bit for Directed Route SMPs) */
 	local_offset -= 20;
@@ -1162,9 +1161,10 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, tvbuff_t *tvb, gin
 
 /* Parse Subnet Administration
 * IN: parentTree to add the dissection to
+* IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_SUBNADMN(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
 	/* Parse the Common MAD Header */
 	MAD_Data MadData;
@@ -1193,8 +1193,8 @@ static void parse_SUBNADMN(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 	proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_reserved16,			tvb, local_offset, 2, FALSE); local_offset+=4;
 	proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_component_mask,		tvb, local_offset, 8, FALSE); local_offset+=8;
 
-	label_SUBA_Method(SUBNADMN_header_item, &MadData);
-	label_SUBA_Attribute(SUBNADMN_header_item, &MadData);
+	label_SUBA_Method(SUBNADMN_header_item, &MadData, pinfo);
+	label_SUBA_Attribute(SUBNADMN_header_item, &MadData, pinfo);
 
 	if(!parse_SUBA_Attribute(SUBNADMN_header_tree, tvb, &local_offset, &MadData))
 	{
@@ -1488,464 +1488,57 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 /* Parse the Method from the MAD Common Header.
 * Simply used to generate the identifier.
 * IN: SubMItem - the item to append the method label to.
-* IN: MadHeader - the MadData structure that contains the information from the Common MAD header. */
-static void label_SUBM_Method(proto_item *SubMItem, MAD_Data *MadHeader)
+* IN: MadHeader - the MadData structure that contains the information from the Common MAD header.
+* IN: pinfo - packet info from wireshark. */
+static void label_SUBM_Method(proto_item *SubMItem, MAD_Data *MadHeader, packet_info *pinfo)
 {
-	switch(MadHeader->method)
-	{
-		case 0x01:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SubnGet(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnGet(");
-			break;
-		case 0x02:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SubnSet(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnSet(");
-			break;
-		case 0x81:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SubnGetResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnGetResp(");
-			break;
-		case 0x05:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SubnTrap(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnTrap(");
-			break;
-		case 0x07:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SubnTrapResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnTrapResp(");
-			break;
-		default:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "Unknown SubManagement Method!");
-			}
-			col_append_str(g_cinfo, COL_INFO, "Unknown SubManagement Method!");
-			break;
-	}
+	const char *label = val_to_str(MadHeader->method, SUBM_Methods, "(Unknown SubManagement Method!)");
+
+	proto_item_append_text(SubMItem, "%s", label);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, label);
 }
+
 /* Parse the SA Method from the MAD Common Header.
 * Simply used to generate the identifier.
 * IN: SubAItem - the item to append the method label to.
-* IN: MadHeader - the MadData structure that contains the information from the Common MAD header. */
-static void label_SUBA_Method(proto_item *SubAItem, MAD_Data *MadHeader)
+* IN: MadHeader - the MadData structure that contains the information from the Common MAD header.
+* IN: pinfo - packet info from wireshark. */
+static void label_SUBA_Method(proto_item *SubAItem, MAD_Data *MadHeader, packet_info *pinfo)
 {
-	switch(MadHeader->method)
-	{
-		case 0x01:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGet(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGet(");
-			break;
-		case 0x81:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetResp(");
-			break;
-		case 0x02:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmSet(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmSet(");
-			break;
-		case 0x06:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmReport(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmReport(");
-			break;
-		case 0x86:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmReportResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmReportResp(");
-			break;
-		case 0x12:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetTable(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetTable(");
-			break;
-		case 0x92:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetTableResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetTableResp(");
-			break;
-		case 0x13:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetTraceTable(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetTraceTable(");
-			break;
-		case 0x14:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetMulti(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetMulti(");
-			break;
-		case 0x94:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmGetMultiResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmGetMultiResp(");
-			break;
-		case 0x15:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmDelete(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmDelete(");
-			break;
-		case 0x95:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "SubnAdmDeleteResp(");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SubnAdmDeleteResp(");
-			break;
-		default:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", "Unknown SubAdministration Method!");
-			}
-			col_append_str(g_cinfo, COL_INFO, "Unknown SubAdministration Method!");
-			break;
-	}
+	const char *label = val_to_str(MadHeader->method, SUBA_Methods, "(Unknown SubAdministration Method!)");
+
+	proto_item_append_text(SubAItem, "%s", label);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 
 /* Parse the Attribute from the MAD Common Header
 * Simply used to generate the identifier.
 * IN: SubMItem - the item to append the Attribute label to.
-* IN: MadHeader - the MadData structure that contains the information from the Common MAD header. */
-static void label_SUBM_Attribute(proto_item *SubMItem, MAD_Data *MadHeader)
+* IN: MadHeader - the MadData structure that contains the information from the Common MAD header.
+* IN: pinfo - packet info from wireshark. */
+static void label_SUBM_Attribute(proto_item *SubMItem, MAD_Data *MadHeader, packet_info *pinfo)
 {
-	switch(MadHeader->attributeID)
-	{
-		case 0x0002:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "Notice) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "Notice)");
-			break;
-		case 0x0010:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "NodeDescription) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "NodeDescription)");
-			break;
-		case 0x0011:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "NodeInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "NodeInfo)");
-			break;
-		case 0x0012:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SwitchInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SwitchInfo)");
-			break;
-		case 0x0014:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "GUIDInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "GUIDInfo)");
-			break;
-		case 0x0015:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "PortInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "PortInfo)");
-			break;
-		case 0x0016:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "P_KeyTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "P_KeyTable)");
-			break;
-		case 0x0017:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SLtoVLMappingTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SLtoVLMappingTable)");
-			break;
-		case 0x0018:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "VLArbitrationTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "VLArbitrationTable)");
-			break;
-		case 0x0019:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "LinearForwardingTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "LinearForwardingTable)");
-			break;
-		case 0x001A:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "RandomForwardingTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "RandomForwardingTable)");
-			break;
-		case 0x001B:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "MulticastForwardingTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "MulticastForwardingTable)");
-			break;
-		case 0x001C:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "LinkSpeedWidthPairsTable) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "LinkSpeedWidthPairsTable)");
-			break;
-		case 0x0020:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "SMinfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "SMinfo)");
-			break;
-		case 0x0030:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "VendorDiag) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "VendorDiag)");
-			break;
-		case 0x0031:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", "LedInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "LedInfo)");
-			break;
-		default:
-			if(SubMItem)
-			{
-				proto_item_append_text(SubMItem, "%s", " (Unknown SubManagement Attribute!) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(Unknown SubManagement Attribute!)");
-			break;
-	}
+	const char *label = val_to_str(MadHeader->attributeID, SUBM_Attributes, "(Unknown SubManagement Attribute!)");
+
+	proto_item_append_text(SubMItem, "%s", &label[11]);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 
 /* Parse the SA Attribute from the MAD Common Header
 * Simply used to generate the identifier.
 * IN: SubAItem - the item to append the Attribute label to.
-* IN: MadHeader - the MadData structure that contains the information from the Common MAD header. */
-static void label_SUBA_Attribute(proto_item *SubAItem, MAD_Data *MadHeader)
+* IN: MadHeader - the MadData structure that contains the information from the Common MAD header.
+* IN: pinfo - packet info from wireshark. */
+static void label_SUBA_Attribute(proto_item *SubAItem, MAD_Data *MadHeader, packet_info *pinfo)
 {
-	switch(MadHeader->attributeID)
-	{
-		case 0x0001:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (ClassPortInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(ClassPortInfo)");
-			break;
-		case 0x0002:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (Notice) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(Notice)");
-			break;
-		case 0x0003:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (InformInfo) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(InformInfo)");
-			break;
-		case 0x0011:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (NodeRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(NodeRecord)");
-			break;
-		case 0x0012:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (PortInfoRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(PortInfoRecord)");
-			break;
-		case 0x0013:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (SLtoVLMappingTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(SLtoVLMappingTableRecord)");
-			break;
-		case 0x0014:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (SwitchInfoRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(SwitchInfoRecord)");
-			break;
-		case 0x0015:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (LinearForwardingTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(LinearForwardingTableRecord)");
-			break;
-		case 0x0016:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (RandomForwardingTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(RandomForwardingTableRecord)");
-			break;
-		case 0x0017:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (MulticastForwardingTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(MulticastForwardingTableRecord)");
-			break;
-		case 0x0018:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (SMInfoRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(SMInfoRecord)");
-			break;
-		case 0x0019:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (LinkSpeedWidthPairsTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(LinkSpeedWidthPairsTableRecord)");
-			break;
-		case 0x00F3:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (InformInfoRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(InformInfoRecord)");
-			break;
-		case 0x0020:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (LinkRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(LinkRecord)");
-			break;
-		case 0x0030:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (GuidInfoRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(GuidInfoRecord)");
-			break;
-		case 0x0031:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (ServiceRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(ServiceRecord)");
-			break;
-		case 0x0033:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (P_KeyTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(P_KeyTableRecord)");
-			break;
-		case 0x0035:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (PathRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(PathRecord)");
-			break;
-		case 0x0036:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (VLArbitrationTableRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(VLArbitrationTableRecord)");
-			break;
-		case 0x0038:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (MCMemberRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(MCMemberRecord)");
-			break;
-		case 0x0039:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (TraceRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(TraceRecord)");
-			break;
-		case 0x003A:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (MultiPathRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(MultiPathRecord)");
-			break;
-		case 0x003B:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (ServiceAssociationRecord) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(ServiceAssociationRecord)");
-			break;
-		default:
-			if(SubAItem)
-			{
-				proto_item_append_text(SubAItem, "%s", " (Unknown SubAdministration Attribute!) ");
-			}
-			col_append_str(g_cinfo, COL_INFO, "(Unknown SubAdministration Attribute!)");
-			break;
-	}
+	const char *label = val_to_str(MadHeader->attributeID, SUBA_Attributes, "(Unknown SubAdministration Attribute!)");
+
+	proto_item_append_text(SubAItem, "%s", &label[11]);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 
 /* Parse the attribute from a Subnet Management Packet.
@@ -3548,8 +3141,8 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 		else /* we have a normal management_class */
 		{
 			parse_MAD_Common(NULL, tvb, &offset, &MadData);
-			label_SUBM_Method(NULL, &MadData);
-			label_SUBM_Attribute(NULL, &MadData);
+			label_SUBM_Method(NULL, &MadData, pinfo);
+			label_SUBM_Attribute(NULL, &MadData, pinfo);
 		}
 	}
 

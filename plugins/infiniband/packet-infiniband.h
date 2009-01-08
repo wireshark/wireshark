@@ -81,9 +81,6 @@ static gint ett_tracerecord = -1;
 static gint ett_multipathrecord = -1;
 static gint ett_serviceassocrecord = -1;
 
-/* Static ref to column_info for dissection */
-static column_info *g_cinfo = NULL;
-static packet_info *g_pinfo = NULL;
 /* Global ref to highest level tree should we find other protocols encapsulated in IB */
 static proto_tree *top_tree = NULL;
  
@@ -115,7 +112,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
 /* Parsing Methods for specific IB headers. */
 
 static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
-static void parse_PAYLOAD(proto_tree *, tvbuff_t *, gint *, gint length, guint8 virtualLane);
+static void parse_PAYLOAD(proto_tree *, packet_info *, tvbuff_t *, gint *, gint length, guint8 virtualLane);
 static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
 static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
@@ -124,12 +121,12 @@ static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_DETH(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *pinfo);
-static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *pinfo);
+static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
+static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
 
-static void parse_SUBN_LID_ROUTED(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, tvbuff_t *, gint *offset);
-static void parse_SUBNADMN(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
 static void parse_PERF(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_BM(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_DEV_MGT(proto_tree *, tvbuff_t *, gint *offset);
@@ -141,10 +138,10 @@ static void parse_RESERVED_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
 
 static gboolean parse_MAD_Common(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
 static gboolean parse_RMPP(proto_tree* , tvbuff_t* , gint *offset);
-static void label_SUBM_Method(proto_item*, MAD_Data*);
-static void label_SUBM_Attribute(proto_item*, MAD_Data*);
-static void label_SUBA_Method(proto_item*, MAD_Data*);
-static void label_SUBA_Attribute(proto_item*, MAD_Data*);
+static void label_SUBM_Method(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBM_Attribute(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBA_Method(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBA_Attribute(proto_item*, MAD_Data*, packet_info*);
 
 /* Class Attribute Parsing Routines */
 static gboolean parse_SUBM_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
@@ -184,6 +181,14 @@ static void parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset)
 /* Subnet Administration */
 static void parse_RID(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
 
+/* SM Methods */
+static const value_string SUBM_Methods[] = {
+	{ 0x01, "SubnGet("},
+	{ 0x02, "SubnSet("},
+	{ 0x81, "SubnGetResp("},
+	{ 0x05, "SubnTrap("},
+	{ 0x07, "SubnTrapResp("}
+};
 /* SM Attributes */
 static const value_string SUBM_Attributes[] = {
 	{ 0x0001, "Attribute (ClassPortInfo)"},
@@ -204,6 +209,22 @@ static const value_string SUBM_Attributes[] = {
 	{ 0x0020, "Attribute (SMInfo)"},
 	{ 0x0030, "Attribute (VendorDiag)"},
 	{ 0x0031, "Attribute (LedInfo)"}
+};
+
+/* SA Methods */
+static const value_string SUBA_Methods[] = {
+	{ 0x01, "SubnAdmGet("},
+	{ 0x81, "SubnAdmGetResp("},
+	{ 0x02, "SubnAdmSet("},
+	{ 0x06, "SubnAdmReport("},
+	{ 0x86, "SubnAdmReportResp("},
+	{ 0x12, "SubnAdmGetTable("},
+	{ 0x92, "SubnAdmGetTableResp("},
+	{ 0x13, "SubnAdmGetTraceTable("},
+	{ 0x14, "SubnAdmGetMulti("},
+	{ 0x94, "SubnAdmGetMultiResp("},
+	{ 0x15, "SubnAdmDelete("},
+	{ 0x95, "SubnAdmDeleteResp("}
 };
 /* SA Attributes */
 static const value_string SUBA_Attributes[] = {
