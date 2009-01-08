@@ -1727,7 +1727,7 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Error Parameter Set");
 		}
@@ -1743,7 +1743,7 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EPS TLV error");
 			}
@@ -1815,7 +1815,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Convergence Service Parameter Encoding Rules");
 		}
@@ -1831,7 +1831,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CSPER TLV error");
 			}
@@ -1866,7 +1866,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(pinfo->cinfo)
+							if(check_col(pinfo->cinfo, COL_INFO))
 							{
 								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATM Classifier TLV error");
 							}
@@ -1943,7 +1943,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(pinfo->cinfo)
+							if(check_col(pinfo->cinfo, COL_INFO))
 							{
 								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packet Classification Rule TLV error");
 							}
@@ -2103,7 +2103,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						length = get_tlv_length(&tlv_info);
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
-							if(pinfo->cinfo)
+							if(check_col(pinfo->cinfo, COL_INFO))
 							{
 								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHS n Rule TLV error");
 							}
@@ -2189,7 +2189,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Service Flow Encodings");
 		}
@@ -2204,7 +2204,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service Flow Encodings TLV error");
 			}
@@ -2629,7 +2629,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Negotiation Parameters");
 		}
@@ -2646,7 +2646,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Negotiation Params TLV error");
 			}
@@ -2752,7 +2752,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Crypto Suite List");
 		}
@@ -2768,7 +2768,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Crypto Suite List TLV error");
 			}
@@ -2825,7 +2825,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM TLV");
 		}
@@ -2842,7 +2842,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM TLV error");
 			}
@@ -3055,7 +3055,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid TEK Params");
 		}
@@ -3072,7 +3072,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "TEK Param TLV error");
 			}
@@ -3142,7 +3142,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid PKM Config Settings");
 		}
@@ -3159,7 +3159,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM Config Settings TLV error");
 			}
@@ -3237,7 +3237,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SA-Descriptor");
 		}
@@ -3254,7 +3254,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SA-Descriptor TLV error");
 			}
@@ -3323,7 +3323,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Security Capabilities");
 		}
@@ -3340,7 +3340,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Capabilities TLV error");
 			}
@@ -3395,7 +3395,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Vendor Specific Info");
 		}
@@ -3413,7 +3413,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Vendor Specific Info TLV error");
 			}
@@ -3485,7 +3485,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* report error if the packet size is less than 2 bytes (type+length) */
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
-		if(pinfo->cinfo)
+		if(check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Common TLV encoding");
 		}
@@ -3503,7 +3503,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		tlv_len = get_tlv_length(&tlv_info);
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
-			if(pinfo->cinfo)
+			if(check_col(pinfo->cinfo, COL_INFO))
 			{
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Common TLV encoding TLV error");
 			}

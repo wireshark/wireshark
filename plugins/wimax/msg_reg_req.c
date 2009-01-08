@@ -1117,7 +1117,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 				length = get_tlv_length(&tlv_info);
 				if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 				{	/* invalid tlv info */
-					if (pinfo->cinfo)
+					if (check_col(pinfo->cinfo, COL_INFO))
 					{
 						col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
 					}
@@ -1320,7 +1320,7 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if (pinfo->cinfo)
+				if (check_col(pinfo->cinfo, COL_INFO))
 				{
 					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
 				}
