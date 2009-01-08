@@ -79,7 +79,7 @@
 /* forward reference */
 void proto_register_foo();
 void proto_reg_handoff_foo();
-void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_foo = -1;
 static int global_foo_port = 1234;
