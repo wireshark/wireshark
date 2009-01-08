@@ -473,6 +473,7 @@ dumpcap_LDADD = \
 	@NSL_LIBS@			\
 	@FRAMEWORKS@			\
 	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@		\
 	@LIBCAP_LIBS@
 dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
