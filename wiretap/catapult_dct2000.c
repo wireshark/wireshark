@@ -391,9 +391,9 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             line_prefix_info = g_malloc(sizeof(line_prefix_info_t));
 
             /* Create and use buffer for contents before time */
-            line_prefix_info->before_time = g_malloc(before_time_offset+1);
-            g_strlcpy(line_prefix_info->before_time, linebuff, before_time_offset);
-            line_prefix_info->before_time[before_time_offset] = '\0';
+            line_prefix_info->before_time = g_malloc(before_time_offset+2);
+            g_strlcpy(line_prefix_info->before_time, linebuff, before_time_offset+1);
+            line_prefix_info->before_time[before_time_offset+1] = '\0';
 
             /* Create and use buffer for contents before time.
                Do this only if it doesn't correspond to " l ", which is by far the most
@@ -1131,12 +1131,15 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     {
         return FALSE;
     }
+    /* Skip it */
+    n++;
 
 
     /*********************************************************************/
     /* Find and read the timestamp                                       */
 
     /* Now scan to the next digit, which should be the start of the timestamp */
+    /* This will involve skipping " tm "                                      */
     for (; !isdigit((guchar)linebuff[n]) && (n < line_length); n++);
     if (n >= line_length)
     {
