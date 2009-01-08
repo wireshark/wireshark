@@ -492,6 +492,16 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, ", ");
 	get_runtime_pcap_version(str);
 
+    /* GnuTLS */
+#ifdef HAVE_LIBGNUTLS
+	g_string_append_printf(str, ", GnuTLS %s", gnutls_check_version(NULL));
+#endif /* HAVE_LIBGNUTLS */
+
+        /* Gcrypt */
+#ifdef HAVE_LIBGCRYPT
+	g_string_append_printf(str, ", Gcrypt %s", gcry_check_version(NULL));
+#endif /* HAVE_LIBGCRYPT */
+
 	/* Additional application-dependent information */
 	if (additional_info)
 		(*additional_info)(str);

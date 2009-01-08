@@ -60,6 +60,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
 	$(HHC_LIBS) \
 	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -71,14 +72,14 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS) \
-	$(GNUTLS_LIBS)
+	$(ZLIB_LIBS)
 !ENDIF
 
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -90,14 +91,14 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS) \
-	$(GNUTLS_LIBS)
+	$(ZLIB_LIBS)
 !ENDIF
 
 rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -109,8 +110,7 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
-	$(ZLIB_LIBS) \
-	$(GNUTLS_LIBS)
+	$(ZLIB_LIBS)
 !ENDIF
 
 capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -136,12 +136,14 @@ text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS) \
+	$(GNUTLS_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
 	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -152,8 +154,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
-	$(SMI_LIBS) \
-	$(GNUTLS_LIBS)
+	$(SMI_LIBS)
 !ENDIF
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
