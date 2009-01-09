@@ -115,10 +115,13 @@ static int hf_mpls_echo_tlv_ds_map_mp_proto = -1;
 static int hf_mpls_echo_tlv_padaction = -1;
 static int hf_mpls_echo_tlv_padding = -1;
 static int hf_mpls_echo_tlv_vendor = -1;
+static int hf_mpls_echo_tlv_ilso_addr_type = -1;
+static int hf_mpls_echo_tlv_ilso_mbz = -1;
 static int hf_mpls_echo_tlv_ilso_ipv4_addr = -1;
 static int hf_mpls_echo_tlv_ilso_ipv4_int_addr = -1;
 static int hf_mpls_echo_tlv_ilso_ipv6_addr = -1;
 static int hf_mpls_echo_tlv_ilso_ipv6_int_addr = -1;
+static int hf_mpls_echo_tlv_ilso_int_index = -1;
 static int hf_mpls_echo_tlv_ilso_label = -1;
 static int hf_mpls_echo_tlv_ilso_exp = -1;
 static int hf_mpls_echo_tlv_ilso_bos = -1;
@@ -252,16 +255,16 @@ static const value_string mpls_echo_tlv_pad[] = {
   { 0, NULL}
 };
 
-#define TLV_DS_MAP_ADDR_IPv4		1
-#define TLV_DS_MAP_ADDR_UNNUM_IPv4	2
-#define TLV_DS_MAP_ADDR_IPv6		3
-#define TLV_DS_MAP_ADDR_UNNUM_IPv6	4
+#define TLV_ADDR_IPv4		1
+#define TLV_ADDR_UNNUM_IPv4	2
+#define TLV_ADDR_IPv6		3
+#define TLV_ADDR_UNNUM_IPv6	4
 
-static const value_string mpls_echo_tlv_ds_map_addr_type[] = {
-  {TLV_DS_MAP_ADDR_IPv4,	"IPv4 Numbered"},
-  {TLV_DS_MAP_ADDR_UNNUM_IPv4,	"IPv4 Unnumbered"},
-  {TLV_DS_MAP_ADDR_IPv6,	"IPv6 Numbered"},
-  {TLV_DS_MAP_ADDR_UNNUM_IPv6,	"IPv6 Unnumbered"},
+static const value_string mpls_echo_tlv_addr_type[] = {
+  {TLV_ADDR_IPv4,	"IPv4 Numbered"},
+  {TLV_ADDR_UNNUM_IPv4,	"IPv4 Unnumbered"},
+  {TLV_ADDR_IPv6,	"IPv6 Numbered"},
+  {TLV_ADDR_UNNUM_IPv6,	"IPv6 Unnumbered"},
   {0, NULL}
 };
 
@@ -559,20 +562,20 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 	addr_type = tvb_get_guint8(tvb, offset + 2);
 	switch(addr_type){
-	case TLV_DS_MAP_ADDR_IPv4:
+	case TLV_ADDR_IPv4:
         	proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ip, tvb,
 				offset + 4, 4, FALSE);
         	proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_int_ip, tvb,
 				offset + 8, 4, FALSE);
 		break;
-	case TLV_DS_MAP_ADDR_UNNUM_IPv4:
-	case TLV_DS_MAP_ADDR_UNNUM_IPv6:
+	case TLV_ADDR_UNNUM_IPv4:
+	case TLV_ADDR_UNNUM_IPv6:
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ip, tvb,
                                 offset + 4, 4, FALSE);
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_if_index, tvb,
                                 offset + 8, 4, FALSE);
 		break;
-	case TLV_DS_MAP_ADDR_IPv6:
+	case TLV_ADDR_IPv6:
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ipv6, tvb,
                                 offset + 4, 16, FALSE);
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_int_ipv6, tvb,
@@ -703,26 +706,56 @@ static void
 dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gboolean is_ipv6)
 {
 	proto_tree *ti = NULL, *tlv_ilso = NULL;
+	guint8  type;
 	guint16	index = 1;
 	guint32 label;
 	guint8  exp, bos, ttl;
 
-	if (is_ipv6){
-		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_addr, tvb,
-			offset, 16, FALSE);
-		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_int_addr, tvb,
-			offset + 16, 16, FALSE);
+	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_addr_type, tvb, offset, 1, FALSE);
+	type = tvb_get_guint8(tvb, offset);
+	offset += 1;
+	rem -= 1;
 
-		offset += 32;
-		rem -= 32;
-	} else {
+	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_mbz, tvb, offset, 3, FALSE);
+	offset += 3;
+	rem -= 3;
+
+	if ((type == TLV_ADDR_IPv4) || (type == TLV_ADDR_UNNUM_IPv4)) {
+		if (is_ipv6) {
+			proto_tree_add_text(tree, tvb, offset, 4, "Incorrect address type for TLV ?");
+		}
 		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_addr, tvb,
 			offset, 4, FALSE);
-		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_int_addr, tvb,
-			offset + 4, 4, FALSE);
-
+		if (type == TLV_ADDR_IPv4) {
+			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_int_addr, tvb,
+				offset + 4, 4, FALSE);
+		} else {
+			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_int_index, tvb,
+				offset + 4, 4, FALSE);
+		}
 		offset += 8;
 		rem -= 8;
+	} else if ((type == TLV_ADDR_IPv6) || (type == TLV_ADDR_UNNUM_IPv6)) {
+		if (!is_ipv6) {
+			proto_tree_add_text(tree, tvb, offset, 16, "Incorrect address type for TLV ?");
+		}
+
+		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_addr, tvb,
+			offset, 16, FALSE);
+		if (type == TLV_ADDR_IPv6) {
+			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_int_addr, tvb,
+				offset + 16, 16, FALSE);
+			offset += 32;
+			rem -= 32;
+		} else {
+			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_int_index, tvb,
+				offset + 16, 4, FALSE);
+			offset += 20;
+			rem -= 20;
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, offset, 0, "Incorrect address type for TLV");
+		return;
 	}
 
 
@@ -843,18 +876,18 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 			offset + 4, 4, FALSE);
 			break;
 		case TLV_ILSO_IPv4:
-                        if(length < 8) {
+                        if(length < 12) {
                                 proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-                                        "Error processing TLV: length is %d, should be >= 8",
+                                        "Error processing TLV: length is %d, should be >= 12",
                                         length);
                                 break;
                         }
                         dissect_mpls_echo_tlv_ilso(tvb, offset + 4, mpls_echo_tlv_tree, length, FALSE);
                         break;
 		case TLV_ILSO_IPv6:
-			if(length < 32) {
+			if(length < 24) {
 				proto_tree_add_text(mpls_echo_tlv_tree, tvb, offset + 4, length,
-					"Error processing TLV: length is %d, should be >= 32",
+					"Error processing TLV: length is %d, should be >= 24",
 					length);
 				break;
 			}
@@ -1245,8 +1278,8 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_tlv_ds_map_addr_type,
                         { "Address Type", "mpls_echo.tlv.ds_map.addr_type",
-                        FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_ds_map_addr_type), 0x0,
-			"MPLS ECHO TLV Downstream Map Address Type", HFILL}
+                        FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_addr_type), 0x0,
+                        "MPLS ECHO TLV Downstream Map Address Type", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ds_map_res,
                         { "DS Flags", "mpls_echo.tlv.ds_map.res",
@@ -1287,7 +1320,7 @@ proto_register_mpls_echo(void)
                 { &hf_mpls_echo_tlv_ds_map_hash_type,
                         { "Multipath Type", "mpls_echo.tlv.ds_map.hash_type",
                         FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_ds_map_hash_type), 0x0,
-			"MPLS ECHO TLV Downstream Map Multipath Type", HFILL}
+                        "MPLS ECHO TLV Downstream Map Multipath Type", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ds_map_depth,
                         { "Depth Limit", "mpls_echo.tlv.ds_map.depth",
@@ -1332,7 +1365,7 @@ proto_register_mpls_echo(void)
                 { &hf_mpls_echo_tlv_ds_map_mp_proto,
                         { "Downstream Protocol", "mpls_echo.tlv.ds_map.mp_proto",
                         FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_ds_map_mp_proto), 0x0,
-			"MPLS ECHO TLV Downstream Map Downstream Protocol", HFILL}
+                        "MPLS ECHO TLV Downstream Map Downstream Protocol", HFILL}
                 },
                 { &hf_mpls_echo_tlv_padaction,
                         { "Pad Action", "mpls_echo.tlv.pad_action",
@@ -1342,17 +1375,26 @@ proto_register_mpls_echo(void)
                         { "Padding", "mpls_echo.tlv.pad_padding",
                         FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO Pad TLV Padding", HFILL}
                 },
-		{ &hf_mpls_echo_tlv_vendor,
-			{ "Vendor Id", "mpls_echo.tlv.vendor_id",
-			FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0, "MPLS ECHO Vendor Id", HFILL}
-		},
+                { &hf_mpls_echo_tlv_vendor,
+                        { "Vendor Id", "mpls_echo.tlv.vendor_id",
+                        FT_UINT32, BASE_DEC, VALS(sminmpec_values), 0x0, "MPLS ECHO Vendor Id", HFILL}
+                },
+                { &hf_mpls_echo_tlv_ilso_addr_type,
+                        { "Address Type", "mpls_echo.tlv.ilso.addr_type",
+                        FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_addr_type), 0x0,
+                        "MPLS ECHO TLV Interface and Label Stack Address Type", HFILL}
+                },
+                { &hf_mpls_echo_tlv_ilso_mbz,
+                        { "Must Be Zero", "mpls_echo.tlv.ilso.mbz",
+                        FT_UINT24, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack MBZ", HFILL}
+                },
                 { &hf_mpls_echo_tlv_ilso_ipv4_addr,
                         { "Downstream IPv4 Address", "mpls_echo.tlv.ilso_ipv4.addr",
                         FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Address", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ilso_ipv4_int_addr,
                         { "Downstream Interface Address", "mpls_echo.tlv.ilso_ipv4.int_addr",
-                        FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Address", HFILL}
+                        FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Interface Address", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ilso_ipv6_addr,
                         { "Downstream IPv6 Address", "mpls_echo.tlv.ilso_ipv6.addr",
@@ -1360,7 +1402,11 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_tlv_ilso_ipv6_int_addr,
                         { "Downstream Interface Address", "mpls_echo.tlv.ilso_ipv6.int_addr",
-                        FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Address", HFILL}
+                        FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Interface Address", HFILL}
+                },
+                { &hf_mpls_echo_tlv_ilso_int_index,
+                        { "Downstream Interface Index", "mpls_echo.tlv.ilso.int_index",
+                        FT_UINT32, BASE_HEX, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack Interface Index", HFILL}
                 },
                 { &hf_mpls_echo_tlv_ilso_label,
                         { "Label", "mpls_echo.tlv.ilso_ipv4.label",
@@ -1403,11 +1449,11 @@ proto_register_mpls_echo(void)
 
         static gint *ett[] = {
                 &ett_mpls_echo,
-		&ett_mpls_echo_gflags,
+                &ett_mpls_echo_gflags,
                 &ett_mpls_echo_tlv,
                 &ett_mpls_echo_tlv_fec,
-		&ett_mpls_echo_tlv_ds_map,
-		&ett_mpls_echo_tlv_ilso,
+                &ett_mpls_echo_tlv_ds_map,
+                &ett_mpls_echo_tlv_ilso
         };
 
         module_t *mpls_echo_module;
