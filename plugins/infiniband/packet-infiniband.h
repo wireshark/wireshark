@@ -187,7 +187,8 @@ static const value_string SUBM_Methods[] = {
 	{ 0x02, "SubnSet("},
 	{ 0x81, "SubnGetResp("},
 	{ 0x05, "SubnTrap("},
-	{ 0x07, "SubnTrapResp("}
+	{ 0x07, "SubnTrapResp("},
+	{ 0, NULL}
 };
 /* SM Attributes */
 static const value_string SUBM_Attributes[] = {
@@ -208,7 +209,8 @@ static const value_string SUBM_Attributes[] = {
 	{ 0x001C, "Attribute (LinkSpeedWidthPairsTable)"},
 	{ 0x0020, "Attribute (SMInfo)"},
 	{ 0x0030, "Attribute (VendorDiag)"},
-	{ 0x0031, "Attribute (LedInfo)"}
+	{ 0x0031, "Attribute (LedInfo)"},
+	{ 0, NULL}
 };
 
 /* SA Methods */
@@ -224,7 +226,8 @@ static const value_string SUBA_Methods[] = {
 	{ 0x14, "SubnAdmGetMulti("},
 	{ 0x94, "SubnAdmGetMultiResp("},
 	{ 0x15, "SubnAdmDelete("},
-	{ 0x95, "SubnAdmDeleteResp("}
+	{ 0x95, "SubnAdmDeleteResp("},
+	{ 0, NULL}
 };
 /* SA Attributes */
 static const value_string SUBA_Attributes[] = {
@@ -250,7 +253,8 @@ static const value_string SUBA_Attributes[] = {
 	{ 0x0038, "Attribute (MCMembersRecord)"},
 	{ 0x0039, "Attribute (TraceRecord)"},
 	{ 0x003A, "Attribute (MultiPathRecord)"},
-	{ 0x003B, "Attribute (ServiceAssociationRecord)"}
+	{ 0x003B, "Attribute (ServiceAssociationRecord)"},
+	{ 0, NULL}
 };
 
 
@@ -266,7 +270,8 @@ static const value_string RMPP_Packet_Types[] = {
 	{ RMPP_DATA, "RMPP (DATA)" }, 
 	{ RMPP_ACK, "RMPP (ACK)" }, 
 	{ RMPP_STOP, "RMPP (STOP)" }, 
-	{ RMPP_ABORT, "RMPP (ABORT)" } 
+	{ RMPP_ABORT, "RMPP (ABORT)" }, 
+	{ 0, NULL}
 };
 
 static const value_string RMPP_Flags[] = {
@@ -288,7 +293,8 @@ static const value_string RMPP_Status[]= {
 	{ 124, " (Illegal Status)"},
 	{ 125, " (Unsupported Version)"},
 	{ 126, " (Too Many Retries)"},
-	{ 127, " (Unspecified - Unknown Error Code on ABORT)"}
+	{ 127, " (Unspecified - Unknown Error Code on ABORT)"},
+	{ 0, NULL}
 };
 
 static const value_string DiagCode[]= {
@@ -296,7 +302,8 @@ static const value_string DiagCode[]= {
 	{0x0001, "Performing Self Test"},
 	{0x0002, "Initializing"},
 	{0x0003, "Soft Error - Function has non-fatal error"},
-	{0x0004, "Hard Error - Function has fatal error"}
+	{0x0004, "Hard Error - Function has fatal error"},
+	{ 0, NULL}
 };
 static const value_string LinkWidthEnabled[]= {
 	{0x0000, "No State Change"},
@@ -315,7 +322,8 @@ static const value_string LinkWidthEnabled[]= {
 	{0x000D, "1x or 8x or 12x"},
 	{0x000E, "4x or 8x or 12x"},
 	{0x000E, "1x or 4x or 8x or 12x"},
-	{0x00FF, "Set to LinkWidthSupported Value - Response contains actual LinkWidthSupported"}
+	{0x00FF, "Set to LinkWidthSupported Value - Response contains actual LinkWidthSupported"},
+	{ 0, NULL}
 };
 
 static const value_string LinkWidthSupported[]= {
@@ -323,26 +331,30 @@ static const value_string LinkWidthSupported[]= {
 	{0x0003, "1x or 4x"},
 	{0x0007, "1x or 4x or 8x"},
 	{0x000B, "1x or 4x or 12x"},
-	{0x000F, "1x or 4x or 8x or 12x"}
+	{0x000F, "1x or 4x or 8x or 12x"},
+	{ 0, NULL}
 };
 static const value_string LinkWidthActive[]= {
 	{0x0001, "1x"},
 	{0x0002, "4x"},
 	{0x0004, "8x"},
-	{0x0008, "12x"}
+	{0x0008, "12x"},
+	{ 0, NULL}
 };
 static const value_string LinkSpeedSupported[]= {
 	{0x0001, "2.5 Gbps"},
 	{0x0003, "2.5 or 5.0 Gbps"},
 	{0x0005, "2.5 or 10.0 Gbps"},
 	{0x0007, "2.5 or 5.0 or 10.0 Gbps"},
+	{ 0, NULL}
 };
 static const value_string PortState[]= {
 	{0x0000, "No State Change"},
 	{0x0001, "Down (includes failed links)"},
 	{0x0002, "Initialized"},
 	{0x0003, "Armed"},
-	{0x0004, "Active"}
+	{0x0004, "Active"},
+	{ 0, NULL}
 };
 static const value_string PortPhysicalState[]= {
 	{0x0000, "No State Change"},
@@ -352,17 +364,20 @@ static const value_string PortPhysicalState[]= {
 	{0x0004, "PortConfigurationTraining"},
 	{0x0005, "LinkUp"},
 	{0x0006, "LinkErrorRecovery"},
-	{0x0007, "Phy Test"}
+	{0x0007, "Phy Test"},
+	{ 0, NULL}
 };
 static const value_string LinkDownDefaultState[]= {
 	{0x0000, "No State Change"},
 	{0x0001, "Sleep"},
-	{0x0002, "Polling"}
+	{0x0002, "Polling"},
+	{ 0, NULL}
 };
 static const value_string LinkSpeedActive[]= {
 	{0x0001, "2.5 Gbps"},
 	{0x0002, "5.0 Gbps"},
-	{0x0004, "10.0 Gbps"}
+	{0x0004, "10.0 Gbps"},
+	{ 0, NULL}
 };
 static const value_string LinkSpeedEnabled[]= {
 	{0x0000, "No State Change"},
@@ -370,28 +385,32 @@ static const value_string LinkSpeedEnabled[]= {
 	{0x0003, "2.5 or 5.0 Gbps"},
 	{0x0005, "2.5 or 10.0 Gbps"},
 	{0x0007, "2.5 or 5.0 or 10.0 Gbps"},
-	{0x000F, "Set to LinkSpeedSupported value - response contains actual LinkSpeedSupported"}
+	{0x000F, "Set to LinkSpeedSupported value - response contains actual LinkSpeedSupported"},
+	{ 0, NULL}
 };
 static const value_string NeighborMTU[]= {
 	{0x0001, "256"},
 	{0x0002, "512"},
 	{0x0003, "1024"},
 	{0x0004, "2048"},
-	{0x0005, "4096"}
+	{0x0005, "4096"},
+	{ 0, NULL}
 };
 static const value_string VLCap[]= {
 	{0x0001, "VL0"},
 	{0x0002, "VL0, VL1"},
 	{0x0003, "VL0 - VL3"},
 	{0x0004, "VL0 - VL7"},
-	{0x0005, "VL0 - VL14"}
+	{0x0005, "VL0 - VL14"},
+	{ 0, NULL}
 };
 static const value_string MTUCap[]= {
 	{0x0001, "256"},
 	{0x0002, "512"},
 	{0x0003, "1024"},
 	{0x0004, "2048"},
-	{0x0005, "4096"}
+	{0x0005, "4096"},
+	{ 0, NULL}
 };
 static const value_string OperationalVLs[]= {
 	{0x0000, "No State Change"},
@@ -399,7 +418,8 @@ static const value_string OperationalVLs[]= {
 	{0x0002, "VL0, VL1"},
 	{0x0003, "VL0 - VL3"},
 	{0x0004, "VL0 - VL7"},
-	{0x0005, "VL0 - VL14"}
+	{0x0005, "VL0 - VL14"},
+	{ 0, NULL}
 };
 
 /* Local Route Header (LRH) */
@@ -926,7 +946,8 @@ static const value_string Trap_Description[]= {
 	{ 256, " (Security) Bad M_Key, <M_KEY> from <LIDADDR> attempted <METHOD> with <ATTRIBUTEID> and <ATTRIBUTEMODIFIER>"},
 	{ 257, " (Security) Bad P_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL>"},
 	{ 258, " (Security) Bad Q_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL>"},
-	{ 259, " (Security) Bad P_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL> at switch <LIDADDR><PORTNO>"}
+	{ 259, " (Security) Bad P_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL> at switch <LIDADDR><PORTNO>"},
+	{ 0, NULL}
 };
 
 
