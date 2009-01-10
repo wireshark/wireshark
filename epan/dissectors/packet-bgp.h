@@ -165,6 +165,12 @@ struct bgp_attr {
 #define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
 
 /* Extended community type */
+/* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
+#define BGP_EXT_COM_QOS_MARK_T  0x04	/* QoS Marking transitive attribute of regular type (8bit)           */
+#define BGP_EXT_COM_QOS_MARK_NT 0x44	/* QoS Marking non-transitive attribute of regular type (8bit)       */
+                                        /* Format Type(1byte):Flags(1byte):QoS Set(1byte):Tec. Type(1byte):  */
+                                        /*        Marking O(2bytes):Marking A(1byte):Proc.Cnt(1byte)         */
+
                                         /* draft-ietf-idr-bgp-ext-communities */
 #define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RT_1        0x0102  /* Route Target,Format IP address:AN(2bytes) */
@@ -180,6 +186,16 @@ struct bgp_attr {
 #define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
 #define BGP_EXT_COM_L2INFO      0x800a  /* draft-kompella-ppvpn-l2vpn */
 
+/* Extended community QoS Marking technology type */
+#define QOS_TECH_TYPE_DSCP         0x00  /* DiffServ enabled IP (DSCP encoding) */
+#define QOS_TECH_TYPE_802_1q       0x01  /* Ethernet using 802.1q priority tag */
+#define QOS_TECH_TYPE_E_LSP        0x02  /* MPLS using E-LSP */
+#define QOS_TECH_TYPE_VC           0x03  /* Virtual Channel (VC) encoding using separate channels for */
+                                         /* QoS forwarding / one channel per class (e.g. ATM VCs, FR  */
+                                         /* VCs, MPLS L-LSPs) */
+#define QOS_TECH_TYPE_GMPLS_TIME   0x04	 /* GMPLS - time slot encoding */
+#define QOS_TECH_TYPE_GMPLS_LAMBDA 0x05  /* GMPLS - lambda encoding */
+#define QOS_TECH_TYPE_GMPLS_FIBRE  0x06  /* GMPLS - fibre encoding */
 
 /* OSPF codes for  BGP_EXT_COM_OSPF_RTYPE draft-rosen-vpns-ospf-bgp-mpls  */
 #define BGP_OSPF_RTYPE_RTR      1 /* OSPF Router LSA */

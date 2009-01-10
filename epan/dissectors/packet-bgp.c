@@ -35,6 +35,7 @@
  * draft-ietf-idr-as4bytes-06
  * draft-ietf-idr-dynamic-cap-03
  * draft-ietf-idr-bgp-ext-communities-05
+ * draft-knoll-idr-qos-attribute-03
  *
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -185,6 +186,12 @@ static const value_string bgpattr_type[] = {
     { 0, NULL }
 };
 
+static const value_string bgpext_com8_type[] = {
+    { BGP_EXT_COM_QOS_MARK_T, "QoS Marking - transitive" },
+    { BGP_EXT_COM_QOS_MARK_NT, "QoS Marking - non-transitive" },
+    { 0, NULL }
+};
+
 static const value_string bgpext_com_type[] = {
     { BGP_EXT_COM_RT_0, "Route Target" },
     { BGP_EXT_COM_RT_1, "Route Target" },
@@ -197,6 +204,17 @@ static const value_string bgpext_com_type[] = {
     { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
     { BGP_EXT_COM_OSPF_RID, "OSPF Router ID" },
     { BGP_EXT_COM_L2INFO, "Layer 2 Information" },
+    { 0, NULL }
+};
+
+static const value_string qos_tech_type[] = {
+    { QOS_TECH_TYPE_DSCP, "DiffServ enabled IP (DSCP encoding)" },
+    { QOS_TECH_TYPE_802_1q, "Ethernet using 802.1q priority tag" },
+    { QOS_TECH_TYPE_E_LSP, "MPLS using E-LSP" },
+    { QOS_TECH_TYPE_VC, "Virtual Channel (VC) encoding" },
+    { QOS_TECH_TYPE_GMPLS_TIME, "GMPLS - time slot encoding" },
+    { QOS_TECH_TYPE_GMPLS_LAMBDA, "GMPLS - lambda encoding" },
+    { QOS_TECH_TYPE_GMPLS_FIBRE, "GMPLS - fibre encoding" },
     { 0, NULL }
 };
 
@@ -366,7 +384,8 @@ static gint ett_bgp_communities = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
-static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
+static gint ett_bgp_extended_communities = -1; /* extended communities list tree */
+static gint ett_bgp_ext_com_flags = -1; /* extended communities flags tree */
 static gint ett_bgp_ssa = -1;		/* safi specific attribute */
 static gint ett_bgp_ssa_subtree = -1;	/* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1; 		/* orf (outbound route filter) tree */
@@ -1436,7 +1455,10 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     gint            o;                          /* packet offset            */
     gint            q;                          /* tmp                      */
     gint            end;                        /* message end              */
-    guint16         ext_com;                    /* EXTENDED COMMUNITY type  */
+    guint16         ext_com;                    /* EXTENDED COMMUNITY extended length type  */
+    guint8          ext_com8;                   /* EXTENDED COMMUNITY regular type  */
+    gboolean        is_regular_type;            /* flag for regular types   */
+    gboolean        is_extended_type;           /* flag for extended types  */
     guint16         len;                        /* tmp                      */
     int             advance;                    /* tmp                      */
     proto_item      *ti;                        /* tree item                */
@@ -1444,6 +1466,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     proto_tree      *subtree2;                  /* subtree for attributes   */
     proto_tree      *subtree3;                  /* subtree for attributes   */
     proto_tree      *subtree4;                  /* subtree for attributes   */
+    proto_tree      *subtree5;                  /* subtree for attributes   */
     proto_tree      *as_paths_tree;             /* subtree for AS_PATHs     */
     proto_tree      *as_path_tree;              /* subtree for AS_PATH      */
     proto_tree      *as_path_segment_tree;      /* subtree for AS_PATH segments */
@@ -2242,84 +2265,135 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         subtree3 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
 
                         while (q < end) {
-                            ext_com = tvb_get_ntohs(tvb,q);
+                            ext_com8 = tvb_get_guint8(tvb,q); /* handle regular types (8 bit) */
+                            ext_com  = tvb_get_ntohs(tvb,q);  /* handle extended length types (16 bit) */
                             junk_gbuf[0]=0;
                             junk_gbuf_ptr=junk_gbuf;
                             junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "%s",
-                                                  val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                            switch (ext_com) {
-                            case BGP_EXT_COM_RT_0:
-                            case BGP_EXT_COM_RT_2:
-                            case BGP_EXT_COM_RO_0:
-                            case BGP_EXT_COM_RO_2:
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %u%s%d",
-                                                       tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break ;
-                            case BGP_EXT_COM_RT_1:
-                            case BGP_EXT_COM_RO_1:
-                                ipaddr = tvb_get_ipv4(tvb,q+2);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s%s%u",
-                                                       ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break;
-                            case BGP_EXT_COM_VPN_ORIGIN:
-                            case BGP_EXT_COM_OSPF_RID:
-                                ipaddr = tvb_get_ipv4(tvb,q+2);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s", ip_to_str((guint8 *)&ipaddr));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break;
-                            case BGP_EXT_COM_OSPF_RTYPE:
-                                ipaddr = tvb_get_ipv4(tvb,q+2);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": Area: %s, Type: %s", ip_to_str((guint8 *)&ipaddr),
-                                         val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
-				/* print OSPF Metric type if selected */
-				/* always print E2 even if not external route -- receiving router should ignore */
-                                if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) {
-                                    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E2");
-                                } else if ((tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_EXT) || (tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_NSSA)) {
-                                    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E1");
-                                } else {
-				    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ", no options");
-				}
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break;
-                            case BGP_EXT_COM_LINKBAND:
-                                linkband = tvb_get_ntohieee_float(tvb,q+2);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %.3f Mbps",
-                                                       linkband*8/1000000);
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break;
-                            case BGP_EXT_COM_L2INFO:
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), 
-                                                       ": %s, Control Flags: %s%s%s%s%s, MTU: %u byte%s",
-                                                       val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
-                                                       tvb_get_guint8(tvb,q+3) ? "" : "none",
-                                                       tvb_get_ntohs(tvb,q+3)&0x08 ? "Q" : "",
-                                                       tvb_get_ntohs(tvb,q+3)&0x04 ? "F" : "",
-                                                       tvb_get_ntohs(tvb,q+3)&0x02 ? "C" : "",
-                                                       tvb_get_ntohs(tvb,q+3)&0x01 ? "S" : "",
-                                                       tvb_get_ntohs(tvb,q+4),
-                                                       plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
-                                ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                                  val_to_str(ext_com8,bgpext_com8_type,"Unknown"));
+                            is_regular_type = FALSE;
+                            is_extended_type = FALSE;
+                            /* handle regular types (8 bit) */
+                            switch (ext_com8) {
+			    case BGP_EXT_COM_QOS_MARK_T:
+			    case BGP_EXT_COM_QOS_MARK_NT:
+                                is_regular_type = TRUE;
+				ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
 
-                                subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
-                                proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
-                                                         val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"));
-                                proto_tree_add_text(subtree4,tvb,q+3,1, "Control Flags: %s%sControl Word %s required, Sequenced delivery %s required",
-                                                    tvb_get_ntohs(tvb,q+3)&0x08 ? "Q flag (Reserved) set" : "",
-                                                    tvb_get_ntohs(tvb,q+3)&0x04 ? "F flag (reserved) set" : "",
-                                                    tvb_get_ntohs(tvb,q+3)&0x02 ? "is" : "not",
-                                                    tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not");
-                                proto_tree_add_text(subtree4,tvb,q+4,2, "MTU: %u byte%s",
-                                                    tvb_get_ntohs(tvb,q+4),
-                                                    plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
-                                break;
-                            default:
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
-                                break ;
+                                subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
+				ti = proto_tree_add_text(subtree4, tvb, q, 1,
+						    "Type: 0x%02x", tvb_get_guint8(tvb,q));
+				ti = proto_tree_add_text(subtree4, tvb, q+1, 1,
+						    "Flags: 0x%02x", tvb_get_guint8(tvb,q+1));
+				subtree5 = proto_item_add_subtree(ti,ett_bgp_ext_com_flags);
+			        /* add flag bitfield */
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x10, 8, "Remarking", "No Remarking"));
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x08, 8, "Ignored marking", "No Ignored marking"));
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x04, 8, "Aggregation of markings", "No Aggregation of markings"));
+
+				ti = proto_tree_add_text(subtree4, tvb, q+2, 1,
+						    "QoS Set Number: 0x%02x", tvb_get_guint8(tvb,q+2));
+				ti = proto_tree_add_text(subtree4, tvb, q+3, 1,
+						    "Technology Type: 0x%02x (%s)", tvb_get_guint8(tvb,q+3),
+							 val_to_str(tvb_get_guint8(tvb,q+3),qos_tech_type,"Unknown"));
+				ti = proto_tree_add_text(subtree4, tvb, q+4, 2,
+						    "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_guint8(tvb,q+4),
+							 0xffff, 16, "0x%04x"));
+				ti = proto_tree_add_text(subtree4, tvb, q+6, 1,
+						    "QoS Marking A  (8 bit):           %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
+							 0xff, 8, "0x%02x"), tvb_get_guint8(tvb,q+6));
+				ti = proto_tree_add_text(subtree4, tvb, q+7, 1,
+						    "Processing Count: 0x%02x", tvb_get_guint8(tvb,q+7));
+				break;
                             }
-                            q = q + 8 ;
+
+                            if (!is_regular_type) {
+                                    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "%s",
+                                                          val_to_str(ext_com,bgpext_com_type,"Unknown"));
+
+                                    /* handle extended length types (16 bit) */
+                                    switch (ext_com) {
+                                    case BGP_EXT_COM_RT_0:
+                                    case BGP_EXT_COM_RT_2:
+                                    case BGP_EXT_COM_RO_0:
+                                    case BGP_EXT_COM_RO_2:
+                                        is_extended_type = TRUE;
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %u%s%d",
+                                                               tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                        break ;
+                                    case BGP_EXT_COM_RT_1:
+                                    case BGP_EXT_COM_RO_1:
+                                        is_extended_type = TRUE;
+                                        ipaddr = tvb_get_ipv4(tvb,q+2);
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s%s%u",
+                                                               ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                        break;
+                                    case BGP_EXT_COM_VPN_ORIGIN:
+                                    case BGP_EXT_COM_OSPF_RID:
+                                        is_extended_type = TRUE;
+                                        ipaddr = tvb_get_ipv4(tvb,q+2);
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s", ip_to_str((guint8 *)&ipaddr));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                        break;
+                                    case BGP_EXT_COM_OSPF_RTYPE:
+                                        is_extended_type = TRUE;
+                                        ipaddr = tvb_get_ipv4(tvb,q+2);
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": Area: %s, Type: %s", ip_to_str((guint8 *)&ipaddr),
+                                                 val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
+        				/* print OSPF Metric type if selected */
+        				/* always print E2 even if not external route -- receiving router should ignore */
+                                        if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) {
+                                            junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E2");
+                                        } else if ((tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_EXT) || (tvb_get_guint8(tvb,q+6)==BGP_OSPF_RTYPE_NSSA)) {
+                                            junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E1");
+                                        } else {
+        				    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ", no options");
+        				}
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                        break;
+                                    case BGP_EXT_COM_LINKBAND:
+                                        is_extended_type = TRUE;
+                                        linkband = tvb_get_ntohieee_float(tvb,q+2);
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %.3f Mbps",
+                                                               linkband*8/1000000);
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+                                        break;
+                                    case BGP_EXT_COM_L2INFO:
+                                        is_extended_type = TRUE;
+                                        junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), 
+                                                               ": %s, Control Flags: %s%s%s%s%s, MTU: %u byte%s",
+                                                               val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
+                                                               tvb_get_guint8(tvb,q+3) ? "" : "none",
+                                                               tvb_get_ntohs(tvb,q+3)&0x08 ? "Q" : "",
+                                                               tvb_get_ntohs(tvb,q+3)&0x04 ? "F" : "",
+                                                               tvb_get_ntohs(tvb,q+3)&0x02 ? "C" : "",
+                                                               tvb_get_ntohs(tvb,q+3)&0x01 ? "S" : "",
+                                                               tvb_get_ntohs(tvb,q+4),
+                                                               plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
+                                        ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+
+                                        subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
+                                        proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
+                                                                 val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"));
+                                        proto_tree_add_text(subtree4,tvb,q+3,1, "Control Flags: %s%sControl Word %s required, Sequenced delivery %s required",
+                                                            tvb_get_ntohs(tvb,q+3)&0x08 ? "Q flag (Reserved) set" : "",
+                                                            tvb_get_ntohs(tvb,q+3)&0x04 ? "F flag (reserved) set" : "",
+                                                            tvb_get_ntohs(tvb,q+3)&0x02 ? "is" : "not",
+                                                            tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not");
+                                        proto_tree_add_text(subtree4,tvb,q+4,2, "MTU: %u byte%s",
+                                                            tvb_get_ntohs(tvb,q+4),
+                                                            plurality(tvb_get_ntohs(tvb,q+4), "", "s"));
+                                        break;
+                                    }
+                            }
+                            if (!is_regular_type && !is_extended_type)
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s","Unknown");
+                            q = q + 8;
                         }
                 }
                 break;
@@ -3030,6 +3104,7 @@ proto_register_bgp(void)
       &ett_bgp_options,
       &ett_bgp_option,
       &ett_bgp_extended_communities,
+      &ett_bgp_ext_com_flags,
       &ett_bgp_ssa,
       &ett_bgp_ssa_subtree,
       &ett_bgp_orf,
