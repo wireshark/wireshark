@@ -33,6 +33,7 @@
  *
  *Ref:
  * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
+ * http://www.3gpp2.org/Public_html/specs/A.S0017-D_v1.0_070624.pdf (IOS 5.1)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -162,7 +163,9 @@ typedef enum {
     REGISTRATION_UPDATE = 20,
     REGISTRATION_ACK =21,
     SESSION_UPDATE = 22,
-    SESSION_ACK = 23
+    SESSION_ACK = 23,
+    CAPABILITIES_INFO = 24,
+    CAPABILITIES_INFO_ACK = 25
 } a11MessageTypes;
 
 static const value_string a11_types[] = {
@@ -172,6 +175,8 @@ static const value_string a11_types[] = {
   {REGISTRATION_ACK,   "Registration Ack"},
   {SESSION_UPDATE,   "Session Update"},
   {SESSION_ACK,   "Session Update Ack"},
+  {CAPABILITIES_INFO,   "Capabilities Info"},
+  {CAPABILITIES_INFO_ACK,   "Capabilities Info Ack"},
   {0, NULL},
 };
 
@@ -400,10 +405,11 @@ static const struct radius_attribute attrs[]={
   {"SDB Octet Count (Orig.)", 26, 32,  4, ATTR_TYPE_INT},
   {"ESN (Integer)",           26, 48,  4, ATTR_TYPE_INT},
   {"Sublink",	              26, 108,  4, ATTR_TYPE_STR},
+  {"MEID",                    26, 116, 14, ATTR_TYPE_STR},
   {"Reverse PDCH RC",	      26, 114,  2, ATTR_TYPE_INT},
   {"Flow ID Parameter",       26, 144,  4, ATTR_TYPE_INT},
   {"Granted QoS Parameters",  26, 132,  4, ATTR_TYPE_INT},
-  {"Flow Status",			  26, 145,  4, ATTR_TYPE_INT},
+  {"Flow Status",             26, 145,  4, ATTR_TYPE_INT},
   {"Unknown",                 -1, -1, -1, ATTR_TYPE_NULL},
 };
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
@@ -1638,6 +1644,81 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	} /* if tree */
 	break;
+  case CAPABILITIES_INFO: /* IOS5.1 */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info: PDSN=%s, PCF=%s",
+				   ip_to_str(tvb_get_ptr(tvb, 8, 4)),
+				   ip_to_str(tvb_get_ptr(tvb,12,4)));
+	if (tree) {
+	  /* Add Subtree */
+	  ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+	  a11_tree = proto_item_add_subtree(ti, ett_a11);
+
+	  /* Type */
+  	  proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+	  offset++;
+
+	  /* Reserved */
+	  offset+=3;
+
+	  /* Home address */
+	  proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Home Agent Address */
+	  proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Care of Address */
+	  proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
+	  offset += 8;
+
+	} /* if tree */
+	break;
+  case CAPABILITIES_INFO_ACK: /* IOS5.1 */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info Ack: PCF=%s",
+				   ip_to_str(tvb_get_ptr(tvb, 8, 4)));
+	if (tree) {
+	  /* Add Subtree */
+	  ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+	  a11_tree = proto_item_add_subtree(ti, ett_a11);
+
+	  /* Type */
+	  proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+	  offset++;
+
+	  /* Reserved */
+	  offset+=3;
+
+	  /* Home address */
+	  proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Care of Address */
+	  proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+	  offset += 4;
+
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
+					    offset, 8,
+					    reftime,
+					    "%s",
+					    ntp_fmt_ts(reftime));
+	  offset += 8;
+
+	} /* if tree */
+	break;
   } /* End switch */
 
   if (tree) {
@@ -2076,4 +2157,3 @@ proto_reg_handoff_a11(void)
 	a11_handle = find_dissector("a11");
 	dissector_add("udp.port", UDP_PORT_3GA11, a11_handle);
 }
-
