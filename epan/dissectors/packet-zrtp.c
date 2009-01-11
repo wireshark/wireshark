@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-10
+ * IETF draft draft-zimmermann-avt-zrtp-12
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -165,6 +165,7 @@ typedef struct _value_string_keyval {
 
 const value_zrtp_versions valid_zrtp_versions[]=
   {
+    {"1.1x"},
     {"1.0x"},
     {"0.95"},
     {"0.90"},
