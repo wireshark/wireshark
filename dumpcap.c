@@ -2332,8 +2332,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
-#endif  /* _WIN32 */
-#ifndef _WIN32
+#else
   struct sigaction action, oldaction;
 #endif
 
