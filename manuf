@@ -8856,7 +8856,7 @@
 00:22:89	Optosecuri             # Optosecurity Inc.
 00:22:8A	Teratronik             # Teratronik elektronische systeme gmbh
 00:22:8B	Kensington             # Kensington Computer Products Group
-00:22:8C	SolarVerla             # Solar Verlag GmbH
+00:22:8C	PhotonEuro             # Photon Europe GmbH
 00:22:8D	GbsLaborat             # GBS Laboratories LLC
 00:22:8E	Tv-Numeric
 00:22:8F	Cnrs
@@ -9452,6 +9452,21 @@
 00:24:DD	Centrak                # Centrak, Inc.
 00:24:DE	GlobalTech             # GLOBAL Technology Inc.
 00:24:DF	Digitalbox             # Digitalbox Europe GmbH
+00:24:E0	DsTechLlc              # DS Tech, LLC
+00:24:E1	ConveyComp             # Convey Computer Corp.
+00:24:E2	HasegawaEl             # HASEGAWA ELECTRIC CO.,LTD.
+00:24:E3	CaoGroup               # CAO Group
+00:24:E4	Withings
+00:24:E5	SeerTechno             # Seer Technology, Inc
+00:24:E6	InMotionTe             # In Motion Technology Inc.
+00:24:E7	PlasterNet             # Plaster Networks
+00:24:E8	Dell                   # Dell Inc.
+00:24:E9	SamsungEle             # Samsung Electronics Co., Ltd., Storage System Division
+00:24:EA	Iris-GmbhI             # iris-GmbH infrared & intelligent sensors
+00:24:EB	ClearpathN             # ClearPath Networks, Inc.
+00:24:EC	UnitedInfo             # United Information Technology Co.,Ltd.
+00:24:ED	YtElec                 # YT Elec. Co,.Ltd.
+00:24:EE	Aictek                 # AICTEK Co.,Ltd.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -10062,7 +10077,7 @@
 00:50:62	KouwellEle             # KOUWELL ELECTRONICS CORP.  **
 00:50:63	OyComselSy             # OY COMSEL SYSTEM AB
 00:50:64	CaeElectro             # CAE ELECTRONICS
-00:50:65	Densei-Lam             # DENSEI-LAMBAD Co., Ltd.
+00:50:65	Tdk-Lambda             # TDK-Lambda Corporation
 00:50:66	AtecomAdva             # AtecoM GmbH advanced telecomunication modules
 00:50:67	Aerocomm               # AEROCOMM, INC.
 00:50:68	Electronic             # ELECTRONIC INDUSTRIES ASSOCIATION
@@ -11209,7 +11224,7 @@
 00:50:C2:42:90:00/36	MatthewsAu             # Matthews Australasia
 00:50:C2:42:A0:00/36	DspDesign              # DSP DESIGN
 00:50:C2:42:B0:00/36	VlsipTechn             # VLSIP TECHNOLOGIES, INC.
-00:50:C2:42:C0:00/36	SiemensVdo             # SIEMENS VDO
+00:50:C2:42:C0:00/36	Continenta             # Continental Automotive Systems US, Inc.
 00:50:C2:42:D0:00/36	Argo-Tech
 00:50:C2:42:E0:00/36	OelmannEle             # Oelmann Elektronik GmbH
 00:50:C2:42:F0:00/36	Win4net
@@ -12728,6 +12743,17 @@
 00:50:C2:A1:B0:00/36	Realtime               # Realtime Systems Ltd.
 00:50:C2:A1:C0:00/36	Microtechn             # Microtechnica
 00:50:C2:A1:D0:00/36	SamhEngine             # SAMH Engineering Services
+00:50:C2:A1:E0:00/36	Mamac                  # MAMAC Systems, Inc.
+00:50:C2:A1:F0:00/36	FlightData             # Flight Data Systems Pty Ltd
+00:50:C2:A2:00:00/36	QuorumTech             # Quorum Technologies Ltd
+00:50:C2:A2:10:00/36	IsacSrl                # ISAC SRL
+00:50:C2:A2:20:00/36	NipponManu             # Nippon Manufacturing Service Corporation (abbreviated as 'nms')
+00:50:C2:A2:30:00/36	AgilityMfg             # Agility Mfg, Inc.
+00:50:C2:A2:40:00/36	GrupoEpels             # GRUPO EPELSA s.l.
+00:50:C2:A2:50:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:A2:60:00/36	PreferredO             # Preferred Oil, LLC
+00:50:C2:A2:70:00/36	MeconetEK              # meconet e. K.
+00:50:C2:A2:80:00/36	KendaElect             # KENDA ELECTRONIC SYSTEMS LIMITED
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
