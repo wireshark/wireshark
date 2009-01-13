@@ -1888,12 +1888,12 @@ void proto_register_nas_eps(void) {
 		ett[last_offset] = &ett_gsm_gm_elem[i];
 	}
 
-  /* Register protocol */
-  proto_nas_eps = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_nas_eps, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Register protocol */
+	proto_nas_eps = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_nas_eps, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
  
-  /* Register dissector */
-  register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
+	/* Register dissector */
+	register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
 }
