@@ -68,7 +68,7 @@
 /* No SCTP port registered with IANA for S1AP yet */
 #define SCTP_PORT_S1AP	0
 
-static dissector_handle_t nas_eps_handle=NULL;
+static dissector_handle_t nas_eps_handle;
 
 
 /*--- Included file: packet-s1ap-val.h ---*/
@@ -6517,6 +6517,7 @@ proto_reg_handoff_s1ap(void)
 
 	if (!Initialized) {
 		s1ap_handle = find_dissector("s1ap");
+		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		Initialized=TRUE;
 
@@ -6692,7 +6693,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 171 "packet-s1ap-template.c"
+#line 172 "packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, s1ap_handle);
@@ -6703,8 +6704,6 @@ proto_reg_handoff_s1ap(void)
 	if (SctpPort != 0) {
 		dissector_add("sctp.port", SctpPort, s1ap_handle);
 	}
-
-	nas_eps_handle = find_dissector("nas-eps");
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -8059,7 +8058,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 193 "packet-s1ap-template.c"
+#line 192 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -8248,7 +8247,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 199 "packet-s1ap-template.c"
+#line 198 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

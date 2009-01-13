@@ -60,7 +60,7 @@
 /* No SCTP port registered with IANA for S1AP yet */
 #define SCTP_PORT_S1AP	0
 
-static dissector_handle_t nas_eps_handle=NULL;
+static dissector_handle_t nas_eps_handle;
 
 #include "packet-s1ap-val.h"
 
@@ -165,6 +165,7 @@ proto_reg_handoff_s1ap(void)
 
 	if (!Initialized) {
 		s1ap_handle = find_dissector("s1ap");
+		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		Initialized=TRUE;
 #include "packet-s1ap-dis-tab.c"
@@ -178,8 +179,6 @@ proto_reg_handoff_s1ap(void)
 	if (SctpPort != 0) {
 		dissector_add("sctp.port", SctpPort, s1ap_handle);
 	}
-
-	nas_eps_handle = find_dissector("nas-eps");
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
