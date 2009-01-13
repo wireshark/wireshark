@@ -28,7 +28,7 @@
  * many redundant NASes.  I don't know much about the format, but you
  * can read about the feature here:
  * 
- * http://www.cisco.com/univercd/cc/td/doc/product/software/ios120/120newft/120t/120t3/rlm_123.htm
+ * http://www.cisco.com/en/US/docs/ios/12_0t/12_0t3/feature/guide/rlm_123.html
  *
  * RLM runs on a UDP port (default 3000) between the MGC and the NAS.
  * On port N+1 (default 3001), a Q.931/LAPD/UDP connection is maintained.
@@ -57,6 +57,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/xdlc.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_rlm = -1;
@@ -86,6 +87,7 @@ static gint ett_rlm = -1;
   Maybe this isn't the best place for it, but RLM goes hand in hand
   with Q.931 traffic on a higher port.
 */
+static dissector_handle_t lapd_handle;
 
 static gboolean
 dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree) {
@@ -95,7 +97,20 @@ dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree) {
 		|| pinfo->destport != pinfo->srcport)
 			return FALSE;
 
-	call_dissector(find_dissector("lapd"), tvb, pinfo, tree);
+	/*
+	 * XXX - check for a valid LAPD address field.
+	 */
+
+	/*
+	 * OK, check whether the control field looks valid.
+	 */
+	if (!check_xdlc_control(tvb, 2, NULL, NULL, FALSE, FALSE))
+		return FALSE;
+
+	/*
+	 * Loooks OK - call the LAPD dissector.
+	 */
+	call_dissector(lapd_handle, tvb, pinfo, tree);
 	return TRUE;
 }
 
@@ -175,6 +190,11 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_rlm(void)
 {
+	/*
+	 * Find a handle for the LAPD dissector.
+	 */
+	lapd_handle = find_dissector("lapd");
+
 	heur_dissector_add("udp", dissect_rlm, proto_rlm);
 	heur_dissector_add("udp", dissect_udp_lapd, proto_get_id_by_filter_name("lapd"));
 }

@@ -136,7 +136,7 @@ const value_string modifier_vals_resp[] = {
 };
 
 int
-get_xdlc_control(const guchar *pd, int offset, int is_extended)
+get_xdlc_control(const guchar *pd, int offset, gboolean is_extended)
 {
     guint16 control;
 
@@ -170,13 +170,71 @@ get_xdlc_control(const guchar *pd, int offset, int is_extended)
     return control;
 }
 
+/*
+ * Check whether the control field of the packet looks valid.
+ */
+gboolean
+check_xdlc_control(tvbuff_t *tvb, int offset,
+  const value_string *u_modifier_short_vals_cmd,
+  const value_string *u_modifier_short_vals_resp, gboolean is_response,
+  gboolean is_extended _U_)
+{
+    guint16 control;
+
+    if (!tvb_bytes_exist(tvb, offset, 1))
+	return FALSE;	/* not enough data to check */
+    switch (tvb_get_guint8(tvb, offset) & 0x03) {
+
+    case XDLC_S:
+        /*
+	 * Supervisory frame.
+	 * No fields to check for validity here.
+	 */
+	return TRUE;
+
+    case XDLC_U:
+	/*
+	 * Unnumbered frame.
+	 *
+	 * XXX - is this two octets, with a P/F bit, in HDLC extended
+	 * operation?  It's one octet in LLC, even though the control
+	 * field of I and S frames is a 2-byte extended-operation field
+	 * in LLC.  Given that there are no sequence numbers in the
+	 * control field of a U frame, there doesn't appear to be any
+	 * need for it to be 2 bytes in extended operation.
+	 */
+	if (u_modifier_short_vals_cmd == NULL)
+		u_modifier_short_vals_cmd = modifier_short_vals_cmd;
+	if (u_modifier_short_vals_resp == NULL)
+		u_modifier_short_vals_resp = modifier_short_vals_resp;
+	control = tvb_get_guint8(tvb, offset);
+	if (is_response) {
+		if (match_strval(control & XDLC_U_MODIFIER_MASK,
+		    u_modifier_short_vals_resp) == NULL)
+			return FALSE;	/* unknown modifier */
+	} else {
+		if (match_strval(control & XDLC_U_MODIFIER_MASK,
+		    u_modifier_short_vals_cmd) == NULL)
+			return FALSE;	/* unknown modifier */
+	}
+	return TRUE;
+
+    default:
+	/*
+	 * Information frame.
+	 * No fields to check for validity here.
+	 */
+	return TRUE;
+    }
+}
+
 int
 dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   const value_string *u_modifier_short_vals_cmd,
-  const value_string *u_modifier_short_vals_resp, int is_response,
-  int is_extended, int append_info)
+  const value_string *u_modifier_short_vals_resp, gboolean is_response,
+  gboolean is_extended, gboolean append_info)
 {
     guint16 control;
     int control_len;
@@ -192,6 +250,9 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
+        /*
+	 * Supervisory frame.
+	 */
 	if (is_extended) {
 	    control = tvb_get_letohs(tvb, offset);
 	    control_len = 2;
@@ -203,9 +264,6 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    cf_items = cf_items_nonext;
 	    control_format = "Control field: %s (0x%02X)";
 	}
-        /*
-	 * Supervisory frame.
-	 */
 	switch (control & XDLC_S_FTYPE_MASK) {
 	case XDLC_RR:
 	    frame_type = "RR";

@@ -65,6 +65,7 @@ capture_sll
 capture_tr
 capture_wlancap
 check_col
+check_xdlc_control
 circuit_add_proto_data
 circuit_get_proto_data
 circuit_new
