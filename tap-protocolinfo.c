@@ -64,11 +64,11 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	 * is to modify the columns, and if the columns aren't being
 	 * displayed, that makes this tap somewhat pointless.
 	 *
-	 * To prevent a crash, we check whether pinfo->cinfo is null
-	 * and, if so, we report that error and exit.
+	 * To prevent a crash, we check whether INFO column is writable
+	 * and, if not, we report that error and exit.
 	 */
-	if (pinfo->cinfo == NULL) {
-		fprintf(stderr, "tshark: the proto,colinfo tap doesn't work if the columns aren't being printed.\n");
+	if (!check_col(pinfo->cinfo, COL_INFO)) {
+		fprintf(stderr, "tshark: the proto,colinfo tap doesn't work if the INFO column isn't being printed.\n");
 		exit(1);
 	}
 	gp=proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
