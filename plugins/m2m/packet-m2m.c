@@ -452,7 +452,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tlv_len = get_tlv_length(&m2m_tlv_info);
 			if(tlv_type == -1 || tlv_len > 64000 || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(pinfo->cinfo)
+				if (check_col(pinfo->cinfo, COL_INFO))
 				{
 					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
 				}
@@ -788,7 +788,7 @@ void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_in
 	/* make sure the TLV information is valid */
 	if(!this->valid)
 	{	/* invalid TLV info */
-		if(pinfo->cinfo)
+		if (check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Invalid TLV");
 		}
