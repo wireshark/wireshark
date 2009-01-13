@@ -191,7 +191,7 @@ proto_register_tte(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register preferences module */
-    tte_module = prefs_register_protocol(proto_tte, proto_reg_handoff_tte);
+    tte_module = prefs_register_protocol(proto_tte, NULL);
 
     /* Register preferences */
     prefs_register_uint_preference(tte_module, "ct_mask_value",

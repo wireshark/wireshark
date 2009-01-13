@@ -64,10 +64,6 @@ static dissector_handle_t sflow_handle;
  */
 static range_t *global_sflow_ports = NULL;
 
-/*
- *	sflow_ports : holds the currently used range of ports for sflow
- */
-static range_t *sflow_ports = NULL;
 static gboolean global_dissect_samp_headers = TRUE;
 static gboolean global_analyze_samp_ip_headers = FALSE;
 
@@ -1473,6 +1469,11 @@ sflow_add_callback(guint32 port)
 static void
 sflow_reinit(void)
 {
+	/*
+ 	 * sflow_ports : holds the currently used range of ports for sflow
+ 	 */
+	static range_t *sflow_ports = NULL;
+
 	if (sflow_ports) {
 		range_foreach(sflow_ports, sflow_delete_callback);
 		g_free(sflow_ports);

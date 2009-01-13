@@ -41,10 +41,6 @@
 
 #include "packet-tte.h"
 
-
-/* Forward declaration we need below */
-void proto_reg_handoff_tte_pcf(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_tte_pcf = -1;
 
@@ -218,7 +214,7 @@ proto_reg_handoff_tte_pcf(void)
     dissector_handle_t tte_pcf_handle;
 
     /* initialize the pcf handle */
-    tte_pcf_handle = create_dissector_handle(dissect_tte_pcf, proto_tte_pcf);
+    tte_pcf_handle = find_dissector("tte_pcf");
 
     dissector_add("ethertype", ETHERTYPE_TTE_PCF, tte_pcf_handle);
 

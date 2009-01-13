@@ -154,10 +154,6 @@ static int hf_evrc_legacy_toc_frame_type = -1;
 static gint ett_evrc = -1;
 static gint ett_toc = -1;
 
-static dissector_handle_t evrc_handle;
-static dissector_handle_t evrcb_handle;
-static dissector_handle_t evrcwb_handle;
-static dissector_handle_t evrc_legacy_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
@@ -507,14 +503,23 @@ void
 proto_reg_handoff_evrc(void)
 {
     static gboolean             evrc_prefs_initialized = FALSE;
-
+    static dissector_handle_t   evrc_legacy_handle;
 
     if (!evrc_prefs_initialized)
     {
-        evrc_handle = create_dissector_handle(dissect_evrc, proto_evrc);
-        evrcb_handle = create_dissector_handle(dissect_evrcb, proto_evrc);
-        evrcwb_handle = create_dissector_handle(dissect_evrcwb, proto_evrc);
+        dissector_handle_t evrc_handle;
+        dissector_handle_t evrcb_handle;
+        dissector_handle_t evrcwb_handle;
+
+        evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
+        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
+        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
         evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
+
+        /* header-full mime types */
+        dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);
+        dissector_add_string("rtp_dyn_payload_type",  "EVRCB", evrcb_handle);
+        dissector_add_string("rtp_dyn_payload_type",  "EVRCWB", evrcwb_handle);
 
         evrc_prefs_initialized = TRUE;
     }
@@ -528,8 +533,4 @@ proto_reg_handoff_evrc(void)
         dissector_add("rtp.pt", 60, evrc_legacy_handle);
     }
 
-    /* header-full mime types */
-    dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);
-    dissector_add_string("rtp_dyn_payload_type",  "EVRCB", evrcb_handle);
-    dissector_add_string("rtp_dyn_payload_type",  "EVRCWB", evrcwb_handle);
 }
