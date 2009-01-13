@@ -2,6 +2,7 @@
  * Routines for homeplug dissection
  *
  * Copyright 2006, Sebastien Tandel <sebastien[AT]tandel.be>
+ * Copyright 2009, Luca Ceresoli <luca[AT]lucaceresoli.net>
  *
  * $Id$
  *
@@ -67,6 +68,14 @@ static int hf_homeplug_mme		= -1;
     static int hf_homeplug_cer_rsvd2	= -1;
     static int hf_homeplug_cer_nbdas	= -1;
     static int hf_homeplug_cer_bda	= -1;
+  /* Vendor Specific */
+  static int hf_homeplug_vs		= -1;
+    static int hf_homeplug_vs_oui	= -1;
+    static int hf_homeplug_vs_vd	= -1;
+  /* Set Network Encryption Key */
+  static int hf_homeplug_snk		= -1;
+    static int hf_homeplug_snk_eks	= -1;
+    static int hf_homeplug_snk_nek	= -1;
   /* Request Parameters and Statistics */
   static int hf_homeplug_rps		= -1;
   /* Parameters and Statistics Response */
@@ -81,12 +90,15 @@ static int hf_homeplug_mme		= -1;
     static int hf_homeplug_psr_txca1lat	= -1;
     static int hf_homeplug_psr_txca0lat = -1;
     static int hf_homeplug_psr_rxbp40	= -1;
+  /* Set Local Parameters */
+  static int hf_homeplug_slp		= -1;
+    static int hf_homeplug_slp_ma	= -1;
   /* Network Statistics */
-      /* Basic */
   static int hf_homeplug_ns		      = -1;
+  static int hf_homeplug_ns_extended	      = -1;
+    /* Basic */
     static int hf_homeplug_ns_netw_ctrl_ac    = -1;
     static int hf_homeplug_ns_netw_ctrl_icid  = -1;
-    static int hf_homeplug_ns_netw_ctrl_icid_rsvd = -1;
     static int hf_homeplug_ns_bytes40_robo    = -1;
     static int hf_homeplug_ns_fails_robo      = -1;
     static int hf_homeplug_ns_drops_robo      = -1;
@@ -94,12 +106,45 @@ static int hf_homeplug_mme		= -1;
     static int hf_homeplug_ns_bytes40	      = -1;
     static int hf_homeplug_ns_fails	      = -1;
     static int hf_homeplug_ns_drops	      = -1;
-    /* array of 15 elements */
-/*    static int hf_homeplug_ns_bytes40_1	    = -1;
-    static int hf_homeplug_ns_bytes40_1 */
-      /* Extended */
-    /* array of 6 elements */
-/*    static int hf_homeplug_ns_tx_bfr_0_state = -1;*/
+    /* Extended */
+    static int hf_homeplug_ns_tx_bfr_state	= -1;
+    static int hf_homeplug_ns_buf_in_use	= -1;
+    static int hf_homeplug_ns_prio		= -1;
+    static int hf_homeplug_ns_msdu_len		= -1;
+    static int hf_homeplug_ns_seqn		= -1;
+    static int hf_homeplug_ns_toneidx		= -1;
+  /* Bridging Characteristics Network */
+  static int hf_homeplug_bcn		= -1;
+    static int hf_homeplug_bcn_network	= -1;
+    static int hf_homeplug_bcn_return	= -1;
+    static int hf_homeplug_bcn_rsvd	= -1;
+    static int hf_homeplug_bcn_fbn	= -1;
+    static int hf_homeplug_bcn_brda	= -1;
+    static int hf_homeplug_bcn_bp_das	= -1;
+    static int hf_homeplug_bcn_bp_da	= -1;
+  /* Bridging Characteristics Local */
+  static int hf_homeplug_bcl		= -1;
+    static int hf_homeplug_bcl_network	= -1;
+    static int hf_homeplug_bcl_return	= -1;
+    static int hf_homeplug_bcl_rsvd	= -1;
+    static int hf_homeplug_bcl_hprox_das= -1;
+    static int hf_homeplug_bcl_hpbda	= -1;
+  /* Set Transmit Characteristics */
+  static int hf_homeplug_stc		= -1;
+    static int hf_homeplug_stc_lco	= -1;
+    static int hf_homeplug_stc_encf	= -1;
+    static int hf_homeplug_stc_txprio	= -1;
+    static int hf_homeplug_stc_rexp	= -1;
+    static int hf_homeplug_stc_txcf	= -1;
+    static int hf_homeplug_stc_cftop	= -1;
+    static int hf_homeplug_stc_rsvd1	= -1;
+    static int hf_homeplug_stc_retry	= -1;
+    static int hf_homeplug_stc_rsvd2	= -1;
+    static int hf_homeplug_stc_dder	= -1;
+    static int hf_homeplug_stc_dur	= -1;
+    static int hf_homeplug_stc_ebp	= -1;
+    static int hf_homeplug_stc_dees	= -1;
+    static int hf_homeplug_stc_txeks	= -1;
 static int hf_homeplug_data      = -1;
 
 static gint ett_homeplug		= -1;
@@ -107,10 +152,18 @@ static gint ett_homeplug_mctrl		= -1;
 static gint ett_homeplug_mehdr		= -1;
 static gint ett_homeplug_rce		= -1;
 static gint ett_homeplug_cer		= -1;
+static gint ett_homeplug_vs		= -1;
+static gint ett_homeplug_snk		= -1;
 static gint ett_homeplug_rps		= -1;
 static gint ett_homeplug_psr		= -1;
+static gint ett_homeplug_slp		= -1;
 static gint ett_homeplug_ns		= -1;
 static gint ett_homeplug_tone		= -1;
+static gint ett_homeplug_tx_bfr_state	= -1;
+static gint ett_homeplug_bridge		= -1;
+static gint ett_homeplug_bcn		= -1;
+static gint ett_homeplug_bcl		= -1;
+static gint ett_homeplug_stc		= -1;
 
 
 static guint8 homeplug_ne = 0;
@@ -166,6 +219,23 @@ static const value_string homeplug_metype_vals[] = {
 
 #define HOMEPLUG_NS_AC	      0x80
 #define HOMEPLUG_NS_ICID      0x7F
+#define HOMEPLUG_NS_BUF_IN_USE 0x80
+#define HOMEPLUG_NS_PRIO      0x60
+#define HOMEPLUG_NS_MSDU_LEN  0x1F
+#define HOMEPLUG_NS_SEQN      0xF0
+#define HOMEPLUG_NS_TONEIDX   0x0F
+
+/* string values in function of AC */
+static const true_false_string homeplug_ns_ac_vals = {
+  "(from host) Return basic network statistics",
+  "(from host) Clear basic network statistics"
+};
+
+/* string values in function of BUF_IN_USE */
+static const true_false_string homeplug_ns_buf_in_use_vals = {
+  "Buffer is in use",
+  "Buffer is available"
+};
 
 #define HOMEPLUG_RCE_CEV      0xF0
 #define HOMEPLUG_RCE_RSVD     0x0F
@@ -179,6 +249,52 @@ static const value_string homeplug_metype_vals[] = {
 #define HOMEPLUG_CER_RSVD2    0x80
 #define HOMEPLUG_CER_NBDAS    0x7F
 
+#define HOMEPLUG_BC_NETWORK   0x80
+#define HOMEPLUG_BC_RETURN    0x40
+#define HOMEPLUG_BCL_RSVD     0x3F
+#define HOMEPLUG_BCN_RSVD     0x30
+#define HOMEPLUG_BCN_FBN      0x0F
+
+/* string values in function of BC_NETWORK */
+static const true_false_string homeplug_bc_network_vals = {
+  "Network bridge information",
+  "Local bridge information"
+};
+
+/* string values in function of BC_RETURN */
+static const true_false_string homeplug_bc_return_vals = {
+  "Return bridging characteristics",
+  "Set bridging characteristics"
+};
+
+#define HOMEPLUG_STC_LCO      0x80
+#define HOMEPLUG_STC_ENCF     0x40
+#define HOMEPLUG_STC_TXPRIO   0x30
+#define HOMEPLUG_STC_REXP     0x08
+#define HOMEPLUG_STC_TXCF     0x04
+#define HOMEPLUG_STC_CFTOP    0x02
+#define HOMEPLUG_STC_RSVD1    0x01
+#define HOMEPLUG_STC_RETRY    0xC0
+#define HOMEPLUG_STC_RSVD2    0x30
+#define HOMEPLUG_STC_DDER     0x08
+#define HOMEPLUG_STC_DUR      0x04
+#define HOMEPLUG_STC_EBP      0x02
+#define HOMEPLUG_STC_DEES     0x01
+
+/* string values in function of CFTOP */
+static const true_false_string homeplug_stc_cftop_vals = {
+  "CA2",
+  "CA3"
+};
+
+/* string values in function of RETRY */
+static const value_string homeplug_stc_retry_vals[] = {
+  { 0, "No retries"},
+  { 1, "One retry only"},
+  { 2, "Normal retries based on specification"},
+  { 3, "Reserved"},
+  { 0, NULL}
+};
 
 /*  Length of Network Statistics Response defines whether it is the Basic or
  *  the Extended Response */
@@ -191,23 +307,17 @@ static const value_string homeplug_metype_vals[] = {
 #define HOMEPLUG_NS_ICID51X1PHY		0x02
 #define HOMEPLUG_NS_ICID51X1HOST	0x03
 #define HOMEPLUG_NS_ICID5130A2		0x04
-#define HOMEPLUG_NS_ICID_RSVD1		0x05
-#define HOMEPLUG_NS_ICID_RSVD2		0x06
-#define HOMEPLUG_NS_ICID_RSVD3		0x07
-/* ICID Bit Mask */
-#define HOMEPLUG_NS_ICID_MASK		0x07
-#define HOMEPLUG_NS_ICID_RSVD_MASK	0x78
+#define HOMEPLUG_NS_ICID_RSVD_MIN	0x05
+#define HOMEPLUG_NS_ICID_RSVD_MAX	0x7F
 /* string values in function of IC_ID values */
-static const value_string homeplug_ns_icid_vals[] = {
-    { HOMEPLUG_NS_ICID5130A1,	"INT5130A1" },
-    { HOMEPLUG_NS_ICID51X1USB,	"INT51X1 (USB Option)" },
-    { HOMEPLUG_NS_ICID51X1PHY,	"INT51X1 (PHY Option)" },
-    { HOMEPLUG_NS_ICID51X1HOST, "INT51X1 (Host/DTE Option)" },
-    { HOMEPLUG_NS_ICID5130A2,	"INT5130A2" },
-    { HOMEPLUG_NS_ICID_RSVD1,	"Reserved"},
-    { HOMEPLUG_NS_ICID_RSVD2,	"Reserved"},
-    { HOMEPLUG_NS_ICID_RSVD3,	"Reserved"},
-    { 0,      NULL }
+static const range_string homeplug_ns_icid_vals[] = {
+    { HOMEPLUG_NS_ICID5130A1,    HOMEPLUG_NS_ICID5130A1,    "INT5130A1" },
+    { HOMEPLUG_NS_ICID51X1USB,   HOMEPLUG_NS_ICID51X1USB,   "INT51X1 (USB Option)" },
+    { HOMEPLUG_NS_ICID51X1PHY,   HOMEPLUG_NS_ICID51X1PHY,   "INT51X1 (PHY Option)" },
+    { HOMEPLUG_NS_ICID51X1HOST,  HOMEPLUG_NS_ICID51X1HOST,  "INT51X1 (Host/DTE Option)" },
+    { HOMEPLUG_NS_ICID5130A2,    HOMEPLUG_NS_ICID5130A2,    "INT5130A2" },
+    { HOMEPLUG_NS_ICID_RSVD_MIN, HOMEPLUG_NS_ICID_RSVD_MAX, "Reserved"},
+    { 0, 0, NULL }
 };
 
 /* Modulation Method Bit Mask */
@@ -226,6 +336,19 @@ static const value_string homeplug_cer_mod_vals[] = {
   { 0, NULL}
 };
 
+/* Constants used by various MMEs */
+
+#define HOMEPLUG_ADDR_INEXISTANT G_GINT64_CONSTANT(010000000000U)
+
+/* string values in function of TXPRIO */
+static const value_string homeplug_txprio_vals[] = {
+  { 0, "CA0"},
+  { 1, "CA1"},
+  { 2, "CA2"},
+  { 3, "CA3"},
+  { 0, NULL}
+};
+
 #define HOMEPLUG_MCTRL_LEN 1
 #define HOMEPLUG_MEHDR_LEN 1
 #define HOMEPLUG_MELEN_LEN 1
@@ -238,12 +361,12 @@ proto_register_homeplug(void)
     /* MAC Control Field */
     { &hf_homeplug_mctrl,
       { "MAC Control Field", "homeplug.mctrl",
-      FT_UINT8, BASE_DEC, NULL, 0x0, "MAC Control Field", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "MAC Control Field", HFILL }
     },
 
     { &hf_homeplug_mctrl_reserved,
       { "Reserved", "homeplug.mctrl.rsvd",
-      FT_NONE, BASE_DEC, NULL, HOMEPLUG_MCTRL_RSVD, "Reserved", HFILL }
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_MCTRL_RSVD, "Reserved", HFILL }
     },
 
     { &hf_homeplug_mctrl_ne,
@@ -254,7 +377,7 @@ proto_register_homeplug(void)
     /* MAC Entry Header */
     { &hf_homeplug_mehdr,
       { "MAC Management Entry Header", "homeplug.mehdr",
-      FT_NONE, BASE_DEC, NULL, 0x0, "MAC Management Entry Header", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "MAC Management Entry Header", HFILL }
     },
 
     { &hf_homeplug_mehdr_mev,
@@ -282,7 +405,7 @@ proto_register_homeplug(void)
     /* Request Channel Estimation */
     { &hf_homeplug_rce,
       { "Request Channel Estimation", "homeplug.rce",
-      FT_NONE, BASE_DEC, NULL, 0x0, "Request Channel Estimation", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "Request Channel Estimation", HFILL }
     },
 
     { &hf_homeplug_rce_cev,
@@ -292,13 +415,13 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_rce_rsvd,
       { "Reserved", "homeplug.rce.rsvd",
-      FT_NONE, BASE_DEC, NULL, HOMEPLUG_RCE_RSVD, "Reserved", HFILL }
+      FT_NONE, BASE_NONE, NULL, HOMEPLUG_RCE_RSVD, "Reserved", HFILL }
     },
 
     /* Channel Estimation Response */
     { &hf_homeplug_cer,
       { "Channel Estimation Response", "homeplug.cer",
-      FT_NONE, BASE_DEC, NULL, 0x0, "Channel Estimation Response", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "Channel Estimation Response", HFILL }
     },
 
     { &hf_homeplug_cer_cerv,
@@ -308,7 +431,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_cer_rsvd1,
       { "Reserved", "homeplug.cer.rsvd1",
-      FT_NONE, BASE_DEC, NULL, HOMEPLUG_CER_RSVD, "Reserved", HFILL }
+      FT_NONE, BASE_NONE, NULL, HOMEPLUG_CER_RSVD, "Reserved", HFILL }
     },
 
     { &hf_homeplug_cer_rxtmi,
@@ -335,7 +458,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_cer_mod,
       { "Modulation Method", "homeplug.cer.mod",
-      FT_UINT8, BASE_DEC, VALS(&homeplug_cer_mod_vals), HOMEPLUG_CER_MOD_MASK,
+      FT_UINT8, BASE_DEC, VALS(homeplug_cer_mod_vals), HOMEPLUG_CER_MOD_MASK,
       "Modulation Method", HFILL }
     },
 
@@ -356,19 +479,52 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_cer_bda,
       { "Bridged Destination Address", "homeplug.cer.bda",
-      FT_ETHER, BASE_HEX, NULL, 0x0, "Bridged Destination Address", HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, "Bridged Destination Address", HFILL }
+    },
+
+    /* Vendor Specific */
+    { &hf_homeplug_vs,
+      { "Vendor Specific", "homeplug.vs",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Vendor Specific", HFILL }
+    },
+
+    { &hf_homeplug_vs_oui,
+      { "OUI", "homeplug.vs.oui",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Should be an IEEE assigned Organizationally Unique Identifier", HFILL }
+    },
+
+    { &hf_homeplug_vs_vd,
+      { "Vendor Defined", "homeplug.vs.vd",
+      FT_BYTES, BASE_NONE, NULL, 0x0, "Vendor Defined", HFILL }
+    },
+
+    /* Set Network Encryption Key */
+    { &hf_homeplug_snk,
+      { "Set Network Encryption Key", "homeplug.snk",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Set Network Encryption Key", HFILL }
+    },
+
+    { &hf_homeplug_snk_eks,
+      { "Encryption Key Select", "homeplug.snk.eks",
+      FT_UINT8, BASE_DEC, NULL, 0x0, "Encryption Key Select", HFILL }
+    },
+
+    { &hf_homeplug_snk_nek,
+      { "Network Encryption Key", "homeplug.snk.nek",
+      FT_BYTES, BASE_NONE, NULL, 0x0, "Network Encryption Key", HFILL }
     },
 
     /* Request Parameters and Statistics */
     { &hf_homeplug_rps,
       { "Request Parameters and Statistics", "homeplug.rps",
-      FT_NONE, BASE_DEC, NULL, 0x0, "Request Parameters and Statistics", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "Request Parameters and Statistics", HFILL }
     },
 
     /* Parameters and Statistics Response */
     { &hf_homeplug_psr,
       { "Parameters and Statistics Response", "homeplug.psr",
-      FT_NONE, BASE_DEC, NULL, 0x0, "Parameters and Statistics Response", HFILL }
+      FT_NONE, BASE_NONE, NULL, 0x0, "Parameters and Statistics Response", HFILL }
     },
 
     { &hf_homeplug_psr_txack,
@@ -419,25 +575,36 @@ proto_register_homeplug(void)
       FT_UINT32, BASE_DEC, NULL, 0x0, "Receive Cumulative Bytes per 40-symbol", HFILL }
     },
 
-    /* Network Statistics Basic */
+    /* Set Local Parameters */
+    { &hf_homeplug_slp,
+      { "Set Local Parameters", "homeplug.slp",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Set Local Parameters", HFILL }
+    },
+
+    { &hf_homeplug_slp_ma,
+      { "MAC Address", "homeplug.slp.ma",
+      FT_ETHER, BASE_NONE, NULL, 0x0, "MAC Address", HFILL }
+    },
+
+    /* Network Statistics */
     { &hf_homeplug_ns,
-      { "Network Statistics Basic", "homeplug.ns",
-      FT_NONE, BASE_DEC, NULL, 0x0, "Network Statistics Basic", HFILL }
+      { "Network Statistics", "homeplug.ns",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Network Statistics", HFILL }
+    },
+
+    { &hf_homeplug_ns_extended,
+      { "Network Statistics is Extended", "homeplug.ns.extended",
+      FT_BOOLEAN, 8, NULL, 0x0, "Network Statistics is Extended (MELEN >= 199)", HFILL }
     },
 
     { &hf_homeplug_ns_netw_ctrl_ac,
       { "Action Control", "homeplug.ns.ac",
-      FT_BOOLEAN, BASE_DEC, NULL, HOMEPLUG_NS_AC, "Action Control", HFILL }
+      FT_BOOLEAN, 8, TFS(&homeplug_ns_ac_vals), HOMEPLUG_NS_AC, "Action Control", HFILL }
     },
 
     { &hf_homeplug_ns_netw_ctrl_icid,
       { "IC_ID", "homeplug.ns.icid",
-      FT_UINT8, BASE_HEX, VALS(&homeplug_ns_icid_vals), HOMEPLUG_NS_ICID_MASK, "IC_ID", HFILL }
-    },
-
-    { &hf_homeplug_ns_netw_ctrl_icid_rsvd,
-      { "IC_ID Reserved", "homeplug.ns.icid",
-      FT_NONE, BASE_DEC, NULL, 0x0, "IC_ID Reserved", HFILL }
+      FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(homeplug_ns_icid_vals), HOMEPLUG_NS_ICID, "IC_ID", HFILL }
     },
 
     { &hf_homeplug_ns_bytes40_robo,
@@ -455,10 +622,9 @@ proto_register_homeplug(void)
       FT_UINT16, BASE_DEC, NULL, 0x0, "Frame Drops in ROBO", HFILL }
     },
 
-    /* TODO NETW_DA1 ... */
     { &hf_homeplug_ns_netw_da,
       { "Address of Network DA", "homeplug.ns.netw_da",
-      FT_ETHER, BASE_HEX, NULL, 0x0, "Address of Network DA", HFILL }
+      FT_ETHER, BASE_NONE, NULL, 0x0, "Address of Network DA", HFILL }
     },
 
     { &hf_homeplug_ns_bytes40,
@@ -476,8 +642,202 @@ proto_register_homeplug(void)
       FT_UINT16, BASE_DEC, NULL, 0x0, "Frame Drops", HFILL }
     },
 
-    /* TODO Network Statistics Extended */
+    /* ... Extended */
+    { &hf_homeplug_ns_tx_bfr_state,
+      { "Transmit Buffer State", "homeplug.ns.tx_bfr_state",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Transmit Buffer State", HFILL }
+    },
 
+    { &hf_homeplug_ns_buf_in_use,
+      { "Buffer in use", "homeplug.ns.buf_in_use",
+      FT_BOOLEAN, 8, TFS(&homeplug_ns_buf_in_use_vals), HOMEPLUG_NS_BUF_IN_USE,
+      "Buffer in use (1) or Available (0)", HFILL }
+    },
+
+    { &hf_homeplug_ns_prio,
+      { "Priority", "homeplug.ns.prio",
+      FT_UINT8, BASE_DEC, VALS(homeplug_txprio_vals), HOMEPLUG_NS_PRIO,
+      "Priority", HFILL }
+    },
+
+    { &hf_homeplug_ns_msdu_len,
+      { "MSDU Length", "homeplug.ns.msdu_len",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_MSDU_LEN, "MSDU Length", HFILL }
+    },
+
+    { &hf_homeplug_ns_seqn,
+      { "Sequence Number", "homeplug.ns.seqn",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_SEQN, "Sequence Number", HFILL }
+    },
+
+    { &hf_homeplug_ns_toneidx,
+      { "Transmit tone map index", "homeplug.ns.toneidx",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_NS_TONEIDX,
+      "Maps to the 16 statistics occurring earlier in this MME", HFILL }
+    },
+
+    /* Bridging Characteristics Network */
+    { &hf_homeplug_bcn,
+      { "Bridging Characteristics Network", "homeplug.bcn",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Bridging Characteristics Network", HFILL }
+    },
+
+    { &hf_homeplug_bcn_network,
+      { "Network", "homeplug.bcn.network",
+      FT_BOOLEAN, 8, TFS(&homeplug_bc_network_vals), HOMEPLUG_BC_NETWORK,
+      "Local (0) or Network Bridge (1) Information", HFILL }
+    },
+
+    { &hf_homeplug_bcn_return,
+      { "Return/Set", "homeplug.bcn.return",
+      FT_BOOLEAN, 8, TFS(&homeplug_bc_return_vals), HOMEPLUG_BC_RETURN,
+      "From host: Return (1) or set bridging characteristics (0)", HFILL }
+    },
+
+    { &hf_homeplug_bcn_rsvd,
+      { "Reserved", "homeplug.bcn.rsvd",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_RSVD, "Reserved", HFILL }
+    },
+
+    { &hf_homeplug_bcn_fbn,
+      { "First Bridge Number", "homeplug.bcn.fbn",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCN_FBN, "First Bridge Number", HFILL }
+    },
+
+    { &hf_homeplug_bcn_brda,
+      { "Address of Bridge", "homeplug.bcn.brda",
+      FT_ETHER, BASE_HEX, NULL, 0x0, "Address of Bridge", HFILL }
+    },
+
+    { &hf_homeplug_bcn_bp_das,
+      { "Number of bridge proxied DAs", "homeplug.bcn.bp_das",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Number of bridge proxied DAs supported", HFILL }
+    },
+
+    { &hf_homeplug_bcn_bp_da,
+      { "Bridged DA", "homeplug.bcn.bp_da",
+      FT_ETHER, BASE_NONE, NULL, 0x0, "Bridged Destination Address", HFILL }
+    },
+
+    /* Bridging Characteristics Local */
+    { &hf_homeplug_bcl,
+      { "Bridging Characteristics Local", "homeplug.bcl",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Bridging Characteristics Local", HFILL }
+    },
+
+    { &hf_homeplug_bcl_network,
+      { "Network/Local", "homeplug.bcl.network",
+      FT_BOOLEAN, 8, TFS(&homeplug_bc_network_vals), HOMEPLUG_BC_NETWORK,
+      "Local (0) or Network Bridge (1) Information", HFILL }
+    },
+
+    { &hf_homeplug_bcl_return,
+      { "Return/Set", "homeplug.bcl.return",
+      FT_BOOLEAN, 8, TFS(&homeplug_bc_return_vals), HOMEPLUG_BC_RETURN,
+      "From host: Return (1) or set bridging characteristics (0)", HFILL }
+    },
+
+    { &hf_homeplug_bcl_rsvd,
+      { "Reserved", "homeplug.bcl.rsvd",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_BCL_RSVD, "Reserved", HFILL }
+    },
+
+    { &hf_homeplug_bcl_hprox_das,
+      { "Number of host proxied DAs", "homeplug.bcl.hprox_das",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Number of host proxied DAs supported by the bridge application", HFILL }
+    },
+
+    { &hf_homeplug_bcl_hpbda,
+      { "Host Proxied DA", "homeplug.bcl.hpbda",
+      FT_ETHER, BASE_NONE, NULL, 0x0, "Host Proxied Bridged Destination Address", HFILL }
+    },
+
+    /* Set Transmit Characteristics */
+    { &hf_homeplug_stc,
+      { "Set Transmit Characteristics", "homeplug.stc",
+      FT_NONE, BASE_NONE, NULL, 0x0, "Set Transmit Characteristics", HFILL }
+    },
+
+    { &hf_homeplug_stc_lco,
+      { "Local Consumption Only", "homeplug.stc.lco",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_LCO,
+      "Do not transmit subsequent frames to medium", HFILL }
+    },
+
+    { &hf_homeplug_stc_encf,
+      { "Encryption Flag", "homeplug.stc.encf",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_ENCF, "Encrypt subsequent frames", HFILL }
+    },
+
+    { &hf_homeplug_stc_txprio,
+      { "Transmit Priority", "homeplug.stc.txprio",
+      FT_UINT8, BASE_DEC, VALS(homeplug_txprio_vals), HOMEPLUG_STC_TXPRIO,
+      "Transmit Priority", HFILL }
+    },
+
+    { &hf_homeplug_stc_rexp,
+      { "Response Expected", "homeplug.stc.rexp",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_REXP,
+      "Mark subsequent frames to receive response", HFILL }
+    },
+
+    { &hf_homeplug_stc_txcf,
+      { "Transmit Contention Free", "homeplug.stc.txcf",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_TXCF,
+      "Mark subsequently transmitted frames as contention free", HFILL }
+    },
+
+    { &hf_homeplug_stc_cftop,
+      { "Contention Free Transmit Override Priority", "homeplug.stc.cftop",
+      FT_BOOLEAN, 8, TFS(&homeplug_stc_cftop_vals), HOMEPLUG_STC_CFTOP,
+      "Transmit subsequent contention free frames with CA2/CA3 priority", HFILL }
+    },
+
+    { &hf_homeplug_stc_rsvd1,
+      { "Reserved", "homeplug.stc.rsvd1",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD1, "Reserved", HFILL }
+    },
+
+    { &hf_homeplug_stc_retry,
+      { "Retry Control", "homeplug.stc.retry",
+      FT_UINT8, BASE_DEC, VALS(homeplug_stc_retry_vals), HOMEPLUG_STC_RETRY,
+      "Retry Control", HFILL }
+    },
+
+    { &hf_homeplug_stc_rsvd2,
+      { "Reserved", "homeplug.stc.rsvd2",
+      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_STC_RSVD2, "Reserved", HFILL }
+    },
+
+    { &hf_homeplug_stc_dder,
+      { "Disable Default Encryption Receive", "homeplug.stc.dder",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DDER, "Disable Default Encryption Receive", HFILL }
+    },
+
+    { &hf_homeplug_stc_dur,
+      { "Disable Unencrypted Receive", "homeplug.stc.dur",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DUR, "Disable Unencrypted Receive", HFILL }
+    },
+
+    { &hf_homeplug_stc_ebp,
+      { "INT51X1 (Host/DTE Option) Enable Backpressure", "homeplug.stc.ebp",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_EBP,
+      "INT51X1 (Host/DTE Option) Enable Backpressure", HFILL }
+    },
+
+    { &hf_homeplug_stc_dees,
+      { "Disable EEPROM Save", "homeplug.stc.dees",
+      FT_BOOLEAN, 8, NULL, HOMEPLUG_STC_DEES, "Disable EEPROM Save", HFILL }
+    },
+
+    { &hf_homeplug_stc_txeks,
+      { "EKS to be used for encryption", "homeplug.stc.txeks",
+      FT_UINT8, BASE_DEC, NULL, 0x0, "EKS to be used for encryption", HFILL }
+    },
+
+    /* Undecoded data */
     { &hf_homeplug_data,
       { "Data", "homeplug.data",
       FT_BYTES, BASE_NONE, NULL, 0x0, "Data", HFILL }
@@ -491,10 +851,18 @@ proto_register_homeplug(void)
     &ett_homeplug_mehdr,
     &ett_homeplug_rce,
     &ett_homeplug_cer,
+    &ett_homeplug_vs,
+    &ett_homeplug_snk,
     &ett_homeplug_rps,
     &ett_homeplug_psr,
+    &ett_homeplug_slp,
     &ett_homeplug_ns,
-    &ett_homeplug_tone
+    &ett_homeplug_tx_bfr_state,
+    &ett_homeplug_tone,
+    &ett_homeplug_bcn,
+    &ett_homeplug_bridge,
+    &ett_homeplug_bcl,
+    &ett_homeplug_stc
   };
 
   proto_homeplug = proto_register_protocol("HomePlug protocol", "HomePlug", "homeplug");
@@ -513,6 +881,7 @@ static void dissect_homeplug_mctrl(ptvcursor_t * cursor)
     return;
 
   it = ptvcursor_add_no_advance(cursor, hf_homeplug_mctrl, 1, FALSE);
+  /* Extract Number Of MAC Data Entries */
   homeplug_ne = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
       ptvcursor_current_offset(cursor)) & HOMEPLUG_MCTRL_NE;
 
@@ -612,6 +981,22 @@ static void dissect_homeplug_cer(ptvcursor_t * cursor)
   ptvcursor_pop_subtree(cursor);
 }
 
+/* Dissection of the Vendor Specific MME */
+static void dissect_homeplug_vs(ptvcursor_t * cursor)
+{
+  proto_item * it = NULL;
+
+  if (!ptvcursor_tree(cursor)) 
+    return;
+
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_vs, homeplug_melen, FALSE);
+
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_vs);
+    ptvcursor_add(cursor, hf_homeplug_vs_oui, 3, FALSE);
+    if (homeplug_melen > 3)
+      ptvcursor_add(cursor, hf_homeplug_vs_vd, homeplug_melen - 3, FALSE);
+  ptvcursor_pop_subtree(cursor);
+}
 
 /* Dissection of Request Parameters and Statistics MME */
 static void dissect_homeplug_rps(ptvcursor_t * cursor) 
@@ -619,7 +1004,24 @@ static void dissect_homeplug_rps(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor)) 
     return;
 
-  ptvcursor_add(cursor, hf_homeplug_rps, 4, FALSE);
+  ptvcursor_add(cursor, hf_homeplug_rps, homeplug_melen, FALSE);
+}
+
+/* Dissection of Set Network Encryption Key MME */
+static void dissect_homeplug_snk(ptvcursor_t * cursor)
+{
+  proto_item * it = NULL;
+
+  if (!ptvcursor_tree(cursor)) 
+    return;
+
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_snk, homeplug_melen, FALSE);
+
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_snk);
+    ptvcursor_add(cursor, hf_homeplug_snk_eks, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_snk_nek, 8, FALSE);
+
+  ptvcursor_pop_subtree(cursor);
 }
 
 /* Dissection of Parameters and Statistics Response MME */
@@ -647,32 +1049,48 @@ static void dissect_homeplug_psr(ptvcursor_t * cursor)
   ptvcursor_pop_subtree(cursor);
 }
 
-/* Dissection of the Network Statistic MME */
-static void dissect_homeplug_ns(ptvcursor_t * cursor)
+/* Dissection of the Set Local Parameters MME */
+static void dissect_homeplug_slp(ptvcursor_t * cursor)
 {
-  guint8 homeplug_ns_icid_rsvd = 0;
-  guint8 iTone = 0;
-
-  guint16 ns_bytes40= 0;
-  guint64 newt_da= 0;
-#define NEWT_DA_INEXISTANT G_GINT64_CONSTANT(010000000000U)
+  proto_item * it = NULL;
 
   if (!ptvcursor_tree(cursor)) 
     return;
 
-  /* TODO : test length of the MME : differentiation of NS Basic and Extended */
-  ptvcursor_add_with_subtree(cursor, hf_homeplug_ns, SUBTREE_UNDEFINED_LENGTH, FALSE, ett_homeplug_ns);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_slp, homeplug_melen, FALSE);
 
-  /*it = ptvcursor_add_no_advance(cursor, hf_homeplug_ns, homeplug_melen, FALSE);
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_slp);
+    ptvcursor_add(cursor, hf_homeplug_slp_ma, 6, FALSE);
+  ptvcursor_pop_subtree(cursor);
+}
 
-  ptvcursor_push_subtree(cursor, it, ett_homeplug_ns);*/
+/* Dissection of the Network Statistics MME */
+static void dissect_homeplug_ns(ptvcursor_t * cursor, packet_info * pinfo)
+{
+  guint8 iTone = 0;
+  guint8 i_buffer = 0;
+
+  guint16 ns_bytes40 = 0;
+  guint64 newt_da = 0;
+  gboolean extended = (homeplug_melen >= HOMEPLUG_NS_EXT_LEN);
+  proto_item * ti;
+
+  /* Append Basic/Extender specifier to info column */
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, extended ? " Extended" : " Basic");
+
+  if (!ptvcursor_tree(cursor)) 
+    return;
+
+  ptvcursor_add_with_subtree(cursor, hf_homeplug_ns, homeplug_melen, FALSE,
+      ett_homeplug_ns);
+
+    ti = proto_tree_add_boolean(ptvcursor_tree(cursor), hf_homeplug_ns_extended,
+             ptvcursor_tvbuff(cursor), 0, 0, extended);
+    PROTO_ITEM_SET_GENERATED(ti);
+
     ptvcursor_add_no_advance(cursor, hf_homeplug_ns_netw_ctrl_ac, 1, FALSE);
-    homeplug_ns_icid_rsvd = tvb_get_guint8(ptvcursor_tvbuff(cursor), 
-        ptvcursor_current_offset(cursor)) & HOMEPLUG_NS_ICID_RSVD_MASK;
-    if (homeplug_ns_icid_rsvd)
-      ptvcursor_add(cursor, hf_homeplug_ns_netw_ctrl_icid_rsvd, 1, FALSE);
-    else
-      ptvcursor_add(cursor, hf_homeplug_ns_netw_ctrl_icid, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_ns_netw_ctrl_icid, 1, FALSE);
 
     ptvcursor_add_no_advance(cursor, hf_homeplug_ns_bytes40_robo, 2, TRUE);
     ns_bytes40 = tvb_get_letohs(ptvcursor_tvbuff(cursor),
@@ -690,7 +1108,7 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor)
       newt_da |= tvb_get_ntoh24(ptvcursor_tvbuff(cursor),
       ptvcursor_current_offset(cursor)+3);
 
-      if (newt_da != NEWT_DA_INEXISTANT) {
+      if (newt_da != HOMEPLUG_ADDR_INEXISTANT) {
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
             ett_homeplug_tone, "Tone Map #%d", iTone+1);
 
@@ -714,7 +1132,130 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor)
 
       iTone++;
     }
+    if (extended) {
+      while (i_buffer < 6) {
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+            ett_homeplug_tx_bfr_state, "TX_BFR_%d_STATE", i_buffer);
+          ptvcursor_add_no_advance(cursor, hf_homeplug_ns_buf_in_use, 1, FALSE);
+          ptvcursor_add_no_advance(cursor, hf_homeplug_ns_prio, 1, FALSE);
+          ptvcursor_add(cursor, hf_homeplug_ns_msdu_len, 1, FALSE);
+          ptvcursor_add_no_advance(cursor, hf_homeplug_ns_seqn, 1, FALSE);
+          ptvcursor_add(cursor, hf_homeplug_ns_toneidx, 1, FALSE);
+        ptvcursor_pop_subtree(cursor);
+        i_buffer++;
+      }
+    }
   ptvcursor_pop_subtree(cursor);
+}
+
+/* Dissection of the Bridging Characteristics Network MME */
+static void dissect_homeplug_bcn(ptvcursor_t * cursor)
+{
+  proto_item * it = NULL;
+  guint8 i_bridge = 0;
+  guint8 num_das;
+  guint8 i_da;
+  guint8 fbn;
+
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_bcn, homeplug_melen, FALSE);
+
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_bcn);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_network, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_return, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_bcn_rsvd, 1, FALSE);
+    fbn = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
+        & HOMEPLUG_BCN_FBN;
+    ptvcursor_add(cursor, hf_homeplug_bcn_fbn, 1, FALSE);
+    while (i_bridge < 2) {
+      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH,
+          ett_homeplug_bridge, "Bridge #%d", fbn + i_bridge);
+        ptvcursor_add(cursor, hf_homeplug_bcn_brda, 6, FALSE);
+        num_das = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+        ptvcursor_add(cursor, hf_homeplug_bcn_bp_das, 1, FALSE);
+        for (i_da = 0; i_da < num_das; i_da++) {
+          ptvcursor_add(cursor, hf_homeplug_bcn_bp_da, 6, FALSE);
+        }
+      ptvcursor_pop_subtree(cursor);
+      i_bridge++;
+    }
+  ptvcursor_pop_subtree(cursor);
+}
+
+/* Dissection of the Bridging Characteristics Local MME */
+static void dissect_homeplug_bcl(ptvcursor_t * cursor)
+{
+  proto_item * it = NULL;
+  guint8 num_das;
+  guint8 i_da = 0;
+
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_bcl, homeplug_melen, FALSE);
+
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_bcl);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_bcl_network, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_bcl_return, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_bcl_rsvd, 1, FALSE);
+
+    num_das = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_homeplug_bcl_hprox_das, 1, FALSE);
+
+    while (i_da < num_das) {
+      it = ptvcursor_add(cursor, hf_homeplug_bcl_hpbda, 6, FALSE);
+      i_da++;
+    }
+  ptvcursor_pop_subtree(cursor);
+}
+
+/* Dissection of the Bridging Characteristics MME */
+static void dissect_homeplug_bc(ptvcursor_t * cursor, packet_info * pinfo)
+{
+  gboolean network;
+
+  if (!ptvcursor_tree(cursor)) 
+    return;
+
+  network = tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor))
+          & HOMEPLUG_BC_NETWORK;
+
+  /* Append Network/Local specifier to info column */
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, network ? " Network" : " Local");
+
+  /* Call specific dissector */
+  if (network)
+    dissect_homeplug_bcn(cursor);
+  else
+    dissect_homeplug_bcl(cursor);
+}
+
+/* Dissection of the Set Transmit Characteristics MME */
+static void dissect_homeplug_stc(ptvcursor_t * cursor)
+{
+  proto_item * it = NULL;
+
+  if (!ptvcursor_tree(cursor)) 
+    return;
+
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_stc, homeplug_melen, FALSE);
+
+  ptvcursor_push_subtree(cursor, it, ett_homeplug_stc);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_lco, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_encf, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_txprio, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_rexp, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_txcf, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_cftop, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_stc_rsvd1, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_retry, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_rsvd2, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_dder, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_dur, 1, FALSE);
+    ptvcursor_add_no_advance(cursor, hf_homeplug_stc_ebp, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_stc_dees, 1, FALSE);
+    ptvcursor_add(cursor, hf_homeplug_stc_txeks, 1, FALSE);
+
+  ptvcursor_pop_subtree(cursor);
+
+  return;
 }
 
 /* Dissection of unknown tags */
@@ -726,7 +1267,8 @@ static void dissect_homeplug_unknown(ptvcursor_t * cursor)
 static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(homeplug_metype, homeplug_metype_vals, "Unknown %u"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+        val_to_str(homeplug_metype, homeplug_metype_vals, "Unknown 0x%x"));
   }
 
   switch(homeplug_metype) {
@@ -736,14 +1278,29 @@ static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
     case HOMEPLUG_MME_CER:
       dissect_homeplug_cer(cursor);
       break;
+    case HOMEPLUG_MME_VS:
+      dissect_homeplug_vs(cursor);
+      break;
+    case HOMEPLUG_MME_SNK:
+      dissect_homeplug_snk(cursor);
+      break;
     case HOMEPLUG_MME_RPS:
       dissect_homeplug_rps(cursor);
       break;
     case HOMEPLUG_MME_PSR:
       dissect_homeplug_psr(cursor);
       break;
+    case HOMEPLUG_MME_SLP:
+      dissect_homeplug_slp(cursor);
+      break;
     case HOMEPLUG_MME_NS:
-      dissect_homeplug_ns(cursor);
+      dissect_homeplug_ns(cursor, pinfo);
+      break;
+    case HOMEPLUG_MME_BC:
+      dissect_homeplug_bc(cursor, pinfo);
+      break;
+    case HOMEPLUG_MME_STC:
+      dissect_homeplug_stc(cursor);
       break;
     default:
       dissect_homeplug_unknown(cursor);
@@ -824,8 +1381,14 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 void
 proto_reg_handoff_homeplug(void)
 {
-  dissector_handle_t homeplug_handle;
+  static gboolean inited = FALSE;
 
-  homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
-  dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
+  if (!inited) {
+    dissector_handle_t homeplug_handle;
+
+    homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
+    dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
+
+    inited = TRUE;
+  }
 }
