@@ -95,34 +95,34 @@ static dissector_handle_t data_handle;
  * Bits in the address field.
  */
 #define	LAPD_SAPI		0xfc00	/* Service Access Point Identifier */
-#define	LAPD_SAPI_SHIFT	10
+#define	LAPD_SAPI_SHIFT		10
 #define	LAPD_CR			0x0200	/* Command/Response bit */
 #define	LAPD_EA1		0x0100	/* First Address Extension bit */
 #define	LAPD_TEI		0x00fe	/* Terminal Endpoint Identifier */
-#define	LAPD_TEI_SHIFT	1
+#define	LAPD_TEI_SHIFT		1
 #define	LAPD_EA2		0x0001	/* Second Address Extension bit */
 
 static const value_string lapd_direction_vals[] = {
-	{ P2P_DIR_RECV, "Network->User"},
-	{ P2P_DIR_SENT, "User->Network"},
+	{ P2P_DIR_RECV,		"Network->User"},
+	{ P2P_DIR_SENT,		"User->Network"},
 	{ 0,			NULL }
 };
 
 static const value_string lapd_sapi_vals[] = {
-	{ LAPD_SAPI_Q931,		"Q.931 Call control procedure" },
+	{ LAPD_SAPI_Q931,	"Q.931 Call control procedure" },
 	{ LAPD_SAPI_PM_Q931,	"Packet mode Q.931 Call control procedure" },
-	{ LAPD_SAPI_X25,		"X.25 Level 3 procedures" },
-	{ LAPD_SAPI_L2,			"Layer 2 management procedures" },
+	{ LAPD_SAPI_X25,	"X.25 Level 3 procedures" },
+	{ LAPD_SAPI_L2,		"Layer 2 management procedures" },
 	{ 0,			NULL }
 };
 
 static const value_string lapd_gsm_sapi_vals[] = {
-	{ LAPD_GSM_SAPI_RA_SIG_PROC,		"Radio signalling procedures" },
-	{ LAPD_GSM_SAPI_NOT_USED_1,			"(Not used in GSM PLMN)" },
-	{ LAPD_GSM_SAPI_NOT_USED_16,		"(Not used in GSM PLMN)" },
-	{ LAPD_GSM_SAPI_OM_PROC,			"Operation and maintenance procedure" },
-	{ LAPD_SAPI_L2,						"Layer 2 management procedures" },
-	{ 0,			NULL }
+	{ LAPD_GSM_SAPI_RA_SIG_PROC,	"Radio signalling procedures" },
+	{ LAPD_GSM_SAPI_NOT_USED_1,	"(Not used in GSM PLMN)" },
+	{ LAPD_GSM_SAPI_NOT_USED_16,	"(Not used in GSM PLMN)" },
+	{ LAPD_GSM_SAPI_OM_PROC,	"Operation and maintenance procedure" },
+	{ LAPD_SAPI_L2,			"Layer 2 management procedures" },
+	{ 0,				NULL }
 };
 
 /* Used only for U frames */
@@ -384,6 +384,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree, *checksum_tree;
 	proto_item	*lapd_ti, *addr_ti, *checksum_ti;
+	int		direction;
 	guint16		control, checksum, checksum_calculated;
 	int		lapd_header_len, checksum_offset;
 	guint16		address, cr, sapi, tei;
@@ -413,9 +414,11 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				is_response = cr ? FALSE : TRUE;
 				srcname = "Local Network";
 				dstname = "Remote User";
+				direction = P2P_DIR_RECV;	/* Network->User */
 			} else {
 				srcname = "Local User";
 				dstname = "Remote Network";
+				direction = P2P_DIR_SENT;	/* User->Network */
 			}
 		}
 		else if (pinfo->pseudo_header->lapd.pkttype == 3 /*PACKET_OTHERHOST*/) {
@@ -424,6 +427,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			is_response = cr ? TRUE : FALSE;
 			srcname = "Remote User";
 			dstname = "Remote Network";
+			direction = P2P_DIR_SENT;	/* User->Network */
 		}
 		else {
 			/* The frame is incoming */
@@ -431,22 +435,26 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				is_response = cr ? TRUE : FALSE;
 				srcname = "Remote User";
 				dstname = "Local Network";
+				direction = P2P_DIR_SENT;	/* User->Network */
 			} else {
 				is_response = cr ? FALSE : TRUE;
 				srcname = "Remote Network";
 				dstname = "Local User";
+				direction = P2P_DIR_RECV;	/* Network->User */
 			}
 		}
-	}
-	else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-		is_response = cr ? FALSE : TRUE;
-		srcname = "Network";
-		dstname = "User";
-	}
-	else if (pinfo->p2p_dir == P2P_DIR_SENT) {
-		is_response = cr ? TRUE : FALSE;
-		srcname = "User";
-		dstname = "Network";
+	} else {
+		direction = pinfo->p2p_dir;
+		if (pinfo->p2p_dir == P2P_DIR_RECV) {
+			is_response = cr ? FALSE : TRUE;
+			srcname = "Network";
+			dstname = "User";
+		}
+		else if (pinfo->p2p_dir == P2P_DIR_SENT) {
+			is_response = cr ? TRUE : FALSE;
+			srcname = "User";
+			dstname = "Network";
+		}
 	}
 
 	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
@@ -461,9 +469,14 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    FALSE);
 		lapd_tree = proto_item_add_subtree(lapd_ti, ett_lapd);
 
-		direction_ti = proto_tree_add_uint(lapd_tree, hf_lapd_direction,
-		                                   tvb, 0, 0, pinfo->p2p_dir);
-		PROTO_ITEM_SET_GENERATED(direction_ti);
+		/*
+		 * Don't show the direction if we don't know it.
+		 */
+		if (direction != P2P_DIR_UNKNOWN) {
+			direction_ti = proto_tree_add_uint(lapd_tree, hf_lapd_direction,
+			                                   tvb, 0, 0, pinfo->p2p_dir);
+			PROTO_ITEM_SET_GENERATED(direction_ti);
+		}
 
 		addr_ti = proto_tree_add_uint(lapd_tree, hf_lapd_address, tvb,
 		    0, 2, address);
@@ -698,4 +711,3 @@ proto_register_lapd(void)
 		 10, &pref_lapd_rtp_payload_type);
 
 }
-
