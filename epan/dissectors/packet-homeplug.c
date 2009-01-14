@@ -38,9 +38,6 @@
 #include <epan/proto.h>
 #include <epan/ptvcursor.h>
 
-/* forward reference */
-void proto_reg_handoff_homeplug(void);
-
 static int proto_homeplug		= -1;
 
 static int hf_homeplug_mctrl		= -1;
@@ -1381,14 +1378,8 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 void
 proto_reg_handoff_homeplug(void)
 {
-  static gboolean inited = FALSE;
+  dissector_handle_t homeplug_handle;
 
-  if (!inited) {
-    dissector_handle_t homeplug_handle;
-
-    homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
-    dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
-
-    inited = TRUE;
-  }
+  homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
+  dissector_add("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
 }
