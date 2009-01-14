@@ -26,14 +26,14 @@
 /*           k12text.l file                        */
 /*     XXX: %option noline gives an error message: */
 /*          "unrecognized %option: line"           */
-/*          with Cygwin flex 2.5.35; the --noline  */
+/*          with flex 2.5.35; the --noline         */
 /*          command-line option works OK.          */
 /*                                                 */
 /* debug:   Do output of "rule acceptance" info    */
 /*           during parse                          */ 
 /*                                                 */
-/* %option line  */
-/* %option debug */
+/* %option noline  */
+/* %option debug   */
 
 %{
 /* k12text.l
