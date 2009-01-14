@@ -189,6 +189,7 @@ static const value_string bgpattr_type[] = {
 static const value_string bgpext_com8_type[] = {
     { BGP_EXT_COM_QOS_MARK_T, "QoS Marking - transitive" },
     { BGP_EXT_COM_QOS_MARK_NT, "QoS Marking - non-transitive" },
+    { BGP_EXT_COM_COS_CAP_NT, "CoS Capability - non-transitive" },
     { 0, NULL }
 };
 
@@ -2300,13 +2301,37 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 						    "Technology Type: 0x%02x (%s)", tvb_get_guint8(tvb,q+3),
 							 val_to_str(tvb_get_guint8(tvb,q+3),qos_tech_type,"Unknown"));
 				ti = proto_tree_add_text(subtree4, tvb, q+4, 2,
-						    "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_guint8(tvb,q+4),
+						    "QoS Marking O (16 bit): %s", decode_numeric_bitfield(tvb_get_ntohs(tvb,q+4),
 							 0xffff, 16, "0x%04x"));
 				ti = proto_tree_add_text(subtree4, tvb, q+6, 1,
-						    "QoS Marking A  (8 bit):           %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
+						    "QoS Marking A  (8 bit): %s (decimal %d)", decode_numeric_bitfield(tvb_get_guint8(tvb,q+6),
 							 0xff, 8, "0x%02x"), tvb_get_guint8(tvb,q+6));
 				ti = proto_tree_add_text(subtree4, tvb, q+7, 1,
-						    "Processing Count: 0x%02x", tvb_get_guint8(tvb,q+7));
+						    "Defaults to zero: 0x%02x", tvb_get_guint8(tvb,q+7));
+				break;
+			    case BGP_EXT_COM_COS_CAP_NT:
+                                is_regular_type = TRUE;
+				ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
+
+				subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities);
+				ti = proto_tree_add_text(subtree4, tvb, q, 1,
+						    "Type: 0x%02x", tvb_get_guint8(tvb,q));
+				ti = proto_tree_add_text(subtree4, tvb, q+1, 1,
+						    "Flags byte 1 : 0x%02x", tvb_get_guint8(tvb,q+1));
+				subtree5 = proto_item_add_subtree(ti,ett_bgp_ext_com_flags);
+			        /* add flag bitfield */
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x80, 8, "BE class supported", "BE class NOT supported"));
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x40, 8, "EF class supported", "EF class NOT supported"));
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x20, 8, "AF class supported", "AF class NOT supported"));
+				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
+							 0x10, 8, "LE class supported", "LE class NOT supported"));
+				ti = proto_tree_add_text(subtree4, tvb, q+2, 1,
+						    "Flags byte 2..7 : 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x", 
+							tvb_get_guint8(tvb,q+2),tvb_get_guint8(tvb,q+3),tvb_get_guint8(tvb,q+4),
+							tvb_get_guint8(tvb,q+5),tvb_get_guint8(tvb,q+6),tvb_get_guint8(tvb,q+7));
 				break;
                             }
 
