@@ -340,11 +340,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_lapdm(void)
 {
-    dissector_handle_t lapdm_handle;
-
     data_handle = find_dissector("data");
-
-    lapdm_handle = create_dissector_handle(dissect_lapdm, proto_lapdm);
 }
 
 void
@@ -482,7 +478,7 @@ proto_register_lapdm(void)
 
     lapdm_sapi_dissector_table = register_dissector_table("lapdm.sapi", "LAPDm SAPI", FT_UINT8, BASE_DEC);
 
-    lapdm_module = prefs_register_protocol(proto_lapdm, proto_reg_handoff_lapdm);
+    lapdm_module = prefs_register_protocol(proto_lapdm, NULL);
     prefs_register_bool_preference(lapdm_module, "reassemble",
         "Reassemble fragmented LAPDm packets",
         "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
