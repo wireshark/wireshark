@@ -77,6 +77,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <ctype.h>
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
@@ -137,8 +138,7 @@ static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_fqdn = -1;
 
-
-
+static const char *pref_optionstring = "";
 
 /* RFC3825decoder error codes of the conversion function */
 #define RFC3825_NOERROR                           0
@@ -478,7 +478,13 @@ static const value_string bootp_client_arch[] = {
 	{ 0,      NULL }
 };
 
-static struct opt_info bootp_opt[] = {
+/* bootp options administration */
+#define BOOTP_OPT_NUM   256
+
+/* Re-define structure.  Values to be upated by bootp_init_protocol */
+static struct opt_info bootp_opt[BOOTP_OPT_NUM];
+
+static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*   0 */ { "Padding",					none, NULL },
 /*   1 */ { "Subnet Mask",				ipv4, NULL },
 /*   2 */ { "Time Offset",				time_in_secs, NULL },
@@ -578,7 +584,7 @@ static struct opt_info bootp_opt[] = {
 /*  96 */ { "Removed/Unassigend",			opaque, NULL },
 /*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL },
 /*  98 */ { "Open Group's User Authentication [TODO]",	opaque, NULL },
-/*  99 */ { "Civic Addresses Configuration [TODO]",	opaque, NULL },
+/*  99 */ { "Civic Addresses Configuration",		special, NULL },
 /* 100 */ { "PCode [TODO]",				opaque, NULL },
 /* 101 */ { "TCode [TODO]",				opaque, NULL },
 /* 102 */ { "Removed/unassigned",			opaque, NULL },
@@ -602,9 +608,9 @@ static struct opt_info bootp_opt[] = {
 /* 120 */ { "SIP Servers [TODO]",			opaque, NULL },
 /* 121 */ { "Classless Static Route",		       	special, NULL },
 /* 122 */ { "CableLabs Client Configuration [TODO]",		opaque, NULL },
-/* 123 */ { "Coordinate-based Location Configuration [TODO]",	opaque, NULL },
+/* 123 */ { "Coordinate-based Location Configuration",	special, NULL },
 /* 124 */ { "V-I Vendor Class [TODO]",			opaque, NULL },
-/* 125 */ { "V-I Vendor-specific Information [TODO]",	opaque, NULL },
+/* 125 */ { "V-I Vendor-specific Information",		special, NULL },
 /* 126 */ { "Removed/Unassigned",			opaque, NULL },
 /* 127 */ { "Removed/Unassigend",			opaque, NULL },
 /* 128 */ { "DOCSIS full security server IP [TODO]",	opaque, NULL },
@@ -688,7 +694,7 @@ static struct opt_info bootp_opt[] = {
 /* 206 */ { "Unassigned",				opaque, NULL },
 /* 207 */ { "Unassigned",				opaque, NULL },
 /* 208 */ { "PXELINUX Magic",				opaque, NULL },
-/* 209 */ { "Configuration file",				opaque, NULL },
+/* 209 */ { "Configuration file",			opaque, NULL },
 /* 210 */ { "Authentication",				special, NULL }, /* Path Prefix rfc5071 */
 /* 211 */ { "Reboot Time",				opaque, NULL },
 /* 212 */ { "Unassigned",				opaque, NULL },
@@ -740,7 +746,7 @@ static struct opt_info bootp_opt[] = {
 static const char *
 bootp_get_opt_text(unsigned int idx)
 {
-	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=BOOTP_OPT_NUM)
 		return "unknown";
 	return bootp_opt[idx].text;
 }
@@ -748,7 +754,7 @@ bootp_get_opt_text(unsigned int idx)
 static const void *
 bootp_get_opt_data(unsigned int idx)
 {
-	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=BOOTP_OPT_NUM)
 		return NULL;
 	return bootp_opt[idx].data;
 }
@@ -756,7 +762,7 @@ bootp_get_opt_data(unsigned int idx)
 static enum field_type
 bootp_get_opt_ftype(unsigned int idx)
 {
-	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=BOOTP_OPT_NUM)
 		return none;
 	return bootp_opt[idx].ftype;
 }
@@ -786,7 +792,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	guint8			fqdn_flags;
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
-	gboolean		skip_opaque = FALSE;
 	guint8			s_option;
 	int			ava_vid;
 	const gchar		*dns_name;
@@ -1639,10 +1644,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 	default:	/* not special */
 		/* The PacketCable CCC option number can vary.  If this is a CCC option,
-		   handle it and skip the "opaque" case below.
+		   handle it as a special.
 		 */
 		if (code == pkt_ccc_option) {
-			skip_opaque = TRUE;
+			ftype = special;
 			proto_item_append_text(vti,
 				"CableLabs Client Configuration (%d bytes)",
 				optlen);
@@ -1663,13 +1668,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 
 		break;
-	}
-
-	if (ftype == special)
-		return consumed;
-	if (ftype == opaque) {
-		if (skip_opaque) /* Currently used by PacketCable CCC */
-			return consumed;
 	}
 
 	switch (ftype) {
@@ -1709,9 +1707,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		proto_item_append_text(vti, " = \"%s\"",
 				tvb_format_stringzpad(tvb, optoff, consumed-2));
-		break;
-
-	case opaque:
 		break;
 
 	case val_boolean:
@@ -3822,13 +3817,69 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static void 
+bootp_init_protocol(void)
+{
+    gchar **optionstrings = NULL;
+    gchar **optiondetail = NULL;
+    gchar *type = NULL;
+    guint i, ii;
+
+    /* first copy default_bootp_opt[] to bootp_opt[].  This resets all values to default */
+    for(i=0; i<BOOTP_OPT_NUM; i++)
+    {
+        bootp_opt[i].text = default_bootp_opt[i].text;
+        bootp_opt[i].ftype = default_bootp_opt[i].ftype;
+        bootp_opt[i].data = default_bootp_opt[i].data;
+    }
+
+    /* now split semicolon seperated fields groups */
+    optionstrings = ep_strsplit(pref_optionstring, ";", -1);
+    for (i=0;optionstrings[i]!=NULL;i++)
+    {
+        /* input string should have 3 fields:
+           1 - bootp option - uint8 1-254, not being a special
+           2 - option name - string
+           3 - option type - defined in enum represented as a string
+        */
+
+        /* now split field groups to usable data */
+        optiondetail = ep_strsplit(optionstrings[i], ",",-1);
+        /* verify array has 3 or more entries, any entries beyond 3 are ingnored */
+        for(ii=0;(optiondetail[ii]!=NULL);ii++)
+        {
+            /* do nothing */
+        }
+        if (ii < 3) continue; /* not enought values.  Go again */
+        ii = atoi(optiondetail[0]); /* get the bootp option number */
+        if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue; /* not a number or out of range.  Go again */
+        if (bootp_opt[ii].ftype == special) continue; /* don't mess with specials.  Go again */
+        bootp_opt[ii].text = optiondetail[1];
+        type = optiondetail[2]; /* A string to be converted to an ftype enum */
+        /* XXX This if statement could be extended to allow for additinonal types */
+        if (strcasecmp(type,"string") == 0)
+        {
+            bootp_opt[ii].ftype = string;
+        } else if (strcasecmp(type,"ipv4") == 0)
+        {
+            bootp_opt[ii].ftype = ipv4;
+        } else if (strcasecmp(type,"bytes") == 0)
+        {
+            bootp_opt[ii].ftype = bytes;
+        } else
+        {
+            bootp_opt[ii].ftype = opaque;
+        }
+    }
+}
+
 void
 proto_register_bootp(void)
 {
   static hf_register_info hf[] = {
     { &hf_bootp_dhcp,
       { "Frame is DHCP",                "bootp.dhcp",    FT_BOOLEAN,
-        BASE_NONE,			NULL,		 0x0,
+        0,				NULL,		 0x0,
         "", HFILL }},
 
     { &hf_bootp_type,
@@ -4048,6 +4099,9 @@ proto_register_bootp(void)
   proto_register_subtree_array(ett, array_length(ett));
   bootp_dhcp_tap = register_tap("bootp");
 
+  /* register init routine to setup the custom bootp options */
+  register_init_routine(&bootp_init_protocol);
+  
   /* Allow dissector to find be found by name. */
   register_dissector("bootp", dissect_bootp, proto_bootp);
 
@@ -4071,7 +4125,13 @@ proto_register_bootp(void)
     10,
     &pkt_ccc_option);
 
-
+  prefs_register_string_preference(bootp_module, "displayasstring",
+    "Custom BootP/DHCP Options (Excl. suboptions)",
+    "Format: OptionNumber,OptionName,OptionType[;Format].\n"
+    "Example: 176,MyOption,string;242,NewOption,ipv4.\n"
+    "OptionNumbers: 1-254, but no special options. "
+    "OptionType: string, ipv4 and bytes",
+    &pref_optionstring );
 }
 
 void
