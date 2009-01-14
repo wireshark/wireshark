@@ -297,7 +297,7 @@ proto_register_gsm_um(void)
 	proto_register_field_array(proto_gsm_um, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	gsm_um_module = prefs_register_protocol(proto_gsm_um, proto_reg_handoff_gsm_um);
+	gsm_um_module = prefs_register_protocol(proto_gsm_um, NULL);
 	prefs_register_bool_preference(gsm_um_module, "dcs1800",
 				   "Treat ARFCN 512-810 as DCS 1800 rather than PCS 1900",
 				   "Treat ARFCN 512-810 as DCS 1800 rather than PCS 1900",
