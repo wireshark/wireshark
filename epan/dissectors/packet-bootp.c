@@ -3857,13 +3857,13 @@ bootp_init_protocol(void)
         bootp_opt[ii].text = optiondetail[1];
         type = optiondetail[2]; /* A string to be converted to an ftype enum */
         /* XXX This if statement could be extended to allow for additinonal types */
-        if (strcasecmp(type,"string") == 0)
+        if (g_ascii_strcasecmp(type,"string") == 0)
         {
             bootp_opt[ii].ftype = string;
-        } else if (strcasecmp(type,"ipv4") == 0)
+        } else if (g_ascii_strcasecmp(type,"ipv4") == 0)
         {
             bootp_opt[ii].ftype = ipv4;
-        } else if (strcasecmp(type,"bytes") == 0)
+        } else if (g_ascii_strcasecmp(type,"bytes") == 0)
         {
             bootp_opt[ii].ftype = bytes;
         } else
