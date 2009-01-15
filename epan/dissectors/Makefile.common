@@ -535,7 +535,7 @@ DISSECTOR_SRC = \
 	packet-isns.c		\
 	packet-isup.c		\
 	packet-isup_thin.c	\
-	packet-nasdaq-itch.c	\
+	packet-itdm.c		\
 	packet-iua.c		\
 	packet-iuup.c		\
 	packet-iwarp-ddp-rdmap.c\
@@ -612,6 +612,7 @@ DISSECTOR_SRC = \
 	packet-multipart.c	\
 	packet-mysql.c		\
 	packet-nas_eps.c	\
+	packet-nasdaq-itch.c	\
 	packet-nbipx.c		\
 	packet-nbns.c		\
 	packet-ncp.c		\
