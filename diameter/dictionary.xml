@@ -2728,7 +2728,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 -->
 <!--    
-3GPP TS 29.281 V8.1.0 (2008-12)
+3GPP TS 29.272 V8.1.1 (2009-01
 -->
 		<avp name="Subscription-Data" code="1400" vendor-bit="must" vendor-id="TGPP">
     	<type type-name="Grouped"/>
@@ -3214,8 +3214,9 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
-
-	&nasreq;
+  <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+  </application>
+  &nasreq;
 	&mobileipv4;
 	&chargecontrol;
 	&sunping;

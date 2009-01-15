@@ -40,21 +40,41 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/asn1.h>
 
+#include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1; 
 
+static int hf_diameter_3gpp_msisdn					= -1;
 static int hf_diameter_3gpp_ipaddr					= -1;
 static int hf_diameter_3gpp_mbms_required_qos_prio	= -1;
 static int hf_diameter_3gpp_tmgi					= -1;
 static int hf_diameter_mbms_service_id				= -1;
 
+static gint diameter_3gpp_msisdn_ett				= -1;
 static gint diameter_3gpp_tmgi_ett					= -1;
-
 /* Used for Diameter */
+
+static int
+dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	proto_item* item;
+	proto_tree *sub_tree;
+	int offset = 0;
+
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, 6, FALSE);
+	sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
+
+	dissect_gsm_map_msisdn(tvb, pinfo, sub_tree);
+
+	return tvb_length(tvb);
+
+}
+
 
 static int
 dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -119,6 +139,9 @@ void
 proto_reg_handoff_diameter_3gpp(void)
 {
 
+	/* AVP Code: 701 MSISDN */
+	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
+
 	/* AVP Code: 900 TMGI */
 	dissector_add("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
@@ -137,6 +160,11 @@ proto_register_diameter_3gpp(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
+		{ &hf_diameter_3gpp_msisdn,
+			{ "MSISDN",           "diameter.3gpp.msisdn",
+			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			"MSISDN", HFILL }
+		},
 		{ &hf_diameter_3gpp_ipaddr,
 			{ "IPv4 Address",           "diameter.3gpp.ipaddr",
 			FT_IPv4, BASE_DEC, NULL, 0x0,          
@@ -161,6 +189,7 @@ proto_register_diameter_3gpp(void)
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
+		&diameter_3gpp_msisdn_ett,
 		&diameter_3gpp_tmgi_ett,
 	};
 

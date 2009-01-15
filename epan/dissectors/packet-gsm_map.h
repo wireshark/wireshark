@@ -60,6 +60,7 @@ extern const value_string gsm_map_ietf_defined_pdp_vals[];
 extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
 guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
+void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
 
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
@@ -165,7 +166,7 @@ int dissect_gsm_old_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 int dissect_gsm_old_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 57 "packet-gsmmap-template.h"
+#line 58 "packet-gsmmap-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */

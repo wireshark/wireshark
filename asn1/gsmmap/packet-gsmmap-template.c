@@ -718,6 +718,31 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	return sms_encoding;
 }
+void
+dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+ char		*digit_str;
+ guint8		octet;
+ guint8		na;
+ guint8		np;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_address_digits, tvb, 1, -1, digit_str);
+
+ octet = tvb_get_guint8(tvb,0);
+ na = (octet & 0x70)>>4;
+ np = octet & 0x0f;
+ if ((na == 1) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(tvb, tree, 1, TRUE);
+ else if(np==6)
+	dissect_e212_mcc_mnc(tvb, tree, 1); 
+
+}
 
 #include "packet-gsm_map-fn.c"
 
