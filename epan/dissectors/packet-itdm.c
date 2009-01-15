@@ -57,7 +57,6 @@ static gint ett_itdm       = -1;
 /* ZZZZ some magic number.. */
 static guint gbl_ItdmMPLSLabel = 0x99887;
 
-static dissector_handle_t itdm_handle;
 static dissector_handle_t data_handle;
 
 #define ITDM_CMD_NEW_CHAN     1
@@ -224,6 +223,8 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_itdm_125usec(tvb, pinfo, tree);
 }
 
+void proto_reg_handoff_itdm(void);
+
 void
 proto_register_itdm(void)
 {
@@ -273,7 +274,7 @@ proto_register_itdm(void)
   proto_register_field_array(proto_itdm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  itdm_module = prefs_register_protocol(proto_itdm, NULL);
+  itdm_module = prefs_register_protocol(proto_itdm, proto_reg_handoff_itdm);
   prefs_register_uint_preference(itdm_module, "mpls_label",
     "ITDM MPLS label (Flow Bundle ID)",
     "The MPLS label (aka Flow Bundle ID) used by ITDM traffic.",
@@ -284,10 +285,11 @@ void
 proto_reg_handoff_itdm(void)
 {
 	static gboolean Initialized=FALSE;
+	static dissector_handle_t itdm_handle;
 	static guint ItdmMPLSLabel;
 
 	if (!Initialized) {
-		itdm_handle = create_dissector_handle(dissect_itdm, proto_itdm);
+		itdm_handle = find_dissector("itdm");;
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
