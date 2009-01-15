@@ -714,7 +714,8 @@ SVN repository (committed).
    in a header file. If not, a header file is not needed at all. */
 #include "packet-PROTOABBREV.h"
 
-/* Forward declaration we need below */
+/* Forward declaration we need below (if using proto_reg_handoff...     
+   as a prefs callback)       */
 void proto_reg_handoff_PROTOABBREV(void);
 
 /* Initialize the protocol and registered fields */
@@ -723,6 +724,8 @@ static int hf_PROTOABBREV_FIELDABBREV = -1;
 
 /* Global sample preference ("controls" display of numbers) */
 static gboolean gPREF_HEX = FALSE;
+/* Global sample port pref */
+static guint gPORT_PREF = 1234;
 
 /* Initialize the subtree pointers */
 static gint ett_PROTOABBREV = -1;
@@ -897,6 +900,11 @@ proto_register_PROTOABBREV(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* Register preferences module (See Section 2.6 for more on preferences) */
+/* (Registration of a prefs callback is not required if there are no     */
+/*  prefs-dependent registration functions (eg: a port pref).            */
+/*  See proto_reg_handoff below.                                         */
+/*  If a prefs callback is not needed, use NULL instead of               */
+/*  proto_reg_handoff_PROTOABBREV in the following).                     */
 	PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV,
 	    proto_reg_handoff_PROTOABBREV);
 
@@ -906,60 +914,84 @@ proto_register_PROTOABBREV(void)
 	     "Enable to display numerical values in hexadecimal.",
 	     &gPREF_HEX);
 }
-
+/* Register a sample port preference   */
+	prefs_register_uint_preference(PROTOABBREV_module, "tcp.port", "PROTOABBREV TCP Port",
+	     " PROTOABBREV TCP port if other than the default",
+	     10, &gPORT_PREF);
 
 /* If this dissector uses sub-dissector registration add a registration routine.
    This exact format is required because a script is used to find these
    routines and create the code that calls these routines.
 
-   This function is also called by preferences whenever "Apply" is pressed
-   (see prefs_register_protocol above) so it should accommodate being called
-   more than once.
+   If this function is registered as a prefs callback (see prefs_register_protocol 
+   above) this function is also called by preferences whenever "Apply" is pressed;
+   In that case, it should accommodate being called more than once.
+
+   This form of the reg_handoff function is used if if you perform 
+   registration functions which are dependent upon prefs. See below
+   for a simpler form  which can be used if there are no
+   prefs-dependent registration functions.
 */
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-	static gboolean inited = FALSE;
+	static gboolean initialized = FALSE;
+        static dissector_handle_t PROTOABBREV_handle;
+        static int currentPort;
 
-	if (!inited) {
-
-	    dissector_handle_t PROTOABBREV_handle;
+	if (!initialized) {
 
 /*  Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
  *  returns the number of bytes it dissected (or 0 if it thinks the packet
  *  does not belong to PROTONAME).
  */
-	    PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
-	        proto_PROTOABBREV);
-	    dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+		PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+								 proto_PROTOABBREV);
+		dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
 
-	    inited = TRUE;
+		initialized = TRUE;
+	} else {
+
+ 		/*
+		  If you perform registration functions which are dependent upon
+		  prefs the you should de-register everything which was associated
+		  with the previous settings and re-register using the new prefs
+		  settings here. In general this means you need to keep track of 
+		  the PROTOABBREV_handle and the value the preference had at the time 
+		  you registered.  The PROTOABBREV_handle value and the value of the
+		  preference can be saved using local statics in this 
+		  function (proto_reg_handoff).
+		*/
+
+		dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
 	}
 
-        /*
-          If you perform registration functions which are dependent upon
-          prefs the you should de-register everything which was associated
-          with the previous settings and re-register using the new prefs
-	  settings here. In general this means you need to keep track of 
-	  the PROTOABBREV_handle and the value the preference had at the time 
-	  you registered.  The PROTOABBREV_handle value and the value of the preference 
-	  can be saved using local statics in this function (proto_reg_handoff). ie.
+	currentPort = gPORT_PREF;
 
-          static PROTOABBREV_handle;
-          static int currentPort = -1;
+	dissector_add("tcp.port", currentPort, PROTOABBREV_handle);
 
-          ...
-
-          if (currentPort != -1) {
-              dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
-          }
-
-          currentPort = gPortPref;
-
-          dissector_add("tcp.port", currentPort, PROTOABBREV_handle);
-
-        */
 }
+
+#if 0
+/* Simple form of proto_reg_handoff_PROTOABBREV which can be used if there are
+   no prefs-dependent registration function calls.
+ */
+
+void
+proto_reg_handoff_PROTOABBREV(void)
+{
+	dissector_handle_t PROTOABBREV_handle;
+
+/*  Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
+ *  returns the number of bytes it dissected (or 0 if it thinks the packet
+ *  does not belong to PROTONAME).
+ */
+	PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+							 proto_PROTOABBREV);
+	dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+}
+#endif
+
 
 ------------------------------------Cut here------------------------------------
 
