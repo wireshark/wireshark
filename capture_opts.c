@@ -153,7 +153,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
     g_log(log_domain, log_level, "Interface          : %s", capture_opts->iface);
     /* iface_descr may not been filled in and some C Libraries hate a null ptr for %s */
-    g_log(log_domain, log_level, "Interface Descr    : %s", 
+    g_log(log_domain, log_level, "Interface Descr    : %s",
 	  capture_opts->iface_descr ? capture_opts->iface_descr : "<null>");
 #ifdef HAVE_PCAP_REMOTE
     g_log(log_domain, log_level, "Capture source     : %s",
@@ -735,7 +735,11 @@ capture_opts_print_statistics(gboolean machine_readable)
 
     for (if_entry = g_list_first(if_list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;
+#ifdef HAVE_PCAP_OPEN
+        pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+#else
         pch = pcap_open_live(if_info->name, MIN_PACKET_SIZE, 0, 0, errbuf);
+#endif
 
         if (pch) {
             if_stat = g_malloc(sizeof(if_stat_t));

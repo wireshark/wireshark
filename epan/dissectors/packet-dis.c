@@ -58,7 +58,6 @@ static gint ett_dis = -1;
 static gint ett_dis_header = -1;
 static gint ett_dis_payload = -1;
 
-static dissector_handle_t dis_dissector_handle;
 static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
 
 static const char* dis_proto_name = "Distributed Interactive Simulation";
@@ -160,17 +159,21 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_reg_handoff_dis(void)
 {
     static gboolean dis_prefs_initialized = FALSE;
+    static dissector_handle_t dis_dissector_handle;
+    static guint saved_dis_udp_port;
 
     if (!dis_prefs_initialized)
     {
         dis_dissector_handle = new_create_dissector_handle(dissect_dis, proto_dis);
+        dis_prefs_initialized = TRUE;
     }
     else
     {
-        dissector_delete("udp.port", dis_udp_port, dis_dissector_handle);
+        dissector_delete("udp.port", saved_dis_udp_port, dis_dissector_handle);
     }
 
     dissector_add("udp.port", dis_udp_port, dis_dissector_handle);
+    saved_dis_udp_port = dis_udp_port;
 }
 
 /* Registration routine for the DIS protocol.
