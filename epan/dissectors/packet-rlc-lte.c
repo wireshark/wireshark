@@ -107,14 +107,15 @@ static const value_string direction_vals[] =
 
 #define RLC_TM_MODE 1
 #define RLC_UM_MODE 2
-#define RLC_AM_MODE 3
-
+#define RLC_AM_MODE 4
+#define RLC_PREDEF  8
 
 static const value_string rlc_mode_short_vals[] =
 {
     { RLC_TM_MODE,      "TM"},
     { RLC_UM_MODE,      "UM"},
     { RLC_AM_MODE,      "AM"},
+    { RLC_PREDEF,       "PREDEFINED"},
     { 0, NULL }
 };
 
@@ -423,6 +424,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
+            tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
             offset += s_lengths[n];
         }
     }
@@ -473,6 +475,10 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
                                 bit_offset, 10, &ack_sn, FALSE);
     bit_offset += 10;
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
+    }
+
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -487,10 +493,14 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
             /****************************/
             /* Read NACK_SN, E1, E2     */
 
-            /* ACK_SN */
+            /* NACK_SN */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                         bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
+            }
+
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -501,19 +511,27 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e2, tvb,
                                         bit_offset, 1, &e2, FALSE);
             bit_offset++;
-
-            /* Reset this flag here */
-            e1 = 0;
         }
+
         if (e2) {
             /* Read SOstart, SOend */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_start, tvb,
                                         bit_offset, 15, &so_start, FALSE);
             bit_offset += 15;
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  SOstart=%u", (guint16)so_start);
+            }
+
 
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_end, tvb,
                                         bit_offset, 15, &so_end, FALSE);
             bit_offset += 15;
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  SOend=%u", (guint16)so_end);
+                if ((guint16)so_end == 0x7fff) {
+                    col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
+                }
+            }
 
             /* Reset this flag here */
             e2 = 0;
@@ -588,8 +606,12 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Sequence Number */
     sn = tvb_get_ntohs(tvb, offset) & 0x03ff;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, FALSE);
-
     offset += 2;
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   sn=%u", sn);
+    }
+
 
     /* Show SN in AM header root */
     proto_item_append_text(am_header_ti, " (SN=%u)", sn);
@@ -629,6 +651,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
+            tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
             offset += s_lengths[n];
         }
     }
@@ -957,7 +980,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_ack_sn,
             { "ACK Sequence Number",
-              "rlc-lte.am.ack-sn", FT_UINT16, BASE_DEC, 0, 0x0ffc,
+              "rlc-lte.am.ack-sn", FT_UINT16, BASE_DEC, 0, 0x0,
               "Sequence Number we're next expecting to receive", HFILL
             }
         },
