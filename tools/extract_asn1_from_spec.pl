@@ -1,3 +1,4 @@
+#$Id$
 #!/usr/bin/perl
 # This script extracts the ASN1 definition from and TS 36.331 and generates 3 output files that can be processed by asn2wrs
 # First download the specification from 3gpp.org as a word document and open it
