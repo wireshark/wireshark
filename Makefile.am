@@ -638,6 +638,38 @@ EXTRA_DIST = \
 	dumpcap.c	\
 	editcap.c		\
 	wireshark.desktop	\
+	idl/cosnaming.idl	\
+	idl/tango.idl	\
+	idl/parlay/am.idl	\
+	idl/parlay/cccs.idl	\
+	idl/parlay/cm.idl	\
+	idl/parlay/common_cc_data.idl	\
+	idl/parlay/cs.idl	\
+	idl/parlay/dsc.idl	\
+	idl/parlay/fw_data.idl	\
+	idl/parlay/fw_if.idl	\
+	idl/parlay/fw_if_access.idl	\
+	idl/parlay/fw_if_app.idl	\
+	idl/parlay/fw_if_entop.idl	\
+	idl/parlay/fw_if_service.idl	\
+	idl/parlay/gcc_data.idl	\
+	idl/parlay/gcc_interfaces.idl	\
+	idl/parlay/gms.idl	\
+	idl/parlay/mm.idl	\
+	idl/parlay/mmccs.idl	\
+	idl/parlay/mmm.idl	\
+	idl/parlay/mpcc_data.idl	\
+	idl/parlay/mpcc_interfaces.idl	\
+	idl/parlay/osa.idl	\
+	idl/parlay/pam_data.idl	\
+	idl/parlay/pam_interfaces.idl	\
+	idl/parlay/Parlay.idl	\
+	idl/parlay/policy_data.idl	\
+	idl/parlay/policy_interfaces.idl	\
+	idl/parlay/README.parlay	\
+	idl/parlay/termcap.idl	\
+	idl/parlay/ui_data.idl	\
+	idl/parlay/ui_interfaces.idl	\	
 	image/capinfos.rc.in	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
@@ -780,12 +812,12 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil
+DIST_SUBDIRS = asn1 codecs doc epan gtk help idl packaging plugins tools wiretap wsutil
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan plugins packaging help idl @wireshark_SUBDIRS@
 else
-SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan packaging help idl @wireshark_SUBDIRS@
 endif
 
 FAQ help/faq.txt: $(srcdir)/help/faq.py
