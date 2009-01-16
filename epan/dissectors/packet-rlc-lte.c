@@ -518,16 +518,15 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_start, tvb,
                                         bit_offset, 15, &so_start, FALSE);
             bit_offset += 15;
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  SOstart=%u", (guint16)so_start);
-            }
-
 
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_end, tvb,
                                         bit_offset, 15, &so_end, FALSE);
             bit_offset += 15;
+
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  SOend=%u", (guint16)so_end);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
+                                (guint16)so_start, (guint16)so_end);
+
                 if ((guint16)so_end == 0x7fff) {
                     col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
                 }
@@ -960,7 +959,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_segment_so,
             { "Segment Offset",
-              "rlc-lte.am.segment.so", FT_UINT16, BASE_HEX, 0, 0x7fff,
+              "rlc-lte.am.segment.offset", FT_UINT16, BASE_DEC, 0, 0x7fff,
               "Segment Offset", HFILL
             }
         },
