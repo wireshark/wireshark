@@ -80,6 +80,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Segmentation fault for "Follow TCP stream"
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3119">Bug
+          3119</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           DHCPv6 dissector doesn't handle malformed FQDN
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3134">Bug
           3134</ulink>)

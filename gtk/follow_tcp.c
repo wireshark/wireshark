@@ -119,6 +119,18 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info = g_new0(follow_info_t, 1);
 	follow_info->follow_type = FOLLOW_TCP;
 
+	/* Create a new filter that matches all packets in the TCP stream,
+	   and set the display filter entry accordingly */
+	reset_tcp_reassembly();
+	follow_filter = build_follow_filter(&cfile.edt->pi);
+	if (!follow_filter) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Error creating filter for this stream.\n"
+			      "A transport or network layer header is needed");
+		g_free(follow_info);
+		return;
+	}
+
 	/* Create a temporary file into which to dump the reassembled data
 	   from the TCP stream, and set "data_out_file" to refer to it, so
 	   that the TCP code will write to it.
@@ -135,6 +147,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
 	    g_free(follow_info);
+	    g_free(follow_filter);
 	    return;
 	}
 
@@ -146,13 +159,9 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	    eth_close(tmp_fd);
 	    eth_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
+	    g_free(follow_filter);
 	    return;
 	}
-
-	/* Create a new filter that matches all packets in the TCP stream,
-	   and set the display filter entry accordingly */
-	reset_tcp_reassembly();
-	follow_filter = build_follow_filter(&cfile.edt->pi);
 
 	/* Set the display filter entry accordingly */
 	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
