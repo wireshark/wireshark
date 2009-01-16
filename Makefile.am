@@ -812,7 +812,7 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help idl packaging plugins tools wiretap wsutil
+DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
