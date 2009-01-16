@@ -35,13 +35,16 @@
  * print routines
  */
 int proto_data = -1;
-int hf_data_data = -1;
-int ett_data = -1;
+
+static int hf_data_data = -1;
+static int hf_data_len = -1;
+
+static gint ett_data = -1;
 
 static void
 dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 {
-	int bytes;
+	gint bytes;
 
 	if (tree) {
 		bytes = tvb_length_remaining(tvb, 0);
@@ -53,6 +56,9 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			proto_tree *data_tree = proto_item_add_subtree(ti, ett_data);
 
 			proto_tree_add_item(data_tree, hf_data_data, tvb, 0, bytes, FALSE);
+
+			ti = proto_tree_add_int(data_tree, hf_data_len, tvb, 0, 0, bytes);
+			PROTO_ITEM_SET_GENERATED (ti);
 		}
 	}
 }
@@ -61,9 +67,10 @@ void
 proto_register_data(void)
 {
 	static hf_register_info hf[] = {
-		{&hf_data_data,
-		 {"Data", "data.data", FT_BYTES, BASE_HEX, NULL, 0x0,
-		  NULL, HFILL}}
+		{ &hf_data_data,
+		  { "Data", "data.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_data_len,
+		  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
 	};
 
 	static gint *ett[] = {
