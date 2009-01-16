@@ -815,9 +815,9 @@ endif
 DIST_SUBDIRS = asn1 codecs doc epan gtk help idl packaging plugins tools wiretap wsutil
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap doc epan plugins packaging help idl @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
 else
-SUBDIRS = tools wsutil wiretap doc epan packaging help idl @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
 endif
 
 FAQ help/faq.txt: $(srcdir)/help/faq.py
