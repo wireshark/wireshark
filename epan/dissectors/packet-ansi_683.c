@@ -125,7 +125,7 @@ static char *bcd_digits = "0123456789??????";
     }
 
 static guint32
-fresh_handler(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
+fresh_handler(tvbuff_t *tvb, proto_tree *tree, guint len _U_, guint32 offset)
 {
     guint32	value;
     guint8	oct;
@@ -721,7 +721,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0xffe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  First paging channel (FIRSTCHP) used in the home system (%lu)",
+	"%s :  First paging channel (FIRSTCHP) used in the home system (%u)",
 	bigbuf,
 	(value & 0xffe0) >> 5);
 
@@ -732,7 +732,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x1fffc0, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
-	"%s :  Home system identification (HOME_SID) (%lu)",
+	"%s :  Home system identification (HOME_SID) (%u)",
 	bigbuf,
 	(value & 0x1fffc0) >> 6);
 
@@ -750,7 +750,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     item =
 	proto_tree_add_none_format(tree, hf_ansi_683_none,
 	    tvb, offset, 2,
-	    "%s :  Station class mark (SCM) (%lu)",
+	    "%s :  Station class mark (SCM) (%u)",
 	    bigbuf,
 	    (value & 0x1fe0) >> 5);
 
@@ -834,21 +834,21 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x1fe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Mobile station protocol revision number (MOB_P_REV) (%lu)",
+	"%s :  Mobile station protocol revision number (MOB_P_REV) (%u)",
 	bigbuf,
 	(value & 0x1fe0) >> 5);
 
     other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
-	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %lu",
+	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %u",
 	bigbuf,
 	(value & 0x10) >> 4);
 
     other_decode_bitfield_value(bigbuf, value, 0x0e, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
-	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%lu), %lu digits in NMSI",
+	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%u), %u digits in NMSI",
 	bigbuf,
 	(value & 0x0e) >> 1,
 	(value & 0x10) ? ((value & 0x0e) >> 1) + 4 : 0);
@@ -882,7 +882,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x3c, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  Access overload class (ACCOLC) (%lu)",
+	"%s :  Access overload class (ACCOLC) (%u)",
 	bigbuf,
 	(value & 0x3c) >> 2);
 
@@ -919,7 +919,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%lu)",
+	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%u)",
 	bigbuf,
 	(value & 0x3fc0) >> 6);
 
@@ -932,7 +932,7 @@ rev_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%lu)",
+	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%u)",
 	bigbuf,
 	count);
 
@@ -968,7 +968,7 @@ param_block_nam_mdn(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  Number of digits (N_DIGITS) (%lu)",
+	"%s :  Number of digits (N_DIGITS) (%u)",
 	bigbuf,
 	count);
 
@@ -1040,7 +1040,7 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0xff, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  Mobile station protocol revision number (MOB_P_REV) (%lu)",
+	"%s :  Mobile station protocol revision number (MOB_P_REV) (%u)",
 	bigbuf,
 	value);
 
@@ -1051,14 +1051,14 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x8000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %lu",
+	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %u",
 	bigbuf,
 	(value & 0x8000) >> 15);
 
     other_decode_bitfield_value(bigbuf, value, 0x7000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%lu), %lu digits in NMSI",
+	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%u), %u digits in NMSI",
 	bigbuf,
 	(value & 0x7000) >> 12,
 	(value & 0x8000) ? ((value & 0x7000) >> 12) + 4 : 0);
@@ -1092,7 +1092,7 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x01e0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Access overload class (ACCOLC) (%lu)",
+	"%s :  Access overload class (ACCOLC) (%u)",
 	bigbuf,
 	(value & 0x01e0) >> 5);
 
@@ -1127,7 +1127,7 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%lu)",
+	"%s :  Maximum stored SID/NID pairs (MAX_SID_NID) (%u)",
 	bigbuf,
 	(value & 0x01fe) >> 1);
 
@@ -1140,7 +1140,7 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%lu)",
+	"%s :  Number of stored SID/NID pairs (STORED_SID_NID) (%u)",
 	bigbuf,
 	count);
 
@@ -1180,14 +1180,14 @@ param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
     other_decode_bitfield_value(bigbuf, value, 0x80, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  IMSI_T Class assignment of the mobile station (IMSI_T_CLASS), Class %lu",
+	"%s :  IMSI_T Class assignment of the mobile station (IMSI_T_CLASS), Class %u",
 	bigbuf,
 	(value & 0x80) >> 7);
 
     other_decode_bitfield_value(bigbuf, value, 0x70, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  Number of IMSI_T address digits (IMSI_T_ADDR_NUM ) (%lu), %lu digits in NMSI",
+	"%s :  Number of IMSI_T address digits (IMSI_T_ADDR_NUM ) (%u), %u digits in NMSI",
 	bigbuf,
 	(value & 0x70) >> 4,
 	(value & 0x80) ? ((value & 0x70) >> 4) + 4 : 0);
@@ -1236,7 +1236,6 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     guint32	saved_offset;
     guint32	value;
     guint32	count;
-    const gchar	*str = NULL;
 
     saved_offset = offset;
 
@@ -1245,7 +1244,7 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0xffe0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  First paging channel (FIRSTCHP) used in the home system (%lu)",
+	"%s :  First paging channel (FIRSTCHP) used in the home system (%u)",
 	bigbuf,
 	(value & 0xffe0) >> 5);
 
@@ -1256,7 +1255,7 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x1fffc0, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
-	"%s :  Home system identification (HOME_SID) (%lu)",
+	"%s :  Home system identification (HOME_SID) (%u)",
 	bigbuf,
 	(value & 0x1fffc0) >> 6);
 
@@ -1269,14 +1268,14 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x10, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 2, 1,
-	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %lu",
+	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %u",
 	bigbuf,
 	(value & 0x10) >> 4);
 
     other_decode_bitfield_value(bigbuf, value, 0x0e, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 2, 1,
-	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%lu), %lu digits in NMSI",
+	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%u), %u digits in NMSI",
 	bigbuf,
 	(value & 0x0e) >> 1,
 	(value & 0x10) ? ((value & 0x0e) >> 1) + 4 : 0);
@@ -1310,7 +1309,7 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x3c, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"%s :  Access overload class (ACCOLC) (%lu)",
+	"%s :  Access overload class (ACCOLC) (%u)",
 	bigbuf,
 	(value & 0x3c) >> 2);
 
@@ -1347,7 +1346,7 @@ for_param_block_nam_cdma_analog(tvbuff_t *tvb, proto_tree *tree, guint len, guin
     other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of SID/NID pairs (N_SID_NID) (%lu)",
+	"%s :  Number of SID/NID pairs (N_SID_NID) (%u)",
 	bigbuf,
 	count);
 
@@ -1386,14 +1385,14 @@ for_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x8000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %lu",
+	"%s :  IMSI_M Class assignment of the mobile station (IMSI_M_CLASS), Class %u",
 	bigbuf,
 	(value & 0x8000) >> 15);
 
     other_decode_bitfield_value(bigbuf, value, 0x7000, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%lu), %lu digits in NMSI",
+	"%s :  Number of IMSI_M address digits (IMSI_M_ADDR_NUM) (%u), %u digits in NMSI",
 	bigbuf,
 	(value & 0x7000) >> 12,
 	(value & 0x8000) ? ((value & 0x7000) >> 12) + 4 : 0);
@@ -1427,7 +1426,7 @@ for_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x01e0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Access overload class (ACCOLC) (%lu)",
+	"%s :  Access overload class (ACCOLC) (%u)",
 	bigbuf,
 	(value & 0x01e0) >> 5);
 
@@ -1464,7 +1463,7 @@ for_param_block_nam_cdma(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     other_decode_bitfield_value(bigbuf, value, 0x01fe, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Number of SID/NID pairs (N_SID_NID) (%lu)",
+	"%s :  Number of SID/NID pairs (N_SID_NID) (%u)",
 	bigbuf,
 	count);
 
@@ -1969,7 +1968,7 @@ msg_sspr_config_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 2,
-	    "Segment offset (%lu)",
+	    "Segment offset (%u)",
 	    value);
 	offset += 2;
 
@@ -2660,7 +2659,7 @@ msg_systag_config_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 
 	proto_tree_add_none_format(subtree, hf_ansi_683_none,
 	    tvb, offset, 2,
-	    "Segment offset (%lu)",
+	    "Segment offset (%u)",
 	    value);
 	offset += 2;
 
@@ -2727,7 +2726,6 @@ msg_systag_download_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 static void
 msg_srvckey_gen_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-    const gchar	*str = NULL;
     guint32	saved_offset;
     guint32	value;
 
@@ -3160,7 +3158,7 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     other_decode_bitfield_value(bigbuf, value, 0xffffc0, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
-	"%s :  Authentication signature data (AUTHR) (%lu)",
+	"%s :  Authentication signature data (AUTHR) (%u)",
 	bigbuf,
 	(value & 0xffffc0) >> 6);
 
@@ -3171,14 +3169,14 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     other_decode_bitfield_value(bigbuf, value, 0x3fc0, 16);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"%s :  Random challenge value (RANDC) (%lu)",
+	"%s :  Random challenge value (RANDC) (%u)",
 	bigbuf,
 	(value & 0x3fc0) >> 6);
 
     other_decode_bitfield_value(bigbuf, value, 0x3f, 8);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset + 1, 1,
-	"%s :  Call history parameter (COUNT) (%lu)",
+	"%s :  Call history parameter (COUNT) (%u)",
 	bigbuf,
 	value & 0x3f);
 
@@ -3189,7 +3187,7 @@ msg_reauth_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     other_decode_bitfield_value(bigbuf, value, 0xffffff, 24);
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 3,
-	"%s :  Authentication Data input parameter (AUTH_DATA) (%lu)",
+	"%s :  Authentication Data input parameter (AUTH_DATA) (%u)",
 	bigbuf,
 	value);
 }
@@ -3242,7 +3240,7 @@ msg_protocap_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"Mobile station firmware revision number (%lu)",
+	"Mobile station firmware revision number (%u)",
 	value);
 
     offset += 2;
@@ -3472,7 +3470,7 @@ msg_sspr_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 
 	proto_tree_add_none_format(tree, hf_ansi_683_none,
 	    tvb, offset, 2,
-	    "Segment offset (%lu)",
+	    "Segment offset (%u)",
 	    value);
 	offset += 2;
 
@@ -3750,14 +3748,14 @@ msg_puzl_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	    other_decode_bitfield_value(bigbuf, value, 0x8000, 16);
 	    proto_tree_add_none_format(tree, hf_ansi_683_none,
 		tvb, offset, 2,
-		"%s :  User Zone ID (%lu)",
+		"%s :  User Zone ID (%u)",
 		bigbuf,
 		temp_value + ((value & 0x8000) >> 15));
 
 	    other_decode_bitfield_value(bigbuf, value, 0x7fff, 16);
 	    proto_tree_add_none_format(tree, hf_ansi_683_none,
 		tvb, offset, 2,
-		"%s :  User Zone SID (%lu)",
+		"%s :  User Zone SID (%u)",
 		bigbuf,
 		(value & 0x7fff));
 
@@ -4010,7 +4008,7 @@ msg_ext_protocap_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 2,
-	"Mobile station firmware revision number (%lu)",
+	"Mobile station firmware revision number (%u)",
 	value);
 
     offset += 2;
@@ -4400,7 +4398,7 @@ msg_systag_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 
 	proto_tree_add_none_format(tree, hf_ansi_683_none,
 	    tvb, offset, 2,
-	    "Segment offset (%lu)",
+	    "Segment offset (%u)",
 	    value);
 	offset += 2;
 
