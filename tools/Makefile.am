@@ -90,6 +90,7 @@ EXTRA_DIST = \
 	dfilter-test.py 				\
 	extract_asn1_from_spec.pl	\
 	fuzz-test.sh					\
+	html2text.py				\
 	idl2wrs.sh					\
 	idl2wrs.sh.in					\
 	lex.py						\
