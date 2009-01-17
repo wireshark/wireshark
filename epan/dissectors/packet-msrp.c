@@ -36,6 +36,9 @@
 #include <ctype.h>
 
 #include <glib.h>
+
+#include <wsutil/str_util.h>
+
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/packet.h>
@@ -485,8 +488,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean have_body = FALSE;
 	gboolean found_match = FALSE;
 	gint content_type_len, content_type_parameter_str_len;
-	char *media_type_str = NULL;
-	char *media_type_str_lower_case = NULL;
+	gchar *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 	tvbuff_t *next_tvb;
 	gint parameter_offset;
@@ -686,8 +688,8 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								content_type_parameter_str = tvb_get_ephemeral_string(tvb,
 										     parameter_offset, content_type_parameter_str_len);
 							}
-							media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
-							media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
+							media_type_str_lower_case = ascii_strdown_inplace(
+                                                            (gchar *)tvb_get_ephemeral_string(tvb, value_offset, content_type_len));
 							break;
 
 						default:
@@ -720,7 +722,6 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,
 			                                   msrp_data_tree);
-				g_free(media_type_str_lower_case);
 				pinfo->private_data = save_private_data;
 				/* If no match dump as text */
 			}

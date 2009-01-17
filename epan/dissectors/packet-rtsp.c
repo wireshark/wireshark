@@ -38,6 +38,9 @@
 #include <epan/prefs.h>
 
 #include <glib.h>
+
+#include <wsutil/str_util.h>
+
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include "packet-rtp.h"
@@ -547,9 +550,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int			value_offset;
 	int			value_len;
 	e164_info_t		e164_info;
-	gint		rdt_feature_level = 0;
-	char		*media_type_str_lower_case = NULL;
-	char		*media_type_str = NULL;
+	gint			rdt_feature_level = 0;
+	gchar			*media_type_str_lower_case = NULL;
 	int			semi_colon_offset;
 	int			par_end_offset;
 
@@ -889,10 +891,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					value_len = par_end_offset - offset;
 				}
 
-				media_type_str = tvb_get_ephemeral_string(tvb, offset,
-							                             value_len);
-
-				media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
+				media_type_str_lower_case = ascii_strdown_inplace(
+                                    (gchar *)tvb_get_ephemeral_string(tvb, offset, value_len));
 
 			} else if (HDR_MATCHES(rtsp_content_length))
 			{

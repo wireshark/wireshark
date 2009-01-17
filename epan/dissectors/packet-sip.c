@@ -46,6 +46,9 @@
 #include <epan/prefs.h>
 
 #include <glib.h>
+
+#include <wsutil/str_util.h>
+
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/emem.h>
@@ -1545,13 +1548,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guchar  cseq_number_set = 0;
 	char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
 	char	call_id[MAX_CALL_ID_SIZE] = "";
-	char *media_type_str = NULL;
-	char *media_type_str_lower_case = NULL;
-	char *content_type_parameter_str = NULL;
-	guint resend_for_packet = 0;
-	guint request_for_response = 0;
+	gchar  *media_type_str_lower_case = NULL;
+	char   *content_type_parameter_str = NULL;
+	guint   resend_for_packet = 0;
+	guint   request_for_response = 0;
 	guint32 response_time = 0;
-	int strlen_to_copy;
+	int     strlen_to_copy;
 
 
 	/*
@@ -2231,12 +2233,12 @@ separator_found2:
 							content_type_parameter_str = tvb_get_ephemeral_string(tvb, parameter_offset,
 							                             content_type_parameter_str_len);
 						}
-						media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
-
-						media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
+						media_type_str_lower_case = ascii_strdown_inplace(
+                                                    (gchar *)tvb_get_ephemeral_string(tvb, value_offset, content_type_len));
 
 						/* Debug code
-						proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,"media_type_str=%s",media_type_str);
+						proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,
+						                    "media_type_str(lower cased)=%s",media_type_str_lower_case);
 						*/
 					break;
 

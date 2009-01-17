@@ -43,6 +43,8 @@
 
 #include <glib.h>
 
+#include <wsutil/str_util.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
@@ -2261,11 +2263,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         pinfo->match_string = ep_strdup(mediatype);
 
         /* force to lower case */
-        {
-            gchar *mediatype_lowercase = g_ascii_strdown(mediatype, -1);
-            mediatype = ep_strdup(mediatype_lowercase);
-            g_free(mediatype_lowercase);
-        }
+        ascii_strdown_inplace(mediatype);
 
         if (0 == strcmp("application/x-jxta-tls-block", mediatype)) {
             /* If we recognize it as a TLS packet then we shuffle it off to ssl dissector. */
