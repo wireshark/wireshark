@@ -76,7 +76,6 @@ bin_PROGRAMS = \
 	@randpkt_bin@	\
 	@dftest_bin@	\
 	@dumpcap_bin@	\
-	@dumpcapng_bin@	\
 	@rawshark_bin@
 bin_SCRIPTS = @idl2wrs_bin@
 
@@ -94,7 +93,7 @@ man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap dumpcapng rawshark
+	randpkt text2pcap dumpcap rawshark
 EXTRA_SCRIPTS = idl2wrs
 
 idl2wrs: tools/idl2wrs.sh Makefile
@@ -478,19 +477,6 @@ dumpcap_LDADD = \
 	@LIBCAP_LIBS@
 dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
-# Libraries with which to link dumpcap-ng.
-dumpcapng_LDADD = \
-	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
-	@INET_NTOP_LO@			\
-	@GLIB_LIBS@			\
-	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
-	@FRAMEWORKS@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBCAP_LIBS@
-	
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS)
@@ -650,7 +636,6 @@ EXTRA_DIST = \
 	docbook/ws.css		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
-	dumpcapng.c	\
 	editcap.c		\
 	wireshark.desktop	\
 	idl/cosnaming.idl	\
@@ -822,7 +807,7 @@ EXTRA_DIST = \
 
 if SETUID_INSTALL
 install-exec-hook:
-	-chmod +s $(DESTDIR)$(bindir)/dumpcap $(DESTDIR)$(bindir)/dumpcapng
+	-chmod +s $(DESTDIR)$(bindir)/dumpcap
 else
 install-exec-hook:
 endif
