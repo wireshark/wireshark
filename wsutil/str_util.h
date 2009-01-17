@@ -38,8 +38,9 @@
  *  the range 0x80 through 0xFF.
  *  
  * @param str The string to be lower-cased.
+ * @return    ptr to the string
  */
-void ascii_strdown_inplace(gchar *str);
+gchar *ascii_strdown_inplace(gchar *str);
 
 /** Convert all lower-case ASCII letters to their ASCII upper-case
  *  equivalents, in place, with a simple non-locale-dependent
@@ -54,7 +55,8 @@ void ascii_strdown_inplace(gchar *str);
  *  the range 0x80 through 0xFF.
  *  
  * @param str The string to be upper-cased.
+ * @return    ptr to the string
  */
-void ascii_strup_inplace(gchar *str);
+gchar *ascii_strup_inplace(gchar *str);
 
 #endif /* __STR_UTIL_H__ */

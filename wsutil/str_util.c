@@ -30,21 +30,25 @@
 #include "str_util.h"
 
 /* Convert all ASCII letters to lower case, in place. */
-void
+gchar *
 ascii_strdown_inplace(gchar *str)
 {
 	gchar *s;
 
 	for (s = str; *s; s++)
 		*s = g_ascii_tolower (*s);
+
+        return (str);
 }
 
 /* Convert all ASCII letters to upper case, in place. */
-void
+gchar *
 ascii_strup_inplace(gchar *str)
 {
 	gchar *s;
 
 	for (s = str; *s; s++)
 		*s = g_ascii_toupper (*s);
+
+        return (str);
 }
