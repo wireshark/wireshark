@@ -588,6 +588,7 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
     gtk_tree_store_set(store, &new_iter,
                            GROUP_COLUMN, "Packet:",
                            PROTOCOL_COLUMN, (char *)g_strdup_printf("%d", expert_data->packet_num),
+                           COUNT_COLUMN, 1,
                            -1);
 }
 
