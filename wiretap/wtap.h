@@ -204,6 +204,12 @@ extern "C" {
 #define WTAP_ENCAP_LIN				107
 #define WTAP_ENCAP_MOST				108
 #define WTAP_ENCAP_CAN20B			109
+#define WTAP_ENCAP_LAYER1_EVENT                 110
+#define WTAP_ENCAP_X2E_SERIAL                   111
+#define WTAP_ENCAP_I2C                          112
+#define WTAP_ENCAP_IEEE802_15_4_NONASK_PHY      113
+#define WTAP_ENCAP_TNEF                         114
+#define WTAP_ENCAP_USB_LINUX_MMAPPED            115
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
 

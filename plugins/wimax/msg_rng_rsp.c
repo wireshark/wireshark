@@ -751,7 +751,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			tlv_len = get_tlv_length(&tlv_info);
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
-				if(pinfo->cinfo)
+				if(check_col(pinfo->cinfo, COL_INFO))
 				{
 					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
 				}
@@ -910,7 +910,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						sub_tlv_len = get_tlv_length(&sub_tlv_info);
 						if(tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
 						{	/* invalid tlv info */
-							if(pinfo->cinfo)
+							if(check_col(pinfo->cinfo, COL_INFO))
 							{
 								col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
 							}

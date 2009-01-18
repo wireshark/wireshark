@@ -63,6 +63,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark could crash while reading a malformed Tektronix K12 file.
+            <!-- Fixed in r27064 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1937">Bug
+            1937</ulink>)
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.5</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -74,9 +87,27 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Crash when loading capture file and Preferences: NO Info column
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2902">Bug
+          2902</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Some Lua scripts may lead to corruption via out of bounds stack
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3062">Bug
+          3062</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Build with GLib 1.2 fails with error: 'G_MININT32' undeclared
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3109">Bug
           3109</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong decoding IMSI with GSM MAP protocol
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3116">Bug
+          3116</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -86,9 +117,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          SMPP optional parameter 'network_error_code' incorrectly decoded
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3128">Bug
+          3128</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           DHCPv6 dissector doesn't handle malformed FQDN
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3134">Bug
           3134</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          WCCP overrides CFLOW as decoded protocol
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3175">Bug
+          3175</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Improper decoding of MPLS echo reply IPv4 Interface and Label Stack Object
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3179">Bug
+          3179</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -123,10 +172,14 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+ATM,
 DHCPv6,
 DIS,
+E.212,
 RTP,
 UDP,
+USB,
+WCCP,
 WPS
 
     </para>

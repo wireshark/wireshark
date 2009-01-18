@@ -1203,7 +1203,6 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 				 hf_smpp_network_error_type, offset);
 		smpp_handle_int2(sub_tree, tvb,
 				 hf_smpp_network_error_code, offset);
-		(*offset) += length;
 		break;
 	    case  0x0424:	/* message_payload	*/
 		if (length)
@@ -1244,7 +1243,6 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 		proto_tree_add_item(sub_tree,
 			    	    hf_smpp_alert_on_message_delivery,
 				    tvb, *offset, length, FALSE);
-		(*offset) += length;
 		break;
 	    case  0x1380:	/* its_reply_type	*/
 		smpp_handle_int1(sub_tree, tvb,

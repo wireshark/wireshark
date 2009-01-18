@@ -75,11 +75,12 @@ static gint ett_unknown_info = -1;
  *
  * At
  *
- *	http://search.ietf.org/internet-drafts/draft-wilson-wrec-wccp-v2-01.txt
+ *	http://tools.ietf.org/id/draft-wilson-wrec-wccp-v2-01.txt
  *
  * is an Internet-Draft for WCCP 2.0.
  */
 
+/* This is NOT IANA assigned */
 #define UDP_PORT_WCCP	2048
 
 #define WCCPv1			4
@@ -184,7 +185,7 @@ static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
     guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree);
 
-static void
+static int
 dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
@@ -196,6 +197,12 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 ipaddr;
 	guint i;
 
+	wccp_message_type = tvb_get_ntohl(tvb, offset);
+
+	/* Check if this is really a WCCP message */
+	if (match_strval(wccp_message_type, wccp_type_vals) == NULL)
+		return 0;
+
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");
 	}
@@ -203,7 +210,6 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	wccp_message_type = tvb_get_ntohl(tvb, offset);
 
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(wccp_message_type,
@@ -301,6 +307,8 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+
+	return(tvb_length(tvb));
 }
 
 static void
@@ -1308,6 +1316,6 @@ proto_reg_handoff_wccp(void)
 {
 	dissector_handle_t wccp_handle;
 
-	wccp_handle = create_dissector_handle(dissect_wccp, proto_wccp);
+	wccp_handle = new_create_dissector_handle(dissect_wccp, proto_wccp);
 	dissector_add("udp.port", UDP_PORT_WCCP, wccp_handle);
 }

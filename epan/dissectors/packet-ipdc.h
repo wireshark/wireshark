@@ -53,6 +53,7 @@ static const value_string encoding_type_vals[] = {
 	{ 0x12, "G.729A" },
 	{ 0x60, "Transparent data encoding" },
 	{ 0x61, "T.38 fax over UPD" },
+	{ 0, NULL }
 };
 
 static const value_string line_status_vals[] = {
@@ -63,6 +64,7 @@ static const value_string line_status_vals[] = {
 	{ 0x04, "Other alarm or error" },
 	{ 0x05, "Up" },
 	{ 0x06, "Loopback" },
+	{ 0, NULL }
 };
 
 static const value_string channel_status_vals[] = {
@@ -76,6 +78,7 @@ static const value_string channel_status_vals[] = {
 	{ 0x08, "Connected" },
 	{ 0x50, "On hook" },
 	{ 0x51, "Off hook" },
+	{ 0, NULL }
 };
 
 static const value_string message_code_vals[] = {
@@ -138,7 +141,7 @@ static const value_string message_code_vals[] = {
 	{ 0x0005, "TD -> SS: RCSO: Request outbound call setup" },
 	{ 0x0006, "SS -> TD: ACSO: Accept outbound call setup" },
 	{ 0x0007, "SS -> TD: CONO: Outbound call connected" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static const value_string tag_description[] = {
@@ -245,7 +248,7 @@ static const value_string tag_description[] = {
 	{ 0xC2, "Number of Operational Universal Ports" },
 	{ 0xC3, "Number of Operational HDLC-only (digital) ports" },
 	{ 0xFE, "Q.850 Cause code" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 typedef struct _ipdc_tag_type_val {
@@ -356,7 +359,7 @@ static const ipdc_tag_type_val ipdc_tag_types[] = {
 	{ 0xC2, IPDC_UINT },
 	{ 0xC3, IPDC_UINT },
 	{ 0xFE, IPDC_UINT },
-	{ 0xFFFF, IPDC_UNKNOWN },
+	{ 0xFFFF, IPDC_UNKNOWN }
 };
 
 #define	IPDC_TAG(x)	(256 * (x))
@@ -648,5 +651,5 @@ static const value_string tag_enum_type[] = {
 	{ IPDC_TAG(0xc1) + 0x14, "UK" },
 	{ IPDC_TAG(0xc1) + 0x15, "US" },
 	{ IPDC_TAG(0xc1) + 0x15, "Brazil" },
-	{ 0, NULL },
+	{ 0, NULL }
 };

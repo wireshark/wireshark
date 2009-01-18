@@ -12054,14 +12054,17 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         ncp_rec = ncp_record_find(func, subfunc);
 
        	/* Fill in the INFO column. */
-       	if (check_col(pinfo->cinfo, COL_INFO))
+       	if (ncp_rec)
         {
-       		if (ncp_rec)
-                {
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		{
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
+		}
 
-        		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
                         col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
-               	}
+		}
 
         }
        	if (!pinfo->fd->flags.visited)

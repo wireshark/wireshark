@@ -263,7 +263,9 @@ C check##C(lua_State* L, int index) { \
     return p ? *p : NULL; \
 } \
 C* push##C(lua_State* L, C v) { \
-    C* p = lua_newuserdata(L,sizeof(C)); *p = v; \
+    C* p; \
+    luaL_checkstack(L,2,"Unable to grow stack\n"); \
+    p = lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
 	push_code; \
     return p; \
@@ -301,10 +303,14 @@ int dummy##C
 	lua_pushliteral(L, "__metatable"); \
 	lua_pushvalue(L, -3); \
 	lua_rawset(L, -3); \
-	lua_pop(L, 1); \
+       lua_pop(L, 2); \
 }
 
-#define WSLUA_REGISTER_META(C) luaL_newmetatable (L, #C);   luaL_register (L, NULL, C ## _meta);
+#define WSLUA_REGISTER_META(C) { \
+       luaL_newmetatable (L, #C); \
+       luaL_register (L, NULL, C ## _meta); \
+       lua_pop(L,1); \
+}
 
 #define WSLUA_INIT(L) \
 	luaL_openlibs(L); \

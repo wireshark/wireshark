@@ -225,7 +225,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   gint        ipsize;
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_INFO, "PPP VJ");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP VJ");
 
   if(tree != NULL) {
     ti = proto_tree_add_protocol_format(tree, proto_vj, tvb, 0, -1,
@@ -407,7 +407,7 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint        err      = VJ_ERROR;
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_INFO, "PPP VJ");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP VJ");
 
   if(tree != NULL) {
     ti = proto_tree_add_protocol_format(tree, proto_vj, tvb, 0, -1,

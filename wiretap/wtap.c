@@ -403,7 +403,40 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Intelligent Platform Management Bus", "ipmb" },
 
 	/* WTAP_ENCAP_IEEE802_15_4 */
-	{ "IEEE 802.15.4 Wireless PAN", "wpan" }
+	{ "IEEE 802.15.4 Wireless PAN", "wpan" },
+
+	/* WTAP_ENCAP_X2E_XORAYA */
+	{ "X2E Xoraya", "x2e-xoraya" },
+
+	/* WTAP_ENCAP_FLEXRAY */
+	{ "FlexRay", "flexray" },
+
+	/* WTAP_ENCAP_LIN */
+	{ "Local Interconnect Network", "lin" },
+
+	/* WTAP_ENCAP_MOST */
+	{ "Media Oriented Systems Transport", "most" },
+
+	/* WTAP_ENCAP_CAN20B */
+	{ "Controller Area Network 2.0B", "can20b" },
+
+	/* WTAP_ENCAP_LAYER1_EVENT */
+	{ "EyeSDN Layer 1 event", "layer1-event" },
+
+	/* WTAP_ENCAP_X2E_SERIAL */
+	{ "X2E serial line capture", "x2e-serial" },
+
+	/* WTAP_ENCAP_I2C */
+	{ "I2C", "i2c" },
+
+	/* WTAP_ENCAP_IEEE802_15_4_NONASK_PHY */
+	{ "IEEE 802.15.4 Wireless PAN non-ASK PHY", "wpan-nonask-phy" },
+
+	/* WTAP_ENCAP_TNEF */
+	{ "Transport-Neutral Encapsulation Format", "tnef" },
+
+	/* WTAP_ENCAP_USB_LINUX_MMAP */
+	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
