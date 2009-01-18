@@ -2552,18 +2552,18 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
    */
   /* Header fields */
-  volatile guint32 hdr_data_length;
-  guint32 hdr_reserved;
+  guint32 hdr_data_length;
+  guint32 hdr_version;
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
   /* get relevant header information */
   hdr_data_length = tvb_get_letohl(tvb, 0);
-  hdr_reserved    = tvb_get_letohl(tvb, 4);
+  hdr_version     = tvb_get_letohl(tvb, 4);
 
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
 
-  if (hdr_data_length < 4 || hdr_reserved != 0) {
+  if (hdr_data_length < 4 || (hdr_version != 0 && hdr_version != 0x11)) {
     /* Not an SKINNY packet, just happened to use the same port */
     return FALSE;
   }
