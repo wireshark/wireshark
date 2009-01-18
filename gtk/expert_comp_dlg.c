@@ -64,6 +64,11 @@ typedef struct _expert_comp_dlg_t {
     error_equiv_table note_table;
     error_equiv_table warn_table;
     error_equiv_table error_table;
+    guint32 disp_events;
+    guint32 chat_events;
+    guint32 note_events;
+    guint32 warn_events;
+    guint32 error_events;
 } expert_comp_dlg_t;
 
 static void
@@ -82,14 +87,25 @@ error_reset(void *pss)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
 
+    ss->error_events = 0;
+    ss->warn_events = 0;
+    ss->note_events = 0;
+    ss->chat_events = 0;
+    ss->disp_events = 0;
+
     reset_error_table_data(&ss->error_table);
-    gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u", ss->error_table.num_procs));
+    gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u/0", ss->error_table.num_procs));
+
     reset_error_table_data(&ss->warn_table);
-    gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u", ss->warn_table.num_procs));
+    gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u/0", ss->warn_table.num_procs));
+
     reset_error_table_data(&ss->note_table);
-    gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u", ss->note_table.num_procs));
+    gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u/0", ss->note_table.num_procs));
+
     reset_error_table_data(&ss->chat_table);
-    gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u", ss->chat_table.num_procs));
+    gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u/0", ss->chat_table.num_procs));
+
+    gtk_label_set_text( GTK_LABEL(ss->all_label), g_strdup_printf("Details: 0"));
     error_set_title(ss);
 }
 
@@ -103,30 +119,45 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
     if(error_pkt==NULL){
         return 0;
     }
+
     switch (error_pkt->severity) {
     case PI_ERROR:
+        ss->disp_events++;
+        ss->error_events++;
         init_error_table_row(&ss->error_table, error_pkt);
         add_error_table_data(&ss->error_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u", ss->error_table.num_procs));
+        gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u/%u", 
+        ss->error_table.num_procs, ss->error_events));
         break;
     case PI_WARN:
+        ss->disp_events++;
+        ss->warn_events++;
         init_error_table_row(&ss->warn_table, error_pkt);
         add_error_table_data(&ss->warn_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u", ss->warn_table.num_procs));
+        gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u/%u", 
+        ss->warn_table.num_procs, ss->warn_events));
         break;
     case PI_NOTE:
+        ss->disp_events++;
+        ss->note_events++;
         init_error_table_row(&ss->note_table, error_pkt);
         add_error_table_data(&ss->note_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u", ss->note_table.num_procs));
+        gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u/%u", 
+        ss->note_table.num_procs, ss->note_events));
         break;
     case PI_CHAT:
+        ss->disp_events++;
+        ss->chat_events++;
         init_error_table_row(&ss->chat_table, error_pkt);
         add_error_table_data(&ss->chat_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u", ss->chat_table.num_procs));
+        gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u/%u", 
+        ss->chat_table.num_procs, ss->chat_events));
         break;
     default:
         return 0; /* Don't draw */
     }
+
+    gtk_label_set_text( GTK_LABEL(ss->all_label), g_strdup_printf("Details: %u", ss->disp_events));
 
     return 1; /* Draw */
 }
@@ -173,6 +204,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *temp_page;
     GtkWidget *main_nb;
     GtkWidget *vbox;
+    GtkWidget *hbox;
     GtkWidget *bbox;
     GtkWidget *close_bt;
     GtkWidget *help_bt;
@@ -191,6 +223,12 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     etd->error_events = 0;
     etd->severity_report_level = PI_CHAT;
 
+    ss->disp_events = 0;
+    ss->chat_events = 0;
+    ss->note_events = 0;
+    ss->warn_events = 0;
+    ss->error_events = 0;
+
     ss->win=window_new(GTK_WINDOW_TOPLEVEL, "err");
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
 
@@ -202,32 +240,49 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     main_nb = gtk_notebook_new();
     gtk_box_pack_start(GTK_BOX(vbox), main_nb, TRUE, TRUE, 0);
-    /* Errors */
-    temp_page = gtk_vbox_new(FALSE, 6);
-    ss->error_label = gtk_label_new("Errors: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->error_label);
 
     /* We must display TOP LEVEL Widget before calling init_table() */
     gtk_widget_show_all(ss->win);
+
+    /* Errors */
+    temp_page = gtk_vbox_new(FALSE, 6);
+    ss->error_label = gtk_label_new("Errors: 0/y");
+    gtk_widget_show(ss->error_label);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), ss->error_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->error_table, 0, temp_page);
+
     /* Warnings */
     temp_page = gtk_vbox_new(FALSE, 6);
-    ss->warn_label = gtk_label_new("Warnings: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->warn_label);
+    ss->warn_label = gtk_label_new("Warnings: 0/y");
+    gtk_widget_show(ss->warn_label);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), ss->warn_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->warn_table, 0, temp_page);
+
     /* Notes */
     temp_page = gtk_vbox_new(FALSE, 6);
-    ss->note_label = gtk_label_new("Notes: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->note_label);
+    ss->note_label = gtk_label_new("Notes: 0/y");
+    gtk_widget_show(ss->note_label);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), ss->note_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->note_table, 0, temp_page);
+
     /* Chat */
     temp_page = gtk_vbox_new(FALSE, 6);
-    ss->chat_label = gtk_label_new("Chats: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->chat_label);
+    ss->chat_label = gtk_label_new("Chats: 0/y");
+    gtk_widget_show(ss->chat_label);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), ss->chat_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->chat_table, 0, temp_page);
+
     /* Details */
     temp_page = gtk_vbox_new(FALSE, 6);
-    ss->all_label = gtk_label_new("Details");
+    ss->all_label = gtk_label_new("Details: 0");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
 
     etd->label=gtk_label_new("Please wait ...");
