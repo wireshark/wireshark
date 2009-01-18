@@ -41,6 +41,11 @@
 
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
+/* Preference settings defining conditions for which the CCSDS dissector is called */
+static gboolean ccsds_heuristic_length = FALSE;
+static gboolean ccsds_heuristic_version = FALSE;
+static gboolean ccsds_heuristic_header = FALSE;
+static gboolean ccsds_heuristic_bit = FALSE;
 
 /* protocols and header fields */
 static int proto_eth = -1;
@@ -172,7 +177,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
   }
 }
 
-static gboolean chek_is_802_2(tvbuff_t *tvb);
+static gboolean check_is_802_2(tvbuff_t *tvb);
 
 static void
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
@@ -256,7 +261,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    */
   if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
 
-    is_802_2 = chek_is_802_2(tvb);
+    is_802_2 = check_is_802_2(tvb);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
@@ -341,7 +346,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /* -------------- */
-static gboolean chek_is_802_2(tvbuff_t *tvb)
+static gboolean check_is_802_2(tvbuff_t *tvb)
 {
   volatile gboolean	is_802_2;
   
@@ -350,12 +355,48 @@ static gboolean chek_is_802_2(tvbuff_t *tvb)
     /* Is there an 802.2 layer? I can tell by looking at the first 2
        bytes after the 802.3 header. If they are 0xffff, then what
        follows the 802.3 header is an IPX payload, meaning no 802.2.
-       (IPX/SPX is they only thing that can be contained inside a
-       straight 802.3 packet). A non-0xffff value means that there's an
-       802.2 layer inside the 802.3 layer */
-  
+       A non-0xffff value means that there's an 802.2 layer or CCSDS
+       layer inside the 802.3 layer */
+
   TRY {
-  	if (tvb_get_ntohs(tvb, 14) == 0xffff) {
+	if (tvb_get_ntohs(tvb, 14) == 0xffff) {
+	    is_802_2 = FALSE;
+	}
+	/* Is this a CCSDS payload instead of an 802.2 (LLC)?
+	   Check the conditions enabled by the user for CCSDS presence */
+	else if (ccsds_heuristic_length || ccsds_heuristic_version ||
+	         ccsds_heuristic_header || ccsds_heuristic_bit) {
+	  gboolean CCSDS_len = TRUE;
+	  gboolean CCSDS_ver = TRUE;
+	  gboolean CCSDS_head = TRUE;
+	  gboolean CCSDS_bit = TRUE;
+	  /* See if the reported payload size matches the
+	     size contained in the CCSDS header. */
+	  if (ccsds_heuristic_length) {
+	    /* Get payload length */
+	    gint size = tvb_reported_length(tvb) - 14;
+	    /* Check if payload is large enough to contain CCSDS header with
+	       packet length info. */
+	    if (size >= 6) {
+	      /* Get CCSDS packet length contained in CCSDS header. */
+	      gint size2 = 7 + tvb_get_ntohs(tvb, 14 + 4);
+	      if (size != size2)
+	        CCSDS_len = FALSE;
+	    }
+	  }
+	  /* Check if CCSDS Version number (first 3 bits of payload) is zero */
+	  if ((ccsds_heuristic_version) && (tvb_get_bits8(tvb, 8*14, 3)!=0))
+	    CCSDS_ver = FALSE;
+	  /* Check if Secondary Header Flag (4th bit of payload) is set to one. */
+	  if ((ccsds_heuristic_header) && (tvb_get_bits8(tvb, 8*14 + 4, 1)!=1))
+	    CCSDS_head = FALSE;
+	  /* Check if spare bit (1st bit of 7th word of payload) is zero. */
+	  if ((ccsds_heuristic_bit) && (tvb_get_bits8(tvb, 8*14 + 16*6, 1)!=0))
+	    CCSDS_bit = FALSE;
+	  /* If all the conditions are true, don't interpret payload as an 802.2 (LLC).
+	   * Additional check in packet-802.3.c will distinguish between
+	   * IPX and CCSDS packets*/
+	  if (CCSDS_len && CCSDS_ver && CCSDS_head && CCSDS_bit)
 	    is_802_2 = FALSE;
 	}
   }
@@ -542,6 +583,32 @@ proto_register_eth(void)
             "Attempt to interpret as FireWall-1 monitor file",
             "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
             &eth_interpret_as_fw1_monitor);
+
+	prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
+            "These are the conditions to match a payload against in order to determine\n"
+            "if this is a CCSDS packet within an 802.3 packet. If none is checked a packet\n"
+            "is never considered to be a CCSDS packet.",
+            "Describe the conditions that must be true for the CCSDS dissector to be called");
+
+	prefs_register_bool_preference(eth_module, "ccsds_heuristic_length",
+            "CCSDS Length in header matches payload size",
+            "Set the condition that must be true for the CCSDS dissector to be called",
+            &ccsds_heuristic_length);
+
+	prefs_register_bool_preference(eth_module, "ccsds_heuristic_version",
+            "CCSDS Version # is zero",
+            "Set the condition that must be true for the CCSDS dissector to be called",
+            &ccsds_heuristic_version);
+
+	prefs_register_bool_preference(eth_module, "ccsds_heuristic_header",
+            "CCSDS Secondary Header Flag is set",
+            "Set the condition that must be true for the CCSDS dissector to be called",
+            &ccsds_heuristic_header);
+
+	prefs_register_bool_preference(eth_module, "ccsds_heuristic_bit",
+            "CCSDS Spare bit is cleared",
+            "Set the condition that must be true for the CCSDS dissector to be called",
+            &ccsds_heuristic_bit);
 
 	register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
 	register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);

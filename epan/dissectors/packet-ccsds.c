@@ -236,6 +236,7 @@ proto_register_ccsds(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ccsds, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("ccsds", dissect_ccsds, proto_ccsds);
 
 }
 

@@ -35,6 +35,7 @@
 
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t ccsds_handle;
 
 void
 dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
@@ -98,8 +99,15 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   TRY {
     if (is_802_2)
       call_dissector(llc_handle, next_tvb, pinfo, tree);
-    else
-      call_dissector(ipx_handle, next_tvb, pinfo, tree);
+    else {
+      /* Check if first three bits of payload are 0x7.
+         If so, then payload is IPX.  If not, then it's CCSDS.
+         Refer to packet-eth.c for setting of is_802_2 variable. */
+      if (tvb_get_bits8(next_tvb, 0, 3) == 7)
+        call_dissector(ipx_handle, next_tvb, pinfo, tree);
+      else
+        call_dissector(ccsds_handle, next_tvb, pinfo, tree);
+    }
   }
   CATCH(BoundsError) {
    /* Somebody threw BoundsError, which means that dissecting the payload
@@ -126,8 +134,9 @@ void
 proto_reg_handoff_ieee802_3(void)
 {
   /*
-   * Get handles for the IPX and LLC dissectors.
+   * Get handles for the subdissectors.
    */
   ipx_handle = find_dissector("ipx");
   llc_handle = find_dissector("llc");
+  ccsds_handle = find_dissector("ccsds");
 }
