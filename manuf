@@ -4110,7 +4110,7 @@
 00:0F:FE	G-ProCompu             # G-PRO COMPUTER
 00:0F:FF	Control4
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
-00:10:01	Citel                  # Citel plc
+00:10:01	Citel
 00:10:02	Actia
 00:10:03	Imatron                # IMATRON, INC.
 00:10:04	BrantleyCo             # THE BRANTLEY COILE COMPANY,INC
@@ -5050,7 +5050,7 @@
 00:13:AB	Telemotive             # Telemotive AG
 00:13:AC	SunmyungEl             # Sunmyung Electronics Co., LTD
 00:13:AD	Sendo                  # Sendo Ltd
-00:13:AE	RadianceTe             # Radiance Technologies
+00:13:AE	RadianceTe             # Radiance Technologies, Inc.
 00:13:AF	NumaTechno             # NUMA Technology,Inc.
 00:13:B0	Jablotron
 00:13:B1	Intelligen             # Intelligent Control Systems (Asia) Pte Ltd
@@ -5884,7 +5884,7 @@
 00:16:ED	Integrian              # Integrian, Inc.
 00:16:EE	Royaldigit             # RoyalDigital Inc.
 00:16:EF	KokoFitnes             # Koko Fitness, Inc.
-00:16:F0	Zermatt                # Zermatt Systems, Inc
+00:16:F0	Dell
 00:16:F1	OmnisenseL             # OmniSense, LLC
 00:16:F2	DmobileSys             # Dmobile System Co., Ltd.
 00:16:F3	CastInform             # CAST Information Co., Ltd
@@ -9467,6 +9467,26 @@
 00:24:EC	UnitedInfo             # United Information Technology Co.,Ltd.
 00:24:ED	YtElec                 # YT Elec. Co,.Ltd.
 00:24:EE	Aictek                 # AICTEK Co.,Ltd.
+00:24:EF	SonyEricss             # Sony Ericsson Mobile Communications
+00:24:F0	Seanodes
+00:24:F1	ShenzhenFa             # Shenzhen Fanhai Sanjiang Electronics Co., Ltd.
+00:24:F2	UniphoneTe             # Uniphone Telecommunication Co., Ltd.
+00:24:F3	Nintendo               # Nintendo Co., Ltd.
+00:24:F4	KaminarioT             # Kaminario Technologies Ltd.
+00:24:F5	NdsSurgica             # NDS Surgical Imaging
+00:24:F6	MiyoshiEle             # MIYOSHI ELECTRONICS CORPORATION
+00:24:F7	Cisco                  # Cisco Systems
+00:24:F8	TechnicalS             # Technical Solutions Company Ltd.
+00:24:F9	Cisco                  # Cisco Systems
+00:24:FA	HilgerUKer             # Hilger u. Kern GMBH
+00:24:FB	Private
+00:24:FC	Quopin                 # QuoPin Co., Ltd.
+00:24:FD	Prosilient             # Prosilient Technologies AB
+00:24:FE	Avm                    # AVM GmbH
+00:24:FF	Qlogic                 # QLogic Corporation
+00:25:00	Apple                  # Apple, Inc
+00:25:01	Jsc"Supert             # JSC "Supertel"
+00:25:02	Naruralpoi             # NaruralPoint
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -10084,7 +10104,7 @@
 00:50:69	Pixstream              # PixStream Incorporated
 00:50:6A	Edeva                  # EDEVA, INC.
 00:50:6B	Spx-Ateg
-00:50:6C	GLBeijerEl             # G & L BEIJER ELECTRONICS AB
+00:50:6C	BeijerElec             # Beijer Electronics Products AB
 00:50:6D	Videojet               # VIDEOJET SYSTEMS
 00:50:6E	CorderEngi             # CORDER ENGINEERING CORPORATION
 00:50:6F	G-Connect
@@ -12754,6 +12774,16 @@
 00:50:C2:A2:60:00/36	PreferredO             # Preferred Oil, LLC
 00:50:C2:A2:70:00/36	MeconetEK              # meconet e. K.
 00:50:C2:A2:80:00/36	KendaElect             # KENDA ELECTRONIC SYSTEMS LIMITED
+00:50:C2:A2:90:00/36	Luminex                # Luminex Corporation
+00:50:C2:A2:A0:00/36	CustomCont             # Custom Control Concepts
+00:50:C2:A2:B0:00/36	ApriliaRac             # APRILIA RACING S.R.L.
+00:50:C2:A2:C0:00/36	Kws-Electr             # KWS-Electronic GmbH
+00:50:C2:A2:D0:00/36	Inventure              # Inventure Inc.
+00:50:C2:A2:E0:00/36	YuyamaMfg              # Yuyama Mfg. Co., Ltd.
+00:50:C2:A2:F0:00/36	DragonflyS             # DragonFly Scientific LLC
+00:50:C2:A3:00:00/36	D-Ta                   # D-TA Systems
+00:50:C2:A3:10:00/36	Coolit                 # Coolit Systems, Inc.
+00:50:C2:A3:20:00/36	HarrisDesi             # Harris Designs of NRV, Inc.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -14481,7 +14511,7 @@
 00:E0:44	Lsics                  # LSICS CORPORATION
 00:E0:45	Touchwave              # TOUCHWAVE, INC.
 00:E0:46	BentlyNeva             # BENTLY NEVADA CORP.
-00:E0:47	Infocus                # INFOCUS SYSTEMS
+00:E0:47	Infocus                # InFocus Corporation
 00:E0:48	SdlCommuni             # SDL COMMUNICATIONS, INC.
 00:E0:49	MicrowiEle             # MICROWI ELECTRONIC GmbH
 00:E0:4A	EnhancedMe             # ENHANCED MESSAGING SYSTEMS, INC
