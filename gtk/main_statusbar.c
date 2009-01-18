@@ -80,10 +80,10 @@ typedef enum {
 #endif
 
 
-GtkWidget    *status_pane_left, *status_pane_right;
-GtkWidget    *info_bar, *packets_bar, *profile_bar, *profile_bar_event;
-GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
-GtkWidget    *expert_info_chat, *expert_info_none;
+static GtkWidget    *status_pane_left, *status_pane_right;
+static GtkWidget    *info_bar, *packets_bar, *profile_bar, *profile_bar_event;
+static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
+static GtkWidget    *expert_info_chat, *expert_info_none;
 
 static guint        main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
 static guint        status_levels[NUM_STATUS_LEVELS];
