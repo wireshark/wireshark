@@ -1,6 +1,6 @@
-/* packet-nbap.c
+/* packet-nbap-template.c
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005, 2009 Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *

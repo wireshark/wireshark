@@ -1,7 +1,7 @@
 -- NBAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.433 V7.7.0 (2007-12)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/25433-770.zip/25433-770.DOC
+-- Taken from 3GPP TS 25.433 V8.3.0 (2008-12)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 --
 -- 9.3.2	Elementary Procedure Definitions
 --
@@ -139,7 +139,9 @@ FROM NBAP-CommonDataTypes
 	CellSynchronisationReportTDD,
 	CellSynchronisationTerminationRequestTDD,
 	CellSynchronisationFailureIndicationTDD,
-	MBMSNotificationUpdateCommand
+	MBMSNotificationUpdateCommand,
+	UEStatusUpdateCommand
+
 FROM NBAP-PDU-Contents
 
 	id-audit,
@@ -194,7 +196,9 @@ FROM NBAP-PDU-Contents
 	id-synchronisedRadioLinkReconfigurationPreparation,
 	id-systemInformationUpdate,
 	id-unblockResource,
-	id-unSynchronisedRadioLinkReconfiguration
+	id-unSynchronisedRadioLinkReconfiguration,
+	id-uEStatusUpdate
+
 FROM NBAP-Constants;
 
 -- **************************************************************
@@ -350,7 +354,9 @@ NBAP-ELEMENTARY-PROCEDURES-CLASS-2 NBAP-ELEMENTARY-PROCEDURE ::= {
 	radioLinkActivationTDD								|
 	radioLinkParameterUpdateFDD							|
 	radioLinkParameterUpdateTDD							|
-	mBMSNotificationUpdate
+	mBMSNotificationUpdate								|
+	uEStatusUpdate
+
 }
 
 -- **************************************************************
@@ -933,5 +939,14 @@ mBMSNotificationUpdate NBAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY 			ignore
 }
 
+-- *** UEStatusUpdate  ***
+uEStatusUpdate NBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEStatusUpdateCommand
+	MESSAGE DISCRIMINATOR	common
+	PROCEDURE ID 			{ procedureCode id-uEStatusUpdate, ddMode fdd }
+	CRITICALITY 			ignore
+}
+
 
 END
+

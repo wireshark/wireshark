@@ -1,7 +1,7 @@
 -- NBAP-Constants.asn
 --
--- Taken from 3GPP TS 25.433 V7.7.0 (2007-12)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/25433-770.zip/25433-770.DOC
+-- Taken from 3GPP TS 25.433 V8.3.0 (2008-12)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 ---
 -- 9.3.6	Constant Definitions
 --
@@ -86,6 +86,7 @@ id-unblockResource 										ProcedureCode ::= 33
 id-unSynchronisedRadioLinkReconfiguration 				ProcedureCode ::= 34
 id-radioLinkActivation									ProcedureCode ::= 51
 id-radioLinkParameterUpdate								ProcedureCode ::= 52
+id-uEStatusUpdate										ProcedureCode ::= 54
 
 -- **************************************************************
 --
@@ -100,8 +101,8 @@ maxNrOfErrors				INTEGER ::= 256
 maxNrOfTFs					INTEGER ::= 32
 maxNrOfTFCs					INTEGER ::= 1024
 maxNrOfRLs					INTEGER ::= 16
-maxNrOfRLs-1				INTEGER ::= 15	-- maxNrOfRLs - 1
-maxNrOfRLs-2				INTEGER ::= 14	-- maxNrOfRLs - 2
+maxNrOfRLs-1				INTEGER ::= 15	-- maxNrOfRLs – 1
+maxNrOfRLs-2				INTEGER ::= 14	-- maxNrOfRLs – 2
 maxNrOfRLSets				INTEGER ::= maxNrOfRLs
 maxNrOfDPCHs				INTEGER ::= 240
 maxNrOfDPCHsPerRL-1			INTEGER ::= 239 -- maxNrofCCTrCH*maxNrOfULTSs-1
@@ -153,7 +154,7 @@ maxHS-SCCHCodeNrComp-1		INTEGER ::= 127
 maxNrOfCellSyncBursts		INTEGER ::= 10
 maxNrOfReceptsPerSyncFrame	INTEGER ::= 16
 maxNrOfMeasNCell			INTEGER ::= 96
-maxNrOfMeasNCell-1			INTEGER ::= 95	-- maxNrOfMeasNCell - 1
+maxNrOfMeasNCell-1			INTEGER ::= 95	-- maxNrOfMeasNCell – 1
 maxNrOfSF					INTEGER ::= 8
 maxTGPS						INTEGER ::= 6
 maxCommunicationContext		INTEGER ::= 1048575
@@ -170,7 +171,7 @@ maxNrOfHSSCCHCodes				INTEGER ::= 4
 maxNrOfMACdFlows				INTEGER ::= 8
 maxNrOfMACdFlows-1				INTEGER ::= 7	-- maxNrOfMACdFlows - 1
 maxNrOfMACdPDUIndexes			INTEGER ::= 8
-maxNrOfMACdPDUIndexes-1			INTEGER ::= 7	-- maxNoOfMACdPDUIndexes - 1
+maxNrOfMACdPDUIndexes-1			INTEGER ::= 7	-- maxNoOfMACdPDUIndexes – 1
 maxNrOfMACdPDUSize				INTEGER ::= 32
 maxNrOfNIs						INTEGER ::= 256
 maxNrOfPriorityQueues			INTEGER ::= 8
@@ -222,6 +223,20 @@ maxHSDPAFrequency-1				INTEGER ::= 7
 maxNrOfHSSCCHsinExt				INTEGER ::= 224
 maxGANSSSatAlmanac				INTEGER ::= 36
 maxGANSSClockMod				INTEGER ::= 4
+maxNrOfEDCHRLs					INTEGER ::= 4
+maxERNTItoRelease				INTEGER ::= 256
+maxNrOfCommonEDCH				INTEGER ::= 32
+maxNrOfCommonMACFlowsLCR		INTEGER ::= 256
+maxNrOfCommonMACFlowsLCR-1		INTEGER ::= 255
+maxNrOfHSSCCHsLCR				INTEGER ::= 256
+maxNrOfEDCHMACdFlowsLCR			INTEGER ::= 256
+maxNrOfEDCHMACdFlowsLCR-1		INTEGER ::= 255
+maxNrOfEAGCHsLCR				INTEGER ::= 256
+maxNrOfEHICHsLCR				INTEGER ::= 256
+maxnrofERUCCHsLCR				INTEGER ::= 32
+maxNrOfHSDSCH-1					INTEGER ::= 32
+maxNrOfHSDSCH					INTEGER ::= 33
+maxGANSS-1						INTEGER ::= 7
 
 
 -- **************************************************************
@@ -1051,5 +1066,92 @@ id-SixtyfourQAM-DL-UsageIndicator									ProtocolIE-ID ::= 948
 id-Default-Serving-Grant-in-DTX-Cycle2								ProtocolIE-ID ::= 949
 id-Maximum-Target-ReceivedTotalWideBandPower-LCR					ProtocolIE-ID ::= 950
 id-E-DPDCH-PowerInterpolation										ProtocolIE-ID ::= 951
+id-Extended-E-DCH-LCRTDD-PhysicalLayerCategory						ProtocolIE-ID ::= 952
+id-MultipleFreq-E-DCH-Resources-InformationList-AuditRsp			ProtocolIE-ID ::= 953
+id-MultipleFreq-E-DCH-Resources-InformationList-ResourceStatusInd	ProtocolIE-ID ::= 954
+id-MultipleFreq-E-PUCH-Timeslot-InformationList-LCR-PSCH-ReconfRqst	ProtocolIE-ID ::= 955
+id-MultipleFreq-E-PUCH-Timeslot-Information-LCRItem-PSCH-ReconfRqst	ProtocolIE-ID ::= 956
+id-Extended-E-HICH-ID-TDD											ProtocolIE-ID ::= 957
+id-ContinuousPacketConnectivityHS-SCCH-less-Deactivate-Indicator	ProtocolIE-ID ::= 958
+id-E-DCH-MACdPDU-SizeCapability										ProtocolIE-ID ::= 959
+id-E-DCH-MACdPDUSizeFormat											ProtocolIE-ID ::= 960
+id-MaximumNumber-Of-Retransmission-for-Scheduling-Info-LCRTDD		ProtocolIE-ID ::= 961
+id-E-DCH-RetransmissionTimer-for-SchedulingInfo-LCRTDD				ProtocolIE-ID ::= 962
+id-E-HICH-TimeOffset-Extension										ProtocolIE-ID ::= 963
+id-MultipleFreq-E-HICH-TimeOffsetLCR								ProtocolIE-ID ::= 964
+id-E-PUCH-PowerControlGAP											ProtocolIE-ID ::= 965
+id-HSDSCH-TBSizeTableIndicator										ProtocolIE-ID ::= 966
+id-E-DCH-DL-Control-Channel-Change-Information						ProtocolIE-ID ::= 967
+id-E-DCH-DL-Control-Channel-Grant-Information						ProtocolIE-ID ::= 968
+id-DGANSS-Corrections-Req											ProtocolIE-ID ::= 969
+id-UE-without-HS-SCCH-constraint-indicator							ProtocolIE-ID ::= 970
+id-AdditionalTimeSlotListLCR										ProtocolIE-ID ::= 971
+id-AdditionalMeasurementValueList									ProtocolIE-ID ::= 972
+id-E-AGCH-Table-Choice					 							ProtocolIE-ID ::= 978
+id-PLCCH-parameters													ProtocolIE-ID ::= 981
+id-E-RUCCH-parameters												ProtocolIE-ID ::= 982
+id-E-RUCCH-768-parameters											ProtocolIE-ID ::= 983
+id-HS-Cause															ProtocolIE-ID ::= 984
+id-E-Cause															ProtocolIE-ID ::= 985
+id-Common-EDCH-Capability											ProtocolIE-ID ::= 987
+id-E-AI-Capability												ProtocolIE-ID ::= 988
+id-Common-EDCH-System-InformationFDD								ProtocolIE-ID ::= 989
+id-Common-UL-MACFlows-to-DeleteFDD									ProtocolIE-ID ::= 990
+id-Common-EDCH-MACdFlows-to-DeleteFDD								ProtocolIE-ID ::= 991
+id-Common-EDCH-System-Information-ResponseFDD						ProtocolIE-ID ::= 992
+id-Cell-ERNTI-Status-Information									ProtocolIE-ID ::= 993
+id-Enhanced-UE-DRX-Capability										ProtocolIE-ID ::= 994
+id-Enhanced-UE-DRX-InformationFDD									ProtocolIE-ID ::= 995
+id-TransportBearerRequestIndicator									ProtocolIE-ID ::= 996
+id-SixtyfourQAM-DL-MIMO-Combined-Capability				ProtocolIE-ID ::= 997
+id-E-RNTI															ProtocolIE-ID ::= 998
+id-MinimumReducedE-DPDCH-GainFactor									ProtocolIE-ID ::= 999
+id-GANSS-Time-ID													ProtocolIE-ID ::= 1000
+id-GANSS-AddIonoModelReq											ProtocolIE-ID ::= 1001
+id-GANSS-EarthOrientParaReq											ProtocolIE-ID ::= 1002
+id-GANSS-AddNavigationModelsReq										ProtocolIE-ID ::= 1003
+id-GANSS-AddUTCModelsReq											ProtocolIE-ID ::= 1004
+id-GANSS-AuxInfoReq													ProtocolIE-ID ::= 1005
+id-GANSS-SBAS-ID													ProtocolIE-ID ::= 1006
+id-GANSS-ID															ProtocolIE-ID ::= 1007
+id-GANSS-Additional-Ionospheric-Model								ProtocolIE-ID ::= 1008
+id-GANSS-Earth-Orientation-Parameters								ProtocolIE-ID ::= 1009
+id-GANSS-Additional-Time-Models										ProtocolIE-ID ::= 1010
+id-GANSS-Additional-Navigation-Models								ProtocolIE-ID ::= 1011
+id-GANSS-Additional-UTC-Models										ProtocolIE-ID ::= 1012
+id-GANSS-Auxiliary-Information										ProtocolIE-ID ::= 1013
+id-ERACH-CM-Rqst													ProtocolIE-ID ::= 1014
+id-ERACH-CM-Rsp														ProtocolIE-ID ::= 1015
+id-ERACH-CM-Rprt													ProtocolIE-ID ::= 1016
+id-EDCH-RACH-Report-Value											ProtocolIE-ID ::= 1017
+id-EDCH-RACH-Report-IncrDecrThres									ProtocolIE-ID ::= 1018
+id-EDCH-RACH-Report-ThresholdInformation							ProtocolIE-ID ::= 1019
+id-E-DPCCH-Power-Boosting-Capability									ProtocolIE-ID ::= 1020
+id-HSDSCH-Common-System-InformationLCR								ProtocolIE-ID ::= 1021
+id-HSDSCH-Common-System-Information-ResponseLCR						ProtocolIE-ID ::= 1222
+id-HSDSCH-Paging-System-InformationLCR								ProtocolIE-ID ::= 1023
+id-HSDSCH-Paging-System-Information-ResponseLCR						ProtocolIE-ID ::= 1024
+id-Common-MACFlows-to-DeleteLCR										ProtocolIE-ID ::= 1025
+id-Paging-MACFlows-to-DeleteLCR										ProtocolIE-ID ::= 1026
+id-Common-EDCH-System-InformationLCR								ProtocolIE-ID ::= 1027
+id-Common-UL-MACFlows-to-DeleteLCR									ProtocolIE-ID ::= 1028
+id-Common-EDCH-MACdFlows-to-DeleteLCR								ProtocolIE-ID ::= 1029
+id-Common-EDCH-System-Information-ResponseLCR						ProtocolIE-ID ::= 1030
+id-Enhanced-UE-DRX-CapabilityLCR									ProtocolIE-ID ::= 1031
+id-Enhanced-UE-DRX-InformationLCR									ProtocolIE-ID ::= 1032
+id-HSDSCH-PreconfigurationSetup										ProtocolIE-ID ::= 1033
+id-HSDSCH-PreconfigurationInfo										ProtocolIE-ID ::= 1034
+id-NoOfTargetCellHS-SCCH-Order										ProtocolIE-ID ::= 1035
+id-EnhancedHSServingCC-Abort										ProtocolIE-ID ::= 1036
+id-Additional-HS-Cell-Information-RL-Setup							ProtocolIE-ID ::= 1037
+id-Additional-HS-Cell-Information-Response							ProtocolIE-ID ::= 1038
+id-Additional-HS-Cell-Information-RL-Addition						ProtocolIE-ID ::= 1039
+id-Additional-HS-Cell-Change-Information-Response					ProtocolIE-ID ::= 1040
+id-Additional-HS-Cell-Information-RL-Reconf-Prep					ProtocolIE-ID ::= 1041
+id-Additional-HS-Cell-Information-RL-Reconf-Req						ProtocolIE-ID ::= 1042
+id-Additional-HS-Cell-Information-RL-Param-Upd						ProtocolIE-ID ::= 1043
+id-Multi-Cell-Capability-Info										ProtocolIE-ID ::= 1044
+id-IMB-Parameters													ProtocolIE-ID ::= 1045
 
 END
+
