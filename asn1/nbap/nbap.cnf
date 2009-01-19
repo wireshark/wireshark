@@ -483,8 +483,8 @@ ERACH-CM-Rqst															N nbap.ies id-ERACH-CM-Rqst
 ERACH-CM-Rsp															N nbap.ies id-ERACH-CM-Rsp
 ERACH-CM-Rprt															N nbap.ies id-ERACH-CM-Rprt
 EDCH-RACH-Report-Value													N nbap.ies id-EDCH-RACH-Report-Value
-EDCH-RACH-Report-IncrDecrThres											N nbap.ie id-EDCH-RACH-Report-IncrDecrThres
-EDCH-RACH-Report-ThresholdInformation									N nbap.ien id-EDCH-RACH-Report-ThresholdInformation
+EDCH-RACH-Report-IncrDecrThres											N nbap.ies id-EDCH-RACH-Report-IncrDecrThres
+EDCH-RACH-Report-ThresholdInformation									N nbap.ies id-EDCH-RACH-Report-ThresholdInformation
 
 #NBAP-PROTOCOL-EXTENSION
 BroadcastCommonTransportBearerIndication				N nbap.extension id-BroadcastCommonTransportBearerIndication			

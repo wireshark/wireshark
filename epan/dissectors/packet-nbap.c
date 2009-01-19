@@ -61755,8 +61755,8 @@ proto_reg_handoff_nbap(void)
   dissector_add("nbap.ies", id_ERACH_CM_Rsp, new_create_dissector_handle(dissect_ERACH_CM_Rsp_PDU, proto_nbap));
   dissector_add("nbap.ies", id_ERACH_CM_Rprt, new_create_dissector_handle(dissect_ERACH_CM_Rprt_PDU, proto_nbap));
   dissector_add("nbap.ies", id_EDCH_RACH_Report_Value, new_create_dissector_handle(dissect_EDCH_RACH_Report_Value_PDU, proto_nbap));
-  dissector_add("nbap.ie", id_EDCH_RACH_Report_IncrDecrThres, new_create_dissector_handle(dissect_EDCH_RACH_Report_IncrDecrThres_PDU, proto_nbap));
-  dissector_add("nbap.ien", id_EDCH_RACH_Report_ThresholdInformation, new_create_dissector_handle(dissect_EDCH_RACH_Report_ThresholdInformation_PDU, proto_nbap));
+  dissector_add("nbap.ies", id_EDCH_RACH_Report_IncrDecrThres, new_create_dissector_handle(dissect_EDCH_RACH_Report_IncrDecrThres_PDU, proto_nbap));
+  dissector_add("nbap.ies", id_EDCH_RACH_Report_ThresholdInformation, new_create_dissector_handle(dissect_EDCH_RACH_Report_ThresholdInformation_PDU, proto_nbap));
   dissector_add("nbap.extension", id_BroadcastCommonTransportBearerIndication, new_create_dissector_handle(dissect_BroadcastCommonTransportBearerIndication_PDU, proto_nbap));
   dissector_add("nbap.extension", id_MessageStructure, new_create_dissector_handle(dissect_MessageStructure_PDU, proto_nbap));
   dissector_add("nbap.extension", id_TypeOfError, new_create_dissector_handle(dissect_TypeOfError_PDU, proto_nbap));
