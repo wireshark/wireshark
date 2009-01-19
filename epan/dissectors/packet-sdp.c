@@ -167,6 +167,7 @@ static int hf_media_sample_rate = -1;
 static int hf_media_format_specific_parameter = -1;
 static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
+static int hf_sdp_fmtp_h263_level = -1;
 static int hf_sdp_h264_packetization_mode = -1;
 static int hf_sdp_h264_sprop_parameter_sets = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
@@ -1231,6 +1232,22 @@ static const value_string h263_profile_vals[] =
   { 0, NULL },
 };
 
+
+/* RFC 4629 The level are described in table X.2 of H.263 annex X */
+static const value_string h263_level_vals[] =
+{
+  { 10,    "QCIF (176 x 144), 1 x 64Kb/s" },
+  { 20,    "CIF (352 x 288), 2 x 64Kb/s" },
+  { 30,    "CIF (352 x 288), 6 x 64Kb/s" },
+  { 40,    "CIF (352 x 288), 32 x 64Kb/s" },
+  { 45,    "QCIF (176 x144) support of CPFMT, 2 x 64Kb/s" },
+  { 50,    "CIF (352 x 288) support of CPFMT, 64 x 64Kb/s" },
+  { 60,    "CPFMT: 720 x 288 support of CPFMT, 128 x 64Kb/s" },
+  { 70,    "CPFMT: 720 x 576 support of CPFMT, 256 x 64Kb/s" },
+  { 0, NULL },
+};
+
+
 static const value_string h264_packetization_mode_vals[] =
 {
   { 0,    "Single NAL mode" },
@@ -1296,12 +1313,19 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   }
 
   /* Dissect the H263-2000 profile parameter if present */
-  if (mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-2000") == 0) {
+  if ((mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-2000") == 0)||(mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-1998") == 0)) {
     if (strcmp((char*)field_name, "profile") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
+                                 atol((char*)format_specific_parameter));
+      PROTO_ITEM_SET_GENERATED(item);
+	}else if(strcmp((char*)field_name, "level") == 0) {
+      offset++;
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_level, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
     }
@@ -1893,6 +1917,10 @@ proto_register_sdp(void)
       { "Profile",
         "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
         "Profile", HFILL }},
+	{ &hf_sdp_fmtp_h263_level,
+      { "Level",
+        "sdp.fmtp.h263level",FT_UINT32, BASE_DEC,VALS(h263_level_vals), 0x0,
+        "level", HFILL }},
 	{ &hf_sdp_h264_packetization_mode,
       { "Packetization mode",
         "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
