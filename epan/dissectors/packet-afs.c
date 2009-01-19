@@ -395,7 +395,7 @@ static gint ett_afs_vldb_flags = -1;
 #define OUT_TIMESTAMP(field) \
 	{ nstime_t ts; \
 	ts.secs = tvb_get_ntohl(tvb, offset); \
-	ts.nsecs = tvb_get_ntohl(tvb, offset)*1000; \
+	ts.nsecs = tvb_get_ntohl(tvb, offset+4)*1000; \
 	proto_tree_add_time(tree,field, tvb,offset,2*sizeof(guint32),&ts); \
 	offset += 8; \
 	}
