@@ -51,7 +51,7 @@
     </para>
     </tip>
     <para>
-	  If you didn't save the current capture file before, you will be asked 
+	  If you haven't previously saved the current capture file, you will be asked 
 	  to do so, to prevent data loss (this behaviour can be disabled in the 
 	  preferences).
     </para>
@@ -129,7 +129,7 @@
 	  </listitem>
 	  <listitem>
 	    <para>
-	      Specify which name resolution is to be performed for all packets by 
+	      Specify which type of name resolution is to be performed for all packets by 
 		  clicking on one of the "... name resolution" check buttons. 
 		  Details about name resolution can be found in 
 		  <xref linkend="ChAdvNameResolutionSection"/>.
@@ -284,34 +284,42 @@
 	      <listitem><para>AIX's iptrace captures</para></listitem>
 	      <listitem><para>Cinco Networks NetXray captures</para></listitem>		  
 	      <listitem><para>Network Associates Windows-based Sniffer and Sniffer Pro captures</para></listitem>
-		  <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures</para></listitem>
+	      <listitem><para>Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures</para></listitem>
 	      <listitem><para>AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures</para></listitem>
 	      <listitem><para>RADCOM's WAN/LAN Analyzer captures</para></listitem>
-		  <listitem><para>Network Instruments Observer version 9 captures</para></listitem>
-		  <listitem><para>Lucent/Ascend router debug output</para></listitem>		  
+	      <listitem><para>Network Instruments Observer version 9 captures</para></listitem>
+	      <listitem><para>Lucent/Ascend router debug output</para></listitem>		  
 	      <listitem><para>HP-UX's nettl</para></listitem>
 	      <listitem><para>Toshiba's ISDN routers dump output</para></listitem>
 	      <listitem><para>ISDN4BSD <emphasis>i4btrace</emphasis> utility</para></listitem>
-		  <listitem><para>traces from the EyeSDN USB S0</para></listitem>
-		  <listitem><para>IPLog format from the Cisco Secure Intrusion Detection System</para></listitem>
-		  <listitem><para>pppd logs (pppdump format)</para></listitem>
-		  <listitem><para>the output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities</para></listitem>
-		  <listitem><para>the text output from the DBS Etherwatch VMS utility</para></listitem>
-		  <listitem><para>Visual Networks' Visual UpTime traffic capture</para></listitem>
-		  <listitem><para>the output from CoSine L2 debug</para></listitem>
-		  <listitem><para>the output from Accellent's 5Views LAN agents</para></listitem>
-		  <listitem><para>Endace Measurement Systems' ERF format captures</para></listitem>
-		  <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
-		  <listitem><para>Catapult DCT2000 .out files</para></listitem>
-		  <listitem><para>... new file formats are added from time to time</para></listitem>
+	      <listitem><para>traces from the EyeSDN USB S0</para></listitem>
+	      <listitem><para>IPLog format from the Cisco Secure Intrusion Detection System</para></listitem>
+	      <listitem><para>pppd logs (pppdump format)</para></listitem>
+	      <listitem><para>the output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities</para></listitem>
+	      <listitem><para>the text output from the DBS Etherwatch VMS utility</para></listitem>
+	      <listitem><para>Visual Networks' Visual UpTime traffic capture</para></listitem>
+	      <listitem><para>the output from CoSine L2 debug</para></listitem>
+	      <listitem><para>the output from Accellent's 5Views LAN agents</para></listitem>
+	      <listitem><para>Endace Measurement Systems' ERF format captures</para></listitem>
+	      <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
+	      <listitem><para>Catapult DCT2000 .out files</para></listitem>
+	      <listitem><para>Gammu generated text output from Nokia DCT3 phones in Netmonitor mode</para></listitem>
+	      <listitem><para>IBM Series (OS/400) Comm traces (ASCII &amp; UNICODE)</para></listitem>
+	      <listitem><para>Juniper Netscreen snoop captures</para></listitem>
+	      <listitem><para>Symbian OS btsnoop captures</para></listitem>
+	      <listitem><para>Tamosoft CommView captures</para></listitem>
+	      <listitem><para>Textronix K12xx 32bit .rf5 format captures</para></listitem>
+	      <listitem><para>Textronix K12 text file format captures</para></listitem>
+	      <listitem><para>Wireshark .pcapng captures (Experimental)</para></listitem>
+	      <listitem><para>... new file formats are added from time to time</para></listitem>
 	</itemizedlist>
     </para>
     <note><title>Opening a file may fail due to invalid packet types!</title>
 	<para>
 	It may not be possible to read some formats dependent on the packet types 
-	captured. Ethernet captures are usually supported for most file formats, 
-	but other packet types (e.g. token ring packets) may not be possible to 
-	read from all file formats.
+	captured. Ethernet captures are usually supported for most file formats but
+	it may not be possible to read other packet types (e.g. token ring packets) 
+	from all file formats.
 	</para>
 	</note>
 	
@@ -329,7 +337,7 @@
 	  <title>Saving may reduce the available information!</title>
 	  <para>
 	  Saving the captured packets will slightly reduce the amount of 
-	  information, e.g. the number of dropped packets will be lost,
+	  information, e.g. the number of dropped packets will be lost;
 	  see <xref linkend="ChAppFilesCaptureFilesSection"/> for details.
 	  </para>
 	</warning>
@@ -507,7 +515,7 @@
 	<warning><title>File formats have different time stamp accuracies!</title>
 	<para>
 	Saving from the currently used file format to a different format may reduce the 
-	time stamp accuracy, see the <xref linkend="ChAdvTimestamps"/> for details.
+	time stamp accuracy; see the <xref linkend="ChAdvTimestamps"/> for details.
 	</para>
 	</warning>
     <para>
@@ -523,7 +531,7 @@
 	      <listitem><para>Novell LANalyzer (*.tr1)</para></listitem>
 	      <listitem><para>Sun snoop (*.snoop,*.cap)</para></listitem>
 	      <listitem><para>Visual Networks Visual UpTime traffic (*.*)</para></listitem>
-		  <listitem><para>... new file formats are added from time to time</para></listitem>
+	      <listitem><para>... new file formats are added from time to time</para></listitem>
 	</itemizedlist>
     </para>
     <para>
@@ -701,7 +709,7 @@
     </para>
     <para>
 	  To find the files of a file set, Wireshark scans the directory where the 
-	  currently loaded file resides and scans for files matching the filename 
+	  currently loaded file resides and checks for files matching the filename 
 	  pattern (prefix and suffix) of the currently loaded file. 
     </para>
     <para>
