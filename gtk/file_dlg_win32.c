@@ -78,22 +78,22 @@ typedef enum {
 #define FILE_SAVE_DEFAULT 1 /* Wireshark/tcpdump */
 
 #define FILE_TYPES_EXPORT \
-    _T("Plain text (*.txt)\0")		        	_T("*.txt\0")	\
-    _T("PostScript (*.ps)\0")			        _T("*.ps\0")	\
-    _T("CSV (Comma Separated Values summary) (*.csv)\0")	_T("*.csv\0")	\
-    _T("PSML (XML packet summary) (*.psml)\0") 		_T("*.psml\0")	\
-    _T("PDML (XML packet detail) (*.pdml)\0")  		_T("*.pdml\0")	\
-    _T("C Arrays (packet bytes) (*.c)\0")		_T("*.c\0")
+    _T("Plain text (*.txt)\0")                           _T("*.txt\0")   \
+    _T("PostScript (*.ps)\0")                            _T("*.ps\0")    \
+    _T("CSV (Comma Separated Values summary) (*.csv)\0") _T("*.csv\0")   \
+    _T("PSML (XML packet summary) (*.psml)\0")           _T("*.psml\0")  \
+    _T("PDML (XML packet detail) (*.pdml)\0")            _T("*.pdml\0")  \
+    _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")
 
 #define FILE_TYPES_RAW \
-    _T("Raw data (*.bin, *.dat, *.raw)\0")	_T("*.bin;*.dat;*.raw\0")	\
-    _T("All Files (*.*)\0")			_T("*.*\0")
+    _T("Raw data (*.bin, *.dat, *.raw)\0")               _T("*.bin;*.dat;*.raw\0") \
+    _T("All Files (*.*)\0")                              _T("*.*\0")
 
 #define FILE_RAW_DEFAULT 1
 
 #define FILE_TYPES_COLOR \
-    _T("Text Files (*.txt)\0")	_T("*.txt\0")	\
-    _T("All Files (*.*)\0")	_T("*.*\0")
+    _T("Text Files (*.txt)\0")                           _T("*.txt\0")   \
+    _T("All Files (*.*)\0")                              _T("*.*\0")
 
 #define FILE_DEFAULT_COLOR 2
 
@@ -136,32 +136,32 @@ win32_open_file (HWND h_wnd) {
     int    err;
     char  *dirname;
     dfilter_t *dfp;
-	int    ofnsize;
+    int    ofnsize;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
 
-	/* Remarks on OPENFILENAME_SIZE_VERSION_400:
-	 *
-	 * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
-	 * WINVER and _WIN32_WINNT >= 0x0500.
-	 * Unfortunately all these are compiler constants, while the underlying is a
-	 * problem based is a length check of the runtime version used.
-	 *
-	 * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
-	 * the OPENFILENAME size plus 12 bytes.
-	 * These 12 bytes are the difference between the two versions of this struct.
-	 *
-	 * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
-	 * is displayed - which wasn't the case with the former implementation.
-	 *
-	 * XXX - It's unclear if this length+12 works on all supported platforms,
-	 * NT4 is the question here. However, even if it fails, we must calculate
-	 * the length based on the runtime, not the compiler version anyway ...
-	 */
-   /* This assumption does not work when compiling with MSVC2008EE as
-    * the open dialog window does not appear.
-    * Instead detect Windows version at runtime and choose size accordingly */
+    /* Remarks on OPENFILENAME_SIZE_VERSION_400:
+     *
+     * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
+     * WINVER and _WIN32_WINNT >= 0x0500.
+     * Unfortunately all these are compiler constants, while the underlying is a
+     * problem based is a length check of the runtime version used.
+     *
+     * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
+     * the OPENFILENAME size plus 12 bytes.
+     * These 12 bytes are the difference between the two versions of this struct.
+     *
+     * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
+     * is displayed - which wasn't the case with the former implementation.
+     *
+     * XXX - It's unclear if this length+12 works on all supported platforms,
+     * NT4 is the question here. However, even if it fails, we must calculate
+     * the length based on the runtime, not the compiler version anyway ...
+     */
+    /* This assumption does not work when compiling with MSVC2008EE as
+     * the open dialog window does not appear.
+     * Instead detect Windows version at runtime and choose size accordingly */
 #if (_MSC_VER >= 1500)
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -174,7 +174,7 @@ win32_open_file (HWND h_wnd) {
 #else
     ofnsize = sizeof(OPENFILENAME) + 12;
 #endif
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -188,43 +188,43 @@ win32_open_file (HWND h_wnd) {
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+        ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
     ofn->lpstrTitle = _T("Wireshark: Open Capture File");
-    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
-	    OFN_ENABLEHOOK | OFN_SHOWHELP;
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
+                 OFN_ENABLEHOOK   | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = open_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
 
     if (GetOpenFileName(ofn)) {
-    g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+        g_free( (void *) ofn->lpstrFilter);
+        g_free( (void *) ofn);
 
-	if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
-	    return FALSE;
-	}
+        if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
+            return FALSE;
+        }
 
         /* apply our filter */
         if (dfilter_compile(dfilter_open_str, &dfp)) {
             cf_set_rfcode(&cfile, dfp);
         }
 
-	switch (cf_read(&cfile)) {
+        switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
                 dirname = get_dirname(utf_16to8(file_name));
                 set_last_open_dir(dirname);
                 return TRUE;
                 break;
-	}
-	} else {
-	g_free( (void *) ofn->lpstrFilter);
-	g_free( (void *) ofn);
-	}
+        }
+    } else {
+        g_free( (void *) ofn->lpstrFilter);
+        g_free( (void *) ofn);
+    }
     return FALSE;
 }
 
@@ -237,12 +237,12 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     gchar *file_last_dot;
     gchar *dirname;
     int save_index;
-	int    ofnsize;
+    int    ofnsize;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -255,7 +255,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 #else
     ofnsize = sizeof(OPENFILENAME) + 12;
 #endif
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -268,81 +268,81 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Save file as");
-    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
+    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = save_as_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
     if (GetSaveFileName(ofn)) {
-    filetype = file_type_from_list_index(TRUE /*save*/, ofn->nFilterIndex);
+        filetype = file_type_from_list_index(TRUE /*save*/, ofn->nFilterIndex);
 
-    /* append the default file extension if there's none given by the user */
-    /* (we expect a file extension to be at most 5 chars + the dot) */
-    file_name8 = g_string_new(utf_16to8(file_name16));
-    file_last_dot = strrchr(file_name8->str,'.');
-    if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
-    	if(wtap_file_extension_default_string(filetype) != NULL) {
-        	file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
+        /* append the default file extension if there's none given by the user */
+        /* (we expect a file extension to be at most 5 chars + the dot) */
+        file_name8 = g_string_new(utf_16to8(file_name16));
+        file_last_dot = strrchr(file_name8->str,'.');
+        if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
+            if(wtap_file_extension_default_string(filetype) != NULL) {
+                file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
+            }
         }
-    }
 
-	g_sf_hwnd = NULL;
-	/* Write out the packets (all, or only the ones from the current
-	   range) to the file with the specified name. */
+        g_sf_hwnd = NULL;
+        /* Write out the packets (all, or only the ones from the current
+           range) to the file with the specified name. */
 
-    /* GetSaveFileName() already asked the user if he wants to overwrite the old file, */
-    /* so if we are here, user already confirmed to overwrite - just delete the old file now */
-    unlink(file_name8->str);
+        /* GetSaveFileName() already asked the user if he wants to overwrite the old file, */
+        /* so if we are here, user already confirmed to overwrite - just delete the old file now */
+        unlink(file_name8->str);
 
-	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
-	    /* The write failed.  Try again. */
+        if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
+            /* The write failed.  Try again. */
+            g_string_free(file_name8, TRUE /* free_segment */);
+            g_free( (void *) ofn->lpstrFilter);
+            g_free( (void *) ofn);
+            win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
+            return;
+        }
+
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(file_name8->str);  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
+
         g_string_free(file_name8, TRUE /* free_segment */);
-		g_free( (void *) ofn->lpstrFilter);
-		g_free( (void *) ofn);
-	    win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
-	    return;
-	}
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(file_name8->str);  /* Overwrites cf_name */
-	set_last_open_dir(dirname);
-
-    g_string_free(file_name8, TRUE /* free_segment */);
-
-	/* we have finished saving, do we have pending things to do? */
-	switch(action_after_save) {
-	    case(after_save_no_action):
-		break;
-	    case(after_save_open_dialog):
-		win32_open_file(h_wnd);
-		break;
-	    case(after_save_open_recent_file):
-		menu_open_recent_file_cmd(action_after_save_data);
-		break;
-	    case(after_save_open_dnd_file):
-		dnd_open_file_cmd(action_after_save_data);
-		break;
-	    case(after_save_merge_dialog):
-		win32_merge_file(h_wnd);
-		break;
+        /* we have finished saving, do we have pending things to do? */
+        switch(action_after_save) {
+            case(after_save_no_action):
+                break;
+            case(after_save_open_dialog):
+                win32_open_file(h_wnd);
+                break;
+            case(after_save_open_recent_file):
+                menu_open_recent_file_cmd(action_after_save_data);
+                break;
+            case(after_save_open_dnd_file):
+                dnd_open_file_cmd(action_after_save_data);
+                break;
+            case(after_save_merge_dialog):
+                win32_merge_file(h_wnd);
+                break;
 #ifdef HAVE_LIBPCAP
-	    case(after_save_capture_dialog):
-		capture_start_confirmed();
-		break;
+            case(after_save_capture_dialog):
+                capture_start_confirmed();
+                break;
 #endif
-	    case(after_save_close_file):
-		cf_close(&cfile);
-		break;
-	     case(after_save_exit):
-		main_do_quit();
-		break;
-	    default:
-		g_assert_not_reached();
-	}
+            case(after_save_close_file):
+                cf_close(&cfile);
+                break;
+            case(after_save_exit):
+                main_do_quit();
+                break;
+            default:
+                g_assert_not_reached();
+        }
     }
     g_sf_hwnd = NULL;
     g_free( (void *) ofn->lpstrFilter);
@@ -392,14 +392,14 @@ win32_merge_file (HWND h_wnd) {
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+        ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
     ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
-    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
-	    OFN_ENABLEHOOK | OFN_SHOWHELP;
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR  | OFN_FILEMUSTEXIST  | OFN_HIDEREADONLY |
+                 OFN_ENABLEHOOK   | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = merge_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
@@ -512,9 +512,9 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export File");
-    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
+    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = export_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
@@ -530,56 +530,56 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     print_args.print_formfeed      = FALSE;
 
     if (GetSaveFileName(ofn)) {
-	print_args.file = utf_16to8(file_name);
-	switch (ofn->nFilterIndex) {
-	    case export_type_text:	/* Text */
-		print_args.stream = print_stream_text_new(TRUE, print_args.file);
-		if (print_args.stream == NULL) {
-		    open_failure_alert_box(print_args.file, errno, TRUE);
-		    g_free( (void *) ofn);
-		    return;
-		}
-		status = cf_print_packets(&cfile, &print_args);
-		break;
-	    case export_type_ps:	/* PostScript (r) */
-		print_args.stream = print_stream_ps_new(TRUE, print_args.file);
-		if (print_args.stream == NULL) {
-		    open_failure_alert_box(print_args.file, errno, TRUE);
-		    g_free( (void *) ofn);
-		    return;
-		}
-		status = cf_print_packets(&cfile, &print_args);
-		break;
+        print_args.file = utf_16to8(file_name);
+        switch (ofn->nFilterIndex) {
+            case export_type_text:      /* Text */
+                print_args.stream = print_stream_text_new(TRUE, print_args.file);
+                if (print_args.stream == NULL) {
+                    open_failure_alert_box(print_args.file, errno, TRUE);
+                    g_free( (void *) ofn);
+                    return;
+                }
+                status = cf_print_packets(&cfile, &print_args);
+                break;
+            case export_type_ps:        /* PostScript (r) */
+                print_args.stream = print_stream_ps_new(TRUE, print_args.file);
+                if (print_args.stream == NULL) {
+                    open_failure_alert_box(print_args.file, errno, TRUE);
+                    g_free( (void *) ofn);
+                    return;
+                }
+                status = cf_print_packets(&cfile, &print_args);
+                break;
             case export_type_csv:       /* CSV */
                 status = cf_write_csv_packets(&cfile, &print_args);
                 break;
             case export_type_carrays:   /* C Arrays */
                 status = cf_write_carrays_packets(&cfile, &print_args);
                 break;
-	    case export_type_psml:	/* PSML */
-		status = cf_write_psml_packets(&cfile, &print_args);
-		break;
-	    case export_type_pdml:	/* PDML */
-		status = cf_write_pdml_packets(&cfile, &print_args);
-		break;
-	    default:
-	    g_free( (void *) ofn);
-		return;
-	}
+            case export_type_psml:      /* PSML */
+                status = cf_write_psml_packets(&cfile, &print_args);
+                break;
+            case export_type_pdml:      /* PDML */
+                status = cf_write_pdml_packets(&cfile, &print_args);
+                break;
+            default:
+                g_free( (void *) ofn);
+                return;
+        }
 
-	switch (status) {
-	    case CF_PRINT_OK:
-		break;
+        switch (status) {
+            case CF_PRINT_OK:
+                break;
             case CF_PRINT_OPEN_ERROR:
-		open_failure_alert_box(print_args.file, errno, TRUE);
-		break;
+                open_failure_alert_box(print_args.file, errno, TRUE);
+                break;
             case CF_PRINT_WRITE_ERROR:
-		write_failure_alert_box(print_args.file, errno);
-		break;
-	}
+                write_failure_alert_box(print_args.file, errno);
+                break;
+        }
         /* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
-	set_last_open_dir(dirname);
+        dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
     }
 
     g_free( (void *) ofn);
@@ -599,9 +599,9 @@ win32_export_raw_file(HWND h_wnd) {
 #endif
 
     if (!cfile.finfo_selected) {
-	/* This shouldn't happen */
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No bytes were selected.");
-	return;
+        /* This shouldn't happen */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No bytes were selected.");
+        return;
     }
 
     /* see OPENFILENAME comment in win32_open_file */
@@ -632,9 +632,9 @@ win32_export_raw_file(HWND h_wnd) {
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Raw Data");
-    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
+    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lCustData = cfile.finfo_selected->length;
     ofn->lpfnHook = export_raw_file_hook_proc;
@@ -710,8 +710,8 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Color Filters");
-    ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+    ofn->Flags = OFN_ENABLESIZING  | OFN_EXPLORER        |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = NULL;
@@ -771,8 +771,8 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     ofn->nMaxFileTitle = 0;
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Import Color Filters");
-    ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+    ofn->Flags = OFN_ENABLESIZING  | OFN_EXPLORER        |
+                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = NULL;
@@ -815,17 +815,17 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
     SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All expanded"));
 
     switch (args->print_dissections) {
-	case print_dissections_none:
-	case print_dissections_collapsed:
-	    SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
-	    break;
-	case print_dissections_as_displayed:
-	    SendMessage(cur_ctrl, CB_SETCURSEL, 1, 0);
-	    break;
-	case print_dissections_expanded:
-	    SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
-	default:
-	    g_assert_not_reached();
+        case print_dissections_none:
+        case print_dissections_collapsed:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
+            break;
+        case print_dissections_as_displayed:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 1, 0);
+            break;
+        case print_dissections_expanded:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
+        default:
+            g_assert_not_reached();
     }
 
     /* Set the "Packet bytes" box */
@@ -845,44 +845,44 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-	args->print_summary = TRUE;
+        args->print_summary = TRUE;
     else
-	args->print_summary = FALSE;
+        args->print_summary = FALSE;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-	switch (SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0)) {
-	    case 0:
-		args->print_dissections = print_dissections_collapsed;
-		break;
-	    case 1:
-		args->print_dissections = print_dissections_as_displayed;
-		break;
-	    case 2:
-		args->print_dissections = print_dissections_expanded;
-		break;
-	    default:
-		g_assert_not_reached();
-	}
-	EnableWindow(cur_ctrl, TRUE);
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+        switch (SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0)) {
+            case 0:
+                args->print_dissections = print_dissections_collapsed;
+                break;
+            case 1:
+                args->print_dissections = print_dissections_as_displayed;
+                break;
+            case 2:
+                args->print_dissections = print_dissections_expanded;
+                break;
+            default:
+                g_assert_not_reached();
+        }
+        EnableWindow(cur_ctrl, TRUE);
     } else {
-	args->print_dissections = print_dissections_none;
-	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-	EnableWindow(cur_ctrl, FALSE);
+        args->print_dissections = print_dissections_none;
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+        EnableWindow(cur_ctrl, FALSE);
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-	args->print_hex = TRUE;
+        args->print_hex = TRUE;
     else
-	args->print_hex = FALSE;
+        args->print_hex = FALSE;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-	args->print_formfeed = TRUE;
+        args->print_formfeed = TRUE;
     else
-	args->print_formfeed = FALSE;
+        args->print_formfeed = FALSE;
 }
 
 
@@ -1111,59 +1111,59 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     TCHAR     sel_name[MAX_PATH];
 
     switch(msg) {
-	case WM_INITDIALOG:
-	    /* Retain the filter text, and fill it in. */
+        case WM_INITDIALOG:
+            /* Retain the filter text, and fill it in. */
             if(dfilter_open_str != NULL) {
                 cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
                 SetWindowText(cur_ctrl, utf_8to16(dfilter_open_str));
             }
 
-	    /* Fill in our resolution values */
-	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
-	    SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_MAC, 0);
-	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
-	    SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_NETWORK, 0);
-	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
-	    SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_TRANSPORT, 0);
+            /* Fill in our resolution values */
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_MAC, 0);
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_NETWORK, 0);
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_TRANSPORT, 0);
 
-	    preview_set_filename(of_hwnd, NULL);
-	    break;
-	case WM_NOTIFY:
-	    switch (notify->hdr.code) {
-		case CDN_FILEOK:
-		    /* Fetch the read filter */
+            preview_set_filename(of_hwnd, NULL);
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
+                case CDN_FILEOK:
+                    /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
                     dfilter_open_str = filter_tb_get(cur_ctrl);
 
-		    /* Fetch our resolution values */
-		    g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
-		    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-			g_resolv_flags |= RESOLV_MAC;
-		    cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-			g_resolv_flags |= RESOLV_NETWORK;
-		    cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-			g_resolv_flags |= RESOLV_TRANSPORT;
-		    break;
-		case CDN_SELCHANGE:
-		    /* This _almost_ works correctly. We need to handle directory
-		       selections, etc. */
-		    parent = GetParent(of_hwnd);
-		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-		    preview_set_filename(of_hwnd, utf_16to8(sel_name));
-		    break;
+                    /* Fetch our resolution values */
+                    g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        g_resolv_flags |= RESOLV_MAC;
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        g_resolv_flags |= RESOLV_NETWORK;
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        g_resolv_flags |= RESOLV_TRANSPORT;
+                    break;
+                case CDN_SELCHANGE:
+                    /* This _almost_ works correctly. We need to handle directory
+                       selections, etc. */
+                    parent = GetParent(of_hwnd);
+                    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
+                    preview_set_filename(of_hwnd, utf_16to8(sel_name));
+                    break;
                 case CDN_HELP:
                     topic_cb(NULL, HELP_OPEN_WIN32_DIALOG);
                     break;
-		default:
-		    break;
-	    }
-	    break;
-	case WM_COMMAND:
-	    cur_ctrl = (HWND) l_param;
-	    switch(w_param) {
+                default:
+                    break;
+            }
+            break;
+        case WM_COMMAND:
+            cur_ctrl = (HWND) l_param;
+            switch(w_param) {
                 case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
                     filter_tb_syntax_check(cur_ctrl, NULL);
                     break;
@@ -1176,12 +1176,12 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case EWFD_FILTER_BTN:
                     break;
                      */
-		default:
-		    break;
-	    }
-	    break;
-	default:
-	    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
     return 0;
 }
@@ -1297,11 +1297,11 @@ build_file_type_list(gboolean save, int *item_to_select) {
         sa = g_array_append_vals(sa, str16, strlen(str->str));
         sa = g_array_append_val(sa, zero);
 
-	if (ft == cfile.cd_t && item_to_select != NULL) {
-	    /* Default to the same format as the file, if it's supported. */
-	    *item_to_select = index;
-	}
-	index++;
+        if (ft == cfile.cd_t && item_to_select != NULL) {
+            /* Default to the same format as the file, if it's supported. */
+            *item_to_select = index;
+        }
+        index++;
     }
 
     /* terminate the array */
@@ -1364,66 +1364,66 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     /*int            new_filetype, index;*/
 
     switch(msg) {
-	case WM_INITDIALOG:
-	    g_sf_hwnd = sf_hwnd;
+        case WM_INITDIALOG:
+            g_sf_hwnd = sf_hwnd;
 
-	    /* Default to saving all packets, in the file's current format. */
-	    filetype = cfile.cd_t;
+            /* Default to saving all packets, in the file's current format. */
+            filetype = cfile.cd_t;
 
-	    /* init the packet range */
-	    packet_range_init(&range);
+            /* init the packet range */
+            packet_range_init(&range);
 
-	    /* Fill in the file format list */
-	    /*build_file_format_list(sf_hwnd);*/
+            /* Fill in the file format list */
+            /*build_file_format_list(sf_hwnd);*/
 
-	    range_handle_wm_initdialog(sf_hwnd, &range);
+            range_handle_wm_initdialog(sf_hwnd, &range);
 
-	    break;
-	case WM_COMMAND:
-	    cur_ctrl = (HWND) l_param;
+            break;
+        case WM_COMMAND:
+            cur_ctrl = (HWND) l_param;
 
-	    switch (w_param) {
+            switch (w_param) {
 #if 0
-		case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
-		    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
-		    if (index != CB_ERR) {
-			new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
-			if (new_filetype != CB_ERR) {
-			    if (filetype != new_filetype) {
-				if (can_save_with_wiretap(new_filetype)) {
-				    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-				    EnableWindow(cur_ctrl, TRUE);
-				    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-				    EnableWindow(cur_ctrl, TRUE);
-				} else {
-				    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-				    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
-				    EnableWindow(cur_ctrl, FALSE);
-				    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-				    EnableWindow(cur_ctrl, FALSE);
-				}
-				filetype = new_filetype;
-			    }
-			}
-		    }
-		    break;
+                case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
+                    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
+                    if (index != CB_ERR) {
+                        new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
+                        if (new_filetype != CB_ERR) {
+                            if (filetype != new_filetype) {
+                                if (can_save_with_wiretap(new_filetype)) {
+                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
+                                    EnableWindow(cur_ctrl, TRUE);
+                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
+                                    EnableWindow(cur_ctrl, TRUE);
+                                } else {
+                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
+                                    SendMessage(cur_ctrl, BM_SETCHECK, 0, 0);
+                                    EnableWindow(cur_ctrl, FALSE);
+                                    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
+                                    EnableWindow(cur_ctrl, FALSE);
+                                }
+                                filetype = new_filetype;
+                            }
+                        }
+                    }
+                    break;
 #endif
-		default:
-		    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &range);
-		    break;
-	    }
-	    break;
-	case WM_NOTIFY:
-	    switch (notify->hdr.code) {
+                default:
+                    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &range);
+                    break;
+            }
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
                 case CDN_HELP:
                     topic_cb(NULL, HELP_SAVE_WIN32_DIALOG);
                     break;
-		default:
-		    break;
-	    }
-	    break;
-	default:
-	    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
     return 0;
 }
@@ -1440,7 +1440,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-	filtered_active = TRUE;
+        filtered_active = TRUE;
 
     /* RANGE_SELECT_ALL */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
@@ -1511,9 +1511,9 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
 
     /* Set the appropriate captured/displayed radio */
     if (range->process_filtered)
-	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     else
-	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
     SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
 
     /* dynamic values in the range frame */
@@ -1521,23 +1521,23 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
 
     /* Set the appropriate range radio */
     switch(range->process) {
-	case(range_process_all):
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_BTN);
-	    break;
-	case(range_process_selected):
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_BTN);
-	    break;
-	case(range_process_marked):
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_BTN);
-	    break;
-	case(range_process_marked_range):
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_BTN);
-	    break;
-	case(range_process_user_range):
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
-	    break;
-	default:
-	    g_assert_not_reached();
+        case(range_process_all):
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_BTN);
+            break;
+        case(range_process_selected):
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_BTN);
+            break;
+        case(range_process_marked):
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_BTN);
+            break;
+        case(range_process_marked_range):
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_BTN);
+            break;
+        case(range_process_user_range):
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
+            break;
+        default:
+            g_assert_not_reached();
     }
     SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
 }
@@ -1548,56 +1548,56 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
     gchar range_text[RANGE_TEXT_MAX];
 
     switch(w_param) {
-	case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
-	case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
-	    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-		range->process_filtered = FALSE;
-	    else
-		range->process_filtered = TRUE;
-	    range_update_dynamics(dlg_hwnd, range);
-	    break;
-	case (BN_CLICKED << 16) | EWFD_ALL_PKTS_BTN:
-	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-		range->process = range_process_all;
-		range_update_dynamics(dlg_hwnd, range);
-	    }
-	    break;
-	case (BN_CLICKED << 16) | EWFD_SEL_PKT_BTN:
-	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-		range->process = range_process_selected;
-		range_update_dynamics(dlg_hwnd, range);
-	    }
-	    break;
-	case (BN_CLICKED << 16) | EWFD_MARKED_BTN:
-	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-		range->process = range_process_marked;
-		range_update_dynamics(dlg_hwnd, range);
-	    }
-	    break;
-	case (BN_CLICKED << 16) | EWFD_FIRST_LAST_BTN:
-	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-		range->process = range_process_marked_range;
-		range_update_dynamics(dlg_hwnd, range);
-	    }
-	    break;
-	case (BN_CLICKED << 16) | EWFD_RANGE_BTN:
-	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-		range->process = range_process_user_range;
-		range_update_dynamics(dlg_hwnd, range);
-		cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
-		SetFocus(cur_ctrl);
-	    }
-	    break;
-	case (EN_SETFOCUS << 16) | EWFD_RANGE_EDIT:
-	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
-	    SendMessage(cur_ctrl, BM_CLICK, 0, 0);
-	    break;
-	case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
-	    SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
-	    packet_range_convert_str(range, utf_16to8((unsigned short *) range_text));
-	    range_update_dynamics(dlg_hwnd, range);
-	    break;
+        case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
+        case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
+            if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                range->process_filtered = FALSE;
+            else
+                range->process_filtered = TRUE;
+            range_update_dynamics(dlg_hwnd, range);
+            break;
+        case (BN_CLICKED << 16) | EWFD_ALL_PKTS_BTN:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->process = range_process_all;
+                range_update_dynamics(dlg_hwnd, range);
+            }
+            break;
+        case (BN_CLICKED << 16) | EWFD_SEL_PKT_BTN:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->process = range_process_selected;
+                range_update_dynamics(dlg_hwnd, range);
+            }
+            break;
+        case (BN_CLICKED << 16) | EWFD_MARKED_BTN:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->process = range_process_marked;
+                range_update_dynamics(dlg_hwnd, range);
+            }
+            break;
+        case (BN_CLICKED << 16) | EWFD_FIRST_LAST_BTN:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->process = range_process_marked_range;
+                range_update_dynamics(dlg_hwnd, range);
+            }
+            break;
+        case (BN_CLICKED << 16) | EWFD_RANGE_BTN:
+            if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                range->process = range_process_user_range;
+                range_update_dynamics(dlg_hwnd, range);
+                cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+                SetFocus(cur_ctrl);
+            }
+            break;
+        case (EN_SETFOCUS << 16) | EWFD_RANGE_EDIT:
+            cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
+            SendMessage(cur_ctrl, BM_CLICK, 0, 0);
+            break;
+        case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
+            SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
+            packet_range_convert_str(range, utf_16to8((unsigned short *) range_text));
+            range_update_dynamics(dlg_hwnd, range);
+            break;
     }
 }
 
@@ -1608,64 +1608,64 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     TCHAR     sel_name[MAX_PATH];
 
     switch(msg) {
-	case WM_INITDIALOG:
-	    /* Retain the filter text, and fill it in. */
+        case WM_INITDIALOG:
+            /* Retain the filter text, and fill it in. */
             if(dfilter_merge_str != NULL) {
                 cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
                 SetWindowText(cur_ctrl, utf_8to16(dfilter_merge_str));
             }
 
-	    /* Append by default */
-	    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
-	    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
-	    merge_action = merge_append;
+            /* Append by default */
+            cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
+            SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+            merge_action = merge_append;
 
-	    preview_set_filename(mf_hwnd, NULL);
-	    break;
-	case WM_NOTIFY:
-	    switch (notify->hdr.code) {
-		case CDN_FILEOK:
-		    /* Fetch the read filter */
+            preview_set_filename(mf_hwnd, NULL);
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
+                case CDN_FILEOK:
+                    /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
                     dfilter_merge_str = filter_tb_get(cur_ctrl);
 
-		    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
-		    if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			merge_action = merge_chrono;
-		    } else {
-			cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
-			if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			    merge_action = merge_prepend;
-			}
-		    }
+                    cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
+                    if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                        merge_action = merge_chrono;
+                    } else {
+                        cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_PREPEND_BTN);
+                        if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+                            merge_action = merge_prepend;
+                        }
+                    }
 
-		    break;
-		case CDN_SELCHANGE:
-		    /* This _almost_ works correctly.  We need to handle directory
-		       selections, etc. */
-		    parent = GetParent(mf_hwnd);
-		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-		    preview_set_filename(mf_hwnd, utf_16to8(sel_name));
-		    break;
+                    break;
+                case CDN_SELCHANGE:
+                    /* This _almost_ works correctly.  We need to handle directory
+                       selections, etc. */
+                    parent = GetParent(mf_hwnd);
+                    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
+                    preview_set_filename(mf_hwnd, utf_16to8(sel_name));
+                    break;
                 case CDN_HELP:
                     topic_cb(NULL, HELP_MERGE_WIN32_DIALOG);
                     break;
-		default:
-		    break;
-	    }
-	    break;
-	case WM_COMMAND:
-	    cur_ctrl = (HWND) l_param;
-	    switch(w_param) {
-		case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
-		    filter_tb_syntax_check(cur_ctrl, NULL);
-		    break;
-		default:
-		    break;
-	    }
-	    break;
-	default:
-	    break;
+                default:
+                    break;
+            }
+            break;
+        case WM_COMMAND:
+            cur_ctrl = (HWND) l_param;
+            switch(w_param) {
+                case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
+                    filter_tb_syntax_check(cur_ctrl, NULL);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
     return 0;
 }
@@ -1679,52 +1679,52 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     int            i, index;
 
     switch(msg) {
-	case WM_INITDIALOG:
-	    /* init the printing range */
-	    packet_range_init(&print_args.range);
-	    range_handle_wm_initdialog(ef_hwnd, &print_args.range);
-	    format_handle_wm_initdialog(ef_hwnd, &print_args);
+        case WM_INITDIALOG:
+            /* init the printing range */
+            packet_range_init(&print_args.range);
+            range_handle_wm_initdialog(ef_hwnd, &print_args.range);
+            format_handle_wm_initdialog(ef_hwnd, &print_args);
 
-	    break;
-	case WM_COMMAND:
-	    cur_ctrl = (HWND) l_param;
-	    switch (w_param) {
-		case (CBN_SELCHANGE << 16) | EWFD_PKT_DETAIL_COMBO:
-		default:
-		    range_handle_wm_command(ef_hwnd, cur_ctrl, w_param, &print_args.range);
-		    print_update_dynamic(ef_hwnd, &print_args);
-		    break;
-	    }
-	    break;
-	case WM_NOTIFY:
-	    switch (notify->hdr.code) {
-		case CDN_FILEOK:
-		    break;
-		case CDN_TYPECHANGE:
-		    index = notify->lpOFN->nFilterIndex;
+            break;
+        case WM_COMMAND:
+            cur_ctrl = (HWND) l_param;
+            switch (w_param) {
+                case (CBN_SELCHANGE << 16) | EWFD_PKT_DETAIL_COMBO:
+                default:
+                    range_handle_wm_command(ef_hwnd, cur_ctrl, w_param, &print_args.range);
+                    print_update_dynamic(ef_hwnd, &print_args);
+                    break;
+            }
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
+                case CDN_FILEOK:
+                    break;
+                case CDN_TYPECHANGE:
+                    index = notify->lpOFN->nFilterIndex;
 
-		    if (index == 2)	/* PostScript */
-			print_args.format = PR_FMT_TEXT;
-		    else
-			print_args.format = PR_FMT_PS;
-		    if (index == 3 || index == 4 || index == 5 || index == 6)
-			pkt_fmt_enable = FALSE;
-		    else
-			pkt_fmt_enable = TRUE;
-		    for (i = EWFD_PKT_FORMAT_GB; i <= EWFD_PKT_NEW_PAGE_CB; i++) {
-			cur_ctrl = GetDlgItem(ef_hwnd, i);
-			EnableWindow(cur_ctrl, pkt_fmt_enable);
-		    }
-		    break;
+                    if (index == 2)     /* PostScript */
+                        print_args.format = PR_FMT_TEXT;
+                    else
+                        print_args.format = PR_FMT_PS;
+                    if (index == 3 || index == 4 || index == 5 || index == 6)
+                        pkt_fmt_enable = FALSE;
+                    else
+                        pkt_fmt_enable = TRUE;
+                    for (i = EWFD_PKT_FORMAT_GB; i <= EWFD_PKT_NEW_PAGE_CB; i++) {
+                        cur_ctrl = GetDlgItem(ef_hwnd, i);
+                        EnableWindow(cur_ctrl, pkt_fmt_enable);
+                    }
+                    break;
                 case CDN_HELP:
                     topic_cb(NULL, HELP_EXPORT_FILE_WIN32_DIALOG);
                     break;
-		default:
-		    break;
-	    }
-	    break;
-	default:
-	    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
     return 0;
 }
@@ -1737,22 +1737,36 @@ export_raw_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
 
     switch(msg) {
-	case WM_INITDIALOG:
-	    _snwprintf(raw_msg, sizeof(raw_msg), _T("%d byte%s of raw binary data will be written"),
-		    ofnp->lCustData, plurality(ofnp->lCustData, "", "s"));
-	    cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
-	    SetWindowText(cur_ctrl, raw_msg);
-	    break;
-	case WM_NOTIFY:
-	    switch (notify->hdr.code) {
+        case WM_INITDIALOG:
+            _snwprintf(raw_msg, sizeof(raw_msg), _T("%d byte%s of raw binary data will be written"),
+                    ofnp->lCustData, plurality(ofnp->lCustData, "", "s"));
+            cur_ctrl = GetDlgItem(ef_hwnd, EWFD_EXPORTRAW_ST);
+            SetWindowText(cur_ctrl, raw_msg);
+            break;
+        case WM_NOTIFY:
+            switch (notify->hdr.code) {
                 case CDN_HELP:
                     topic_cb(NULL, HELP_EXPORT_BYTES_WIN32_DIALOG);
                     break;
                 default:
                     break;
             }
-	default:
-	    break;
+        default:
+            break;
     }
     return 0;
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+
