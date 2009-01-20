@@ -274,7 +274,12 @@
 			SMS_BearerData_tvb = NULL;
 			return offset;
 		}
-		if(!ansi_map_is_invoke){
+		if (ansi_map_sms_tele_id != -1)
+		{
+			dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+		}
+		else
+		{
 			switch(ServiceIndicator){
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
@@ -285,13 +290,6 @@
 					break;
 				default:
 					break;
-			}
-		}
-		else
-		{
-			if (ansi_map_sms_tele_id != -1)
-			{
-				dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
 			}
 		}
 	}
@@ -432,9 +430,9 @@
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
+		ServiceIndicator = tvb_get_guint8(parameter_tvb,0);
 		if (SMS_BearerData_tvb !=NULL)
 		{
-			ServiceIndicator = tvb_get_guint8(parameter_tvb,0);
 			switch(ServiceIndicator){
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
@@ -470,6 +468,7 @@ RedirectingNumberDigits = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 RedirectingNumberString = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 CallingPartyNumberDigits1 = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 CallingPartyNumberDigits2 = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+TemporaryReferenceNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 
 ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
 AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AuthenticationCapability_vals) 

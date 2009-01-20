@@ -2107,7 +2107,7 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 	-- O 3.2.2.98
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
-	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
+	messageWaitingNotificationType			[145] IMPLICIT MessageWaitingNotificationType OPTIONAL,
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
@@ -7909,7 +7909,7 @@ SignalingMessageEncryptionReport ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 0 1 1 (0x43)(195)
-TemporaryReferenceNumber ::= OCTET STRING
+TemporaryReferenceNumber ::= MINType
 
 -- 6.5.2.zB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -8090,7 +8090,7 @@ ReturnData ::= SEQUENCE {
 	qualificationRequestRes QualificationRequestRes,
 	resetCircuitRes ResetCircuitRes,
 	registrationNotificationRes RegistrationNotificationRes,
-    registrationCancellationRes RegistrationCancellationRes,
+	registrationCancellationRes RegistrationCancellationRes,
 	locationRequestRes LocationRequestRes,
 	routingRequestRes RoutingRequestRes,
 	featureRequestRes FeatureRequestRes,
