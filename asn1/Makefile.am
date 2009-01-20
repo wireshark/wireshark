@@ -52,6 +52,7 @@ SUBDIRS = \
 	h460		\
 	h501		\
 	inap		\
+	kerberos	\
 	ldap		\
 	logotype-cert-extn	\
 	lte-rrc	\
