@@ -38,7 +38,9 @@
 /*
  * See
  *
- *	http://stationpayloads.jsc.nasa.gov/J-reference/documents/ssp57002B.pdf
+ *	http://public.ccsds.org/publications/archive/133x0b1.pdf section 4.1
+ *
+ * for some information.
  */
 
 /* Initialize the protocol and registered fields */
@@ -149,7 +151,6 @@ void
 proto_register_ccsds(void)
 {                 
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_ccsds_version,
 			{ "version",           "ccsds.version",
