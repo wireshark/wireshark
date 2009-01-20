@@ -42,17 +42,16 @@
 #include "gtk/filter_autocomplete.h"
 
 
-static GtkWidget *column_l, *del_bt, *title_te, *field_te, *field_lb, *fmt_cmb, *up_bt, *dn_bt;
+static GtkWidget *column_l, *del_bt, *title_te, *field_te, *field_lb, *fmt_cmb;
 static gint       cur_fmt, cur_row;
 
-static void   column_list_select_cb(GtkTreeSelection *, gpointer);
-static void   column_entry_changed_cb(GtkEditable *, gpointer);
-static void   column_field_changed_cb(GtkEditable *, gpointer);
-static void   column_list_new_cb(GtkWidget *, gpointer);
-static void   column_menu_changed_cb(GtkWidget *, gpointer);
-static void   column_list_delete_cb(GtkWidget *, gpointer);
-static void   column_arrow_cb(GtkWidget *, gpointer);
-void          column_set_arrow_button_sensitivity(GList *);
+static void column_list_select_cb(GtkTreeSelection *, gpointer);
+static void column_entry_changed_cb(GtkEditable *, gpointer);
+static void column_field_changed_cb(GtkEditable *, gpointer);
+static void column_list_new_cb(GtkWidget *, gpointer);
+static void column_menu_changed_cb(GtkWidget *, gpointer);
+static void column_list_delete_cb(GtkWidget *, gpointer);
+static void column_dnd_row_deleted_cb(GtkTreeModel *, GtkTreePath *, gpointer);
 
 #define E_COL_NAME_KEY "column_name"
 #define E_COL_LBL_KEY  "column_label"
@@ -64,7 +63,6 @@ GtkWidget *
 column_prefs_show(GtkWidget *prefs_window) {
   GtkWidget         *main_vb, *top_hb, *new_bt,
                     *tb, *lb;
-  GtkWidget         *order_fr, *order_vb, *order_lb;
   GtkWidget         *list_fr, *list_vb, *list_lb, *list_sc;
   GtkWidget         *edit_fr, *edit_vb;
   GtkWidget         *props_fr, *props_hb;
@@ -136,9 +134,12 @@ column_prefs_show(GtkWidget *prefs_window) {
   gtk_widget_show(list_sc);
 
   store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+  g_signal_connect(GTK_TREE_MODEL(store), "row-deleted", G_CALLBACK(column_dnd_row_deleted_cb), NULL);
+
   column_l = tree_view_new(GTK_TREE_MODEL(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
   gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
+  gtk_tree_view_set_reorderable(GTK_TREE_VIEW(column_l), TRUE);
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes(column_titles[0], renderer,
                                                     "text", 0, NULL);
@@ -152,8 +153,8 @@ column_prefs_show(GtkWidget *prefs_window) {
   /* XXX - make this match the packet list prefs? */
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
-
   g_signal_connect(sel, "changed", G_CALLBACK(column_list_select_cb), NULL);
+
   gtk_container_add(GTK_CONTAINER(list_sc), column_l);
   gtk_widget_show(column_l);
 
@@ -177,34 +178,6 @@ column_prefs_show(GtkWidget *prefs_window) {
   }
   g_object_unref(G_OBJECT(store));
   
-
-  /* order frame */
-  order_fr = gtk_frame_new("Order");
-  gtk_box_pack_start (GTK_BOX (top_hb), order_fr, FALSE, FALSE, 0);
-  gtk_widget_show(order_fr);
-
-  order_vb = gtk_vbox_new (TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(order_fr), order_vb);
-  gtk_container_set_border_width  (GTK_CONTAINER (order_vb), 5);
-  gtk_widget_show(order_vb);
-
-  up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
-  gtk_widget_set_sensitive(up_bt, FALSE);
-  g_signal_connect(up_bt, "clicked", G_CALLBACK(column_arrow_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
-  gtk_widget_show(up_bt);
-
-  order_lb = gtk_label_new (("Move\nselected\ncolumn\nup or down"));
-  gtk_widget_show (order_lb);
-  gtk_box_pack_start (GTK_BOX (order_vb), order_lb, FALSE, FALSE, 0);
-
-  dn_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
-  gtk_widget_set_sensitive(dn_bt, FALSE);
-  g_signal_connect(dn_bt, "clicked", G_CALLBACK(column_arrow_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
-  gtk_widget_show(dn_bt);
-
-
   /* properties frame */
   props_fr = gtk_frame_new("Properties");
   gtk_box_pack_start (GTK_BOX (main_vb), props_fr, FALSE, FALSE, 0);
@@ -324,7 +297,6 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_widget_set_sensitive(title_te, TRUE);
         gtk_widget_set_sensitive(field_te, TRUE);
         gtk_widget_set_sensitive(fmt_cmb, TRUE);
-        column_set_arrow_button_sensitivity(clp);
     }
     else
     {
@@ -336,8 +308,6 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_widget_set_sensitive(title_te, FALSE);
         gtk_widget_set_sensitive(field_te, FALSE);
         gtk_widget_set_sensitive(fmt_cmb, FALSE);
-        gtk_widget_set_sensitive(up_bt, FALSE);
-        gtk_widget_set_sensitive(dn_bt, FALSE);
     }
 }
 
@@ -494,78 +464,42 @@ column_menu_changed_cb(GtkWidget *w, gpointer data _U_) {
     cfile.cinfo.columns_changed = TRUE;
 }
 
+/*
+ * Callback for the "row-deleted" signal emitted when a list item is dragged.
+ * http://library.gnome.org/devel/gtk/stable/GtkTreeModel.html#GtkTreeModel-rows-reordered
+ * says that DND deletes, THEN inserts the row. If this isn't the case, we'll
+ * have to find another way to do this (e.g. by rebuilding prefs.col_list by
+ * iterating over the tree model.
+ */
 static void
-column_arrow_cb(GtkWidget *w, gpointer data _U_) {
-    fmt_data         *cfmt;
-    GList            *clp1, *clp2;
-    GtkTreeSelection *sel;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter1, iter2;
-    GtkTreePath      *path;
-    gchar            *title1, *format1, *title2, *format2;
+column_dnd_row_deleted_cb(GtkTreeModel *model, GtkTreePath *path _U_, gpointer data _U_) {
+  GtkTreeIter       iter;
+  /* gpointer          cfmt; */
+  GList            *clp, *new_col_list = NULL;
+  gchar            *title, *format;
+  gboolean     items_left;
 
-    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
-    if (gtk_tree_selection_get_selected(sel, &model, &iter1))
-    {
-        gtk_tree_model_get(model, &iter1, 0, &title1,
-                           1, &format1, 2, &clp1, -1);
-        cfmt = (fmt_data *)clp1->data;
-        prefs.col_list = g_list_remove(prefs.col_list, cfmt);
+  /*
+   * XXX - This rebuilds prefs.col_list based on the current model. We
+   * might just want to do this when the prefs are applied
+   */
+  for (items_left = gtk_tree_model_get_iter_first (model, &iter);
+       items_left;
+       items_left = gtk_tree_model_iter_next (model, &iter)) {
 
-        if (w == up_bt)
-        {
-            cur_row--;
-            prefs.col_list = g_list_insert(prefs.col_list, cfmt, cur_row);
-            path = gtk_tree_model_get_path(model, &iter1);
-            gtk_tree_path_prev(path);
-            if (!gtk_tree_model_get_iter(model, &iter2, path))
-            {
-                gtk_tree_path_free(path);
-                return;
-            }
-            gtk_tree_path_free(path);
-        }
-        else
-        {
-            cur_row++;
-            prefs.col_list = g_list_insert(prefs.col_list, cfmt, cur_row);
-            iter2 = iter1;
-            if (!gtk_tree_model_iter_next(model, &iter2))
-            {
-                return;
-            }
-        }
-        clp1 = g_list_find(prefs.col_list, cfmt);
-        gtk_tree_model_get(model, &iter2, 0, &title2, 1, &format2, 2,
-                           &clp2, -1);
-        gtk_list_store_set(GTK_LIST_STORE(model), &iter2, 0, title1, 1,
-                           format1, 2, clp1, -1);
-        gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 0, title2, 1,
-                           format2, 2, clp2, -1);
-        gtk_tree_selection_select_iter(sel, &iter2);
-
-        column_set_arrow_button_sensitivity(clp1);
-
-        /* free strings read from the TreeModel */
-        g_free(title1);
-        g_free(format1);
-        g_free(title2);
-        g_free(format2);
+    gtk_tree_model_get(model, &iter, 0, &title, 1, &format, 2, &clp, -1);
+    if (clp) {
+      prefs.col_list = g_list_remove_link(prefs.col_list, clp);
+      new_col_list = g_list_concat(new_col_list, clp);
     }
-    cfile.cinfo.columns_changed = TRUE;
-}
-
-void
-column_set_arrow_button_sensitivity(GList *clp) {
-    gint up_sens = FALSE, dn_sens = FALSE;
-
-    if (clp != g_list_first(prefs.col_list))
-        up_sens = TRUE;
-    if (clp != g_list_last(prefs.col_list))
-        dn_sens = TRUE;
-
-    gtk_widget_set_sensitive(up_bt, up_sens);
-    gtk_widget_set_sensitive(dn_bt, dn_sens);
+  }
+  if (prefs.col_list) {
+    g_warning("column_dnd_row_deleted_cb: prefs.col_list has %d leftover data",
+      g_list_length(prefs.col_list));
+    g_list_free(prefs.col_list);
+  }
+  prefs.col_list = new_col_list;
+  cfile.cinfo.columns_changed = TRUE;
 }
 
 void
