@@ -1545,7 +1545,7 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
 static void
 range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range) {
     HWND  cur_ctrl;
-    gchar range_text[RANGE_TEXT_MAX];
+    TCHAR range_text[RANGE_TEXT_MAX];
 
     switch(w_param) {
         case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
@@ -1595,7 +1595,7 @@ range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t
             break;
         case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
             SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
-            packet_range_convert_str(range, utf_16to8((unsigned short *) range_text));
+            packet_range_convert_str(range, utf_16to8(range_text));
             range_update_dynamics(dlg_hwnd, range);
             break;
     }

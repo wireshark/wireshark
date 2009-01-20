@@ -245,9 +245,11 @@ gboolean value_is_in_range(range_t *range, guint32 val)
 {
    guint i;
 
-   for (i=0; i < range->nranges; i++) {
-      if (val >= range->ranges[i].low && val <= range->ranges[i].high)
-	 return TRUE;
+   if (range) {
+      for (i=0; i < range->nranges; i++) {
+         if (val >= range->ranges[i].low && val <= range->ranges[i].high)
+	     return TRUE;
+      }
    }
    return(FALSE);
 }
