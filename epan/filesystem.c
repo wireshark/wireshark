@@ -246,22 +246,22 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
 	TCHAR prog_pathname_w[_MAX_PATH+2];
 	size_t progfile_dir_len;
-        char *prog_pathname;
-        DWORD error;
-        TCHAR *msg_w;
-        guchar *msg;
-        size_t msglen;
+	char *prog_pathname;
+	DWORD error;
+	TCHAR *msg_w;
+	guchar *msg;
+	size_t msglen;
 
 	/*
 	 * Attempt to get the full pathname of the currently running
 	 * program.
 	 */
 	if (GetModuleFileName(NULL, prog_pathname_w, sizeof prog_pathname_w) != 0) {
-                /*
-                 * XXX - Should we use g_utf16_to_utf8(), as in
-                 * getenv_utf8()?
-                 */
-                prog_pathname = utf_16to8(prog_pathname_w);
+		/*
+		 * XXX - Should we use g_utf16_to_utf8(), as in
+		 * getenv_utf8()?
+		 */
+		prog_pathname = utf_16to8(prog_pathname_w);
 		/*
 		 * We got it; strip off the last component, which would be
 		 * the file name of the executable, giving us the pathname
