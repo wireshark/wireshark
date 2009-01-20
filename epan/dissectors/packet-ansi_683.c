@@ -1493,30 +1493,27 @@ static void
 for_param_block_val_spc(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint32	saved_offset;
-    guint32	value, count, i;
+    guint32	value;
 
     EXACT_DATA_CHECK(len, 3);
 
     saved_offset = offset;
 
-    value = tvb_get_ntoh24(tvb, offset);
+    value = tvb_get_guint8(tvb, offset++);
+    bigbuf[0] = bcd_digits[(value & 0x0f)];
+    bigbuf[1] = bcd_digits[(value & 0xf0) >> 4];
 
-    count = 6;	/* 2 x 3 octets */
+    value = tvb_get_guint8(tvb, offset++);
+    bigbuf[2] = bcd_digits[(value & 0x0f)];
+    bigbuf[3] = bcd_digits[(value & 0xf0) >> 4];
 
-    for (i=0; i < count; i++)
-    {
-	bigbuf[i] = bcd_digits[(value & 0x0f)];
-
-	if ((i + 1) < count)
-	{
-	    bigbuf[i+1] = bcd_digits[(value & 0xf0) >> 4];
-	    i++;
-	}
-    }
-    bigbuf[i] = '\0';
+    value = tvb_get_guint8(tvb, offset++);
+    bigbuf[4] = bcd_digits[(value & 0x0f)];
+    bigbuf[5] = bcd_digits[(value & 0xf0) >> 4];
+    bigbuf[6] = '\0';
 
     proto_tree_add_none_format(tree, hf_ansi_683_none,
-	tvb, offset, len,
+	tvb, saved_offset, len,
 	"Service programming code: %s",
 	bigbuf);
 }
