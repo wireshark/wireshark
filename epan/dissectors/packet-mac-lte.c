@@ -872,7 +872,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PADDING_LCID:
                         /* No payload, unless its the last subheader, in which case
                            it extends to the end of the PDU */
-                        if (n == (number_of_headers-1)) {
+                        if (n == (number_of_headers-1) && (tvb_length_remaining(tvb, offset) > 0)) {
                             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                                 tvb, offset, -1, FALSE);
                         }
