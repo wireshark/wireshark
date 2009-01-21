@@ -90,6 +90,8 @@ static int hf_rlc_lte_am_nack_sn = -1;
 static int hf_rlc_lte_am_so_start = -1;
 static int hf_rlc_lte_am_so_end = -1;
 
+static int hf_rlc_lte_predefined_pdu = -1;
+
 /* Subtrees. */
 static int ett_rlc_lte = -1;
 static int ett_rlc_lte_um_header = -1;
@@ -771,6 +773,11 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset);
             break;
 
+        case RLC_PREDEF:
+            /* Predefined data (i.e. not containing a valid RLC header */
+            proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, FALSE);
+            break;
+
         default:
             /* Error - unrecognised mode */
             expert_add_info_format(pinfo, mode_ti, PI_MALFORMED, PI_ERROR,
@@ -1014,6 +1021,12 @@ void proto_register_rlc_lte(void)
             }
         },
 
+        { &hf_rlc_lte_predefined_pdu,
+            { "Predefined data",
+              "rlc-lte.predefined-data", FT_BYTES, BASE_HEX, 0, 0x0,
+              "Predefined test data", HFILL
+            }
+        },
     };
 
     static gint *ett[] =
