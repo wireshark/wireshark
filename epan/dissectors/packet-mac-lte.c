@@ -846,7 +846,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                         ulsch_lcid_vals :
                                                         dlsch_lcid_vals,
                                                    "Unknown"),
-                                        pdu_lengths[n]);
+                                        (pdu_lengths[n] == -1) ?
+                                            tvb_length_remaining(tvb, offset) :
+                                            pdu_lengths[n]);
             offset += pdu_lengths[n];
         }
         else {
@@ -894,7 +896,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                      tvb, offset, 1, FALSE);
                             if (reserved != 0) {
                                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                          "Power Headeroom Reserved bits not zero (found 0x%x)", reserved);
+                                          "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                             }
                         }
 
@@ -933,7 +935,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PADDING_LCID:
                         /* No payload, unless its the last subheader, in which case
                            it extends to the end of the PDU */
-                        if (n == (number_of_headers-1)) {
+                        if ((n == (number_of_headers-1)) && tvb_length_remaining(tvb, offset) > 0) {
                             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                                 tvb, offset, -1, FALSE);
                         }
