@@ -1885,6 +1885,10 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
 /* add the capture filename to the "Recent Files" menu */
 /* (will change nothing, if this filename is already in the menu) */
+/*
+ * XXX - We might want to call SHAddToRecentDocs under Windows 7:
+ * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
+ */
 void
 add_menu_recent_capture_file(gchar *cf_name) {
 	gchar *curr;
