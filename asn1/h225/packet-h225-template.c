@@ -124,6 +124,7 @@ static guint32  ipv4_port;
 guint32 T38_manufacturer_code;
 guint32 value;
 static gboolean contains_faststart = FALSE;
+static e_guid_t *call_id_guid;
 
 /* NonStandardParameter */
 static const char *nsiOID;

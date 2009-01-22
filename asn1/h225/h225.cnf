@@ -242,6 +242,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 	gint32 message_body_val;
 
 	contains_faststart = FALSE;
+	call_id_guid = NULL;
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "CS: %%s ",
@@ -251,6 +252,10 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 	if (h225_pi->msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
 		h225_pi->msg_tag = message_body_val;
+	}
+
+	if (call_id_guid) {
+		h225_pi->guid = *call_id_guid;
 	}
 
 	if (contains_faststart == TRUE )
@@ -539,11 +544,12 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY CallIdentifier/guid
-  tvbuff_t *guid_tvb;
+  tvbuff_t *guid_tvb = NULL;
 
   %(ACTX)s->value_ptr = &guid_tvb;
 %(DEFAULT_BODY)s
-  tvb_memcpy(guid_tvb,(guint8 *)&h225_pi->guid,0,GUID_LEN);
+  if (guid_tvb)
+    tvb_get_ntohguid(guid_tvb, 0, call_id_guid = ep_alloc(sizeof(e_guid_t)));
   %(ACTX)s->value_ptr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
