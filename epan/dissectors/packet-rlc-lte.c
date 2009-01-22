@@ -301,9 +301,10 @@ static void show_PDU_in_info(packet_info *pinfo,
 {
     /* Reflect this PDU in the info column */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "  %s%u-bytes%s",
+        col_append_fstr(pinfo->cinfo, COL_INFO, "  %s%u-byte%s%s",
                         (first_includes_start) ? "[" : "..",
                         length,
+                        (length > 1) ? "s" : "",
                         (last_includes_end) ? "]" : "..");
     }
 }
@@ -550,6 +551,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8 is_data;
     guint8 is_segment;
+    guint8 polling;
     guint8 fixed_extension;
     guint8 framing_info;
     gboolean first_includes_start;
@@ -594,7 +596,14 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
 
     /* Polling bit */
+    polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, FALSE);
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_append_str(pinfo->cinfo, COL_INFO, (polling) ? " (P) " : "     ");
+    }
+    if (polling) {
+        proto_item_append_text(am_header_ti, " (P)");
+    }
 
     /* Framing Info */
     framing_info = (tvb_get_guint8(tvb, offset) & 0x18) >> 3;
@@ -610,7 +619,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "   sn=%u", sn);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "sn=%u", sn);
     }
 
 
