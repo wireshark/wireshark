@@ -43,7 +43,7 @@
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #if 0
-#include "packet-pdcp.h"
+#include "packet-pdcp-lte.h"
 #endif
 
 /* Protocol and registered fields. */
@@ -89,6 +89,11 @@ static int hf_catapult_dct2000_lte_srbid = -1;
 static int hf_catapult_dct2000_lte_drbid = -1;
 static int hf_catapult_dct2000_lte_cellid = -1;
 static int hf_catapult_dct2000_lte_bcch_transport = -1;
+static int hf_catapult_dct2000_lte_rlc_op = -1;
+static int hf_catapult_dct2000_lte_rlc_channel_type = -1;
+static int hf_catapult_dct2000_lte_rlc_mui = -1;
+static int hf_catapult_dct2000_lte_rlc_cnf = -1;
+static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
 
 
 /* Variables used for preferences */
@@ -128,6 +133,48 @@ static const value_string bcch_transport_vals[] = {
 };
 
 
+#define RLC_MGMT_ASSIGN                 0x41
+#define RLC_AM_DATA_REQ                 0x60
+#define RLC_AM_DATA_IND                 0x61
+#define RLC_AM_DATA_CONF                0x62
+#define RLC_UM_DATA_REQ                 0x70
+#define RLC_UM_DATA_IND                 0x71
+#define RLC_UM_DATA_CONF                0x74
+#define RLC_TR_DATA_REQ                 0x80
+#define RLC_TR_DATA_IND                 0x81
+#define RLC_TR_DATA_CONF                0x83
+
+static const value_string rlc_op_vals[] = {
+    { RLC_AM_DATA_REQ,   "AM_DATA_REQ" },
+    { RLC_AM_DATA_IND,   "AM_DATA_IND" },
+    { RLC_UM_DATA_REQ,   "UM_DATA_REQ"},
+    { RLC_UM_DATA_IND,   "UM_DATA_IND"},
+    { RLC_TR_DATA_REQ,   "TR_DATA_REQ"},
+    { RLC_TR_DATA_IND,   "TR_DATA_IND"},
+    { RLC_AM_DATA_REQ,   "AM_DATA_REQ"},
+    { RLC_AM_DATA_IND,   "AM_DATA_IND"},
+    { RLC_UM_DATA_REQ,   "UM_DATA_REQ"},
+    { RLC_UM_DATA_IND,   "UM_DATA_IND"},
+    { 0,   NULL }
+};
+
+
+typedef enum LogicalChannelType
+{
+    Channel_DCCH=1,
+    Channel_BCCH=2,
+    Channel_CCCH=3,
+    Channel_PCCH=4
+} LogicalChannelType;
+
+static const value_string rlc_logical_channel_vals[] = {
+    { Channel_DCCH,  "DCCH"},
+    { Channel_BCCH,  "BCCH"},
+    { Channel_CCCH,  "CCCH"},
+    { Channel_PCCH,  "PCCH"},
+    { 0,             NULL}
+};
+
 
 
 #define MAX_OUTHDR_VALUES 32
@@ -139,7 +186,7 @@ extern int proto_fp;
 extern int proto_mac_lte;
 extern int proto_rlc_lte;
 #if 0
-extern int proto_pdcp;
+extern int proto_pdcp_lte;
 #endif
 
 void proto_register_catapult_dct2000(void);
@@ -151,7 +198,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
 static void attach_mac_lte_info(packet_info *pinfo);
 static void attach_rlc_lte_info(packet_info *pinfo);
 #if 0
-static void attach_pdcp_info(packet_info *pinfo);
+static void attach_pdcp_lte_info(packet_info *pinfo);
 #endif
 
 
@@ -581,14 +628,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 }
 
 
-typedef enum LogicalChannelType
-{
-    Channel_DCCH=1,
-    Channel_BCCH=2,
-    Channel_CCCH=3,
-    Channel_PCCH=4
-} LogicalChannelType;
-    
+
 
 /* Dissect an RRC LTE frame by first parsing the header entries then passing
    the data to the RRC dissector, according to direction and channel type */
@@ -602,6 +642,7 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
     guint8   bcch_transport = 0;
     tvbuff_t *rrc_tvb;
 
+    /* Top-level opcode */
     tag = tvb_get_guint8(tvb, offset++);
     switch (tag) {
         case 0x00:    /* Data_Req_UE */
@@ -626,6 +667,9 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
     tag = tvb_get_guint8(tvb, offset++);
     switch (tag) {
         case 0x12:    /* UE_Id_LCId */
+
+            /* Dedicated channel info */
+
             /* Length will fit in one byte here */
             offset++;
 
@@ -658,6 +702,8 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 
         case 0x1a:     /* Cell_LCId */
 
+            /* Common channel info */
+
             /* Skip length */
             offset++;
 
@@ -666,7 +712,11 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                                 tvb, offset, 2, FALSE);
             offset += 2;
 
+            /* Logical channel type */
+            proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
+                                tvb, offset, 1, FALSE);
             logicalChannelType = tvb_get_guint8(tvb, offset++);
+
             switch (logicalChannelType) {
                 case Channel_BCCH:
                     /* Skip length */
@@ -758,6 +808,184 @@ void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
     }
 }
+
+
+/* Dissect a PDCP LTE frame by first parsing the header entries then passing
+   the data to the PDCP LTE dissector */
+void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
+                      packet_info *pinfo, proto_tree *tree _U_)
+{
+    guint8             opcode;
+    guint8             tag;
+    LogicalChannelType logicalChannelType;
+    guint8             bcch_transport = 0;
+#if 0
+    struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
+#endif
+    dissector_handle_t protocol_handle = 0;
+    tvbuff_t           *pdcp_lte_tvb;
+
+    /* Top-level opcode */
+    opcode = tvb_get_guint8(tvb, offset);
+    if (tree) {
+        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_op, tvb, offset, 1, FALSE);
+    }
+    offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_set_str(pinfo->cinfo, COL_INFO,
+                   val_to_str(opcode, rlc_op_vals, "Unknown"));
+    }
+
+    switch (opcode) {
+        case RLC_AM_DATA_REQ:
+        case RLC_AM_DATA_IND:
+        case RLC_UM_DATA_REQ:
+        case RLC_UM_DATA_IND:
+        case RLC_TR_DATA_REQ:
+        case RLC_TR_DATA_IND:
+
+            /* Get next tag */
+            tag = tvb_get_guint8(tvb, offset++);
+            switch (tag) {
+                case 0x10:    /* UE_Id_LCId */
+
+                    /* Dedicated channel info */
+
+                    /* Length will fit in one byte here */
+                    offset++;
+
+                    logicalChannelType = Channel_DCCH;
+
+                    /* UEId */
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, FALSE);
+                    offset += 2;
+
+                    /* Get tag of channel type */
+                    tag = tvb_get_guint8(tvb, offset++);
+
+                    switch (tag) {
+                        case 0:
+                            offset++;
+                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
+                                                tvb, offset++, 1, FALSE);
+                            break;
+                        case 1:
+                            offset++;
+                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
+                                                tvb, offset++, 1, FALSE);
+                            break;
+
+                        default:
+                            /* Unexpected channel type */
+                            return;
+                    }
+                    break;
+
+                case 0x1a:     /* Cell_LCId */
+
+                    /* Common channel info */
+
+                    /* Skip length */
+                    offset++;
+
+                    /* Cell-id */
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+                                        tvb, offset, 2, FALSE);
+                    offset += 2;
+
+                    /* Logical channel type */
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
+                                        tvb, offset, 1, FALSE);
+                    logicalChannelType = tvb_get_guint8(tvb, offset++);
+
+                    switch (logicalChannelType) {
+                        case Channel_BCCH:
+                            /* Skip length */
+                            offset++;
+
+                            /* Transport channel type */
+                            bcch_transport = tvb_get_guint8(tvb, offset);
+                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
+                                                tvb, offset, 1, FALSE);
+                            offset++;
+                            break;
+
+                        case Channel_CCCH:
+                            /* Skip length */
+                            offset++;
+
+                            /* UEId */
+                            proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                                                tvb, offset, 2, FALSE);
+                            offset += 2;
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                default:
+                    /* Unexpected tag */
+                    return;
+            }
+
+            /* Other optional fields may follow */
+            tag = tvb_get_guint8(tvb, offset++);
+            while ((tag != 0x41) && (tvb_length_remaining(tvb, offset) > 2)) {
+
+                if (tag == 0x35) {
+                    /* This is MUI */
+                    offset++;
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_mui,
+                                        tvb, offset, 2, FALSE);
+                    offset += 2;
+
+                    /* CNF follows MUI in AM */
+                    if ((opcode == RLC_AM_DATA_REQ) || (opcode == RLC_AM_DATA_IND)) {
+                        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_cnf,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+                    }
+                }
+                else if (tag == 0x45) {
+                    /* Discard Req */
+                    offset++;
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_discard_req,
+                                        tvb, offset, 1, FALSE);
+                    offset++;
+                }
+
+                tag = tvb_get_guint8(tvb, offset++);
+            }
+
+
+            /********************************/
+            /* Should be at data tag now    */
+
+#if 0
+            /* Look for packet info! */
+            p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+            /* Can't dissect anything without it... */
+            if (p_pdcp_lte_info == NULL) {
+                return;
+            }
+#endif
+
+            /* Call PDCP LTE dissector */
+            protocol_handle = find_dissector("pdcp-lte");
+            pdcp_lte_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+            call_dissector_only(protocol_handle, pdcp_lte_tvb, pinfo, tree);
+
+            break;
+
+        default:
+            return;
+    }
+}
+
+
 
 
 
@@ -1134,7 +1362,6 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
     if (p_rlc_lte_info == NULL)
     {
-        printf("Failed to allocate rlc_lte struct!\n");
         return;
     }
 
@@ -1151,47 +1378,45 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
 }
 
-/* Fill in a PDCP packet info struct and attach it to the packet for the PDCP
+/* Fill in a PDCP LTE packet info struct and attach it to the packet for the PDCP LTE
    dissector to use */
 #if 0
-static void attach_pdcp_info(packet_info *pinfo)
+static void attach_pdcp_lte_info(packet_info *pinfo)
 {
-    struct pdcp_info *p_pdcp_info;
+    struct pdcp_lte_info *p_pdcp_lte_info;
     unsigned int i=0;
 
     /* Only need to set info once per session. */
-    p_pdcp_info = p_get_proto_data(pinfo->fd, proto_pdcp);
-    if (p_pdcp_info != NULL)
+    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    if (p_pdcp_lte_info != NULL)
     {
         return;
     }
 
     /* Allocate & zero struct */
-    p_pdcp_info = se_alloc0(sizeof(struct pdcp_info));
-    if (p_pdcp_info == NULL)
+    p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+    if (p_pdcp_lte_info == NULL)
     {
-        printf("Failed to allocated pdcp struct!\n");
         return;
     }
 
-    p_pdcp_info->no_header_pdu = outhdr_values[i++];
-    p_pdcp_info->plane = outhdr_values[i++];
-    p_pdcp_info->seqnum_length = outhdr_values[i++];
+    p_pdcp_lte_info->no_header_pdu = outhdr_values[i++];
+    p_pdcp_lte_info->plane = outhdr_values[i++];
+    p_pdcp_lte_info->seqnum_length = outhdr_values[i++];
 
-    p_pdcp_info->rohc_compression = outhdr_values[i++];
-    p_pdcp_info->rohc_ip_version = outhdr_values[i++];
-    p_pdcp_info->cid_inclusion_info = outhdr_values[i++];
-    p_pdcp_info->large_cid_present = outhdr_values[i++];
-    p_pdcp_info->mode = outhdr_values[i++];
-    p_pdcp_info->rnd = outhdr_values[i++];
-    p_pdcp_info->udp_checkum_present = outhdr_values[i++];
-    p_pdcp_info->profile = outhdr_values[i++];
+    p_pdcp_lte_info->rohc_compression = outhdr_values[i++];
+    p_pdcp_lte_info->rohc_ip_version = outhdr_values[i++];
+    p_pdcp_lte_info->cid_inclusion_info = outhdr_values[i++];
+    p_pdcp_lte_info->large_cid_present = outhdr_values[i++];
+    p_pdcp_lte_info->mode = outhdr_values[i++];
+    p_pdcp_lte_info->rnd = outhdr_values[i++];
+    p_pdcp_lte_info->udp_checkum_present = outhdr_values[i++];
+    p_pdcp_lte_info->profile = outhdr_values[i++];
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_pdcp, p_pdcp_info);
+    p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
 }
 #endif
-
 
 
 /* Attempt to show tty (raw character messages) as text lines. */
@@ -1380,6 +1605,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
+
     /* FP protocols need info from outhdr attached */
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strcmp(protocol_name, "fp_r4") == 0) ||
@@ -1412,7 +1638,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
-        attach_pdcp_info(pinfo);
+        attach_pdcp_lte_info(pinfo);
     }
 #endif
 
@@ -1525,19 +1751,18 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
             {
-                /* Send to intermediate dissector to parse/strip
-                   proprietary RLC primitive header before passing to actual
-                   PDCP dissector */
-                protocol_handle = find_dissector("pdcp_r8");
+                /* Dissect proprietary header, then pass remainder to PDCP */
+                dissect_pdcp_lte(tvb, offset, pinfo, tree);
+                return;
             }
 #endif
 
             else
             if ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
                 (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0))
+            {
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
-            {
                 dissect_rrc_lte(tvb, offset, pinfo, tree);
                 return;
             }
@@ -2126,7 +2351,36 @@ void proto_register_catapult_dct2000(void)
               "BCCH Transport Channel", HFILL
             }
         },
-
+        { &hf_catapult_dct2000_lte_rlc_op,
+            { "RLC Op",
+              "dct2000.lte.rlc-op", FT_UINT8, BASE_DEC, VALS(rlc_op_vals), 0x0,
+              "RLC top-level op", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_rlc_channel_type,
+            { "RLC Logical Channel Type",
+              "dct2000.lte.rlc-logchan-type", FT_UINT8, BASE_DEC, VALS(rlc_logical_channel_vals), 0x0,
+              "RLC Logical Channel Type", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_rlc_mui,
+            { "MUI",
+              "dct2000.lte.rlc-mui", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "RLC MUI", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_rlc_cnf,
+            { "CNF",
+              "dct2000.lte.rlc-cnf", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "RLC CNF", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_rlc_discard_req,
+            { "Discard Req",
+              "dct2000.lte.rlc-discard-req", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "RLC Discard Req", HFILL
+            }
+        },
     };
 
     static gint *ett[] =

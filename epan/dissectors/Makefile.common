@@ -1069,7 +1069,7 @@ DISSECTOR_INCLUDES =	\
 	packet-osi.h	\
 	packet-p7.h \
 	packet-pcnfsd.h	\
-	packet-pdcp.h	\
+	packet-pdcp-lte.h	\
 	packet-per.h	\
 	packet-pflog.h	\
 	packet-pim.h	\

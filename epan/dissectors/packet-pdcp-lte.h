@@ -1,7 +1,7 @@
-/* packet-pdcp.h
+/* packet-pdcp-lte.h
  *
  * Martin Mathieson
- * $Id: packet-umts_fp.h 21726 2007-05-08 17:13:14Z martinm $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,18 +23,6 @@
  */
 
 
-#define LTE_DCH_TAG    0x00
-#define LTE_BCCH_TAG   0x01
-#define LTE_CCCH_TAG   0x02
-#define LTE_PCCH_TAG   0x03
-#define LTE_MCCH_TAG   0x04
-#define LTE_MTCH_TAG   0x05
-#define LTE_DCCH_TAG   0x06
-#define LTE_DTCH_TAG   0x07
-
-#define LTE_SRB_TAG    0x00
-#define LTE_DRB_TAG    0x01
-
 enum pdcp_plane
 {
     Signalling_Plane=1,
@@ -52,17 +40,9 @@ enum rohc_mode
 #define CID_IN_ROHC_PACKET 1
 
 
-/* Info attached to each PDCP/RoHC packet */
-typedef struct pdcp_info
+/* Info attached to each LTE PDCP/RoHC packet */
+typedef struct pdcp_lte_info
 {
-    /* Thread info not really needed for decode */
-    guint16         ueid;
-    guint8          rbid_type;
-    guint8          rbid_value;
-
-    guint8          channel_type;
-    guint8          channel_id;
-    
     /* Details of PDCP header */
     gboolean        no_header_pdu;
     enum pdcp_plane plane;
@@ -77,5 +57,5 @@ typedef struct pdcp_info
     gboolean        rnd;
     gboolean        udp_checkum_present;
     unsigned short  profile;
-} pdcp_info;
+} pdcp_lte_info;
 
