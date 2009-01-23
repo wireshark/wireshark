@@ -113,8 +113,8 @@ static const value_string li_types[] = {
 
 static const value_string ver_nums[] = {
 	{ 0,	"reserved" },
-	{ 1,	"reserved" },
-	{ 2,	"reserved" },
+	{ 1,	"NTP Version 1" },
+	{ 2,	"NTP Version 2" },
 	{ 3,	"NTP Version 3" },
 	{ 4,	"NTP Version 4" },
 	{ 5,	"reserved" },
