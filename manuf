@@ -5098,7 +5098,7 @@
 00:13:DB	ShoeiElect             # SHOEI Electric Co.,Ltd
 00:13:DC	Ibtek                  # IBTEK INC.
 00:13:DD	AbbottDiag             # Abbott Diagnostics
-00:13:DE	Adapt4
+00:13:DE	Adapt4Llc              # Adapt4, LLC
 00:13:DF	Ryvor                  # Ryvor Corp.
 00:13:E0	MurataManu             # Murata Manufacturing Co., Ltd.
 00:13:E1	Iprobe                 # Iprobe AB
@@ -9487,6 +9487,25 @@
 00:25:00	Apple                  # Apple, Inc
 00:25:01	Jsc"Supert             # JSC "Supertel"
 00:25:02	Naruralpoi             # NaruralPoint
+00:25:03	BladeNetwo             # BLADE Network Technology
+00:25:04	ValiantCom             # Valiant Communications Limited
+00:25:05	EksEngel               # eks Engel GmbH & Co. KG
+00:25:06	AIAntitacc             # A.I. ANTITACCHEGGIO ITALIA SRL
+00:25:07	Astak                  # ASTAK Inc.
+00:25:08	MaquetCard             # Maquet Cardiopulmonary AG
+00:25:09	Sharetroni             # SHARETRONIC PRECISION INDUSTRY(CHINA)CO.LTD
+00:25:0A	SecurityEx             # Security Expert Co. Ltd
+00:25:0B	Centrofact             # CENTROFACTOR  INC
+00:25:0C	Enertrac
+00:25:0D	GztTelkom-             # GZT Telkom-Telmor sp. z o.o.
+00:25:0E	GtGermanTe             # gt german telematics gmbh
+00:25:0F	On-RampWir             # On-Ramp Wireless, Inc.
+00:25:10	Pico-Tesla             # Pico-Tesla Magnetic Therapies
+00:25:11	Elitegroup             # ELITEGROUP COMPUTER SYSTEM CO., LTD.
+00:25:12	Zte                    # ZTE Corporation
+00:25:13	CxpDigital             # CXP DIGITAL BV
+00:25:14	PcWorthInt             # PC Worth Int'l Co., Ltd.
+00:25:15	NeufCegete             # Neuf Cegetel
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -10335,7 +10354,7 @@
 00:50:C2:09:70:00/36	ImvInverto             # IMV Invertomatic
 00:50:C2:09:80:00/36	EpelIndust             # EPEL Industrial, S.A.
 00:50:C2:09:90:00/36	CaseInform             # Case Information & Communications
-00:50:C2:09:A0:00/36	SekusuiChe             # Sekusui Chemical Co. Ltd.
+00:50:C2:09:A0:00/36	NboDevelop             # NBO Development Center Sekusui Chemical Co. Ltd.
 00:50:C2:09:B0:00/36	SeffleInst             # Seffle Instrument AB
 00:50:C2:09:C0:00/36	RfApplicat             # RF Applications, Inc.
 00:50:C2:09:D0:00/36	Zelpos
@@ -10891,6 +10910,7 @@
 00:50:C2:2C:60:00/36	InitialEle             # Initial Electronic Security Systems
 00:50:C2:2C:70:00/36	SiliquentT             # Siliquent Technologies Ltd
 00:50:C2:2C:80:00/36	Selco
+00:50:C2:2C:90:00/36	RosemanEng             # Roseman Engineering Ltd.
 00:50:C2:2C:A0:00/36	Putercom               # PUTERCOM CO., LTD
 00:50:C2:2C:B0:00/36	FactsEngin             # FACTS Engineering LLC
 00:50:C2:2C:C0:00/36	EmbeddedTo             # EMBEDDED TOOLSMITHS
@@ -12784,6 +12804,20 @@
 00:50:C2:A3:00:00/36	D-Ta                   # D-TA Systems
 00:50:C2:A3:10:00/36	Coolit                 # Coolit Systems, Inc.
 00:50:C2:A3:20:00/36	HarrisDesi             # Harris Designs of NRV, Inc.
+00:50:C2:A3:30:00/36	FujiFirmwa             # Fuji Firmware
+00:50:C2:A3:40:00/36	Casabyte               # Casabyte Inc.
+00:50:C2:A3:50:00/36	AppareoLlc             # Appareo Systems, LLC
+00:50:C2:A3:60:00/36	ShenzhenSh             # Shenzhen Shangji electronic Co.Ltd
+00:50:C2:A3:70:00/36	SoftwarePl             # Software Systems Plus
+00:50:C2:A3:80:00/36	TredDispla             # Tred Displays
+00:50:C2:A3:90:00/36	Industrial             # Industrial Data Products Ltd
+00:50:C2:A3:A0:00/36	Telecor                # Telecor Inc.
+00:50:C2:A3:B0:00/36	Ipcontrols             # IPcontrols GmbH
+00:50:C2:A3:C0:00/36	BrählerIcs             # BRÄHLER ICS Konferenztechnik AG
+00:50:C2:A3:D0:00/36	Owandy
+00:50:C2:A3:E0:00/36	DueviSncDi             # DUEVI SNC DI MORA E SANTESE
+00:50:C2:A3:F0:00/36	LhaCc                  # LHA Systems CC
+00:50:C2:A4:00:00/36	MosbergerC             # Mosberger Consulting LLC
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
