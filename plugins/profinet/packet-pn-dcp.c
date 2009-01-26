@@ -649,14 +649,15 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "Control/Response");
         offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_response, 
             FALSE /* append_col */);
-		block_error = tvb_get_guint8 (tvb, offset);
-		if (tree) {
-			item = proto_tree_add_uint(tree, hf_pn_dcp_block_error, tvb, offset, 1, block_error);
-		}
-		offset += 1;
-		if(block_error != 0) {
-			expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_CHAT, val_to_str(block_error, pn_dcp_block_error, "Unknown"));
-		}
+        block_error = tvb_get_guint8 (tvb, offset);
+        if (tree) {
+            item = proto_tree_add_uint(tree, hf_pn_dcp_block_error, tvb, offset, 1, block_error);
+        }
+        offset += 1;
+        if(block_error != 0) {
+            expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_CHAT,
+                "%s", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
+        }
         info_str = ep_strdup_printf(", Response(%s)", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         pn_append_info(pinfo, dcp_item, info_str);
         proto_item_append_text(block_item, ", BlockError: %s", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
