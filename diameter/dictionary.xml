@@ -1082,8 +1082,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="All Realm" code="2"/>
 			<enum name="Realm and Application" code="3"/>
 			<enum name="All Application" code="4"/>
-			<enum name="All Host" code="5"/>
-		</avp>
+      <enum name="All Host" code="5"/>
+      <enum name="ALL_USER" code="6"/>
+    </avp>
 		<avp name="Redirect-Max-Cache-Time" code="262" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -1105,6 +1106,7 @@ http://www.iana.org/assignments/radius-types
 		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 			<enum name="DIAMETER_MULTI_ROUND_AUTH" code="1001"/>
+      
 			<enum name="DIAMETER_SUCCESS" code="2001"/>
 			<enum name="DIAMETER_LIMITED_SUCCESS" code="2002"/>
 			<enum name="DIAMETER_FIRST_REGISTRATION" code="2003"/>
@@ -1176,7 +1178,7 @@ http://www.iana.org/assignments/radius-types
 			<type type-name="Unsigned32"/>
 			<enum name="RE_AUTH" code="1"/>
 			<enum name="STR" code="2"/>
-			<enum name="Unallocated" code="3"/>
+			<enum name="Unassigned" code="3"/>
 			<enum name="ACCOUNTING" code="4"/>
 		</avp>
 		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">

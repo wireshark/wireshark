@@ -58,7 +58,16 @@ http://www.iana.org/assignments/aaa-parameters
 		</avp>
 		<avp name="MIP-Feature-Vector" code="337" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
-		</avp>
+      <enum name="Mobile-Node-Home-Address-Requested" code="1"/>
+      <enum name="Home-Address-Allocatable-Only-in-Home-Realm" code="2"/>
+      <enum name="Home-Agent-Requested" code="4"/>
+      <enum name="Foreign-Home-Agent-Available" code="8"/>
+      <enum name="MN-HA-Key-Request" code="16"/>
+      <enum name="MN-FA-Key-Request" code="32"/>
+      <enum name="FA-HA-Key-Request" code="64"/>
+      <enum name="Home-Agent-In-Foreign-Network" code="128"/>
+      <enum name="Co-Located-Mobile-Node" code="256"/>
+    </avp>
 		<avp name="MIP-Auth-Input-Data-Length" code="338" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
