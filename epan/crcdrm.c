@@ -1,4 +1,4 @@
-/* drmcrc.c
+/* crcdrm.c
  * another CRC 16
  * Copyright 2006, British Broadcasting Corporation 
  *
