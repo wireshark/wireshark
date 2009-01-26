@@ -250,9 +250,6 @@ static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
 static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;  /* Not currently used */
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
-void proto_reg_handoff_pdcp_lte(void);
-static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Dissect a Large-CID field.
    Return following offset */
 static int dissect_large_cid(proto_tree *tree,
@@ -2297,7 +2294,7 @@ void proto_register_pdcp(void)
     /* Allow other dissectors to find this one by name. */
     register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
 
-    pdcp_lte_module = prefs_register_protocol(proto_pdcp_lte, proto_reg_handoff_pdcp_lte);
+    pdcp_lte_module = prefs_register_protocol(proto_pdcp_lte, NULL);
 
     /* Dissect uncompressed user-plane data as IP */
     prefs_register_bool_preference(pdcp_lte_module, "show_user_plane_as_ip",
@@ -2327,10 +2324,6 @@ void proto_register_pdcp(void)
 
 void proto_reg_handoff_pdcp_lte(void)
 {
-    static gboolean handlesSet = FALSE;
-    if (!handlesSet) {
-        ip_handle = find_dissector("ip");
-        handlesSet = TRUE;
-    }
+    ip_handle = find_dissector("ip");
 }
 
