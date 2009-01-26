@@ -400,7 +400,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         offset += 4;
 
         /* TODO: CSRC list */
-        //offset += (4 * contributing_csrcs);
+        /*offset += (4 * contributing_csrcs); */
         offset++;
 
         /* TODO: Reserved | X | Mode | TIS | TIS */
