@@ -42,9 +42,7 @@
 #include "packet-umts_fp.h"
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
-#if 0
 #include "packet-pdcp-lte.h"
-#endif
 
 /* Protocol and registered fields. */
 static int proto_catapult_dct2000 = -1;
@@ -185,9 +183,7 @@ static gint outhdr_values_found = 0;
 extern int proto_fp;
 extern int proto_mac_lte;
 extern int proto_rlc_lte;
-#if 0
 extern int proto_pdcp_lte;
-#endif
 
 void proto_register_catapult_dct2000(void);
 
@@ -197,9 +193,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
 static void attach_mac_lte_info(packet_info *pinfo);
 static void attach_rlc_lte_info(packet_info *pinfo);
-#if 0
 static void attach_pdcp_lte_info(packet_info *pinfo);
-#endif
 
 
 
@@ -819,9 +813,7 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
     guint8             tag;
     LogicalChannelType logicalChannelType;
     guint8             bcch_transport = 0;
-#if 0
     struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
-#endif
     dissector_handle_t protocol_handle = 0;
     tvbuff_t           *pdcp_lte_tvb;
 
@@ -964,14 +956,12 @@ void dissect_pdcp_lte(tvbuff_t *tvb _U_, gint offset _U_,
             /********************************/
             /* Should be at data tag now    */
 
-#if 0
             /* Look for packet info! */
             p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
             /* Can't dissect anything without it... */
             if (p_pdcp_lte_info == NULL) {
                 return;
             }
-#endif
 
             /* Call PDCP LTE dissector */
             protocol_handle = find_dissector("pdcp-lte");
@@ -1380,7 +1370,6 @@ static void attach_rlc_lte_info(packet_info *pinfo)
 
 /* Fill in a PDCP LTE packet info struct and attach it to the packet for the PDCP LTE
    dissector to use */
-#if 0
 static void attach_pdcp_lte_info(packet_info *pinfo)
 {
     struct pdcp_lte_info *p_pdcp_lte_info;
@@ -1416,7 +1405,6 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
 }
-#endif
 
 
 /* Attempt to show tty (raw character messages) as text lines. */
@@ -1633,14 +1621,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         attach_rlc_lte_info(pinfo);
     }
 
-#if 0
     /* LTE PDCP needs info attached */
     else if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
         attach_pdcp_lte_info(pinfo);
     }
-#endif
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
@@ -1747,7 +1733,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 protocol_handle = find_dissector("rlc-lte");
             }
 
-#if 0
             else
             if (strcmp(protocol_name, "pdcp_r8_lte") == 0)
             {
@@ -1755,7 +1740,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_pdcp_lte(tvb, offset, pinfo, tree);
                 return;
             }
-#endif
 
             else
             if ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
