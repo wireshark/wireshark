@@ -72,6 +72,7 @@ static int hf_h263_custom_pcf	= -1;
 static int hf_h263_pei			= -1;
 static int hf_h263_psupp		= -1;
 static int hf_h263_trb = -1;
+static int hf_h263_not_dissected = -1;
 
 /* H.263 fields defining a sub tree */
 static gint ett_h263_payload	= -1;
@@ -229,6 +230,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *h263_opptype_tree	= NULL;
 	proto_item *opptype_item		= NULL;
 	unsigned int offset_in_bits		= offset << 3;
+	unsigned int saved_bit_offset;
 	guint64 source_format;
 	guint64 ufep;
 	guint64 picture_coding_type;
@@ -317,6 +319,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 1, &custom_pcf, FALSE);
 			offset_in_bits++;
+			saved_bit_offset=offset_in_bits;
 			/*
 			 *  Bit 5 Optional Unrestricted Motion Vector (UMV) mode (see Annex D), "0" off, "1" on;
 			 */
@@ -373,6 +376,8 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 *  Bit 18 Reserved, shall be equal to "0".
 			 */
 			offset_in_bits++;
+			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, FALSE);
+			
 		}
 		/*
 		 * 5.1.4.3 The mandatory part of PLUSPTYPE when PLUSPTYPE present (MPPTYPE) (9 bits)
@@ -389,6 +394,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		proto_tree_add_bits_ret_val( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code, FALSE);
 		offset_in_bits+=3;
+		saved_bit_offset=offset_in_bits;
 		/*
 		 *  Bit 4 Optional Reference Picture Resampling (RPR) mode (see Annex P), "0" off, "1" on;
 		 */
@@ -413,6 +419,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  Bit 9 Equal to "1" to prevent start code emulation.
 		 */
 		offset_in_bits++;
+		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, FALSE);
 		/* The picture header location of CPM (1 bit) and PSBI (2 bits)
 		 * the picture header depends on whether or not PLUSPTYPE is present 
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
@@ -993,6 +1000,18 @@ proto_register_h263_data(void)
 				NULL,
 				0x0,
 				"The H.263 stream including its Picture, GOB or Macro block start code.", HFILL
+			}
+		},
+		{
+			&hf_h263_not_dissected,
+			{
+				"H.263 Bits currently not dissected",
+				"h263.not_dis",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"These bits are not dissected(yet), displayed for clarity", HFILL
 			}
 		},
 };
