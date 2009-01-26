@@ -1486,12 +1486,23 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	h264_nal_tree = proto_item_add_subtree(item, ett_h264_nal_unit);
 
 startover:
-	/* In decoder configuration start code may be pressent */
-	dword = tvb_get_bits32(tvb,0,32,FALSE);
+	/* In decoder configuration start code may be pressent.
+	 * while( next_bits( 24 ) != 0x000001 &&
+	 * next_bits( 32 ) != 0x00000001 )
+	 * leading_zero_8bits / * equal to 0x00 * / f(8)
+	 * if( next_bits( 24 ) != 0x000001 )
+	 * zero_byte / * equal to 0x00 * / f(8)
+	 * start_code_prefix_one_3bytes / * equal to 0x000001 * / f(24)
+	 */
+	dword = tvb_get_bits32(tvb,offset<<3,32,FALSE);
 	if(dword==1){
-		/* Start code */
+		/* Start code + leading_zero_8bits */
 		offset+=4;
+	}else if(dword>>8==1){
+		/* start code */
+		offset+=3;
 	}
+
 	/* Ref: 7.3.1 NAL unit syntax */
 	nal_unit_type = tvb_get_guint8(tvb,offset) & 0x1f;
 
