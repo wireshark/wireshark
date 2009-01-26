@@ -58,8 +58,8 @@ expert_get_highest_severity(void);
 
  @param pinfo packet info of the currently processed packet
  @param pi current protocol item (or NULL)
- @param group the expert group (like PI_CHECKSUM)
- @param severity the expert severity (like PI_WARN)
+ @param group the expert group (like PI_CHECKSUM - see: proto.h)
+ @param severity the expert severity (like PI_WARN - see: proto.h)
  @param format printf like format string with further infos
  */
 extern void
