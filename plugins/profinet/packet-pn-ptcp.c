@@ -757,7 +757,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     /* the tvb will NOT contain the frame_id here, so get it from our private data! */
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
-	/* frame id must be in valid range (acyclic Real-Time, DCP) */
+	/* frame id must be in valid range (acyclic Real-Time, PTCP) */
     /* 0x0000 - 0x007F: RTSyncPDU (with follow up) */
     /* 0x0080 - 0x00FF: RTSyncPDU (without follow up) */
     /* 0xFF00 - 0xFF1F: AnnouncePDU */
