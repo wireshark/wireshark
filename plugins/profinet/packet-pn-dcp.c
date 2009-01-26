@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
@@ -204,6 +205,9 @@ static const value_string pn_dcp_suboption_ip_block_info[] = {
 	{ 0x0000, "IP not set" },
 	{ 0x0001, "IP set" },
 	{ 0x0002, "IP set by DHCP" },
+	{ 0x0080, "IP not set (address conflict detected)" },
+	{ 0x0081, "IP set (address conflict detected)" },
+	{ 0x0082, "IP set by DHCP (address conflict detected)" },
     /*0x0003 - 0xffff reserved */
     { 0, NULL }
 };
@@ -352,6 +356,7 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 block_info;
 	guint16 block_qualifier;
     guint32 ip;
+	proto_item *item = NULL;
 
 
 	/* SuboptionIPParameter */
@@ -375,9 +380,16 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
 			((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
 			((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
-            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_block_info, &block_info);
+			block_info = tvb_get_ntohs (tvb, offset);
+			if (tree) {
+				item = proto_tree_add_uint(tree, hf_pn_dcp_suboption_ip_block_info, tvb, offset, 2, block_info);
+			}
+			offset += 2;
             proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_suboption_ip_block_info, "Undecoded"));
             block_length -= 2;
+			if(block_info & 0x80) {
+				expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "IP address conflict detected!");
+			}
 		}
 
 		/* BlockQualifier? */
@@ -608,6 +620,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 block_qualifier;
     gchar *info_str;
     guint8 block_error;
+    proto_item *item;
 
 
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_control, &suboption);
@@ -636,10 +649,18 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "Control/Response");
         offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, block_item, hf_pn_dcp_suboption_control_response, 
             FALSE /* append_col */);
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_block_error, &block_error);
+		block_error = tvb_get_guint8 (tvb, offset);
+		if (tree) {
+			item = proto_tree_add_uint(tree, hf_pn_dcp_block_error, tvb, offset, 1, block_error);
+		}
+		offset += 1;
+		if(block_error != 0) {
+			expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_CHAT, val_to_str(block_error, pn_dcp_block_error, "Unknown"));
+		}
         info_str = ep_strdup_printf(", Response(%s)", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
         pn_append_info(pinfo, dcp_item, info_str);
         proto_item_append_text(block_item, ", BlockError: %s", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
+
         break;
 	/* XXX - add PNDCP_SUBOPTION_CONTROL_FACTORY_RESET */
     default:
