@@ -989,7 +989,28 @@ Stop.]]>
         find a different version number!</para>
       </section>
       <section>
-        <title>msvcr90.dll - Version 9.0 (2008)</title>
+        <title>msvcr90.dll / vcredist_x86.exe - Version 9.0 (2008)</title>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+              <command>9.0.21022.8</command>, from: "Microsoft Visual C++ 
+			  2008 Redistributable Package (x86)":
+              <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF&displaylang=de" /></para>
+            </listitem>
+            <listitem>
+              <para>
+              <command>9.0.30729.1</command>, from: "Microsoft Visual C++
+			  2008 SP1 Redistributable Package (x86)":
+              <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=de" /></para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>Please report to the developer mailing list, if you
+        find a different version number!</para>
+      </section>
+      <section>
+        <title>Version 10.0 (2010)?</title>
         <para>As the corresponding C compiler is preliminary, it's
         too early to say!</para>
       </section>
