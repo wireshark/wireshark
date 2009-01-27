@@ -161,16 +161,17 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_dpnss_link(void)
 {
-        dissector_handle_t dpnss_link_handle;
-    
-        dpnss_link_handle=create_dissector_handle(dissect_dpnss_link, 
-					     proto_dpnss_link);
-        dissector_add("wtap_encap", WTAP_ENCAP_DPNSS, dpnss_link_handle);
+	dissector_handle_t dpnss_link_handle;
+
+	dpnss_link_handle=find_dissector("dpnss_link");
+	dissector_add("wtap_encap", WTAP_ENCAP_DPNSS, dpnss_link_handle);
+
+	dpnss_handle = find_dissector("dpnss");
 }
 
 void
 proto_register_dpnss_link(void)
-{                 
+{
     static hf_register_info hf[] = {
 	{ &hf_dpnss_link_address_framegroup, 
 	  { "Frame Group", "dpnss_link.framegroup",
@@ -219,8 +220,7 @@ proto_register_dpnss_link(void)
     /* Register the protocol name and description */
     proto_dpnss_link = proto_register_protocol("Digital Private Signalling System No 1 Link Layer","DPNSS Link", "dpnss_link");
     register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
-    dpnss_handle = find_dissector("dpnss");
-    
+
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_dpnss_link, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
