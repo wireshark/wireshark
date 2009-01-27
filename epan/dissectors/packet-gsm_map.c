@@ -16492,10 +16492,18 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 22: /*sendRoutingInfo*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+	  if (application_context_version == 3){
+		  /* If the tag is missing use SendRoutingInfoRes_U */
+		  offset=dissect_mc_message(tvb, offset, actx, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_ch_SendRoutingInfoRes_U, -1,
+			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
+	  }else{
+		  offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_old_SendRoutingInfoResV2, -1,
 			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
+	  }
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_ms_UpdateGprsLocationRes(FALSE, tvb, offset, actx, tree, -1);
@@ -22341,7 +22349,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2438 "packet-gsmmap-template.c"
+#line 2446 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -22909,7 +22917,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2466 "packet-gsmmap-template.c"
+#line 2474 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
@@ -22985,7 +22993,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2484 "packet-gsmmap-template.c"
+#line 2492 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

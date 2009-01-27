@@ -1321,10 +1321,18 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 22: /*sendRoutingInfo*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+	  if (application_context_version == 3){
+		  /* If the tag is missing use SendRoutingInfoRes_U */
+		  offset=dissect_mc_message(tvb, offset, actx, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_ch_SendRoutingInfoRes_U, -1,
+			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
+	  }else{
+		  offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_old_SendRoutingInfoResV2, -1,
 			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
+	  }
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_ms_UpdateGprsLocationRes(FALSE, tvb, offset, actx, tree, -1);
