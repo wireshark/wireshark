@@ -90,10 +90,10 @@ static int ByteArray_gc(lua_State* L) {
 WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
 	/* concatenate two ByteArrays */
 #define WSLUA_ARG_ByteArray__cat_FIRST 1 /* first array */
-#define WSLUA_ARG_ByteArray__cat_SECOND 1 /* second array */
+#define WSLUA_ARG_ByteArray__cat_SECOND 2 /* second array */
 
-    ByteArray ba = checkByteArray(L,1);
-    ByteArray ba2 = checkByteArray(L,2);
+    ByteArray ba = checkByteArray(L,WSLUA_ARG_ByteArray__cat_FIRST);
+    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_SECOND);
 
 	if (! (ba  && ba2) )
 		WSLUA_ERROR(ByteArray__cat,"both arguments must be ByteArrays");
@@ -108,7 +108,7 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 	/* prepend a ByteArray to this ByteArray */
 #define WSLUA_ARG_ByteArray_prepend_PREPENDED 2 /* array to be prepended */
     ByteArray ba = checkByteArray(L,1);
-    ByteArray ba2 = checkByteArray(L,2);
+    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_prepend_PREPENDED);
 
 	if (! (ba  && ba2) )
 		WSLUA_ERROR(ByteArray_prepend,"both arguments must be ByteArrays");
@@ -123,7 +123,7 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
 	/* append a ByteArray to this ByteArray */
 #define WSLUA_ARG_ByteArray_append_APPENDED 2 /* array to be appended */
     ByteArray ba = checkByteArray(L,1);
-    ByteArray ba2 = checkByteArray(L,2);
+    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_append_APPENDED);
 
 	if (! (ba  && ba2) )
 		WSLUA_ERROR(ByteArray_append,"both arguments must be ByteArrays");
@@ -139,7 +139,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 #define WSLUA_ARG_ByteArray_set_size_SIZE 2 /* new size of the array*/
 
     ByteArray ba = checkByteArray(L,1);
-    int siz = luaL_checkint(L,2);
+    int siz = luaL_checkint(L,WSLUA_ARG_ByteArray_set_size_SIZE);
     guint8* padding;
 
     if (!ba) return 0;
@@ -163,8 +163,8 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
 #define WSLUA_ARG_ByteArray_set_index_INDEX 2 /* the position of the byte to be set */
 #define WSLUA_ARG_ByteArray_set_index_VALUE 3 /* the char value to set [0-255] */
     ByteArray ba = checkByteArray(L,1);
-    int idx = luaL_checkint(L,2);
-    int v = luaL_checkint(L,3);
+    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_INDEX);
+    int v = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_VALUE);
 
     if (!ba) return 0;
 
@@ -193,7 +193,7 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
 	/* get the value of a byte in a ByteArray */
 #define WSLUA_ARG_ByteArray_set_index_INDEX 2 /* the position of the byte to be set */
     ByteArray ba = checkByteArray(L,1);
-    int idx = luaL_checkint(L,2);
+    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_INDEX);
 
     if (!ba) return 0;
 
@@ -225,10 +225,10 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
 WSLUA_METHOD ByteArray_subset(lua_State* L) {
 	/* obtain a segment of a ByteArray */
 #define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* the position of the first byte */
-#define WSLUA_ARG_ByteArray_set_index_LENGTH 2 /* the length of the segment */
+#define WSLUA_ARG_ByteArray_set_index_LENGTH 3 /* the length of the segment */
     ByteArray ba = checkByteArray(L,1);
-    int offset = luaL_checkint(L,2);
-    int len = luaL_checkint(L,3);
+    int offset = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
+    int len = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_LENGTH);
     ByteArray sub;
 
     if (!ba) return 0;
@@ -370,7 +370,7 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
 #define WSLUA_ARG_Tvb_new_real_BYTEARRAY 1 /* The data source for this Tvb. */
 #define WSLUA_ARG_Tvb_new_real_NAME 2 /* The name to be given to the new data-source. */
     ByteArray ba = checkByteArray(L,1);
-    const gchar* name = luaL_optstring(L,2,"Unnamed") ;
+    const gchar* name = luaL_optstring(L,WSLUA_ARG_Tvb_new_real_NAME,"Unnamed") ;
     guint8* data;
     Tvb tvb;
 
@@ -395,9 +395,9 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
 
 WSLUA_CONSTRUCTOR Tvb_tvb (lua_State *L) {
 	/* creates a (sub)Tvb from using a TvbRange */
-#define WSLUA_ARG_Tvb_new_subset_RANGE 2 /* the TvbRange from which to create the new Tvb. */
+#define WSLUA_ARG_Tvb_new_subset_RANGE 1 /* the TvbRange from which to create the new Tvb. */
 
-    TvbRange tvbr = checkTvbRange(L,1);
+    TvbRange tvbr = checkTvbRange(L,WSLUA_ARG_Tvb_new_subset_RANGE);
     Tvb tvb;
 
     if (! (tvbr && tvbr->tvb)) return 0;
@@ -526,11 +526,11 @@ TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
 WSLUA_METHOD Tvb_range(lua_State* L) {
 	/* creates a tvbr from this Tvb. This is used also as the Tvb:__call() metamethod. */
 #define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the begining of the Tvb. Defaults to 0. */
-#define WSLUA_OPTARG_Tvb_range_LENGTH 2 /* The length (in octets) of the range. Defaults to until the end of the Tvb. */
+#define WSLUA_OPTARG_Tvb_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the Tvb. */
 
     Tvb tvb = checkTvb(L,1);
-    int offset = luaL_optint(L,2,0);
-    int len = luaL_optint(L,3,-1);
+    int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
+    int len = luaL_optint(L,WSLUA_OPTARG_Tvb_range_LENGTH,-1);
     TvbRange tvbr;
 
     if (!tvb) return 0;

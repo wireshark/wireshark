@@ -219,7 +219,7 @@ WSLUA_METHOD TreeItem_set_text(lua_State *L) {
     TreeItem ti = checkTreeItem(L,1);
     
     if (ti) {
-        const gchar* s = luaL_checkstring(L,2);
+        const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_set_text_TEXT);
         proto_item_set_text(ti->item,"%s",s);
     }
     
@@ -238,7 +238,7 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
             return 0;
         }
 
-        s = luaL_checkstring(L,2);
+        s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
         proto_item_append_text(ti->item,"%s",s);
     }
     return 0;
@@ -249,8 +249,8 @@ WSLUA_METHOD TreeItem_set_expert_flags(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
 #define WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
     TreeItem ti = checkTreeItem(L,1);
-	int group = luaL_optint(L,2,PI_DEBUG);
-	int severity = luaL_optint(L,3,PI_CHAT);
+	int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_set_expert_flags_GROUP,PI_DEBUG);
+	int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_set_expert_flags_SEVERITY,PI_CHAT);
 
     if ( ti && ti->item ) {
         if (ti->expired) {
@@ -269,9 +269,9 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 3 /* the text for the expert info */
     TreeItem ti = checkTreeItem(L,1);
-	int group = luaL_optint(L,2,PI_DEBUG);
-	int severity = luaL_optint(L,3,PI_CHAT);
-	const gchar* str = luaL_optstring(L,4,"Expert Info");
+	int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
+	int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
+	const gchar* str = luaL_optstring(L,WSLUA_OPTARG_TreeItem_add_expert_info_TEXT,"Expert Info");
 	
     if ( ti && ti->item ) {
         if (ti->expired) {

@@ -82,7 +82,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->eth.fcs_len = luaL_optint(L,1,-1);
+    ph->wph->eth.fcs_len = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
     
     pushPseudoHeader(L,ph);
 	
@@ -125,9 +125,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->mtp2.sent = luaL_optint(L,1,0);
-    ph->wph->mtp2.annex_a_used = luaL_optint(L,2,0);
-    ph->wph->mtp2.link_number = luaL_optint(L,3,0);
+    ph->wph->mtp2.sent = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
+    ph->wph->mtp2.annex_a_used = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
+    ph->wph->mtp2.link_number = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
 
     pushPseudoHeader(L,ph);
 	WSLUA_RETURN(1); /* The MTP2 pseudoheader */
@@ -195,9 +195,9 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created */
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
     Dumper d;
-    const char* fname = luaL_checkstring(L,1);
-    int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
-    int encap  = luaL_optint(L,3,WTAP_ENCAP_ETHERNET);
+    const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
+    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_PCAP);
+    int encap  = luaL_optint(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
     const char* filename;
 	
@@ -309,7 +309,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
 	Dumper d;
     const char* fname = luaL_checkstring(L,1);
-    int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
+    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_PCAP);
     int encap;
     int err = 0;
 	const char* filename;

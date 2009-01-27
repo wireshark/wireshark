@@ -447,7 +447,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 #define WSLUA_ARG_TextWindow_set_TEXT 2 /* The text to be used. */
 
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,2);
+    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
 
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set,"cannot be called for something not a TextWindow");
@@ -466,7 +466,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 #define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,2);
+    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
 	if (!tw)
 		WSLUA_ERROR(TextWindow_append,"cannot be called for something not a TextWindow");
@@ -485,7 +485,7 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 #define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be appended */
     TextWindow tw = checkTextWindow(L,1);
-    const gchar* text = luaL_checkstring(L,2);
+    const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
 	if (!tw)
 		WSLUA_ERROR(TextWindow_prepend,"cannot be called for something not a TextWindow");
@@ -552,7 +552,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 #define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true */
 
 	TextWindow tw = checkTextWindow(L,1);
-	gboolean editable = wslua_optbool(L,2,TRUE);
+	gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
 
 	if (!tw)
 		WSLUA_ERROR(TextWindow_set_editable,"cannot be called for something not a TextWindow");

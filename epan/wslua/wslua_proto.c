@@ -368,7 +368,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
 #define WSLUA_ARG_Prefs__index_NAME 2 /* The abbreviation of this preference  */
 
     Pref prefs = checkPrefs(L,1);
-    const gchar* name = luaL_checkstring(L,2);
+    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__index_NAME);
     
     if (! ( name && prefs ) ) return 0;
     
@@ -933,9 +933,9 @@ static int protocols_table_ref = LUA_NOREF;
 
 WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 #define WSLUA_ARG_Proto_new_NAME 1 /* The name of the protocol */
-#define WSLUA_ARG_Proto_new_DESC 1 /* A Long Text description of the protocol (usually lowercase) */
-    const gchar* name = luaL_checkstring(L,1);
-    const gchar* desc = luaL_checkstring(L,2);
+#define WSLUA_ARG_Proto_new_DESC 2 /* A Long Text description of the protocol (usually lowercase) */
+    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Proto_new_NAME);
+    const gchar* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
     
     if ( name ) {
 		gchar* loname = ep_strdup(name);
@@ -1005,7 +1005,7 @@ static int Proto_tostring(lua_State* L) {
 WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 	/* make a protocol (with a dissector) a postdissector. It will be called for every frame after dissection */
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as postdissector */
-    Proto proto = checkProto(L,1);
+    Proto proto = checkProto(L,WSLUA_ARG_register_postdissector_PROTO);
     if (!proto) return 0;
     
     if(!proto->is_postdissector) {
@@ -1286,7 +1286,7 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 	 *  Obtains a dissector reference by name
 	 */
 #define WSLUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
-    const gchar* name = luaL_checkstring(L,1);
+    const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
     Dissector d;
     
     if (!name)
@@ -1367,10 +1367,11 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
 #define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
+#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* either BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX or BASE_HEX_DEC (defaults to BASE_DEC) */
     gchar* name = (void*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
-    base_display_e base = luaL_optint(L,4,BASE_DEC);
+    base_display_e base = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
     
     if(!(name && ui_name)) return 0;
     
