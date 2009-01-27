@@ -334,6 +334,27 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 		wth->phdr.pkt_encap = WTAP_ENCAP_MTP2;
 	    }
 	    break;
+	case EYESDN_ENCAP_DPNSS: /* DPNSS */
+	    pseudo_header->isdn.uton = direction & 1;
+	    pseudo_header->isdn.channel = channel;
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
+	    }
+	    break;
+	case EYESDN_ENCAP_DASS2: /* DASS2 frames */
+	    pseudo_header->isdn.uton = direction & 1;
+	    pseudo_header->isdn.channel = channel;
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_DPNSS;
+	    }
+	    break;
+	case EYESDN_ENCAP_BACNET: /* BACNET async over HDLC frames */
+	    /* pseudo_header->isdn.uton = direction & 1; */
+	    /* pseudo_header->isdn.channel = channel; */
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_BACNET_MS_TP;
+	    }
+	    break;
 	} 
 
         if(pkt_len > EYESDN_MAX_PACKET_LEN) {

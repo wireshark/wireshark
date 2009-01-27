@@ -381,6 +381,7 @@ DISSECTOR_SRC = \
 	packet-dns.c		\
 	packet-dplay.c		\
 	packet-dpnss.c		\
+	packet-dpnss-link.c	\
 	packet-drda.c 		\
 	packet-dsi.c		\
 	packet-dtls.c		\
