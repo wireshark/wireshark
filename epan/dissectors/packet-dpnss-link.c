@@ -21,8 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
- * References:
+ */
+/* References:
  * BTNR188 
  * ND1301:2001/03  http://www.nicc.org.uk/nicc-public/Public/interconnectstandards/dpnss/nd1301_2004_11.pdf
  */
@@ -108,10 +108,10 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 octet;
 	tvbuff_t *protocol_data_tvb;
 	guint16 protocol_data_length;
-	int uton=0;
+	gboolean uton;
 
-	uton=pinfo->pseudo_header->l1event.uton;
-/* Make entries in src and dst column */
+	uton = pinfo->pseudo_header->l1event.uton;
+	/* Make entries in src and dst column */
 	if (check_col(pinfo->cinfo, COL_DEF_SRC)) 
 		col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
 	if (check_col(pinfo->cinfo, COL_DEF_DST)) 
@@ -143,7 +143,7 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    protocol_data_tvb=tvb_new_subset(tvb, LINK_HEADER_SIZE, 
 					     protocol_data_length, 
 					     protocol_data_length);
-	    if(dpnss_handle && protocol_data_length>0) {
+	    if (dpnss_handle && protocol_data_length>0) {
 		call_dissector(dpnss_handle, protocol_data_tvb, pinfo, tree);
 	    }
 	    break;
@@ -158,16 +158,6 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    This format is required because a script is used to find these routines and
    create the code that calls these routines.
 */
-void
-proto_reg_handoff_dpnss_link(void)
-{
-	dissector_handle_t dpnss_link_handle;
-
-	dpnss_link_handle=find_dissector("dpnss_link");
-	dissector_add("wtap_encap", WTAP_ENCAP_DPNSS, dpnss_link_handle);
-
-	dpnss_handle = find_dissector("dpnss");
-}
 
 void
 proto_register_dpnss_link(void)
@@ -176,52 +166,65 @@ proto_register_dpnss_link(void)
 	{ &hf_dpnss_link_address_framegroup, 
 	  { "Frame Group", "dpnss_link.framegroup",
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_framegroup_vals), 0xfc,
-	    "Frame Group", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address_crbit, 
 	  { "C/R Bit", "dpnss_link.crbit",
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_crbit_vals), 0x02,
-	    "C/R Bit", HFILL } 
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address_extension, 
 	  { "Extension", "dpnss_link.extension", 
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_extend_vals), 0x01,
-	    "Extension", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address2_reserved, 
 	  { "Reserved", "dpnss_link.reserved",
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_reserved_vals), 0x80,
-	    "Reserved", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address2_dlcId, 
 	  { "DLC ID", "dpnss_link.dlcId",
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_dlcId_vals), 0x40,
-	    "DLC ID", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address2_dlcIdNr, 
 	  { "DLC ID Number", "dpnss_link.dlcIdNr",
 	    FT_UINT8, BASE_DEC, NULL, 0x3e,
-	    "DLC ID Number", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_address2_extension, 
 	  { "Extension", "dpnss_link.extension2", 
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_extend_vals), 0x01,
-	    "Extension", HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_dpnss_link_control_frameType, 
 	  { "Frame Type", "dpnss_link.frameType", 
 	    FT_UINT8, BASE_DEC, VALS(dpnss_link_frameType_vals), 0xff,
-	    "Frame Type", HFILL }
+	    NULL, HFILL }
 	}
     };
+
     static gint *ett[] = { &ett_dpnss_link };
 
 
     /* Register the protocol name and description */
-    proto_dpnss_link = proto_register_protocol("Digital Private Signalling System No 1 Link Layer","DPNSS Link", "dpnss_link");
+    proto_dpnss_link = proto_register_protocol("Digital Private Signalling System No 1 Link Layer", "DPNSS Link", "dpnss_link");
     register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_dpnss_link, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_dpnss_link(void)
+{
+	dissector_handle_t dpnss_link_handle;
+
+	dpnss_link_handle = find_dissector("dpnss_link");
+	dissector_add("wtap_encap", WTAP_ENCAP_DPNSS, dpnss_link_handle);
+
+	dpnss_handle = find_dissector("dpnss");
+}
+
