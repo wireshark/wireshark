@@ -791,7 +791,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
 /* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */
 /* _WSLUA_RETURNS_ a protofield item to be added to a ProtoFieldArray */
 
-/* _WSLUA_CONSTRUCTOR_ ProtoField_strigz */
+/* _WSLUA_CONSTRUCTOR_ ProtoField_stringz */
 /* WSLUA_ARG_Protofield_uint8_ABBR abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_uint8_NAME Actual name of the field (the string that appears in the tree)  */
 /* WSLUA_OPTARG_Protofield_uint8_DESC description of the field  */

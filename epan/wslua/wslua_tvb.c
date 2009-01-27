@@ -326,7 +326,7 @@ int ByteArray_register(lua_State* L) {
  * To avoid using a pointer from Lua to Wireshark's that is already freed, we maintain a list of the pointers with
  * a marker that track's it's expiry.
  *
- * All pointers are marked as expired when the dissection of the current frame is finished of when the garbage
+ * All pointers are marked as expired when the dissection of the current frame is finished or when the garbage
  * collector tries to free the object referring to the pointer, whichever comes first.
  *
  * All allocated memory chunks used for tracking the pointers' state are freed after marking the pointer as expired
