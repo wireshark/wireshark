@@ -1411,12 +1411,14 @@ dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tr
 {
 	guint8 octet;
 
+	if (len == 0)
+		return;
 	octet = tvb_get_guint8(tvb, offset);
 
 	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
-	proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1, "%s",
 		decode_enumerated_bitfield_shifted(octet, 0x40, 8, VALS(q931_status_preference_vals), "Preference: %s"));
-	proto_tree_add_text(tree, tvb, offset, 1,
+	proto_tree_add_text(tree, tvb, offset, 1, "%s",
 		decode_enumerated_bitfield(octet, 0x07, 8, VALS(q931_new_status_vals), "New status: %s"));
 }
 
@@ -2880,7 +2882,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
 				case CS0 | Q931_IE_CHANGE_STATUS:
 					if (q931_tree != NULL) {
-						dissect_q931_change_status_ie(tvb, offset + 2, info_element_len, ie_tree);
+						dissect_q931_change_status_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
 					}
 					break;
 
