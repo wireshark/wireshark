@@ -58,6 +58,8 @@ typedef struct _xml_ns_t {
 #define XML_FRAME_TAG   1
 #define XML_FRAME_XMPLI 2
 #define XML_FRAME_DTD_DOCTYPE 3
+#define XML_FRAME_ATTRIB 4
+#define XML_FRAME_CDATA 5
 
 typedef struct _xml_frame_t {
 	int type;
@@ -68,11 +70,16 @@ typedef struct _xml_frame_t {
 	struct _xml_frame_t* next_sibling;
 	const gchar *name;
 	const gchar *name_orig_case;
+	tvbuff_t *value;
 	proto_tree* tree;
 	proto_item* item;
 	proto_item* last_item;
 	xml_ns_t* ns;
 	int start_offset;
 } xml_frame_t;
+
+xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name);
+xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name);
+xml_frame_t *xml_get_cdata(xml_frame_t *frame);
 
 #endif /* __PACKET_XML_H__ */

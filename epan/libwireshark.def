@@ -1019,3 +1019,6 @@ value_is_in_range
 write_prefs
 wtap_nstime_to_sec
 xml_escape
+xml_get_attrib
+xml_get_cdata
+xml_get_tag

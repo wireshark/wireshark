@@ -181,6 +181,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	current_frame = ep_alloc(sizeof(xml_frame_t));
 	current_frame->type = XML_FRAME_ROOT;
 	current_frame->name = NULL;
+	current_frame->name_orig_case = NULL;
+	current_frame->value = NULL;
 	insert_xml_frame(NULL, current_frame);
 	g_ptr_array_add(stack,current_frame);
 
@@ -224,14 +226,68 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 }
 
+xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name) {
+	xml_frame_t *tag = NULL;
+
+	xml_frame_t *xml_item = frame->firts_child;
+	while (xml_item) {
+		if ((xml_item->type == XML_FRAME_TAG)) {
+			if (!name) {  /* get the 1st tag */
+	        	tag = xml_item;
+				break;
+			} else if (xml_item->name_orig_case && !strcmp(xml_item->name_orig_case, name)) {
+	        	tag = xml_item;
+				break;
+			}
+		}
+		xml_item = xml_item->next_sibling;
+	}
+
+	return tag;
+}
+
+xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name) {
+	xml_frame_t *attr = NULL;
+
+	xml_frame_t *xml_item = frame->firts_child;
+	while (xml_item) {
+		if ((xml_item->type == XML_FRAME_ATTRIB) && 
+			xml_item->name_orig_case && !strcmp(xml_item->name_orig_case, name)) {
+        	attr = xml_item;
+			break;
+		}
+		xml_item = xml_item->next_sibling;
+	}
+
+	return attr;
+}
+
+xml_frame_t *xml_get_cdata(xml_frame_t *frame) {
+	xml_frame_t *cdata = NULL;
+
+	xml_frame_t *xml_item = frame->firts_child;
+	while (xml_item) {
+		if ((xml_item->type == XML_FRAME_CDATA)) {
+        	cdata = xml_item;
+			break;
+		}
+		xml_item = xml_item->next_sibling;
+	}
+
+	return cdata;
+}
+
 static void after_token(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 	int hfid;
+	gboolean is_cdata = FALSE;
 	proto_item* pi;
+	xml_frame_t* new_frame;
 
 	if (tok->id == XML_CDATA) {
 		hfid = current_frame->ns ? current_frame->ns->hf_cdata : xml_ns.hf_cdata;
+		is_cdata = TRUE;
 	} else if ( tok->id > 0) {
 		hfid = tok->id;
 	} else {
@@ -242,6 +298,20 @@ static void after_token(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 
 	proto_item_set_text(pi, "%s",
 						tvb_format_text(tok->tvb,tok->offset,tok->len));
+
+	if (is_cdata) {
+		new_frame = ep_alloc(sizeof(xml_frame_t));
+		new_frame->type = XML_FRAME_CDATA;
+		new_frame->name = NULL;
+		new_frame->name_orig_case = NULL;
+		new_frame->value = tvb_new_subset(tok->tvb, tok->offset, tok->len, tok->len);
+		insert_xml_frame(current_frame, new_frame);
+		new_frame->item = pi;
+		new_frame->last_item = pi;
+		new_frame->tree = NULL;
+		new_frame->start_offset = tok->offset;
+		new_frame->ns = NULL;
+	}
 }
 
 static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
@@ -276,6 +346,7 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	new_frame->type = XML_FRAME_XMPLI;
 	new_frame->name = name;
 	new_frame->name_orig_case = name;
+	new_frame->value = NULL;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = pi;
 	new_frame->last_item = pi;
@@ -360,6 +431,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	new_frame->type = XML_FRAME_TAG;
 	new_frame->name = name;
 	new_frame->name_orig_case = name_orig_case;
+	new_frame->value = NULL;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = pi;
 	new_frame->last_item = pi;
@@ -422,6 +494,7 @@ static void before_dtd_doctype(void* tvbparse_data, const void* wanted_data _U_,
 	new_frame->type = XML_FRAME_DTD_DOCTYPE;
 	new_frame->name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	new_frame->name_orig_case = new_frame->name;
+	new_frame->value = NULL;
 	insert_xml_frame(current_frame, new_frame);
 	new_frame->item = dtd_item;
 	new_frame->last_item = dtd_item;
@@ -464,21 +537,40 @@ static void get_attrib_value(void* tvbparse_data _U_, const void* wanted_data _U
 static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
-	gchar* name = (gchar*)tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
-	tvbparse_elem_t* value = tok->sub->next->next->data;
+	gchar *name = NULL, *name_orig_case = NULL;
+	tvbparse_elem_t* value;
+	tvbparse_elem_t* value_part = tok->sub->next->next->data;
 	int* hfidp;
 	int hfid;
+	proto_item* pi;
+	xml_frame_t* new_frame;
 
+	name = tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
+	name_orig_case = ep_strdup(name);
 	ascii_strdown_inplace(name);
+
 	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,name) )) {
 		hfid = *hfidp;
+		value = value_part;
 	} else {
 		hfid = hf_unknowwn_attrib;
 		value = tok;
 	}
 
-	current_frame->last_item = proto_tree_add_item(current_frame->tree,hfid,value->tvb,value->offset,value->len,FALSE);
-	proto_item_set_text(current_frame->last_item, "%s", tvb_format_text(tok->tvb,tok->offset,tok->len));
+	pi = proto_tree_add_item(current_frame->tree,hfid,value->tvb,value->offset,value->len,FALSE);
+	proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,tok->offset,tok->len));
+
+	new_frame = ep_alloc(sizeof(xml_frame_t));
+	new_frame->type = XML_FRAME_ATTRIB;
+	new_frame->name = name;
+	new_frame->name_orig_case = name_orig_case;
+	new_frame->value = tvb_new_subset(value_part->tvb, value_part->offset, value_part->len, value_part->len);
+	insert_xml_frame(current_frame, new_frame);
+	new_frame->item = pi;
+	new_frame->last_item = pi;
+	new_frame->tree = NULL;
+	new_frame->start_offset = tok->offset;
+	new_frame->ns = NULL;
 
 }
 
