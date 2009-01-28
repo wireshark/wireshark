@@ -235,22 +235,6 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-
-void
-proto_reg_handoff_gsm_um(void)
-{
-	dissector_handle_t gsm_um_handle;
-
-	lapdm_handle = find_dissector("lapdm");
-	dtap_handle = find_dissector("gsm_a_dtap");
-	data_handle = find_dissector("data");
-
-	gsm_um_handle = create_dissector_handle(dissect_gsm_um, proto_gsm_um);
-
-	dissector_add("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
-}
-
-
 void
 proto_register_gsm_um(void)
 {
@@ -304,3 +288,18 @@ proto_register_gsm_um(void)
 				   &dcs1800_gsm);
 
 }
+
+void
+proto_reg_handoff_gsm_um(void)
+{
+	dissector_handle_t gsm_um_handle;
+
+	lapdm_handle = find_dissector("lapdm");
+	dtap_handle = find_dissector("gsm_a_dtap");
+	data_handle = find_dissector("data");
+
+	gsm_um_handle = create_dissector_handle(dissect_gsm_um, proto_gsm_um);
+
+	dissector_add("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
+}
+

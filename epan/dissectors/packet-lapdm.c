@@ -338,12 +338,6 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_lapdm(void)
-{
-    data_handle = find_dissector("data");
-}
-
-void
 proto_register_lapdm(void)
 {
     static hf_register_info hf[] = {
@@ -484,5 +478,11 @@ proto_register_lapdm(void)
         "Whether the dissector should defragment LAPDm messages spanning multiple packets.",
         &reassemble_lapdm);
     register_init_routine (lapdm_defragment_init);
+}
+
+void
+proto_reg_handoff_lapdm(void)
+{
+    data_handle = find_dissector("data");
 }
 
