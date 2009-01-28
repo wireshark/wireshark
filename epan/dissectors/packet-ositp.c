@@ -1826,7 +1826,7 @@ void proto_register_cotp(void)
   prefs_register_bool_preference(cotp_module, "reassemble",
 	 "Reassemble segmented COTP datagrams",
 	 "Whether segmented COTP datagrams should be reassembled."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	 " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	&cotp_reassemble);
 
   prefs_register_enum_preference(cotp_module, "tsap_display",
@@ -1849,19 +1849,6 @@ void proto_register_cotp(void)
   register_init_routine(cotp_reassemble_init);
 }
 
-void
-proto_reg_handoff_cotp(void)
-{
-  dissector_handle_t ositp_handle;
-
-  ositp_handle = find_dissector("ositp");
-  dissector_add("ip.proto", IP_PROTO_TP, ositp_handle);
-
-  data_handle = find_dissector("data");
-
-  proto_clnp = proto_get_id_by_filter_name("clnp");
-}
-
 void proto_register_cltp(void)
 {
   static hf_register_info hf[] = {
@@ -1880,3 +1867,17 @@ void proto_register_cltp(void)
   proto_register_field_array(proto_cltp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_cotp(void)
+{
+  dissector_handle_t ositp_handle;
+
+  ositp_handle = find_dissector("ositp");
+  dissector_add("ip.proto", IP_PROTO_TP, ositp_handle);
+
+  data_handle = find_dissector("data");
+
+  proto_clnp = proto_get_id_by_filter_name("clnp");
+}
+

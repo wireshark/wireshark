@@ -33,9 +33,6 @@
 #include <string.h>
 #include <epan/packet.h>
 
-/* forward reference */
-static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 #define EGD_PORT 18246 /* 0x4746 */
 
 #define EGD_ST_NONEW        0
@@ -76,7 +73,6 @@ static const value_string egd_stat_vals[] = {
 
 static int proto_egd = -1;
 
-static dissector_handle_t egd_handle;
 static dissector_handle_t data_handle;
 
 static int hf_egd_ver = -1;
@@ -92,100 +88,6 @@ static int hf_egd_resv = -1;
 
 static gint ett_egd = -1;
 static gint ett_status_item = -1;
-
-
-static hf_register_info hf[] =
-{
-  { &hf_egd_ver,
-    { "Version", "egd.ver",
-      FT_UINT8, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_type,
-    { "Type", "egd.type",
-      FT_UINT8, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_rid,
-    { "RequestID", "egd.rid",
-      FT_UINT16, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_pid,
-    { "ProducerID", "egd.pid",
-      FT_IPv4, BASE_NONE,
-      NULL, 0x0,
-      "", HFILL }
-  },
-  { &hf_egd_exid,
-    { "ExchangeID", "egd.exid",
-      FT_UINT32, BASE_HEX,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_time,
-    { "Timestamp", "egd.time",
-      FT_ABSOLUTE_TIME, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_notime,
-    { "Timestamp", "egd.time",
-      FT_UINT64, BASE_HEX,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_stat,
-    { "Status", "egd.stat",
-      FT_UINT32, BASE_DEC,
-      VALS(egd_stat_vals), 0x0,
-      "Status", HFILL }
-  },
-  { &hf_egd_csig,
-    { "ConfigSignature", "egd.csig",
-      FT_UINT32, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  },
-  { &hf_egd_resv,
-    { "Reserved", "egd.rsrv",
-      FT_UINT32, BASE_DEC,
-      NULL, 0x0,
-      NULL, HFILL }
-  }
-};
-
-static gint *ett[] =
-{
-  &ett_egd,
-  &ett_status_item
-};
-
-
-void proto_register_egd(void)
-{
-  proto_egd = proto_register_protocol (
-    "Ethernet Global Data",  /* name */
-    "EGD",                   /* short name */
-    "egd"                    /* abbrev */
-    );
-  proto_register_field_array(proto_egd, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-}
-
-
-void proto_reg_handoff_egd(void)
-{
-  /* find data dissector */
-  data_handle = find_dissector("data");
-
-  egd_handle = create_dissector_handle(dissect_egd, proto_egd);
-  dissector_add("udp.port", EGD_PORT, egd_handle);
-}
-
 
 static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -259,3 +161,96 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 }
+
+void proto_register_egd(void)
+{
+  static hf_register_info hf[] =
+    {
+      { &hf_egd_ver,
+        { "Version", "egd.ver",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_type,
+        { "Type", "egd.type",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_rid,
+        { "RequestID", "egd.rid",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_pid,
+        { "ProducerID", "egd.pid",
+          FT_IPv4, BASE_NONE,
+          NULL, 0x0,
+          "", HFILL }
+      },
+      { &hf_egd_exid,
+        { "ExchangeID", "egd.exid",
+          FT_UINT32, BASE_HEX,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_time,
+        { "Timestamp", "egd.time",
+          FT_ABSOLUTE_TIME, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_notime,
+        { "Timestamp", "egd.time",
+          FT_UINT64, BASE_HEX,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_stat,
+        { "Status", "egd.stat",
+          FT_UINT32, BASE_DEC,
+          VALS(egd_stat_vals), 0x0,
+          "Status", HFILL }
+      },
+      { &hf_egd_csig,
+        { "ConfigSignature", "egd.csig",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_egd_resv,
+        { "Reserved", "egd.rsrv",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }
+      }
+    };
+
+  static gint *ett[] =
+    {
+      &ett_egd,
+      &ett_status_item
+    };
+
+  proto_egd = proto_register_protocol (
+    "Ethernet Global Data",  /* name */
+    "EGD",                   /* short name */
+    "egd"                    /* abbrev */
+    );
+  proto_register_field_array(proto_egd, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_egd(void)
+{
+  dissector_handle_t egd_handle;
+
+  egd_handle = create_dissector_handle(dissect_egd, proto_egd);
+  dissector_add("udp.port", EGD_PORT, egd_handle);
+
+  /* find data dissector */
+  data_handle = find_dissector("data");
+}
+

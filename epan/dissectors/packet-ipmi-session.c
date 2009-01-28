@@ -318,16 +318,11 @@ proto_register_ipmi_session(void)
 void
 proto_reg_handoff_ipmi_session(void)
 {
-	static gboolean inited = FALSE;
+	dissector_handle_t ipmi_session_handle;
 
-	if (!inited) {
-		dissector_handle_t ipmi_session_handle;
+	ipmi_session_handle = create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
+	dissector_add("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
 
-		ipmi_session_handle = create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
-		dissector_add("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
-
-		data_handle = find_dissector("data");
-		ipmi_handle = find_dissector("ipmi");
-		inited = TRUE;
-	}
+	data_handle = find_dissector("data");
+	ipmi_handle = find_dissector("ipmi");
 }

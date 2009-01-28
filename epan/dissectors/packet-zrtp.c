@@ -1078,13 +1078,8 @@ proto_register_zrtp(void)
 void
 proto_reg_handoff_zrtp(void)
 {
-  static gboolean inited = FALSE;
+  dissector_handle_t zrtp_handle;
 
-  if (!inited){
-    dissector_handle_t zrtp_handle;
-
-    zrtp_handle = create_dissector_handle(dissect_zrtp, proto_zrtp);
-    dissector_add_handle("udp.port", zrtp_handle);
-    inited = TRUE;
-  }
+  zrtp_handle = find_dissector("zrtp");
+  dissector_add_handle("udp.port", zrtp_handle);
 }

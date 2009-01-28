@@ -830,13 +830,6 @@ static gboolean dissect_rtps(tvbuff_t *, packet_info *, proto_tree *);
 /* static gboolean glob_do_something = TRUE; */
 static guint rtps_max_batch_samples_dissected = 16;
 
-static void reinit_rtps(void) {
-  /* Do something here when global arguments are changed */
-}
-
-
-
-
 
 /* *********************************************************************** */
 /* Appends a submessage description to the info summary text
@@ -9250,22 +9243,13 @@ void proto_register_rtps2(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Registers the control in the preference panel */
-  rtps_module = prefs_register_protocol(proto_rtps, reinit_rtps);
-/*
-  prefs_register_bool_preference(rtps_module, "do_something",
-            "Do somethinig short description",
-            "Do something long and very exhaustive description "
-            "that can go on and on and on and on... ",
-            &glob_do_something);
-*/
+  rtps_module = prefs_register_protocol(proto_rtps, NULL);
   prefs_register_uint_preference(rtps_module, "max_batch_samples_dissected",
             "Max samples dissected for DATA_BATCH",
             "Specifies the maximum number of samples dissected in "
             "a DATA_BATCH submessage. Increasing this value may affect "
             "performances if the trace has a lot of big batched samples.",
             10, &rtps_max_batch_samples_dissected);
-
-
 }
 
 void proto_reg_handoff_rtps2(void) {

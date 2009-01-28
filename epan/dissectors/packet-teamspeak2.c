@@ -266,12 +266,6 @@ static int hf_ts2_status_mute = -1;
 
 static gint ett_ts2 = -1;
 
-static gint *ett[] = {
-	&ett_ts2,
-	&ett_msg_fragment,
-	&ett_msg_fragments
-};
-
 /* Conversation Variables */
 typedef struct 
 {
@@ -294,275 +288,6 @@ typedef struct
 	gboolean fragmented;
 	gboolean outoforder;
 } ts2_frag;
-
-static hf_register_info hf[] = {
-	{ &hf_ts2_class,
-		{ "Class", "ts2.class",
-		FT_UINT16, BASE_HEX,
-		VALS(classnames), 0x0,
-		NULL, HFILL }
-	},		
-	{ &hf_ts2_type,
-		{ "Type", "ts2.type",
-		FT_UINT16, BASE_HEX,
-		VALS(typenames), 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_clientid,
-		{ "Client id", "ts2.clientid",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_sessionkey,
-		{ "Session Key", "ts2.sessionkey",
-		FT_UINT32, BASE_HEX,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_ackto,
-		{ "Ping Reply To", "ts2.ping_ackto",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_crc32,
-		{ "CRC32 Checksum", "ts2.crc32",
-		FT_UINT32, BASE_HEX,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_seqnum,
-		{ "Sequence Number", "ts2.sequencenum",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_protocol_string,
-		{ "Protocol String", "ts2.protocolstring",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_string,
-		{ "String", "ts2.string",
-		FT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_registeredlogin,
-		{ "Registered Login", "ts2.registeredlogin",
-		FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_name,
-		{ "Name", "ts2.name",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_password,
-		{ "Password", "ts2.password",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_nick,
-		{ "Nick", "ts2.nick",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_badlogin,
-		{ "Bad Login", "ts2.badlogin",
-		FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_unknown,
-		{ "Unknown", "ts2.unknown",
-		FT_BYTES, BASE_HEX,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel,
-		{ "Channel", "ts2.channel",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_subchannel,
-		{ "Sub-Channel", "ts2.subchannel",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channelpassword,
-		{ "Channel Password", "ts2.channelpassword",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_emptyspace,
-		{ "Empty Space", "ts2.emptyspace",
-		FT_NONE, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_fragmentnumber,
-		{ "Fragment Number", "ts2.fragmentnumber",
-		FT_UINT16, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_platform_string,
-		{ "Platform String", "ts2.platformstring",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_server_name,
-		{ "Server Name", "ts2.servername",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_server_welcome_message,
-		{ "Server Welcome Message", "ts2.serverwelcomemessage",
-		FT_UINT_STRING, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_endmarker,
-		{ "End Marker", "ts2.endmarker",
-		FT_NONE, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_codec,
-		{ "Codec", "ts2.codec",
-		FT_UINT16, BASE_HEX,
-		VALS(codecnames), 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel_flags,
-		{ "Channel Flags", "ts2.channelflags",
-		FT_BOOLEAN, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel_id,
-		{ "Channel Id", "ts2.chanelid",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel_name,
-		{ "Channel Name", "ts2.chanelname",
-		FT_STRINGZ, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel_topic,
-		{ "Channel Topic", "ts2.chaneltopic",
-		FT_STRINGZ, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_channel_description,
-		{ "Channel Description", "ts2.chaneldescription",
-		FT_STRINGZ, BASE_NONE,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_player_id,
-		{ "Player Id", "ts2.playerid",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_player_status_flags,
-		{ "Player Status Flags", "ts2.playerstatusflags",
-		FT_UINT16, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_number_of_players,
-		{ "Number Of Players", "ts2.numberofplayers",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_number_of_channels,
-		{ "Number Of Channels", "ts2.numberofchannels",
-		FT_UINT32, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_resend_count,
-		{ "Resend Count", "ts2.resendcount",
-		FT_UINT16, BASE_DEC,
-		NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_status_channelcommander,
-		{ "Channel Commander", "ts2.playerstatusflags.channelcommander",
-		FT_BOOLEAN, 8, 
-		NULL, TS2_STATUS_CHANNELCOMMANDER,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_status_blockwhispers,
-		{ "Block Whispers", "ts2.playerstatusflags.blockwhispers",
-		FT_BOOLEAN, 8, 
-		NULL, TS2_STATUS_BLOCKWHISPERS,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_status_away,
-		{ "Away", "ts2.playerstatusflags.away",
-		FT_BOOLEAN, 8, 
-		NULL, TS2_STATUS_AWAY,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_status_mutemicrophone,
-		{ "Mute Microphone", "ts2.playerstatusflags.mutemicrophone",
-		FT_BOOLEAN, 8, 
-		NULL, TS2_STATUS_MUTEMICROPHONE,
-		NULL, HFILL }
-	},
-	{ &hf_ts2_status_mute,
-		{ "Mute", "ts2.playerstatusflags.mute",
-		FT_BOOLEAN, 8, 
-		NULL, TS2_STATUS_MUTE,
-		NULL, HFILL }
-	},
-	{ &hf_msg_fragments,
-		{"Message fragments", "ts2.fragments",
-		FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } },
-	{ &hf_msg_fragment,
-		{"Message fragment", "ts2.fragment",
-		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_fragment_overlap,
-		{"Message fragment overlap", "ts2.fragment.overlap",
-		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_fragment_overlap_conflicts,
-		{"Message fragment overlapping with conflicting data",
-		"ts2.fragment.overlap.conflicts",
-		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_fragment_multiple_tails,
-		{"Message has multiple tail fragments",
-		"ts2.fragment.multiple_tails", 
-		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_fragment_too_long_fragment,
-		{"Message fragment too long", "ts2.fragment.too_long_fragment",
-		FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_fragment_error,
-		{"Message defragmentation error", "ts2.fragment.error",
-		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-	{ &hf_msg_reassembled_in,
-		{"Reassembled in", "ts2.reassembled.in",
-		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } }
-	};
 
 /* the GMemChunk base structure */
 static GMemChunk *conv_vals = NULL;
@@ -589,46 +314,6 @@ static void ts2_parse_switchchannel(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_add_statusflags(tvbuff_t *tvb, proto_tree *ts2_tree, guint32 offset);
 static void ts2_parse_channelchange(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree);
-
-static void ts2_init(void) {
-	fragment_table_init(&msg_fragment_table);
-	reassembled_table_init(&msg_reassembled_table);
-    	if (conv_vals)
-		g_mem_chunk_destroy(conv_vals);
-
-	/* now create memory chunks */
-	conv_vals = g_mem_chunk_new("ts2_conv_vals",
-				    sizeof(ts2_conversation),
-				    my_init_count * sizeof(ts2_conversation),
-				    G_ALLOC_AND_FREE);
-}
-
-/* 
- * proto_register_ts2()
- * */
-void proto_register_ts2(void)
-{
-	/* Setup protocol subtree array */
-	proto_ts2 = proto_register_protocol (
-		"Teamspeak2 Protocol",	/* name */
-		"TeamSpeak2",		/* short name */
-		"ts2"			/* abbrev */
-		);
-	proto_register_field_array(proto_ts2, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-
-	register_init_routine(ts2_init);
-}
-
-/*
- * proto_reg_handoff_ts2()
- * */
-void proto_reg_handoff_ts2(void)
-{
-	dissector_handle_t ts2_handle;
-	ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
-	dissector_add("udp.port", TS2_PORT, ts2_handle);
-}
 
 /* 
  * Check if a packet is in order and if it is set its fragmentation details into the passed pointers. 
@@ -1144,3 +829,343 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
 		return FALSE;
 	}
 }
+
+static void ts2_init(void) {
+	fragment_table_init(&msg_fragment_table);
+	reassembled_table_init(&msg_reassembled_table);
+    	if (conv_vals)
+		g_mem_chunk_destroy(conv_vals);
+
+	/* now create memory chunks */
+	conv_vals = g_mem_chunk_new("ts2_conv_vals",
+				    sizeof(ts2_conversation),
+				    my_init_count * sizeof(ts2_conversation),
+				    G_ALLOC_AND_FREE);
+}
+
+/* 
+ * proto_register_ts2()
+ * */
+void proto_register_ts2(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_ts2_class,
+		  { "Class", "ts2.class",
+		    FT_UINT16, BASE_HEX,
+		    VALS(classnames), 0x0,
+		    NULL, HFILL }
+		},		
+		{ &hf_ts2_type,
+		  { "Type", "ts2.type",
+		    FT_UINT16, BASE_HEX,
+		    VALS(typenames), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_clientid,
+		  { "Client id", "ts2.clientid",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_sessionkey,
+		  { "Session Key", "ts2.sessionkey",
+		    FT_UINT32, BASE_HEX,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_ackto,
+		  { "Ping Reply To", "ts2.ping_ackto",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_crc32,
+		  { "CRC32 Checksum", "ts2.crc32",
+		    FT_UINT32, BASE_HEX,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_seqnum,
+		  { "Sequence Number", "ts2.sequencenum",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_protocol_string,
+		  { "Protocol String", "ts2.protocolstring",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_string,
+		  { "String", "ts2.string",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_registeredlogin,
+		  { "Registered Login", "ts2.registeredlogin",
+		    FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_name,
+		  { "Name", "ts2.name",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_password,
+		  { "Password", "ts2.password",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_nick,
+		  { "Nick", "ts2.nick",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_badlogin,
+		  { "Bad Login", "ts2.badlogin",
+		    FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_unknown,
+		  { "Unknown", "ts2.unknown",
+		    FT_BYTES, BASE_HEX,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel,
+		  { "Channel", "ts2.channel",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_subchannel,
+		  { "Sub-Channel", "ts2.subchannel",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channelpassword,
+		  { "Channel Password", "ts2.channelpassword",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_emptyspace,
+		  { "Empty Space", "ts2.emptyspace",
+		    FT_NONE, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_fragmentnumber,
+		  { "Fragment Number", "ts2.fragmentnumber",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_platform_string,
+		  { "Platform String", "ts2.platformstring",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_server_name,
+		  { "Server Name", "ts2.servername",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_server_welcome_message,
+		  { "Server Welcome Message", "ts2.serverwelcomemessage",
+		    FT_UINT_STRING, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_endmarker,
+		  { "End Marker", "ts2.endmarker",
+		    FT_NONE, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_codec,
+		  { "Codec", "ts2.codec",
+		    FT_UINT16, BASE_HEX,
+		    VALS(codecnames), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_flags,
+		  { "Channel Flags", "ts2.channelflags",
+		    FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_id,
+		  { "Channel Id", "ts2.chanelid",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_name,
+		  { "Channel Name", "ts2.chanelname",
+		    FT_STRINGZ, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_topic,
+		  { "Channel Topic", "ts2.chaneltopic",
+		    FT_STRINGZ, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_channel_description,
+		  { "Channel Description", "ts2.chaneldescription",
+		    FT_STRINGZ, BASE_NONE,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_player_id,
+		  { "Player Id", "ts2.playerid",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_player_status_flags,
+		  { "Player Status Flags", "ts2.playerstatusflags",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_number_of_players,
+		  { "Number Of Players", "ts2.numberofplayers",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_number_of_channels,
+		  { "Number Of Channels", "ts2.numberofchannels",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_resend_count,
+		  { "Resend Count", "ts2.resendcount",
+		    FT_UINT16, BASE_DEC,
+		    NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_status_channelcommander,
+		  { "Channel Commander", "ts2.playerstatusflags.channelcommander",
+		    FT_BOOLEAN, 8, 
+		    NULL, TS2_STATUS_CHANNELCOMMANDER,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_status_blockwhispers,
+		  { "Block Whispers", "ts2.playerstatusflags.blockwhispers",
+		    FT_BOOLEAN, 8, 
+		    NULL, TS2_STATUS_BLOCKWHISPERS,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_status_away,
+		  { "Away", "ts2.playerstatusflags.away",
+		    FT_BOOLEAN, 8, 
+		    NULL, TS2_STATUS_AWAY,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_status_mutemicrophone,
+		  { "Mute Microphone", "ts2.playerstatusflags.mutemicrophone",
+		    FT_BOOLEAN, 8, 
+		    NULL, TS2_STATUS_MUTEMICROPHONE,
+		    NULL, HFILL }
+		},
+		{ &hf_ts2_status_mute,
+		  { "Mute", "ts2.playerstatusflags.mute",
+		    FT_BOOLEAN, 8, 
+		    NULL, TS2_STATUS_MUTE,
+		    NULL, HFILL }
+		},
+		{ &hf_msg_fragments,
+		  {"Message fragments", "ts2.fragments",
+		   FT_NONE, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL }
+		},
+		{ &hf_msg_fragment,
+		  {"Message fragment", "ts2.fragment",
+		   FT_FRAMENUM, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_fragment_overlap,
+		  {"Message fragment overlap", "ts2.fragment.overlap",
+		   FT_BOOLEAN, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_fragment_overlap_conflicts,
+		  {"Message fragment overlapping with conflicting data",
+		   "ts2.fragment.overlap.conflicts",
+		   FT_BOOLEAN, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_fragment_multiple_tails,
+		  {"Message has multiple tail fragments",
+		   "ts2.fragment.multiple_tails", 
+		   FT_BOOLEAN, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_fragment_too_long_fragment,
+		  {"Message fragment too long", "ts2.fragment.too_long_fragment",
+		   FT_BOOLEAN, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_fragment_error,
+		  {"Message defragmentation error", "ts2.fragment.error",
+		   FT_FRAMENUM, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL } 
+		},
+		{ &hf_msg_reassembled_in,
+		  {"Reassembled in", "ts2.reassembled.in",
+		   FT_FRAMENUM, BASE_NONE,
+		   NULL, 0x00,
+		   NULL, HFILL }
+		}
+	};
+
+	static gint *ett[] = {
+		&ett_ts2,
+		&ett_msg_fragment,
+		&ett_msg_fragments
+	};
+
+	/* Setup protocol subtree array */
+	proto_ts2 = proto_register_protocol (
+		"Teamspeak2 Protocol",	/* name */
+		"TeamSpeak2",		/* short name */
+		"ts2"			/* abbrev */
+		);
+	proto_register_field_array(proto_ts2, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	register_init_routine(ts2_init);
+}
+
+/*
+ * proto_reg_handoff_ts2()
+ * */
+void proto_reg_handoff_ts2(void)
+{
+	dissector_handle_t ts2_handle;
+	ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
+	dissector_add("udp.port", TS2_PORT, ts2_handle);
+}
+

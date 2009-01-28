@@ -201,7 +201,6 @@ static int get_signed_delta(tvbuff_t *tvb, int *offsetp, int hf,
                         proto_tree *tree);
 static guint16 ip_csum(const guint8 *ptr, guint32 len);
 static slcompress *slhc_init(void);
-static void vj_init(void);
 static gint vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
                       slcompress *comp);
 static gint vjc_tvb_setup(tvbuff_t *src_tvb, tvbuff_t **dst_tvb,
@@ -440,84 +439,6 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* No errors, so call IP dissector */
   call_dissector(ip_handle, next_tvb, pinfo, tree);
-}
-
-/* Registration functions for dissectors */
-void
-proto_register_vj(void)
-{
-  static hf_register_info hf[] = {
-    { &hf_vj_change_mask,
-      { "Change mask",	"vj.change_mask",	FT_UINT8, BASE_HEX,
-        NULL, 0x0, "", HFILL }},
-    { &hf_vj_change_mask_c,
-      { "Connection changed",		"vj.change_mask_c",	FT_BOOLEAN, 8,
-        NULL, NEW_C, "Connection number changed", HFILL }},
-    { &hf_vj_change_mask_i,
-      { "IP ID change != 1",		"vj.change_mask_i",	FT_BOOLEAN, 8,
-        NULL, NEW_I, "IP ID changed by a value other than 1", HFILL }},
-    { &hf_vj_change_mask_p,
-      { "Push bit set",			"vj.change_mask_p",	FT_BOOLEAN, 8,
-        NULL, CHANGE_PUSH_BIT, "TCP PSH flag set", HFILL }},
-    { &hf_vj_change_mask_s,
-      { "Sequence number changed",	"vj.change_mask_s",	FT_BOOLEAN, 8,
-        NULL, NEW_S, "Sequence number changed", HFILL }},
-    { &hf_vj_change_mask_a,
-      { "Ack number changed",		"vj.change_mask_a",	FT_BOOLEAN, 8,
-        NULL, NEW_A, "Acknowledgement sequence number changed", HFILL }},
-    { &hf_vj_change_mask_w,
-      { "Window changed",		"vj.change_mask_w",	FT_BOOLEAN, 8,
-        NULL, NEW_W, "TCP window changed", HFILL }},
-    { &hf_vj_change_mask_u,
-      { "Urgent pointer set",		"vj.change_mask_u",	FT_BOOLEAN, 8,
-        NULL, NEW_U, "Urgent pointer set", HFILL }},
-    { &hf_vj_connection_number,
-      { "Connection number",	"vj.connection_number",	FT_UINT8, BASE_DEC,
-        NULL, 0x0, "Connection number", HFILL }},
-    { &hf_vj_tcp_cksum,
-      { "TCP checksum",			"vj.tcp_cksum",	FT_UINT16, BASE_HEX,
-        NULL, 0x0, "TCP checksum", HFILL }},
-    { &hf_vj_urp,
-      { "Urgent pointer",		"vj.urp",	FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Urgent pointer", HFILL }},
-    { &hf_vj_win_delta,
-      { "Window delta",			"vj.win_delta",	FT_INT16, BASE_DEC,
-        NULL, 0x0, "Delta for window", HFILL }},
-    { &hf_vj_ack_delta,
-      { "Ack delta",			"vj.ack_delta",	FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Delta for acknowledgment sequence number", HFILL }},
-    { &hf_vj_seq_delta,
-      { "Sequence delta",		"vj.seq_delta",	FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Delta for sequence number", HFILL }},
-    { &hf_vj_ip_id_delta,
-      { "IP ID delta",			"vj.ip_id_delta",	FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Delta for IP ID", HFILL }},
-  };
-  static gint *ett[] = {
-    &ett_vj,
-    &ett_vj_changes,
-  };
-
-  proto_vj = proto_register_protocol("PPP VJ Compression", "PPP VJ", "vj");
-  proto_register_field_array(proto_vj, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&vj_init);
-}
-
-void
-proto_reg_handoff_vj(void)
-{
-  dissector_handle_t vjc_handle;
-  dissector_handle_t vjuc_handle;
-
-  vjc_handle = create_dissector_handle(dissect_vjc, proto_vj);
-  dissector_add("ppp.protocol", PPP_VJC_COMP, vjc_handle);
-
-  vjuc_handle = create_dissector_handle(dissect_vjuc, proto_vj);
-  dissector_add("ppp.protocol", PPP_VJC_UNCOMP, vjuc_handle);
-
-  ip_handle = find_dissector("ip");
-  data_handle = find_dissector("data");
 }
 
 /* Initialization function */
@@ -887,3 +808,82 @@ ip_csum(const guint8 * ptr, guint32 len)
   cksum_vec[0].len = len;
   return in_cksum(&cksum_vec[0], 1);
 }
+
+/* Registration functions for dissectors */
+void
+proto_register_vj(void)
+{
+  static hf_register_info hf[] = {
+    { &hf_vj_change_mask,
+      { "Change mask",	"vj.change_mask",	FT_UINT8, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
+    { &hf_vj_change_mask_c,
+      { "Connection changed",		"vj.change_mask_c",	FT_BOOLEAN, 8,
+        NULL, NEW_C, "Connection number changed", HFILL }},
+    { &hf_vj_change_mask_i,
+      { "IP ID change != 1",		"vj.change_mask_i",	FT_BOOLEAN, 8,
+        NULL, NEW_I, "IP ID changed by a value other than 1", HFILL }},
+    { &hf_vj_change_mask_p,
+      { "Push bit set",			"vj.change_mask_p",	FT_BOOLEAN, 8,
+        NULL, CHANGE_PUSH_BIT, "TCP PSH flag set", HFILL }},
+    { &hf_vj_change_mask_s,
+      { "Sequence number changed",	"vj.change_mask_s",	FT_BOOLEAN, 8,
+        NULL, NEW_S, "Sequence number changed", HFILL }},
+    { &hf_vj_change_mask_a,
+      { "Ack number changed",		"vj.change_mask_a",	FT_BOOLEAN, 8,
+        NULL, NEW_A, "Acknowledgement sequence number changed", HFILL }},
+    { &hf_vj_change_mask_w,
+      { "Window changed",		"vj.change_mask_w",	FT_BOOLEAN, 8,
+        NULL, NEW_W, "TCP window changed", HFILL }},
+    { &hf_vj_change_mask_u,
+      { "Urgent pointer set",		"vj.change_mask_u",	FT_BOOLEAN, 8,
+        NULL, NEW_U, "Urgent pointer set", HFILL }},
+    { &hf_vj_connection_number,
+      { "Connection number",	"vj.connection_number",	FT_UINT8, BASE_DEC,
+        NULL, 0x0, "Connection number", HFILL }},
+    { &hf_vj_tcp_cksum,
+      { "TCP checksum",			"vj.tcp_cksum",	FT_UINT16, BASE_HEX,
+        NULL, 0x0, "TCP checksum", HFILL }},
+    { &hf_vj_urp,
+      { "Urgent pointer",		"vj.urp",	FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Urgent pointer", HFILL }},
+    { &hf_vj_win_delta,
+      { "Window delta",			"vj.win_delta",	FT_INT16, BASE_DEC,
+        NULL, 0x0, "Delta for window", HFILL }},
+    { &hf_vj_ack_delta,
+      { "Ack delta",			"vj.ack_delta",	FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Delta for acknowledgment sequence number", HFILL }},
+    { &hf_vj_seq_delta,
+      { "Sequence delta",		"vj.seq_delta",	FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Delta for sequence number", HFILL }},
+    { &hf_vj_ip_id_delta,
+      { "IP ID delta",			"vj.ip_id_delta",	FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Delta for IP ID", HFILL }},
+  };
+  static gint *ett[] = {
+    &ett_vj,
+    &ett_vj_changes,
+  };
+
+  proto_vj = proto_register_protocol("PPP VJ Compression", "PPP VJ", "vj");
+  proto_register_field_array(proto_vj, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&vj_init);
+}
+
+void
+proto_reg_handoff_vj(void)
+{
+  dissector_handle_t vjc_handle;
+  dissector_handle_t vjuc_handle;
+
+  vjc_handle = create_dissector_handle(dissect_vjc, proto_vj);
+  dissector_add("ppp.protocol", PPP_VJC_COMP, vjc_handle);
+
+  vjuc_handle = create_dissector_handle(dissect_vjuc, proto_vj);
+  dissector_add("ppp.protocol", PPP_VJC_UNCOMP, vjuc_handle);
+
+  ip_handle = find_dissector("ip");
+  data_handle = find_dissector("data");
+}
+
