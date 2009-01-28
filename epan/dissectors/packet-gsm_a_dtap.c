@@ -85,7 +85,6 @@
 #include <stdlib.h>
 
 #include <string.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
@@ -261,16 +260,16 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00,	"Signal" },
 	{ 0x00,	"SS Version Indicator" },
 	{ 0x00,	"User-user" },
-	{ 0x00,	"Alerting Pattern $(NIA)$" },			/* 10.5.4.26 Alerting Pattern $(NIA)$ */
+	{ 0x00,	"Alerting Pattern $(NIA)$" },				/* 10.5.4.26 Alerting Pattern $(NIA)$ */
 	{ 0x00,	"Allowed Actions $(CCBS)$" },
 	{ 0x00,	"Stream Identifier" },
 	{ 0x00,	"Network Call Control Capabilities" },
 	{ 0x00,	"Cause of No CLI" },
-	{ 0x00,	"Immediate Modification Indicator" },	/* 10.5.4.30 Cause of No CLI */
+	{ 0x00,	"Immediate Modification Indicator" },			/* 10.5.4.30 Cause of No CLI */
 	/* 10.5.4.31 Void */
 	{ 0x00,	"Supported Codec List" },				/* 10.5.4.32 Supported codec list */
 	{ 0x00,	"Service Category" },					/* 10.5.4.33 Service category */
-	{ 0x00,	"Redial" },								/* 10.5.4.34 Redial */
+	{ 0x00,	"Redial" },						/* 10.5.4.34 Redial */
 	/* 10.5.4.35 Network-initiated Service Upgrade indicator */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	{ 0x00,	"CP-User Data" },
@@ -336,21 +335,21 @@ const value_string protocol_discriminator_vals[] = {
 };
 
 const value_string gsm_a_pd_short_str_vals[] = {
-	{0x0,		"GCC"},				/* Group Call Control */
-	{0x1,		"BCC"},				/* Broadcast Call Control */
-	{0x2,		"Reserved"},		/* : was allocated in earlier phases of the protocol */
-	{0x3,		"CC"},				/* Call Control; call related SS messages */
-	{0x4,		"GTTP"},			/* GPRS Transparent Transport Protocol (GTTP) */
-	{0x5,		"MM"},				/* Mobility Management messages */
-	{0x6,		"RR"},				/* Radio Resources Management messages */
+	{0x0,		"GCC"},		/* Group Call Control */
+	{0x1,		"BCC"},		/* Broadcast Call Control */
+	{0x2,		"Reserved"},	/* : was allocated in earlier phases of the protocol */
+	{0x3,		"CC"},		/* Call Control; call related SS messages */
+	{0x4,		"GTTP"},	/* GPRS Transparent Transport Protocol (GTTP) */
+	{0x5,		"MM"},		/* Mobility Management messages */
+	{0x6,		"RR"},		/* Radio Resources Management messages */
 	{0x7,		"Unknown"},
-	{0x8,		"GMM"},				/* GPRS Mobility Management messages */
+	{0x8,		"GMM"},		/* GPRS Mobility Management messages */
 	{0x9,		"SMS"},
-	{0xa,		"SM"},				/* GPRS Session Management messages */
+	{0xa,		"SM"},		/* GPRS Session Management messages */
 	{0xb,		"SS"},
-	{0xc,		"LS"},				/* Location Services */
+	{0xc,		"LS"},		/* Location Services */
 	{0xd,		"Unknown"},
-	{0xe,		"Reserved"},		/*  for extension of the PD to one octet length  */
+	{0xe,		"Reserved"},	/*  for extension of the PD to one octet length  */
 	{0xf,		"TP"},		/*  for tests procedures described in 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0.*/
 	{ 0,	NULL }
 };
@@ -366,7 +365,7 @@ const value_string gsm_a_pd_short_str_vals[] = {
 #define	DTAP_CC_IEI_MASK	0x3f
 #define	DTAP_SMS_IEI_MASK	0xff
 #define	DTAP_SS_IEI_MASK	0x3f
-#define DTAP_TP_IEI_MASK  0xff
+#define DTAP_TP_IEI_MASK	0xff
 
 /* Initialize the protocol and registered fields */
 static int proto_a_dtap = -1;
@@ -428,7 +427,7 @@ gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
 
 static dgt_set_t Dgt_mbcd = {
 	{
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+      /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
 	 '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c'
 	}
 };
@@ -1004,17 +1003,17 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	 * warning, bearer cap uses extended values that
 	 * are reversed from other parameters!
 	 */
-    item =
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "Octet 3");
-    subtree = proto_item_add_subtree(item, ett_bc_oct_3);
+	item = 
+		proto_tree_add_text(tree,
+			tvb, curr_offset, 1,
+			"Octet 3");
+	subtree = proto_item_add_subtree(item, ett_bc_oct_3);
 
 	extended = (oct & 0x80) ? FALSE : TRUE;
 	itc = oct & 0x07;
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(subtree,
+	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Extension: %s",
 		a_bigbuf,
@@ -1079,21 +1078,21 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  Radio channel requirement: %s",
-	a_bigbuf,
-	str);
+	proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Radio channel requirement: %s",
+		a_bigbuf,
+		str);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-    proto_tree_add_text(subtree,
+	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Coding standard: %s",
 		a_bigbuf,
 		(oct & 0x10) ? "reserved" : "GSM standardized coding");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(subtree,
+	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Transfer mode: %s",
 		a_bigbuf,
@@ -1113,7 +1112,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-    proto_tree_add_text(subtree,
+	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
 		"%s :  Information transfer capability: %s",
 		a_bigbuf,
@@ -1133,8 +1132,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 		item =
 			proto_tree_add_text(tree,
-			tvb, curr_offset, -1,
-			"Octets 3a - Speech Versions");
+				tvb, curr_offset, -1,
+				"Octets 3a - Speech Versions");
 
 		subtree = proto_item_add_subtree(item, ett_bc_oct_3a);
 
@@ -5942,21 +5941,21 @@ proto_register_gsm_a_dtap(void)
 	ett[1] = &ett_dtap_oct_1;
 	ett[2] = &ett_cm_srvc_type;
 	ett[3] = &ett_gsm_enc_info;
-    ett[4] = &ett_bc_oct_3;
-    ett[5] = &ett_bc_oct_3a;
-    ett[6] = &ett_bc_oct_4;
-    ett[7] = &ett_bc_oct_5;
-    ett[8] = &ett_bc_oct_5a;
-    ett[9] = &ett_bc_oct_5b;
-    ett[10] = &ett_bc_oct_6;
-    ett[11] = &ett_bc_oct_6a;
-    ett[12] = &ett_bc_oct_6b;
-    ett[13] = &ett_bc_oct_6c;
-    ett[14] = &ett_bc_oct_6d;
-    ett[15] = &ett_bc_oct_6e;
-    ett[16] = &ett_bc_oct_6f;
-    ett[17] = &ett_bc_oct_6g;
-    ett[18] = &ett_bc_oct_7;
+	ett[4] = &ett_bc_oct_3;
+	ett[5] = &ett_bc_oct_3a;
+	ett[6] = &ett_bc_oct_4;
+	ett[7] = &ett_bc_oct_5;
+	ett[8] = &ett_bc_oct_5a;
+	ett[9] = &ett_bc_oct_5b;
+	ett[10] = &ett_bc_oct_6;
+	ett[11] = &ett_bc_oct_6a;
+	ett[12] = &ett_bc_oct_6b;
+	ett[13] = &ett_bc_oct_6c;
+	ett[14] = &ett_bc_oct_6d;
+	ett[15] = &ett_bc_oct_6e;
+	ett[16] = &ett_bc_oct_6f;
+	ett[17] = &ett_bc_oct_6g;
+	ett[18] = &ett_bc_oct_7;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

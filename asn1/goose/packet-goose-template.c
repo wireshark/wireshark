@@ -78,8 +78,8 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* APPID */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 2) {
@@ -138,17 +138,17 @@ void proto_register_goose(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_goose,
+	  &ett_goose,
 #include "packet-goose-ettarr.c"
   };
 
-  /* Register protocol */
-  proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("goose", dissect_goose, proto_goose);
+	/* Register protocol */
+	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	register_dissector("goose", dissect_goose, proto_goose);
 
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_goose, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_goose, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 }
 
