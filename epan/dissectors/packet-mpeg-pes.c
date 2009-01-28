@@ -40,7 +40,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
 
 #include "packet-per.h"
@@ -100,7 +99,7 @@ static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
 
 /*--- End of included file: packet-mpeg-pes-hf.c ---*/
-#line 41 "packet-mpeg-pes-template.c"
+#line 40 "packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-ett.c ---*/
 #line 1 "packet-mpeg-pes-ett.c"
@@ -112,7 +111,7 @@ static gint ett_mpeg_pes_Group_of_pictures = -1;
 static gint ett_mpeg_pes_Picture = -1;
 
 /*--- End of included file: packet-mpeg-pes-ett.c ---*/
-#line 42 "packet-mpeg-pes-template.c"
+#line 41 "packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-fn.c ---*/
 #line 1 "packet-mpeg-pes-fn.c"
@@ -480,7 +479,7 @@ dissect_mpeg_pes_Picture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-pes-fn.c ---*/
-#line 43 "packet-mpeg-pes-template.c"
+#line 42 "packet-mpeg-pes-template.c"
 
 static int proto_mpeg = -1;
 static int proto_mpeg_pes = -1;
@@ -1109,7 +1108,7 @@ proto_register_mpeg_pes(void)
         "mpeg_pes.BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 467 "packet-mpeg-pes-template.c"
+#line 466 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1205,7 +1204,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 552 "packet-mpeg-pes-template.c"
+#line 551 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 	};

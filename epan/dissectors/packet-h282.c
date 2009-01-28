@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
@@ -491,7 +490,7 @@ static int hf_h282_deviceEventNotifyIndication = -1;  /* DeviceEventNotifyIndica
 static int hf_h282_nonStandardIndication = -1;    /* NonStandardPDU */
 
 /*--- End of included file: packet-h282-hf.c ---*/
-#line 49 "packet-h282-template.c"
+#line 48 "packet-h282-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h282 = -1;
@@ -643,7 +642,7 @@ static gint ett_h282_ResponsePDU = -1;
 static gint ett_h282_IndicationPDU = -1;
 
 /*--- End of included file: packet-h282-ett.c ---*/
-#line 53 "packet-h282-template.c"
+#line 52 "packet-h282-template.c"
 
 /* Dissectors */
 
@@ -4402,7 +4401,7 @@ static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h282-fn.c ---*/
-#line 59 "packet-h282-template.c"
+#line 58 "packet-h282-template.c"
 
 static int
 dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6161,7 +6160,7 @@ void proto_register_h282(void) {
         "h282.NonStandardPDU", HFILL }},
 
 /*--- End of included file: packet-h282-hfarr.c ---*/
-#line 81 "packet-h282-template.c"
+#line 80 "packet-h282-template.c"
   };
 
   /* List of subtrees */
@@ -6315,7 +6314,7 @@ void proto_register_h282(void) {
     &ett_h282_IndicationPDU,
 
 /*--- End of included file: packet-h282-ettarr.c ---*/
-#line 87 "packet-h282-template.c"
+#line 86 "packet-h282-template.c"
   };
 
   /* Register protocol */

@@ -32,7 +32,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
 
 #include <wsutil/mpeg-audio.h>

@@ -36,7 +36,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
@@ -487,7 +486,7 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 274 "packet-qsig-template.c"
+#line 273 "packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -664,7 +663,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 279 "packet-qsig-template.c"
+#line 278 "packet-qsig-template.c"
   {   0, NULL}
 };
                      
@@ -1559,7 +1558,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 295 "packet-qsig-template.c"
+#line 294 "packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -2019,7 +2018,7 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 312 "packet-qsig-template.c"
+#line 311 "packet-qsig-template.c"
 
 /* Preferences */
 
@@ -11896,7 +11895,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 322 "packet-qsig-template.c"
+#line 321 "packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12114,7 +12113,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 331 "packet-qsig-template.c"
+#line 330 "packet-qsig-template.c"
 };                                 
 
 typedef struct _qsig_err_t {
@@ -12295,7 +12294,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 340 "packet-qsig-template.c"
+#line 339 "packet-qsig-template.c"
 };                                 
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15810,7 +15809,7 @@ void proto_register_qsig(void) {
         "qsig.Extension", HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 617 "packet-qsig-template.c"
+#line 616 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16261,7 +16260,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 625 "packet-qsig-template.c"
+#line 624 "packet-qsig-template.c"
   };
 
   /* Register protocol and dissector */

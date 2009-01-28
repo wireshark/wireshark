@@ -40,7 +40,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
 
 #include <wsutil/mpeg-audio.h>
@@ -74,7 +73,7 @@ static int hf_mpeg_audio_track = -1;              /* INTEGER_0_255 */
 static int hf_mpeg_audio_genre = -1;              /* T_genre */
 
 /*--- End of included file: packet-mpeg-audio-hf.c ---*/
-#line 43 "packet-mpeg-audio-template.c"
+#line 42 "packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-ett.c ---*/
 #line 1 "packet-mpeg-audio-ett.c"
@@ -82,7 +81,7 @@ static gint ett_mpeg_audio_Audio = -1;
 static gint ett_mpeg_audio_ID3v1 = -1;
 
 /*--- End of included file: packet-mpeg-audio-ett.c ---*/
-#line 44 "packet-mpeg-audio-template.c"
+#line 43 "packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-fn.c ---*/
 #line 1 "packet-mpeg-audio-fn.c"
@@ -453,7 +452,7 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-audio-fn.c ---*/
-#line 45 "packet-mpeg-audio-template.c"
+#line 44 "packet-mpeg-audio-template.c"
 
 static int proto_mpeg_audio = -1;
 
@@ -672,7 +671,7 @@ proto_register_mpeg_audio(void)
         "mpeg_audio.T_genre", HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 171 "packet-mpeg-audio-template.c"
+#line 170 "packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio,
 			{ "MPEG Audio", "mpeg.audio",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -699,7 +698,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 191 "packet-mpeg-audio-template.c"
+#line 190 "packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

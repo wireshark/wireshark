@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
 #include "packet-ber.h"
