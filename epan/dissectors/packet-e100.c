@@ -32,7 +32,6 @@
 
 static int proto_e100 = -1;
 
-static dissector_handle_t e100_handle;
 static dissector_handle_t eth_handle;
 
 /* Dissector tree globals */
@@ -216,14 +215,8 @@ proto_register_e100(void)
 void
 proto_reg_handoff_e100(void)
 {
-    static gboolean initialized = FALSE;
-    if (!initialized)
-    {
-        e100_handle = new_create_dissector_handle(dissect_e100, proto_e100);
-        /* Check all UDP traffic, as the specific UDP port is configurable */
-        heur_dissector_add("udp", dissect_e100, proto_e100);
-        /* e100 traffic encapsulates traffic from the ethernet frame on */
-        eth_handle = find_dissector("eth");
-        initialized = TRUE;
-    }
+    /* Check all UDP traffic, as the specific UDP port is configurable */
+    heur_dissector_add("udp", dissect_e100, proto_e100);
+    /* e100 traffic encapsulates traffic from the ethernet frame on */
+    eth_handle = find_dissector("eth");
 }
