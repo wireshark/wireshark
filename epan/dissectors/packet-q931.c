@@ -78,6 +78,7 @@ static int hf_q931_call_ref_len 			= -1;
 static int hf_q931_call_ref_flag 			= -1;
 static int hf_q931_call_ref 				= -1;
 static int hf_q931_message_type 			= -1;
+static int hf_q931_maintenance_message_type	= -1;
 static int hf_q931_segment_type 			= -1;
 static int hf_q931_cause_location			= -1;
 static int hf_q931_cause_value 				= -1;
@@ -197,6 +198,12 @@ const value_string q931_message_type_vals[] = {
 	{ 0,				NULL }
 };
 
+const value_string dms_message_type_vals[] = {
+	{ DMS_SERVICE_ACKNOWLEDGE,	"SERVICE ACKNOWLEDGE" },
+	{ DMS_SERVICE,				"SERVICE" },
+	{ 0,				NULL }
+};
+
 /*
  * NOTE  For call reference flag (octet 2)
  * Bit8
@@ -273,6 +280,7 @@ static const true_false_string q931_extension_ind_value = {
  * Codeset 0 (default).
  */
 #define	Q931_IE_SEGMENTED_MESSAGE	0x00
+#define	Q931_IE_CHANGE_STATUS	0x01
 #define	Q931_IE_BEARER_CAPABILITY	0x04
 #define	Q931_IE_CAUSE			0x08
 #define	Q931_IE_CALL_IDENTITY		0x10
@@ -359,6 +367,7 @@ static const true_false_string q931_extension_ind_value = {
 /* Codeset 0 */
 static const value_string q931_info_element_vals0[] = {
 	{ Q931_IE_SEGMENTED_MESSAGE,		"Segmented message" },
+	{ Q931_IE_CHANGE_STATUS,			"Change status" },
 	{ Q931_IE_BEARER_CAPABILITY,		"Bearer capability" },
 	{ Q931_IE_CAUSE,			"Cause" },
 	{ Q931_IE_CALL_IDENTITY,		"Call identity" },
@@ -675,7 +684,11 @@ dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	unsigned int discriminator = tvb_get_guint8(tvb, offset);
 
-	if (discriminator == NLPID_Q_931) {
+	if (discriminator == NLPID_DMS) {
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			 tvb, offset, 1, discriminator,
+			 "Protocol discriminator: Maintenance messages");
+	} else if (discriminator == NLPID_Q_931) {
 		proto_tree_add_uint_format(tree, hf_q931_discriminator,
 			 tvb, offset, 1, discriminator,
 			 "Protocol discriminator: Q.931");
@@ -1201,6 +1214,13 @@ static const value_string q931_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
+static const gchar *get_message_name(guint8 prot_discr, guint8 message_type) {
+	if (prot_discr == NLPID_DMS)
+		return val_to_str(message_type, dms_message_type_vals, "Unknown (0x%02X)");
+	else
+		return val_to_str(message_type, q931_message_type_vals, "Unknown (0x%02X)");
+}
+
 static void
 dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
@@ -1371,6 +1391,36 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 }
 
 /*
+ * Dissect a Change status information element.
+ */
+
+static const value_string q931_status_preference_vals[] = {
+	{ 0x01, "Channel" },
+	{ 0,    NULL }
+};
+
+static const value_string q931_new_status_vals[] = {
+	{ 0x00, "In Service" },
+	{ 0x01, "Maintenance" },
+	{ 0x02, "Out of Service" },
+	{ 0,    NULL }
+};
+
+static void
+dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+{
+	guint8 octet;
+
+	octet = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
+	proto_tree_add_text(tree, tvb, offset, 1,
+		decode_enumerated_bitfield_shifted(octet, 0x40, 8, VALS(q931_status_preference_vals), "Preference: %s"));
+	proto_tree_add_text(tree, tvb, offset, 1,
+		decode_enumerated_bitfield(octet, 0x07, 8, VALS(q931_new_status_vals), "New status: %s"));
+}
+
+/*
  * Dissect a Call state information element.
  */
 static const value_string q931_call_state_vals[] = {
@@ -1482,6 +1532,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (octet & Q931_INTERFACE_IDENTIFIED) {
 		guint8 octet;
+		guint32 identifier_val = 0;
 		int identifier_offset = offset;
 		int identifier_len = 0;
 		do {
@@ -1491,18 +1542,13 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			offset += 1;
 			len -= 1;
 			identifier_len++;
+			identifier_val <<= 7;
+			identifier_val |= octet & 0x7F;
 		} while (!(octet & Q931_IE_VL_EXTENSION));
 
-		/*
-		 * XXX - do we want to strip off the 8th bit on the
-		 * last octet of the interface identifier?
-		 */
 		if (identifier_len != 0) {
 			proto_tree_add_text(tree, tvb, identifier_offset,
-			    identifier_len, "Interface identifier: %s",
-			    bytes_to_str(
-			      tvb_get_ptr(tvb, identifier_offset, identifier_len),
-			      identifier_len));
+			    identifier_len, "Interface ID: %u", identifier_val);
 		}
 	}
 
@@ -2432,6 +2478,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree	*q931_tree = NULL;
 	proto_tree	*ie_tree = NULL;
 	proto_item	*ti, *ti_ie;
+	guint8		prot_discr;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
 	guint32		call_ref_val;
@@ -2452,6 +2499,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
+	prot_discr = tvb_get_guint8(tvb, offset);
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q931, tvb, offset, -1,
 		    FALSE);
@@ -2492,12 +2540,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		q931_pi->message_type = message_type;
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(message_type, q931_message_type_vals,
-		      "Unknown message type (0x%02X)"));
+		col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
 	}
 	if (q931_tree != NULL)
-		proto_tree_add_uint(q931_tree, hf_q931_message_type, tvb, offset, 1, message_type);
+		proto_tree_add_uint(q931_tree, (prot_discr==NLPID_DMS)?hf_q931_maintenance_message_type:hf_q931_message_type, tvb, offset, 1, message_type);
 	offset += 1;
 
 	/*
@@ -2525,7 +2571,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s", 
 		    val_to_str(segmented_message_type, q931_message_type_vals, "Unknown message type (0x%02X)"));
 	}
 	offset += 1 + 1 + info_element_len;
@@ -2832,6 +2878,12 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 						hf_q931_cause_value, &dummy, q931_info_element_vals0);
 					break;
 
+				case CS0 | Q931_IE_CHANGE_STATUS:
+					if (q931_tree != NULL) {
+						dissect_q931_change_status_ie(tvb, offset + 2, info_element_len, ie_tree);
+					}
+					break;
+
 				case CS0 | Q931_IE_CALL_STATE:
 					if (q931_tree != NULL) {
 						dissect_q931_call_state_ie(tvb,
@@ -3134,7 +3186,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 
 	/* Check the protocol discriminator */
-	if (tvb_get_guint8(tvb, 4) != NLPID_Q_931) {
+	if ((tvb_get_guint8(tvb, 4) != NLPID_Q_931) && (tvb_get_guint8(tvb, 4) != 0x03)) {
 		/* Doesn't look like Q.931 inside TPKT */
 		return FALSE;
 	}
@@ -3214,6 +3266,10 @@ proto_register_q931(void)
 
 		{ &hf_q931_message_type,
 		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_q931_maintenance_message_type,
+		  { "Maintenance message type", "q931.maintenance_message_type", FT_UINT8, BASE_HEX, VALS(dms_message_type_vals), 0x0,
 			"", HFILL }},
 
 		{ &hf_q931_segment_type,
@@ -3303,7 +3359,7 @@ proto_register_q931(void)
 		/* 0x10 is spare */
 
 		{ &hf_q931_channel_exclusive,
-		  { "Indicated channel is exclusive", "q931.channel.exclusive", FT_BOOLEAN, 8, &tfs_channel_exclusive, 0x08,
+		  { "Indicated channel", "q931.channel.exclusive", FT_BOOLEAN, 8, &tfs_channel_exclusive, 0x08,
 		    "True if only the indicated channel is acceptable", HFILL }},
 
 		{ &hf_q931_channel_dchan,

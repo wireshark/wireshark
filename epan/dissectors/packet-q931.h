@@ -105,4 +105,11 @@ extern const value_string q931_protocol_discriminator_vals[];
 #define	Q931_RESYNC_REQ		0x08
 #define	Q931_RESYNC_RESP	0x09
 
+/*
+ * Maintenance message types.
+ * AT&T TR41459, Nortel NIS A211-1, Telcordia SR-4994, ...
+ */
+#define	DMS_SERVICE_ACKNOWLEDGE		0x07
+#define	DMS_SERVICE		0x0F
+
 #endif
