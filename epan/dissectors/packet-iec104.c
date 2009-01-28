@@ -36,7 +36,6 @@
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/prefs.h>
 #include <epan/emem.h>
 
 /* IEC-104 comment: Fields are little endian. */
