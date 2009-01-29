@@ -61,5 +61,5 @@ extern dissector_table_t wtap_encap_dissector_table;
 WS_VAR_IMPORT int proto_frame;
 WS_VAR_IMPORT int hf_frame_arrival_time;
 WS_VAR_IMPORT int hf_frame_number;
-WS_VAR_IMPORT int hf_frame_packet_len;
+WS_VAR_IMPORT int hf_frame_len;
 WS_VAR_IMPORT int hf_frame_capture_len;

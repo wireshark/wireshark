@@ -495,8 +495,8 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	num = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
 	g_ptr_array_free(finfo_array, FALSE);
 
-	/* frame.pkt_len --> geninfo.len */
-	finfo_array = proto_find_finfo(tree, hf_frame_packet_len);
+	/* frame.frame_len --> geninfo.len */
+	finfo_array = proto_find_finfo(tree, hf_frame_len);
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
@@ -531,7 +531,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 
 	/* Print geninfo.len */
 	fprintf(fh,
-"    <field name=\"len\" pos=\"0\" show=\"%u\" showname=\"Packet Length\" value=\"%x\" size=\"%u\"/>\n",
+"    <field name=\"len\" pos=\"0\" show=\"%u\" showname=\"Frame Length\" value=\"%x\" size=\"%u\"/>\n",
 		len, len, frame_finfo->length);
 
 	/* Print geninfo.caplen */

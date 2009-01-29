@@ -51,15 +51,14 @@ static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
+static int hf_frame_time_reference = -1;
 int hf_frame_number = -1;
-int hf_frame_packet_len = -1; /* Deprecated in favor of hf_frame_len */
 int hf_frame_len = -1;
 int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_md5_hash = -1;
 static int hf_frame_marked = -1;
-static int hf_frame_ref_time = -1;
 static int hf_link_number = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
@@ -207,12 +206,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 		0, 0, &ts);
-      if(ts.nsecs < 0 || ts.nsecs >= 1000000000) {
+	  if(ts.nsecs < 0 || ts.nsecs >= 1000000000) {
 	    item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
 	  	  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) ts.nsecs);
 	    PROTO_ITEM_SET_GENERATED(item);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
-      }
+	    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
+	  }
 
 	  ts = pinfo->fd->del_cap_ts;
 
@@ -232,14 +231,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		0, 0, &ts);
 	  PROTO_ITEM_SET_GENERATED(item);
 
+	  if(pinfo->fd->flags.ref_time){
+		ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, FALSE);
+		PROTO_ITEM_SET_GENERATED(ti);
+	  }
+
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);
-
-	  /* Deprecated in favor of hf_frame_len */
-	  item = proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, tvb,
-		0, 0, frame_len, "Packet Length: %d byte%s", frame_len,
-		plurality(frame_len, "", "s"));
-	  PROTO_ITEM_SET_HIDDEN(item);
 
 	  proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
 		0, 0, frame_len, "Frame Length: %d byte%s", frame_len,
@@ -248,15 +246,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
 		plurality(cap_len, "", "s"));
-
-	  /* we are going to be using proto_item_append_string() on
-	   * hf_frame_protocols, and we must therefore disable the
-	   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-	   * setting it as visible.
-	   *
-	   * See proto.h for details.
-	   */
-	  proto_tree_set_visible(fh_tree, TRUE);
 
 	  if (generate_md5_hash) {
 		  const guint8 *cp;
@@ -275,13 +264,17 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		  PROTO_ITEM_SET_GENERATED(ti);
 	  }
 
-	  if(pinfo->fd->flags.ref_time){
-		ti = proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
-	    PROTO_ITEM_SET_GENERATED(ti);
-	  }
-
 	  ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
 	  PROTO_ITEM_SET_GENERATED(ti);
+
+	  /* we are going to be using proto_item_append_string() on
+	   * hf_frame_protocols, and we must therefore disable the
+	   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
+	   * setting it as visible.
+	   *
+	   * See proto.h for details.
+	   */
+	  proto_tree_set_visible(fh_tree, TRUE);
 
 	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
 	  	0, 0, "");
@@ -307,20 +300,20 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				  pinfo->fd->file_off, pinfo->fd->file_off);
 	  }
 
-      if(pinfo->fd->color_filter != NULL) {
-          color_filter_t *color_filter = pinfo->fd->color_filter;
+	  if(pinfo->fd->color_filter != NULL) {
+	      color_filter_t *color_filter = pinfo->fd->color_filter;
 	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 		    0, 0, color_filter->filter_name);
 	      PROTO_ITEM_SET_GENERATED(item);
 	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
 		    0, 0, color_filter->filter_text);
 	      PROTO_ITEM_SET_GENERATED(item);
-      }
-    } else {
-      if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
+	  }
+	} else {
+	  if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
 		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
-      }
-    }
+	  }
+	}
 
     /* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
 	TRY {
@@ -548,34 +541,33 @@ proto_register_frame(void)
 		{ &hf_frame_time_delta,
 		{ "Time delta from previous captured frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time delta from previous captured frame", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_time_delta_displayed,
 		{ "Time delta from previous displayed frame",	"frame.time_delta_displayed", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time delta from previous displayed frame", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_time_relative,
 		{ "Time since reference or first frame",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
 			"Time relative to time reference or first frame", HFILL }},
 
+		{ &hf_frame_time_reference,
+		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
+			"This frame is a Time Reference frame", HFILL }},
+
 		{ &hf_frame_number,
 		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
-
-		/* Deprecated and hidden in favor of hf_frame_len / frame.len */
-		{ &hf_frame_packet_len,
-		{ "Frame length on the wire",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_len,
 		{ "Frame length on the wire",		"frame.len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_capture_len,
 		{ "Frame length stored into the capture file",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_md5_hash,
 		{ "Frame MD5 Hash",	"frame.md5_hash", FT_STRING, 0, NULL, 0x0,
@@ -583,23 +575,19 @@ proto_register_frame(void)
 
 		{ &hf_frame_p2p_dir,
 		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_link_number,
 		{ "Link Number",		"frame.link_nr", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_file_off,
 		{ "File Offset",	"frame.file_off", FT_INT64, BASE_DEC, NULL, 0x0,
-			"", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_frame_marked,
 		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, 8, NULL, 0x0,
 			"Frame is marked in the GUI", HFILL }},
-
-		{ &hf_frame_ref_time,
-		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
-			"This frame is a Time Reference frame", HFILL }},
 
 		{ &hf_frame_protocols,
 		{ "Protocols in frame",	"frame.protocols", FT_STRING, 0, NULL, 0x0,
@@ -608,10 +596,11 @@ proto_register_frame(void)
 		{ &hf_frame_color_filter_name,
 		{ "Coloring Rule Name",	"frame.coloring_rule.name", FT_STRING, 0, NULL, 0x0,
 			"The frame matched the coloring rule with this name", HFILL }},
+
 		{ &hf_frame_color_filter_text,
 		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, 0, NULL, 0x0,
 			"The frame matched this coloring rule string", HFILL }}
-    };
+	};
 	static gint *ett[] = {
 		&ett_frame
 	};
@@ -646,7 +635,7 @@ proto_register_frame(void)
 	/* Our preferences */
 	frame_module = prefs_register_protocol(proto_frame, NULL);
 	prefs_register_bool_preference(frame_module, "show_file_off",
-	    "Show File Offset", "Show File Offset", &show_file_off);
+	    "Show File Offset", "Show offset of frame in capture file", &show_file_off);
 	prefs_register_bool_preference(frame_module, "force_docsis_encap",
 	    "Treat all frames as DOCSIS frames", "Treat all frames as DOCSIS Frames", &force_docsis_encap);
 	prefs_register_bool_preference(frame_module, "generate_md5_hash",
