@@ -961,9 +961,10 @@ install-generated-files:
 	xcopy doc\*.html $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
-# Oh for crying out loud. Xcopy has a "the destination is a directory"
-# flag, but no corresponding "the destination is a file" flag.
-	echo f | xcopy ".\help\faq.txt" $(INSTALL_DIR)\FAQ /d
+# you can't reliably use xcopy to rename files "on the fly" (so copy first, then rename)
+	xcopy ".\help\faq.txt" $(INSTALL_DIR) /d
+	if exist $(INSTALL_DIR)\FAQ del $(INSTALL_DIR)\FAQ
+    ren $(INSTALL_DIR)\faq.txt FAQ 
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
 	xcopy ".\dtds\*.*" $(INSTALL_DIR)\dtds /d
 	if not exist $(INSTALL_DIR)\asn1 mkdir $(INSTALL_DIR)\asn1
