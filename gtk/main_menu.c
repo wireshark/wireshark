@@ -693,6 +693,7 @@ static GtkItemFactoryEntry menu_items[] =
                        GTK_MENU_FUNC(init_conversation_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_CONVERSATIONS,},
     {"/Statistics/Endpoints", NULL,
                        GTK_MENU_FUNC(init_hostlist_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_ENDPOINTS,},
+    {"/Telephon_y", NULL, NULL, 0, "<Branch>", NULL,},
     {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Tools/Firewall ACL Rules", NULL,
                        firewall_rule_cb, 0, NULL, NULL,},
@@ -1288,10 +1289,10 @@ register_stat_menu_item_stock(
     case(REGISTER_STAT_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
     case(REGISTER_STAT_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
     case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
-    case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_UNSORTED): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_UNSORTED): toolspath = "/Analyze/"; break;
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
+    case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Telephony/"; break;
     case(REGISTER_TOOLS_GROUP_UNSORTED): toolspath = "/Tools/"; break;
     default:
         g_assert(!"no such menu group");
@@ -1508,7 +1509,7 @@ void merge_all_tap_menus(GList *node) {
         gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_TELEPHONY)) {
-        gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_UNSORTED)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
