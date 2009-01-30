@@ -1129,6 +1129,7 @@ DISSECTOR_INCLUDES =	\
 	packet-sdp.h	\
 	packet-ses.h	\
 	packet-sip.h	\
+	packet-skinny.h		\
 	packet-sll.h	\
 	packet-smb.h	\
 	packet-smb2.h	\
