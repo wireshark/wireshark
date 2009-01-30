@@ -1433,7 +1433,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_STAT_GROUP_TELEPHONY):
                 entry->item_type = "<StockItem>";
-                entry->extra_data = WIRESHARK_STOCK_TELEPHONY;
+                //entry->extra_data = WIRESHARK_STOCK_TELEPHONY;
                 break;
             case(REGISTER_ANALYZE_GROUP_UNSORTED):
                 break;
