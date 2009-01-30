@@ -87,6 +87,12 @@ capture_air_cb(GtkWidget *widget, gpointer data);
 void
 set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
 
+/*
+ * Used to retrieve the interface icon
+ */
+GtkWidget *
+capture_get_if_icon(const gchar* name);
+
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host {
   gchar    *remote_host;          /**< Host name or network address for remote capturing */

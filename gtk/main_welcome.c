@@ -524,7 +524,7 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
     gtk_container_add(GTK_CONTAINER(eb), interface_hb);
 
     /* icon */
-    w = gtk_image_new_from_stock(WIRESHARK_STOCK_CAPTURE_START, GTK_ICON_SIZE_SMALL_TOOLBAR);
+    w = capture_get_if_icon(if_name);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 5);
 
     message = g_string_new(if_name);

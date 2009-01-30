@@ -67,10 +67,14 @@
 #endif
 #include "../image/toolbar/capture_ethernet_16.xpm"
 
+#include "../image/toolbar/modem_16.xpm"
+#include "../image/toolbar/network_wireless_16.xpm"
+#include "../image/toolbar/network_wired_16.xpm"
+
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
-#include "../image/toolbar/capture_capture_16.xpm"
-#include "../image/toolbar/capture_prepare_16.xpm"
-#include "../image/toolbar/capture_details_16.xpm"
+/*#include "../image/toolbar/capture_capture_16.xpm"*/
+/*#include "../image/toolbar/capture_prepare_16.xpm"*/
+/*#include "../image/toolbar/capture_details_16.xpm"*/
 
 
 #ifdef HAVE_AIRPCAP
@@ -349,6 +353,30 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
   }
 }
 
+
+/*
+ * Used to retrieve the interface icon
+ */
+GtkWidget * capture_get_if_icon(const gchar* name)
+{
+#ifdef _WIN32
+  if ( strstr(name,"generic dialup") != NULL) {
+    return xpm_to_widget(modem_16_xpm);
+  }
+  if ( strstr(name,"Wireless") != NULL || strstr(name,"802.11") != NULL) {
+    return xpm_to_widget(network_wireless_16_xpm);
+  }
+  /* TODO: check exact spelling and find a better icon! */
+  if ( strstr(name,"VMWare") != NULL) {
+    return xpm_to_widget(network_wireless_16_xpm);
+  }
+#endif /* _WIN32 */
+
+  return xpm_to_widget(network_wired_16_xpm);
+}
+
+
+
 /* start getting capture stats from all interfaces */
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -523,9 +551,9 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if(get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
         icon = xpm_to_widget(capture_airpcap_16_xpm);
       else
-        icon = xpm_to_widget(capture_ethernet_16_xpm);
+        icon = capture_get_if_icon(if_info->description);
 #else
-      icon = xpm_to_widget(capture_ethernet_16_xpm);
+      icon = capture_get_if_icon(if_info->description);
 #endif
 
       gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);
