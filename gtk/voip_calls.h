@@ -58,6 +58,7 @@ typedef enum _voip_protocol {
 		TEL_BSSMAP,
 		TEL_RANAP,
 		VOIP_UNISTIM,
+		VOIP_SKINNY,
 		VOIP_COMMON
 } voip_protocol;
 
@@ -122,6 +123,11 @@ typedef struct _actrace_cas_calls_info {
 	int trunk;
 } actrace_cas_calls_info_t;
 
+/* defines specific SKINNY data */
+typedef struct _skinny_calls_info {
+	guint32 callId;
+} skinny_calls_info_t;
+
 /* defines a voip call */
 typedef struct _voip_calls_info {
 	voip_call_state call_state;
@@ -178,6 +184,7 @@ typedef struct _voip_calls_tapinfo {
 	int sua_dummy;
 	int megaco_dummy;
 	int unistim_dummy;
+	int skinny_dummy;
 	int voip_dummy;
 } voip_calls_tapinfo_t;
 
@@ -239,6 +246,7 @@ void t38_init_tap(void);
 void h248_calls_init_tap(void);
 void sccp_calls_init_tap(void);
 void unistim_calls_init_tap(void);
+void skinny_calls_init_tap(void);
 void VoIPcalls_init_tap(void);
 
 /*
@@ -260,6 +268,7 @@ void remove_tap_listener_t38(void);
 void remove_tap_listener_h248_calls(void);
 void remove_tap_listener_sccp_calls(void);
 void remove_tap_listener_unistim_calls(void);
+void remove_tap_listener_skinny_calls(void);
 void remove_tap_listener_voip_calls(void);
 
 /*
@@ -271,10 +280,10 @@ voip_calls_tapinfo_t* voip_calls_get_info(void);
 /*
 * Cleans up memory of voip calls tap.
 */
-void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void isup_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void mtp3_calls_reset(voip_calls_tapinfo_t *tapinfo);
 void q931_calls_reset(voip_calls_tapinfo_t *tapinfo);
+void voip_calls_reset(voip_calls_tapinfo_t *tapinfo);
 
 void graph_analysis_data_init(void);
 

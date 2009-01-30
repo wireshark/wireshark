@@ -58,6 +58,7 @@
 #include <epan/dissectors/packet-h248.h>
 #include <epan/dissectors/packet-sccp.h>
 #include <plugins/unistim/packet-unistim.h>
+#include <epan/dissectors/packet-skinny.h>
 #include <epan/conversation.h>
 #include <epan/rtp_pt.h>
 
@@ -100,6 +101,7 @@ const char *voip_protocol_name[]={
 	"BSSMAP",
 	"RANAP",
 	"UNISTIM",
+	"SKINNY",
 	"VoIP"
 };
 
@@ -121,7 +123,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -3563,6 +3565,167 @@ remove_tap_listener_unistim_calls(void)
 	unprotect_thread_critical_region();
 
 	have_unistim_tap_listener=FALSE;
+}
+
+/****************************************************************************/
+/* ***************************TAP for SKINNY **********************************/
+/****************************************************************************/
+
+/* Telecaster to tap-voip call state mapping */
+static const voip_call_state skinny_tap_voip_state[] = {
+        VOIP_NO_STATE,
+        VOIP_CALL_SETUP,
+        VOIP_COMPLETED,
+        VOIP_RINGING,
+        VOIP_RINGING,
+        VOIP_IN_CALL,
+        VOIP_REJECTED,
+        VOIP_REJECTED,
+        VOIP_IN_CALL,
+        VOIP_IN_CALL,
+        VOIP_COMPLETED,
+        VOIP_COMPLETED,
+        VOIP_CALL_SETUP,
+        VOIP_UNKNOWN,
+        VOIP_REJECTED
+};
+
+static int
+skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *skinny_info)
+{
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	GList* list;
+	voip_calls_info_t *callsinfo = NULL;
+	address* phone;
+	const skinny_info_t *si = skinny_info;
+	skinny_calls_info_t *tmp_skinnyinfo;
+	gchar *comment;
+
+	if (si == NULL || (si->callId == 0 && si->passThruId == 0))
+		return 0;
+	/* check whether we already have this context in the list */
+	list = g_list_first(tapinfo->callsinfo_list);
+	while (list)
+	{
+		voip_calls_info_t* tmp_listinfo = list->data;
+		if (tmp_listinfo->protocol == VOIP_SKINNY){
+			tmp_skinnyinfo = tmp_listinfo->prot_info;
+			if (tmp_skinnyinfo->callId == si->callId ||
+			    tmp_skinnyinfo->callId == si->passThruId){
+				callsinfo = (voip_calls_info_t*)(list->data);
+				break;
+			}
+		}
+		list = g_list_next (list);
+	}
+	
+	if (si->messId >= 256)
+		phone = &(pinfo->dst);
+	else 
+		phone = &(pinfo->src);
+
+	if (callsinfo==NULL){
+		callsinfo = g_malloc0(sizeof(voip_calls_info_t));
+		callsinfo->call_state = VOIP_NO_STATE;
+		callsinfo->call_active_state = VOIP_ACTIVE;
+		/* callsinfo->from_identity = g_strdup_printf("%s : %.8x", "Skinny", 1); */
+		callsinfo->from_identity = g_strdup("");
+		callsinfo->to_identity = g_strdup("");
+		callsinfo->prot_info = g_malloc(sizeof(skinny_calls_info_t));
+		callsinfo->free_prot_info = g_free;
+		tmp_skinnyinfo = callsinfo->prot_info;
+		tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThruId;
+		callsinfo->npackets = 1;
+		callsinfo->first_frame_num=pinfo->fd->num;
+		callsinfo->last_frame_num=pinfo->fd->num;
+
+		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
+
+		callsinfo->protocol = VOIP_SKINNY;
+		callsinfo->call_num = tapinfo->ncalls++;
+		callsinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->start_usec=pinfo->fd->rel_ts.nsecs;
+		callsinfo->stop_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
+
+		callsinfo->selected = FALSE;
+		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+	} else {
+		if (si->callingParty) {
+			g_free(callsinfo->from_identity);
+			callsinfo->from_identity = g_strdup(si->callingParty);
+		}
+		if (si->calledParty) {
+			g_free(callsinfo->to_identity);
+			callsinfo->to_identity =  g_strdup(si->calledParty);
+		}
+		if ((si->callState > 0) && (si->callState < (sizeof(skinny_tap_voip_state)/sizeof(skinny_tap_voip_state[0]))))
+			callsinfo->call_state = skinny_tap_voip_state[si->callState];
+
+		callsinfo->stop_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
+		callsinfo->last_frame_num=pinfo->fd->num;
+		++(callsinfo->npackets);
+	}
+
+	if (si->callId) {
+		if (si->passThruId) 
+			comment = g_strdup_printf("CallId = %u, PTId = %u", si->callId, si->passThruId);
+		else
+			comment = g_strdup_printf("CallId = %u, LineId = %u", si->callId, si->lineId);
+	} else {
+		if (si->passThruId) 
+			comment = g_strdup_printf("PTId = %u", si->passThruId);
+		else
+			comment = NULL;
+	}
+	
+	add_to_graph(tapinfo, pinfo, si->messageName, comment,
+				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+	g_free(comment);
+
+	return 1;
+}
+
+
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+static gboolean have_skinny_tap_listener=FALSE;
+/****************************************************************************/
+void
+skinny_calls_init_tap(void)
+{
+	GString *error_string;
+	
+	if(have_skinny_tap_listener==FALSE)
+	{
+		/* don't register tap listener, if we have it already */
+		/* we send an empty filter, to force a non null "tree" in the SKINNY dissector */
+		error_string = register_tap_listener("skinny", &(the_tapinfo_struct.skinny_dummy), g_strdup(""),
+			voip_calls_dlg_reset,
+			skinny_calls_packet,
+			voip_calls_dlg_draw
+			);
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      "%s", error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_skinny_tap_listener=TRUE;
+	}
+}
+
+/****************************************************************************/
+void
+remove_tap_listener_skinny_calls(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_struct.skinny_dummy));
+	unprotect_thread_critical_region();
+
+	have_skinny_tap_listener=FALSE;
 }
 
 /****************************************************************************/

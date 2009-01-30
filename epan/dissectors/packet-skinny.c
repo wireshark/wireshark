@@ -44,9 +44,11 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"
+#include "packet-skinny.h"
 
 #define TCP_PORT_SKINNY 2000
 
@@ -239,9 +241,9 @@ static const value_string  deviceTypes[] = {
   {6  , "Telecaster"},
   {7  , "TelecasterMgr"},
   {8  , "TelecasterBus"},
-	{9  , "Polycom"},
-	{10 , "VGC"},
-	{12 , "ATA"},
+  {9  , "Polycom"},
+  {10 , "VGC"},
+  {12 , "ATA"},
   {20 , "Virtual30SPplus"},
   {21 , "PhoneApplication"},
   {30 , "AnalogAccess"},
@@ -266,7 +268,7 @@ static const value_string  deviceTypes[] = {
   {82 , "LineAnnunciator"},
   {83 , "SoftwareMtpDixieLand"},
   {84 , "CiscoMediaServer"},
-	{85 , "ConferenceBridgeFlint"},
+  {85 , "ConferenceBridgeFlint"},
   {90 , "RouteList"},
   {100, "LoadSimulator"},
   {110, "MediaTerminationPoint"},
@@ -276,13 +278,13 @@ static const value_string  deviceTypes[] = {
   {120, "MGCPStation"},
   {121, "MGCPTrunk"},
   {122, "RASProxy"},
-	{125, "Trunk"},
-	{126, "Annunciator"},
+  {125, "Trunk"},
+  {126, "Annunciator"},
   {127, "MonitorBridge"},
   {128, "Recorder"},
   {129, "MonitorBridgeYoko"},
   {131, "SipTrunk"},
-	{254, "UnknownMGCPGateway"},
+  {254, "UnknownMGCPGateway"},
   {255, "NotDefined"},
   { 0    , NULL}
 };
@@ -311,15 +313,15 @@ static const value_string keypadButtons[] = {
 };
 
 static const value_string deviceStimuli[] = {
-  {1    , "LastNumberRedial"},
-  {2    , "SpeedDial"},
-  {3    , "Hold"},
-  {4    , "Transfer"},
-  {5    , "ForwardAll"},
-  {6    , "ForwardBusy"},
-  {7    , "ForwardNoAnswer"},
-  {8    , "Display"},
-  {9    , "Line"},
+  {0x1  , "LastNumberRedial"},
+  {0x2  , "SpeedDial"},
+  {0x3  , "Hold"},
+  {0x4  , "Transfer"},
+  {0x5  , "ForwardAll"},
+  {0x6  , "ForwardBusy"},
+  {0x7  , "ForwardNoAnswer"},
+  {0x8  , "Display"},
+  {0x9  , "Line"},
   {0xa  , "T120Chat"},
   {0xb  , "T120Whiteboard"},
   {0xc  , "T120ApplicationSharing"},
@@ -328,20 +330,20 @@ static const value_string deviceStimuli[] = {
   {0xf  , "VoiceMail"},
   {0x10 , "AutoAnswerRelease"},
   {0x11 , "AutoAnswer"},
-	{0x12 , "Select"},
-	{0x13 , "Privacy"},
-	{0x14 , "ServiceURL"},
-	{0x1B , "MaliciousCall"},
+  {0x12 , "Select"},
+  {0x13 , "Privacy"},
+  {0x14 , "ServiceURL"},
+  {0x1B , "MaliciousCall"},
   {0x21 , "GenericAppB1"},
   {0x22 , "GenericAppB2"},
   {0x23 , "GenericAppB3"},
   {0x24 , "GenericAppB4"},
   {0x25 , "GenericAppB5"},
   {0x7b , "MeetMeConference"},
-  {0x7d , "Conference=0x7d"},
-  {0x7e , "CallPark=0x7e"},
+  {0x7d , "Conference"},
+  {0x7e , "CallPark"},
   {0x7f , "CallPickup"},
-  {0x80 , "GroupCallPickup=80"},
+  {0x80 , "GroupCallPickup"},
   {0,NULL}
 };
 
@@ -379,12 +381,12 @@ static const value_string mediaPayloads[] = {
   {84  , "G.726 16K"},
   {85  , "G.729B"},
   {86  , "G.729B Low Complexity"},
-	{100 , "H261"},
- 	{101 , "H263"},
-	{102 , "Vieo"},
-	{105 , "T120"},
-	{106 , "H224"},
-	{257 , "RFC2833_DynPayload"},
+  {100 , "H261"},
+  {101 , "H263"},
+  {102 , "Video"},
+  {105 , "T120"},
+  {106 , "H224"},
+  {257 , "RFC2833_DynPayload"},
   {0  , NULL}
 };
 
@@ -424,7 +426,7 @@ static const value_string softKeyEvents[] = {
   {1   , "Redial"},
   {2   , "NewCall"},
   {3   , "Hold"},
-  {4   , "Trnsfer"},
+  {4   , "Transfer"},
   {5   , "CFwdAll"},
   {6   , "CFwdBusy"},
   {7   , "CFwdNoAnswer"},
@@ -467,15 +469,15 @@ static const value_string softKeyIndexes[] = {
 
 
 static const value_string buttonDefinitions[] = {
-  {1    , "LastNumberRedial"},
-  {2    , "SpeedDial"},
-  {3    , "Hold"},
-  {4    , "Transfer"},
-  {5    , "ForwardAll"},
-  {6    , "ForwardBusy"},
-  {7    , "ForwardNoAnswer"},
-  {8    , "Display"},
-  {9    , "Line"},
+  {0x1  , "LastNumberRedial"},
+  {0x2  , "SpeedDial"},
+  {0x3  , "Hold"},
+  {0x4  , "Transfer"},
+  {0x5  , "ForwardAll"},
+  {0x6  , "ForwardBusy"},
+  {0x7  , "ForwardNoAnswer"},
+  {0x8  , "Display"},
+  {0x9  , "Line"},
   {0xa  , "T120Chat"},
   {0xb  , "T120Whiteboard"},
   {0xc  , "T120ApplicationSharing"},
@@ -581,16 +583,16 @@ static const value_string skinny_callTypes[] = {
  * for tone definitions see SR-TSV-002275, "BOC Notes on the LEC Networks -- 1994"
  */
 static const value_string skinny_deviceTones[] = {
-  {0    , "Silence"},
-  {1    , "Dtmf1"},
-  {2    , "Dtmf2"},
-  {3    , "Dtmf3"},
-  {4    , "Dtmf4"},
-  {5    , "Dtmf5"},
-  {6    , "Dtmf6"},
-  {7    , "Dtmf7"},
-  {8    , "Dtmf8"},
-  {9    , "Dtmf9"},
+  {0x0  , "Silence"},
+  {0x1  , "Dtmf1"},
+  {0x2  , "Dtmf2"},
+  {0x3  , "Dtmf3"},
+  {0x4  , "Dtmf4"},
+  {0x5  , "Dtmf5"},
+  {0x6  , "Dtmf6"},
+  {0x7  , "Dtmf7"},
+  {0x8  , "Dtmf8"},
+  {0x9  , "Dtmf9"},
   {0xa  , "Dtmf0"},
   {0xe  , "DtmfStar"},
   {0xf  , "DtmfPound"},
@@ -620,7 +622,7 @@ static const value_string skinny_deviceTones[] = {
   {0x34 , "MusicTone"},
   {0x35 , "HoldTone"},
   {0x36 , "TestTone"},
-	{0x37 , "DtMoniterWarningTone"},
+  {0x37 , "DtMoniterWarningTone"},
   {0x40 , "AddCallWaiting"},
   {0x41 , "PriorityCallWait"},
   {0x42 , "RecallDial"},
@@ -1167,6 +1169,15 @@ static gboolean skinny_desegment = TRUE;
 
 static dissector_handle_t rtp_handle=NULL;
 
+/* tap register id */
+static int skinny_tap = -1;
+
+/* skinny protocol tap info */
+#define MAX_SKINNY_MESSAGES_IN_PACKET 10
+static skinny_info_t pi_arr[MAX_SKINNY_MESSAGES_IN_PACKET];
+static int pi_current = 0;
+static skinny_info_t *si;
+
 /* Get the length of a single SCCP PDU */
 static guint get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -1222,6 +1233,25 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr_reserved    = tvb_get_letohl(tvb, offset+4);
   data_messageid  = tvb_get_letohl(tvb, offset+8);
 
+  /* Initialise stat info for passing to tap */
+  pi_current++;
+  if (pi_current == MAX_SKINNY_MESSAGES_IN_PACKET)
+  {
+	/* Overwrite info in first struct if run out of space... */
+	pi_current = 0;
+  }
+  si = &pi_arr[pi_current];
+  si->messId = data_messageid;
+  si->messageName = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
+  si->callId = 0;
+  si->lineId = 0;
+  si->passThruId = 0;
+  si->callState = 0;
+  g_free(si->callingParty);
+  si->callingParty = NULL;
+  g_free(si->calledParty);
+  si->calledParty = NULL;
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items. */
   if (tree) {
@@ -1232,8 +1262,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ",
-                val_to_str(data_messageid, message_id, "0x%08X (Unknown)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
 	col_set_fence(pinfo->cinfo, COL_INFO);
   }
 
@@ -1378,6 +1407,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x21 : /* stationMulticastMediaReceptionAck - This decode NOT verified*/
       proto_tree_add_item(skinny_tree, hf_skinny_receptionStatus, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x22 : /* stationOpenReceiveChannelAck */
@@ -1395,6 +1425,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ipv4_address = tvb_get_ipv4(tvb, offset+16);
 	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, NULL);
       }
+      si->passThruId = tvb_get_letohl(tvb, offset+24);
       break;
 
     case 0x23    :  /* stationConnectionStatisticsRes */
@@ -1408,6 +1439,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_packetsLost, tvb, offset+60, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+64, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+68, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, offset+36);
       break;
 
     case 0x24 : /* offHookWithCgpn */
@@ -1418,6 +1450,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_softKeyEvent, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x29 : /* registerTokenREq */
@@ -1435,6 +1469,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+20, 4, FALSE);
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+28, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+28);
       break;
 
     case 0x2B : /* HeadsetStatusMessage */
@@ -1460,6 +1496,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x2F : /* DeviceToUserDataResponseMessage */
@@ -1470,6 +1508,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x30 : /* UpdateCapabilitiesMessage */
@@ -1610,6 +1650,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+28, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+24);
+      si->callId = tvb_get_letohl(tvb, offset+28);
       break;
 
     case 0x32 : /* ClearConferenceMessage */
@@ -1650,6 +1692,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_addParticipantResults, tvb, offset+20, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x39 : /* AuditConferenceResMessage */
@@ -1698,6 +1741,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x42 : /* DeviceToUserDataResponseVersion1Message */
@@ -1713,6 +1758,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
 
@@ -1776,12 +1823,14 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ipv4_address = tvb_get_ipv4(tvb, offset+20);
 	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, NULL);
       }
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x8b :  /* stopMediaTransmission */
 
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x8c : /* startMediaReception */
@@ -1796,16 +1845,20 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x8f : /* callInfo */
       i = offset+12;
       proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, StationMaxNameSize, TRUE);
-      i += StationMaxNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_callingParty, tvb, i, StationMaxDirnumSize, TRUE);
+      i += StationMaxNameSize;
+      si->callingParty = g_strdup(tvb_format_stringzpad(tvb, i, StationMaxDirnumSize));
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, StationMaxNameSize, TRUE);
       i += StationMaxNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, i, StationMaxDirnumSize, TRUE);
+      si->calledParty = g_strdup(tvb_format_stringzpad(tvb, i, StationMaxDirnumSize));
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, i, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, i);
       i += 4;
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, i, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, i);
       i += 4;
       proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, i, 4, TRUE);
       i += 4;
@@ -1834,8 +1887,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_cast_callSecurityStatus, tvb, i, 4, TRUE);
       i += 4;
       val = tvb_get_letohl( tvb, i);
-		  ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 8, "partyPIRestrictionBits");
-		  skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
+      ti_sub = proto_tree_add_text(skinny_tree, tvb, i, 8, "partyPIRestrictionBits");
+      skinny_sub_tree = proto_item_add_subtree(ti_sub, ett_skinny_tree);
       proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
 	      decode_boolean_bitfield( val, 0x01, 4*8, "Does RestrictCallingPartyName", "Doesn't RestrictCallingPartyName"));
       proto_tree_add_text(skinny_sub_tree, tvb, i, 4, "%s",
@@ -1982,6 +2035,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType, tvb, offset+36, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+40, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x102 : /* startMulticateMediaTermination*/
@@ -1995,16 +2049,19 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression, tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket, tvb, offset+44, 2, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+48, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x103 : /* stopMulticastMediaReception*/
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x104 : /* stopMulticastMediaTermination*/
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x105 : /* open receive channel */
@@ -2014,11 +2071,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,       tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType,          tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,             tvb, offset+32, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x106 :  /* closeReceiveChannel */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x107 :  /* connectionStatisticsReq */
@@ -2027,6 +2086,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, i, StationMaxDirnumSize, TRUE);
       i = 12 + StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, i, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, i);
       i = i+4;
       proto_tree_add_item(skinny_tree, hf_skinny_statsProcessingType, tvb, i, 4, TRUE);
       break;
@@ -2066,30 +2126,35 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_softKeySetDescription, tvb, offset+20, 4, TRUE);
       validKeyMask = tvb_get_letohs(tvb, offset + 24);
-      skm = proto_tree_add_uint(skinny_tree, hf_skinny_softKeyMap, tvb, offset + 24, 1, validKeyMask);
+      skm = proto_tree_add_uint(skinny_tree, hf_skinny_softKeyMap, tvb, offset + 24, 4, validKeyMask);
       skm_tree = proto_item_add_subtree(skm, ett_skinny_softKeyMap);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey0,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey1,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey2,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey3,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey4,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey5,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey6,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey7,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey8,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey9,  tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey10, tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey11, tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey12, tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey13, tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey14, tvb, offset + 24, 1, validKeyMask);
-      proto_tree_add_boolean(skm_tree, hf_skinny_softKey15, tvb, offset + 24, 1, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey0,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey1,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey2,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey3,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey4,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey5,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey6,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey7,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey8,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey9,  tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey10, tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey11, tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey12, tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey13, tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey14, tvb, offset + 24, 4, validKeyMask);
+      proto_tree_add_boolean(skm_tree, hf_skinny_softKey15, tvb, offset + 24, 4, validKeyMask);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x111 : /* callState */
       proto_tree_add_item(skinny_tree, hf_skinny_callState, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
+      si->callState = tvb_get_letohl(tvb, offset+12);
       break;
 
     case 0x112 : /* displayPromptStatus */
@@ -2097,11 +2162,15 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayPromptStatusSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+48, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+48);
+      si->callId = tvb_get_letohl(tvb, offset+52);
       break;
 
     case 0x113: /* clearPrompt */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance  , tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x114 : /* displayNotify */
@@ -2111,6 +2180,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x116 : /* activateCallPlane */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
       break;
 
     case 0x118 :    /* unregisterAckMessage */
@@ -2120,6 +2190,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x119 : /* backSpaceReq */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+12);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x11B : /* registerTokenReject */
@@ -2130,16 +2202,20 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+20, 4, TRUE);
-	    proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+24, 4, TRUE);
-	    proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType, tvb, offset+28, 4, TRUE);
-	    proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+32, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType, tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+34, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+34);
       break;
 
     case 0x11D : /* DialedNumberMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12, StationMaxDirnumSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12+StationMaxDirnumSize, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12+StationMaxDirnumSize+4, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+12+StationMaxDirnumSize);
+      si->callId = tvb_get_letohl(tvb, offset+16+StationMaxDirnumSize);
       break;
 
     case 0x11E : /* UserToDeviceDataMessage */
@@ -2150,6 +2226,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x11F : /* FeatureStatMessage */
@@ -2206,48 +2284,56 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_deviceTone, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x128 : /* SendDtmfToneMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_deviceTone, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x129 : /* SubscribeDtmfPayloadReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12A : /* SubscribeDtmfPayloadResMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12B : /* SubscribeDtmfPayloadErrMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12C : /* UnSubscribeDtmfPayloadReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12D : /* UnSubscribeDtmfPayloadResMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12E : /* UnSubscribeDtmfPayloadErrMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_payloadDtmf, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x12F : /* ServiceURLStatMessage */
@@ -2260,6 +2346,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_callSelectStat, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+20, 4, TRUE);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x131 : /* OpenMultiMediaChannelMessage */
@@ -2271,6 +2359,9 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_payload_rfc_number, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadType, tvb, offset+36, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_isConferenceCreator, tvb, offset+40, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->lineId = tvb_get_letohl(tvb, offset+24);
+      si->callId = tvb_get_letohl(tvb, offset+28);
 
       /* add audio part of union */
 		  ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 12, "audioParameters");
@@ -2339,6 +2430,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_payload_rfc_number, tvb, offset+36, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_payloadType, tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_DSCPValue, tvb, offset+44, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+32);
 
       /* add audio part of union */
 		  ti_sub = proto_tree_add_text(skinny_tree, tvb, offset, 12, "audioParameters");
@@ -2401,6 +2494,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x134 : /* MiscellaneousCommandMessage */
@@ -2408,6 +2503,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_miscCommandType, tvb, offset+24, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
 
       /* show videoFreezePicture */
       /* not sure of format */
@@ -2465,12 +2562,16 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxBitRate, tvb, offset+24, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x136 : /* CloseMultiMediaReceiveChannel */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      si->passThruId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
     case 0x137 : /* CreateConferenceReqMessage */
@@ -2511,11 +2612,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x13A : /* AddParticipantReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x13B : /* DropParticipantReqMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      si->callId = tvb_get_letohl(tvb, offset+16);
       break;
 
     case 0x13D : /* AuditParticipantReqMessage */
@@ -2535,6 +2638,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
       proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      si->lineId = tvb_get_letohl(tvb, offset+16);
+      si->callId = tvb_get_letohl(tvb, offset+20);
       break;
 
 
@@ -2542,7 +2647,9 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
+  tap_queue_packet(skinny_tap, pinfo, si);
 }
+
 
 /* Code to actually dissect the packets */
 static gboolean
@@ -4251,6 +4358,8 @@ proto_register_skinny(void)
     "Whether the SCCP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &skinny_desegment);
+    
+  skinny_tap = register_tap("skinny");
 }
 
 void
