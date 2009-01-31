@@ -62,6 +62,7 @@
 #include "gtk/webbrowser.h"
 #include "gtk/capture_globals.h"
 
+#ifdef _WIN32
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
@@ -69,7 +70,9 @@
 
 #include "../image/toolbar/modem_16.xpm"
 #include "../image/toolbar/network_wireless_16.xpm"
+#endif
 #include "../image/toolbar/network_wired_16.xpm"
+
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
 /*#include "../image/toolbar/capture_capture_16.xpm"*/
