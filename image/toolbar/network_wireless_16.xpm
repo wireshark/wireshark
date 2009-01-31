@@ -1,5 +1,5 @@
 /* XPM */
-static char * network_wireless_16_xpm[] = {
+static const char * network_wireless_16_xpm[] = {
 "16 16 136 2",
 "  	c None",
 ". 	c #3963AA",

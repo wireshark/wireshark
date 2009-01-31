@@ -1,5 +1,5 @@
 /* XPM */
-static char * modem_16_xpm[] = {
+static const char * modem_16_xpm[] = {
 "16 16 93 2",
 "  	c None",
 ". 	c #3769A6",
