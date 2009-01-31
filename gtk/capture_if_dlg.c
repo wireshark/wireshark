@@ -357,7 +357,7 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
 /*
  * Used to retrieve the interface icon
  */
-GtkWidget * capture_get_if_icon(const gchar* name)
+GtkWidget * capture_get_if_icon(const gchar* name _U_)
 {
 #ifdef _WIN32
   if ( strstr(name,"generic dialup") != NULL) {
