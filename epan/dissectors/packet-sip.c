@@ -3110,10 +3110,10 @@ guint sip_find_request(packet_info *pinfo,
  * Find the initial INVITE to calculate the total setup time
  */
 guint sip_find_invite(packet_info *pinfo,
-			gchar *cseq_method,
+			gchar *cseq_method _U_,
 			gchar *call_id,
 			guchar cseq_number_set,
-			guint32 cseq_number,
+			guint32 cseq_number _U_,
 			guint32 *response_time)
 {
 	guint32 cseq_to_compare = 0;
