@@ -149,6 +149,7 @@
 #include "gtk/decode_as_dlg.h"
 #include "gtk/webbrowser.h"
 #include "gtk/capture_dlg.h"
+#include "gtk/capture_if_dlg.h"
 #include "gtk/tap_dfilter_dlg.h"
 
 #ifdef HAVE_LIBPCAP

@@ -63,14 +63,6 @@ void capture_restart_cb(GtkWidget *widget, gpointer data);
 /* capture start confirmed by "Save unsaved capture", so do it now */
 void capture_start_confirmed(void);
 
-/** User requested the "Capture Interfaces" dialog box by menu or toolbar.
- *
- * @param widget parent widget (unused)
- * @param data unused
- */
-void
-capture_if_cb(GtkWidget *widget, gpointer data);
-
 /** User requested the "Capture Airpcap" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)
@@ -78,21 +70,6 @@ capture_if_cb(GtkWidget *widget, gpointer data);
  */
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
-
-/** User requested the "Capture Interfaces" dialog box by menu or toolbar.
- *
- * @param capture_in_progress capture is in progress
- */
-void
-set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
-
-#include "capture-pcap-util.h"	/* for if_info_t */
-
-/*
- * Used to retrieve the interface icon
- */
-GtkWidget *
-capture_get_if_icon(const if_info_t* if_info);
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host {

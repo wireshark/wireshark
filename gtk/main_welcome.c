@@ -50,6 +50,7 @@
 #include "gtk/main_menu.h"
 #include "gtk/main_welcome.h"
 #include "gtk/capture_dlg.h"
+#include "gtk/capture_if_dlg.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"

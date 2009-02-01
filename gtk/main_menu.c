@@ -52,6 +52,7 @@
 
 #include "gtk/about_dlg.h"
 #include "gtk/capture_dlg.h"
+#include "gtk/capture_if_dlg.h"
 #include "gtk/color_dlg.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/profile_dlg.h"

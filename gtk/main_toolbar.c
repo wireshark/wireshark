@@ -41,6 +41,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include "gtk/capture_dlg.h"
+#include "gtk/capture_if_dlg.h"
 #endif /* HAVE_LIBPCAP */
 #include "gtk/filter_dlg.h"
 #include "gtk/capture_file_dlg.h"

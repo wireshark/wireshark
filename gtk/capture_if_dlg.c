@@ -26,12 +26,7 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
-
 #include <gtk/gtk.h>
-
 
 #ifdef HAVE_LIBPCAP
 
@@ -54,6 +49,7 @@
 
 #include "gtk/stock_icons.h"
 #include "gtk/capture_dlg.h"
+#include "gtk/capture_if_dlg.h"
 #include "gtk/recent.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
@@ -198,7 +194,7 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
 #endif
 
 /* update a single interface */
-void
+static void
 update_if(if_dlg_data_t *if_dlg_data, if_stat_cache_t *sc)
 {
   struct pcap_stat stats;

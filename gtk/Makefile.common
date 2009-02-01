@@ -211,6 +211,7 @@ noinst_HEADERS = \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
 	capture_globals.h	\
+	capture_if_dlg.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	color_edit_dlg.h	\
