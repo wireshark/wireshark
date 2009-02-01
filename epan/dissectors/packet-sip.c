@@ -3187,12 +3187,14 @@ guint sip_find_invite(packet_info *pinfo,
 
 	/**************************************************/
 	/* Is it a response to a request that we've seen? */
-	//if ((cseq_number == cseq_to_compare) &&
-	//    (p_val->transaction_state == request_seen) &&
-	//    (strcmp(cseq_method, p_val->method) == 0))
-	//{
-	//	result = p_val->frame_number;
-	//}
+#if 0
+	if ((cseq_number == cseq_to_compare) &&
+	    (p_val->transaction_state == request_seen) &&
+	    (strcmp(cseq_method, p_val->method) == 0))
+	{
+		result = p_val->frame_number;
+	}
+#endif
 
 	result = p_val->frame_number;
 
