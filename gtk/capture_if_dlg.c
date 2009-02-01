@@ -68,7 +68,9 @@
 
 #include "../image/toolbar/modem_16.xpm"
 #endif
+#if defined(_WIN32) || defined(__APPLE__)
 #include "../image/toolbar/network_wireless_16.xpm"
+#endif
 #include "../image/toolbar/network_wired_16.xpm"
 
 
