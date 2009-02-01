@@ -9506,6 +9506,17 @@
 00:25:13	CxpDigital             # CXP DIGITAL BV
 00:25:14	PcWorthInt             # PC Worth Int'l Co., Ltd.
 00:25:15	NeufCegete             # Neuf Cegetel
+00:25:16	Integrated             # Integrated Design Tools, Inc.
+00:25:17	VenntisLlc             # Venntis, LLC
+00:25:18	PowerPlusC             # Power PLUS Communications AG
+00:25:19	Viaas                  # Viaas Inc
+00:25:1A	PsiberData             # Psiber Data Systems Inc.
+00:25:1B	PhilipsCar             # Philips CareServant
+00:25:1C	Edt
+00:25:1D	DsaEncoreL             # DSA Encore, LLC
+00:25:1E	RotelTechn             # ROTEL TECHNOLOGIES
+00:25:1F	ZynusVisio             # ZYNUS VISION INC.
+00:25:20	SmaRailway             # SMA Railway Technology GmbH
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12818,6 +12829,16 @@
 00:50:C2:A3:E0:00/36	DueviSncDi             # DUEVI SNC DI MORA E SANTESE
 00:50:C2:A3:F0:00/36	LhaCc                  # LHA Systems CC
 00:50:C2:A4:00:00/36	MosbergerC             # Mosberger Consulting LLC
+00:50:C2:A4:10:00/36	MeiryoDens             # Meiryo Denshi Corp.
+00:50:C2:A4:20:00/36	Realvision             # RealVision Inc.
+00:50:C2:A4:30:00/36	Nks                    # NKS Co.Ltd.
+00:50:C2:A4:40:00/36	TorcTechno             # TORC Technologies
+00:50:C2:A4:50:00/36	Sofradir-E             # Sofradir-EC
+00:50:C2:A4:60:00/36	Softronics             # Softronics Ltd.
+00:50:C2:A4:70:00/36	PrimetechE             # PRIMETECH ENGINEERING CORP.
+00:50:C2:A4:80:00/36	ThalesOptr             # Thales Optronics Limited
+00:50:C2:A4:90:00/36	WayneDalto             # Wayne Dalton Corp.
+00:50:C2:A4:A0:00/36	DitronSRL              # DITRON S.r.l.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
