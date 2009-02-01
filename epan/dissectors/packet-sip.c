@@ -583,6 +583,11 @@ static guint sip_find_request(packet_info *pinfo,
 				guchar cseq_number_set, guint32 cseq_number,
 				guint32 *response_time);
 
+static guint sip_find_invite(packet_info *pinfo,
+				gchar* cseq_method,
+				gchar* call_id,
+				guchar cseq_number_set, guint32 cseq_number,
+				guint32 *response_time);
 
 /* SIP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -1613,6 +1618,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	stat_info->request_method = NULL;
 	stat_info->reason_phrase = NULL;
 	stat_info->resend = 0;
+	stat_info->setup_time = 0;
 	stat_info->tap_call_id = NULL;
 	stat_info->tap_from_addr = NULL;
 	stat_info->tap_to_addr = NULL;
@@ -2477,6 +2483,16 @@ separator_found2:
 			col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
 		}
 	}
+	/* Find the total setup time, Must be done before checking for resend
+	 * As that will overwrite the "Request packet no".
+	 */
+	if ((line_type == REQUEST_LINE)&&(strcmp(cseq_method, "ACK") == 0))
+	{
+		request_for_response = sip_find_invite(pinfo, cseq_method, call_id,
+		                                        cseq_number_set, cseq_number,
+		                                        &response_time);
+		stat_info->setup_time = response_time;
+	}
 
 	/* Check if this packet is a resend. */
 	resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
@@ -3090,6 +3106,118 @@ guint sip_find_request(packet_info *pinfo,
 	return result;
 }
 
+/*
+ * Find the initial INVITE to calculate the total setup time
+ */
+guint sip_find_invite(packet_info *pinfo,
+			gchar *cseq_method,
+			gchar *call_id,
+			guchar cseq_number_set,
+			guint32 cseq_number,
+			guint32 *response_time)
+{
+	guint32 cseq_to_compare = 0;
+	sip_hash_key   key;
+	sip_hash_value *p_val = 0;
+	sip_frame_result_value *sip_frame_result = NULL;
+	guint result = 0;
+	gint seconds_between_packets;
+	gint nseconds_between_packets;
+
+	/* Only consider UDP */
+	if (pinfo->ptype != PT_UDP)
+	{
+		return 0;
+	}
+
+	/* Ignore error (usually ICMP) frames */
+	if (pinfo->in_error_pkt)
+	{
+		return 0;
+	}
+
+	/* A broken packet may have no cseq number set. Ignore. */
+	if (!cseq_number_set)
+	{
+		return 0;
+	}
+
+	/* Return any answer stored from previous dissection */
+	if (pinfo->fd->flags.visited)
+	{
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		if (sip_frame_result != NULL)
+		{
+			*response_time = sip_frame_result->response_time;
+			return sip_frame_result->response_request_frame_num;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	/* No packet entry found, consult global hash table */
+
+	/* Prepare the key */
+	g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+
+	/* Looking for matching INVITE */
+	SET_ADDRESS(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
+			pinfo->net_dst.data);
+	SET_ADDRESS(&key.source_address, pinfo->net_src.type, pinfo->net_src.len,
+		    pinfo->net_src.data); 
+	key.dest_port = pinfo->destport;
+	key.source_port = pinfo->srcport;
+
+	/* Do the lookup */
+	p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
+
+	if (p_val)
+	{
+		/* Table entry found, we'll use its value for comparison */
+		cseq_to_compare = p_val->cseq;
+	}
+	else
+	{
+		/* We don't have the request */
+		return 0;
+	}
+
+
+	/**************************************************/
+	/* Is it a response to a request that we've seen? */
+	//if ((cseq_number == cseq_to_compare) &&
+	//    (p_val->transaction_state == request_seen) &&
+	//    (strcmp(cseq_method, p_val->method) == 0))
+	//{
+	//	result = p_val->frame_number;
+	//}
+
+	result = p_val->frame_number;
+
+	/* Store return value with this packet */
+	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	if (sip_frame_result == NULL)
+	{
+		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+	}
+
+	sip_frame_result->response_request_frame_num = result;
+
+	/* Work out response time */
+	seconds_between_packets = (gint)
+	    (pinfo->fd->abs_ts.secs - p_val->request_time.secs);
+	nseconds_between_packets =
+	     pinfo->fd->abs_ts.nsecs - p_val->request_time.nsecs;
+	sip_frame_result->response_time = (seconds_between_packets*1000) +
+	                                  (nseconds_between_packets / 1000000);
+	*response_time = sip_frame_result->response_time;
+
+	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
+
+	return result;
+}
 
 
 /* Register the protocol with Wireshark */
