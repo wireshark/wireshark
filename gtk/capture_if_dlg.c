@@ -393,9 +393,12 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
    * not IFT_IEEE80211 (which isn't defined in OS X in any case).
    *
-   * Perhaps other BSD-flavored OSes won't make this mistake.
+   * Perhaps some other BSD-flavored OSes won't make this mistake;
+   * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have
+   * made the same mistake, at least for my Belkin ZyDAS stick.
    *
-   * One might be able to get the information one wants from IOKit.
+   * On Mac OS X, one might be able to get the information one wants from
+   * IOKit.
    */
   if ( strcmp(if_info->name, "en1") == 0) {
     return xpm_to_widget(network_wireless_16_xpm);
