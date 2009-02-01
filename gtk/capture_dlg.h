@@ -7,7 +7,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -87,11 +86,13 @@ capture_air_cb(GtkWidget *widget, gpointer data);
 void
 set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
 
+#include "capture-pcap-util.h"	/* for if_info_t */
+
 /*
  * Used to retrieve the interface icon
  */
 GtkWidget *
-capture_get_if_icon(const gchar* name);
+capture_get_if_icon(const if_info_t* if_info);
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host {

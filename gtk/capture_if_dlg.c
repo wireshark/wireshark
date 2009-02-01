@@ -35,6 +35,8 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <string.h>
+
 #include <epan/prefs.h>
 
 #include "../globals.h"
@@ -69,8 +71,8 @@
 #include "../image/toolbar/capture_ethernet_16.xpm"
 
 #include "../image/toolbar/modem_16.xpm"
-#include "../image/toolbar/network_wireless_16.xpm"
 #endif
+#include "../image/toolbar/network_wireless_16.xpm"
 #include "../image/toolbar/network_wired_16.xpm"
 
 
@@ -358,22 +360,60 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
 
 
 /*
- * Used to retrieve the interface icon
+ * Used to retrieve the interface icon.
+ * This is hideously platform-dependent.
  */
-GtkWidget * capture_get_if_icon(const gchar* name _U_)
+GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
 {
-#ifdef _WIN32
-  if ( strstr(name,"generic dialup") != NULL) {
+#if defined(_WIN32)
+  /*
+   * Much digging failed to reveal any obvious way to get something such
+   * as the SNMP MIB-II ifType value for an interface:
+   *
+   *	http://www.iana.org/assignments/ianaiftype-mib
+   *
+   * by making some NDIS request.
+   */
+  if ( strstr(if_info->description,"generic dialup") != NULL) {
     return xpm_to_widget(modem_16_xpm);
   }
-  if ( strstr(name,"Wireless") != NULL || strstr(name,"802.11") != NULL) {
+  if ( strstr(if_info->description,"Wireless") != NULL || strstr(if_info->description,"802.11") != NULL) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
-  /* TODO: check exact spelling and find a better icon! */
-  if ( strstr(name,"VMWare") != NULL) {
+  /* TODO: check exact spelling (the company is "VMware") and find a better icon! */
+  if ( strstr(if_info->description,"VMWare") != NULL) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
-#endif /* _WIN32 */
+#elif defined(__APPLE__)
+  /*
+   * XXX - yes, fetching all the network addresses for an interface
+   * gets you an AF_LINK address, of type "struct sockaddr_dl", and,
+   * yes, that includes an SNMP MIB-II ifType value.
+   *
+   * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
+   * not IFT_IEEE80211 (which isn't defined in OS X in any case).
+   *
+   * Perhaps other BSD-flavored OSes won't make this mistake.
+   *
+   * One might be able to get the information one wants from IOKit.
+   */
+  if ( strcmp(if_info->name, "en1") == 0) {
+    return xpm_to_widget(network_wireless_16_xpm);
+  }
+  /*
+   * XXX - PPP devices have names beginning with "ppp" and an IFT_ of
+   * IFT_PPP, but they could be dial-up, or PPPoE, or mobile phone modem,
+   * or VPN, or... devices.  One might have to dive into the bowels of
+   * IOKit to find out.
+   */
+  /*
+   * TODO: find a better icon!
+   * These devices have an IFT_ of IFT_ETHER, so we have to check the name.
+   */
+  if ( strncmp(if_info->name,"vmnet",5) == 0) {
+    return xpm_to_widget(network_wireless_16_xpm);
+  }
+#endif
 
   return xpm_to_widget(network_wired_16_xpm);
 }
@@ -554,9 +594,9 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       if(get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
         icon = xpm_to_widget(capture_airpcap_16_xpm);
       else
-        icon = capture_get_if_icon(if_info->description);
+        icon = capture_get_if_icon(if_info);
 #else
-      icon = capture_get_if_icon(if_info->description);
+      icon = capture_get_if_icon(if_info);
 #endif
 
       gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);

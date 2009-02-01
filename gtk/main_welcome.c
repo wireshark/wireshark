@@ -504,7 +504,7 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
 
 /* create a single interface entry */
 static GtkWidget *
-welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
+welcome_if_new(const if_info_t *if_info, const gchar *user_descr, GdkColor *topic_bg _U_, gpointer interf)
 {
     GtkWidget *interface_hb;
     GtkWidget *w;
@@ -524,10 +524,15 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
     gtk_container_add(GTK_CONTAINER(eb), interface_hb);
 
     /* icon */
-    w = capture_get_if_icon(if_name);
+    w = capture_get_if_icon(if_info);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 5);
 
-    message = g_string_new(if_name);
+    if (user_descr != NULL)
+        message = g_string_new(user_descr);
+    else if (if_info->description != NULL)
+        message = g_string_new(if_info->description);
+    else
+        message = g_string_new(if_info->name);
 
     /* truncate string if it's too long */
     /* (the number of chars is a bit arbitrary, though) */
@@ -561,7 +566,7 @@ welcome_if_panel_load(void)
   gchar         *err_str;
   int           ifs;
   GList         *curr;
-  gchar         *descr;
+  gchar         *user_descr;
 
 
   /* LOAD THE INTERFACES */
@@ -583,19 +588,17 @@ welcome_if_panel_load(void)
           continue;
       }
 
-      descr = capture_dev_user_descr_find(if_info->name);
-      if (descr) {
+      user_descr = capture_dev_user_descr_find(if_info->name);
+      if (user_descr) {
 #ifndef _WIN32
-        gchar *comment = descr;
-        descr = g_strdup_printf("%s (%s)", comment, if_info->name);
+        gchar *comment = user_descr;
+        user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
         g_free (comment);
 #endif
-        interface_hb = welcome_if_new(descr, &topic_content_bg, g_strdup(if_info->name));
-        g_free (descr);
-      } else if (if_info->description != NULL) {
-        interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
+        interface_hb = welcome_if_new(if_info, user_descr, &topic_content_bg, g_strdup(if_info->name));
+        g_free (user_descr);
       } else {
-        interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
+        interface_hb = welcome_if_new(if_info, NULL, &topic_content_bg, g_strdup(if_info->name));
       }
 
       child_box = scroll_box_dynamic_add(welcome_if_panel_vb);
