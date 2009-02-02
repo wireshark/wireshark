@@ -398,7 +398,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
   } else {
     item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-      offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
+      offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [unchecked, not all data available]", udph->uh_sum);
 
     checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
     item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
