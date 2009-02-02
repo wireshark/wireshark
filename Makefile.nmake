@@ -393,13 +393,24 @@ AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
 # routines must start in column zero, or must be preceded only by
 # "void " starting in column zero, and must not be inside #if.
 #
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
+#
 # The first argument is the name of the file to write.
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
+!IFDEF PYTHON
+tshark-tap-register.c: $(TSHARK_TAP_SRC) tools/make-dissector-reg.py
+	@echo Making tshark-tap-register.c (using python)
+	@$(PYTHON) "tools/make-dissector-reg.py" . taps $(TSHARK_TAP_SRC)	
+!ELSE
 tshark-tap-register.c: $(TSHARK_TAP_SRC) make-tapreg-dotc
 	@echo Making tshark-tap-register.c
 	@$(SH) make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
+!ENDIF
 
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
