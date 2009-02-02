@@ -378,7 +378,7 @@ sipstat_draw(void *psp  )
 	printf("\n* List of SIP Request methods\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)sip_draw_hash_requests,
 		"  %-15s : %5d Packets\n");
-	printf(	"\n* Average setuptime %d ms\n Min %d ms\n Max %d ms\n", sp->average_setup_time);
+	printf(	"\n* Average setup time %d ms\n Min %d ms\n Max %d ms\n", sp->average_setup_time, sp->min_setup_time, sp->max_setup_time);
 	printf("===================================================================\n");
 }
 
