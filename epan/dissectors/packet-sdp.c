@@ -1367,6 +1367,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
+	  PROTO_ITEM_SET_GENERATED(item);
 
 	}else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
 		/* The value of the parameter is the
