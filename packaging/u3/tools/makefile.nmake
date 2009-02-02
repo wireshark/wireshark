@@ -24,6 +24,9 @@ all:	utest.exe libgcrypt-11.dll libgpg-error-0.dll
 utest.exe:	uuid.obj sysdep.obj utest.obj 
 	@echo Linking $@
 	$(LINK) /OUT:utest.exe $(guiflags) $(LDFLAGS) utest.obj uuid.obj sysdep.obj $(GNUTLS_LIBS) $(guilibsdll) 
+!IF $(MSC_VER_REQUIRED) >= 1400
+	mt.exe -nologo -manifest "utest.exe.manifest" -outputresource:utest.exe;1
+!ENDIF
 
 libgcrypt-11.dll libgpg-error-0.dll: $(GNUTLS_DIR)\bin\$@
 	$(COPY) $(GNUTLS_DIR)\bin\$@ $@
