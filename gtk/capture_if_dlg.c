@@ -32,6 +32,11 @@
 
 #include <string.h>
 
+#ifdef __linux__
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
+
 #include <epan/prefs.h>
 
 #include "../globals.h"
@@ -68,7 +73,7 @@
 
 #include "../image/toolbar/modem_16.xpm"
 #endif
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_WIN32) || defined(__APPLE__) || defined(__linux__)
 #include "../image/toolbar/network_wireless_16.xpm"
 #endif
 #include "../image/toolbar/network_wired_16.xpm"
@@ -413,6 +418,21 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    */
   if ( strncmp(if_info->name,"vmnet",5) == 0) {
     return xpm_to_widget(network_wireless_16_xpm);
+  }
+#elif defined(__linux__)
+  /*
+   * Look for /sys/class/net/{device}/wireless.
+   */
+  struct stat statb;
+  char *wireless_path;
+
+  wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", if_info->name);
+  if (wireless_path != NULL) {
+    if (stat(wireless_path, &statb) == 0) {
+      free(wireless_path);
+      return xpm_to_widget(network_wireless_16_xpm);
+    }
+    free(wireless_path);
   }
 #endif
 
