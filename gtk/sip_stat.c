@@ -56,10 +56,14 @@ typedef struct _sip_stats_t {
     GHashTable  *hash_requests;
     guint32	    packets;        /* number of sip packets, including continuations */
     guint32     resent_packets;
-	guint32		avrage_setup_time;
+	guint32		average_setup_time;
+	guint32		max_setup_time;
+	guint32		min_setup_time;
+	guint32		no_of_completed_calls;
+	guint64		total_setup_time;
     GtkWidget   *packets_label;
     GtkWidget   *resent_label;
-    GtkWidget   *avrage_setup_time_label;
+    GtkWidget   *average_setup_time_label;
 
     GtkWidget   *request_box;		/* container for INVITE, ... */
 
@@ -340,7 +344,11 @@ sipstat_reset(void *psp)
     {
     	sp->packets = 0;
         sp->resent_packets = 0;
-		sp->avrage_setup_time = 0;
+		sp->average_setup_time = 0;
+		sp->max_setup_time = 0;
+		sp->max_setup_time = 0;
+		sp->no_of_completed_calls = 0;
+		sp->total_setup_time = 0;
         g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_reset_hash_responses, NULL);
         g_hash_table_foreach(sp->hash_requests, (GHFunc)sip_reset_hash_requests, NULL);
     }
@@ -362,13 +370,26 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
         sp->resent_packets++;
     }
 
-	/* Calculate avrage setup time */
+	/* Calculate average setup time */
 	if (value->setup_time){
+		sp->no_of_completed_calls++;
 		/* Check if it's the first value */
-		if ( sp->avrage_setup_time == 0 ){
-			sp->avrage_setup_time = value->setup_time;
+		if ( sp->total_setup_time == 0 ){
+			sp->average_setup_time = value->setup_time;
+			sp->total_setup_time = value->setup_time;
+			sp->max_setup_time = value->setup_time;
+			sp->min_setup_time = value->setup_time;
+		}else{
+			sp->total_setup_time = sp->total_setup_time + value->setup_time;
+			if (sp->max_setup_time < value->setup_time){
+				sp->max_setup_time = value->setup_time;
+			}
+			if (sp->min_setup_time > value->setup_time){
+				sp->min_setup_time = value->setup_time;
+			}
+			/* Calculate average */
+			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls); 
 		}
-		sp->avrage_setup_time = (sp->avrage_setup_time +  value->setup_time)/2;
 	}
 
     /* Looking at both requests and responses */
@@ -484,8 +505,8 @@ sipstat_draw(void *psp)
 
     /* Set resend count label */
     g_snprintf(string_buff, sizeof(string_buff),
-                "(Avrage setup time %d ms)", sp->avrage_setup_time);
-    gtk_label_set(GTK_LABEL(sp->avrage_setup_time_label), string_buff);
+                "Average setup time %d ms\n Min %d ms\n Max %d ms", sp->average_setup_time, sp->min_setup_time, sp->max_setup_time);
+    gtk_label_set(GTK_LABEL(sp->average_setup_time_label), string_buff);
 
 	gtk_widget_show_all(sp->win);
 }
@@ -635,10 +656,12 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     sp->request_box = gtk_vbox_new(FALSE, 10);
     gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);
 
-    sp->avrage_setup_time = 0;
-    sp->avrage_setup_time_label = gtk_label_new("(Not calculated)");
-    gtk_container_add(GTK_CONTAINER(main_vb), sp->avrage_setup_time_label);
-    gtk_widget_show(sp->avrage_setup_time_label);
+    sp->average_setup_time = 0;
+	sp->max_setup_time =0;
+	sp->min_setup_time =0;
+    sp->average_setup_time_label = gtk_label_new("(Not calculated)");
+    gtk_container_add(GTK_CONTAINER(main_vb), sp->average_setup_time_label);
+    gtk_widget_show(sp->average_setup_time_label);
 
 
     /* Register this tap listener now */

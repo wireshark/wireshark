@@ -46,7 +46,11 @@ typedef struct _sip_stats_t {
 	char 		*filter;
 	guint32		packets;        /* number of sip packets, including continuations */
 	guint32		resent_packets;
-	guint32		avrage_setup_time;
+	guint32		average_setup_time;
+	guint32		max_setup_time;
+	guint32		min_setup_time;
+	guint32		no_of_completed_calls;
+	guint64		total_setup_time;
 	GHashTable	*hash_responses;
 	GHashTable	*hash_requests;
 } sipstat_t;
@@ -215,7 +219,12 @@ sipstat_reset(void *psp  )
 	if (sp) {
 		sp->packets = 0;
 		sp->resent_packets = 0;
-		sp->avrage_setup_time = 0;
+		sp->average_setup_time = 0;
+		sp->max_setup_time = 0;
+		sp->min_setup_time = 0;
+		sp->no_of_completed_calls = 0;
+		sp->total_setup_time = 0;
+
 		g_hash_table_foreach( sp->hash_responses, (GHFunc)sip_reset_hash_responses, NULL);
 		g_hash_table_foreach( sp->hash_requests, (GHFunc)sip_reset_hash_requests, NULL);
 	}
@@ -232,13 +241,26 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
     /* Total number of packets, including continuation packets */
     sp->packets++;
 
-	/* Calculate avrage setup time */
+	/* Calculate average setup time */
 	if (value->setup_time){
+		sp->no_of_completed_calls++;
 		/* Check if it's the first value */
-		if ( sp->avrage_setup_time == 0 ){
-			sp->avrage_setup_time = value->setup_time;
+		if ( sp->total_setup_time == 0 ){
+			sp->average_setup_time = value->setup_time;
+			sp->total_setup_time = value->setup_time;
+			sp->max_setup_time = value->setup_time;
+			sp->min_setup_time = value->setup_time;
+		}else{
+			sp->total_setup_time = sp->total_setup_time + value->setup_time;
+			if (sp->max_setup_time < value->setup_time){
+				sp->max_setup_time = value->setup_time;
+			}
+			if (sp->min_setup_time > value->setup_time){
+				sp->min_setup_time = value->setup_time;
+			}
+			/* Calculate average */
+			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls); 
 		}
-		sp->avrage_setup_time = (sp->avrage_setup_time +  value->setup_time)/2;
 	}
     
     /* Update resent count if flag set */
@@ -356,7 +378,7 @@ sipstat_draw(void *psp  )
 	printf("\n* List of SIP Request methods\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)sip_draw_hash_requests,
 		"  %-15s : %5d Packets\n");
-	printf(	"\n* Avrage setuptime %d ms\n", sp->avrage_setup_time);
+	printf(	"\n* Average setuptime %d ms\n Min %d ms\n Max %d ms\n", sp->average_setup_time);
 	printf("===================================================================\n");
 }
 
