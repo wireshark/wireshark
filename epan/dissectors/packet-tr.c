@@ -268,9 +268,8 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 	if (fix_linux_botches) {
 		/* this is a silly hack for Linux 2.0.x. Read the comment
-		 * below, in front of the other #ifdef linux.
-		 * If we're sniffing our own NIC, we get a full RIF,
-		 * sometimes with garbage
+		 * below about LLC headers. If we're sniffing our own NIC,
+		 * we get a full RIF, sometimes with garbage
 		 */
 		if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
 			(!source_routed && frame_type == 1)) {
@@ -443,9 +442,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (fix_linux_botches) {
 		/* this is a silly hack for Linux 2.0.x. Read the comment
-		 * below, in front of the other #ifdef linux. If we're
-		 * sniffing our own NIC, we get a full RIF, sometimes with
-		 * garbage
+		 * below about LLC headers. If we're sniffing our own NIC,
+		 * we get a full RIF, sometimes with garbage
 		 */
 		TRY {
 			if (frame_type == 1 && ( (source_routed && trn_rif_bytes == 2) ||
