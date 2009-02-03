@@ -743,6 +743,12 @@ EXTRA_DIST = \
 	image/toolbar/icon_color_8.xpm	\
 	image/toolbar/icon_color_9.xpm	\
 	image/toolbar/internet_24.xpm	\
+	image/toolbar/modem_16.png	\
+	image/toolbar/modem_16.xpm	\
+	image/toolbar/network_wired_16.png	\
+	image/toolbar/network_wired_16.xpm	\
+	image/toolbar/network_wireless_16.png	\
+	image/toolbar/network_wireless_16.xpm	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
