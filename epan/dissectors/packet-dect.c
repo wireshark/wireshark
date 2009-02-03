@@ -50,7 +50,7 @@
 #define ETHERTYPE_DECT 0x2323				/* move to epan/etypes.h */
 
 
-/* scramble table */
+/* scramble table with corrections by Jakub Hruska */
 guint8 scrt[8][31]=
 {
 	{0x3B,0xCD,0x21,0x5D,0x88,0x65,0xBD,0x44,0xEF,0x34,0x85,0x76,0x21,0x96,0xF5,0x13,0xBC,0xD2,0x15,0xD8,0x86,0x5B,0xD4,0x4E,0xF3,0x48,0x57,0x62,0x19,0x6F,0x51},
@@ -82,86 +82,85 @@ struct dect_bfield
 };
 
 static int proto_dect = -1;
-static dissector_handle_t dect_handle;
 
 #if 0
 static int proto_dect2 = -1;
 #endif
 
 
-static gint subtree_dect					= -1;
-static gint subtree_afield					= -1;
-static gint subtree_ahead					= -1;
-static gint subtree_atail					= -1;
-static gint subtree_aqt						= -1;
+static gint subtree_dect			= -1;
+static gint subtree_afield			= -1;
+static gint subtree_ahead			= -1;
+static gint subtree_atail			= -1;
+static gint subtree_aqt				= -1;
 
-static gint subtree_bfield					= -1;
+static gint subtree_bfield			= -1;
 
 
-static int hf_dect_transceivermode			= -1;
-static int hf_dect_preamble				= -1;
-static int hf_dect_type					= -1;
-static int hf_dect_channel				= -1;
-static int hf_dect_framenumber				= -1;
-static int hf_dect_rssi					= -1;
-static int hf_dect_slot					= -1;
-static int hf_dect_A					= -1;
-static int hf_dect_A_Head				= -1;
-static int hf_dect_A_Head_TA				= -1;
-static int hf_dect_A_Head_Q1				= -1;
-static int hf_dect_A_Head_BA				= -1;
-static int hf_dect_A_Head_Q2				= -1;
-static int hf_dect_A_Tail				= -1;
-static int hf_dect_A_Tail_Nt				= -1;
-static int hf_dect_A_Tail_Qt_Qh				= -1;
-static int hf_dect_A_Tail_Qt_0_Sn			= -1;
-static int hf_dect_A_Tail_Qt_0_Nr			= -1;
-static int hf_dect_A_Tail_Qt_0_Sp			= -1;
-static int hf_dect_A_Tail_Qt_0_Esc			= -1;
-static int hf_dect_A_Tail_Qt_0_Txs			= -1;
-static int hf_dect_A_Tail_Qt_0_Mc			= -1;
-static int hf_dect_A_Tail_Qt_0_Spr1			= -1;
-static int hf_dect_A_Tail_Qt_0_Cn			= -1;
-static int hf_dect_A_Tail_Qt_0_Spr2			= -1;
-static int hf_dect_A_Tail_Qt_0_PSCN			= -1;
-static int hf_dect_A_Tail_Qt_3_A12			= -1;
-static int hf_dect_A_Tail_Qt_3_A13			= -1;
-static int hf_dect_A_Tail_Qt_3_A14			= -1;
-static int hf_dect_A_Tail_Qt_3_A15			= -1;
-static int hf_dect_A_Tail_Qt_3_A16			= -1;
-static int hf_dect_A_Tail_Qt_3_A17			= -1;
-static int hf_dect_A_Tail_Qt_3_A18			= -1;
-static int hf_dect_A_Tail_Qt_3_A19			= -1;
-static int hf_dect_A_Tail_Qt_3_A20			= -1;
-static int hf_dect_A_Tail_Qt_3_A21			= -1;
-static int hf_dect_A_Tail_Qt_3_A22			= -1;
-static int hf_dect_A_Tail_Qt_3_A23			= -1;
-static int hf_dect_A_Tail_Qt_3_A24			= -1;
-static int hf_dect_A_Tail_Qt_3_A25			= -1;
-static int hf_dect_A_Tail_Qt_3_A26			= -1;
-static int hf_dect_A_Tail_Qt_3_A27			= -1;
-static int hf_dect_A_Tail_Qt_3_A28			= -1;
-static int hf_dect_A_Tail_Qt_3_A29			= -1;
-static int hf_dect_A_Tail_Qt_3_A30			= -1;
-static int hf_dect_A_Tail_Qt_3_A31			= -1;
-static int hf_dect_A_Tail_Mt_Mh				= -1;
+static int hf_dect_transceivermode		= -1;
+static int hf_dect_preamble			= -1;
+static int hf_dect_type				= -1;
+static int hf_dect_channel			= -1;
+static int hf_dect_framenumber			= -1;
+static int hf_dect_rssi				= -1;
+static int hf_dect_slot				= -1;
+static int hf_dect_A				= -1;
+static int hf_dect_A_Head			= -1;
+static int hf_dect_A_Head_TA			= -1;
+static int hf_dect_A_Head_Q1			= -1;
+static int hf_dect_A_Head_BA			= -1;
+static int hf_dect_A_Head_Q2			= -1;
+static int hf_dect_A_Tail			= -1;
+static int hf_dect_A_Tail_Nt			= -1;
+static int hf_dect_A_Tail_Qt_Qh			= -1;
+static int hf_dect_A_Tail_Qt_0_Sn		= -1;
+static int hf_dect_A_Tail_Qt_0_Nr		= -1;
+static int hf_dect_A_Tail_Qt_0_Sp		= -1;
+static int hf_dect_A_Tail_Qt_0_Esc		= -1;
+static int hf_dect_A_Tail_Qt_0_Txs		= -1;
+static int hf_dect_A_Tail_Qt_0_Mc		= -1;
+static int hf_dect_A_Tail_Qt_0_Spr1		= -1;
+static int hf_dect_A_Tail_Qt_0_Cn		= -1;
+static int hf_dect_A_Tail_Qt_0_Spr2		= -1;
+static int hf_dect_A_Tail_Qt_0_PSCN		= -1;
+static int hf_dect_A_Tail_Qt_3_A12		= -1;
+static int hf_dect_A_Tail_Qt_3_A13		= -1;
+static int hf_dect_A_Tail_Qt_3_A14		= -1;
+static int hf_dect_A_Tail_Qt_3_A15		= -1;
+static int hf_dect_A_Tail_Qt_3_A16		= -1;
+static int hf_dect_A_Tail_Qt_3_A17		= -1;
+static int hf_dect_A_Tail_Qt_3_A18		= -1;
+static int hf_dect_A_Tail_Qt_3_A19		= -1;
+static int hf_dect_A_Tail_Qt_3_A20		= -1;
+static int hf_dect_A_Tail_Qt_3_A21		= -1;
+static int hf_dect_A_Tail_Qt_3_A22		= -1;
+static int hf_dect_A_Tail_Qt_3_A23		= -1;
+static int hf_dect_A_Tail_Qt_3_A24		= -1;
+static int hf_dect_A_Tail_Qt_3_A25		= -1;
+static int hf_dect_A_Tail_Qt_3_A26		= -1;
+static int hf_dect_A_Tail_Qt_3_A27		= -1;
+static int hf_dect_A_Tail_Qt_3_A28		= -1;
+static int hf_dect_A_Tail_Qt_3_A29		= -1;
+static int hf_dect_A_Tail_Qt_3_A30		= -1;
+static int hf_dect_A_Tail_Qt_3_A31		= -1;
+static int hf_dect_A_Tail_Mt_Mh			= -1;
 static int hf_dect_A_Tail_Mt_BasicConCtrl	= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd1		= -1;
 static int hf_dect_A_Tail_Mt_Encr_Cmd2		= -1;
 static int hf_dect_A_Tail_Pt_ExtFlag		= -1;
-static int hf_dect_A_Tail_Pt_SDU			= -1;
+static int hf_dect_A_Tail_Pt_SDU		= -1;
 static int hf_dect_A_Tail_Pt_InfoType		= -1;
 static int hf_dect_A_Tail_Pt_Fill_Fillbits	= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Cn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sp		= -1;
 
-static int hf_dect_A_RCRC					= -1;
+static int hf_dect_A_RCRC			= -1;
 
 
-static int hf_dect_B						= -1;
-static int hf_dect_B_Data					= -1;
-static int hf_dect_B_XCRC					= -1;
+static int hf_dect_B				= -1;
+static int hf_dect_B_Data			= -1;
+static int hf_dect_B_XCRC			= -1;
 
 
 const value_string tranceiver_mode[]=
@@ -690,11 +689,13 @@ const value_string PTRFPPower_vals[]=
 	{12,"24 dBm"},
 	{13,"26 dBm"},
 	{14,"28 dBm"},
-	{15,"30 dBm"}
+	{15,"30 dBm"},
+	{0, NULL}
 };
 
 
-unsigned char getbit(guint8 *data,int bit)
+unsigned char
+getbit(guint8 *data,int bit)
 {
 	guint8 c;
 	guint8 byte=data[bit/8];
@@ -706,7 +707,8 @@ unsigned char getbit(guint8 *data,int bit)
 
 }
 
-void setbit(guint8 *data,int bit,guint8 value)
+void
+setbit(guint8 *data,int bit,guint8 value)
 {
 	if(!value)
 		data[bit/8]&=~(1<<(bit%8));
@@ -716,7 +718,8 @@ void setbit(guint8 *data,int bit,guint8 value)
 
 
 
-guint8 calc_xcrc(guint8* data,guint8 length)
+guint8
+calc_xcrc(guint8* data,guint8 length)
 {
 	guint8 bits[21];
 
@@ -784,7 +787,8 @@ guint8 calc_xcrc(guint8* data,guint8 length)
 
 
 
-guint16 calc_rcrc(guint8* data)
+guint16
+calc_rcrc(guint8* data)
 {
 	guint16 gp=0x0589;		/* 10000010110001001 without the leading 1 */
 
@@ -836,7 +840,10 @@ guint16 calc_rcrc(guint8* data)
 
 
 
-gint dissect_bfield(BOOL type _U_,struct dect_afield *pkt_afield,struct dect_bfield *pkt_bfield,packet_info *pinfo,guint8 *pkt_ptr _U_,tvbuff_t *tvb,proto_item *ti _U_,proto_tree *DectTree,gint offset)
+gint
+dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr _U_,
+	tvbuff_t *tvb,proto_item *ti _U_, proto_tree *DectTree, gint offset)
 {
 	guint8 xcrc,xcrclen;
 	guint16 blen;
@@ -991,7 +998,10 @@ gint dissect_bfield(BOOL type _U_,struct dect_afield *pkt_afield,struct dect_bfi
 }
 
 
-void dissect_decttype(BOOL type,struct dect_afield *pkt_afield,struct dect_bfield *pkt_bfield,packet_info *pinfo,guint8 *pkt_ptr,tvbuff_t *tvb,proto_item *ti,proto_tree *DectTree)
+void
+dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr,
+	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
 	char				string[30];
 
@@ -1449,7 +1459,8 @@ void dissect_decttype(BOOL type,struct dect_afield *pkt_afield,struct dect_bfiel
 }
 
 
-static void dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16				type;
 	guint16				pkt_len;
@@ -1579,7 +1590,8 @@ static void dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-void proto_register_dect(void)
+void
+proto_register_dect(void)
 {
 	static hf_register_info hf[]=
 	{
@@ -1925,7 +1937,7 @@ void proto_register_dect(void)
 
 
 	/* Setup protocol subtree array */
-	static gint *subtree[]=
+	static gint *ett[]=
 	{
 		&subtree_dect,
 		&subtree_ahead,
@@ -1937,24 +1949,17 @@ void proto_register_dect(void)
 	};
 
 
-	if(proto_dect==-1)
-	{
-		proto_dect=proto_register_protocol("DECT Protocol","DECT","dect");
-	}
-
-
+	proto_dect=proto_register_protocol("DECT Protocol","DECT","dect");
 	proto_register_field_array(proto_dect,hf,array_length(hf));
-	proto_register_subtree_array(subtree,array_length(subtree));
+	proto_register_subtree_array(ett,array_length(ett));
 }
 
-void proto_reg_handoff_dect(void)
+void
+proto_reg_handoff_dect(void)
 {
-	static int initialized=FALSE;
+	static dissector_handle_t dect_handle;
 
-	if(!initialized)
-	{
-		dect_handle = create_dissector_handle(dissect_dect,proto_dect);
-		dissector_add("ethertype",ETHERTYPE_DECT ,dect_handle);
-	}
+	dect_handle = create_dissector_handle(dissect_dect,proto_dect);
+	dissector_add("ethertype",ETHERTYPE_DECT ,dect_handle);
 }
 
