@@ -7909,7 +7909,7 @@ SignalingMessageEncryptionReport ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 0 1 1 (0x43)(195)
-TemporaryReferenceNumber ::= OCTET STRING
+TemporaryReferenceNumber ::= MINType
 
 -- 6.5.2.zB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)

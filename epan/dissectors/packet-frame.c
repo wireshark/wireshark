@@ -71,7 +71,7 @@ static dissector_handle_t docsis_handle;
 
 /* Preferences */
 static gboolean show_file_off = FALSE;
-static gboolean force_docsis_encap;
+static gboolean force_docsis_encap = FALSE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_SENT,	"Sent" },

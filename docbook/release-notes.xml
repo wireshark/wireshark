@@ -141,6 +141,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          ANSI MAP fix for TRN digits/SMS and OTA subdissection
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3214">Bug
+          3214</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           The 1.0 branch can now be built with Visual Studio 2008.
         </para></listitem>
 
@@ -172,6 +178,7 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+AFS,
 ATM,
 DHCPv6,
 DIS,
