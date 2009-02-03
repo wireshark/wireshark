@@ -1,0 +1,42 @@
+$Id$
+
+Description:
+============
+DECT pcap files can be obtained by using tools coming with the linux
+kernel driver for the Dosch-and-Amand COM-ON-AIR cards. The driver is
+called com-on-air_cs.
+
+Wireshark itself cannot directy record from the DECT HW, as the driver
+currently lacks a virtual network interface.
+
+There is ongoing work to change this (see this work by Patrick McHardy):
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/kaber/dect-2.6.git
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/kaber/libnl-dect.git
+git clone git://git.kernel.org/pub/scm/libs/netlink/libnl.git
+Also needed are a proper linktype value assigned by the libpcap team and
+the proper patches for libpcap to support this (the value used in the
+patch below is not officially assigned!):
+git://git.kernel.org/pub/scm/linux/kernel/git/kaber/libpcap-dect.git
+
+To nicely view DECT pcap files in wireshark, set up a custom layout:
+
+Edit->Preferences...
+  User Interface
+    Colums
+
+      No.      | Number
+      Time     | Time (format as specified)
+      Protocol | Protocol
+      TA       | HP-UX Subsystem
+      A-Field  | Network src addr
+      B-Field  | Network dest addr
+      Info     | Information
+  OK
+
+
+Edit->Configuration Profiles...
+  New
+  Profile Name = dect
+  OK
+
+
