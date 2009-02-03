@@ -1000,7 +1000,6 @@ DISSECTOR_INCLUDES =	\
 	packet-h264.h	\
 	packet-h323.h	\
 	packet-h450-ros.h	\
-	packet-hci_h1.h	\
 	packet-hci_h4.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\

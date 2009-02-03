@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 
-#include "packet-hci_h1.h"
 
 
 static int proto_hci_h1 = -1;
