@@ -34,7 +34,11 @@ help_DATA = \
 	faq.txt			\
 	overview.txt
 
-EXTRA_DIST = $(help_DATA) Makefile.nmake $(srcdir)/faq.py
+EXTRA_DIST = \
+	$(help_DATA)		\
+	Makefile.nmake		\
+	$(srcdir)/faq.py	\
+	faq.txt
 
 CLEANFILES = faq.txt
 
