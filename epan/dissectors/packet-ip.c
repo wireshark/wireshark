@@ -142,16 +142,22 @@ static int hf_geoip_city = -1;
 static int hf_geoip_org = -1;
 static int hf_geoip_isp = -1;
 static int hf_geoip_asnum = -1;
+static int hf_geoip_lat = -1;
+static int hf_geoip_lon = -1;
 static int hf_geoip_src_country = -1;
 static int hf_geoip_src_city = -1;
 static int hf_geoip_src_org = -1;
 static int hf_geoip_src_isp = -1;
 static int hf_geoip_src_asnum = -1;
+static int hf_geoip_src_lat = -1;
+static int hf_geoip_src_lon = -1;
 static int hf_geoip_dst_country = -1;
 static int hf_geoip_dst_city = -1;
 static int hf_geoip_dst_org = -1;
 static int hf_geoip_dst_isp = -1;
 static int hf_geoip_dst_asnum = -1;
+static int hf_geoip_dst_lat = -1;
+static int hf_geoip_dst_lon = -1;
 #endif /* HAVE_GEOIP */
 
 static gint ett_ip = -1;
@@ -1536,6 +1542,16 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
           geoip_src_hf = hf_geoip_src_asnum;
           geoip_dst_hf = hf_geoip_dst_asnum;
           break;
+		case WS_LAT_FAKE_EDITION:
+          geoip_hf = hf_geoip_lat;
+          geoip_src_hf = hf_geoip_src_lat;
+          geoip_dst_hf = hf_geoip_dst_lat;
+          break;
+		case WS_LON_FAKE_EDITION:
+          geoip_hf = hf_geoip_lon;
+          geoip_src_hf = hf_geoip_src_lon;
+          geoip_dst_hf = hf_geoip_dst_lon;
+          break;
         default:
           continue;
           break;
@@ -1560,8 +1576,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         PROTO_ITEM_SET_GENERATED(item);
         PROTO_ITEM_SET_HIDDEN(item);
       }
-    }
-  }
+    } /* for */
+  } /* switch */
 #endif /* HAVE_GEOIP */
 
   if (tree) {
@@ -2539,6 +2555,12 @@ proto_register_ip(void)
 		{ &hf_geoip_asnum,
 		{ "Source or Destination GeoIP AS Number", "ip.geoip.asnum", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+		{ &hf_geoip_lat,
+		{ "Source or Destination GeoIP Latitude", "ip.geoip.lat", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_lon,
+		{ "Source or Destination GeoIP Longitude", "ip.geoip.lon", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
 		{ &hf_geoip_src_country,
 		{ "Source GeoIP Country", "ip.geoip.src_country", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
@@ -2554,6 +2576,12 @@ proto_register_ip(void)
 		{ &hf_geoip_src_asnum,
 		{ "Source GeoIP AS Number", "ip.geoip.src_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+		{ &hf_geoip_src_lat,
+		{ "Source GeoIP Latitude", "ip.geoip.src_lat", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_src_lon,
+		{ "Source GeoIP Longitude", "ip.geoip.src_lon", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
 		{ &hf_geoip_dst_country,
 		{ "Destination GeoIP Country", "ip.geoip.dst_country", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
@@ -2568,6 +2596,12 @@ proto_register_ip(void)
 			"", HFILL }},
 		{ &hf_geoip_dst_asnum,
 		{ "Destination GeoIP AS Number", "ip.geoip.dst_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_lat,
+		{ "Destination GeoIP Latitude", "ip.geoip.dst_lat", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+		{ &hf_geoip_dst_lon,
+		{ "Destination GeoIP Longitude", "ip.geoip.dst_lon", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 #endif /* HAVE_GEOIP */
 		{ &hf_ip_flags,

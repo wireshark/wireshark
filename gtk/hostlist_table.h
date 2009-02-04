@@ -44,7 +44,7 @@ typedef struct _hostlist_talker_t {
 
 #define NUM_BUILTIN_COLS 8
 #ifdef HAVE_GEOIP
-# define NUM_GEOIP_COLS 8
+# define NUM_GEOIP_COLS 13
 #else
 # define NUM_GEOIP_COLS 0
 #endif

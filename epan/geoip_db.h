@@ -27,6 +27,13 @@
 #ifndef __GEOIP_DB_H__
 #define __GEOIP_DB_H__
 
+
+/* Fake databases to make lat/lon values available */
+/* XXX - find a better way to interface */
+#define WS_LAT_FAKE_EDITION 12
+#define WS_LON_FAKE_EDITION 13
+
+
 /**
  * Init function called from epan.h
  */

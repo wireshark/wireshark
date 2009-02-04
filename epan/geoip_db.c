@@ -47,7 +47,7 @@
 #include <wsutil/file_util.h>
 
 /* This needs to match NUM_GEOIP_COLS in hostlist_table.h */
-#define MAX_GEOIP_DBS 8
+#define MAX_GEOIP_DBS 13
 
 /* Column names for each database type */
 value_string geoip_type_name_vals[] = {
@@ -62,6 +62,8 @@ value_string geoip_type_name_vals[] = {
 	{ GEOIP_ASNUM_EDITION,			"AS Number" },
 	{ GEOIP_NETSPEED_EDITION,		"Speed" },
 	{ GEOIP_DOMAIN_EDITION,			"Domain" },
+	{ WS_LAT_FAKE_EDITION,			"Latitude" },	/* fake database */
+	{ WS_LON_FAKE_EDITION,			"Longitude" },	/* fake database */
 	{ 0, NULL }
 };
 
@@ -159,6 +161,18 @@ geoip_db_init(void) {
 		}
 	}
 
+    /* add fake databases for latitude and longitude (using "City" in reality) */
+    {
+        GeoIP *gi_lat;
+        GeoIP *gi_lon;
+
+        gi_lat = g_malloc(sizeof (GeoIP));
+        gi_lat->databaseType = WS_LAT_FAKE_EDITION;
+		g_array_append_val(geoip_dat_arr, gi_lat);
+        gi_lon = g_malloc(sizeof (GeoIP));
+        gi_lon->databaseType = WS_LON_FAKE_EDITION;
+		g_array_append_val(geoip_dat_arr, gi_lon);
+    }
 }
 
 guint
@@ -185,6 +199,35 @@ geoip_db_type(guint dbnum) {
 	if (gi) {
 		return (gi->databaseType);
 	}
+	return -1;
+}
+
+int
+geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
+	GeoIP *gi;
+	GeoIPRecord *gir;
+    guint i;
+
+	for (i = 0; i < geoip_db_num_dbs(); i++) {
+        gi = g_array_index(geoip_dat_arr, GeoIP *, i);
+        if (gi) {
+            switch (gi->databaseType) {
+                case GEOIP_CITY_EDITION_REV0:
+                case GEOIP_CITY_EDITION_REV1:
+                    gir = GeoIP_record_by_ipnum(gi, addr);
+                    if(gir) {
+                        *lat = gir->latitude;
+                        *lon = gir->longitude;
+						return 0;
+                    }
+                    return -1;
+                    /*break;*/
+
+                default:
+                    break;
+            }
+        }
+    }
 	return -1;
 }
 
@@ -220,6 +263,34 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
 			case GEOIP_ASNUM_EDITION:
 				ret = GeoIP_name_by_ipnum(gi, addr);
 				break;
+
+            case WS_LAT_FAKE_EDITION:
+            {
+                float lat;
+                float lon;
+				char *c;
+                if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
+                    g_snprintf(val, VAL_STR_LEN, "%f", lat);
+					c = strchr(val, ',');
+					if (c != NULL) *c = '.';
+                    ret = val;
+                }
+            }
+                break;
+
+            case WS_LON_FAKE_EDITION:
+            {
+                float lat;
+                float lon;
+				char *c;
+                if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
+                    g_snprintf(val, VAL_STR_LEN, "%f", lon);
+					c = strchr(val, ',');
+					if (c != NULL) *c = '.';
+                    ret = val;
+                }
+            }
+                break;
 
 			default:
 				break;
