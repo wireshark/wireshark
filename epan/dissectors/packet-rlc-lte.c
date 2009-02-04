@@ -751,12 +751,19 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Append context highlights to info column */
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "[%s] [%s] UEId=%u %s:%u",
+                     "[%s] [%s] UEId=%u ",
                      (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
                      val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"),
-                     p_rlc_lte_info->ueid,
-                     val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
-                     p_rlc_lte_info->channelId);
+                     p_rlc_lte_info->ueid);
+        if (p_rlc_lte_info->channelId == 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                            val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+        }
+        else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s:%u",
+                            val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                            p_rlc_lte_info->channelId);
+        }
     }
 
     /* Reset this count */
