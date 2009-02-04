@@ -49,7 +49,6 @@
 
 #define ETHERTYPE_DECT 0x2323				/* move to epan/etypes.h */
 
-
 /* scramble table with corrections by Jakub Hruska */
 guint8 scrt[8][31]=
 {
@@ -62,11 +61,6 @@ guint8 scrt[8][31]=
 	{0x0C,0xB7,0xA8,0x9D,0xE6,0x90,0xAE,0xC4,0x32,0xDE,0xA2,0x77,0x9A,0x42,0xBB,0x10,0xCB,0x7A,0x89,0xDE,0x69,0x0A,0xEC,0x43,0x2D,0xEA,0x27,0x79,0xA4,0x2B,0xB1},
 	{0x79,0xA4,0x2B,0xB1,0x0C,0xB7,0xA8,0x9D,0xE6,0x90,0xAE,0xC4,0x32,0xDE,0xA2,0x77,0x9A,0x42,0xBB,0x10,0xCB,0x7A,0x89,0xDE,0x69,0x0A,0xEC,0x43,0x2D,0xEA,0x27}
 };
-
-
-#ifndef BOOL
-#  define BOOL int
-#endif
 
 struct dect_afield
 {
@@ -88,14 +82,12 @@ static int proto_dect2 = -1;
 #endif
 
 
-static gint subtree_dect			= -1;
-static gint subtree_afield			= -1;
-static gint subtree_ahead			= -1;
-static gint subtree_atail			= -1;
-static gint subtree_aqt				= -1;
-
-static gint subtree_bfield			= -1;
-
+static gint ett_dect			= -1;
+static gint ett_afield			= -1;
+static gint ett_ahead			= -1;
+static gint ett_atail			= -1;
+static gint ett_aqt				= -1;
+static gint ett_bfield			= -1;
 
 static int hf_dect_transceivermode		= -1;
 static int hf_dect_preamble			= -1;
@@ -154,14 +146,10 @@ static int hf_dect_A_Tail_Pt_Fill_Fillbits	= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Cn		= -1;
 static int hf_dect_A_Tail_Pt_Bearer_Sp		= -1;
-
 static int hf_dect_A_RCRC			= -1;
-
-
 static int hf_dect_B				= -1;
 static int hf_dect_B_Data			= -1;
 static int hf_dect_B_XCRC			= -1;
-
 
 const value_string tranceiver_mode[]=
 {
@@ -169,7 +157,6 @@ const value_string tranceiver_mode[]=
 	{1,"Send"},
 	{0,NULL}
 };
-
 
 const value_string TA_vals[]=
 {
@@ -196,7 +183,6 @@ const value_string BA_vals[]=
 	{7,"No B-Field"},
 	{0,NULL}
 };
-
 
 const value_string QTHead_vals[]=
 {
@@ -287,7 +273,6 @@ const value_string QTSpr_vals[]=
 	{3,"Reserved"},
 	{0,NULL}
 };
-
 
 const value_string QTCarrierNumber_vals[]=
 {
@@ -426,7 +411,6 @@ const value_string QTScanCarrierNum_vals[]=
 	{63,"Primary Scan next on RF Carrier 63"},
 	{0,NULL}
 };
-
 
 const value_string Qt_A12_vals[]=
 {
@@ -568,8 +552,6 @@ const value_string Qt_A31_vals[]=
 	{0,NULL}
 };
 
-
-
 const value_string MTHead_vals[]=
 {
 	{0,"Basic Connection Control"},
@@ -671,7 +653,6 @@ const value_string PTInfoType_vals[]=
 	{0,NULL}
 };
 
-
 const value_string PTRFPPower_vals[]=
 {
 	{0,"0 dBm"},
@@ -693,7 +674,6 @@ const value_string PTRFPPower_vals[]=
 	{0, NULL}
 };
 
-
 unsigned char
 getbit(guint8 *data,int bit)
 {
@@ -704,7 +684,6 @@ getbit(guint8 *data,int bit)
 	c<<=bit%8;
 
 	return (byte&c)>>bit%8;
-
 }
 
 void
@@ -716,16 +695,11 @@ setbit(guint8 *data,int bit,guint8 value)
 		data[bit/8]|=(1<<(bit%8));
 }
 
-
-
 guint8
 calc_xcrc(guint8* data,guint8 length)
 {
 	guint8 bits[21];
-
-
 	guint8 gp=0x1;
-
 	guint8 div;
 	guint8 next;
 	int y,x;
@@ -734,13 +708,8 @@ calc_xcrc(guint8* data,guint8 length)
 	{
 		setbit(bits,y,getbit(data,y+48*(1+(int)(y/16))));
 	}
-
 	length=10;
-
-
-
 	div=bits[0];
-
 	y=0;
 	while(y<length)
 	{
@@ -748,44 +717,31 @@ calc_xcrc(guint8* data,guint8 length)
 			next=bits[y+1];
 		else
 			next=0;
-
 		y++;
-
 		x=0;
 		while(x<8)
 		{
-
 			while(!(div&0x80))
 			{
 				div<<=1;
 				div|=!!(next&0x80);
 				next<<=1;
 				x++;
-
 				if(x>7)
 					break;
 			}
-
 			if(x>7)
 				break;
-
 			div<<=1;
 			div|=!!(next&0x80);
 			next<<=1;
 			x++;
-
 			div^=(gp<<4);
-
 		}
 	}
-
 /* 	div^=0x10; */
 	return div;
 }
-
-
-
-
 
 guint16
 calc_rcrc(guint8* data)
@@ -797,70 +753,51 @@ calc_rcrc(guint8* data)
 	int y,x;
 
 	div=data[0]<<8|data[1];
-
-
 	y=0;
 	while(y<6)
 	{
 		next=data[2+y];
 		y++;
-
 		x=0;
 		while(x<8)
 		{
-
 			while(!(div&0x8000))
 			{
 				div<<=1;
 				div|=!!(next&0x80);
 				next<<=1;
 				x++;
-
 				if(x>7)
 					break;
 			}
-
 			if(x>7)
 				break;
-
 			div<<=1;
 			div|=!!(next&0x80);
 			next<<=1;
 			x++;
-
 			div^=gp;
-
 		}
 	}
-
 	div^=1;
 	return div;
-
 }
 
-
-
 gint
-dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
+dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr _U_,
 	tvbuff_t *tvb,proto_item *ti _U_, proto_tree *DectTree, gint offset)
 {
 	guint8 xcrc,xcrclen;
 	guint16 blen;
-
 	gint oldoffset,fn;
-
-
 	proto_item *bfieldti	=NULL;
 #if 0
-	proto_item *bxcrc		=NULL;
+	proto_item *bxcrc	=NULL;
 #endif
+	proto_tree *BField	=NULL;
 
-
-	proto_tree *BField		=NULL;
-
-
-	/* B-Feld anlegen */
+	/* B-Feld */
 	switch((pkt_afield->Header&0x0E)>>1)
 	{
 	case 0:
@@ -909,11 +846,10 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 		xcrclen=0;
 		break;
 	}
-
 	if(blen)
 	{
 		bfieldti	= proto_tree_add_uint_format(DectTree,hf_dect_B,tvb,offset,40,0/*0x2323*/,"B-Field");
-		BField		= proto_item_add_subtree(bfieldti,subtree_bfield);
+		BField		= proto_item_add_subtree(bfieldti,ett_bfield);
 	}
 
 	oldoffset=offset;
@@ -925,7 +861,6 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 		{
 			char string[60];
 			string[0]=0;
-
 			y=0;
 			for(y=0;y<16;y++)
 			{
@@ -934,18 +869,12 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 
 				sprintf(string,"%s%.2x ",string,pkt_bfield->Data[x+y]);
 			}
-
 			proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Data: %s",string);
-
 			if(y==16)
 				offset+=16;
 			else
 				offset+=16-y;
-
 		}
-
-
-
 		for(fn=0;fn<8;fn++)
 		{
 			guint16 bytecount=0;
@@ -958,7 +887,6 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 			{
 				char string[60];
 				string[0]=0;
-
 				y=0;
 				for(y=0;y<16;y++)
 				{
@@ -968,86 +896,67 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 					sprintf(string,"%s%.2x ",string,pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
 					bytecount++;
 				}
-
 				proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Data: %s",string);
-
 				if(y==16)
 					offset+=16;
 				else
 					offset+=16-y;
 			}
 		}
-
-
-
-
 		xcrc=calc_xcrc(pkt_bfield->Data,83);
 
 		if(xcrc!=(pkt_bfield->Data[40]&0xf0))
 			proto_tree_add_uint_format(bfieldti,hf_dect_B_XCRC,tvb,offset,1,0,"X-CRC Error (Calc:%.2x,Recv:%.2x)",xcrc,pkt_bfield->Data[40]&0xf0);
 		else
 			proto_tree_add_uint_format(bfieldti,hf_dect_B_XCRC,tvb,offset,1,1,"X-CRC Match (Calc:%.2x,Recv:%.2x)",xcrc,pkt_bfield->Data[40]&0xf0);
-
 	}
 	else
 		proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,0,0x2323,"Data too Short");
-
-
 	return offset;
 }
 
-
 void
-dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
+dissect_decttype(gboolean type, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr,
 	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
-	char				string[30];
-
-	guint16				rcrc;
-	guint8				rcrcdat[8];
-	gint				offset=11;
-
+	char string[30];
+	guint16 rcrc;
+	guint8 rcrcdat[8];
+	gint offset		=11;
 	proto_item *afieldti	=NULL;
-	proto_item *aheadti		=NULL;
-	proto_item *atailti		=NULL;
+	proto_item *aheadti	=NULL;
+	proto_item *atailti	=NULL;
 #if 0
-	proto_item *arcrc		=NULL;
-	proto_item *aqtti		=NULL;
+	proto_item *arcrc	=NULL;
+	proto_item *aqtti	=NULL;
+#endif
+	proto_tree *AField	=NULL;
+	proto_tree *AHead	=NULL;
+	proto_tree *ATail	=NULL;
+#if 0
+	proto_tree *AQT		=NULL;
 #endif
 
-
-	proto_tree *AField		=NULL;
-	proto_tree *AHead		=NULL;
-	proto_tree *ATail		=NULL;
-#if 0
-	proto_tree *AQT			=NULL;
-#endif
-
-
-	/* ********************************************  A-Field  ******************************************** */
+	/**************************  A-Field  ***********************************/
 
 	/* A-Feld */
 	afieldti	= proto_tree_add_uint_format(DectTree,hf_dect_A,tvb,offset,8,0/*0x2323*/,"A-Field");
-	AField		= proto_item_add_subtree(afieldti,subtree_afield);
-
+	AField		= proto_item_add_subtree(afieldti,ett_afield);
 
 	/* Header  */
 	aheadti		= proto_tree_add_uint_format(afieldti,hf_dect_A_Head,tvb,offset,1,0x2323,"Header");
-	AHead		= proto_item_add_subtree(aheadti,subtree_ahead);
-
+	AHead		= proto_item_add_subtree(aheadti,ett_ahead);
 
 	proto_tree_add_uint(AHead,hf_dect_A_Head_TA,tvb,offset,1,pkt_afield->Header);
 	proto_tree_add_uint(AHead,hf_dect_A_Head_Q1,tvb,offset,1,pkt_afield->Header);
 	proto_tree_add_uint(AHead,hf_dect_A_Head_BA,tvb,offset,1,pkt_afield->Header);
 	proto_tree_add_uint(AHead,hf_dect_A_Head_Q2,tvb,offset,1,pkt_afield->Header);
-
 	offset++;
-
 
 	/* Tail */
 	atailti		= proto_tree_add_uint_format(afieldti,hf_dect_A_Tail,tvb,offset,5,0x2323,"Tail: %s",TA_vals[(pkt_afield->Header&0xE0)>>5].strptr);
-	ATail		= proto_item_add_subtree(atailti,subtree_atail);
+	ATail		= proto_item_add_subtree(atailti,ett_atail);
 
 	switch((pkt_afield->Header&0xE0)>>5)
 	{
@@ -1055,7 +964,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 	case 1:
 		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
 			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Ct]");
-
 		break;
 	case 2:		/* Nt */
 	case 3:		/* Nt connectionless bearer */
@@ -1066,15 +974,11 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 					,pkt_afield->Tail[3],pkt_afield->Tail[4]);
 
 			col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,string);
-
 			offset+=5;
 
-			/* wegen addition weiter unten */
+			/* due to addition further down */
 			offset-=5;
 		}
-
-
-
 		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
 			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Nt]");
 
@@ -1110,7 +1014,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 				(pkt_afield->Tail[2]&0x40)?" 3":"",(pkt_afield->Tail[2]&0x20)?" 4":"",(pkt_afield->Tail[2]&0x10)?" 5":"",
 				(pkt_afield->Tail[2]&0x08)?" 6":"",(pkt_afield->Tail[2]&0x04)?" 7":"",(pkt_afield->Tail[2]&0x02)?" 8":"",
 				(pkt_afield->Tail[2]&0x01)?" 9":"");
-
 			offset++;
 
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr1,tvb,offset,1,(pkt_afield->Tail[3]));
@@ -1120,11 +1023,8 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr2,tvb,offset,1,(pkt_afield->Tail[4]));
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_PSCN,tvb,offset,1,(pkt_afield->Tail[4]));
 			offset++;
-
-
-			/* wegen addition weiter unten */
+			/* due to addition further down */
 			offset-=5;
-
 			break;
 		case 2:		/* Extended RF Carriers Part 1 */
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
@@ -1158,13 +1058,9 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A29,tvb,offset,1,(pkt_afield->Tail[2]));
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A30,tvb,offset,1,(pkt_afield->Tail[2]));
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A31,tvb,offset,1,(pkt_afield->Tail[2]));
-			offset++;
+			offset+=3;
 
-
-			offset+=2;
-
-
-			/* wegen addition weiter unten */
+			/* due to addition further down */
 			offset-=5;
 			break;
 		case 4:		/* Extended Fixed Part Capabilities */
@@ -1206,8 +1102,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
 			break;
-
-
 		}
 		break;
 	case 5:		/* Escape */
@@ -1223,7 +1117,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 		case 0:		/* Basic Connection Control */
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Basic Connection Control");
-
 			proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_BasicConCtrl,tvb,offset,1,(pkt_afield->Tail[0]));
 			offset++;
 
@@ -1240,9 +1133,8 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 				offset+=3;
 			}
 
-			/* wegen addition weiter unten */
+			/* due to addition further down */
 			offset-=5;
-
 			break;
 		case 1:		/* Advanced Connection Control */
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
@@ -1274,7 +1166,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,3,0x2323,"PMID:%.5x",((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
 			offset+=3;
 
-
 			/* wegen addition weiter unten */
 			offset-=5;
 			break;
@@ -1303,17 +1194,14 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
 			break;
-
 		}
 		break;
 	case 7:		/* Pt */
 		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
 			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Pt]");
 
-
 		proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_ExtFlag,tvb,offset,1,(pkt_afield->Tail[0]));
 		proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_SDU,tvb,offset,1,(pkt_afield->Tail[0]));
-
 		switch((pkt_afield->Tail[0]&0x70)>>4)
 		{
 		case 0:		/* Zero Length Page */
@@ -1322,32 +1210,24 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			{
 				if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 					col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Zero Length Page: ");
-
-
 				proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"RFPI:xxxxx%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
 				offset+=3;
 
 				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
-
 			}
 			else
 			{
 				if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 					col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Short Page: ");
-
-
 				proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"Bs Data:%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
 				offset+=3;
 
 				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
 			}
-
-
 			switch(pkt_afield->Tail[3]>>4)
 			{
 			case 0: /* Fill Bits */
 				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Pt_Fill_Fillbits,tvb,offset,2,0x2323,"Fillbits:%.1x%.2x",pkt_afield->Tail[3]&0x0f,pkt_afield->Tail[4]);
-
 				offset+=2;
 				break;
 			case 1: /* Blind Full Slot Information for Circuit Mode Service */
@@ -1361,7 +1241,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 
 				offset+=2;
 				break;
-
 			case 2: /* Other Bearer */
 			case 3: /* Recommended Other Bearer */
 			case 4: /* Good RFP Bearer */
@@ -1373,7 +1252,6 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Sp,tvb,offset,1,(pkt_afield->Tail[4]));
 				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Cn,tvb,offset,1,(pkt_afield->Tail[4]));
 				offset++;
-
 				break;
 			case 6: /* Extended Modulation Types */
 				offset+=2;
@@ -1398,9 +1276,7 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 				offset+=2;
 				break;
 			}
-
-
-			/* wegen addition weiter unten */
+			/* due to addition further down */
 			offset-=5;
 			break;
 		case 2:		/* Full Page */
@@ -1427,10 +1303,8 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"All of a Long Page: ");
 			break;
-
 		}
 		break;
-
 	}
 	offset+=5;
 
@@ -1447,23 +1321,18 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 
 	offset+=2;
 
-
-	/* ********************************************  B-Field  ******************************************** */
-
+	/* ****************  B-Field  ************************************/
 	offset=dissect_bfield(type,pkt_afield,pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree,offset);
-
-
 }
-
 
 static void
 dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint16				type;
-	guint16				pkt_len;
-	guint8				*pkt_ptr;
+	guint16			type;
+	guint16			pkt_len;
+	guint8			*pkt_ptr;
 	struct dect_afield	pkt_afield;
-	struct dect_bfield  pkt_bfield;
+	struct dect_bfield	pkt_bfield;
 
 	/* Packet pointer holen */
 	pkt_len=tvb_length(tvb);
@@ -1482,7 +1351,6 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pkt_ptr=(guint8*)tvb_get_ptr(tvb,11,pkt_len-11);
 
-
 	/* fill A-Field  */
 	pkt_afield.Header=pkt_ptr[0];
 	memcpy((char*)(&(pkt_afield.Tail)),(char*)(pkt_ptr+1),5);
@@ -1494,10 +1362,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		memcpy((char*)(&(pkt_bfield.Data)),(char*)(pkt_ptr+8),pkt_len-5-8);
 	else
 		memset((char*)(&(pkt_bfield.Data)),0,128);
-
 	pkt_bfield.Length=pkt_len-13;
-
-
 
 	if(check_col(pinfo->cinfo,COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL,"DECT");
@@ -1507,19 +1372,16 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
-
 	if(tree)
 	{
-		proto_item *ti			=NULL;
-		proto_item *typeti		=NULL;
+		proto_item *ti		=NULL;
+		proto_item *typeti	=NULL;
 		proto_tree *DectTree	=NULL;
-
-
-		gint offset=0;
+		gint offset		=0;
 
 		ti=proto_tree_add_item(tree,proto_dect,tvb,0,-1,FALSE);
 
-		DectTree=proto_item_add_subtree(ti,subtree_dect);
+		DectTree=proto_item_add_subtree(ti,ett_dect);
 		proto_tree_add_item(DectTree,hf_dect_transceivermode,tvb,offset,1,FALSE);
 		offset++;
 
@@ -1543,407 +1405,313 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		type=tvb_get_ntohs(tvb, offset);
 		offset+=2;
 
-
-
 		switch(type) {
 		case 0x1675:
 			if(check_col(pinfo->cinfo,COL_PROTOCOL))
 			{
 				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT PP");
 			}
-
 			proto_item_append_text(typeti,"  Phone Packet");
 			dissect_decttype(0,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
 			break;
-
 		case 0xe98a:
 			if(check_col(pinfo->cinfo,COL_PROTOCOL))
 			{
 				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT RFP");
 			}
-
 			proto_item_append_text(typeti,"  Station Packet");
 			dissect_decttype(1,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
 			break;
-
-
 		default:
 			if(check_col(pinfo->cinfo,COL_PROTOCOL))
 			{
 				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT Unk");
 			}
-
 			proto_item_append_text(typeti,"  Unknown Packet");
 			break;
 		}
-
-
-
-
-
 	}
 }
-
-
 
 void
 proto_register_dect(void)
 {
 	static hf_register_info hf[]=
 	{
-		{
-			&hf_dect_transceivermode,
-			{"Tranceiver-Mode","dect.tranceivermode",FT_UINT8,BASE_HEX,VALS(tranceiver_mode),0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_channel,
-			{"Channel","dect.channel",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_framenumber,
-			{"Frame#","dect.framenumber",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_rssi,
-			{"RSSI","dect.rssi",FT_UINT8,BASE_DEC,NULL,0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_slot,
-			{"Slot","dect.slot",FT_UINT16,BASE_DEC,NULL,0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_preamble,
-			{"Preamble","dect.preamble",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}
-		},
-
-		{
-			&hf_dect_type,
-			{"Packet-Type","dect.type",FT_BYTES,BASE_NONE,NULL,0x0,NULL,HFILL}
-		},
-
-
-
-		/* *********************************************** A-Field *********************************************** */
-
-
-		/* *****  Header  ***** */
-		{
-			&hf_dect_A,
-			{"A-Field","dect.afield", FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL}
-		},
-
-		{
-			&hf_dect_A_Head,
-			{"A-Field Header","dect.afield.head",FT_UINT8,BASE_DEC, NULL, 0x0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Head_TA,
-			{"TA","dect.afield.head.TA",FT_UINT8,BASE_DEC,VALS(TA_vals),0xE0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Head_Q1,
-			{"Q1","dect.afield.head.Q1",FT_UINT8,BASE_DEC,NULL			,0x10,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Head_BA,
-			{"BA","dect.afield.head.BA",FT_UINT8,BASE_DEC,VALS(BA_vals),0x0E,"",HFILL}
-		},
-
-
-		{
-			&hf_dect_A_Head_Q2,
-			{"Q2","dect.afield.head.Q2",FT_UINT8,BASE_DEC,NULL			,0x01,"",HFILL}
-		},
-
-		/* *****   Tail   ***** */
-		{
-			&hf_dect_A_Tail,
-			{"A-Field Tail","dect.afield.tail",FT_UINT8,BASE_DEC, NULL, 0x0,"",HFILL}
-		},
-
-			/* Nt */
-		{
-			&hf_dect_A_Tail_Nt,
-			{"A-Field Header","dect.afield.tail.Nt",FT_UINT8,BASE_DEC, NULL, 0x0,"",HFILL}
-		},
-
-
-			/* Qt */
-		{
-			&hf_dect_A_Tail_Qt_Qh,
-			{"Qh","dect.afield.tail.Qt.Qh",FT_UINT8,BASE_DEC,VALS(QTHead_vals)	,0xF0,"",HFILL}
-		},
-
-		/* Qt Static System Information */
-
-		/* Byte 0 */
-		{
-			&hf_dect_A_Tail_Qt_0_Nr,
-			{"NR","dect.afield.tail.Qt.NR",FT_UINT8,BASE_DEC,VALS(QTNormalReverse_vals)	,0x10,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_Sn,
-			{"SN","dect.afield.tail.Qt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals)	,0x0F,"",HFILL}
-		},
-
-		/* Byte 1 */
-		{
-			&hf_dect_A_Tail_Qt_0_Sp,
-			{"SP","dect.afield.tail.Qt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals)	,0xC0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_Esc,
-			{"Esc","dect.afield.tail.Qt.Esc",FT_UINT8,BASE_DEC,VALS(QTEscape_vals)	,0x20,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_Txs,
-			{"Txs","dect.afield.tail.Qt.Txs",FT_UINT8,BASE_DEC,VALS(QTTranceiver_vals)	,0x18,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_Mc,
-			{"Mc","dect.afield.tail.Qt.Mc",FT_UINT8,BASE_DEC,VALS(QTExtendedCarrier_vals)	,0x04,"",HFILL}
-		},
-
-		/* Byte 3 */
-		{
-			&hf_dect_A_Tail_Qt_0_Spr1,
-			{"Spr","dect.afield.tail.Qt.Spr1",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_Cn,
-			{"CN","dect.afield.tail.Qt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals)	,0x3F,"",HFILL}
-		},
-
-		/* Byte 4 */
-		{
-			&hf_dect_A_Tail_Qt_0_Spr2,
-			{"Spr","dect.afield.tail.Qt.Spr2",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_0_PSCN,
-			{"PSCN","dect.afield.tail.Qt.PSCN",FT_UINT8,BASE_DEC,VALS(QTScanCarrierNum_vals)	,0x3F,"",HFILL}
-		},
-
-
-		/* Qt Fixed Part Capabilities */
-
-		{
-			&hf_dect_A_Tail_Qt_3_A12,
-			{"A12","dect.afield.tail.Qt.Fp.A12",FT_UINT8,BASE_DEC,VALS(Qt_A12_vals)	,0x08,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A13,
-			{"A13","dect.afield.tail.Qt.Fp.A13",FT_UINT8,BASE_DEC,VALS(Qt_A13_vals)	,0x04,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A14,
-			{"A14","dect.afield.tail.Qt.Fp.A14",FT_UINT8,BASE_DEC,VALS(Qt_A14_vals)	,0x02,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A15,
-			{"A15","dect.afield.tail.Qt.Fp.A15",FT_UINT8,BASE_DEC,VALS(Qt_A15_vals)	,0x01,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A16,
-			{"A16","dect.afield.tail.Qt.Fp.A16",FT_UINT8,BASE_DEC,VALS(Qt_A16_vals)	,0x80,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A17,
-			{"A17","dect.afield.tail.Qt.Fp.A17",FT_UINT8,BASE_DEC,VALS(Qt_A17_vals)	,0x40,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A18,
-			{"A18","dect.afield.tail.Qt.Fp.A18",FT_UINT8,BASE_DEC,VALS(Qt_A18_vals)	,0x20,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A19,
-			{"A19","dect.afield.tail.Qt.Fp.A19",FT_UINT8,BASE_DEC,VALS(Qt_A19_vals)	,0x10,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A20,
-			{"A20","dect.afield.tail.Qt.Fp.A20",FT_UINT8,BASE_DEC,VALS(Qt_A20_vals)	,0x08,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A21,
-			{"A21","dect.afield.tail.Qt.Fp.A21",FT_UINT8,BASE_DEC,VALS(Qt_A21_vals)	,0x04,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A22,
-			{"A22","dect.afield.tail.Qt.Fp.A22",FT_UINT8,BASE_DEC,VALS(Qt_A22_vals)	,0x02,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A23,
-			{"A23","dect.afield.tail.Qt.Fp.A23",FT_UINT8,BASE_DEC,VALS(Qt_A23_vals)	,0x01,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A24,
-			{"A24","dect.afield.tail.Qt.Fp.A24",FT_UINT8,BASE_DEC,VALS(Qt_A24_vals)	,0x80,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A25,
-			{"A25","dect.afield.tail.Qt.Fp.A25",FT_UINT8,BASE_DEC,VALS(Qt_A25_vals)	,0x40,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A26,
-			{"A26","dect.afield.tail.Qt.Fp.A26",FT_UINT8,BASE_DEC,VALS(Qt_A26_vals)	,0x20,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A27,
-			{"A27","dect.afield.tail.Qt.Fp.A27",FT_UINT8,BASE_DEC,VALS(Qt_A27_vals)	,0x10,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A28,
-			{"A28","dect.afield.tail.Qt.Fp.A28",FT_UINT8,BASE_DEC,VALS(Qt_A28_vals)	,0x08,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A29,
-			{"A29","dect.afield.tail.Qt.Fp.A29",FT_UINT8,BASE_DEC,VALS(Qt_A29_vals)	,0x04,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A30,
-			{"A30","dect.afield.tail.Qt.Fp.A30",FT_UINT8,BASE_DEC,VALS(Qt_A30_vals)	,0x02,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Qt_3_A31,
-			{"A31","dect.afield.tail.Qt.Fp.A31",FT_UINT8,BASE_DEC,VALS(Qt_A31_vals)	,0x01,"",HFILL}
-		},
-
-
-		/* Mt */
-		{
-			&hf_dect_A_Tail_Mt_Mh,
-			{"Mh","dect.afield.tail.Mt.Mh",FT_UINT8,BASE_DEC,VALS(MTHead_vals)	,0xF0,"",HFILL}
-		},
-
-		/* Mt Basic Connection Control */
-		{
-			&hf_dect_A_Tail_Mt_BasicConCtrl,
-			{"Cmd","dect.afield.tail.Mt.BasicConCtrl",FT_UINT8,BASE_DEC,VALS(MTBasicConCtrl_vals)	,0x0F,"",HFILL}
-		},
-
-		/* Mt Encryption Control */
-		{
-			&hf_dect_A_Tail_Mt_Encr_Cmd1,
-			{"Cmd1","dect.afield.tail.Mt.Encr.Cmd1",FT_UINT8,BASE_DEC,VALS(MTEncrCmd1_vals)	,0x0C,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Mt_Encr_Cmd2,
-			{"Cmd2","dect.afield.tail.Mt.Encr.Cmd2",FT_UINT8,BASE_DEC,VALS(MTEncrCmd2_vals)	,0x03,"",HFILL}
-		},
-
-		/* Pt */
-		{
-			&hf_dect_A_Tail_Pt_ExtFlag,
-			{"ExtFlag","dect.afield.tail.Pt.ExtFlag",FT_UINT8,BASE_DEC,VALS(PTExtFlag_vals)	,0x80,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Pt_SDU,
-			{"SDU","dect.afield.tail.Pt.SDU",FT_UINT8,BASE_DEC,VALS(PTSDU_vals)	,0x70,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Pt_InfoType,
-			{"InfoType","dect.afield.tail.Pt.InfoType",FT_UINT8,BASE_DEC,VALS(PTInfoType_vals)	,0xF0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Pt_Fill_Fillbits,
-			{"FillBits","dect.afield.tail.Pt.InfoType.FillBits",FT_UINT8,BASE_DEC,NULL	,0xFF,"",HFILL}
-		},
-
-
-		{
-			&hf_dect_A_Tail_Pt_Bearer_Sn,
-			{"SN","dect.afield.tail.Pt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals)	,0x0F,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Pt_Bearer_Sp,
-			{"SP","dect.afield.tail.Pt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals)	,0xC0,"",HFILL}
-		},
-
-		{
-			&hf_dect_A_Tail_Pt_Bearer_Cn,
-			{"CN","dect.afield.tail.Pt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals)	,0x2F,"",HFILL}
-		},
-
-
-		/* *****   R-CRC  ***** */
-		{
-			&hf_dect_A_RCRC,
-			{"A-Field R-CRC","dect.afield.rcrc",FT_UINT8,BASE_DEC, NULL, 0x0,"",HFILL}
-		},
-
-
-
-
-		/* *********************************************** B-Field *********************************************** */
-
-		{
-			&hf_dect_B,
-			{"B-Field","dect.bfield", FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL}
-		},
-
-		{
-			&hf_dect_B_Data,
-			{"B-Field","dect.bfield.data", FT_UINT8, BASE_DEC, NULL, 0x0,"", HFILL}
-		},
-
-		/* *****   X-CRC  ***** */
-		{
-			&hf_dect_B_XCRC,
-			{"B-Field X-CRC","dect.bfield.xcrc",FT_UINT8,BASE_DEC, NULL, 0x0,"",HFILL}
-		}
+		{ &hf_dect_transceivermode,
+		{"Tranceiver-Mode","dect.tranceivermode",FT_UINT8,BASE_HEX,VALS(tranceiver_mode),
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_channel,
+		{"Channel","dect.channel",FT_UINT8,BASE_DEC,NULL,
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_framenumber,
+		{"Frame#","dect.framenumber",FT_UINT16,BASE_DEC,NULL,
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_rssi,
+		{"RSSI","dect.rssi",FT_UINT8,BASE_DEC,NULL,
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_slot,
+		{"Slot","dect.slot",FT_UINT16,BASE_DEC,NULL,
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_preamble,
+		{"Preamble","dect.preamble",FT_BYTES,BASE_NONE,NULL,
+			0x0,NULL,HFILL}},
+
+		{ &hf_dect_type,
+		{"Packet-Type","dect.type",FT_BYTES,BASE_NONE,NULL,
+			0x0,NULL,HFILL}},
+
+	/* **************** A-Field ******************************/
+	/* *****  Header  ***** */
+		{ &hf_dect_A,
+		{"A-Field","dect.afield", FT_UINT8, BASE_DEC, NULL,
+			0x0,"", HFILL}},
+
+		{ &hf_dect_A_Head,
+		{"A-Field Header","dect.afield.head",FT_UINT8,BASE_DEC, NULL,
+			0x0,"",HFILL}},
+
+		{ &hf_dect_A_Head_TA,
+		{"TA","dect.afield.head.TA",FT_UINT8,BASE_DEC,VALS(TA_vals),
+			0xE0,"",HFILL}},
+
+		{ &hf_dect_A_Head_Q1,
+		{"Q1","dect.afield.head.Q1",FT_UINT8,BASE_DEC,NULL,
+			0x10,"",HFILL}},
+
+		{ &hf_dect_A_Head_BA,
+		{"BA","dect.afield.head.BA",FT_UINT8,BASE_DEC,VALS(BA_vals),
+			0x0E,"",HFILL}},
+
+		{ &hf_dect_A_Head_Q2,
+		{"Q2","dect.afield.head.Q2",FT_UINT8,BASE_DEC,NULL,
+			0x01,"",HFILL}},
+
+	/* *****   Tail   ***** */
+		{ &hf_dect_A_Tail,
+		{"A-Field Tail","dect.afield.tail",FT_UINT8,BASE_DEC, NULL,
+			0x0,"",HFILL}},
+
+	/* Nt */
+		{ &hf_dect_A_Tail_Nt,
+		{"A-Field Header","dect.afield.tail.Nt",FT_UINT8,BASE_DEC, NULL,
+			0x0,"",HFILL}},
+
+	/* Qt */
+		{ &hf_dect_A_Tail_Qt_Qh,
+		{"Qh","dect.afield.tail.Qt.Qh",FT_UINT8,BASE_DEC,VALS(QTHead_vals),
+			0xF0,"",HFILL}},
+
+	/* Qt Static System Information */
+	/* Byte 0 */
+		{ &hf_dect_A_Tail_Qt_0_Nr,
+		{"NR","dect.afield.tail.Qt.NR",FT_UINT8,BASE_DEC,VALS(QTNormalReverse_vals),
+			0x10,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_Sn,
+		{"SN","dect.afield.tail.Qt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals),
+			0x0F,"",HFILL}},
+
+	/* Byte 1 */
+		{ &hf_dect_A_Tail_Qt_0_Sp,
+		{"SP","dect.afield.tail.Qt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals),
+			0xC0,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_Esc,
+		{"Esc","dect.afield.tail.Qt.Esc",FT_UINT8,BASE_DEC,VALS(QTEscape_vals),
+			0x20,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_Txs,
+		{"Txs","dect.afield.tail.Qt.Txs",FT_UINT8,BASE_DEC,VALS(QTTranceiver_vals),
+			0x18,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_Mc,
+		{"Mc","dect.afield.tail.Qt.Mc",FT_UINT8,BASE_DEC,VALS(QTExtendedCarrier_vals),
+			0x04,"",HFILL}},
+
+	/* Byte 3 */
+		{ &hf_dect_A_Tail_Qt_0_Spr1,
+		{"Spr","dect.afield.tail.Qt.Spr1",FT_UINT8,BASE_DEC,VALS(QTSpr_vals),
+			0xC0,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_Cn,
+		{"CN","dect.afield.tail.Qt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals),
+			0x3F,"",HFILL}},
+
+	/* Byte 4 */
+		{ &hf_dect_A_Tail_Qt_0_Spr2,
+		{"Spr","dect.afield.tail.Qt.Spr2",FT_UINT8,BASE_DEC,VALS(QTSpr_vals),
+			0xC0,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_0_PSCN,
+		{"PSCN","dect.afield.tail.Qt.PSCN",FT_UINT8,BASE_DEC,VALS(QTScanCarrierNum_vals),
+			0x3F,"",HFILL}},
+
+	/* Qt Fixed Part Capabilities */
+		{ &hf_dect_A_Tail_Qt_3_A12,
+		{"A12","dect.afield.tail.Qt.Fp.A12",FT_UINT8,BASE_DEC,VALS(Qt_A12_vals),
+			0x08,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A13,
+		{"A13","dect.afield.tail.Qt.Fp.A13",FT_UINT8,BASE_DEC,VALS(Qt_A13_vals),
+			0x04,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A14,
+		{"A14","dect.afield.tail.Qt.Fp.A14",FT_UINT8,BASE_DEC,VALS(Qt_A14_vals),
+			0x02,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A15,
+		{"A15","dect.afield.tail.Qt.Fp.A15",FT_UINT8,BASE_DEC,VALS(Qt_A15_vals),
+			0x01,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A16,
+		{"A16","dect.afield.tail.Qt.Fp.A16",FT_UINT8,BASE_DEC,VALS(Qt_A16_vals),
+			0x80,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A17,
+		{"A17","dect.afield.tail.Qt.Fp.A17",FT_UINT8,BASE_DEC,VALS(Qt_A17_vals),
+			0x40,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A18,
+		{"A18","dect.afield.tail.Qt.Fp.A18",FT_UINT8,BASE_DEC,VALS(Qt_A18_vals),
+			0x20,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A19,
+		{"A19","dect.afield.tail.Qt.Fp.A19",FT_UINT8,BASE_DEC,VALS(Qt_A19_vals),
+			0x10,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A20,
+		{"A20","dect.afield.tail.Qt.Fp.A20",FT_UINT8,BASE_DEC,VALS(Qt_A20_vals),
+			0x08,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A21,
+		{"A21","dect.afield.tail.Qt.Fp.A21",FT_UINT8,BASE_DEC,VALS(Qt_A21_vals),
+			0x04,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A22,
+		{"A22","dect.afield.tail.Qt.Fp.A22",FT_UINT8,BASE_DEC,VALS(Qt_A22_vals),
+			0x02,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A23,
+		{"A23","dect.afield.tail.Qt.Fp.A23",FT_UINT8,BASE_DEC,VALS(Qt_A23_vals),
+			0x01,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A24,
+		{"A24","dect.afield.tail.Qt.Fp.A24",FT_UINT8,BASE_DEC,VALS(Qt_A24_vals),
+			0x80,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A25,
+		{"A25","dect.afield.tail.Qt.Fp.A25",FT_UINT8,BASE_DEC,VALS(Qt_A25_vals),
+			0x40,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A26,
+		{"A26","dect.afield.tail.Qt.Fp.A26",FT_UINT8,BASE_DEC,VALS(Qt_A26_vals),
+			0x20,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A27,
+		{"A27","dect.afield.tail.Qt.Fp.A27",FT_UINT8,BASE_DEC,VALS(Qt_A27_vals),
+			0x10,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A28,
+		{"A28","dect.afield.tail.Qt.Fp.A28",FT_UINT8,BASE_DEC,VALS(Qt_A28_vals),
+			0x08,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A29,
+		{"A29","dect.afield.tail.Qt.Fp.A29",FT_UINT8,BASE_DEC,VALS(Qt_A29_vals),
+			0x04,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A30,
+		{"A30","dect.afield.tail.Qt.Fp.A30",FT_UINT8,BASE_DEC,VALS(Qt_A30_vals),
+			0x02,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Qt_3_A31,
+		{"A31","dect.afield.tail.Qt.Fp.A31",FT_UINT8,BASE_DEC,VALS(Qt_A31_vals),
+			0x01,"",HFILL}},
+
+	/* Mt */
+		{ &hf_dect_A_Tail_Mt_Mh,
+		{"Mh","dect.afield.tail.Mt.Mh",FT_UINT8,BASE_DEC,VALS(MTHead_vals),
+			0xF0,"",HFILL}},
+
+	/* Mt Basic Connection Control */
+		{ &hf_dect_A_Tail_Mt_BasicConCtrl,
+		{"Cmd","dect.afield.tail.Mt.BasicConCtrl",FT_UINT8,BASE_DEC,VALS(MTBasicConCtrl_vals),
+			0x0F,"",HFILL}},
+
+	/* Mt Encryption Control */
+		{ &hf_dect_A_Tail_Mt_Encr_Cmd1,
+		{"Cmd1","dect.afield.tail.Mt.Encr.Cmd1",FT_UINT8,BASE_DEC,VALS(MTEncrCmd1_vals),
+			0x0C,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Mt_Encr_Cmd2,
+		{"Cmd2","dect.afield.tail.Mt.Encr.Cmd2",FT_UINT8,BASE_DEC,VALS(MTEncrCmd2_vals),
+			0x03, "", HFILL}},
+
+	/* Pt */
+		{ &hf_dect_A_Tail_Pt_ExtFlag,
+		{"ExtFlag","dect.afield.tail.Pt.ExtFlag",FT_UINT8,BASE_DEC,VALS(PTExtFlag_vals),
+			0x80, "", HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_SDU,
+		{"SDU","dect.afield.tail.Pt.SDU",FT_UINT8,BASE_DEC,VALS(PTSDU_vals),
+			0x70, "", HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_InfoType,
+		{"InfoType","dect.afield.tail.Pt.InfoType",FT_UINT8,BASE_DEC,VALS(PTInfoType_vals),
+			0xF0, "", HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_Fill_Fillbits,
+		{"FillBits","dect.afield.tail.Pt.InfoType.FillBits",FT_UINT8,BASE_DEC,NULL,
+			0x0, "", HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_Bearer_Sn,
+		{"SN","dect.afield.tail.Pt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals),
+			0x0F,"",HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_Bearer_Sp,
+		{"SP","dect.afield.tail.Pt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals),
+			0xC0, "", HFILL}},
+
+		{ &hf_dect_A_Tail_Pt_Bearer_Cn,
+		{"CN", "dect.afield.tail.Pt.CN", FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals),
+			0x3F, "", HFILL}},
+
+	/* *****   R-CRC  ***** */
+		{ &hf_dect_A_RCRC,
+		{"A-Field R-CRC", "dect.afield.rcrc", FT_UINT8, BASE_DEC, NULL,
+			0x0, "", HFILL}}, 
+
+	/* ***************** B-Field *************************** */
+		{ &hf_dect_B,
+		{"B-Field", "dect.bfield", FT_UINT8, BASE_DEC,
+			NULL, 0x0,"", HFILL}},
+
+		{ &hf_dect_B_Data,
+		{"B-Field","dect.bfield.data", FT_UINT8, BASE_DEC, NULL,
+			0x0, "", HFILL}},
+
+	/* *****   X-CRC  ***** */
+		{ &hf_dect_B_XCRC,
+		{"B-Field X-CRC", "dect.bfield.xcrc", FT_UINT8,BASE_DEC, NULL,
+			0x0, "", HFILL}}
 	};
 
 
 	/* Setup protocol subtree array */
 	static gint *ett[]=
 	{
-		&subtree_dect,
-		&subtree_ahead,
-		&subtree_afield,
-		&subtree_atail,
-		&subtree_aqt,
-
-		&subtree_bfield
+		&ett_dect,
+		&ett_ahead,
+		&ett_afield,
+		&ett_atail,
+		&ett_aqt,
+		&ett_bfield
 	};
-
 
 	proto_dect=proto_register_protocol("DECT Protocol","DECT","dect");
 	proto_register_field_array(proto_dect,hf,array_length(hf));
