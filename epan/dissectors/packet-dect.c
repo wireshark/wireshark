@@ -863,53 +863,52 @@ dissect_bfield(BOOL type _U_, struct dect_afield *pkt_afield,
 	/* B-Feld anlegen */
 	switch((pkt_afield->Header&0x0E)>>1)
 	{
-		case 0:
-		case 1:
-		case 3:
-		case 5:
-		case 6:
-			blen=40;
-			xcrclen=4;
+	case 0:
+	case 1:
+	case 3:
+	case 5:
+	case 6:
+		blen=40;
+		xcrclen=4;
 
-			if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
-			{
-				col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Full Slot");
-			}
-			break;
-		case 2:
-			blen=100;
-			xcrclen=4;
+		if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
+		{
+			col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Full Slot");
+		}
+		break;
+	case 2:
+		blen=100;
+		xcrclen=4;
 
-			if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
-			{
-				col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Double Slot");
-			}
-			break;
-		case 4:
-			blen=10;
-			xcrclen=4;
+		if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
+		{
+			col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Double Slot");
+		}
+		break;
+	case 4:
+		blen=10;
+		xcrclen=4;
 
-			if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
-			{
-				col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Half Slot");
-			}
-			break;
-		case 7:
-			blen=0;
-			xcrclen=0;
+		if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
+		{
+			col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"Half Slot");
+		}
+		break;
+	case 7:
+		blen=0;
+		xcrclen=0;
 
-			if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
-			{
-				col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"No B-Field");
-			}
-			break;
-		default:
-			/* can't happen but makes gcc happy */
-			blen=0;
-			xcrclen=0;
-			break;
+		if(check_col(pinfo->cinfo,COL_DEF_NET_DST))
+		{
+			col_append_str(pinfo->cinfo,COL_DEF_NET_DST,"No B-Field");
+		}
+		break;
+	default:
+		/* can't happen but makes gcc happy */
+		blen=0;
+		xcrclen=0;
+		break;
 	}
-
 
 	if(blen)
 	{
@@ -1050,391 +1049,389 @@ dissect_decttype(BOOL type, struct dect_afield *pkt_afield,
 	atailti		= proto_tree_add_uint_format(afieldti,hf_dect_A_Tail,tvb,offset,5,0x2323,"Tail: %s",TA_vals[(pkt_afield->Header&0xE0)>>5].strptr);
 	ATail		= proto_item_add_subtree(atailti,subtree_atail);
 
-		switch((pkt_afield->Header&0xE0)>>5)
+	switch((pkt_afield->Header&0xE0)>>5)
+	{
+	case 0:		/* Ct */
+	case 1:
+		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
+			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Ct]");
+
+		break;
+	case 2:		/* Nt */
+	case 3:		/* Nt connectionless bearer */
+		if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 		{
-			case 0:		/* Ct */
-			case 1:
-				if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
-					col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Ct]");
+			sprintf(string,"RFPI:%.2x%.2x%.2x%.2x%.2x"
+					,pkt_afield->Tail[0],pkt_afield->Tail[1],pkt_afield->Tail[2]
+					,pkt_afield->Tail[3],pkt_afield->Tail[4]);
 
-				break;
-			case 2:		/* Nt */
-			case 3:		/* Nt connectionless bearer */
-				if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-				{
-					sprintf(string,"RFPI:%.2x%.2x%.2x%.2x%.2x"
-							,pkt_afield->Tail[0],pkt_afield->Tail[1],pkt_afield->Tail[2]
-							,pkt_afield->Tail[3],pkt_afield->Tail[4]);
+			col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,string);
 
-					col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,string);
+			offset+=5;
 
-					offset+=5;
-
-					/* wegen addition weiter unten */
-					offset-=5;
-				}
-
-
-
-				if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
-					col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Nt]");
-
-				proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Nt,tvb,offset,5,0x2323,"RFPI:%.2x%.2x%.2x%.2x%.2x"
-					,pkt_afield->Tail[0],pkt_afield->Tail[1],pkt_afield->Tail[2],pkt_afield->Tail[3]
-					,pkt_afield->Tail[4]);
-				break;
-			case 4:		/* Qt */
-				if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
-					col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Qt]");
-
-				proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_Qh,tvb,offset,1,(pkt_afield->Tail[0]));
-
-				switch(pkt_afield->Tail[0]>>4)
-				{
-					case 0:		/* Static System Info */
-					case 1:
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Static System Info");
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Nr,tvb,offset,1,(pkt_afield->Tail[0]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Sn,tvb,offset,1,(pkt_afield->Tail[0]));
-						offset++;
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Sp,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Esc,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Txs,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Mc,tvb,offset,1,(pkt_afield->Tail[1]));
-						offset++;
-
-						proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"            Carrier%s%s%s%s%s%s%s%s%s%s available",
-							(pkt_afield->Tail[1]&0x02)?" 0":"",(pkt_afield->Tail[1]&0x01)?" 1":"",(pkt_afield->Tail[2]&0x80)?" 2":"",
-							(pkt_afield->Tail[2]&0x40)?" 3":"",(pkt_afield->Tail[2]&0x20)?" 4":"",(pkt_afield->Tail[2]&0x10)?" 5":"",
-							(pkt_afield->Tail[2]&0x08)?" 6":"",(pkt_afield->Tail[2]&0x04)?" 7":"",(pkt_afield->Tail[2]&0x02)?" 8":"",
-							(pkt_afield->Tail[2]&0x01)?" 9":"");
-
-						offset++;
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr1,tvb,offset,1,(pkt_afield->Tail[3]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Cn,tvb,offset,1,(pkt_afield->Tail[3]));
-						offset++;
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr2,tvb,offset,1,(pkt_afield->Tail[4]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_PSCN,tvb,offset,1,(pkt_afield->Tail[4]));
-						offset++;
-
-
-						/* wegen addition weiter unten */
-						offset-=5;
-
-						break;
-					case 2:		/* Extended RF Carriers Part 1 */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended RF Carriers Part 1");
-						break;
-					case 3:		/* Fixed Part Capabilities */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Fixed Part Capabilities");
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A12,tvb,offset,1,(pkt_afield->Tail[0]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A13,tvb,offset,1,(pkt_afield->Tail[0]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A14,tvb,offset,1,(pkt_afield->Tail[0]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A15,tvb,offset,1,(pkt_afield->Tail[0]));
-						offset++;
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A16,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A17,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A18,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A19,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A20,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A21,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A22,tvb,offset,1,(pkt_afield->Tail[1]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A23,tvb,offset,1,(pkt_afield->Tail[1]));
-						offset++;
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A24,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A25,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A26,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A27,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A28,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A29,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A30,tvb,offset,1,(pkt_afield->Tail[2]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A31,tvb,offset,1,(pkt_afield->Tail[2]));
-						offset++;
-
-
-						offset+=2;
-
-
-						/* wegen addition weiter unten */
-						offset-=5;
-						break;
-					case 4:		/* Extended Fixed Part Capabilities */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended Fixed Part Capabilities");
-						break;
-					case 5:		/* SARI List Contents */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"SARI List Contents");
-						break;
-					case 6:		/* Multi-Frame No. */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Multi-Frame No.");
-						break;
-					case 7:		/* Escape */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Escape");
-						break;
-					case 8:		/* Obsolete */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Obsolete");
-						break;
-					case 9:		/* Extended RF Carriers Part 2 */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended RF Carriers Part 2");
-						break;
-					case 10:	/* Reserved(?) */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved(?)");
-						break;
-					case 11:	/* Transmit Information(?) */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Transmit Information(?)");
-						break;
-					case 12:	/* Reserved */
-					case 13:
-					case 14:
-					case 15:
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
-						break;
-
-
-				}
-				break;
-			case 5:		/* Escape */
-				break;
-			case 6:		/* Mt */
-				if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
-					col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Mt]");
-
-				proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,1,(pkt_afield->Tail[0]));
-
-				switch(pkt_afield->Tail[0]>>4)
-				{
-					case 0:		/* Basic Connection Control */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Basic Connection Control");
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_BasicConCtrl,tvb,offset,1,(pkt_afield->Tail[0]));
-						offset++;
-
-						if(((pkt_afield->Tail[0]&&0x0f)==6)||((pkt_afield->Tail[0]&&0x0f)==7))
-						{
-							proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,5,0x2323,"hier sollten attribute stehn...");
-						}
-						else
-						{
-							proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"FMID:%.3x",(pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
-							offset++;
-
-							proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,3,0x2323,"PMID:%.5x",((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
-							offset+=3;
-						}
-
-						/* wegen addition weiter unten */
-						offset-=5;
-
-						break;
-					case 1:		/* Advanced Connection Control */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Advanced Connection Control");
-						break;
-					case 2:		/* MAC Layer Test Messages */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"MAC Layer Test Messages");
-						break;
-					case 3:		/* Quality Control */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Quality Control");
-						break;
-					case 4:		/* Broadcast and Connectionless Services */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Broadcast and Connectionless Services");
-						break;
-					case 5:		/* Encryption Control */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Encryption Control");
-
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Encr_Cmd1,tvb,offset,1,(pkt_afield->Tail[0]));
-						proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Encr_Cmd2,tvb,offset,1,(pkt_afield->Tail[0]));
-						offset++;
-
-						proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"FMID:%.3x",(pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
-						offset++;
-
-						proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,3,0x2323,"PMID:%.5x",((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
-						offset+=3;
-
-
-						/* wegen addition weiter unten */
-						offset-=5;
-						break;
-					case 6:		/* Tail for use with the first Transmission of a B-Field \"bearer request\" Message */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
-						break;
-					case 7:		/* Escape */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Escape");
-						break;
-					case 8:		/* TARI Message */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"TARI Message");
-						break;
-					case 9:		/* REP Connection Control */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"REP Connection Control");
-						break;
-					case 10:	/* Reserved */
-					case 11:
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
-						break;
-
-				}
-				break;
-			case 7:		/* Pt */
-				if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
-					col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Pt]");
-
-
-				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_ExtFlag,tvb,offset,1,(pkt_afield->Tail[0]));
-				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_SDU,tvb,offset,1,(pkt_afield->Tail[0]));
-
-				switch((pkt_afield->Tail[0]&0x70)>>4)
-				{
-					case 0:		/* Zero Length Page */
-					case 1:		/* Short Page */
-						if(((pkt_afield->Tail[0]&0x70)>>4)==0)
-						{
-							if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-								col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Zero Length Page: ");
-
-
-							proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"RFPI:xxxxx%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
-							offset+=3;
-
-							proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
-
-						}
-						else
-						{
-							if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-								col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Short Page: ");
-
-
-							proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"Bs Data:%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
-							offset+=3;
-
-							proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
-						}
-
-
-						switch(pkt_afield->Tail[3]>>4)
-						{
-							case 0: /* Fill Bits */
-								proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Pt_Fill_Fillbits,tvb,offset,2,0x2323,"Fillbits:%.1x%.2x",pkt_afield->Tail[3]&0x0f,pkt_afield->Tail[4]);
-
-								offset+=2;
-								break;
-							case 1: /* Blind Full Slot Information for Circuit Mode Service */
-							case 7: /* Escape */
-							case 8: /* Dummy or connectionless Bearer Marker */
-								proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,2,0x2323,"            Slot-Pairs:%s%s%s%s%s%s%s%s%s%s%s%s available",
-									(pkt_afield->Tail[3]&0x08)?" 0/12":"",(pkt_afield->Tail[3]&0x04)?" 1/13":"",(pkt_afield->Tail[3]&0x02)?" 2/14":"",
-									(pkt_afield->Tail[3]&0x01)?" 3/15":"",(pkt_afield->Tail[4]&0x80)?" 4/16":"",(pkt_afield->Tail[4]&0x40)?" 5/17":"",
-									(pkt_afield->Tail[4]&0x20)?" 6/18":"",(pkt_afield->Tail[4]&0x10)?" 7/19":"",(pkt_afield->Tail[4]&0x08)?" 8/20":"",
-									(pkt_afield->Tail[4]&0x04)?" 9/21":"",(pkt_afield->Tail[4]&0x02)?" 10/22":"",(pkt_afield->Tail[4]&0x01)?" 11/23":"");
-
-								offset+=2;
-								break;
-
-							case 2: /* Other Bearer */
-							case 3: /* Recommended Other Bearer */
-							case 4: /* Good RFP Bearer */
-							case 5: /* Dummy or connectionless Bearer Position */
-							case 12: /* Connectionless Bearer Position */
-								proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Sn,tvb,offset,1,(pkt_afield->Tail[3]));
-								offset++;
-
-								proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Sp,tvb,offset,1,(pkt_afield->Tail[4]));
-								proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Cn,tvb,offset,1,(pkt_afield->Tail[4]));
-								offset++;
-
-								break;
-							case 6: /* Extended Modulation Types */
-								offset+=2;
-								break;
-
-							case 9: /* Bearer Handover/Replacement Information */
-								offset+=2;
-								break;
-							case 10: /* RFP Status and Modulation Types */
-								offset+=2;
-								break;
-							case 11: /* Active Carriers */
-								offset+=2;
-								break;
-							case 13: /* RFP Power Level */
-								offset+=2;
-								break;
-							case 14: /* Blind Double Slot/RFP-FP Interface Resource Information */
-								offset+=2;
-								break;
-							case 15: /* Blind Full Slot Information for Packet Mode Service */
-								offset+=2;
-								break;
-						}
-
-
-						/* wegen addition weiter unten */
-						offset-=5;
-						break;
-					case 2:		/* Full Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Full Page: ");
-						break;
-					case 3:		/* MAC Resume Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"MAC Resume Page: ");
-						break;
-					case 4:		/* Not the Last 36 Bits of a Long Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Not the Last 36 Bits: ");
-						break;
-					case 5:		/* The First 36 Bits of a Long Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"The First 36 Bits: ");
-						break;
-					case 6:		/* The Last 36 Bits of a Long Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"The Last 36 Bits: ");
-						break;
-					case 7:		/* All of a Long Page */
-						if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
-							col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"All of a Long Page: ");
-						break;
-
-				}
-				break;
-
+			/* wegen addition weiter unten */
+			offset-=5;
 		}
 
 
+
+		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
+			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Nt]");
+
+		proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Nt,tvb,offset,5,0x2323,"RFPI:%.2x%.2x%.2x%.2x%.2x"
+			,pkt_afield->Tail[0],pkt_afield->Tail[1],pkt_afield->Tail[2],pkt_afield->Tail[3]
+			,pkt_afield->Tail[4]);
+		break;
+	case 4:		/* Qt */
+		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
+			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Qt]");
+
+		proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_Qh,tvb,offset,1,(pkt_afield->Tail[0]));
+
+		switch(pkt_afield->Tail[0]>>4)
+		{
+		case 0:		/* Static System Info */
+		case 1:
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Static System Info");
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Nr,tvb,offset,1,(pkt_afield->Tail[0]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Sn,tvb,offset,1,(pkt_afield->Tail[0]));
+			offset++;
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Sp,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Esc,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Txs,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Mc,tvb,offset,1,(pkt_afield->Tail[1]));
+			offset++;
+
+			proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"            Carrier%s%s%s%s%s%s%s%s%s%s available",
+				(pkt_afield->Tail[1]&0x02)?" 0":"",(pkt_afield->Tail[1]&0x01)?" 1":"",(pkt_afield->Tail[2]&0x80)?" 2":"",
+				(pkt_afield->Tail[2]&0x40)?" 3":"",(pkt_afield->Tail[2]&0x20)?" 4":"",(pkt_afield->Tail[2]&0x10)?" 5":"",
+				(pkt_afield->Tail[2]&0x08)?" 6":"",(pkt_afield->Tail[2]&0x04)?" 7":"",(pkt_afield->Tail[2]&0x02)?" 8":"",
+				(pkt_afield->Tail[2]&0x01)?" 9":"");
+
+			offset++;
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr1,tvb,offset,1,(pkt_afield->Tail[3]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Cn,tvb,offset,1,(pkt_afield->Tail[3]));
+			offset++;
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_Spr2,tvb,offset,1,(pkt_afield->Tail[4]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_0_PSCN,tvb,offset,1,(pkt_afield->Tail[4]));
+			offset++;
+
+
+			/* wegen addition weiter unten */
+			offset-=5;
+
+			break;
+		case 2:		/* Extended RF Carriers Part 1 */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended RF Carriers Part 1");
+			break;
+		case 3:		/* Fixed Part Capabilities */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Fixed Part Capabilities");
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A12,tvb,offset,1,(pkt_afield->Tail[0]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A13,tvb,offset,1,(pkt_afield->Tail[0]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A14,tvb,offset,1,(pkt_afield->Tail[0]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A15,tvb,offset,1,(pkt_afield->Tail[0]));
+			offset++;
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A16,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A17,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A18,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A19,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A20,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A21,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A22,tvb,offset,1,(pkt_afield->Tail[1]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A23,tvb,offset,1,(pkt_afield->Tail[1]));
+			offset++;
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A24,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A25,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A26,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A27,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A28,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A29,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A30,tvb,offset,1,(pkt_afield->Tail[2]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Qt_3_A31,tvb,offset,1,(pkt_afield->Tail[2]));
+			offset++;
+
+
+			offset+=2;
+
+
+			/* wegen addition weiter unten */
+			offset-=5;
+			break;
+		case 4:		/* Extended Fixed Part Capabilities */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended Fixed Part Capabilities");
+			break;
+		case 5:		/* SARI List Contents */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"SARI List Contents");
+			break;
+		case 6:		/* Multi-Frame No. */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Multi-Frame No.");
+			break;
+		case 7:		/* Escape */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Escape");
+			break;
+		case 8:		/* Obsolete */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Obsolete");
+			break;
+		case 9:		/* Extended RF Carriers Part 2 */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Extended RF Carriers Part 2");
+			break;
+		case 10:	/* Reserved(?) */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved(?)");
+			break;
+		case 11:	/* Transmit Information(?) */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Transmit Information(?)");
+			break;
+		case 12:	/* Reserved */
+		case 13:
+		case 14:
+		case 15:
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
+			break;
+
+
+		}
+		break;
+	case 5:		/* Escape */
+		break;
+	case 6:		/* Mt */
+		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
+			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Mt]");
+
+		proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,1,(pkt_afield->Tail[0]));
+
+		switch(pkt_afield->Tail[0]>>4)
+		{
+		case 0:		/* Basic Connection Control */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Basic Connection Control");
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_BasicConCtrl,tvb,offset,1,(pkt_afield->Tail[0]));
+			offset++;
+
+			if(((pkt_afield->Tail[0]&&0x0f)==6)||((pkt_afield->Tail[0]&&0x0f)==7))
+			{
+				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,5,0x2323,"hier sollten attribute stehn...");
+			}
+			else
+			{
+				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"FMID:%.3x",(pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
+				offset++;
+
+				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,3,0x2323,"PMID:%.5x",((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
+				offset+=3;
+			}
+
+			/* wegen addition weiter unten */
+			offset-=5;
+
+			break;
+		case 1:		/* Advanced Connection Control */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Advanced Connection Control");
+			break;
+		case 2:		/* MAC Layer Test Messages */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"MAC Layer Test Messages");
+			break;
+		case 3:		/* Quality Control */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Quality Control");
+			break;
+		case 4:		/* Broadcast and Connectionless Services */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Broadcast and Connectionless Services");
+			break;
+		case 5:		/* Encryption Control */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Encryption Control");
+
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Encr_Cmd1,tvb,offset,1,(pkt_afield->Tail[0]));
+			proto_tree_add_uint(ATail,hf_dect_A_Tail_Mt_Encr_Cmd2,tvb,offset,1,(pkt_afield->Tail[0]));
+			offset++;
+
+			proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,2,0x2323,"FMID:%.3x",(pkt_afield->Tail[1]<<4)|(pkt_afield->Tail[2]>>4));
+			offset++;
+
+			proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Mt_Mh,tvb,offset,3,0x2323,"PMID:%.5x",((pkt_afield->Tail[2]&0x0f)<<16)|(pkt_afield->Tail[3]<<8)|pkt_afield->Tail[4]);
+			offset+=3;
+
+
+			/* wegen addition weiter unten */
+			offset-=5;
+			break;
+		case 6:		/* Tail for use with the first Transmission of a B-Field \"bearer request\" Message */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
+			break;
+		case 7:		/* Escape */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Escape");
+			break;
+		case 8:		/* TARI Message */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"TARI Message");
+			break;
+		case 9:		/* REP Connection Control */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"REP Connection Control");
+			break;
+		case 10:	/* Reserved */
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Reserved");
+			break;
+
+		}
+		break;
+	case 7:		/* Pt */
+		if(check_col(pinfo->cinfo,COL_HPUX_SUBSYS))
+			col_set_str(pinfo->cinfo,COL_HPUX_SUBSYS,"[Pt]");
+
+
+		proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_ExtFlag,tvb,offset,1,(pkt_afield->Tail[0]));
+		proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_SDU,tvb,offset,1,(pkt_afield->Tail[0]));
+
+		switch((pkt_afield->Tail[0]&0x70)>>4)
+		{
+		case 0:		/* Zero Length Page */
+		case 1:		/* Short Page */
+			if(((pkt_afield->Tail[0]&0x70)>>4)==0)
+			{
+				if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+					col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Zero Length Page: ");
+
+
+				proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"RFPI:xxxxx%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
+				offset+=3;
+
+				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
+
+			}
+			else
+			{
+				if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+					col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Short Page: ");
+
+
+				proto_tree_add_uint_format(atailti,hf_dect_A_Tail_Pt_InfoType,tvb,offset,3,0x2323,"Bs Data:%.1x%.2x%.2x",(pkt_afield->Tail[0]&0x0f),pkt_afield->Tail[1],pkt_afield->Tail[2]);
+				offset+=3;
+
+				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,1,(pkt_afield->Tail[3]));
+			}
+
+
+			switch(pkt_afield->Tail[3]>>4)
+			{
+			case 0: /* Fill Bits */
+				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Pt_Fill_Fillbits,tvb,offset,2,0x2323,"Fillbits:%.1x%.2x",pkt_afield->Tail[3]&0x0f,pkt_afield->Tail[4]);
+
+				offset+=2;
+				break;
+			case 1: /* Blind Full Slot Information for Circuit Mode Service */
+			case 7: /* Escape */
+			case 8: /* Dummy or connectionless Bearer Marker */
+				proto_tree_add_uint_format(ATail,hf_dect_A_Tail_Pt_InfoType,tvb,offset,2,0x2323,"            Slot-Pairs:%s%s%s%s%s%s%s%s%s%s%s%s available",
+					(pkt_afield->Tail[3]&0x08)?" 0/12":"",(pkt_afield->Tail[3]&0x04)?" 1/13":"",(pkt_afield->Tail[3]&0x02)?" 2/14":"",
+					(pkt_afield->Tail[3]&0x01)?" 3/15":"",(pkt_afield->Tail[4]&0x80)?" 4/16":"",(pkt_afield->Tail[4]&0x40)?" 5/17":"",
+					(pkt_afield->Tail[4]&0x20)?" 6/18":"",(pkt_afield->Tail[4]&0x10)?" 7/19":"",(pkt_afield->Tail[4]&0x08)?" 8/20":"",
+					(pkt_afield->Tail[4]&0x04)?" 9/21":"",(pkt_afield->Tail[4]&0x02)?" 10/22":"",(pkt_afield->Tail[4]&0x01)?" 11/23":"");
+
+				offset+=2;
+				break;
+
+			case 2: /* Other Bearer */
+			case 3: /* Recommended Other Bearer */
+			case 4: /* Good RFP Bearer */
+			case 5: /* Dummy or connectionless Bearer Position */
+			case 12: /* Connectionless Bearer Position */
+				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Sn,tvb,offset,1,(pkt_afield->Tail[3]));
+				offset++;
+
+				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Sp,tvb,offset,1,(pkt_afield->Tail[4]));
+				proto_tree_add_uint(ATail,hf_dect_A_Tail_Pt_Bearer_Cn,tvb,offset,1,(pkt_afield->Tail[4]));
+				offset++;
+
+				break;
+			case 6: /* Extended Modulation Types */
+				offset+=2;
+				break;
+
+			case 9: /* Bearer Handover/Replacement Information */
+				offset+=2;
+				break;
+			case 10: /* RFP Status and Modulation Types */
+				offset+=2;
+				break;
+			case 11: /* Active Carriers */
+				offset+=2;
+				break;
+			case 13: /* RFP Power Level */
+				offset+=2;
+				break;
+			case 14: /* Blind Double Slot/RFP-FP Interface Resource Information */
+				offset+=2;
+				break;
+			case 15: /* Blind Full Slot Information for Packet Mode Service */
+				offset+=2;
+				break;
+			}
+
+
+			/* wegen addition weiter unten */
+			offset-=5;
+			break;
+		case 2:		/* Full Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Full Page: ");
+			break;
+		case 3:		/* MAC Resume Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"MAC Resume Page: ");
+			break;
+		case 4:		/* Not the Last 36 Bits of a Long Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"Not the Last 36 Bits: ");
+			break;
+		case 5:		/* The First 36 Bits of a Long Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"The First 36 Bits: ");
+			break;
+		case 6:		/* The Last 36 Bits of a Long Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"The Last 36 Bits: ");
+			break;
+		case 7:		/* All of a Long Page */
+			if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
+				col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,"All of a Long Page: ");
+			break;
+
+		}
+		break;
+
+	}
 	offset+=5;
 
 	/* R-CRC */
@@ -1548,37 +1545,36 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-		switch(type)
-		{
-			case 0x1675:
-				if(check_col(pinfo->cinfo,COL_PROTOCOL))
-				{
-					col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT PP");
-				}
+		switch(type) {
+		case 0x1675:
+			if(check_col(pinfo->cinfo,COL_PROTOCOL))
+			{
+				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT PP");
+			}
 
-				proto_item_append_text(typeti,"  Phone Packet");
-				dissect_decttype(0,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
-				break;
+			proto_item_append_text(typeti,"  Phone Packet");
+			dissect_decttype(0,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
+			break;
 
-			case 0xe98a:
-				if(check_col(pinfo->cinfo,COL_PROTOCOL))
-				{
-					col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT RFP");
-				}
+		case 0xe98a:
+			if(check_col(pinfo->cinfo,COL_PROTOCOL))
+			{
+				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT RFP");
+			}
 
-				proto_item_append_text(typeti,"  Station Packet");
-				dissect_decttype(1,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
-				break;
+			proto_item_append_text(typeti,"  Station Packet");
+			dissect_decttype(1,&pkt_afield,&pkt_bfield,pinfo,pkt_ptr,tvb,ti,DectTree);
+			break;
 
 
-			default:
-				if(check_col(pinfo->cinfo,COL_PROTOCOL))
-				{
-					col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT Unk");
-				}
+		default:
+			if(check_col(pinfo->cinfo,COL_PROTOCOL))
+			{
+				col_set_str(pinfo->cinfo,COL_PROTOCOL,"DECT Unk");
+			}
 
-				proto_item_append_text(typeti,"  Unknown Packet");
-				break;
+			proto_item_append_text(typeti,"  Unknown Packet");
+			break;
 		}
 
 
@@ -1686,164 +1682,164 @@ proto_register_dect(void)
 			{"Qh","dect.afield.tail.Qt.Qh",FT_UINT8,BASE_DEC,VALS(QTHead_vals)	,0xF0,"",HFILL}
 		},
 
-			/* Qt Static System Information */
+		/* Qt Static System Information */
 
-			/* Byte 0 */
-			{
-				&hf_dect_A_Tail_Qt_0_Nr,
-				{"NR","dect.afield.tail.Qt.NR",FT_UINT8,BASE_DEC,VALS(QTNormalReverse_vals)	,0x10,"",HFILL}
-			},
+		/* Byte 0 */
+		{
+			&hf_dect_A_Tail_Qt_0_Nr,
+			{"NR","dect.afield.tail.Qt.NR",FT_UINT8,BASE_DEC,VALS(QTNormalReverse_vals)	,0x10,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_Sn,
-				{"SN","dect.afield.tail.Qt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals)	,0x0F,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_Sn,
+			{"SN","dect.afield.tail.Qt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals)	,0x0F,"",HFILL}
+		},
 
-			/* Byte 1 */
-			{
-				&hf_dect_A_Tail_Qt_0_Sp,
-				{"SP","dect.afield.tail.Qt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals)	,0xC0,"",HFILL}
-			},
+		/* Byte 1 */
+		{
+			&hf_dect_A_Tail_Qt_0_Sp,
+			{"SP","dect.afield.tail.Qt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals)	,0xC0,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_Esc,
-				{"Esc","dect.afield.tail.Qt.Esc",FT_UINT8,BASE_DEC,VALS(QTEscape_vals)	,0x20,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_Esc,
+			{"Esc","dect.afield.tail.Qt.Esc",FT_UINT8,BASE_DEC,VALS(QTEscape_vals)	,0x20,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_Txs,
-				{"Txs","dect.afield.tail.Qt.Txs",FT_UINT8,BASE_DEC,VALS(QTTranceiver_vals)	,0x18,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_Txs,
+			{"Txs","dect.afield.tail.Qt.Txs",FT_UINT8,BASE_DEC,VALS(QTTranceiver_vals)	,0x18,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_Mc,
-				{"Mc","dect.afield.tail.Qt.Mc",FT_UINT8,BASE_DEC,VALS(QTExtendedCarrier_vals)	,0x04,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_Mc,
+			{"Mc","dect.afield.tail.Qt.Mc",FT_UINT8,BASE_DEC,VALS(QTExtendedCarrier_vals)	,0x04,"",HFILL}
+		},
 
-			/* Byte 3 */
-			{
-				&hf_dect_A_Tail_Qt_0_Spr1,
-				{"Spr","dect.afield.tail.Qt.Spr1",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
-			},
+		/* Byte 3 */
+		{
+			&hf_dect_A_Tail_Qt_0_Spr1,
+			{"Spr","dect.afield.tail.Qt.Spr1",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_Cn,
-				{"CN","dect.afield.tail.Qt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals)	,0x3F,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_Cn,
+			{"CN","dect.afield.tail.Qt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals)	,0x3F,"",HFILL}
+		},
 
-			/* Byte 4 */
-			{
-				&hf_dect_A_Tail_Qt_0_Spr2,
-				{"Spr","dect.afield.tail.Qt.Spr2",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
-			},
+		/* Byte 4 */
+		{
+			&hf_dect_A_Tail_Qt_0_Spr2,
+			{"Spr","dect.afield.tail.Qt.Spr2",FT_UINT8,BASE_DEC,VALS(QTSpr_vals)	,0xC0,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_0_PSCN,
-				{"PSCN","dect.afield.tail.Qt.PSCN",FT_UINT8,BASE_DEC,VALS(QTScanCarrierNum_vals)	,0x3F,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_0_PSCN,
+			{"PSCN","dect.afield.tail.Qt.PSCN",FT_UINT8,BASE_DEC,VALS(QTScanCarrierNum_vals)	,0x3F,"",HFILL}
+		},
 
 
-			/* Qt Fixed Part Capabilities */
+		/* Qt Fixed Part Capabilities */
 
-			{
-				&hf_dect_A_Tail_Qt_3_A12,
-				{"A12","dect.afield.tail.Qt.Fp.A12",FT_UINT8,BASE_DEC,VALS(Qt_A12_vals)	,0x08,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A12,
+			{"A12","dect.afield.tail.Qt.Fp.A12",FT_UINT8,BASE_DEC,VALS(Qt_A12_vals)	,0x08,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A13,
-				{"A13","dect.afield.tail.Qt.Fp.A13",FT_UINT8,BASE_DEC,VALS(Qt_A13_vals)	,0x04,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A13,
+			{"A13","dect.afield.tail.Qt.Fp.A13",FT_UINT8,BASE_DEC,VALS(Qt_A13_vals)	,0x04,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A14,
-				{"A14","dect.afield.tail.Qt.Fp.A14",FT_UINT8,BASE_DEC,VALS(Qt_A14_vals)	,0x02,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A14,
+			{"A14","dect.afield.tail.Qt.Fp.A14",FT_UINT8,BASE_DEC,VALS(Qt_A14_vals)	,0x02,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A15,
-				{"A15","dect.afield.tail.Qt.Fp.A15",FT_UINT8,BASE_DEC,VALS(Qt_A15_vals)	,0x01,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A15,
+			{"A15","dect.afield.tail.Qt.Fp.A15",FT_UINT8,BASE_DEC,VALS(Qt_A15_vals)	,0x01,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A16,
-				{"A16","dect.afield.tail.Qt.Fp.A16",FT_UINT8,BASE_DEC,VALS(Qt_A16_vals)	,0x80,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A16,
+			{"A16","dect.afield.tail.Qt.Fp.A16",FT_UINT8,BASE_DEC,VALS(Qt_A16_vals)	,0x80,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A17,
-				{"A17","dect.afield.tail.Qt.Fp.A17",FT_UINT8,BASE_DEC,VALS(Qt_A17_vals)	,0x40,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A17,
+			{"A17","dect.afield.tail.Qt.Fp.A17",FT_UINT8,BASE_DEC,VALS(Qt_A17_vals)	,0x40,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A18,
-				{"A18","dect.afield.tail.Qt.Fp.A18",FT_UINT8,BASE_DEC,VALS(Qt_A18_vals)	,0x20,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A18,
+			{"A18","dect.afield.tail.Qt.Fp.A18",FT_UINT8,BASE_DEC,VALS(Qt_A18_vals)	,0x20,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A19,
-				{"A19","dect.afield.tail.Qt.Fp.A19",FT_UINT8,BASE_DEC,VALS(Qt_A19_vals)	,0x10,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A19,
+			{"A19","dect.afield.tail.Qt.Fp.A19",FT_UINT8,BASE_DEC,VALS(Qt_A19_vals)	,0x10,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A20,
-				{"A20","dect.afield.tail.Qt.Fp.A20",FT_UINT8,BASE_DEC,VALS(Qt_A20_vals)	,0x08,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A20,
+			{"A20","dect.afield.tail.Qt.Fp.A20",FT_UINT8,BASE_DEC,VALS(Qt_A20_vals)	,0x08,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A21,
-				{"A21","dect.afield.tail.Qt.Fp.A21",FT_UINT8,BASE_DEC,VALS(Qt_A21_vals)	,0x04,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A21,
+			{"A21","dect.afield.tail.Qt.Fp.A21",FT_UINT8,BASE_DEC,VALS(Qt_A21_vals)	,0x04,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A22,
-				{"A22","dect.afield.tail.Qt.Fp.A22",FT_UINT8,BASE_DEC,VALS(Qt_A22_vals)	,0x02,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A22,
+			{"A22","dect.afield.tail.Qt.Fp.A22",FT_UINT8,BASE_DEC,VALS(Qt_A22_vals)	,0x02,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A23,
-				{"A23","dect.afield.tail.Qt.Fp.A23",FT_UINT8,BASE_DEC,VALS(Qt_A23_vals)	,0x01,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A23,
+			{"A23","dect.afield.tail.Qt.Fp.A23",FT_UINT8,BASE_DEC,VALS(Qt_A23_vals)	,0x01,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A24,
-				{"A24","dect.afield.tail.Qt.Fp.A24",FT_UINT8,BASE_DEC,VALS(Qt_A24_vals)	,0x80,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A24,
+			{"A24","dect.afield.tail.Qt.Fp.A24",FT_UINT8,BASE_DEC,VALS(Qt_A24_vals)	,0x80,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A25,
-				{"A25","dect.afield.tail.Qt.Fp.A25",FT_UINT8,BASE_DEC,VALS(Qt_A25_vals)	,0x40,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A25,
+			{"A25","dect.afield.tail.Qt.Fp.A25",FT_UINT8,BASE_DEC,VALS(Qt_A25_vals)	,0x40,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A26,
-				{"A26","dect.afield.tail.Qt.Fp.A26",FT_UINT8,BASE_DEC,VALS(Qt_A26_vals)	,0x20,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A26,
+			{"A26","dect.afield.tail.Qt.Fp.A26",FT_UINT8,BASE_DEC,VALS(Qt_A26_vals)	,0x20,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A27,
-				{"A27","dect.afield.tail.Qt.Fp.A27",FT_UINT8,BASE_DEC,VALS(Qt_A27_vals)	,0x10,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A27,
+			{"A27","dect.afield.tail.Qt.Fp.A27",FT_UINT8,BASE_DEC,VALS(Qt_A27_vals)	,0x10,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A28,
-				{"A28","dect.afield.tail.Qt.Fp.A28",FT_UINT8,BASE_DEC,VALS(Qt_A28_vals)	,0x08,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A28,
+			{"A28","dect.afield.tail.Qt.Fp.A28",FT_UINT8,BASE_DEC,VALS(Qt_A28_vals)	,0x08,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A29,
-				{"A29","dect.afield.tail.Qt.Fp.A29",FT_UINT8,BASE_DEC,VALS(Qt_A29_vals)	,0x04,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A29,
+			{"A29","dect.afield.tail.Qt.Fp.A29",FT_UINT8,BASE_DEC,VALS(Qt_A29_vals)	,0x04,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A30,
-				{"A30","dect.afield.tail.Qt.Fp.A30",FT_UINT8,BASE_DEC,VALS(Qt_A30_vals)	,0x02,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A30,
+			{"A30","dect.afield.tail.Qt.Fp.A30",FT_UINT8,BASE_DEC,VALS(Qt_A30_vals)	,0x02,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Qt_3_A31,
-				{"A31","dect.afield.tail.Qt.Fp.A31",FT_UINT8,BASE_DEC,VALS(Qt_A31_vals)	,0x01,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Qt_3_A31,
+			{"A31","dect.afield.tail.Qt.Fp.A31",FT_UINT8,BASE_DEC,VALS(Qt_A31_vals)	,0x01,"",HFILL}
+		},
 
 
 		/* Mt */
@@ -1852,22 +1848,22 @@ proto_register_dect(void)
 			{"Mh","dect.afield.tail.Mt.Mh",FT_UINT8,BASE_DEC,VALS(MTHead_vals)	,0xF0,"",HFILL}
 		},
 
-			/* Mt Basic Connection Control */
-			{
-				&hf_dect_A_Tail_Mt_BasicConCtrl,
-				{"Cmd","dect.afield.tail.Mt.BasicConCtrl",FT_UINT8,BASE_DEC,VALS(MTBasicConCtrl_vals)	,0x0F,"",HFILL}
-			},
+		/* Mt Basic Connection Control */
+		{
+			&hf_dect_A_Tail_Mt_BasicConCtrl,
+			{"Cmd","dect.afield.tail.Mt.BasicConCtrl",FT_UINT8,BASE_DEC,VALS(MTBasicConCtrl_vals)	,0x0F,"",HFILL}
+		},
 
-			/* Mt Encryption Control */
-			{
-				&hf_dect_A_Tail_Mt_Encr_Cmd1,
-				{"Cmd1","dect.afield.tail.Mt.Encr.Cmd1",FT_UINT8,BASE_DEC,VALS(MTEncrCmd1_vals)	,0x0C,"",HFILL}
-			},
+		/* Mt Encryption Control */
+		{
+			&hf_dect_A_Tail_Mt_Encr_Cmd1,
+			{"Cmd1","dect.afield.tail.Mt.Encr.Cmd1",FT_UINT8,BASE_DEC,VALS(MTEncrCmd1_vals)	,0x0C,"",HFILL}
+		},
 
-			{
-				&hf_dect_A_Tail_Mt_Encr_Cmd2,
-				{"Cmd2","dect.afield.tail.Mt.Encr.Cmd2",FT_UINT8,BASE_DEC,VALS(MTEncrCmd2_vals)	,0x03,"",HFILL}
-			},
+		{
+			&hf_dect_A_Tail_Mt_Encr_Cmd2,
+			{"Cmd2","dect.afield.tail.Mt.Encr.Cmd2",FT_UINT8,BASE_DEC,VALS(MTEncrCmd2_vals)	,0x03,"",HFILL}
+		},
 
 		/* Pt */
 		{
