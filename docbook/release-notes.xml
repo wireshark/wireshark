@@ -65,7 +65,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash while reading a malformed Tektronix K12 file.
+            Wireshark could crash while reading a Tektronix K12 text capture file.
             <!-- Fixed in r27064 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1937">Bug
             1937</ulink>)
