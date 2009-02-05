@@ -63,8 +63,8 @@ static int ett_flags = -1;
 #define IPVS_SYNCD_PORT 8848
 
 static const value_string proto_strings[] = {
-	{0x06, "UDP"},
-	{0x11, "TCP"},
+	{0x06, "TCP"},
+	{0x11, "UDP"},
 	{0x00, NULL},
 };
 
@@ -121,7 +121,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_item(tree, hf_syncid, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_size, tvb, offset, 2, FALSE);
 	offset += 2;
 
 	for (conn = 0; conn < cnt; conn++)
