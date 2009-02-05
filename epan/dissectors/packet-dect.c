@@ -43,7 +43,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <string.h>
 
@@ -82,12 +81,12 @@ static int proto_dect2 = -1;
 #endif
 
 
-static gint ett_dect			= -1;
-static gint ett_afield			= -1;
-static gint ett_ahead			= -1;
-static gint ett_atail			= -1;
+static gint ett_dect				= -1;
+static gint ett_afield				= -1;
+static gint ett_ahead				= -1;
+static gint ett_atail				= -1;
 static gint ett_aqt				= -1;
-static gint ett_bfield			= -1;
+static gint ett_bfield				= -1;
 
 static int hf_dect_transceivermode		= -1;
 static int hf_dect_preamble			= -1;
@@ -882,7 +881,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 			proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"\n");
 			offset=oldoffset;
 
-							proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Framenumber %u/%u",fn,fn+8);
+			proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Framenumber %u/%u",fn,fn+8);
 			for(x=0;x<blen;x+=16)
 			{
 				char string[60];
