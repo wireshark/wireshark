@@ -855,7 +855,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 
 	if((blen+(xcrclen/8)+1)<=pkt_bfield->Length)
 	{
-		guint16 x,y;
+		guint16 x,y=0;
 		for(x=0;x<blen;x+=16)
 		{
 			gchar string[60];
