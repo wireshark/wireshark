@@ -865,7 +865,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 				if((x+y)>=blen)
 					break;
 
-				sprintf(string,"%s%.2x ",string,pkt_bfield->Data[x+y]);
+				g_snprintf(string,sizeof(string),"%s%.2x ",string,pkt_bfield->Data[x+y]);
 			}
 			proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Data: %s",string);
 			if(y==16)
@@ -890,7 +890,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 					if((x+y)>=blen)
 						break;
 
-					sprintf(string,"%s%.2x ",string,pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
+					g_snprintf(string,sizeof(string),"%s%.2x ",string,pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
 					bytecount++;
 				}
 				proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Data: %s",string);
