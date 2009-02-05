@@ -1508,12 +1508,22 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		switch ((octet&0xf)){
 		case 1:
 			/* BCD Coding */
+			octet_len = tvb_get_guint8(tvb,offset);
+			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+			if(octet_len == 0)
+				return;
+			offset++;
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
 			proto_item_append_text(actx->created_item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
+			octet_len = tvb_get_guint8(tvb,offset);
+			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+			if(octet_len == 0)
+				return;
+			offset++;
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
 			proto_item_append_text(actx->created_item, " - %s", tvb_get_ephemeral_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
@@ -15156,7 +15166,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3628 "packet-ansi_map-template.c"
+#line 3638 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -15962,12 +15972,12 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, NULL,0x80,
         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitD,
-      { "Reserved", "ansi_map.reserved_bitH",
+      { "Reserved", "ansi_map.reserved_bitD",
         FT_BOOLEAN, 8, NULL,0x08,
         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitHG,
       { "Reserved", "ansi_map.reserved_bitHG",
-       FT_UINT8, BASE_DEC, NULL, 0x18,
+       FT_UINT8, BASE_DEC, NULL, 0xc0,
          "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitHGFE,
       { "Reserved", "ansi_map.reserved_bitHGFE",
@@ -18903,7 +18913,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5222 "packet-ansi_map-template.c"
+#line 5232 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19157,7 +19167,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5255 "packet-ansi_map-template.c"
+#line 5265 "packet-ansi_map-template.c"
   };
 
 

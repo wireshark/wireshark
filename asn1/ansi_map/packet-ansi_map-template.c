@@ -737,12 +737,22 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		switch ((octet&0xf)){
 		case 1:
 			/* BCD Coding */
+			octet_len = tvb_get_guint8(tvb,offset);
+			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+			if(octet_len == 0)
+				return;
+			offset++;
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
 			proto_item_append_text(actx->created_item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
+			octet_len = tvb_get_guint8(tvb,offset);
+			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+			if(octet_len == 0)
+				return;
+			offset++;
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
 			proto_item_append_text(actx->created_item, " - %s", tvb_get_ephemeral_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
@@ -4430,12 +4440,12 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, NULL,0x80,
         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitD,
-      { "Reserved", "ansi_map.reserved_bitH",
+      { "Reserved", "ansi_map.reserved_bitD",
         FT_BOOLEAN, 8, NULL,0x08,
         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitHG,
       { "Reserved", "ansi_map.reserved_bitHG",
-       FT_UINT8, BASE_DEC, NULL, 0x18,
+       FT_UINT8, BASE_DEC, NULL, 0xc0,
          "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitHGFE,
       { "Reserved", "ansi_map.reserved_bitHGFE",
