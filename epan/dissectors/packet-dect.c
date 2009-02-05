@@ -784,7 +784,7 @@ calc_rcrc(guint8* data)
 
 static gint
 dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
-	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr _U_,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr _U_,
 	tvbuff_t *tvb,proto_item *ti _U_, proto_tree *DectTree, gint offset)
 {
 	guint8 xcrc,xcrclen;
@@ -914,7 +914,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 
 static void
 dissect_decttype(gboolean type, struct dect_afield *pkt_afield,
-	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr,
+	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr,
 	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
 	gchar *str_p;
@@ -1326,8 +1326,8 @@ static void
 dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16			type;
-	guint16			pkt_len;
-	guint8			*pkt_ptr;
+	guint			pkt_len;
+	const guint8		*pkt_ptr;
 	struct dect_afield	pkt_afield;
 	struct dect_bfield	pkt_bfield;
 
@@ -1346,7 +1346,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	pkt_ptr=(guint8*)tvb_get_ptr(tvb,11,pkt_len-11);
+	pkt_ptr=tvb_get_ptr(tvb,11,pkt_len-11);
 
 	/* fill A-Field  */
 	pkt_afield.Header=pkt_ptr[0];
