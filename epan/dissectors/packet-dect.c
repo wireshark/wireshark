@@ -49,7 +49,7 @@
 #define ETHERTYPE_DECT 0x2323				/* move to epan/etypes.h */
 
 /* scramble table with corrections by Jakub Hruska */
-guint8 scrt[8][31]=
+static guint8 scrt[8][31]=
 {
 	{0x3B,0xCD,0x21,0x5D,0x88,0x65,0xBD,0x44,0xEF,0x34,0x85,0x76,0x21,0x96,0xF5,0x13,0xBC,0xD2,0x15,0xD8,0x86,0x5B,0xD4,0x4E,0xF3,0x48,0x57,0x62,0x19,0x6F,0x51},
 	{0x32,0xDE,0xA2,0x77,0x9A,0x42,0xBB,0x10,0xCB,0x7A,0x89,0xDE,0x69,0x0A,0xEC,0x43,0x2D,0xEA,0x27,0x79,0xA4,0x2B,0xB1,0x0C,0xB7,0xA8,0x9D,0xE6,0x90,0xAE,0xC4},
@@ -150,14 +150,14 @@ static int hf_dect_B				= -1;
 static int hf_dect_B_Data			= -1;
 static int hf_dect_B_XCRC			= -1;
 
-const value_string tranceiver_mode[]=
+static const value_string tranceiver_mode[]=
 {
 	{0,"Receive"},
 	{1,"Send"},
 	{0,NULL}
 };
 
-const value_string TA_vals[]=
+static const value_string TA_vals[]=
 {
 	{0,"Ct Next Data Packet"},
 	{1,"Ct First Data Packet"},
@@ -170,7 +170,7 @@ const value_string TA_vals[]=
 	{0,NULL}
 };
 
-const value_string BA_vals[]=
+static const value_string BA_vals[]=
 {
 	{0,"U-Type, In, SIn or Ip Packet No. 0 or No Valid Ip_error_detect Channel Data"},
 	{1,"U-Type, Ip_error_detect or Ip Packet No. 1 or SIn or No Valid In Channel Data"},
@@ -183,7 +183,7 @@ const value_string BA_vals[]=
 	{0,NULL}
 };
 
-const value_string QTHead_vals[]=
+static const value_string QTHead_vals[]=
 {
 	{0,"Static System Info"},
 	{1,"Static System Info"},
@@ -204,14 +204,14 @@ const value_string QTHead_vals[]=
 	{0,NULL}
 };
 
-const value_string QTNormalReverse_vals[]=
+static const value_string QTNormalReverse_vals[]=
 {
 	{0,"Normal RFP Transmit Half-Frame"},
 	{1,"Normal PP Transmit Half-Frame"},
 	{0,NULL}
 };
 
-const value_string QTSlotNumber_vals[]=
+static const value_string QTSlotNumber_vals[]=
 {
 	{0,"Slot Pair 0/12"},
 	{1,"Slot Pair 1/13"},
@@ -232,7 +232,7 @@ const value_string QTSlotNumber_vals[]=
 	{0,NULL}
 };
 
-const value_string QTStartPosition_vals[]=
+static const value_string QTStartPosition_vals[]=
 {
 	{0,"S-Field starts at Bit F0"},
 	{1,"Reserved for Future Use"},
@@ -241,14 +241,14 @@ const value_string QTStartPosition_vals[]=
 	{0,NULL}
 };
 
-const value_string QTEscape_vals[]=
+static const value_string QTEscape_vals[]=
 {
 	{0,"No QT Escape is broadcast"},
 	{1,"The QT Escape is broadcast"},
 	{0,NULL}
 };
 
-const value_string QTTranceiver_vals[]=
+static const value_string QTTranceiver_vals[]=
 {
 	{0,"RFP has 1 Transceiver"},
 	{1,"RFP has 2 Transceiver"},
@@ -257,14 +257,14 @@ const value_string QTTranceiver_vals[]=
 	{0,NULL}
 };
 
-const value_string QTExtendedCarrier_vals[]=
+static const value_string QTExtendedCarrier_vals[]=
 {
 	{0,"No Extended RF Carrier Information Message"},
 	{1,"Extended RF Carrier Information Message shall be transmitted in the next Multiframe"},
 	{0,NULL}
 };
 
-const value_string QTSpr_vals[]=
+static const value_string QTSpr_vals[]=
 {
 	{0,"OK"},
 	{1,"Reserved"},
@@ -273,7 +273,7 @@ const value_string QTSpr_vals[]=
 	{0,NULL}
 };
 
-const value_string QTCarrierNumber_vals[]=
+static const value_string QTCarrierNumber_vals[]=
 {
 	{0,"RF Carrier 0"},
 	{1,"RF Carrier 1"},
@@ -342,7 +342,7 @@ const value_string QTCarrierNumber_vals[]=
 	{0,NULL}
 };
 
-const value_string QTScanCarrierNum_vals[]=
+static const value_string QTScanCarrierNum_vals[]=
 {
 	{0,"Primary Scan next on RF Carrier 0"},
 	{1,"Primary Scan next on RF Carrier 1"},
@@ -411,147 +411,147 @@ const value_string QTScanCarrierNum_vals[]=
 	{0,NULL}
 };
 
-const value_string Qt_A12_vals[]=
+static const value_string Qt_A12_vals[]=
 {
 	{0,""},
 	{1,"Extended FP Info"},
 	{0,NULL}
 };
 
-const value_string Qt_A13_vals[]=
+static const value_string Qt_A13_vals[]=
 {
 	{0,""},
 	{1,"Double Duplex Bearer Connections"},
 	{0,NULL}
 };
 
-const value_string Qt_A14_vals[]=
+static const value_string Qt_A14_vals[]=
 {
 	{0,""},
 	{1,"Reserved"},
 	{0,NULL}
 };
 
-const value_string Qt_A15_vals[]=
+static const value_string Qt_A15_vals[]=
 {
 	{0,""},
 	{1,"Double Slot"},
 	{0,NULL}
 };
 
-const value_string Qt_A16_vals[]=
+static const value_string Qt_A16_vals[]=
 {
 	{0,""},
 	{1,"Half Slot"},
 	{0,NULL}
 };
 
-const value_string Qt_A17_vals[]=
+static const value_string Qt_A17_vals[]=
 {
 	{0,""},
 	{1,"Full Slot"},
 	{0,NULL}
 };
 
-const value_string Qt_A18_vals[]=
+static const value_string Qt_A18_vals[]=
 {
 	{0,""},
 	{1,"Frequency Control"},
 	{0,NULL}
 };
 
-const value_string Qt_A19_vals[]=
+static const value_string Qt_A19_vals[]=
 {
 	{0,""},
 	{1,"Page Repetition"},
 	{0,NULL}
 };
 
-const value_string Qt_A20_vals[]=
+static const value_string Qt_A20_vals[]=
 {
 	{0,""},
 	{1,"C/O Setup on Dummy allowed"},
 	{0,NULL}
 };
 
-const value_string Qt_A21_vals[]=
+static const value_string Qt_A21_vals[]=
 {
 	{0,""},
 	{1,"C/L Uplink"},
 	{0,NULL}
 };
 
-const value_string Qt_A22_vals[]=
+static const value_string Qt_A22_vals[]=
 {
 	{0,""},
 	{1,"C/L Downlink"},
 	{0,NULL}
 };
 
-const value_string Qt_A23_vals[]=
+static const value_string Qt_A23_vals[]=
 {
 	{0,""},
 	{1,"Basic A-Field Set-Up"},
 	{0,NULL}
 };
 
-const value_string Qt_A24_vals[]=
+static const value_string Qt_A24_vals[]=
 {
 	{0,""},
 	{1,"Advanced A-Field Set-Up"},
 	{0,NULL}
 };
 
-const value_string Qt_A25_vals[]=
+static const value_string Qt_A25_vals[]=
 {
 	{0,""},
 	{1,"B-field Set-Up"},
 	{0,NULL}
 };
 
-const value_string Qt_A26_vals[]=
+static const value_string Qt_A26_vals[]=
 {
 	{0,""},
 	{1,"Cf Messages"},
 	{0,NULL}
 };
 
-const value_string Qt_A27_vals[]=
+static const value_string Qt_A27_vals[]=
 {
 	{0,""},
 	{1,"In Minimum Delay"},
 	{0,NULL}
 };
 
-const value_string Qt_A28_vals[]=
+static const value_string Qt_A28_vals[]=
 {
 	{0,""},
 	{1,"In Normal Delay"},
 	{0,NULL}
 };
 
-const value_string Qt_A29_vals[]=
+static const value_string Qt_A29_vals[]=
 {
 	{0,""},
 	{1,"Ip Error Detection"},
 	{0,NULL}
 };
 
-const value_string Qt_A30_vals[]=
+static const value_string Qt_A30_vals[]=
 {
 	{0,""},
 	{1,"Ip Error Correction"},
 	{0,NULL}
 };
 
-const value_string Qt_A31_vals[]=
+static const value_string Qt_A31_vals[]=
 {
 	{0,""},
 	{1,"Multibearer Connections"},
 	{0,NULL}
 };
 
-const value_string MTHead_vals[]=
+static const value_string MTHead_vals[]=
 {
 	{0,"Basic Connection Control"},
 	{1,"Advanced Connection Control"},
@@ -572,7 +572,7 @@ const value_string MTHead_vals[]=
 	{0,NULL}
 };
 
-const value_string MTBasicConCtrl_vals[]=
+static const value_string MTBasicConCtrl_vals[]=
 {
 	{0,"Access Request"},
 	{1,"Bearer Handover Request"},
@@ -593,7 +593,7 @@ const value_string MTBasicConCtrl_vals[]=
 	{0,NULL}
 };
 
-const value_string MTEncrCmd1_vals[]=
+static const value_string MTEncrCmd1_vals[]=
 {
 	{0,"Start Encryption"},
 	{1,"Stop Encryption"},
@@ -602,7 +602,7 @@ const value_string MTEncrCmd1_vals[]=
 	{0,NULL}
 };
 
-const value_string MTEncrCmd2_vals[]=
+static const value_string MTEncrCmd2_vals[]=
 {
 	{0,"Request"},
 	{1,"Confirm"},
@@ -611,14 +611,14 @@ const value_string MTEncrCmd2_vals[]=
 	{0,NULL}
 };
 
-const value_string PTExtFlag_vals[]=
+static const value_string PTExtFlag_vals[]=
 {
 	{0,"bla1"},
 	{1,"bla2"},
 	{0,NULL}
 };
 
-const value_string PTSDU_vals[]=
+static const value_string PTSDU_vals[]=
 {
 	{0,"Zero Length Page"},
 	{1,"Short Page"},
@@ -631,7 +631,7 @@ const value_string PTSDU_vals[]=
 	{0,NULL}
 };
 
-const value_string PTInfoType_vals[]=
+static const value_string PTInfoType_vals[]=
 {
 	{0,"Fill Bits"},
 	{1,"Blind Full Slot Information for Circuit Mode Service"},
@@ -652,7 +652,7 @@ const value_string PTInfoType_vals[]=
 	{0,NULL}
 };
 
-const value_string PTRFPPower_vals[]=
+static const value_string PTRFPPower_vals[]=
 {
 	{0,"0 dBm"},
 	{1,"2 dBm"},
@@ -673,7 +673,7 @@ const value_string PTRFPPower_vals[]=
 	{0, NULL}
 };
 
-unsigned char
+static unsigned char
 getbit(guint8 *data,int bit)
 {
 	guint8 c;
@@ -685,7 +685,7 @@ getbit(guint8 *data,int bit)
 	return (byte&c)>>bit%8;
 }
 
-void
+static void
 setbit(guint8 *data,int bit,guint8 value)
 {
 	if(!value)
@@ -694,7 +694,7 @@ setbit(guint8 *data,int bit,guint8 value)
 		data[bit/8]|=(1<<(bit%8));
 }
 
-guint8
+static guint8
 calc_xcrc(guint8* data,guint8 length)
 {
 	guint8 bits[21];
@@ -742,7 +742,7 @@ calc_xcrc(guint8* data,guint8 length)
 	return div;
 }
 
-guint16
+static guint16
 calc_rcrc(guint8* data)
 {
 	guint16 gp=0x0589;		/* 10000010110001001 without the leading 1 */
@@ -782,7 +782,7 @@ calc_rcrc(guint8* data)
 	return div;
 }
 
-gint
+static gint
 dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr _U_,
 	tvbuff_t *tvb,proto_item *ti _U_, proto_tree *DectTree, gint offset)
@@ -855,12 +855,11 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 
 	if((blen+(xcrclen/8)+1)<=pkt_bfield->Length)
 	{
-		guint16 x,y=0;
+		guint16 x,y;
 		for(x=0;x<blen;x+=16)
 		{
-			char string[60];
-			string[0]=0;
-			y=0;
+			gchar string[60];
+			string[0]='\0';
 			for(y=0;y<16;y++)
 			{
 				if((x+y)>=blen)
@@ -884,9 +883,8 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 			proto_tree_add_uint_format(BField,hf_dect_B_Data,tvb,offset,y,0x2323,"Framenumber %u/%u",fn,fn+8);
 			for(x=0;x<blen;x+=16)
 			{
-				char string[60];
-				string[0]=0;
-				y=0;
+				gchar string[60];
+				string[0]='\0';
 				for(y=0;y<16;y++)
 				{
 					if((x+y)>=blen)
@@ -914,12 +912,12 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 	return offset;
 }
 
-void
+static void
 dissect_decttype(gboolean type, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, guint8 *pkt_ptr,
 	tvbuff_t *tvb, proto_item *ti, proto_tree *DectTree)
 {
-	char string[30];
+	gchar *str_p;
 	guint16 rcrc;
 	guint8 rcrcdat[8];
 	gint offset		=11;
@@ -968,11 +966,11 @@ dissect_decttype(gboolean type, struct dect_afield *pkt_afield,
 	case 3:		/* Nt connectionless bearer */
 		if(check_col(pinfo->cinfo,COL_DEF_NET_SRC))
 		{
-			sprintf(string,"RFPI:%.2x%.2x%.2x%.2x%.2x"
+			str_p = ep_strdup_printf("RFPI:%.2x%.2x%.2x%.2x%.2x"
 					,pkt_afield->Tail[0],pkt_afield->Tail[1],pkt_afield->Tail[2]
 					,pkt_afield->Tail[3],pkt_afield->Tail[4]);
 
-			col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,string);
+			col_append_str(pinfo->cinfo,COL_DEF_NET_SRC,str_p);
 			offset+=5;
 
 			/* due to addition further down */
@@ -1469,235 +1467,235 @@ proto_register_dect(void)
 	/* *****  Header  ***** */
 		{ &hf_dect_A,
 		{"A-Field","dect.afield", FT_UINT8, BASE_DEC, NULL,
-			0x0,"", HFILL}},
+			0x0,NULL, HFILL}},
 
 		{ &hf_dect_A_Head,
 		{"A-Field Header","dect.afield.head",FT_UINT8,BASE_DEC, NULL,
-			0x0,"",HFILL}},
+			0x0,NULL,HFILL}},
 
 		{ &hf_dect_A_Head_TA,
 		{"TA","dect.afield.head.TA",FT_UINT8,BASE_DEC,VALS(TA_vals),
-			0xE0,"",HFILL}},
+			0xE0,NULL,HFILL}},
 
 		{ &hf_dect_A_Head_Q1,
 		{"Q1","dect.afield.head.Q1",FT_UINT8,BASE_DEC,NULL,
-			0x10,"",HFILL}},
+			0x10,NULL,HFILL}},
 
 		{ &hf_dect_A_Head_BA,
 		{"BA","dect.afield.head.BA",FT_UINT8,BASE_DEC,VALS(BA_vals),
-			0x0E,"",HFILL}},
+			0x0E,NULL,HFILL}},
 
 		{ &hf_dect_A_Head_Q2,
 		{"Q2","dect.afield.head.Q2",FT_UINT8,BASE_DEC,NULL,
-			0x01,"",HFILL}},
+			0x01,NULL,HFILL}},
 
 	/* *****   Tail   ***** */
 		{ &hf_dect_A_Tail,
 		{"A-Field Tail","dect.afield.tail",FT_UINT8,BASE_DEC, NULL,
-			0x0,"",HFILL}},
+			0x0,NULL,HFILL}},
 
 	/* Nt */
 		{ &hf_dect_A_Tail_Nt,
 		{"A-Field Header","dect.afield.tail.Nt",FT_UINT8,BASE_DEC, NULL,
-			0x0,"",HFILL}},
+			0x0,NULL,HFILL}},
 
 	/* Qt */
 		{ &hf_dect_A_Tail_Qt_Qh,
 		{"Qh","dect.afield.tail.Qt.Qh",FT_UINT8,BASE_DEC,VALS(QTHead_vals),
-			0xF0,"",HFILL}},
+			0xF0,NULL,HFILL}},
 
 	/* Qt Static System Information */
 	/* Byte 0 */
 		{ &hf_dect_A_Tail_Qt_0_Nr,
 		{"NR","dect.afield.tail.Qt.NR",FT_UINT8,BASE_DEC,VALS(QTNormalReverse_vals),
-			0x10,"",HFILL}},
+			0x10,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Sn,
 		{"SN","dect.afield.tail.Qt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals),
-			0x0F,"",HFILL}},
+			0x0F,NULL,HFILL}},
 
 	/* Byte 1 */
 		{ &hf_dect_A_Tail_Qt_0_Sp,
 		{"SP","dect.afield.tail.Qt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals),
-			0xC0,"",HFILL}},
+			0xC0,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Esc,
 		{"Esc","dect.afield.tail.Qt.Esc",FT_UINT8,BASE_DEC,VALS(QTEscape_vals),
-			0x20,"",HFILL}},
+			0x20,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Txs,
 		{"Txs","dect.afield.tail.Qt.Txs",FT_UINT8,BASE_DEC,VALS(QTTranceiver_vals),
-			0x18,"",HFILL}},
+			0x18,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Mc,
 		{"Mc","dect.afield.tail.Qt.Mc",FT_UINT8,BASE_DEC,VALS(QTExtendedCarrier_vals),
-			0x04,"",HFILL}},
+			0x04,NULL,HFILL}},
 
 	/* Byte 3 */
 		{ &hf_dect_A_Tail_Qt_0_Spr1,
 		{"Spr","dect.afield.tail.Qt.Spr1",FT_UINT8,BASE_DEC,VALS(QTSpr_vals),
-			0xC0,"",HFILL}},
+			0xC0,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Cn,
 		{"CN","dect.afield.tail.Qt.CN",FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals),
-			0x3F,"",HFILL}},
+			0x3F,NULL,HFILL}},
 
 	/* Byte 4 */
 		{ &hf_dect_A_Tail_Qt_0_Spr2,
 		{"Spr","dect.afield.tail.Qt.Spr2",FT_UINT8,BASE_DEC,VALS(QTSpr_vals),
-			0xC0,"",HFILL}},
+			0xC0,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_PSCN,
 		{"PSCN","dect.afield.tail.Qt.PSCN",FT_UINT8,BASE_DEC,VALS(QTScanCarrierNum_vals),
-			0x3F,"",HFILL}},
+			0x3F,NULL,HFILL}},
 
 	/* Qt Fixed Part Capabilities */
 		{ &hf_dect_A_Tail_Qt_3_A12,
 		{"A12","dect.afield.tail.Qt.Fp.A12",FT_UINT8,BASE_DEC,VALS(Qt_A12_vals),
-			0x08,"",HFILL}},
+			0x08,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A13,
 		{"A13","dect.afield.tail.Qt.Fp.A13",FT_UINT8,BASE_DEC,VALS(Qt_A13_vals),
-			0x04,"",HFILL}},
+			0x04,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A14,
 		{"A14","dect.afield.tail.Qt.Fp.A14",FT_UINT8,BASE_DEC,VALS(Qt_A14_vals),
-			0x02,"",HFILL}},
+			0x02,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A15,
 		{"A15","dect.afield.tail.Qt.Fp.A15",FT_UINT8,BASE_DEC,VALS(Qt_A15_vals),
-			0x01,"",HFILL}},
+			0x01,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A16,
 		{"A16","dect.afield.tail.Qt.Fp.A16",FT_UINT8,BASE_DEC,VALS(Qt_A16_vals),
-			0x80,"",HFILL}},
+			0x80,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A17,
 		{"A17","dect.afield.tail.Qt.Fp.A17",FT_UINT8,BASE_DEC,VALS(Qt_A17_vals),
-			0x40,"",HFILL}},
+			0x40,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A18,
 		{"A18","dect.afield.tail.Qt.Fp.A18",FT_UINT8,BASE_DEC,VALS(Qt_A18_vals),
-			0x20,"",HFILL}},
+			0x20,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A19,
 		{"A19","dect.afield.tail.Qt.Fp.A19",FT_UINT8,BASE_DEC,VALS(Qt_A19_vals),
-			0x10,"",HFILL}},
+			0x10,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A20,
 		{"A20","dect.afield.tail.Qt.Fp.A20",FT_UINT8,BASE_DEC,VALS(Qt_A20_vals),
-			0x08,"",HFILL}},
+			0x08,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A21,
 		{"A21","dect.afield.tail.Qt.Fp.A21",FT_UINT8,BASE_DEC,VALS(Qt_A21_vals),
-			0x04,"",HFILL}},
+			0x04,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A22,
 		{"A22","dect.afield.tail.Qt.Fp.A22",FT_UINT8,BASE_DEC,VALS(Qt_A22_vals),
-			0x02,"",HFILL}},
+			0x02,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A23,
 		{"A23","dect.afield.tail.Qt.Fp.A23",FT_UINT8,BASE_DEC,VALS(Qt_A23_vals),
-			0x01,"",HFILL}},
+			0x01,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A24,
 		{"A24","dect.afield.tail.Qt.Fp.A24",FT_UINT8,BASE_DEC,VALS(Qt_A24_vals),
-			0x80,"",HFILL}},
+			0x80,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A25,
 		{"A25","dect.afield.tail.Qt.Fp.A25",FT_UINT8,BASE_DEC,VALS(Qt_A25_vals),
-			0x40,"",HFILL}},
+			0x40,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A26,
 		{"A26","dect.afield.tail.Qt.Fp.A26",FT_UINT8,BASE_DEC,VALS(Qt_A26_vals),
-			0x20,"",HFILL}},
+			0x20,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A27,
 		{"A27","dect.afield.tail.Qt.Fp.A27",FT_UINT8,BASE_DEC,VALS(Qt_A27_vals),
-			0x10,"",HFILL}},
+			0x10,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A28,
 		{"A28","dect.afield.tail.Qt.Fp.A28",FT_UINT8,BASE_DEC,VALS(Qt_A28_vals),
-			0x08,"",HFILL}},
+			0x08,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A29,
 		{"A29","dect.afield.tail.Qt.Fp.A29",FT_UINT8,BASE_DEC,VALS(Qt_A29_vals),
-			0x04,"",HFILL}},
+			0x04,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A30,
 		{"A30","dect.afield.tail.Qt.Fp.A30",FT_UINT8,BASE_DEC,VALS(Qt_A30_vals),
-			0x02,"",HFILL}},
+			0x02,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_3_A31,
 		{"A31","dect.afield.tail.Qt.Fp.A31",FT_UINT8,BASE_DEC,VALS(Qt_A31_vals),
-			0x01,"",HFILL}},
+			0x01,NULL,HFILL}},
 
 	/* Mt */
 		{ &hf_dect_A_Tail_Mt_Mh,
 		{"Mh","dect.afield.tail.Mt.Mh",FT_UINT8,BASE_DEC,VALS(MTHead_vals),
-			0xF0,"",HFILL}},
+			0xF0,NULL,HFILL}},
 
 	/* Mt Basic Connection Control */
 		{ &hf_dect_A_Tail_Mt_BasicConCtrl,
 		{"Cmd","dect.afield.tail.Mt.BasicConCtrl",FT_UINT8,BASE_DEC,VALS(MTBasicConCtrl_vals),
-			0x0F,"",HFILL}},
+			0x0F,NULL,HFILL}},
 
 	/* Mt Encryption Control */
 		{ &hf_dect_A_Tail_Mt_Encr_Cmd1,
 		{"Cmd1","dect.afield.tail.Mt.Encr.Cmd1",FT_UINT8,BASE_DEC,VALS(MTEncrCmd1_vals),
-			0x0C,"",HFILL}},
+			0x0C,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Mt_Encr_Cmd2,
 		{"Cmd2","dect.afield.tail.Mt.Encr.Cmd2",FT_UINT8,BASE_DEC,VALS(MTEncrCmd2_vals),
-			0x03, "", HFILL}},
+			0x03, NULL, HFILL}},
 
 	/* Pt */
 		{ &hf_dect_A_Tail_Pt_ExtFlag,
 		{"ExtFlag","dect.afield.tail.Pt.ExtFlag",FT_UINT8,BASE_DEC,VALS(PTExtFlag_vals),
-			0x80, "", HFILL}},
+			0x80, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_SDU,
 		{"SDU","dect.afield.tail.Pt.SDU",FT_UINT8,BASE_DEC,VALS(PTSDU_vals),
-			0x70, "", HFILL}},
+			0x70, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_InfoType,
 		{"InfoType","dect.afield.tail.Pt.InfoType",FT_UINT8,BASE_DEC,VALS(PTInfoType_vals),
-			0xF0, "", HFILL}},
+			0xF0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Fill_Fillbits,
 		{"FillBits","dect.afield.tail.Pt.InfoType.FillBits",FT_UINT8,BASE_DEC,NULL,
-			0x0, "", HFILL}},
+			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Bearer_Sn,
 		{"SN","dect.afield.tail.Pt.SN",FT_UINT8,BASE_DEC,VALS(QTSlotNumber_vals),
-			0x0F,"",HFILL}},
+			0x0F,NULL,HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Bearer_Sp,
 		{"SP","dect.afield.tail.Pt.SP",FT_UINT8,BASE_DEC,VALS(QTStartPosition_vals),
-			0xC0, "", HFILL}},
+			0xC0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Bearer_Cn,
 		{"CN", "dect.afield.tail.Pt.CN", FT_UINT8,BASE_DEC,VALS(QTCarrierNumber_vals),
-			0x3F, "", HFILL}},
+			0x3F, NULL, HFILL}},
 
 	/* *****   R-CRC  ***** */
 		{ &hf_dect_A_RCRC,
 		{"A-Field R-CRC", "dect.afield.rcrc", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL}}, 
+			0x0, NULL, HFILL}}, 
 
 	/* ***************** B-Field *************************** */
 		{ &hf_dect_B,
 		{"B-Field", "dect.bfield", FT_UINT8, BASE_DEC,
-			NULL, 0x0,"", HFILL}},
+			NULL, 0x0,NULL, HFILL}},
 
 		{ &hf_dect_B_Data,
 		{"B-Field","dect.bfield.data", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL}},
+			0x0, NULL, HFILL}},
 
 	/* *****   X-CRC  ***** */
 		{ &hf_dect_B_XCRC,
 		{"B-Field X-CRC", "dect.bfield.xcrc", FT_UINT8,BASE_DEC, NULL,
-			0x0, "", HFILL}}
+			0x0, NULL, HFILL}}
 	};
 
 
