@@ -38,6 +38,10 @@
 #include <epan/rtp_pt.h>
 #include "packet-frame.h"
 
+#include <epan/emem.h>
+#include <epan/conversation.h>
+#include <epan/expert.h>
+
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
 #define MP2T_SYNC_BYTE 0x47
@@ -58,6 +62,7 @@ static int hf_mp2t_pid = -1;
 static int hf_mp2t_tsc = -1;
 static int hf_mp2t_afc = -1;
 static int hf_mp2t_cc = -1;
+static int hf_mp2t_cc_drop = -1;
 
 #define MP2T_SYNC_BYTE_MASK	0xFF000000
 #define MP2T_TEI_MASK		0x00800000
@@ -187,13 +192,266 @@ static const value_string mp2t_afc_vals[] = {
 	{ 0, NULL }
 };
 
+/* Data structure used for detecting CC drops
+ *
+ *  conversation
+ *    |
+ *    +-> mp2t_analysis_data
+ *          |
+ *          +-> pid_table (RB tree)
+ *          |     |
+ *          |     +-> pid_analysis_data (per pid)
+ *          |     +-> pid_analysis_data
+ *          |     +-> pid_analysis_data
+ *          |
+ *          +-> frame_table (RB tree)
+ *                |
+ *                +-> frame_analysis_data (only created if drop detected)
+ *                      |
+ *                      +-> ts_table (RB tree)
+ *                            |
+ *                            +-> pid_analysis_data (per TS subframe)
+ *                            +-> pid_analysis_data
+ *                            +-> pid_analysis_data
+ */
+
+typedef struct mp2t_analysis_data {
+
+	/* This structure contains a tree containing data for the
+	 * individual pid's, this is only used when packets are
+	 * processed sequencially.
+	 */
+	emem_tree_t	*pid_table;
+
+	/* When detecting a CC drop, store that information for the
+	 * given frame.  This info is needed, when clicking around in
+	 * wireshark, as the pid table data only makes sence during
+	 * sequencial processing. The flag pinfo->fd->flags.visited is
+	 * used to tell the difference.
+	 *
+	 */
+	emem_tree_t	*frame_table;
+
+	guint32 cc_drops;	/* Number of detected CC losses per conv */
+
+} mp2t_analysis_data_t;
+
+typedef struct pid_analysis_data {
+	guint16 pid;
+	gint16  cc_prev;  	/* Previous CC number */
+} pid_analysis_data_t;
+
+typedef struct frame_analysis_data {
+
+	/* As each frame has several pid's, thus need a pid data
+	 * structure per TS frame.
+	 */
+	emem_tree_t	*ts_table;
+
+} frame_analysis_data_t;
+
+conversation_t *
+get_the_conversation(packet_info *pinfo)
+{
+	conversation_t *conv = NULL;
+
+	conv = find_conversation(pinfo->fd->num, &pinfo->src,
+				 &pinfo->dst, pinfo->ptype,
+				 pinfo->srcport, pinfo->destport, 0);
+
+	if (conv == NULL) { /* Create a new conversation */
+		conv = conversation_new(pinfo->fd->num, &pinfo->src,
+					&pinfo->dst, pinfo->ptype,
+					pinfo->srcport, pinfo->destport, 0);
+	}
+	return conv;
+}
+
+mp2t_analysis_data_t *
+init_mp2t_conversation_data()
+{
+	mp2t_analysis_data_t *mp2t_data = NULL;
+
+	mp2t_data = se_alloc0(sizeof(struct mp2t_analysis_data));
+
+	mp2t_data->pid_table =
+		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
+					      "mp2t_pid_table");
+	mp2t_data->frame_table =
+		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
+					      "mp2t_frame_table");
+	mp2t_data->cc_drops = 0;
+
+	return mp2t_data;
+}
+
+mp2t_analysis_data_t *
+get_mp2t_conversation_data(conversation_t *conv)
+{
+	mp2t_analysis_data_t *mp2t_data = NULL;
+
+	mp2t_data = conversation_get_proto_data(conv, proto_mp2t);
+	if (!mp2t_data) {
+		mp2t_data = init_mp2t_conversation_data();
+		conversation_add_proto_data(conv, proto_mp2t, mp2t_data);
+	}
+
+	return mp2t_data;
+}
+
+frame_analysis_data_t *
+init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
+{
+	frame_analysis_data_t *frame_data = NULL;
+
+	frame_data = se_alloc0(sizeof(struct frame_analysis_data));
+	frame_data->ts_table =
+	  se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
+					"mp2t_frame_pid_table");
+	/* Insert into mp2t tree */
+	se_tree_insert32(mp2t_data->frame_table, pinfo->fd->num,
+			 (void *)frame_data);
+
+	return frame_data;
+}
+
+
+frame_analysis_data_t *
+get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
+{
+	frame_analysis_data_t *frame_data = NULL;
+	frame_data = se_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
+	return frame_data;
+}
+
+pid_analysis_data_t *
+get_pid_analysis(guint32 pid, conversation_t *conv)
+{
+
+	pid_analysis_data_t  *pid_data  = NULL;
+	mp2t_analysis_data_t *mp2t_data = NULL;
+	mp2t_data = get_mp2t_conversation_data(conv);
+
+	pid_data = se_tree_lookup32(mp2t_data->pid_table, pid);
+	if (!pid_data) {
+		pid_data          = se_alloc0(sizeof(struct pid_analysis_data));
+		pid_data->cc_prev = -1;
+		pid_data->pid     = pid;
+
+		se_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
+	}
+	return pid_data;
+}
+
+#define KEY(pid, cc) ((pid << 4)|cc)
+
+void
+detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+		guint32 pid, gint32 cc_curr, conversation_t *conv)
+{
+	gint32 cc_prev;
+	pid_analysis_data_t   *pid_data   = NULL;
+	pid_analysis_data_t   *ts_data    = NULL;
+	mp2t_analysis_data_t  *mp2t_data  = NULL;
+	frame_analysis_data_t *frame_data = NULL;
+	proto_item            *flags_item;
+
+	guint32 detected_drop = 0;
+
+	mp2t_data = get_mp2t_conversation_data(conv);
+
+	/* The initial sequencial processing stage */
+	if (!pinfo->fd->flags.visited) {
+
+		/* This is the sequencial processing stage */
+		pid_data = get_pid_analysis(pid, conv);
+
+		cc_prev = pid_data->cc_prev;
+		pid_data->cc_prev = cc_curr;
+
+		/* Null packet always have a CC value equal 0 */
+		if (pid == 0x1fff)
+			return;
+
+		/* Its allowed that (cc_prev == cc_curr) if adaptation field */
+		if (cc_prev == cc_curr)
+			return;
+
+		/* Have not seen this pid before */
+		if (cc_prev == -1)
+			return;
+
+		/* Detect if CC is not increasing by one all the time */
+		if (cc_curr != ((cc_prev+1) & MP2T_CC_MASK)) {
+			detected_drop = 1;
+			mp2t_data->cc_drops++;
+		}
+	}
+
+	/* Save the info about the dropped packet */
+	if (detected_drop && !pinfo->fd->flags.visited) {
+
+		/* Lookup frame data, contains TS pid data objects */
+		frame_data = get_frame_analysis_data(mp2t_data, pinfo);
+		if (!frame_data)
+			frame_data = init_frame_analysis_data(mp2t_data, pinfo);
+
+		/* Create and store a new TS frame pid_data object.
+		   This indicate that we have a drop
+		 */
+		ts_data = se_alloc0(sizeof(struct pid_analysis_data));
+		ts_data->cc_prev = cc_prev;
+		ts_data->pid = pid;
+		se_tree_insert32(frame_data->ts_table, KEY(pid, cc_curr),
+				 (void *)ts_data);
+	}
+
+	/* See if we stored info about drops */
+	if (pinfo->fd->flags.visited) {
+
+		/* Lookup frame data, contains TS pid data objects */
+		frame_data = get_frame_analysis_data(mp2t_data, pinfo);
+		if (!frame_data)
+			return; /* No stored frame data -> no drops*/
+		else {
+			ts_data = se_tree_lookup32(frame_data->ts_table,
+						   KEY(pid, cc_curr));
+			if (ts_data)
+				detected_drop = 1;
+		}
+
+	}
+
+	/* Add info to the proto tree about drops */
+	if (detected_drop) {
+
+		flags_item =
+			proto_tree_add_none_format(
+				tree, hf_mp2t_cc_drop, tvb, 0, 0,
+				"Detected missing CC frame before this"
+				" (accumulated CC loss count:%d)",
+				mp2t_data->cc_drops
+				);
+
+		PROTO_ITEM_SET_GENERATED(flags_item);
+		expert_add_info_format(pinfo, flags_item, PI_MALFORMED,
+				       PI_ERROR, "Detected CC loss");
+
+	}
+}
+
+
 static gint
-dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
+dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
+	    conversation_t *conv)
 {
 	guint32 header;
 	guint afc;
 	gint start_offset = offset;
 	gint payload_len;
+
+	guint32 pid;
+	guint32 cc;
 
 	proto_item *ti = NULL;
 	proto_item *hi = NULL;
@@ -206,8 +464,11 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
 	
 	header = tvb_get_ntohl(tvb, offset);
 
-	proto_item_append_text(ti, " PID=0x%x CC=%d", (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT, (header & MP2T_CC_MASK) >> MP2T_CC_SHIFT );
+	pid = (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT;
+	cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
+	proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
 
+	detect_cc_drops(tvb, tree, pinfo, pid, cc, conv);
 
 	hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, FALSE);
 	mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t_header );
@@ -452,9 +713,11 @@ static void
 dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	guint offset = 0;
+	conversation_t *conv;
+	conv = get_the_conversation(pinfo);
 
 	while ( tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE ) {
-		offset = dissect_tsp( tvb, offset, pinfo, tree);
+		offset = dissect_tsp(tvb, offset, pinfo, tree, conv);
 	}
 }
 
@@ -516,6 +779,10 @@ proto_register_mp2t(void)
 		{ &hf_mp2t_cc, {
 			"Continuity Counter", "mp2t.cc",
 			FT_UINT32, BASE_DEC, NULL, MP2T_CC_MASK, NULL, HFILL
+		} } ,
+		{ &hf_mp2t_cc_drop, {
+			"Continuity Counter Drops", "mp2t.cc.drop",
+			FT_NONE, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af, {
 			"Adaption field", "mp2t.af",
