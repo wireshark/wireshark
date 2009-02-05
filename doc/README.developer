@@ -1511,7 +1511,7 @@ struct header_field_info {
 	const char			*name;
 	const char			*abbrev;
 	enum ftenum			type;
-	int					display;
+	int				display;
 	const void			*strings;
 	guint32				bitmask;
 	const char			*blurb;
