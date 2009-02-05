@@ -1,11 +1,11 @@
 $Id$
 
-The TAP system in Wireshark is a powerful and flexible mechanism to get event 
+The TAP system in Wireshark is a powerful and flexible mechanism to get event
 driven notification on packets matching certain protocols and/or filters.
 In order to use the tapping system, very little knowledge of Wireshark
 internals are required.
 
-As examples on how to use the tap system see the implementation of 
+As examples on how to use the tap system see the implementation of
 tap-rpcstat.c     	(tshark version)
 gtk/rpc_stat.c		(gtk-wireshark version)
 
@@ -31,7 +31,7 @@ First you must decide which protocol you are interested in writing a tap
 application for and check if that protocol has already got a tap installed
 in it.
 If it already has a tap device installed then you don't have to do anything.
-If not, then you have to add a tap but don't worry, this is extremely easy to 
+If not, then you have to add a tap but don't worry, this is extremely easy to
 do and is done in four easy steps;
 (see packet-rpc.c and search for tap for an example)
 
@@ -57,7 +57,7 @@ need.
 TAP LISTENER
 ============
 (see tap-rpcstat.c as an example)
-sInterfacing your application is not that much harder either.
+Interfacing your application is not that much harder either.
 Only 3 callbacks and two functions.
 
 
@@ -77,11 +77,11 @@ This function is used to deregister and stop a tap listener.
 register_tap_listener() is used to register an instance of a tap application
 to the tap system.
 
-*tapname 
+*tapname
 is the name of the tap we want to listen to. I.e. the name used in
 step 3 above.
 
-*tapdata 
+*tapdata
 is the instance identifier. The tap system uses the value of this
 pointer to distinguish between different instances of a tap.
 Just make sure that it is unique by letting it be the pointer to a struct
@@ -90,8 +90,8 @@ instances, just put ALL state variables inside a struct allocated by
 g_malloc() and use that pointer.
 (tap-rpcstat.c use this technique to allow multiple simultaneous instances)
 
-*fstring 
-is a pointer to a filter string. 
+*fstring
+is a pointer to a filter string.
 If this is NULL, then the tap system will provide ALL packets passing the
 tapped protocol to your listener.
 If you specify a filter string here the tap system will first try
@@ -115,7 +115,7 @@ int (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data
 This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
-This function returns an int and it should return 
+This function returns an int and it should return
  1, if the data in the packet caused state to be updated
     (and thus a redraw of the window would later be required)
  0, if we don't need to redraw the window.
@@ -123,12 +123,12 @@ NOTE: that (*packet) should be as fast and efficient as possible. Use this
 function ONLY to store data for later and do the CPU-intensive processing
 or GUI updates down in (*draw) instead.
 
- 
+
 void (*draw)(void *tapdata)
 This callback is used when Wireshark wants your application to redraw its
 output. It will usually not be called unless your application has received
 new data through the (*packet) callback.
-On some ports of Wireshark (gtk2) (*draw) will be called asynchronously 
+On some ports of Wireshark (gtk2) (*draw) will be called asynchronously
 from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.
@@ -167,9 +167,9 @@ Keep in mind though: for some protocols, such as IP, the protocol can
 appear multiple times in different layers inside the same packet.
 For example, IP encapsulated over IP which will call the ip dissector
 twice for the same packet.
-IF the tap is going to return private data using the last parameter to 
-tap_queue_packet() and IF the protocol can appear multiple times inside the 
-same packet, you will have to make sure that each instance of 
+IF the tap is going to return private data using the last parameter to
+tap_queue_packet() and IF the protocol can appear multiple times inside the
+same packet, you will have to make sure that each instance of
 tap_queue_packet() is using its own instance of private struct variable
 so they don't overwrite each other.
 
@@ -180,7 +180,7 @@ cycles through them each time the dissector is called.
 cases.
 Of course, if someone would generate a capture with IP encapsulated
 over IP over IP over IP over IP, so that there would be more than 4 IP headers
-in the same packet, yes then this would fail.   The likelihood of this 
+in the same packet, yes then this would fail.   The likelihood of this
 happening in real life is probably very low. If it turns out to be a problem
 we can just increase the cycle length when that happens.
 
@@ -188,7 +188,7 @@ we can just increase the cycle length when that happens.
 TIPS
 ====
 Of course, there is nothing that forces you to make (*draw) draw stuff
-on the screen. 
+on the screen.
 You can hand register_tap_listener() NULL for both (*draw) and (*reset)
 (well also for (*packet) but that would be a very boring extension).
 
@@ -205,7 +205,7 @@ Well, try this :
 
 	Let struct contain an email address?
 	Then you have something simple that will make Wireshark send an email
-	out automagically for each and every time it dissects 
+	out automagically for each and every time it dissects
 	a packet containing TCP traffic to port 57.
 	Please put in some rate limitation if you do this.
 
@@ -215,7 +215,7 @@ Well, try this :
 
 
 See tap-rpcstat.c for an example
-See tap.c as well. It contains lots of comments and descriptions on the tap 
+See tap.c as well. It contains lots of comments and descriptions on the tap
 system.
 
 
