@@ -91,6 +91,7 @@ static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
 static gint hf_sip_matching_request_frame = -1;
 static gint hf_sip_response_time = -1;
+static gint hf_sip_release_time = -1;
 
 static gint hf_sip_auth                  = -1;
 static gint hf_sip_auth_scheme           = -1;
@@ -2535,6 +2536,11 @@ separator_found2:
 			item = proto_tree_add_uint(reqresp_tree, hf_sip_response_time,
 			                           tvb, orig_offset, 0, response_time);
 			PROTO_ITEM_SET_GENERATED(item);
+			if ((line_type == STATUS_LINE)&&(strcmp(cseq_method, "BYE") == 0)){
+				item = proto_tree_add_uint(reqresp_tree, hf_sip_release_time,
+				                          tvb, orig_offset, 0, response_time);
+				PROTO_ITEM_SET_GENERATED(item);
+			}
 		}
 	}
 
@@ -3087,7 +3093,8 @@ guint sip_find_request(packet_info *pinfo,
 	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
-		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+		/* Allocate and set all values to zero */
+		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
 	}
 
 	sip_frame_result->response_request_frame_num = result;
@@ -3202,7 +3209,8 @@ guint sip_find_invite(packet_info *pinfo,
 	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
-		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+		/* Allocate and set all values to zero */
+		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
 	}
 
 	sip_frame_result->response_request_frame_num = result;
@@ -3791,7 +3799,11 @@ void proto_register_sip(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 		    	"Response time since original request (in milliseconds)", HFILL}
 		},
-
+		{ &hf_sip_release_time,
+			{ "Release Time (ms)",  "sip.release-time",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+		    	"release time since original BYE (in milliseconds)", HFILL}
+		},
 		{ &hf_sip_auth,
 			{ "Authentication",  "sip.auth",
 			FT_STRING, BASE_NONE, NULL, 0x0,
