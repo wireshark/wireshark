@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include <epan/rtp_pt.h>
+#include "packet-frame.h"
 
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
@@ -414,7 +415,25 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree )
 			if (payload_len >=3 ) {
 				if (tvb_get_ntoh24(tvb, offset) == 0x000001) {
 					tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, payload_len, payload_len);
-					call_dissector(pes_handle, next_tvb, pinfo, mp2t_tree);
+					const char *saved_proto = pinfo->current_proto;
+
+					TRY {
+						call_dissector(pes_handle, next_tvb, pinfo, mp2t_tree);
+					}
+
+					/*
+					 Don't stop processing TS packets if somebody threw
+					 BoundsError, which means that dissecting the payload found
+					 that the packet was cut off by before the end of the
+					 payload.  This is very likely as this protocol splits the
+					 media stream up into chunks of MP2T_PACKET_SIZE.
+					*/
+					CATCH2(BoundsError, ReportedBoundsError) {
+						show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+						pinfo->current_proto = saved_proto;
+					}
+
+					ENDTRY;
 				} else {
 					proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
 				}
