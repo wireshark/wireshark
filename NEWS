@@ -17,12 +17,12 @@ What's New
 
      o On non-Windows systems, Wireshark could crash if the HOME
        environment variable contained sprintf-style string formatting
-       characters. (Bug 3150)
+       characters. Discovered by babi. (Bug 3150)
 
        Versions affected: 0.99.8 to 1.0.5
 
      o Wireshark could crash while reading a malformed NetScreen
-       snoop file. (Bug 3151)
+       snoop file. Discovered by babi. (Bug 3151)
 
        Versions affected: 0.99.7 to 1.0.5
 
