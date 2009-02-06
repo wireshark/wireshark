@@ -36,7 +36,6 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 

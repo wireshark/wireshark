@@ -39,7 +39,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "packet-mq.h"
 
 static int proto_mqpcf = -1;

@@ -37,7 +37,6 @@
 #include <glib.h>
 #include <ctype.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>

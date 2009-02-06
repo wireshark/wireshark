@@ -33,7 +33,6 @@
 #include <string.h>
 
 #include <glib.h>
-#include <epan/conversation.h>
 
 #include <epan/packet.h>
 #include "prefs.h"

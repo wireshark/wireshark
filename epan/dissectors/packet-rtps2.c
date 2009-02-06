@@ -55,7 +55,6 @@
 #include  <glib.h>
 #include  <epan/packet.h>
 #include  <epan/addr_resolv.h>
-#include  <epan/conversation.h>
 #include  <epan/prefs.h>
 
 

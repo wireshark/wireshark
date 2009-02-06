@@ -46,7 +46,6 @@
 #include <string.h>
 #include "packet-rtp-events.h"
 #include "packet-rtp.h"
-#include <epan/conversation.h>
 #include <epan/tap.h>
 
 /*  rtp_event_payload_type_value is the value used globally

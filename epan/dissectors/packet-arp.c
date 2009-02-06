@@ -36,7 +36,6 @@
 #include "packet-arp.h"
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 

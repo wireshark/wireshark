@@ -39,7 +39,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 static int proto_krb4 = -1;
 static int hf_krb4_version = -1;
