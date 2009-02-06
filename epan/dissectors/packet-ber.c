@@ -606,7 +606,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		} else {
 		  item=proto_tree_add_none_format(tree, hf_ber_oid_not_implemented, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
-		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error Dissector for OID not implemented");
+		  expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "BER: Dissector for OID %s not implemented", oid);
 		}
 	        if (decode_unexpected) {
 		  int ber_offset;
