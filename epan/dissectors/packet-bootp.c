@@ -2080,7 +2080,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 		                           ((gint64)lci[2]<<16) | ((gint64)lci[3]<<8)  | 
 		                            (gint64)lci[4];
 	}
-	fixpoint->longitude_res = (lci[0]>>2) & 0x3F;  /* make sure that right-shift does not copy sign bit */
+	fixpoint->longitude_res = (lci[5]>>2) & 0x3F;  /* make sure that right-shift does not copy sign bit */
 	if (lci[5] & 2) { /* LSB<<1 contains the sign of the latitude */
 		/* Longitude is negative, expand two's complement */
 		fixpoint->longitude = (((gint64)lci[5] & 3)<<32) | ((gint64)lci[6]<<24) | 
@@ -2095,7 +2095,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 	}
 	fixpoint->altitude_type = (lci[10]>>4) & 0x0F;  /* make sure that right-shift does not copy sign bit */
 	fixpoint->altitude_res  = ((lci[10] & 0x0F) << 2) | ((lci[11]>>6) & 0x03);
-	if (lci[5] & 32) { /* LSB<<1 contains the sign of the latitude */
+	if (lci[11] & 0x20) { /* LSB<<1 contains the sign of the latitude */
 		/* Altitude is negative, expand two's complement */
 		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) | 
 		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]) | 
