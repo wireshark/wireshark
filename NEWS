@@ -1,4 +1,4 @@
-Wireshark 1.0.5 Release Notes
+Wireshark 1.0.6 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,63 +15,60 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The SMTP dissector could consume excessive amounts of CPU and
-       memory.
+     o On non-Windows systems, Wireshark could crash if the HOME
+       environment variable contained sprintf-style string formatting
+       characters. (Bug 3150)
 
-       Versions affected: 1.0.4
+       Versions affected: 0.99.8 to 1.0.5
 
-     o The WLCCP dissector could go into an infinte loop.
+     o Wireshark could crash while reading a malformed NetScreen
+       snoop file. (Bug 3151)
 
-       Versions affected: 0.99.7 to 1.0.4
+       Versions affected: 0.99.7 to 1.0.5
+
+     o Wireshark could crash while reading a Tektronix K12 text
+       capture file. (Bug 1937)
+
+       Versions affected: 0.99.6 to 1.0.5
 
    The following bugs have been fixed:
 
-     o Missing CRLF during HTTP POST in the "packet details" window
-       (Bug 2534)
+     o Crash when loading capture file and Preferences: NO Info
+       column (Bug 2902)
 
-     o Memory assertion in time_secs_to_str_buf() when compiled with
-       GCC 4.2.3 (Bug 2777)
+     o Some Lua scripts may lead to corruption via out of bounds
+       stack (Bug 3062)
 
-     o Diameter dissector fails RFC 4005 compliance (Bug 2828)
+     o Build with GLib 1.2 fails with error: 'G_MININT32' undeclared
+       (Bug 3109)
 
-     o LDP vendor private TLV type is not correctly shown (Bug 2832)
+     o Wrong decoding IMSI with GSM MAP protocol (Bug 3116)
 
-     o Wireshark on MacOS does not run when there are spaces in its
-       path (Bug 2844)
+     o Segmentation fault for "Follow TCP stream" (Bug 3119)
 
-     o OS X Intel package incorrectly claims to be Universal (Bug
-       2979)
+     o SMPP optional parameter 'network_error_code' incorrectly
+       decoded (Bug 3128)
 
-     o Compilation broke when compiling without zlib (Bug 2993)
+     o DHCPv6 dissector doesn't handle malformed FQDN (Bug 3134)
 
-     o Memory leak: saved_repoid (Bug 3017)
+     o WCCP overrides CFLOW as decoded protocol (Bug 3175)
 
-     o Memory leak: follow_info (Bug 3018)
+     o Improper decoding of MPLS echo reply IPv4 Interface and Label
+       Stack Object (Bug 3179)
 
-     o Memory leak: follow_info (Bug 3019)
+     o ANSI MAP fix for TRN digits/SMS and OTA subdissection (Bug
+       3214)
 
-     o Memory leak: tacplus_data (Bug 3020)
-
-     o Memory leak: col_arrows (Bug 3021)
-
-     o Memory leak: col_arrows (Bug 3022)
-
-     o Incorrect address structure assigned for find_conversation()
-       in WSP (Bug 3071)
-
-     o Memory leak with unistim in voip_calls (Bug 3079)
-
-     o Error parsing the BSSGP protocol (Bug 3085)
-
-     o Assertion thrown in fvalue_get_uinteger when decoding TIPC
-       (Bug 3086)
-
-     o LUA script : Wireshark crashes after closing and opening again
-       a window used by a listener.draw() function. (Bug 3090)
+     o The 1.0 branch can now be built with Visual Studio 2008.
 
   New and Updated Features
 
-   There are no new or updated features in this release.
+   <listitem>
+
+   The version of GNUTLS included with the Windows packages has been
+   updated from 2.3.8 to 2.6.3.
+
+   </listitem>
 
   New Protocol Support
 
@@ -79,13 +76,11 @@ What's New
 
   Updated Protocol Support
 
-   ANSI MAP, BSSGP, CIP, Diameter, ENIP, GIOP, H.263, H.264, HTTP,
-   MPEG PES, PostgreSQL, PPI, PTP, Rsync, RTP, SMTP, SNMP, STANAG
-   5066, TACACS, TIPC, WLCCP, WSP
+   AFS, ATM, DHCPv6, DIS, E.212, RTP, UDP, USB, WCCP, WPS
 
   New and Updated Capture File Support
 
-   None
+   NetScreen snoop
 
 Getting Wireshark
 
