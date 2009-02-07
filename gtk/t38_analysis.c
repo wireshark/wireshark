@@ -37,7 +37,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-t38.h>
 #include <epan/dissectors/packet-rtp.h>
-#include <epan/conversation.h>
 #include <epan/stat_cmd_args.h>
 
 #include "../globals.h"

@@ -77,7 +77,6 @@
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
-#include <epan/conversation.h>
 #include <epan/plugins.h>
 #include "register.h"
 #include <epan/epan_dissect.h>

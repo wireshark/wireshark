@@ -59,7 +59,6 @@
 #include <epan/dissectors/packet-sccp.h>
 #include <plugins/unistim/packet-unistim.h>
 #include <epan/dissectors/packet-skinny.h>
-#include <epan/conversation.h>
 #include <epan/rtp_pt.h>
 
 #include "../globals.h"

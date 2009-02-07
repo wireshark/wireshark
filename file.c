@@ -67,7 +67,6 @@
 #include "ui_util.h"
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
-#include <epan/conversation.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-data.h>
