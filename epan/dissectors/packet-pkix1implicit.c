@@ -36,7 +36,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -71,7 +70,7 @@ static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
 static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
 /*--- End of included file: packet-pkix1implicit-hf.c ---*/
-#line 49 "packet-pkix1implicit-template.c"
+#line 48 "packet-pkix1implicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -85,7 +84,7 @@ static gint ett_pkix1implicit_T_noticeNumbers = -1;
 static gint ett_pkix1implicit_DisplayText = -1;
 
 /*--- End of included file: packet-pkix1implicit-ett.c ---*/
-#line 52 "packet-pkix1implicit-template.c"
+#line 51 "packet-pkix1implicit-template.c"
 
 
 int
@@ -285,7 +284,7 @@ static void dissect_AuthorityInfoAccessSyntax_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-pkix1implicit-fn.c ---*/
-#line 68 "packet-pkix1implicit-template.c"
+#line 67 "packet-pkix1implicit-template.c"
 
 
 /*--- proto_register_pkix1implicit ----------------------------------------------*/
@@ -350,7 +349,7 @@ void proto_register_pkix1implicit(void) {
         "pkix1implicit.UTF8String", HFILL }},
 
 /*--- End of included file: packet-pkix1implicit-hfarr.c ---*/
-#line 76 "packet-pkix1implicit-template.c"
+#line 75 "packet-pkix1implicit-template.c"
   };
 
   /* List of subtrees */
@@ -366,7 +365,7 @@ void proto_register_pkix1implicit(void) {
     &ett_pkix1implicit_DisplayText,
 
 /*--- End of included file: packet-pkix1implicit-ettarr.c ---*/
-#line 81 "packet-pkix1implicit-template.c"
+#line 80 "packet-pkix1implicit-template.c"
   };
 
   /* Register protocol */
@@ -421,6 +420,6 @@ void proto_reg_handoff_pkix1implicit(void) {
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/
-#line 96 "packet-pkix1implicit-template.c"
+#line 95 "packet-pkix1implicit-template.c"
 }
 

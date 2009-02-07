@@ -40,7 +40,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
@@ -48,7 +47,6 @@
 #include <string.h>
 
 #include "packet-per.h"
-#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"
 
@@ -251,7 +249,7 @@ static int hf_ulp_horuncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 static int hf_ulp_veruncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 68 "packet-ulp-template.c"
+#line 66 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -318,7 +316,7 @@ static gint ett_ulp_Horveluncert = -1;
 static gint ett_ulp_Horandveruncert = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 72 "packet-ulp-template.c"
+#line 70 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -331,7 +329,7 @@ static gint ett_ulp_Horandveruncert = -1;
 #define maxTS                          14
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 75 "packet-ulp-template.c"
+#line 73 "packet-ulp-template.c"
 
 
 
@@ -2187,7 +2185,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 78 "packet-ulp-template.c"
+#line 76 "packet-ulp-template.c"
 
 
 static guint
@@ -2913,7 +2911,7 @@ void proto_register_ulp(void) {
         "ulp.BIT_STRING_SIZE_8", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 103 "packet-ulp-template.c"
+#line 101 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2982,7 +2980,7 @@ void proto_register_ulp(void) {
     &ett_ulp_Horandveruncert,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 109 "packet-ulp-template.c"
+#line 107 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;

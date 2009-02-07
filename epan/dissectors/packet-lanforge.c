@@ -44,7 +44,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 
 /* magic num used for heuristic */
 static const guint8 lanforge_magic[] = { 0x1a, 0x2b, 0x3c, 0x4d };

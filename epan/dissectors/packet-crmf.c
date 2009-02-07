@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -137,7 +136,7 @@ static int hf_crmf_attributes = -1;               /* Attributes */
 static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
-#line 52 "packet-crmf-template.c"
+#line 51 "packet-crmf-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -171,7 +170,7 @@ static gint ett_crmf_PrivateKeyInfo = -1;
 static gint ett_crmf_Attributes = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
-#line 55 "packet-crmf-template.c"
+#line 54 "packet-crmf-template.c"
 
 static const char *object_identifier_id;
 
@@ -867,7 +866,7 @@ static void dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-crmf-fn.c ---*/
-#line 59 "packet-crmf-template.c"
+#line 58 "packet-crmf-template.c"
 
 
 /*--- proto_register_crmf ----------------------------------------------*/
@@ -1188,7 +1187,7 @@ void proto_register_crmf(void) {
         "pkix1explicit.Attribute", HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
-#line 71 "packet-crmf-template.c"
+#line 70 "packet-crmf-template.c"
   };
 
   /* List of subtrees */
@@ -1224,7 +1223,7 @@ void proto_register_crmf(void) {
     &ett_crmf_Attributes,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
-#line 76 "packet-crmf-template.c"
+#line 75 "packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1251,6 +1250,6 @@ void proto_reg_handoff_crmf(void) {
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/
-#line 91 "packet-crmf-template.c"
+#line 90 "packet-crmf-template.c"
 }
 

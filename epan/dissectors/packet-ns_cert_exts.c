@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +66,7 @@ static int hf_ns_cert_exts_CertType_server = -1;
 static int hf_ns_cert_exts_CertType_ca = -1;
 
 /*--- End of included file: packet-ns_cert_exts-hf.c ---*/
-#line 46 "packet-ns_cert_exts-template.c"
+#line 45 "packet-ns_cert_exts-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -76,7 +75,7 @@ static int hf_ns_cert_exts_CertType_ca = -1;
 static gint ett_ns_cert_exts_CertType = -1;
 
 /*--- End of included file: packet-ns_cert_exts-ett.c ---*/
-#line 49 "packet-ns_cert_exts-template.c"
+#line 48 "packet-ns_cert_exts-template.c"
 
 
 /*--- Included file: packet-ns_cert_exts-fn.c ---*/
@@ -220,7 +219,7 @@ static void dissect_CertType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ns_cert_exts-fn.c ---*/
-#line 51 "packet-ns_cert_exts-template.c"
+#line 50 "packet-ns_cert_exts-template.c"
 
 
 /*--- proto_register_ns_cert_exts -------------------------------------------*/
@@ -277,7 +276,7 @@ void proto_register_ns_cert_exts(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-ns_cert_exts-hfarr.c ---*/
-#line 59 "packet-ns_cert_exts-template.c"
+#line 58 "packet-ns_cert_exts-template.c"
   };
 
   /* List of subtrees */
@@ -288,7 +287,7 @@ void proto_register_ns_cert_exts(void) {
     &ett_ns_cert_exts_CertType,
 
 /*--- End of included file: packet-ns_cert_exts-ettarr.c ---*/
-#line 64 "packet-ns_cert_exts-template.c"
+#line 63 "packet-ns_cert_exts-template.c"
   };
 
   /* Register protocol */
@@ -317,6 +316,6 @@ void proto_reg_handoff_ns_cert_exts(void) {
 
 
 /*--- End of included file: packet-ns_cert_exts-dis-tab.c ---*/
-#line 79 "packet-ns_cert_exts-template.c"
+#line 78 "packet-ns_cert_exts-template.c"
 }
 

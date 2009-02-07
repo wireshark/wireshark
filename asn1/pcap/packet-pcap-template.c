@@ -35,11 +35,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
-#include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 

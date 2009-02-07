@@ -47,7 +47,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 
 /* PROTOTYPES/FORWARDS */

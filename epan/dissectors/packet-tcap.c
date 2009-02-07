@@ -42,7 +42,6 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
@@ -141,7 +140,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 65 "packet-tcap-template.c"
+#line 64 "packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -196,7 +195,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 81 "packet-tcap-template.c"
+#line 80 "packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -1420,7 +1419,7 @@ static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 144 "packet-tcap-template.c"
+#line 143 "packet-tcap-template.c"
 
 
 
@@ -1543,7 +1542,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 259 "packet-tcap-template.c"
+#line 258 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -1874,7 +1873,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 321 "packet-tcap-template.c"
+#line 320 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1923,7 +1922,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 331 "packet-tcap-template.c"
+#line 330 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

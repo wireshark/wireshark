@@ -37,7 +37,6 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
@@ -96,7 +95,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 50 "packet-q932-template.c"
+#line 49 "packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -119,7 +118,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 55 "packet-q932-template.c"
+#line 54 "packet-q932-template.c"
 
 /* Preferences */
 
@@ -635,7 +634,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 125 "packet-q932-template.c"
+#line 124 "packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
@@ -957,7 +956,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 294 "packet-q932-template.c"
+#line 293 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -982,7 +981,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 301 "packet-q932-template.c"
+#line 300 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */

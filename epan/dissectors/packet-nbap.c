@@ -39,7 +39,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -1180,7 +1179,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 53 "packet-nbap-template.c"
+#line 52 "packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4201,7 +4200,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 58 "packet-nbap-template.c"
+#line 57 "packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -5700,7 +5699,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 63 "packet-nbap-template.c"
+#line 62 "packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -47738,7 +47737,7 @@ static void dissect_NBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 84 "packet-nbap-template.c"
+#line 83 "packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -59836,7 +59835,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 137 "packet-nbap-template.c"
+#line 136 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -61336,7 +61335,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 143 "packet-nbap-template.c"
+#line 142 "packet-nbap-template.c"
   };
 
 
@@ -62360,7 +62359,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 176 "packet-nbap-template.c"
+#line 175 "packet-nbap-template.c"
 }
 
 

@@ -99,9 +99,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -871,7 +869,7 @@ static int hf_ansi_map_checkMEIDRes = -1;         /* CheckMEIDRes */
 static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 325 "packet-ansi_map-template.c"
+#line 323 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1124,7 +1122,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 357 "packet-ansi_map-template.c"
+#line 355 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
@@ -15166,7 +15164,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3638 "packet-ansi_map-template.c"
+#line 3636 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -18913,7 +18911,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5232 "packet-ansi_map-template.c"
+#line 5230 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19167,7 +19165,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5265 "packet-ansi_map-template.c"
+#line 5263 "packet-ansi_map-template.c"
   };
 
 

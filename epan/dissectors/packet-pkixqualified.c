@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -80,7 +79,7 @@ static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrati
 static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
 
 /*--- End of included file: packet-pkixqualified-hf.c ---*/
-#line 51 "packet-pkixqualified-template.c"
+#line 50 "packet-pkixqualified-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -95,7 +94,7 @@ static gint ett_pkixqualified_SemanticsInformation = -1;
 static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
-#line 54 "packet-pkixqualified-template.c"
+#line 53 "packet-pkixqualified-template.c"
 
 static const char *object_identifier_id;
 
@@ -357,7 +356,7 @@ static void dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
-#line 58 "packet-pkixqualified-template.c"
+#line 57 "packet-pkixqualified-template.c"
 
 
 /*--- proto_register_pkixqualified ----------------------------------------------*/
@@ -450,7 +449,7 @@ void proto_register_pkixqualified(void) {
         "x509ce.GeneralName", HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/
-#line 66 "packet-pkixqualified-template.c"
+#line 65 "packet-pkixqualified-template.c"
   };
 
   /* List of subtrees */
@@ -467,7 +466,7 @@ void proto_register_pkixqualified(void) {
     &ett_pkixqualified_NameRegistrationAuthorities,
 
 /*--- End of included file: packet-pkixqualified-ettarr.c ---*/
-#line 71 "packet-pkixqualified-template.c"
+#line 70 "packet-pkixqualified-template.c"
   };
 
   /* Register protocol */
@@ -498,6 +497,6 @@ void proto_reg_handoff_pkixqualified(void) {
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
-#line 86 "packet-pkixqualified-template.c"
+#line 85 "packet-pkixqualified-template.c"
 }
 

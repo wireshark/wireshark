@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -146,7 +145,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 83 "packet-pkcs12-template.c"
+#line 82 "packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -174,7 +173,7 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 86 "packet-pkcs12-template.c"
+#line 85 "packet-pkcs12-template.c"
 
 static void append_oid(proto_tree *tree, const char *oid)
 {
@@ -1130,7 +1129,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 387 "packet-pkcs12-template.c"
+#line 386 "packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb) 
 {
@@ -1418,7 +1417,7 @@ void proto_register_pkcs12(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 454 "packet-pkcs12-template.c"
+#line 453 "packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1449,7 +1448,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 460 "packet-pkcs12-template.c"
+#line 459 "packet-pkcs12-template.c"
   };
   module_t *pkcs12_module;
 
@@ -1510,7 +1509,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 492 "packet-pkcs12-template.c"
+#line 491 "packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

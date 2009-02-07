@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -248,7 +247,7 @@ static int hf_x509ce_ReasonFlags_privilegeWithdrawn = -1;
 static int hf_x509ce_ReasonFlags_aACompromise = -1;
 
 /*--- End of included file: packet-x509ce-hf.c ---*/
-#line 56 "packet-x509ce-template.c"
+#line 55 "packet-x509ce-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -313,7 +312,7 @@ static gint ett_x509ce_AltName = -1;
 static gint ett_x509ce_CertificateTemplate = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
-#line 59 "packet-x509ce-template.c"
+#line 58 "packet-x509ce-template.c"
 
 static const char *object_identifier_id;
 
@@ -1756,7 +1755,7 @@ static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
-#line 63 "packet-x509ce-template.c"
+#line 62 "packet-x509ce-template.c"
 
 
 static void
@@ -2529,7 +2528,7 @@ void proto_register_x509ce(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 103 "packet-x509ce-template.c"
+#line 102 "packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2596,7 +2595,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_CertificateTemplate,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 108 "packet-x509ce-template.c"
+#line 107 "packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2657,7 +2656,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 123 "packet-x509ce-template.c"
+#line 122 "packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

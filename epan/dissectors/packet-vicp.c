@@ -30,7 +30,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/ptvcursor.h>
 
 /* registration object IDs */

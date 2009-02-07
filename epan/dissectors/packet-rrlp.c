@@ -40,7 +40,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -502,7 +501,7 @@ static int hf_rrlp_PositionData_gps = -1;
 static int hf_rrlp_PositionData_galileo = -1;
 
 /*--- End of included file: packet-rrlp-hf.c ---*/
-#line 62 "packet-rrlp-template.c"
+#line 61 "packet-rrlp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rrlp = -1;
@@ -666,7 +665,7 @@ static gint ett_rrlp_GANSS_SgnElement = -1;
 static gint ett_rrlp_Rel7_AssistanceData_Extension = -1;
 
 /*--- End of included file: packet-rrlp-ett.c ---*/
-#line 66 "packet-rrlp-template.c"
+#line 65 "packet-rrlp-template.c"
 
 /* Include constants */
 
@@ -678,7 +677,7 @@ static gint ett_rrlp_Rel7_AssistanceData_Extension = -1;
 #define maxGANSSAssistanceData         40
 
 /*--- End of included file: packet-rrlp-val.h ---*/
-#line 69 "packet-rrlp-template.c"
+#line 68 "packet-rrlp-template.c"
 
 
 
@@ -4578,7 +4577,7 @@ static void dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 72 "packet-rrlp-template.c"
+#line 71 "packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -6312,7 +6311,7 @@ void proto_register_rrlp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 81 "packet-rrlp-template.c"
+#line 80 "packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -6478,7 +6477,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_Rel7_AssistanceData_Extension,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 87 "packet-rrlp-template.c"
+#line 86 "packet-rrlp-template.c"
   };
 
 

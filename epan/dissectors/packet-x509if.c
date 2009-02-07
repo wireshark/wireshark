@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -219,7 +218,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 55 "packet-x509if-template.c"
+#line 54 "packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -300,7 +299,7 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 58 "packet-x509if-template.c"
+#line 57 "packet-x509if-template.c"
 
 static const char *object_identifier_id;
 static proto_tree *top_of_dn = NULL;
@@ -2085,7 +2084,7 @@ static void dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 81 "packet-x509if-template.c"
+#line 80 "packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2751,7 +2750,7 @@ void proto_register_x509if(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 126 "packet-x509if-template.c"
+#line 125 "packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2834,7 +2833,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 131 "packet-x509if-template.c"
+#line 130 "packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2890,6 +2889,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 150 "packet-x509if-template.c"
+#line 149 "packet-x509if-template.c"
 }
 

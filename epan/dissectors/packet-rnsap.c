@@ -42,7 +42,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -815,7 +814,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 58 "packet-rnsap-template.c"
+#line 57 "packet-rnsap-template.c"
 
 static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
@@ -2982,7 +2981,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 65 "packet-rnsap-template.c"
+#line 64 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -4045,7 +4044,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 70 "packet-rnsap-template.c"
+#line 69 "packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -35592,7 +35591,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 91 "packet-rnsap-template.c"
+#line 90 "packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -44270,7 +44269,7 @@ void proto_register_rnsap(void) {
         "rnsap.Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 144 "packet-rnsap-template.c"
+#line 143 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -45334,7 +45333,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 150 "packet-rnsap-template.c"
+#line 149 "packet-rnsap-template.c"
   };
 
 
@@ -46044,7 +46043,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 189 "packet-rnsap-template.c"
+#line 188 "packet-rnsap-template.c"
 }
 
 

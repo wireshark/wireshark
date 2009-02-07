@@ -39,13 +39,11 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #include <epan/asn1.h>
-#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include "packet-per.h"
@@ -104,7 +102,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 58 "packet-sabp-template.c"
+#line 56 "packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -190,7 +188,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 64 "packet-sabp-template.c"
+#line 62 "packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -242,7 +240,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 72 "packet-sabp-template.c"
+#line 70 "packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1593,7 +1591,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 96 "packet-sabp-template.c"
+#line 94 "packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1981,7 +1979,7 @@ void proto_register_sabp(void) {
         "sabp.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 179 "packet-sabp-template.c"
+#line 177 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2034,7 +2032,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 188 "packet-sabp-template.c"
+#line 186 "packet-sabp-template.c"
   };
 
 
@@ -2112,7 +2110,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 224 "packet-sabp-template.c"
+#line 222 "packet-sabp-template.c"
 
 }
 

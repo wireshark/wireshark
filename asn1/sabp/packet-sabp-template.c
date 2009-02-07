@@ -31,13 +31,11 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #include <epan/asn1.h>
-#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include "packet-per.h"

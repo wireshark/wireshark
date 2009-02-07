@@ -32,7 +32,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
@@ -40,7 +39,6 @@
 #include <string.h>
 
 #include "packet-per.h"
-#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"
 

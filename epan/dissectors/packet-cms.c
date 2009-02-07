@@ -37,7 +37,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -164,7 +163,7 @@ static int hf_cms_rc2WrapParameter = -1;          /* RC2WrapParameter */
 static int hf_cms_rc2CBCParameter = -1;           /* RC2CBCParameter */
 
 /*--- End of included file: packet-cms-hf.c ---*/
-#line 56 "packet-cms-template.c"
+#line 55 "packet-cms-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -218,7 +217,7 @@ static gint ett_cms_SMIMEEncryptionKeyPreference = -1;
 static gint ett_cms_RC2CBCParameters = -1;
 
 /*--- End of included file: packet-cms-ett.c ---*/
-#line 59 "packet-cms-template.c"
+#line 58 "packet-cms-template.c"
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
@@ -1581,7 +1580,7 @@ static void dissect_RC2CBCParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-cms-fn.c ---*/
-#line 137 "packet-cms-template.c"
+#line 136 "packet-cms-template.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
@@ -1993,7 +1992,7 @@ void proto_register_cms(void) {
         "cms.RC2CBCParameter", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/
-#line 148 "packet-cms-template.c"
+#line 147 "packet-cms-template.c"
   };
 
   /* List of subtrees */
@@ -2049,7 +2048,7 @@ void proto_register_cms(void) {
     &ett_cms_RC2CBCParameters,
 
 /*--- End of included file: packet-cms-ettarr.c ---*/
-#line 153 "packet-cms-template.c"
+#line 152 "packet-cms-template.c"
   };
 
   /* Register protocol */
@@ -2093,7 +2092,7 @@ void proto_reg_handoff_cms(void) {
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
-#line 174 "packet-cms-template.c"
+#line 173 "packet-cms-template.c"
 
   oid_add_from_string("id-data","1.2.840.113549.1.7.1");
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");

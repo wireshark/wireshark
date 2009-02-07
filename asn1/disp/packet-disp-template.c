@@ -30,7 +30,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 

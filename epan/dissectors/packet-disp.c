@@ -38,7 +38,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -189,7 +188,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 73 "packet-disp-template.c"
+#line 72 "packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -252,7 +251,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 77 "packet-disp-template.c"
+#line 76 "packet-disp-template.c"
 
 
 /*--- Included file: packet-disp-fn.c ---*/
@@ -1516,7 +1515,7 @@ static void dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 79 "packet-disp-template.c"
+#line 78 "packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2080,7 +2079,7 @@ void proto_register_disp(void) {
         "disp.ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 210 "packet-disp-template.c"
+#line 209 "packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2145,7 +2144,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 216 "packet-disp-template.c"
+#line 215 "packet-disp-template.c"
   };
   module_t *disp_module;
 
@@ -2184,7 +2183,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 244 "packet-disp-template.c"
+#line 243 "packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 
