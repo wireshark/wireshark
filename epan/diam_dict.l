@@ -56,7 +56,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "emem.h"
 #include "diam_dict.h"
 #include "diam_dict_lex.h"
 #include <wsutil/file_util.h>

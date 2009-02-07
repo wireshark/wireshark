@@ -31,7 +31,6 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
