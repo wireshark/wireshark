@@ -1071,7 +1071,7 @@
 00:03:F8	SancastleT             # SanCastle Technologies, Inc.
 00:03:F9	PleiadesCo             # Pleiades Communications, Inc.
 00:03:FA	TimetraNet             # TiMetra Networks
-00:03:FB	TokoSeiki              # Toko Seiki Company, Ltd.
+00:03:FB	Enegate                # ENEGATE Co.,Ltd.
 00:03:FC	IntertexDa             # Intertex Data AB
 00:03:FD	Cisco                  # Cisco Systems, Inc.
 00:03:FE	Cisco                  # Cisco Systems, Inc.
@@ -5807,7 +5807,7 @@
 00:16:A0	Auto-Maski             # Auto-Maskin
 00:16:A1	3leafNetwo             # 3Leaf Networks
 00:16:A2	Centralite             # CentraLite Systems, Inc.
-00:16:A3	TeamArtech             # TEAM ARTECHE, S.A.
+00:16:A3	IngeteamTr             # Ingeteam Transmission&Distribution, S.A.
 00:16:A4	Ezurio                 # Ezurio Ltd
 00:16:A5	TandbergSt             # Tandberg Storage ASA
 00:16:A6	DovadoFz-L             # Dovado FZ-LLC
@@ -9493,7 +9493,7 @@
 00:25:06	AIAntitacc             # A.I. ANTITACCHEGGIO ITALIA SRL
 00:25:07	Astak                  # ASTAK Inc.
 00:25:08	MaquetCard             # Maquet Cardiopulmonary AG
-00:25:09	Sharetroni             # SHARETRONIC PRECISION INDUSTRY(CHINA)CO.LTD
+00:25:09	Sharetroni             # SHARETRONIC Group .LTD
 00:25:0A	SecurityEx             # Security Expert Co. Ltd
 00:25:0B	Centrofact             # CENTROFACTOR  INC
 00:25:0C	Enertrac
@@ -9517,6 +9517,16 @@
 00:25:1E	RotelTechn             # ROTEL TECHNOLOGIES
 00:25:1F	ZynusVisio             # ZYNUS VISION INC.
 00:25:20	SmaRailway             # SMA Railway Technology GmbH
+00:25:21	LogitekEle             # Logitek Electronic Systems, Inc.
+00:25:22	AsrockInco             # ASRock Incorporation
+00:25:23	Ocp                    # OCP Inc.
+00:25:24	LightcommT             # Lightcomm Technology Co., Ltd
+00:25:25	CteraNetwo             # CTERA Networks Ltd.
+00:25:26	GenuineTec             # Genuine Technologies Co., Ltd.
+00:25:27	Bitrode                # Bitrode Corp.
+00:25:28	DaidoSigna             # Daido Signal Co., Ltd.
+00:25:29	ComelitGro             # COMELIT GROUP S.P.A
+00:25:2A	ChengduGee             # Chengdu GeeYa Technology Co.,LTD
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12839,6 +12849,14 @@
 00:50:C2:A4:80:00/36	ThalesOptr             # Thales Optronics Limited
 00:50:C2:A4:90:00/36	WayneDalto             # Wayne Dalton Corp.
 00:50:C2:A4:A0:00/36	DitronSRL              # DITRON S.r.l.
+00:50:C2:A4:B0:00/36	L-3Communi             # L-3 Communications Mobile-Vision, Inc.
+00:50:C2:A4:C0:00/36	Vasonova               # VasoNova, Inc.
+00:50:C2:A4:D0:00/36	LevelstarL             # LevelStar LLC.
+00:50:C2:A4:E0:00/36	Conduant               # Conduant Corporation
+00:50:C2:A4:F0:00/36	Deuta                  # Deuta GmbH
+00:50:C2:A5:00:00/36	I-RedInfra             # i-RED Infrarot Systeme GmbH
+00:50:C2:A5:10:00/36	Y-Products             # Y-products co.ltd.
+00:50:C2:A5:20:00/36	Von                    # The VON Corporation
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
