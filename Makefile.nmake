@@ -930,7 +930,6 @@ install-generated-files:
 	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
 	if exist tshark.pdb xcopy tshark.pdb $(INSTALL_DIR) /d
 	if exist rawshark.exe xcopy rawshark.exe $(INSTALL_DIR) /d
-	if exist rawshark.exe.manifest xcopy rawshark.exe.manifest $(INSTALL_DIR) /d
 	if exist rawshark.pdb xcopy rawshark.pdb $(INSTALL_DIR) /d
 	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL_DIR) /d
 	if exist dumpcap.pdb xcopy dumpcap.pdb $(INSTALL_DIR) /d
