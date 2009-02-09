@@ -993,7 +993,7 @@ void proto_register_ams(void)
       "", HFILL }
       },
       { &hf_ams_adsreadresponse,
-      { "ADS Read Respone", "ams.ads_read_res",
+      { "ADS Read Response", "ams.ads_read_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
       "", HFILL }
       },
