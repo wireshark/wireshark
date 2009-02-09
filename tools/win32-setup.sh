@@ -76,6 +76,8 @@ case "$1" in
 	echo "Checking for required applications:"
 	which which > /dev/null 2>&1 || \
 		err_exit "Can't find 'which'.  Unable to proceed."
+
+	MISSING_APPS=        
 	for APP in $* ; do
 		APP_PATH=`cygpath --unix $APP`
 		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
@@ -84,10 +86,17 @@ case "$1" in
 			APP_LOC=`which $APP_PATH 2> /dev/null`
 		fi
 		if [ "$APP_LOC" = "" ] ; then
-			err_exit "Can't find $APP. This is probably an optional cygwin package not yet installed. Try to install it using cygwin's setup.exe!"
+			MISSING_APPS="$MISSING_APPS $APP"
+		else
+			echo "	$APP: $APP_LOC $res"
 		fi
-		echo "	$APP: $APP_LOC $res"
 	done
+
+	if [ -n "$MISSING_APPS" ]; then
+		echo 
+		echo "Can't find: $MISSING_APPS"
+		err_exit "These are probably optional cygwin packages not yet installed. Try to install them using cygwin's setup.exe!"
+	fi
 	;;
 --libverify)
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
