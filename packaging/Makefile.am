@@ -5,7 +5,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	makefile.nmake				\
-	packaging/macosx/Info.plist.in		\
+	macosx/Info.plist.in		\
 	ws-manifest.pl				\
 	portableapps/win32/Installer.nsi		\
 	portableapps/win32/WiresharkPortable.ini	\
