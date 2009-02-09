@@ -32,6 +32,7 @@ ber: \
 	ansi-tcap	\
 	camel	\
 	cdt	\
+	charging_ase	\
 	cmip	\
 	cms	\
 	dap	\
@@ -121,6 +122,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd cdt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd charging_ase
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd cmip
@@ -374,6 +378,11 @@ camel::
 
 cdt::
 	cd cdt
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+charging_ase::
+	cd charging_ase
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

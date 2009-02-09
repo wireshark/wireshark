@@ -29,6 +29,7 @@ SUBDIRS = \
 	ansi-tcap	\
 	camel		\
 	cdt		\
+	charging_ase	\
 	cmip		\
 	cms		\
 	dap		\

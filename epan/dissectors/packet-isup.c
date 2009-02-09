@@ -50,10 +50,12 @@
 
 #include <epan/packet.h>
 #include <epan/stats_tree.h>
+#include <epan/asn1.h>
 #include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"
+#include "packet-charging_ase.h"
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include <epan/circuit.h>
@@ -3473,14 +3475,20 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1,
 		"APM-user information field (%u Bytes)",tvb_length_remaining(parameter_tvb, offset));
-
-	/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */
-	if ((aci16 & 0x7fff) != 5) {
-		proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
-		return;
+	
+	switch(aci16 & 0x7fff){
+		case 3:
+			/* Charging ASE */
+			dissect_charging_ase_ChargingMessageType_PDU(next_tvb, pinfo, parameter_tree);
+			break;
+		case 5:
+			/* dissect BAT ASE element, without transparent data ( Q.765.5-200006) */
+			dissect_bat_ase_Encapsulated_Application_Information(next_tvb, pinfo, parameter_tree, 0);
+			break;
+		default:
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "No further dissection of APM-user information field");
+			break;
 	}
-
- 	dissect_bat_ase_Encapsulated_Application_Information(next_tvb, pinfo, parameter_tree, 0);
 }
 
 

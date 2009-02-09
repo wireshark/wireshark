@@ -1,0 +1,447 @@
+-- ETSI ES 201 296 V1.3.1 (2003-04)
+-- $Id$
+Tariffing-Data-Types {itu-t(0) identified-organization(4) etsi (0) 1296 version3(4)}
+
+DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+-- This module contains the common data type definitions for the charging information used in the
+-- new ISUP APM application "Charging ASE" and in the INAP charging operations.
+--
+--
+
+EXPORTS
+
+-- Charging Common Data Types
+	ChargingAcknowledgementInformation ,
+	AddOnChargingInformation ,
+	ChargingTariffInformation ,
+	StartCharging ,
+	StopCharging ,
+	ChargingMessageType 
+	
+;
+
+-- ChargingMessageType Type
+
+ChargingMessageType ::= CHOICE {
+	crgt [0] ChargingTariffInformation,
+	aocrg [1] AddOnChargingInformation ,
+	crga [2] ChargingAcknowledgementInformation ,
+	start [3] StartCharging ,
+	stop [4] StopCharging }
+	
+-- ChargeUnitTimeInterval Type
+
+ChargeUnitTimeInterval ::= OCTET STRING (SIZE(2))
+
+-- The ChargeUnitTimeInterval is binary coded and has the value range from 0 to 35997. It begins with 200 milliseconds and
+-- then in steps of 50 milliseconds.
+-- the LSBit is the least significant bit of the first octet
+-- the MSBit is the most significant bit of the last octet
+-- the coding of the ChargeUnitTimeInterval is the following:
+-- 0 : no periodic metering
+-- 1 : 200 msec
+-- 2 : 250 msec
+-- ..
+-- 35997 : 30 minutes
+-- All other values are spare.
+
+-- ChargingAcknowledgementInformation Type
+
+ChargingAcknowledgementInformation ::= SEQUENCE {
+	acknowledgementIndicators [0] BIT STRING {
+		accepted (0) }
+	(SIZE(minAcknowledgementIndicatorsLen..maxAcknowledgementIndicatorsLen)), extensions [1]
+SEQUENCE SIZE(1..numOfExtensions) OF ExtensionField OPTIONAL,
+	originationIdentification [2] ChargingReferenceIdentification,
+	destinationIdentification [3] ChargingReferenceIdentification
+}
+
+-- Coding of "accepted":
+-- 0: not accepted.
+-- 1: accepted.
+-- The "extensions" is a SEQUENCE for possible extensions.
+
+-- ChargingControlIndicators Type
+
+ChargingControlIndicators ::= BIT STRING {
+	subscriberCharge (0),
+	immediateChangeOfActuallyAppliedTariff (1),
+	delayUntilStart (2) }
+	(SIZE(minChargingControlIndicatorsLen..maxChargingControlIndicatorsLen))
+
+-- Coding of "subscriberCharge":
+-- 0 - advice-of-charge: charging information only to be used by the advice of charge service.
+-- 1 - subscriber-charge: charging information to be used by the subscriber charging program.
+-- Coding of "immediateChangeOfActuallyAppliedTariff":
+-- 0 - immediate tariff change without restart
+-- 1 - immediate tariff change with restart
+-- It is only used to change the actually applied tariff.
+-- Coding of 'delayUntilStart':
+-- 0 - start tariffing, if it is not already started, without waiting for the 'start' signal
+-- 1 – delay start of tariffing up to the receipt of the 'start' signal
+
+-- AddOnChargingInformation Type
+
+AddOnChargingInformation ::= SEQUENCE {
+	chargingControlIndicators	[0] ChargingControlIndicators ,
+	addOncharge					[1] CHOICE {
+		addOnChargeCurrency		[0] CurrencyFactorScale ,
+		addOnChargePulse		[1] PulseUnits
+	},
+	extensions [2] SEQUENCE SIZE(1..numOfExtensions) OF ExtensionField OPTIONAL,
+	originationIdentification	[3] ChargingReferenceIdentification,
+	destinationIdentification	[4] ChargingReferenceIdentification OPTIONAL,
+	currency					[5] Currency
+}
+
+-- This message is used to add an amount of charge for the call and does not alter the current tariff.
+-- The destinationIdentification is not available in an initial AddOnChargingInformation, in all subsequent ones it is included, see
+-- "Handling of Identifiers".
+-- In the message the
+-- add-on charge has either the pulse or currency format.
+-- ChargingTariffInformation Type
+
+ChargingTariffInformation ::= SEQUENCE {
+	chargingControlIndicators [0] ChargingControlIndicators,
+	chargingTariff [1] CHOICE {
+		tariffCurrency [0] TariffCurrency,
+		tariffPulse [1] TariffPulse
+	},
+	extensions [2] SEQUENCE SIZE(1..numOfExtensions) OF ExtensionField OPTIONAL,
+	originationIdentification [3] ChargingReferenceIdentification,
+	destinationIdentification [4] ChargingReferenceIdentification OPTIONAL,
+	currency [5] Currency
+}
+
+--This message is used
+-- to transfer explicit tariff data to the originating subscriber exchange and the charge registration exchange during call
+-- set-up and also in the active phase of a call.
+-- The destinationIdentification is not available in an initial ChargingTariffInformation, in all subsequent ones it is included, see
+-- "Handling of Identifiers".
+Code ::= CHOICE
+{
+	local INTEGER,
+	global OBJECT IDENTIFIER
+}
+
+-- CommunicationChargeCurrency Type
+
+CommunicationChargeCurrency ::= SEQUENCE {
+	currencyFactorScale		[0] CurrencyFactorScale ,
+	tariffDuration			[1] TariffDuration ,
+	subTariffControl		[2] SubTariffControl }
+	
+-- CommunicationChargePulse Type
+
+CommunicationChargePulse ::= SEQUENCE {
+	pulseUnits				[0] PulseUnits ,
+	chargeUnitTimeInterval	[1] ChargeUnitTimeInterval ,
+	tariffDuration			[2] TariffDuration }
+
+-- Criticality Type
+CriticalityType ::= ENUMERATED {
+	ignore(0),
+	abort(1) }
+
+-- Currency Type
+Currency ::= ENUMERATED {
+	noIndication (0),
+	australianDollar (1),
+	austrianSchilling (2),
+	belgianFranc (3),
+	britishPound (4),
+	czechKoruna (5),
+	danishKrone (6),
+	dutchGuilder (7),
+	euro (8),
+	finnishMarkka (9),
+	frenchFranc (10),
+	germanMark (11),
+	greekDrachma (12),
+	hungarianForint (13),
+	irishPunt (14),
+	italianLira (15),
+	japaneseYen (16),
+	luxembourgian-Franc (17),
+	norwegianKrone (18),
+	polishZloty (19),
+	portugeseEscudo (20),
+	russianRouble (21),
+	slovakKoruna (22),
+	spanishPeseta (23),
+	swedishKrone (24),
+	swissFranc (25),
+	turkishLira (26),
+	uSDollar (27),
+	...}
+
+-- CurrencyFactor Type
+
+CurrencyFactor ::= INTEGER (0..999999)
+
+-- Value 0 indicates "no charge".
+-- CurrencyFactorScale Type
+
+CurrencyFactorScale ::= SEQUENCE {
+	currencyFactor	[0] CurrencyFactor DEFAULT noCharge ,
+	currencyScale	[1] CurrencyScale DEFAULT noScale }
+
+-- The charge amount is indicated by the currency factor multiplied with the currency scale.
+-- "no charge" indicates CurrencyFactorScale has the value 0.
+-- CurrencyScale Type
+
+CurrencyScale ::= INTEGER (-7..3)
+
+-- The actual value for currency scale is given by 10x, where x is the value of the CurrencyScale.
+--
+-- the coding of CurrencyScale is as follows, all other values are spare:
+-- -7 (249): 0,0000001
+-- -6 (250): 0,000001
+-- -5 (251): 0,00001
+-- -4 (252): 0,0001
+-- -3 (253): 0,001
+-- -2 (254): 0,01
+-- -1 (255): 0,1
+-- 0 : 1
+-- 1 : 10
+-- 2 : 100
+-- 3 : 1000
+
+-- Definition of the extension class
+
+EXTENSION ::= CLASS {
+	&ExtensionType,
+	&criticality CriticalityType DEFAULT ignore,
+	&id Code
+}
+WITH SYNTAX {
+	EXTENSION-SYNTAX &ExtensionType
+	CRITICALITY &criticality
+	IDENTIFIED BY &id
+}
+-- Example of addition of an extension named 'Some Network Specific Indicator' of type
+-- BOOLEAN, with criticality 'abort' and to be identified as extension number 1
+-- Example of definition using the above information object class:
+--
+-- SomeNetworkSpecificIndicator EXTENSION ::= {
+-- EXTENSION-SYNTAX BOOLEAN
+-- CRITICALITY abort
+-- IDENTIFIED BY local : 1
+-- }
+-- Example of transfer syntax, using the ExtensionField datatype as specified in section 4.1.
+-- Assuming the value of the extension is set to TRUE, the extensions parameter
+-- becomes a Sequence of type INTEGER ::= 1, criticality ENUMERATED ::= 1 and value [1]
+-- EXPLICIT BOOLEAN ::= TRUE.
+--
+-- Use of Q.1400 defined Extension is ffs
+-- In addition the extension mechanism marker is used to identify the future minor additions to INAP.
+firstExtension EXTENSION ::= {
+	EXTENSION-SYNTAX NULL
+	CRITICALITY ignore
+	IDENTIFIED BY local:1
+	}
+
+-- firstExtension is just an example.
+
+SupportedExtensions EXTENSION ::= {firstExtension , ...
+-- full set of network operator extensions --}
+-- SupportedExtension is the full set of the network operator extensions.
+-- ExtensionField Type
+
+ExtensionField ::= SEQUENCE {
+	type EXTENSION.&id ({SupportedExtensions}),
+	-- shall identify the value of an EXTENSION type
+	criticality CriticalityType DEFAULT ignore,
+	value [1] EXTENSION.&ExtensionType
+	({SupportedExtensions}{@type})
+}
+-- This parameter indicates an extension of an argument data type. Its contents is network operator specific.
+-- PulseUnits Type
+
+PulseUnits ::= OCTET STRING (SIZE(1))
+-- the PulseUnits is binary coded and has the value range from 0 to 255
+-- StartCharging Type
+StartCharging ::= SEQUENCE {
+	networkOperators			[0] SEQUENCE SIZE (1..maxNetworkOperators) OF NetworkIdentification OPTIONAL,
+	extensions					[1] SEQUENCE SIZE(1..numOfExtensions) OF ExtensionField OPTIONAL,
+	originationIdentification	[2] ChargingReferenceIdentification
+}
+
+--This message is used
+-- to start charge generation/registration for one that belongs to one network operator or
+-- to start charge generation/registration for more tariffs that belong to several network
+-- operators.
+-- The corresponding network operator(s) are listed within sub-parameter 'networkOperators'.
+-- The sub-parameter 'networkOperators' is mandatory in configurations of multiple charge
+-- determination points.
+-- If sub-parameter 'networkOperators' is not present in a configuration with only one charge
+-- determination point, the corresponding tariff is started.
+-- The 'extensions' is a SEQUENCE for possible extensions.
+-- StopCharging Type
+
+StopCharging ::= SEQUENCE {
+	stopIndicators [0] BIT STRING {
+		callAttemptChargesApplicable (0) }
+	(SIZE(minStopIndicatorsLen.. maxStopIndicatorsLen)),
+	networkOperators [1] SEQUENCE SIZE (1..maxNetworkOperators) OF NetworkIdentification OPTIONAL,
+	extensions [2] SEQUENCE SIZE(1..numOfExtensions) OF ExtensionField OPTIONAL,
+	originationIdentification [3] ChargingReferenceIdentification
+}
+
+--This message is used to stop charge generation/registration
+-- for one that belongs to one network operator or
+-- to stop charge generation/registration for more tariffs that belong to several network operators.
+-- The corresponding network operator(s) are listed within sub-parameter 'networkOperators'.
+-- The sub-parameter 'networkOperators' is mandatory in configurations of multiple charge
+-- determination points.
+-- If sub-parameter 'networkOperators' is not present in a configuration with only one charge
+-- determination point, the corresponding tariff is stopped.
+-- Coding of 'callAttemptChargesApplicable':
+-- 0 - stop tariffing, call attempt charges are not applicable
+-- 1 - stop tariffing, call attempt charges are applicable
+-- The 'extensions' is a SEQUENCE for possible extensions.
+
+-- SubTariffControl Type
+
+SubTariffControl ::= BIT STRING {oneTimeCharge (0)}
+(SIZE(minSubTariffControlLen..maxSubTariffControlLen))
+-- The coding of the oneTimeCharge is as follows:
+-- 0 – Periodic charge
+-- 1 – One time charge
+minSubTariffControlLen INTEGER ::= 1
+maxSubTariffControlLen INTEGER ::= 8
+
+-- TariffCurrency Type
+
+TariffCurrency ::= SEQUENCE {
+	currentTariffCurrency	[0] TariffCurrencyFormat OPTIONAL ,
+	tariffSwitchCurrency	[1] TariffSwitchCurrency OPTIONAL
+}
+-- TariffSwitchCurrency Type
+
+TariffSwitchCurrency ::= SEQUENCE {
+	nextTariffCurrency		[0] TariffCurrencyFormat ,
+	tariffSwitchoverTime	[1] TariffSwitchoverTime
+}
+
+-- TariffCurrencyFormat Type
+
+TariffCurrencyFormat ::= SEQUENCE {
+	communicationChargeSequenceCurrency 	[0] SEQUENCE
+		SIZE(minCommunicationTariffNum..maxCommunicationTariffNum)
+		OF CommunicationChargeCurrency OPTIONAL ,
+	tariffControlIndicators [1] BIT STRING {
+	non-cyclicTariff (0) }
+	(SIZE(minTariffIndicatorsLen..maxTariffIndicatorsLen)) ,
+	callAttemptChargeCurrency	[2] CurrencyFactorScale OPTIONAL ,
+	callSetupChargeCurrency		[3] CurrencyFactorScale OPTIONAL }
+	
+-- The communication charge sequence currency is a direct charge in currency per time unit. Only one fixed time unit is used.
+-- This time unit has
+-- to be agreed between all cooperating networks, e.g. one second. Being fixed, the time unit is not transferred over
+-- ISUP/INAP.
+-- The call attempt charge is a direct charge, to be charged only for unsuccessful calls.
+-- The call set-up charge is a direct charge, to be charged once at start of charging.
+--
+-- The coding of the non-cyclicTariff is as follows:
+-- 0 - Cyclic tariff ( at expiration of the tariff duration of the last communication tariff of the communication charge sequence,
+-- the communication charge sequence is re-applied.
+-- 1 - Non-cyclic tariff ( at expiration of the tariff duration of the last communication tariff of the communication charge
+-- sequence, do not re-apply the communication charge sequence)
+
+-- TariffDuration Type
+
+TariffDuration ::= INTEGER (0..36000)
+
+-- TariffDuration identifies with 0 unlimited duration and else in seconds unit.
+-- 0 = unlimited
+-- 1 = 1 second
+-- 2 = 2 seconds
+-- ...
+-- 36000 = 10 hours
+--
+-- The duration indicates for how long time the communication charge component is valid. Expiration of the tariff duration
+-- timer leads to the activation of the next communication charge (if present).
+-- In the case where there is no next communication charge in the communication charge sequence, the action to be performed
+-- is indicated by the tariffControlIndicators.
+-- TariffPulse Type
+
+TariffPulse ::= SEQUENCE {
+	currentTariffPulse [0] TariffPulseFormat OPTIONAL ,
+	tariffSwitchPulse [1] TariffSwitchPulse OPTIONAL }
+
+-- TariffSwitchPulse Type
+
+TariffSwitchPulse ::= SEQUENCE {
+	nextTariffPulse [0] TariffPulseFormat ,
+	tariffSwitchoverTime [1] TariffSwitchoverTime }
+
+-- TariffPulseFormat Type
+
+TariffPulseFormat ::= SEQUENCE {
+	communicationChargeSequencePulse [0] SEQUENCE
+		SIZE(minCommunicationTariffNum.. maxCommunicationTariffNum)
+		OF CommunicationChargePulse OPTIONAL ,
+	tariffControlIndicators [1] BIT STRING {
+		non-cyclicTariff (0) }
+		(SIZE(minTariffIndicatorsLen..maxTariffIndicatorsLen)) ,
+	callAttemptChargePulse [2] PulseUnits OPTIONAL ,
+	callSetupChargePulse [3] PulseUnits OPTIONAL }
+
+-- The communication charges are meter-pulse units, which are to be applied per charge unit time interval.
+-- The call attempt pulse units are to be charged only for unsuccessful calls.
+-- The call set-up pulse units are to be charged once at start of charging.
+
+-- TariffSwitchoverTime Type
+
+TariffSwitchoverTime ::= OCTET STRING (SIZE(1))
+
+-- This time is the absolute time at which the next tariff has to become active. It is represented in steps of 15 minutes.
+-- The coding is the following:
+-- 0 : spare
+-- 1 : 0 hour 15 minutes
+-- 2 : 0 hour 30 minutes
+-- 3 : 0 hour 45 minutes
+-- 4 : 1 hour 0 minutes
+-- ..
+-- 96 : 24 hours 0 minutes
+-- 97-255 : spare
+
+minAcknowledgementIndicatorsLen INTEGER ::= 1
+maxAcknowledgementIndicatorsLen INTEGER ::= 8
+minChargingControlIndicatorsLen INTEGER ::= 1
+maxChargingControlIndicatorsLen INTEGER ::= 8
+maxNetworkOperators INTEGER ::= 6
+minStopIndicatorsLen INTEGER ::= 1
+maxStopIndicatorsLen INTEGER ::= 8
+minTariffIndicatorsLen INTEGER ::= 1
+maxTariffIndicatorsLen INTEGER ::= 8
+minCommunicationTariffNum INTEGER ::= 1
+maxCommunicationTariffNum INTEGER ::= 4
+noCharge INTEGER ::= 0
+noScale INTEGER ::= 0
+numOfExtensions INTEGER ::= 1 --network specific
+
+-- ChargingReferenceIdentification Type
+
+ChargingReferenceIdentification ::= SEQUENCE {
+	networkIdentification [0] NetworkIdentification,
+	referenceID [1] ReferenceID}
+
+-- NetworkIdentification Type
+
+NetworkIdentification ::= OBJECT IDENTIFIER
+
+-- Following structure of the networkIdentification value shall be used:
+-- {itu-t (0) administration (2) <national regulation authority> (x) network (y) node identification (z)}
+-- The value for x is the value of the national regulation authority, the value for y is under the control of the national
+-- regulation authority concerned, the value for z is under the control of the network concerned.
+
+-- ReferenceID Type
+
+ReferenceID ::= INTEGER (0..4294967295)
+-- maximum value 232 - 1
+
+END
+-- of Tariffing-Data Types
