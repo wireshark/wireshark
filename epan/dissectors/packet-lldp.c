@@ -684,6 +684,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		{
 		case 4:	/* MAC address */
 			proto_tree_add_ether(chassis_tree, hf_chassis_id_mac, tvb, (offset+3), 6, mac_addr);
+			proto_item_append_text(tf, ", Id: %s", strPtr);
 			break;
 		case 5: /* Network address */
 			proto_tree_add_item(chassis_tree, hf_lldp_network_address_family, tvb, offset+3, 1, FALSE);
@@ -703,6 +704,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		case 6: /* Interface name */
 		case 7:	/* Locally assigned */
 			proto_tree_add_text(chassis_tree, tvb, (offset+3), (tempLen-1), "Chassis Id: %s", strPtr);
+			proto_item_append_text(tf, ", Id: %s", strPtr);
 			break;
 		case 1:	/* Chassis component */
 		case 3:	/* Port component */
@@ -833,6 +835,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		default:
 			proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);
+			proto_item_append_text(tf, ", Id: %s", strPtr);
 			break;
 		}
 
@@ -970,9 +973,11 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		strPtr = tvb_format_stringzpad(tvb, (offset+2), tempLen);
 
 		/* Set system name tree */
-		if (tempType == SYSTEM_NAME_TLV_TYPE)
+		if (tempType == SYSTEM_NAME_TLV_TYPE) {
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Name = %s", strPtr);
-		else
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
+		} else
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Description = %s", strPtr);
 		system_name_tree = proto_item_add_subtree(tf, ett_system_name);
 
