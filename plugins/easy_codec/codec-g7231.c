@@ -41,15 +41,15 @@ struct g7231_context {
 };
 
 void *codec_g7231_init(void) {
-  g7231_context *ctx = 0;
+  struct g7231_context *ctx = 0;
 
-  ctx = (g7231_context*)g_malloc0(sizeof(g7231_context));
+  ctx = (struct g7231_context*)g_malloc0(sizeof(struct g7231_context));
   ctx->handle = -1;
   return ctx;
 }
 
 void codec_g7231_release(void *context) {
-  g7231_context *ctx = (g7231_context*)context;
+  struct g7231_context *ctx = (struct g7231_context*)context;
 
   if (!ctx) return;
   EasyG7231_release_decoder(ctx->handle);
@@ -57,7 +57,7 @@ void codec_g7231_release(void *context) {
 }
 
 int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes) {
-  g7231_context *ctx = (g7231_context*)context;
+  struct g7231_context *ctx = (struct g7231_context*)context;
   const unsigned char *bitstream = (const unsigned char*)input;
   short *speech = (short*)output;
   int decodedBytes = 0;

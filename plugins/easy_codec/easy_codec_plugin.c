@@ -34,7 +34,6 @@
 #include "codec-g7231.h"
 #include "codec-g729a.h"
 #include "codec-g722.h"
-#include "codec-amr.h"
 
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
@@ -43,7 +42,6 @@ G_MODULE_EXPORT void register_codec_module(void)
   register_codec("g723", codec_g7231_init, codec_g7231_release, codec_g7231_decode);
   register_codec("g729", codec_g729a_init, codec_g729a_release, codec_g729a_decode);
   register_codec("g722", codec_g722_init, codec_g722_release, codec_g722_decode);
-  register_codec("amr", codec_amr_init, codec_amr_release, codec_amr_decode);
 }
 
 #endif

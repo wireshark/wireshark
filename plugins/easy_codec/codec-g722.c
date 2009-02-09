@@ -40,15 +40,15 @@ struct g722_context {
 };
 
 void *codec_g722_init(void) {
-  g722_context *ctx = 0;
+  struct g722_context *ctx = 0;
 
-  ctx = (g722_context*)g_malloc0(sizeof(g722_context));
+  ctx = (struct g722_context*)g_malloc0(sizeof(struct g722_context));
   ctx->handle = EasyG722_init_decoder();
   return ctx;
 }
 
 void codec_g722_release(void *context) {
-  g722_context *ctx = (g722_context*)context;
+  struct g722_context *ctx = (struct g722_context*)context;
 
   if (!ctx) return;
   EasyG722_release_decoder(ctx->handle);
@@ -56,7 +56,7 @@ void codec_g722_release(void *context) {
 }
 
 int codec_g722_decode(void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes) {
-  g722_context *ctx = (g722_context*)context;
+  struct g722_context *ctx = (struct g722_context*)context;
   const unsigned char *bitstream = (const unsigned char*)input;
   short *speech = (short*)output;
   int decodedBytes = 0;

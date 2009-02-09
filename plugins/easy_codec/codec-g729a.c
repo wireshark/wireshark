@@ -40,15 +40,15 @@ struct g729a_context {
 };
 
 void *codec_g729a_init(void) {
-  g729a_context *ctx = 0;
+  struct g729a_context *ctx = 0;
 
-  ctx = (g729a_context*)g_malloc0(sizeof(g729a_context));
+  ctx = (struct g729a_context*)g_malloc0(sizeof(struct g729a_context));
   ctx->handle = EasyG729A_init_decoder();
   return ctx;
 }
 
 void codec_g729a_release(void *context) {
-  g729a_context *ctx = (g729a_context*)context;
+  struct g729a_context *ctx = (struct g729a_context*)context;
 
   if (!ctx) return;
   EasyG729A_release_decoder(ctx->handle);
@@ -56,7 +56,7 @@ void codec_g729a_release(void *context) {
 }
 
 int codec_g729a_decode(void *context, const void *input, int inputSizeBytes, void *output, int *outputSizeBytes) {
-  g729a_context *ctx = (g729a_context*)context;
+  struct g729a_context *ctx = (struct g729a_context*)context;
   const unsigned char *bitstream = (const unsigned char*)input;
   short *speech = (short*)output;
   int decodedBytes = 0;
