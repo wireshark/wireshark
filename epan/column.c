@@ -692,6 +692,9 @@ build_column_format_array(column_info *cinfo, gboolean reset_fences)
 								COL_MAX_LEN);
   }
 
+  cinfo->col_expr.col_expr[i] = NULL;
+  cinfo->col_expr.col_expr_val[i] = NULL;
+
   for (i = 0; i < cinfo->num_cols; i++) {
     for (j = 0; j < NUM_COL_FMTS; j++) {
       if (!cinfo->fmt_matx[i][j])
