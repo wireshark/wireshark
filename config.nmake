@@ -236,8 +236,8 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.3.8-1
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.3-1
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.3-1
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.6.4-1
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -820,7 +820,7 @@ NETTLE_CONFIG=
 !IFDEF GNUTLS_DIR
 GNUTLS_PATH=$(GNUTLS_DIR)
 # /DNOCRYPT avoids inclusion of Wincrypt.h, avoiding a X509_NAME define clash
-GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include /DNOCRYPT
+GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include /DNOCRYPT /DIMPORT_LIGNUTLSDLL
 GNUTLS_LIBS=\
 	$(GNUTLS_DIR)\bin\libtasn1-3.lib	\
 	$(GNUTLS_DIR)\bin\libgpg-error-0.lib	\
