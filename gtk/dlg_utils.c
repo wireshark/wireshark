@@ -129,6 +129,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *save_all     = NULL;
     const gchar *stop         = NULL;
     const gchar *yes          = NULL;
+#ifdef HAVE_GEOIP    
+    const gchar *map          = NULL;
+#endif /* HAVE_GEOIP */
 
 
     va_start(stock_id_list, stock_id_first);
@@ -161,6 +164,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_STOP) == 0) {
             cap_stop = stock_id;
 #endif /* HAVE_LIBPCAP */
+#ifdef HAVE_GEOIP
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_MAP) == 0) {
+            map = stock_id;
+#endif /* HAVE_GEOIP */
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
             stop = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_HELP) == 0) {
@@ -234,6 +241,18 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         gtk_widget_show(button);
         buttons--;
     }
+
+#ifdef HAVE_GEOIP
+    /* do we have a map button? -> special handling for it */
+    if (map) {
+        button = gtk_button_new_from_stock(map);
+        GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+        g_object_set_data(G_OBJECT(hbox), map, button);
+        gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
+        gtk_widget_show(button);
+        buttons--;
+    }
+#endif /* HAVE_GEOIP */
 
     /* if more than one button, sort buttons from left to right */
     /* (the whole button cluster will then be right aligned) */

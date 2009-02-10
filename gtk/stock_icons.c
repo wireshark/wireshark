@@ -98,6 +98,9 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  "_Capture Filter:",  0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       "_Details",       0, 0, NULL },
 #endif
+#ifdef HAVE_GEOIP
+        { WIRESHARK_STOCK_MAP,                   "Map",                   0, 0, NULL },
+#endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        "_Filter",        0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  "F_ilter:",  0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                "_Browse...",                0, 0, NULL },
@@ -154,6 +157,9 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       capture_details_24_xpm },
+#endif
+#ifdef HAVE_GEOIP
+        { WIRESHARK_STOCK_MAP,                   internet_24_xpm},
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },

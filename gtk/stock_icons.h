@@ -37,6 +37,9 @@
 #define WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY     "Wireshark_Stock_CaptureFilter_Entry"
 #define WIRESHARK_STOCK_CAPTURE_DETAILS          "Wireshark_Stock_CaptureDetails"
 #endif
+#ifdef HAVE_GEOIP
+#define WIRESHARK_STOCK_MAP                      "Wireshark_Stock_Map"
+#endif
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Wireshark_Stock_DisplayFilter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Wireshark_Stock_DisplayFilter_Entry"
 #define WIRESHARK_STOCK_BROWSE                   "Wireshark_Stock_Browse"
