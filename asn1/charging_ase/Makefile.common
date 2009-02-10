@@ -29,7 +29,7 @@ NEED_PACKET_PROTO_H = 1
 
 
 ASN_FILE_LIST = \
-	Tariffing-Data-Types.asn \
+	Tariffing-Data-Types.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -46,7 +46,7 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e
 
-EXTRA_CNF = \
+EXTRA_CNF = 
 
 
 
