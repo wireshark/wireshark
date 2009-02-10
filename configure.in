@@ -1573,6 +1573,7 @@ AC_OUTPUT(
   asn1/ansi-tcap/Makefile
   asn1/camel/Makefile
   asn1/cdt/Makefile
+  asn1/charging_ase/Makefile
   asn1/cmip/Makefile
   asn1/cms/Makefile
   asn1/dap/Makefile
