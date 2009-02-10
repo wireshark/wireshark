@@ -43,15 +43,15 @@ extern "C" {
 
 /** The menu group this stat should be registered in. */
 typedef enum {
-	REGISTER_ANALYZE_GROUP_UNSORTED,
-	REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER,
-    REGISTER_STAT_GROUP_UNSORTED,
-    REGISTER_STAT_GROUP_GENERIC,                /* generic function, not specific to a protocol */
-    REGISTER_STAT_GROUP_CONVERSATION_LIST,
-    REGISTER_STAT_GROUP_ENDPOINT_LIST,
-    REGISTER_STAT_GROUP_RESPONSE_TIME,
-    REGISTER_STAT_GROUP_TELEPHONY,
-	REGISTER_TOOLS_GROUP_UNSORTED
+	REGISTER_ANALYZE_GROUP_UNSORTED,            /* unsorted analyze stuff */
+	REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, /* conversation filters */
+    REGISTER_STAT_GROUP_UNSORTED,               /* unsorted statistic function */
+    REGISTER_STAT_GROUP_GENERIC,                /* generic statistic function, not specific to a protocol */
+    REGISTER_STAT_GROUP_CONVERSATION_LIST,      /* member of the conversation list */
+    REGISTER_STAT_GROUP_ENDPOINT_LIST,          /* member of the endpoint list */
+    REGISTER_STAT_GROUP_RESPONSE_TIME,          /* member of the service response time list */
+    REGISTER_STAT_GROUP_TELEPHONY,              /* telephony specific */
+	REGISTER_TOOLS_GROUP_UNSORTED               /* unsorted tools */
 } register_stat_group_t;
 
 #ifdef __cplusplus
