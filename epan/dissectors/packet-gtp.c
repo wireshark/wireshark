@@ -5,7 +5,7 @@
  *                 Nicolas Balkota <balkota@mac.com>
  *
  * Updates and corrections:
- * Copyright 2006 - 2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2006 - 2009, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -316,7 +316,7 @@ static int gtp_tap = -1;
 static const value_string ver_types[] = {
     {0, "GTP release 97/98 version"},
     {1, "GTP release 99 version"},
-    {2, "None"},
+    {2, "GTPv2-C"},
     {3, "None"},
     {4, "None"},
     {5, "None"},
@@ -1344,6 +1344,7 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
+static dissector_handle_t gtpv2_handle;
 static dissector_table_t bssap_pdu_type_table;
 
 static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype);
@@ -6274,7 +6275,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_item *ti, *tf;
     int i, offset, length, gtp_prime, checked_field, mandatory;
     int seq_no=0, flow_label=0;
-    guint8 pdu_no, next_hdr = 0, ext_hdr_val;
+    guint8 pdu_no, next_hdr = 0, ext_hdr_val, version;
     const guint8 *tid_val;
     gchar *tid_str;
     guint32 teid = 0;
@@ -6284,10 +6285,23 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	conversation_t *conversation=NULL;
     gtp_conv_info_t *gtp_info=(gtp_conv_info_t *)pinfo->private_data;
 
+	/* 
+	 * If this is GTPv2-C call the gtpv2 dissector if present 
+	 * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
+	 */
+	version = tvb_get_guint8(tvb,0)>>5;
+	if(version==2){
+		/* GTPv2-C 3GPP TS 29.274 */
+		if(gtpv2_handle){
+			call_dissector(gtpv2_handle, tvb, pinfo, tree);
+			return;
+		}
+	}
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 
     /*
      * Do we have a conversation for this connection?
@@ -6324,24 +6338,24 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
 
     if (!(gtp_hdr.flags & 0x10))
-	gtp_prime = 1;
+		gtp_prime = 1;
     else
-	gtp_prime = 0;
+		gtp_prime = 0;
 
     switch ((gtp_hdr.flags >> 5) & 0x07) {
-    case 0:
-	gtp_version = 0;
-	break;
-    case 1:
-	gtp_version = 1;
-	break;
-    default:
-	gtp_version = 1;
-	break;
+	    case 0:
+			gtp_version = 0;
+			break;
+		case 1:
+			gtp_version = 1;
+			break;
+	    default:
+			gtp_version = 1;
+			break;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, FALSE);
@@ -6351,6 +6365,12 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
 	proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+	
+	if(version>=2){
+		proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
+		return;
+	}
+
 	proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
 
 	switch (gtp_version) {
@@ -7058,6 +7078,7 @@ void proto_reg_handoff_gtp(void)
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");
 	sndcpxid_handle = find_dissector("sndcpxid");
+	gtpv2_handle = find_dissector("gtpv2");
 	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 	/* AVP Code: 904 MBMS-Session-Duration */
 	dissector_add("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
