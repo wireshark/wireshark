@@ -110,6 +110,7 @@ struct _stats_tree_cfg {
 	gchar*			abbr;
 	gchar*			name;
 	gchar*			tapname;
+    register_stat_group_t stat_group;
 	
 	gboolean in_use;
 

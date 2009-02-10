@@ -30,6 +30,7 @@
 #include <epan/packet_info.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
+#include "../stat_menu.h"
 #include "../register.h"
 
 #define STAT_TREE_ROOT "root"
@@ -49,11 +50,12 @@ typedef void  (*stat_tree_init_cb)(stats_tree*);
 /* stats_tree cleanup callback */
 typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
 
-/* registers a new stats tree 
+/* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
  * abbr: protocol abbr
  * name: protocol display name
  * packet: per packet callback
  * init: tree initialization callback
+ * cleanup: cleanup callback
  */
 extern void stats_tree_register(const gchar *tapname,
 				const gchar *abbr, 
@@ -61,6 +63,22 @@ extern void stats_tree_register(const gchar *tapname,
 				stat_tree_packet_cb packet,
 				stat_tree_init_cb init,
 				stat_tree_cleanup_cb cleanup);
+
+/* registers a new stats tree 
+ * abbr: protocol abbr
+ * name: protocol display name
+ * packet: per packet callback
+ * init: tree initialization callback
+ * cleanup: cleanup callback
+ * stat_group: the group this stat belongs to
+ */
+extern void stats_tree_register_with_group(const gchar *tapname,
+				const gchar *abbr, 
+				const gchar *name,
+				stat_tree_packet_cb packet,
+				stat_tree_init_cb init,
+				stat_tree_cleanup_cb cleanup,
+                register_stat_group_t stat_group);
 
 extern int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
 

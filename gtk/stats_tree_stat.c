@@ -335,7 +335,6 @@ static void
 register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
 	stats_tree_cfg* cfg = v;
-    register_stat_group_t stat_group = REGISTER_STAT_GROUP_UNSORTED;
 
 	cfg->pr = g_malloc(sizeof(tree_pres));
 
@@ -346,15 +345,7 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
 
-    /* XXX - maybe let the stats_tree stuff register their stat groups themself? */
-    if(strcmp(cfg->abbr, "isup_msg") == 0 ||
-       strcmp(cfg->abbr, "smpp_commands") == 0) {
-        stat_group = REGISTER_STAT_GROUP_TELEPHONY;
-    }
-    if(strcmp(cfg->abbr, "plen") == 0) {
-        stat_group = REGISTER_STAT_GROUP_GENERIC;
-    }
-	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name, stat_group);
+	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name, cfg->stat_group);
 }
 
 static void

@@ -877,6 +877,7 @@ stats_tree_parent_id_by_name
 stats_tree_presentation
 stats_tree_range_node_with_pname
 stats_tree_register
+stats_tree_register_with_group
 stats_tree_reinit
 stats_tree_reset
 stats_tree_tick_pivot

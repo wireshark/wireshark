@@ -2757,7 +2757,7 @@ proto_reg_handoff_ucp(void)
     dissector_add_handle("tcp.port", ucp_handle);
 
     /* Tapping setup */
-    stats_tree_register("ucp", "ucp_messages", st_str_ucp,
+    stats_tree_register_with_group("ucp", "ucp_messages", st_str_ucp,
 			ucp_stats_tree_per_packet, ucp_stats_tree_init,
-			NULL);
+			NULL, REGISTER_STAT_GROUP_TELEPHONY);
 }
