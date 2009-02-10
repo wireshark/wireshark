@@ -267,7 +267,7 @@ browser_open_url (const gchar *url)
  * @param filename to (absolute pathed) filename to convert
  * @return a newly allocated uri, you must g_free it later
  */
-static gchar *
+gchar *
 filename2uri(const gchar *filename)
 {
     int i = 0;
