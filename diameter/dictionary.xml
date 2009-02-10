@@ -1371,7 +1371,7 @@ http://www.iana.org/assignments/radius-types
 		</avp>
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
 <!--
-3GPP TS 29.230 version 7.7.0 Release 7  Table 7.1: 3GPP specific AVP codes
+3GPP TS 29.230 version 8.4.0 Release 8  Table 7.1: 3GPP specific AVP codes
 100 3GPP-WLAN-APN-Id OctetString 29.234 [6]
 Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor
 Specific Attributes (See TS 29.061 [13])
@@ -3318,18 +3318,25 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <enum name="VAS4SMS Short Message Personal Signature" code="9"/>
       <enum name="VAS4SMS Short Message Deferred Delivery" code="10"/>
     </avp>    
-		<avp name="Subscriber-Role" code="2030" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Enumerated"/>
-      <enum name="ORIGINATING" code="0"/>
-      <enum name="TERMINATING" code="1"/>
-    </avp>    
+		<avp name="MMTel-Information" code="2030" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Service-type"/>
+      <gavp name="Service-mode"/>
+      <gavp name="Subscriber-Role"/>
+      <gavp name="Number-Of-Diversions"/>
+      <gavp name="Associated-Party-Address"/>
+     </grouped>
 		<avp name="Service-type" code="2031" vendor-bit="must" vendor-id="TGPP"> 
        <type type-name="Enumerated"/>
 		</avp>
 		<avp name="Service-Mode" code="2032" vendor-bit="must" vendor-id="TGPP"> 
        <type type-name="Enumerated"/>
 		</avp>
-Subscriber-Role 2033    
+		<avp name="Subscriber-Role" code="2033" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="ORIGINATING" code="0"/>
+      <enum name="TERMINATING" code="1"/>
+    </avp>    
 		<avp name="Number-Of-Diversions" code="2034" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="Unsigned32"/>
 		</avp>
@@ -3348,7 +3355,15 @@ Change-Time 2038 X - - - Time V,M P N
      <grouped>
       </grouped>
     </avp>
-
+Service-Condition-Change 2039 X - - - Enumerated V,M P N
+Service-Data-Container 2040 X - - - Grouped V,M P N
+Start-Time 2041 X - - - Time V,M P N
+Stop-Time 2042 X - - - Time V,M P N
+Time-First-Usage 2043 X - - - Time V,M P N
+Time-Last-Usage 2044 X - - - Time V,M P N
+Time-Usage 2045 X - - - Unsigned32 V,M P N
+Traffic-Data-Volumes 2046 X - - - Grouped V,M P N
+Non-3GPP-Access-Information 2050 X - X - Grouped V,M P N
 
 Note: The AVP codes from 2023 to 2099 are reserved for TS 32.299
 2100	reserved	-	32.299 [5]
