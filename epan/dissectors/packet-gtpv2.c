@@ -213,7 +213,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {0, NULL}
 };
 static void
-dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset)
+dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset)
 {
 	proto_tree *ie_tree;
 	proto_item *ti;
