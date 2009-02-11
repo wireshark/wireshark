@@ -77,6 +77,7 @@
 #include "../image/toolbar/network_wireless_16.xpm"
 #endif
 #include "../image/toolbar/network_wired_16.xpm"
+#include "../image/toolbar/network_virtual_16.xpm"
 
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
@@ -383,9 +384,9 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if ( strstr(if_info->description,"Wireless") != NULL || strstr(if_info->description,"802.11") != NULL) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
-  /* TODO: check exact spelling (the company is "VMware") and find a better icon! */
-  if ( strstr(if_info->description,"VMWare") != NULL) {
-    return xpm_to_widget(network_wireless_16_xpm);
+  /* TODO: find a better icon! */
+  if ( strstr(if_info->description,"VMware") != NULL) {
+    return xpm_to_widget(network_virtual_16_xpm);
   }
 #elif defined(__APPLE__)
   /*
