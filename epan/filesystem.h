@@ -166,7 +166,7 @@ extern char *get_persdatafile_dir(void);
  * Construct the path name of a file in $TMP/%TEMP% directory.
  * Or "/tmp/<filename>" (C:\<filename>) if that fails.
  *
- * Return value is malloced so the caller should free it.
+ * Return value is g_malloced so the caller should g_free it.
  */
 extern char *get_tempfile_path(const char *filename);
 
