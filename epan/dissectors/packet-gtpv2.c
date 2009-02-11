@@ -208,7 +208,7 @@ static const value_string gtpv2_element_type_vals[] = {
 	{139, "Change Reporting Action"},											/* Extendable / 8.69 */
 	{140, "Cause including an embedded offending IE"},							/* Extendable / 8.4 */
 	{141, "PDN Connection Set Identifier (CSID)"},								/* Extendable / 8.70 */
-	/* 142-254 Spare."},														/* For future use. FFS */
+	/* 142-254 "Spare."},	*/													/* For future use. FFS */
 	{255, "Private"},															/* Extension Extendable / 8.71 */
     {0, NULL}
 };
