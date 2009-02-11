@@ -957,6 +957,7 @@ install-generated-files:
 	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
 !ENDIF
+	xcopy ipmap.html $(INSTALL_DIR) /d
 	xcopy doc\*.html $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d

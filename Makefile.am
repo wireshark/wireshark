@@ -106,7 +106,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
-	rawshark.html ws.css cfilters colorfilters dfilters smi_modules
+	rawshark.html ws.css cfilters colorfilters dfilters smi_modules ipmap.html
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -786,6 +786,7 @@ EXTRA_DIST = \
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
 	image/wssplash-dev.xpm	\
+	ipmap.html	\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
 	make-manuf		\
