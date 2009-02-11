@@ -2797,6 +2797,10 @@ Johnny Mitrevski		<mitrevj [AT] hotmail.com> {
 	BSSAP LE Dissector
 } 
 
+Neil Horman			<nhorman [AT] tuxdriver.com> {
+	Netdump dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
