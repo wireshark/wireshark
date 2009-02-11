@@ -313,7 +313,7 @@ dissect_gtpv2_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  * Editor’s note: MSISDN coding will be defined in TS 24.301.
  */
 static void
-dissect_gtpv2_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_msisdn(tvbuff_t *tvb, int offset _U_, packet_info *pinfo, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
 {
 	dissect_gsm_map_msisdn(tvb, pinfo, tree); 
 
