@@ -493,16 +493,20 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb, packet_info *pinfo,
     /* Optional, extra fields */
     do {
         if (e1) {
+            proto_item *nack_ti;
+
             /****************************/
             /* Read NACK_SN, E1, E2     */
 
             /* NACK_SN */
-            proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
-                                        bit_offset, 10, &nack_sn, FALSE);
+            nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
+                                                  bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
             if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             }
+            expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
+                                   "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
 
 
             /* E1 */
