@@ -68,6 +68,7 @@
 #define SSL_VER_TLSv1DOT1                 4
 #define SSL_VER_DTLS                      5
 #define SSL_VER_PCT                       6
+#define SSL_VER_TLSv1DOT2                 7
 
 /* other defines */
 #define SSL_ID_CHG_CIPHER_SPEC         0x14
@@ -184,6 +185,7 @@ typedef struct _StringInfo {
 #define SSLV3_VERSION          0x300
 #define TLSV1_VERSION          0x301
 #define TLSV1DOT1_VERSION      0x302
+#define TLSV1DOT2_VERSION      0x303
 #define DTLSV1DOT0_VERSION     0xfeff
 #define DTLSV1DOT0_VERSION_NOT 0x100
 

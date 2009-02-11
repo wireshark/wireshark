@@ -174,6 +174,7 @@ const value_string ssl_31_content_type[] = {
 const value_string ssl_versions[] = {
     { 0xfeff, "DTLS 1.0" },
     { 0x0100, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
+    { 0x0303, "TLS 1.2" },
     { 0x0302, "TLS 1.1" },
     { 0x0301, "TLS 1.0" },
     { 0x0300, "SSL 3.0" },
@@ -204,6 +205,7 @@ const value_string ssl_31_alert_description[] = {
     { 22,  "Record Overflow" },
     { 30,  "Decompression Failure" },
     { 40,  "Handshake Failure" },
+    { 41,  "No Certificate" },
     { 42,  "Bad Certificate" },
     { 43,  "Unsupported Certificate" },
     { 44,  "Certificate Revoked" },
@@ -220,6 +222,12 @@ const value_string ssl_31_alert_description[] = {
     { 80,  "Internal Error" },
     { 90,  "User Canceled" },
     { 100, "No Renegotiation" },
+    { 110, "Unsupported Extension" },
+    { 111, "Certificate Unobtainable" },
+    { 112, "Unrecognized Name" },
+    { 113, "Bad Certificate Status Response" },
+    { 114, "Bad Certificate Hash Value" },
+    { 115, "Unknown PSK Identity" },
     { 0x00, NULL }
 };
 
@@ -281,7 +289,7 @@ const value_string ssl_31_public_value_encoding[] = {
 #endif
 
 const value_string ssl_31_ciphersuite[] = {
-    /* RFC 2246, RFC 4346 */
+    /* RFC 2246, RFC 4346, RFC 5246 */
     { 0x0000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x0001, "TLS_RSA_WITH_NULL_MD5" },
     { 0x0002, "TLS_RSA_WITH_NULL_SHA" },
@@ -340,7 +348,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x002D, "TLS_DHE_PSK_WITH_NULL_SHA" },
     { 0x002E, "TLS_RSA_PSK_WITH_NULL_SHA" },
 
-    /* RFC 3268 */
+    /* RFC 5246 */
     { 0x002F, "TLS_RSA_WITH_AES_128_CBC_SHA" },
     { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
     { 0x0031, "TLS_DH_RSA_WITH_AES_128_CBC_SHA" },
@@ -353,6 +361,19 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
     { 0x0039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
     { 0x003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
+    { 0x003B, "TLS_RSA_WITH_NULL_SHA256" },
+    { 0x003C, "TLS_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0x003D, "TLS_RSA_WITH_AES_256_CBC_SHA256" },
+    { 0x003E, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256" },
+    { 0x003F, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0x0040, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256" },
+    { 0x0067, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0x0068, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256" },
+    { 0x0069, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256" },
+    { 0x006A, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256" },
+    { 0x006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
+    { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
+    { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
 
     /* ??? */
     { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
@@ -401,6 +422,40 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x009A, "TLS_DHE_RSA_WITH_SEED_CBC_SHA" },
     { 0x009B, "TLS_DH_anon_WITH_SEED_CBC_SHA" },
 
+    /* RFC 5288 */
+    { 0x009C, "TLS_RSA_WITH_AES_128_GCM_SHA256" },
+    { 0x009D, "TLS_RSA_WITH_AES_256_GCM_SHA384" },
+    { 0x009E, "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256" },
+    { 0x009F, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384" },
+    { 0x00A0, "TLS_DH_RSA_WITH_AES_128_GCM_SHA256" },
+    { 0x00A1, "TLS_DH_RSA_WITH_AES_256_GCM_SHA384" },
+    { 0x00A2, "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256" },
+    { 0x00A3, "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384" },
+    { 0x00A4, "TLS_DH_DSS_WITH_AES_128_GCM_SHA256" },
+    { 0x00A5, "TLS_DH_DSS_WITH_AES_256_GCM_SHA384" },
+    { 0x00A6, "TLS_DH_anon_WITH_AES_128_GCM_SHA256" },
+    { 0x00A7, "TLS_DH_anon_WITH_AES_256_GCM_SHA384" },
+
+    /* RFC-ietf-tls-psk-new-mac-aes-gcm-05 */
+    { 0x00A8, "TLS_PSK_WITH_AES_128_GCM_SHA256" },
+    { 0x00A9, "TLS_PSK_WITH_AES_256_GCM_SHA384" },
+    { 0x00AA, "TLS_DHE_PSK_WITH_AES_128_GCM_SHA256" },
+    { 0x00AB, "TLS_DHE_PSK_WITH_AES_256_GCM_SHA384" },
+    { 0x00AC, "TLS_RSA_PSK_WITH_AES_128_GCM_SHA256" },
+    { 0x00AD, "TLS_RSA_PSK_WITH_AES_256_GCM_SHA384" },
+    { 0x00AE, "TLS_PSK_WITH_AES_128_CBC_SHA256" },
+    { 0x00AF, "TLS_PSK_WITH_AES_256_CBC_SHA384" },
+    { 0x00B0, "TLS_PSK_WITH_NULL_SHA256" },
+    { 0x00B1, "TLS_PSK_WITH_NULL_SHA384" },
+    { 0x00B2, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA256" },
+    { 0x00B3, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA384" },
+    { 0x00B4, "TLS_DHE_PSK_WITH_NULL_SHA256" },
+    { 0x00B5, "TLS_DHE_PSK_WITH_NULL_SHA384" },
+    { 0x00B6, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA256" },
+    { 0x00B7, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA384" },
+    { 0x00B8, "TLS_RSA_PSK_WITH_NULL_SHA256" },
+    { 0x00B9, "TLS_RSA_PSK_WITH_NULL_SHA384" },
+
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -428,7 +483,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xc018, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA" },
     { 0xc019, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA" },
 
-    /* draft-ietf-tls-srp-14.txt */
+    /* RFC 5054 */
     { 0xC01A, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA" },
     { 0xC01B, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA" },
     { 0xC01C, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA" },
@@ -438,6 +493,35 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xC020, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA" },
     { 0xC021, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA" },
     { 0xC022, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA" },
+
+    /* RFC 5589 */
+    { 0xC023, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256" },
+    { 0xC024, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384" },
+    { 0xC025, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256" },
+    { 0xC026, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384" },
+    { 0xC027, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0xC028, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384" },
+    { 0xC029, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0xC02A, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384" },
+    { 0xC02B, "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256" },
+    { 0xC02C, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384" },
+    { 0xC02D, "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256" },
+    { 0xC02E, "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384" },
+    { 0xC02F, "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256" },
+    { 0xC030, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384" },
+    { 0xC031, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256" },
+    { 0xC032, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384" },
+
+    /* RFC-ietf-tls-ecdhe-psk-05 */
+    { 0xC033, "TLS_ECDHE_PSK_WITH_RC4_128_SHA" },
+    { 0xC034, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA" },
+    { 0xC035, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA" },
+    { 0xC036, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA" },
+    { 0xC037, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256" },
+    { 0xC038, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384" },
+    { 0xC039, "TLS_ECDHE_PSK_WITH_NULL_SHA" }, 	
+    { 0xC03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
+    { 0xC03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
 
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
@@ -522,13 +606,15 @@ const value_string tls_hello_extension_types[] = {
 	{ 3, "trusted_ca_keys" },
 	{ 4, "truncated_hmac" },
 	{ 5, "status_request" },
-	{ 6, "user_mapping" },
+	{ 6, "user_mapping" },  /* RFC 4681 */
 	{ 7, "Reserved" },
 	{ 8, "Reserved" },
-	{ 9, "cert_type" },
-	{ 10, "elliptic_curves" },
-	{ 11, "ec_point_formats" },
-	{ 35, "SessionTicket TLS" },
+	{ 9, "cert_type" },  /* RFC 5081 */
+	{ 10, "elliptic_curves" },  /* RFC 4492 */
+	{ 11, "ec_point_formats" },  /* RFC 4492 */
+	{ 12, "srp" },  /* RFC 5054 */
+	{ 13, "signature_algorithms" },  /* RFC 5246 */
+	{ 35, "SessionTicket TLS" },  /* RFC 4507 */
 	{ 0, NULL }
 };
 
@@ -755,11 +841,11 @@ _gcry_rsa_decrypt (int algo, gcry_mpi_t *result, gcry_mpi_t *data,
 
 #define PUBKEY_FLAG_NO_BLINDING (1 << 0)
 
-const gchar* 
+const gchar*
 ssl_private_key_to_str(SSL_PRIVATE_KEY* pk) {
   const gchar *str="NULL";
   size_t n;
-  gchar *buf; 
+  gchar *buf;
 
   if (!pk) return str;
 #ifndef SSL_FAST

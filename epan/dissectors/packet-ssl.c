@@ -1326,7 +1326,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     available_bytes = tvb_length_remaining(tvb, offset);
 
     /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
-    if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1) &&
+    if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1 || *conv_version==SSL_VER_TLSv1DOT2) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
       proto_tree_add_text(tree, tvb, offset, available_bytes, "Ignored Unknown Record");
       if (check_col(pinfo->cinfo, COL_INFO))
@@ -1471,6 +1471,17 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         {
 
             *conv_version = SSL_VER_TLSv1DOT1;
+            if (ssl) {
+                ssl->version_netorder = version;
+                ssl->state |= SSL_VERSION;
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+            }
+            /*ssl_set_conv_version(pinfo, ssl->version);*/
+        }
+        else if (version == TLSV1DOT2_VERSION)
+        {
+
+            *conv_version = SSL_VER_TLSv1DOT2;
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
@@ -1871,7 +1882,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     /* get encrypted data, on tls1 we have to skip two bytes
                      * (it's the encrypted len and should be equal to record len - 2)
                      */
-                    if (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1)
+                    if (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2)
                     {
                         encrlen  = tvb_get_ntohs(tvb, offset);
                         skip = 2;
@@ -2450,6 +2461,7 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
     switch(*conv_version) {
     case SSL_VER_TLS:
     case SSL_VER_TLSv1DOT1:
+    case SSL_VER_TLSv1DOT2:
         proto_tree_add_item(tree, hf_ssl_handshake_finished,
                             tvb, offset, 12, FALSE);
         break;
@@ -3516,6 +3528,13 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
         ssl->state |= SSL_VERSION;
         ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
         break;
+
+      case SSL_VER_TLSv1DOT2:
+        ssl->version = SSL_VER_TLSv1DOT2;
+        ssl->version_netorder = TLSV1DOT2_VERSION;
+        ssl->state |= SSL_VERSION;
+        ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+        break;
     }
   }
 
@@ -3757,6 +3776,7 @@ ssl_looks_like_sslv3(tvbuff_t *tvb, guint32 offset)
     case SSLV3_VERSION:
     case TLSV1_VERSION:
     case TLSV1DOT1_VERSION:
+    case TLSV1DOT2_VERSION:
         return 1;
     }
     return 0;
