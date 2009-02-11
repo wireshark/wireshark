@@ -248,6 +248,17 @@ gboolean uat_save(uat_t* uat, char** error) {
 
 	fp = ws_fopen(fname,"w");
 
+    if (!fp && errno == ENOENT) {
+        /* Parent directory does not exist, try creating first */
+        gchar *pf_dir_path = NULL;
+        if (create_persconffile_dir(&pf_dir_path) != 0) {
+            *error = ep_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
+            g_free (pf_dir_path);
+            return FALSE;
+        }
+        fp = ws_fopen(fname,"w");
+    }
+
 	if (!fp) {
 		*error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,strerror(errno));
 		return FALSE;
