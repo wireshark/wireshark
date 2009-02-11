@@ -36,6 +36,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/asn1.h>
+
+#include "packet-gsm_map.h"
 
 static int proto_gtpv2 = -1;
 static int hf_gtpv2_flags = -1;
@@ -50,6 +53,7 @@ static int hf_gtpv2_ie = -1;
 static int hf_gtpv2_ie_len = -1;
 static int hf_gtpv2_cr = -1;
 static int hf_gtpv2_instance = -1;
+static int hf_gtpv2_cause = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -127,52 +131,57 @@ static const value_string gtpv2_message_type_vals[] = {
     {0, NULL}
 };
 
+#define GTPV2_IE_RESERVED	0
+#define GTPV2_IE_IMSI		1
+#define GTPV2_IE_CAUSE		2
+#define GTPV2_IE_MSISDN		76
+
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
 	{0, "Reserved"},
-	{1, "International Mobile Subscriber Identity (IMSI)"},		/* Extendable / 8.3 */
-	{2, "Cause (without embedded offending IE)"},				/* Extendable / 8.4 */
-	{3, "Recovery (Restart Counter)"},							/* Extendable / 8.5 */
+	{1, "International Mobile Subscriber Identity (IMSI)"},						/* Extendable / 8.3 */
+	{2, "Cause (without embedded offending IE)"},								/* Extendable / 8.4 */
+	{3, "Recovery (Restart Counter)"},											/* Extendable / 8.5 */
 	/* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
 	/* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
-	{71, "Access Point Name (APN)"},							/* Extendable / 8.6 */
-	{72, "Aggregate Maximum Bit Rate (AMBR)"},					/* Extendable / 8.7 */
-	{73, "EPS Bearer ID (EBI)"},								/* Extendable / 8.8 */
-	{74, "IP Address"},											/* Extendable / 8.9 */
-	{75, "Mobile Equipment Identity (MEI)"},					/* Extendable / 8.10 */
-	{76, "MSISDN"},												/* Extendable / 8.11 */
-	{77, "Indication"},											/* Extendable / 8.12 */
-	{78, "Protocol Configuration Options (PCO)"},				/* Extendable / 8.13 */
-	{79, "PDN Address Allocation (PAA)"},						/* Extendable / 8.14 */
-	{80, "Bearer Level Quality of Service (Bearer QoS)"},		/* Extendable / 8.15 */
-	{81, "Flow Quality of Service (Flow QoS)"},					/* Extendable / 8.16 */
-	{82, "RAT Type"},											/* Extendable / 8.17 */
-	{83, "Serving Network"},									/* Extendable / 8.18 */
-	{84, "TEID-C"},												/* Extendable / 8.19 */
-																/* TEID-U Extendable / 8.19a */
-																/* TEID-U with EPS Bearer ID Extendable / 8.19b */
-	{85, "EPS Bearer Level Traffic Flow Template (Bearer TFT)"},/* Extendable / 8.20 */
-	{86, "Traffic Aggregation Description (TAD)"},				/* Extendable / 8.21 */
-	{87, "User Location Info (ULI)"},							/* Extendable / 8.22 */
-	{88, "Fully Qualified Tunnel Endpoint Identifier (F-TEID)"},/* Extendable / 8.23 */
-	{89, "TMSI"},												/* Extendable / 8.24 */
-	{90, "Global CN-Id"},										/* Extendable / 8.25 */
-	{91, "Legacy Quality of Service (Legacy QoS)"},				/* Extendable / 8.26 */
-	{92, "S103 PDN Data Forwarding Info (S103PDF)"},			/* Extendable / 8.27 */
-	{93, "S1-U Data Forwarding Info (S1UDF)"},					/* Extendable / 8.28 */
-	{94, "Delay Value"},										/* Extendable / 8.29 */
-	{95, "Bearer ID List"},										/* Extendable / 8.30 */
-	{96, "Bearer Context"},										/* Extendable / 8.31 */
-	{97, "S101-IP-Address"},									/* Extendable / 8.32 */
-	{98, "S102-IP-Address"},									/* Extendable / 8.33 */
-	{99, "Charging ID"},										/* Extendable / 8.34 */
-	{100, "Charging Characteristics"},							/* Extendable / 8.35 */
-	{101, "Trace Information"},									/* Extendable / 8.36 */
-	{102, "Bearer Flags"},										/* Extendable / 8.37 */
-	{103, "Paging Cause"},										/* Extendable / 8.38 */
-	{104, "PDN Type"},											/* Extendable / 8.39 */
-	{105, "Procedure Transaction ID"},							/* Extendable / 8.40 */
-	{106, "DRX Parameter"},										/* Extendable / 8.41 */
+	{71, "Access Point Name (APN)"},											/* Extendable / 8.6 */
+	{72, "Aggregate Maximum Bit Rate (AMBR)"},									/* Extendable / 8.7 */
+	{73, "EPS Bearer ID (EBI)"},												/* Extendable / 8.8 */
+	{74, "IP Address"},															/* Extendable / 8.9 */
+	{75, "Mobile Equipment Identity (MEI)"},									/* Extendable / 8.10 */
+	{76, "MSISDN"},																/* Extendable / 8.11 */
+	{77, "Indication"},															/* Extendable / 8.12 */
+	{78, "Protocol Configuration Options (PCO)"},								/* Extendable / 8.13 */
+	{79, "PDN Address Allocation (PAA)"},										/* Extendable / 8.14 */
+	{80, "Bearer Level Quality of Service (Bearer QoS)"},						/* Extendable / 8.15 */
+	{81, "Flow Quality of Service (Flow QoS)"},									/* Extendable / 8.16 */
+	{82, "RAT Type"},															/* Extendable / 8.17 */
+	{83, "Serving Network"},													/* Extendable / 8.18 */
+	{84, "TEID-C"},																/* Extendable / 8.19 */
+																				/* TEID-U Extendable / 8.19a */
+																				/* TEID-U with EPS Bearer ID Extendable / 8.19b */
+	{85, "EPS Bearer Level Traffic Flow Template (Bearer TFT)"},				/* Extendable / 8.20 */
+	{86, "Traffic Aggregation Description (TAD)"},								/* Extendable / 8.21 */
+	{87, "User Location Info (ULI)"},											/* Extendable / 8.22 */
+	{88, "Fully Qualified Tunnel Endpoint Identifier (F-TEID)"},				/* Extendable / 8.23 */
+	{89, "TMSI"},																/* Extendable / 8.24 */
+	{90, "Global CN-Id"},														/* Extendable / 8.25 */
+	{91, "Legacy Quality of Service (Legacy QoS)"},								/* Extendable / 8.26 */
+	{92, "S103 PDN Data Forwarding Info (S103PDF)"},							/* Extendable / 8.27 */
+	{93, "S1-U Data Forwarding Info (S1UDF)"},									/* Extendable / 8.28 */
+	{94, "Delay Value"},														/* Extendable / 8.29 */
+	{95, "Bearer ID List"},														/* Extendable / 8.30 */
+	{96, "Bearer Context"},														/* Extendable / 8.31 */
+	{97, "S101-IP-Address"},													/* Extendable / 8.32 */
+	{98, "S102-IP-Address"},													/* Extendable / 8.33 */
+	{99, "Charging ID"},														/* Extendable / 8.34 */
+	{100, "Charging Characteristics"},											/* Extendable / 8.35 */
+	{101, "Trace Information"},													/* Extendable / 8.36 */
+	{102, "Bearer Flags"},														/* Extendable / 8.37 */
+	{103, "Paging Cause"},														/* Extendable / 8.38 */
+	{104, "PDN Type"},															/* Extendable / 8.39 */
+	{105, "Procedure Transaction ID"},											/* Extendable / 8.40 */
+	{106, "DRX Parameter"},														/* Extendable / 8.41 */
 	{107, "UE Network Capability"},												/* Extendable / 8.42 */
 	{108, "PDU Numbers"},														/* Extendable / 8.46 */
 	{109, "MM Context (GSM Key and Triplets)"},									/* Extendable / 8.43 */
@@ -212,13 +221,127 @@ static const value_string gtpv2_element_type_vals[] = {
 	{255, "Private"},															/* Extension Extendable / 8.71 */
     {0, NULL}
 };
+
+/* Code to dissect IE's */
+
+static void
+dissect_gtpv2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+{
+
+	proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet"); 
+}
+
+/* 
+ * 8.3 International Mobile Subscriber Identity (IMSI)
+ *
+ * IMSI is defined in 3GPP TS 23.003
+ * Editor’s note: IMSI coding will be defined in 3GPP TS 24.301
+ * Editor’s note: In the first release of GTPv2 spec (TS 29.274v8.0.0) n = 8. 
+ * That is, the overall length of the IE is 11 octets.
+ */
+static void
+dissect_gtpv2_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet"); 
+
+}
+/* Table 8.4-1: Cause values */
+static const value_string gtpv2_cause_vals[] = {
+	{0, "Reserved"},
+	{1, "Paging Cause"},
+	{2, "Local Detach"},
+	{3, "Complete Detach"},
+	/* 4-15 Spare. This value range is reserved for Cause values in a request message */
+	{16, "Request accepted"},
+	{17, "Request accepted partially"},
+	{18, "New PDN type due to subscription limitation"},
+	{19, "New PDN type due to network preference"},
+	{20, "New PDN type due to single address bearer only"},
+	/* 21-63 Spare. This value range is reserved for Cause values in acceptance response message */
+	{64, "Context Non Existent/Found"},
+	{65, "Invalid Message Format"},
+	{66, "Version not supported by next peer"},
+	{67, "Invalid length"},
+	{68, "Service not supported"},
+	{69, "Mandatory IE incorrect"},
+	{70, "Mandatory IE missing"},
+	{71, "Optional IE incorrect"},
+	{72, "System failure"},
+	{73, "No resources available"},
+	{74, "Semantic error in the TFT operation"},
+	{75, "Syntactic error in the TFT operation"},
+	{76, "Semantic errors in packet filter(s)"},
+	{77, "Syntactic errors in packet filter(s)"},
+	{78, "Missing or unknown APN"},
+	{79, "Unexpected repeated IE"},
+	{80, "GRE key not found"},
+	{81, "Reallocation failure"},
+	{82, "Denied in RAT"},
+	{83, "Preferred PDN type not supported"},
+	{84, "All dynamic addresses are occupied"},
+	{85, "UE context without TFT already activated"},
+	{86, "Protocol type not supported"},
+	{87, "UE not responding"},
+	{88, "UE refuses"},
+	{89, "Service denied"},
+	{90, "Unable to page UE"},
+	{91, "No memory available"},
+	{92, "User authentication failed"},
+	{93, "APN access denied – no subscription"},
+	/* 94-255 Spare. This value range is reserved for Cause values in rejection response message */
+    {0, NULL}
+};
+
+/*
+ * 8.4 Cause
+ */
+
+static void
+dissect_gtpv2_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+{
+	/* Cause value octet 5 */
+	proto_tree_add_item(tree, hf_gtpv2_cause, tvb, offset, 1, FALSE);
+	if (length >1)
+			proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet");
+
+}
+
+/*
+ * 8.11 MSISDN
+ *
+ * MSISDN is defined in 3GPP TS 23.003
+ * Editor’s note: MSISDN coding will be defined in TS 24.301.
+ */
+static void
+dissect_gtpv2_msisdn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+{
+	dissect_gsm_map_msisdn(tvb, pinfo, tree); 
+
+}
+
+typedef struct _gtpv2_ie {
+    int ie_type;
+    void (*decode) (tvbuff_t *, int, packet_info *, proto_tree *, guint16, guint8);
+} gtpv2_ie_t;
+
+static const gtpv2_ie_t gtpv2_ies[] = {
+    {GTPV2_IE_IMSI, dissect_gtpv2_imsi},
+	{GTPV2_IE_CAUSE, dissect_gtpv2_cause},				/* 2, Cause (without embedded offending IE) 8.4 */
+	{GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},			/* 76, MSISDN 8.11 */
+    {0, dissect_gtpv2_unknown}
+};
+
+
+
 static void
 dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset)
 {
 	proto_tree *ie_tree;
 	proto_item *ti;
-	guint8 type;
+	tvbuff_t *ie_tvb;
+	guint8 type, instance;
 	guint16 length;
+	int i;
 	/*
 	 * Octets	8	7	6	5		4	3	2	1
 	 *	1		Type
@@ -241,13 +364,31 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tr
 		offset+=2;
 		/* CR Spare Instance Octet 4*/
 		proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, FALSE);
+
+		instance = tvb_get_guint8(tvb,offset)& 0x0f;
 		proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, FALSE);
 		offset++;
+		
 		/* TODO: call IE dissector here */
+		if(type==GTPV2_IE_RESERVED){
+			/* Treat IE type zero specal as type zero is used to end the loop in the else branch */
+			proto_tree_add_text(ie_tree, tvb, offset, length, "IE type Zero is Reserved and should not be used");
+		}else{
+			i = -1;
+			/* Loop over the IE dissector list to se if we find an entry, the last entry will have ie_type=0 braking the loop */
+			while (gtpv2_ies[++i].ie_type){
+				if (gtpv2_ies[i].ie_type == type)
+					break;
+			}
+			/* Just give the IE dissector the IE */
+			ie_tvb = tvb_new_subset(tvb, offset, length, length);
+			(*gtpv2_ies[i].decode) (ie_tvb, 0, pinfo , ie_tree, length, instance);
+		}
+
 		offset = offset + length;
 	}
-
 }
+
 static void
 dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
@@ -268,11 +409,13 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
 
-    if (tree) {
-		ti = proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, FALSE);
-		gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
 
-		
+	proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, FALSE);
+
+    if (tree) {
+		ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
+		gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
+	
 		/* Control Plane GTP uses a variable length header. Control Plane GTP header 
 		 * length shall be a multiple of 4 octets.
 		 * Figure 5.1-1 illustrates the format of the GTPv2-C Header.
@@ -316,7 +459,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 2, FALSE);
 		offset+=2;
 
-		dissect_gtpv2_ie_common(tvb, pinfo, tree, offset);
+		dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset);
 	}
 
 
@@ -350,7 +493,7 @@ void proto_register_gtpv2(void)
 		"Message Length", HFILL}
 		},
 		{ &hf_gtpv2_teid,
-		{"Tunnel Endpoint Identifier", "gtpv2.msg_lengt",
+		{"Tunnel Endpoint Identifier", "gtpv2.teid",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"TEID", HFILL}
 		},
@@ -360,7 +503,7 @@ void proto_register_gtpv2(void)
 		"SEQ", HFILL}
 		},
 		{ &hf_gtpv2_spare,
-		{"Spare", "gtpv2.seq",
+		{"Spare", "gtpv2.spare",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		"Spare", HFILL}
 		},
@@ -383,6 +526,11 @@ void proto_register_gtpv2(void)
 		{"Instance", "gtpv2.instance",
 		FT_UINT8, BASE_DEC, NULL, 0x0f,
 		"Instance", HFILL}
+		},
+		{ &hf_gtpv2_cause,
+		{"Cause", "gtpv2.cause",
+		FT_UINT8, BASE_DEC, VALS(gtpv2_cause_vals), 0x0,
+		"cause", HFILL}
 		},
 	 };
 
