@@ -2801,6 +2801,14 @@ Neil Horman			<nhorman [AT] tuxdriver.com> {
 	Netdump dissector
 }
 
+Andreas Schuler			<krater [AT] badterrorist.com> {
+	DECT dissector
+}
+
+Matthias Wenzel			<dect [AT] mazzoo.de> {
+	DECT dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
