@@ -77,7 +77,9 @@
 #include "../image/toolbar/network_wireless_16.xpm"
 #endif
 #include "../image/toolbar/network_wired_16.xpm"
+#if defined(_WIN32)
 #include "../image/toolbar/network_virtual_16.xpm"
+#endif
 
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
