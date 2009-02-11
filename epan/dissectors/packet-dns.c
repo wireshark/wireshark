@@ -28,6 +28,7 @@
  * RFC 2136 for dynamic DNS
  * http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
  *  for multicast DNS
+ * RFC 4795 for link-local multicast name resolution (LLMNR)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -55,8 +56,11 @@ static int hf_dns_flags = -1;
 static int hf_dns_flags_response = -1;
 static int hf_dns_flags_opcode = -1;
 static int hf_dns_flags_authoritative = -1;
+static int hf_dns_flags_conflict_query = -1;
+static int hf_dns_flags_conflict_response = -1;
 static int hf_dns_flags_truncated = -1;
 static int hf_dns_flags_recdesired = -1;
+static int hf_dns_flags_tentative = -1;
 static int hf_dns_flags_recavail = -1;
 static int hf_dns_flags_z = -1;
 static int hf_dns_flags_authenticated = -1;
@@ -141,6 +145,7 @@ typedef struct _dns_conv_info_t {
 #define TCP_PORT_DNS     53
 #define UDP_PORT_MDNS    5353
 #define TCP_PORT_MDNS    5353
+#define UDP_PORT_LLMNR   5355
 
 /* Offsets of fields in the DNS header. */
 #define	DNS_ID		0
@@ -222,10 +227,12 @@ typedef struct _dns_conv_info_t {
 #define F_OPCODE        (0xF<<11)       /* query opcode */
 #define OPCODE_SHIFT	11
 #define F_AUTHORITATIVE (1<<10)         /* response is authoritative */
+#define F_CONFLICT      (1<<10)         /* conflict detected */
 #define F_TRUNCATED     (1<<9)          /* response is truncated */
 #define F_RECDESIRED    (1<<8)          /* recursion desired */
+#define F_TENTATIVE     (1<<8)          /* response is tentative */
 #define F_RECAVAIL      (1<<7)          /* recursion available */
-#define F_Z		(1<<6)		/* Z */
+#define F_Z             (1<<6)          /* Z */
 #define F_AUTHENTIC     (1<<5)          /* authentic data (RFC2535) */
 #define F_CHECKDISABLE  (1<<4)          /* checking disabled (RFC2535) */
 #define F_RCODE         (0xF<<0)        /* reply code */
@@ -240,6 +247,16 @@ static const true_false_string tfs_flags_authoritative = {
 	"Server is not an authority for domain"
 };
 
+static const true_false_string tfs_flags_conflict_query = {
+	"The sender received multiple responses",
+	"None"
+};
+
+static const true_false_string tfs_flags_conflict_response = {
+	"The name is not considered unique",
+	"The name is considered unique"
+};
+
 static const true_false_string tfs_flags_truncated = {
 	"Message is truncated",
 	"Message is not truncated"
@@ -248,6 +265,11 @@ static const true_false_string tfs_flags_truncated = {
 static const true_false_string tfs_flags_recdesired = {
 	"Do query recursively",
 	"Don't do query recursively"
+};
+
+static const true_false_string tfs_flags_tentative = {
+	"Tentative",
+	"Not tentative"
 };
 
 static const true_false_string tfs_flags_recavail = {
@@ -2579,7 +2601,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static void
 dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_tcp, gboolean is_mdns)
+    gboolean is_tcp, gboolean is_mdns, gboolean is_llmnr)
 {
   int offset = is_tcp ? 2 : 0;
   int dns_data_offset;
@@ -2640,8 +2662,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     isupdate = FALSE;
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
-      "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
+    if (is_llmnr) {
+      ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
+        "Link-local Multicast Name Resolution (%s)", (flags & F_RESPONSE) ? "response" : "query");
+    } else {
+      ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
+        "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
+    }
 
     dns_tree = proto_item_add_subtree(ti, ett_dns);
   }
@@ -2748,28 +2775,46 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
   proto_tree_add_item(field_tree, hf_dns_flags_opcode,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-  if (flags & F_RESPONSE) {
-    proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
+  if (is_llmnr) {
+    if (flags & F_RESPONSE) {
+      proto_tree_add_item(field_tree, hf_dns_flags_conflict_response,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-  }
-  proto_tree_add_item(field_tree, hf_dns_flags_truncated,
+    } else {
+      proto_tree_add_item(field_tree, hf_dns_flags_conflict_query,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-  proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
+    }
+    proto_tree_add_item(field_tree, hf_dns_flags_truncated,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-  if (flags & F_RESPONSE) {
-    proto_tree_add_item(field_tree, hf_dns_flags_recavail,
+    proto_tree_add_item(field_tree, hf_dns_flags_tentative,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_z,
+    if (flags & F_RESPONSE) {
+      proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_rcode,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+    }
   } else {
-    proto_tree_add_item(field_tree, hf_dns_flags_z,
+    if (flags & F_RESPONSE) {
+      proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
+ 		tvb, offset + DNS_FLAGS, 2, FALSE);
+    }
+    proto_tree_add_item(field_tree, hf_dns_flags_truncated,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
+    proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
+    if (flags & F_RESPONSE) {
+      proto_tree_add_item(field_tree, hf_dns_flags_recavail,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_z,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_rcode,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    } else {
+      proto_tree_add_item(field_tree, hf_dns_flags_z,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    }
   }
 
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
@@ -2851,7 +2896,7 @@ dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
 }
 
 static void
@@ -2860,9 +2905,17 @@ dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
 
-  dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE);
+  dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE, FALSE);
 }
 
+static void
+dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLMNR");
+
+  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, TRUE);
+}
 
 static guint
 get_dns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -2886,7 +2939,7 @@ dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
-  dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE);
+  dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE, FALSE);
 }
 
 static void
@@ -2920,6 +2973,14 @@ proto_register_dns(void)
       { "Authoritative",	"dns.flags.authoritative",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_authoritative), F_AUTHORITATIVE,
 	"Is the server is an authority for the domain?", HFILL }},
+    { &hf_dns_flags_conflict_query,
+      { "Conflict",	"dns.flags.conflict",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_conflict_query), F_CONFLICT,
+	"Did we receive multiple responses to a query?", HFILL }},
+    { &hf_dns_flags_conflict_response,
+      { "Conflict",	"dns.flags.conflict",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_conflict_response), F_CONFLICT,
+	"Is the name considered unique?", HFILL }},
     { &hf_dns_flags_truncated,
       { "Truncated",	"dns.flags.truncated",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_truncated), F_TRUNCATED,
@@ -2928,6 +2989,10 @@ proto_register_dns(void)
       { "Recursion desired",	"dns.flags.recdesired",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_recdesired), F_RECDESIRED,
 	"Do query recursively?", HFILL }},
+    { &hf_dns_flags_tentative,
+      { "Tentative",	"dns.flags.tentative",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_tentative), F_TENTATIVE,
+	"Is the responder authoritative for the name, but not yet verified the uniqueness?", HFILL }},
     { &hf_dns_flags_recavail,
       { "Recursion available",	"dns.flags.recavail",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_recavail), F_RECAVAIL,
@@ -3139,15 +3204,18 @@ proto_reg_handoff_dns(void)
   dissector_handle_t dns_udp_handle;
   dissector_handle_t dns_tcp_handle;
   dissector_handle_t mdns_udp_handle;
+  dissector_handle_t llmnr_udp_handle;
 
   dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
   dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
   mdns_udp_handle = create_dissector_handle(dissect_mdns_udp, proto_dns);
+  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
 
   dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
   dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+  dissector_add("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
 
   gssapi_handle = find_dissector("gssapi");
   ntlmssp_handle = find_dissector("ntlmssp");
