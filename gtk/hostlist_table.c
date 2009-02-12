@@ -1217,7 +1217,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
     gtk_tooltips_set_tip(tooltips, map_bt,
         "Show a map of the IP addresses (internet connection required).", NULL);
-    g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
+    g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
     g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
     gtk_widget_set_sensitive(map_bt, FALSE);
