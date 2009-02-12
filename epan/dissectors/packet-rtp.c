@@ -135,6 +135,7 @@ static const fragment_items rtp_fragment_items = {
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
+static dissector_handle_t stun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 
@@ -481,16 +482,16 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (version == 0) {
 		if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
 		{
-			call_dissector(zrtp_handle, tvb, pinfo, tree);
+			call_dissector_only(zrtp_handle, tvb, pinfo, tree);
 			return TRUE;
 		} else {
 			switch (global_rtp_version0_type) {
 			case RTP0_STUN:
-				call_dissector(stun_handle, tvb, pinfo, tree);
-				return TRUE;
+				return call_dissector_only(stun_heur_handle, tvb, pinfo, tree);
 				
 			case RTP0_T38:
-				call_dissector(t38_handle, tvb, pinfo, tree);
+				/* XXX: Should really be calling a heuristic dissector for T38 ??? */
+				call_dissector_only(t38_handle, tvb, pinfo, tree);
 				return TRUE;
 				
 			case RTP0_INVALID:
@@ -1951,6 +1952,7 @@ proto_reg_handoff_rtp(void)
 
 		data_handle = find_dissector("data");
 		stun_handle = find_dissector("stun");
+		stun_heur_handle = find_dissector("stun-heur");
 		t38_handle = find_dissector("t38");
 		zrtp_handle = find_dissector("zrtp");
 

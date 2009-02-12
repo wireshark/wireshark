@@ -720,6 +720,7 @@ proto_register_stun(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	new_register_dissector("stun", dissect_stun, proto_stun);
+        new_register_dissector("stun-heur", dissect_stun_heur, proto_stun);
 }
 
 
