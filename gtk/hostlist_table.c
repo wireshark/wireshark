@@ -592,11 +592,11 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
    guint32         i;
    gchar           *table_entry;
-   guint32          col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
+   gint32          col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
    char            *file_path;
-   FILE			   *out_file;
-   gchar		   *file_uri;
-   gboolean			uri_open;
+   FILE            *out_file;
+   gchar           *file_uri;
+   gboolean        uri_open;
 
    hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
    if (!hosts)
@@ -643,70 +643,70 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    file_path = get_tempfile_path("ipmap.txt");
    out_file = fopen(file_path, "w+b");
    if(out_file == NULL) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" for writing", file_path);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" for writing", file_path);
     g_free(file_path);
     return;
    }
    g_free(file_path);
 
-   fputs("lat	lon	title	description	\n", out_file);
+   fputs("lat\tlon\ttitle\tdescription\t\n", out_file);
 
    /* Add the column values to the TSV data */
    for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
     /* check, if we have a geolocation available for this host */
     gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
-	if(strcmp(table_entry, "-") == 0) {
-		continue;
-	}
+    if(strcmp(table_entry, "-") == 0) {
+        continue;
+    }
     gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
-	if(strcmp(table_entry, "-") == 0) {
-		continue;
-	}
+    if(strcmp(table_entry, "-") == 0) {
+        continue;
+    }
 
-	/* latitude */
-	gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
-	fputs(table_entry, out_file);
-	fputs("	", out_file);
+    /* latitude */
+    gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
+    fputs(table_entry, out_file);
+    fputs("\t", out_file);
 
-	/* longitude */
-	gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
-	fputs(table_entry, out_file);
-	fputs("	", out_file);
+    /* longitude */
+    gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
+    fputs(table_entry, out_file);
+    fputs("\t", out_file);
 
-	/* title */
-	gtk_clist_get_text(hosts->table,i,col_ip,&table_entry);
-	fputs(table_entry, out_file);
-	fputs("	", out_file);
+    /* title */
+    gtk_clist_get_text(hosts->table,i,col_ip,&table_entry);
+    fputs(table_entry, out_file);
+    fputs("\t", out_file);
 
-	/* description */
-	gtk_clist_get_text(hosts->table,i,col_as_num,&table_entry);
-	fputs("AS: ", out_file);
-	fputs(table_entry, out_file);
-	fputs("<br/>", out_file);
+    /* description */
+    gtk_clist_get_text(hosts->table,i,col_as_num,&table_entry);
+    fputs("AS: ", out_file);
+    fputs(table_entry, out_file);
+    fputs("<br/>", out_file);
 
-	gtk_clist_get_text(hosts->table,i,col_country,&table_entry);
-	fputs("Country: ", out_file);
-	fputs(table_entry, out_file);
-	fputs("<br/>", out_file);
+    gtk_clist_get_text(hosts->table,i,col_country,&table_entry);
+    fputs("Country: ", out_file);
+    fputs(table_entry, out_file);
+    fputs("<br/>", out_file);
 
-	gtk_clist_get_text(hosts->table,i,col_city,&table_entry);
-	fputs("City: ", out_file);
-	fputs(table_entry, out_file);
-	fputs("<br/>", out_file);
+    gtk_clist_get_text(hosts->table,i,col_city,&table_entry);
+    fputs("City: ", out_file);
+    fputs(table_entry, out_file);
+    fputs("<br/>", out_file);
 
-	gtk_clist_get_text(hosts->table,i,col_packets,&table_entry);
-	fputs("Packets: ", out_file);
-	fputs(table_entry, out_file);
-	fputs("<br/>", out_file);
+    gtk_clist_get_text(hosts->table,i,col_packets,&table_entry);
+    fputs("Packets: ", out_file);
+    fputs(table_entry, out_file);
+    fputs("<br/>", out_file);
 
-	gtk_clist_get_text(hosts->table,i,col_bytes,&table_entry);
-	fputs("Bytes: ", out_file);
-	fputs(table_entry, out_file);
-	fputs("	", out_file);
+    gtk_clist_get_text(hosts->table,i,col_bytes,&table_entry);
+    fputs("Bytes: ", out_file);
+    fputs(table_entry, out_file);
+    fputs("\t", out_file);
 
-	/* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
+    /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
 
-	fputs("\n", out_file);                     /* new row */
+    fputs("\n", out_file);                     /* new row */
    }
 
    fclose(out_file);
@@ -714,29 +714,29 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    /* copy ipmap.html to temp dir */
    /* XXX - would be better to have something like copy_file() in filesystem.c? */
    {
-	   char * src_file_path;
-	   char * dst_file_path;
-	   FILE * src_file;
-	   FILE * dst_file;
-	   int    nbytes;
-	   char   buf[256];
+       char * src_file_path;
+       char * dst_file_path;
+       FILE * src_file;
+       FILE * dst_file;
+       int    nbytes;
+       char   buf[256];
 
-	   src_file_path = get_datafile_path("ipmap.html");
-	   dst_file_path = get_tempfile_path("ipmap.html");
+       src_file_path = get_datafile_path("ipmap.html");
+       dst_file_path = get_tempfile_path("ipmap.html");
 
-	   src_file = fopen(src_file_path, "r+b");
-	   dst_file = fopen(dst_file_path, "w+b");
+       src_file = fopen(src_file_path, "r+b");
+       dst_file = fopen(dst_file_path, "w+b");
 
-	   g_free(src_file_path);
-	   g_free(dst_file_path);
+       g_free(src_file_path);
+       g_free(dst_file_path);
 
-	   do {
-		   nbytes = fread(buf, 1, sizeof(buf)-1, src_file);
-		   fwrite(buf, 1, nbytes, dst_file);
-	   } while(nbytes == sizeof(buf)-1);
+       do {
+           nbytes = fread(buf, 1, sizeof(buf)-1, src_file);
+           fwrite(buf, 1, nbytes, dst_file);
+       } while(nbytes == sizeof(buf)-1);
 
-	   fclose(src_file);
-	   fclose(dst_file);
+       fclose(src_file);
+       fclose(dst_file);
    }
 
    /* open the webbrowser */
@@ -745,7 +745,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    g_free(file_path);
    uri_open = browser_open_url (file_uri);
    if(!uri_open) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
     g_free(file_uri);
     return;
    }
@@ -910,11 +910,11 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
 #ifdef HAVE_GEOIP
-	if( strstr(table_name, "IPv4") != NULL) {
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
-	} else {
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-	}
+    if( strstr(table_name, "IPv4") != NULL) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    }
 #else    
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 #endif
@@ -932,12 +932,12 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
 #ifdef HAVE_GEOIP
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
-	if(map_bt != NULL) {
-		gtk_tooltips_set_tip(tooltips, map_bt,
-			"Show a map of the IP addresses (internet connection required).", NULL);
-		g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
-		g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
-	}
+    if(map_bt != NULL) {
+        gtk_tooltips_set_tip(tooltips, map_bt,
+            "Show a map of the IP addresses (internet connection required).", NULL);
+        g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
+        g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
+    }
 #endif /* HAVE_GEOIP */
     
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
@@ -953,8 +953,8 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     gdk_window_raise(hosttable->win->window);
 
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
-	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
-  	gtk_clist_freeze(hosttable->table);
+       in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
+      gtk_clist_freeze(hosttable->table);
 
 
     /* after retapping, redraw table */
@@ -986,11 +986,11 @@ ct_nb_map_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, g
 
     if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
         g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
-		if(strstr( ((hostlist_table *)pages[page])->name, "IPv4") != NULL) {
-			gtk_widget_set_sensitive(copy_bt, TRUE);
-		} else {
-			gtk_widget_set_sensitive(copy_bt, FALSE);
-		}
+        if(strstr( ((hostlist_table *)pages[page])->name, "IPv4") != NULL) {
+            gtk_widget_set_sensitive(copy_bt, TRUE);
+        } else {
+            gtk_widget_set_sensitive(copy_bt, FALSE);
+        }
     }
 }
 #endif /* HAVE_GEOIP */
@@ -1102,8 +1102,8 @@ hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
 
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
         hosttable = pages[page];
-	hosttable->use_dfilter = use_filter;
-	reset_hostlist_table_data(hosttable);
+        hosttable->use_dfilter = use_filter;
+        reset_hostlist_table_data(hosttable);
     }
 
     cf_retap_packets(&cfile, FALSE);
@@ -1220,7 +1220,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
-	gtk_widget_set_sensitive(map_bt, FALSE);
+    gtk_widget_set_sensitive(map_bt, FALSE);
 #endif /* HAVE_GEOIP */
     
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
