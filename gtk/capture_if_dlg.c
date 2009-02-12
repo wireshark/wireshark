@@ -77,7 +77,7 @@
 #include "../image/toolbar/network_wireless_16.xpm"
 #endif
 #include "../image/toolbar/network_wired_16.xpm"
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__APPLE__)
 #include "../image/toolbar/network_virtual_16.xpm"
 #endif
 
@@ -418,9 +418,12 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   /*
    * TODO: find a better icon!
    * These devices have an IFT_ of IFT_ETHER, so we have to check the name.
+   * XXX - are these supposed to be for VMware interfaces on the host
+   * machine, for talking to the guest, or for VMware-supplied interfaces
+   * on the guest machine, or both?
    */
   if ( strncmp(if_info->name,"vmnet",5) == 0) {
-    return xpm_to_widget(network_wireless_16_xpm);
+    return xpm_to_widget(network_virtual_16_xpm);
   }
 #elif defined(__linux__)
   /*
@@ -437,6 +440,8 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
     }
     free(wireless_path);
   }
+
+  /* XXX - "vmnet" again, for VMware interfaces? */
 #endif
 
   return xpm_to_widget(network_wired_16_xpm);
