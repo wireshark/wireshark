@@ -310,103 +310,103 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ZRTP Packet");
 
-    ti = proto_tree_add_protocol_format(tree,proto_zrtp,tvb,0,-1,"ZRTP protocol");
-    zrtp_tree = proto_item_add_subtree(ti,ett_zrtp);
+  ti = proto_tree_add_protocol_format(tree,proto_zrtp,tvb,0,-1,"ZRTP protocol");
+  zrtp_tree = proto_item_add_subtree(ti,ett_zrtp);
 
-    proto_tree_add_item(zrtp_tree,hf_zrtp_rtpversion,tvb,prime_offset+0,1,FALSE);
-    proto_tree_add_item(zrtp_tree,hf_zrtp_rtppadding,tvb,prime_offset+0,1,FALSE);
-    proto_tree_add_item(zrtp_tree,hf_zrtp_rtpextension,tvb,prime_offset+0,1,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpversion,tvb,prime_offset+0,1,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtppadding,tvb,prime_offset+0,1,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpextension,tvb,prime_offset+0,1,FALSE);
 
-    proto_tree_add_item(zrtp_tree,hf_zrtp_sequence,tvb,prime_offset+2,2,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_sequence,tvb,prime_offset+2,2,FALSE);
 
-    proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,FALSE);
 
-    proto_tree_add_item(zrtp_tree,hf_zrtp_source_id,tvb,prime_offset+8,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_source_id,tvb,prime_offset+8,4,FALSE);
 
-    linelen = tvb_reported_length_remaining(tvb,msg_offset);
-    checksum_offset = linelen-4;
+  linelen = tvb_reported_length_remaining(tvb,msg_offset);
+  checksum_offset = linelen-4;
 
-    ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,msg_offset,linelen-4,"Message");
-    zrtp_msg_tree = proto_item_add_subtree(ti,ett_zrtp_msg);
+  ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,msg_offset,linelen-4,"Message");
+  zrtp_msg_tree = proto_item_add_subtree(ti,ett_zrtp_msg);
 
-    proto_tree_add_item(zrtp_msg_tree,hf_zrtp_signature,tvb,msg_offset+0,2,FALSE);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_signature,tvb,msg_offset+0,2,FALSE);
 
-    proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_length,tvb,msg_offset+2,2,FALSE);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_length,tvb,msg_offset+2,2,FALSE);
 
-    tvb_memcpy(tvb,(void *)message_type,msg_offset+4,8);
-    message_type[8] = 0;
-    proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,FALSE);
+  tvb_memcpy(tvb,(void *)message_type,msg_offset+4,8);
+  message_type[8] = '\0';
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,FALSE);
 
-    linelen = tvb_reported_length_remaining(tvb,msg_offset+12);
+  linelen = tvb_reported_length_remaining(tvb,msg_offset+12);
 
-    if (!strncmp(message_type,"Hello   ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_Hello(tvb,pinfo,zrtp_msg_data_tree);
-    } else if (!strncmp(message_type,"HelloACK",8)){
-      dissect_HelloACK(pinfo);
-    } else if (!strncmp(message_type,"Commit  ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_Commit(tvb,pinfo,zrtp_msg_data_tree);
-    } else if (!strncmp(message_type,"DHPart1 ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_DHPart(tvb,pinfo,zrtp_msg_data_tree,1);
-    } else if (!strncmp(message_type,"DHPart2 ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_DHPart(tvb,pinfo,zrtp_msg_data_tree,2);
-    } else if (!strncmp(message_type,"Confirm1",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_Confirm(tvb,pinfo,zrtp_msg_data_tree,1);
-    } else if (!strncmp(message_type,"Confirm2",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_Confirm(tvb,pinfo,zrtp_msg_data_tree,2);
-    } else if (!strncmp(message_type,"Conf2ACK",8)){
-      dissect_Conf2ACK(pinfo);
-    } else if (!strncmp(message_type,"Error   ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_Error(tvb,pinfo,zrtp_msg_data_tree);
-    } else if (!strncmp(message_type,"ErrorACK",8)){
-      dissect_ErrorACK(pinfo);
-    } else if (!strncmp(message_type,"GoClear ",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_GoClear(tvb,pinfo,zrtp_msg_data_tree);
-    } else if (!strncmp(message_type,"ClearACK",8)){
-      dissect_ClearACK(pinfo);
-    } else if (!strncmp(message_type,"SASrelay",8)){
-      ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
-      zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
-      dissect_SASrelay(tvb,pinfo,zrtp_msg_data_tree);
-    } else if (!strncmp(message_type,"RelayACK",8)){
-      dissect_RelayACK(pinfo);
-    }
+  if (!strncmp(message_type,"Hello   ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Hello(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"HelloACK",8)){
+    dissect_HelloACK(pinfo);
+  } else if (!strncmp(message_type,"Commit  ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Commit(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"DHPart1 ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_DHPart(tvb,pinfo,zrtp_msg_data_tree,1);
+  } else if (!strncmp(message_type,"DHPart2 ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_DHPart(tvb,pinfo,zrtp_msg_data_tree,2);
+  } else if (!strncmp(message_type,"Confirm1",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Confirm(tvb,pinfo,zrtp_msg_data_tree,1);
+  } else if (!strncmp(message_type,"Confirm2",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Confirm(tvb,pinfo,zrtp_msg_data_tree,2);
+  } else if (!strncmp(message_type,"Conf2ACK",8)){
+    dissect_Conf2ACK(pinfo);
+  } else if (!strncmp(message_type,"Error   ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Error(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"ErrorACK",8)){
+    dissect_ErrorACK(pinfo);
+  } else if (!strncmp(message_type,"GoClear ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_GoClear(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"ClearACK",8)){
+    dissect_ClearACK(pinfo);
+  } else if (!strncmp(message_type,"SASrelay",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_SASrelay(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"RelayACK",8)){
+    dissect_RelayACK(pinfo);
+  }
 
-    sent_crc = tvb_get_ntohl(tvb,msg_offset+checksum_offset);
-    calc_crc = ~calculate_crc32c(tvb_get_ptr(tvb,0,msg_offset+checksum_offset),msg_offset+checksum_offset,CRC32C_PRELOAD);
+  sent_crc = tvb_get_ntohl(tvb,msg_offset+checksum_offset);
+  calc_crc = ~calculate_crc32c(tvb_get_ptr(tvb,0,msg_offset+checksum_offset),msg_offset+checksum_offset,CRC32C_PRELOAD);
 
-    if (sent_crc == calc_crc) {
-      ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
-                                           "0x%04x [correct]", sent_crc);
-      checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, TRUE);
-      PROTO_ITEM_SET_GENERATED(ti);
-      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, FALSE);
-      PROTO_ITEM_SET_GENERATED(ti);
-    } else {
-      ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
-                                      "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
-      checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, FALSE);
-      PROTO_ITEM_SET_GENERATED(ti);
-      ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, TRUE);
-      PROTO_ITEM_SET_GENERATED(ti);
-    }
+  if (sent_crc == calc_crc) {
+    ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
+                                          "0x%04x [correct]", sent_crc);
+    checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, TRUE);
+    PROTO_ITEM_SET_GENERATED(ti);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, FALSE);
+    PROTO_ITEM_SET_GENERATED(ti);
+  } else {
+    ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
+                                          "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
+    checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, FALSE);
+    PROTO_ITEM_SET_GENERATED(ti);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, TRUE);
+    PROTO_ITEM_SET_GENERATED(ti);
+  }
 
 }
 
@@ -548,19 +548,19 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   /* ZID */
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,data_offset+0,12,FALSE);
   tvb_memcpy(tvb,(void *)value,data_offset+12,4);
-  value[4]=0;
+  value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_hash,tvb,data_offset+12,4,value,
 				  "Hash: %s",key_to_val(value,4,zrtp_hash_type_vals,"Unknown hash type %s"));
   tvb_memcpy(tvb,(void *)value,data_offset+16,4);
-  value[4]=0;
+  value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_cipher,tvb,data_offset+16,4,value,"Cipher: %s",
 				  key_to_val(value,4,zrtp_cipher_type_vals,"Unknown cipher type %s"));
   tvb_memcpy(tvb,(void *)value,data_offset+20,4);
-  value[4]=0;
+  value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_at,tvb,data_offset+20,4,value,
 				  "Auth tag: %s",key_to_val(value,4,zrtp_auth_tag_vals,"Unknown auth tag %s"));
   tvb_memcpy(tvb,(void *)value,data_offset+24,4);
-  value[4]=0;
+  value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_keya,tvb,data_offset+24,4,value,
 				  "Key agreement: %s",key_to_val(value,4,zrtp_key_agreement_vals,"Unknown key agreement %s"));
 
@@ -570,7 +570,7 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
     key_type = 2;
   }
   tvb_memcpy(tvb,(void *)value,data_offset+28,4);
-  value[4]=0;
+  value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_sas,tvb,data_offset+28,4,value,
 				  "SAS type: %s",key_to_val(value,4,zrtp_sas_type_vals,"Unknown SAS type %s"));
 
@@ -652,7 +652,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   run_offset = data_offset+4;
   for(i=0;i<vhc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
-    value[4]=0;
+    value[4]='\0';
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_hash,tvb,run_offset,4,value,
 				    "Hash[%d]: %s",i,key_to_val(value,4,zrtp_hash_type_vals,"Unknown hash type %s"));
     run_offset+=4;
@@ -661,7 +661,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_cc);
   for(i=0;i<vcc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
-    value[4]=0;
+    value[4]='\0';
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_cipher,tvb,run_offset,4,value,"Cipher[%d]: %s",i,
 				    key_to_val(value,4,zrtp_cipher_type_vals,"Unknown cipher type %s"));
     run_offset+=4;
@@ -670,7 +670,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_ac);  
   for(i=0;i<vac;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
-    value[4]=0;
+    value[4]='\0';
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_at,tvb,run_offset,4,value,
 				    "Auth tag[%d]: %s",i,key_to_val(value,4,zrtp_auth_tag_vals,"Unknown auth tag %s"));
     run_offset+=4;
@@ -679,7 +679,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_kc);  
   for(i=0;i<vkc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
-    value[4]=0;
+    value[4]='\0';
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_keya,tvb,run_offset,4,value,
 				    "Key agreement[%d]: %s",i,key_to_val(value,4,zrtp_key_agreement_vals,"Unknown key agreement %s"));
     run_offset+=4;
@@ -688,7 +688,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_sc);  
   for(i=0;i<vsc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
-    value[4]=0;
+    value[4]='\0';
     proto_tree_add_string_format(tmp_tree,hf_zrtp_msg_sas,tvb,run_offset,4,value,
 				    "SAS type[%d]: %s",i,key_to_val(value,4,zrtp_sas_type_vals,"Unknown SAS type %s"));
     run_offset+=4;
@@ -706,7 +706,7 @@ proto_register_zrtp(void)
        "RTP Version", "zrtp.rtpversion",
        FT_UINT8, BASE_DEC,
        NULL, 0xC0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -715,7 +715,7 @@ proto_register_zrtp(void)
        "RTP padding", "zrtp.rtppadding",
        FT_BOOLEAN, 8,
        NULL, 0x20,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -724,7 +724,7 @@ proto_register_zrtp(void)
        "RTP Extension", "zrtp.rtpextension",
        FT_BOOLEAN, 8,
        NULL, 0x10,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -733,7 +733,7 @@ proto_register_zrtp(void)
        "ID", "zrtp.id",
        FT_UINT8, BASE_HEX,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -742,7 +742,7 @@ proto_register_zrtp(void)
        "Sequence", "zrtp.sequence",
        FT_UINT16, BASE_DEC,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -751,7 +751,7 @@ proto_register_zrtp(void)
        "Magic Cookie", "zrtp.cookie",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -760,7 +760,7 @@ proto_register_zrtp(void)
        "Source Identifier", "zrtp.source_id",
        FT_UINT32, BASE_HEX,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -772,7 +772,7 @@ proto_register_zrtp(void)
        "Signature", "zrtp.signature",
        FT_UINT16, BASE_HEX,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -781,7 +781,7 @@ proto_register_zrtp(void)
        "Length", "zrtp.length",
        FT_UINT16, BASE_DEC,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -790,15 +790,16 @@ proto_register_zrtp(void)
        "Type", "zrtp.type",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
+
     {&hf_zrtp_msg_version,
      {
        "ZRTP protocol version", "zrtp.version",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -807,7 +808,7 @@ proto_register_zrtp(void)
        "Client Identifier", "zrtp.client_source_id",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -816,7 +817,7 @@ proto_register_zrtp(void)
        "Hash Image", "zrtp.hash_image",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -825,7 +826,7 @@ proto_register_zrtp(void)
        "ZID", "zrtp.zid",
        FT_BYTES, BASE_DEC,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -834,7 +835,7 @@ proto_register_zrtp(void)
        "MiTM", "zrtp.mitm",
        FT_BOOLEAN, 8,
        NULL, 0x20,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -843,7 +844,7 @@ proto_register_zrtp(void)
        "Passive", "zrtp.passive",
        FT_BOOLEAN, 8,
        NULL, 0x10,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -852,7 +853,7 @@ proto_register_zrtp(void)
        "Hash Count", "zrtp.hc",
        FT_UINT8, BASE_DEC,
        NULL, 0x0F,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -861,7 +862,7 @@ proto_register_zrtp(void)
        "Cipher Count", "zrtp.cc",
        FT_UINT8, BASE_DEC,
        NULL, 0xF0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -870,7 +871,7 @@ proto_register_zrtp(void)
        "Auth tag Count", "zrtp.ac",
        FT_UINT8, BASE_DEC,
        NULL, 0x0F,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -879,7 +880,7 @@ proto_register_zrtp(void)
        "Key Agreement Count", "zrtp.kc",
        FT_UINT8, BASE_DEC,
        NULL, 0xF0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -888,7 +889,7 @@ proto_register_zrtp(void)
        "SAS Count", "zrtp.sc",
        FT_UINT8, BASE_DEC,
        NULL, 0x0F,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -897,7 +898,7 @@ proto_register_zrtp(void)
        "Hash", "zrtp.hash",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -906,7 +907,7 @@ proto_register_zrtp(void)
        "Cipher", "zrtp.cipher",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -915,7 +916,7 @@ proto_register_zrtp(void)
        "AT", "zrtp.at",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -924,7 +925,7 @@ proto_register_zrtp(void)
        "Key Agreement", "zrtp.keya",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -933,7 +934,7 @@ proto_register_zrtp(void)
        "SAS", "zrtp.sas",
        FT_STRING, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -942,7 +943,7 @@ proto_register_zrtp(void)
        "rs1ID", "zrtp.rs1id",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL 
+       NULL, HFILL 
      }
     },
 
@@ -951,7 +952,7 @@ proto_register_zrtp(void)
        "rs2ID", "zrtp.rs2id",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -960,7 +961,7 @@ proto_register_zrtp(void)
        "auxs", "zrtp.auxs",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -969,7 +970,7 @@ proto_register_zrtp(void)
        "pbxs", "zrtp.pbxs",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -978,7 +979,7 @@ proto_register_zrtp(void)
        "HMAC", "zrtp.hmac",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -987,7 +988,7 @@ proto_register_zrtp(void)
        "CFB", "zrtp.cfb",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -996,7 +997,7 @@ proto_register_zrtp(void)
        "Error", "zrtp.error",
        FT_UINT32, BASE_DEC,
        VALS(zrtp_error_vals), 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -1005,7 +1006,7 @@ proto_register_zrtp(void)
        "Checksum", "zrtp.checksum",
        FT_UINT32, BASE_HEX,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -1032,7 +1033,7 @@ proto_register_zrtp(void)
        "hvi", "zrtp.hvi",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -1041,7 +1042,7 @@ proto_register_zrtp(void)
        "nonce", "zrtp.nonce",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     },
 
@@ -1050,7 +1051,7 @@ proto_register_zrtp(void)
        "key ID", "zrtp.key_id",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       "", HFILL
+       NULL, HFILL
      }
     }
   };
