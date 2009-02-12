@@ -555,39 +555,50 @@ static const value_string win32_802_11_channel_vals[] = {
 };
 
 
+/* Information Element IDs (802.11 Spec: "7.3.2 Information elements") */
+#define IE_ID_SSID				0
+#define IE_ID_SUPPORTED_RATES	1
+#define IE_ID_DS_PARAMETER_SET	3
+#define IE_ID_TIM				5
+#define IE_ID_COUNTRY			7
+#define IE_ID_ERP_INFORMATION	42
+#define IE_ID_WPA2				48
+#define IE_ID_EXTENDED_SUPPORT_RATES	50
+#define IE_ID_VENDOR_SPECIFIC	221
+
 /* ElementID in NDIS_802_11_VARIABLE_IEs */
 static const value_string ie_id_vals[] = {
-	{ 0, "SSID, 802.11" },
-	{ 1, "Supported Rates, 802.11" },
-	{ 2, "FH Parameter Set, 802.11" },
-	{ 3, "DS Parameter Set, 802.11" },
-	{ 4, "CF Parameter Set, 802.11" },
-	{ 5, "TIM, 802.11" },
-	{ 6, "IBSS Parameter Set, 802.11" },
-	{ 7, "Country, 802.11d" },
-	{ 8, "Hopping Pattern Parameters, 802.11d" },
-	{ 9, "Hopping Pattern Table, 802.11d" },
-	{ 10, "Request, 802.11d" },
+	{ IE_ID_SSID,					"SSID, 802.11" },
+	{ IE_ID_SUPPORTED_RATES,		"Supported Rates, 802.11" },
+	{ 2,							"FH Parameter Set, 802.11" },
+	{ IE_ID_DS_PARAMETER_SET,		"DS Parameter Set, 802.11" },
+	{ 4,							"CF Parameter Set, 802.11" },
+	{ IE_ID_TIM,					"TIM, 802.11" },
+	{ 6,							"IBSS Parameter Set, 802.11" },
+	{ IE_ID_COUNTRY,				"Country, 802.11d" },
+	{ 8,							"Hopping Pattern Parameters, 802.11d" },
+	{ 9,							"Hopping Pattern Table, 802.11d" },
+	{ 10,							"Request, 802.11d" },
     /* 11-15 reserved, 802.11d */
-	{ 16, "Challenge text, 802.11" },
+	{ 16,							"Challenge text, 802.11" },
     /* 17-31 reserved, 802.11h */
-	{ 32, "Power Constraint, 802.11h" },
-	{ 33, "Power Capability, 802.11h" },
-	{ 34, "TPC Request, 802.11h" },
-	{ 35, "TPC Report, 802.11h" },
-	{ 36, "Supported Channels, 802.11h" },
-	{ 37, "Channel Switch Announcement, 802.11h" },
-	{ 38, "Measurement Request, 802.11h" },
-	{ 39, "Measurement Report, 802.11h" },
-	{ 40, "Quiet, 802.11h" },
-	{ 41, "IBSS DFS, 802.11h" },
-	{ 42, "ERP information, 802.11g" },
+	{ 32,							"Power Constraint, 802.11h" },
+	{ 33,							"Power Capability, 802.11h" },
+	{ 34,							"TPC Request, 802.11h" },
+	{ 35,							"TPC Report, 802.11h" },
+	{ 36,							"Supported Channels, 802.11h" },
+	{ 37,							"Channel Switch Announcement, 802.11h" },
+	{ 38,							"Measurement Request, 802.11h" },
+	{ 39,							"Measurement Report, 802.11h" },
+	{ 40,							"Quiet, 802.11h" },
+	{ 41,							"IBSS DFS, 802.11h" },
+	{ IE_ID_ERP_INFORMATION,		"ERP information, 802.11g" },
     /* 43-47 reserved, 802.11i */
-	{ 48, "WPA2/RSN (Robust Secure Network), 802.11i" },
+	{ IE_ID_WPA2,					"WPA2/RSN (Robust Secure Network), 802.11i" },
     /* 49 reserved, 802.11i */
-	{ 50, "Extended Supported Rates, 802.11g" },
+	{ IE_ID_EXTENDED_SUPPORT_RATES,	"Extended Supported Rates, 802.11g" },
     /* 51-255 reserved, 802.11g */
-	{ 221, "WPA, (no 802.11!)" },
+	{ IE_ID_VENDOR_SPECIFIC,		"WPA, (not 802.11!)" },
     { 0, NULL }
 };
 
@@ -1122,7 +1133,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
 
 
     if(bssid_list->num_items != 0) {
-        char *titles[] = { "SSID", "MAC", "Vendor", "Privacy", "RSSI" , "Network Type" , "Infra. Mode" , "Ch." , "Rates" };
+        char *titles[] = { "SSID", "MAC", "Vendor", "Privacy", "RSSI" , "Network Type" , "Infra. Mode" , "Ch." , "Rates", "Country" };
         GtkWidget   *list;
         gboolean    privacy_required;
         gboolean    privacy_wpa;
@@ -1136,8 +1147,9 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
         gchar nettype_buff[DETAILS_STR_MAX];
         gchar infra_buff[DETAILS_STR_MAX];
         gchar freq_buff[DETAILS_STR_MAX];
+        gchar country_buff[DETAILS_STR_MAX] = "";
 
-        list = simple_list_new(9, titles);
+        list = simple_list_new(10, titles);
         gtk_box_pack_start(GTK_BOX(main_vb), list, TRUE /*expand*/, TRUE /*fill*/, 0 /* padding */);
 
         bssid_item = &bssid_list->items[0];
@@ -1230,37 +1242,51 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                         val_to_str(id, ie_id_vals, "0x%x"), id, el_len);
 #endif
 
-                    if (id != 0 && id != 1 && id != 3 && id != 5 && id != 42 && id != 50 && id != 221) {
-                        hex(iep, el_len);
-                    }
-
-                    /* WPA2 (RSN) */
-                    if (id == 48) {
-                        privacy_wpa2 = TRUE;
-                    }
-
-                    /* WPA */
-                    if (id == 221) {
-                        privacy_wpa = TRUE;
+					switch(id) {
+						case(IE_ID_COUNTRY):
+							if(el_len >= 6)
+							g_snprintf(country_buff, sizeof(country_buff), "%c%c: Ch: %u-%u Max: %ddBm",
+								iep[0], iep[1], iep[3], iep[4], iep[5]);
+							break;
+						case(IE_ID_WPA2):
+							privacy_wpa2 = TRUE;
+							break;
+						case(IE_ID_VENDOR_SPECIFIC):	/* WPA */
+							privacy_wpa = TRUE;
 
 #ifdef DEBUG_IE
-                        /* include information from epan/packet-ieee80211.c dissect_vendor_ie_wpawme() */
-                        manuf_name = get_manuf_name_if_known(iep);
-                        if(manuf_name != NULL) {
-                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) Type: %02X",
-                                *(iep), *(iep+1), *(iep+2), manuf_name, *(iep+3));
-                        } else {
-                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X Type: %02X",
-                                *(iep), *(iep+1), *(iep+2), *(iep+3));
-                        }
+							/* include information from epan/packet-ieee80211.c dissect_vendor_ie_wpawme() */
+							manuf_name = get_manuf_name_if_known(iep);
+							if(manuf_name != NULL) {
+								g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) Type: %02X",
+									*(iep), *(iep+1), *(iep+2), manuf_name, *(iep+3));
+							} else {
+								g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X Type: %02X",
+									*(iep), *(iep+1), *(iep+2), *(iep+3));
+							}
 
-                        g_warning("%s", string_buff);
-                        iep += 4;
-                        el_len-= 4;
-                        len -= 4;
+							g_warning("%s", string_buff);
+							iep += 4;
+							el_len-= 4;
+							len -= 4;
 
-                        hex(iep, el_len);
+							g_warning("WPA IE: %u", id);
+							hex(iep, el_len);
 #endif
+							break;
+
+						case(IE_ID_SSID):
+						case(IE_ID_SUPPORTED_RATES):
+						case(IE_ID_DS_PARAMETER_SET):
+						case(IE_ID_TIM):
+						case(IE_ID_ERP_INFORMATION):
+						case(IE_ID_EXTENDED_SUPPORT_RATES):
+							/* we already have that data, do nothing */
+							break;
+						default:
+							/* unexpected IE_ID, print out hexdump */
+							g_warning("Unknown IE ID: %u Len: %u", id, el_len);
+							hex(iep, el_len);
                     }
 
                     iep += el_len;
@@ -1297,6 +1323,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                 6, infra_buff,
                 7, freq_buff,
                 8, Rates->str,
+                9, country_buff,
                 -1);
 
             g_string_free(Rates, TRUE /* free_segment */);
