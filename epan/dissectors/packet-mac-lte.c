@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
 
 #include "packet-mac-lte.h"
 
@@ -45,6 +46,8 @@
 
 /* Initialize the protocol and registered fields. */
 int proto_mac_lte = -1;
+
+static int mac_lte_tap = -1;
 
 /* Decoding context */
 static int hf_mac_lte_context_radio_type = -1;
@@ -134,8 +137,6 @@ static const value_string radio_type_vals[] =
     { 0, NULL }
 };
 
-#define DIRECTION_UPLINK   0
-#define DIRECTION_DOWNLINK 1
 
 static const value_string direction_vals[] =
 {
@@ -143,12 +144,6 @@ static const value_string direction_vals[] =
     { DIRECTION_DOWNLINK,    "Downlink"},
     { 0, NULL }
 };
-
-#define NO_RNTI 0
-#define P_RNTI  1
-#define RA_RNTI 2
-#define C_RNTI  3
-#define SI_RNTI 4
 
 
 static const value_string rnti_type_vals[] =
@@ -605,7 +600,7 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   int offset, guint8 direction)
+                                   int offset, guint8 direction, mac_lte_tap_info *tap_info)
 {
     guint8      extension;
     guint8      n;
@@ -850,6 +845,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                             tvb_length_remaining(tvb, offset) :
                                             pdu_lengths[n]);
             offset += pdu_lengths[n];
+
+            /* Update tap byte count for this channel */
+            tap_info->bytes_for_lcid[lcids[n]] += pdu_lengths[n];
         }
         else {
             /* See if its a control PDU type */
@@ -960,6 +958,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                   offset = 0;
     struct mac_lte_info   *p_mac_lte_info = NULL;
 
+    static mac_lte_tap_info tap_info;
+    memset(&tap_info, 0, sizeof(mac_lte_tap_info));
+
     /* Set protocol name */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
@@ -1019,12 +1020,27 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->length);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    /* Set context-info parts of tap struct */
+    tap_info.rnti = p_mac_lte_info->rnti;
+    tap_info.rnti_type = p_mac_lte_info->rntiType;
+    tap_info.is_predefined_data = p_mac_lte_info->is_predefined_data;
+    tap_info.direction = p_mac_lte_info->direction;
+
+    /* Also set total number of bytes (won't be used for UL/DL-SCH) */
+    tap_info.single_number_of_bytes = tvb_length_remaining(tvb, offset);
+
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->is_predefined_data) {
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Predefined data (%u bytes)", tvb_length_remaining(tvb, offset));
         }
+
+        /* Queue tap info */
+        if (!pinfo->in_error_pkt) {
+            tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
+        }
+
         return;
     }
 
@@ -1048,7 +1064,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case C_RNTI:
             /* Can be UL-SCH or DL-SCH */
-            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction);
+            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction, &tap_info);
             break;
 
         case SI_RNTI:
@@ -1064,6 +1080,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         default:
             break;
+    }
+
+    /* Queue tap info */
+    if (!pinfo->in_error_pkt) {
+        tap_queue_packet(mac_lte_tap, pinfo, &tap_info);
     }
 }
 
@@ -1403,6 +1424,9 @@ void proto_register_mac_lte(void)
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
+
+    /* Register the tap name */
+    mac_lte_tap = register_tap("mac-lte");
 
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
