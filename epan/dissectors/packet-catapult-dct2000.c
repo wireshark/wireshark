@@ -1058,6 +1058,12 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     {
         return find_dissector("s1ap");
     }
+    else
+    if (strcmp(protocol_name, "gtpv2_r8_lte") == 0)
+    {
+        return find_dissector("gtpv2");
+    }
+
 
     /* Try for an exact match */
     else
