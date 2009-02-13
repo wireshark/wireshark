@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: ETSI TS 129 274 V8.0.0 (2009-01)
+ * Ref: 3GPP TS 29.274 version 8.0.0 Release 8, ETSI TS 129 274 V8.0.0 (2009-01)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -39,6 +39,7 @@
 #include <epan/asn1.h>
 
 #include "packet-gsm_map.h"
+#include "packet-e212.h"
 
 static int proto_gtpv2 = -1;
 static int hf_gtpv2_flags = -1;
@@ -54,6 +55,8 @@ static int hf_gtpv2_ie_len = -1;
 static int hf_gtpv2_cr = -1;
 static int hf_gtpv2_instance = -1;
 static int hf_gtpv2_cause = -1;
+static int hf_gtpv2_rat_type = -1;
+static int hf_gtpv2_cng_rep_act = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -131,10 +134,13 @@ static const value_string gtpv2_message_type_vals[] = {
     {0, NULL}
 };
 
-#define GTPV2_IE_RESERVED	0
-#define GTPV2_IE_IMSI		1
-#define GTPV2_IE_CAUSE		2
-#define GTPV2_IE_MSISDN		76
+#define GTPV2_IE_RESERVED		0
+#define GTPV2_IE_IMSI			1
+#define GTPV2_IE_CAUSE			2
+#define GTPV2_IE_MSISDN			76
+#define GTPV2_IE_RAT_TYPE		82
+#define GTPV2_IE_SERV_NET		83
+#define GTPV2_IE_CNG_REP_ACT	139
 
 /* Table 8.1-1: Information Element types for GTPv2 */
 static const value_string gtpv2_element_type_vals[] = {
@@ -225,10 +231,10 @@ static const value_string gtpv2_element_type_vals[] = {
 /* Code to dissect IE's */
 
 static void
-dissect_gtpv2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
-	proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet"); 
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 }
 
 /* 
@@ -240,9 +246,9 @@ dissect_gtpv2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
  * That is, the overall length of the IE is 11 octets.
  */
 static void
-dissect_gtpv2_imsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet"); 
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
 
 }
 /* Table 8.4-1: Cause values */
@@ -297,14 +303,29 @@ static const value_string gtpv2_cause_vals[] = {
  */
 
 static void
-dissect_gtpv2_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
+	int offset = 0;
 	/* Cause value octet 5 */
 	proto_tree_add_item(tree, hf_gtpv2_cause, tvb, offset, 1, FALSE);
 	if (length >1)
 			proto_tree_add_text(tree, tvb, offset, length, "IE data not dissected yet");
 
 }
+/*
+ * 8.5 Recovery (Restart Counter)
+ */
+/*
+ * 8.6 Access Point Name (APN)
+ */
+/*
+ * 8.7 Aggregate Maximum Bit Rate (AMBR)
+ */
+/* 
+ * 8.8 EPS Bearer ID (EBI)
+ * 8.9 IP Address
+ * 8.10 Mobile Equipment Identity (MEI)
+ */
 
 /*
  * 8.11 MSISDN
@@ -313,21 +334,138 @@ dissect_gtpv2_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  * Editor’s note: MSISDN coding will be defined in TS 24.301.
  */
 static void
-dissect_gtpv2_msisdn(tvbuff_t *tvb, int offset _U_, packet_info *pinfo, proto_tree *tree, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 	dissect_gsm_map_msisdn(tvb, pinfo, tree); 
 
 }
 
+/*
+ * 8.12 Indication
+ * 8.13 Protocol Configuration Options (PCO) 
+ * 8.14 PDN Address Allocation (PAA) 
+ * 8.15 Bearer Quality of Service (Bearer QoS)
+ * 8.16 Flow Quality of Service (Flow QoS)
+ */
+/*
+ * 8.17 RAT Type
+ */
+static const value_string gtpv2_rat_type_vals[] = {
+	{0, "Reserved"},
+	{1, "UTRAN"},
+	{2, "GERAN"},
+	{3, "WLAN"},
+	{4, "GAN"},
+	{5, "HSPA Evolution"},
+	{6, "EUTRAN"},
+	{0, NULL}
+};
+
+static void
+dissect_gtpv2_rat_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_item(tree, hf_gtpv2_rat_type, tvb, 0, 1, FALSE);
+}
+/*
+ * 8.18 Serving Network
+ */
+static void
+dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+
+	dissect_e212_mcc_mnc(tvb, tree, 0); 
+}
+/*
+ * 8.19 Tunnel Endpoint Identifier for Control Plane (TEID-C) 
+ * 8.19a Tunnel Endpoint Identifier for User Plane (TEID-U) 
+ * 8.19b Tunnel Endpoint Identifier for User Plane with EBI (TEID-U EBI)
+ * 8.20 EPS Bearer Level Traffic Flow Template (Bearer TFT)
+ * 8.21 Traffic Aggregate Description (TAD)
+ * 8.22 User Location Info (ULI) 
+ * 8.22.1 CGI field 
+ * 8.22.2 SAI field 
+ * 8.22.3 RAI field 
+ * 8.22.4 TAI field 
+ * 8.22.5 ECGI field
+ * 8.23 Fully Qualified TEID (F-TEID)
+ * 8.24 TMSI 
+ * 8.25 Global CN-Id
+ * 8.26 Legacy Quality of Service (QoS)
+ * 8.27 S103 PDN Data Forwarding Info (S103PDF)
+ * 8.28 S1-U Data Forwarding (S1UDF)
+ * 8.29 Delay Value
+ * 8.30 Bearer ID List
+ * 8.31 Bearer Context
+ * 8.32 S101 IP Address 
+ * 8.33 S102 IP Address 
+ * 8.34 Charging ID
+ * 8.35 Charging Characteristics 
+ * 8.36 Trace Information
+ * 8.37 Bearer Flags
+ * 8.38 Paging Cause 
+ * 8.39 PDN Type
+ * 8.40 Procedure Transaction ID (PTI)
+ * 8.41 DRX Parameter 
+ * 8.42 UE Network Capability
+ * 8.43 MM Context 
+ * 8.44 PDN Connection
+ * 8.45 GRE Key
+ * 8.46 PDU Numbers 
+ * 8.47 EPS Bearer Contexts Prioritization (Contexts Prioritization)
+ * 8.48 LMA IP Address 
+ * 8.49 Packet TMSI (P-TMSI)
+ * 8.50 P-TMSI Signature
+ * 8.51 Hop Counter
+ * 8.52 Authentication Quintuplet
+ * 8.53 Authentication Quadruplet
+ * 8.54 Complete Request Message
+ * 8.55 GUTI
+ * 8.56 Fully Qualified Container (F-Container)
+ * 8.57 Fully Qualified Cause (F-Cause)
+ * 8.58 Selected PLMN ID
+ * 8.59 Target Identification
+ * 8.60 NSAPI
+ * 8.61 Packet Flow ID
+ * 8.62 RAB Context
+ * 8.63 Source RNC PDCP context info
+ * 8.64 UDP Source Port Number
+ * 8.65 APN Restriction 
+ * 8.66 Selection Mode
+ * 8.67 Cell Identification
+ * 8.68 Bearer Control Mode
+ */
+/*
+ * 8.69 Change Reporting Action
+ */
+static const value_string gtpv2_cng_rep_act_vals[] = {
+	{0, "Stop Reporting"},
+	{1, "Start Reporting CGI/SAI"},
+	{2, "Start Reporting RAI"},
+	{0, NULL}
+};
+
+static void
+dissect_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+
+	proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE); 
+}
+/*
+ * 8.70 PDN Connection Set Identifier (CSID)
+ * 8.71 Private Extension
+ */
 typedef struct _gtpv2_ie {
     int ie_type;
-    void (*decode) (tvbuff_t *, int, packet_info *, proto_tree *, guint16, guint8);
+    void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8);
 } gtpv2_ie_t;
 
 static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_IMSI, dissect_gtpv2_imsi},
 	{GTPV2_IE_CAUSE, dissect_gtpv2_cause},				/* 2, Cause (without embedded offending IE) 8.4 */
 	{GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},			/* 76, MSISDN 8.11 */
+	{GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},		/* 82, RAT Type  8.17 */
+	{GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},		/* 83, Serving Network 8.18 */
+	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},		/* 139, Change Reporting Action 8.69 */
     {0, dissect_gtpv2_unknown}
 };
 
@@ -349,7 +487,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tr
 	 *	4		CR			Spare	Instance
 	 * 5-(n+4)	IE specific data
 	 */
-	while(offset <= (gint)tvb_reported_length(tvb)){
+	while(offset < (gint)tvb_reported_length(tvb)){
 		/* Get the type and length */
 		type = tvb_get_guint8(tvb,offset);
 		length = tvb_get_ntohs(tvb, offset+1);
@@ -382,7 +520,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tr
 			}
 			/* Just give the IE dissector the IE */
 			ie_tvb = tvb_new_subset(tvb, offset, length, length);
-			(*gtpv2_ies[i].decode) (ie_tvb, 0, pinfo , ie_tree, length, instance);
+			(*gtpv2_ies[i].decode) (ie_tvb, pinfo , ie_tree, ti, length, instance);
 		}
 
 		offset = offset + length;
@@ -531,6 +669,16 @@ void proto_register_gtpv2(void)
 		{"Cause", "gtpv2.cause",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_cause_vals), 0x0,
 		"cause", HFILL}
+		},
+		{ &hf_gtpv2_rat_type,
+		{"RAT Type", "gtpv2.rat_type",
+		FT_UINT8, BASE_DEC, VALS(gtpv2_rat_type_vals), 0x0,
+		"RAT Type", HFILL}
+		},
+		{ &hf_gtpv2_cng_rep_act,
+		{"Change Reporting Action", "gtpv2.cng_rep_act",
+		FT_UINT8, BASE_DEC, VALS(gtpv2_cng_rep_act_vals), 0x0,
+		"Change Reporting Action", HFILL}
 		},
 	 };
 
