@@ -745,6 +745,8 @@ EXTRA_DIST = \
 	image/toolbar/internet_24.xpm	\
 	image/toolbar/modem_16.png	\
 	image/toolbar/modem_16.xpm	\
+	image/toolbar/network_bluetooth_16.png	\
+	image/toolbar/network_bluetooth_16.xpm	\
 	image/toolbar/network_virtual_16.xpm	\
 	image/toolbar/network_wired_16.png	\
 	image/toolbar/network_wired_16.xpm	\

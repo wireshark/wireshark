@@ -80,7 +80,9 @@
 #if defined(_WIN32) || defined(__APPLE__)
 #include "../image/toolbar/network_virtual_16.xpm"
 #endif
-
+#if defined(_WIN32)
+#include "../image/toolbar/network_bluetooth_16.xpm"
+#endif
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
 /*#include "../image/toolbar/capture_capture_16.xpm"*/
@@ -389,6 +391,9 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   /* TODO: find a better icon! */
   if ( strstr(if_info->description,"VMware") != NULL) {
     return xpm_to_widget(network_virtual_16_xpm);
+  }
+  if ( strstr(if_info->description,"Bluetooth") != NULL) {
+    return xpm_to_widget(network_bluetooth_16_xpm);
   }
 #elif defined(__APPLE__)
   /*
