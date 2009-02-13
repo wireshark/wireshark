@@ -362,7 +362,7 @@ static const value_string gtpv2_rat_type_vals[] = {
 };
 
 static void
-dissect_gtpv2_rat_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_rat_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 	proto_tree_add_item(tree, hf_gtpv2_rat_type, tvb, 0, 1, FALSE);
 }
@@ -370,7 +370,7 @@ dissect_gtpv2_rat_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
  * 8.18 Serving Network
  */
 static void
-dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
 	dissect_e212_mcc_mnc(tvb, tree, 0); 
@@ -445,7 +445,7 @@ static const value_string gtpv2_cng_rep_act_vals[] = {
 };
 
 static void
-dissect_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+dissect_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
 	proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE); 
