@@ -53,178 +53,178 @@ static int hf_cimd_dcs_indication_sense = -1;
 static int hf_cimd_dcs_indication_type = -1;
 
 static const value_string vals_hdr_OC[] = {
-    /* operation codes array */
-    {CIMD_Login, "Login"},
-    {CIMD_LoginResp, "Login Resp"},
-    {CIMD_Logout, "Logout"},
-    {CIMD_LogoutResp, "Logout Resp"},
-    {CIMD_SubmitMessage, "Submit message"},
-    {CIMD_SubmitMessageResp, "Submit message Resp"},
-    {CIMD_EnqMessageStatus, "Enquire message status"},
-    {CIMD_EnqMessageStatusResp, "Enquire message status Resp"},
-    {CIMD_DeliveryRequest, "Delivery request"},
-    {CIMD_DeliveryRequestResp, "Delivery request Resp"},
-    {CIMD_CancelMessage, "Cancel message"},
-    {CIMD_CancelMessageResp, "Cancel message Resp"},
-    {CIMD_SetMessage, "Set message"},
-    {CIMD_SetMessageResp, "Set message Resp"},
-    {CIMD_GetMessage, "Get message"},
-    {CIMD_GetMessageResp, "Get message Resp"},
-    {CIMD_Alive, "Alive"},
-    {CIMD_AliveResp, "Alive Resp"},
-    {CIMD_GeneralErrorResp, "General error Resp"},
-    {CIMD_NACK, "Nack"},
-    /* SC2App */
-    {CIMD_DeliveryMessage, "Deliver message"},
-    {CIMD_DeliveryMessageResp, "Deliver message Resp"},
-    {CIMD_DeliveryStatusReport, "Deliver status report"},
-    {CIMD_DeliveryStatusReportResp, "Deliver status report Resp"},
-    {0, NULL}
+  /* operation codes array */
+  {CIMD_Login, "Login"},
+  {CIMD_LoginResp, "Login Resp"},
+  {CIMD_Logout, "Logout"},
+  {CIMD_LogoutResp, "Logout Resp"},
+  {CIMD_SubmitMessage, "Submit message"},
+  {CIMD_SubmitMessageResp, "Submit message Resp"},
+  {CIMD_EnqMessageStatus, "Enquire message status"},
+  {CIMD_EnqMessageStatusResp, "Enquire message status Resp"},
+  {CIMD_DeliveryRequest, "Delivery request"},
+  {CIMD_DeliveryRequestResp, "Delivery request Resp"},
+  {CIMD_CancelMessage, "Cancel message"},
+  {CIMD_CancelMessageResp, "Cancel message Resp"},
+  {CIMD_SetMessage, "Set message"},
+  {CIMD_SetMessageResp, "Set message Resp"},
+  {CIMD_GetMessage, "Get message"},
+  {CIMD_GetMessageResp, "Get message Resp"},
+  {CIMD_Alive, "Alive"},
+  {CIMD_AliveResp, "Alive Resp"},
+  {CIMD_GeneralErrorResp, "General error Resp"},
+  {CIMD_NACK, "Nack"},
+  /* SC2App */
+  {CIMD_DeliveryMessage, "Deliver message"},
+  {CIMD_DeliveryMessageResp, "Deliver message Resp"},
+  {CIMD_DeliveryStatusReport, "Deliver status report"},
+  {CIMD_DeliveryStatusReportResp, "Deliver status report Resp"},
+  {0, NULL}
 };
 
 static const value_string cimd_vals_PC[] = {
-    /* parameter codes array */
-    {CIMD_UserIdentity, "User Identity"},
-    {CIMD_Password, "Password"},
-    {CIMD_Subaddress, "Subaddr"},
-    {CIMD_WindowSize, "Window Size"},
-    {CIMD_DestinationAddress, "Destination Address"},
-    {CIMD_OriginatingAddress, "Originating Address"},
-    {CIMD_OriginatingImsi, "Originating IMSI"},
-    {CIMD_AlphaOriginatingAddr, "Alphanumeric Originating Address"},
-    {CIMD_OriginatedVisitedMSCAd, "Originated Visited MSC Address"},
-    {CIMD_DataCodingScheme, "Data Coding Scheme"},
-    {CIMD_UserDataHeader, "User Data Header"},
-    {CIMD_UserData, "User Data"},
-    {CIMD_UserDataBinary, "User Data Binary"},
-    {CIMD_MoreMessagesToSend, "More Messages To Send"},
-    {CIMD_ValidityPeriodRelative, "Validity Period Relative"},
-    {CIMD_ValidityPeriodAbsolute, "Validity Period Absolute"},
-    {CIMD_ProtocolIdentifier, "Protocol Identifier"},
-    {CIMD_FirstDeliveryTimeRel, "First Delivery Time Relative"},
-    {CIMD_FirstDeliveryTimeAbs, "First Delivery Time Absolute"},
-    {CIMD_ReplyPath, "Reply Path"},
-    {CIMD_StatusReportRequest, "Status Report Request"},
-    {CIMD_CancelEnabled, "Cancel Enabled"},
-    {CIMD_CancelMode, "Cancel Mode"},
-    {CIMD_SCTimeStamp, "Service Centre Time Stamp"},
-    {CIMD_StatusCode, "Status Code"},
-    {CIMD_StatusErrorCode, "Status Error Code"},
-    {CIMD_DischargeTime, "Discharge Time"},
-    {CIMD_TariffClass, "Tariff Class"},
-    {CIMD_ServiceDescription, "Service Description"},
-    {CIMD_MessageCount, "Message Count"},
-    {CIMD_Priority, "Priority"},
-    {CIMD_DeliveryRequestMode, "Delivery Request Mode"},
-    {CIMD_SCAddress, "Service Center Address"},
-    {CIMD_GetParameter, "Get Parameter"},
-    {CIMD_SMSCTime, "SMS Center Time"},
-    {CIMD_ErrorCode, "Error Code"},
-    {CIMD_ErrorText, "Error Text"},
-    {0, NULL}
+  /* parameter codes array */
+  {CIMD_UserIdentity, "User Identity"},
+  {CIMD_Password, "Password"},
+  {CIMD_Subaddress, "Subaddr"},
+  {CIMD_WindowSize, "Window Size"},
+  {CIMD_DestinationAddress, "Destination Address"},
+  {CIMD_OriginatingAddress, "Originating Address"},
+  {CIMD_OriginatingImsi, "Originating IMSI"},
+  {CIMD_AlphaOriginatingAddr, "Alphanumeric Originating Address"},
+  {CIMD_OriginatedVisitedMSCAd, "Originated Visited MSC Address"},
+  {CIMD_DataCodingScheme, "Data Coding Scheme"},
+  {CIMD_UserDataHeader, "User Data Header"},
+  {CIMD_UserData, "User Data"},
+  {CIMD_UserDataBinary, "User Data Binary"},
+  {CIMD_MoreMessagesToSend, "More Messages To Send"},
+  {CIMD_ValidityPeriodRelative, "Validity Period Relative"},
+  {CIMD_ValidityPeriodAbsolute, "Validity Period Absolute"},
+  {CIMD_ProtocolIdentifier, "Protocol Identifier"},
+  {CIMD_FirstDeliveryTimeRel, "First Delivery Time Relative"},
+  {CIMD_FirstDeliveryTimeAbs, "First Delivery Time Absolute"},
+  {CIMD_ReplyPath, "Reply Path"},
+  {CIMD_StatusReportRequest, "Status Report Request"},
+  {CIMD_CancelEnabled, "Cancel Enabled"},
+  {CIMD_CancelMode, "Cancel Mode"},
+  {CIMD_SCTimeStamp, "Service Centre Time Stamp"},
+  {CIMD_StatusCode, "Status Code"},
+  {CIMD_StatusErrorCode, "Status Error Code"},
+  {CIMD_DischargeTime, "Discharge Time"},
+  {CIMD_TariffClass, "Tariff Class"},
+  {CIMD_ServiceDescription, "Service Description"},
+  {CIMD_MessageCount, "Message Count"},
+  {CIMD_Priority, "Priority"},
+  {CIMD_DeliveryRequestMode, "Delivery Request Mode"},
+  {CIMD_SCAddress, "Service Center Address"},
+  {CIMD_GetParameter, "Get Parameter"},
+  {CIMD_SMSCTime, "SMS Center Time"},
+  {CIMD_ErrorCode, "Error Code"},
+  {CIMD_ErrorText, "Error Text"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_coding_groups[] = {
-    {0x00, "General Data Coding indication"},
-    {0x01, "General Data Coding indication"},
-    {0x02, "General Data Coding indication"},
-    {0x03, "General Data Coding indication"},
-    {0x04, "Message Marked for Automatic Deletion Group"},
-    {0x05, "Message Marked for Automatic Deletion Group"},
-    {0x06, "Message Marked for Automatic Deletion Group"},
-    {0x07, "Message Marked for Automatic Deletion Group"},
-    {0x08, "Reserved coding group"},
-    {0x09, "Reserved coding group"},
-    {0x0A, "Reserved coding group"},
-    {0x0B, "Reserved coding group"},
-    {0x0C, "Message Waiting Indication Group: Discard Message (7-bit encoded)"},
-    {0x0D, "Message Waiting Indication Group: Store Message (7-bit encoded)"},
-    {0x0E, "Message Waiting Indication Group: Store Message (uncompressed UCS2 encoded)"},
-    {0x0F, "Data coding/message class"},
-    {0, NULL}
+  {0x00, "General Data Coding indication"},
+  {0x01, "General Data Coding indication"},
+  {0x02, "General Data Coding indication"},
+  {0x03, "General Data Coding indication"},
+  {0x04, "Message Marked for Automatic Deletion Group"},
+  {0x05, "Message Marked for Automatic Deletion Group"},
+  {0x06, "Message Marked for Automatic Deletion Group"},
+  {0x07, "Message Marked for Automatic Deletion Group"},
+  {0x08, "Reserved coding group"},
+  {0x09, "Reserved coding group"},
+  {0x0A, "Reserved coding group"},
+  {0x0B, "Reserved coding group"},
+  {0x0C, "Message Waiting Indication Group: Discard Message (7-bit encoded)"},
+  {0x0D, "Message Waiting Indication Group: Store Message (7-bit encoded)"},
+  {0x0E, "Message Waiting Indication Group: Store Message (uncompressed UCS2 encoded)"},
+  {0x0F, "Data coding/message class"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_compressed[] = {
-    {0x00, "Text is uncompressed"},
-    {0x01, "Text is compressed"},
-    {0, NULL}
+  {0x00, "Text is uncompressed"},
+  {0x01, "Text is compressed"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_message_class_meaning[] = {
-    {0x00, "Reserved, bits 1 to 0 have no message class meaning"},
-    {0x01, "Bits 1 to 0 have message class meaning"},
-    {0, NULL}
+  {0x00, "Reserved, bits 1 to 0 have no message class meaning"},
+  {0x01, "Bits 1 to 0 have message class meaning"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_message_class[] = {
-    {0x00, "Class 0"},
-    {0x01, "Class 1 Default meaning: ME-specific"},
-    {0x02, "Class 2 (U)SIM specific message"},
-    {0x03, "Class 3 Default meaning: TE-specific"},
-    {0, NULL}
+  {0x00, "Class 0"},
+  {0x01, "Class 1 Default meaning: ME-specific"},
+  {0x02, "Class 2 (U)SIM specific message"},
+  {0x03, "Class 3 Default meaning: TE-specific"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_character_set[] = {
-    {0x00, "GSM 7 bit default alphabet"},
-    {0x01, "8 bit data"},
-    {0x02, "UCS2 (16bit)"},
-    {0x03, "Reserved"},
-    {0, NULL}
+  {0x00, "GSM 7 bit default alphabet"},
+  {0x01, "8 bit data"},
+  {0x02, "UCS2 (16bit)"},
+  {0x03, "Reserved"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_indication_sense[] = {
-    {0x00, "Set Indication Inactive"},
-    {0x01, "Set Indication Active"},
-    {0, NULL}
+  {0x00, "Set Indication Inactive"},
+  {0x01, "Set Indication Active"},
+  {0, NULL}
 };
 
 static const value_string cimd_dcs_indication_type[] = {
-    {0x00, "Voicemail Message Waiting"},
-    {0x01, "Fax Message Waiting"},
-    {0x02, "Electronic Mail Message Waiting"},
-    {0x03, "Other Message Waiting"},
-    {0, NULL}
+  {0x00, "Voicemail Message Waiting"},
+  {0x01, "Fax Message Waiting"},
+  {0x02, "Electronic Mail Message Waiting"},
+  {0x03, "Other Message Waiting"},
+  {0, NULL}
 };
 
 static const cimd_pdissect cimd_pc_handles[] = {
  /* function handles for parsing cimd parameters */
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_dcs,
-    dissect_cimd_parameter,
-    dissect_cimd_ud,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter,
-    dissect_cimd_parameter
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_dcs,
+  dissect_cimd_parameter,
+  dissect_cimd_ud,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter,
+  dissect_cimd_parameter
 };
 
 /* Parameters */
@@ -711,7 +711,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * there is at least one byte in the tvbuff
    */
   if (tvb_get_guint8(tvb, 0) != CIMD_STX)
-  return FALSE;
+    return FALSE;
 
   etxp = tvb_find_guint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
   if (etxp == -1)
@@ -719,20 +719,20 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return FALSE;
   }
   if (etxp > (int)tvb_reported_length(tvb))
-  { /* XXX - "cannot happend" */
+  { /* XXX - "cannot happen" */
     return FALSE;
   }
 
   /* Try getting the operation-code */
   opcode  = decimal_int_value(tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH);
   if (match_strval(opcode, vals_hdr_OC) == NULL)
-  return FALSE;
+    return FALSE;
 
   if (tvb_get_guint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
-  return FALSE;
+    return FALSE;
 
   if (tvb_get_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH) != CIMD_DELIM)
-  return FALSE;
+    return FALSE;
 
   /* Ok, looks like a valid packet, go dissect. */
   dissect_cimd(tvb, pinfo, tree);
