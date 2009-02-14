@@ -80,7 +80,7 @@
 #if defined(_WIN32) || defined(__APPLE__)
 #include "../image/toolbar/network_virtual_16.xpm"
 #endif
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__linux__)
 #include "../image/toolbar/network_bluetooth_16.xpm"
 #endif
 
@@ -385,13 +385,16 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if ( strstr(if_info->description,"generic dialup") != NULL) {
     return xpm_to_widget(modem_16_xpm);
   }
+
   if ( strstr(if_info->description,"Wireless") != NULL || strstr(if_info->description,"802.11") != NULL) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
+
   /* TODO: find a better icon! */
   if ( strstr(if_info->description,"VMware") != NULL) {
     return xpm_to_widget(network_virtual_16_xpm);
   }
+
   if ( strstr(if_info->description,"Bluetooth") != NULL) {
     return xpm_to_widget(network_bluetooth_16_xpm);
   }
@@ -414,12 +417,14 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if ( strcmp(if_info->name, "en1") == 0) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
+
   /*
    * XXX - PPP devices have names beginning with "ppp" and an IFT_ of
    * IFT_PPP, but they could be dial-up, or PPPoE, or mobile phone modem,
    * or VPN, or... devices.  One might have to dive into the bowels of
    * IOKit to find out.
    */
+
   /*
    * TODO: find a better icon!
    * These devices have an IFT_ of IFT_ETHER, so we have to check the name.
@@ -430,6 +435,13 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if ( strncmp(if_info->name,"vmnet",5) == 0) {
     return xpm_to_widget(network_virtual_16_xpm);
   }
+
+  /*
+   * XXX - there's currently no support for raw Bluetooth capture,
+   * and IP-over-Bluetooth devices just look like fake Ethernet
+   * devices.  There's also Bluetooth modem support, but that'll
+   * probably just give you a device that looks like a PPP device.
+   */
 #elif defined(__linux__)
   /*
    * Look for /sys/class/net/{device}/wireless.
@@ -447,6 +459,16 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   }
 
   /* XXX - "vmnet" again, for VMware interfaces? */
+
+  /*
+   * Bluetooth devices.
+   *
+   * XXX - this is for raw Bluetooth capture; what about IP-over-Bluetooth
+   * devices?
+   */
+  if ( strstr(if_info->name,"bluetooth") != NULL) {
+    return xpm_to_widget(network_bluetooth_16_xpm);
+  }
 #endif
 
   return xpm_to_widget(network_wired_16_xpm);
