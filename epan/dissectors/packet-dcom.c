@@ -1807,7 +1807,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				curr_ip = g_ntohl(curr_ip);
 
 				/*expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_WARN, "DUALSTRINGARRAY: IP:%s", 
-				  ip_to_str( (gchar *) &curr_ip));*/
+				  ip_to_str( (guint8 *) &curr_ip));*/
 
 				if(first_ip == 0) {
 					if(ip != NULL) {
@@ -1818,7 +1818,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					if(first_ip != curr_ip) {
 						expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_NOTE, 
 								       "DUALSTRINGARRAY: multiple IP's %s %s", 
-								       ip_to_str( (char *) &first_ip), ip_to_str( (char *) &curr_ip));
+								       ip_to_str( (guint8 *) &first_ip), ip_to_str( (guint8 *) &curr_ip));
 					}
 				}
 			}
@@ -1972,7 +1972,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* add interface instance to database (we currently only handle IPv4) */
 		if(pinfo->net_src.type == AT_IPv4) {
 			dcom_if = dcom_interface_new(pinfo, 
-						     ip,
+						     (guint8 *) ip,
 						     &iid, oxid, oid, &ipid);
 		}
 	}
