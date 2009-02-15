@@ -44,14 +44,14 @@ init_cap_file(capture_file *cf)
 {
   /* Initialize the capture file struct */
   cf->plist		= NULL;
-  cf->plist_end	= NULL;
+  cf->plist_end		= NULL;
   cf->wth		= NULL;
-  cf->filename	= NULL;
+  cf->filename		= NULL;
   cf->user_saved	= FALSE;
   cf->is_tempfile	= FALSE;
   cf->rfcode		= NULL;
   cf->dfilter		= NULL;
-  cf->has_snap	= FALSE;
+  cf->has_snap		= FALSE;
   cf->snap		= WTAP_MAX_PACKET_SIZE;
   cf->count		= 0;
   cf->pstats		= NULL;
