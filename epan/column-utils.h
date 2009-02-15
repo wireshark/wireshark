@@ -188,7 +188,7 @@ extern void	col_prepend_fstr(column_info *cinfo, gint col, const gchar *format, 
  * This function is similar to col_prepend_fstr() but this function will
  * unconditionally set a fence to the end of the prepended data even if there
  * were no fence before.
- * The col_prepend_fstr() will only prepend the data before the fence IFF
+ * The col_prepend_fstr() will only prepend the data before the fence IF
  * there is already a fence created. This function will create a fence in case
  * it does not yet exist.
  */
