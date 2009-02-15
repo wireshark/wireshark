@@ -824,7 +824,7 @@ main(int argc, char *argv[])
   initialize_funnel_ops();
 
 #ifdef HAVE_LIBPCAP
-  capture_opts_init(&global_capture_opts, NULL /* cfile */);
+  capture_opts_init(&global_capture_opts, &cfile);
 #endif
 
   timestamp_set_type(TS_RELATIVE);
@@ -1939,16 +1939,17 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
   g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
-  capture_opts->cf = &cfile;
-
   /* free the old filename */
-  if(capture_opts->save_file != NULL) {
+  if (capture_opts->save_file != NULL) {
+
     /* we start a new capture file, close the old one (if we had one before) */
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
-		if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
-			wtap_close(((capture_file *) capture_opts->cf)->wth);
-		}
+      if ( ((capture_file *) capture_opts->cf)->wth != NULL) {
+        wtap_close(((capture_file *) capture_opts->cf)->wth);
+      }
+      ((capture_file *) capture_opts->cf)->state = FILE_CLOSED;
     }
+
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
   } else {
@@ -3102,6 +3103,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
   nstime_set_unset(&prev_cap_ts);
+
+  cf->state = FILE_READ_IN_PROGRESS;
 
   return CF_OK;
 
