@@ -806,6 +806,7 @@ rename_persconffile_profile
 report_failure
 report_open_failure
 report_read_failure
+report_write_failure
 reset_tap_listeners
 reset_tcp_reassembly
 rose_ctx_clean_data
