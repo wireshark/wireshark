@@ -3404,7 +3404,7 @@
 00:0D:3C	ITechDynam             # i.Tech Dynamic Ltd
 00:0D:3D	Hammerhead             # Hammerhead Systems, Inc.
 00:0D:3E	ApluxCommu             # APLUX Communications Ltd.
-00:0D:3F	VxiTechnol             # VXI Technology
+00:0D:3F	VtiInstrum             # VTI Instruments Corporation
 00:0D:40	VerintLoro             # Verint Loronix Video Solutions
 00:0D:41	SiemensIcm             # Siemens AG ICM MP UC RD IT KLF1
 00:0D:42	NewbestDev             # Newbest Development Limited
@@ -9493,7 +9493,7 @@
 00:25:06	AIAntitacc             # A.I. ANTITACCHEGGIO ITALIA SRL
 00:25:07	Astak                  # ASTAK Inc.
 00:25:08	MaquetCard             # Maquet Cardiopulmonary AG
-00:25:09	Sharetroni             # SHARETRONIC Group .LTD
+00:25:09	Sharetroni             # SHARETRONIC Group LTD
 00:25:0A	SecurityEx             # Security Expert Co. Ltd
 00:25:0B	Centrofact             # CENTROFACTOR  INC
 00:25:0C	Enertrac
@@ -9527,6 +9527,32 @@
 00:25:28	DaidoSigna             # Daido Signal Co., Ltd.
 00:25:29	ComelitGro             # COMELIT GROUP S.P.A
 00:25:2A	ChengduGee             # Chengdu GeeYa Technology Co.,LTD
+00:25:2B	StirlingEn             # Stirling Energy Systems
+00:25:2C	Entourage              # Entourage Systems, Inc.
+00:25:2D	KiryungEle             # Kiryung Electronics
+00:25:2E	CiscoSpvtg             # Cisco SPVTG
+00:25:2F	Energy                 # Energy, Inc.
+00:25:30	Aetas                  # Aetas Systems Inc.
+00:25:31	CloudEngin             # Cloud Engines, Inc.
+00:25:32	DigitalRec             # Digital Recorders
+00:25:33	Wittenstei             # WITTENSTEIN AG
+00:25:34	Private
+00:25:35	Minimax                # Minimax GmbH & Co KG
+00:25:36	OkiElectri             # Oki Electric Industry Co., Ltd.
+00:25:37	RuncomTech             # Runcom Technologies Ltd.
+00:25:38	SamsungEle             # Samsung Electronics Co., Ltd., Memory Division
+00:25:39	Ifta                   # IfTA GmbH
+00:25:3A	Ceva                   # CEVA, Ltd.
+00:25:3B	DinDietmar             # din Dietmar Nocker Facilitymanagement GmbH
+00:25:3C	2wire
+00:25:3D	DrsConsoli             # DRS Consolidated Controls
+00:25:3E	Telemetric             # Telemetric Corporation
+00:25:3F	X-PertPain             # X-Pert Paint Mixing Systems, Inc.
+00:25:40	QuasarTech             # Quasar Technologies, Inc.
+00:25:41	MaquetCrit             # Maquet Critical Care AB
+00:25:42	Pittasoft
+00:25:43	Moneytech
+00:25:44	Lojack                 # LoJack Corporation
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12857,6 +12883,13 @@
 00:50:C2:A5:00:00/36	I-RedInfra             # i-RED Infrarot Systeme GmbH
 00:50:C2:A5:10:00/36	Y-Products             # Y-products co.ltd.
 00:50:C2:A5:20:00/36	Von                    # The VON Corporation
+00:50:C2:A5:30:00/36	QualityDes             # Quality & Design
+00:50:C2:A5:40:00/36	DiamondPoi             # Diamond Point International (Europe) Ltd
+00:50:C2:A5:50:00/36	ArrowvaleE             # Arrowvale Electronics
+00:50:C2:A5:60:00/36	Reametrix              # ReaMetrix, Inc.
+00:50:C2:A5:70:00/36	JuiceTechn             # Juice Technologies, LLC
+00:50:C2:A5:80:00/36	Epl
+00:50:C2:A5:90:00/36	GspSpracht             # GSP Sprachtechnologie GmbH
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
