@@ -48,6 +48,7 @@
 #include "../simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
+#include "../alert_box.h"
 
 #include "gtk/hostlist_table.h"
 #include "gtk/filter_utils.h"
@@ -643,7 +644,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    file_path = get_tempfile_path("ipmap.txt");
    out_file = fopen(file_path, "w+b");
    if(out_file == NULL) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" for writing", file_path);
+    open_failure_alert_box(file_path, errno, TRUE);
     g_free(file_path);
     return;
    }
@@ -712,36 +713,20 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    fclose(out_file);
 
    /* copy ipmap.html to temp dir */
-   /* XXX - would be better to have something like copy_file() in filesystem.c? */
    {
        char * src_file_path;
        char * dst_file_path;
-       FILE * src_file;
-       FILE * dst_file;
-       size_t nbytes;
-       char   buf[256];
 
        src_file_path = get_datafile_path("ipmap.html");
        dst_file_path = get_tempfile_path("ipmap.html");
 
-       src_file = fopen(src_file_path, "r+b");
-       dst_file = fopen(dst_file_path, "w+b");
-
+       if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
+           g_free(src_file_path);
+           g_free(dst_file_path);
+           return;
+       }
        g_free(src_file_path);
        g_free(dst_file_path);
-
-       do {
-           nbytes = fread(buf, 1, sizeof(buf)-1, src_file);
-           if (fwrite(buf, 1, nbytes, dst_file) != nbytes) {
-               simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't write %zu bytes to \"%s\"", nbytes, dst_file_path);
-               fclose(src_file);
-               fclose(dst_file);
-               return;
-           }
-       } while(nbytes == sizeof(buf)-1);
-
-       fclose(src_file);
-       fclose(dst_file);
    }
 
    /* open the webbrowser */
