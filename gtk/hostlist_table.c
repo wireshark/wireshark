@@ -718,7 +718,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
        char * dst_file_path;
        FILE * src_file;
        FILE * dst_file;
-       int    nbytes;
+       size_t nbytes;
        char   buf[256];
 
        src_file_path = get_datafile_path("ipmap.html");
@@ -732,7 +732,12 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 
        do {
            nbytes = fread(buf, 1, sizeof(buf)-1, src_file);
-           fwrite(buf, 1, nbytes, dst_file);
+           if (fwrite(buf, 1, nbytes, dst_file) != nbytes) {
+               simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't write %zu bytes to \"%s\"", nbytes, dst_file_path);
+               fclose(src_file);
+               fclose(dst_file);
+               return;
+           }
        } while(nbytes == sizeof(buf)-1);
 
        fclose(src_file);
