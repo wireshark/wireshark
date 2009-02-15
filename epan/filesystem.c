@@ -42,6 +42,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -56,8 +60,11 @@
 #endif
 
 #include "filesystem.h"
+#include "report_err.h"
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+
+#include <wiretap/wtap.h>	/* for WTAP_ERR_SHORT_WRITE */
 
 #define PROFILES_DIR    "profiles"
 #define U3_MY_CAPTURES  "\\My Captures"
@@ -1553,6 +1560,72 @@ files_identical(const char *fname1, const char *fname2)
 }
 
 /*
+ * Copy a file in binary mode, for those operating systems that care about
+ * such things.  This should be OK for all files, even text files, as
+ * we'll copy the raw bytes, and we don't look at the bytes as we copy
+ * them.
+ *
+ * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * displays a simple dialog window with the error message.
+ */
+gboolean
+copy_file_binary_mode(const char *from_filename, const char *to_filename)
+{
+  int           from_fd, to_fd, nread, nwritten, err;
+  guint8        pd[65536];
+
+  /* Copy the raw bytes of the file. */
+  from_fd = ws_open(from_filename, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
+  if (from_fd < 0) {
+    report_open_failure(from_filename, errno, FALSE);
+    goto done;
+  }
+
+  /* Use open() instead of creat() so that we can pass the O_BINARY
+     flag, which is relevant on Win32; it appears that "creat()"
+     may open the file in text mode, not binary mode, but we want
+     to copy the raw bytes of the file, so we need the output file
+     to be open in binary mode. */
+  to_fd = ws_open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+  if (to_fd < 0) {
+    report_open_failure(to_filename, errno, TRUE);
+    ws_close(from_fd);
+    goto done;
+  }
+
+  while ((nread = ws_read(from_fd, pd, sizeof pd)) > 0) {
+    nwritten = ws_write(to_fd, pd, nread);
+    if (nwritten < nread) {
+      if (nwritten < 0)
+	err = errno;
+      else
+	err = WTAP_ERR_SHORT_WRITE;
+      report_write_failure(to_filename, err);
+      ws_close(from_fd);
+      ws_close(to_fd);
+      goto done;
+    }
+  }
+  if (nread < 0) {
+    err = errno;
+    report_read_failure(from_filename, err);
+    ws_close(from_fd);
+    ws_close(to_fd);
+    goto done;
+  }
+  ws_close(from_fd);
+  if (ws_close(to_fd) < 0) {
+    report_write_failure(to_filename, errno);
+    goto done;
+  }
+
+  return TRUE;
+
+done:
+  return FALSE;
+}
+
+/*
  * Editor modelines
  *
  * Local Variables:
@@ -1564,4 +1637,3 @@ files_identical(const char *fname1, const char *fname2)
  * ex: set shiftwidth=4 tabstop=4 noexpandtab
  * :indentSize=4:tabSize=4:noTabs=false:
  */
-

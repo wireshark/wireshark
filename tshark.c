@@ -1,13 +1,13 @@
 /* tshark.c
  *
+ * Text-mode variant of Wireshark, along the lines of tcpdump and snoop,
+ * by Gilbert Ramirez <gram@alumni.rice.edu> and Guy Harris <guy@alum.mit.edu>.
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
- * Text-mode variant, by Gilbert Ramirez <gram@alumni.rice.edu>
- * and Guy Harris <guy@alum.mit.edu>.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -179,6 +179,7 @@ static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
 static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
+static void write_failure_message(const char *filename, int err);
 
 capture_file cfile;
 
@@ -834,7 +835,8 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL,
-            failure_message, open_failure_message, read_failure_message);
+            failure_message, open_failure_message, read_failure_message,
+            write_failure_message);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -3129,6 +3131,16 @@ static void
 read_failure_message(const char *filename, int err)
 {
   cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
+          filename, strerror(err));
+}
+
+/*
+ * Write errors are reported with an console message in TShark.
+ */
+static void
+write_failure_message(const char *filename, int err)
+{
+  cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
           filename, strerror(err));
 }
 

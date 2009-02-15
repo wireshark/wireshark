@@ -75,9 +75,11 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	  gpointer client_data,
 	  void (*report_failure)(const char *, va_list),
 	  void (*report_open_failure)(const char *, int, gboolean),
-	  void (*report_read_failure)(const char *, int))
+	  void (*report_read_failure)(const char *, int),
+	  void (*report_write_failure)(const char *, int))
 {
-	init_report_err(report_failure, report_open_failure, report_read_failure);
+	init_report_err(report_failure, report_open_failure,
+	    report_read_failure, report_write_failure);
 
 	/* initialize memory allocation subsystem */
 	ep_init_chunk();

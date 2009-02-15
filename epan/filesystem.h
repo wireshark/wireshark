@@ -234,9 +234,21 @@ extern gboolean deletefile (const char *path);
 extern gboolean file_exists(const char *fname);
 
 /*
- * Check, if two filenames are identical (with absolute and relative paths).
+ * Check if two filenames are identical (with absolute and relative paths).
  */
 extern gboolean files_identical(const char *fname1, const char *fname2);
+
+/*
+ * Copy a file in binary mode, for those operating systems that care about
+ * such things.  This should be OK for all files, even text files, as
+ * we'll copy the raw bytes, and we don't look at the bytes as we copy
+ * them.
+ *
+ * Returns TRUE on success, FALSE on failure. If a failure, it also
+ * displays a simple dialog window with the error message.
+ */
+extern gboolean copy_file_binary_mode(const char *from_filename,
+    const char *to_filename);
 
 #ifdef _WIN32
 /*

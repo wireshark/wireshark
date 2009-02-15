@@ -43,10 +43,6 @@
 #include <fcntl.h>
 #endif
 
-#ifdef NEED_STRERROR_H
-#include "strerror.h"
-#endif
-
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 
@@ -117,7 +113,6 @@ static void cf_open_failure_alert_box(const char *filename, int err,
 static const char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
-static   gboolean copy_binary_file(const char *from_filename, const char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -3575,7 +3570,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
     if (do_copy) {
       /* Copy the file, if we haven't moved it. */
-      if (!copy_binary_file(from_filename, fname))
+      if (!copy_file_binary_mode(from_filename, fname))
 	goto fail;
     }
   } else {
@@ -3956,68 +3951,4 @@ cf_reload(capture_file *cf) {
   /* "cf_open()" made a copy of the file name we handed it, so
      we should free up our copy. */
   g_free(filename);
-}
-
-/* Copies a file in binary mode, for those operating systems that care about
- * such things.
- * Returns TRUE on success, FALSE on failure. If a failure, it also
- * displays a simple dialog window with the error message.
- */
-static gboolean
-copy_binary_file(const char *from_filename, const char *to_filename)
-{
-  int           from_fd, to_fd, nread, nwritten, err;
-  guint8        pd[65536];
-
-  /* Copy the raw bytes of the file. */
-  from_fd = ws_open(from_filename, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
-  if (from_fd < 0) {
-    open_failure_alert_box(from_filename, errno, FALSE);
-    goto done;
-  }
-
-  /* Use open() instead of creat() so that we can pass the O_BINARY
-     flag, which is relevant on Win32; it appears that "creat()"
-     may open the file in text mode, not binary mode, but we want
-     to copy the raw bytes of the file, so we need the output file
-     to be open in binary mode. */
-  to_fd = ws_open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-  if (to_fd < 0) {
-    open_failure_alert_box(to_filename, errno, TRUE);
-    ws_close(from_fd);
-    goto done;
-  }
-
-  while ((nread = ws_read(from_fd, pd, sizeof pd)) > 0) {
-    nwritten = ws_write(to_fd, pd, nread);
-    if (nwritten < nread) {
-      if (nwritten < 0)
-	err = errno;
-      else
-	err = WTAP_ERR_SHORT_WRITE;
-      write_failure_alert_box(to_filename, err);
-      ws_close(from_fd);
-      ws_close(to_fd);
-      goto done;
-    }
-  }
-  if (nread < 0) {
-    err = errno;
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "An error occurred while reading from the file \"%s\": %s.",
-		  from_filename, strerror(err));
-    ws_close(from_fd);
-    ws_close(to_fd);
-    goto done;
-  }
-  ws_close(from_fd);
-  if (ws_close(to_fd) < 0) {
-    write_failure_alert_box(to_filename, errno);
-    goto done;
-  }
-
-  return TRUE;
-
-done:
-  return FALSE;
 }

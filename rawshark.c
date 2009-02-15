@@ -154,6 +154,7 @@ static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
 static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
+static void write_failure_message(const char *filename, int err);
 static void protocolinfo_init(char *field);
 static gboolean parse_field_string_format(char *format);
 
@@ -492,7 +493,8 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL,
-            failure_message, open_failure_message, read_failure_message);
+            failure_message, open_failure_message, read_failure_message,
+            write_failure_message);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
@@ -1622,6 +1624,16 @@ static void
 read_failure_message(const char *filename, int err)
 {
   cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
+          filename, strerror(err));
+}
+
+/*
+ * Write errors are reported with an console message in Rawshark.
+ */
+static void
+write_failure_message(const char *filename, int err)
+{
+  cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
           filename, strerror(err));
 }
 

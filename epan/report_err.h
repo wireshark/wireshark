@@ -1,6 +1,13 @@
 /* report_err.h
- * Declarations of routines for dissectors to use to report errors to
- * the user (e.g., problems with preference settings)
+ * Declarations of routines for code that can run in GUI and command-line
+ * environments to use to report errors to the user (e.g., I/O errors, or
+ * problems with preference settings).
+ *
+ * The application using libwireshark will register error-reporting
+ * routines, and the routines declared here will call the registered
+ * routines.  That way, these routines can be called by code that
+ * doesn't itself know whether to pop up a dialog or print something
+ * to the standard error.
  *
  * $Id$
  *
@@ -36,23 +43,34 @@ extern "C" {
 extern void init_report_err(
 	void (*report_failure)(const char *, va_list),
 	void (*report_open_failure)(const char *, int, gboolean),
-	void (*report_read_failure)(const char *, int));
+	void (*report_read_failure)(const char *, int),
+	void (*report_write_failure)(const char *, int));
+
+/*
+ * Report a general error.
+ */
+extern void report_failure(const char *msg_format, ...);
 
 /*
  * Report an error when trying to open a file.
+ * "err" is assumed to be an error code from Wiretap; positive values are
+ * UNIX-style errnos, so this can be used for open failures not from
+ * Wiretap as long as the failure code is just an errno.
  */
 extern void report_open_failure(const char *filename, int err,
     gboolean for_writing);
 
 /*
  * Report an error when trying to read a file.
+ * "err" is assumed to be a UNIX-style errno.
  */
 extern void report_read_failure(const char *filename, int err);
 
 /*
- * Report a general error.
+ * Report an error when trying to write a file.
+ * "err" is assumed to be a UNIX-style errno.
  */
-extern void report_failure(const char *msg_format, ...);
+extern void report_write_failure(const char *filename, int err);
 
 #ifdef __cplusplus
 }

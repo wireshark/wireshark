@@ -40,11 +40,15 @@ void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer clie
 	       void *client_data,
 	       void (*report_failure)(const char *, va_list),
 	       void (*report_open_failure)(const char *, int, gboolean),
-	       void (*report_read_failure)(const char *, int));
+	       void (*report_read_failure)(const char *, int),
+	       void (*report_write_failure)(const char *, int));
+
 /* cleanup the whole epan module, this is used to be called only once in a program */
 void epan_cleanup(void);
+
 /* Initialize the table of conversations. */
 void epan_conversation_init(void);
+
 /* Initialize the table of circuits. */
 /* XXX - what is a circuit and should this better be combined with epan_conversation_init? */
 void epan_circuit_init(void);

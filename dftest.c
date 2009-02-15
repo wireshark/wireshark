@@ -1,12 +1,11 @@
-/* dftest.c.c
+/* dftest.c
+ * Shows display filter byte-code, for debugging dfilter routines.
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
- * Shows display filter byte-code, for debugging dfilter routines.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,6 +54,7 @@ static void failure_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
 static void read_failure_message(const char *filename, int err);
+static void write_failure_message(const char *filename, int err);
 
 int
 main(int argc, char **argv)
@@ -89,7 +89,8 @@ main(int argc, char **argv)
 	   in case any dissectors register preferences. */
 	epan_init(register_all_protocols,
 		  register_all_protocol_handoffs, NULL, NULL,
-		  failure_message, open_failure_message, read_failure_message);
+		  failure_message, open_failure_message, read_failure_message,
+		  write_failure_message);
 
 	/* now register the preferences for any non-dissector modules.
 	we must do that before we read the preferences as well. */
@@ -189,5 +190,15 @@ static void
 read_failure_message(const char *filename, int err)
 {
 	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.\n",
+	    filename, strerror(err));
+}
+
+/*
+ * Write errors are reported with an console message in "dftest".
+ */
+static void
+write_failure_message(const char *filename, int err)
+{
+	fprintf(stderr, "dftest: An error occurred while writing to the file \"%s\": %s.\n",
 	    filename, strerror(err));
 }

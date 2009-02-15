@@ -1,6 +1,13 @@
-/* report_err.h
-* Declarations of routines for dissectors to use to report errors to
-* the user (e.g., problems with preference settings)
+/* report_err.c
+* Routines for code that can run in GUI and command-line environments to
+* use to report errors to the user (e.g., I/O errors, or problems with
+* preference settings).
+*
+* The application using libwireshark will register error-reporting
+* routines, and the routines defined here will call the registered
+* routines.  That way, these routines can be called by code that
+* doesn't itself know whether to pop up a dialog or print something
+* to the standard error.
 *
 * $Id$
 *
@@ -33,13 +40,17 @@
 static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
 static void (*report_read_failure_func)(const char *, int);
+static void (*report_write_failure_func)(const char *, int);
 
 void init_report_err(void (*report_failure)(const char *, va_list),
 					 void (*report_open_failure)(const char *, int, gboolean),
-					 void (*report_read_failure)(const char *, int)) {
+					 void (*report_read_failure)(const char *, int),
+					 void (*report_write_failure)(const char *, int))
+{
 	report_failure_func = report_failure;
 	report_open_failure_func = report_open_failure;
 	report_read_failure_func = report_read_failure;
+	report_write_failure_func = report_write_failure;
 }
 
 /*
@@ -78,3 +89,12 @@ report_read_failure(const char *filename, int err)
 	(*report_read_failure_func)(filename, err);
 }
 
+/*
+ * Report an error when trying to write a file.
+ * "err" is assumed to be a UNIX-style errno.
+ */
+void
+report_write_failure(const char *filename, int err)
+{
+	(*report_write_failure_func)(filename, err);
+}

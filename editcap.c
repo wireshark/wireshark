@@ -428,7 +428,7 @@ main(int argc, char *argv[])
     g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   } else {
-    init_report_err(failure_message,NULL,NULL);
+    init_report_err(failure_message,NULL,NULL,NULL);
     init_plugins();
   }
 #endif
