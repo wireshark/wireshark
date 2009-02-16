@@ -765,7 +765,7 @@ process_libs:
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		lua5.1.4 lua5_1_4_Win32_dll9_lib.zip
+		lua5.1.4 lua5_1_4_Win32_dll6_lib.zip
 !ENDIF
 
 !IFDEF GNUTLS_DIR
