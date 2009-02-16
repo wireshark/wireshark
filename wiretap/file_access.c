@@ -79,6 +79,7 @@
 #include "btsnoop.h"
 #include "tnef.h"
 #include "dct3trace.h"
+#include "packetlogger.h"
 
 
 /* The open_file_* routines should return:
@@ -120,9 +121,11 @@ static wtap_open_routine_t open_routines_base[] = {
 	k12_open,
 	catapult_dct2000_open,
 	ber_open,
-	mpeg_open,
 	pcapng_open,
 	btsnoop_open,
+	packetlogger_open, /* This type does not have a magic number, but its
+			    * files are sometimes grabbed by mpeg_open. */
+	mpeg_open,
 	tnef_open,
 	dct3trace_open,
 	/* Files that don't have magic bytes at a fixed location,

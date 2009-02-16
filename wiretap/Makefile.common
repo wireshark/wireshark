@@ -61,6 +61,7 @@ NONGENERATED_C_FILES = \
 	network_instruments.c	\
 	netxray.c		\
 	ngsniffer.c		\
+	packetlogger.c		\
 	pcapng.c		\
 	pppdump.c		\
 	radcom.c		\
@@ -106,6 +107,7 @@ NONGENERATED_HEADER_FILES = \
 	network_instruments.h	\
 	netxray.h		\
 	ngsniffer.h		\
+	packetlogger.h		\
 	pcapng.h		\
 	pppdump.h		\
 	radcom.h		\

@@ -269,6 +269,7 @@ extern "C" {
 #define WTAP_FILE_X2E_XORAYA                    52
 #define WTAP_FILE_TNEF                          53
 #define WTAP_FILE_DCT3TRACE                     54
+#define WTAP_FILE_PACKETLOGGER                  55
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 
@@ -427,9 +428,14 @@ struct ascend_phdr {
 	guint32	task;			/* Task number */
 };
 
+/* Also defined in epan/packet_info.h */
+#define P2P_DIR_UNKNOWN	-1
+#define P2P_DIR_SENT	0
+#define P2P_DIR_RECV	1
+
 /* Packet "pseudo-header" for point-to-point links with direction flags. */
 struct p2p_phdr {
-	gboolean	sent; /* TRUE=sent, FALSE=received */
+	int	sent; /* TRUE=sent, FALSE=received, -1=unknown*/
 };
 
 /*

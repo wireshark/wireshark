@@ -81,6 +81,7 @@ static gboolean force_docsis_encap = FALSE;
 static gboolean generate_md5_hash = FALSE;
 
 static const value_string p2p_dirs[] = {
+	{ P2P_DIR_UNKNOWN, "Unknown" },
 	{ P2P_DIR_SENT,	"Sent" },
 	{ P2P_DIR_RECV, "Received" },
 	{ 0, NULL }
@@ -143,8 +144,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 
 		case WTAP_ENCAP_BLUETOOTH_HCI:
-			pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent ?
-			    P2P_DIR_SENT : P2P_DIR_RECV;
+			pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent;
 			break;
 
 		case WTAP_ENCAP_LAPB:
@@ -283,7 +283,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  /* Check for existences of P2P pseudo header */
 	  if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
-		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, tvb,
+		  proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
 				  0, 0, pinfo->p2p_dir);
 	  }
 
@@ -574,7 +574,7 @@ proto_register_frame(void)
 			NULL, HFILL }},
 
 		{ &hf_frame_p2p_dir,
-		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
+		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_INT8, BASE_DEC, VALS(p2p_dirs), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_link_number,

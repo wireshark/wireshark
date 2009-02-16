@@ -29,6 +29,7 @@
 #include "tvbuff.h"
 #include "address.h"
 
+/* Also defined in wiretap/wtap.h */
 #define P2P_DIR_UNKNOWN	-1
 #define P2P_DIR_SENT	0
 #define P2P_DIR_RECV	1

@@ -48,6 +48,7 @@ static const value_string hci_h1_type_vals[] = {
 	{0, NULL }
 };
 static const value_string hci_h1_direction_vals[] = {
+	{-1, "Unknown"},
 	{0,	"Sent"},
 	{1,	"Rcvd"},
 	{0, NULL}
@@ -72,14 +73,38 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(tree){
 		ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 1, FALSE);
 		hci_h1_tree = proto_item_add_subtree(ti, ett_hci_h1);
+		
+		if(pinfo->p2p_dir == P2P_DIR_SENT ||
+		   pinfo->p2p_dir == P2P_DIR_RECV)
+			proto_item_append_text(hci_h1_tree, " %s %s",
+					       match_strval(pinfo->p2p_dir,
+							    hci_h1_direction_vals),
+					       val_to_str(type,
+							  hci_h1_type_vals,
+							  "Unknown 0x%02x"));
+		else
+			proto_item_append_text(hci_h1_tree, " %s",
+					       val_to_str(type,
+							  hci_h1_type_vals,
+							  "Unknown 0x%02x"));
 	}
 
 	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",val_to_str(type, hci_h1_type_vals, "Unknown 0x%02x"));
+		if(pinfo->p2p_dir == P2P_DIR_SENT ||
+		   pinfo->p2p_dir == P2P_DIR_RECV)
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+				     match_strval(pinfo->p2p_dir,
+						  hci_h1_direction_vals),
+				     val_to_str(type, hci_h1_type_vals,
+						"Unknown 0x%02x"));
+		else
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				     val_to_str(type, hci_h1_type_vals,
+						"Unknown 0x%02x"));
 	}
-	ti=proto_tree_add_uint(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
+
+	ti=proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
-	proto_item_append_text(hci_h1_tree, " %s %s", val_to_str(pinfo->p2p_dir, hci_h1_direction_vals, "0x%02x"), val_to_str(type, hci_h1_type_vals, "Unknown 0x%02x"));
 
 	next_tvb = tvb_new_subset(tvb, 0, -1, -1);
 	if(!dissector_try_port(hci_h1_table, type, next_tvb, pinfo, tree)) {
@@ -99,8 +124,8 @@ proto_register_hci_h1(void)
 
 	{ &hf_hci_h1_direction,
 		{ "Direction",           "hci_h1.direction",
-		FT_UINT8, BASE_HEX, VALS(hci_h1_direction_vals), 0x0,
-		"HCI Packet Direction Sent/Rcvd", HFILL }},
+		FT_INT8, BASE_DEC, VALS(hci_h1_direction_vals), 0x0,
+		"HCI Packet Direction Sent/Rcvd/Unknown", HFILL }},
 
 	};
 
