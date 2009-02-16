@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
+#include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
 #include "packet-e212.h"
 
@@ -55,6 +56,22 @@ static int hf_gtpv2_ie_len = -1;
 static int hf_gtpv2_cr = -1;
 static int hf_gtpv2_instance = -1;
 static int hf_gtpv2_cause = -1;
+static int hf_gtpv2_rec = -1;
+static int hf_gtpv2_apn = -1;
+static int hf_gtpv2_ebi = -1;
+static int hf_gtpv2_daf = -1;
+static int hf_gtpv2_dtf = -1;
+static int hf_gtpv2_hi = -1;
+static int hf_gtpv2_dfi = -1;
+static int hf_gtpv2_oi = -1;
+static int hf_gtpv2_isrsi = -1;
+static int hf_gtpv2_israi = -1;
+static int hf_gtpv2_sgwci = -1;
+static int hf_gtpv2_pt = -1;
+static int hf_gtpv2_tdi = -1;
+static int hf_gtpv2_si = -1;
+static int hf_gtpv2_msv = -1;
+
 static int hf_gtpv2_rat_type = -1;
 static int hf_gtpv2_cng_rep_act = -1;
 
@@ -137,7 +154,12 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_RESERVED		0
 #define GTPV2_IE_IMSI			1
 #define GTPV2_IE_CAUSE			2
+#define GTPV2_REC_REST_CNT		3
+#define GTPV2_APN				71
+#define GTPV2_EBI				73
 #define GTPV2_IE_MSISDN			76
+#define GTPV2_INDICATION		77
+#define GTPV2_PCO				78
 #define GTPV2_IE_RAT_TYPE		82
 #define GTPV2_IE_SERV_NET		83
 #define GTPV2_IE_CNG_REP_ACT	139
@@ -315,14 +337,60 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 /*
  * 8.5 Recovery (Restart Counter)
  */
+static void
+dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+	/*  */
+	proto_tree_add_item(tree, hf_gtpv2_rec, tvb, offset, 1, FALSE);
+
+}
 /*
  * 8.6 Access Point Name (APN)
  */
+static void
+dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+    guint8 *apn = NULL;
+    int name_len, tmp;
+
+    if (length > 0) {
+		name_len = tvb_get_guint8(tvb, offset);
+
+		if (name_len < 0x20) {
+			apn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
+			for (;;) {
+				if (name_len >= length - 1)
+				break;
+				tmp = name_len;
+				name_len = name_len + apn[tmp] + 1;
+				apn[tmp] = '.';
+			}
+		} else{
+			apn = tvb_get_ephemeral_string(tvb, offset, length);
+		}
+		proto_tree_add_string(tree, hf_gtpv2_apn, tvb, offset, length, apn);
+    }
+
+}
 /*
  * 8.7 Aggregate Maximum Bit Rate (AMBR)
  */
 /* 
  * 8.8 EPS Bearer ID (EBI)
+ */
+static void
+dissect_gtpv2_ebi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+
+	int offset = 0;
+	/* Spare (all bits set to 0) B8 - B5*/
+	/* EPS Bearer ID (EBI) B4 - B1 */
+	proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, FALSE);
+
+}
+/*
  * 8.9 IP Address
  * 8.10 Mobile Equipment Identity (MEI)
  */
@@ -342,7 +410,40 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
 /*
  * 8.12 Indication
- * 8.13 Protocol Configuration Options (PCO) 
+ */
+static void
+dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+
+	proto_tree_add_item(tree, hf_gtpv2_daf,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_dtf,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_hi,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_hi,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_dfi,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_oi,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_isrsi,		tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_israi,		tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_sgwci,		tvb, offset, 1, FALSE);
+
+	offset++;
+	proto_tree_add_item(tree, hf_gtpv2_pt,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_tdi,			tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_si	,		tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_msv,			tvb, offset, 1, FALSE);
+	
+}
+/*
+ * 8.13 Protocol Configuration Options (PCO)
+ * Editor’s note: PCO will be defined in 3GPP TS 23.003 and its coding in TS 24.301
+ * Dissected in packey-gsm_a_gm.c
+ */
+static void
+dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	de_sm_pco(tvb, tree, 0, length, NULL, 0);
+}
+/*
  * 8.14 PDN Address Allocation (PAA) 
  * 8.15 Bearer Quality of Service (Bearer QoS)
  * 8.16 Flow Quality of Service (Flow QoS)
@@ -462,10 +563,19 @@ typedef struct _gtpv2_ie {
 static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_IMSI, dissect_gtpv2_imsi},
 	{GTPV2_IE_CAUSE, dissect_gtpv2_cause},				/* 2, Cause (without embedded offending IE) 8.4 */
+	{GTPV2_REC_REST_CNT, dissect_gtpv2_recovery},		/* 3, Recovery (Restart Counter) 8.5 */
+														/* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+														/* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+	{GTPV2_APN, dissect_gtpv2_apn},						/* 71, Access Point Name (APN) 8.6 */
+	{GTPV2_EBI, dissect_gtpv2_ebi},						/* 73, EPS Bearer ID (EBI)  8.8 */
 	{GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},			/* 76, MSISDN 8.11 */
+	{GTPV2_INDICATION, dissect_gtpv2_ind},				/* 77 Indication 8.12 */
+	{GTPV2_PCO, dissect_gtpv2_pco},						/* 78 Protocol Configuration Options (PCO) 8.13 */
 	{GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},		/* 82, RAT Type  8.17 */
 	{GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},		/* 83, Serving Network 8.18 */
 	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},		/* 139, Change Reporting Action 8.69 */
+														/* 142-254 Spare. For future use. FFS */
+
     {0, dissect_gtpv2_unknown}
 };
 
@@ -669,6 +779,69 @@ void proto_register_gtpv2(void)
 		{"Cause", "gtpv2.cause",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_cause_vals), 0x0,
 		"cause", HFILL}
+		},
+		{ &hf_gtpv2_rec,
+		{"Restart Counter", "gtpv2.rec",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"Restart Counter", HFILL}
+		},
+		{&hf_gtpv2_apn,
+		{"APN", "gtp.apn", 
+		FT_STRING, BASE_DEC, NULL, 0x0,
+		"Access Point Name", HFILL}
+		},
+		{&hf_gtpv2_ebi,
+		{"EPS Bearer ID (EBI)", "gtpv2.ebi",
+		FT_UINT8, BASE_DEC, NULL, 0x0f,
+		"EPS Bearer ID (EBI)", HFILL}
+		},
+		{&hf_gtpv2_daf,	
+		{"DAF (Dual Address Bearer Flag)", "gtpv2.daf",	
+		FT_BOOLEAN, 8, NULL, 0x40, "DAF", HFILL}
+		},
+		{&hf_gtpv2_dtf,
+		{"DTF (Direct Tunnel Flag)","gtpv2.dtf",
+		FT_BOOLEAN, 8, NULL, 0x40, "DTF", HFILL}
+		},
+		{&hf_gtpv2_hi,
+		{"HI (Handover Indication)", "gtpv2.hi",
+		FT_BOOLEAN, 8, NULL, 0x20, "HI", HFILL}
+		},
+		{&hf_gtpv2_dfi,
+		{"DFI (Direct Forwarding Indication)", "gtpv2.dfi",
+		FT_BOOLEAN, 8, NULL, 0x10, "DFI", HFILL}
+		},
+		{&hf_gtpv2_oi,
+		{"OI (Operation Indication)","gtp.oi",
+		FT_BOOLEAN, 8, NULL, 0x08, "OI", HFILL}
+		},
+		{&hf_gtpv2_isrsi,
+		{"ISRSI (Idle mode Signalling Reduction Supported Indication)", "gtpv2.isrsi",
+		FT_BOOLEAN, 8, NULL, 0x04, "ISRSI", HFILL}
+		},
+		{&hf_gtpv2_israi,
+		{"ISRAI (Idle mode Signalling Reduction Activation Indication)",	"gtpv2.israi",
+		FT_BOOLEAN, 8, NULL, 0x02, "ISRAI", HFILL}
+		},
+		{&hf_gtpv2_sgwci,
+		{"SGWCI (SGW Change Indication)", "gtpv2.sgwci", 
+		FT_BOOLEAN, 8, NULL, 0x01, "SGWCI", HFILL}
+		},
+		{&hf_gtpv2_pt,
+		{"PT (Protocol Type)", "gtpv2.pt", 
+		FT_BOOLEAN, 8, NULL, 0x08, "PT", HFILL}
+		},
+		{&hf_gtpv2_tdi,
+		{"TDI (Teardown Indication)", "gtpv2.tdi", 
+		FT_BOOLEAN, 8, NULL, 0x04, "TDI", HFILL}
+		},
+		{&hf_gtpv2_si,
+		{"SI (Scope Indication)", "gtpv2.si", 
+		FT_BOOLEAN, 8, NULL, 0x02, "SI", HFILL}
+		},
+		{&hf_gtpv2_msv,
+		{"MSV (MS Validated)", "gtpv2.msv", 
+		FT_BOOLEAN, 8, NULL, 0x01, "MSV", HFILL}
 		},
 		{ &hf_gtpv2_rat_type,
 		{"RAT Type", "gtpv2.rat_type",

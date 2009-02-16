@@ -3152,7 +3152,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 /*
  * [7] 10.5.6.3
  */
-static guint16
+guint16
 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
