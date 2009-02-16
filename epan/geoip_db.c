@@ -128,7 +128,7 @@ void
 geoip_db_init(void) {
 	guint i;
 	static uat_field_t geoip_db_paths_fields[] = {
-		UAT_FLD_CSTRING(geoip_mod, path, "The database path"),
+		UAT_FLD_PATHNAME(geoip_mod, path, "Database pathname", "The database path"),
 		UAT_END_FIELDS
 	};
 	char* geoip_load_error = NULL;

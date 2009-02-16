@@ -178,6 +178,7 @@ typedef enum _uat_text_mode_t {
  */
 typedef struct _uat_field_t {
 	const char* name;
+	const char* title;
 	uat_text_mode_t mode;
 
 	struct {
@@ -199,7 +200,7 @@ typedef struct _uat_field_t {
 } uat_field_t;
 
 #define FLDFILL NULL
-#define UAT_END_FIELDS {0,PT_TXTMOD_NONE,{0,0,0},{0,0,0},0,0,FLDFILL}
+#define UAT_END_FIELDS {NULL,NULL,PT_TXTMOD_NONE,{0,0,0},{0,0,0},0,0,FLDFILL}
 
 
 #define UAT_CAT_GENERAL "General"
@@ -331,14 +332,21 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 		} else { \
 			*out_ptr = ""; *out_len = 0; } }
 
-#define UAT_FLD_CSTRING(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_CSTRING(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
-#define UAT_FLD_CSTRING_ISPRINT(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_str_isprint,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_CSTRING_ISPRINT(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_str_isprint,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
-#define UAT_FLD_CSTRING_OTHER(basename,field_name,chk,desc) \
-	{#field_name, PT_TXTMOD_STRING,{ chk ,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_CSTRING_OTHER(basename,field_name,title,chk,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{ chk ,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+/*
+ * PATHNAME - for now, just a CSTRING, but we might want to have a
+ * way to pop up a dialog to let you browse for a file name.
+ */
+#define UAT_FLD_PATHNAME(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * LSTRING MACROS
@@ -355,8 +363,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	} else { \
 		*out_ptr = ""; *out_len = 0; } }
 
-#define UAT_FLD_LSTRING(basename,field_name,desc) \
-{#field_name, PT_TXTMOD_STRING,{0,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_LSTRING(basename,field_name,title, desc) \
+{#field_name, title, PT_TXTMOD_STRING,{0,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 /*
@@ -375,8 +383,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
 	*out_len = ((rec_t*)rec)->len_element; }
 
-#define UAT_FLD_BUFFER(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_HEXBYTES,{0,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_BUFFER(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_HEXBYTES,{0,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 /*
@@ -390,8 +398,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
-#define UAT_FLD_DEC(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_DEC(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 /*
@@ -405,8 +413,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
-#define UAT_FLD_HEX(basename,field_name,desc) \
-{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_HEX(basename,field_name,title,desc) \
+{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 /*
@@ -433,8 +441,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 			*out_len = strlen(*out_ptr); return; } } }
 
 
-#define UAT_FLD_VS(basename,field_name,enum,desc) \
-	{#field_name, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),desc,FLDFILL}
+#define UAT_FLD_VS(basename,field_name,title,enum,desc) \
+	{#field_name, title, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),desc,FLDFILL}
 
 
 /*
@@ -458,8 +466,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 		*out_ptr = ""; *out_len = 0; } }
 
 
-#define UAT_FLD_PROTO(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FLD_PROTO(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * RANGE macros
@@ -477,13 +485,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 		*out_ptr = ""; *out_len = 0; } }
 
 
-#define UAT_FLD_RANGE(basename,field_name,max,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_range,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},\
+#define UAT_FLD_RANGE(basename,field_name,title,max,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_range,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},\
 	  {GUINT_TO_POINTER(max),GUINT_TO_POINTER(max),GUINT_TO_POINTER(max)},0,desc,FLDFILL}
 
-
-
-
-
 #endif
-

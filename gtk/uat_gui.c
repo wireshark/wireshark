@@ -291,7 +291,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				text = (void*) unhexbytes(text, strlen(text), &len, &err);
 
 				if (err) {
-					err = ep_strdup_printf("error in field '%s': %s",f[colnum].name,err);
+					err = ep_strdup_printf("error in field '%s': %s",f[colnum].title,err);
 					goto on_failure;
 				}
 
@@ -311,7 +311,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 		if (f[colnum].cb.chk) {
 			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, &err)) {
-				err = ep_strdup_printf("error in field '%s': %s",f[colnum].name,err);
+				err = ep_strdup_printf("error in column '%s': %s",f[colnum].title,err);
 				goto on_failure;
 			}
 		}
@@ -435,7 +435,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 
 		event_box = gtk_event_box_new();
 
-		label = gtk_label_new(f[colnum].name);
+		label = gtk_label_new(f[colnum].title);
 		if (f[colnum].desc != NULL)
 			gtk_tooltips_set_tip(tooltips, event_box, f[colnum].desc, NULL);
 
@@ -576,7 +576,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 		GtkWidget *label;
         	char* text = fld_tostr(rec,&(f[colnum]));
 
-		label = gtk_label_new(f[colnum].name);
+		label = gtk_label_new(f[colnum].title);
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
 		
@@ -856,7 +856,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].name);
+		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);
 		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), colnum, TRUE);
 	}
 

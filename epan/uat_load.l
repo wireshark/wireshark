@@ -219,7 +219,7 @@ comment #[^\n]*\n
 
 <SEPARATOR>{newline} {
 	linenum++;
-	ERROR(("expecting field %s in previuos line",uat->fields[colnum].name));
+	ERROR(("expecting field %s in previous line",uat->fields[colnum].name));
 	BEGIN START_OF_LINE;
 }
 

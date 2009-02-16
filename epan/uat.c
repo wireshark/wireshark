@@ -100,7 +100,7 @@ uat_t* uat_new(const char* name,
 	uat->help = help;
 	uat->category = category;
 
-	for (i=0;flds_array[i].name;i++) {
+	for (i=0;flds_array[i].title;i++) {
 		fld_data_t* f = g_malloc(sizeof(fld_data_t));
 
 		f->colnum = i+1;

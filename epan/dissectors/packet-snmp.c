@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3417,12 +3417,12 @@ void proto_register_snmp(void) {
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
-	  UAT_FLD_BUFFER(snmp_users,engine_id,"Engine-id for this entry (empty = any)"),
-	  UAT_FLD_LSTRING(snmp_users,userName,"The username"),
-	  UAT_FLD_VS(snmp_users,auth_model,auth_types,"Algorithm to be used for authentication."),
-	  UAT_FLD_LSTRING(snmp_users,authPassword,"The password used for authenticating packets for this entry"),
-	  UAT_FLD_VS(snmp_users,priv_proto,priv_types,"Algorithm to be used for privacy."),
-	  UAT_FLD_LSTRING(snmp_users,privPassword,"The password used for encrypting packets for this entry"),
+	  UAT_FLD_BUFFER(snmp_users,engine_id,"Engine ID","Engine-id for this entry (empty = any)"),
+	  UAT_FLD_LSTRING(snmp_users,userName,"Username","The username"),
+	  UAT_FLD_VS(snmp_users,auth_model,"Authentication model",auth_types,"Algorithm to be used for authentication."),
+	  UAT_FLD_LSTRING(snmp_users,authPassword,"Password","The password used for authenticating packets for this entry"),
+	  UAT_FLD_VS(snmp_users,priv_proto,"Privacy protocol",priv_types,"Algorithm to be used for privacy."),
+	  UAT_FLD_LSTRING(snmp_users,privPassword,"Privacy password","The password used for encrypting packets for this entry"),
 	  UAT_END_FIELDS
   };
 

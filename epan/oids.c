@@ -494,11 +494,11 @@ void register_mibs(void) {
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
 	static uat_field_t smi_fields[] = {
-		UAT_FLD_CSTRING(smi_mod,name,"The module's name"),
+		UAT_FLD_CSTRING(smi_mod,name,"Module name","The module's name"),
 		UAT_END_FIELDS
 	};
 	static uat_field_t smi_paths_fields[] = {
-		UAT_FLD_CSTRING(smi_mod,name,"The directory name"),
+		UAT_FLD_CSTRING(smi_mod,name,"Directory path","The directory name"),
 		UAT_END_FIELDS
 	};
 	char* smi_load_error = NULL;

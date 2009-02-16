@@ -435,10 +435,10 @@ proto_register_k12(void)
   };
 
   static uat_field_t uat_k12_flds[] = {
-      UAT_FLD_CSTRING_ISPRINT(k12,match,
+      UAT_FLD_CSTRING_ISPRINT(k12,match,"Match string",
 			      "A string that will be matched (a=A) against an .stk filename or the name of a port.\n"
 			      "The first match wins, the order of entries in the table is important!."),
-      UAT_FLD_CSTRING_OTHER(k12,protos,protos_chk_cb,
+      UAT_FLD_CSTRING_OTHER(k12,protos,"Protocol",protos_chk_cb,
 			    "The lowest layer protocol described by this .stk file (eg: mtp2).\n"
 			    "Use (sscop:sscf-nni) for sscf-nni (MTP3b) with sscop"),
       UAT_END_FIELDS

@@ -595,8 +595,8 @@ UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 
 void dfilter_macro_init(void) {
 	static uat_field_t uat_fields[] =  {
-		UAT_FLD_CSTRING_OTHER(macro,name,macro_name_chk,"The name of the macro."),
-		UAT_FLD_CSTRING_ISPRINT(macro,text,"The text this macro resolves to."),
+		UAT_FLD_CSTRING_OTHER(macro,name,"Name",macro_name_chk,"The name of the macro."),
+		UAT_FLD_CSTRING_ISPRINT(macro,text,"Text","The text this macro resolves to."),
 		UAT_END_FIELDS
 	};
 
