@@ -397,6 +397,7 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
+File "..\..\ipmap.html"
 
 ; C-runtime redistributable
 !ifdef VCREDIST_EXE
@@ -1004,6 +1005,7 @@ Delete "$INSTDIR\services"
 Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$INSTDIR\user-guide.chm"
 Delete "$INSTDIR\example_snmp_users_file"
+Delete "$INSTDIR\ipmap.html"
 Delete "$INSTDIR\radius\*.*"
 Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Wireshark\*.*"
