@@ -1,41 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Wireshark: IP Location Map</title>
-    <script src="http://openlayers.org/api/OpenLayers.js"></script>
-    <script src="http://openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+    <script type="text/javascript" src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript" src="http://openstreetmap.org/openlayers/OpenStreetMap.js"></script>
 
     <script type="text/javascript">
         <!--
         var map;
 
-        function init(){
-			var map = new OpenLayers.Map("map", {
-				controls: [
+        function init() {
+            var map = new OpenLayers.Map("map", {
+                controls: [
                     new OpenLayers.Control.PanZoomBar(),
                     new OpenLayers.Control.ScaleLine(),
                     new OpenLayers.Control.MousePosition(),
                     new OpenLayers.Control.MouseDefaults(),
                     new OpenLayers.Control.Attribution()],
-				projection: new OpenLayers.Projection("EPSG:900913"),
-				displayProjection: new OpenLayers.Projection("EPSG:4326"),
-				maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,
-											 20037508.34, 20037508.34),
-				numZoomLevels: 18,
-				maxResolution: 156543,
-				units: "m"});
+                projection: new OpenLayers.Projection("EPSG:900913"),
+                displayProjection: new OpenLayers.Projection("EPSG:4326"),
+                maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34, 20037508.34, 20037508.34),
+                numZoomLevels: 18,
+                maxResolution: 156543,
+                units: "m"}
+            );
 
             map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
-            map.addLayer(new OpenLayers.Layer.Text( "IP Locations", { location:"ipmap.txt", projection: new OpenLayers.Projection("EPSG:4326")} ) );
+            map.addLayer(new OpenLayers.Layer.Text("IP Locations", {
+                location: "ipmap.txt", projection: new OpenLayers.Projection("EPSG:4326")} ) );
 
-            var lonlat = (new OpenLayers.LonLat(10.0, 20.0));
+            var lonlat = (new OpenLayers.LonLat(0.0, 0.0));
             lonlat.transform(map.displayProjection, map.projection);
-            map.setCenter(lonlat, /* zoom */ 2);
-		}
+            map.setCenter(lonlat, 2);
+        }
         // -->
     </script>
   </head>
   <body onload="init()">
     <div id="map"></div>
-    </form>
   </body>
 </html>
