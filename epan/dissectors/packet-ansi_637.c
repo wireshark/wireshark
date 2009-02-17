@@ -101,7 +101,7 @@ static const value_string ansi_tele_msg_type_strings[] = {
     { 0, NULL },
     };
 
-static const value_string ansi_637_tele_msg_status_string[] = {
+static const value_string ansi_tele_msg_status_strings[] = {
     {0x00,"Message accepted"},
     {0x01,"Message deposited to Internet"},
     {0x02,"Message delivered"},
@@ -118,7 +118,7 @@ static const value_string ansi_637_tele_msg_status_string[] = {
     {0xca,"Invalid destination"},
     {0xcd,"Message expired"},
     {0xdf,"Unknown error"},
-
+    { 0, NULL }
 };
 
 static const value_string ansi_tele_id_strings[] = {
@@ -195,7 +195,7 @@ static int hf_ansi_637_trans_length = -1;
 static int hf_ansi_637_trans_bin_addr = -1;
 static int hf_ansi_637_tele_msg_type = -1;
 static int hf_ansi_637_tele_msg_id = -1;
-/* static int hf_ansi_637_tele_msg_status = -1; */
+static int hf_ansi_637_tele_msg_status = -1;
 static int hf_ansi_637_tele_msg_rsvd = -1;
 static int hf_ansi_637_tele_subparam_id = -1;
 static int hf_ansi_637_trans_msg_type = -1;
@@ -2292,8 +2292,8 @@ proto_register_ansi_637(void)
 	    FT_BYTES, BASE_HEX, 0, 0,
 	    "", HFILL }},
 	};
-	static hf_register_info hf_tele[] =
-	{
+    static hf_register_info hf_tele[] =
+    {
 	{ &hf_ansi_637_tele_msg_type,
 	  { "Message Type",
 	    "ansi_637_tele.msg_type",
@@ -2303,6 +2303,11 @@ proto_register_ansi_637(void)
 	  { "Message ID",
 	    "ansi_637_tele.msg_id",
 	    FT_UINT24, BASE_DEC, NULL, 0x0ffff0,
+	    "", HFILL }},
+	{ &hf_ansi_637_tele_msg_status,
+	  { "Message Status",
+	    "ansi_637_tele.msg_status",
+	    FT_UINT8, BASE_DEC, VALS(ansi_tele_msg_status_strings), 0,
 	    "", HFILL }},
 	{ &hf_ansi_637_tele_msg_rsvd,
 	  { "Reserved",
