@@ -99,6 +99,26 @@ static const value_string ansi_tele_msg_type_strings[] = {
     { 4,	"Delivery Acknowledgement (mobile-terminated only)" },
     { 5,	"User Acknowledgement (either direction)" },
     { 0, NULL },
+    };
+
+static const value_string ansi_637_tele_msg_status_string[] = {
+    {0x00,"Message accepted"},
+    {0x01,"Message deposited to Internet"},
+    {0x02,"Message delivered"},
+    {0x03,"Message cancelled"},
+    {0x84,"Network congestion"},
+    {0x85,"Network error"},
+    {0x9f,"Unknown error"},
+    {0xc4,"Network congestion"},
+    {0xc5,"Network error"},
+    {0xc6,"Cancel failed"},
+    {0xc7,"Blocked destination"},
+    {0xc8,"Text too long"},
+    {0xc9,"Duplicate message"},
+    {0xca,"Invalid destination"},
+    {0xcd,"Message expired"},
+    {0xdf,"Unknown error"},
+
 };
 
 static const value_string ansi_tele_id_strings[] = {
@@ -111,6 +131,7 @@ static const value_string ansi_tele_id_strings[] = {
     { 4101,	"CDMA Wireless Enhanced Messaging Teleservice (WEMT)" },
     { 65535,	"(Reserved) Being used for Broadcast" },
     { 0, NULL },
+
 };
 
 static const value_string ansi_tele_param_strings[] = {
@@ -131,6 +152,7 @@ static const value_string ansi_tele_param_strings[] = {
     { 0x0e,	"Call-Back Number" },
     { 0x0f,	"Message Display Mode" },
     { 0x10,	"Multiple Encoding User Data" },
+    { 0x14,	"Message Status" },
     { 0, NULL },
 };
 
@@ -173,6 +195,7 @@ static int hf_ansi_637_trans_length = -1;
 static int hf_ansi_637_trans_bin_addr = -1;
 static int hf_ansi_637_tele_msg_type = -1;
 static int hf_ansi_637_tele_msg_id = -1;
+static int hf_ansi_637_tele_msg_status = -1;
 static int hf_ansi_637_tele_msg_rsvd = -1;
 static int hf_ansi_637_tele_subparam_id = -1;
 static int hf_ansi_637_trans_msg_type = -1;
@@ -467,6 +490,107 @@ tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     proto_tree_add_uint(tree, hf_ansi_637_tele_msg_rsvd,
 	tvb, offset, 3, octs);
 }
+
+/* Adamek Jan - IS637C Message status decoding procedure */
+static void
+tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
+{
+	/* Declare some variables */
+
+	guint8	oct;
+	guint8	error_class;
+    guint8	msg_status_code;
+    const gchar *str = NULL;
+
+    /* Chceck if the exact length */  
+	EXACT_DATA_CHECK(len, 1);
+   
+	/* get the status octet? */
+
+	oct = tvb_get_guint8(tvb, offset);
+   
+
+	/* error class filter */
+	proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, FALSE);
+
+	/*error class filter end */
+
+
+/*error class */
+
+	error_class = ((oct & 0xc0) >> 6);
+	switch (error_class)
+    {
+	case 0x00: str = "No Error";break;
+	case 0x01: str = "Reserved";break;
+	case 0x02: str = "Temporary Condition";break;
+	case 0x03: str = "Permanent Condition";break;
+	default: str = "Reserved";break;
+	}
+	other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
+	proto_tree_add_text(tree, tvb, offset, 1,
+	"%s :  Erorr Class: %s",
+	ansi_637_bigbuf,
+	str);
+	
+
+	 
+	msg_status_code = (oct & 0x3f);
+
+	if (error_class == 0x00){
+	switch (msg_status_code)
+	{
+	case 0x00: str = "Message accepted";break;
+    case 0x01: str = "Message deposited to internet";break;
+    case 0x02: str = "Message delivered";break;
+    case 0x03: str = "Message cancelled";break;
+    default: str = "Reserved";break;
+    }
+	other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
+	proto_tree_add_text(tree, tvb, offset, 1,
+	"%s :  Message status code: %s",
+	ansi_637_bigbuf,
+	str);
+	}
+
+/*error message status */
+  if (error_class == 0x02){
+  switch (msg_status_code)
+    {
+    case 0x04: str = "Network congestion";break;
+    case 0x05: str = "Network error";break;
+    case 0x1f: str = "Unknown error";break;
+    default: str = "Reserved";break;
+    }
+  other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
+  proto_tree_add_text(tree, tvb, offset, 1,
+  "%s :  Message status code: %s",
+  ansi_637_bigbuf,
+  str);   
+  }
+  
+  if (error_class == 0x03){
+  switch (msg_status_code)
+    {
+    case 0x04: str = "Network congestion";break;
+    case 0x05: str = "Network error";break;
+    case 0x06: str = "Cancel failed";break;
+    case 0x07: str = "Blocked destination";break;
+    case 0x08: str = "Text too long";break;
+    case 0x09: str = "Duplicate message";break;
+    case 0x0a: str = "Invalid destination";break;
+    case 0x0d: str = "Message expired";break;
+    case 0x1f: str = "Unknown error";break;
+    default: str = "Reserved";break;
+    }
+  other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x3f, 8);
+  proto_tree_add_text(tree, tvb, offset, 1,
+  "%s :  Message status code: %s",
+  ansi_637_bigbuf,
+  str);
+  }
+}
+
 
 static void
 tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
