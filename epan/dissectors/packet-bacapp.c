@@ -2338,7 +2338,7 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 	{
 		tmp = tvb_bytes_to_str(tvb, offset, lvt);
 		ti = proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", label, tmp);
-					 offset += lvt;
+		offset += lvt;
 	}
 
 	if (ti)
@@ -5670,24 +5670,40 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
 	guint8 tag_no = 0, tag_info = 0;
-	guint lvt = 0;
+	guint32 lvt = 0;
+	proto_tree *subtree = tree;
+	proto_item *tt;
 
-	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		/* exit loop if nothing happens inside */
 		lastoffset = offset;
-		switch (fTagNo(tvb, offset)) {
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		switch (tag_no) {
 		case 0:	/* errorType */
-			offset = fContextTaggedError(tvb,tree,offset);
+			offset = fContextTaggedError(tvb, subtree, offset);
 			break;
 		case 1:	/* vendorID */
-			offset = fVendorIdentifier (tvb, tree, offset);
+			offset = fVendorIdentifier (tvb, subtree, offset);
 			break;
 		case 2:	/* serviceNumber */
-			offset = fUnsignedTag (tvb,tree,offset,"service Number: ");
+			offset = fUnsignedTag (tvb, subtree, offset, "service Number: ");
 			break;
 		case 3: /* errorParameters */
-			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fAbstractSyntaxNType (tvb, tree, offset);
-			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
+			if (tag_is_opening(tag_info)) {
+				tt = proto_tree_add_text(subtree, tvb, offset, 1, 
+					"error Parameters");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+				propertyIdentifier = -1;
+				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+				offset = fAbstractSyntaxNType (tvb, subtree, offset);
+			} else if (tag_is_closing(tag_info)) {
+				offset += fTagHeaderTree (tvb, subtree, offset,
+					&tag_no, &tag_info, &lvt);
+				subtree = tree;
+			} else {
+				/* error condition: let caller handle */
+				return offset;
+			}
 			break;
 		default:
 			return offset;
@@ -5796,8 +5812,10 @@ fBACnetError (tvbuff_t *tvb, proto_tree *tree, guint offset, guint service)
         break;
     case 18:
         offset = fConfirmedPrivateTransferError (tvb,tree,offset);
+        break;
     case 22:
         offset = fVTCloseError (tvb,tree,offset);
+        break;
     default:
         return fError (tvb, tree, offset);
     }
