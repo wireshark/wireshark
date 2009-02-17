@@ -491,7 +491,6 @@ tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	tvb, offset, 3, octs);
 }
 
-#if 0
 /* Adamek Jan - IS637C Message status decoding procedure */
 static void
 tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
@@ -591,7 +590,6 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
   str);
   }
 }
-#endif /* 0 */
 
 
 static void
@@ -1304,7 +1302,7 @@ static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint 
     tele_param_cb_num,		/* Call-Back Number */
     tele_param_disp_mode,	/* Message Display Mode */
     NULL,			/* Multiple Encoding User Data */
-    NULL,			/* NONE */
+    tele_param_msg_status	/* Message status */
 };
 
 static void
