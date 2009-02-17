@@ -27,7 +27,7 @@
 
 /* defines voip call state */
 typedef enum _voip_call_state {
-		VOIP_NO_STATE,
+        VOIP_NO_STATE,
         VOIP_CALL_SETUP,
         VOIP_RINGING,
         VOIP_IN_CALL,
