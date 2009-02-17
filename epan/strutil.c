@@ -951,3 +951,11 @@ epan_strcasestr(const char *haystack, const char *needle)
 	}
 	return NULL;
 }
+
+const char *
+string_or_null(const char *string)
+{
+  if (string)
+    return string;
+  return "[NULL]";
+}

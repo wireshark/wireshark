@@ -536,34 +536,26 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_FTR Filter/equalityMatch
 	Filter_string=ep_strdup_printf("(%s=%s)",
-				       attributedesc_string ?
-				       attributedesc_string : "(null)",
-				       ldapvalue_string ?
-				       ldapvalue_string : "(null)");
+				       string_or_null(attributedesc_string),
+				       string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/greaterOrEqual
 	Filter_string=ep_strdup_printf("(%s>=%s)",
-				       attributedesc_string ?
-				       attributedesc_string : "(null)",
-				       ldapvalue_string ?
-				       ldapvalue_string : "(null)");
+				       string_or_null(attributedesc_string),
+				       string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/lessOrEqual
 	Filter_string=ep_strdup_printf("(%s<=%s)",
-				       attributedesc_string ?
-				       attributedesc_string : "(null)",
-				       ldapvalue_string ?
-				       ldapvalue_string : "(null)");
+				       string_or_null(attributedesc_string),
+				       string_or_null(ldapvalue_string));
 
 
 #.FN_FTR Filter/approxMatch
 	Filter_string=ep_strdup_printf("(%s~=%s)",
-				       attributedesc_string ?
-				       attributedesc_string : "(null)",
-				       ldapvalue_string ?
-				       ldapvalue_string : "(null)");
+				       string_or_null(attributedesc_string),
+				       string_or_null(ldapvalue_string));
 
 #.FN_FTR Filter/and/_item
 	if(and_filter_string){
@@ -619,10 +611,10 @@ ldap_conv_info_t *ldap_info;
 	or_filter_string=old_or_filter_string;
 
 #.FN_FTR Filter/present
-	Filter_string=ep_strdup_printf("(%s=*)",Filter_string);
+	Filter_string=ep_strdup_printf("(%s=*)",string_or_null(Filter_string));
 
 #.FN_FTR Filter/not
-	Filter_string=ep_strdup_printf("(!%s)",Filter_string);
+	Filter_string=ep_strdup_printf("(!%s)",string_or_null(Filter_string));
 
 #.FN_BODY MatchingRuleAssertion/dnAttributes
 	gboolean val;
@@ -676,7 +668,9 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 		tree = tr;
 	}
 %(DEFAULT_BODY)s
-	Filter_string=ep_strdup_printf("(%%s=%%s)",attr_type,substring_value);
+	Filter_string=ep_strdup_printf("(%%s=%%s)",
+		string_or_null(attr_type),
+		string_or_null(substring_value));
 	proto_item_append_text(it, "%%s", Filter_string);
 	substring_value=old_substring_value;
 
@@ -691,7 +685,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	}
 %(DEFAULT_BODY)s
 	if(Filter_string)
-		proto_item_append_text(it, "%%s", Filter_string);
+		proto_item_append_text(it, "%%s", string_or_null(Filter_string));
 
 #.FN_BODY AuthenticationChoice/ntlmsspNegotiate
 	/* make sure the protocol op comes first */

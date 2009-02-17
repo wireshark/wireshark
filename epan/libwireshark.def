@@ -888,6 +888,7 @@ stream_add_frag
 stream_find_frag
 stream_new_circ
 stream_process_reassembled
+string_or_null
 string_to_name_resolve
 sua_co_class_type_acro_values	DATA
 swaptab

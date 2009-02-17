@@ -215,4 +215,11 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
  */
 char * epan_strcasestr(const char *haystack, const char *needle);
 
+/** Guarantee a non-null string.
+ *
+ * @param string The string to check
+ * @return A pointer 'string' if it's non-null, otherwise "[NULL]".
+ */
+const char * string_or_null(const char *string);
+
 #endif /* __STRUTIL_H__ */
