@@ -195,7 +195,7 @@ static int hf_ansi_637_trans_length = -1;
 static int hf_ansi_637_trans_bin_addr = -1;
 static int hf_ansi_637_tele_msg_type = -1;
 static int hf_ansi_637_tele_msg_id = -1;
-static int hf_ansi_637_tele_msg_status = -1;
+/* static int hf_ansi_637_tele_msg_status = -1; */
 static int hf_ansi_637_tele_msg_rsvd = -1;
 static int hf_ansi_637_tele_subparam_id = -1;
 static int hf_ansi_637_trans_msg_type = -1;
@@ -491,6 +491,7 @@ tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	tvb, offset, 3, octs);
 }
 
+#if 0
 /* Adamek Jan - IS637C Message status decoding procedure */
 static void
 tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
@@ -590,6 +591,7 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
   str);
   }
 }
+#endif /* 0 */
 
 
 static void
