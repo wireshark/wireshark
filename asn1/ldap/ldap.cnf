@@ -637,7 +637,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 					(matching_rule_dnattr?"dn:":""),
 					(matching_rule_string?matching_rule_string:""),
 					(matching_rule_string?":":""),
-					ldapvalue_string);
+					string_or_null(ldapvalue_string));
 
 #.FN_FTR SubstringFilter/substrings/_item
 	if (substring_item_final) {

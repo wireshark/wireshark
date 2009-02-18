@@ -1996,7 +1996,7 @@ dissect_ldap_T_extensibleMatch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 					(matching_rule_dnattr?"dn:":""),
 					(matching_rule_string?matching_rule_string:""),
 					(matching_rule_string?":":""),
-					ldapvalue_string);
+					string_or_null(ldapvalue_string));
 
 
   return offset;
