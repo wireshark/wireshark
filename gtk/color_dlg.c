@@ -100,13 +100,13 @@ static GSList *color_filter_edit_list = NULL;
 static GSList *color_filter_tmp_list = NULL;
 
 
-#define COLOR_UP_LB		"color_up_lb"
-#define COLOR_DOWN_LB		"color_down_lb"
-#define COLOR_EDIT_LB		"color_edit_lb"
-#define COLOR_ENABLE_LB		"color_enable_lb"
-#define COLOR_DISABLE_LB	"color_disable_lb"
-#define COLOR_DELETE_LB		"color_delete_lb"
-#define COLOR_FILTERS_CL	"color_filters_cl"
+#define COLOR_UP_LB				"color_up_lb"
+#define COLOR_DOWN_LB			"color_down_lb"
+#define COLOR_EDIT_LB			"color_edit_lb"
+#define COLOR_ENABLE_LB			"color_enable_lb"
+#define COLOR_DISABLE_LB		"color_disable_lb"
+#define COLOR_DELETE_LB			"color_delete_lb"
+#define COLOR_FILTERS_CL		"color_filters_cl"
 #define COLOR_FILTER_LIST       "color_filter_list"
 
 
@@ -305,27 +305,31 @@ colorize_dialog_new (char *filter)
 
   /* the list store contains : filter name, filter string, foreground
    * color, background color, pointer to color filter */
-  store = gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING,
-                             G_TYPE_STRING, G_TYPE_STRING, 
-			     G_TYPE_BOOLEAN, G_TYPE_POINTER);
+  store = gtk_list_store_new(6, 
+	                         G_TYPE_STRING, 
+	                         G_TYPE_STRING,
+                             G_TYPE_STRING, 
+	                         G_TYPE_STRING, 
+	                         G_TYPE_BOOLEAN, 
+	                         G_TYPE_POINTER);
   color_filters = tree_view_new(GTK_TREE_MODEL(store));
   g_object_unref(store);
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes(titles[0], renderer,
                                                     "text", 0,
-						    "foreground", 2,
+                                                    "foreground", 2,
                                                     "background", 3,
-						    "strikethrough", 4,
-						    NULL);
+                                                    "strikethrough", 4,
+                                                    NULL);
   gtk_tree_view_column_set_fixed_width(column, 80);
   gtk_tree_view_append_column(GTK_TREE_VIEW(color_filters), column);
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes(titles[1], renderer,
                                                     "text", 1,
-						    "foreground", 2,
+                                                    "foreground", 2,
                                                     "background", 3,
-						    "strikethrough", 4,
-						    NULL);
+                                                    "strikethrough", 4,
+                                                    NULL);
   gtk_tree_view_column_set_fixed_width(column, 300);
   gtk_tree_view_append_column(GTK_TREE_VIEW(color_filters), column);
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(color_filters), TRUE);
@@ -469,8 +473,15 @@ static void move_this_row (GtkWidget   *color_filters,
     gtk_list_store_insert_before(GTK_LIST_STORE(model), &iter1, &iter2);
   else
     gtk_list_store_insert_after(GTK_LIST_STORE(model), &iter1, &iter2);
-  gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 0, name, 1, string,
-                     2, fg_str, 3, bg_str, 4, disabled, 5, colorf, -1);
+
+  gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 
+	  0, name, 
+	  1, string,
+	  2, fg_str, 
+	  3, bg_str, 
+	  4, disabled, 
+	  5, colorf, -1);
+
   g_free(name);
   g_free(string);
   g_free(fg_str);
@@ -722,9 +733,13 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
             colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
     g_snprintf(bg_str, 14, "#%04X%04X%04X",
             colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
-    gtk_list_store_set(store, &iter, 0, colorf->filter_name,
-                       1, colorf->filter_text, 2, fg_str, 3, bg_str,
-                       4, colorf->disabled, 5, colorf, -1);
+    gtk_list_store_set(store, &iter, 
+		0, colorf->filter_name,
+        1, colorf->filter_text, 
+		2, fg_str, 
+		3, bg_str,
+		4, colorf->disabled, 
+		5, colorf, -1);
     color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
     num_of_filters++;
   } else {
@@ -836,7 +851,8 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
     if (gtk_tree_selection_iter_is_selected(sel, &iter)) {
       colorf->disabled = action_disable;
-      gtk_list_store_set(GTK_LIST_STORE(model), &iter, 4, action_disable, -1);
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
+		  4, action_disable, -1);
     }
   }
   button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
