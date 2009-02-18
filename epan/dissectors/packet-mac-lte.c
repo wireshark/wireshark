@@ -173,16 +173,16 @@ static const value_string bch_transport_channel_vals[] =
 static const value_string dlsch_lcid_vals[] =
 {
     { 0,                                        "CCCH"},
-    { 1,                                        "LCID=1"},
-    { 2,                                        "LCID=2"},
-    { 3,                                        "LCID=3"},
-    { 4,                                        "LCID=4"},
-    { 5,                                        "LCID=5"},
-    { 6,                                        "LCID=6"},
-    { 7,                                        "LCID=7"},
-    { 8,                                        "LCID=8"},
-    { 9,                                        "LCID=9"},
-    { 10,                                       "LCID=10"},
+    { 1,                                        "1"},
+    { 2,                                        "2"},
+    { 3,                                        "3"},
+    { 4,                                        "4"},
+    { 5,                                        "5"},
+    { 6,                                        "6"},
+    { 7,                                        "7"},
+    { 8,                                        "8"},
+    { 9,                                        "9"},
+    { 10,                                       "10"},
     { UE_CONTENTION_RESOLUTION_IDENTITY_LCID,   "UE Contention Resolution Identity"},
     { TIMING_ADVANCE_LCID                   ,   "Timing Advance"},
     { DRX_COMMAND_LCID                      ,   "DRX Command"},
@@ -199,16 +199,16 @@ static const value_string dlsch_lcid_vals[] =
 static const value_string ulsch_lcid_vals[] =
 {
     { 0,                            "CCCH"},
-    { 1,                            "LCID=1"},
-    { 2,                            "LCID=2"},
-    { 3,                            "LCID=3"},
-    { 4,                            "LCID=4"},
-    { 5,                            "LCID=5"},
-    { 6,                            "LCID=6"},
-    { 7,                            "LCID=7"},
-    { 8,                            "LCID=8"},
-    { 9,                            "LCID=9"},
-    { 10,                           "LCID=10"},
+    { 1,                            "1"},
+    { 2,                            "2"},
+    { 3,                            "3"},
+    { 4,                            "4"},
+    { 5,                            "5"},
+    { 6,                            "6"},
+    { 7,                            "7"},
+    { 8,                            "8"},
+    { 9,                            "9"},
+    { 10,                           "10"},
     { POWER_HEADROOM_REPORT_LCID,   "Power Headroom Report"},
     { CRNTI_LCID,                   "C-RNTI"},
     { TRUNCATED_BSR_LCID,           "Truncated BSR"},
@@ -757,7 +757,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     col_append_str(pinfo->cinfo, COL_INFO, ") ");
                     break;
                 case -1:
-                    col_append_str(pinfo->cinfo, COL_INFO, ":remaining bytes) ");
+                    col_append_str(pinfo->cinfo, COL_INFO, ":remainder) ");
                     break;
                 default:
                     col_append_fstr(pinfo->cinfo, COL_INFO, ":%u bytes) ",
