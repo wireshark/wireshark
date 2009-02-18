@@ -38,8 +38,8 @@ Name "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 OutFile "wireshark-${PLATFORM}-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
-Icon "..\..\image\wireshark.ico"
-UninstallIcon "..\..\image\wireshark.ico"
+Icon "..\..\image\wiresharkinst.ico"
+UninstallIcon "..\..\image\wiresharkinst.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
 !define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be uninstalled. Click 'Next' to continue."
@@ -62,8 +62,8 @@ XPStyle on
 !include "MUI.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "..\..\image\wireshark.ico"
-!define MUI_UNICON "..\..\image\wireshark.ico"
+!define MUI_ICON "..\..\image\wiresharkinst.ico"
+!define MUI_UNICON "..\..\image\wiresharkinst.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -220,10 +220,14 @@ UpdateIcons.next2_${UPDATEICONS_UNIQUE}:
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 
 UpdateIcons.error1_${UPDATEICONS_UNIQUE}:
-	MessageBox MB_OK|MB_ICONSTOP  "Can't find 'shell32.dll' library. Impossible to update icons"
+	MessageBox MB_OK|MB_ICONSTOP  \
+            "Can't find 'shell32.dll' library. Impossible to update icons" \
+            /SD IDOK
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 UpdateIcons.error2_${UPDATEICONS_UNIQUE}:
-	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons"
+	MessageBox MB_OK|MB_ICONINFORMATION \
+            "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons" \
+            /SD IDOK
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 	!undef UPDATEICONS_UNIQUE
@@ -286,14 +290,15 @@ Function .onInit
   MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
     "$OLD_DISPLAYNAME is already installed.\
     $\n$\nWould you like to uninstall it first?" \
-      IDYES uninst \
+      /SD IDYES \
+      IDYES prep_uninstaller \
       IDNO done
   Abort
  
 ; Copy the uninstaller to $TEMP and run it.
 ; The uninstaller normally does this by itself, but doesn't wait around
 ; for the executable to finish, which means ExecWait won't work correctly.
-uninst:
+prep_uninstaller:
   ClearErrors
   StrCpy $TMP_UNINSTALLER "$TEMP\wireshark_uninstaller.exe"
   ; ...because we surround UninstallString in quotes.
@@ -301,7 +306,14 @@ uninst:
   StrCpy $1 "$TEMP\wireshark_uninstaller.exe"
   StrCpy $2 1
   System::Call 'kernel32::CopyFile(t r0, t r1, b r2) 1'
+  IfSilent silent_uninstall
   ExecWait "$TMP_UNINSTALLER _?=$OLD_INSTDIR"
+  Goto cleanup
+
+silent_uninstall:
+  ExecWait "$TMP_UNINSTALLER /S _?=$OLD_INSTDIR"
+
+cleanup:
   Delete "$TMP_UNINSTALLER"
   
 done:
@@ -1195,11 +1207,16 @@ Function myShowCallback
 	StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
 	Goto lbl_winversion_supported
 lbl_winversion_unsupported:
-	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!"
+	MessageBox MB_OK \
+            "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!" \
+            /SD IDOK
+            
 	Quit
 
 lbl_winversion_unsupported_nt4:
-	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!"
+	MessageBox MB_OK \
+            "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!" \
+            /SD IDOK
 	Quit
 
 lbl_winversion_supported:
