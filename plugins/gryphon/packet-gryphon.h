@@ -1,11 +1,13 @@
-/* packet-gryphon.c
+/* packet-gryphon.h
  * Definitions for Gryphon packet disassembly structures and routines
+ * By Steve Limkemann <stevelim@dgtech.com>
+ * Copyright 1998 Steve Limkemann
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Steve Limkemann <stevelim@dgtech.com>
- * Copyright 1998 Steve Limkemann
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
