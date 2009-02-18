@@ -210,25 +210,17 @@ ShowUninstDetails show
 
 	!define UPDATEICONS_UNIQUE ${__LINE__}
 
-	IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.next1_${UPDATEICONS_UNIQUE} UpdateIcons.error1_${UPDATEICONS_UNIQUE}
-UpdateIcons.next1_${UPDATEICONS_UNIQUE}:
-	GetDllVersion "$SYSDIR\shell32.dll" $R0 $R1
-	IntOp $R2 $R0 / 0x00010000
-	IntCmp $R2 4 UpdateIcons.next2_${UPDATEICONS_UNIQUE} UpdateIcons.error2_${UPDATEICONS_UNIQUE}
-UpdateIcons.next2_${UPDATEICONS_UNIQUE}:
+	IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE} UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}
+UpdateIcons.ok_shell32_${UPDATEICONS_UNIQUE}:
 	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)'
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
 
-UpdateIcons.error1_${UPDATEICONS_UNIQUE}:
+UpdateIcons.error_shell32_${UPDATEICONS_UNIQUE}:
 	MessageBox MB_OK|MB_ICONSTOP  \
             "Can't find 'shell32.dll' library. Impossible to update icons" \
             /SD IDOK
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
-UpdateIcons.error2_${UPDATEICONS_UNIQUE}:
-	MessageBox MB_OK|MB_ICONINFORMATION \
-            "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons" \
-            /SD IDOK
-	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+
 UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 	!undef UPDATEICONS_UNIQUE
 	Pop $R2
