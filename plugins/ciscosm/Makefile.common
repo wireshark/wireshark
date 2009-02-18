@@ -28,4 +28,4 @@ PLUGIN_NAME = ciscosm
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-sm.c
+	packet-cisco-sm.c
