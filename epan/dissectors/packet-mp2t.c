@@ -442,8 +442,8 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 
 static gint
-dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
-	    conversation_t *conv)
+dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
+	    proto_tree *tree, conversation_t *conv)
 {
 	guint32 header;
 	guint afc;
