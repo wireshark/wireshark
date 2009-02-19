@@ -25,20 +25,22 @@
 
 enum pdcp_plane
 {
-    Signalling_Plane=1,
-    User_Plane=2
+  SIGNALING_PLANE = 1,
+  USER_PLANE = 2
 };
 
 enum rohc_mode
 {
-    Unidirectional=1,
-    OptimisticBidirectional=2,
-    ReliableBidirectional=3
+  UNIDIRECTIONAL = 1,
+  OPTIMISTIC_BIDIRECTIONAL = 2,
+  RELIABLE_BIDIRECTIONAL = 3
 };
 
 #define CID_IN_PDCP_HEADER 0
 #define CID_IN_ROHC_PACKET 1
 
+#define PDCP_SN_LENGTH_7_BITS 7
+#define PDCP_SN_LENGTH_12_BITS 12
 
 /* Info attached to each LTE PDCP/RoHC packet */
 typedef struct pdcp_lte_info

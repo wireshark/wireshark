@@ -22,9 +22,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* radioType */
+#define FDD_RADIO 1
+#define TDD_RADIO 2
+
+/* direction */
 #define DIRECTION_UPLINK   0
 #define DIRECTION_DOWNLINK 1
 
+/* rntiType */
 #define NO_RNTI 0
 #define P_RNTI  1
 #define RA_RNTI 2

@@ -101,16 +101,10 @@ static int ett_rlc_lte_extension_part = -1;
 
 static const value_string direction_vals[] =
 {
-    { 0,      "Uplink"},
-    { 1,      "Downlink"},
+    { DIRECTION_UPLINK,      "Uplink"},
+    { DIRECTION_DOWNLINK,    "Downlink"},
     { 0, NULL }
 };
-
-
-#define RLC_TM_MODE 1
-#define RLC_UM_MODE 2
-#define RLC_AM_MODE 4
-#define RLC_PREDEF  8
 
 static const value_string rlc_mode_short_vals[] =
 {
@@ -132,11 +126,11 @@ static const value_string rlc_mode_vals[] =
 
 static const value_string rlc_channel_type_vals[] =
 {
-    { 1,      "CCCH"},
-    { 2,      "BCCH"},
-    { 3,      "PCCH"},
-    { 4,      "SRB"},
-    { 5,      "DRB"},
+    { CHANNEL_TYPE_CCCH,     "CCCH"},
+    { CHANNEL_TYPE_BCCH,     "BCCH"},
+    { CHANNEL_TYPE_PCCH,     "PCCH"},
+    { CHANNEL_TYPE_SRB,      "SRB"},
+    { CHANNEL_TYPE_DRB,      "DRB"},
     { 0, NULL }
 };
 
@@ -338,7 +332,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /*******************************/
     /* Fixed UM header             */
-    if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
+    if (p_rlc_lte_info->UMSequenceNumberLength == UM_SN_LENGTH_5_BITS) {
         /* Framing info (2 bits) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_fi,
                                     tvb, offset*8, 2,
@@ -355,7 +349,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                     &sn, FALSE);
         offset++;
     }
-    else if (p_rlc_lte_info->UMSequenceNumberLength == 10) {
+    else if (p_rlc_lte_info->UMSequenceNumberLength == UM_SN_LENGTH_10_BITS) {
         guint8 reserved;
         proto_item *ti;
 

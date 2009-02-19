@@ -22,6 +22,28 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* rlcMode */
+#define RLC_TM_MODE 1
+#define RLC_UM_MODE 2
+#define RLC_AM_MODE 4
+#define RLC_PREDEF  8
+
+/* direction */
+#define DIRECTION_UPLINK 0
+#define DIRECTION_DOWNLINK 1
+
+/* priority ? */
+
+/* channelType */
+#define CHANNEL_TYPE_CCCH 1
+#define CHANNEL_TYPE_BCCH 2
+#define CHANNEL_TYPE_PCCH 3
+#define CHANNEL_TYPE_SRB 4
+#define CHANNEL_TYPE_DRB 5
+
+/* UMSequenceNumberLength */
+#define UM_SN_LENGTH_5_BITS 5
+#define UM_SN_LENGTH_10_BITS 10
 
 /* Info attached to each LTE RLC frame */
 typedef struct rlc_lte_info

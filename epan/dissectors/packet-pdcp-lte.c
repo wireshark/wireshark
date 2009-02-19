@@ -175,16 +175,16 @@ static int ett_pdcp_rohc_dynamic_rtp = -1;
 
 
 static const value_string pdcp_plane_vals[] = {
-    { Signalling_Plane,    "Signalling" },
-    { User_Plane,          "User" },
+    { SIGNALING_PLANE,    "Signalling" },
+    { USER_PLANE,         "User" },
     { 0,   NULL }
 };
 
 
 static const value_string rohc_mode_vals[] = {
-    { Unidirectional,            "Unidirectional" },
-    { OptimisticBidirectional,   "Optimistic Bidirectional" },
-    { ReliableBidirectional,     "Reliable Bidirectional" },
+    { UNIDIRECTIONAL,            "Unidirectional" },
+    { OPTIMISTIC_BIDIRECTIONAL,  "Optimistic Bidirectional" },
+    { RELIABLE_BIDIRECTIONAL,    "Reliable Bidirectional" },
     { 0,   NULL }
 };
 
@@ -1239,7 +1239,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     PROTO_ITEM_SET_GENERATED(ti);
 
     /* User-plane-specific fields */
-    if (p_pdcp_info->plane == User_Plane) {
+    if (p_pdcp_info->plane == USER_PLANE) {
 
         /* No Header PDU */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_no_header_pdu, tvb, 0, 0,
@@ -1371,7 +1371,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /*****************************/
         /* Signalling plane messages */
-        if (p_pdcp_info->plane == Signalling_Plane) {
+        if (p_pdcp_info->plane == SIGNALING_PLANE) {
             guint32 mac;
             guint32 data_length;
 
@@ -1414,7 +1414,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             return;
         }
-        else if (p_pdcp_info->plane == User_Plane) {
+        else if (p_pdcp_info->plane == USER_PLANE) {
 
             /**********************************/
             /* User-plane messages            */
@@ -1429,12 +1429,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /* Use-plane Data            */
 
                 /* Number of sequence number bits depends upon config */
-                if (p_pdcp_info->seqnum_length == 7) {
+                if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_7_BITS) {
                     seqnum = tvb_get_guint8(tvb, offset) & 0x7f;
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_7, tvb, offset, 1, FALSE);
                     offset++;
                 }
-                else if (p_pdcp_info->seqnum_length == 12) {
+                else if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
                     proto_item *ti;
                     guint8 reserved_value;
 
@@ -1632,14 +1632,14 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* R-0 begins with 00 */
         if (((base_header_byte & 0xc0) == 0) &&
-             (p_pdcp_info->mode == ReliableBidirectional)) {
+             (p_pdcp_info->mode == RELIABLE_BIDIRECTIONAL)) {
 
             offset = dissect_pdcp_r_0_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
         }
 
         /* R-0-CRC begins with 01 */
         else if ((((base_header_byte & 0x40) >> 6) == 1) &&
-                  (p_pdcp_info->mode == ReliableBidirectional)) {
+                  (p_pdcp_info->mode == RELIABLE_BIDIRECTIONAL)) {
 
             offset = dissect_pdcp_r_0_crc_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
         }
@@ -1654,7 +1654,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         switch (p_pdcp_info->mode) {
 
-            case ReliableBidirectional:
+            case RELIABLE_BIDIRECTIONAL:
                  /* R-1 if !(ipv4 && rand) */
                  if (!((p_pdcp_info->rohc_ip_version == 4) &&
                       (!p_pdcp_info->rnd))) {
@@ -1668,8 +1668,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 }
                 break;
 
-            case Unidirectional:
-            case OptimisticBidirectional:
+            case UNIDIRECTIONAL:
+            case OPTIMISTIC_BIDIRECTIONAL:
                  /* UO-1 if !(ipv4 && rand) */
                  if (!((p_pdcp_info->rohc_ip_version == 4) &&
                       (!p_pdcp_info->rnd))) {

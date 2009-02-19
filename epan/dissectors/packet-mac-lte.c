@@ -125,10 +125,7 @@ static int ett_mac_lte_pch = -1;
 
 
 
-/* Constants an value strings */
-
-#define FDD_RADIO 1
-#define TDD_RADIO 2
+/* Constants and value strings */
 
 static const value_string radio_type_vals[] =
 {
