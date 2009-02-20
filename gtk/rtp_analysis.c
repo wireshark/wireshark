@@ -2905,7 +2905,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 */
 /* Present floats with two deciamls */
 void
-rtp_float_data_func (GtkTreeViewColumn *column,
+rtp_float_data_func (GtkTreeViewColumn *column _U_,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
@@ -2936,7 +2936,7 @@ rtp_float_data_func (GtkTreeViewColumn *column,
 
 /* Present boolean value */
 void
-rtp_boolean_data_func (GtkTreeViewColumn *column,
+rtp_boolean_data_func (GtkTreeViewColumn *column _U_,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
                            GtkTreeIter       *iter,
