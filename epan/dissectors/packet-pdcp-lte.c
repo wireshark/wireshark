@@ -1544,7 +1544,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         else {
             if (tvb_length_remaining(tvb, offset) > 0) {
-                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
+                if (p_pdcp_info->plane == USER_PLANE) {
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
+                }
+                else {
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                }
 
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes data)",

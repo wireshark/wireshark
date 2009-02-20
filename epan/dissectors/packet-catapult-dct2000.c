@@ -1397,6 +1397,9 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
 
     p_pdcp_lte_info->no_header_pdu = outhdr_values[i++];
     p_pdcp_lte_info->plane = outhdr_values[i++];
+    if (p_pdcp_lte_info->plane != USER_PLANE) {
+        p_pdcp_lte_info->plane = SIGNALING_PLANE;
+    }
     p_pdcp_lte_info->seqnum_length = outhdr_values[i++];
 
     p_pdcp_lte_info->rohc_compression = outhdr_values[i++];
