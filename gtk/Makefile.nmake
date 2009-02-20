@@ -60,9 +60,25 @@ WIRESHARK_WIN32_GTK_OBJECTS = $(WIRESHARK_WIN32_GTK_SRC:.c=.obj)
 libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
 	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
 
+# The shell script runs slowly, as multiple greps and seds are run
+# for each input file; this is especially slow on Windows.  Therefore,
+# if Python is present (as indicated by PYTHON being defined), we run
+# a faster Python script to do that work instead.
+#
+# The first argument is the directory in which the source files live.
+# The second argument is "plugin", to indicate that we should build
+# a plugin.c file for a plugin.
+# All subsequent arguments are the files to scan.
+#
+!IFDEF PYTHON
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../tools/make-tap-reg.py
+	@echo Making wireshark-tap-register.c (using python)
+	@$(PYTHON) "../tools/make-tap-reg.py" . taps $(WIRESHARK_TAP_SRC)
+!ELSE
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.common
 	@echo Making wireshark-tap-register.c
 	@$(SH) ../make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
+!ENDIF
 
 
 !IF "$(PORTAUDIO_VERSION)" == "18"
@@ -117,7 +133,7 @@ pa_win_waveformat.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_waveformat.c
 !ENDIF
 
 clean:
-	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib *.pdb doxygen.cfg html/*.*
+	rm -f $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 
 distclean: clean
