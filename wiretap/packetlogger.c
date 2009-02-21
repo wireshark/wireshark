@@ -119,7 +119,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	wth->phdr.caplen = pl_hdr.len - 9;
 
 	wth->phdr.ts.secs = (time_t) (pl_hdr.ts >> 32);
-	wth->phdr.ts.nsecs = (pl_hdr.ts & 0xFFFFFFFF) * 1000;
+	wth->phdr.ts.nsecs = (int)((pl_hdr.ts & 0xFFFFFFFF) * 1000);
 
 	switch(pl_hdr.type) {
 
