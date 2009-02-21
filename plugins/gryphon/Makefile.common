@@ -33,3 +33,8 @@ DISSECTOR_SRC = \
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	packet-gryphon.h
+
+# Dissector helpers. They're included in the source files in this
+# directory, but they're not dissectors themselves, i.e. they're not
+# used to generate "plugin.c".
+DISSECTOR_SUPPORT_SRC =

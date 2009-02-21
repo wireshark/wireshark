@@ -31,7 +31,7 @@ moduleinfo.nmake
 plugin.rc.in
 The source files and header files for your dissector
 
-Examples of these files can be found in plugins/agentx.
+Examples of these files can be found in plugins/gryphon.
 
 2.1 AUTHORS, COPYING, and ChangeLog
 
@@ -41,14 +41,15 @@ files.
 2.2 Makefile.am
 
 For your plugins/xxx/Makefile.am file, see the corresponding file in
-plugins/agentx. Replace all occurrences of "agentx" in those files with "xxx".
+plugins/gryphon. Replace all occurrences of "gryphon" in those files
+with "xxx".
 
 2.3 Makefile.common
 
-Your plugins/xxx/Makefile.common should list the main source file(s), which
-exports register_*() and handoff_*(), for your dissector in the DISSECTOR_SRC
-variable, and all supporting source files in the DISSECTOR_SUPPORT_SRC
-variable.
+Your plugins/xxx/Makefile.common should only list the main source file(s),
+which exports register_*() and handoff_*(), for your dissector in the
+DISSECTOR_SRC variable, and all other supporting source files in the
+DISSECTOR_SUPPORT_SRC variable.
 The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
@@ -56,7 +57,7 @@ include moduleinfo.h.
 2.4 Makefile.nmake
 
 For your plugins/xxx/Makefile.nmake file, see the corresponding file in
-plugins/agentx. No modifications are needed here.
+plugins/gryphon. No modifications are needed here.
 
 2.5 moduleinfo.h
 
@@ -99,10 +100,11 @@ could be used from a shell prompt.
 The plugins directory contains a Makefile.am.  You need to change the
 SUBDIRS directive to reflect the addition of your plugin:
 
-SUBDIRS = \
+SUBDIRS = $(_CUSTOM_SUBDIRS_) \
+	...
 	gryphon \
 	irda \
-	xxx
+	xxx \
 
 3.2 Changes to plugins/Makefile.nmake
 
@@ -116,19 +118,11 @@ alphabetical order) for your plugin to the process-plugins: rule
 Then add a copy command to the install-plugins rule:
 
 	...
-	xcopy xxx\*.dll $(VERSION) /d
+	xcopy plugins\xxx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
+	cd plugins
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 
-3.3 Changes to the top level Makefile.nmake
-
-To the top level Makefile.nmake you need to add your plugin (in alphabetical order)
-to the install-common-files: rule
-
-	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\xxx\xxx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-
-3.4 Changes to the top level Makefile.am
+3.3 Changes to the top level Makefile.am
 
 Add your plugin (in alphabetical order) to the plugin_ldadd:
 
@@ -136,50 +130,39 @@ if HAVE_PLUGINS
 
 plugin_ldadd = \
 	...
+	-dlopen plugins/gryphon/gryphon.la      \
+	-dlopen plugins/irda/irda.la    \
 	-dlopen plugins/xxx/xxx.la      \
-	-dlopen plugins/wimax/wimax.la
+	...
 
-3.5  Changes to the top level configure.in
+3.4  Changes to the top level configure.in
 
-You need to add your plugins Makefile to the AC_OUTPUT rule in the
-configure.in
+You need to add your plugins Makefile (in alphbetical order) to the AC_OUTPUT
+rule in the configure.in
 
 AC_OUTPUT(
-  Makefile
-  doc/Makefile
-  gtk/Makefile
-  packaging/Makefile
-  packaging/nsis/Makefile
-  packaging/rpm/Makefile
-  packaging/rpm/wireshark.spec
-  packaging/svr4/Makefile
-  packaging/svr4/checkinstall
-  packaging/svr4/pkginfo
-  plugins/Makefile
+  ...
   plugins/gryphon/Makefile
   plugins/irda/Makefile
   plugins/xxx/Makefile
-  tools/Makefile
-  tools/lemon/Makefile
+  ...
   ,)
 
-3.6  Changes to epan/Makefile.am
+3.5  Changes to epan/Makefile.am
 
-Add the relative path of your plugin to plugin_src:
+Add the relative path of your plugin (in alphbetical order) to plugin_src:
 
 plugin_src = \
-        ../plugins/artnet/packet-artnet.c \
-        ../plugins/asn1/packet-asn1.c \
-            ...
-        ../plugins/xxx/packet-xxx.c \
-            ...
+        ...
+	../plugins/gryphon/packet-gryphon.c \
+	../plugins/irda/packet-irda.c \
+	../plugins/xxx/packet-xxx.c \
+        ...
 
-
-3.7  Changes to the installers
+3.6  Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
-in the NSIS installer Makefile.nmake and wireshark.nsi files, and the U3
-installer makefile.nmake file.
+in the NSIS installer Makefile.nmake and wireshark.nsi files.
 
 For the NSIS installer:
 
@@ -194,7 +177,7 @@ For the NSIS installer:
 	section in packaging/nsis/wireshark.nsi.
 
 The U3 and PortableApps installers build their manifests, including plugins,
-from packaging/nsis/wireshark.nsi via the packagaging/ws-manifest.pl script.
+from packaging/nsis/wireshark.nsi via the packaging/ws-manifest.pl script.
 
 4. Development and plugins on Unix
 
