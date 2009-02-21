@@ -105,9 +105,6 @@ process-plugins:
 	cd unistim
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd wimax
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -149,7 +146,6 @@ install-plugins:
 	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\unistim\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\v5ua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\wimax\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\wimaxasncp\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	cd plugins

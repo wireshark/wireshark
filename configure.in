@@ -1695,7 +1695,6 @@ AC_OUTPUT(
   plugins/sercosiii/Makefile
   plugins/stats_tree/Makefile
   plugins/unistim/Makefile
-  plugins/v5ua/Makefile
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
   tools/Makefile

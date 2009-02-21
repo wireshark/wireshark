@@ -807,7 +807,6 @@ File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\sbus\sbus.dll"
 File "..\..\plugins\sercosiii\sercosiii.dll"
 File "..\..\plugins\unistim\unistim.dll"
-File "..\..\plugins\v5ua\v5ua.dll"
 File "..\..\plugins\wimax\wimax.dll"
 File "..\..\plugins\wimaxasncp\wimaxasncp.dll"
 SectionEnd

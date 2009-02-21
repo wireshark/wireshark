@@ -267,7 +267,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/sercosiii/sercosiii.la \
 	-dlopen plugins/stats_tree/stats_tree.la \
 	-dlopen plugins/unistim/unistim.la \
-	-dlopen plugins/v5ua/v5ua.la \
 	-dlopen plugins/wimax/wimax.la
 
 WTAP_PLUGIN_SOURCES = \

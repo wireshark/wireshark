@@ -69,7 +69,6 @@ PLUGINS= \
 	../../plugins/sercosiii/sercosiii.dll \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/unistim/unistim.dll \
-	../../plugins/v5ua/v5ua.dll \
 	../../plugins/wimax/wimax.dll \
 	../../plugins/wimaxasncp/wimaxasncp.dll
 

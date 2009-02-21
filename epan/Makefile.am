@@ -235,7 +235,6 @@ plugin_src = \
 	../plugins/sercosiii/packet-sercosiii_1v1_mdt_devctrl.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_mst.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_svc.c \
-	../plugins/v5ua/packet-v5ua.c \
         ../plugins/wimax/crc.c \
         ../plugins/wimax/crc_data.c \
         ../plugins/wimax/mac_hd_generic_decoder.c \

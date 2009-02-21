@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for Wireshark
+# Automake file for Wireshark plugins
 #
 # $Id$
 #
@@ -48,7 +48,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	sercosiii \
 	stats_tree \
 	unistim \
-	v5ua \
 	wimax \
 	wimaxasncp
 

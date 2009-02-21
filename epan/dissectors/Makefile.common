@@ -828,6 +828,7 @@ DISSECTOR_SRC = \
 	packet-umts_fp.c	\
 	packet-uts.c		\
 	packet-v120.c		\
+	packet-v5ua.c		\
 	packet-vicp.c		\
 	packet-vines.c		\
 	packet-vj.c		\
