@@ -93,9 +93,6 @@ process-plugins:
 	cd rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd sbus
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd sercosiii
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -142,7 +139,6 @@ install-plugins:
 	xcopy plugins\rlm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\rtnet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\rudp\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\sbus\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\unistim\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d

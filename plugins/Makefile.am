@@ -44,7 +44,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	rlm \
 	rtnet \
 	rudp \
-	sbus \
 	sercosiii \
 	stats_tree \
 	unistim \

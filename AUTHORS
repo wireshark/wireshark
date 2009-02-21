@@ -1,4 +1,4 @@
-﻿
+
 
 Original Author
 -------- ------
@@ -2807,6 +2807,10 @@ Andreas Schuler			<krater [AT] badterrorist.com> {
 
 Matthias Wenzel			<dect [AT] mazzoo.de> {
 	DECT dissector
+}
+
+Christian Durrer		<christian.durrer@sensemail.ch> {
+	sbus dissector
 }
 
 and by:

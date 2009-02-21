@@ -65,7 +65,6 @@ PLUGINS= \
 	../../plugins/rlm/rlm.dll \
 	../../plugins/rtnet/rtnet.dll \
 	../../plugins/rudp/rudp.dll \
-	../../plugins/sbus/sbus.dll \
 	../../plugins/sercosiii/sercosiii.dll \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/unistim/unistim.dll \
