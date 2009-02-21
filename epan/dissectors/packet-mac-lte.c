@@ -42,6 +42,7 @@
 /* TODO:
    - more testing of control bodies
    - TDD mode
+   - add a preference so that padding can be verified against an expected pattern?
 */
 
 /* Initialize the protocol and registered fields. */
@@ -588,8 +589,13 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
 }
 
 
-
-
+/* Is this a BSR report header? */
+static int is_bsr_lcid(guint8 lcid)
+{
+    return ((lcid == TRUNCATED_BSR_LCID) ||
+            (lcid == SHORT_BSR_LCID) ||
+            (lcid == LONG_BSR_LCID));
+}
 
 
 #define MAX_HEADERS_IN_PDU 64
@@ -612,6 +618,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *pdu_header_tree;
 
     gboolean   have_seen_data_header = FALSE;
+    gboolean   have_seen_bsr = FALSE;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
@@ -702,7 +709,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    "Control subheaders should not appear after data subheaders");
         }
 
+        /* Show an expert item if we're seeing more then one BSR in a frame */
+        if ((direction == DIRECTION_UPLINK) && is_bsr_lcid(lcids[number_of_headers])) {
+            if (have_seen_bsr) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
+                                      "There shouldn't be > 1 BSR in a frame");
+            }
+            have_seen_bsr = TRUE;
+        }
 
+        
         /********************************************************************/
         /* Length field follows if not the last header or for a fixed-sized
            control element */
@@ -828,6 +844,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Data SDUs treated identically for Uplink or downlink channels */
         if (lcids[n] <= 10) {
+            guint16 data_length = (pdu_lengths[n] == -1) ?
+                                            tvb_length_remaining(tvb, offset) :
+                                            pdu_lengths[n];
 
             /* Dissect SDU */
             proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
@@ -838,13 +857,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                         ulsch_lcid_vals :
                                                         dlsch_lcid_vals,
                                                    "Unknown"),
-                                        (pdu_lengths[n] == -1) ?
-                                            tvb_length_remaining(tvb, offset) :
-                                            pdu_lengths[n]);
-            offset += pdu_lengths[n];
+                                        data_length);
+            offset += data_length;
 
             /* Update tap byte count for this channel */
-            tap_info->bytes_for_lcid[lcids[n]] += pdu_lengths[n];
+            tap_info->bytes_for_lcid[lcids[n]] += data_length;
         }
         else {
             /* See if its a control PDU type */
