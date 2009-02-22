@@ -1679,7 +1679,6 @@ AC_OUTPUT(
   plugins/ethercat/Makefile
   plugins/giop/Makefile
   plugins/gryphon/Makefile
-  plugins/infiniband/Makefile
   plugins/irda/Makefile
   plugins/m2m/Makefile
   plugins/mate/Makefile

@@ -32,7 +32,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	ethercat \
 	giop \
 	gryphon \
-	infiniband \
 	irda \
 	m2m \
 	mate \

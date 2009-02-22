@@ -57,9 +57,6 @@ process-plugins:
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd infiniband
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -109,7 +106,6 @@ install-plugins:
 	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\giop\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\gryphon\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\infiniband\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\irda\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\m2m\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\mate\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
