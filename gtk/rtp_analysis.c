@@ -1886,10 +1886,11 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	FILE *fp;
 	int j;
 
-	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 
 	/* Perhaps the user specified a directory instead of a file.
-	Check whether they did. */
+	 * Check whether they did.
+	 */
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
@@ -2068,7 +2069,6 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *forward_rb;
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
-	GtkWidget *ok_bt;
 
 	if (user_data->dlg.save_csv_as_w != NULL) {
 		/* There's already a Save CSV info dialog box; reactivate it. */
@@ -2076,13 +2076,15 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 
-	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Wireshark: Save Data As CSV");
+	user_data->dlg.save_csv_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Data As CSV", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
+                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->action_area),
-		vertb, FALSE, FALSE, 0);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), vertb);
 	gtk_widget_show (vertb);
 
 	table1 = gtk_table_new (2, 4, FALSE);
@@ -2128,23 +2130,25 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
-	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->ok_button;
-	g_object_set_data(G_OBJECT(ok_bt), "forward_rb", forward_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
-	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_csv_as_ok_cb),
-		user_data->dlg.save_csv_as_w);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "forward_rb", forward_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "reversed_rb", reversed_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "both_rb", both_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_csv_as_w), "user_data", user_data);
 
-	window_set_cancel_button(user_data->dlg.save_csv_as_w,
-		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, window_cancel_button_cb);
-
-	g_signal_connect(user_data->dlg.save_csv_as_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(user_data->dlg.save_csv_as_w, "delete_event", 
+		G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(user_data->dlg.save_csv_as_w, "destroy",
 		G_CALLBACK(save_csv_as_destroy_cb), user_data);
 
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
 	window_present(user_data->dlg.save_csv_as_w);
+
+	if (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_csv_as_w)) == GTK_RESPONSE_ACCEPT){
+		save_csv_as_ok_cb(user_data->dlg.save_csv_as_w, user_data->dlg.save_csv_as_w);
+	}else{
+		window_destroy(user_data->dlg.save_csv_as_w);
+	}
+
 }
 
 
@@ -2458,7 +2462,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	user_data_t *user_data;
 	gint channels , format;
 
-	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
@@ -2637,7 +2641,6 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	/*GtkWidget *wav_rb;  GtkWidget *sw_rb;*/
 	GtkWidget *au_rb;
 	GtkWidget *raw_rb;
-	GtkWidget *ok_bt;
 
 	/* if we can't save in a file: wrong codec, cut packets or other errors */
 	/* shold the error arise here or later when you click ok button ?
@@ -2650,13 +2653,16 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 
     /* XXX - use file_selection from dlg_utils instead! */
-	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Wireshark: Save Payload As ...");
+	user_data->dlg.save_voice_as_w = gtk_file_chooser_dialog_new("Wireshark: Save Payload As ...", GTK_WINDOW(user_data->dlg.notebook), GTK_FILE_CHOOSER_ACTION_SAVE,
+                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
+
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->action_area),
-		vertb, FALSE, FALSE, 0);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), vertb);
 	gtk_widget_show (vertb);
 
 	table1 = gtk_table_new (2, 4, FALSE);
@@ -2762,20 +2768,14 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 	*/
 
-	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->ok_button;
 	/*g_object_set_data(G_OBJECT(ok_bt), "wav_rb", wav_rb);*/
-	g_object_set_data(G_OBJECT(ok_bt), "au_rb", au_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "au_rb", au_rb);
 	/*g_object_set_data(G_OBJECT(ok_bt), "sw_rb", sw_rb);*/
-	g_object_set_data(G_OBJECT(ok_bt), "raw_rb", raw_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "forward_rb", forward_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
-	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
-	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_voice_as_ok_cb),
-                       user_data->dlg.save_voice_as_w);
-
-    window_set_cancel_button(user_data->dlg.save_voice_as_w,
-      GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button, window_cancel_button_cb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "raw_rb", raw_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "forward_rb", forward_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "reversed_rb", reversed_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "both_rb", both_rb);
+	g_object_set_data(G_OBJECT(user_data->dlg.save_voice_as_w), "user_data", user_data);
 
     g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
                         G_CALLBACK(window_delete_event_cb), NULL);
@@ -2784,6 +2784,13 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
     window_present(user_data->dlg.save_voice_as_w);
+
+	if (gtk_dialog_run(GTK_DIALOG(user_data->dlg.save_voice_as_w)) == GTK_RESPONSE_ACCEPT){
+		save_voice_as_ok_cb(user_data->dlg.save_voice_as_w, user_data->dlg.save_voice_as_w);
+	}else{
+		window_destroy(user_data->dlg.save_voice_as_w);
+	}
+
 }
 
 
@@ -2903,7 +2910,8 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 /****************************************************************************
 * Functions needed to present values from the list
 */
-/* Present floats with two deciamls */
+
+/* Present floats with two decimals */
 void
 rtp_float_data_func (GtkTreeViewColumn *column _U_,
                            GtkCellRenderer   *renderer,
