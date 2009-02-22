@@ -39,9 +39,6 @@ process-plugins:
 	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd ciscosm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -97,7 +94,6 @@ install-plugins:
 	xcopy plugins\agentx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\artnet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\asn1\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\ciscosm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\docsis\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\giop\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d

@@ -26,7 +26,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	agentx \
 	artnet \
 	asn1 \
-	ciscosm \
 	docsis \
 	ethercat \
 	giop \

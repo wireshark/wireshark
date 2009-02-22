@@ -1673,7 +1673,6 @@ AC_OUTPUT(
   plugins/agentx/Makefile
   plugins/artnet/Makefile
   plugins/asn1/Makefile
-  plugins/ciscosm/Makefile
   plugins/docsis/Makefile
   plugins/ethercat/Makefile
   plugins/giop/Makefile

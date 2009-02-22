@@ -281,6 +281,7 @@ DISSECTOR_SRC = \
 	packet-cip.c		\
 	packet-cisco-erspan.c	\
 	packet-cisco-oui.c	\
+	packet-cisco-sm.c	\
 	packet-cisco-wids.c	\
 	packet-clearcase.c	\
 	packet-clip.c		\
