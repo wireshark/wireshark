@@ -224,7 +224,6 @@ plugin_src = \
 	../plugins/m2m/packet-m2m.c \
 	../plugins/m2m/wimax_tlv.c \
 	../plugins/mgcp/packet-mgcp.c \
-	../plugins/pcli/packet-pcli.c \
 	../plugins/rdm/packet-rdm.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_at.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_at_devstat.c \

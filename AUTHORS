@@ -559,8 +559,8 @@ Craig Rodrigues         <rodrigc [AT] attbi.com> {
 }
 
 Ed Warnicke             <hagbard[AT]physics.rutgers.edu> {
-	MGCP dissector plugin
-	PCLI ( Packet Cable Lawful Intercept ) dissector plugin
+	MGCP dissector
+	PCLI ( Packet Cable Lawful Intercept ) dissector
 }
 
 Johan Jorgensen         <johan.jorgensen[AT]axis.com> {

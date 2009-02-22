@@ -78,9 +78,6 @@ process-plugins:
 	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd pcli
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -125,7 +122,6 @@ install-plugins:
 	xcopy plugins\mate\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\opcua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\opsi\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\pcli\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\profinet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
