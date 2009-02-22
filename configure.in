@@ -1688,7 +1688,6 @@ AC_OUTPUT(
   plugins/opsi/Makefile
   plugins/pcli/Makefile
   plugins/profinet/Makefile
-  plugins/rlm/Makefile
   plugins/sercosiii/Makefile
   plugins/stats_tree/Makefile
   plugins/unistim/Makefile

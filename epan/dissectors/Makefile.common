@@ -704,6 +704,7 @@ DISSECTOR_SRC = \
 	packet-rip.c		\
 	packet-ripng.c		\
 	packet-rlc-lte.c		\
+	packet-rlm.c		\
 	packet-rlogin.c		\
 	packet-rmcp.c		\
 	packet-rmi.c		\
