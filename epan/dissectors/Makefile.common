@@ -729,6 +729,7 @@ DISSECTOR_SRC = \
 	packet-rtps.c		\
 	packet-rtps2.c		\
 	packet-rtsp.c		\
+	packet-rudp.c		\
 	packet-rwall.c		\
 	packet-rx.c		\
 	packet-s5066.c		\

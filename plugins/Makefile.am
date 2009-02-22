@@ -43,7 +43,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	profinet \
 	rlm \
 	rtnet \
-	rudp \
 	sercosiii \
 	stats_tree \
 	unistim \

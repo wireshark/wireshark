@@ -262,7 +262,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/profinet/profinet.la \
 	-dlopen plugins/rlm/rlm.la \
 	-dlopen plugins/rtnet/rtnet.la \
-	-dlopen plugins/rudp/rudp.la \
 	-dlopen plugins/sercosiii/sercosiii.la \
 	-dlopen plugins/stats_tree/stats_tree.la \
 	-dlopen plugins/unistim/unistim.la \
