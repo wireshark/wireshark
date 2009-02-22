@@ -306,8 +306,9 @@ static void
 rtpstream_on_save                      (GtkButton       *button _U_,
                                         gpointer         data _U_)
 {
+/* XX - not neded?
 	rtpstream_tapinfo_t* tapinfo = data;
-
+*/
 
 	if (!selected_stream_fwd)
 		return;
