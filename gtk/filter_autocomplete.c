@@ -326,6 +326,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   GtkWidget *w_toplevel;
   GtkWidget *treeview;
   GtkTreeModel *model;
+  GtkTreePath *path;
   GtkTreeSelection *selection;
   GtkTreeIter iter;
   const gchar *filter_te_str = "";
@@ -490,17 +491,19 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
             iter = last_iter;
           }
           gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-          gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
-                                       gtk_tree_model_get_path(model, &iter),
+          path = gtk_tree_model_get_path(model, &iter);
+          gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), path,
                                        NULL, FALSE, 0, 0);
+          gtk_tree_path_free(path);
         } else {
           gtk_tree_selection_unselect_all(selection);
         }
       } else if (gtk_tree_model_get_iter_first(model, &iter)) {
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &iter);
-        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
-                                     gtk_tree_model_get_path(model, &iter),
+        path = gtk_tree_model_get_path(model, &iter);
+        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), path,
                                      NULL, FALSE, 0, 0);
+        gtk_tree_path_free(path);
       }
 
       if(prefix_start)
@@ -512,7 +515,6 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     case GDK_Page_Up:
     case GDK_Up:
     {
-      GtkTreePath* path;
       GtkTreeIter last_iter;
 
       if (gtk_tree_selection_get_selected(selection, &model, &iter) ) {
@@ -533,14 +535,16 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
         } else {
           gtk_tree_selection_unselect_iter(selection, &iter);
         }
+        gtk_tree_path_free(path);
       } else if (gtk_tree_model_get_iter_first(model, &iter)) {
         do {
           last_iter = iter;
         } while (gtk_tree_model_iter_next(model, &iter));
         gtk_tree_selection_select_iter(GTK_TREE_SELECTION(selection), &last_iter);
-        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), 
-                                     gtk_tree_model_get_path(model, &last_iter),
+        path = gtk_tree_model_get_path(model, &last_iter);
+        gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview), path,
                                      NULL, FALSE, 0, 0);
+        gtk_tree_path_free(path);
       }
 
       if(prefix_start)
