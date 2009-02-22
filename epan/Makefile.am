@@ -220,7 +220,6 @@ plugin_src = \
 	../plugins/gryphon/packet-gryphon.c \
 	../plugins/infiniband/packet-infiniband.c \
 	../plugins/irda/packet-irda.c \
-	../plugins/lwres/packet-lwres.c \
 	../plugins/m2m/packet-m2m.c \
 	../plugins/m2m/wimax_tlv.c \
 	../plugins/mgcp/packet-mgcp.c \

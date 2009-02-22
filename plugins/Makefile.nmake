@@ -63,9 +63,6 @@ process-plugins:
 	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd lwres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd m2m
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -114,7 +111,6 @@ install-plugins:
 	xcopy plugins\gryphon\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\infiniband\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\irda\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\lwres\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\m2m\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\mate\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\opcua\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d

@@ -57,7 +57,6 @@ PLUGINS= \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/infiniband/infiniband.dll \
 	../../plugins/irda/irda.dll \
-	../../plugins/lwres/lwres.dll \
 	../../plugins/m2m/m2m.dll \
 	../../plugins/mate/mate.dll \
 	../../plugins/sercosiii/sercosiii.dll \

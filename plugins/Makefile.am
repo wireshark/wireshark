@@ -34,7 +34,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	gryphon \
 	infiniband \
 	irda \
-	lwres \
 	m2m \
 	mate \
 	opcua \

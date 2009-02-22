@@ -1681,7 +1681,6 @@ AC_OUTPUT(
   plugins/gryphon/Makefile
   plugins/infiniband/Makefile
   plugins/irda/Makefile
-  plugins/lwres/Makefile
   plugins/m2m/Makefile
   plugins/mate/Makefile
   plugins/opcua/Makefile

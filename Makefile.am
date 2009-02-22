@@ -253,7 +253,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/gryphon/gryphon.la \
 	-dlopen plugins/infiniband/infiniband.la \
 	-dlopen plugins/irda/irda.la \
-	-dlopen plugins/lwres/lwres.la \
 	-dlopen plugins/m2m/m2m.la \
 	-dlopen plugins/mate/mate.la \
 	-dlopen plugins/opcua/opcua.la \
