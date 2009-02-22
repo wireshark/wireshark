@@ -226,7 +226,6 @@ plugin_src = \
 	../plugins/mgcp/packet-mgcp.c \
 	../plugins/pcli/packet-pcli.c \
 	../plugins/rdm/packet-rdm.c \
-	../plugins/rtnet/packet-rtnet.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_at.c \
 	../plugins/sercosiii/packet-sercosiii_1v1_at_devstat.c \
 	../plugins/sercosiii/packet-sercosiii_1v1.c \

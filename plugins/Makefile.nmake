@@ -87,9 +87,6 @@ process-plugins:
 	cd rlm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd rtnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd sercosiii
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -134,7 +131,6 @@ install-plugins:
 	xcopy plugins\pcli\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\profinet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\rlm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\rtnet\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\sercosiii\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\stats_tree\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\unistim\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d

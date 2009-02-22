@@ -42,7 +42,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	pcli \
 	profinet \
 	rlm \
-	rtnet \
 	sercosiii \
 	stats_tree \
 	unistim \

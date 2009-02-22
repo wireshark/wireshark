@@ -31,8 +31,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
