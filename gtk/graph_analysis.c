@@ -517,7 +517,7 @@ static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 
 	user_data_p = user_data;
 
-	user_data_p->dlg.save_file = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (save_to_file_w)));
+	user_data_p->dlg.save_file = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_to_file_w)));
 
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
@@ -552,11 +552,9 @@ static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-on_save_bt_clicked                    (GtkButton       *button _U_,
-                                        gpointer         user_data _U_)
+on_save_bt_clicked                    (GtkWidget       *button _U_,
+                                        graph_analysis_data_t *user_data _U_)
 {
-	GtkWidget *vertb;
-	GtkWidget *ok_bt;
 
 	if (save_to_file_w != NULL) {
 		/* There's already a Save to file dialog box; reactivate it. */
@@ -564,26 +562,23 @@ on_save_bt_clicked                    (GtkButton       *button _U_,
 		return;
 	}
 
-	save_to_file_w = gtk_file_selection_new("Wireshark: Save graph to plain text file");
+	save_to_file_w = gtk_file_chooser_dialog_new("Wireshark: Save graph to plain text file", GTK_WINDOW(user_data->dlg.window), GTK_FILE_CHOOSER_ACTION_SAVE,
+                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    NULL);
 
-	/* Container for each row of widgets */
-	vertb = gtk_vbox_new(FALSE, 0);
-	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(save_to_file_w)->action_area),
-		vertb, FALSE, FALSE, 0);
-	gtk_widget_show (vertb);
-
-	ok_bt = GTK_FILE_SELECTION(save_to_file_w)->ok_button;
-	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_to_file_ok_cb), user_data);
-
-	window_set_cancel_button(save_to_file_w,
-	GTK_FILE_SELECTION(save_to_file_w)->cancel_button, window_cancel_button_cb);
 
 	g_signal_connect(save_to_file_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb), NULL);
 
 	gtk_widget_show(save_to_file_w);
 	window_present(save_to_file_w);
+
+	if (gtk_dialog_run(GTK_DIALOG(save_to_file_w)) == GTK_RESPONSE_ACCEPT){
+		save_to_file_ok_cb(save_to_file_w, user_data);
+	}else{
+		window_destroy(save_to_file_w);
+	}
 
 }
 
