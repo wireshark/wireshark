@@ -156,14 +156,14 @@ static void save_stream_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 /* save in a file */
-static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
+static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 {
 	gchar *g_dest;
 
 	if (!selected_stream_fwd)
 		return;
 
-	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (rtpstream_save_dlg)));
+	g_dest = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
@@ -308,8 +308,6 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 {
 	rtpstream_tapinfo_t* tapinfo = data;
 
-	GtkWidget *vertb;
-	GtkWidget *ok_bt;
 
 	if (!selected_stream_fwd)
 		return;
@@ -320,21 +318,10 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 		return;
 	}
 
-	/* XXX - use file_selection from dlg_utils instead! */
-	rtpstream_save_dlg = gtk_file_selection_new("Wireshark: Save selected stream in rtpdump ('-F dump') format");
-
-	/* Container for each row of widgets */
-	vertb = gtk_vbox_new(FALSE, 0);
-	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(rtpstream_save_dlg)->action_area),
-		vertb, FALSE, FALSE, 0);
-	gtk_widget_show (vertb);
-
-	ok_bt = GTK_FILE_SELECTION(rtpstream_save_dlg)->ok_button;
-	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_stream_ok_cb), tapinfo);
-
-	window_set_cancel_button(rtpstream_save_dlg,
-	    GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button, window_cancel_button_cb);
+	rtpstream_save_dlg = gtk_file_chooser_dialog_new("Wireshark: Save selected stream in rtpdump ('-F dump') format", GTK_WINDOW(rtp_stream_dlg), GTK_FILE_CHOOSER_ACTION_SAVE,
+		GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		NULL);
 
 	g_signal_connect(rtpstream_save_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(rtpstream_save_dlg, "destroy", G_CALLBACK(save_stream_destroy_cb),
@@ -342,6 +329,13 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 
 	gtk_widget_show(rtpstream_save_dlg);
 	window_present(rtpstream_save_dlg);
+
+	if (gtk_dialog_run(GTK_DIALOG(rtpstream_save_dlg)) == GTK_RESPONSE_ACCEPT){
+		save_stream_ok_cb(rtpstream_save_dlg, rtpstream_save_dlg);
+	}else{
+		window_destroy(rtpstream_save_dlg);
+	}
+
 }
 
 
