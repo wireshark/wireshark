@@ -125,6 +125,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-mpeg-pes.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
+	packet-opsi.c \
 	packet-p7.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
@@ -1077,6 +1078,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ntp.h	\
 	packet-null.h	\
 	packet-ocsp.h	\
+	packet-opsi.h	\
 	packet-osi-options.h	\
 	packet-osi.h	\
 	packet-p7.h \

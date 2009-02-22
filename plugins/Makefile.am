@@ -38,7 +38,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	m2m \
 	mate \
 	opcua \
-	opsi \
 	profinet \
 	sercosiii \
 	stats_tree \

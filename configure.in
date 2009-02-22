@@ -1685,7 +1685,6 @@ AC_OUTPUT(
   plugins/m2m/Makefile
   plugins/mate/Makefile
   plugins/opcua/Makefile
-  plugins/opsi/Makefile
   plugins/profinet/Makefile
   plugins/sercosiii/Makefile
   plugins/stats_tree/Makefile
