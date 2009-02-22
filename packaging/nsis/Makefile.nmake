@@ -44,7 +44,6 @@ HELP=../../help/capture_filters.txt \
 
 PLUGINS= \
 	../../plugins/agentx/agentx.dll \
-	../../plugins/artnet/artnet.dll \
 	../../plugins/asn1/asn1.dll \
 	../../plugins/docsis/docsis.dll \
 	../../plugins/ethercat/ethercat.dll \

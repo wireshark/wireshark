@@ -24,7 +24,6 @@
 -include Custom.make
 SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	agentx \
-	artnet \
 	asn1 \
 	docsis \
 	ethercat \

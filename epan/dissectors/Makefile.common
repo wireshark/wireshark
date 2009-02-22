@@ -234,6 +234,7 @@ DISSECTOR_SRC = \
 	packet-arcnet.c		\
 	packet-armagetronad.c 	\
 	packet-arp.c		\
+	packet-artnet.c		\
 	packet-aruba-adp.c	\
 	packet-asap.c		\
 	packet-ascend.c		\
