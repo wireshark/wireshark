@@ -566,7 +566,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 			for (i=0; i<len; i++) {
 				p += g_sprintf(p, "%2.2X", octets[i]);
 			}
-			strncpy(p, endstr, len*2 + 5);
+			strncpy(p, endstr, 5);
 		} else {
 			if (len <= hexlen) { /* show both hex and ascii, assume hexlen < MAX_OTSLEN */
 				str = p = g_malloc(len*3+2);
