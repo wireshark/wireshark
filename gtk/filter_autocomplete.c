@@ -100,11 +100,14 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
           continue;
         
         /* If one of the logical operations is found, then the current string is _probably_ a protocol name */
-        if(!strncmp(pos-op_len+1, logic_ops[i], op_len))
+        if(!strncmp(pos-op_len+1, logic_ops[i], op_len)) {
+          g_free (start);
           return TRUE;
+        }
       }
 
       /* If none of the logical operations was found, then the current string is not a protocol */
+      g_free (start);
       return FALSE;
     }
     pos--;
@@ -113,6 +116,7 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   /* The "str" preceded only by ' ' or '(' chars, 
    * which means that the str is _probably_ a protocol name.
    **/
+  g_free (start);
   return TRUE;
 }
 
@@ -150,6 +154,7 @@ autocomplete_protocol_string(GtkWidget *filter_te, gchar *selected_str)
 
   gtk_editable_insert_text(GTK_EDITABLE(filter_te), pch, strlen(pch), &pos);
   gtk_editable_set_position(GTK_EDITABLE(filter_te), pos);
+  g_free (filter_str);
 }
 
 /* On row activated signal, complete the protocol string automatically */
@@ -329,8 +334,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   GtkTreePath *path;
   GtkTreeSelection *selection;
   GtkTreeIter iter;
-  const gchar *filter_te_str = "";
-  gchar* prefix = "";
+  gchar* prefix;
   gchar* prefix_start;
   gboolean stop_propagation = FALSE;
   guint k;
@@ -363,7 +367,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
     gtk_editable_select_region(GTK_EDITABLE(filter_te), pos, pos);
   }
   /* get the string from filter_te, start from 0 till cursor's position */
-  filter_te_str = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, pos);
+  prefix_start = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, pos);
 
   /* If the pressed key is non-alphanumeric or one of the keys specified 
    * in the condition (decimal, period...) then destroy popup window.
@@ -385,9 +389,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   /* Let prefix points to the first char that is not aphanumeric,'.', '_' or '-',
    * start from the end of filter_te_str.
    **/
-  prefix = g_strdup(filter_te_str);
-  prefix_start = prefix;
-  prefix += strlen(filter_te_str);
+  prefix = prefix_start + strlen(prefix_start);
   while(prefix != prefix_start) {
     prefix--;
     if(!g_ascii_isalnum((*prefix)) && (*prefix) != '.' && (*prefix) != '_' && (*prefix) != '-') {
