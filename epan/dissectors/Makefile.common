@@ -94,6 +94,7 @@ PIDL_DISSECTOR_INCLUDES = \
 ASN1_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
+	packet-agentx.c \
 	packet-ansi_tcap.c \
 	packet-camel.c \
 	packet-cdt.c \

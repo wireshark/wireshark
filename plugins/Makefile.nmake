@@ -30,9 +30,6 @@ checkapi:
         $(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins 
 
 process-plugins:
-	cd agentx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -88,7 +85,6 @@ process-plugins:
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
 	cd..
-	xcopy plugins\agentx\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\asn1\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\docsis\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
