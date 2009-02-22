@@ -1094,6 +1094,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
             if(expanded) {
                 /* subtree is expanded, collapse it */
                 gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
+                gtk_tree_path_free(path);
                 return TRUE;
             }
             /* No break - fall through to jumping to the parent */
@@ -1103,6 +1104,7 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 if(! gtk_tree_model_iter_parent(model, &parent, &iter)) {
                     return FALSE;
                 }
+                gtk_tree_path_free(path);
                 path = gtk_tree_model_get_path(model, &parent);
                 if(!path) {
                     return FALSE;
@@ -1110,12 +1112,14 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), path,
                                                  NULL /* focus_column */,
                                                  FALSE /* !start_editing */);
+                gtk_tree_path_free(path);
                 return TRUE;
             }
             break;
         case GDK_Right:
             /* try to expand the subtree */
             gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+            gtk_tree_path_free(path);
             return TRUE;
         case GDK_Return:
         case GDK_KP_Enter:
@@ -1124,9 +1128,11 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
                 gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
             else
                 gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+            gtk_tree_path_free(path);
 	    return TRUE;
     }
 
+    gtk_tree_path_free(path);
     return FALSE;
 }
 
