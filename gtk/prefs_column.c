@@ -86,15 +86,16 @@ column_prefs_show(GtkWidget *prefs_window) {
   g_object_set_data(G_OBJECT(GTK_OBJECT(main_vb)), E_COL_CM_KEY, (gpointer)FALSE);
 
   /* Top row: Columns list frame */
-  //list_fr = gtk_frame_new("Columns");
-  //gtk_box_pack_start (GTK_BOX (main_vb), list_fr, TRUE, TRUE, 0);
-  //gtk_widget_show(list_fr);
+  /*list_fr = gtk_frame_new("Columns");
+  gtk_box_pack_start (GTK_BOX (main_vb), list_fr, TRUE, TRUE, 0);
+  gtk_widget_show(list_fr);
+  */
 
   list_vb = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width  (GTK_CONTAINER (list_vb), 5);
   gtk_widget_show (list_vb);
   gtk_box_pack_start (GTK_BOX (main_vb), list_vb, TRUE, TRUE, 0);
-  //gtk_container_add(GTK_CONTAINER(list_fr), list_vb);
+  /*gtk_container_add(GTK_CONTAINER(list_fr), list_vb);*/
 
   list_lb = gtk_label_new (("[First list entry will be displayed left]"));
   gtk_widget_show (list_lb);
@@ -157,7 +158,7 @@ column_prefs_show(GtkWidget *prefs_window) {
   /* Bottom row: Add/remove buttons and properties */
   bottom_hb = gtk_hbox_new(FALSE, 5);
   gtk_box_pack_start (GTK_BOX (main_vb), bottom_hb, FALSE, TRUE, 0);
-  //gtk_container_add(GTK_CONTAINER(main_vb), bottom_hb);
+  /*gtk_container_add(GTK_CONTAINER(main_vb), bottom_hb);*/
   gtk_widget_show(bottom_hb);
 
 
@@ -165,7 +166,7 @@ column_prefs_show(GtkWidget *prefs_window) {
   add_remove_vb = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width  (GTK_CONTAINER (add_remove_vb), 5);
   gtk_box_pack_start (GTK_BOX (bottom_hb), add_remove_vb, FALSE, TRUE, 0);
-  //gtk_container_add(GTK_CONTAINER(bottom_hb), add_remove_vb);
+  /*gtk_container_add(GTK_CONTAINER(bottom_hb), add_remove_vb);*/
   gtk_widget_show(add_remove_vb);
 
   add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);

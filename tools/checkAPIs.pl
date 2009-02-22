@@ -131,6 +131,11 @@ my %APIs = (
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
+		#'gtk_clist_new', should we depriceate?
+		# GtkCList has been deprecated since GTK+ 2.0 and should not be used
+		# in newly written code. Use GtkTreeView instead. 
+		'gtk_file_selection_new',
+		# Use gtk_file_chooser_dialog_new() instead
 		# Use strerror() and report messages in whatever
 		# fashion is appropriate for the code in question.
 		'perror',
