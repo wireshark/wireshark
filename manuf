@@ -6969,7 +6969,7 @@
 00:1B:2A	Cisco                  # Cisco Systems
 00:1B:2B	Cisco                  # Cisco Systems
 00:1B:2C	AtronElect             # ATRON electronic GmbH
-00:1B:2D	Private
+00:1B:2D	Med-Eng                # Med-Eng Systems Inc.
 00:1B:2E	SinkyoElec             # Sinkyo Electron Inc
 00:1B:2F	Netgear                # NETGEAR Inc.
 00:1B:30	Solitech               # Solitech Inc.
@@ -9547,12 +9547,31 @@
 00:25:3C	2wire
 00:25:3D	DrsConsoli             # DRS Consolidated Controls
 00:25:3E	Telemetric             # Telemetric Corporation
-00:25:3F	X-PertPain             # X-Pert Paint Mixing Systems, Inc.
+00:25:3F	Private
 00:25:40	QuasarTech             # Quasar Technologies, Inc.
 00:25:41	MaquetCrit             # Maquet Critical Care AB
 00:25:42	Pittasoft
 00:25:43	Moneytech
 00:25:44	Lojack                 # LoJack Corporation
+00:25:45	Cisco                  # Cisco Systems
+00:25:46	Cisco                  # Cisco Systems
+00:25:47	NokiaDanma             # Nokia Danmark A/S
+00:25:48	NokiaDanma             # Nokia Danmark A/S
+00:25:49	JeorichTec             # Jeorich Tech. Co.,Ltd.
+00:25:4A	RingcubeTe             # RingCube Technologies, Inc.
+00:25:4B	Apple                  # Apple, Inc
+00:25:4C	VideonCent             # Videon Central, Inc.
+00:25:4D	SingaporeT             # Singapore Technologies Electronics Limited
+00:25:4E	VertexWire             # Vertex Wireless Co., Ltd.
+00:25:4F	Elettrolab             # ELETTROLAB Srl
+00:25:50	MazuNetwor             # Mazu Networks
+00:25:51	Se-Elektro             # SE-Elektronic GmbH
+00:25:52	Vxi                    # VXI CORPORATION
+00:25:53	PirelliBro             # PIRELLI BROADBAND SOLUTIONS
+00:25:54	Pixel8Netw             # Pixel8 Networks
+00:25:55	VisonicTec             # Visonic Technologies 1993 Ltd
+00:25:56	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
+00:25:57	ResearchIn             # Research In Motion
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12890,6 +12909,18 @@
 00:50:C2:A5:70:00/36	JuiceTechn             # Juice Technologies, LLC
 00:50:C2:A5:80:00/36	Epl
 00:50:C2:A5:90:00/36	GspSpracht             # GSP Sprachtechnologie GmbH
+00:50:C2:A5:A0:00/36	Itas                   # ITAS A/S
+00:50:C2:A5:B0:00/36	PhytecMess             # Phytec Messtechnik GmbH
+00:50:C2:A5:C0:00/36	Jsc"Compon             # JSC "Component-ASU"
+00:50:C2:A5:D0:00/36	Mecc                   # MECC CO., LTD.
+00:50:C2:A5:E0:00/36	AnsenInves             # Ansen Investment Holdings Ltd.
+00:50:C2:A5:F0:00/36	MitecTelec             # Mitec Telecom Inc
+00:50:C2:A6:00:00/36	ArrowCentr             # Arrow Central Europe GmbH - Division Spoerle
+00:50:C2:A6:10:00/36	FrSauter               # Fr. Sauter AG
+00:50:C2:A6:20:00/36	Grossenbac             # Grossenbacher Systeme AG
+00:50:C2:A6:30:00/36	EmsIndustr             # EMS Industries
+00:50:C2:A6:40:00/36	TetronikAe             # tetronik GmbH AEN
+00:50:C2:A6:50:00/36	Mark-O-Pri             # Mark-O-Print GmbH
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
