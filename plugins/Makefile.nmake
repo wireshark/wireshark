@@ -45,9 +45,6 @@ process-plugins:
 	cd docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	cd enttec
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
-	cd ..
 	cd ethercat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -102,7 +99,6 @@ install-plugins:
 	xcopy plugins\asn1\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\ciscosm\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\docsis\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy plugins\enttec\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\ethercat\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\giop\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy plugins\gryphon\*.dll $(INSTALL_DIR)\plugins\$(VERSION) /d

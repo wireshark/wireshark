@@ -246,7 +246,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/asn1/asn1.la \
 	-dlopen plugins/ciscosm/ciscosm.la \
 	-dlopen plugins/docsis/docsis.la \
-	-dlopen plugins/enttec/enttec.la \
 	-dlopen plugins/ethercat/ethercat.la \
 	-dlopen plugins/giop/cosnaming.la \
 	-dlopen plugins/giop/coseventcomm.la \

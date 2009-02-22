@@ -28,7 +28,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	asn1 \
 	ciscosm \
 	docsis \
-	enttec \
 	ethercat \
 	giop \
 	gryphon \

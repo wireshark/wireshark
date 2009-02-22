@@ -48,7 +48,6 @@ PLUGINS= \
 	../../plugins/asn1/asn1.dll \
 	../../plugins/ciscosm/ciscosm.dll \
 	../../plugins/docsis/docsis.dll \
-	../../plugins/enttec/enttec.dll \
 	../../plugins/ethercat/ethercat.dll \
 	../../plugins/giop/coseventcomm.dll \
 	../../plugins/giop/cosnaming.dll \

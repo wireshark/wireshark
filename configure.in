@@ -1675,7 +1675,6 @@ AC_OUTPUT(
   plugins/asn1/Makefile
   plugins/ciscosm/Makefile
   plugins/docsis/Makefile
-  plugins/enttec/Makefile
   plugins/ethercat/Makefile
   plugins/giop/Makefile
   plugins/gryphon/Makefile

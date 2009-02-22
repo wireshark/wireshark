@@ -214,7 +214,6 @@ plugin_src = \
 	../plugins/docsis/packet-uccreq.c \
 	../plugins/docsis/packet-uccrsp.c \
 	../plugins/docsis/packet-ucd.c \
-	../plugins/enttec/packet-enttec.c \
 	../plugins/giop/packet-cosnaming.c \
 	../plugins/giop/packet-coseventcomm.c \
 	../plugins/gryphon/packet-gryphon.c \
