@@ -69,6 +69,11 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, c
         indent = g_strdup(title);
     }
     label = gtk_label_new(indent);
+    if (strlen(value) == 0) {
+      gchar *message = g_strdup_printf("<span weight=\"bold\">%s</span>", title);
+      gtk_label_set_markup(GTK_LABEL(label), message);
+      g_free (message);
+    }
     g_free(indent);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_widget_set_sensitive(label, sensitive);
