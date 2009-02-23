@@ -178,6 +178,7 @@ WIRESHARK_TAP_SRC = \
 	hostlist_wlan.c \
 	io_stat.c	\
 	ldap_stat.c	\
+	mac_lte_stat_dlg.c	\
 	mcast_stream_dlg.c	\
 	megaco_stat.c	\
 	mgcp_stat.c	\
