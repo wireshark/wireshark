@@ -1425,7 +1425,9 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         */
         /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
         g_object_set (cell, "weight-set", TRUE, NULL);*/
-    } else if(FI_GET_FLAG(fi, FI_HIDDEN)) {
+    }
+
+    if(FI_GET_FLAG(fi, FI_HIDDEN)) {
         g_object_set (cell, "foreground-gdk", &hidden_proto_item, NULL);
         g_object_set (cell, "foreground-set", TRUE, NULL);
     }
@@ -1665,7 +1667,11 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     }
 
     if (PROTO_ITEM_IS_GENERATED(node)) {
-        label_ptr = g_strdup_printf("[%s]", label_ptr);
+        if (PROTO_ITEM_IS_HIDDEN(node)) {
+            label_ptr = g_strdup_printf("<[%s]>", label_ptr);
+        } else {
+            label_ptr = g_strdup_printf("[%s]", label_ptr);
+        }
     } else if (PROTO_ITEM_IS_HIDDEN(node)) {
         label_ptr = g_strdup_printf("<%s>", label_ptr);
     }
