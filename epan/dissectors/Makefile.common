@@ -858,6 +858,7 @@ DISSECTOR_SRC = \
 	packet-winsrepl.c	\
 	packet-wlccp.c		\
 	packet-wol.c		\
+	packet-wow.c		\
 	packet-wps.c		\
 	packet-wsmp.c		\
 	packet-wsp.c		\
