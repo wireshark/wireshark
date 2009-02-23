@@ -571,7 +571,8 @@ static void mac_lte_stat_dlg_create (void)
     mac_lte_stat_t    *hs;
     GString       *error_string;
     GtkWidget     *common_scrolled_window;
-    GtkWidget     *scrolled_window;
+    GtkWidget     *ues_scrolled_window;
+    GtkWidget     *selected_ue_scrolled_window;
     GtkWidget     *bbox;
     GtkWidget     *top_level_vbox;
 
@@ -672,9 +673,9 @@ static void mac_lte_stat_dlg_create (void)
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_ues_lb), ues_vb);
     gtk_container_set_border_width(GTK_CONTAINER(ues_vb), 5);
 
-    scrolled_window = scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(ues_vb), scrolled_window, TRUE, TRUE, 0);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
+    ues_scrolled_window = scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(ues_vb), ues_scrolled_window, TRUE, TRUE, 0);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ues_scrolled_window),
                                         GTK_SHADOW_IN);
 
     /* Create the table of UE data */
@@ -683,7 +684,7 @@ static void mac_lte_stat_dlg_create (void)
                                G_TYPE_INT, G_TYPE_INT,  /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
-    gtk_container_add(GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->ue_table));
+    gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
     g_object_unref(G_OBJECT(store));
 
     tree_view = hs->ue_table;
@@ -720,9 +721,9 @@ static void mac_lte_stat_dlg_create (void)
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_vb);
     gtk_container_set_border_width(GTK_CONTAINER(selected_ue_vb), 5);
 
-    scrolled_window = scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(selected_ue_vb), scrolled_window, TRUE, TRUE, 0);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
+    selected_ue_scrolled_window = scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(selected_ue_vb), selected_ue_scrolled_window, TRUE, TRUE, 0);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(selected_ue_scrolled_window),
                                         GTK_SHADOW_IN);
 
     /* Create the table of UE data */
@@ -731,7 +732,7 @@ static void mac_lte_stat_dlg_create (void)
                                            G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
                                            G_TYPE_INT);
     hs->selected_ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(selected_ue_store)));
-    gtk_container_add(GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->selected_ue_table));
+    gtk_container_add(GTK_CONTAINER (selected_ue_scrolled_window), GTK_WIDGET(hs->selected_ue_table));
     g_object_unref(G_OBJECT(selected_ue_store));
 
     tree_view = hs->selected_ue_table;
