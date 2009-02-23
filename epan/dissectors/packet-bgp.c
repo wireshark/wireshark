@@ -1170,6 +1170,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, 
 	if (clen < 6) {
 	    proto_tree_add_text(tree, tvb, *p,
                  clen, "Capability value: Invalid");
+	    *p += clen;
 	}
 	else {
 	    proto_tree_add_text(tree, tvb, *p - 1,
@@ -1211,7 +1212,6 @@ dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, 
 		tclen-=4;
 	    }
 	}
-	*p += clen;
 	break;
     case BGP_CAPABILITY_4_OCTET_AS_NUMBER:
 	proto_tree_add_text(tree, tvb, *p - 2, 1,
