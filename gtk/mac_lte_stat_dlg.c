@@ -611,7 +611,7 @@ static void mac_lte_stat_dlg_create (void)
     top_level_vbox = gtk_vbox_new(FALSE, 3);       /* FALSE = not homogeneous */
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_dlg_w), top_level_vbox);
 
-    tk_box_pack_start (GTK_BOX(mac_lte_stat_dlg_w), top_level_vbox, FALSE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(mac_lte_stat_dlg_w), top_level_vbox, FALSE, TRUE, 0);
 
     gtk_container_set_border_width(GTK_CONTAINER(top_level_vbox), 6);
     gtk_widget_show(top_level_vbox);
