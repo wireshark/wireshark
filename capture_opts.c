@@ -514,7 +514,13 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 #endif
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
-        capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
+        capture_opts->snaplen = get_natural_int(optarg, "snapshot length");
+	/*
+	 * Make a snapshot length of 0 equivalent to the maximum packet
+	 * length, mirroring what tcpdump does.
+	 */
+        if (capture_opts->snaplen == 0)
+          capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
         break;
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
         capture_opts->real_time_mode = TRUE;

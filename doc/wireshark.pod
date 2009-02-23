@@ -432,9 +432,10 @@ Automatically update the packet display as packets are coming in.
 
 =item -s  E<lt>capture snaplenE<gt>
 
-Set the default snapshot length to use when capturing live data.
+Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
-memory, or saved to disk.
+memory, or saved to disk.  A value of 0 specifies a snapshot length of
+65535, so that the full packet is captured; this is the default.
 
 =item -t  ad|a|r|d|dd|e
 

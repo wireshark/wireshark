@@ -36,14 +36,13 @@ extern "C" {
 #include <pcap.h>
 
 /*
- * XXX - this is also the traditional default snapshot size in
- * tcpdump - but, if IPv6 is enabled, it defaults to 96, to get an
- * IPv6 header + TCP + 22 extra bytes.
- *
- * Some libpcap versions for particular capture devices might happen
- * to impose a minimum, but it's not always 68.
+ * A snapshot length of 0 is useless - and libpcap/WinPcap don't guarantee
+ * that a snapshot length of 0 will work, and, on some platforms, it won't
+ * (with BPF, for example, the kernel is told the snapshot length via the
+ * return value of the BPF program, and a return value of 0 means "drop
+ * the packet"), so the minimum packet size is 1 byte.
  */
-#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
+#define MIN_PACKET_SIZE 1	/* minimum amount of packet data we can read */
 
 /*
  * The list of interfaces returned by "get_interface_list()" is
