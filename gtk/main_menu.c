@@ -2748,6 +2748,9 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
   module_t *module = g_object_get_data (G_OBJECT(w), "module");
   gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
+  if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
+    return;
+
   if (*value != new_value) {
     module->prefs_changed = TRUE;
     *value = new_value;
@@ -2765,6 +2768,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
 {
   GtkWidget *menu_preferences;
   GtkWidget *menu_item, *menu_sub_item, *sub_menu;
+  GSList *group = NULL;
   module_t *module = data;
   const enum_val_t *enum_valp;
   gchar *label;
@@ -2789,12 +2793,13 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
     gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
     enum_valp = pref->info.enum_info.enumvals;
     while (enum_valp->name != NULL) {
-      menu_sub_item = gtk_check_menu_item_new_with_label(enum_valp->description);
-      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), enum_valp->value == *pref->varp.enump);
-      gtk_check_menu_item_set_show_toggle (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
+      menu_sub_item = gtk_radio_menu_item_new_with_label(group, enum_valp->description);
+      group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_sub_item));
+      if (enum_valp->value == *pref->varp.enump) {
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_sub_item), TRUE);
+      }
       g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
       g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
-      g_object_set (G_OBJECT(menu_sub_item), "draw-as-radio", TRUE, NULL);
       g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
       gtk_menu_append (sub_menu, menu_sub_item);
       gtk_widget_show (menu_sub_item);
