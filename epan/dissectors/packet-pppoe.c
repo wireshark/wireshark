@@ -751,13 +751,16 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * the payload length in the packet, and the amount of
 	 * data following the PPPoE header, as an error.
 	 */
-	if (tvb_reported_length(tvb) > 46 &&
-	    reported_payload_length != actual_payload_length) {
-		proto_item_append_text(ti, " [incorrect, should be %u]",
-				       actual_payload_length);
-		expert_add_info_format(pinfo, ti, PI_MALFORMED,
-		    PI_WARN, "Possible bad payload length %u != %u",
-		    reported_payload_length, actual_payload_length);
+	if (tvb_reported_length(tvb) > 46) {
+            /* be forgiving about possible trailing FCS */
+	        if ((reported_payload_length != actual_payload_length) &&
+                ((reported_payload_length + 4) != actual_payload_length)) {
+                    proto_item_append_text(ti, " [incorrect, should be %u]",
+                        actual_payload_length);
+                    expert_add_info_format(pinfo, ti, PI_MALFORMED,
+                        PI_WARN, "Possible bad payload length %u != %u",
+                        reported_payload_length, actual_payload_length);
+           }
 	}
 
 	/*
