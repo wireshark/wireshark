@@ -661,6 +661,7 @@ proto_get_protocol_name
 proto_get_protocol_short_name
 proto_get_protocol_long_name
 proto_initialize_all_prefixes
+proto_is_private
 proto_is_protocol_enabled
 proto_item_add_subtree
 proto_item_append_text
@@ -674,6 +675,7 @@ proto_item_set_expert_flags
 proto_item_set_len
 proto_item_set_text
 proto_malformed
+proto_mark_private
 proto_register_field_array
 proto_register_prefix
 proto_register_protocol
