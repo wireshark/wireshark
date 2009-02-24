@@ -221,6 +221,7 @@ struct _protocol {
 	GList	*last_field;		/* pointer to end of list of fields */
 	gboolean is_enabled;		/* TRUE if protocol is enabled */
 	gboolean can_toggle;		/* TRUE if is_enabled can be changed */
+	gboolean is_private;		/* TRUE is protocol is private */
 };
 
 /* List of all protocols */
@@ -3513,6 +3514,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     protocol->fields = NULL;
     protocol->is_enabled = TRUE; /* protocol is enabled by default */
     protocol->can_toggle = TRUE;
+    protocol->is_private = FALSE;
     /* list will be sorted later by name, when all protocols completed registering */
     protocols = g_list_prepend(protocols, protocol);
 
@@ -3531,6 +3533,24 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
     protocol->proto_id = proto_id;
     return proto_id;
+}
+
+void
+proto_mark_private(int proto_id)
+{
+    protocol_t *protocol = find_protocol_by_id(proto_id);
+    if (protocol)
+        protocol->is_private = TRUE;
+}
+
+gboolean
+proto_is_private(int proto_id)
+{
+    protocol_t *protocol = find_protocol_by_id(proto_id);
+    if (protocol)
+        return protocol->is_private;
+    else
+        return FALSE;
 }
 
 /*

@@ -389,37 +389,71 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 
         proto_abbrev = proto_registrar_get_abbrev(field_id);
 
-        /* ask the user if the wiki page really should be opened */
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
+        if (!proto_is_private(field_id)) {
+            /* ask the user if the wiki page really should be opened */
+            dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
                     "%sOpen Wireshark Wiki page of protocol \"%s\"?%s\n"
                     "\n"
                     "This will open the \"%s\" related Wireshark Wiki page in your Web browser.\n"
                     "\n"
-                    "The Wireshark Wiki is a collaborative approach to provide information\n"
+                    "The Wireshark Wiki is a collaborative approach to provide information "
                     "about Wireshark in several ways (not limited to protocol specifics).\n"
                     "\n"
-                    "This Wiki is new, so the page of the selected protocol\n"
+                    "This Wiki is new, so the page of the selected protocol "
                     "may not exist and/or may not contain valuable information.\n"
                     "\n"
-                    "As everyone can edit the Wiki and add new content (or extend existing),\n"
+                    "As everyone can edit the Wiki and add new content (or extend existing), "
                     "you are encouraged to add information if you can.\n"
                     "\n"
                     "Hint 1: If you are new to wiki editing, try out editing the Sandbox first!\n"
                     "\n"
-                    "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate,\n"
+                    "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate, "
                     "which will save you a lot of editing and will give a consistent look over the pages.",
                     simple_dialog_primary_start(), proto_abbrev, simple_dialog_primary_end(), proto_abbrev);
-        simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, (gpointer) proto_abbrev);
+            simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, (gpointer)proto_abbrev);
+        } else {
+            /* appologize to the user that the wiki page cannot be opened */
+            dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                    "%sCan't open Wireshark Wiki page of protocol \"%s\"%s\n"
+                    "\n"
+                    "This would open the \"%s\" related Wireshark Wiki page in your Web browser.\n"
+                    "\n"
+                    "Since this is a private protocol, such information is not available in "
+                    "a public wiki. Therefore this wiki entry is blocked.\n"
+                    "\n"
+                    "Sorry for the inconvenience.\n",
+                    simple_dialog_primary_start(), proto_abbrev, simple_dialog_primary_end(), proto_abbrev);
+        }
     }
 }
 
+static void selected_ptree_ref_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    gchar *selected_proto_url;
+    gchar *proto_abbrev = data;
+
+    switch(btn) {
+    case(ESD_BTN_OK):
+        if (cfile.finfo_selected) {
+            /* open reference page using the protocol abbreviation */
+            selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
+            browser_open_url(selected_proto_url);
+            g_free(selected_proto_url);
+        }
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
 
 void
 selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
     const gchar *proto_abbrev;
-    gchar *selected_proto_url;
+    gpointer  dialog;
 
 
     if (cfile.finfo_selected) {
@@ -433,10 +467,28 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 
         proto_abbrev = proto_registrar_get_abbrev(field_id);
 
-        /* open reference page using the protocol abbreviation */
-        selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s.html", proto_abbrev[0], proto_abbrev);
-        browser_open_url(selected_proto_url);
-        g_free(selected_proto_url);
+        if (!proto_is_private(field_id)) {
+            /* ask the user if the wiki page really should be opened */
+            dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
+                    "%sOpen Wireshark filter reference page of protocol \"%s\"?%s\n"
+                    "\n"
+                    "This will open the \"%s\" related Wireshark filter reference page in your Web browser.\n"
+                    "\n",
+                    simple_dialog_primary_start(), proto_abbrev, simple_dialog_primary_end(), proto_abbrev);
+            simple_dialog_set_cb(dialog, selected_ptree_ref_answered_cb, (gpointer)proto_abbrev);
+        } else {
+            /* appologize to the user that the wiki page cannot be opened */
+            dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                    "%sCan't open Wireshark filter reference page of protocol \"%s\"%s\n"
+                    "\n"
+                    "This would open the \"%s\" related Wireshark filter reference page in your Web browser.\n"
+                    "\n"
+                    "Since this is a private protocol, such information is not available on "
+                    "a public website. Therefore this filter entry is blocked.\n"
+                    "\n"
+                    "Sorry for the inconvenience.\n",
+                    simple_dialog_primary_start(), proto_abbrev, simple_dialog_primary_end(), proto_abbrev);
+        }
     }
 }
 

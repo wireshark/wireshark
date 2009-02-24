@@ -1312,6 +1312,17 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 extern int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
 
+/** Mark protocol as private
+ @param proto_id the handle of the protocol */
+extern void
+proto_mark_private(int proto_id);
+
+/** Return if protocol is private
+ @param proto_id the handle of the protocol
+ @return TRUE if it is a private protocol, FALSE is not. */
+extern gboolean
+proto_is_private(int proto_id);
+
 /** This is the type of function can be registered to get called whenever
     a given field was not found but a its prefix is matched
 	it can be used to procrastinate the hf array registration
