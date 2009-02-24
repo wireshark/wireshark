@@ -9399,7 +9399,7 @@ proto_register_ieee80211 (void)
     {0x00, "Static SM Power Save mode"},
     {0x01, "Dynamic SM Power Save mode"},
     {0x02, "Reserved"},
-    {0x03, "SM enabled"},
+    {0x03, "SM Power Save disabled"},
     {0x00, NULL}
   };
 
