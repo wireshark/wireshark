@@ -96,9 +96,6 @@ static const gchar *ue_titles[] = { "RNTI",
                                  "UL Frames", "UL Bytes",
                                  "DL Frames", "DL Bytes" };
 
-static const gchar *common_titles[] = { "BCH Frames", "BCH Bytes",
-                                        "PCH Frames", "PCH Bytes" };
-
 static const gchar *channel_titles[] = { "", "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
                                          "LCID 6", "LCID 7", "LCID 8", "LCID 9", "LCID 10",
@@ -136,9 +133,6 @@ typedef struct mac_lte_ep {
 
 
 /* Common channel stats */
-static gint common_row_added = FALSE;
-static GtkTreeIter common_row_iter;
-
 typedef struct mac_lte_common_stats {
     guint32 bch_frames;
     guint32 bch_bytes;
@@ -146,7 +140,15 @@ typedef struct mac_lte_common_stats {
     guint32 pch_bytes;
 } mac_lte_common_stats;
 
+static const char * selected_ue_row_names[] = {"UL SDUs", "UL Bytes", "DL SDUs", "DL Bytes"};
+
 static mac_lte_common_stats common_stats;
+
+GtkWidget *mac_lte_common_bch_frames;
+GtkWidget *mac_lte_common_bch_bytes;
+GtkWidget *mac_lte_common_pch_frames;
+GtkWidget *mac_lte_common_pch_bytes;
+
 
 
 /* Keeping track of the 4 rows in UE details table */
@@ -163,7 +165,6 @@ static GtkWidget  *mac_lte_stat_selected_ue_lb = NULL;
 
 /* Used to keep track of whole MAC LTE statistics window */
 typedef struct mac_lte_stat_t {
-    GtkTreeView   *common_channel_table;
     GtkTreeView   *ue_table;
     GtkTreeView   *selected_ue_table;
     guint32       number_of_packets;
@@ -191,11 +192,6 @@ mac_lte_stat_reset(void *phs)
     g_snprintf(title, 255, "UL/DL-SCH data");
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
-
-    /* Remove the entry from the common channel list */
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(mac_lte_stat->common_channel_table));
-    gtk_list_store_clear(store);
-    common_row_added = FALSE;
     memset(&common_stats, 0, sizeof(common_stats));
 
     /* Forget that detail rows were already added */
@@ -368,7 +364,7 @@ static void
 mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear)
 {
     int n;
-    static const char * row_names[] = {"UL SDUs", "UL Bytes", "DL SDUs", "DL Bytes"};
+
     GtkListStore *store;
     store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->selected_ue_table));
 
@@ -392,7 +388,7 @@ mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear
 
     /* UL SDUs */
     gtk_list_store_set(store, &ue_detail_iter[0],
-                       ROWS_COLUMN,   row_names[0],
+                       ROWS_COLUMN,   selected_ue_row_names[0],
                        CCCH_COLUMN,   mac_stat_ep->stats.UL_sdus_for_lcid[0],
                        LCID1_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[1],
                        LCID2_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[2],
@@ -410,7 +406,7 @@ mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear
 
     /* UL Bytes */
     gtk_list_store_set(store, &ue_detail_iter[1],
-                       ROWS_COLUMN,   row_names[1],
+                       ROWS_COLUMN,   selected_ue_row_names[1],
                        CCCH_COLUMN,   mac_stat_ep->stats.UL_bytes_for_lcid[0],
                        LCID1_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[1],
                        LCID2_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[2],
@@ -429,7 +425,7 @@ mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear
 
     /* DL SDUs */
     gtk_list_store_set(store, &ue_detail_iter[2],
-                       ROWS_COLUMN,   row_names[2],
+                       ROWS_COLUMN,   selected_ue_row_names[2],
                        CCCH_COLUMN,   mac_stat_ep->stats.DL_sdus_for_lcid[0],
                        LCID1_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[1],
                        LCID2_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[2],
@@ -447,7 +443,7 @@ mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear
 
     /* DL Bytes */
     gtk_list_store_set(store, &ue_detail_iter[3],
-                       ROWS_COLUMN,   row_names[3],
+                       ROWS_COLUMN,   selected_ue_row_names[3],
                        CCCH_COLUMN,   mac_stat_ep->stats.DL_bytes_for_lcid[0],
                        LCID1_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[1],
                        LCID2_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[2],
@@ -470,30 +466,26 @@ mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear
 static void
 mac_lte_stat_draw(void *phs)
 {
+    char buff[32];
+
     /* Look up the statistics window */
     mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;
     mac_lte_ep_t* list = hs->ep_list, *tmp = 0;
 
-    GtkListStore *common_store;
     GtkListStore *ues_store;
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
 
     /* Common channel data */
-    common_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->common_channel_table));
-    if (!common_row_added) {
-        gtk_list_store_append(common_store, &common_row_iter);
-        common_row_added = TRUE;
-    }
-
-    /* Set the entries of this lists single row */
-    gtk_list_store_set(common_store, &common_row_iter,
-                       BCH_FRAMES_COLUMN, common_stats.bch_frames,
-                       BCH_BYTES_COLUMN, common_stats.bch_bytes,
-                       PCH_FRAMES_COLUMN, common_stats.pch_frames,
-                       PCH_BYTES_COLUMN, common_stats.pch_bytes,
-                       -1);
+    g_snprintf(buff, sizeof(buff), "BCH Frames: %u", common_stats.bch_frames);
+    gtk_label_set(GTK_LABEL(mac_lte_common_bch_frames), buff);
+    g_snprintf(buff, sizeof(buff), "BCH Bytes:    %u", common_stats.bch_bytes);
+    gtk_label_set(GTK_LABEL(mac_lte_common_bch_bytes), buff);
+    g_snprintf(buff, sizeof(buff), "PCH Frames: %u", common_stats.pch_frames);
+    gtk_label_set(GTK_LABEL(mac_lte_common_pch_frames), buff);
+    g_snprintf(buff, sizeof(buff), "PCH Bytes:    %u", common_stats.pch_bytes);
+    gtk_label_set(GTK_LABEL(mac_lte_common_pch_bytes), buff);
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
@@ -570,7 +562,6 @@ static void mac_lte_stat_dlg_create (void)
 {
     mac_lte_stat_t    *hs;
     GString       *error_string;
-    GtkWidget     *common_scrolled_window;
     GtkWidget     *ues_scrolled_window;
     GtkWidget     *selected_ue_scrolled_window;
     GtkWidget     *bbox;
@@ -581,16 +572,13 @@ static void mac_lte_stat_dlg_create (void)
     GtkWidget     *selected_ue_vb;
 
     GtkWidget     *close_bt;
-    GtkListStore  *common_channel_store;
     GtkListStore  *store;
     GtkListStore  *selected_ue_store;
-    
-    GtkTreeView       *common_channel_tree_view;
+
     GtkTreeView       *tree_view;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
-    /* GtkObject         *adjustment; */
     char title[256];
     gint i;
 
@@ -625,43 +613,28 @@ static void mac_lte_stat_dlg_create (void)
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_vb);
     gtk_container_set_border_width(GTK_CONTAINER(common_vb), 5);
 
-    /* adjustment = gtk_adjustment_new(10.0, 10.0, 100.0, 100.0, 100.0, 100.0); */
-    common_scrolled_window = scrolled_window_new(NULL, NULL); /* (GTK_ADJUSTMENT(adjustment)); */
-
-    gtk_box_pack_start(GTK_BOX(common_vb), common_scrolled_window, TRUE, TRUE, 0);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(common_scrolled_window),
-                                        GTK_SHADOW_IN);
-
-    /* Create the table of common data */
-    common_channel_store = gtk_list_store_new(NUM_COMMON_COLUMNS,
-                                              G_TYPE_INT,  /* BCH frames */
-                                              G_TYPE_INT,  /* BCH bytes */
-                                              G_TYPE_INT,  /* PCH frames */
-                                              G_TYPE_INT); /* PCH bytes */
-
-    hs->common_channel_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(common_channel_store)));
-    gtk_container_add(GTK_CONTAINER(common_scrolled_window), GTK_WIDGET(hs->common_channel_table));
-    g_object_unref(G_OBJECT(common_channel_store));
-
-    common_channel_tree_view = hs->common_channel_table;
-    gtk_tree_view_set_headers_visible(common_channel_tree_view, TRUE);
-    gtk_tree_view_set_headers_clickable(common_channel_tree_view, TRUE);
-
-    /* Create the titles for each column of the per-UE table */
-    for (i = 0; i < NUM_COMMON_COLUMNS; i++) {
-        renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes(common_titles[i], renderer,
-                                                          "text", i, NULL);
-        gtk_tree_view_column_set_sort_column_id(column, i);
-
-        gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-        gtk_tree_view_column_set_resizable(column, TRUE);
-        gtk_tree_view_append_column(common_channel_tree_view, column);
-
-    }
-
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
 
+    /* Create counter labels. TODO: could have 2 hboxes to have BCH and PCH rows */
+    mac_lte_common_bch_frames = gtk_label_new("BCH Frames:");
+    gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_frames), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_bch_frames);
+    gtk_widget_show(mac_lte_common_bch_frames);
+
+    mac_lte_common_bch_bytes = gtk_label_new("BCH Bytes:");
+    gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_bytes), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_bch_bytes);
+    gtk_widget_show(mac_lte_common_bch_bytes);
+
+    mac_lte_common_pch_frames = gtk_label_new("PCH Frames:");
+    gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_frames), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_pch_frames);
+    gtk_widget_show(mac_lte_common_pch_frames);
+
+    mac_lte_common_pch_bytes = gtk_label_new("PCH Bytes:");
+    gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_bytes), 0.0f, .5f);
+    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_pch_bytes);
+    gtk_widget_show(mac_lte_common_pch_bytes);
 
 
     /**********************************************/
@@ -708,7 +681,7 @@ static void mac_lte_stat_dlg_create (void)
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
     g_signal_connect(sel, "changed", G_CALLBACK(mac_lte_select_cb), hs);
 
-    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_ues_lb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_ues_lb, TRUE, TRUE, 0);
 
 
     /**********************************************/
@@ -749,8 +722,15 @@ static void mac_lte_stat_dlg_create (void)
         gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
         gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(tree_view, column);
-
     }
+
+    /* Create the rows now */
+    for (i=0; i < 4; i++) {
+        gtk_list_store_append(selected_ue_store, &ue_detail_iter[i]);
+        gtk_list_store_set(selected_ue_store, &ue_detail_iter[i],
+                           ROWS_COLUMN, selected_ue_row_names[i], -1);
+    }
+    ue_detail_rows_added = TRUE;
 
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_selected_ue_lb, FALSE, FALSE, 0);
 
