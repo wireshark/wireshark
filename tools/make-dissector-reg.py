@@ -28,7 +28,7 @@ srcdir = sys.argv[1]
 # "dissectors", we build a register.c for libwireshark.
 #
 registertype = sys.argv[2]
-if registertype == "plugin":
+if registertype == "plugin" or registertype == "plugin_wtap":
 	tmp_filename = "plugin.c-tmp"
 	final_filename = "plugin.c"
 	cache_filename = None
@@ -65,6 +65,7 @@ if len(filenames) < 1:
 regs = {
 	'proto_reg': [],
 	'handoff_reg': [],
+	'wtap_register': [],
 	}
 
 # For those that don't know Python, r"" indicates a raw string,
@@ -75,12 +76,17 @@ proto_regex1 = r"void\s+(?P<symbol>proto_register_[_A-Za-z0-9]+)\s*\([^;]+$"
 handoff_regex0 = r"^(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\([^;]+$"
 handoff_regex1 = r"void\s+(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\([^;]+$"
 
+wtap_reg_regex0 = r"^(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
+wtap_reg_regex1 = r"void\s+(?P<symbol>wtap_register_[_A-Za-z0-9]+)\s*\([^;]+$"
+
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
 	( 'proto_reg', re.compile(proto_regex0) ),
 	( 'proto_reg', re.compile(proto_regex1) ),
 	( 'handoff_reg', re.compile(handoff_regex0) ),
 	( 'handoff_reg', re.compile(handoff_regex1) ),
+	( 'wtap_register', re.compile(wtap_reg_regex0) ),
+	( 'wtap_register', re.compile(wtap_reg_regex1) ),
 	]
 
 # Open our registration symbol cache
@@ -103,6 +109,7 @@ for filename in filenames:
 #			print "Pulling %s from cache" % (filename)
 			regs['proto_reg'].extend(cdict['proto_reg'])
 			regs['handoff_reg'].extend(cdict['handoff_reg'])
+			regs['wtap_register'].extend(cdict['wtap_register'])
 			file.close()
 			continue
 	# We don't have a cache entry
@@ -111,6 +118,7 @@ for filename in filenames:
 			'mtime': cur_mtime,
 			'proto_reg': [],
 			'handoff_reg': [],
+			'wtap_register': [],
 			}
 #	print "Searching %s" % (filename)
 	for line in file.readlines():
@@ -139,6 +147,7 @@ if len(regs['proto_reg']) < 1:
 # Sort the lists to make them pretty
 regs['proto_reg'].sort()
 regs['handoff_reg'].sort()
+regs['wtap_register'].sort()
 
 reg_code = open(tmp_filename, "w")
 
@@ -146,7 +155,7 @@ reg_code.write("/* Do not modify this file.  */\n")
 reg_code.write("/* It is created automatically by the Makefile.  */\n")
 
 # Make the routine to register all protocols
-if registertype == "plugin":
+if registertype == "plugin" or registertype == "plugin_wtap":
 	reg_code.write("""
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -174,7 +183,7 @@ register_all_protocols(register_cb cb, gpointer client_data)
 """);
 
 for symbol in regs['proto_reg']:
-	if registertype == "plugin":
+	if registertype == "plugin" or registertype == "plugin_wtap":
 		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	else:
 		line = "  {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
@@ -184,7 +193,7 @@ reg_code.write("}\n")
 
 
 # Make the routine to register all protocol handoffs
-if registertype == "plugin":
+if registertype == "plugin" or registertype == "plugin_wtap":
 	reg_code.write("""
 G_MODULE_EXPORT void
 plugin_reg_handoff(void)
@@ -198,7 +207,7 @@ register_all_protocol_handoffs(register_cb cb, gpointer client_data)
 """);
 
 for symbol in regs['handoff_reg']:
-	if registertype == "plugin":
+	if registertype == "plugin" or registertype == "plugin_wtap":
 		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	else:
 		line = "  {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
@@ -208,6 +217,19 @@ reg_code.write("}\n")
 
 if registertype == "plugin":
 	reg_code.write("#endif\n");
+elif registertype == "plugin_wtap":
+	reg_code.write("""
+G_MODULE_EXPORT void
+register_wtap_module(void)
+{
+""");
+
+	for symbol in regs['wtap_register']:
+		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+		reg_code.write(line)
+
+	reg_code.write("}\n");
+        reg_code.write("#endif\n");
 else:
 	reg_code.write("""
 gulong register_count(void)
