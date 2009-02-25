@@ -1523,7 +1523,7 @@ static const value_string ft_ad_vals[] = {
 
 static void
 dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *atm_tree)
+    proto_tree *atm_tree, guint aal)
 {
   int          offset;
   proto_tree   *aal_tree;
@@ -1533,7 +1533,6 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint8       vpi;
   guint16      vci;
   guint8       pt;
-  guint8       aal;
   guint16      aal3_4_hdr, aal3_4_trlr;
   guint16      oam_crc;
   gint         length;
@@ -1573,7 +1572,6 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * XXX - do this for all AAL values, overriding whatever information
    * Wiretap got from the file?
    */
-  aal = pinfo->pseudo_header->atm.aal;
   if (aal == AAL_USER) {
 	/*
 	 * OAM F4 is VCI 3 or 4 and PT 0X0.
@@ -1783,7 +1781,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (pinfo->pseudo_header->atm.flags & ATM_RAW_CELL) {
     /* This is a single cell, with the cell header at the beginning. */
     proto_item_set_len(atm_ti, 5);
-    dissect_atm_cell(tvb, pinfo, tree, atm_tree);
+    dissect_atm_cell(tvb, pinfo, tree, atm_tree, pinfo->pseudo_header->atm.aal);
   } else {
     /* This is a reassembled PDU. */
     dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated);
@@ -1800,6 +1798,23 @@ static void
 dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_atm_common(tvb, pinfo, tree, FALSE);
+}
+
+static void
+dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree   *atm_tree = NULL;
+  proto_item   *atm_ti = NULL;
+  
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+
+  if (tree) {
+    atm_ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
+    atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
+  }
+
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL);
 }
 
 void
@@ -1854,6 +1869,7 @@ proto_register_atm(void)
 
 	register_dissector("lane", dissect_lane, proto_atm_lane);
 	register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+	register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
 	
 	atm_module = prefs_register_protocol ( proto_atm, NULL );
 	prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",

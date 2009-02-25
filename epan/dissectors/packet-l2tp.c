@@ -1,6 +1,5 @@
 /* packet-l2tp.c
- * Routines for Layer Two Tunnelling Protocol (L2TP) (RFC 2661) packet
- * disassembly
+ * Routines for Layer Two Tunnelling Protocol (L2TP) packet disassembly
  * John Thomes <john@ensemblecom.com>
  *
  * Minor changes by: (2000-01-10)
@@ -30,13 +29,29 @@
 
 /*
  * RFC 2661 for L2TPv2
- * I-D draft-ietf-l2tpext-l2tp-base for L2TPv3
+ * http://tools.ietf.org/html/rfc2661
  *
- * L2TPv3
- * http://www.ietf.org/rfc/rfc3931.txt
+ * RFC 3931 for L2TPv3
+ * http://tools.ietf.org/html/rfc3931
  *
  * Layer Two Tunneling Protocol "L2TP" number assignments:
  *	http://www.iana.org/assignments/l2tp-parameters
+ *
+ * Pseudowire types:
+ *
+ * RFC 4591 for Frame Relay
+ * http://tools.ietf.org/html/rfc4591
+ *
+ * RFC 4454 for ATM
+ * http://tools.ietf.org/html/rfc4454
+ *
+ * RFC 4719 for Ethernet
+ * http://tools.ietf.org/html/rfc4719
+ *
+ * RFC 4349 for HDLC
+ * http://tools.ietf.org/html/rfc4349
+ *
+ * XXX - what about LAPD?
  */
 
 static int proto_l2tp = -1;
@@ -556,6 +571,7 @@ static dissector_handle_t chdlc_handle;
 static dissector_handle_t fr_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t mpls_handle;
+static dissector_handle_t atm_oam_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t lapd_handle;
 static dissector_handle_t data_handle;
@@ -1330,7 +1346,6 @@ static void process_control_avps(tvbuff_t *tvb,
 		}
 
 	}
-	return;
 }
 
 /*
@@ -1343,7 +1358,8 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    proto_tree *l2tp_tree, proto_item *l2tp_item, int *pIndex)
 {
 	int 		index = *pIndex;
-	int 		sid, oam_cell = 0;
+	int 		sid;
+	guint8		oam_cell = 0;
 	proto_tree	*l2_specific = NULL;
 	proto_item	*ti = NULL;
 	tvbuff_t	*next_tvb;
@@ -1365,100 +1381,97 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
 		if (l2tpv3_cookie != 0)
 			proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, index, l2tpv3_cookie, FALSE);
+	}
 
-                switch(l2tpv3_l2_specific){
+	switch(l2tpv3_l2_specific){
+	case L2TPv3_L2_SPECIFIC_DEFAULT:
+		if (tree) {
+			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
+					tvb, index + l2tpv3_cookie, 4, FALSE);
+			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-                case L2TPv3_L2_SPECIFIC_DEFAULT:
-                        ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
-                                        tvb, index + l2tpv3_cookie, 4, FALSE);
-                        l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
+						index + l2tpv3_cookie + 1, 3, FALSE);
+		}
+		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
+		break;
+	case L2TPv3_L2_SPECIFIC_ATM:
+		if (tree) {
+			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
+					tvb, index + l2tpv3_cookie, 4, FALSE);
+			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                                index + l2tpv3_cookie + 1, 3, FALSE);
-                        break;
-                case L2TPv3_L2_SPECIFIC_ATM:
-                        ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
-                                        tvb, index + l2tpv3_cookie, 4, FALSE);
-                        l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			/*
+			 * As per RFC 4454, the T bit specifies whether
+			 * we're transporting an OAM cell or an AAL5 frame.
+			 */
+			oam_cell = tvb_get_guint8(tvb, index + l2tpv3_cookie) & 0x08;
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, index + l2tpv3_cookie,
+						1, FALSE);
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
+						index + l2tpv3_cookie + 1, 3, FALSE);
+		}
+		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
+		break;
+	case L2TPv3_L2_SPECIFIC_LAPD:
+		if (tree)
+			proto_tree_add_text(tree, tvb, index + l2tpv3_cookie + 4, 3,"LAPD info");
+		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie+4+3, -1, -1);
+		break;
+	case L2TPv3_L2_SPECIFIC_NONE:
+	default:
+		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie, -1, -1);
+		break;
+	}
 
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        oam_cell = tvb_get_ntohl(tvb, 4 + l2tpv3_cookie) & 0x08000000;
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, index + l2tpv3_cookie,
-                                                1, FALSE);
-                        proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-                                                index + l2tpv3_cookie + 1, 3, FALSE);
-                        break;
-                case L2TPv3_L2_SPECIFIC_NONE:
-                default:
-                        break;
-                }
-          }
-
-          switch(l2tpv3_l2_specific){
-          case L2TPv3_L2_SPECIFIC_DEFAULT:
-          case L2TPv3_L2_SPECIFIC_ATM:
-                next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
-                break;
-		case L2TPv3_L2_SPECIFIC_LAPD:
-				proto_tree_add_text(tree, tvb, index + l2tpv3_cookie + 4, 3,"LAPD info");
-				next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie+4+3, -1, -1);
-				break;
-          case L2TPv3_L2_SPECIFIC_NONE:
-          default:
-                next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie, -1, -1);
-                break;
-          }
-
-          switch(l2tpv3_protocol){
-          case L2TPv3_PROTOCOL_ETH:
-                call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_CHDLC:
-                call_dissector(chdlc_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_FR:
-                call_dissector(fr_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_PPP:
-                /*
-                 * PPP is transported without Address and Control
-                 * fields, ppp_hdlc_handle can handle that as if if
-                 * was ACFC (NULL Address and Control)
-                 */
-                call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_IP:
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_MPLS:
-                call_dissector(mpls_handle, next_tvb, pinfo, tree);
-                break;
-          case L2TPv3_PROTOCOL_AAL5:
-                if (oam_cell) {
-                	/* XXX - the ATM dissector should offer an OAM cell dissector */
-                        call_dissector(data_handle, next_tvb, pinfo, tree);
-                } else {
-                        call_dissector(llc_handle, next_tvb, pinfo, tree);
-                }
-                break;
-		  case L2TPv3_PROTOCOL_LAPD:
-			  call_dissector(lapd_handle, next_tvb, pinfo, tree);
-			  break;
-          default:
-                call_dissector(data_handle, next_tvb, pinfo, tree);
-                break;
-          }
-
-	return;
+	switch(l2tpv3_protocol){
+	case L2TPv3_PROTOCOL_ETH:
+		call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_CHDLC:
+		call_dissector(chdlc_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_FR:
+		call_dissector(fr_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_PPP:
+		/*
+		 * PPP is transported without Address and Control
+		 * fields, ppp_hdlc_handle can handle that as if if
+		 * was ACFC (NULL Address and Control)
+		 */
+		call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_IP:
+		call_dissector(ip_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_MPLS:
+		call_dissector(mpls_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_AAL5:
+		if (oam_cell) {
+			call_dissector(atm_oam_handle, next_tvb, pinfo, tree);
+		} else {
+			call_dissector(llc_handle, next_tvb, pinfo, tree);
+		}
+		break;
+	case L2TPv3_PROTOCOL_LAPD:
+		call_dissector(lapd_handle, next_tvb, pinfo, tree);
+		break;
+	default:
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+		break;
+	}
 }
 
 /*
@@ -1481,7 +1494,7 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sid = tvb_get_ntohl(tvb, index);
 
 	if (tree) {
-        	l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1500,8 +1513,6 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Call process_l2tpv3_data from Session ID (offset in index of 4) */
 	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &index);
-
-	return;
 }
 
 /*
@@ -1520,7 +1531,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sid = tvb_get_ntohl(tvb, index);
 	
 	if (tree) {
-        	l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1531,8 +1542,6 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Call process_l2tpv3_data from Session ID (offset in index of 0) */
 	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &index);
-
-	return;
 }
 
 /*
@@ -1618,7 +1627,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 
 	if (tree) {
-        	l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1668,8 +1677,6 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 
 	process_control_avps(tvb, pinfo, l2tp_tree, index, length+baseIndex);
-
-	return;
 }
 
 /*
@@ -2123,6 +2130,7 @@ proto_reg_handoff_l2tp(void)
 	fr_handle = find_dissector("fr");
 	ip_handle = find_dissector("ip");
 	mpls_handle = find_dissector("mpls");
+	atm_oam_handle = find_dissector("atm_oam_cell");
 	llc_handle = find_dissector("llc");
 	lapd_handle = find_dissector("lapd");
 
