@@ -130,11 +130,13 @@ enum yahoo_service { /* these are easier to see in hex */
 	YAHOO_SERVICE_AUTHRESP = 0x54,
 	YAHOO_SERVICE_LIST,
 	YAHOO_SERVICE_AUTH = 0x57,
+	YAHOO_SERVICE_AUTHBUDDY = 0x6d,
 	YAHOO_SERVICE_ADDBUDDY = 0x83,
 	YAHOO_SERVICE_REMBUDDY,
 	YAHOO_SERVICE_IGNORECONTACT,    /* > 1, 7, 13 < 1, 66, 13, 0*/
 	YAHOO_SERVICE_REJECTCONTACT,
 	YAHOO_SERVICE_GROUPRENAME = 0x89, /* > 1, 65(new), 66(0), 67(old) */
+	YAHOO_SERVICE_KEEPALIVE = 0x8a,
 	YAHOO_SERVICE_CHATONLINE = 0x96, /* > 109(id), 1, 6(abcde) < 0,1*/
 	YAHOO_SERVICE_CHATGOTO,
 	YAHOO_SERVICE_CHATJOIN, /* > 1 104-room 129-1600326591 62-2 */
@@ -167,6 +169,8 @@ enum yahoo_service { /* these are easier to see in hex */
 	YAHOO_SERVICE_Y7_FILETRANSFERACCEPT,	/* YMSG13 */
 	YAHOO_SERVICE_Y7_MINGLE = 0xe1, /* YMSG13 */
 	YAHOO_SERVICE_Y7_CHANGE_GROUP = 0xe7, /* YMSG13 */
+ 	YAHOO_SERVICE_STATUS_15 = 0xf0,
+ 	YAHOO_SERVICE_LIST_15 = 0xf1,
 	YAHOO_SERVICE_WEBLOGIN = 0x0226,
 	YAHOO_SERVICE_SMS_MSG = 0x02ea
 };
@@ -188,7 +192,8 @@ enum yahoo_status {
         YAHOO_STATUS_IDLE = 999,
         YAHOO_STATUS_WEBLOGIN = 0x5a55aa55,
         YAHOO_STATUS_OFFLINE = 0x5a55aa56, /* don't ask */
-        YAHOO_STATUS_TYPING = 0x16
+        YAHOO_STATUS_TYPING = 0x16,
+        YAHOO_STATUS_DISCONNECTED = 0xffffffff /* in ymsg 15. doesnt mean the normal sense of 'disconnected' */
 };
 
 enum ypacket_status {
@@ -260,11 +265,13 @@ static const value_string ymsg_service_vals[] = {
 	{YAHOO_SERVICE_AUTHRESP, "Authentication Response"},
 	{YAHOO_SERVICE_LIST, "List"},
 	{YAHOO_SERVICE_AUTH, "Authentication"},
+	{YAHOO_SERVICE_AUTHBUDDY, "Authorize Buddy"},
 	{YAHOO_SERVICE_ADDBUDDY, "Add Buddy"},
 	{YAHOO_SERVICE_REMBUDDY, "Remove Buddy"},
 	{YAHOO_SERVICE_IGNORECONTACT, "Ignore Contact"},
 	{YAHOO_SERVICE_REJECTCONTACT, "Reject Contact"},
 	{YAHOO_SERVICE_GROUPRENAME, "Group Rename"},
+	{YAHOO_SERVICE_KEEPALIVE, "Keep Alive"},
 	{YAHOO_SERVICE_CHATONLINE, "Chat Online"},
 	{YAHOO_SERVICE_CHATGOTO, "Chat Goto"},
 	{YAHOO_SERVICE_CHATJOIN, "Chat Join"},
@@ -295,6 +302,8 @@ static const value_string ymsg_service_vals[] = {
 	{YAHOO_SERVICE_Y7_FILETRANSFERINFO,"Y7 File Transfer Information"},
 	{YAHOO_SERVICE_Y7_FILETRANSFERACCEPT,"Y7 File Transfer Accept"},
 	{YAHOO_SERVICE_Y7_CHANGE_GROUP, "Y7 Change Group"},
+	{YAHOO_SERVICE_STATUS_15, "Status V15"},
+	{YAHOO_SERVICE_LIST_15, "List V15"},
 	{YAHOO_SERVICE_WEBLOGIN,"WebLogin"},
 	{YAHOO_SERVICE_SMS_MSG,"SMS Message"},
 	{0, NULL}
