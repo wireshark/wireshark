@@ -738,6 +738,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			credit_offset = 8;
 		}
 	}
+
 	/*
 	 * The only reason why the payload length from the header
 	 * should differ from the remaining data in the packet
@@ -752,7 +753,44 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * data following the PPPoE header, as an error.
 	 */
 	if (tvb_reported_length(tvb) > 46) {
-            /* be forgiving about possible trailing FCS */
+		/*
+		 * Be forgiving about a possible trailing FCS.
+		 *
+		 * XXX - this dissector currently doesn't know
+		 * whether any extra data past the end of the PPP
+		 * payload is an FCS or not.
+		 *
+		 * If we know that we have an FCS, or that we don't
+		 * have an FCS, we should have been handed a tvbuff
+		 * without the FCS, and we should just do the strict
+		 * length check.
+		 *
+		 * If we don't know whether we have an FCS, then:
+		 *
+		 *   if this isn't over Ethernet - the "E" in "PPPoE"
+		 *   nonwithstanding, it can also run on top of 802.11,
+		 *   for example - there's no trailer, so any data
+		 *   past the payload length is either an FCS or
+		 *   bogus;
+		 *
+		 *   if this is over Ethernet, there shouldn't be
+		 *   a trailer, as the packet is long enough not to
+		 *   require a trailer, as per the above;
+		 *
+		 * so perhaps we should assume that if we have exactly
+		 * 4 bytes of extra information, it's an FCS, otherwise
+		 * it's not.
+		 *
+		 * Perhaps we need to have a routine to call to
+		 * do all the length checking, etc., and call it
+		 * from here and from other dissectors where the
+		 * protocol has a length field, or have a way to
+		 * tell the dissector that called us which field
+		 * has the length field and have *that* dissector
+		 * do the length checking and add the expert info
+		 * to the length field, *after* it does all the
+		 * FCS heuristics.
+		 */
 	        if ((reported_payload_length != actual_payload_length) &&
                 ((reported_payload_length + 4) != actual_payload_length)) {
                     proto_item_append_text(ti, " [incorrect, should be %u]",
@@ -760,7 +798,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     expert_add_info_format(pinfo, ti, PI_MALFORMED,
                         PI_WARN, "Possible bad payload length %u != %u",
                         reported_payload_length, actual_payload_length);
-           }
+		}
 	}
 
 	/*
