@@ -339,6 +339,10 @@ static const value_string predefined_frame_vals[] =
 /* By default expect to find complete RAR PDUs for frames received on RA_RNTIs */
 static gboolean global_mac_lte_single_rar = FALSE;
 
+/* By default check and warn about reserved bits not being zero.
+   December '08 spec says they should be ignored... */
+static gboolean global_mac_lte_check_reserved_bits = TRUE;
+
 
 
 /* Dissect a single Random Access Reponse body */
@@ -365,7 +369,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Check reserved bit */
     reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, FALSE);
-    if (reserved != 0) {
+    if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                       "MAC RAR header Reserved bit not zero (found 0x%x)", reserved);
     }
@@ -454,7 +458,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* 2 Reserved bits */
             reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
             ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, FALSE);
-            if (reserved != 0) {
+            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                        "MAC RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
@@ -664,7 +668,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         reserved = (first_byte & 0xc0) >> 6;
         ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_reserved,
                                  tvb, offset, 1, FALSE);
-        if (reserved != 0) {
+        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "MAC U/DL-SCH header Reserved bits not zero");
         }
@@ -906,7 +910,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
                             ti = proto_tree_add_item(tree, hf_mac_lte_control_power_headroom_reserved,
                                                      tvb, offset, 1, FALSE);
-                            if (reserved != 0) {
+                            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
                                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                           "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                             }
@@ -1450,6 +1454,11 @@ void proto_register_mac_lte(void)
         "When dissecting an RA_RNTI frame, expect to find only one RAR body "
         "instead of a complete RAR PDU complete with headers",
         &global_mac_lte_single_rar);
+
+    prefs_register_bool_preference(mac_lte_module, "check_reserved_bits",
+        "Warn if reserved bits are not 0",
+        "When set, an expert warning will indicate if reserved bits are not zero",
+        &global_mac_lte_check_reserved_bits);
 }
 
 
