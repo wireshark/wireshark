@@ -411,11 +411,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	return -1;
     offset += hdr_len;
 
-    if ( ( (pntohl(&rec_hdr.kind) & ~NETTL_HDR_SUBSYSTEM_BITS_MASK)
-         & (NETTL_HDR_PROCEDURE_TRACE |
-            NETTL_HDR_STATE_TRACE |
-            NETTL_HDR_ERROR_TRACE) ) != 0) {
-        /* not actually a packet trace record */
+    if ( (pntohl(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
+        /* not actually a data packet (PDU) trace record */
         phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
         length = pntohl(&rec_hdr.length);
         caplen = pntohl(&rec_hdr.caplen);
@@ -434,8 +431,10 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_IETHER :
 	case NETTL_SUBSYS_IXGBE :
+	case NETTL_SUBSYS_HSSN :
 	case NETTL_SUBSYS_IGSSN :
 	case NETTL_SUBSYS_ICXGBE :
+	case NETTL_SUBSYS_IEXGBE :
 	case NETTL_SUBSYS_HPPB_FDDI :
 	case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
@@ -600,8 +599,10 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    break;
 
 	default:
+            /* We're going to assume it's ethernet if we don't recognize the
+               subsystem -- We'll probably spew junks and core if it isn't... */
 	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	    phdr->pkt_encap = WTAP_ENCAP_NETTL_UNKNOWN;
+	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
             length = pntohl(&rec_hdr.length);
             caplen = pntohl(&rec_hdr.caplen);
             padlen = 0;

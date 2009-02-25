@@ -183,6 +183,7 @@ static const value_string subsystem[] = {
 	{ 269, "HSSN" },
 	{ 270, "IGSSN" },
 	{ 271, "ICXGBE" },
+	{ 275, "IEXGBE" },
 	{ 513, "KL_VM" },
 	{ 514, "KL_PKM" },
 	{ 515, "KL_DLKM" },
@@ -255,12 +256,8 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_RAW_IP:
-            if ( ( (pinfo->pseudo_header->nettl.kind
-                   & ~NETTL_HDR_SUBSYSTEM_BITS_MASK)
-                 & (NETTL_HDR_PROCEDURE_TRACE |
-                    NETTL_HDR_STATE_TRACE |
-                    NETTL_HDR_ERROR_TRACE) ) != 0)
-                    /* not really a data packet */
+            if ( (pinfo->pseudo_header->nettl.kind & NETTL_HDR_PDU_MASK) == 0 )
+                    /* not actually a data packet (PDU) trace record */
 	            call_dissector(data_handle, tvb, pinfo, tree);
             else if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_NS_LS_SCTP )
                     call_dissector(sctp_handle, tvb, pinfo, tree);

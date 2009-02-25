@@ -92,8 +92,8 @@
 #define NETTL_SUBSYS_IGELAN		252
 #define NETTL_SUBSYS_IETHER		253
 #define NETTL_SUBSYS_IXGBE		265
-#define NETTL_SUBSYS_IGSSN		270
 #define NETTL_SUBSYS_ICXGBE		271
+#define NETTL_SUBSYS_IEXGBE		275
 
 /* FDDI cards */
 #define NETTL_SUBSYS_HPPB_FDDI		95
@@ -104,6 +104,10 @@
 /* Token Ring cards */
 #define NETTL_SUBSYS_TOKEN		31
 #define NETTL_SUBSYS_PCI_TR		187
+
+/* Accelerated Virtual I/O (AVIO) drivers */
+#define NETTL_SUBSYS_HSSN		269
+#define NETTL_SUBSYS_IGSSN		270
 
 /* from /usr/include/sys/subsys_id.h */
 
@@ -118,6 +122,8 @@
 #define NETTL_HDR_LOOPBACK              0x00800000
 #define NETTL_HDR_PTOP                  0x00400000
 #define NETTL_HDR_SUBSYSTEM_BITS_MASK   0x000fffff
+
+#define NETTL_HDR_PDU_MASK              0x30000000
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
