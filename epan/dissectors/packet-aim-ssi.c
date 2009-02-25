@@ -273,7 +273,6 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 {
 	int offset = 0;
 	guint16 reason_length;
-	guint8 allow_flag;
 
 	/* get buddy length (1 byte) */
 	guint8 buddyname_length = tvb_get_guint8(tvb, offset);
@@ -287,8 +286,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 	}
 
 	/* accept/reject authorization flag */
-	allow_flag = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_allow_auth, tvb, offset, allow_flag, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_allow_auth, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* get reason message length (2 bytes) */
