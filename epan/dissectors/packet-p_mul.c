@@ -769,8 +769,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo _U_,
-                                      proto_tree *tree)
+static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (tvb == NULL || tree == NULL) {
     return;
@@ -789,8 +788,7 @@ static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 }
 
-static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
-                           proto_tree *tree)
+static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *p_mul_tree = NULL, *field_tree = NULL, *checksum_tree = NULL;
   proto_item *ti = NULL, *en = NULL, *len_en = NULL;
