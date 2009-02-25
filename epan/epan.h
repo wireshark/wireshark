@@ -46,11 +46,24 @@ void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer clie
 /* cleanup the whole epan module, this is used to be called only once in a program */
 void epan_cleanup(void);
 
-/* Initialize the table of conversations. */
+/*
+ * Initialize the table of conversations.  Conversations are identified by
+ * their endpoints; they are used for protocols such as IP, TCP, and UDP,
+ * where packets contain endpoint information but don't contain a single
+ * value indicating to which flow the packet belongs.
+ */
 void epan_conversation_init(void);
 
-/* Initialize the table of circuits. */
-/* XXX - what is a circuit and should this better be combined with epan_conversation_init? */
+/*
+ * Initialize the table of circuits.  Circuits are identified by a
+ * circuit ID; they are used for protocols where packets *do* contain
+ * a circuit ID value indicating to which flow the packet belongs.
+ *
+ * We might want to make a superclass for both endpoint-specified
+ * conversations and circuit ID-specified circuits, so we can attach
+ * information either to a circuit or a conversation with common
+ * code.
+ */
 void epan_circuit_init(void);
 
 /* A client will create one epan_t for an entire dissection session.
