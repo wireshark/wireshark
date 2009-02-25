@@ -94,9 +94,6 @@ static const value_string realm_type_vs[] = {
 #define WOW_CLIENT_TO_SERVER pinfo->destport == WOW_PORT
 #define WOW_SERVER_TO_CLIENT pinfo->srcport  == WOW_PORT
 
-/* Forward declaration we need below */
-void proto_reg_handoff_wow(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_wow = -1;
 
@@ -462,37 +459,37 @@ proto_register_wow(void)
 		{ &hf_wow_error,
 		  { "Error", "wow.error",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_pkt_size,
 		  { "Packet size", "wow.pkt_size",
 		    FT_UINT16, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_gamename,
 		  { "Game name", "wow.gamename",
 		    FT_STRING, BASE_NONE, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_version1,
 		  { "Version 1", "wow.version1",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_version2,
 		  { "Version 2", "wow.version2",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_version3,
 		  { "Version 3", "wow.version3",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_build,
 		  { "Build", "wow.build",
 		    FT_UINT16, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_platform,
 		  { "Platform", "wow.platform",
@@ -512,7 +509,7 @@ proto_register_wow(void)
 		{ &hf_wow_timezone_bias,
 		  { "Timezone bias", "wow.timezone_bias",
 		    FT_UINT32, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_ip,
 		  { "IP address", "wow.ip",
@@ -575,12 +572,12 @@ proto_register_wow(void)
 		{ &hf_wow_crc_hash,
 		  { "CRC hash", "wow.crc_hash",
 		    FT_BYTES, BASE_NONE, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_num_keys,
 		  { "Number of keys", "wow.num_keys",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_srp_m2,
 		  { "SRP M2", "wow.srp.m2",
@@ -590,7 +587,7 @@ proto_register_wow(void)
 		{ &hf_wow_num_realms,
 		  { "Number of realms", "wow.num_realms",
 		    FT_UINT16, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_type,
 		  { "Type", "wow.realm_type",
@@ -600,17 +597,17 @@ proto_register_wow(void)
 		{ &hf_wow_realm_status,
 		  { "Status", "wow.realm_status",
 		    FT_UINT8, BASE_DEC, VALS(realm_status_vs), 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_color,
 		  { "Color", "wow.realm_color",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_name,
-		  {  "Name", "wow.realm_name",
-		     FT_STRINGZ, BASE_NONE, 0, 0,
-		     "", HFILL }
+		  { "Name", "wow.realm_name",
+		    FT_STRINGZ, BASE_NONE, 0, 0,
+		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_socket,
 		  { "Server socket", "wow.realm_socket",
@@ -620,7 +617,7 @@ proto_register_wow(void)
 		{ &hf_wow_realm_population_level,
 		  { "Population level", "wow.realm_population_level",
 		    FT_FLOAT, BASE_NONE, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		},
 		{ &hf_wow_realm_num_characters,
 		  { "Number of characters", "wow.realm_num_characters",
@@ -630,7 +627,7 @@ proto_register_wow(void)
 		{ &hf_wow_realm_timezone,
 		  { "Timezone", "wow.realm_timezone",
 		    FT_UINT8, BASE_DEC, 0, 0,
-		    "", HFILL }
+		    NULL, HFILL }
 		}
 	};
 
@@ -645,7 +642,7 @@ proto_register_wow(void)
 	proto_register_field_array(proto_wow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	wow_module = prefs_register_protocol(proto_wow, proto_reg_handoff_wow);
+	wow_module = prefs_register_protocol(proto_wow, NULL);
 
 	prefs_register_bool_preference(wow_module, "desegment", "Reassemble wow messages spanning multiple TCP segments.", "Whether the wow dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &wow_preference_desegment);
 
@@ -654,15 +651,9 @@ proto_register_wow(void)
 void
 proto_reg_handoff_wow(void)
 {
-	static gboolean inited = FALSE;
+	dissector_handle_t wow_handle;
 
-	if(!inited) {
-		dissector_handle_t wow_handle;
+	wow_handle = new_create_dissector_handle(dissect_wow, proto_wow);
+	dissector_add("tcp.port", WOW_PORT, wow_handle);
 
-		wow_handle = new_create_dissector_handle(dissect_wow,
-							 proto_wow);
-		dissector_add("tcp.port", WOW_PORT, wow_handle);
-
-		inited = TRUE;
-	}
 }
