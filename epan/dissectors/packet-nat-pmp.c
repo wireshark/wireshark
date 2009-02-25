@@ -1,5 +1,7 @@
-/* packet-nat-pnp.c
+/* packet-nat-pmp.c
  * Routines for NAT Port Mapping Protocol packet disassembly.
+ * draft-cheshire-nat-pmp-03
+ * http://files.dns-sd.org/draft-cheshire-nat-pmp.txt
  *
  * Copyright 2009, Stig Bjørlykke <stig@bjorlykke.org>
  *
@@ -32,8 +34,8 @@
 #include <epan/expert.h>
 
 #define PNAME  "NAT Port Mapping Protocol"
-#define PSNAME "NAT-PNP"
-#define PFNAME "nat-pnp"
+#define PSNAME "NAT-PMP"
+#define PFNAME "nat-pmp"
 
 #define NAT_PMP_STATUS_PORT  5350
 #define NAT_PMP_PORT         5351
@@ -46,7 +48,7 @@
 #define MAP_UDP_RESPONSE            129
 #define MAP_TCP_RESPONSE            130
 
-static int proto_nat_pnp = -1;
+static int proto_nat_pmp = -1;
 
 static int hf_version = -1;
 static int hf_opcode = -1;
@@ -60,9 +62,9 @@ static int hf_external_port_mapped = -1;
 static int hf_rpmlis = -1;
 static int hf_pmlis = -1;
 
-static gint ett_nat_pnp = -1;
+static gint ett_nat_pmp = -1;
 
-static dissector_handle_t nat_pnp_handle = NULL;
+static dissector_handle_t nat_pmp_handle = NULL;
 
 static const value_string opcode_vals[] = {
   { EXTERNAL_ADDRESS_REQUEST,  "External Address Request"   },
@@ -84,9 +86,9 @@ static const value_string result_vals[] = {
   { 0, NULL }
 };
 
-static void dissect_nat_pnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *nat_pnp_tree;
+  proto_tree *nat_pmp_tree;
   proto_item *ti, *op_ti;
   gint offset = 0;
   guint8 opcode;
@@ -97,15 +99,15 @@ static void dissect_nat_pnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if (check_col (pinfo->cinfo, COL_INFO))
     col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_nat_pnp, tvb, offset, -1, FALSE);
-  nat_pnp_tree = proto_item_add_subtree (ti, ett_nat_pnp);
+  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, FALSE);
+  nat_pmp_tree = proto_item_add_subtree (ti, ett_nat_pmp);
 
-  proto_tree_add_item (nat_pnp_tree, hf_version, tvb, offset, 1, FALSE);
+  proto_tree_add_item (nat_pmp_tree, hf_version, tvb, offset, 1, FALSE);
   offset++;
 
   opcode = tvb_get_guint8 (tvb, offset);
   proto_item_append_text (ti, ", %s", val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
-  op_ti = proto_tree_add_item (nat_pnp_tree, hf_opcode, tvb, offset, 1, FALSE);
+  op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, FALSE);
   offset++;
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -118,46 +120,46 @@ static void dissect_nat_pnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     break;
 
   case EXTERNAL_ADDRESS_RESPONSE:
-    proto_tree_add_item (nat_pnp_tree, hf_result_code, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item (nat_pnp_tree, hf_sssoe, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item (nat_pnp_tree, hf_external_ip, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_ip, tvb, offset, 4, FALSE);
     offset += 4;
     break;
 
   case MAP_UDP_REQUEST:
   case MAP_TCP_REQUEST:
-    proto_tree_add_item (nat_pnp_tree, hf_reserved, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_reserved, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item (nat_pnp_tree, hf_internal_port, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, FALSE);
     offset += 2;
     
-    proto_tree_add_item (nat_pnp_tree, hf_external_port_requested, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item (nat_pnp_tree, hf_rpmlis, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_rpmlis, tvb, offset, 4, FALSE);
     offset += 4;
     break;
 
   case MAP_UDP_RESPONSE:
   case MAP_TCP_RESPONSE:
-    proto_tree_add_item (nat_pnp_tree, hf_result_code, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item (nat_pnp_tree, hf_sssoe, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item (nat_pnp_tree, hf_internal_port, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, FALSE);
     offset += 2;
     
-    proto_tree_add_item (nat_pnp_tree, hf_external_port_mapped, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item (nat_pnp_tree, hf_pmlis, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_pmlis, tvb, offset, 4, FALSE);
     offset += 4;
     break;
 
@@ -168,60 +170,60 @@ static void dissect_nat_pnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   }
 }
 
-void proto_register_nat_pnp (void)
+void proto_register_nat_pmp (void)
 {
   static hf_register_info hf[] = {
     { &hf_version,
-      { "Version", "nat-pnp.version", FT_UINT8, BASE_DEC,
+      { "Version", "nat-pmp.version", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_opcode,
-      { "Opcode", "nat-pnp.opcode", FT_UINT8, BASE_DEC,
+      { "Opcode", "nat-pmp.opcode", FT_UINT8, BASE_DEC,
         VALS(opcode_vals), 0x0, NULL, HFILL } },
     { &hf_result_code,
-      { "Result Code", "nat-pnp.result_code", FT_UINT16, BASE_DEC,
+      { "Result Code", "nat-pmp.result_code", FT_UINT16, BASE_DEC,
         VALS(result_vals), 0x0, NULL, HFILL } },
     { &hf_sssoe,
-      { "Seconds Since Start of Epoch", "nat-pnp.sssoe", FT_UINT32, BASE_DEC,
+      { "Seconds Since Start of Epoch", "nat-pmp.sssoe", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_external_ip,
-      { "External IP Address", "nat-pnp.external_ip", FT_IPv4, BASE_NONE,
+      { "External IP Address", "nat-pmp.external_ip", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_reserved,
-      { "Reserved", "nat-pnp.reserved", FT_UINT16, BASE_DEC,
+      { "Reserved", "nat-pmp.reserved", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Reserved (must be zero)", HFILL } },
     { &hf_internal_port,
-      { "Internal Port", "nat-pnp.internal_port", FT_UINT16, BASE_DEC,
+      { "Internal Port", "nat-pmp.internal_port", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_external_port_requested,
-      { "Requested External Port", "nat-pnp.external_port", FT_UINT16, BASE_DEC,
+      { "Requested External Port", "nat-pmp.external_port", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_external_port_mapped,
-      { "Mapped External Port", "nat-pnp.external_port", FT_UINT16, BASE_DEC,
+      { "Mapped External Port", "nat-pmp.external_port", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_rpmlis,
-      { "Requested Port Mapping Lifetime", "nat-pnp.pml", FT_UINT32, BASE_DEC,
+      { "Requested Port Mapping Lifetime", "nat-pmp.pml", FT_UINT32, BASE_DEC,
         NULL, 0x0, "Requested Port Mapping Lifetime in Seconds", HFILL } },
     { &hf_pmlis,
-      { "Port Mapping Lifetime", "nat-pnp.pml", FT_UINT32, BASE_DEC,
+      { "Port Mapping Lifetime", "nat-pmp.pml", FT_UINT32, BASE_DEC,
         NULL, 0x0, "Port Mapping Lifetime in Seconds", HFILL } },
   };
 
   static gint *ett[] = {
-    &ett_nat_pnp,
+    &ett_nat_pmp,
   };
 
-  proto_nat_pnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector (PFNAME, dissect_nat_pnp, proto_nat_pnp);
+  proto_nat_pmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
+  register_dissector (PFNAME, dissect_nat_pmp, proto_nat_pmp);
   
-  proto_register_field_array (proto_nat_pnp, hf, array_length (hf));
+  proto_register_field_array (proto_nat_pmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }
 
-void proto_reg_handoff_nat_pnp (void)
+void proto_reg_handoff_nat_pmp (void)
 {
-  nat_pnp_handle = find_dissector (PFNAME);
-  dissector_add ("udp.port", NAT_PMP_STATUS_PORT, nat_pnp_handle);
-  dissector_add ("udp.port", NAT_PMP_PORT, nat_pnp_handle);
+  nat_pmp_handle = find_dissector (PFNAME);
+  dissector_add ("udp.port", NAT_PMP_STATUS_PORT, nat_pmp_handle);
+  dissector_add ("udp.port", NAT_PMP_PORT, nat_pmp_handle);
 }
 
 /*
