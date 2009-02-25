@@ -76,8 +76,7 @@ enum {
 };
 
 enum {
-    ROWS_COLUMN,
-    CCCH_COLUMN,
+    CCCH_COLUMN=1,
     LCID1_COLUMN,
     LCID2_COLUMN,
     LCID3_COLUMN,
@@ -96,7 +95,7 @@ static const gchar *ue_titles[] = { "RNTI",
                                  "UL Frames", "UL Bytes",
                                  "DL Frames", "DL Bytes" };
 
-static const gchar *channel_titles[] = { "", "CCCH",
+static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
                                          "LCID 6", "LCID 7", "LCID 8", "LCID 9", "LCID 10",
                                          "Predefined"};
@@ -144,16 +143,13 @@ static const char * selected_ue_row_names[] = {"UL SDUs", "UL Bytes", "DL SDUs",
 
 static mac_lte_common_stats common_stats;
 
-GtkWidget *mac_lte_common_bch_frames;
-GtkWidget *mac_lte_common_bch_bytes;
-GtkWidget *mac_lte_common_pch_frames;
-GtkWidget *mac_lte_common_pch_bytes;
+static GtkWidget *mac_lte_common_bch_frames;
+static GtkWidget *mac_lte_common_bch_bytes;
+static GtkWidget *mac_lte_common_pch_frames;
+static GtkWidget *mac_lte_common_pch_bytes;
 
-
-
-/* Keeping track of the 4 rows in UE details table */
-static gint ue_detail_rows_added = FALSE;
-static GtkTreeIter ue_detail_iter[4];
+/* Labels in selected UE 'table' */
+static GtkWidget *selected_ue_column_entry[NUM_CHANNEL_COLUMNS][5];
 
 
 /* Top-level dialog and labels */
@@ -166,7 +162,6 @@ static GtkWidget  *mac_lte_stat_selected_ue_lb = NULL;
 /* Used to keep track of whole MAC LTE statistics window */
 typedef struct mac_lte_stat_t {
     GtkTreeView   *ue_table;
-    GtkTreeView   *selected_ue_table;
     guint32       number_of_packets;
     guint32       num_entries;
     mac_lte_ep_t* ep_list;
@@ -181,6 +176,7 @@ mac_lte_stat_reset(void *phs)
     mac_lte_ep_t* list = mac_lte_stat->ep_list;
     char title[256];
     GtkListStore *store;
+    gint i, n;
 
     /* Set the title */
     if (mac_lte_stat_dlg_w != NULL) {
@@ -194,9 +190,6 @@ mac_lte_stat_reset(void *phs)
 
     memset(&common_stats, 0, sizeof(common_stats));
 
-    /* Forget that detail rows were already added */
-    ue_detail_rows_added = FALSE;
-
     /* Remove all entries from the UE list */
     store = GTK_LIST_STORE(gtk_tree_view_get_model(mac_lte_stat->ue_table));
     gtk_list_store_clear(store);
@@ -207,12 +200,18 @@ mac_lte_stat_reset(void *phs)
 
     mac_lte_stat->ep_list = NULL;
     mac_lte_stat->number_of_packets = 0;
+
+    /* Set all of the channel counters to 0 */
+    for (n=1; n <=4; n++) {
+        for (i=CCCH_COLUMN; i < NUM_CHANNEL_COLUMNS; i++) {
+            gtk_label_set(GTK_LABEL(selected_ue_column_entry[i][n]), "0");
+        }
+    }
 }
 
 
 /* Allocate a mac_lte_ep_t struct to store info for new UE */
-static mac_lte_ep_t*
-alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *pinfo _U_)
+static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *pinfo _U_)
 {
     mac_lte_ep_t* ep;
     int n;
@@ -247,6 +246,7 @@ alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *pinfo _U_)
 
     return ep;
 }
+
 
 /* Process stat struct for a MAC LTE frame */
 static int
@@ -321,7 +321,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.UL_frames++;
         for (n=0; n < 11; n++) {
             if (si->bytes_for_lcid[n]) {
-                te->stats.UL_sdus_for_lcid[n]++;
+                te->stats.UL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
             }
             te->stats.UL_bytes_for_lcid[n] += si->bytes_for_lcid[n];
             te->stats.UL_total_bytes += si->bytes_for_lcid[n];
@@ -331,7 +331,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.DL_frames++;
         for (n=0; n < 11; n++) {
             if (si->bytes_for_lcid[n]) {
-                te->stats.DL_sdus_for_lcid[n]++;
+                te->stats.DL_sdus_for_lcid[n] += si->sdus_for_lcid[n];
             }
             te->stats.DL_bytes_for_lcid[n] += si->bytes_for_lcid[n];
             te->stats.DL_total_bytes += si->bytes_for_lcid[n];
@@ -361,103 +361,58 @@ static void invalidate_ues_iters(mac_lte_stat_t *hs)
 
 /* Draw the UE details table according to the current UE selection */
 static void
-mac_lte_ue_details(mac_lte_stat_t *hs, mac_lte_ep_t *mac_stat_ep, gboolean clear)
+mac_lte_ue_details(mac_lte_stat_t *hs _U_, mac_lte_ep_t *mac_stat_ep _U_, gboolean clear _U_)
 {
     int n;
-
-    GtkListStore *store;
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->selected_ue_table));
+    gchar buff[32];
 
     /* Clear details if necessary */
     if (clear) {
-        gtk_list_store_clear(store);
         invalidate_ues_iters(hs);
-        ue_detail_rows_added = FALSE;
     }
 
-    /* Add rows if necessary */
-    if (!ue_detail_rows_added) {
-        for (n=0; n < 4; n++) {
-            gtk_list_store_append(store, &ue_detail_iter[n]);
-        }
-        ue_detail_rows_added = TRUE;
-    }
 
     /**********************************/
-    /* Set data in rows               */
+    /* Set data one row at a time     */
 
     /* UL SDUs */
-    gtk_list_store_set(store, &ue_detail_iter[0],
-                       ROWS_COLUMN,   selected_ue_row_names[0],
-                       CCCH_COLUMN,   mac_stat_ep->stats.UL_sdus_for_lcid[0],
-                       LCID1_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[1],
-                       LCID2_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[2],
-                       LCID3_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[3],
-                       LCID4_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[4],
-                       LCID5_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[5],
-                       LCID6_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[6],
-                       LCID7_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[7],
-                       LCID8_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[8],
-                       LCID9_COLUMN,  mac_stat_ep->stats.UL_sdus_for_lcid[9],
-                       LCID10_COLUMN, mac_stat_ep->stats.UL_sdus_for_lcid[10],
-                       PREDEFINED_COLUMN, mac_stat_ep->stats.is_predefined_data ?
-                                            mac_stat_ep->stats.UL_frames : 0,
-                       -1);
+    for (n=0; n < PREDEFINED_COLUMN-1; n++) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_sdus_for_lcid[n]);
+        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
+    }
+    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                             mac_stat_ep->stats.UL_frames : 0);
+    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][1]), buff);
+
 
     /* UL Bytes */
-    gtk_list_store_set(store, &ue_detail_iter[1],
-                       ROWS_COLUMN,   selected_ue_row_names[1],
-                       CCCH_COLUMN,   mac_stat_ep->stats.UL_bytes_for_lcid[0],
-                       LCID1_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[1],
-                       LCID2_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[2],
-                       LCID3_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[3],
-                       LCID4_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[4],
-                       LCID5_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[5],
-                       LCID6_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[6],
-                       LCID7_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[7],
-                       LCID8_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[8],
-                       LCID9_COLUMN,  mac_stat_ep->stats.UL_bytes_for_lcid[9],
-                       LCID10_COLUMN, mac_stat_ep->stats.UL_bytes_for_lcid[10],
-                       PREDEFINED_COLUMN, mac_stat_ep->stats.is_predefined_data ?
-                                            mac_stat_ep->stats.UL_total_bytes : 0,
-                       -1);
+    for (n=0; n < PREDEFINED_COLUMN-1; n++) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_bytes_for_lcid[n]);
+        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
+    }
+    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                             mac_stat_ep->stats.UL_total_bytes : 0);
+    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][2]), buff);
 
 
     /* DL SDUs */
-    gtk_list_store_set(store, &ue_detail_iter[2],
-                       ROWS_COLUMN,   selected_ue_row_names[2],
-                       CCCH_COLUMN,   mac_stat_ep->stats.DL_sdus_for_lcid[0],
-                       LCID1_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[1],
-                       LCID2_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[2],
-                       LCID3_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[3],
-                       LCID4_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[4],
-                       LCID5_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[5],
-                       LCID6_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[6],
-                       LCID7_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[7],
-                       LCID8_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[8],
-                       LCID9_COLUMN,  mac_stat_ep->stats.DL_sdus_for_lcid[9],
-                       LCID10_COLUMN, mac_stat_ep->stats.DL_sdus_for_lcid[10],
-                       PREDEFINED_COLUMN, mac_stat_ep->stats.is_predefined_data ?
-                                            mac_stat_ep->stats.DL_frames : 0,
-                       -1);
+    for (n=0; n < PREDEFINED_COLUMN-1; n++) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_sdus_for_lcid[n]);
+        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
+    }
+    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                             mac_stat_ep->stats.DL_frames : 0);
+    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][3]), buff);
+
 
     /* DL Bytes */
-    gtk_list_store_set(store, &ue_detail_iter[3],
-                       ROWS_COLUMN,   selected_ue_row_names[3],
-                       CCCH_COLUMN,   mac_stat_ep->stats.DL_bytes_for_lcid[0],
-                       LCID1_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[1],
-                       LCID2_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[2],
-                       LCID3_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[3],
-                       LCID4_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[4],
-                       LCID5_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[5],
-                       LCID6_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[6],
-                       LCID7_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[7],
-                       LCID8_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[8],
-                       LCID9_COLUMN,  mac_stat_ep->stats.DL_bytes_for_lcid[9],
-                       LCID10_COLUMN, mac_stat_ep->stats.DL_bytes_for_lcid[10],
-                       PREDEFINED_COLUMN, mac_stat_ep->stats.is_predefined_data ?
-                                            mac_stat_ep->stats.DL_total_bytes : 0,
-                       -1);
+    for (n=0; n < PREDEFINED_COLUMN-1; n++) {
+        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_bytes_for_lcid[n]);
+        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
+    }
+    g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
+                                             mac_stat_ep->stats.DL_total_bytes : 0);
+    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
 }
 
 
@@ -540,7 +495,7 @@ static void mac_lte_select_cb(GtkTreeSelection *sel, gpointer data)
 
 
 /* Destroy the stats window */
-static void win_destroy_cb (GtkWindow *win _U_, gpointer data)
+static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     mac_lte_stat_t *hs = (mac_lte_stat_t *)data;
 
@@ -558,29 +513,32 @@ static void win_destroy_cb (GtkWindow *win _U_, gpointer data)
 
 
 /* Create a new MAC LTE stats dialog */
-static void mac_lte_stat_dlg_create (void)
+static void mac_lte_stat_dlg_create(void)
 {
     mac_lte_stat_t    *hs;
     GString       *error_string;
     GtkWidget     *ues_scrolled_window;
-    GtkWidget     *selected_ue_scrolled_window;
     GtkWidget     *bbox;
     GtkWidget     *top_level_vbox;
 
     GtkWidget     *common_vb;
+    GtkWidget     *common_bch_row_hbox;
+    GtkWidget     *common_pch_row_hbox;
     GtkWidget     *ues_vb;
-    GtkWidget     *selected_ue_vb;
+    GtkWidget     *selected_ue_hb;
+
+    GtkWidget     *selected_ue_vbox[NUM_CHANNEL_COLUMNS];
+    GtkWidget     *selected_ue_column_titles[5];
 
     GtkWidget     *close_bt;
     GtkListStore  *store;
-    GtkListStore  *selected_ue_store;
 
     GtkTreeView       *tree_view;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
     char title[256];
-    gint i;
+    gint i, n;
 
     /* Create dialog */
     hs = g_malloc(sizeof(mac_lte_stat_t));
@@ -594,7 +552,7 @@ static void mac_lte_stat_dlg_create (void)
     mac_lte_stat_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE MAC Statistics");
 
     /* Window size */
-    gtk_window_set_default_size(GTK_WINDOW(mac_lte_stat_dlg_w), 750, 400);
+    gtk_window_set_default_size(GTK_WINDOW(mac_lte_stat_dlg_w), 750, 300);
 
     /* Will stack widgets vertically inside dlg */
     top_level_vbox = gtk_vbox_new(FALSE, 3);       /* FALSE = not homogeneous */
@@ -609,31 +567,41 @@ static void mac_lte_stat_dlg_create (void)
     /**********************************************/
     mac_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
 
+    /* Vbox to contain all common counters */
     common_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_vb);
     gtk_container_set_border_width(GTK_CONTAINER(common_vb), 5);
-
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
+
+
+    /* First row (BCH) */
+    common_bch_row_hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(common_vb), common_bch_row_hbox);
 
     /* Create counter labels. TODO: could have 2 hboxes to have BCH and PCH rows */
     mac_lte_common_bch_frames = gtk_label_new("BCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_bch_frames);
+    gtk_container_add(GTK_CONTAINER(common_bch_row_hbox), mac_lte_common_bch_frames);
     gtk_widget_show(mac_lte_common_bch_frames);
 
     mac_lte_common_bch_bytes = gtk_label_new("BCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_bch_bytes);
+    gtk_container_add(GTK_CONTAINER(common_bch_row_hbox), mac_lte_common_bch_bytes);
     gtk_widget_show(mac_lte_common_bch_bytes);
+
+
+    /* Second row (PCH) */
+    common_pch_row_hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(common_vb), common_pch_row_hbox);
 
     mac_lte_common_pch_frames = gtk_label_new("PCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_pch_frames);
+    gtk_container_add(GTK_CONTAINER(common_pch_row_hbox), mac_lte_common_pch_frames);
     gtk_widget_show(mac_lte_common_pch_frames);
 
     mac_lte_common_pch_bytes = gtk_label_new("PCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_vb), mac_lte_common_pch_bytes);
+    gtk_container_add(GTK_CONTAINER(common_pch_row_hbox), mac_lte_common_pch_bytes);
     gtk_widget_show(mac_lte_common_pch_bytes);
 
 
@@ -690,47 +658,47 @@ static void mac_lte_stat_dlg_create (void)
 
     mac_lte_stat_selected_ue_lb = gtk_frame_new("Selected UE details");
 
-    selected_ue_vb = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_vb);
-    gtk_container_set_border_width(GTK_CONTAINER(selected_ue_vb), 5);
+    selected_ue_hb = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_hb);
+    gtk_container_set_border_width(GTK_CONTAINER(selected_ue_hb), 5);
 
-    selected_ue_scrolled_window = scrolled_window_new(NULL, NULL);
-    gtk_box_pack_start(GTK_BOX(selected_ue_vb), selected_ue_scrolled_window, TRUE, TRUE, 0);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(selected_ue_scrolled_window),
-                                        GTK_SHADOW_IN);
+    /********************************/
+    /* First (row titles) column    */
+    selected_ue_vbox[0] = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[0]);
 
-    /* Create the table of UE data */
-    selected_ue_store = gtk_list_store_new(NUM_CHANNEL_COLUMNS, G_TYPE_STRING, G_TYPE_INT,
-                                           G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
-                                           G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
-                                           G_TYPE_INT);
-    hs->selected_ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(selected_ue_store)));
-    gtk_container_add(GTK_CONTAINER (selected_ue_scrolled_window), GTK_WIDGET(hs->selected_ue_table));
-    g_object_unref(G_OBJECT(selected_ue_store));
+    selected_ue_column_titles[0] = gtk_label_new("");
+    gtk_misc_set_alignment(GTK_MISC(selected_ue_column_titles[0]), 0.0f, 0.0f);
+    gtk_container_add(GTK_CONTAINER(selected_ue_vbox[0]), selected_ue_column_titles[0]);
 
-    tree_view = hs->selected_ue_table;
-    gtk_tree_view_set_headers_visible(tree_view, TRUE);
-    gtk_tree_view_set_headers_clickable(tree_view, TRUE);
-
-    /* Create the titles for each column of the per-UE table */
-    for (i = 0; i < NUM_CHANNEL_COLUMNS; i++) {
-        renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes(channel_titles[i], renderer,
-                                                          "text", i, NULL);
-        gtk_tree_view_column_set_sort_column_id(column, i);
-
-        gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-        gtk_tree_view_column_set_resizable(column, TRUE);
-        gtk_tree_view_append_column(tree_view, column);
+    for (n=1; n < 5; n++) {
+        selected_ue_column_titles[n] = gtk_label_new(selected_ue_row_names[n-1]);
+        gtk_misc_set_alignment(GTK_MISC(selected_ue_column_titles[n]), 0.0f, 0.0f);
+        gtk_container_add(GTK_CONTAINER(selected_ue_vbox[0]), selected_ue_column_titles[n]);
+        gtk_widget_show(selected_ue_column_titles[n]);
     }
 
-    /* Create the rows now */
-    for (i=0; i < 4; i++) {
-        gtk_list_store_append(selected_ue_store, &ue_detail_iter[i]);
-        gtk_list_store_set(selected_ue_store, &ue_detail_iter[i],
-                           ROWS_COLUMN, selected_ue_row_names[i], -1);
+
+    /*************************/
+    /* Other columns         */
+    for (i=CCCH_COLUMN; i < NUM_CHANNEL_COLUMNS; i++) {
+        selected_ue_vbox[i] = gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[i]);
+
+        /* Channel title */
+        selected_ue_column_entry[i][0] = gtk_label_new(channel_titles[i-1]);
+        gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][0]), 0.0f, 0.0f);
+        gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), selected_ue_column_entry[i][0]);
+
+
+        /* Counts for this channel */
+        for (n=1; n < 5; n++) {
+            selected_ue_column_entry[i][n] = gtk_label_new("0");
+            gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][n]), 0.0f, 0.0f);
+            gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), selected_ue_column_entry[i][n]);
+            gtk_widget_show(selected_ue_column_entry[i][n]);
+        }
     }
-    ue_detail_rows_added = TRUE;
 
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_selected_ue_lb, FALSE, FALSE, 0);
 

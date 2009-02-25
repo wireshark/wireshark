@@ -866,6 +866,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Update tap byte count for this channel */
             tap_info->bytes_for_lcid[lcids[n]] += data_length;
+            tap_info->sdus_for_lcid[lcids[n]]++;
         }
         else {
             /* See if its a control PDU type */

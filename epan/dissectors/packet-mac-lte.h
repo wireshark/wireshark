@@ -65,5 +65,6 @@ typedef struct mac_lte_tap_info {
     /* Number of bytes (which part is used depends upon context settings) */
     guint32  single_number_of_bytes;
     guint32  bytes_for_lcid[11];
+    guint32  sdus_for_lcid[11];
 } mac_lte_tap_info;
 
