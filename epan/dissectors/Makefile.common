@@ -627,6 +627,7 @@ DISSECTOR_SRC = \
 	packet-mysql.c		\
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\
+	packet-nat-pnp.c	\
 	packet-nbipx.c		\
 	packet-nbns.c		\
 	packet-ncp.c		\
