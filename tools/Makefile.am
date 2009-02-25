@@ -96,6 +96,7 @@ EXTRA_DIST = \
 	lex.py						\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
+	make-tap-reg.py					\
 	msnchat						\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
