@@ -739,8 +739,8 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
   path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
   if(path) {
     /* the mouse position is at an entry, expand that one */
-  gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
-  gtk_tree_path_free(path);
+    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
+    gtk_tree_path_free(path);
   }
 }
 
@@ -1889,6 +1889,14 @@ main(int argc, char *argv[])
   runtime_info_str = g_string_new("Running ");
   get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
+  /* Read the profile independent recent file.  We have to do this here so we can */
+  /* set the profile before it can be set from the command line parameterts */
+  recent_read_static(&rf_path, &rf_open_errno);
+  if (rf_path != NULL && rf_open_errno != 0) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open common recent file\n\"%s\": %s.",
+		  rf_path, strerror(rf_open_errno));
+  }
 
   /* "pre-scan" the command line parameters, if we have "console only"
      parameters.  We do this so we don't start GTK+ if we're only showing
@@ -2115,15 +2123,10 @@ main(int argc, char *argv[])
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 
 
-  /* Read the (static part) of the recent file. Only the static part of it will be read, */
-  /* as we don't have the gui now to fill the recent lists which is done in the dynamic part. */
+  /* Read the profile dependent (static part) of the recent file. */
+  /* Only the static part of it will be read, as we don't have the gui now to fill the */
+  /* recent lists which is done in the dynamic part. */
   /* We have to do this already here, so command line parameters can overwrite these values. */
-  recent_read_static(&rf_path, &rf_open_errno);
-  if (rf_path != NULL && rf_open_errno != 0) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open common recent file\n\"%s\": %s.",
-		  rf_path, strerror(rf_open_errno));
-  }
   recent_read_profile_static(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,

@@ -77,6 +77,7 @@
 #define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT  "gui.geometry_status_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT "gui.geometry_status_pane_right"
 #define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE "gui.geometry_status_wlan_stats_pane"
+#define RECENT_LAST_USED_PROFILE            "gui.last_used_profile"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
@@ -221,6 +222,9 @@ write_recent(void)
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
 		  recent.gui_geometry_status_pane_right);
   }
+
+  fprintf(rf, "\n# Last used Configuration Profile.\n");
+  fprintf(rf, RECENT_LAST_USED_PROFILE ": %s\n", get_profile_name());
 
   fprintf(rf, "\n# WLAN statistics upper pane size.\n");
   fprintf(rf, "# Decimal number.\n");
@@ -468,6 +472,10 @@ read_set_recent_common_pair_static(gchar *key, gchar *value, void *private_data 
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_status_pane_left = num;
     recent.has_gui_geometry_status_pane = TRUE;
+  } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
+    if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value)) {
+      set_profile_name (value);
+    }
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
