@@ -532,6 +532,9 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		tm_tmp->tm_sec,
 		msecs);
 
+	/* Default to using black on white text if nothing below overrides it */
+	g_snprintf(color_str,sizeof(color_str),"#ffffffffffff");
+
 	if (statinfo->pt == PT_CN) {
 		g_snprintf(status,sizeof(status),"Comfort noise (PT=13, RFC 3389)");
 		color = COLOR_CN;
@@ -3001,6 +3004,11 @@ GtkWidget* create_list(user_data_t* user_data)
 	list_view = GTK_TREE_VIEW(list);
 	sortable = GTK_TREE_SORTABLE(list_store);
 
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
     /* Setup the sortable columns */
     gtk_tree_sortable_set_sort_column_id(sortable, PACKET_COLUMN, GTK_SORT_ASCENDING);
     gtk_tree_view_set_headers_clickable(list_view, FALSE);
@@ -3020,6 +3028,8 @@ GtkWidget* create_list(user_data_t* user_data)
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, PACKET_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
 
 	/* Add the column to the view. */
     gtk_tree_view_append_column (list_view, column);
@@ -3033,6 +3043,8 @@ GtkWidget* create_list(user_data_t* user_data)
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, SEQUENCE_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
     /* Third column.. Delta(ms). */
@@ -3048,6 +3060,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
     gtk_tree_view_column_set_sort_column_id(column, DELTA_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
     /* Forth column.. Jitter(ms). */
@@ -3063,6 +3077,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
     gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
     /* Fifth column.. IP BW(kbps). */
@@ -3078,6 +3094,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
     gtk_tree_view_column_set_sort_column_id(column, IPBW_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
 
     /* Sixth column.. Marker. */
@@ -3093,6 +3111,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
     gtk_tree_view_column_set_sort_column_id(column, MARKER_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 75);
     gtk_tree_view_append_column (list_view, column);
 
 	 /* Seventh column.. Status. */
@@ -3104,31 +3124,9 @@ GtkWidget* create_list(user_data_t* user_data)
 		NULL);
     gtk_tree_view_column_set_sort_column_id(column, STATUS_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
     gtk_tree_view_append_column (list_view, column);
-
-	 /* Eigtht column.. Date. */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ( "Date", renderer, 
-		"text", DATE_COLUMN,
-        "foreground", FOREGROUND_COLOR_COL,
-        "background", BACKGROUND_COLOR_COL,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, DATE_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_append_column (list_view, column);
-	gtk_tree_view_column_set_visible(column,FALSE);
-
-	 /* Ninth column.. Length. */
-    renderer = gtk_cell_renderer_text_new ();
-    column = gtk_tree_view_column_new_with_attributes ( "Length", renderer, 
-		"text", LENGTH_COLUMN,
-        "foreground", FOREGROUND_COLOR_COL,
-        "background", BACKGROUND_COLOR_COL,
-		NULL);
-    gtk_tree_view_column_set_sort_column_id(column, LENGTH_COLUMN);
-    gtk_tree_view_column_set_resizable(column, TRUE);
-    gtk_tree_view_append_column (list_view, column);
-	gtk_tree_view_column_set_visible(column,FALSE);
 
     /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
