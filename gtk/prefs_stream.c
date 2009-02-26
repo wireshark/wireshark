@@ -111,7 +111,7 @@ stream_prefs_show()
     g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, colorsel);
     g_signal_connect(menuitem, "activate", G_CALLBACK(update_current_color), &tcolors[i]);
     gtk_widget_show (menuitem);
-    gtk_menu_append (GTK_MENU (menu), menuitem);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
   }
   gtk_option_menu_set_menu (GTK_OPTION_MENU (optmenu), menu);
   gtk_table_attach(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);

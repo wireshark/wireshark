@@ -1869,12 +1869,12 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
 	/* add seperator at last position */
 	menu_item = gtk_menu_item_new();
-	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
+	gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
 	gtk_widget_show (menu_item);
 
 	/* add new "clear list" item at last position */
         menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
-	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
+	gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
 	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
 		G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
@@ -2801,7 +2801,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
       g_object_set_data (G_OBJECT(menu_sub_item), "module", module);
       g_object_set_data (G_OBJECT(menu_sub_item), "enumval", GINT_TO_POINTER(enum_valp->value));
       g_signal_connect(menu_sub_item, "activate", G_CALLBACK(menu_prefs_change_enum), pref->varp.enump);
-      gtk_menu_append (sub_menu, menu_sub_item);
+      gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_sub_item);
       gtk_widget_show (menu_sub_item);
       enum_valp++;
     }
@@ -2833,7 +2833,7 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
 
   menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
   sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
-  gtk_menu_append (sub_menu, menu_item);
+  gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
   gtk_widget_show (menu_item);
 
   return 0;
@@ -2856,14 +2856,14 @@ rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
     menu_item = gtk_image_menu_item_new_with_label (label);
     gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), 
 				   gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
-    gtk_menu_append (sub_menu, menu_item);
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
 			     G_CALLBACK(properties_cb), (GtkObject *) menu_item);
     gtk_widget_show (menu_item);
     g_free (label);
 
     menu_item = gtk_menu_item_new();
-    gtk_menu_append (sub_menu, menu_item);
+    gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     gtk_widget_show (menu_item);
 
     prefs_pref_foreach(prefs, add_protocol_prefs_menu, prefs);
