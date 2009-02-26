@@ -3321,7 +3321,7 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
         "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
          (byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
          (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
-         byte2 & 0x0f, byte2 & 0xf0 >> 4,
+         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
          tvb_get_letohs(tag_tvb, tag_off + 2));
       proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
         out_buff);
