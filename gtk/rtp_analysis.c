@@ -2845,30 +2845,11 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-#define RTP_FIELD_MAX 40
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num,
                          double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
-	gchar *data[3];
-	gchar field[3][RTP_FIELD_MAX];
-	char *savelocale;
     GtkListStore *list_store;
-
-	data[0]=&field[0][0];
-	data[1]=&field[1][0];
-	data[2]=&field[2][0];
-
-	/* save the current locale */
-	savelocale = setlocale(LC_NUMERIC, NULL);
-	/* switch to "C" locale to avoid problems with localized decimal separators
-		in g_snprintf("%f") functions */
-	setlocale(LC_NUMERIC, "C");
-	g_snprintf(field[0], RTP_FIELD_MAX, "%s", status);
-	g_snprintf(field[1], RTP_FIELD_MAX, "%s", timeStr);
-	g_snprintf(field[2], RTP_FIELD_MAX, "%s", color_str);
-	/* restore previous locale setting */
-	setlocale(LC_NUMERIC, savelocale);
 
 	if (strcmp(status, OK_TEXT) != 0) {
 		user_data->dlg.number_of_nok++;
@@ -2882,18 +2863,23 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 	 * :
 	 * should generally be preferred when inserting rows in a sorted list store.
 	 */
+#if GTK_CHECK_VERSION(2,6,0)
 	gtk_list_store_insert_with_values( list_store , &user_data->dlg.iter, G_MAXINT,
+#else
+	gtk_list_store_append  (list_store, &user_data->dlg.iter);
+	gtk_list_store_set  (list_store, &user_data->dlg.iter,
+#endif
                 PACKET_COLUMN, number,
                 SEQUENCE_COLUMN, seq_num,
 				DELTA_COLUMN, delta,
 				JITTER_COLUMN, jitter,
 				IPBW_COLUMN, bandwidth,
 				MARKER_COLUMN, marker,
-				STATUS_COLUMN, (char *)field[0],
-				DATE_COLUMN,  (char *)field[1],
+				STATUS_COLUMN, (char *)status,
+				DATE_COLUMN,  (char *)timeStr,
 				LENGTH_COLUMN,  pkt_len,
 				FOREGROUND_COLOR_COL, NULL,
-				BACKGROUND_COLOR_COL, (char *)field[2],
+				BACKGROUND_COLOR_COL, (char *)color_str,
 				-1);
 
 	if(flags & STAT_FLAG_FIRST){
