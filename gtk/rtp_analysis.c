@@ -2850,37 +2850,23 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
                          double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
-	gchar *data[10];
-	gchar field[10][RTP_FIELD_MAX];
+	gchar *data[3];
+	gchar field[3][RTP_FIELD_MAX];
 	char *savelocale;
     GtkListStore *list_store;
 
 	data[0]=&field[0][0];
 	data[1]=&field[1][0];
 	data[2]=&field[2][0];
-	data[3]=&field[3][0];
-	data[4]=&field[4][0];
-	data[5]=&field[5][0];
-	data[6]=&field[6][0];
-	data[7]=&field[7][0];
-	data[8]=&field[8][0];
-	data[9]=&field[9][0];
 
 	/* save the current locale */
 	savelocale = setlocale(LC_NUMERIC, NULL);
 	/* switch to "C" locale to avoid problems with localized decimal separators
 		in g_snprintf("%f") functions */
 	setlocale(LC_NUMERIC, "C");
-	g_snprintf(field[0], RTP_FIELD_MAX, "%u", number);
-	g_snprintf(field[1], RTP_FIELD_MAX, "%u", seq_num);
-	g_snprintf(field[2], RTP_FIELD_MAX, "%.2f", delta);
-	g_snprintf(field[3], RTP_FIELD_MAX, "%.2f", jitter);
-	g_snprintf(field[4], RTP_FIELD_MAX, "%.2f", bandwidth);
-	g_snprintf(field[5], RTP_FIELD_MAX, "%s", marker? "SET" : "");
-	g_snprintf(field[6], RTP_FIELD_MAX, "%s", status);
-	g_snprintf(field[7], RTP_FIELD_MAX, "%s", timeStr);
-	g_snprintf(field[8], RTP_FIELD_MAX, "%u", pkt_len);
-	g_snprintf(field[9], RTP_FIELD_MAX, "%s", color_str);
+	g_snprintf(field[0], RTP_FIELD_MAX, "%s", status);
+	g_snprintf(field[1], RTP_FIELD_MAX, "%s", timeStr);
+	g_snprintf(field[2], RTP_FIELD_MAX, "%s", color_str);
 	/* restore previous locale setting */
 	setlocale(LC_NUMERIC, savelocale);
 
@@ -2889,21 +2875,27 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 	}
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (list))); /* Get store */
-    gtk_list_store_append  (list_store, &user_data->dlg.iter);  
-    
-    gtk_list_store_set  (list_store, &user_data->dlg.iter,
+
+	/* Creates a new row at position. iter will be changed to point to this new row. 
+	 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+	 * The row will be filled with the values given to this function.
+	 * :
+	 * should generally be preferred when inserting rows in a sorted list store.
+	 */
+	gtk_list_store_insert_with_values( list_store , &user_data->dlg.iter, G_MAXINT,
                 PACKET_COLUMN, number,
                 SEQUENCE_COLUMN, seq_num,
 				DELTA_COLUMN, delta,
 				JITTER_COLUMN, jitter,
 				IPBW_COLUMN, bandwidth,
 				MARKER_COLUMN, marker,
-				STATUS_COLUMN, (char *)field[6],
-				DATE_COLUMN,  (char *)field[7],
+				STATUS_COLUMN, (char *)field[0],
+				DATE_COLUMN,  (char *)field[1],
 				LENGTH_COLUMN,  pkt_len,
 				FOREGROUND_COLOR_COL, NULL,
-				BACKGROUND_COLOR_COL, (char *)field[9],
+				BACKGROUND_COLOR_COL, (char *)field[2],
 				-1);
+
 	if(flags & STAT_FLAG_FIRST){
 		/* Set first row as active */
 		gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)), &user_data->dlg.iter);
