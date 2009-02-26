@@ -210,7 +210,7 @@ mac_lte_stat_reset(void *phs)
     /* Set all of the channel counters to 0 */
     for (n=1; n <=4; n++) {
         for (i=CCCH_COLUMN; i < NUM_CHANNEL_COLUMNS; i++) {
-            gtk_label_set(GTK_LABEL(selected_ue_column_entry[i][n]), "0");
+             gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[i][n]), "0");
         }
     }
 }
@@ -384,41 +384,41 @@ mac_lte_ue_details(mac_lte_stat_t *hs _U_, mac_lte_ep_t *mac_stat_ep _U_, gboole
     /* UL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_sdus_for_lcid[n]);
-        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
+         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
     }
     g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
                                              mac_stat_ep->stats.UL_frames : 0);
-    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][1]), buff);
+     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][1]), buff);
 
 
     /* UL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.UL_bytes_for_lcid[n]);
-        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
+         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
     }
     g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
                                              mac_stat_ep->stats.UL_total_bytes : 0);
-    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][2]), buff);
+     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][2]), buff);
 
 
     /* DL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_sdus_for_lcid[n]);
-        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
+         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][3]), buff);
     }
     g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
                                              mac_stat_ep->stats.DL_frames : 0);
-    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][3]), buff);
+     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][3]), buff);
 
 
     /* DL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.DL_bytes_for_lcid[n]);
-        gtk_label_set(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
+         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][4]), buff);
     }
     g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
                                              mac_stat_ep->stats.DL_total_bytes : 0);
-    gtk_label_set(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
+     gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[PREDEFINED_COLUMN][4]), buff);
 }
 
 
@@ -440,13 +440,13 @@ mac_lte_stat_draw(void *phs)
 
     /* Common channel data */
     g_snprintf(buff, sizeof(buff), "BCH Frames: %u", common_stats.bch_frames);
-    gtk_label_set(GTK_LABEL(mac_lte_common_bch_frames), buff);
+     gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_frames), buff);
     g_snprintf(buff, sizeof(buff), "BCH Bytes: %u", common_stats.bch_bytes);
-    gtk_label_set(GTK_LABEL(mac_lte_common_bch_bytes), buff);
+     gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_bytes), buff);
     g_snprintf(buff, sizeof(buff), "PCH Frames: %u", common_stats.pch_frames);
-    gtk_label_set(GTK_LABEL(mac_lte_common_pch_frames), buff);
+     gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_frames), buff);
     g_snprintf(buff, sizeof(buff), "PCH Bytes: %u", common_stats.pch_bytes);
-    gtk_label_set(GTK_LABEL(mac_lte_common_pch_bytes), buff);
+     gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_bytes), buff);
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));

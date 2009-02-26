@@ -227,7 +227,7 @@ sip_draw_hash_requests(gchar *key _U_ , sip_request_method_t *data, gchar * unus
     else
     {
         /* Update existing label */
-        gtk_label_set(GTK_LABEL(data->widget), string_buff);
+         gtk_label_set_text(GTK_LABEL(data->widget), string_buff);
     }
 }
 
@@ -311,7 +311,7 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
     {
         /* Just update the existing label string */
         g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
-        gtk_label_set(GTK_LABEL(data->widget), string_buff);
+         gtk_label_set_text(GTK_LABEL(data->widget), string_buff);
     }
 }
 
@@ -492,12 +492,12 @@ sipstat_draw(void *psp)
     /* Set summary label */
     g_snprintf(string_buff, sizeof(string_buff),
                 "SIP stats (%d packets)", sp->packets);
-    gtk_label_set(GTK_LABEL(sp->packets_label), string_buff);
+     gtk_label_set_text(GTK_LABEL(sp->packets_label), string_buff);
 
     /* Set resend count label */
     g_snprintf(string_buff, sizeof(string_buff),
                 "(%d resent packets)", sp->resent_packets);
-    gtk_label_set(GTK_LABEL(sp->resent_label), string_buff);
+     gtk_label_set_text(GTK_LABEL(sp->resent_label), string_buff);
 
     /* Draw responses and requests from their tables */
     g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_draw_hash_responses, NULL);
@@ -506,7 +506,7 @@ sipstat_draw(void *psp)
     /* Set resend count label */
     g_snprintf(string_buff, sizeof(string_buff),
                 "Average setup time %d ms\n Min %d ms\n Max %d ms", sp->average_setup_time, sp->min_setup_time, sp->max_setup_time);
-    gtk_label_set(GTK_LABEL(sp->average_setup_time_label), string_buff);
+     gtk_label_set_text(GTK_LABEL(sp->average_setup_time_label), string_buff);
 
 	gtk_widget_show_all(sp->win);
 }

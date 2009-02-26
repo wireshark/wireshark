@@ -117,7 +117,7 @@ wsp_draw_statuscode(gchar *key _U_, wsp_status_code_t *data, gchar * unused _U_ 
 	} else {
 		/* Just update the label string */
 		g_snprintf( string_buff, 256, "%9d", data->packets );
-		gtk_label_set( GTK_LABEL(data->widget), string_buff);
+		 gtk_label_set_text( GTK_LABEL(data->widget), string_buff);
 	}
 }
 static void
@@ -212,7 +212,7 @@ wspstat_draw(void *psp)
 	for(i=1;i<=sp->num_pdus ; i++)
 	{
 		g_snprintf(str, 256, "%9d",  sp->pdu_stats[i ].packets);
-		gtk_label_set( GTK_LABEL(sp->pdu_stats[i].widget), str);
+		 gtk_label_set_text( GTK_LABEL(sp->pdu_stats[i].widget), str);
 	}
 
 	index=sp->index;

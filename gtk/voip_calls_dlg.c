@@ -187,7 +187,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 		plurality(calls_nb, "Call", "Calls"),
 		calls_ns,
 		plurality(calls_ns, "Call", "Calls"));
-	gtk_label_set(GTK_LABEL(top_label), label_text);
+	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
 	/* Update the status label with the number of total messages */
         g_snprintf(label_text, 256,
@@ -196,7 +196,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 			voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
-        gtk_label_set(GTK_LABEL(status_label), label_text);
+         gtk_label_set_text(GTK_LABEL(status_label), label_text);
 }
 
 
@@ -487,7 +487,7 @@ voip_calls_on_select_row(GtkCList *clist,
             plurality(calls_nb, "Call", "Calls"),
 			calls_ns,
 			plurality(calls_ns, "Call", "Calls"));
-	gtk_label_set(GTK_LABEL(top_label), label_text);
+	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
 
 	if 	(calls_ns > 0) {
@@ -545,7 +545,7 @@ voip_calls_on_unselect_row(GtkCList *clist,
             plurality(calls_nb, "Call", "Calls"),
 			calls_ns,
 			plurality(calls_ns, "Call", "Calls"));
-	gtk_label_set(GTK_LABEL(top_label), label_text);
+	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
 	if 	(calls_ns > 0) {
 		gtk_widget_set_sensitive(bt_filter, TRUE);
@@ -837,7 +837,7 @@ void voip_calls_dlg_update(GList *list)
 			voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
-		gtk_label_set(GTK_LABEL(status_label), label_text);
+		 gtk_label_set_text(GTK_LABEL(status_label), label_text);
 
 		gtk_clist_freeze(GTK_CLIST(clist));
 		gtk_clist_clear(GTK_CLIST(clist));
@@ -855,7 +855,7 @@ void voip_calls_dlg_update(GList *list)
 			plurality(calls_nb, "Call", "Calls"),
 			calls_ns,
 			plurality(calls_ns, "Call", "Calls"));
-		gtk_label_set(GTK_LABEL(top_label), label_text);
+		 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 	}
 
 	last_list = list;

@@ -136,7 +136,7 @@ static void add_to_clist(mcast_stream_info_t* strinfo)
 		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw, 
 		mcaststream_get_info()->allstreams->element.topburstsize, burstint, 
 		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
-	gtk_label_set(GTK_LABEL(top_label), label_text);
+	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
 	g_snprintf(label_text, 200, "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n", 
 		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);

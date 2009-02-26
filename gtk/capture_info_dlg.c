@@ -316,7 +316,7 @@ capture_info    *cinfo)
   g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld",
            (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
            (long)(cinfo->running_time%60));
-  gtk_label_set(GTK_LABEL(info->running_time_lb), label_str);
+    gtk_label_set_text(GTK_LABEL(info->running_time_lb), label_str);
 
   /* if we have new packets, update all rows */
   if (cinfo->new_packets) {
@@ -324,7 +324,7 @@ capture_info    *cinfo)
     for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
         g_snprintf(label_str, sizeof(label_str), "%d",
                  *info->counts[i].value_ptr);
-        gtk_label_set(GTK_LABEL(info->counts[i].value_lb), label_str);
+         gtk_label_set_text(GTK_LABEL(info->counts[i].value_lb), label_str);
 
         /* don't try to update the "total" row progress bar */
         if (i != 0) {
@@ -335,7 +335,7 @@ capture_info    *cinfo)
         g_snprintf(label_str, sizeof(label_str), "%.1f%%",
                  pct(*info->counts[i].value_ptr, *info->counts[0].value_ptr));
 
-        gtk_label_set(GTK_LABEL(info->counts[i].percent_lb), label_str);
+         gtk_label_set_text(GTK_LABEL(info->counts[i].percent_lb), label_str);
     }
   }
 }

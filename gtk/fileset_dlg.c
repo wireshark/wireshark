@@ -212,7 +212,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
     g_free(title);
 
     title = g_strdup_printf("... in directory: %s", fileset_get_dirname());
-    gtk_label_set(GTK_LABEL(fs_dir_lb), title);
+     gtk_label_set_text(GTK_LABEL(fs_dir_lb), title);
     g_free(title);
 
     gtk_widget_show_all(fs_tb);
@@ -270,7 +270,7 @@ fileset_init_table(GtkWidget *parent)
 
   gtk_window_set_title(GTK_WINDOW(fs_w), "Wireshark: 0 Files in Set");
 
-  gtk_label_set(GTK_LABEL(fs_dir_lb), "No capture file loaded!");
+   gtk_label_set_text(GTK_LABEL(fs_dir_lb), "No capture file loaded!");
 
   row++;
 }

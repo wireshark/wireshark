@@ -107,7 +107,7 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused
 	} else {
 		/* Just update the label string */
 		g_snprintf( string_buff, 256, "%9d", data->packets );
-		gtk_label_set( GTK_LABEL(data->widget), string_buff);
+		 gtk_label_set_text( GTK_LABEL(data->widget), string_buff);
 	}
 }
 static void

@@ -144,7 +144,7 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	g_snprintf(label_text, 256,
 	        "Detected %d RTP streams. Choose one for forward and reverse direction for analysis",
 	        ++streams_nb);
-	gtk_label_set(GTK_LABEL(top_label), label_text);
+	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 }
 
 /****************************************************************************/
