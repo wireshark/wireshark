@@ -441,11 +441,11 @@ mac_lte_stat_draw(void *phs)
     /* Common channel data */
     g_snprintf(buff, sizeof(buff), "BCH Frames: %u", common_stats.bch_frames);
     gtk_label_set(GTK_LABEL(mac_lte_common_bch_frames), buff);
-    g_snprintf(buff, sizeof(buff), "BCH Bytes:    %u", common_stats.bch_bytes);
+    g_snprintf(buff, sizeof(buff), "BCH Bytes: %u", common_stats.bch_bytes);
     gtk_label_set(GTK_LABEL(mac_lte_common_bch_bytes), buff);
     g_snprintf(buff, sizeof(buff), "PCH Frames: %u", common_stats.pch_frames);
     gtk_label_set(GTK_LABEL(mac_lte_common_pch_frames), buff);
-    g_snprintf(buff, sizeof(buff), "PCH Bytes:    %u", common_stats.pch_bytes);
+    g_snprintf(buff, sizeof(buff), "PCH Bytes: %u", common_stats.pch_bytes);
     gtk_label_set(GTK_LABEL(mac_lte_common_pch_bytes), buff);
 
     /* Per-UE table entries */
