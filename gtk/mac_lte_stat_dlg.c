@@ -24,6 +24,12 @@
  */
 
 
+/* TODO:
+   - limit by display filter
+   - Help button and documentation
+   - CSV export?
+*/
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -521,9 +527,7 @@ static void mac_lte_stat_dlg_create(void)
     GtkWidget     *bbox;
     GtkWidget     *top_level_vbox;
 
-    GtkWidget     *common_vb;
-    GtkWidget     *common_bch_row_hbox;
-    GtkWidget     *common_pch_row_hbox;
+    GtkWidget     *common_row_hbox;
     GtkWidget     *ues_vb;
     GtkWidget     *selected_ue_hb;
 
@@ -567,41 +571,32 @@ static void mac_lte_stat_dlg_create(void)
     /**********************************************/
     mac_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
 
-    /* Vbox to contain all common counters */
-    common_vb = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_vb);
-    gtk_container_set_border_width(GTK_CONTAINER(common_vb), 5);
+    /* Will add BCH and PCH counters into one row */
+    common_row_hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_row_hbox);
+    gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
+
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_common_channel_lb, FALSE, FALSE, 0);
 
-
-    /* First row (BCH) */
-    common_bch_row_hbox = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(common_vb), common_bch_row_hbox);
-
-    /* Create counter labels. TODO: could have 2 hboxes to have BCH and PCH rows */
+    /* Create labels (that will hold label and counter value) */
     mac_lte_common_bch_frames = gtk_label_new("BCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_bch_row_hbox), mac_lte_common_bch_frames);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_bch_frames);
     gtk_widget_show(mac_lte_common_bch_frames);
 
     mac_lte_common_bch_bytes = gtk_label_new("BCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_bch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_bch_row_hbox), mac_lte_common_bch_bytes);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_bch_bytes);
     gtk_widget_show(mac_lte_common_bch_bytes);
-
-
-    /* Second row (PCH) */
-    common_pch_row_hbox = gtk_hbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(common_vb), common_pch_row_hbox);
 
     mac_lte_common_pch_frames = gtk_label_new("PCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_pch_row_hbox), mac_lte_common_pch_frames);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_pch_frames);
     gtk_widget_show(mac_lte_common_pch_frames);
 
     mac_lte_common_pch_bytes = gtk_label_new("PCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(mac_lte_common_pch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_pch_row_hbox), mac_lte_common_pch_bytes);
+    gtk_container_add(GTK_CONTAINER(common_row_hbox), mac_lte_common_pch_bytes);
     gtk_widget_show(mac_lte_common_pch_bytes);
 
 
@@ -639,6 +634,13 @@ static void mac_lte_stat_dlg_create(void)
                                                           "text", i, NULL);
         gtk_tree_view_column_set_sort_column_id(column, i);
 
+        if (i == 0) {
+            /* Expand first column (RNTI, which is Key) */
+            gtk_tree_view_column_set_expand(column, TRUE);
+        } else {
+            /* For other columns, set all of the free space to be on the left */
+            g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+        }
         gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
         gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(tree_view, column);
@@ -658,7 +660,7 @@ static void mac_lte_stat_dlg_create(void)
 
     mac_lte_stat_selected_ue_lb = gtk_frame_new("Selected UE details");
 
-    selected_ue_hb = gtk_hbox_new(FALSE, 0);
+    selected_ue_hb = gtk_hbox_new(FALSE, 6);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_hb);
     gtk_container_set_border_width(GTK_CONTAINER(selected_ue_hb), 5);
 
@@ -687,14 +689,14 @@ static void mac_lte_stat_dlg_create(void)
 
         /* Channel title */
         selected_ue_column_entry[i][0] = gtk_label_new(channel_titles[i-1]);
-        gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][0]), 0.0f, 0.0f);
+        gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][0]), 0.5f, 0.0f);
         gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), selected_ue_column_entry[i][0]);
 
 
         /* Counts for this channel */
         for (n=1; n < 5; n++) {
             selected_ue_column_entry[i][n] = gtk_label_new("0");
-            gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][n]), 0.0f, 0.0f);
+            gtk_misc_set_alignment(GTK_MISC(selected_ue_column_entry[i][n]), 1.0f, 0.0f);
             gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), selected_ue_column_entry[i][n]);
             gtk_widget_show(selected_ue_column_entry[i][n]);
         }
