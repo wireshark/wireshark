@@ -3323,8 +3323,10 @@ void change_configuration_profile (const gchar *profile_name)
    /* Get the current geometry, before writing it to disk */
    main_save_window_geometry(top_level);
 
-   /* Write recent file for profile we are leaving */
-   write_profile_recent();
+   if (profile_exists(get_profile_name())) {
+     /* Write recent file for profile we are leaving, if it still exists */
+     write_profile_recent();
+   }
 
    /* Set profile name and update the status bar */
    set_profile_name (profile_name);
