@@ -848,7 +848,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Read context name until find '.' */
     for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
-        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_'))
+        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-'))
         {
             return FALSE;
         }
