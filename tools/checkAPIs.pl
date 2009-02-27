@@ -131,11 +131,26 @@ my %APIs = (
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
-		#'gtk_clist_new', should we depriceate?
+		#'gtk_clist_new', 
 		# GtkCList has been deprecated since GTK+ 2.0 and should not be used
 		# in newly written code. Use GtkTreeView instead. 
 		'gtk_file_selection_new',
 		# Use gtk_file_chooser_dialog_new() instead
+		'gtk_combo_new',
+		# GtkCombo has been deprecated since version 2.4 and should not be used in newly-written code. Use GtkComboBox instead.
+		'gtk_entry_append_text',
+		'gtk_label_set',
+		# Aliases gtk_label_set_text(). Probably used for backward compatibility with GTK+ 1.0.x. 
+		'gtk_menu_append',
+		'gtk_menu_prepend',
+		#gtk_menu_append is deprecated and should not be used in newly-written code. Use gtk_menu_shell_append() instead.
+		#'gtk_progress_bar_update',
+		# gtk_progress_bar_set_fraction ?
+		# gtk_progress_bar_update is deprecated and should not be used in newly-written code.
+		# This function is deprecated. Please use gtk_progress_set_value() or gtk_progress_set_percentage() instead.
+		'gtk_widget_draw',
+		# in general gtk_widget_queue_draw_area() is a better choice if you want to draw a region of a widget.
+		'gtk_window_position',
 		# Use strerror() and report messages in whatever
 		# fashion is appropriate for the code in question.
 		'perror',
