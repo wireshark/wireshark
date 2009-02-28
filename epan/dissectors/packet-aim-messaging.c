@@ -129,7 +129,7 @@ static const aim_tlv rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_SESSION_ID, "Session ID", dissect_aim_tlv_value_string },
 	{ RENDEZVOUS_TLV_ROLLOVER_ID, "Rollover ID", dissect_aim_tlv_value_string },
 /*
-	The dissect_aim_tlv_value_extended_data function does not work for iChat generated rendezvous data 
+	The dissect_aim_tlv_value_extended_data function does not work for iChat generated rendezvous data
 	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", dissect_aim_tlv_value_extended_data },
 */
 	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", NULL },
@@ -231,7 +231,6 @@ static int hf_aim_icbm_max_sender_warnlevel = -1;
 static int hf_aim_icbm_max_receiver_warnlevel = -1;
 static int hf_aim_icbm_max_snac_size = -1;
 static int hf_aim_icbm_min_msg_interval = -1;
-static int hf_aim_icbm_unknown = -1;
 static int hf_aim_icbm_notification_cookie = -1;
 static int hf_aim_icbm_notification_channel = -1;
 static int hf_aim_icbm_notification_type = -1;
@@ -265,17 +264,17 @@ static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_,
 	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_rendezvous_data);
 	proto_tree_add_item(entry, hf_aim_rendezvous_msg_type, tvb, offset, 2, FALSE);
 	offset+=2;
-	
+
 	proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
 	offset += 8;
 
 	offset = dissect_aim_capability(entry, tvb, offset);
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry, 
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry,
 							rendezvous_tlvs);
 }
 
-static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, 
+static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 						  proto_tree *msg_tree)
 {
 	int offset = 0;
@@ -283,7 +282,7 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 channel_id;
 	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
 	int buddyname_length;
-	
+
 	/* ICBM Cookie */
 	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
 	offset += 8;
@@ -296,7 +295,7 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Add the outgoing username to the info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		buddyname_length = aim_get_buddyname(buddyname, tvb, offset, 
+		buddyname_length = aim_get_buddyname(buddyname, tvb, offset,
 								  offset + 1);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
 				    format_text(buddyname, buddyname_length));
@@ -309,7 +308,7 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
-			
+
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
 }
 
@@ -318,8 +317,8 @@ static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	int offset = 0;
 	const aim_tlv *ch_tlvs;
-	guint16 channel_id; 
-	
+	guint16 channel_id;
+
 	/* ICBM Cookie */
 	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
 	offset += 8;
@@ -331,15 +330,14 @@ static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset += 2;
 
 	offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
-				
+
 	switch(channel_id) {
 	case 1: ch_tlvs = messaging_incoming_ch1_tlvs; break;
 	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, 
-								 ch_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
 }
 
 static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
@@ -350,8 +348,7 @@ static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	proto_tree_add_item(msg_tree, hf_aim_icbm_unknown, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 4, tvb_get_ntohl(tvb, offset)); offset+=4;
 	return offset;
 }
 
@@ -403,7 +400,7 @@ static const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 {
 	int i;
 
-	for(i = 0; known_client_plugins[i].name; i++) 
+	for(i = 0; known_client_plugins[i].name; i++)
 	{
 		const aim_client_plugin *plugin = &(known_client_plugins[i]);
 
@@ -428,14 +425,14 @@ static int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uu
 
 	plugin = aim_find_plugin(uuid);
 
-	proto_tree_add_text(entry, tvb, offset, 16, 
-		"Plugin: %s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
-		plugin ? plugin->name:"Unknown", uuid.Data1, uuid.Data2, 
-		uuid.Data3, uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], 
-		uuid.Data4[3], uuid.Data4[4],	uuid.Data4[5], uuid.Data4[6], 
+	proto_tree_add_text(entry, tvb, offset, 16,
+		"Plugin: %s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
+		plugin ? plugin->name:"Unknown", uuid.Data1, uuid.Data2,
+		uuid.Data3, uuid.Data4[0], uuid.Data4[1], uuid.Data4[2],
+		uuid.Data4[3], uuid.Data4[4],	uuid.Data4[5], uuid.Data4[6],
 			uuid.Data4[7]
 	);
-	
+
 	return offset+16;
 }
 
@@ -447,7 +444,7 @@ static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *ms
 	proto_tree *flags_entry;
 	guint16 text_length;
 	guint8* text;
-	
+
 	message_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, FALSE); offset+=1;
 	message_flags = tvb_get_guint8(tvb, offset);
@@ -464,7 +461,7 @@ static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *ms
 	text = tvb_get_ephemeral_string(tvb, offset, text_length);
 	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); offset+=text_length;
 	offset = tvb->length;
-	
+
 	return offset;
 }
 
@@ -497,7 +494,7 @@ static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _
 	start_offset = offset;
 	protocol_version = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_protocol_version, tvb, offset, 2, TRUE); offset+=2;
-	
+
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
 	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
 	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_client_caps_flags, tvb, offset, 4, TRUE); offset+=4;
@@ -525,7 +522,7 @@ static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _
 	        proto_tree_add_text(entry, tvb, offset, -1, "Plugin-specific data");
 	}
 	offset = tvb->length;
-	
+
 	return offset;
 }
 
@@ -539,7 +536,7 @@ static int dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ms
 						FALSE); offset += 2;
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
-	
+
 	return offset;
 }
 
@@ -559,11 +556,11 @@ static int dissect_aim_msg_clientautoresp(tvbuff_t *tvb, packet_info *pinfo, pro
 		{
 		    proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
 		    tvbuff_t *subtvb = tvb_new_subset(tvb, offset, -1, -1);
-		    dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);			
+		    dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);
 		}
 		break;
 	}
-	
+
 	return offset;
 }
 
@@ -596,7 +593,7 @@ proto_register_aim_messaging(void)
 		{ &hf_aim_icbm_channel,
 			{ "Channel to setup", "aim_messaging.icbm.channel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
 		},
-		{ &hf_aim_icbm_msg_flags, 
+		{ &hf_aim_icbm_msg_flags,
 			{ "Message Flags", "aim_messaging.icbm.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
 		},
 		{ &hf_aim_icbm_max_snac_size,
@@ -609,10 +606,7 @@ proto_register_aim_messaging(void)
 			{ "max receiver warn level", "aim_messaging.icbm.max_receiver_warnlevel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
 		},
 		{ &hf_aim_icbm_min_msg_interval,
-			{ "Minimum message interval (seconds)", "aim_messaging.icbm.min_msg_interval", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-		},
-		{ &hf_aim_icbm_unknown,
-			{ "Unknown parameter", "aim_messaging.icbm.unknown", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+			{ "Minimum message interval (milliseconds)", "aim_messaging.icbm.min_msg_interval", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
 		},
 		{ &hf_aim_icbm_cookie,
 			{ "ICBM Cookie", "aim_messaging.icbmcookie", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
