@@ -5241,7 +5241,7 @@ bssmap_perf_loc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Classmark Information Type 3 3.2.2.20 O 3-14 */
 	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_3].value, BSSAP_PDU_TYPE_BSSMAP, BE_CM_INFO_3, "");
 	/* LCS Client Type 3.2.2.67 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_CLIENT].value, BSSAP_PDU_TYPE_BSSMAP, BE_LCS_CLIENT, "");
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_CLIENT].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, "");
 	/* Chosen Channel 3.2.2.33 O 2 */
 	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_CHAN].value, BSSAP_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, "");
 	/* LCS Priority 3.2.2.62 O 3-n */
