@@ -71,8 +71,18 @@ static int hf_gtpv2_pt = -1;
 static int hf_gtpv2_tdi = -1;
 static int hf_gtpv2_si = -1;
 static int hf_gtpv2_msv = -1;
+static int hf_gtpv2_pdn_type = -1;
+static int hf_gtpv2_pdn_ipv4 = -1;
+static int hf_gtpv2_pdn_ipv6_len = -1;
+static int hf_gtpv2_pdn_ipv6 = -1;
+
 
 static int hf_gtpv2_rat_type = -1;
+static int hf_gtpv2_uli_ecgi_flg = -1;
+static int hf_gtpv2_uli_tai_flg = -1;
+static int hf_gtpv2_uli_rai_flg = -1;
+static int hf_gtpv2_uli_sai_flg = -1;
+static int hf_gtpv2_uli_cgi_flg = -1;
 static int hf_gtpv2_cng_rep_act = -1;
 
 static gint ett_gtpv2 = -1;
@@ -160,8 +170,15 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_MSISDN			76
 #define GTPV2_INDICATION		77
 #define GTPV2_PCO				78
+#define GTPV2_PAA				79
+#define GTPV2_BEARER_QOS		80
+#define GTPV2_FLOW_QOS			81
 #define GTPV2_IE_RAT_TYPE		82
 #define GTPV2_IE_SERV_NET		83
+#define GTPV2_TEID				84
+#define	GTPV2_ULI				87
+#define GTPV2_F_TEID			88
+#define GTPV2_G_CN_ID			90
 #define GTPV2_IE_CNG_REP_ACT	139
 
 /* Table 8.1-1: Information Element types for GTPv2 */
@@ -419,17 +436,20 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	proto_tree_add_item(tree, hf_gtpv2_daf,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_dtf,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_hi,			tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gtpv2_hi,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_dfi,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_oi,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_isrsi,		tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_israi,		tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_sgwci,		tvb, offset, 1, FALSE);
+	if(length==1){
+		proto_tree_add_text(tree, tvb, 0, length, "Older version?, should be 2 octets in 8.0.0");
+		return;
+	}
 
 	offset++;
 	proto_tree_add_item(tree, hf_gtpv2_pt,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_tdi,			tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gtpv2_si	,		tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_si,			tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gtpv2_msv,			tvb, offset, 1, FALSE);
 	
 }
@@ -444,10 +464,70 @@ dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	de_sm_pco(tvb, tree, 0, length, NULL, 0);
 }
 /*
- * 8.14 PDN Address Allocation (PAA) 
+ * 8.14 PDN Address Allocation (PAA)
+ */
+
+static const value_string gtpv2_pdn_type_vals[] = {
+    {1, "IPv4"},
+    {2, "IPv6"},
+	{3, "IPv4/IPv6"},
+    {0, NULL}
+};
+
+static void
+dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+	guint8 pdn_type;
+
+	pdn_type  = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, 1, FALSE);
+	offset++;
+
+	switch(pdn_type){
+		case 1:
+			/* IPv4 */
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, FALSE);
+			offset+=4;
+			break;
+		case 2:
+			/* IPv6*/
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, FALSE);
+			offset+=16;
+			break;
+		case 3:
+			/* IPv4/IPv6 */
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, FALSE);
+			offset+=16;
+			proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, FALSE);
+			offset+=4;
+			break;
+		default:
+			break;
+	}
+}
+/*
  * 8.15 Bearer Quality of Service (Bearer QoS)
+ */
+
+static void
+dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
+/*
  * 8.16 Flow Quality of Service (Flow QoS)
  */
+
+static void
+dissect_gtpv2_flow_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
 /*
  * 8.17 RAT Type
  */
@@ -477,26 +557,136 @@ dissect_gtpv2_serv_net(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	dissect_e212_mcc_mnc(tvb, tree, 0); 
 }
 /*
- * 8.19 Tunnel Endpoint Identifier for Control Plane (TEID-C) 
+ * 8.19 Tunnel Endpoint Identifier for Control Plane (TEID-C)
+ */
+static void
+dissect_gtpv2_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
+/*
  * 8.19a Tunnel Endpoint Identifier for User Plane (TEID-U) 
  * 8.19b Tunnel Endpoint Identifier for User Plane with EBI (TEID-U EBI)
  * 8.20 EPS Bearer Level Traffic Flow Template (Bearer TFT)
  * 8.21 Traffic Aggregate Description (TAD)
- * 8.22 User Location Info (ULI) 
- * 8.22.1 CGI field 
- * 8.22.2 SAI field 
- * 8.22.3 RAI field 
- * 8.22.4 TAI field 
- * 8.22.5 ECGI field
+ */
+/*
+ * 8.22 User Location Info (ULI)
+ *
+ * The flags ECGI, TAI, RAI, SAI and CGI in octed 5 indicate if the corresponding
+ * fields are present in the IE or not. If one of these flags is set to "0", 
+ * the corresponding field is not present at all. The respective identities are defined in 3GPP
+ * TS 23.003 [2].
+ * Editor's Note: The definition of ECGI is missing in 3GPP TS 23.003 v8.1.0. 
+ * It can be found in 3GPP TS 36.413 v8.3.0, but it is expected that it will be moved
+ * to 23.003 in a future version.
+ */
+
+static void
+dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	int offset = 0;
+	guint flags;
+
+	flags = tvb_get_guint8(tvb,offset)&0x1f;
+	/* ECGI B5 */
+	proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
+	/* TAI B4  */
+	proto_tree_add_item(tree, hf_gtpv2_uli_tai_flg, tvb, offset, 1, FALSE);
+	/* RAI B3  */
+	proto_tree_add_item(tree, hf_gtpv2_uli_rai_flg, tvb, offset, 1, FALSE);
+	/* SAI B2  */
+	proto_tree_add_item(tree, hf_gtpv2_uli_sai_flg, tvb, offset, 1, FALSE);
+	/* CGI B1  */
+	proto_tree_add_item(tree, hf_gtpv2_uli_cgi_flg, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* XXX Check if there is code to dissect this elsewhere e.g call it */
+	/* 8.22.1 CGI field  */
+	if (flags&0x01){
+		/* The coding of CGI (Cell Global Identifier) 
+		 * is depicted in Figure 8.22.1-1. If MNC is 2 digits long, MNC digit 1 
+		 * shall be set to 0.
+		 */
+		/* XXX call CGI dissecton in one of the GSM dissectors here */
+		proto_tree_add_text(tree, tvb, offset, 7, "CGI (Cell Global Identifier) not dissected yet");
+		offset+=7;
+		if(offset==length)
+			return;
+	}
+
+	/* 8.22.2 SAI field  */
+	if (flags&0x02){
+		/*The coding of SAI (Service Area Identifier) is depicted in Figure 8.22.2-1. 
+		 * If MNC is 2 digits long, MNC digit 1 shall be set to 0.
+		 */
+		proto_tree_add_text(tree, tvb, offset, 7, "SAI (Service Area Identifier) not dissected yet");
+		offset+=7;
+		if(offset==length)
+			return;
+	}
+	/* 8.22.3 RAI field  */
+	if (flags&0x04){
+		/* The coding of RAI (Routing Area Identity) is depicted in Figure 8.22.3-1.
+		 * If MNC is 2 digits long, MNC digit 1 shall be set to 0. 
+		 */
+		proto_tree_add_text(tree, tvb, offset, 7, "RAI (Routing Area Identity) not dissected yet");
+		offset+=7;
+		if(offset==length)
+			return;
+	}
+	/* 8.22.4 TAI field  */
+	if (flags&0x08){
+		/* The coding of TAI (Tracking Area Identity) is depicted in Figure 8.22.4-1
+		 * If MNC is 2 digits long, MNC digit 1 shall be set to 0. 
+		 */
+		proto_tree_add_text(tree, tvb, offset, 5, "TAI (Tracking Area Identity) not dissected yet");
+		offset+=5;
+		if(offset==length)
+			return;
+	}
+	/* 8.22.5 ECGI field */
+	if (flags&0x10){
+		/* The coding of ECGI (E-UTRAN Cell Global Identifier) is depicted in Figure 8.22.5-1
+		 * If MNC is 2 digits long, MNC digit 1 shall be set to 0. 
+		 */
+		proto_tree_add_text(tree, tvb, offset, 6, "ECGI (E-UTRAN Cell Global Identifier) not dissected yet");
+		offset+=6;
+	}
+}
+
+/*
  * 8.23 Fully Qualified TEID (F-TEID)
+ */
+
+static void
+dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
+/*
  * 8.24 TMSI 
+ */
+/*
  * 8.25 Global CN-Id
+ */
+
+static void
+dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
+/*
  * 8.26 Legacy Quality of Service (QoS)
  * 8.27 S103 PDN Data Forwarding Info (S103PDF)
  * 8.28 S1-U Data Forwarding (S1UDF)
  * 8.29 Delay Value
  * 8.30 Bearer ID List
+ */
+/*
  * 8.31 Bearer Context
+ */
+/*
  * 8.32 S101 IP Address 
  * 8.33 S102 IP Address 
  * 8.34 Charging ID
@@ -571,8 +761,15 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},			/* 76, MSISDN 8.11 */
 	{GTPV2_INDICATION, dissect_gtpv2_ind},				/* 77 Indication 8.12 */
 	{GTPV2_PCO, dissect_gtpv2_pco},						/* 78 Protocol Configuration Options (PCO) 8.13 */
+	{GTPV2_PAA, dissect_gtpv2_paa},						/* 79 PDN Address Allocation (PAA) 8.14 */
+	{GTPV2_BEARER_QOS,dissect_gtpv2_bearer_qos},		/* 80 Bearer Level Quality of Service (Bearer QoS) 8.15 */
+	{GTPV2_FLOW_QOS, dissect_gtpv2_flow_qos},			/* 81 Flow Quality of Service (Flow QoS) 8.16 */
 	{GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},		/* 82, RAT Type  8.17 */
 	{GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},		/* 83, Serving Network 8.18 */
+	{GTPV2_TEID, dissect_gtpv2_teid},					/* 84, TEID-C  8.19 */
+	{GTPV2_ULI, dissect_gtpv2_uli},						/* 87, User Location Info (ULI) 8.22 */
+	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 88, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
+	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 90, Global CN-Id 8.25 */
 	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},		/* 139, Change Reporting Action 8.69 */
 														/* 142-254 Spare. For future use. FFS */
 
@@ -797,7 +994,7 @@ void proto_register_gtpv2(void)
 		},
 		{&hf_gtpv2_daf,	
 		{"DAF (Dual Address Bearer Flag)", "gtpv2.daf",	
-		FT_BOOLEAN, 8, NULL, 0x40, "DAF", HFILL}
+		FT_BOOLEAN, 8, NULL, 0x80, "DAF", HFILL}
 		},
 		{&hf_gtpv2_dtf,
 		{"DTF (Direct Tunnel Flag)","gtpv2.dtf",
@@ -843,10 +1040,55 @@ void proto_register_gtpv2(void)
 		{"MSV (MS Validated)", "gtpv2.msv", 
 		FT_BOOLEAN, 8, NULL, 0x01, "MSV", HFILL}
 		},
+		{ &hf_gtpv2_pdn_type,
+		{"PDN Type", "gtpv2.pdn_type",
+		FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
+		"PDN Type", HFILL}
+		},
+		{ &hf_gtpv2_pdn_ipv4,
+		{"PDN IPv4", "gtpv2.pdn_ipv4",
+		FT_IPv4, BASE_DEC, NULL, 0x0,
+		"PDN IPv4", HFILL}
+		},
+		{ &hf_gtpv2_pdn_ipv6_len,
+		{"IPv6 Prefix Length", "gtpv2.pdn_ipv6_len",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		"IPv6 Prefix Length", HFILL}
+		},
+		{ &hf_gtpv2_pdn_ipv6,
+		{"PDN IPv6", "gtpv2.pdn_ipv6",
+		FT_IPv6, BASE_HEX, NULL, 0x0,
+		"PDN IPv6", HFILL}
+		},
 		{ &hf_gtpv2_rat_type,
 		{"RAT Type", "gtpv2.rat_type",
 		FT_UINT8, BASE_DEC, VALS(gtpv2_rat_type_vals), 0x0,
 		"RAT Type", HFILL}
+		},
+		{ &hf_gtpv2_uli_ecgi_flg,
+		{"ECGI Present Flag)", "gtpv2.uli_ecgi_flg",	
+		FT_BOOLEAN, 8, NULL, 0x10, 
+		NULL, HFILL}
+		},
+		{ &hf_gtpv2_uli_tai_flg,
+		{"TAI Present Flag)", "gtpv2.uli_tai_flg",	
+		FT_BOOLEAN, 8, NULL, 0x08, 
+		NULL, HFILL}
+		},
+		{ &hf_gtpv2_uli_rai_flg,
+		{"RAI Present Flag)", "gtpv2.uli_rai_flg",	
+		FT_BOOLEAN, 8, NULL, 0x04, 
+		NULL, HFILL}
+		},
+		{ &hf_gtpv2_uli_sai_flg,
+		{"SAI Present Flag)", "gtpv2.uli_sai_flg",	
+		FT_BOOLEAN, 8, NULL, 0x02, 
+		NULL, HFILL}
+		},
+		{ &hf_gtpv2_uli_cgi_flg,
+		{"CGI Present Flag)", "gtpv2.uli_cgi_flg",	
+		FT_BOOLEAN, 8, NULL, 0x01, 
+		NULL, HFILL}
 		},
 		{ &hf_gtpv2_cng_rep_act,
 		{"Change Reporting Action", "gtpv2.cng_rep_act",
