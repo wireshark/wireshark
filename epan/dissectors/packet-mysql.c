@@ -335,9 +335,6 @@ static const value_string mysql_option_vals[] = {
 	{0, NULL}
 };
 
-/* starting state for each capture frame (per-conversation) */
-static GPtrArray *conv_frame_states = NULL;
-
 /* protocol id */
 static int proto_mysql = -1;
 
@@ -490,7 +487,7 @@ static const value_string type_constants[] =
 	{0, NULL}
 };
 
-typedef enum my_proto_state
+typedef enum mysql_state
 {
 	UNDEFINED,
 	LOGIN,
@@ -502,7 +499,7 @@ typedef enum my_proto_state
 	ROW_PACKET,
 	RESPONSE_PREPARE,
 	PARAM_PACKET
-} my_proto_state_t;
+} mysql_state_t;
 
 #ifdef CTDEBUG
 static const value_string state_vals[] = {
@@ -520,19 +517,21 @@ static const value_string state_vals[] = {
 };
 #endif
 
-typedef struct my_conn_data
+typedef struct mysql_conn_data
 {
 	guint16 srv_caps;
 	guint16 clnt_caps;
 	guint16 clnt_caps_ext;
-	my_proto_state_t state;
+	mysql_state_t state;
 	GHashTable* stmts;
-	guint32 last_frame;
 #ifdef CTDEBUG
 	guint32 generation;
 #endif
-} my_conn_data_t;
+} mysql_conn_data_t;
 
+struct mysql_frame_data {
+    mysql_state_t 	state;
+};
 
 typedef struct my_stmt_data
 {
@@ -541,22 +540,21 @@ typedef struct my_stmt_data
 
 
 /* function prototypes */
-static void mysql_dissect_init(void);
 static void dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
+static int mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
+static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree);
 static void mysql_dissect_collation(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 caps, gint charset, int field);
 static int mysql_dissect_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
 static int mysql_dissect_ext_caps(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps, const char* whom);
-static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, my_conn_data_t *conn_data);
-static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, my_conn_data_t *conn_data);
+static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
@@ -570,24 +568,6 @@ void proto_reg_handoff_mysql(void)
 	dissector_handle_t mysql_handle;
 	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
 	dissector_add("tcp.port", TCP_PORT_MySQL, mysql_handle);
-}
-
-/* dissector init / memory mgmt */
-static void mysql_dissect_init(void)
-{
-	if(conv_frame_states)
-	{
-		guint i;
-		/* free the frame-state array for each conversation */
-		for(i = 0; i < conv_frame_states->len; ++i)
-		{
-			g_byte_array_free(g_ptr_array_index(conv_frame_states,
-							    i), TRUE);
-		}
-		g_ptr_array_free(conv_frame_states, TRUE);
-	}
-
-	conv_frame_states = g_ptr_array_new();
 }
 
 /* protocol registration */
@@ -1110,7 +1090,6 @@ void proto_register_mysql(void)
 
 	module_t *mysql_module;
 
-	register_init_routine(&mysql_dissect_init);
 	proto_mysql= proto_register_protocol("MySQL Protocol", "MySQL", "mysql");
 	proto_register_field_array(proto_mysql, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1147,7 +1126,6 @@ get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return plen + 4; /* add length field + packet number */
 }
 
-
 /* dissector main function: handle one PDU */
 static void
 dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1158,12 +1136,13 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int             offset = 0;
 	guint           packet_number;
 	gboolean        is_response;
-	my_conn_data_t  *conn_data;
-	GByteArray      *frame_states;
+	mysql_conn_data_t  *conn_data;
 #ifdef CTDEBUG
-	my_proto_state_t state_in, state_out;
+	mysql_state_t conn_state_in, conn_state_out, frame_state;
 	guint64         generation;
+	proto_item *pi;
 #endif
+        struct mysql_frame_data  *frame_data;
 
 	/* get conversation, create if neccessary*/
 	conversation= find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -1176,28 +1155,37 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       pinfo->destport, 0);
 	}
 
-	if (conv_frame_states->len <= conversation->index) {
-		frame_states = g_byte_array_new();
-		g_ptr_array_add(conv_frame_states, frame_states);
-	} else {
-		frame_states = g_ptr_array_index(conv_frame_states,
-						 conversation->index);
-	}
-
 	/* get associated state information, create if neccessary */
 	conn_data= conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
-		conn_data= se_alloc(sizeof(my_conn_data_t));
+		conn_data= se_alloc(sizeof(mysql_conn_data_t));
 		conn_data->srv_caps= 0;
 		conn_data->clnt_caps= 0;
 		conn_data->clnt_caps_ext= 0;
 		conn_data->state= UNDEFINED;
 		conn_data->stmts= g_hash_table_new(g_int_hash, g_int_equal);
-		conn_data->last_frame = ~0;
 #ifdef CTDEBUG
 		conn_data->generation= 0;
 #endif
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
+	}
+
+	frame_data = p_get_proto_data(pinfo->fd, proto_mysql);
+	if (!frame_data) {
+		/*  We haven't seen this frame before.  Store the state of the
+		 *  conversation now so if/when we dissect the frame again
+		 *  we'll start with the same state.
+		 */
+		frame_data = se_alloc(sizeof(struct mysql_frame_data));
+		frame_data->state = conn_data->state;
+		p_add_proto_data(pinfo->fd, proto_mysql, frame_data);
+	} else {
+		/*  We have seen this frame before.  Set the connection state
+		 *  to whatever state it had the first time we saw this frame
+		 *  (e.g., based on whatever frames came before it).
+		 *  The state may change as we dissect this packet.
+		 */
+		 conn_data->state= frame_data->state;
 	}
 
 	if (tree) {
@@ -1207,15 +1195,6 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset, 3, TRUE);
 	}
 	offset+= 3;
-
-	if (frame_states->len <= pinfo->fd->num) {
-		g_byte_array_set_size(frame_states, pinfo->fd->num + 1);
-		frame_states->data[pinfo->fd->num] = conn_data->state;
-	} else {
-		if (pinfo->fd->num != conn_data->last_frame)
-			conn_data->state = frame_states->data[pinfo->fd->num];
-		conn_data->last_frame = pinfo->fd->num;
-	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
@@ -1233,14 +1212,22 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset+= 1;
 
 #ifdef CTDEBUG
-	state_in= conn_data->state;
+	conn_state_in= conn_data->state;
+	frame_state = frame_data->state;
 	generation= conn_data->generation;
 	if (tree) {
-		proto_tree_add_text(mysql_tree, tvb, offset, 0, "conversation: %p", conversation);
-		proto_tree_add_text(mysql_tree, tvb, offset, 0, "generation: %" G_GINT64_MODIFIER "d", generation);
-		proto_tree_add_text(mysql_tree, tvb, offset, 0, "proto state: %s (%u)",
-				    val_to_str(state_in, state_vals, "Unknown (%u)"),
-				    state_in);
+		pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "conversation: %p", conversation);
+		PROTO_ITEM_SET_GENERATED(pi);
+		pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "generation: %" G_GINT64_MODIFIER "d", generation);
+		PROTO_ITEM_SET_GENERATED(pi);
+		pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "conn state: %s (%u)",
+				    val_to_str(conn_state_in, state_vals, "Unknown (%u)"),
+				    conn_state_in);
+		PROTO_ITEM_SET_GENERATED(pi);
+		pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "frame state: %s (%u)",
+				    val_to_str(frame_state, state_vals, "Unknown (%u)"),
+				    frame_state);
+		PROTO_ITEM_SET_GENERATED(pi);
 	}
 #endif
 
@@ -1275,11 +1262,12 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 #ifdef CTDEBUG
-	state_out= conn_data->state;
+	conn_state_out= conn_data->state;
 	++(conn_data->generation);
-	proto_tree_add_text(mysql_tree, tvb, offset, 0, "next proto state: %s (%u)",
-			    val_to_str(state_out, state_vals, "Unknown (%u)"),
-			    state_out);
+	pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "next proto state: %s (%u)",
+			    val_to_str(conn_state_out, state_vals, "Unknown (%u)"),
+			    conn_state_out);
+	PROTO_ITEM_SET_GENERATED(pi);
 #endif
 
 	/* remaining payload indicates an error */
@@ -1292,7 +1280,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static int
 mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
-		       proto_tree *tree, my_conn_data_t *conn_data)
+		       proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	gint protocol;
 	gint strlen;
@@ -1377,7 +1365,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 static int
 mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
-		    proto_tree *tree, my_conn_data_t *conn_data)
+		    proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	guint16  ext_caps;
 	guint32  max_packet;
@@ -1473,7 +1461,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 static int
 mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
-		      proto_tree *tree, my_conn_data_t *conn_data)
+		      proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	gint opcode;
 	gint strlen;
@@ -1723,7 +1711,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 
 static int
 mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
-		       proto_tree *tree, my_conn_data_t *conn_data)
+		       proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	gint response_code;
         gint strlen;
@@ -1841,7 +1829,7 @@ mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
-			proto_tree *tree, my_conn_data_t *conn_data)
+			proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	gint strlen;
 	guint64 affected_rows;
@@ -1981,7 +1969,7 @@ mysql_dissect_ext_caps(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 static int
 mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
-			    proto_tree *tree, my_conn_data_t *conn_data)
+			    proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	gint fle;
 	guint64 num_fields, extra;
@@ -2035,7 +2023,7 @@ mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field)
 
 
 static int
-mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, my_conn_data_t *conn_data)
+mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data)
 {
 	guint16 flags;
 	proto_item *tf;
