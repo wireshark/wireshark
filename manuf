@@ -7469,7 +7469,7 @@
 00:1D:1E	KyushuTen              # KYUSHU TEN CO.,LTD
 00:1D:1F	SiauliuTau             # Siauliu Tauro Televizoriai, JSC
 00:1D:20	Comtrend               # COMTREND CO.
-00:1D:21	AlcadSA                # Alcad S.A.
+00:1D:21	AlcadSl                # Alcad SL
 00:1D:22	FossAnalyt             # Foss Analytical A/S
 00:1D:23	SensusMete             # SENSUS METERING SYSTEMS
 00:1D:24	AclaraPowe             # Aclara Power-Line Systems Inc.
@@ -9572,6 +9572,15 @@
 00:25:55	VisonicTec             # Visonic Technologies 1993 Ltd
 00:25:56	HonHaiPrec             # Hon Hai Precision Ind. Co., Ltd.
 00:25:57	ResearchIn             # Research In Motion
+00:25:58	Mpedia
+00:25:59	SyphanTech             # Syphan Technologies Ltd
+00:25:5A	Tantalus               # Tantalus Systems Corp.
+00:25:5B	CoachcommL             # CoachComm, LLC
+00:25:5C	Nec                    # NEC Corporation
+00:25:5D	Morningsta             # Morningstar Corporation
+00:25:5E	ShanghaiDa             # Shanghai Dare Technologies Co.,Ltd.
+00:25:5F	Sentec                 # SenTec AG
+00:25:60	IbridgeNet             # Ibridge Networks & Communications Ltd.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12921,6 +12930,20 @@
 00:50:C2:A6:30:00/36	EmsIndustr             # EMS Industries
 00:50:C2:A6:40:00/36	TetronikAe             # tetronik GmbH AEN
 00:50:C2:A6:50:00/36	Mark-O-Pri             # Mark-O-Print GmbH
+00:50:C2:A6:60:00/36	Dvtech
+00:50:C2:A6:70:00/36	GssAvionic             # GSS Avionics Limited
+00:50:C2:A6:80:00/36	X-PertPain             # X-Pert Paint Mixing Systems
+00:50:C2:A6:90:00/36	AdvancedIn             # Advanced Integrated Systems
+00:50:C2:A6:A0:00/36	Infocrossi             # Infocrossing
+00:50:C2:A6:B0:00/36	Explorer               # Explorer Inc.
+00:50:C2:A6:C0:00/36	FigmentDes             # Figment Design Laboratories
+00:50:C2:A6:D0:00/36	DtvInnovat             # DTV Innovations
+00:50:C2:A6:E0:00/36	ScreenTech             # Screen Technics Pty Limited
+00:50:C2:A6:F0:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:A7:00:00/36	ReliableSy             # Reliable System Services Corp
+00:50:C2:A7:10:00/36	Purite                 # Purite Ltd
+00:50:C2:A7:20:00/36	Gamber-Joh             # Gamber-Johnson LLC.
+00:50:C2:A7:30:00/36	KyoeiEngin             # KYOEI ENGINEERING Co.,Ltd.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
