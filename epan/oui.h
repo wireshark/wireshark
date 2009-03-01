@@ -40,6 +40,7 @@
 #define	OUI_CISCO			0x00000C	/* Cisco (future use) */
 #define OUI_NORTEL			0x000081	/* Nortel SONMP */
 #define	OUI_CISCO_90		0x0000F8	/* Cisco (IOS 9.0 and above?) */
+#define	OUI_FORCE10			0x0001E8	/* Force10 */
 #define OUI_ERICSSON		0x0001EC	/* Ericsson Group */	
 #define OUI_CATENA			0x00025A	/* Catena Networks */
 #define OUI_SONY_ERICSSON	0x000AD9	/* Sony Ericsson Mobile Communications AB */
@@ -55,6 +56,7 @@
 #define OUI_SONY_ERICSSON_6	0x0016B8	/* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_7	0x001813	/* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_8	0x001963	/* Sony Ericsson Mobile Communications AB */
+#define	OUI_TURBOCELL		0x0020F6	/* KarlNet, who brought you Turbocell */
 #define OUI_CISCOWL			0x004096	/* Cisco Wireless (Aironet) */
 #define	OUI_MARVELL			0x005043	/* Marvell Semiconductor */
 #define OUI_ERICSSON_2		0x008037	/* Ericsson Group */	
@@ -67,7 +69,6 @@
 #define	OUI_SIEMENS			0x080006	/* Siemens AG */
 #define	OUI_APPLE_ATALK		0x080007	/* Appletalk */
 #define	OUI_HP				0x080009	/* Hewlett-Packard */
-#define	OUI_TURBOCELL		0x0020F6	/* KarlNet, who brought you Turbocell */
 
 /* 
  * Defined in packet-llc.c

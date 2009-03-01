@@ -437,11 +437,13 @@ DISSECTOR_SRC = \
 	packet-fcsp.c		\
 	packet-fcswils.c	\
 	packet-fddi.c		\
+	packet-fefd.c		\
 	packet-ff.c		\
 	packet-fip.c		\
 	packet-fix.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
+	packet-force10-oui.c	\
 	packet-fr.c		\
 	packet-fractalgeneratorprotocol.c \
 	packet-frame.c		\

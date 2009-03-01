@@ -187,12 +187,13 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_CISCO,			"Cisco" },
 	{ OUI_NORTEL,			"Nortel Networks SONMP" },
 	{ OUI_CISCO_90,			"Cisco IOS 9.0 Compatible" },
+	{ OUI_FORCE10,			"Force10 Networks" },
 	{ OUI_ERICSSON,			"Ericsson Group" },
+	{ OUI_CATENA,			"Catena Networks" },
 	{ OUI_SONY_ERICSSON,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_2,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_PROFINET,			"PROFIBUS Nutzerorganisation e.V." },
 	{ OUI_SONY_ERICSSON_3,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_CATENA,			"Catena Networks" },
 	{ OUI_CIMETRICS,		"Cimetrics" },
 	{ OUI_IEEE_802_3,		"IEEE 802.3" },
 	{ OUI_MEDIA_ENDPOINT,	"Media (TIA TR-41 Committee)" },
@@ -202,9 +203,12 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SONY_ERICSSON_6,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_7,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_8,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
-	{ OUI_ERICSSON_2,			"Ericsson Group" },
+	{ OUI_MARVELL,			"Marvell Semiconductor" },
+	{ OUI_ERICSSON_2,		"Ericsson Group" },
 	{ OUI_BRIDGED,			"Frame Relay or ATM bridged frames" },
+	{ OUI_IEEE_802_1,		"IEEE 802.1 Committee" },
 	{ OUI_ATM_FORUM,		"ATM Forum" },
 	{ OUI_EXTREME,			"Extreme Networks" },
 	/* RFC 2427, RFC 2684 */
@@ -212,7 +216,6 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SIEMENS,			"Siemens AG" },
 	{ OUI_APPLE_ATALK,		"Apple (AppleTalk)" },
 	{ OUI_HP,				"Hewlett-Packard" },
-	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ 0,               NULL }
 };
 
