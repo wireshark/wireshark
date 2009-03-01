@@ -284,9 +284,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /*
  * Extract subfields from the result of QOS_FIELD_CONTENT().
  */
-#define QOS_PS_BUF_STATE(x)  (((x) & 0x02) >> 1)
-#define QOS_PS_BUF_AC(x)     (((x) & 0x0C) >> 2)
-#define QOS_PS_BUF_LOAD(x)   (((x) & 0xF0) >> 4)
+#define QOS_PS_BUF_STATE_INDICATED(x)  (((x) & 0x02) >> 1)
+#define QOS_PS_HIGHEST_PRI_BUF_AC(x)   (((x) & 0x0C) >> 2)
+#define QOS_PS_QAP_BUF_LOAD(x)         (((x) & 0xF0) >> 4)
 
 /*
  * Extract subfields from the HT Control field.
@@ -617,11 +617,12 @@ static const char *qos_acs[8] = {
 /* ************************************************************************* */
 /*                   WME Access Category Names (by WME ACI)                  */
 /* ************************************************************************* */
-static const char *wme_acs[4] = {
-  "Best Effort",
-  "Background",
-  "Video",
-  "Voice",
+static const value_string wme_acs[] = {
+  { 0, "Best Effort" },
+  { 1, "Background" },
+  { 2, "Video" },
+  { 3, "Voice" },
+  { 0, NULL }
 };
 
 /* ************************************************************************* */
@@ -810,11 +811,9 @@ static int hf_qos_amsdu_present = -1;
 static int hf_qos_eosp = -1;
 static int hf_qos_bit4 = -1;
 static int hf_qos_txop_limit = -1;
-/*  FIXME: hf_ values not defined
-static int hf_qos_buf_state = -1;
-static int hf_qos_buf_ac = -1;
-static int hf_qos_buf_load = -1;
-*/
+static int hf_qos_buf_state_indicated = -1;
+static int hf_qos_highest_pri_buf_ac = -1;
+static int hf_qos_qap_buf_load = -1;
 static int hf_qos_txop_dur_req = -1;
 static int hf_qos_queue_size = -1;
 
@@ -3319,7 +3318,7 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
       byte2 = tvb_get_guint8(tag_tvb, tag_off + 1);
       g_snprintf(out_buff, SHORT_STR,
         "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
-         (byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
+         (byte1 & 0x60) >> 5, match_strval((byte1 & 0x60) >> 5, wme_acs),
          (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
          byte2 & 0x0f, (byte2 & 0xf0) >> 4,
          tvb_get_letohs(tag_tvb, tag_off + 2));
@@ -3519,7 +3518,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       proto_tree_add_bytes_format(ietree, hf_aironet_ie_qos_val, tvb, offset, 4,
         tvb_get_ptr(tvb, offset, 4),
           "CCX QoS Parameters??: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
-        (byte1 & 0x60) >> 5, wme_acs[(byte1 & 0x60) >> 5],
+        (byte1 & 0x60) >> 5, match_strval((byte1 & 0x60) >> 5, wme_acs),
         (byte1 & 0x10) ? "" : "not ", byte1 & 0x0f,
         byte2 & 0x0f, (byte2 & 0xf0) >> 4,
         txop);
@@ -6826,30 +6825,41 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             /* qap ps buffer state */
             proto_item *qos_ps_buf_state_fields;
             proto_tree *qos_ps_buf_state_tree;
-            guint16 buf_state;
-            guint16 buf_ac;
-            guint16 buf_load;
-
-            buf_state = QOS_PS_BUF_STATE(qos_field_content);
-            buf_ac = QOS_PS_BUF_AC(qos_field_content);  /*access category */
-            buf_load = QOS_PS_BUF_LOAD(qos_field_content);
+            guint8 qap_buf_load;
 
             qos_ps_buf_state_fields = proto_tree_add_text(qos_tree, tvb, qosoff + 1, 1,
                 "QAP PS Buffer State: 0x%x", qos_field_content);
             qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
-/*  FIXME: hf_ values not defined
-            proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb,
-                1, 1, buf_state);
+            proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state_indicated,
+	        tvb, 1, 1, qos_field_content);
 
-            proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_ac, tvb,
-            qosoff + 1, 1, buf_ac, "Priority: %d (%s)",
-                buf_ac, wme_acs[buf_ac]);
+            if (QOS_PS_BUF_STATE_INDICATED(qos_field_content)) {
+              proto_tree_add_uint (qos_ps_buf_state_tree, hf_qos_highest_pri_buf_ac, tvb,
+                  qosoff + 1, 1, qos_field_content);
 
-            proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_load, tvb,
-                qosoff + 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
-*/
+              qap_buf_load = QOS_PS_QAP_BUF_LOAD(qos_field_content);
+              switch (qap_buf_load) {
 
+              case 0:
+                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_qos_qap_buf_load, tvb,
+                    qosoff + 1, 1, qos_field_content,
+                    "no buffered traffic (0)");
+                break;
+
+              default:
+                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_qos_qap_buf_load, tvb,
+                    qosoff + 1, 1, qos_field_content,
+                    "%d octets (%d)", qap_buf_load*4096, qap_buf_load);
+                break;
+
+              case 15:
+                proto_tree_add_uint_format_value (qos_ps_buf_state_tree, hf_qos_qap_buf_load, tvb,
+                    qosoff + 1, 1, qos_field_content,
+                    "greater than 57344 octets (15)");
+                break;
+              }
+            }
           }
         } else {
           if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
@@ -9106,11 +9116,20 @@ proto_register_ieee80211 (void)
      {"TXOP Limit", "wlan.qos.txop_limit", FT_UINT16, BASE_DEC, NULL, 0,
       "TXOP Limit", HFILL }},
 
-#if 0
-    {&hf_qos_buffer_state,
-     {"QAP PS buffer State", "wlan.qos.ps_buf_state", FT_UINT16, BASE_DEC, NULL, 0,
-      "QAP PS buffer State", HFILL }},
-#endif
+    {&hf_qos_buf_state_indicated,
+     {"Buffer State Indicated", "wlan.qos.buf_state_indicated",
+       FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+      "Buffer State Indicated", HFILL }},
+
+    {&hf_qos_highest_pri_buf_ac,
+     {"Highest-Priority Buffered AC", "wlan.qos.highest_pri_buf_ac",
+       FT_UINT8, BASE_DEC, VALS(wme_acs), 0x0C,
+      "Highest-Priority Buffered AC", HFILL }},
+
+    {&hf_qos_qap_buf_load,
+     {"QAP Buffered Load", "wlan.qos.qap_buf_load",
+       FT_UINT8, BASE_DEC, NULL, 0xF0,
+      "QAP Buffered Load", HFILL }},
 
     {&hf_qos_txop_dur_req,
      {"TXOP Duration Requested", "wlan.qos.txop_dur_req", FT_UINT16, BASE_DEC, NULL, 0,
