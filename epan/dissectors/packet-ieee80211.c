@@ -808,15 +808,15 @@ static int hf_qos_priority = -1;
 static int hf_qos_ack_policy = -1;
 static int hf_qos_amsdu_present = -1;
 static int hf_qos_eosp = -1;
-static int hf_qos_field_content = -1;
-/*static int hf_qos_txop_limit = -1;*/
+static int hf_qos_bit4 = -1;
+static int hf_qos_txop_limit = -1;
 /*  FIXME: hf_ values not defined
 static int hf_qos_buf_state = -1;
 static int hf_qos_buf_ac = -1;
 static int hf_qos_buf_load = -1;
 */
-/*static int hf_qos_txop_dur_req = -1;
-static int hf_qos_queue_size = -1;*/
+static int hf_qos_txop_dur_req = -1;
+static int hf_qos_queue_size = -1;
 
 /* ************************************************************************* */
 /*                Header values for HT control field (+HTC)                  */
@@ -6798,6 +6798,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         if (flags & FLAG_FROM_DS) {
           proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb,
               qosoff, 1, qos_control);
+        } else {
+          proto_tree_add_boolean (qos_tree, hf_qos_bit4, tvb,
+              qosoff, 1, qos_control);
         }
 
         proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, qosoff, 1,
@@ -6811,13 +6814,18 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           }
           if (DATA_FRAME_IS_CF_POLL(frame_type_subtype)) {
             /* txop limit */
-            proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-                qosoff + 1, 1, qos_field_content, "Transmit Opportunity (TXOP) Limit: 0x%02X", qos_field_content);
-
+            if (qos_field_content == 0) {
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_txop_limit, tvb,
+                  qosoff + 1, 1, qos_field_content,
+		  "transmit one frame immediately (0)");
+            } else {
+              proto_tree_add_uint (qos_tree, hf_qos_txop_limit, tvb,
+                  qosoff + 1, 1, qos_field_content);
+	    }
           } else {
             /* qap ps buffer state */
             proto_item *qos_ps_buf_state_fields;
-                proto_tree *qos_ps_buf_state_tree;
+            proto_tree *qos_ps_buf_state_tree;
             guint16 buf_state;
             guint16 buf_ac;
             guint16 buf_load;
@@ -6850,13 +6858,43 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             is_amsdu = qos_amsdu_present;
           }
           if (qos_eosp) {
-            /* txop limit requested */
-            proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-                qosoff + 1, 1, qos_field_content, "Queue Size: %d", (qos_field_content * 254));
-          } else {
             /* queue size */
-            proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-            qosoff + 1, 1, qos_field_content, "Transmit Opportunity (TXOP) Limit Requested: 0x%02X", qos_field_content);
+            switch (qos_field_content) {
+
+            case 0:
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
+	          tvb, qosoff + 1, 1, qos_field_content,
+                  "no buffered traffic in the queue (0)");
+              break;
+
+            default:
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
+	          tvb, qosoff + 1, 1, qos_field_content,
+	          "%u bytes (%u)", qos_field_content*256, qos_field_content);
+              break;
+
+            case 254:
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
+	          tvb, qosoff + 1, 1, qos_field_content,
+                  "more than 64768 octets (254)");
+              break;
+
+            case 255:
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_queue_size,
+	          tvb, qosoff + 1, 1, qos_field_content,
+                  "unspecified or unknown (256)");
+              break;
+            }
+          } else {
+            /* txop duration requested */
+            if (qos_field_content == 0) {
+              proto_tree_add_uint_format_value (qos_tree, hf_qos_txop_dur_req,
+	          tvb, qosoff + 1, 1, qos_field_content,
+	          "no TXOP requested (0)");
+            } else {
+              proto_tree_add_uint (qos_tree, hf_qos_txop_dur_req,
+	          tvb, qosoff + 1, 1, qos_field_content);
+	    }
           }
         }
 
@@ -8344,6 +8382,11 @@ proto_register_ieee80211 (void)
     "Service period"
   };
 
+  static const true_false_string bit4_flag = {
+    "Bits 8-15 of QoS Control field are Queue Size",
+    "Bits 8-15 of QoS Control field are TXOP Duration Requested"
+  };
+
   static const true_false_string hf_qos_amsdu_present_flag = {
     "A-MSDU",
     "MSDU"
@@ -9047,6 +9090,10 @@ proto_register_ieee80211 (void)
      {"EOSP", "wlan.qos.eosp", FT_BOOLEAN, 8, TFS (&eosp_flag), QOS_FLAG_EOSP,
       "EOSP Field", HFILL }},
 
+    {&hf_qos_bit4,
+     {"QoS bit 4", "wlan.qos.bit4", FT_BOOLEAN, 8, TFS (&bit4_flag), QOS_FLAG_EOSP,
+      "QoS bit 4", HFILL }},
+
     {&hf_qos_ack_policy,
      {"Ack Policy", "wlan.qos.ack", FT_UINT8, BASE_HEX,  VALS (&ack_policy), 0,
       "Ack Policy", HFILL }},
@@ -9055,13 +9102,15 @@ proto_register_ieee80211 (void)
      {"Payload Type", "wlan.qos.amsdupresent", FT_BOOLEAN, BASE_NONE,
       TFS (&hf_qos_amsdu_present_flag), 0, "Payload Type", HFILL }},
 
-    {&hf_qos_field_content,
-     {"Content", "wlan.qos.fc_content", FT_UINT16, BASE_DEC, NULL, 0,
-      "Content1", HFILL }},
+    {&hf_qos_txop_limit,
+     {"TXOP Limit", "wlan.qos.txop_limit", FT_UINT16, BASE_DEC, NULL, 0,
+      "TXOP Limit", HFILL }},
 
-/*    {&hf_qos_buffer_state,
+#if 0
+    {&hf_qos_buffer_state,
      {"QAP PS buffer State", "wlan.qos.ps_buf_state", FT_UINT16, BASE_DEC, NULL, 0,
       "QAP PS buffer State", HFILL }},
+#endif
 
     {&hf_qos_txop_dur_req,
      {"TXOP Duration Requested", "wlan.qos.txop_dur_req", FT_UINT16, BASE_DEC, NULL, 0,
@@ -9069,7 +9118,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qos_queue_size,
      {"Queue Size", "wlan.qos.queue_size", FT_UINT16, BASE_DEC, NULL, 0,
-      "Queue Size", HFILL }},*/
+      "Queue Size", HFILL }},
 
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
