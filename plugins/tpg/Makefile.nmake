@@ -32,9 +32,6 @@ OBJECTS=packet-mate.obj\
 mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:mate.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
-!IF $(MSC_VER_REQUIRED) >= 1400
-	mt.exe -nologo -manifest "mate.dll.manifest" -outputresource:mate.dll;2
-!ENDIF
 
 !ENDIF
 

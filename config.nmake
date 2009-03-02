@@ -481,6 +481,7 @@ MSC_VER_REQUIRED=1500
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
 # /MP [<number of processes>]       [MSVC2008]: Compiles multiple source files by using multiple processes 
 #                                               Add if desired for compile speedup on machines with 2 or more "effective processors"
+# /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load a second copy of the CRT.
 #
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
@@ -499,6 +500,9 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE 
 LOCAL_LDFLAGS=/DEBUG /MACHINE:$(TARGET_MACHINE)
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
+!IF $(MSC_VER_REQUIRED) >= 1400
+PLUGIN_LDFLAGS = /MANIFEST:no
+!ENDIF
 
 #
 # According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403

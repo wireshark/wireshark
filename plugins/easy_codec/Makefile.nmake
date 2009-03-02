@@ -49,9 +49,6 @@ $(PLUGIN_NAME).rc : moduleinfo.nmake
 $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) $(RESOURCE)
 	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS) $(CODEC_LIBS) $(RESOURCE)
-!IF $(MSC_VER_REQUIRED) >= 1400
-	mt.exe -nologo -manifest "$(PLUGIN_NAME).dll.manifest" -outputresource:$(PLUGIN_NAME).dll;2
-!ENDIF
 
 easy_codec_plugin.obj : easy_codec_plugin.c
 	$(CC) $(CFLAGS) -Fd$(PLUGIN_NAME).pdb -c easy_codec_plugin.c
