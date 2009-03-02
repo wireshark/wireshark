@@ -118,7 +118,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
                 *bbox, *ok_bt, *cancel_bt, *help_bt;
   GtkTooltips   *tooltips;
-  GList *glist = NULL;
+
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
   static construct_args_t args = {
