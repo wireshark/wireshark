@@ -31,14 +31,11 @@ libwsutil.exp: libwsutil.dll
 
 libwsutil.dll : $(OBJECTS) libwsutil.def ..\image\libwsutil.res
 	$(link) $(dlllflags) $(conlibsdll) \
-		$(LOCAL_LDFLAGS) \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/DEF:libwsutil.def /OUT:libwsutil.dll \
 		/IMPLIB:libwsutil.lib \
 		..\image\libwsutil.res \
 		$(OBJECTS) $(libwsutil_LIBS)
-!IF $(MSC_VER_REQUIRED) >= 1400
-	mt.exe -nologo -manifest "libwsutil.dll.manifest" -outputresource:libwsutil.dll;2
-!ENDIF
 
 clean :
 	rm -f $(OBJECTS) \

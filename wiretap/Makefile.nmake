@@ -31,14 +31,11 @@ wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll
 
 wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 	$(link) $(dlllflags) $(conlibsdll) \
-		$(LOCAL_LDFLAGS) \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/DEF:wtap.def /OUT:wiretap-$(WTAP_VERSION).dll \
 		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
 		..\image\wiretap.res \
 		$(OBJECTS) $(wiretap_LIBS)
-!IF $(MSC_VER_REQUIRED) >= 1400
-	mt.exe -nologo -manifest "wiretap-$(WTAP_VERSION).dll.manifest" -outputresource:wiretap-$(WTAP_VERSION).dll;2
-!ENDIF
 
 RUNLEX = ..\tools\runlex.sh
 
