@@ -500,13 +500,14 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 	return 0;
 }
 
-
+/*
+Replaced by using the strings instead.
 static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
-
+*/
 /****************************************************************************/
 /* adds statistics information from the packet to the list */
 static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
@@ -518,7 +519,6 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	struct tm *tm_tmp;
 	time_t then;
 	gchar status[40];
-	GdkColor color = COLOR_DEFAULT;
 	gchar color_str[14];
 	then = pinfo->fd->abs_ts.secs;
 	msecs = (guint16)(pinfo->fd->abs_ts.nsecs/1000000);
@@ -537,27 +537,27 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 
 	if (statinfo->pt == PT_CN) {
 		g_snprintf(status,sizeof(status),"Comfort noise (PT=13, RFC 3389)");
-		color = COLOR_CN;
+		/* color = COLOR_CN; */
 		g_snprintf(color_str,sizeof(color_str),"#bfffbfffffff");
 	}
 	else if (statinfo->pt == PT_CN_OLD) {
 		g_snprintf(status,sizeof(status),"Comfort noise (PT=19, reserved)");
-		color = COLOR_CN;
+		/* color = COLOR_CN; */
 		g_snprintf(color_str,sizeof(color_str),"#bfffbfffffff");
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
 		g_snprintf(status,sizeof(status),"Wrong sequence nr.");
-		color = COLOR_ERROR; 
+		/* color = COLOR_ERROR; */ 
 		g_snprintf(color_str,sizeof(color_str),"#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
 		g_snprintf(status,sizeof(status),"Incorrect timestamp");
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
@@ -566,12 +566,12 @@ static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		&&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
 		&&  !(statinfo->flags & STAT_FLAG_MARKER)) {
 		g_snprintf(status,sizeof(status),"Marker missing?");
-		color = COLOR_WARNING;
+		/* color = COLOR_WARNING; */
 		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 	}
 	else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
-			color = COLOR_WARNING;
+			/* color = COLOR_WARNING; */
 			g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
 		}
 		g_snprintf(status,sizeof(status),OK_TEXT);
@@ -2893,7 +2893,7 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 */
 
 /* Present floats with two decimals */
-void
+static void
 rtp_float_data_func (GtkTreeViewColumn *column _U_,
                            GtkCellRenderer   *renderer,
                            GtkTreeModel      *model,
