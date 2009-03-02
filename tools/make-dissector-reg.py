@@ -17,6 +17,9 @@ import re
 import pickle
 from stat import *
 
+VERSION_KEY = '_VERSION'
+CUR_VERSION = '$Id'
+
 #
 # The first argument is the directory in which the source files live.
 #
@@ -96,8 +99,10 @@ if cache_filename:
 		cache_file = open(cache_filename, 'rb')
 		cache = pickle.load(cache_file)
 		cache_file.close()
+		if not cache.has_key(VERSION_KEY) or cache[VERSION_KEY] != CUR_VERSION:
+			cache = {VERSION_KEY: CUR_VERSION}
 	except:
-		cache = {}
+		cache = {VERSION_KEY: CUR_VERSION}
 
 # Grep
 for filename in filenames:
