@@ -278,16 +278,13 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Character Type Selection Dropdown Box
      These only apply to the string find option */
   /* Create Combo Box */
-  combo_cb = gtk_combo_new();
+  combo_cb = gtk_combo_box_new_text();
 
-  glist = g_list_append(glist, "ASCII Unicode & Non-Unicode");
-  glist = g_list_append(glist, "ASCII Non-Unicode");
-  glist = g_list_append(glist, "ASCII Unicode");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Unicode & Non-Unicode");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Non-Unicode");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Unicode");
 
-  gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
-  g_list_free(glist);
-  /* You only get to choose from the options we offer */
-  gtk_entry_set_editable(GTK_ENTRY(GTK_COMBO(combo_cb)->entry), FALSE);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cb),0);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_cb);
   gtk_widget_show(combo_cb);
 
@@ -537,7 +534,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  string_type = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo_cb)->entry));
+  string_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(combo_cb));
 
   case_type = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
   decode_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(decode_data_rb));
