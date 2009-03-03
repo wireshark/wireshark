@@ -360,11 +360,18 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 			if(tmp){
 				val|=1;
 				g_strlcat(str, "1", 256);
+				if (i==0) { /* bit 8 is 1, so not a single byte length */
+					num_bits = 16;
+				}
+				else if (i==1 && val==3) { /* bits 8 and 7 both 1, so unconstrained */
+					PER_NOT_DECODED_YET("10.9 Unconstrained");
+					return offset;
+				}
 			} else {
 				g_strlcat(str, "0", 256);
 			}
 		}
-		if((val&0x80)==0){
+		if((val&0x80)==0 && num_bits==8){
 			*length = val;
 			if(hf_index!=-1){
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
@@ -374,6 +381,18 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 					PROTO_ITEM_SET_HIDDEN(pi);
 			}
 		
+			return offset;
+		}
+		else if (num_bits==16) {
+			*length = val&0x3fff;
+			if(hf_index!=-1){
+				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
+				if (display_internal_per_fields)
+					proto_item_append_text(pi," %s", str);
+				else
+					PROTO_ITEM_SET_HIDDEN(pi);
+			}
+        
 			return offset;
 		}
 		PER_NOT_DECODED_YET("10.9 Unaligned");
