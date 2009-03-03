@@ -745,10 +745,9 @@ de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1 , "Not decoded yet");
-	curr_offset++;
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
-	return(curr_offset-offset);
+	return(len);
 }
 /*
  * 9.9.3.36	UE security capability
