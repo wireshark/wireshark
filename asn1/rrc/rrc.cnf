@@ -8,6 +8,10 @@ PER
 UNALIGNED
 #.END
 
+#.EXPORTS
+InterRATHandoverInfo
+InterRATHandoverInfo_PDU
+
 #.OMIT_ASSIGNMENT
 #.END
 

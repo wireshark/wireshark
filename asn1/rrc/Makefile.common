@@ -23,9 +23,10 @@
 PROTOCOL_NAME = rrc
 
 DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
+	packet-$(PROTOCOL_NAME).c \
+	packet-$(PROTOCOL_NAME).h
 
-# NEED_PACKET_PROTO_H =
+NEED_PACKET_PROTO_H = 1
 
 EXT_ASN_FILE_LIST = 
 
@@ -40,6 +41,7 @@ EXTRA_DIST = \
 	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \
