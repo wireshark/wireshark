@@ -323,7 +323,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void 
 dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
-             gint offset, guint8 key_len, guint8 opcode, gboolean request)
+             gint offset, guint16 key_len, guint8 opcode, gboolean request)
 {
   proto_item *ti = NULL;
   gboolean    illegal = FALSE;  /* Set when key shall not be present */
