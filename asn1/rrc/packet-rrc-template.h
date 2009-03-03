@@ -27,4 +27,4 @@
 
 #include "packet-rrc-exp.h"
 
-#endif  /* PACKET_CHARGING_ASE_H */
+#endif  /* PACKET_RRC_H */

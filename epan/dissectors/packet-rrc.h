@@ -42,4 +42,4 @@ void dissect_rrc_InterRATHandoverInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 /*--- End of included file: packet-rrc-exp.h ---*/
 #line 29 "packet-rrc-template.h"
 
-#endif  /* PACKET_CHARGING_ASE_H */
+#endif  /* PACKET_RRC_H */
