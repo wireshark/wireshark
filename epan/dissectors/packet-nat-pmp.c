@@ -64,8 +64,6 @@ static int hf_pmlis = -1;
 
 static gint ett_nat_pmp = -1;
 
-static dissector_handle_t nat_pmp_handle = NULL;
-
 static const value_string opcode_vals[] = {
   { EXTERNAL_ADDRESS_REQUEST,  "External Address Request"   },
   { EXTERNAL_ADDRESS_RESPONSE, "External Address Response"  },
@@ -221,6 +219,8 @@ void proto_register_nat_pmp (void)
 
 void proto_reg_handoff_nat_pmp (void)
 {
+  dissector_handle_t nat_pmp_handle;
+
   nat_pmp_handle = find_dissector (PFNAME);
   dissector_add ("udp.port", NAT_PMP_STATUS_PORT, nat_pmp_handle);
   dissector_add ("udp.port", NAT_PMP_PORT, nat_pmp_handle);
