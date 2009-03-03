@@ -8,7 +8,7 @@
 #line 1 "packet-s1ap-template.c"
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007-2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2009, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -48,6 +48,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
+#include <epan/sctpppids.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -255,7 +256,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 64 "packet-s1ap-template.c"
+#line 65 "packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -600,7 +601,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 69 "packet-s1ap-template.c"
+#line 70 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -788,7 +789,7 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 74 "packet-s1ap-template.c"
+#line 75 "packet-s1ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -6449,7 +6450,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 101 "packet-s1ap-template.c"
+#line 102 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -6517,6 +6518,7 @@ proto_reg_handoff_s1ap(void)
 		s1ap_handle = find_dissector("s1ap");
 		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
+		dissector_add("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;
 
 /*--- Included file: packet-s1ap-dis-tab.c ---*/
@@ -6691,7 +6693,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 170 "packet-s1ap-template.c"
+#line 172 "packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete("sctp.port", SctpPort, s1ap_handle);
@@ -8056,7 +8058,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 190 "packet-s1ap-template.c"
+#line 192 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -8245,7 +8247,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 196 "packet-s1ap-template.c"
+#line 198 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

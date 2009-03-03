@@ -1,6 +1,6 @@
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007-2008, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2009, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -40,6 +40,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
+#include <epan/sctpppids.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -165,6 +166,7 @@ proto_reg_handoff_s1ap(void)
 		s1ap_handle = find_dissector("s1ap");
 		nas_eps_handle = find_dissector("nas-eps");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
+		dissector_add("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;
 #include "packet-s1ap-dis-tab.c"
 	} else {

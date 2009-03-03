@@ -311,6 +311,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { SIMCO_PAYLOAD_PROTOCOL_ID,           "SIMCO" },
   { DDP_SEG_CHUNK_PROTOCOL_ID,			 "DDP Segment Chunk" }, /*  [RFC-ietf-rddp-sctp-07.txt] */
   { DDP_STREAM_SES_CTRL_PROTOCOL_ID,	 "DDP Stream Session Control" }, /* [RFC-ietf-rddp-sctp-07.txt] */
+  { S1AP_PAYLOAD_PROTOCOL_ID,			 "S1 Application Protocol (S1AP)" }, /* [TS 23.401][TS 36.413][Koodli] */
   { 0,                                   NULL } };
 
 

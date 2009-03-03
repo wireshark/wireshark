@@ -46,5 +46,6 @@
 #define SIMCO_PAYLOAD_PROTOCOL_ID 15
 #define DDP_SEG_CHUNK_PROTOCOL_ID 16
 #define DDP_STREAM_SES_CTRL_PROTOCOL_ID 17
+#define S1AP_PAYLOAD_PROTOCOL_ID  18
 #define M2TP_PAYLOAD_PROTOCOL_ID  99    /* s-link */
 #endif /* sctpppids.h */
