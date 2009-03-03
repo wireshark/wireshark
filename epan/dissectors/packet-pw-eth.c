@@ -36,11 +36,13 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-mpls.h"
 
-static gint proto_pw_eth = -1;
+static gint proto_pw_eth_cw = -1;
 static gint proto_pw_eth_nocw = -1;
+static gint proto_pw_eth_heuristic = -1;
 
 static gint ett_pw_eth = -1;
 
@@ -82,7 +84,7 @@ static gint *ett[] = {
 static dissector_handle_t eth_withoutfcs_handle;
 
 static void
-dissect_pw_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *pw_eth_tree = NULL;
 	proto_item *ti = NULL;
@@ -95,11 +97,15 @@ dissect_pw_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Error processing Message");
 		return;
 	}
+
+	if ( dissect_try_cw_first_nibble( tvb, pinfo, tree )) 
+		return;
+
 	sequence_number = tvb_get_ntohs(tvb, 2);
 	if (tree) {
 		ti = proto_tree_add_boolean(tree, hf_pw_eth_cw, tvb, 0, 0, TRUE);
 		PROTO_ITEM_SET_HIDDEN(ti);
-		ti = proto_tree_add_item(tree, proto_pw_eth, tvb, 0, 4, FALSE);
+		ti = proto_tree_add_item(tree, proto_pw_eth_cw, tvb, 0, 4, FALSE);
 		pw_eth_tree = proto_item_add_subtree(ti, ett_pw_eth);
 		if (pw_eth_tree == NULL)
 			return;
@@ -127,31 +133,73 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 }
 
+/* 
+ * FF: this function returns TRUE if the first 12 bytes in tvb looks like
+ *     two valid ethernet addresses.  FALSE otherwise. 
+ */
+static gboolean 
+looks_like_plain_eth(tvbuff_t *tvb _U_)
+{
+	const gchar *manuf_name_da = NULL;
+	const gchar *manuf_name_sa = NULL;
+
+	if (tvb_reported_length_remaining(tvb, 0) < 14) {
+		return FALSE;
+	}
+
+	manuf_name_da = get_manuf_name_if_known(tvb_get_ptr(tvb, 0, 6));
+	manuf_name_sa = get_manuf_name_if_known(tvb_get_ptr(tvb, 6, 6));
+
+	if (manuf_name_da && manuf_name_sa) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (looks_like_plain_eth(tvb)) {
+		call_dissector( find_dissector("pw_eth_nocw"), tvb, pinfo, tree);
+	} else {
+		call_dissector( find_dissector("pw_eth_cw"), tvb, pinfo, tree);
+	}
+}
+
 void
 proto_register_pw_eth(void)
 {
-	proto_pw_eth = proto_register_protocol("PW Control Word (ethernet)",
-                                               "PWETH", "pweth");
-	proto_pw_eth_nocw = proto_register_protocol("PW (ethernet)",
-						    "PWETH (no CW)", 
-						    "");
-	proto_register_field_array(proto_pw_eth, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("pw_eth", dissect_pw_eth, proto_pw_eth);
-	register_dissector("pw_eth_nocw", dissect_pw_eth_nocw, 
-			   proto_pw_eth_nocw);
+	proto_pw_eth_cw = proto_register_protocol("PW Ethernet Control Word",
+						  "Ethernet PW (with CW)",
+						  "pwethcw");
+	proto_pw_eth_nocw = proto_register_protocol("Ethernet PW (no CW)", /*not displayed*/
+						    "Ethernet PW (no CW)", 
+						    "pwethnocw");
+	proto_pw_eth_heuristic = proto_register_protocol("Ethernet PW (CW heuristic)", /*not displayed*/
+							 "Ethernet PW (CW heuristic)", 
+							 "pwethheuristic");
+	proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));	
+	register_dissector("pw_eth_cw", dissect_pw_eth_cw, proto_pw_eth_cw);
+	register_dissector("pw_eth_nocw", dissect_pw_eth_nocw, proto_pw_eth_nocw);
+	register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic, proto_pw_eth_heuristic );
 }
 
 void
 proto_reg_handoff_pw_eth(void)
 {
-	dissector_handle_t pw_eth_handle;
+	dissector_handle_t pw_eth_handle_cw;
 	dissector_handle_t pw_eth_handle_nocw;
+	dissector_handle_t pw_eth_handle_heuristic;
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-	pw_eth_handle = find_dissector("pw_eth");
-	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle);
+	pw_eth_handle_cw = find_dissector("pw_eth_cw");
+	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_cw);
+
 	pw_eth_handle_nocw = find_dissector("pw_eth_nocw");
 	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_nocw);
+
+	pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
+	dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_heuristic);
 }

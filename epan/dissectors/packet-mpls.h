@@ -27,8 +27,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MPLS_H_
-#define __PACKET_MPLS_H__
+#ifndef PACKET_MPLS_H
+#define PACKET_MPLS_H
 
 /* Special labels in MPLS */
 enum {
@@ -45,5 +45,7 @@ extern const value_string special_labels[];
 extern void decode_mpls_label(tvbuff_t *tvb, int offset,
                               guint32 *label, guint8 *exp,
                               guint8 *bos, guint8 *ttl);
+
+extern gboolean dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 
 #endif

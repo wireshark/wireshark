@@ -68,6 +68,8 @@ static gint ett_mpls_pw_ach = -1;
 static gint ett_mpls_pw_mcw = -1;
 static gint ett_mpls_oam = -1;
 
+void proto_reg_handoff_mpls(void);
+
 const value_string special_labels[] = {
     {LABEL_IP4_EXPLICIT_NULL,	"IPv4 Explicit-Null"},
     {LABEL_ROUTER_ALERT,	"Router Alert"},
@@ -84,11 +86,20 @@ enum mpls_filter_keys {
     MPLSF_EXP,
     MPLSF_BOTTOM_OF_STACK,
     MPLSF_TTL,
-
     MPLSF_MAX
 };
 
+static enum_val_t mpls_default_payload_defs[] = {
+    {"mpls pw ethernet heuristic" ,"Ethernet MPLS PW (CW is heuristically detected)" ,0},
+    {"mpls pw ethernet cw"        ,"Ethernet MPLS PW (with CW)"                      ,6},
+    {"mpls pw ethernet no cw"     ,"Ethernet MPLS PW (no CW, early implementations)" ,7},
+    {"mpls pw generic cw"         ,"Generic MPLS PW (with Generic/Preferred MPLS CW)",8},
+    {NULL, NULL, -1}
+};
+
 static int mpls_filter[MPLSF_MAX];
+
+static gint mpls_default_payload = 0;
 
 static int hf_mpls_1st_nibble = -1;
 
@@ -223,10 +234,6 @@ static hf_register_info mplsf_info[] = {
       BASE_HEX, NULL, 0x0, "BIP16", HFILL }},
 };
 
-static dissector_handle_t ipv4_handle;
-static dissector_handle_t ipv6_handle;
-static dissector_handle_t eth_withoutfcs_handle;
-static dissector_handle_t data_handle;
 static dissector_table_t ppp_subdissector_table;
 static dissector_table_t mpls_subdissector_table;
 
@@ -293,8 +300,29 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
     if (!dissector_try_port(ppp_subdissector_table, channel_type, 
                             next_tvb, pinfo, tree)) {
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_dissector(find_dissector("data"), next_tvb, pinfo, tree);
     }
+}
+
+gboolean dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	guint8 nibble;
+	nibble = (tvb_get_guint8(tvb, 0 ) >> 4) & 0x0F;
+	switch ( nibble )
+	{
+	case 6:
+		call_dissector( find_dissector("ipv6"), tvb, pinfo, tree);
+		return TRUE;
+	case 4:
+		call_dissector( find_dissector("ip"), tvb, pinfo, tree);
+		return TRUE;
+	case 1:
+		dissect_pw_ach( tvb, pinfo, tree );
+		return TRUE;
+	default:
+		break;
+	}
+	return FALSE;
 }
 
 /*
@@ -316,6 +344,10 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
         return;
     }
+
+    if ( dissect_try_cw_first_nibble( tvb, pinfo, tree )) 
+       return;
+
     /* bits 4 to 7 and FRG bits are displayed together */
     flags = (tvb_get_guint8(tvb, 0) & 0x0F) << 2;
     frg = (tvb_get_guint8(tvb, 1) & 0xC0) >> 6;
@@ -336,7 +368,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    "Sequence Number: %d", sequence_number);
     }
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-    call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+    call_dissector( find_dissector("data"), next_tvb, pinfo, tree );
 }
 
 static void
@@ -547,30 +579,6 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     offset+=2;
 }
 
-/* 
- * FF: this function returns TRUE if the first 12 bytes in tvb looks like
- *     two valid ethernet addresses.  FALSE otherwise. 
- */
-static gboolean
-looks_like_plain_eth(tvbuff_t *tvb _U_)
-{
-    const gchar *manuf_name_da = NULL;
-    const gchar *manuf_name_sa = NULL;
-
-    if (tvb_reported_length_remaining(tvb, 0) < 14) {
-        return FALSE;
-    }
-
-    manuf_name_da = get_manuf_name_if_known(tvb_get_ptr(tvb, 0, 6));
-    manuf_name_sa = get_manuf_name_if_known(tvb_get_ptr(tvb, 6, 6));
-
-    if (manuf_name_da && manuf_name_sa) {
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
 static void
 dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -579,8 +587,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 exp;
     guint8 bos;
     guint8 ttl;
-    guint8 nibble;
-
     proto_tree  *mpls_tree = NULL;
     proto_item  *ti;
     tvbuff_t *next_tvb;
@@ -642,33 +648,27 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (bos) break;
     }
 
-    nibble = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
-    ti = proto_tree_add_uint(mpls_tree, hf_mpls_1st_nibble, tvb, offset, 1, nibble);
-    PROTO_ITEM_SET_HIDDEN(ti);
-
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-    if (!dissector_try_port(mpls_subdissector_table, label,
-                             next_tvb, pinfo, tree)) {
-        if (nibble == 6) {
-           call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-        } else if (nibble == 4) {
-           call_dissector(ipv4_handle, next_tvb, pinfo, tree);
-        } else if (nibble == 1) {
-           dissect_pw_ach(next_tvb, pinfo, tree);
-        } else if (nibble == 0) {
-           if (looks_like_plain_eth(next_tvb)) {
-               call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
-           } else {
+    if ( !dissector_try_port(mpls_subdissector_table, label, next_tvb, pinfo, tree))
+    {
+        switch ( mpls_default_payload )
+        {
+        case 0:
+               call_dissector( find_dissector("pw_eth_heuristic"), next_tvb, pinfo, tree);
+               break;
+        case 6:
+               call_dissector( find_dissector("pw_eth_cw"), next_tvb, pinfo, tree);
+               break;
+        case 7:
+               call_dissector( find_dissector("pw_eth_nocw"), next_tvb, pinfo, tree);
+               break;
+        default: /*fallthrough*/
+        case 8: 
                dissect_pw_mcw(next_tvb, pinfo, tree);
-           }
-        } else {
-               /*
-                * FF: no external hint, 1st nibble is not 6, 4, 1 or 0... 
-                * good luck!
-                */
-               call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+               break;
         }
+
     }
 }
 
@@ -681,6 +681,7 @@ proto_register_mpls(void)
 		&ett_mpls_pw_mcw,
 		&ett_mpls_oam,
 	};
+	module_t * module_mpls;
 
 	/* FF: mpls subdissector table is indexed by label */
 	mpls_subdissector_table = register_dissector_table("mpls.label",
@@ -689,36 +690,51 @@ proto_register_mpls(void)
 	proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
                                              "MPLS", "mpls");
 	proto_pw_ach = proto_register_protocol("PW Associated Channel Header",
-                                               "PWACH", "pwach");
+					       "PW Associated Channel", "pwach");
 	proto_pw_mcw = proto_register_protocol("PW MPLS Control Word (generic/preferred)",
-                                               "PWMCW", "pwmcw");
+					       "Generic PW (with CW)", "pwmcw");
+
 	proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("mpls", dissect_mpls, proto_mpls);
+	register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
+
+	module_mpls = prefs_register_protocol( proto_mpls, proto_reg_handoff_mpls );
+
+	prefs_register_enum_preference(	module_mpls,
+					"mplspref.payload",
+					"Default decoder for MPLS payload",
+					"Default decoder for MPLS payload",
+					&mpls_default_payload,
+					mpls_default_payload_defs,
+					FALSE );
 }
 
 void
 proto_reg_handoff_mpls(void)
 {
-	dissector_handle_t mpls_handle;
+	static gboolean initialized=FALSE;
 
-	/*
-	 * Get a handle for the IPv4 and IPv6 dissectors and PPP protocol dissector table.
-	 */
-	ipv4_handle = find_dissector("ip");
-	ipv6_handle = find_dissector("ipv6");
-	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        data_handle = find_dissector("data");
-        ppp_subdissector_table = find_dissector_table("ppp.protocol");
+	if ( !initialized )
+	{
+		dissector_handle_t mpls_handle;
 
-	mpls_handle = find_dissector("mpls");
-	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
-	dissector_add("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-	dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
-	dissector_add("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
-	dissector_add("chdlctype", ETHERTYPE_MPLS, mpls_handle);
-	dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-	dissector_add("gre.proto", ETHERTYPE_MPLS, mpls_handle);
-	dissector_add("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
-	dissector_add("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
+		ppp_subdissector_table = find_dissector_table("ppp.protocol");
+
+		mpls_handle = find_dissector("mpls");
+		dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
+		dissector_add("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
+		dissector_add("chdlctype", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add("gre.proto", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
+
+		mpls_handle = find_dissector("mplspwcw");
+		dissector_add( "mpls.label", LABEL_INVALID, mpls_handle );
+
+		initialized = TRUE;
+	}
 }
