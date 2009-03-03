@@ -1,6 +1,6 @@
 /* packet-bat.h
  * Routines for B.A.T.M.A.N. Layer 3 dissection
- * Copyright (C) 2007-2008 B.A.T.M.A.N. contributors:
+ * Copyright (C) 2007-2009 B.A.T.M.A.N. contributors:
  * Marek Lindner
  *
  * $Id$

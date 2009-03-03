@@ -1,6 +1,6 @@
 /* packet-bat.c
  * Routines for B.A.T.M.A.N. Layer 3 dissection
- * Copyright 2008, Sven Eckelmann <sven.eckelmann@gmx.de>
+ * Copyright 2008-2009 Sven Eckelmann <sven.eckelmann@gmx.de>
  *
  * $Id$
  *
@@ -253,19 +253,19 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, FALSE);
 		offset += 1;
-	}
 
-	tap_queue_packet(bat_tap, pinfo, batman_packeth);
+		tap_queue_packet(bat_tap, pinfo, batman_packeth);
 
-	for (i = 0; i < batman_packeth->hna_len; i++) {
-		next_tvb = tvb_new_subset(tvb, offset, 5, 5);
+		for (i = 0; i < batman_packeth->hna_len; i++) {
+			next_tvb = tvb_new_subset(tvb, offset, 5, 5);
 
-		if (have_tap_listener(bat_follow_tap)) {
-			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
+			if (have_tap_listener(bat_follow_tap)) {
+				tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
+			}
+
+			dissect_bat_hna(next_tvb, pinfo, bat_batman_tree);
+			offset += 5;
 		}
-
-		dissect_bat_hna(next_tvb, pinfo, tree);
-		offset += 5;
 	}
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
@@ -276,7 +276,7 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		dissect_bat_batman(next_tvb, pinfo, tree);
 	}
 }
 
@@ -687,6 +687,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_ipv4(bat_vis_entry_tree, hf_bat_vis_data_ip, tvb, 2, 4,  ip);
 	}
 }
+
 void proto_register_bat(void)
 {
 	module_t *bat_module = NULL;
