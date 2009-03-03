@@ -1423,6 +1423,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
       }
     }
   } else {
