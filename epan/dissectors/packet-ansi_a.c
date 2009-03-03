@@ -611,6 +611,9 @@ static const value_string ansi_rev_ms_info_rec_str[] = {
 #define NUM_REV_MS_INFO_REC (sizeof(ansi_rev_ms_info_rec_str)/sizeof(value_string))
 static gint ett_ansi_rev_ms_info_rec[NUM_REV_MS_INFO_REC];
 
+/*
+ * C.S0057 Table 1.5-1
+ */
 static const gchar *band_class_str[] = {
     "800 MHz Cellular System",
     "1.850 to 1.990 GHz Broadband PCS",
@@ -618,13 +621,20 @@ static const gchar *band_class_str[] = {
     "832 to 925 MHz JTACS Band",
     "1.750 to 1.870 GHz Korean PCS",
     "450 MHz NMT",
-    "2 GHz IMT-2000 Band",
-    "North American 700 MHz Cellular Band",
+    "2 GHz IMT-2000",
+    "Upper 700 MHz",
     "1.710 to 1.880 GHz PCS",
-    "880 to 960 MHz Band",
-    "Secondary 800 MHz Band",
-    "400 MHz European PAMR Band",
-    "800 MHz European PAMR Band"
+    "880 to 960 MHz",
+    "Secondary 800 MHz",
+    "400 MHz European PAMR",
+    "800 MHz European PAMR",
+    "2.5 GHz IMT-2000 Extension",
+    "US PCS 1.9 GHz",
+    "AWS",
+    "US 2.5 GHz",
+    "US 2.5 GHz Forward Link Only",
+    "700 MHz Public Safety",
+    "Lower 700 MHz"
 };
 #define NUM_BAND_CLASS_STR      (sizeof(band_class_str)/sizeof(gchar *))
 
@@ -677,6 +687,7 @@ static int hf_ansi_a_a2p_bearer_udp_port = -1;
 static int hf_ansi_a_so = -1;
 static int hf_ansi_a_cause_1 = -1;      /* 1 octet cause */
 static int hf_ansi_a_cause_2 = -1;      /* 2 octet cause */
+static int hf_ansi_a_meid_configured = -1;
 
 
 /* Initialize the subtree pointers */
@@ -696,6 +707,8 @@ static gint ett_so_list = -1;
 static gint ett_adds_user_part = -1;
 static gint ett_scr = -1;
 static gint ett_srvc_con_rec = -1;
+static gint ett_cm2_band_class = -1;
+static gint ett_vp_algs = -1;
 
 static char a_bigbuf[1024];
 static dissector_handle_t rtp_handle=NULL;
@@ -710,6 +723,7 @@ static address rtp_src_addr;
 static guint32 rtp_ipv4_addr;
 static struct e_in6_addr rtp_ipv6_addr;
 static guint16 rtp_port;
+static gboolean a_meid_configured = FALSE;
 
 
 typedef struct dgt_set_t
@@ -1514,10 +1528,10 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 static guint8
 elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8      oct;
-    guint8      num_bands;
+    guint8      oct, oct2;
+    guint8      num_bands, band_class_count;
     guint32     curr_offset;
-    gint        temp_int;
+    gint        band_class;
     proto_tree  *subtree;
     proto_item  *item;
     const gchar *str;
@@ -1689,19 +1703,21 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     if (oct & 0x10)
     {
-        str = "";
+	str = "";
         g_strlcat(add_string, " (MEID configured)", string_len);
+	a_meid_configured = TRUE;
     }
     else
     {
-        str = "not ";
+	str = "not ";
     }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+    proto_tree_add_boolean_format(subtree, hf_ansi_a_meid_configured, tvb,
+	curr_offset, 1, a_meid_configured,
         "%s :  MEID %sconfigured",
-        a_bigbuf,
-        str);
+	a_bigbuf,
+	str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
@@ -1730,15 +1746,15 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     curr_offset++;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    NO_MORE_DATA_CHECK(len);
+
+    band_class_count = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
         "Count of Band Class Entries: %u",
-        oct);
+        band_class_count);
 
     curr_offset++;
-
-    NO_MORE_DATA_CHECK(len);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1750,69 +1766,137 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     NO_MORE_DATA_CHECK(len);
 
-    SHORT_DATA_CHECK(len - (curr_offset - offset), 3);
-
-    num_bands = 0;
-    do
+    if (oct > 0)
     {
-        oct = tvb_get_guint8(tvb, curr_offset);
+	SHORT_DATA_CHECK(len - (curr_offset - offset), 3);
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s :  Reserved",
-            a_bigbuf);
+	num_bands = 0;
+	do
+	{
+	    item =
+		proto_tree_add_text(tree, tvb, curr_offset, 3,
+		    "Band Class Entry [%u]",
+		    num_bands + 1);
 
-        temp_int = oct & 0x1f;
-        if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
-        {
-            str = "Reserved";
-        }
-        else
-        {
-            str = band_class_str[temp_int];
-        }
+	    subtree = proto_item_add_subtree(item, ett_cm2_band_class);
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s :  Band Class: %s",
-            a_bigbuf,
-            str);
+	    oct = tvb_get_guint8(tvb, curr_offset);
 
-        curr_offset++;
+	    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
 
-        oct = tvb_get_guint8(tvb, curr_offset);
+	    band_class = oct & 0x1f;
+	    if ((band_class < 0) || (band_class >= (gint) NUM_BAND_CLASS_STR))
+	    {
+		str = "Reserved";
+	    }
+	    else
+	    {
+		str = band_class_str[band_class];
+	    }
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s :  Reserved",
-            a_bigbuf);
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Band Class: %s",
+		a_bigbuf,
+		str);
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s :  Band Class %u Air Interfaces Supported: %u",
-            a_bigbuf,
-            num_bands,
-            oct & 0x1f);
+	    curr_offset++;
 
-        curr_offset++;
+	    oct2 = tvb_get_guint8(tvb, curr_offset);
+	    oct = tvb_get_guint8(tvb, curr_offset+1);
 
-        oct = tvb_get_guint8(tvb, curr_offset);
+	    if (oct < 4)
+	    {
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x80, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE0 (CDMA mode in Band Class 1 and Band Class 4)",
+		    a_bigbuf);
 
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "Band Class %u MS Protocol Level: %u",
-            num_bands,
-            oct);
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x40, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE1 (CDMA mode in Band Class 0 and Band Class 3)",
+		    a_bigbuf);
 
-        curr_offset++;
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x20, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE2 (Analog mode)",
+		    a_bigbuf);
 
-        num_bands++;
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x10, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE3 (Wide analog mode)",
+		    a_bigbuf);
+
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x08, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE4 (Narrow analog mode)",
+		    a_bigbuf);
+	    }
+	    else
+	    {
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x80, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE0 (CDMA mode)",
+		    a_bigbuf);
+
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x40, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE1 (CDMA mode)",
+		    a_bigbuf);
+
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x20, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE2 (Analog mode)",
+		    a_bigbuf);
+
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x10, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE3 (Wide analog mode)",
+		    a_bigbuf);
+
+		other_decode_bitfield_value(a_bigbuf, oct2, 0x08, 8);
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, 1,
+		    "%s :  Band Class Air Interfaces OP_MODE4 (Narrow analog mode)",
+		    a_bigbuf);
+	    }
+
+	    other_decode_bitfield_value(a_bigbuf, oct2, 0x07, 8);
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+
+	    curr_offset++;
+
+	    proto_tree_add_text(subtree,
+		tvb, curr_offset, 1,
+		"Band Class MS Protocol Level: %u",
+		oct);
+
+	    curr_offset++;
+
+	    proto_item_append_text(item, ": (%d)", band_class);
+
+	    num_bands++;
+	}
+	while (((len - (curr_offset - offset)) >= 3) &&
+	    (num_bands < band_class_count));
     }
-    while ((len - (curr_offset - offset)) >= 3);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2214,8 +2298,8 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
             value);
 
         g_snprintf(add_string, string_len, " - %sESN (0x%04x)",
-            (value & 0x80000000) ? "p" : "",
-            value);
+	    a_meid_configured ? "p" : "",
+	    value);
 
         curr_offset += 4;
         break;
@@ -5834,9 +5918,8 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     guint8      oct;
     guint8      oct_len;
     guint32     curr_offset;
-    gboolean    rev_pdch_supported = FALSE;
-    gboolean    for_pdch_supported = FALSE;
-    gboolean    dcch_supported;
+    proto_tree  *subtree;
+    proto_item  *item = NULL;
     const gchar *str;
 
     curr_offset = offset;
@@ -5853,19 +5936,17 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         break;
 
     case A_VARIANT_IOS501:
-        rev_pdch_supported = (oct & 0x80) ? TRUE : FALSE;
         other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
         proto_tree_add_text(tree, tvb, curr_offset, 1,
             "%s :  REV_PDCH Supported: IS-2000 R-PDCH %ssupported",
             a_bigbuf,
-            rev_pdch_supported ? "" : "not ");
+            (oct & 0x80) ? "" : "not ");
 
-        for_pdch_supported = (oct & 0x40) ? TRUE : FALSE;
         other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
         proto_tree_add_text(tree, tvb, curr_offset, 1,
             "%s :  FOR_PDCH Supported: IS-2000 F-PDCH %ssupported",
             a_bigbuf,
-            for_pdch_supported ? "" : "not ");
+            (oct & 0x40) ? "" : "not ");
 
         other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
         proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -5875,12 +5956,11 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         break;
     }
 
-    dcch_supported = (oct & 0x10) ? TRUE : FALSE;
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
         "%s :  DCCH Supported: IS-2000 DCCH %ssupported",
         a_bigbuf,
-        dcch_supported ? "" : "not ");
+        (oct & 0x10) ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -5972,133 +6052,188 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         NO_MORE_DATA_CHECK(len);
     }
 
-    if (dcch_supported)
+    /*
+     * DCCH
+     */
+    oct_len = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"DCCH Information: Bit-Exact Length Octet Count: %u",
+	oct_len);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
+	a_bigbuf,
+	oct & 0x07);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    if (oct_len > 0)
     {
-        oct_len = tvb_get_guint8(tvb, curr_offset);
+	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "DCCH Information: Bit-Exact Length Octet Count: %u",
-            oct_len);
+	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+	    "DCCH Information Content");
 
-        curr_offset++;
+	curr_offset += oct_len;
 
-        NO_MORE_DATA_CHECK(len);
-
-        oct = tvb_get_guint8(tvb, curr_offset);
-
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  Reserved",
-            a_bigbuf);
-
-        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
-            a_bigbuf,
-            oct & 0x07);
-
-        curr_offset++;
-
-        NO_MORE_DATA_CHECK(len);
-
-        if (oct_len > 0)
-        {
-            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
-
-            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-                "DCCH Information Content");
-
-            curr_offset += oct_len;
-
-            NO_MORE_DATA_CHECK(len);
-        }
+	NO_MORE_DATA_CHECK(len);
     }
 
-    if (for_pdch_supported)
+    /*
+     * FOR_PDCH
+     */
+    oct_len = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"FOR_PDCH Information: Bit-Exact Length Octet Count: %u",
+	oct_len);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  FOR_PDCH Information: Bit-Exact Length Fill Bits: %u",
+	a_bigbuf,
+	oct & 0x07);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    if (oct_len > 0)
     {
-        oct_len = tvb_get_guint8(tvb, curr_offset);
+	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "FOR_PDCH Information: Bit-Exact Length Octet Count: %u",
-            oct_len);
+	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+	    "FOR_PDCH Information Content");
 
-        curr_offset++;
+	curr_offset += oct_len;
 
-        NO_MORE_DATA_CHECK(len);
-
-        oct = tvb_get_guint8(tvb, curr_offset);
-
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  Reserved",
-            a_bigbuf);
-
-        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  FOR_PDCH Information: Bit-Exact Length Fill Bits: %u",
-            a_bigbuf,
-            oct & 0x07);
-
-        curr_offset++;
-
-        NO_MORE_DATA_CHECK(len);
-
-        if (oct_len > 0)
-        {
-            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
-
-            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-                "FOR_PDCH Information Content");
-
-            curr_offset += oct_len;
-
-            NO_MORE_DATA_CHECK(len);
-        }
+	NO_MORE_DATA_CHECK(len);
     }
 
-    if (rev_pdch_supported)
+    /*
+     * REV_PDCH
+     */
+    oct_len = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"REV_PDCH Information: Bit-Exact Length Octet Count: %u",
+	oct_len);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  REV_PDCH Information: Bit-Exact Length Fill Bits: %u",
+	a_bigbuf,
+	oct & 0x07);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    if (oct_len > 0)
     {
-        oct_len = tvb_get_guint8(tvb, curr_offset);
+	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
 
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "REV_PDCH Information: Bit-Exact Length Octet Count: %u",
-            oct_len);
+	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+	    "REV_PDCH Information Content");
 
-        curr_offset++;
+	curr_offset += oct_len;
 
-        NO_MORE_DATA_CHECK(len);
+	NO_MORE_DATA_CHECK(len);
+    }
 
-        oct = tvb_get_guint8(tvb, curr_offset);
+    oct = tvb_get_guint8(tvb, curr_offset);
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  Reserved",
-            a_bigbuf);
+    item =
+	proto_tree_add_text(tree, tvb,
+	    curr_offset, 1,
+	    "VP Algorithms Supported%s",
+	    oct ? "" : ":  No voice privacy supported");
 
-        other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-        proto_tree_add_text(tree, tvb, curr_offset, 1,
-            "%s :  REV_PDCH Information: Bit-Exact Length Fill Bits: %u",
-            a_bigbuf,
-            oct & 0x07);
+    if (oct)
+    {
+	subtree =
+	    proto_item_add_subtree(item, ett_vp_algs);
 
-        curr_offset++;
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  %s",
+	    a_bigbuf,
+	    (oct & 0x80) ? "No extension" : "Extended");
 
-        NO_MORE_DATA_CHECK(len);
+	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A7:  Reserved",
+	    a_bigbuf);
 
-        if (oct_len > 0)
-        {
-            SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A6:  Reserved",
+	    a_bigbuf);
 
-            proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-                "REV_PDCH Information Content");
+	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A5:  Reserved",
+	    a_bigbuf);
 
-            curr_offset += oct_len;
+	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A4:  Reserved",
+	    a_bigbuf);
 
-            NO_MORE_DATA_CHECK(len);
-        }
+	other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A3:  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A2:  Advanced Encryption Standard (AES)",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  A1:  Private long code",
+	    a_bigbuf);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -7951,15 +8086,15 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 static guint8
 elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8      oct;
-    proto_item  *item;
-    proto_tree  *subtree;
-    guint8      num_bearers;
-    guint32     curr_offset, orig_offset;
-    guint8      ip_addr_type;
-    gboolean    ext;
-    guint8      ext_len;
-    const gchar *str;
+    guint8				oct;
+    proto_item				*item;
+    proto_tree				*subtree;
+    guint8				num_bearers;
+    guint32				curr_offset, orig_offset;
+    guint8				ip_addr_type;
+    gboolean				ext;
+    guint8				ext_len;
+    const gchar				*str;
     const gchar                         *mime_type;
     gboolean                            format_assigned;
     gboolean                            first_assigned_found;
@@ -11486,7 +11621,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *
     ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
 }
 
-/* GENERIC MAP DISSECTOR FUNCTIONS */
+/* GENERIC DISSECTOR FUNCTIONS */
 
 static void
 dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -11575,6 +11710,8 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (msg_str == NULL) return;
 
     if ((len - offset) <= 0) return;
+
+    a_meid_configured = FALSE;
 
     /*
      * decode elements
@@ -11771,6 +11908,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ((len - offset) <= 0) return;
 
+    a_meid_configured = FALSE;
+
     /*
      * decode elements
      */
@@ -11928,6 +12067,11 @@ proto_register_ansi_a(void)
             { "Cause",  "ansi_a_bsmap.cause_2",
             FT_UINT16, BASE_DEC, NULL, 0,
             "", HFILL }
+        },
+        { &hf_ansi_a_meid_configured,
+            { "Is MEID configured",  "ansi_a_bsmap.meid_configured",
+	    FT_BOOLEAN, BASE_NONE, NULL, 0,
+            "Is MEID configured", HFILL }
         }
     };
 
@@ -11947,7 +12091,7 @@ proto_register_ansi_a(void)
 #define MAX_NUM_DTAP_MSG        MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)
 #define MAX_NUM_BSMAP_MSG       MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
 #define MAX_NUM_ELEM_1          MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
-#define NUM_INDIVIDUAL_ELEMS    16
+#define NUM_INDIVIDUAL_ELEMS    18
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
@@ -11982,6 +12126,8 @@ proto_register_ansi_a(void)
     ett[13] = &ett_adds_user_part;
     ett[14] = &ett_scr;
     ett[15] = &ett_srvc_con_rec;
+    ett[16] = &ett_cm2_band_class;
+    ett[17] = &ett_vp_algs;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
