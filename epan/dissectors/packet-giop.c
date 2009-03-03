@@ -300,6 +300,7 @@
 #include <epan/prefs.h>
 
 #include "packet-giop.h"
+#include "packet-ziop.h"
 #include "packet-tcp.h"
 #include <wsutil/file_util.h>
 
@@ -586,8 +587,6 @@ static const value_string service_context_ids[] = {
 
 
 
-
-#define GIOP_MAGIC 	 "GIOP"
 
 /*
  * TAGS for IOR Profiles
@@ -4053,8 +4052,26 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return message_size + GIOP_HEADER_SIZE;
 }
 
+static gboolean
+dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
+
+
+gboolean dissect_giop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  return dissect_giop_heur(tvb, pinfo, tree);
+}
+
+
 static void
 dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+
+	if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) != 0) {
+
+          if ( tvb_memeql(tvb, 0, ZIOP_MAGIC ,4) == 0)
+            dissect_ziop_heur(tvb, pinfo, tree);
+
+          return;
+        }
+
 	tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
 	    get_giop_pdu_len, dissect_giop_common);
 }

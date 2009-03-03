@@ -603,6 +603,7 @@ DISSECTOR_SRC = \
 	packet-megaco.c		\
 	packet-mgcp.c		\
 	packet-mikey.c		\
+	packet-miop.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
 	packet-ms-mms.c		\
@@ -884,6 +885,7 @@ DISSECTOR_SRC = \
 	packet-ypserv.c		\
 	packet-ypxfr.c		\
 	packet-zebra.c		\
+	packet-ziop.c		\
 	packet-zrtp.c
 
 #
@@ -1065,6 +1067,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mac-lte.h		\
 	packet-mgcp.h		\
 	packet-mikey.h	\
+	packet-miop.h	\
 	packet-mip6.h	\
 	packet-mms.h	\
 	packet-mount.h	\
@@ -1208,6 +1211,7 @@ DISSECTOR_INCLUDES =	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\
 	packet-ypxfr.h	\
+	packet-ziop.h	\
 	rpc_defrag.h	\
 	$(GENERATED_HEADER_FILES) \
 	$(CUSTOM_HEADER_FILES)
