@@ -66,8 +66,6 @@ static int hf_payload = -1;
 
 static gint ett_bjnp = -1;
 
-static dissector_handle_t bjnp_handle = NULL;
-
 static const value_string dev_type_vals[] = {
   { PRINTER_COMMAND,    "Printer Command"       },
   { SCANNER_COMMAND,    "Scanner Command"       },
@@ -182,6 +180,8 @@ void proto_register_bjnp (void)
 
 void proto_reg_handoff_bjnp (void)
 {
+  dissector_handle_t bjnp_handle;
+
   bjnp_handle = find_dissector (PFNAME);
   dissector_add ("udp.port", BJNP_PORT1, bjnp_handle);
   dissector_add ("udp.port", BJNP_PORT2, bjnp_handle);
