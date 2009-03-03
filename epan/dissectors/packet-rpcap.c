@@ -208,9 +208,7 @@ static gint ett_findalldevs_ifaddr = -1;
 static gint ett_ifaddr = -1;
 static gint ett_sampling_request = -1;
 
-static dissector_handle_t rpcap_handle;
 static dissector_handle_t data_handle;
-
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
@@ -1315,7 +1313,7 @@ proto_register_rpcap (void)
   rpcap_module = prefs_register_protocol (proto_rpcap, proto_reg_handoff_rpcap);
 
   prefs_register_bool_preference (rpcap_module, "desegment_pdus",
-				  "Reassemble RPCAP PDUs spanning multiple TCP segments",
+				  "Reassemble PDUs spanning multiple TCP segments",
 				  "Whether the RPCAP dissector should reassemble PDUs"
 				  " spanning multiple TCP segments."
 				  " To use this option, you must also enable \"Allow subdissectors"
@@ -1339,7 +1337,6 @@ proto_reg_handoff_rpcap (void)
   static gboolean rpcap_prefs_initialized = FALSE;
 
   if (!rpcap_prefs_initialized) {
-    rpcap_handle = find_dissector (PFNAME);
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
     
