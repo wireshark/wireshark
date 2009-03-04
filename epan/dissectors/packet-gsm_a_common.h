@@ -131,9 +131,14 @@ extern elem_fcn nas_eps_common_elem_fcn[];
 extern int hf_nas_eps_common_elem_id;
 
 extern const value_string nas_emm_elem_strings[];
-extern gint ett_nas_emm_elem[];
+extern gint ett_nas_eps_emm_elem[];
 extern elem_fcn emm_elem_fcn[];
 extern int hf_nas_emm_elem_id;
+
+extern const value_string nas_esm_elem_strings[];
+extern gint ett_nas_eps_esm_elem[];
+extern elem_fcn esm_elem_fcn[];
+extern int hf_nas_esm_elem_id;
 
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
@@ -170,6 +175,7 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_PDU_TYPE_BSSMAP_LE	8
 #define NAS_PDU_TYPE_COMMON		9
 #define NAS_PDU_TYPE_EMM		10
+#define NAS_PDU_TYPE_ESM		11
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -271,8 +277,13 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		break; \
 	case NAS_PDU_TYPE_EMM: \
 		SEV_elem_names = nas_emm_elem_strings; \
-		SEV_elem_ett = ett_nas_emm_elem; \
+		SEV_elem_ett = ett_nas_eps_emm_elem; \
 		SEV_elem_funcs = emm_elem_fcn; \
+		break; \
+	case NAS_PDU_TYPE_ESM: \
+		SEV_elem_names = nas_esm_elem_strings; \
+		SEV_elem_ett = ett_nas_eps_esm_elem; \
+		SEV_elem_funcs = esm_elem_fcn; \
 		break; \
 	default: \
 		proto_tree_add_text(tree, \

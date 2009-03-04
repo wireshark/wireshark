@@ -51,6 +51,7 @@ static int hf_nas_eps_emm_eps_att_type = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
+static int hf_nas_eps_esm_msg_cont = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
 static int hf_nas_eps_emm_res = -1;
@@ -61,8 +62,21 @@ static int hf_nas_eps_eps_update_result_value = -1;
 static int hf_nas_eps_eps_update_type_value = -1;
 static int hf_nas_eps_service_type = -1;
 
+/* ESM */
+static int hf_nas_eps_msg_esm_type = -1;
+int hf_nas_esm_elem_id = -1;
+static int hf_nas_eps_esm_request_type = -1;
+static int hf_nas_eps_esm_pdn_type = -1;
+
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
+static int ett_nas_eps_esm_msg_cont = -1;
+
+/* Global variables */
+packet_info *gpinfo;
+
+/* Forward declarations */
+static void dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Table 9.8.1: Message types for EPS mobility management
  *	0	1	-	-	-	-	-	-		EPS mobility management messages
@@ -99,6 +113,32 @@ static const value_string nas_msg_emm_strings[] = {
 	{ 0x61,	"EMM information"},
 	{ 0x62,	"Downlink NAS transport"},
 	{ 0x63,	"Uplink NAS transport"},
+	{ 0,	NULL }
+};
+
+/* Table 9.8.2: Message types for EPS session management */
+
+static const value_string nas_msg_esm_strings[] = {	
+	{ 0xc1,	"Activate default EPS bearer context request"},
+	{ 0xc2,	"Activate default EPS bearer context accept"},
+	{ 0xc3,	"Activate default EPS bearer context reject"},
+	{ 0xc5,	"Activate dedicated EPS bearer context request"},
+	{ 0xc6,	"Activate dedicated EPS bearer context accept"},
+	{ 0xc7,	"Activate dedicated EPS bearer context reject"},
+	{ 0xc9,	"Modify EPS bearer context request"},
+	{ 0xca,	"Modify EPS bearer context accept"},
+	{ 0xcb,	"Modify EPS bearer context reject"},
+	{ 0xcd,	"Deactivate EPS bearer context request"},
+	{ 0xce,	"Deactivate EPS bearer context accept"},
+	{ 0xd0,	"PDN connectivity request"},
+	{ 0xd1,	"PDN connectivity reject"},
+	{ 0xd2,	"PDN disconnect request"},
+	{ 0xd3,	"PDN disconnect reject"},
+	{ 0xd4,	"Bearer resource modification request"},
+	{ 0xd5,	"Bearer resource modification reject"},
+	{ 0xd9,	"ESM information request"},
+	{ 0xda,	"ESM information response"},
+	{ 0xe8,	"ESM status"},
 	{ 0,	NULL }
 };
 
@@ -253,7 +293,7 @@ const value_string nas_emm_elem_strings[] = {
 	{ 0, NULL }
 };
 #define	NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
-gint ett_nas_emm_elem[NUM_NAS_EMM_ELEM];
+gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
 typedef enum
 {
@@ -533,18 +573,25 @@ static const value_string nas_eps_emm_eps_update_type_vals[] = {
 };
 
 /*
- * 9.9.3.15	ESM message conta
+ * 9.9.3.15	ESM message container
  */
 static guint16
-de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+	proto_item *item;
+	proto_tree *sub_tree;
+	tvbuff_t	*new_tvb;
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	item = proto_tree_add_item(tree, hf_nas_eps_esm_msg_cont, tvb, curr_offset, len, FALSE);
+	sub_tree = proto_item_add_subtree(item, ett_nas_eps_esm_msg_cont);
+
 	/* This IE can contain any ESM PDU as defined in subclause 8.3. */
+	new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+	dissect_nas_eps(new_tvb, gpinfo, sub_tree);
 
 	return(len);
 }
@@ -767,30 +814,86 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 }
 /*
  * 9.9.4	EPS Session Management (ESM) information elements
- *
- * 9.9.4.1	Access point name
+ */
+
+/*
+ * 9.9.4.1 Access point name
  * See subclause 10.5.6.1 in 3GPP TS 24.008 [6].
- * 9.9.4.2	ESM cause
- * 9.9.4.2a	ESM information transfer flag
- * Editor's note: The coding of this information element is FFS.
- * 9.9.4.3	Linked EPS bearer identity
- * 9.9.4.4	LLC service access point identifier
- * See subclause 10.5.6.9 in 3GPP TS 24.008 [6].
- * 9.9.4.5	Packet flow identifier
- * See subclause 10.5.6.11 in 3GPP TS 24.008 [6].
- * 9.9.4.6	PDN address
- * 9.9.4.7	PDN type
- * 9.9.4.8	Protocol configuration options
- * See subclause 10.5.6.3 in 3GPP TS 24.008 [6].
- * 9.9.4.9	Quality of service
- * See subclause 10.5.6.5 in 3GPP TS 24.008 [6].
- * 9.9.4.10	Radio priority
- * See subclause 10.5.7.2 in 3GPP TS 24.008 [6].
- * 9.9.4.11	Request type
- * 9.9.4.12	SDF quality of service
- * 9.9.4.13	Traffic flow template
- * See subclause 10.5.6.12 in 3GPP TS 24.008 [6].
- * 9.9.4.14	Transaction identifier
+ */
+/*
+ * 9.9.4.2 APN aggregate maximum bit rate
+ * 9.9.4.3 EPS quality of service
+ * 9.9.4.1 Access point name
+ * 9.9.4.2 APN aggregate maximum bit rate 
+ * 9.9.4.3 EPS quality of service 
+ * 9.9.4.4 ESM cause
+ */
+/*
+ * 9.9.4.5 ESM information transfer flag 
+ */
+static guint16
+de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+	return(len);
+}
+/*
+ * 9.9.4.6 Linked EPS bearer identity 
+ * 9.9.4.7 LLC service access point identifier 
+ * 9.9.4.8 Packet flow identifier 
+ * 9.9.4.9 PDN address
+/*
+ * 9.9.4.10 PDN type
+ * Coded inline 1/2 octet
+ */
+static const value_string nas_eps_esm_pdn_type_values[] = {
+	{ 0x1,	"IPv4" },
+	{ 0x2,	"IPv6" },
+	{ 0x3,	"IPv4v6" },
+	{ 0, NULL }
+};
+
+/*
+ * 9.9.4.11 Protocol configuration options 
+ * See subclause 10.5.6.3 in 3GPP TS 24.008
+ */
+/*
+ * 9.9.4.12 Quality of service
+ * See subclause 10.5.6.5 in 3GPP TS 24.008
+ */
+/*
+ * 9.9.4.13 Radio priority 
+ * See subclause 10.5.7.2 in 3GPP TS 24.008
+ */
+/*
+ * 9.9.4.14 Request type
+ * Coded inline 1/2 octet
+ */
+static const value_string nas_eps_esm_request_type_values[] = {
+	{ 0x1,	"Initial attach" },
+	{ 0x2,	"Handover" },
+	{ 0, NULL }
+};
+/*
+ * 9.9.4.15 Traffic flow aggregate description 
+ * The Traffic flow aggregate description information element is encoded using the same format as the Traffic flow
+ * template information element (see subclause 10.5.6.12 in 3GPP TS 24.008 [13]). When sending this IE, the UE shall
+ * assign the packet filter identifier values so that they are unique across all packet filters for the PDN connection.
+ */
+/*
+ * 9.9.4.16 Traffic flow template
+ * See subclause 10.5.6.12 in 3GPP TS 24.008
+ */
+/*
+ * 9.9.4.17 Transaction identifier 
+ * The Transaction identifier information element is coded as the Linked TI information element in 3GPP TS 24.008 [13],
+ * subclause 10.5.6.7.
  */
 
 guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -831,6 +934,77 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	de_emm_ue_net_cap,			/* 9.9.3.34	UE network capability */
 	de_emm_ue_ra_cap_inf_upd_need, /* 9.9.3.35	UE radio capability information update needed */
 	de_emm_ue_sec_cap,			/* 9.9.3.36	UE security capability */
+	NULL,	/* NONE */
+};
+
+/* 9.9.4 EPS Session Management (ESM) information elements */
+const value_string nas_esm_elem_strings[] = {
+	{ 0x00,	"Access point name" },						/* 9.9.4.1 Access point name */
+	{ 0x00,	"APN aggregate maximum bit rate" },			/* 9.9.4.2 APN aggregate maximum bit rate */ 
+	{ 0x00,	"EPS quality of service" },					/* 9.9.4.3 EPS quality of service */
+	{ 0x00,	"ESM cause" },								/* 9.9.4.4 ESM cause */
+	{ 0x00,	"ESM information transfer flag" },			/* 9.9.4.5 ESM information transfer flag */ 
+	{ 0x00,	"Linked EPS bearer identity" },				/* 9.9.4.6 Linked EPS bearer identity */
+	{ 0x00,	"LLC service access point identifier" },	/* 9.9.4.7 LLC service access point identifier */ 
+	{ 0x00,	"Packet flow identifier" },					/* 9.9.4.8 Packet flow identifier */
+	{ 0x00,	"PDN address" },							/* 9.9.4.9 PDN address */
+	{ 0x00,	"PDN type" },								/* 9.9.4.10 PDN type */
+	{ 0x00,	"Protocol configuration options" },			/* 9.9.4.11 Protocol configuration options */ 
+	{ 0x00,	"Quality of service" },						/* 9.9.4.12 Quality of service */
+	{ 0x00,	"Radio priority" },							/* 9.9.4.13 Radio priority */
+	{ 0x00,	"Request type" },							/* 9.9.4.14 Request type */
+	{ 0x00,	"Traffic flow aggregate description" },		/* 9.9.4.15 Traffic flow aggregate description */ 
+	{ 0x00,	"Traffic flow templat" },					/* 9.9.4.16 Traffic flow template */
+	{ 0x00,	"Transaction identifier" },					/* 9.9.4.17 Transaction identifier */
+	{ 0, NULL }
+};
+
+
+#define	NUM_NAS_ESM_ELEM (sizeof(nas_esm_elem_strings)/sizeof(value_string))
+gint ett_nas_eps_esm_elem[NUM_NAS_ESM_ELEM];
+
+typedef enum
+{
+	DE_ESM_APN,						/* 9.9.4.1 Access point name */
+	DE_ESM_APN_AGR_MAX_BR,			/* 9.9.4.2 APN aggregate maximum bit rate */
+	DE_ESM_EPS_QOS,					/* 9.9.4.3 EPS quality of service */
+	DE_ESM_CAUSE,					/* 9.9.4.4 ESM cause */
+	DE_ESM_INF_TRF_FLG,				/* 9.9.4.5 ESM information transfer flag */ 
+	DE_ESM_LNKED_EPS_B_ID,			/* 9.9.4.6 Linked EPS bearer identity  */
+	DE_ESM_LLC_SAPI,				/* 9.9.4.7 LLC service access point identifier */ 
+	DE_ESM_P_FLW_ID,				/* 9.9.4.8 Packet flow identifier  */
+	DE_ESM_PDN_ADDR,				/* 9.9.4.9 PDN address */
+	DE_ESM_PDN_TYPE,				/* 9.9.4.10 PDN type */
+	DE_ESM_PROT_CONF_OPT,			/* 9.9.4.11 Protocol configuration options */ 
+	DE_ESM_QOS,						/* 9.9.4.12 Quality of service */
+	DE_ESM_RA_PRI,					/* 9.9.4.13 Radio priority  */
+	DE_ESM_REQ_TYPE,				/* 9.9.4.14 Request type */
+	DE_ESM_TRAF_FLOW_AGR_DESC,		/* 9.9.4.15 Traffic flow aggregate description */ 
+	DE_ESM_TRAF_FLOW_TEMPL,			/* 9.9.4.16 Traffic flow template */
+	DE_ESM_TID,						/* 9.9.4.17 Transaction identifier  */
+	DE_ESM_NONE						/* NONE */
+}
+
+nas_esm_elem_idx_t;
+
+guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+	NULL,						/* 9.9.4.1 Access point name */
+	NULL,			/* 9.9.4.2 APN aggregate maximum bit rate */
+	NULL,					/* 9.9.4.3 EPS quality of service */
+	NULL,					/* 9.9.4.4 ESM cause */
+	de_esm_inf_trf_flg,				/* 9.9.4.5 ESM information transfer flag */ 
+	NULL,			/* 9.9.4.6 Linked EPS bearer identity  */
+	NULL,				/* 9.9.4.7 LLC service access point identifier */ 
+	NULL,				/* 9.9.4.8 Packet flow identifier  */
+	NULL,				/* 9.9.4.9 PDN address */
+	NULL,				/* 9.9.4.10 PDN type */
+	NULL,			/* 9.9.4.11 Protocol configuration options */ 
+	NULL,						/* 9.9.4.12 Quality of service */
+	NULL,					/* 9.9.4.13 Radio priority  */
+	NULL,				/* 9.9.4.14 Request type */
+	NULL,		/* 9.9.4.15 Traffic flow aggregate description */ 
+	NULL,			/* 9.9.4.16 Traffic flow template */
+	NULL,						/* 9.9.4.17 Transaction identifier  */
 	NULL,	/* NONE */
 };
 
@@ -1062,7 +1236,6 @@ nas_emm_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	consumed = len;
 	/*
 	 * Authentication response parameter 9.9.3.4	M	LV	5-17
 	 */
@@ -1107,7 +1280,6 @@ nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	consumed = len;
 	/* NAS message container	NAS message container 9.9.3.22	M	LV	3-252 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, "");
 
@@ -1125,8 +1297,6 @@ nas_emm_emm_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	consumed = len;
 
 	/* 43	Full name for network	Network name 9.9.3.24	O	TLV	3-? */
 	ELEM_OPT_TLV(0x43, GSM_A_PDU_TYPE_DTAP, DE_NETWORK_NAME, " - Full name for network");
@@ -1156,8 +1326,6 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	consumed = len;
-
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
 
@@ -1176,9 +1344,6 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-
-	consumed = len;
-
 
 	/* Service type	Service type 9.9.3.27	M	V	1/2 Service type*/
 	bit_offset = curr_offset<<3;
@@ -1212,8 +1377,6 @@ nas_emm_guti_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
 	curr_offset = offset;
 	curr_len = len;
-
-	consumed = len;
 
 	/* GUTI	EPS mobile identity 9.9.3.12	M	LV	12 */
 	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - GUTI");
@@ -1615,18 +1778,109 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
  */
 /*
- * 8.3.3	Activate dedicated EPS bearer context requ
+ * 8.3.3	Activate dedicated EPS bearer context request
  *
  */
 
 /*
  * 8.3.4	Activate default EPS bearer context accept
  */
+/*
+ * 8.3.5	Activate default EPS bearer context reject
+ * 8.3.6 Activate default EPS bearer context request
+ * 8.3.7 Bearer resource modification reject
+ * 8.3.8 Bearer resource modification request
+ * 8.3.9 Deactivate EPS bearer context accept
+ * 8.3.10 Deactivate EPS bearer context request
+ * 8.3.11 ESM information request
+ * 8.3.12 ESM information response
+ * 8.3.13 ESM status
+ * 8.3.14 Modify EPS bearer context accept
+ * 8.3.15 Modify EPS bearer context reject
+ * 8.3.16 Modify EPS bearer context request
+ */
+/*
+ * 8.3.17 PDN connectivity reject
+ */
+/*
+ * 8.3.18 PDN connectivity request
+ */
+static void
+nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	bit_offset=curr_offset<<3;
+	/* Request type 9.9.4.14 M V 1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_request_type, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	
+	/* PDN type PDN type 9.9.4.10 M V 1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix up the lengths */
+	consumed = 1;/*Remove later */
+	curr_len--;
+	curr_offset++;
+
+	/* D- ESM information transfer flag 9.9.4.5 O TV 1 */
+	ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , "" );
+	/* 28 Access point name 9.9.4.1 O TLV 3-102 */
+	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	/* 27 Protocol configuration options 9.9.4.11 O TLV 3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.19 PDN disconnect reject
+ * 8.3.20 PDN disconnect request
+ */
 
 
+#define	NUM_NAS_MSG_ESM (sizeof(nas_msg_esm_strings)/sizeof(value_string))
+static gint ett_nas_msg_esm[NUM_NAS_MSG_ESM];
+static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+	NULL,	/* Activate default EPS bearer context request*/
+	NULL,	/* Activate default EPS bearer context accept*/
+	NULL,	/* Activate default EPS bearer context reject*/
+	NULL,	/* Activate dedicated EPS bearer context request*/
+	NULL,	/* Activate dedicated EPS bearer context accept*/
+	NULL,	/* Activate dedicated EPS bearer context reject*/
+	NULL,	/* Modify EPS bearer context request*/
+	NULL,	/* Modify EPS bearer context accept*/
+	NULL,	/* Modify EPS bearer context reject*/
+	NULL,	/* Deactivate EPS bearer context request*/
+	NULL,	/* Deactivate EPS bearer context accept*/
+	nas_esm_pdn_con_req,	/* 8.3.18 PDN connectivity request */
+	NULL,	/* PDN connectivity reject*/
+	NULL,	/* PDN disconnect request*/
+	NULL,	/* PDN disconnect reject*/
+	NULL,	/* Bearer resource modification request*/
+	NULL,	/* Bearer resource modification reject*/
+	NULL,	/* ESM information request*/
+	NULL,	/* ESM information response*/
+	NULL,	/* ESM status */
 
+	NULL,	/* NONE */
+};
 
+void get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+{
+	gint			idx;
 
+	*msg_str = match_strval_idx((guint32) (oct & 0xff), nas_msg_esm_strings, &idx);
+	*ett_tree = ett_nas_msg_esm[idx];
+	*hf_idx = hf_nas_eps_msg_esm_type;
+	*msg_fcn = nas_msg_esm_fcn[idx];
+
+	return;
+}
 
 
 
@@ -1682,35 +1936,27 @@ void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, in
 }
 
 static void
-dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *item;
-	proto_tree *nas_eps_tree;
 	const gchar		*msg_str;
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
 	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
-	guint8 security_header_type, pd, oct;
-	int offset = 0;
+	guint8			oct;
+	int				offset = 0;
 
-	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NAS-EPS");
 
 	len = tvb_length(tvb);
 
-	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
-	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
-	/* 9.3.1	Security header type */
-	security_header_type = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
-	if (security_header_type !=0)
-		/* XXX Add further decoding here? */
-		return;
-	pd = tvb_get_guint8(tvb,offset)&0x0f;
-	proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	/* EPS bearer identity 9.3.2 */
+	/* Protocol discriminator 9.2 */
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
 	offset++;
+
+	/* Procedure transaction identity 9.4 */
+	offset++;
+
 	/*messge type IE*/
 	oct = tvb_get_guint8(tvb,offset);
 	msg_fcn = NULL;
@@ -1718,19 +1964,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hf_idx = -1;
 	msg_str = NULL;
 
-	/* Debug
-	 * 	proto_tree_add_text(nas_eps_tree, tvb, offset, 1,"Pd %u MSG %u", pd,oct);
-	 */
-
-	switch (pd){
-		case 8:
-			get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
-			break;
-		default:
-			proto_tree_add_text(nas_eps_tree, tvb, offset, len - offset, "PD not decoded yet");
-			return;
-			break;
-	}
+	get_nas_esm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
 
 	if(msg_str){
 		if (check_col(pinfo->cinfo, COL_INFO)){
@@ -1741,7 +1975,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Add NAS message name
 	 */
-	proto_tree_add_item(nas_eps_tree, hf_idx, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
 	offset++;
 
 
@@ -1750,14 +1984,111 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (msg_fcn == NULL)
 	{
-		proto_tree_add_text(nas_eps_tree, tvb, offset, len - offset,
+		proto_tree_add_text(tree, tvb, offset, len - offset,
 			"Message Elements");
 	}
 	else
 	{
-		(*msg_fcn)(tvb, nas_eps_tree, offset, len - offset);
+		(*msg_fcn)(tvb, tree, offset, len - offset);
 	}
-	
+
+}
+
+static void
+dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	const gchar		*msg_str;
+	guint32			len;
+	gint			ett_tree;
+	int				hf_idx;
+	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	guint8			security_header_type, oct;
+	int offset = 0;
+
+	len = tvb_length(tvb);
+
+	/* 9.3.1	Security header type */
+	security_header_type = tvb_get_guint8(tvb,offset)>>4;
+	proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, FALSE);
+	if (security_header_type !=0)
+		/* XXX Add further decoding here? */
+		return;
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	offset++;
+	/*messge type IE*/
+	oct = tvb_get_guint8(tvb,offset);
+	msg_fcn = NULL;
+	ett_tree = -1;
+	hf_idx = -1;
+	msg_str = NULL;
+
+	get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+
+	if(msg_str){
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
+		}
+	}
+
+	/*
+	 * Add NAS message name
+	 */
+	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+	offset++;
+
+
+	/*
+	 * decode elements
+	 */
+	if (msg_fcn == NULL)
+	{
+		proto_tree_add_text(tree, tvb, offset, len - offset,
+			"Message Elements");
+	}
+	else
+	{
+		(*msg_fcn)(tvb, tree, offset, len - offset);
+	}
+
+}
+
+static void
+dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *nas_eps_tree;
+	guint8			pd;
+	int offset = 0;
+
+	/* Save pinfo */
+	gpinfo = pinfo;
+
+	/* make entry in the Protocol column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
+
+	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
+	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
+
+	pd = tvb_get_guint8(tvb,offset)&0x0f;
+	switch (pd){
+		case 2:
+			/* EPS session management messages. 
+			 * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values 
+			 */
+			disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree);
+			break;
+		case 7:
+			/* EPS mobility management messages. 
+			 * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values 
+			 */
+			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree);
+			break;
+		default:
+			proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",pd,val_to_str(pd, protocol_discriminator_vals,"unknown"));
+			break;
+	}
+
 }
 
 void proto_register_nas_eps(void) {
@@ -1768,7 +2099,7 @@ void proto_register_nas_eps(void) {
 
   static hf_register_info hf[] = {
 	{ &hf_nas_eps_msg_emm_type,
-		{ "NAS EPS Mobility Management Message Type",	"nas_eps.nas_msg_epsmm_type",
+		{ "NAS EPS Mobility Management Message Type",	"nas_eps.nas_msg_emm_type",
 		FT_UINT8, BASE_HEX, VALS(nas_msg_emm_strings), 0x0,
 		"", HFILL }
 	},
@@ -1811,6 +2142,11 @@ void proto_register_nas_eps(void) {
 		{ "Type of identity","nas_eps.emm.type_of_id",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_id_vals), 0x07,
 		"Type of identity", HFILL }
+	},
+	{ &hf_nas_eps_esm_msg_cont,
+		{ "ESM message container contents","nas_eps.emm.esm_msg_cont",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		"ESM message container contents", HFILL }
 	},
 	{ &hf_nas_eps_emm_EPS_attach_result,
 		{ "Type of identity","nas_eps.emm.EPS_attach_result",
@@ -1857,15 +2193,38 @@ void proto_register_nas_eps(void) {
 		FT_UINT8,BASE_DEC, VALS(nas_eps_service_type_vals), 0x0,
 		"Service type", HFILL }
 	},
+	/* ESM hf cvariables */
+	{ &hf_nas_eps_msg_esm_type, 
+		{ "NAS EPS session management messages",	"nas_eps.nas_msg_esm_type",
+		FT_UINT8, BASE_HEX, VALS(nas_msg_esm_strings), 0x0,
+		"", HFILL }
+	},
+	{ &hf_nas_esm_elem_id,
+		{ "Element ID",	"nas_eps.esm.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_nas_eps_esm_pdn_type,
+		{ "Request type",	"nas_eps.nas_eps_esm_pdn_type",
+		FT_UINT8, BASE_HEX, VALS(nas_eps_esm_pdn_type_values), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_esm_request_type,
+		{ "Request type",	"nas_eps.esm_request_type",
+		FT_UINT8, BASE_HEX, VALS(nas_eps_esm_request_type_values), 0x0,
+		NULL, HFILL }
+	},
   };
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	1
+#define	NUM_INDIVIDUAL_ELEMS	2
 	static gint *ett[NUM_INDIVIDUAL_ELEMS +
 		NUM_NAS_EPS_COMMON_ELEM +
-		NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM];
+		NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
+		NUM_NAS_MSG_ESM + NUM_NAS_ESM_ELEM];
 
 	ett[0] = &ett_nas_eps;
+	ett[1] = &ett_nas_eps_esm_msg_cont;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -1875,6 +2234,7 @@ void proto_register_nas_eps(void) {
 		ett[last_offset] = &ett_nas_eps_common_elem[i];
 	}
 
+	/* EMM */
 	for (i=0; i < NUM_NAS_MSG_EMM; i++, last_offset++)
 	{
 		ett_nas_msg_emm[i] = -1;
@@ -1883,8 +2243,20 @@ void proto_register_nas_eps(void) {
 
 	for (i=0; i < NUM_NAS_EMM_ELEM; i++, last_offset++)
 	{
-		ett_gsm_gm_elem[i] = -1;
-		ett[last_offset] = &ett_gsm_gm_elem[i];
+		ett_nas_eps_emm_elem[i] = -1;
+		ett[last_offset] = &ett_nas_eps_emm_elem[i];
+	}
+	/* EPS */
+	for (i=0; i < NUM_NAS_MSG_ESM; i++, last_offset++)
+	{
+		ett_nas_msg_esm[i] = -1;
+		ett[last_offset] = &ett_nas_msg_esm[i];
+	}
+
+	for (i=0; i < NUM_NAS_ESM_ELEM; i++, last_offset++)
+	{
+		ett_nas_eps_esm_elem[i] = -1;
+		ett[last_offset] = &ett_nas_eps_esm_elem[i];
 	}
 
 	/* Register protocol */

@@ -587,6 +587,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 		case NAS_PDU_TYPE_EMM:
 			msg_string = nas_emm_elem_strings[idx].strptr;
 			break;
+		case NAS_PDU_TYPE_ESM:
+			msg_string = nas_esm_elem_strings[idx].strptr;
+			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -628,6 +631,9 @@ static int get_hf_elem_id(int pdu_type)
 			break;
 		case NAS_PDU_TYPE_EMM:
 			hf_elem_id = hf_nas_emm_elem_id;
+			break;
+		case NAS_PDU_TYPE_ESM:
+			hf_elem_id = hf_nas_esm_elem_id;
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -780,7 +786,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, i
 				a_add_string=ep_alloc(1024);
 				a_add_string[0] = '\0';
 				consumed =
-				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 1 + 2,
 					parm_len, a_add_string, 1024);
 
 				if (a_add_string[0] != '\0')
@@ -1074,7 +1080,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint
 		if (elem_funcs[idx] == NULL)
 		{
 			proto_tree_add_text(subtree,
-				tvb, curr_offset + 1, parm_len,
+				tvb, curr_offset + 2, parm_len,
 				"Element Value");
 
 			consumed = parm_len;
@@ -1086,7 +1092,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint
 			a_add_string=ep_alloc(1024);
 			a_add_string[0] = '\0';
 			consumed =
-				(*elem_funcs[idx])(tvb, subtree, curr_offset + 1,
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
 					parm_len, a_add_string, 1024);
 
 			if (a_add_string[0] != '\0')
@@ -1096,7 +1102,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint
 		}
 	}
 
-	return(consumed + 1);
+	return(consumed + 2);
 }
 /*
  * Value (V) element dissector

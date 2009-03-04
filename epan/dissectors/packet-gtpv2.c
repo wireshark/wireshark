@@ -109,13 +109,13 @@ static const value_string gtpv2_message_type_vals[] = {
 	{41, "Change Notification Response"},
 	/* 42-63 For future use */
 	/* Messages without explicit response */
-	{64, "Modify Bearer Command"},							/* (MME/SGSN to PGW –S11/S4, S5/S8) */
-	{65, "Modify Bearer Failure Indication"},				/*(PGW to MME/SGSN –S5/S8, S11/S4) */
-	{66, "Delete Bearer Command"},							/* (MME to PGW –S11, S5/S8) */
-	{67, "Delete Bearer Failure Indication"},				/* (PGW to MME –S5/S8, S11) */
-	{68, "Bearer Resource Command"},						/* (MME/SGSN to PGW –S11/S4, S5/S8) */
-	{69, "Bearer Resource Failure Indication"},				/* (PGW to MME/SGSN –S5/S8, S11/S4) */
-	{70, "Downlink Data Notification Failure Indication"},	/*(SGSN/MME to SGW –S4/S11) */
+	{64, "Modify Bearer Command"},							/* (MME/SGSN to PGW -S11/S4, S5/S8) */
+	{65, "Modify Bearer Failure Indication"},				/*(PGW to MME/SGSN -S5/S8, S11/S4) */
+	{66, "Delete Bearer Command"},							/* (MME to PGW -S11, S5/S8) */
+	{67, "Delete Bearer Failure Indication"},				/* (PGW to MME -S5/S8, S11) */
+	{68, "Bearer Resource Command"},						/* (MME/SGSN to PGW -S11/S4, S5/S8) */
+	{69, "Bearer Resource Failure Indication"},				/* (PGW to MME/SGSN -S5/S8, S11/S4) */
+	{70, "Downlink Data Notification Failure Indication"},	/*(SGSN/MME to SGW -S4/S11) */
 	/* 71-94 For future use PDN-GW to SGSN/MME (S5/S8, S4/S11) */
 	{95, "Create Bearer Request "},
 	{96, "Create Bearer Response "},
@@ -280,8 +280,8 @@ dissect_gtpv2_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * 8.3 International Mobile Subscriber Identity (IMSI)
  *
  * IMSI is defined in 3GPP TS 23.003
- * Editor’s note: IMSI coding will be defined in 3GPP TS 24.301
- * Editor’s note: In the first release of GTPv2 spec (TS 29.274v8.0.0) n = 8. 
+ * Editor's note: IMSI coding will be defined in 3GPP TS 24.301
+ * Editor's note: In the first release of GTPv2 spec (TS 29.274v8.0.0) n = 8. 
  * That is, the overall length of the IE is 11 octets.
  */
 static void
@@ -332,7 +332,7 @@ static const value_string gtpv2_cause_vals[] = {
 	{90, "Unable to page UE"},
 	{91, "No memory available"},
 	{92, "User authentication failed"},
-	{93, "APN access denied – no subscription"},
+	{93, "APN access denied - no subscription"},
 	/* 94-255 Spare. This value range is reserved for Cause values in rejection response message */
     {0, NULL}
 };
@@ -416,7 +416,7 @@ dissect_gtpv2_ebi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
  * 8.11 MSISDN
  *
  * MSISDN is defined in 3GPP TS 23.003
- * Editor’s note: MSISDN coding will be defined in TS 24.301.
+ * Editor's note: MSISDN coding will be defined in TS 24.301.
  */
 static void
 dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
@@ -455,7 +455,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 }
 /*
  * 8.13 Protocol Configuration Options (PCO)
- * Editor’s note: PCO will be defined in 3GPP TS 23.003 and its coding in TS 24.301
+ * Editor's note: PCO will be defined in 3GPP TS 23.003 and its coding in TS 24.301
  * Dissected in packey-gsm_a_gm.c
  */
 static void
@@ -869,7 +869,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		 *			2 Message Type
 		 *			3 Message Length (1st Octet)
 		 *			4 Message Length (2nd Octet)
-		 *	m–k(m+3)	If T flag is set to 1, then TEID shall be placed into octets 5-8.
+		 *	m-k(m+3)	If T flag is set to 1, then TEID shall be placed into octets 5-8.
 		 *				Otherwise, TEID field is not present at all.
 		 *	n-(n+1)	  Sequence Number
 		 * (n+2)-(n+3) Spare
@@ -1117,4 +1117,3 @@ proto_reg_handoff_gtpv2(void)
 
   
 }
-
