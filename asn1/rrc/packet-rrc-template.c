@@ -54,6 +54,7 @@
 
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
+static dissector_handle_t rrc_dl_dcch_handle=NULL;
 
 /* Include constants */
 #include "packet-rrc-val.h"
@@ -153,6 +154,7 @@ proto_reg_handoff_rrc(void)
 
 	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 	rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
+	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 }
 
 

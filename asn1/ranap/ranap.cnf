@@ -191,6 +191,17 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		dissector_try_port(nas_pdu_dissector_table, 0x1, nas_pdu_tvb, %(ACTX)s->pinfo, proto_tree_get_root(tree));
 #.END
 
+#.FN_BODY RRC-Container VAL_PTR = &rrc_message_tvb
+  tvbuff_t *rrc_message_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	if (rrc_message_tvb)
+		call_dissector(rrc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
+#.END
+
+
 # following construction is not supported by asn2wrs
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 # TBCD-STRING ::= OCTET STRING

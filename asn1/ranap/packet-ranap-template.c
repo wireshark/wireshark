@@ -62,6 +62,9 @@
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 
+/* initialise sub-dissector handles */
+static dissector_handle_t rrc_handle = NULL;
+
 static int hf_ranap_imsi_digits = -1;
 #include "packet-ranap-hf.c"
 
@@ -264,6 +267,7 @@ proto_reg_handoff_ranap(void)
 
 	if (!initialized) {
 		ranap_handle = find_dissector("ranap");
+		rrc_handle = find_dissector("rrc.s_to_trnc_cont");
 		initialized = TRUE;
 #include "packet-ranap-dis-tab.c"
 	} else {

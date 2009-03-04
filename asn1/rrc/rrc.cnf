@@ -70,6 +70,8 @@ SysInfoTypeSB2               @si.sb2
 HandoverToUTRANCommand       @irat.ho_to_utran_cmd
 InterRATHandoverInfo         @irat.irat_ho_info
 UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info
+ToTargetRNC-Container        @s_to_trnc_cont
+TargetRNC-ToSourceRNC-Container @t_to_srnc_cont
 
 #.END
 #.FN_PARS UTRAN-GANSSReferenceTime/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
@@ -565,4 +567,14 @@ UE-RadioAccessCapabilityInfo @ue_radio_access_cap_info
     col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationFailure");
   }
 %(DEFAULT_BODY)s
+
+#.FN_BODY TargetRNC-ToSourceRNC-Container/dL-DCCHmessage VAL_PTR = &dl_dcch_message_tvb
+  tvbuff_t *dl_dcch_message_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	if (dl_dcch_message_tvb)
+		call_dissector(rrc_dl_dcch_handle,dl_dcch_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
+#.END
 
