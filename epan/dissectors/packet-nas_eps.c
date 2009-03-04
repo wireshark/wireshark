@@ -848,7 +848,7 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * 9.9.4.7 LLC service access point identifier 
  * 9.9.4.8 Packet flow identifier 
  * 9.9.4.9 PDN address
-/*
+ *
  * 9.9.4.10 PDN type
  * Coded inline 1/2 octet
  */
