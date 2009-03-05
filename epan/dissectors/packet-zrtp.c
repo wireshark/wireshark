@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-12
+ * IETF draft draft-zimmermann-avt-zrtp-15
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -102,6 +102,14 @@ static int hf_zrtp_msg_cfb = -1;
   Error Data
 */
 static int hf_zrtp_msg_error = -1;
+
+/*
+  Ping Data
+*/
+static int hf_zrtp_msg_ping_version = -1;
+static int hf_zrtp_msg_ping_endpointhash = -1;
+static int hf_zrtp_msg_pingack_endpointhash = -1;
+static int hf_zrtp_msg_ping_ssrc = -1;
 
 /*
   Checksum Data
@@ -261,6 +269,10 @@ static void
 dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree);
 static void
 dissect_RelayACK(packet_info *pinfo);
+static void
+dissect_Ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree);
+static void
+dissect_PingACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree);
 
 
 static const gchar *
@@ -385,6 +397,14 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_SASrelay(tvb,pinfo,zrtp_msg_data_tree);
   } else if (!strncmp(message_type,"RelayACK",8)){
     dissect_RelayACK(pinfo);
+  } else if (!strncmp(message_type,"Ping    ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_Ping(tvb,pinfo,zrtp_msg_data_tree);
+  } else if (!strncmp(message_type,"PingACK ",8)){
+    ti = proto_tree_add_protocol_format(zrtp_msg_tree,proto_zrtp,tvb,msg_offset+12,linelen-4,"Data");
+    zrtp_msg_data_tree = proto_item_add_subtree(ti,ett_zrtp_msg_data);
+    dissect_PingACK(tvb,pinfo,zrtp_msg_data_tree);
   }
 
   sent_crc = tvb_get_ntohl(tvb,msg_offset+checksum_offset);
@@ -443,6 +463,32 @@ dissect_HelloACK(packet_info *pinfo) {
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "HelloACK Packet");
   }
+}
+
+static void
+dissect_Ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
+  unsigned int data_offset=24;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Ping Packet");
+  }
+
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+4,8,FALSE);
+}
+
+static void
+dissect_PingACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
+  unsigned int data_offset=24;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PingACK Packet");
+  }
+
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pingack_endpointhash,tvb,data_offset+4,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+12,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_ssrc,tvb,data_offset+20,4,FALSE);
 }
 
 static void
@@ -997,6 +1043,42 @@ proto_register_zrtp(void)
        "Error", "zrtp.error",
        FT_UINT32, BASE_DEC,
        VALS(zrtp_error_vals), 0x0,
+       NULL, HFILL
+     }
+    },
+
+    {&hf_zrtp_msg_ping_version,
+     {
+       "Ping Version", "zrtp.ping_version",
+       FT_STRING, BASE_NONE,
+       NULL, 0x0,
+       NULL, HFILL
+     }
+    },
+
+    {&hf_zrtp_msg_ping_endpointhash,
+     {
+       "Ping Endpoint Hash", "zrtp.ping_endpointhash",
+       FT_UINT64, BASE_HEX,
+       NULL, 0x0,
+       NULL, HFILL
+     }
+    },
+
+    {&hf_zrtp_msg_pingack_endpointhash,
+     {
+       "PingAck Endpoint Hash", "zrtp.pingack_endpointhash",
+       FT_UINT64, BASE_HEX,
+       NULL, 0x0,
+       NULL, HFILL
+     }
+    },
+
+    {&hf_zrtp_msg_ping_ssrc,
+     {
+       "Ping SSRC", "zrtp.ping_ssrc",
+       FT_UINT32, BASE_HEX,
+       NULL, 0x0,
        NULL, HFILL
      }
     },
