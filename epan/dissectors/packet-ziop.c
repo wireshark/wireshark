@@ -224,17 +224,9 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 }
 
 
-
-
-
-
-
-
-
-
-
 /* Main entry point */
-void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static void 
+dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
   ZIOPHeader header;
   CompressionData compression_data;
@@ -427,14 +419,11 @@ void proto_register_ziop (void) {
 
 void proto_reg_handoff_ziop (void) {
 
-  static gboolean initialized = FALSE;
+  ziop_handle = find_dissector("ziop");
+  dissector_add_handle("udp.port", ziop_handle);    /* for 'Decode As' */
 
-  data_handle = find_dissector("data");
-
-  ziop_handle = create_dissector_handle(dissect_ziop_tcp, proto_ziop);
   heur_dissector_add("tcp", dissect_ziop_heur, proto_ziop);
 
-  dissector_add_handle("udp.port", ziop_handle); 
-  initialized = TRUE;
+  data_handle = find_dissector("data");
   
 }
