@@ -52,6 +52,7 @@ const true_false_string tfs_found_not_found = { "Found", "Not found" };
 const true_false_string tfs_command_response = { "Command", "Response" };
 const true_false_string tfs_capable_not_capable = { "Capable", "Not capable" };
 const true_false_string tfs_supported_not_supported = { "Supported", "Not supported" };
+const true_false_string tfs_used_notused = { "Used", "Not used" };
 
 /* 
  * Old true_false_string from packet.c

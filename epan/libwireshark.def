@@ -924,6 +924,7 @@ tfs_set_notset                  DATA
 tfs_success_fail                DATA
 tfs_supported_not_supported     DATA
 tfs_true_false                  DATA
+tfs_used_notused                DATA
 tfs_yes_no                      DATA
 time_msecs_to_str
 time_secs_to_str

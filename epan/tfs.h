@@ -55,6 +55,7 @@ WS_VAR_IMPORT const true_false_string tfs_found_not_found;
 WS_VAR_IMPORT const true_false_string tfs_command_response;
 WS_VAR_IMPORT const true_false_string tfs_capable_not_capable;
 WS_VAR_IMPORT const true_false_string tfs_supported_not_supported;
+WS_VAR_IMPORT const true_false_string tfs_used_notused;
 
 /*
  * Old true_false_string from packet.c
