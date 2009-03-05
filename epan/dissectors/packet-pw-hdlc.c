@@ -46,6 +46,9 @@
 
 #include "packet-mpls.h"
 
+static dissector_handle_t ppp_handle;
+static dissector_handle_t fr_handle;
+
 static gint proto_pw_hdlc_nocw_fr = -1;
 static gint proto_pw_hdlc_nocw_hdlc_ppp = -1;
 
@@ -58,57 +61,9 @@ static int hf_pw_hdlc_cr_bit = -1;
 static int hf_pw_hdlc_control_field = -1;
 static int hf_pw_hdlc_pf_bit = -1;
 
-static hf_register_info hf[] = {
-	{
-		&hf_pw_hdlc,
-		{
-			"PW HDLC", "pw_hdlc", FT_NONE, 0, NULL, 0x0, NULL, HFILL
-		}
-	},
-	{
-		&hf_pw_hdlc_address_field,
-		{
-			"Address field", "pw_hdlc.address_field",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "Address field", HFILL
-		}
-	},
-	{
-		&hf_pw_hdlc_address,
-		{
-			"Address", "pw_hdlc.address",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "Address", HFILL
-		}
-	},
-	{
-		&hf_pw_hdlc_cr_bit,
-		{
-			"C/R bit", "pw_hdlc.cr_bit",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "C/R bit", HFILL
-		}
-	},
-	{
-		&hf_pw_hdlc_control_field,
-		{
-			"Control field", "pw_hdlc.control_field",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "Control field", HFILL
-		}
-	},
-	{
-		&hf_pw_hdlc_pf_bit,
-		{
-			"Poll/Final bit", "pw_hdlc.pf_bit",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "Poll/Final bit", HFILL
-		}
-	}
-};
-
-static gint *ett[] = {
-	&ett_pw_hdlc
-};
-
 static void dissect_pw_hdlc_nocw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 {
-	call_dissector( find_dissector( "fr" ), tvb, pinfo, tree );
+	call_dissector( fr_handle, tvb, pinfo, tree );
 }
 
 
@@ -225,11 +180,59 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 			proto_tree_add_text( tr, tvb, 1, 1, "I frame" );
 		}
 	}
-	call_dissector( find_dissector( "ppp" ), tvb_new_subset(tvb, 2, -1, -1), pinfo, tree );
+	call_dissector( ppp_handle, tvb_new_subset(tvb, 2, -1, -1), pinfo, tree );
 }
 
 void proto_register_pw_hdlc(void)
 {
+	static hf_register_info hf[] = {
+		{
+			&hf_pw_hdlc,
+			{
+				"PW HDLC", "pw_hdlc", FT_NONE, 0, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_address_field,
+			{
+				"Address field", "pw_hdlc.address_field",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_address,
+			{
+				"Address", "pw_hdlc.address",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_cr_bit,
+			{
+				"C/R bit", "pw_hdlc.cr_bit",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_control_field,
+			{
+				"Control field", "pw_hdlc.control_field",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_pw_hdlc_pf_bit,
+			{
+				"Poll/Final bit", "pw_hdlc.pf_bit",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		}
+	};
+
+	static gint *ett[] = {
+		&ett_pw_hdlc
+	};
+
 	proto_pw_hdlc_nocw_fr = proto_register_protocol("HDLC PW, FR port mode (no CW)", /*not displayed*/
 							"HDLC PW, FR port mode (no CW)",
 							"pw_hdlc_nocw_fr" );
@@ -246,18 +249,14 @@ void proto_register_pw_hdlc(void)
 
 void proto_reg_handoff_pw_hdlc(void)
 {
-	static gboolean initialized=FALSE;
+	dissector_handle_t handle;
 
-	if ( !initialized )
-	{
-		dissector_handle_t handle;
+	handle = find_dissector("pw_hdlc_nocw_fr");
+	dissector_add( "mpls.label", LABEL_INVALID, handle );
 
-		handle = find_dissector("pw_hdlc_nocw_fr");
-		dissector_add( "mpls.label", LABEL_INVALID, handle );
+	handle = find_dissector("pw_hdlc_nocw_hdlc_ppp");
+	dissector_add( "mpls.label", LABEL_INVALID, handle );
 
-		handle = find_dissector("pw_hdlc_nocw_hdlc_ppp");
-		dissector_add( "mpls.label", LABEL_INVALID, handle );
-
-		initialized = TRUE;
-	}
+	ppp_handle = find_dissector( "ppp" );
+	fr_handle = find_dissector( "fr" );
 }
