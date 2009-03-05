@@ -88,8 +88,6 @@
 /* Data Types */
 #define DT_RAW_BYTES          0x00
 
-void proto_reg_handoff_memcache (void);
-
 static int proto_memcache = -1;
 
 static int hf_magic = -1;
@@ -636,7 +634,7 @@ proto_register_memcache (void)
   proto_register_subtree_array (ett, array_length (ett));
 
   /* Register our configuration options */
-  memcache_module = prefs_register_protocol (proto_memcache, proto_reg_handoff_memcache);
+  memcache_module = prefs_register_protocol (proto_memcache, NULL);
 
   prefs_register_bool_preference (memcache_module, "desegment_pdus",
                                   "Reassemble PDUs spanning multiple TCP segments",
