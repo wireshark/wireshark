@@ -97,6 +97,7 @@ static gint ett_miop_unique_id = -1;
 
 #define MIOP_MAGIC 	 "MIOP"
 
+static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 
 static gboolean
 dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {

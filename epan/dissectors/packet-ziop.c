@@ -67,13 +67,11 @@
  * ------------------------------------------------------------------------------------------+
  */
 
-
 static int proto_ziop = -1;
 
 /*
  * (sub)Tree declares
  */
-
 
 static gint hf_ziop_magic = -1;
 static gint hf_ziop_giop_version_major = -1;
@@ -126,9 +124,9 @@ static const value_string giop_message_types[] = {
 };
 
 
-
 gboolean ziop_desegment = TRUE;
 
+static void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 
 static guint
 get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -224,17 +222,9 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 }
 
 
-
-
-
-
-
-
-
-
-
 /* Main entry point */
-void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static void 
+dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
   ZIOPHeader header;
   CompressionData compression_data;
@@ -382,10 +372,10 @@ void proto_register_ziop (void) {
         "ZIOPHeader magic", HFILL }},
     { &hf_ziop_giop_version_major,
       { "Header major version", "ziop.giop_version_major", FT_UINT8, BASE_OCT, NULL, 0x0,
-        "ZIOPHeader giop_version", HFILL }},
+        "ZIOPHeader giop_major_version", HFILL }},
     { &hf_ziop_giop_version_minor,
       { "Header minor version", "ziop.giop_version_minor", FT_UINT8, BASE_OCT, NULL, 0x0,
-        "ZIOPHeader giop_version", HFILL }},
+        "ZIOPHeader giop_minor_version", HFILL }},
     { &hf_ziop_flags,
       { "Header flags", "ziop.flags", FT_UINT8, BASE_OCT, NULL, 0x0,
         "ZIOPHeader flags", HFILL }},

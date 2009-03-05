@@ -52,11 +52,4 @@ typedef struct PacketHeader_1_0 {
   /* UniqueId id; */
 } PacketHeader;
 
-
-static void dissect_miop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void proto_register_miop();
-
-void proto_reg_handoff_miop();
-
 #endif /* PACKET_MIOP_H */
