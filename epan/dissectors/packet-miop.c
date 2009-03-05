@@ -95,9 +95,6 @@ static gint ett_miop_number_of_packets = -1;
 static gint ett_miop_unique_id_len = -1;
 static gint ett_miop_unique_id = -1;
 
-
-static dissector_handle_t miop_handle;
-
 #define MIOP_MAGIC 	 "MIOP"
 
 
@@ -333,13 +330,11 @@ void proto_register_miop (void) {
 
 void proto_reg_handoff_miop (void) {
 
-  static gboolean initialized = FALSE;
-  
-  miop_handle = create_dissector_handle(dissect_miop, proto_miop);
+  dissector_handle_t miop_handle;
+
+  miop_handle = find_dissector("miop");
+  dissector_add_handle("udp.port", miop_handle);    /* for 'Decode As' */
+
   heur_dissector_add("udp", dissect_miop_heur, proto_miop);
     
-  dissector_add_handle("udp.port", miop_handle); 
-  initialized = TRUE;
-
-  
 }
