@@ -53,8 +53,6 @@ typedef struct PacketHeader_1_0 {
 } PacketHeader;
 
 
-static dissector_handle_t miop_handle;
-
 static void dissect_miop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void proto_register_miop();
