@@ -469,32 +469,12 @@ static const true_false_string addr_enc = {
   "Use Extended Encoding", "Use Direct Encoding"
 };
 
-static const true_false_string used_notused = {
-  "Used", "Not used"
-};
-
-static const true_false_string checksum = {
-  "Checksum used", "Checksum not used"
-};
-
-static const true_false_string set_notset = {
-  "Set", "Not set"
-};
-
-static const true_false_string yes_no = {
-  "Yes", "No"
-};
-
 static const true_false_string dtg_sign = {
   "Future", "Past"
 };
 
 static const true_false_string report_type = {
   "Non-Delivery Report", "Delivery Report"
-};
-
-static const true_false_string present_values = {
-  "Present", "Absent"
 };
 
 static const value_string version_vals[] = {
@@ -579,7 +559,7 @@ static const value_string addr_form [] = {
   { 0x3, "P22/P722 address only, Extended Address"                     },
   { 0x4, "P1 and P22/P722 addresses, Direct Address"                   },
   { 0x5, "P1, Direct Address and P22/P722 addresses, Extended Address" },
-  { 0x6, "P1, Extended ADdress and P22/P722 addresses, Direct Address" },
+  { 0x6, "P1, Extended Address and P22/P722 addresses, Direct Address" },
   { 0x7, "P1 and P22/P722 addresses, Extended Address"                 },
   { 0,   NULL } };
 
@@ -2164,8 +2144,8 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
 
   en = proto_tree_add_boolean_format (field_tree, hf_addr_ext_action, tvb,
 				      offset, 1, value, "Action: %s",
-				      action ? yes_no.true_string :
-				      yes_no.false_string);
+				      action ? tfs_yes_no.true_string :
+				      tfs_yes_no.false_string);
   addr_tree = proto_item_add_subtree (en, ett_address_ext_action);
   proto_tree_add_item (addr_tree, hf_addr_ext_action, tvb, offset,
 		       1, FALSE);
@@ -2454,8 +2434,8 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 					tvb, offset, 1, envelope,
 					"Recipient Present: %s",
 					(envelope & 0x20) ?
-					present_values.true_string :
-					present_values.false_string);
+					tfs_present_absent.true_string :
+					tfs_present_absent.false_string);
     field_tree = proto_item_add_subtree (tf, ett_envelope_rec_present);
     proto_tree_add_item (field_tree, hf_envelope_rec_present, tvb,
 			 offset, 1, FALSE);
@@ -2477,8 +2457,8 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 				      tvb, offset, 1, envelope,
 				      "Checksum: %s",
 				      (envelope & 0x08) ?
-				      used_notused.true_string :
-				      used_notused.false_string);
+				      tfs_used_notused.true_string :
+				      tfs_used_notused.false_string);
   field_tree = proto_item_add_subtree (tf, ett_envelope_checksum);
   proto_tree_add_item (field_tree, hf_envelope_checksum, tvb,
 		       offset, 1, FALSE);
@@ -2494,8 +2474,8 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item (field_tree, hf_envelope_type, tvb,
 		       offset, 1, FALSE);
 
-  proto_item_append_text (en, ", %s", (envelope >> 3) & 0x01 ?
-			  checksum.true_string : checksum.false_string);
+  proto_item_append_text (en, ", Checksum %s", (envelope >> 3) & 0x01 ?
+			  tfs_used_notused.true_string : tfs_used_notused.false_string);
   offset += 1;
 
   if (dmp.msg_type >= ACK) {
@@ -2848,8 +2828,8 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
     tf = proto_tree_add_boolean_format (report_tree,hf_report_info_present_dr,
 					tvb, offset, 1, report,
 					"Info Present: %s", (report & 0x40) ?
-					present_values.true_string :
-					present_values.false_string);
+					tfs_present_absent.true_string :
+					tfs_present_absent.false_string);
     field_tree = proto_item_add_subtree (tf, ett_report_info_present_dr);
     proto_tree_add_item (field_tree, hf_report_info_present_dr, tvb,
 			 offset, 1, FALSE);
@@ -2934,8 +2914,8 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
 					hf_report_info_present_ndr,
 					tvb, offset, 1, report,
 					"Info Present: %s", (report & 0x80) ?
-					present_values.true_string :
-					present_values.false_string);
+					tfs_present_absent.true_string :
+					tfs_present_absent.false_string);
     field_tree = proto_item_add_subtree (tf, ett_report_info_present_ndr);
     proto_tree_add_item (field_tree, hf_report_info_present_ndr, tvb,
 			 offset, 1, FALSE);
@@ -3646,13 +3626,13 @@ void proto_register_dmp (void)
 	NULL, 0xE0, "Hop Count", HFILL } },
     { &hf_envelope_rec_present,
       { "Recipient Present", "dmp.rec_present", FT_BOOLEAN, 8,
-	TFS (&present_values), 0x20, "Recipient Present", HFILL } },
+	TFS (&tfs_present_absent), 0x20, "Recipient Present", HFILL } },
     { &hf_envelope_addr_enc,
       { "Address Encoding", "dmp.addr_encoding", FT_BOOLEAN, 8,
 	TFS (&addr_enc), 0x10, "Address Encoding", HFILL } },
     { &hf_envelope_checksum,
       { "Checksum", "dmp.checksum_used", FT_BOOLEAN, 8,
-	TFS (&used_notused), 0x08, "Checksum Used", HFILL } },
+	TFS (&tfs_used_notused), 0x08, "Checksum Used", HFILL } },
     { &hf_envelope_type,
       { "Content Type", "dmp.content_type", FT_UINT8, BASE_DEC,
 	VALS(type_vals), 0x07, "Content Type", HFILL } },
@@ -3668,7 +3648,7 @@ void proto_register_dmp (void)
 	NULL, 0x0, "Submission Time", HFILL } },
     { &hf_envelope_time_diff_present,
       { "Time Diff", "dmp.time_diff_present", FT_BOOLEAN, 16,
-	TFS (&present_values), 0x8000, "Time Diff Present", HFILL } },
+	TFS (&tfs_present_absent), 0x8000, "Time Diff Present", HFILL } },
     { &hf_envelope_subm_time_value,
       { "Submission Time Value", "dmp.subm_time_value", FT_UINT16,
 	BASE_HEX, NULL, 0x7FFF, "Submission Time Value", HFILL } },
@@ -3685,15 +3665,15 @@ void proto_register_dmp (void)
 	NULL, 0x0, "Envelope Flags", HFILL}},
     { &hf_envelope_content_id_discarded,
       { "Content Identifier discarded", "dmp.cont_id_discarded",
-	FT_BOOLEAN, 8, TFS(&yes_no), 0x80,
+	FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
 	"Content identifier discarded", HFILL } },
     { &hf_envelope_recip_reassign_prohib,
       { "Recipient reassign prohibited","dmp.recip_reassign_prohib",
-	FT_BOOLEAN, 8, TFS(&yes_no), 0x40,
+	FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
 	"Recipient Reassign prohibited", HFILL }},
     { &hf_envelope_dl_expansion_prohib,
       { "DL expansion prohibited", "dmp.dl_expansion_prohib",
-	FT_BOOLEAN, 8, TFS(&yes_no), 0x20, "DL expansion prohibited",
+	FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, "DL expansion prohibited",
 	HFILL } },
 
     /* Recipient Count */
@@ -3758,7 +3738,7 @@ void proto_register_dmp (void)
 	VALS (notif_vals), 0xC0, "Notification Request", HFILL } },
     { &hf_addr_dir_action,
       { "Action", "dmp.action", FT_BOOLEAN, 8,
-	TFS (&yes_no), 0x80, "Action", HFILL } },
+	TFS (&tfs_yes_no), 0x80, "Action", HFILL } },
     { &hf_addr_dir_address,
       { "Direct Address", "dmp.direct_addr", FT_UINT8,
 	BASE_DEC, NULL, 0x7F, "Direct Address", HFILL } },
@@ -3783,7 +3763,7 @@ void proto_register_dmp (void)
 	VALS (&addr_form), 0xE0, "Address Form", HFILL } },
     { &hf_addr_ext_action,
       { "Action", "dmp.action", FT_BOOLEAN, 8,
-	TFS (&yes_no), 0x10, "Action", HFILL } },
+	TFS (&tfs_yes_no), 0x10, "Action", HFILL } },
     { &hf_addr_ext_rep_req,
       { "Report Request", "dmp.rep_rec", FT_UINT8, BASE_HEX,
 	VALS (report_vals), 0x0C, "Report Request", HFILL } },
@@ -3878,11 +3858,11 @@ void proto_register_dmp (void)
 	NULL, 0x0, "Heading Flags", HFILL } },
     { &hf_message_auth_users,
       { "Authorizing users discarded", "dmp.auth_discarded",
-	FT_BOOLEAN, 8, TFS (&yes_no), 0x02,
+	FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x02,
 	"Authorizing users discarded", HFILL }},
     { &hf_message_subject_disc,
       { "Subject discarded", "dmp.subject_discarded", FT_BOOLEAN, 8,
-	TFS (&yes_no), 0x01, "Subject discarded", HFILL } },
+	TFS (&tfs_yes_no), 0x01, "Subject discarded", HFILL } },
 
     /* National Policy Identifier */
     { &hf_message_national_policy_id,
@@ -3905,40 +3885,40 @@ void proto_register_dmp (void)
 	NULL, 0x0, "Security Categories", HFILL } },
     { &hf_message_sec_cat_cl,
       { "Clear", "dmp.sec_cat.cl", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x80, "Clear", HFILL } },
+	TFS (&tfs_set_notset), 0x80, "Clear", HFILL } },
     { &hf_message_sec_cat_cs,
       { "Crypto Security", "dmp.sec_cat.cs", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x40, "Crypto Security", HFILL } },
+	TFS (&tfs_set_notset), 0x40, "Crypto Security", HFILL } },
     { &hf_message_sec_cat_ex,
       { "Exclusive", "dmp.sec_cat.ex", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x20, "Exclusive", HFILL } },
+	TFS (&tfs_set_notset), 0x20, "Exclusive", HFILL } },
     { &hf_message_sec_cat_ne,
       { "National Eyes Only", "dmp.sec_cat.ne", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x10, "National Eyes Only", HFILL } },
+	TFS (&tfs_set_notset), 0x10, "National Eyes Only", HFILL } },
     { &hf_message_sec_cat_bit0,
       { "Bit 0", "dmp.sec_cat.bit0", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x01, "Bit 0", HFILL } },
+	TFS (&tfs_set_notset), 0x01, "Bit 0", HFILL } },
     { &hf_message_sec_cat_bit1,
       { "Bit 1", "dmp.sec_cat.bit1", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x02, "Bit 1", HFILL } },
+	TFS (&tfs_set_notset), 0x02, "Bit 1", HFILL } },
     { &hf_message_sec_cat_bit2,
       { "Bit 2", "dmp.sec_cat.bit2", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x04, "Bit 2", HFILL } },
+	TFS (&tfs_set_notset), 0x04, "Bit 2", HFILL } },
     { &hf_message_sec_cat_bit3,
       { "Bit 3", "dmp.sec_cat.bit3", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x08, "Bit 3", HFILL } },
+	TFS (&tfs_set_notset), 0x08, "Bit 3", HFILL } },
     { &hf_message_sec_cat_bit4,
       { "Bit 4", "dmp.sec_cat.bit4", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x10, "Bit 4", HFILL } },
+	TFS (&tfs_set_notset), 0x10, "Bit 4", HFILL } },
     { &hf_message_sec_cat_bit5,
       { "Bit 5", "dmp.sec_cat.bit5", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x20, "Bit 5", HFILL } },
+	TFS (&tfs_set_notset), 0x20, "Bit 5", HFILL } },
     { &hf_message_sec_cat_bit6,
       { "Bit 6", "dmp.sec_cat.bit6", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x40, "Bit 6", HFILL } },
+	TFS (&tfs_set_notset), 0x40, "Bit 6", HFILL } },
     { &hf_message_sec_cat_bit7,
       { "Bit 7", "dmp.sec_cat.bit7", FT_BOOLEAN, 8,
-	TFS (&set_notset), 0x80, "Bit 7", HFILL } },
+	TFS (&tfs_set_notset), 0x80, "Bit 7", HFILL } },
 
     /* Expiry Time */
     { &hf_message_exp_time,
@@ -4067,7 +4047,7 @@ void proto_register_dmp (void)
 	TFS (&report_type), 0x80, "Report Type", HFILL } },
     { &hf_report_info_present_dr,
       { "Info Present", "dmp.info_present", FT_BOOLEAN, 8,
-	TFS (&present_values), 0x40, "Info Present", HFILL } },
+	TFS (&tfs_present_absent), 0x40, "Info Present", HFILL } },
     { &hf_report_addr_enc_dr,
       { "Address Encoding", "dmp.addr_encoding", FT_BOOLEAN, 8,
 	TFS (&addr_enc), 0x20, "Address Encoding", HFILL } },
@@ -4083,7 +4063,7 @@ void proto_register_dmp (void)
 	"Reason", HFILL } },
     { &hf_report_info_present_ndr,
       { "Info Present", "dmp.info_present", FT_BOOLEAN, 8,
-	TFS (&present_values), 0x80, "Info Present", HFILL } },
+	TFS (&tfs_present_absent), 0x80, "Info Present", HFILL } },
     { &hf_report_diagn,
       { "Diagnostic (X.411)", "dmp.report_diagnostic", FT_UINT8, BASE_DEC,
 	VALS (x411_NonDeliveryDiagnosticCode_vals), 0x7F,
