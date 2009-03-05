@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-lte-rrc.c                                                           */
-/* ../../tools/asn2wrs.py -L -p lte-rrc -c lte-rrc.cnf -s packet-lte-rrc-template EUTRA-RRC-Definitions.asn EUTRA-UE-Variables.asn EUTRA-InterNodeDefinitions.asn */
+/* ../../tools/asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . EUTRA-RRC-Definitions.asn EUTRA-UE-Variables.asn EUTRA-InterNodeDefinitions.asn */
 
 /* Input file: packet-lte-rrc-template.c */
 
@@ -1775,9 +1775,6 @@ static gint ett_lte_rrc_RRM_Configuration = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
 #line 62 "packet-lte-rrc-template.c"
-
-/* Global variables */
-static proto_tree *top_tree;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
@@ -16815,7 +16812,7 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 69 "packet-lte-rrc-template.c"
+#line 66 "packet-lte-rrc-template.c"
 
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
@@ -21144,7 +21141,7 @@ void proto_register_lte_rrc(void) {
         "lte_rrc.T_ue_InactiveTime", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 77 "packet-lte-rrc-template.c"
+#line 74 "packet-lte-rrc-template.c"
   };
 
   /* List of subtrees */
@@ -21741,7 +21738,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Configuration,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 83 "packet-lte-rrc-template.c"
+#line 80 "packet-lte-rrc-template.c"
   };
 
 
@@ -21765,7 +21762,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 94 "packet-lte-rrc-template.c"
+#line 91 "packet-lte-rrc-template.c"
 
 }
 
