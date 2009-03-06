@@ -120,9 +120,12 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	int offset = 0;
 
-	/* Make sure this packet is for us */
-	if(match_strval(tvb_get_guint8(tvb, 0), oicq_flag_vals) == NULL &&
-	   match_strval(tvb_get_ntohs(tvb, 3), oicq_command_vals) == NULL)
+	/* Make sure this packet is for us.                                  */
+	/* heuristic: OICQ iff (([0] == STX) && ([3/4] == <valid_command>) ) */
+        /*  (Supposedly each OICQ message ends with an ETX so a test for     */
+        /*   same could also be part of the heuristic).                      */
+	if ( (match_strval(tvb_get_guint8(tvb, 0), oicq_flag_vals)    == NULL) ||
+	     (match_strval(tvb_get_ntohs(tvb, 3),  oicq_command_vals) == NULL) )
 		return 0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
