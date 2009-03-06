@@ -2255,7 +2255,7 @@ fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 			label,
 			hour > 12 ? hour - 12 : hour,
 			minute, second, msec,
-			hour > 12 ? "P.M." : "A.M.",
+			hour >= 12 ? "P.M." : "A.M.",
 			hour, minute, second, msec);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
