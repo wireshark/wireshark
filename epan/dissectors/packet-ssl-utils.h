@@ -41,7 +41,6 @@
 #include <gcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
-#include <gnutls/openssl.h>
 
 #include <epan/conversation.h>
 
