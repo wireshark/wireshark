@@ -107,8 +107,8 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
 	for (i = 0; i < tw->buttons->len; i++) {
 		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
 		/* XXX a free cb should be passed somehow */ 
-		if (cbd->data && cbd->free_data) cbd->free_data(cbd->data);
-		if (cbd->free) cbd->free(cbd);
+		if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
+		if (cbd->free_fcn) cbd->free_fcn(cbd);
 	}
 	g_ptr_array_free(tw->buttons,TRUE);
     g_free(tw);
@@ -128,8 +128,8 @@ static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *eve
 	for (i = 0; i < tw->buttons->len; i++) {
 		funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
 		/* XXX a free cb should be passed somehow */ 
-		if (cbd->data && cbd->free_data) cbd->free_data(cbd->data);
-		if (cbd->free) cbd->free(cbd);
+		if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
+		if (cbd->free_fcn) cbd->free_fcn(cbd);
 	}
 	g_ptr_array_free(tw->buttons,TRUE);	
     g_free(tw);
@@ -320,8 +320,8 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
 		for (i = 0; i < tw->buttons->len; i++) {
 			funnel_bt_t* cbd = g_ptr_array_index(tw->buttons,i);
 			/* XXX a free cb should be passed somehow */ 
-			if (cbd->data && cbd->free_data) cbd->free_data(cbd->data);
-			if (cbd->free) cbd->free(cbd);
+			if (cbd->data && cbd->free_data_fcn) cbd->free_data_fcn(cbd->data);
+			if (cbd->free_fcn) cbd->free_fcn(cbd);
 		}
 		g_ptr_array_free(tw->buttons,TRUE);
         g_free(tw);

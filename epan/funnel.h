@@ -50,8 +50,8 @@ typedef struct _funnel_bt_t {
 	funnel_text_window_t* tw;
 	funnel_bt_cb_t func;
 	void* data;
-	void (*free)(void*);
-	void (*free_data)(void*);
+	void (*free_fcn)(void*);
+	void (*free_data_fcn)(void*);
 } funnel_bt_t;
 
 typedef struct _funnel_ops_t {
