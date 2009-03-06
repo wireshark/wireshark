@@ -31,10 +31,10 @@
 /** Gsm map statistic data */
 typedef struct _gsm_map_stat_t {
     int			opr_code[GSM_MAP_MAX_NUM_OPR_CODES];
-    double		size[GSM_MAP_MAX_NUM_OPR_CODES];
+    int			size[GSM_MAP_MAX_NUM_OPR_CODES];
 
     int			opr_code_rr[GSM_MAP_MAX_NUM_OPR_CODES];
-    double		size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
+    int			size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
 } gsm_map_stat_t;
 
 /** Global gsm map statistic data */

@@ -2892,36 +2892,6 @@ static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number
 * Functions needed to present values from the list
 */
 
-/* Present floats with two decimals */
-static void
-rtp_float_data_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-   {
-     gfloat  float_val;
-     gchar   buf[20];
-	 char *savelocale;
-
-	 /* the col to get data from is in userdata */
-	 gint float_col = GPOINTER_TO_INT(user_data);
-
-     gtk_tree_model_get(model, iter, float_col, &float_val, -1);
-
-	 /* save the current locale */
-	 savelocale = setlocale(LC_NUMERIC, NULL);
-	 /* switch to "C" locale to avoid problems with localized decimal separators
-	  * in g_snprintf("%f") functions
-	  */
-	 setlocale(LC_NUMERIC, "C");
-
-     g_snprintf(buf, sizeof(buf), "%.2f", float_val);
-	 /* restore previous locale setting */
-	 setlocale(LC_NUMERIC, savelocale);
-
-     g_object_set(renderer, "text", buf, NULL);
-   }
 
 /* Present boolean value */
 void
@@ -3033,7 +3003,7 @@ GtkWidget* create_list(user_data_t* user_data)
         "background", BACKGROUND_COLOR_COL,
 		NULL);
 	
-	gtk_tree_view_column_set_cell_data_func(column, renderer, rtp_float_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
 		GINT_TO_POINTER(DELTA_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, DELTA_COLUMN);
@@ -3050,7 +3020,7 @@ GtkWidget* create_list(user_data_t* user_data)
         "background", BACKGROUND_COLOR_COL,
 		NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, rtp_float_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
 		GINT_TO_POINTER(JITTER_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, JITTER_COLUMN);
@@ -3067,7 +3037,7 @@ GtkWidget* create_list(user_data_t* user_data)
         "background", BACKGROUND_COLOR_COL,
 		NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, rtp_float_data_func, 
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
 		GINT_TO_POINTER(IPBW_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, IPBW_COLUMN);

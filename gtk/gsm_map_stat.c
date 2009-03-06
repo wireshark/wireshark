@@ -57,42 +57,215 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gsm_map_stat.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
 
-
-typedef struct column_arrows {
-    GtkWidget		*table;
-    GtkWidget		*ascend_pm;
-    GtkWidget		*descend_pm;
-} column_arrows;
-
-#define	GSM_MAP_INIT_TABLE_NUM_COLUMNS		10
-
-typedef struct _my_columns_t {
-    guint32		value;
-    const gchar		*strptr;
-    GtkJustification	just;
-} my_columns_t;
-
-static my_columns_t columns[GSM_MAP_INIT_TABLE_NUM_COLUMNS] = {
-    { 40,	"ID",			GTK_JUSTIFY_LEFT },
-    { 210,	"Operation Code",	GTK_JUSTIFY_LEFT },
-    { 60,	"Invokes",		GTK_JUSTIFY_RIGHT },
-    { 100,	"Num Bytes",		GTK_JUSTIFY_RIGHT },
-    { 80,	"Avg Bytes",		GTK_JUSTIFY_RIGHT },
-    { 60,	"RetResult",		GTK_JUSTIFY_RIGHT },
-    { 100,	"Num Bytes",		GTK_JUSTIFY_RIGHT },
-    { 80,	"Avg Bytes",		GTK_JUSTIFY_RIGHT },
-    { 100,	"Total Bytes",		GTK_JUSTIFY_RIGHT },
-    { 80,	"Avg Bytes",		GTK_JUSTIFY_RIGHT }
+enum
+{
+   ID_COLUMN,
+   OP_CODE_COLUMN,
+   INVOKES_COLUMN,
+   NUM_BYTES_FWD_COLUMN,
+   AVG_BYTES_FWD_COLUMN,
+   RET_RES_COLUMN,
+   NUM_BYTES_REV_COLUMN,
+   AVG_BYTES_REV_COLUMN,
+   TOT_BYTES_COLUMN,
+   AVG_BYTES_COLUMN,
+   N_COLUMN /* The number of columns */
 };
+
+/* Create list */
+static
+GtkWidget* create_list()
+{
+
+    GtkListStore *list_store;
+    GtkWidget *list;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+	GtkTreeView     *list_view;
+	GtkTreeSelection  *selection;
+
+	/* Create the store */
+    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
+                               G_TYPE_UINT,		/* ID				*/
+                               G_TYPE_STRING,	/* Operation Code	*/
+                               G_TYPE_INT,		/* Invokes			*/
+                               G_TYPE_INT,		/* Num Bytes		*/
+                               G_TYPE_FLOAT,	/* Avg Bytes		*/
+                               G_TYPE_INT,		/* RetResult		*/
+                               G_TYPE_INT,		/* Num Bytes		*/
+                               G_TYPE_FLOAT,	/* Avg Bytes		*/
+                               G_TYPE_INT,		/* Total Bytes		*/
+                               G_TYPE_FLOAT);	/* Avg Bytes		*/
+
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    /* Setup the sortable columns */
+    gtk_tree_sortable_set_sort_column_id(sortable, ID_COLUMN, GTK_SORT_ASCENDING);
+    gtk_tree_view_set_headers_clickable(list_view, FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+	 * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+	 */
+	/* 1:st column */
+	renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("ID", renderer, 
+		"text",	ID_COLUMN, 
+		NULL);
+
+	gtk_tree_view_column_set_sort_column_id(column, ID_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 40);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 2:nd column..Operation Code. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Operation Code", renderer, 
+		"text", OP_CODE_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, OP_CODE_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 210);
+    gtk_tree_view_append_column (list_view, column);
+
+	/* 3:d column..Invokes. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Invokes", renderer, 
+		"text", INVOKES_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, INVOKES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 4:th column.. Num Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
+		"text", NUM_BYTES_FWD_COLUMN, 
+		NULL);
+	
+
+    gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 5:th column.. Avg Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
+		"text", AVG_BYTES_FWD_COLUMN, 
+		NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(AVG_BYTES_FWD_COLUMN), NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_FWD_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+	/* 6:d column..Invokes. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("ReturnResult", renderer, 
+		"text", RET_RES_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, RET_RES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 7:th column.. Num Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
+		"text", NUM_BYTES_REV_COLUMN, 
+		NULL);
+	
+
+    gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 8:th column.. Avg Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
+		"text", AVG_BYTES_REV_COLUMN, 
+		NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(AVG_BYTES_REV_COLUMN), NULL);
+
+
+    gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_REV_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 9:th column.. Total Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Total Bytes", renderer, 
+		"text", TOT_BYTES_COLUMN, 
+		NULL);
+	
+
+    gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_FWD_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 10:th column.. Avg Bytes. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
+		"text", AVG_BYTES_COLUMN, 
+		NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+    gtk_tree_view_append_column (list_view, column);
+
+	/* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	return list;
+
+}
 
 typedef struct _gsm_map_stat_dlg_t {
     GtkWidget		*win;
     GtkWidget		*scrolled_win;
     GtkWidget		*table;
-    char		*entries[GSM_MAP_INIT_TABLE_NUM_COLUMNS];
 } gsm_map_stat_dlg_t;
 
 static gsm_map_stat_dlg_t	dlg;
@@ -153,152 +326,64 @@ gsm_map_stat_draw(
     void		*tapdata)
 {
     gsm_map_stat_t	*stat_p = tapdata;
-    int			i, j;
-    char		*strp;
+    int			i;
+    GtkListStore *list_store;
+	GtkTreeIter  iter;
+	guint id;
 
     if (dlg.win && tapdata)
     {
-	i = 0;
+		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */
 
-	while (gsm_map_opr_code_strings[i].strptr)
-	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer)(long)  i);
+		i = 0;
+		while (gsm_map_opr_code_strings[i].strptr){
+			/* Creates a new row at position. iter will be changed to point to this new row. 
+			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+			 * The row will be filled with the values given to this function.
+			 * :
+			 * should generally be preferred when inserting rows in a sorted list store.
+			 */
+			float avrage_bytes_fwd;
+			float avrage_bytes_rev;
+			float avrage_bytes_tot;
 
-	    strp = g_strdup_printf("%d", stat_p->opr_code[i]);
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
-	    g_free(strp);
-
-	    strp = g_strdup_printf("%.0f", stat_p->size[i]);
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
-	    g_free(strp);
-
-		if (stat_p->opr_code[i] >0)
-				strp = g_strdup_printf("%.2f",stat_p->size[i]/stat_p->opr_code[i]);
-		else strp=g_strdup_printf("--");
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
-	    g_free(strp);
-
-	    strp = g_strdup_printf("%u", stat_p->opr_code_rr[i]);
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 5, strp);
-	    g_free(strp);
-
-	    strp = g_strdup_printf("%.0f", stat_p->size_rr[i]);
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 6, strp);
-	    g_free(strp);
-
-		if (stat_p->opr_code_rr[i]>0)
-			strp = g_strdup_printf("%.2f",stat_p->size_rr[i]/stat_p->opr_code_rr[i]);
-		else strp=g_strdup_printf("--");
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 7, strp);
-	    g_free(strp);
-
-	    strp = g_strdup_printf("%.0f", stat_p->size[i] + stat_p->size_rr[i]);
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 8, strp);
-	    g_free(strp);
-
-		if ((stat_p->opr_code[i] + stat_p->opr_code_rr[i])>0)
-			strp = g_strdup_printf("%.2f",
-						(stat_p->size[i] +stat_p->size_rr[i])/(stat_p->opr_code[i] + stat_p->opr_code_rr[i]));
-		else strp=g_strdup_printf("--");
-	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 9, strp);
-	    g_free(strp);
-
-	    i++;
+			id = gsm_map_opr_code_strings[i].value;
+			if (stat_p->opr_code[i] >0){
+				avrage_bytes_fwd =(float)stat_p->size[i]/(float)stat_p->opr_code[i];
+			}else{
+				avrage_bytes_fwd = 0;
+			}
+			if (stat_p->opr_code_rr[i] >0){
+				avrage_bytes_rev = (float)stat_p->size_rr[i]/(float)stat_p->opr_code_rr[i];
+			}else{
+				avrage_bytes_rev = 0;
+			}
+			if ((stat_p->opr_code[i] + stat_p->opr_code_rr[i])>0){
+				avrage_bytes_tot = (float)(stat_p->size[i] +stat_p->size_rr[i])/(float)(stat_p->opr_code[i] + stat_p->opr_code_rr[i]);
+			}else{
+				avrage_bytes_tot = 0;
+			}
+#if GTK_CHECK_VERSION(2,6,0)
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+#endif
+				   ID_COLUMN,				gsm_map_opr_code_strings[i].value,
+				   OP_CODE_COLUMN,			(char*)gsm_map_opr_code_strings[i].strptr,
+				   INVOKES_COLUMN,			stat_p->opr_code[i],
+				   NUM_BYTES_FWD_COLUMN,	(gint)stat_p->size[i],
+				   AVG_BYTES_FWD_COLUMN,	avrage_bytes_fwd,
+				   RET_RES_COLUMN,			stat_p->opr_code_rr[i],
+				   NUM_BYTES_REV_COLUMN,	stat_p->size_rr[i],
+				   AVG_BYTES_REV_COLUMN,	avrage_bytes_rev,
+				   TOT_BYTES_COLUMN,		stat_p->size[i] + stat_p->size_rr[i],
+				   AVG_BYTES_COLUMN,		avrage_bytes_tot,
+				   -1);
+			i++;
+		}
 	}
-
-	gtk_clist_sort(GTK_CLIST(dlg.table));
-    }
 }
-
-
-static void
-gsm_map_stat_gtk_click_column_cb(
-    GtkCList		*clist,
-    gint		column,
-    gpointer		data)
-{
-    column_arrows	*col_arrows = (column_arrows *) data;
-    int			i;
-
-
-    gtk_clist_freeze(clist);
-
-    for (i=0; i < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	gtk_widget_hide(col_arrows[i].ascend_pm);
-	gtk_widget_hide(col_arrows[i].descend_pm);
-    }
-
-    if (column == clist->sort_column)
-    {
-	if (clist->sort_type == GTK_SORT_ASCENDING)
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-    }
-    else
-    {
-	/*
-	 * Columns 0-1 sorted in descending order by default
-	 */
-	if (column <= 1)
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-
-	gtk_clist_set_sort_column(clist, column);
-    }
-
-    gtk_clist_thaw(clist);
-    gtk_clist_sort(clist);
-}
-
-
-static gint
-gsm_map_stat_gtk_sort_column(
-    GtkCList		*clist,
-    gconstpointer	ptr1,
-    gconstpointer	ptr2)
-{
-    const GtkCListRow		*row1 = (const GtkCListRow *) ptr1;
-    const GtkCListRow		*row2 = (const GtkCListRow *) ptr2;
-    char		*text1 = NULL;
-    char		*text2 = NULL;
-    int			i1, i2;
-
-    text1 = GTK_CELL_TEXT(row1->cell[clist->sort_column])->text;
-    text2 = GTK_CELL_TEXT(row2->cell[clist->sort_column])->text;
-
-    switch (clist->sort_column)
-    {
-    case 1:
-	/* text columns */
-	return(strcmp(text1, text2));
-
-    default:
-	/* number columns */
-	i1 = strtol(text1, NULL, 0);
-	i2 = strtol(text2, NULL, 0);
-	return(i1 - i2);
-    }
-
-    g_assert_not_reached();
-
-    return(0);
-}
-
 
 static void
 gsm_map_stat_gtk_win_destroy_cb(
@@ -314,9 +399,6 @@ gsm_map_stat_gtk_win_create(
     gsm_map_stat_dlg_t	*dlg_p,
     const char		*title)
 {
-    int			i;
-    column_arrows	*col_arrows;
-    GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
@@ -332,61 +414,10 @@ gsm_map_stat_gtk_win_create(
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
-    dlg_p->table = gtk_clist_new(GSM_MAP_INIT_TABLE_NUM_COLUMNS);
+	dlg_p->table = create_list();
+	gtk_widget_show(dlg_p->table);
 
-    col_arrows =
-	(column_arrows *) g_malloc(sizeof(column_arrows) * GSM_MAP_INIT_TABLE_NUM_COLUMNS);
-
-    for (i = 0; i < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-
-	gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-
-	column_lb = gtk_label_new(columns[i].strptr);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
-	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	gtk_widget_show(column_lb);
-
-	col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	if (i == 0)
-	{
-	    /* default column sorting */
-	    gtk_widget_show(col_arrows[i].ascend_pm);
-	}
-
-        gtk_clist_set_column_justification(GTK_CLIST(dlg_p->table), i, columns[i].just);
-
-	gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
-	gtk_widget_show(col_arrows[i].table);
-    }
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
-
-    gtk_clist_set_compare_func(GTK_CLIST(dlg_p->table), gsm_map_stat_gtk_sort_column);
-    gtk_clist_set_sort_column(GTK_CLIST(dlg_p->table), 0);
-    gtk_clist_set_sort_type(GTK_CLIST(dlg_p->table), GTK_SORT_ASCENDING);
-
-    for (i = 0; i < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), i, columns[i].value);
-    }
-
-    gtk_clist_set_shadow_type(GTK_CLIST(dlg_p->table), GTK_SHADOW_IN);
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
     gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
-
-    g_signal_connect(dlg_p->table, "click-column", G_CALLBACK(gsm_map_stat_gtk_click_column_cb), col_arrows);
 
     /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -408,43 +439,19 @@ gsm_map_stat_gtk_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
-    int			i,j;
 
 
     /*
      * if the window is already open, bring it to front
      */
-    if (dlg.win)
-    {
-	gdk_window_raise(dlg.win->window);
-	return;
+    if (dlg.win){
+		gdk_window_raise(dlg.win->window);
+		return;
     }
 
     gsm_map_stat_gtk_win_create(&dlg, "GSM MAP Operation Statistics");
 
-    i = 0;
-    while (gsm_map_opr_code_strings[i].strptr)
-    {
-	dlg.entries[0] = g_strdup_printf("%u",
-					 gsm_map_opr_code_strings[i].value);
-
-	dlg.entries[1] = g_strdup(gsm_map_opr_code_strings[i].strptr);
-
-        /*
-         * set the rest of the columns
-         */
-        for (j = 2; j < GSM_MAP_INIT_TABLE_NUM_COLUMNS; j++)
-        {
-            dlg.entries[j] = g_strdup("0");
-        }
-
-	gtk_clist_insert(GTK_CLIST(dlg.table), i, dlg.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg.table), i, (gpointer)(long)  i);
-
-	i++;
-    }
-
-    gsm_map_stat_draw(&gsm_map_stat);
+	gsm_map_stat_draw(&gsm_map_stat);
 }
 
 

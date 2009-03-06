@@ -29,6 +29,7 @@
 #endif
 
 #include <string.h>
+#include <locale.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -1136,4 +1137,38 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     return FALSE;
 }
 
+/* 
+ * This function can be called from gtk_tree_view_column_set_cell_data_func()
+ * the user data must be the colum number.
+ * Present floats with two decimals 
+ */
+void
+float_data_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+   {
+     gfloat  float_val;
+     gchar   buf[20];
+	 char *savelocale;
+
+	 /* the col to get data from is in userdata */
+	 gint float_col = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, float_col, &float_val, -1);
+
+	 /* save the current locale */
+	 savelocale = setlocale(LC_NUMERIC, NULL);
+	 /* switch to "C" locale to avoid problems with localized decimal separators
+	  * in g_snprintf("%f") functions
+	  */
+	 setlocale(LC_NUMERIC, "C");
+
+     g_snprintf(buf, sizeof(buf), "%.2f", float_val);
+	 /* restore previous locale setting */
+	 setlocale(LC_NUMERIC, savelocale);
+
+     g_object_set(renderer, "text", buf, NULL);
+   }
 
