@@ -1190,14 +1190,14 @@ standard libpcap format.
 	The User Table has  the following fields
       </para>
             <variablelist>
-	  <varlistentry><term><command>name</command></term>
+	  <varlistentry><term><command>Name</command></term>
 	  <listitem>
 		<para>
 			The name of the macro.
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>text</command></term>
+	  <varlistentry><term><command>Text</command></term>
 	  <listitem>
 		<para>
 			The replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
@@ -1217,7 +1217,7 @@ standard libpcap format.
      This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
     </para>
     <variablelist>
-      <varlistentry><term><command>path</command></term>
+      <varlistentry><term><command>Database pathname</command></term>
         <listitem>
           <para>
             This specifies a directory containing GeoIP data files. Any files
@@ -1244,7 +1244,7 @@ standard libpcap format.
          Stk file to protocol matching is handled by an <xref linkend="ChUserTable"/> with the following fields.
       </para>
       <variablelist>
-	  <varlistentry><term><command>match</command></term>
+	  <varlistentry><term><command>Match string</command></term>
 	  <listitem>
 		<para>
 		   A partial match for an stk filename, the first match wins, so if you have a specific case and a
@@ -1252,7 +1252,7 @@ standard libpcap format.
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>protos</command></term>
+	  <varlistentry><term><command>Protocol</command></term>
 	  <listitem>
 		<para>
 			This is the name of the encapsulating protocol (the lowest layer in the packet data) it can be either
@@ -1273,7 +1273,7 @@ standard libpcap format.
          This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
       </para>
       <variablelist>
-	  <varlistentry><term><command>ni</command></term>
+	  <varlistentry><term><command>Network Indicator</command></term>
 	  <listitem>
 		<para>
 			An Integer representing the network indicator for which this association is valid.
@@ -1281,7 +1281,7 @@ standard libpcap format.
 	  </listitem>
 	  </varlistentry>
 
-	  <varlistentry><term><command>called_pc</command></term>
+	  <varlistentry><term><command>Called DPCs</command></term>
 	  <listitem>
 		<para>
 			An range of integers representing the dpcs for which this association is valid.
@@ -1289,7 +1289,7 @@ standard libpcap format.
 	  </listitem>
 	  </varlistentry>
 
-	  <varlistentry><term><command>called_ssn</command></term>
+	  <varlistentry><term><command>Called SSNs</command></term>
 	  <listitem>
 		<para>
 			An range of integers representing the ssns for which this association is valid.
@@ -1297,7 +1297,7 @@ standard libpcap format.
 	  </listitem>
 	  </varlistentry>
 
-	  <varlistentry><term><command>user</command></term>
+	  <varlistentry><term><command>User protocol</command></term>
 	  <listitem>
 		<para>
 			The protocol that is carried over this association
@@ -1317,7 +1317,7 @@ standard libpcap format.
       OIDs.
     </para>
     <variablelist>
-      <varlistentry><term><command>name</command></term>
+      <varlistentry><term><command>Module name</command></term>
         <listitem>
           <para>
             The name of the module, e.g. <database>IF-MIB</database>.
@@ -1334,7 +1334,7 @@ standard libpcap format.
       paths to MIB and PIB modules here.
     </para>
     <variablelist>
-      <varlistentry><term><command>name</command></term>
+      <varlistentry><term><command>Directory name</command></term>
         <listitem>
           <para>
             A module directory, e.g. <filename
@@ -1356,7 +1356,7 @@ standard libpcap format.
      This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
     </para>
     <variablelist>
-      <varlistentry><term><command>engine_id</command></term>
+      <varlistentry><term><command>Engine ID</command></term>
         <listitem>
           <para>
             If given this entry will be used only for packets whose engine id is this.
@@ -1364,7 +1364,7 @@ standard libpcap format.
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry><term><command>userName</command></term>
+      <varlistentry><term><command>Username</command></term>
         <listitem>
           <para>
             This is the userName. When a single user has more than one password
@@ -1373,14 +1373,14 @@ standard libpcap format.
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry><term><command>auth_model</command></term>
+      <varlistentry><term><command>Authentication model</command></term>
         <listitem>
           <para>
             Which auth model to use (either "MD5" or "SHA1").
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry><term><command>authPassword</command></term>
+      <varlistentry><term><command>Password</command></term>
         <listitem>
           <para>
             The authentication password. Use '\xDD' for unprintable characters.
@@ -1389,14 +1389,14 @@ standard libpcap format.
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry><term><command>priv_proto</command></term>
+      <varlistentry><term><command>Privacy protocol</command></term>
         <listitem>
           <para>
             Which encryption algorithm to use (either "DES" or "AES").
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry><term><command>privPassword</command></term>
+      <varlistentry><term><command>Privacy password</command></term>
         <listitem>
           <para>
             The privacy password. Use '\xDD' for unprintable characters.
@@ -1416,42 +1416,42 @@ standard libpcap format.
          This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
       </para>
       <variablelist>
-	  <varlistentry><term><command>encap</command></term>
+	  <varlistentry><term><command>DLT</command></term>
 	  <listitem>
 		<para>
 			One of the user dlts.
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>payload_proto</command></term>
+	  <varlistentry><term><command>Payload protocol</command></term>
 	  <listitem>
 		<para>
 			This is the name of the payload protocol (the lowest layer in the packet data). (e.g. "eth" for ethernet, "ip" for IPv4)
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>header_size</command></term>
+	  <varlistentry><term><command>Header size</command></term>
 	  <listitem>
 		<para>
 			If there is a header protocol (before the payload protocol) this tells which size this header is. A value of 0 disables the header protocol.
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>header_proto</command></term>
+	  <varlistentry><term><command>Header protocol</command></term>
 	  <listitem>
 		<para>
 			The name of the header protocol to be used (uses "data" as default).
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  	  <varlistentry><term><command>trailer_size</command></term>
+	  	  <varlistentry><term><command>Trailer size</command></term>
 	  <listitem>
 		<para>
 			If there is a trailer protocol (after the payload protocol) this tells which size this trailer is. A value of 0 disables the trailer protocol.
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>trailer_proto</command></term>
+	  <varlistentry><term><command>Trailer protocol</command></term>
 	  <listitem>
 		<para>
 			The name of the trailer protocol to be used (uses "data" as default).
