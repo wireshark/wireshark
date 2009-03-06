@@ -166,7 +166,6 @@ void new_window_cb(GtkWidget *w _U_)
 
   /* Panes for the tree and byte view */
   pane = gtk_vpaned_new();
-  gtk_paned_set_gutter_size(GTK_PANED(pane), (GTK_PANED(pane))->handle_size);
   gtk_container_add(GTK_CONTAINER(main_vbox), pane);
   gtk_widget_show(pane);
 
