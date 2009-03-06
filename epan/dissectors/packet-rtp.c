@@ -81,10 +81,10 @@
 /* #define DEBUG_FRAGMENTS   1 */
 
 typedef struct _rfc2198_hdr {
-  unsigned int pt;
-  int offset;
-  int len;
-  struct _rfc2198_hdr *next;
+	unsigned int pt;
+	int offset;
+	int len;
+	struct _rfc2198_hdr *next;
 } rfc2198_hdr;
 
 /* we have one of these for each pdu which spans more than one segment
@@ -531,8 +531,8 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  */
 static void
 process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *rtp_tree,
-    unsigned int payload_type)
+		    proto_tree *rtp_tree,
+		    unsigned int payload_type)
 {
 	struct _rtp_conversation_info *p_conv_data = NULL;
 	gboolean found_match = FALSE;
@@ -580,7 +580,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
 			if (payload_type_str){
 				found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
-													payload_type_str, newtvb, pinfo, tree);
+								   payload_type_str, newtvb, pinfo, tree);
 				/* If payload type string set from conversation and
 				 * no matching dissector found it's probably because no subdissector
 				 * exists. Don't call the dissectors based on payload number
@@ -616,9 +616,9 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
  */
 static void
 dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *rtp_tree, int offset, unsigned int data_len,
-    unsigned int data_reported_len,
-	unsigned int payload_type )
+		  proto_tree *rtp_tree, int offset, unsigned int data_len,
+		  unsigned int data_reported_len,
+		  unsigned int payload_type )
 {
 	tvbuff_t *newtvb;
 	struct _rtp_conversation_info *p_conv_data= NULL;
@@ -879,7 +879,9 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    offset, 1, octet1, "Payload type: %s (%u)",
 			payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown"),
 			hdr_new->pt);
-		proto_item_append_text(ti, ": PT=%s", payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
+		proto_item_append_text(ti, ": PT=%s", 
+				       payload_type_str ? payload_type_str : 
+				                          val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
 		offset += 1;
 
 		/* Timestamp offset and block length don't apply to last header */
@@ -1284,9 +1286,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		 * No padding.
 		 */
 		dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-		    tvb_length_remaining( tvb, offset ),
-		    tvb_reported_length_remaining( tvb, offset ),
-		    payload_type );
+				  tvb_length_remaining( tvb, offset ),
+				  tvb_reported_length_remaining( tvb, offset ),
+				  payload_type );
 		rtp_info->info_payload_offset = offset;
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 	}
@@ -1406,7 +1408,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
 		proto_tree_add_bytes_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
-		    4, 8, ptime, "NTP timestamp: %s", ntp_fmt_ts(ptime));
+					    4, 8, ptime, "NTP timestamp: %s", ntp_fmt_ts(ptime));
 	}
 
 	dissect_rtp(tvb, pinfo, tree);
@@ -1883,7 +1885,7 @@ proto_register_rtp(void)
 
 
 	proto_rtp = proto_register_protocol("Real-Time Transport Protocol",
-	    "RTP", "rtp");
+					    "RTP", "rtp");
 	proto_register_field_array(proto_rtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1895,11 +1897,11 @@ proto_register_rtp(void)
 	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
 	                                                  "RTP payload type", FT_UINT8, BASE_DEC);
 	rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
-												    "Dynamic RTP payload type", FT_STRING, BASE_NONE);
+							      "Dynamic RTP payload type", FT_STRING, BASE_NONE);
 
 
 	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext",
-													"RTP header extension", FT_STRING, BASE_NONE);
+							       "RTP header extension", FT_STRING, BASE_NONE);
 
 	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
