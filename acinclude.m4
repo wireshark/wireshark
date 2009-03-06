@@ -1308,7 +1308,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		fi
 		;;
 	    esac
-	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed -e 's/^.*heimdal.*$/HEIMDAL/' -e 's/^Kerberos .*$/MIT/'`
+	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed -e 's/^.*heimdal.*$/HEIMDAL/' -e 's/^Kerberos .*$/MIT/' -e 's/^Solaris Kerberos .*$/MIT/'`
  	  fi
 	fi
 
