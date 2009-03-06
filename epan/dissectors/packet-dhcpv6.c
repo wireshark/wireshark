@@ -16,6 +16,7 @@
  * RFC3898.txt (NIS options)
  * RFC4704.txt (Client FQDN)
  * RFC5007.txt (DHCPv6 Leasequery)
+ * RFC5417.txt (CAPWAP Access Controller DHCP Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
  *
@@ -130,6 +131,7 @@ static gint ett_dhcpv6_option_vsoption = -1;
 #define	OPTION_CLT_TIME		46
 #define	OPTION_LQ_RELAY_DATA	47
 #define	OPTION_LQ_CLIENT_LINK	48
+#define	OPTION_CAPWAP_AC_V6	52
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA		165
@@ -212,6 +214,7 @@ static const value_string opttype_vals[] = {
 	{ OPTION_CLT_TIME,	"Client Last Transaction Time" },
 	{ OPTION_LQ_RELAY_DATA,	"Leasequery Relay Data" },
 	{ OPTION_LQ_CLIENT_LINK, "Leasequery Client Link Address List" },
+	{ OPTION_CAPWAP_AC_V6,  "CAPWAP Access Controllers" },
 	{ OPTION_MIP6_HA,	"Mobile IPv6 Home Agent" },
 	{ OPTION_MIP6_HOA,	"Mobile IPv6 Home Address" },
 	{ OPTION_NAI,		"Network Access Identifier" },
@@ -970,6 +973,19 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "LQ client links address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_CAPWAP_AC_V6:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"CAPWAP Access Controllers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_get_ipv6(tvb, off + i, &in6);
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "CAPWAP Access Controllers address: %s",
 				ip6_to_str(&in6));
 		}
 		break;

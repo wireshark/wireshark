@@ -26,6 +26,7 @@
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
+ * RFC 5417: CAPWAP Access Controller DHCP Option
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
@@ -623,7 +624,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 135 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 136 */ { "OPTION_PANA_AGENT [TODO]",			opaque, NULL },
 /* 137 */ { "LoST Server Domain Name",			string, NULL },
-/* 138 */ { "OPTION_CAPWAP_AC_V4 [TODO]",		opaque, NULL },
+/* 138 */ { "CAPWAP Access Controllers",		ipv4_list, NULL },
 /* 139 */ { "Unassigned",				opaque, NULL },
 /* 140 */ { "Unassigned",				opaque, NULL },
 /* 141 */ { "Unassigned",				opaque, NULL },
