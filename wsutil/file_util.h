@@ -56,10 +56,10 @@ extern int ws_stdio_remove (const gchar *filename);
 extern FILE * ws_stdio_fopen (const gchar *filename, const gchar *mode);
 extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream);
 
-#define ws_open	ws_stdio_open
+#define ws_open		ws_stdio_open
 #define ws_rename	ws_stdio_rename
 #define ws_mkdir	ws_stdio_mkdir
-#define ws_stat	ws_stdio_stat
+#define ws_stat		ws_stdio_stat
 #define ws_unlink	ws_stdio_unlink
 #define ws_remove	ws_stdio_remove
 #define ws_fopen	ws_stdio_fopen
@@ -67,7 +67,7 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 
 #else	/* _WIN32 && GLIB_CHECK_VERSION */
 
-/* GLib 2.4 or below, using "old school" functions */
+/* "Not Windows" or GLib < 2.6: use "old school" functions */
 #ifdef _WIN32
 #define ws_open		_open
 #define ws_stat		_stat
