@@ -310,8 +310,6 @@ ansi_a_stat_gtk_win_create(
     ansi_a_stat_dlg_t	*dlg_p,
     const char		*title)
 {
-#define	INIT_TABLE_NUM_COLUMNS	3
-    const char		*default_titles[] = { "IEI", "Message Name", "Count" };
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
