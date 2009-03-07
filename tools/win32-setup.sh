@@ -4,11 +4,16 @@
 
 # This MUST be in the form
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+# or
+#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save previous tag.
-DOWNLOAD_TAG="2009-02-09"
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/$DOWNLOAD_TAG/packages/"
+DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2009-02-09"}
+PLATFORM=${PLATFORM:-"win32"}
+
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
+
 TAG_FILE="current_tag.txt"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.

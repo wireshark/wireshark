@@ -4,7 +4,7 @@
 # in the file README.win32 and the Developer's Guide (available online).
 
 ##### Target platform #####
-# Only "win32" is valid (for now).
+# Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF PLATFORM
 PLATFORM=win32
@@ -61,6 +61,8 @@ CPU=i386
 !else if "$(PLATFORM)" == "win64"
 TARGET_MACHINE=X64
 CPU=AMD64
+!else
+!ERROR Your mysterious moon-man architecture "$(PLATFORM)" frightens and confuses us.
 !endif
 
 
@@ -125,14 +127,15 @@ MSVC_VARIANT=MSVC2008
 NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 
 
-##### Libraries #####
-
+!if "$(PLATFORM)" == "win32"
+##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
+GLIB_PKG=2.18.4-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
@@ -144,6 +147,13 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+GTK_PKG=2.14.7-1
+CAIRO_PKG=1.8.6-1
+ATK_PKG=1.24.0-1
+LIBPNG_PKG=1.2.32-1
+TIFF_PKG=tiff-3.8.2-1-bin
+JPEG_PKG=jpeg-6b-4-bin
+PANGO_PKG=1.22.0
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -164,6 +174,7 @@ PANGO_INST_VERSION=1.22
 # If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
+PCAP_VERSION=4_0_2
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 
 #
@@ -270,6 +281,7 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
+LUA_DIST=5_1_4_Win32_dll6
 LUA_DIR=$(WIRESHARK_LIBS)\lua5.1.4
 
 #
@@ -336,6 +348,230 @@ SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 !IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
 GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 !ENDIF
+
+!else
+##### Win64 Libraries #####
+#
+# Mandatory: GLib settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
+#
+GLIB_VERSION=2.0
+GLIB_PKG=2.18.4-1
+GLIB_DIR=$(WIRESHARK_LIBS)\glib
+
+#
+# Mandatory: GTK (& related libs) settings
+#
+# Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
+#
+# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# directory in which the "include" and "lib" directories reside.
+#
+GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+GTK_PKG=2.14.7-1
+CAIRO_PKG=1.8.6-1
+ATK_PKG=1.24.0-1
+LIBPNG_PKG=1.2.34-1
+TIFF_PKG=libtiff_3.8.2-1_win64
+JPEG_PKG=jpeg_6b-2_win64
+PANGO_PKG=1.22.4-1
+
+#
+# Mandatory: Version numbers of GTK and pango.
+#
+# (MAJOR + MINOR Version number but without MICRO version number)
+# These macros are used by the nsis installer script and by the setup target.
+#
+# GTK 2.12 is the mainline since Wireshark 0.99.7
+GTK_INST_VERSION=2.14
+PANGO_INST_VERSION=1.22
+
+#
+# Optional: WinPcap developer's pack to capture network traffic.
+#
+# If you have the WinPcap developer's pack (at least version 3.0),
+# set this to the directory in which the WinPcap developer's pack resides.
+#
+# If you don't have the WPdpack, comment this line out, so that
+# PCAP_DIR isn't defined.
+#
+PCAP_VERSION=4_1_beta5
+PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+
+#
+# Optional: WinPcap remote capture support and new API
+# (pcap_open(), pcap_findalldevs_ex(), etc.)
+#
+PCAP_REMOTE=1
+
+#
+# Optional: The ZLib enables unzipping of gzip compressed capture files
+# "on the fly".
+#
+# If you have Zlib, set this to directory in which the Zlib headers
+# and .lib file are stored.
+#
+# If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
+# defined.
+#
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
+
+#
+# Optional: the ADNS library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have GNU ADNS, set this to the directory in which the GNU ADNS
+# .lib file is stored.
+#
+# If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
+# isn't defined.
+#
+# If C_ARES_DIR is defined below, it will override this setting.
+#
+#ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05ws
+
+#
+# Optional: the c-ares library enables asynchronous (nonblocking) DNS
+# name resolvings.
+#
+# If you have c-ares, set this to the directory in which the c-ares
+# .lib file is stored. Setting this will override ADNS_DIR above. You
+# can't have both.
+#
+# If you're using Visual C++ 6.0, you'll have to use a platform SDK that
+# defines socklen_t, such as Windows Server 2003 PSDK.
+#
+# If you don't have c-ares, comment this line out, so that C_ARES_DIR
+# isn't defined.
+#
+#C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
+
+#
+# Optional: the PCRE (Perl Compatible Regular Expressions) library
+# enables regular expressions for display filters.
+#
+# If you have the PCRE library, set this to the directory in which
+# the GNUWIN32 pcre-lib package is stored.
+#
+# If you don't have PCRE, comment this line out, so that PCRE_DIR
+# isn't defined.
+#
+#PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
+
+#
+# Optional: the GNUTLS library enables ssl decryption.
+#
+# If you have the GNUTLS library, set this to the directory where
+# the lib and include files are stored.
+#
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# isn't defined.
+#
+# Platform SDK conflicts with openssl.h header
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.1-1
+#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.3.8-1
+
+#
+# Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
+#
+# If you have the kerberos for windows (mit) library, set this to the
+# directory where the kfw package is stored.
+#
+# If you don't have KFW, comment this line out, so that KFW_DIR
+# isn't defined.
+#
+#KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
+
+#
+# Optional: the Nettle library enables ??? decryption.
+#
+# If you have the Nettle encryption library, set this to the
+# directory in which the nettle package is stored.
+#
+# If you don't have Nettle, comment this line out, so that NETTLE_DIR
+# isn't defined.
+#
+# NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
+
+#
+# Optional: the LUA library enables scripting support.
+#
+# If you have the LUA library, set this to the directory in which
+# the LUA package is stored.
+#
+# If you don't have LUA, comment this line out, so that LUA_DIR
+# isn't defined.
+#
+LUA_DIST=5_1_4_Win64_dll9
+LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
+
+#
+# Optional: the PORTAUDIO library enables audio output for RTP streams.
+#
+# If you have the PORTAUDIO library (used for rtp_player), set this to
+# the directory in which the PORTAUDIO library is stored.
+#
+# If you don't have PORTAUDIO, comment this line out, so that
+# PORTAUDIO_DIR isn't defined.
+#
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19_2
+
+#
+# Version number of PortAudio
+#
+#PORTAUDIO_VERSION=18
+PORTAUDIO_VERSION=19
+
+#
+# Iconv: Mandatory for Glib >= 2 and <= 2.14.4
+# [win-iconv statically linked as part of Glib >= 2.14.5]
+# Set ICONV_DIR to the directory in which the
+# ICONV include files and library resides.
+#
+##ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
+
+#
+# Mandatory for GTK >= 2: Gettext
+#
+# Set GETTEXT_DIR to the directory in which the
+# GETTEXT include files and library resides.
+#
+#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
+#
+# Optional: AirPcap developer's pack to capture wireless network traffic
+# incl. 802.11 management frames.
+#
+# If you have the AirPcap developer's pack, set this to the directory
+# in which the AirPcap developer's pack resides.
+#
+# If you don't have the AirPcap developer's pack, comment this line out,
+# so that AIRPCAP_DIR isn't defined.
+#
+#AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+
+#
+# Optional: LIBSMI, System Management Interface
+#
+# Used for oid-name resolution for SNMP and other protocols
+#
+#SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
+
+#
+# Optional: GeoIP, IP address database lookups
+#
+# Used to map IP addresses to MaxMind GeoIP database entries
+#
+# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
+# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
+# these definitions. The SDK's SetEnv.bat script defines INETSDK.
+!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
+#GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+!ENDIF
+
+!endif
 
 ##### Tools #####
 
