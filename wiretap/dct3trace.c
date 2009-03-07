@@ -123,7 +123,7 @@ hex2bin(unsigned char *out, unsigned char *in)
 		in++;
 	}
 
-	return out - out_start;
+	return (int)(out - out_start);
 }
 
 static int
