@@ -120,7 +120,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;
-	guint16 length;
+	guint32 length;
 	void *bufp;
 
 	/* Read record header. */
@@ -138,7 +138,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 		    hdr.length, (unsigned long)sizeof(hdr));
 		return FALSE;
 	}
-	length = hdr.length - sizeof(hdr);
+	length = hdr.length - (guint32)sizeof(hdr);
 
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
