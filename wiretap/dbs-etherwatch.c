@@ -148,7 +148,8 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
 {
 	char	buf[DBS_ETHERWATCH_LINE_LENGTH];
 	int	line, byte;
-	unsigned int reclen, i, level;
+	gsize	reclen;
+	unsigned int i, level;
 
 	buf[DBS_ETHERWATCH_LINE_LENGTH-1] = 0;
 
@@ -475,7 +476,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	if (wth) {
 		p = strstr(months, mon);
 		if (p)
-			tm.tm_mon = (p - months) / 3;
+			tm.tm_mon = (int)(p - months) / 3;
 		tm.tm_year -= 1900;
 
 		tm.tm_isdst = -1;
