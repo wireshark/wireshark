@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acse.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
+/* ../../tools/asn2wrs.py -b -e -p acse -c ./acse.cnf -s ./packet-acse-template -D . acse.asn */
 
 /* Input file: packet-acse-template.c */
 
@@ -49,6 +49,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -182,7 +183,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 65 "packet-acse-template.c"
+#line 66 "packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -226,7 +227,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 69 "packet-acse-template.c"
+#line 70 "packet-acse-template.c"
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -1644,7 +1645,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 145 "packet-acse-template.c"
+#line 146 "packet-acse-template.c"
 
 
 /*
@@ -1709,8 +1710,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-			    "dissector is not available");
+			proto_item *ti = proto_tree_add_text(parent_tree, tvb, offset, -1, "dissector is not available");
+			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
 		}
 		top_tree = NULL;
 		return;
@@ -2183,7 +2184,7 @@ void proto_register_acse(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 251 "packet-acse-template.c"
+#line 252 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2229,7 +2230,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 257 "packet-acse-template.c"
+#line 258 "packet-acse-template.c"
   };
 
   /* Register protocol */

@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
@@ -206,8 +207,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-			    "dissector is not available");
+			proto_item *ti = proto_tree_add_text(parent_tree, tvb, offset, -1, "dissector is not available");
+			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
 		}
 		top_tree = NULL;
 		return;
