@@ -802,7 +802,7 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
     }
 
     /* Set length and offset.. */
-    *length = strlen(linebuff);
+    *length = (gint)strlen(linebuff);
     *offset = *offset + *length;
 
     /* ...but don't want to include newline in line length */
@@ -1245,7 +1245,7 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     int stub_offset = 0;
 
     g_strlcpy((char*)frame_buffer, context_name, MAX_CONTEXT_NAME+1);
-    stub_offset += (strlen(context_name) + 1);
+    stub_offset += (int)(strlen(context_name) + 1);
 
     /* Context port number */
     frame_buffer[stub_offset] = context_port;
@@ -1253,19 +1253,19 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
 
     /* Timestamp within file */
     g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
-    stub_offset += (strlen(timestamp_string) + 1);
+    stub_offset += (int)(strlen(timestamp_string) + 1);
 
     /* Protocol name */
     g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
-    stub_offset += (strlen(protocol_name) + 1);
+    stub_offset += (int)(strlen(protocol_name) + 1);
 
     /* Protocol variant number (as string) */
     g_strlcpy((void*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
-    stub_offset += (strlen(variant_name) + 1);
+    stub_offset += (int)(strlen(variant_name) + 1);
 
     /* Outhdr */
     g_strlcpy((char*)&frame_buffer[stub_offset], outhdr_name, MAX_OUTHDR_NAME+1);
-    stub_offset += (strlen(outhdr_name) + 1);
+    stub_offset += (int)(strlen(outhdr_name) + 1);
 
     /* Direction */
     frame_buffer[stub_offset] = direction;
