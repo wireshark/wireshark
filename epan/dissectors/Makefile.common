@@ -135,7 +135,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-pkixproxy.c \
 	packet-pkixqualified.c \
 	packet-pkixtsp.c \
-	packet-pres.c \
 	packet-q932.c \
 	packet-q932-ros.c \
 	packet-qsig.c \
@@ -170,6 +169,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-nbap.c \
 	packet-pcap.c \
 	packet-pkcs12.c \
+	packet-pres.c \
 	packet-rnsap.c \
 	packet-rrc.c \
 	packet-rrlp.c \
