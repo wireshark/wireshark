@@ -248,7 +248,8 @@ static gint64 cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 static gboolean cosine_check_file_type(wtap *wth, int *err)
 {
 	char	buf[COSINE_LINE_LENGTH];
-	guint	reclen, line;
+	gsize	reclen;
+	guint	line;
 
 	buf[COSINE_LINE_LENGTH-1] = '\0';
 
