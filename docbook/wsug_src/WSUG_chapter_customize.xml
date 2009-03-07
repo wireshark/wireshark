@@ -1039,6 +1039,11 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
+		  PRES Users Context List (pres_context_list) (<xref linkend="ChPresContextList"/>)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
 		  SCCP Users Table (sccp_users) (<xref linkend="ChSccpUsers"/>)
 		</para>
 	      </listitem>
@@ -1262,6 +1267,34 @@ standard libpcap format.
 	  </listitem>
 	  </varlistentry>
       </variablelist>
+  </section>
+
+
+  <section id="ChPresContextList"><title>PRES Users Context List</title>
+  <para>
+    Wireshark uses this table to map a presentation context identifier to a given object identifier when the
+    capture does not contain a PRES package with a presentation context definition list for the conversation. 
+  </para>
+  <para>
+    This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+  </para>
+  <variablelist>
+      <varlistentry><term><command>Context Id</command></term>
+      <listitem>
+          <para>
+            An Integer representing the presentation context identifier for which this association is valid.
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Syntax Name OID</command></term>
+      <listitem>
+          <para>
+            The object identifier representing the abstract syntax name, which defines the protocol that is
+	    carried over this association.
+          </para>
+      </listitem>
+      </varlistentry>
+  </variablelist>
   </section>
 
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pres.c                                                              */
-/* ../../tools/asn2wrs.py -b -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
+/* ../../tools/asn2wrs.py -b -p pres -c ./pres.cnf -s ./packet-pres-template -D . ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
 
@@ -38,8 +38,11 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
+#include <epan/uat.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -58,6 +61,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_pres = -1;
+
 /*   type of session envelop */
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -75,6 +79,14 @@ typedef struct _pres_ctx_oid_t {
 	guint32 index;
 } pres_ctx_oid_t;
 static GHashTable *pres_ctx_oid_table = NULL;
+
+typedef struct _pres_user_t {
+   guint ctx_id;
+   char *oid;
+} pres_user_t;
+
+static pres_user_t *pres_users;
+static guint num_pres_users;
 
 static int hf_pres_CP_type = -1;
 static int hf_pres_CPA_PPDU = -1;
@@ -164,7 +176,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 78 "packet-pres-template.c"
+#line 90 "packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -209,8 +221,10 @@ static gint ett_pres_T_presentation_data_values = -1;
 static gint ett_pres_User_session_requirements = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 83 "packet-pres-template.c"
+#line 95 "packet-pres-template.c"
 
+UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
+UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
 
 static guint
 pres_ctx_oid_hash(gconstpointer k)
@@ -269,6 +283,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	}
 	g_hash_table_insert(pres_ctx_oid_table, pco, pco);
 }
+
 char *
 find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 {
@@ -289,6 +304,46 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 		return tmppco->oid;
 	}
 	return NULL;
+}
+
+static void *
+pres_copy_cb(void *dest, const void *orig, unsigned len _U_)
+{
+	pres_user_t *u = dest;
+	const pres_user_t *o = orig;
+
+	u->oid = g_strdup(o->oid);
+
+	return dest;
+}
+
+static void
+pres_free_cb(void *r)
+{
+	pres_user_t *u = r;
+
+	if (u->oid) g_free(u->oid);
+}
+
+static gboolean
+pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pinfo)
+{
+	tvbuff_t *next_tvb;
+	guint i;
+   
+	for (i = 0; i < num_pres_users; i++) {
+		pres_user_t *u = &(pres_users[i]);
+
+		if (u->ctx_id == ctx_id) {
+			/* Register oid so other dissectors can find this connection */
+			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			call_ber_oid_callback(u->oid, next_tvb, offset, pinfo, global_tree);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 
@@ -372,7 +427,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "pres.cnf"
+#line 75 "pres.cnf"
   const char *name;
   char *oid;
 
@@ -435,13 +490,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "pres.cnf"
+#line 90 "pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 87 "pres.cnf"
+#line 93 "pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -581,10 +636,13 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
+			proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+			expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		}
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
-	
+
 	}
 
 
@@ -595,7 +653,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "pres.cnf"
+#line 51 "pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -605,10 +663,13 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
+			proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+			expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
+		}
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
-	
+
 	}
 
 
@@ -1261,7 +1322,7 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 166 "packet-pres-template.c"
+#line 221 "packet-pres-template.c"
 
 
 /*
@@ -1270,13 +1331,13 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *pres_tree = NULL;
-  guint s_type;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	proto_item *ti;
+	proto_tree *pres_tree = NULL;
+	guint s_type;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-  /* do we have spdu type from the session dissector?  */
+	/* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data ){
 		if(tree){
 			proto_tree_add_text(tree, tvb, offset, -1,
@@ -1293,17 +1354,16 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
-/* get type of tag      */
+	/* get type of tag */
 	s_type = tvb_get_guint8(tvb, offset);
-		/*  set up type of Ppdu */
+	/*  set up type of Ppdu */
   	if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_str(pinfo->cinfo, COL_INFO,
-						val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
-  if (tree){
-	  ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
-		    FALSE);
-	  pres_tree = proto_item_add_subtree(ti, ett_pres);
-  }
+		col_add_str(pinfo->cinfo, COL_INFO,
+			    val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
+	if (tree){
+		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, FALSE);
+		pres_tree = proto_item_add_subtree(ti, ett_pres);
+	}
 
 	switch(session->spdu_type){
 		case SES_CONNECTION_REQUEST:
@@ -1343,8 +1403,9 @@ void
 dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0, old_offset;
-/* first, try to check length   */
-/* do we have at least 4 bytes  */
+
+	/* first, try to check length   */
+	/* do we have at least 4 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 4)){
 		session = ((struct SESSION_DATA_STRUCTURE*)(pinfo->private_data));
 		if (session && session->spdu_type != SES_MAJOR_SYNC_POINT) {
@@ -1724,7 +1785,7 @@ void proto_register_pres(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 320 "packet-pres-template.c"
+#line 375 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1770,9 +1831,30 @@ void proto_register_pres(void) {
     &ett_pres_User_session_requirements,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 326 "packet-pres-template.c"
+#line 381 "packet-pres-template.c"
+  };
+  
+  static uat_field_t users_flds[] = {
+    UAT_FLD_DEC(pres_users,ctx_id,"Context Id","Presentation Context Identifier"),
+    UAT_FLD_CSTRING(pres_users,oid,"Syntax Name OID","Abstract Syntax Name (Object Identifier)"),
+    UAT_END_FIELDS
   };
 
+  uat_t* users_uat = uat_new("PRES Users Context List",
+                             sizeof(pres_user_t),
+                             "pres_context_list",
+                             TRUE,
+                             (void**) &pres_users,
+                             &num_pres_users,
+                             UAT_CAT_PORTS,
+                             "ChPresContextList",
+                             pres_copy_cb,
+                             NULL,
+                             pres_free_cb,
+                             users_flds);
+  
+  static module_t *pres_module;
+  
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("pres", dissect_pres, proto_pres);
@@ -1781,6 +1863,12 @@ void proto_register_pres(void) {
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine(pres_init);
 
+  pres_module = prefs_register_protocol(proto_pres, NULL);
+
+  prefs_register_uat_preference(pres_module, "users_table", "Users Context List",
+                                "A table that enumerates user protocols to be used against"
+                                " specific presentation context identifiers",
+                                users_uat);
 }
 
 
