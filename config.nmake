@@ -318,7 +318,7 @@ PORTAUDIO_VERSION=19
 #
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 GETTEXT_PKG=-runtime-0.17-1
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic
 # incl. 802.11 management frames.

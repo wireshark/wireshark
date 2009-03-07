@@ -728,7 +728,7 @@ process_libs:
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
 !ENDIF
-!IF "(PLATFORM)" == "win32"
+!IF "$(PLATFORM)" == "win32"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
 !ELSE
@@ -848,6 +848,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
+    rm -r -f $(WIRESHARK_LIBS)/gettext-0.17-1            # win64
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/gnutls-2.6.3-1
     rm -r -f $(WIRESHARK_LIBS)/gnutls-2.6.4-1
