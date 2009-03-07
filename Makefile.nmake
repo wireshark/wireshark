@@ -733,7 +733,7 @@ process_libs:
 		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
 !ELSE
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gettext-0.17-1 gettext_0.17-1_win64.zip
+		gettext-0.17-1 gettext$(GETTEXT_PKG).zip
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \

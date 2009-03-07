@@ -153,7 +153,7 @@ ATK_PKG=1.24.0-1
 LIBPNG_PKG=1.2.32-1
 TIFF_PKG=tiff-3.8.2-1-bin
 JPEG_PKG=jpeg-6b-4-bin
-PANGO_PKG=1.22.0
+PANGO_PKG=1.22.2-1
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -317,7 +317,8 @@ PORTAUDIO_VERSION=19
 # GETTEXT include files and library resides.
 #
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
+GETTEXT_PKG=-runtime-0.17-1
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic
 # incl. 802.11 management frames.
@@ -539,6 +540,7 @@ PORTAUDIO_VERSION=19
 # GETTEXT include files and library resides.
 #
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
+GETTEXT_PKG=_0.17-1_win64
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic
