@@ -27,10 +27,10 @@
 #define SOME_FUNCTIONS_ARE_DEFINES
 
 typedef struct Buffer {
-	guchar		*data;
-	gsize		allocated;
-	unsigned int	start;
-	unsigned int	first_free;
+	guchar	*data;
+	gsize	allocated;
+	gsize	start;
+	gsize	first_free;
 } Buffer;
 
 void buffer_init(Buffer* buffer, gsize space);

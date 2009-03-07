@@ -97,8 +97,9 @@ void buffer_append(Buffer* buffer, guchar *from, gsize bytes)
 void buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	if (buffer->start + bytes > buffer->first_free) {
-		g_error("buffer_remove_start trying to remove %d bytes. s=%d ff=%d!\n",
-			bytes, buffer->start, buffer->first_free);
+		g_error("buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
+			(guint64)bytes, (guint64)buffer->start,
+			(guint64)buffer->first_free);
 		exit(1);
 	}
 	buffer->start += bytes;
