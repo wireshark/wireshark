@@ -28,16 +28,16 @@
 
 typedef struct Buffer {
 	guchar		*data;
-	unsigned int	allocated;
+	gsize		allocated;
 	unsigned int	start;
 	unsigned int	first_free;
 } Buffer;
 
-void buffer_init(Buffer* buffer, unsigned int space);
+void buffer_init(Buffer* buffer, gsize space);
 void buffer_free(Buffer* buffer);
-void buffer_assure_space(Buffer* buffer, unsigned int space);
-void buffer_append(Buffer* buffer, guchar *from, unsigned int bytes);
-void buffer_remove_start(Buffer* buffer, unsigned int bytes);
+void buffer_assure_space(Buffer* buffer, gsize space);
+void buffer_append(Buffer* buffer, guchar *from, gsize bytes);
+void buffer_remove_start(Buffer* buffer, gsize bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
 # define buffer_clean(buffer) buffer_remove_start((buffer), buffer_length(buffer))

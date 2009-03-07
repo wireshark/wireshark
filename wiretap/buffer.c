@@ -32,7 +32,7 @@
 #include "buffer.h"
 
 /* Initializes a buffer with a certain amount of allocated space */
-void buffer_init(Buffer* buffer, unsigned int space)
+void buffer_init(Buffer* buffer, gsize space)
 {
 	buffer->data = (guchar*)g_malloc(space);
 	buffer->allocated = space;
@@ -50,11 +50,11 @@ void buffer_free(Buffer* buffer)
 	so that another routine can copy directly into the buffer space. After
 	doing that, the routine will also want to run
 	buffer_increase_length(). */
-void buffer_assure_space(Buffer* buffer, unsigned int space)
+void buffer_assure_space(Buffer* buffer, gsize space)
 {
-	unsigned int available_at_end = buffer->allocated - buffer->first_free;
-	unsigned int space_used;
-	int space_at_beginning;
+	gsize available_at_end = buffer->allocated - buffer->first_free;
+	gsize space_used;
+	gboolean space_at_beginning;
 
 	/* If we've got the space already, good! */
 	if (space <= available_at_end) {
@@ -87,14 +87,14 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 	buffer->data = (guchar*)g_realloc(buffer->data, buffer->allocated);
 }
 
-void buffer_append(Buffer* buffer, guchar *from, unsigned int bytes)
+void buffer_append(Buffer* buffer, guchar *from, gsize bytes)
 {
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
 	buffer->first_free += bytes;
 }
 
-void buffer_remove_start(Buffer* buffer, unsigned int bytes)
+void buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	if (buffer->start + bytes > buffer->first_free) {
 		g_error("buffer_remove_start trying to remove %d bytes. s=%d ff=%d!\n",
@@ -118,14 +118,14 @@ void buffer_clean(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-void buffer_increase_length(Buffer* buffer, unsigned int bytes)
+void buffer_increase_length(Buffer* buffer, gsize bytes)
 {
 	buffer->first_free += bytes;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-unsigned int buffer_length(Buffer* buffer)
+gsize buffer_length(Buffer* buffer)
 {
 	return buffer->first_free - buffer->start;
 }
