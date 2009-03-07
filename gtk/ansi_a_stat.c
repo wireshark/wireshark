@@ -55,21 +55,18 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gui_utils.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
-
-typedef struct column_arrows {
-    GtkWidget		*table;
-    GtkWidget		*ascend_pm;
-    GtkWidget		*descend_pm;
-} column_arrows;
+enum
+{
+   IEI_COLUMN,
+   MSG_NAME_COLUMN,
+   COUNT_COLUMN,
+   N_COLUMN /* The number of columns */
+};
 
 typedef struct _ansi_a_stat_dlg_t {
     GtkWidget		*win;
     GtkWidget		*scrolled_win;
     GtkWidget		*table;
-    char		*entries[3];
 } ansi_a_stat_dlg_t;
 
 typedef struct _ansi_a_stat_t {
@@ -129,149 +126,185 @@ ansi_a_stat_draw(
     void		*tapdata)
 {
     ansi_a_stat_t	*stat_p = tapdata;
-    int			i, j;
-    char		*strp;
+    int			i;
+    GtkListStore *list_store;
+	GtkTreeIter  iter;
 
     if (dlg_bsmap.win && tapdata)
     {
-	i = 0;
+		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg_bsmap.table))); /* Get store */
 
-	while (ansi_a_bsmap_strings[i].strptr)
-	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer)(long) i);
-
-	    strp = g_strdup_printf("%d",
-		    stat_p->bsmap_message_type[ansi_a_bsmap_strings[i].value]);
-	    gtk_clist_set_text(GTK_CLIST(dlg_bsmap.table), j, 2, strp);
-	    g_free(strp);
-
-	    i++;
+		i = 0;
+		while (ansi_a_bsmap_strings[i].strptr){
+			/* Creates a new row at position. iter will be changed to point to this new row. 
+			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+			 * The row will be filled with the values given to this function.
+			 * :
+			 * should generally be preferred when inserting rows in a sorted list store.
+			 */
+#if GTK_CHECK_VERSION(2,6,0)
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+#endif
+					IEI_COLUMN, ansi_a_bsmap_strings[i].value,
+					MSG_NAME_COLUMN, (char *)ansi_a_bsmap_strings[i].strptr,
+					COUNT_COLUMN, stat_p->bsmap_message_type[ansi_a_bsmap_strings[i].value],
+					-1);
+			i++;
+		}
 	}
 
-	gtk_clist_sort(GTK_CLIST(dlg_bsmap.table));
-    }
+    if (dlg_dtap.win && tapdata){
+		i = 0;
+		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg_dtap.table))); /* Get store */
 
-    if (dlg_dtap.win && tapdata)
-    {
-	i = 0;
 
-	while (ansi_a_dtap_strings[i].strptr)
-	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer)(long) i);
+		while (ansi_a_dtap_strings[i].strptr){
+		/* Creates a new row at position. iter will be changed to point to this new row. 
+		 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+		 * The row will be filled with the values given to this function.
+		 * :
+		 * should generally be preferred when inserting rows in a sorted list store.
+		 */
+#if GTK_CHECK_VERSION(2,6,0)
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+#endif
+				IEI_COLUMN, ansi_a_dtap_strings[i].value,
+				MSG_NAME_COLUMN, (char *)ansi_a_dtap_strings[i].strptr,
+				COUNT_COLUMN, stat_p->dtap_message_type[ansi_a_dtap_strings[i].value],
+				-1);
 
-	    strp = g_strdup_printf("%d",
-		    stat_p->dtap_message_type[ansi_a_dtap_strings[i].value]);
-	    gtk_clist_set_text(GTK_CLIST(dlg_dtap.table), j, 2, strp);
-	    g_free(strp);
-
-	    i++;
+			i++;
+		}
 	}
-
-	gtk_clist_sort(GTK_CLIST(dlg_dtap.table));
-    }
 }
-
-
-static void
-ansi_a_stat_gtk_click_column_cb(
-    GtkCList		*clist,
-    gint		column,
-    gpointer		data)
-{
-    column_arrows	*col_arrows = (column_arrows *) data;
-    int			i;
-
-
-    gtk_clist_freeze(clist);
-
-    for (i=0; i < 3; i++)
-    {
-	gtk_widget_hide(col_arrows[i].ascend_pm);
-	gtk_widget_hide(col_arrows[i].descend_pm);
-    }
-
-    if (column == clist->sort_column)
-    {
-	if (clist->sort_type == GTK_SORT_ASCENDING)
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-    }
-    else
-    {
-	/*
-	 * Columns 0-1 sorted in descending order by default
-	 * Columns 2 sorted in ascending order by default
-	 */
-	if (column <= 1)
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-
-	gtk_clist_set_sort_column(clist, column);
-    }
-
-    gtk_clist_thaw(clist);
-    gtk_clist_sort(clist);
-}
-
-
-static gint
-ansi_a_stat_gtk_sort_column(
-    GtkCList		*clist,
-    gconstpointer	ptr1,
-    gconstpointer	ptr2)
-{
-    const GtkCListRow	*row1 = ptr1;
-    const GtkCListRow	*row2 = ptr2;
-    char		*text1 = NULL;
-    char		*text2 = NULL;
-    int			i1, i2;
-
-    text1 = GTK_CELL_TEXT(row1->cell[clist->sort_column])->text;
-    text2 = GTK_CELL_TEXT(row2->cell[clist->sort_column])->text;
-
-    switch (clist->sort_column)
-    {
-    case 0:
-	/* FALLTHRU */
-
-    case 2:
-	i1 = strtol(text1, NULL, 0);
-	i2 = strtol(text2, NULL, 0);
-	return(i1 - i2);
-
-    case 1:
-	return(strcmp(text1, text2));
-    }
-
-    g_assert_not_reached();
-
-    return(0);
-}
-
 
 static void
 ansi_a_stat_gtk_win_destroy_cb(
     GtkWindow		*win _U_,
-    gpointer		user_data _U_)
+    gpointer		user_data )
 {
     memset((void *) user_data, 0, sizeof(ansi_a_stat_dlg_t));
 }
 
+static void
+present_as_hex_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+   {
+     guint  val;
+     gchar   buf[35];
 
+	 /* the col to get data from is in userdata */
+	 gint col = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, col, &val, -1);
+
+     g_snprintf(buf, sizeof(buf), "0x%02x", val);
+	 /* restore previous locale setting */
+
+     g_object_set(renderer, "text", buf, NULL);
+   }
+
+/* Create list */
+static
+GtkWidget* create_list()
+{
+
+    GtkListStore *list_store;
+    GtkWidget *list;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+	GtkTreeView     *list_view;
+	GtkTreeSelection  *selection;
+
+	/* Create the store */
+    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
+                               G_TYPE_UINT,		/* IEI				*/
+                               G_TYPE_STRING,	/* Message Name		*/
+                               G_TYPE_UINT);	/* Count			*/
+
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    /* Setup the sortable columns */
+    gtk_tree_sortable_set_sort_column_id(sortable, IEI_COLUMN, GTK_SORT_ASCENDING);
+    gtk_tree_view_set_headers_clickable(list_view, FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+	 * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+	 */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("IEI", renderer, 
+		"text",	IEI_COLUMN, 
+		NULL);
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, present_as_hex_func, 
+		GINT_TO_POINTER(IEI_COLUMN), NULL);
+ 
+	gtk_tree_view_column_set_sort_column_id(column, IEI_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 50);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Second column.. Message Name. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Message Name", renderer, 
+		"text", MSG_NAME_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, MSG_NAME_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 280);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Third column.. Count. */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Count", renderer, 
+		"text", COUNT_COLUMN, 
+		NULL);
+	
+
+    gtk_tree_view_column_set_sort_column_id(column, COUNT_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 50);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	return list;
+
+}
 static void
 ansi_a_stat_gtk_win_create(
     ansi_a_stat_dlg_t	*dlg_p,
@@ -279,9 +312,6 @@ ansi_a_stat_gtk_win_create(
 {
 #define	INIT_TABLE_NUM_COLUMNS	3
     const char		*default_titles[] = { "IEI", "Message Name", "Count" };
-    int			i;
-    column_arrows	*col_arrows;
-    GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
@@ -297,58 +327,11 @@ ansi_a_stat_gtk_win_create(
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
-    dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
+	dlg_p->table = create_list();
+	gtk_widget_show(dlg_p->table);
 
-    col_arrows =
-	(column_arrows *) g_malloc(sizeof(column_arrows) * INIT_TABLE_NUM_COLUMNS);
 
-    for (i = 0; i < INIT_TABLE_NUM_COLUMNS; i++)
-    {
-        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-
-        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-
-        column_lb = gtk_label_new(default_titles[i]);
-
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
-	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-        gtk_widget_show(column_lb);
-
-        col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-        col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-        if (i == 0)
-        {
-            /* default column sorting */
-            gtk_widget_show(col_arrows[i].ascend_pm);
-        }
-
-        gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
-        gtk_widget_show(col_arrows[i].table);
-    }
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
-
-    gtk_clist_set_compare_func(GTK_CLIST(dlg_p->table), ansi_a_stat_gtk_sort_column);
-    gtk_clist_set_sort_column(GTK_CLIST(dlg_p->table), 0);
-    gtk_clist_set_sort_type(GTK_CLIST(dlg_p->table), GTK_SORT_ASCENDING);
-
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 0, 50);
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 1, 280);
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 2, 50);
-
-    gtk_clist_set_shadow_type(GTK_CLIST(dlg_p->table), GTK_SHADOW_IN);
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
-    gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
-
-    g_signal_connect(dlg_p->table, "click-column", G_CALLBACK(ansi_a_stat_gtk_click_column_cb), col_arrows);
+	gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
 
 	/* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -370,36 +353,16 @@ ansi_a_stat_gtk_bsmap_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
-    int			i;
-
-
     /*
      * if the window is already open, bring it to front
      */
     if (dlg_bsmap.win)
     {
-	gdk_window_raise(dlg_bsmap.win->window);
-	return;
+		gdk_window_raise(dlg_bsmap.win->window);
+		return;
     }
 
     ansi_a_stat_gtk_win_create(&dlg_bsmap, "ANSI A-I/F BSMAP Statistics");
-
-    i = 0;
-    while (ansi_a_bsmap_strings[i].strptr)
-    {
-	dlg_bsmap.entries[0] = g_strdup_printf("0x%02x",
-					       ansi_a_bsmap_strings[i].value);
-
-	dlg_bsmap.entries[1] = g_strdup(ansi_a_bsmap_strings[i].strptr);
-
-	dlg_bsmap.entries[2] = g_strdup("0");
-
-	gtk_clist_insert(GTK_CLIST(dlg_bsmap.table), i, dlg_bsmap.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg_bsmap.table), i, (gpointer)(long) i);
-
-	i++;
-    }
-
     ansi_a_stat_draw(&ansi_a_stat);
 }
 
@@ -417,36 +380,17 @@ ansi_a_stat_gtk_dtap_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
-    int			i;
-
 
     /*
      * if the window is already open, bring it to front
      */
     if (dlg_dtap.win)
     {
-	gdk_window_raise(dlg_dtap.win->window);
-	return;
+		gdk_window_raise(dlg_dtap.win->window);
+		return;
     }
 
     ansi_a_stat_gtk_win_create(&dlg_dtap, "ANSI A-I/F DTAP Statistics");
-
-    i = 0;
-    while (ansi_a_dtap_strings[i].strptr)
-    {
-	dlg_dtap.entries[0] = g_strdup_printf("0x%02x",
-					      ansi_a_dtap_strings[i].value);
-
-	dlg_dtap.entries[1] = g_strdup(ansi_a_dtap_strings[i].strptr);
-
-	dlg_dtap.entries[2] = g_strdup("0");
-
-	gtk_clist_insert(GTK_CLIST(dlg_dtap.table), i, dlg_dtap.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg_dtap.table), i, (gpointer)(long) i);
-
-	i++;
-    }
-
     ansi_a_stat_draw(&ansi_a_stat);
 }
 
