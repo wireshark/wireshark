@@ -498,7 +498,7 @@ void register_mibs(void) {
 		UAT_END_FIELDS
 	};
 	static uat_field_t smi_paths_fields[] = {
-		UAT_FLD_CSTRING(smi_mod,name,"Directory path","The directory name"),
+		UAT_FLD_PATHNAME(smi_mod,name,"Directory path","The directory name"),
 		UAT_END_FIELDS
 	};
 	char* smi_load_error = NULL;
