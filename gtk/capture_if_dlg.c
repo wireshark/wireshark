@@ -382,7 +382,8 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    *
    * by making some NDIS request.
    */
-  if ( strstr(if_info->description,"generic dialup") != NULL) {
+  if ( strstr(if_info->description,"generic dialup") != NULL ||
+       strstr(if_info->description,"PPP/SLIP") != NULL) {
     return xpm_to_widget(modem_16_xpm);
   }
 
