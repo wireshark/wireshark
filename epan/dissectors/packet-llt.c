@@ -138,7 +138,7 @@ proto_register_llt(void)
 	llt_module = prefs_register_protocol(proto_llt, proto_reg_handoff_llt);
 
 	/* Register our preferences */
-	prefs_register_uint_preference(llt_module, "alternate_ethertype", "Alternate ethertype value",
+	prefs_register_uint_preference(llt_module, "alternate_ethertype", "Alternate ethertype value (in hex)",
 				       "Dissect this ethertype as LLT traffic in addition to the default, 0xCAFE.",
 				       16, &preference_alternate_ethertype); /* A base-16 (hexadecimal) value */
 
