@@ -416,7 +416,7 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
     /* find window geometry maybe already in hashtable */
     if(!window_geom_load(name, &geom)) {
         /* not in table, init geom with "basic" values */
-        geom.key        = g_strdup(name);
+        geom.key        = NULL;    /* Will be set in window_geom_save () */
         geom.set_pos    = FALSE;
         geom.x          = -1;
         geom.y          = -1;
