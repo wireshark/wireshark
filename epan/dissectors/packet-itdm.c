@@ -276,7 +276,7 @@ proto_register_itdm(void)
 
   itdm_module = prefs_register_protocol(proto_itdm, proto_reg_handoff_itdm);
   prefs_register_uint_preference(itdm_module, "mpls_label",
-    "ITDM MPLS label (Flow Bundle ID)",
+    "ITDM MPLS label (Flow Bundle ID in hex)",
     "The MPLS label (aka Flow Bundle ID) used by ITDM traffic.",
     16, &gbl_ItdmMPLSLabel);
 }
