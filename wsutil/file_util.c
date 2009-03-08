@@ -249,7 +249,6 @@ ws_stdio_stat (const gchar *filename,
       errno = save_errno;
       return retval;
 }
-
 /**
  * g_unlink:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
@@ -268,23 +267,24 @@ ws_stdio_stat (const gchar *filename,
  *
  * Since: 2.6
  */
+ 
 int
 ws_stdio_unlink (const gchar *filename)
 {
-      gchar *cp_filename = g_locale_from_utf8 (filename, -1, NULL, NULL, NULL);
+      wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
 
-      if (cp_filename == NULL)
+      if (wfilename == NULL)
 	{
 	  errno = EINVAL;
 	  return -1;
 	}
 
-      retval = unlink (cp_filename);
+      retval = _wunlink (wfilename);
       save_errno = errno;
 
-      g_free (cp_filename);
+      g_free (wfilename);
 
       errno = save_errno;
       return retval;
