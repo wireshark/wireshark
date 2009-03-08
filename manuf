@@ -3950,7 +3950,7 @@
 00:0F:5E	Veo
 00:0F:5F	NicetyTech             # Nicety Technologies Inc. (NTS)
 00:0F:60	Lifetron               # Lifetron Co.,Ltd
-00:0F:61	KiwiNetwor             # Kiwi Networks
+00:0F:61	HewlettPac             # Hewlett Packard
 00:0F:62	AlcatelBel             # Alcatel Bell Space N.V.
 00:0F:63	ObzervTech             # Obzerv Technologies
 00:0F:64	D&RElectro             # D&R Electronica Weesp BV
@@ -9581,6 +9581,26 @@
 00:25:5E	ShanghaiDa             # Shanghai Dare Technologies Co.,Ltd.
 00:25:5F	Sentec                 # SenTec AG
 00:25:60	IbridgeNet             # Ibridge Networks & Communications Ltd.
+00:25:61	ProcurveNe             # ProCurve Networking by HP
+00:25:62	Interbro               # interbro Co. Ltd.
+00:25:63	Luxtera                # Luxtera Inc
+00:25:64	Dell                   # Dell Inc.
+00:25:65	Vizimax                # Vizimax Inc.
+00:25:66	SamsungEle             # Samsung Electronics Co.,Ltd
+00:25:67	SamsungEle             # Samsung Electronics
+00:25:68	ShenzhenHu             # Shenzhen Huawei Communication Technologies Co., Ltd
+00:25:69	SagemCommu             # SAGEM COMMUNICATION
+00:25:6A	Init-Insti             # inIT - Institut Industrial IT
+00:25:6B	AtenixEESR             # ATENIX E.E. s.r.l.
+00:25:6C	"Azimut"Pr             # "Azimut" Production Association JSC
+00:25:6D	BroadbandF             # Broadband Forum
+00:25:6E	VanBredaBV             # Van Breda B.V.
+00:25:6F	DanthermPo             # Dantherm Power
+00:25:70	EasternCom             # Eastern Communications Company Limited
+00:25:71	ZhejiangTi             # Zhejiang Tianle Digital Electric Co.,Ltd
+00:25:72	Nemo-QInte             # Nemo-Q International AB
+00:25:73	StElectron             # ST Electronics (Info-Security) Pte Ltd
+00:25:74	KunimiMedi             # KUNIMI MEDIA DEVICE Co., Ltd.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -11282,7 +11302,7 @@
 00:50:C2:3F:00:00/36	MegatecEle             # megatec electronic GmbH
 00:50:C2:3F:10:00/36	SallandEle             # Salland Electronics Holding BV
 00:50:C2:3F:20:00/36	Stl                    # STL GmbH
-00:50:C2:3F:30:00/36	University             # University of Mannheim - Chair of Electrical Engineering
+00:50:C2:3F:30:00/36	HytecGerae             # Hytec Geraetebau GmbH
 00:50:C2:3F:40:00/36	McTechnolo             # MC TECHNOLOGY GmbH
 00:50:C2:3F:50:00/36	Phaedrus               # Phaedrus Limited
 00:50:C2:3F:60:00/36	Daftdata               # dAFTdATA Limited
@@ -12944,6 +12964,8 @@
 00:50:C2:A7:10:00/36	Purite                 # Purite Ltd
 00:50:C2:A7:20:00/36	Gamber-Joh             # Gamber-Johnson LLC.
 00:50:C2:A7:30:00/36	KyoeiEngin             # KYOEI ENGINEERING Co.,Ltd.
+00:50:C2:A7:40:00/36	DspDesign              # DSP DESIGN LTD
+00:50:C2:A7:50:00/36	Jtl                    # JTL Systems Ltd.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
