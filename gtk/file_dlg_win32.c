@@ -45,7 +45,8 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
-#include <wsutil/unicode-utils.h>
+#include "wsutil/file_util.h"
+#include "wsutil/unicode-utils.h"
 
 #include "../globals.h"
 #include "../alert_box.h"
@@ -294,9 +295,11 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         /* Write out the packets (all, or only the ones from the current
            range) to the file with the specified name. */
 
-        /* GetSaveFileName() already asked the user if he wants to overwrite the old file, */
-        /* so if we are here, user already confirmed to overwrite - just delete the old file now */
-        unlink(file_name8->str);
+        /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
+        /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
+        ws_unlink(file_name8->str);  /* XX: Windows Wireshark is built with GLIB >= 2.6 these     */
+                                     /* days so ws_unlink will properly convert the               */
+                                     /* UTF8 filename to UTF16 & then do a _wunlink.              */
 
         if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
