@@ -429,13 +429,23 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 
+	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	g_signal_connect(bt_ok, "clicked", G_CALLBACK(uat_dlg_cb), dd);
+
+	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	g_signal_connect(bt_cancel, "clicked", G_CALLBACK(uat_cancel_dlg_cb), dd);
+	window_set_cancel_button(win, bt_cancel, NULL);
+
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		GtkWidget *entry, *label, *event_box;
 		char* text = fld_tostr(dd->rec,&(f[colnum]));
 
 		event_box = gtk_event_box_new();
 
-		label = gtk_label_new(f[colnum].title);
+		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		if (f[colnum].desc != NULL)
 			gtk_tooltips_set_tip(tooltips, event_box, f[colnum].desc, NULL);
 
@@ -452,6 +462,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				if (! dd->is_new) {
 					gtk_entry_set_text(GTK_ENTRY(entry),text);
 				}
+				dlg_set_activate(entry, bt_ok);
 				break;
 			}
 			case PT_TXTMOD_ENUM: {
@@ -502,16 +513,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 		}
 	}
 	
-	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
-	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
-
-	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-	g_signal_connect(bt_ok, "clicked", G_CALLBACK(uat_dlg_cb), dd);
-
-	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	g_signal_connect(bt_cancel, "clicked", G_CALLBACK(uat_cancel_dlg_cb), dd);
-	window_set_cancel_button(win, bt_cancel, NULL);
-
+	gtk_widget_grab_default(bt_ok);
 	gtk_widget_show_all(win);
 }
 
@@ -576,7 +578,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 		GtkWidget *label;
         	char* text = fld_tostr(rec,&(f[colnum]));
 
-		label = gtk_label_new(f[colnum].title);
+		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
 		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
 		
@@ -695,8 +697,6 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 
 static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
-
-	uat_window_delete_event_cb(NULL,NULL,uat);
 
 	if (uat->changed && cfile.state == FILE_READ_DONE)
 		cf_reload(&cfile);
