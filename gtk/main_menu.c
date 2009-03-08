@@ -92,6 +92,7 @@
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
 #include "gtk/uat_gui.h"
+#include "gtk/gui_utils.h"
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
 #include <ige-mac-menu.h>
@@ -2763,6 +2764,165 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
   }
 }
 
+static void
+menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
+{
+  GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+  module_t *module = g_object_get_data (G_OBJECT(w), "module");
+  pref_t *pref = g_object_get_data (G_OBJECT(w), "pref");
+  const gchar *new_value =  gtk_entry_get_text(GTK_ENTRY(entry));
+  range_t *newrange;
+  gchar *p;
+  guint uval;
+
+  switch (pref->type) {
+  case PREF_UINT:
+    uval = strtoul(new_value, &p, pref->info.base);
+    if (p == new_value || *p != '\0') {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "The value \"%s\" isn't a valid number.",
+                    new_value);
+      return;
+    }
+    if (*pref->varp.uint != uval) {
+      module->prefs_changed = TRUE;
+      *pref->varp.uint = uval;
+    }
+    break;
+  case PREF_STRING:
+    if (strcmp (*pref->varp.string, new_value) != 0) {
+      module->prefs_changed = TRUE;
+      g_free((void*)*pref->varp.string);
+      *pref->varp.string = g_strdup(new_value);
+    }
+    break;
+  case PREF_RANGE:
+    if (range_convert_str(&newrange, new_value, pref->info.max_value) != CVT_NO_ERROR) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "The value \"%s\" isn't a valid range.",
+                    new_value);
+      return;
+    }
+    if (!ranges_are_equal(*pref->varp.range, newrange)) {
+      module->prefs_changed = TRUE;
+      g_free(*pref->varp.range);
+      *pref->varp.range = newrange;
+    } else {
+      g_free (newrange);
+    }
+    break;
+  default:
+    g_assert_not_reached();
+    break;
+  }
+
+  if (module->prefs_changed) {
+    /* Ensure we reload the sub menu */
+    g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
+    g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
+
+    prefs_apply (module);
+    if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+    }
+    cf_redissect_packets(&cfile);
+  }
+
+  window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+menu_prefs_change_cancel (GtkWidget *w _U_, gpointer parent_w)
+{
+  window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void 
+menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
+{
+  pref_t *pref = data;
+  module_t *module = g_object_get_data (G_OBJECT(w), "module");
+  gchar *value;
+
+  GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+  GtkWidget *entry, *label;
+  GtkTooltips *tooltips;
+
+  switch (pref->type) {
+  case PREF_UINT:
+    switch (pref->info.base) {
+    case 8:
+      value = g_strdup_printf("%o", *pref->varp.uint);
+      break;
+    case 10:
+      value = g_strdup_printf("%u", *pref->varp.uint);
+      break;
+    case 16:
+      value = g_strdup_printf("%x", *pref->varp.uint);
+      break;
+    default:
+      g_assert_not_reached();
+      break;
+    }
+    break;
+  case PREF_STRING:
+    value = g_strdup(*pref->varp.string);
+    break;
+  case PREF_RANGE:
+    value = g_strdup(range_convert_range (*pref->varp.range));
+    break;
+  default:
+    g_assert_not_reached();
+    break;
+  }
+
+   tooltips = gtk_tooltips_new();
+	
+   win = dlg_window_new(module->description);
+
+   gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+   gtk_window_resize(GTK_WINDOW(win), 400, 100);
+
+   main_vb = gtk_vbox_new(FALSE, 5);
+   gtk_container_add(GTK_CONTAINER(win), main_vb);
+   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
+
+   main_tb = gtk_table_new(2, 2, FALSE);
+   gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+
+   label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
+   gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+   gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+   if (pref->description)
+     gtk_tooltips_set_tip(tooltips, label, pref->description, NULL);
+
+   entry = gtk_entry_new();
+   gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+   gtk_entry_set_text(GTK_ENTRY(entry), value);
+   if (pref->description)
+     gtk_tooltips_set_tip(tooltips, entry, pref->description, NULL);
+
+   bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+   g_object_set_data (G_OBJECT(ok_bt), "module", module);
+   g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+   g_object_set_data (G_OBJECT(ok_bt), "pref", pref);
+   g_signal_connect(ok_bt, "clicked", G_CALLBACK(menu_prefs_change_ok), win);
+
+   dlg_set_activate(entry, ok_bt);
+
+   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(menu_prefs_change_cancel), win);
+   window_set_cancel_button(win, cancel_bt, NULL);
+
+   gtk_widget_grab_default(ok_bt);
+   gtk_widget_show_all(win);
+   g_free(value);
+}
+
 static guint
 add_protocol_prefs_menu (pref_t *pref, gpointer data)
 {
@@ -2775,9 +2935,23 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
 
   switch (pref->type) {
   case PREF_UINT:
-    label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
+    switch (pref->info.base) {
+    case 8:
+      label = g_strdup_printf ("%s: %o", pref->title, *pref->varp.uint);
+      break;
+    case 10:
+      label = g_strdup_printf ("%s: %u", pref->title, *pref->varp.uint);
+      break;
+    case 16:
+      label = g_strdup_printf ("%s: %x", pref->title, *pref->varp.uint);
+      break;
+    default:
+      g_assert_not_reached();
+      break;
+    }
     menu_item = gtk_menu_item_new_with_label(label);
-    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_object_set_data (G_OBJECT(menu_item), "module", module);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
     g_free (label);
     break;
   case PREF_BOOL:
@@ -2809,13 +2983,15 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
   case PREF_STRING:
     label = g_strdup_printf ("%s: %s", pref->title, *pref->varp.string);
     menu_item = gtk_menu_item_new_with_label(label);
-    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_object_set_data (G_OBJECT(menu_item), "module", module);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
     g_free (label);
     break;
   case PREF_RANGE:
     label = g_strdup_printf ("%s: %s", pref->title, range_convert_range (*pref->varp.range));
     menu_item = gtk_menu_item_new_with_label(label);
-    gtk_widget_set_sensitive (menu_item, FALSE);
+    g_object_set_data (G_OBJECT(menu_item), "module", module);
+    g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);
     g_free (label);
     break;
   case PREF_UAT:
