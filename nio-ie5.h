@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Copyright (c) 2000, Red Hat, Inc.
  *
  *     This program is free software; you can redistribute it and/or modify

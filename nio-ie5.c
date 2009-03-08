@@ -1,5 +1,5 @@
 /*
- * $Id: util.c 24859 2008-04-09 05:36:08Z etxrab $
+ * $Id$
  *
  * Copyright (c) 2000, Red Hat, Inc.
  *
