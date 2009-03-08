@@ -634,9 +634,7 @@ gsm_a_stat_gtk_sacch_rr_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
-    int			i;
-
-
+ 
     /*
      * if the window is already open, bring it to front
      */
@@ -647,23 +645,6 @@ gsm_a_stat_gtk_sacch_rr_cb(
     }
 
     gsm_a_stat_gtk_win_create(&dlg_sacch_rr, "GSM A-I/F SACCH Statistics");
-
-    i = 0;
-    while (gsm_a_sacch_msg_rr_strings[i].strptr)
-    {
-	dlg_sacch_rr.entries[0] = g_strdup_printf("0x%02x",
-						gsm_a_sacch_msg_rr_strings[i].value);
-
-	dlg_sacch_rr.entries[1] = g_strdup(gsm_a_sacch_msg_rr_strings[i].strptr);
-
-	dlg_sacch_rr.entries[2] = g_strdup("0");
-
-	gtk_clist_insert(GTK_CLIST(dlg_sacch_rr.table), i, dlg_sacch_rr.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg_sacch_rr.table), i, (gpointer)(long)  i);
-
-	i++;
-    }
-
     gsm_a_stat_draw(&gsm_a_stat);
 }
 
