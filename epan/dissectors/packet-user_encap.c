@@ -126,7 +126,25 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	}
 }
 
-static void user_update_cb(void* r _U_, const char** err _U_) {
+static void* user_copy_cb(void* dest, const void* orig, unsigned len _U_) 
+{
+  const user_encap_t *o = orig;
+  user_encap_t *d = dest;
+
+  d->payload_proto_name = g_strdup(o->payload_proto_name);
+  d->header_proto_name  = g_strdup(o->header_proto_name);
+  d->trailer_proto_name = g_strdup(o->trailer_proto_name);
+
+  return d;
+}
+
+static void user_free_cb(void* record)
+{
+  user_encap_t *u = record;
+
+  if (u->payload_proto_name) g_free(u->payload_proto_name);
+  if (u->header_proto_name)  g_free(u->header_proto_name);
+  if (u->trailer_proto_name) g_free(u->trailer_proto_name);
 }
 
 UAT_VS_DEF(user_encap, encap, user_encap_t, WTAP_ENCAP_USER0, ENCAP0_STR)
@@ -177,9 +195,9 @@ void proto_register_user_encap(void)
 						 &num_encaps,
 						 UAT_CAT_FFMT,
 						 "ChUserDLTsSection",
+						 user_copy_cb,
 						 NULL,
-						 user_update_cb,
-						 NULL,
+						 user_free_cb,
 						 user_flds );
 	
 	prefs_register_uat_preference(module,
