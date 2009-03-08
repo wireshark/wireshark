@@ -474,7 +474,7 @@ gsm_a_stat_gtk_dtap_cb(
     gpointer		d _U_,
     gsm_a_stat_dlg_t	*dlg_dtap_p,
     const char		*title,
-    const value_string	*dtap_msg_strings)
+    const value_string	*dtap_msg_strings _U_)
 {
 
     /*
