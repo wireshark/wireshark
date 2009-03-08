@@ -563,13 +563,13 @@ dissect_sflow_sample_rawheaderdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	guint32 	header_proto, frame_length;
 	volatile 	guint32 	header_length;
-	tvbuff_t 	*next_tvb;
-	proto_tree 	*sflow_header_tree;
+	tvbuff_t 	*volatile next_tvb;
+	proto_tree 	*volatile sflow_header_tree;
 	proto_item 	*ti;
 	/* stuff for saving column state before calling other dissectors.
 	 * Thanks to Guy Harris for the tip. */
-	gboolean save_writable;
-	gboolean save_in_error_pkt;
+	volatile gboolean save_writable;
+	volatile gboolean save_in_error_pkt;
 	volatile address 	save_dl_src;
 	volatile address 	save_dl_dst;
 	volatile address 	save_net_src;
