@@ -709,7 +709,7 @@ void proto_register_simulcrypt (void)
 				 "Set the port for Simulcrypt messages ('0' means no port is assigned)",
 				 10, &global_simulcrypt_tcp_port);
 									
-	prefs_register_uint_preference(simulcrypt_module, "ca_system_id_mikey","MIKEY ECM CA_system_ID 0x (hex value)",
+	prefs_register_uint_preference(simulcrypt_module, "ca_system_id_mikey","MIKEY ECM CA_system_ID (in hex)",
 					"Set the CA_system_ID used to decode ECM datagram as MIKEY", 16, &ca_system_id_mikey);		
 }
 

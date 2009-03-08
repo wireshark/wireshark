@@ -181,7 +181,7 @@ proto_register_vlan(void)
         "Whether the vlan summary line should be shown in the protocol tree",
         &vlan_summary_in_tree);
   prefs_register_uint_preference(vlan_module, "qinq_ethertype",
-        "802.1QinQ (Hex) Ethertype",
+        "802.1QinQ Ethertype (in hex)",
         "The (hexadecimal) Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
         16, &q_in_q_ethertype);
 

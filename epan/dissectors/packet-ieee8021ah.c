@@ -422,8 +422,8 @@ proto_register_ieee8021ah(void)
     ieee8021ah_module = prefs_register_protocol(proto_ieee8021ah, 
 						proto_reg_handoff_ieee8021ah);
     prefs_register_uint_preference(ieee8021ah_module, "8021ah_ethertype",
-				   "802.1ah Ethertype",
-				   "Ethertype used to indicate IEEE 802.1ah tag.",
+				   "802.1ah Ethertype (in hex)",
+				   "(Hexadecimal) Ethertype used to indicate IEEE 802.1ah tag.",
 				   16, &ieee8021ah_ethertype);
 }
 

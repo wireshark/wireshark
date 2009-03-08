@@ -195,12 +195,12 @@ proto_register_tte(void)
 
     /* Register preferences */
     prefs_register_uint_preference(tte_module, "ct_mask_value",
-        "CT Mask",
+        "CT Mask (in hex)",
         "Critical Traffic Mask (base hex)",
         16, &tte_pref_ct_mask);
 
     prefs_register_uint_preference(tte_module, "ct_marker_value",
-        "CT Marker",
+        "CT Marker (in hex)",
         "Critical Traffic Marker (base hex)",
         16, &tte_pref_ct_marker);
 }

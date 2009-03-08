@@ -1780,7 +1780,7 @@ void proto_register_ieee802154(void)
     ieee802154_module = prefs_register_protocol(proto_ieee802154, 
 						proto_reg_handoff_ieee802154);
     prefs_register_uint_preference(ieee802154_module, "802154_ethertype",
-				   "802.15.4 (Hex) Ethertype",
+				   "802.15.4 Ethertype (in hex)",
 				   "(Hexadecimal) Ethertype used to indicate IEEE 802.15.4 frame.",
 				   16, &ieee802154_ethertype);
 

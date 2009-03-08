@@ -4193,7 +4193,7 @@ proto_register_ppp(void)
 	&ppp_vj_decomp);
   prefs_register_uint_preference(ppp_module,
 	"default_proto_id",
-	"PPPMuxCP Default PID",
+	"PPPMuxCP Default PID (in hex)",
 	"Default Protocol ID to be used for PPPMuxCP",
 	16, &pppmux_def_prot_id);
 }

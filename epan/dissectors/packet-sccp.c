@@ -3247,7 +3247,7 @@ proto_register_sccp(void)
   sccp_module = prefs_register_protocol(proto_sccp, NULL);
 
   prefs_register_uint_preference(sccp_module, "source_pc",
-				 "Source PC",
+				 "Source PC (in hex)",
 				 "The source point code (usually MSC) (to determine whether message is uplink or downlink)",
 				 16, &sccp_source_pc_global);
 
