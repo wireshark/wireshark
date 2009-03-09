@@ -38,7 +38,6 @@
 #include "../print.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
-#include "../tempfile.h"
 #include "../util.h"
 #include <wsutil/file_util.h>
 
@@ -58,6 +57,7 @@
 #include <windows.h>
 #include "gtk/file_dlg_win32.h"
 #include "gtk/print_win32.h"
+#include "../tempfile.h"
 #endif
 
 /* dialog output action */
@@ -908,7 +908,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
   gboolean          win_printer = FALSE;
   int               tmp_fd;
-  char              tmp_namebuf[128+1];    /* XXX - length was used elsewhere too, why? */
+  char              tmp_namebuf[128+1];  /* XX: see create_tmpfile which says [128+1]; why ? */
   char              *tmp_oldfile;
 #endif
   cf_print_status_t status;
@@ -1095,6 +1095,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
     /* trash temp file */
     ws_remove(args->file);
+    g_free(args->file);
 
     /* restore old settings */
     args->to_file = FALSE;
