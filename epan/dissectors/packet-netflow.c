@@ -775,7 +775,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		/*
 		 * if we came up short, stop processing
 		 */
-		if (pduret == pdusize)
+		if (pduret == pdusize && pduret != 0)
 			offset += pduret;
 		else
 			break;
