@@ -832,8 +832,8 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
     }
 
     obj.record.unk16_1 = g_htons(0x0000);
-    obj.record.name_len = strlen(src_desc->input_name) + 1;
-    obj.record.stack_len = strlen(src_desc->stack_file) + 1;
+    obj.record.name_len = (guint16) strlen(src_desc->input_name) + 1;
+    obj.record.stack_len = (guint16) strlen(src_desc->stack_file) + 1;
 
     obj.record.extra.type = g_htonl(src_desc->input_type);
 

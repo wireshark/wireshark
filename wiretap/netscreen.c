@@ -164,7 +164,7 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err)
 	for (line = 0; line < NETSCREEN_HEADER_LINES_TO_CHECK; line++) {
 		if (file_gets(buf, NETSCREEN_LINE_LENGTH, wth->fh) != NULL) {
 
-			reclen = strlen(buf);
+			reclen = (guint) strlen(buf);
 			if (reclen < strlen(NETSCREEN_HDR_MAGIC_STR1) ||
 				reclen < strlen(NETSCREEN_HDR_MAGIC_STR2)) {
 				continue;

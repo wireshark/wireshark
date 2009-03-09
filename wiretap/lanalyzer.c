@@ -455,7 +455,7 @@ static int swrite(const void* what, guint size, FILE *hd)
  * Returns 0 or error
  * Write one block with error control
  *---------------------------------------------------*/
-static int s0write(guint cnt, FILE *hd)
+static int s0write(size_t cnt, FILE *hd)
 {
 	static guint8 z64[64];
 	size_t nwritten;

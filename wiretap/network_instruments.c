@@ -499,7 +499,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	}
 	memset(&file_header, 0x00, sizeof(capture_file_header));
 	g_strlcpy(file_header.observer_version, network_instruments_magic, 32);
-	file_header.offset_to_first_packet = sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment);
+	file_header.offset_to_first_packet = (guint16) (sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment));
 	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
 	file_header.number_of_information_elements = 1;
 	if(!fwrite(&file_header, sizeof(capture_file_header), 1, wdh->fh)) {
@@ -509,7 +509,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 
 	/* create the comment entry */
 	comment_header.type = GUINT16_TO_LE(INFORMATION_TYPE_COMMENT);
-	comment_header.length = sizeof(tlv_header) + strlen(comment);
+	comment_header.length = (guint16) (sizeof(tlv_header) + strlen(comment));
 	comment_header.length = GUINT16_TO_LE(comment_header.length);
 	if(!fwrite(&comment_header, sizeof(tlv_header), 1, wdh->fh)) {
 		*err = errno;

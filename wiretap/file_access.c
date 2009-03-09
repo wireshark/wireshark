@@ -998,11 +998,11 @@ static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize)
+size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		return gzwrite(wdh->fh, buf, bufsize);
+		return gzwrite(wdh->fh, buf, (unsigned) bufsize);
 	} else
 #endif
 	{

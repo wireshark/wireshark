@@ -48,11 +48,11 @@
 #define PES_PREFIX 1
 #define PES_VALID(n) (((n) >> 8 & 0xffffff) == PES_PREFIX)
 
-static size_t 
+static int 
 mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
 	gint64 offset = file_tell(wth->fh);
-	size_t count = 0;
+	int count = 0;
 	int byte = file_getc(wth->fh);
 
 	while (byte != EOF) {
@@ -113,7 +113,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 {
 	guint32 n;
 	int bytes_read = mpeg_read_header(wth, err, err_info, &n);
-	unsigned packet_size;
+	unsigned int packet_size;
 	struct wtap_nstime ts = wth->capture.mpeg->now;
 
 	if (bytes_read == -1)

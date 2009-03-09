@@ -393,7 +393,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	  else
 	    {
 	      /* Else buflen is just length of the ASCII string */
-	      buflen = strlen (buf);
+	      buflen = (long) strlen (buf);
 	    }
 	  /* If packet header found return the offset */
 	  if (strncmp (buf + 80, ISERIES_PKT_MAGIC_STR, ISERIES_PKT_MAGIC_LEN)
@@ -623,7 +623,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       else
 	{
 	  /* Else bytes to rewind is just length of ASCII string */
-	  buflen = strlen (data);
+	  buflen = (int) strlen (data);
 	}
 
       /* If this is a IP header hex string then set flag */
@@ -768,12 +768,12 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       buffer_assure_space (wth->frame_buffer, ISERIES_MAX_PACKET_LEN);
       buf = buffer_start_ptr (wth->frame_buffer);
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (asciibuf, buf, strlen (asciibuf));
+      iseries_parse_hex_string (asciibuf, buf, (int) strlen (asciibuf));
     }
   else
     {
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (asciibuf, pd, strlen (asciibuf));
+      iseries_parse_hex_string (asciibuf, pd, (int) strlen (asciibuf));
     }
 
   /* free buffers allocs and return */

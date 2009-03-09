@@ -54,7 +54,7 @@ typedef struct {
 } ngsniffer_comp_stream_t;
 
 typedef struct {
-  char *sdate;            /* Packet start date        */	
+  char *sdate;            /* Packet start date        */
   gboolean tcp_formatted; /* TCP/IP data formated Y/N */
   int format;             /* Trace format type        */
 } iseries_t;
@@ -276,7 +276,7 @@ struct wtap_dumper {
 							 * e.g. WTAP_FILE_TSPREC_USEC */
 };
 
-extern size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize);
+extern size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize);
 extern int wtap_dump_file_ferror(wtap_dumper *wdh);
 
 extern gint wtap_num_file_types;

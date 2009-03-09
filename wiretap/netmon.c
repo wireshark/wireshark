@@ -778,7 +778,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	netmon->frame_table[netmon->frame_table_index] =
 	    htolel(netmon->frame_table_offset);
 	netmon->frame_table_index++;
-	netmon->frame_table_offset += hdr_size + phdr->caplen + atm_hdrsize;
+	netmon->frame_table_offset += (int) hdr_size + phdr->caplen + atm_hdrsize;
 
 	return TRUE;
 }
