@@ -3853,12 +3853,15 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-	case FT_UINT64:
 		if (hfinfo->strings == NULL) {
 			/* Require integral types (other than frame number, which is
 			   always displayed in decimal) to have a number base */
 			DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
 		}
+		break;
+
+	case FT_UINT64:
+		DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
 		break;
 
 	case FT_FRAMENUM:
@@ -5578,15 +5581,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				str = match_strrval(fvalue_get_uinteger(&finfo->value), hfinfo->strings);
 			} else {
 				str = match_strval(fvalue_get_uinteger(&finfo->value), hfinfo->strings);
-			}
-			break;
-
-		case FT_INT64:
-		case FT_UINT64:
-			if (hfinfo->display & BASE_RANGE_STRING) {
-				str = match_strrval(fvalue_get_integer64(&finfo->value), hfinfo->strings);
-			} else {
-				str = match_strval(fvalue_get_integer64(&finfo->value), hfinfo->strings);
 			}
 			break;
 
