@@ -56,8 +56,11 @@
 #include <gtk/gui_utils.h>
 #include <gtk/help_dlg.h>
 #include "gtk/main.h"
-#include "gtk/print_win32.h"
 
+#ifdef _WIN32
+#include "../tempfile.h"
+#include "gtk/print_win32.h"
+#endif
 
 /* static variable declarations to speed up the performance
  * of follow_load_text and follow_add_to_gtk_text
@@ -382,19 +385,36 @@ void
 follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
 	print_stream_t	*stream;
-	gboolean		to_file;
+	gboolean	 to_file;
 	char		*print_dest;
 	follow_info_t	*follow_info = data;
 #ifdef _WIN32
-	gboolean win_printer = FALSE;
+	gboolean         win_printer = FALSE;
+	int              tmp_fd;
+	char             tmp_namebuf[128+1];  /* see create_tmpfile which says [128+1]; why ? */
 #endif
 
 	switch (prefs.pr_dest) {
 	case PR_DEST_CMD:
 #ifdef _WIN32
 		win_printer = TRUE;
-		/*XXX should use temp file stuff in util routines */
-		print_dest = g_strdup(tmpnam(NULL));
+		/* (The code for creating a temp filename is adapted from print_dlg.c).   */
+		/* We currently don't have a function in util.h to create just a tempfile */
+		/* name, so simply create a tempfile using the "official" function,       */
+		/* then delete this file again. After this, the name MUST be available.   */
+		/* */
+		/* Don't use tmpnam() or such, as this will fail under some ACL           */
+		/* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358  */
+		/* Also: tmpnam is "insecure" and should not be used.                     */
+		tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "wshprint");
+		if(tmp_fd == -1) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      "Couldn't create a temporary file for printing.");
+			return;
+		}
+		ws_close(tmp_fd);
+		ws_unlink(tmp_namebuf);
+		print_dest = tmp_namebuf;
 		to_file = TRUE;
 #else
 		print_dest = prefs.pr_cmd;
@@ -428,7 +448,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	}
 	if (stream == NULL) {
 		if (to_file) {
-			open_failure_alert_box(prefs.pr_file, errno, TRUE);
+			open_failure_alert_box(print_dest, errno, TRUE);
 		} else {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				      "Couldn't run print command %s.",
@@ -457,7 +477,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
 	if (!destroy_print_stream(stream)) {
 		if (to_file) {
-			write_failure_alert_box(prefs.pr_file, errno);
+			write_failure_alert_box(print_dest, errno);
 		} else {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				      "Error closing print destination.");
@@ -475,7 +495,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
  print_error:
 	if (to_file) {
-		write_failure_alert_box(prefs.pr_file, errno);
+		write_failure_alert_box(print_dest, errno);
 	} else {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Error writing to print command: %s",
