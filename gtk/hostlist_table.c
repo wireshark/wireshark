@@ -45,6 +45,8 @@
 #include <epan/filesystem.h>
 #endif
 
+#include <wsutil/file_util.h>
+
 #include "../simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
@@ -642,7 +644,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
    /* open the TSV output file */
    /* XXX - add error handling */
    file_path = get_tempfile_path("ipmap.txt");
-   out_file = fopen(file_path, "w+b");
+   out_file = ws_fopen(file_path, "w+b");
    if(out_file == NULL) {
     open_failure_alert_box(file_path, errno, TRUE);
     g_free(file_path);
