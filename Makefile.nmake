@@ -1078,7 +1078,7 @@ checkapi: checkapi_local
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../gtk
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan/crypt
