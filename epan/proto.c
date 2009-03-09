@@ -3854,9 +3854,11 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	case FT_UINT24:
 	case FT_UINT32:
 	case FT_UINT64:
-		/* Require integral types (other than frame number, which is
-		   always displayed in decimal) to have a number base */
-		DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
+		if (hfinfo->strings == NULL) {
+			/* Require integral types (other than frame number, which is
+			   always displayed in decimal) to have a number base */
+			DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
+		}
 		break;
 
 	case FT_FRAMENUM:
@@ -4488,6 +4490,9 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
 	 * the future?) */
 	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
+		case BASE_NONE:
+			format = "%s: %s";
+			break;
 		case BASE_DEC:
 		case BASE_DEC_HEX:
 			format = "%s: %s (%u)";
@@ -4698,6 +4703,9 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
 	 * the future?)*/
 	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
+		case BASE_NONE:
+			format = "%s: %s";
+			break;
 		case BASE_DEC:
 		case BASE_DEC_HEX:
 			format = "%s: %s (%d)";
@@ -5546,6 +5554,52 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = strlen(hfinfo->abbrev);
 
+	if (hfinfo->strings && (hfinfo->display & BASE_STRUCTURE_RESET) == BASE_NONE) {
+		const gchar *str = NULL;
+
+		switch(hfinfo->type) {
+
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			if (hfinfo->display & BASE_RANGE_STRING) {
+				str = match_strrval(fvalue_get_sinteger(&finfo->value), hfinfo->strings);
+			} else {
+				str = match_strval(fvalue_get_sinteger(&finfo->value), hfinfo->strings);
+			}
+			break;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+			if (hfinfo->display & BASE_RANGE_STRING) {
+				str = match_strrval(fvalue_get_uinteger(&finfo->value), hfinfo->strings);
+			} else {
+				str = match_strval(fvalue_get_uinteger(&finfo->value), hfinfo->strings);
+			}
+			break;
+
+		case FT_INT64:
+		case FT_UINT64:
+			if (hfinfo->display & BASE_RANGE_STRING) {
+				str = match_strrval(fvalue_get_integer64(&finfo->value), hfinfo->strings);
+			} else {
+				str = match_strval(fvalue_get_integer64(&finfo->value), hfinfo->strings);
+			}
+			break;
+
+		default:
+			break;
+		}
+
+		if (str != NULL && filter != NULL) {
+			*filter = ep_strdup_printf("%s == \"%s\"", hfinfo->abbrev, str);
+			return TRUE;
+		}
+	}
+
 	/*
 	 * XXX - we can't use the "val_to_string_repr" and "string_repr_len"
 	 * functions for FT_UINT and FT_INT types, as we choose the base in
@@ -5578,32 +5632,14 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_UINT24:
 		case FT_UINT32:
 		case FT_FRAMENUM:
-			/*
-			 * 4 bytes for " == ".
-			 * 11 bytes for:
-			 *
-			 *	a sign + up to 10 digits of 32-bit integer,
-			 *	in decimal;
-			 *
-			 *	"0x" + 8 digits of 32-bit integer, in hex;
-			 *
-			 *	11 digits of 32-bit integer, in octal.
-			 *	(No, we don't do octal, but this way,
-			 *	we know that if we do, this will still
-			 *	work.)
-			 *
-			 * 1 byte for the trailing '\0'.
-			 */
 			if (filter != NULL) {
-				dfilter_len = abbrev_len + 4 + 11 + 1;
-				*filter = ep_alloc0(dfilter_len);
 				format = hfinfo_numeric_format(hfinfo);
 				if(is_signed_num) {
-					g_snprintf(*filter, dfilter_len, format,
+					*filter = ep_strdup_printf(format,
 						   hfinfo->abbrev,
 						   fvalue_get_sinteger(&finfo->value));
 				} else {
-					g_snprintf(*filter, dfilter_len, format,
+					*filter = ep_strdup_printf(format,
 						   hfinfo->abbrev,
 					           fvalue_get_uinteger(&finfo->value));
 				}
@@ -5612,27 +5648,9 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 
 		case FT_INT64:
 		case FT_UINT64:
-			/*
-			 * 4 bytes for " == ".
-			 * 22 bytes for:
-			 *
-			 *	a sign + up to 20 digits of 32-bit integer,
-			 *	in decimal;
-			 *
-			 *	"0x" + 16 digits of 32-bit integer, in hex;
-			 *
-			 *	22 digits of 32-bit integer, in octal.
-			 *	(No, we don't do octal, but this way,
-			 *	we know that if we do, this will still
-			 *	work.)
-			 *
-			 * 1 byte for the trailing '\0'.
-			 */
 			if (filter != NULL) {
-				dfilter_len = abbrev_len + 4 + 22 + 1;
-				*filter = ep_alloc0(dfilter_len);
 				format = hfinfo_numeric_format(hfinfo);
-				g_snprintf(*filter, dfilter_len, format,
+				*filter = ep_strdup_printf(format,
 				    hfinfo->abbrev,
 				    fvalue_get_integer64(&finfo->value));
 			}
