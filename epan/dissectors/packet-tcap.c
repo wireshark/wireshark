@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tcap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
+/* ../../tools/asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
 
 /* Input file: packet-tcap-template.c */
 
@@ -1536,8 +1536,8 @@ proto_reg_handoff_tcap(void)
 
 /*--- Included file: packet-tcap-dis-tab.c ---*/
 #line 1 "packet-tcap-dis-tab.c"
-  register_ber_oid_dissector("0.0.17.773.1.1.1", dissect_DialoguePDU_PDU, proto_tcap, "dialogue-as-id");
-  register_ber_oid_dissector("0.0.17.773.1.2.1", dissect_UniDialoguePDU_PDU, proto_tcap, "uniDialogue-as-id");
+  register_ber_oid_dissector("0.0.17.773.1.1.1", dissect_DialoguePDU_PDU, proto_tcap, "id-as-dialogue");
+  register_ber_oid_dissector("0.0.17.773.1.2.1", dissect_UniDialoguePDU_PDU, proto_tcap, "id-as-uniDialogue");
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/

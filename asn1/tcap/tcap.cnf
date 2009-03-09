@@ -16,8 +16,8 @@ DialoguePDU
 UniDialoguePDU
 
 #.REGISTER
-DialoguePDU    B "0.0.17.773.1.1.1"  "dialogue-as-id"
-UniDialoguePDU B "0.0.17.773.1.2.1"  "uniDialogue-as-id"
+DialoguePDU    B "0.0.17.773.1.1.1"  "id-as-dialogue"
+UniDialoguePDU B "0.0.17.773.1.2.1"  "id-as-uniDialogue"
 
 #.PDU
 
