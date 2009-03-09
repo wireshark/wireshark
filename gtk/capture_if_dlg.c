@@ -45,6 +45,7 @@
 #include "../capture.h"
 #include "../capture_errs.h"
 #include "../capture_ui_utils.h"
+#include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
 
 #ifdef _WIN32
@@ -452,11 +453,11 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
 
   wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", if_info->name);
   if (wireless_path != NULL) {
-    if (stat(wireless_path, &statb) == 0) {
-      free(wireless_path);
+    if (ws_stat(wireless_path, &statb) == 0) {
+      g_free(wireless_path);
       return xpm_to_widget(network_wireless_16_xpm);
     }
-    free(wireless_path);
+    g_free(wireless_path);
   }
 
   /* XXX - "vmnet" again, for VMware interfaces? */
