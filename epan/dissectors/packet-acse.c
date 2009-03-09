@@ -2248,8 +2248,8 @@ void proto_register_acse(void) {
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
 
-	oid_add_from_string("aCSE-id","2.2.3.1.1");
-	register_ber_oid_dissector(ACSE_APDU_OID, dissect_acse, proto_acse, "acse-as-id");
+	oid_add_from_string("id-aCSE","2.2.3.1.1");
+	register_ber_oid_dissector(ACSE_APDU_OID, dissect_acse, proto_acse, "id-as-acse");
 
 
 }
