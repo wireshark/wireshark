@@ -945,13 +945,13 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
     win_printer = TRUE;
     /* We currently don't have a function in util.h to create just a tempfile */
-    /* name, so simply create a tempfile using the "official" function, */
-    /* then delete this file again. After this, the name MUST be available. */
+    /* name, so simply create a tempfile using the "official" function,       */
+    /* then delete this file again. After this, the name MUST be available.   */
     /* */
-    /* Don't use tmpnam() or such, as this will fail under some ACL */
-    /* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358 */
-
-    tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "ethprint");
+    /* Don't use tmpnam() or such, as this will fail under some ACL           */
+    /* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358  */
+    /* Also: tmpnam is "insecure" and should not be used.                     */
+    tmp_fd = create_tempfile(tmp_namebuf, sizeof(tmp_namebuf), "wshprint");
     if(tmp_fd == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Couldn't create a temporary file for printing.");
