@@ -177,7 +177,7 @@ static gboolean toshiba_check_file_type(wtap *wth, int *err)
 	for (line = 0; line < TOSHIBA_HEADER_LINES_TO_CHECK; line++) {
 		if (file_gets(buf, TOSHIBA_LINE_LENGTH, wth->fh) != NULL) {
 
-			reclen = strlen(buf);
+			reclen = (guint) strlen(buf);
 			if (reclen < TOSHIBA_HDR_MAGIC_SIZE) {
 				continue;
 			}

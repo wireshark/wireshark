@@ -819,7 +819,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Update the table index and offset for the next frame. */
     visual->index_table_index++;
-    visual->next_offset += hdr_size + phdr->caplen;
+    visual->next_offset += (guint32) hdr_size + phdr->caplen;
 
     return TRUE;
 }

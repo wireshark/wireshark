@@ -2497,7 +2497,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 	copybytes -= bytes_to_copy;
 	copied_bytes += bytes_to_copy;
 	outbuffer += bytes_to_copy;
-	comp_stream->nextout += bytes_to_copy;
+	comp_stream->nextout += (int) bytes_to_copy;
 	comp_stream->uncomp_offset += bytes_to_copy;
     }
     return copied_bytes;

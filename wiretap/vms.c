@@ -222,7 +222,7 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
     }
     if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
       
-      reclen = strlen(buf);
+      reclen = (guint) strlen(buf);
       if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
 	  reclen < strlen(VMS_HDR_MAGIC_STR2) || 
 	  reclen < strlen(VMS_HDR_MAGIC_STR3)) {
@@ -435,7 +435,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
     if (wth) {
         p = strstr(months, mon);
         if (p)
-            tm.tm_mon = (p - months) / 3;
+            tm.tm_mon = (int) (p - months) / 3;
         tm.tm_year -= 1900;
 
 	tm.tm_isdst = -1;
