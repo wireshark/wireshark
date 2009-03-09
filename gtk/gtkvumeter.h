@@ -1,6 +1,8 @@
 /***************************************************************************
  *            gtkvumeter.h
  *
+ * $Id$
+ *
  *  Fri Jan 10 20:06:41 2003
  *  Copyright  2003  Todd Goyen
  *  wettoad@knighthoodofbuh.org
