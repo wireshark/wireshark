@@ -1,6 +1,6 @@
 /* profile_dlg.h
  * Definitions for dialog box for profiles editing.
- * Stig Bjørlykke <stig@bjorlykke.org>, 2008
+ * Stig Bjorlykke <stig@bjorlykke.org>, 2008
  *
  * $Id$
  *
