@@ -36,8 +36,15 @@
 
 
 static int expert_tap = -1;
+static int proto_expert = -1;
 static int highest_severity = 0;
 
+static int ett_expert = -1;
+static int ett_subexpert = -1;
+
+static int hf_expert_msg = -1;
+static int hf_expert_group = -1;
+static int hf_expert_severity = -1;
 
 const value_string expert_group_vals[] = {
 	{ PI_CHECKSUM,		"Checksum" },
@@ -65,8 +72,31 @@ const value_string expert_severity_vals[] = {
 void
 expert_init(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_expert_msg,
+			{ "Message", "expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
+		},
+		{ &hf_expert_group, 
+			{ "Group", "expert.group", FT_UINT32, BASE_NONE, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
+		},
+		{ &hf_expert_severity, 
+			{ "Severity level", "expert.severity", FT_UINT32, BASE_NONE, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
+		}
+	};
+	static gint *ett[] = {
+		&ett_expert,
+		&ett_subexpert
+	};
+
 	if(expert_tap == -1) {
 		expert_tap = register_tap("expert");
+	}
+
+	if (proto_expert == -1) {
+		proto_expert = proto_register_protocol("Expert Info", "Expert", "expert");
+		proto_register_field_array(proto_expert, hf, array_length(hf));
+		proto_register_subtree_array(ett, array_length(ett));
+		proto_set_cant_toggle(proto_expert);
 	}
 
 	highest_severity = 0;
@@ -100,6 +130,21 @@ expert_set_item_flags(proto_item *pi, int group, int severity)
 	}
 }
 
+static proto_tree*
+expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
+{
+	proto_tree *tree;
+	proto_item *ti;
+
+	tree = proto_item_add_subtree(pi, ett_expert);
+	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s", 
+		val_to_str(severity, expert_severity_vals, "?%u?"),
+		val_to_str(group, expert_group_vals, "?%u?"),
+		msg);
+	PROTO_ITEM_SET_GENERATED(ti);
+
+	return proto_item_add_subtree(ti, ett_subexpert);
+}
 
 static void
 expert_set_info_vformat(
@@ -108,6 +153,8 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	int				ret;	/*tmp return value */
 	char			formatted[300];
 	expert_info_t	*ei;
+	proto_tree	*tree;
+	proto_item	*ti;
 
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
@@ -131,6 +178,14 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	ei->protocol	= ep_strdup(pinfo->current_proto);
 	ei->summary		= ep_strdup(formatted);
 	ei->pitem       = NULL;
+
+	tree = expert_create_tree(pi, group, severity, formatted);
+	ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
+	PROTO_ITEM_SET_GENERATED(ti);
+	ti = proto_tree_add_uint(tree, hf_expert_severity, NULL, 0, 0, severity);
+	PROTO_ITEM_SET_GENERATED(ti);
+	ti = proto_tree_add_uint(tree, hf_expert_group, NULL, 0, 0, group);
+	PROTO_ITEM_SET_GENERATED(ti);
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if(pi != NULL && pi->finfo != NULL) {	
