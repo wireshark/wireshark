@@ -568,6 +568,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          */
         switch (hfinfo->display) {
 
+        case BASE_NONE:
         case BASE_DEC:
             switch (hfinfo->type) {
 
