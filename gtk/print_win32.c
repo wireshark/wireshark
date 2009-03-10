@@ -36,8 +36,7 @@
 #include <winspool.h>
 
 #include "gtk/print_win32.h"
-#include <wsutil/file_util.h>
-
+#include "wsutil/file_util.h"
 /*
 Some thoughts about a GTK win32 printer dialog:
 
@@ -54,10 +53,10 @@ See
 for information on printer APIs.
 
 */
-BOOL CALLBACK abort_proc( HDC hDC, int Error );
-HDC get_printer_dc(void);
-void init_doc_struct( DOCINFO* di, char* docname);
-void print_file( char* file_name, HDC hdc);
+static BOOL CALLBACK abort_proc( HDC hDC, int Error );
+static HDC get_printer_dc(void);
+static void init_doc_struct( DOCINFO* di, char* docname);
+static void print_file( char* file_name, HDC hdc);
 
 void print_mswin(char *file_name)
 
@@ -80,7 +79,7 @@ void print_mswin(char *file_name)
        if( SetAbortProc( hDC, abort_proc ) == SP_ERROR )
        {
            MessageBox( NULL, "Error setting up AbortProc",
-                                       "Error", MB_APPLMODAL | MB_OK);
+                       "Error", MB_APPLMODAL | MB_OK);
            return;
        }
 
@@ -103,7 +102,7 @@ void print_mswin(char *file_name)
    /*===============================*/
    /* Obtain printer device context */
    /* ==============================*/
-   HDC get_printer_dc(void)
+   static HDC get_printer_dc(void)
    {
        PRINTDLG pdlg;
 
@@ -143,7 +142,7 @@ void print_mswin(char *file_name)
    /*===============================*/
    /* The Abort Procudure           */
    /* ==============================*/
-   BOOL CALLBACK abort_proc( HDC hDC, int Error )
+   static BOOL CALLBACK abort_proc( HDC hDC, int Error )
    {
        MSG   msg;
        while( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
@@ -157,7 +156,7 @@ void print_mswin(char *file_name)
    /*===============================*/
    /* Initialize DOCINFO structure  */
    /* ==============================*/
-   void init_doc_struct( DOCINFO* di, char* docname)
+   static void init_doc_struct( DOCINFO* di, char* docname)
    {
        /* Always zero it before using it. */
        memset( di, 0, sizeof( DOCINFO ) );
@@ -169,7 +168,7 @@ void print_mswin(char *file_name)
    /*===============================*/
    /* Drawing on the DC             */
    /* ==============================*/
-void print_file( char *file_name, HDC hdc) {
+static void print_file( char *file_name, HDC hdc) {
 
     #define max_buf_size 1024
     #define max_lines 66
@@ -188,7 +187,8 @@ void print_file( char *file_name, HDC hdc) {
 
     fh1 = ws_fopen( file_name, "r" );
     if( !fh1 ) {
-        perror( "open failed on input file" );
+        MessageBox( NULL, "Open failed on input file",
+                    "Error", MB_APPLMODAL | MB_OK);
         return;
     }
 
