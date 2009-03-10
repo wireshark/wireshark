@@ -485,7 +485,7 @@ static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
 static void set_pseudo_header_frame6(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    guchar *pd, int length, int *err);
+    guchar *pd, size_t length, int *err);
 static int infer_pkt_encap(const guint8 *pd, int len);
 static int fix_pseudo_header(int encap, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header);
@@ -1725,13 +1725,13 @@ static void set_pseudo_header_frame6(wtap *wth,
 }
 
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
-    guchar *pd, int length, int *err)
+    guchar *pd, size_t length, int *err)
 {
 	gint64	bytes_read;
 
 	bytes_read = ng_file_read(pd, 1, length, wth, is_random, err);
 
-	if (bytes_read != length) {
+	if (bytes_read != (gint64) length) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
@@ -2425,7 +2425,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
     if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
 	errno = WTAP_ERR_CANT_READ;
 	copied_bytes = file_read(buffer, 1, copybytes, infile);
-	if (copied_bytes != copybytes)
+	if ((size_t) copied_bytes != copybytes)
 	    *err = file_error(infile);
 	return copied_bytes;
     }
@@ -2543,7 +2543,7 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
     /* Read the blob */
     errno = WTAP_ERR_CANT_READ;
     read_len = file_read(file_inbuf, 1, in_len, infile);
-    if (in_len != read_len) {
+    if ((size_t) in_len != read_len) {
 	*err = file_error(infile);
 	return -1;
     }
