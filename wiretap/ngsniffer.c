@@ -494,9 +494,9 @@ static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
-static size_t SnifferDecompress( unsigned char * inbuf, size_t inlen,
+static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
         unsigned char * outbuf, size_t outlen, int *err );
-static size_t ng_file_read(void *buffer, size_t elementsize, size_t numelements,
+static gint64 ng_file_read(void *buffer, size_t elementsize, size_t numelements,
     wtap *wth, gboolean is_random, int *err);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err);
@@ -1287,7 +1287,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err)
 {
-	size_t	bytes_read;
+	gint64	bytes_read;
 	char	record_type[2];
 	char	record_length[4]; /* only 1st 2 bytes are length */
 
@@ -1319,7 +1319,7 @@ static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
 static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
     struct frame2_rec *frame2, int *err)
 {
-	size_t bytes_read;
+	gint64 bytes_read;
 
 	/* Read the f_frame2_struct */
 	bytes_read = ng_file_read(frame2, 1, sizeof *frame2, wth, is_random,
@@ -1427,7 +1427,7 @@ static void set_pseudo_header_frame2(wtap *wth,
 static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
     struct frame4_rec *frame4, int *err)
 {
-	size_t bytes_read;
+	gint64 bytes_read;
 
 	/* Read the f_frame4_struct */
 	bytes_read = ng_file_read(frame4, 1, sizeof *frame4, wth, is_random,
@@ -1696,7 +1696,7 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
     struct frame6_rec *frame6, int *err)
 {
-	size_t bytes_read;
+	gint64 bytes_read;
 
 	/* Read the f_frame6_struct */
 	bytes_read = ng_file_read(frame6, 1, sizeof *frame6, wth, is_random,
@@ -1727,7 +1727,7 @@ static void set_pseudo_header_frame6(wtap *wth,
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err)
 {
-	size_t	bytes_read;
+	gint64	bytes_read;
 
 	bytes_read = ng_file_read(pd, 1, length, wth, is_random, err);
 
@@ -2198,14 +2198,14 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
    Parameters
       inbuf - buffer of compressed bytes from file, not including
          the preceding length word
-      inlen - length of inbuf in bytes
+      inlen - length of inbuf in bytes (max 64k)
       outbuf - decompressed contents, could contain a partial Sniffer
          record at the end.
       outlen - length of outbuf.
 
    Return value is the number of bytes in outbuf on return.
 */
-static size_t
+static int
 SnifferDecompress( unsigned char * inbuf, size_t inlen,
                        unsigned char * outbuf, size_t outlen, int *err )
 {
@@ -2219,6 +2219,10 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
    unsigned int code_low;  /* other 4 bits from encoding byte */
    int length;             /* length of RLE sequence or repeated string */
    int offset;             /* offset of string to repeat */
+
+   if (inlen > G_MAXUINT16) {
+      return ( -1 );
+   }
 
    bit_mask  = 0;  /* don't have any bits yet */
    while (1)
@@ -2380,7 +2384,7 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
          break;
    }
 
-   return ( pout - outbuf );  /* return length of expanded text */
+   return (int) ( pout - outbuf );  /* return length of expanded text */
 }
 
 /*
@@ -2397,14 +2401,14 @@ typedef struct {
 	gint64	blob_uncomp_offset;
 } blob_info_t;
 
-static size_t
+static gint64
 ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
     gboolean is_random, int *err)
 {
     FILE_T infile;
     ngsniffer_comp_stream_t *comp_stream;
     size_t copybytes = elementsize * numelements; /* bytes left to be copied */
-    size_t copied_bytes = 0; /* bytes already copied */
+    gint64 copied_bytes = 0; /* bytes already copied */
     unsigned char *outbuffer = buffer; /* where to write next decompressed data */
     blob_info_t *blob;
     size_t bytes_to_copy;
@@ -2508,13 +2512,13 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 static int
 read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err)
 {
-    size_t in_len;
+    int in_len;
     size_t read_len;
     unsigned short blob_len;
     gint16 blob_len_host;
     gboolean uncompressed;
     unsigned char file_inbuf[65536];
-    size_t out_len;
+    int out_len;
 
     /* Read one 16-bit word which is length of next compressed blob */
     errno = WTAP_ERR_CANT_READ;
