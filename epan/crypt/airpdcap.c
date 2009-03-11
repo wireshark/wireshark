@@ -1676,7 +1676,7 @@ AirPDcapRsnaPwd2PskStep(
     digest[ssidLength+1] = (UCHAR)((count>>16) & 0xff);
     digest[ssidLength+2] = (UCHAR)((count>>8) & 0xff);
     digest[ssidLength+3] = (UCHAR)(count & 0xff);
-    sha1_hmac(ppBytes, ppLength, digest, ssidLength+4, digest1);
+    sha1_hmac(ppBytes, ppLength, digest, (guint32) ssidLength+4, digest1);
 
     /* output = U1 */
     memcpy(output, digest1, AIRPDCAP_SHA_DIGEST_LEN);
@@ -1834,7 +1834,7 @@ parse_key_string(gchar* input_string)
 
         dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
         dk->key  = g_string_new(key);
-        dk->bits = dk->key->len * 4;
+        dk->bits = (guint) dk->key->len * 4;
         dk->ssid = NULL;
 
         g_string_free(key_string, TRUE);
