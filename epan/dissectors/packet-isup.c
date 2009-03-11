@@ -513,6 +513,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { PARAM_TYPE_UID_CAPAB_IND,          "UID capability indicators"},
   { PARAM_TYPE_REDIRECT_COUNTER,       "Redirect counter (reserved for national use)"},
   { PARAM_TYPE_COLLECT_CALL_REQ,       "Collect call request"},
+  { PARAM_TYPE_CALLING_GEODETIC_LOCATION,       "Calling geodetic location"},
   { PARAM_TYPE_GENERIC_NR,             "Generic number"},
   { PARAM_TYPE_JURISDICTION,           "Jurisdiction"},
   { PARAM_TYPE_GENERIC_NAME,           "Generic name"},
@@ -982,6 +983,22 @@ static const true_false_string isup_NI_ind_value = {
   "incomplete",
   "complete"
 };
+
+static const value_string isup_location_presentation_restricted_ind_value[] = {
+  { 0,                                 "presentation allowed"},
+  { 1,                                 "presentation restricted"},
+  { 2,                                 "location not available"},
+  { 3,                                 "spare"},
+  { 0,                                 NULL}};
+
+static const value_string isup_location_type_of_shape_value[] = {
+  { 0,          "ellipsoid point"},
+  { 1,          "ellipsoid point with uncertainty"},
+  { 2,          "point with altitude and uncertainty"},
+  { 3,          "ellipse on the ellipsoid"},
+  { 4,          "ellipsoid circle sector"},
+  { 5,          "polygon"},
+  { 0,          NULL}};
 
 #define ISDN_NUMBERING_PLAN                     1
 #define DATA_NUMBERING_PLAN                     3
@@ -1700,6 +1717,9 @@ static int hf_BAT_ASE_Comp_Report_diagnostic	= -1;
 static int hf_nsap_ipv4_addr					= -1;
 static int hf_nsap_ipv6_addr					= -1;
 static int hf_iana_icp							= -1;
+
+static int hf_isup_geo_loc_presentation_restricted_ind	= -1;
+static int hf_isup_geo_loc_screening_ind		= -1;
 
 static int hf_isup_apm_msg_fragments = -1;
 static int hf_isup_apm_msg_fragment = -1;
@@ -4921,6 +4941,46 @@ dissect_isup_collect_call_request_parameter(tvbuff_t *parameter_tvb, proto_tree 
   }
 }
 /* ------------------------------------------------------------------
+  Dissector Parameter Calling geodetic location
+ */
+static void
+dissect_isup_calling_geodetic_location_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint         length = tvb_length(parameter_tvb);
+  guint8        oct, lpri;
+
+  oct = tvb_get_guint8(parameter_tvb, 0);
+  lpri = (oct & 0xc0) >> 2;
+
+  proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_presentation_restricted_ind, parameter_tvb, 0, 1, oct);
+  proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_screening_ind, parameter_tvb, 0, 1, oct);
+
+  oct = tvb_get_guint8(parameter_tvb, 1);
+
+  proto_tree_add_boolean(parameter_tree, hf_isup_extension_ind, parameter_tvb, 1, 1, oct);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 1, 1,
+    "Calling geodetic location type of shape: %s (%u)",
+    val_to_str(oct & GFEDCBA_8BIT_MASK, isup_location_type_of_shape_value, "spare/reserved"), oct);
+
+  if (length > 2)
+  {
+    if (lpri < 0x2)
+    {
+      proto_tree_add_text(parameter_tree, parameter_tvb, 2, length - 2,
+        "Shape description");
+    }
+    else
+    {
+      /* not supposed to have any data if 'lpri' was 'location not available' */
+
+      proto_tree_add_text(parameter_tree, parameter_tvb, 2, length - 2,
+        "Unknown (?), should not have data if LPRI is 'location not available'");
+    }
+  }
+
+  proto_item_set_text(parameter_item, "Calling geodetic location");
+}
+/* ------------------------------------------------------------------
   Dissector Parameter Generic number
  */
 void
@@ -5717,6 +5777,9 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 				break;
 			case PARAM_TYPE_COLLECT_CALL_REQ:
 				dissect_isup_collect_call_request_parameter(parameter_tvb, parameter_tree, parameter_item);
+				break;
+			case PARAM_TYPE_CALLING_GEODETIC_LOCATION:
+				dissect_isup_calling_geodetic_location_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_GENERIC_NR:
 				dissect_isup_generic_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8087,7 +8150,16 @@ proto_register_isup(void)
 		{&hf_isup_cvr_cont_chk_ind,
 		 {"Continuity Check Indicator","cg_alarm_cnt_chk",
 		  FT_UINT8, BASE_HEX, VALS(isup_cvr_cont_chk_ind_value), HG_8BIT_MASK,
-		  "",HFILL }}
+		  "",HFILL }},
+
+		{ &hf_isup_geo_loc_presentation_restricted_ind,
+			{ "Calling Geodetic Location presentation restricted indicator",  "isup.location_presentation_restr_ind",
+			FT_UINT8, BASE_DEC, VALS(isup_location_presentation_restricted_ind_value), DC_8BIT_MASK,
+			"", HFILL }},
+		{ &hf_isup_geo_loc_screening_ind,
+			{ "Calling Geodetic Location screening indicator",  "isup.location_screening_ind",
+			FT_UINT8, BASE_DEC, VALS(isup_screening_ind_enhanced_value), BA_8BIT_MASK,		/* using previously defined screening values */
+			"", HFILL }}
 	};
 
 /* Setup protocol subtree array */
