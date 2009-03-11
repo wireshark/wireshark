@@ -38,6 +38,15 @@
  * Radio Link Control (RLC) Protocol specification
  */
 
+/* TODO:
+   Working towards re-assembly:
+   - track frames within same channel, so can show:
+       - frame link back to start of current segment
+       - show length (and possibly contents) of re-assembled segment
+       - report inconsistent framing info values, i.e. grumble if see for consecutive SNs:
+           -   "... ["   OR     "] ..."
+*/
+ 
 /* Initialize the protocol and registered fields. */
 int proto_rlc_lte = -1;
 
@@ -719,9 +728,11 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                   tvb, 0, 0, p_rlc_lte_info->rlcMode);
     PROTO_ITEM_SET_GENERATED(mode_ti);
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_ueid,
-                             tvb, 0, 0, p_rlc_lte_info->ueid);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_rlc_lte_info->ueid != 0) {
+        ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_ueid,
+                                 tvb, 0, 0, p_rlc_lte_info->ueid);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 
     ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_priority,
                              tvb, 0, 0, p_rlc_lte_info->priority);
@@ -731,9 +742,12 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_rlc_lte_info->channelType);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_channel_id,
-                             tvb, 0, 0, p_rlc_lte_info->channelId);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_SRB) ||
+        (p_rlc_lte_info->channelType == CHANNEL_TYPE_DRB)) {
+        ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_channel_id,
+                                 tvb, 0, 0, p_rlc_lte_info->channelId);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 
     ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_pdu_length,
                              tvb, 0, 0, p_rlc_lte_info->pduLength);
@@ -749,10 +763,12 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Append context highlights to info column */
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "[%s] [%s] UEId=%u ",
+                     "[%s] [%s] ",
                      (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
-                     val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"),
-                     p_rlc_lte_info->ueid);
+                     val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
+        if (p_rlc_lte_info->ueid != 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%u ", p_rlc_lte_info->ueid);
+        }
         if (p_rlc_lte_info->channelId == 0) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
                             val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));

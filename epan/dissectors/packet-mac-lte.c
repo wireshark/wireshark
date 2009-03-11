@@ -43,6 +43,7 @@
    - more testing of control bodies
    - TDD mode
    - add a preference so that padding can be verified against an expected pattern?
+   - context values to show HARQ retry counts and CRC-pased flag
 */
 
 /* Initialize the protocol and registered fields. */
@@ -1023,9 +1024,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
-                             tvb, 0, 0, p_mac_lte_info->rnti);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_lte_info->rntiType != NO_RNTI) {
+        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+                                 tvb, 0, 0, p_mac_lte_info->rnti);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti_type,
                              tvb, 0, 0, p_mac_lte_info->rntiType);
