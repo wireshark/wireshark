@@ -26,7 +26,7 @@ InstType "un.All (remove all)"
 ; ============================================================================
 ; The name of the installer
 !define PROGRAM_NAME "Wireshark"
-!if ${WIRESHRK_TARGET_PLATFORM} == "win32"
+!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 !define BITS 32
 !else
 !define BITS 64
