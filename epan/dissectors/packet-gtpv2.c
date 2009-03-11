@@ -179,6 +179,8 @@ static const value_string gtpv2_message_type_vals[] = {
 #define	GTPV2_ULI				87
 #define GTPV2_F_TEID			88
 #define GTPV2_G_CN_ID			90
+#define GTPV2_DELAY_VALUE		94
+#define GTPV2_BEARER_CTX	96
 #define GTPV2_IE_CNG_REP_ACT	139
 
 /* Table 8.1-1: Information Element types for GTPv2 */
@@ -681,11 +683,25 @@ dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * 8.27 S103 PDN Data Forwarding Info (S103PDF)
  * 8.28 S1-U Data Forwarding (S1UDF)
  * 8.29 Delay Value
+ */
+
+static void
+dissect_gtpv2_delay_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
+/*
  * 8.30 Bearer ID List
  */
 /*
  * 8.31 Bearer Context
  */
+
+static void
+dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet"); 
+}
 /*
  * 8.32 S101 IP Address 
  * 8.33 S102 IP Address 
@@ -770,6 +786,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_ULI, dissect_gtpv2_uli},						/* 87, User Location Info (ULI) 8.22 */
 	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 88, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
 	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 90, Global CN-Id 8.25 */
+	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value),		/* 94, Delay Value 8.29 */
+	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx),		/* 96, Bearer Context  8.31 */
 	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},		/* 139, Change Reporting Action 8.69 */
 														/* 142-254 Spare. For future use. FFS */
 
