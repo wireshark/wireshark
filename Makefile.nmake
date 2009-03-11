@@ -15,7 +15,7 @@ CC = cl
 LINK= link
 BSCMAKE= bscmake
 
-WIN_SETUP=tools\$(PLATFORM)-setup.sh
+WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
@@ -718,9 +718,9 @@ process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk$(GTK_INST_VERSION)/glib_$(GLIB_PKG)_$(PLATFORM).zip
+		glib gtk$(GTK_INST_VERSION)/glib_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk$(GTK_INST_VERSION)/glib-dev_$(GLIB_PKG)_$(PLATFORM).zip
+		glib gtk$(GTK_INST_VERSION)/glib-dev_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
@@ -728,7 +728,7 @@ process_libs:
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
 !ENDIF
-!IF "$(PLATFORM)" == "win32"
+!IF "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
 !ELSE
@@ -790,19 +790,19 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/gtk+_$(GTK_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/gtk+_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/gtk+-dev_$(GTK_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/gtk+-dev_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/cairo_$(CAIRO_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/cairo_$(CAIRO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/cairo-dev_$(CAIRO_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/cairo-dev_$(CAIRO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/atk_$(ATK_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/atk_$(ATK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/atk-dev_$(ATK_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/atk-dev_$(ATK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/libpng_$(LIBPNG_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/libpng_$(LIBPNG_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk$(GTK_INST_VERSION)/$(TIFF_PKG).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -812,9 +812,9 @@ process_libs:
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.22"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/pango_$(PANGO_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/pango_$(PANGO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/pango-dev_$(PANGO_PKG)_$(PLATFORM).zip
+		gtk2 gtk$(GTK_INST_VERSION)/pango-dev_$(PANGO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ELSE
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF

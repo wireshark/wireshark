@@ -10,9 +10,9 @@
 # previous release or an older SVN checkout).
 # Save previous tag.
 DOWNLOAD_TAG=${DOWNLOAD_TAG:-"2009-02-09"}
-PLATFORM=${PLATFORM:-"win32"}
+WIRESHARK_TARGET_PLATFORM=${WIRESHARK_TARGET_PLATFORM:-"win32"}
 
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
 
 TAG_FILE="current_tag.txt"
 

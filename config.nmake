@@ -6,8 +6,8 @@
 ##### Target platform #####
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
-!IFNDEF PLATFORM
-PLATFORM=win32
+!IFNDEF WIRESHARK_TARGET_PLATFORM
+WIRESHARK_TARGET_PLATFORM=win32
 !ENDIF
 
 ##### Versions #####
@@ -35,7 +35,7 @@ WTAP_VERSION_MICRO=1
 # Base directory, where your libraries reside, which are needed to
 # compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-$(PLATFORM)-libs
+WIRESHARK_LIBS=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs
 
 #
 # Base directory, where your programs reside.
@@ -55,14 +55,14 @@ TOOLS_DIR=tools
 # TARGET_MACHINE (Used for link /MACHINE) should be one of "X86" or "X64"
 # (sorry ARM, Alpha, MIPS, and Itanium fans).
 # CPU (Used by win32.mak) should be one of "i386" or "AMD64".
-!if "$(PLATFORM)" == "win32"
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 TARGET_MACHINE=X86
 CPU=i386
-!else if "$(PLATFORM)" == "win64"
+!else if "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
 TARGET_MACHINE=X64
 CPU=AMD64
 !else
-!ERROR Your mysterious moon-man architecture "$(PLATFORM)" frightens and confuses us.
+!error Your mysterious moon-man architecture "$(WIRESHARK_TARGET_PLATFORM)" frightens and confuses us.
 !endif
 
 
@@ -127,7 +127,7 @@ MSVC_VARIANT=MSVC2008
 NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 
 
-!if "$(PLATFORM)" == "win32"
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
