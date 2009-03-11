@@ -68,7 +68,7 @@ NSI=wireshark.nsi \
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
-all: NEWS.txt wireshark-$(PLATFORM)-$(VERSION).exe
+all: NEWS.txt wireshark-$(WIRESHRK_TARGET_PLATFORM)-$(VERSION).exe
 
 NEWS.txt: ../../NEWS
 	$(UNIX2DOS) < ../../NEWS > NEWS.txt
@@ -78,9 +78,9 @@ user-guide.chm::
 	if exist ..\..\docbook\user-guide.chm xcopy ..\..\docbook\user-guide.chm . /Y /D
 	if exist $(WIRESHARK_LIBS)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIBS)\user-guide\user-guide.chm . /Y /D
 
-wireshark-$(PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
+wireshark-$(WIRESHRK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
-	/DPLATFORM=$(PLATFORM) \
+	/DWIRESHRK_TARGET_PLATFORM=$(WIRESHRK_TARGET_PLATFORM) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
 !IFDEF MSVCR_DLL
 	/DMSVCR_DLL="$(MSVCR_DLL)" \
@@ -149,12 +149,12 @@ wireshark-$(PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Mak
 	wireshark.nsi
 
 clean:
-	rm -f wireshark-$(PLATFORM)-$(VERSION).exe
+	rm -f wireshark-$(WIRESHRK_TARGET_PLATFORM)-$(VERSION).exe
 	rm -f NEWS.txt
 	rm -f user-guide.chm
 
 distclean: clean
-	rm -f wireshark-$(PLATFORM)-*.exe
+	rm -f wireshark-$(WIRESHRK_TARGET_PLATFORM)-*.exe
 
 maintainer-clean: distclean
 
