@@ -786,9 +786,9 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_ULI, dissect_gtpv2_uli},						/* 87, User Location Info (ULI) 8.22 */
 	{GTPV2_F_TEID, dissect_gtpv2_f_teid},				/* 88, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
 	{GTPV2_G_CN_ID, dissect_gtpv2_g_cn_id},				/* 90, Global CN-Id 8.25 */
-	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value),		/* 94, Delay Value 8.29 */
-	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx),		/* 96, Bearer Context  8.31 */
-	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},		/* 139, Change Reporting Action 8.69 */
+	{GTPV2_DELAY_VALUE, dissect_gtpv2_delay_value},		/* 94, Delay Value 8.29 */
+	{GTPV2_BEARER_CTX,dissect_gtpv2_bearer_ctx},			/* 96, Bearer Context  8.31 */
+	{GTPV2_IE_CNG_REP_ACT, dissect_cng_rep_act},			/* 139, Change Reporting Action 8.69 */
 														/* 142-254 Spare. For future use. FFS */
 
     {0, dissect_gtpv2_unknown}
