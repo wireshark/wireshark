@@ -68,6 +68,7 @@ static int hf_cdp_tlvlength = -1;
 
 static gint ett_cdp = -1;
 static gint ett_cdp_tlv = -1;
+static gint ett_cdp_nrgyz_tlv = -1;
 static gint ett_cdp_address = -1;
 static gint ett_cdp_capabilities = -1;
 static gint ett_cdp_checksum = -1;
@@ -78,6 +79,9 @@ static int
 dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
 dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
+static void
+dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num, 
+  proto_tree *tree);
 static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, const gchar *prefix);
@@ -109,6 +113,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_POWER_REQUESTED    0x0019 /* Power Requested */
 #define TYPE_POWER_AVAILABLE    0x001a /* Power Available */
 #define TYPE_PORT_UNIDIR        0x001b /* Port Unidirectional */
+#define TYPE_NRGYZ              0x001d /* EnergyWise over CDP */
 
 static const value_string type_vals[] = {
 	{ TYPE_DEVICE_ID,    	"Device ID" },
@@ -136,6 +141,7 @@ static const value_string type_vals[] = {
 	{ TYPE_POWER_REQUESTED, "Power Requested" },
 	{ TYPE_POWER_AVAILABLE, "Power Available" },
 	{ TYPE_PORT_UNIDIR,     "Port Unidirectional" },
+	{ TYPE_NRGYZ,           "EnergyWise" },
 	{ 0,                    NULL }
 };
 
@@ -144,6 +150,19 @@ static const value_string type_vals[] = {
 static const value_string type_hello_vals[] = {
         { TYPE_HELLO_CLUSTER_MGMT,   "Cluster Management" },
 	{ 0,                    NULL }
+};
+
+#define TYPE_NRGYZ_ROLE		   0x00000007
+#define TYPE_NRGYZ_DOMAIN	   0x00000008
+#define TYPE_NRGYZ_NAME		   0x00000009
+#define TYPE_NRGYZ_REPLYTO	   0x00000017
+
+static const value_string type_nrgyz_vals[] = {
+	{ TYPE_NRGYZ_ROLE,	     "Role" },
+	{ TYPE_NRGYZ_DOMAIN,	     "Domain" },
+	{ TYPE_NRGYZ_NAME,	     "Name" },
+	{ TYPE_NRGYZ_REPLYTO,	     "Reply To" },
+	{ 0,			     NULL }
 };
 
 static void
@@ -884,6 +903,58 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	break;
 
+      case TYPE_NRGYZ:
+	if (tree) {
+	  tlvi = proto_tree_add_text(cdp_tree, tvb,
+				     offset, length, "EnergyWise");
+	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+	  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+			      offset + TLV_TYPE, 2, type);
+	  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+			      offset + TLV_LENGTH, 2, length);
+	  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+			      20, "Encrypted Data");
+	  proto_tree_add_text(tlv_tree, tvb, offset + 24,
+			      4, "Unknown (Seen Sequence?): %u",
+			      tvb_get_ntohl(tvb, offset + 24));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 28,
+			      4, "Sequence Number: %u",
+			      tvb_get_ntohl(tvb, offset + 28));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 32,
+			      16, "Model Number: %s",
+			      tvb_format_stringzpad(tvb, offset + 32, 16));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 48,
+			      2, "Unknown Pad: %x",
+			      tvb_get_ntohs(tvb, offset + 48));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 50,
+			      3, "Hardware Version ID: %s",
+			      tvb_format_stringzpad(tvb, offset + 50, 3));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 53,
+			      11, "System Serial Number: %s",
+			      tvb_format_stringzpad(tvb, offset + 53, 11));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 64,
+			      8, "Unknown Values");
+	  proto_tree_add_text(tlv_tree, tvb, offset + 72,
+			      2, "Length of TLV table: %u",
+			      tvb_get_ntohs(tvb, offset + 72));
+	  proto_tree_add_text(tlv_tree, tvb, offset + 74,
+			      2, "Number of TLVs in table: %u",
+			      tvb_get_ntohs(tvb, offset + 74));
+/*
+	  proto_tree_add_text(tlv_tree, tvb,
+			      offset + 76, length - 76,
+			      "EnergyWise TLV Table");
+*/
+	  dissect_nrgyz_tlv(tvb, offset + 76,
+			    tvb_get_ntohs(tvb, offset + 72),
+			    tvb_get_ntohs(tvb, offset + 74),
+			    tlv_tree);
+
+
+	}
+	offset += length;
+	break;
+
       default:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
@@ -1061,6 +1132,101 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
+dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
+		  proto_tree *tree) 
+{
+    guint32 tlvt, tlvl, ip_addr;
+    proto_item *it = NULL;
+    proto_tree *etree = NULL;
+    char const *ttext = NULL;
+
+    while (num-- && length >= 8) {
+	tlvt = tvb_get_ntohl(tvb, offset);
+	tlvl = tvb_get_ntohl(tvb, offset + 4);
+
+	if (length < tlvl) break;
+	length -= tlvl;
+
+	if (tlvl < 8) {
+		proto_tree_add_text(tree, tvb, offset, 8,
+				    "TLV with invalid length %u (< 8)",
+				    tlvl);
+		offset += 8;
+		break;
+	}
+	else {
+	    ttext = val_to_str(tlvt, type_nrgyz_vals, "Unknown (0x%04x)");
+	    switch (tlvt) {
+	    case TYPE_NRGYZ_ROLE:
+	    case TYPE_NRGYZ_DOMAIN:
+	    case TYPE_NRGYZ_NAME:
+		it = proto_tree_add_text(tree, tvb, offset,
+					 tlvl, "EnergyWise %s: %s", ttext,
+					 tvb_format_stringzpad(tvb,
+							 offset + 8, tlvl - 8)
+					 );
+		break;
+	    case TYPE_NRGYZ_REPLYTO:
+		ip_addr = tvb_get_ipv4(tvb, offset + 12);
+		it = proto_tree_add_text(tree, tvb, offset,
+					 tlvl, "EnergyWise %s: %s port %u",
+					 ttext,
+					 ip_to_str((guint8 *)&ip_addr),
+					 tvb_get_ntohs(tvb, offset + 10)
+					 );
+		break;
+	    default:
+		it = proto_tree_add_text(tree, tvb, offset,
+					 tlvl, "EnergyWise %s TLV", ttext);
+	    }
+	    etree = proto_item_add_subtree(it, ett_cdp_nrgyz_tlv);
+	    proto_tree_add_text(etree, tvb, offset, 4,
+				"TLV Type: %x (%s)", tlvt, ttext);
+	    proto_tree_add_text(etree, tvb, offset + 4, 4,
+				"TLV Length: %u", tlvl);
+	    switch (tlvt) {
+	    case TYPE_NRGYZ_ROLE:
+	    case TYPE_NRGYZ_DOMAIN:
+	    case TYPE_NRGYZ_NAME:
+		proto_tree_add_text(etree, tvb, offset + 8,
+				    tlvl - 8, "%s %s", ttext,
+				    tvb_format_stringzpad(tvb,
+							  offset + 8, tlvl - 8)
+				    );
+		break;
+	    case TYPE_NRGYZ_REPLYTO:
+		ip_addr = tvb_get_ipv4(tvb, offset + 12);
+		proto_tree_add_text(etree, tvb, offset + 8, 2,
+				    "Unknown Field");
+		proto_tree_add_text(etree, tvb, offset + 10, 2,
+				    "Port %d",
+				    tvb_get_ntohs(tvb, offset + 10)
+				    );
+		proto_tree_add_text(etree, tvb, offset + 12, 4,
+				    "IP Address %s",
+				    ip_to_str((guint8 *)&ip_addr)
+				    );
+		proto_tree_add_text(etree, tvb, offset + 16, 2,
+				    "Unknown Field (Backup server Port?)");
+		proto_tree_add_text(etree, tvb, offset + 18, 4,
+				    "Unknown Field (Backup Server IP?)");
+		break;
+	    default:
+		if (tlvl > 8) {
+		    proto_tree_add_text(etree, tvb, offset + 8,
+					tlvl - 8, "Data");
+		}
+	    }
+	    offset += tlvl;
+	}
+    }
+    if (length) {
+	proto_tree_add_text(tree, tvb, offset, length,
+			    "Invalid garbage at end");
+    }
+}
+
+static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, const gchar *prefix)
 {
@@ -1123,6 +1289,7 @@ proto_register_cdp(void)
     static gint *ett[] = {
 	&ett_cdp,
 	&ett_cdp_tlv,
+	&ett_cdp_nrgyz_tlv,
 	&ett_cdp_address,
 	&ett_cdp_capabilities,
 	&ett_cdp_checksum
