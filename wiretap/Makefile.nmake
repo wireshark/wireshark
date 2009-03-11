@@ -8,9 +8,11 @@ include ..\Makefile.nmake.inc
 
 include Makefile.common
 
-CFLAGS=-WX -DYYMALLOC=malloc -DYYFREE=free -DHAVE_CONFIG_H /I. /I.. \
+# We GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DYYMALLOC=malloc -DYYFREE=free -DHAVE_CONFIG_H /I. /I.. \
 	$(GLIB_CFLAGS) $(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
 	-D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX $(GENERATED_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -41,9 +43,11 @@ RUNLEX = ..\tools\runlex.sh
 
 ascend-scanner_lex.h : ascend-scanner.c
 ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c ascend-scanner.c
 
 k12text_lex.h : k12text.c
 k12text.obj : k12text.c
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c k12text.c
 
 ascend-grammar.c ascend-grammar.h : ascend-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
