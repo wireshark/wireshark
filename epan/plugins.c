@@ -385,6 +385,7 @@ init_plugins(void)
 		    plugins_scan_dir(plugin_dir_path);
 		    g_free(plugin_dir_path);
 		}
+		ws_dir_close(dir);
 	    }
 	} else
 	    plugins_scan_dir(plugin_dir);
