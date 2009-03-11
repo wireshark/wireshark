@@ -608,7 +608,7 @@ static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 /* adds statistics information from the packet to the list */
 static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	tap_iax2_stat_t *statinfo, packet_info *pinfo,
-	const struct _iax2_info_t *iax2info)
+	const struct _iax2_info_t *iax2info _U_)
 {
 	guint16 msecs;
 	gchar timeStr[32];
@@ -1833,7 +1833,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	error_string = register_tap_listener("IAX2", user_data, NULL,
 		iax2_reset, iax2_packet, iax2_draw);
 	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 			g_string_free(error_string, TRUE);
 		return;
 	}
@@ -3245,7 +3245,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_grab_focus(list_fwd);
 }
 
-
+#if 0
 /****************************************************************************/
 static gboolean process_node(proto_node *ptree_node, header_field_info *hfinformation,
 							const gchar* proto_field, guint32* p_result)
@@ -3315,7 +3315,7 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 		}
 	return process_node(ptree_node, hfinformation, proto_field, p_result);
 }
-
+#endif
 
 /****************************************************************************/
 void iax2_analysis(
@@ -3436,7 +3436,7 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* Try to compile the filter. */
 	g_strlcpy(filter_text,"iax2 && (ip || ipv6)",256);
 	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
 		return;
 	}
 	/* we load the current file into cf variable */

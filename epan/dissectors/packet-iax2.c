@@ -73,7 +73,7 @@ static int proto_iax2 = -1;
 static int iax2_tap = -1;
 
 /* protocol tap info */
-static iax2_info_t ii_arr[1] = {0};
+static iax2_info_t ii_arr[1];
 static iax2_info_t *iax2_info = ii_arr;
 
 /* The following hf_* variables are used to hold the wireshark IDs of
@@ -1062,15 +1062,18 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, FALSE);
   }
 
- iax2_info->ptype = type;
- iax2_info->scallno = 0;
- iax2_info->dcallno = 0;
- iax2_info->ftype = 0;
- iax2_info->csub = 0;
- iax2_info->callState = VOIP_NO_STATE;
- iax2_info->payload_len = 0;
- iax2_info->timestamp = 0;
- iax2_info->payload_data = NULL;
+  iax2_info->ptype = type;
+  iax2_info->scallno = 0;
+  iax2_info->dcallno = 0;
+  iax2_info->ftype = 0;
+  iax2_info->csub = 0;
+  iax2_info->payload_len = 0;
+  iax2_info->timestamp = 0;
+  iax2_info->callState = VOIP_NO_STATE;
+  iax2_info->messageName = NULL;
+  iax2_info->callingParty = NULL;
+  iax2_info->calledParty = NULL;
+  iax2_info->payload_data = NULL;
   
   switch( type ) {
     case IAX2_FULL_PACKET:

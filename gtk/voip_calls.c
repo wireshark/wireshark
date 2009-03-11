@@ -124,7 +124,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -3888,7 +3888,7 @@ iax2_calls_init_tap(void)
 			voip_calls_dlg_draw
 			);
 		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
 				      error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
