@@ -47,6 +47,8 @@
 #include <epan/emem.h>
 #include <epan/reassemble.h>
 #include <epan/aftypes.h>
+#include <epan/tap.h>
+#include <epan/tap-voip.h>
 
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>
@@ -66,6 +68,13 @@
 
 /* Wireshark ID of the IAX2 protocol */
 static int proto_iax2 = -1;
+
+/* tap register id */
+static int iax2_tap = -1;
+
+/* protocol tap info */
+static iax2_info_t ii_arr[1] = {0};
+static iax2_info_t *iax2_info = ii_arr;
 
 /* The following hf_* variables are used to hold the wireshark IDs of
  * our header fields; they are filled out when we call
@@ -247,6 +256,19 @@ static const value_string iax_cmd_subclasses[] = {
   {0,NULL}
 };
 
+/* IAX2 to tap-voip call state mapping */
+static const voip_call_state tap_cmd_voip_state[] = {
+	VOIP_NO_STATE,
+        VOIP_COMPLETED, /*HANGUP*/
+        VOIP_RINGING, /*RING*/
+        VOIP_RINGING, /*RINGING*/
+        VOIP_IN_CALL, /*ANSWER*/
+        VOIP_REJECTED, /*BUSY*/
+        VOIP_UNKNOWN, /*TKOFFHK*/
+        VOIP_UNKNOWN /*OFFHOOK*/
+};
+	
+
 /* Subclassess for Modem packets */
 static const value_string iax_modem_subclasses[] = {
   {0, "(0?)"},
@@ -338,12 +360,6 @@ static const value_string iax_dataformats[] = {
   {0,NULL}
 };
 
-typedef enum {
-  IAX2_MINI_VOICE_PACKET,
-  IAX2_FULL_PACKET,
-  IAX2_MINI_VIDEO_PACKET,
-  IAX2_META_PACKET
-} packet_type;
 
 static const value_string iax_packet_types[] = {
   {IAX2_FULL_PACKET, "Full packet"},
@@ -1046,18 +1062,31 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, FALSE);
   }
 
+ iax2_info->ptype = type;
+ iax2_info->scallno = 0;
+ iax2_info->dcallno = 0;
+ iax2_info->ftype = 0;
+ iax2_info->csub = 0;
+ iax2_info->callState = VOIP_NO_STATE;
+ iax2_info->payload_len = 0;
+ iax2_info->timestamp = 0;
+ iax2_info->payload_data = NULL;
+  
   switch( type ) {
     case IAX2_FULL_PACKET:
       len = dissect_fullpacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
     case IAX2_MINI_VOICE_PACKET:
+      iax2_info->messageName = "MINI_VOICE_PACKET";
       len = dissect_minipacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
     case IAX2_MINI_VIDEO_PACKET:
+      iax2_info->messageName = "MINI_VIDEO_PACKET";
       len = dissect_minivideopacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
     case IAX2_META_PACKET:
       /* not implemented yet */
+      iax2_info->messageName = "META_PACKET";
       len = 0;
       break;
     default:
@@ -1067,6 +1096,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* update the 'length' of the main IAX2 header field so that it covers just the headers,
      not the audio data. */
   proto_item_set_len(iax2_item, len);
+  tap_queue_packet(iax2_tap, pinfo, iax2_info);
 }
 
 static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree *ies_tree)
@@ -1112,6 +1142,13 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
       case IAX_IE_DATAFORMAT:
         if (ies_len != 4) THROW(ReportedBoundsError);
         ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
+        break;
+      
+      case IAX_IE_CALLED_NUMBER:
+        iax2_info->calledParty = g_strdup(tvb_format_text(tvb, offset+2, ies_len));
+        break;
+      case IAX_IE_CALLING_NUMBER:
+        iax2_info->callingParty = g_strdup(tvb_format_text(tvb, offset+2, ies_len));
         break;
 
       case IAX_IE_APPARENT_ADDR:
@@ -1417,15 +1454,18 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
       iax_packet->abstime.secs ++;
     }
   }
+  iax2_info->timestamp = longts;
   
-  item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
-  PROTO_ITEM_SET_GENERATED(item);
+  if (iax2_tree) {
+    item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
+    PROTO_ITEM_SET_GENERATED(item);
 
-  ts  = pinfo->fd->abs_ts;
-  nstime_delta(&ts, &ts, &iax_packet->abstime);
+    ts  = pinfo->fd->abs_ts;
+    nstime_delta(&ts, &ts, &iax_packet->abstime);
   
-  item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
-  PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
+    PROTO_ITEM_SET_GENERATED(item);
+  }
 }
 
 /* returns the new offset */
@@ -1457,6 +1497,10 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   ts = tvb_get_ntohl(tvb, offset+2);
   type = tvb_get_guint8(tvb, offset + 8);
   csub = tvb_get_guint8(tvb, offset + 9);
+  iax2_info->ftype = type;
+  iax2_info->csub = csub;
+  iax2_info->scallno = scallno;
+  iax2_info->dcallno = dcallno;
 
   /* see if we've seen this packet before */
   iax_packet = (iax_packet_data *)p_get_proto_data(pinfo->fd,proto_iax2);
@@ -1508,7 +1552,10 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
       /* add the type-specific subtree */
       packet_type_tree = proto_item_add_subtree (packet_type_base, ett_iax2_type);
+  } else {
+    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
   }
+
 
   /* add frame type to info line */
   if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -1516,10 +1563,13 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 		  val_to_str (type, iax_frame_types, "Unknown (0x%02x)"),
 		  scallno, ts);
   }
+  iax2_info->messageName = val_to_str (type, iax_frame_types, "Unknown (0x%02x)");
 
   switch( type ) {
   case AST_FRAME_IAX:
     offset=dissect_iax2_command(tvb,offset+9,pinfo,packet_type_tree,iax_packet);
+    iax2_info->messageName = val_to_str (csub, iax_iax_subclasses, "unknown (0x%02x)");
+    iax2_info->callState = csub;
     break;
     
   case AST_FRAME_DTMF_BEGIN:
@@ -1540,6 +1590,8 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     if (check_col (pinfo->cinfo, COL_INFO))
       col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
 		    val_to_str (csub, iax_cmd_subclasses, "unknown (0x%02x)"));
+    iax2_info->messageName = val_to_str (csub, iax_cmd_subclasses, "unknown (0x%02x)");
+    if (csub <= 8) iax2_info->callState = tap_cmd_voip_state[csub];
     break;
 
   case AST_FRAME_VOICE:
@@ -1683,6 +1735,8 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
     proto_tree_add_item (iax2_tree, hf_iax2_minividts, tvb, offset, 2, FALSE);
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
     proto_tree_add_item (iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, FALSE);
+  } else {
+    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
   }
 
   offset += 2;
@@ -1723,7 +1777,10 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
 
     proto_tree_add_uint (iax2_tree, hf_iax2_minits, tvb, offset, 2, ts);
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet,(guint16)ts);
+  } else {
+    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
   }
+
   
   offset += 2;
   
@@ -2000,6 +2057,9 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   proto_tree_add_text( iax2_tree, sub_tvb, 0, -1,
       "IAX2 payload (%u byte%s)", nbytes,
       plurality( nbytes, "", "s" ));
+      
+  iax2_info->payload_len = nbytes;      
+  iax2_info->payload_data = tvb_get_ptr(sub_tvb, 0, -1);
 
   /* pass the rest of the block to a subdissector */
   if(iax_packet->call_data)
@@ -2089,7 +2149,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_absts,
      {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-      "The absolute time of this packet (calculated by adding the IAX timestamp to "
+      "The absoulte time of this packet (calculated by adding the IAX timestamp to "
       " the start time of this call)",
       HFILL}},
 
@@ -2555,6 +2615,7 @@ proto_register_iax2 (void)
   /* register our init routine to be called at the start of a capture,
      to clear out our hash tables etc */
   register_init_routine(&iax_init_protocol);
+  iax2_tap = register_tap("IAX2");
 }
 
 void

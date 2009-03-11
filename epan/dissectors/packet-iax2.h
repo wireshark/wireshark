@@ -215,4 +215,28 @@
 #define IAX_DPSTATUS_IGNOREPAT		(1 << 14)
 #define IAX_DPSTATUS_MATCHMORE		(1 << 15)
 
+typedef enum {
+  IAX2_MINI_VOICE_PACKET,
+  IAX2_FULL_PACKET,
+  IAX2_MINI_VIDEO_PACKET,
+  IAX2_META_PACKET
+} packet_type;
+
+/* Container for tapping relevant data */
+typedef struct _iax2_info_t
+{
+	packet_type ptype;
+	guint16 scallno;
+	guint16 dcallno;
+	guint8 ftype;
+	guint8 csub;
+	guint32 timestamp;
+	guint payload_len;
+	voip_call_state callState;
+	const gchar *messageName;
+	gchar *callingParty;
+	gchar *calledParty;
+	const guint8 *payload_data;
+} iax2_info_t;
+
 #endif

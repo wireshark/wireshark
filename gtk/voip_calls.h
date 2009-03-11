@@ -59,6 +59,7 @@ typedef enum _voip_protocol {
 		TEL_RANAP,
 		VOIP_UNISTIM,
 		VOIP_SKINNY,
+		VOIP_IAX2,
 		VOIP_COMMON
 } voip_protocol;
 
@@ -185,6 +186,7 @@ typedef struct _voip_calls_tapinfo {
 	int megaco_dummy;
 	int unistim_dummy;
 	int skinny_dummy;
+	int iax2_dummy;
 	int voip_dummy;
 } voip_calls_tapinfo_t;
 
@@ -247,6 +249,7 @@ void h248_calls_init_tap(void);
 void sccp_calls_init_tap(void);
 void unistim_calls_init_tap(void);
 void skinny_calls_init_tap(void);
+void iax2_calls_init_tap(void);
 void VoIPcalls_init_tap(void);
 
 /*
@@ -269,6 +272,7 @@ void remove_tap_listener_h248_calls(void);
 void remove_tap_listener_sccp_calls(void);
 void remove_tap_listener_unistim_calls(void);
 void remove_tap_listener_skinny_calls(void);
+void remove_tap_listener_iax2_calls(void);
 void remove_tap_listener_voip_calls(void);
 
 /*

@@ -224,6 +224,7 @@ static void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_actrace_calls();
 	remove_tap_listener_t38();
 	remove_tap_listener_skinny_calls();
+	remove_tap_listener_iax2_calls();
 }
 
 /****************************************************************************/
@@ -377,6 +378,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			case TEL_RANAP:
 			case VOIP_UNISTIM:
 			case VOIP_SKINNY:
+			case VOIP_IAX2:
 			case VOIP_COMMON:
 				/* XXX - not supported */
 				break;
@@ -927,6 +929,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	actrace_calls_init_tap();
 	t38_init_tap();
 	skinny_calls_init_tap();
+	iax2_calls_init_tap();
 
 	/* create dialog box if necessary */
 	if (voip_calls_dlg == NULL) {

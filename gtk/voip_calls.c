@@ -59,6 +59,7 @@
 #include <epan/dissectors/packet-sccp.h>
 #include <plugins/unistim/packet-unistim.h>
 #include <epan/dissectors/packet-skinny.h>
+#include <epan/dissectors/packet-iax2.h>
 #include <epan/rtp_pt.h>
 
 #include "../globals.h"
@@ -101,6 +102,7 @@ const char *voip_protocol_name[]={
 	"RANAP",
 	"UNISTIM",
 	"SKINNY",
+	"IAX2",
 	"VoIP"
 };
 
@@ -3725,6 +3727,185 @@ remove_tap_listener_skinny_calls(void)
 	unprotect_thread_critical_region();
 
 	have_skinny_tap_listener=FALSE;
+}
+
+/****************************************************************************/
+/* ***************************TAP for IAX2 **********************************/
+/****************************************************************************/
+
+/* IAX2 to tap-voip call state mapping */
+static const voip_call_state tap_iax_voip_state[] = {
+	VOIP_NO_STATE,
+        VOIP_CALL_SETUP, /*NEW*/
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+        VOIP_COMPLETED,  /*HANGUP*/
+        VOIP_REJECTED, 	 /*REJECT*/
+        VOIP_RINGING,	/*ACCEPT*/
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_CALL_SETUP, /*DIAL*/
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE,
+	VOIP_NO_STATE
+};
+
+static void free_iax2_info(gpointer p) {
+	iax2_info_t *ii = p;
+
+	g_free(ii);
+}
+
+
+/****************************************************************************/
+/* whenever a IAX2 packet is seen by the tap listener */
+static int
+iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2_info)
+{
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	GList* list;
+	voip_calls_info_t *callsinfo = NULL;
+	address* phone;
+	const iax2_info_t *ii = iax2_info;
+	iax2_info_t *tmp_iax2info;
+	gchar * comment;
+
+	if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
+		return 0;
+	/* check whether we already have this context in the list */
+	list = g_list_first(tapinfo->callsinfo_list);
+	while (list)
+	{
+		voip_calls_info_t* tmp_listinfo = list->data;
+		if (tmp_listinfo->protocol == VOIP_IAX2){
+			tmp_iax2info = tmp_listinfo->prot_info;
+			if (tmp_iax2info->scallno == ii->scallno ||
+			    tmp_iax2info->scallno == ii->dcallno){
+				callsinfo = (voip_calls_info_t*)(list->data);
+				break;
+			}
+		}
+		list = g_list_next (list);
+	}
+	phone = &(pinfo->src);
+	
+
+	if (callsinfo==NULL){
+		/* We only care about real calls, i.e., no registration stuff */
+		if (ii->ftype != AST_FRAME_IAX ||  ii->csub != IAX_COMMAND_NEW)
+			return 0; 
+		callsinfo = g_malloc0(sizeof(voip_calls_info_t));
+		callsinfo->call_state = VOIP_NO_STATE;
+		callsinfo->call_active_state = VOIP_ACTIVE;
+		callsinfo->prot_info=g_malloc(sizeof(iax2_info_t));
+		callsinfo->free_prot_info = free_iax2_info;
+		tmp_iax2info = callsinfo->prot_info;
+		
+		tmp_iax2info->scallno = ii->scallno;
+		if (tmp_iax2info->scallno == 0) tmp_iax2info->scallno = ii->dcallno;
+		tmp_iax2info->callState = tap_iax_voip_state[ii->callState];
+		
+		callsinfo->npackets = 1;
+		callsinfo->first_frame_num=pinfo->fd->num;
+		callsinfo->last_frame_num=pinfo->fd->num;
+
+		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
+		callsinfo->from_identity = g_strdup(ii->callingParty);	
+		callsinfo->to_identity =  g_strdup(ii->calledParty);		
+
+		callsinfo->protocol = VOIP_IAX2;
+		callsinfo->call_num = tapinfo->ncalls++;
+		callsinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->start_usec=pinfo->fd->rel_ts.nsecs;
+		callsinfo->stop_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
+
+		callsinfo->selected = FALSE;
+		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+
+	} else {
+		if ((ii->callState > 0) && (ii->callState < (sizeof(tap_iax_voip_state)/sizeof(tap_iax_voip_state[0]))))
+			callsinfo->call_state = tap_iax_voip_state[ii->callState];
+			
+		callsinfo->stop_sec=(gint32) (pinfo->fd->rel_ts.secs);
+		callsinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
+		callsinfo->last_frame_num=pinfo->fd->num;
+		++(callsinfo->npackets);
+	}
+
+	comment = "";
+	
+	add_to_graph(tapinfo, pinfo, ii->messageName, comment,
+				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+	return 1;
+
+}
+
+
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+static gboolean have_iax2_tap_listener=FALSE;
+/****************************************************************************/
+void
+iax2_calls_init_tap(void)
+{
+	GString *error_string;
+	
+	if(have_iax2_tap_listener==FALSE)
+	{
+		/* don't register tap listener, if we have it already */
+		/* we send an empty filter, to force a non null "tree" in the IAX2 dissector */
+		error_string = register_tap_listener("IAX2", &(the_tapinfo_struct.iax2_dummy), g_strdup(""),
+			voip_calls_dlg_reset,
+			iax2_calls_packet,
+			voip_calls_dlg_draw
+			);
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_iax2_tap_listener=TRUE;
+	}
+}
+
+/****************************************************************************/
+void
+remove_tap_listener_iax2_calls(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_struct.iax2_dummy));
+	unprotect_thread_critical_region();
+
+	have_iax2_tap_listener=FALSE;
 }
 
 /****************************************************************************/

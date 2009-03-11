@@ -76,6 +76,7 @@ WIRESHARK_GTK_SRC = \
 	gui_utils.c	\
 	help_dlg.c	\
 	hostlist_table.c \
+	iax2_analysis.c	\
 	macros_dlg.c	\
 	main.c		\
 	main_airpcap_toolbar.c	\
@@ -249,6 +250,7 @@ noinst_HEADERS = \
 	gui_utils.h	\
 	help_dlg.h	\
 	hostlist_table.h \
+	iax2_analysis.h	\
 	keys.h		\
 	macros_dlg.h	\
 	main.h		\
