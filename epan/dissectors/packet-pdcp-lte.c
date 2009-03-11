@@ -1,4 +1,4 @@
-/* Routines for LTE PDCP/RoHC
+/* Routines for LTE PDCP/ROHC
  *
  * Martin Mathieson
  *
@@ -1255,15 +1255,15 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
         }
     }
 
-    /* RoHC compression */
+    /* ROHC compression */
     ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_lte_rohc_compression, tvb, 0, 0,
                                 p_pdcp_info->rohc_compression);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    /* RoHC-specific settings */
+    /* ROHC-specific settings */
     if (p_pdcp_info->rohc_compression) {
 
-        /* Show RoHC mode */
+        /* Show ROHC mode */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_mode, tvb, 0, 0,
                                  p_pdcp_info->mode);
         PROTO_ITEM_SET_GENERATED(ti);
@@ -1278,7 +1278,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                  p_pdcp_info->udp_checkum_present);
         PROTO_ITEM_SET_GENERATED(ti);
 
-        /* RoHC profile */
+        /* ROHC profile */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_profile, tvb, 0, 0,
                                  p_pdcp_info->profile);
         PROTO_ITEM_SET_GENERATED(ti);
@@ -1358,7 +1358,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         show_pdcp_config(pinfo, tvb, pdcp_tree, p_pdcp_info);
     }
 
-    /* Show RoHC mode */
+    /* Show ROHC mode */
     if (p_pdcp_info->rohc_compression &&
         check_col(pinfo->cinfo, COL_INFO)) {
 
@@ -1509,7 +1509,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         }
                         return;
 
-                    case 1:     /* RoHC Feedback */
+                    case 1:     /* ROHC Feedback */
                         offset++;
                         break;  /* Drop-through to dissect feedback */
 
@@ -1535,7 +1535,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
 
-    /* If not compressed with RoHC, show as user-plane data */
+    /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
 
         if (global_pdcp_dissect_user_plane_as_ip && (ip_handle != 0)) {
@@ -1747,15 +1747,15 @@ void proto_register_pdcp(void)
         },
 
         { &hf_pdcp_lte_rohc_compression,
-            { "RoHC Compression",
+            { "ROHC Compression",
               "pdcp.rohc", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
-              "RoHC Mode", HFILL
+              "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_mode,
-            { "RoHC mode",
+            { "ROHC mode",
               "pdcp.rohc.mode", FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x0,
-              "RoHC Mode", HFILL
+              "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_rnd,
@@ -1772,9 +1772,9 @@ void proto_register_pdcp(void)
         },
 
         { &hf_pdcp_lte_rohc_profile,
-            { "RoHC profile",
+            { "ROHC profile",
               "pdcp.rohc.profile", FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
-              "RoHC Mode", HFILL
+              "ROHC Mode", HFILL
             }
         },
         { &hf_pdcp_lte_no_header_pdu,
@@ -1893,7 +1893,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_padding,
             { "Padding",
               "pdcp.rohc.padding", FT_NONE, BASE_NONE, NULL, 0,
-              "RoHC Padding", HFILL
+              "ROHC Padding", HFILL
             }
         },
         { &hf_pdcp_lte_rohc_r_0_crc,
@@ -2322,8 +2322,8 @@ void proto_register_pdcp(void)
         &global_pdcp_dissect_rohc);
 
     prefs_register_bool_preference(pdcp_lte_module, "show_feedback_option_tag_length",
-        "Show RoHC feedback option tag & length",
-        "Show RoHC feedback option tag & length",
+        "Show ROHC feedback option tag & length",
+        "Show ROHC feedback option tag & length",
         &global_pdcp_show_feedback_option_tag_length);
 }
 
