@@ -519,11 +519,8 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/make-tapreg-dotc
 	@echo Making tshark-tap-register.c
 	@$(srcdir)/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
 
-ps.c: print.ps rdps
-	./rdps $(srcdir)/print.ps ps.c
-
-rdps: rdps.c
-	$(CC) $(CFLAGS) -o rdps $(srcdir)/rdps.c
+ps.c: print.ps rdps.py
+	$(PYTHON) $(srcdir)/rdps.py $(srcdir)/print.ps ps.c
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
@@ -532,7 +529,6 @@ rdps: rdps.c
 #
 CLEANFILES =		\
 	svnversion.h	\
-	@rdps_bin@	\
 	idl2wrs		\
 	*~		\
 	vgcore.*
@@ -793,7 +789,7 @@ EXTRA_DIST = \
 	$(tpncp_DATA)		\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
-	rdps.c			\
+	rdps.py			\
 	smi_modules		\
 	text2pcap-scanner.l	\
 	text2pcap.c		\

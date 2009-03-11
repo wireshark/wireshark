@@ -703,9 +703,6 @@ fi
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
 
-rdps_bin="rdps\$(EXEEXT)"
-AC_SUBST(rdps_bin)
-
 
 # Enable/disable tshark
 

@@ -355,10 +355,9 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    < config.h.win32 > $@
 
-ps.c	: rdps.exe print.ps
-	rdps print.ps ps.c
 
-
+ps.c	: rdps.py print.ps
+	$(PYTHON) rdps.py print.ps ps.c
 #
 # Build the version string
 #
