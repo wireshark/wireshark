@@ -1092,7 +1092,7 @@ dissect_s5066_21(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 
 	tx_mode = tvb_get_guint8(tvb, offset);
 	tx_mode = (tx_mode & 0xF0) >> 4;
-	if (tx_mode == 2) {
+	if (tx_mode == 3) {
 		non_arq_w_errors = TRUE;
 	}
 
@@ -1190,7 +1190,7 @@ dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 
 	tx_mode = tvb_get_guint8(tvb, offset);
 	tx_mode = (tx_mode & 0xF0) >> 4;
-	if (tx_mode == 2) {
+	if (tx_mode == 3) {
 		non_arq_w_errors = TRUE;
 	}
 
@@ -1202,7 +1202,7 @@ dissect_s5066_25(tvbuff_t *tvb, guint offset, proto_tree *tree, guint pdu_size)
 	proto_tree_add_item(tree, hf_s5066_25_size, tvb, offset, 2, FALSE); offset += 2;
 
 	/* Handle RockwellCollins (<= v2.1) 4-byte offset */
-	if ( (pdu_size - offset) == d_pdu_size + 4 ) {
+	if ( (pdu_size - offset) == (d_pdu_size + 4) ) {
 		ti = proto_tree_add_item(tree, hf_s5066_25_err_blocks, tvb, offset, 2, FALSE); offset += 2;
 		proto_item_append_text(ti, ", (Field should not be present. Rockwell Collins v2.1 or earlier.) ");
 		ti = proto_tree_add_item(tree, hf_s5066_25_nrx_blocks, tvb, offset, 2, FALSE); offset += 2;
