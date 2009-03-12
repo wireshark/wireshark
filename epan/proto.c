@@ -3523,6 +3523,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     hfinfo->name = name;
     hfinfo->abbrev = filter_name;
     hfinfo->type = FT_PROTOCOL;
+    hfinfo->display = BASE_NONE;
     hfinfo->strings = protocol;
     hfinfo->bitmask = 0;
     hfinfo->bitshift = 0;
