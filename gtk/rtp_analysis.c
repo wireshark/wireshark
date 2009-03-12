@@ -2910,7 +2910,7 @@ rtp_boolean_data_func (GtkTreeViewColumn *column _U_,
 
 	 switch(bool_col){
 		 case MARKER_COLUMN:
-			 g_snprintf(buf, sizeof(buf), "%s", bool_val? "SET" : "");
+			 g_strlcpy(buf, bool_val ? "SET" : "", sizeof(buf));
 			 break;
 		 default:
 			 g_assert_not_reached();

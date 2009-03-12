@@ -2142,11 +2142,11 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     if (airpcap_if_selected != NULL)
     {
 		if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11){
-			capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
+			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
 		}else if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_RADIO){
-			capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
+			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
 		}else if (airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_PPI){
-			capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
+			capture_s = g_strdup(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
 		}
 
         if (capture_s != NULL) gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(capture_type_cm)->entry), capture_s);

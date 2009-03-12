@@ -164,12 +164,12 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         case ACTYPE_SELECTED:
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
-                g_snprintf(str, 255, "%s", err->procedures[selection].entries[2]);
+                g_strlcpy(str, err->procedures[selection].entries[2], 256);
             }
             else
             {
                 /* expert item exists. Use it. */
-                g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
             }
             break;
         case ACTYPE_NOT_SELECTED:
@@ -186,13 +186,13 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
             /* the remaining cases will only exist if the expert item exists so no need to check */
         case ACTYPE_AND_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
             else
                 g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_OR_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
             else
                 g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;

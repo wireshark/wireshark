@@ -187,7 +187,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* type */
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
+    g_strlcpy(string_buff, wtap_file_type_string(wtap_file_type(wth)), PREVIEW_STR_MAX);
     label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 

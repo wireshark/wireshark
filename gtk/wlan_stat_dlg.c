@@ -493,14 +493,14 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 		}
 
 		if (hs->resolve_names) {
-			g_snprintf (address, sizeof(address), "%s", get_addr_name(&tmp->address));
+			g_strlcpy (address, get_addr_name(&tmp->address), sizeof(address));
 		} else {
-			g_snprintf (address, sizeof(address), "%s", address_to_str(&tmp->address));
+			g_strlcpy (address, address_to_str(&tmp->address), sizeof(address));
 		}
 		if (basestation) {
-			g_snprintf (comment, sizeof(comment), "Base station");
+			g_strlcpy (comment, "Base station", sizeof(comment));
 		} else {
-			g_snprintf (comment, sizeof(comment), " ");
+			g_strlcpy (comment, " ", sizeof(comment));
 		}
 		g_snprintf (percent, sizeof(percent), "%.2f %%", f);
 
@@ -562,9 +562,9 @@ wlanstat_draw(void *phs)
 		f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
 		if (hs->resolve_names) {
-			g_snprintf (bssid, sizeof(bssid), "%s", get_addr_name(&tmp->bssid));
+			g_strlcpy (bssid, get_addr_name(&tmp->bssid), sizeof(bssid));
 		} else {
-			g_snprintf (bssid, sizeof(bssid), "%s", address_to_str(&tmp->bssid));
+			g_strlcpy (bssid, address_to_str(&tmp->bssid), sizeof(bssid));
 		}
 		if (tmp->stats.channel) {
 			g_snprintf (channel, sizeof(channel), "%u", tmp->stats.channel);
@@ -572,11 +572,11 @@ wlanstat_draw(void *phs)
 			channel[0] = '\0';
 		}
 		if (tmp->stats.ssid_len == 0) {
-			g_snprintf (ssid, sizeof(ssid), "<Broadcast>");
+			g_strlcpy (ssid, "<Broadcast>", sizeof(ssid));
 		} else if (tmp->stats.ssid_len == 1 && tmp->stats.ssid[0] == 0) {
-			g_snprintf (ssid, sizeof(ssid), "<Hidden>");
+			g_strlcpy (ssid, "<Hidden>", sizeof(ssid));
 		} else {
-			g_snprintf (ssid, sizeof(ssid), "%s", format_text(tmp->stats.ssid, tmp->stats.ssid_len));
+			g_strlcpy (ssid, format_text(tmp->stats.ssid, tmp->stats.ssid_len), sizeof(ssid));
 		}
 		g_snprintf (percent, sizeof(percent), "%.2f %%", f);
 

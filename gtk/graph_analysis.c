@@ -810,8 +810,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	for (i=0; i<user_data->num_nodes; i++){
 		/* print the node identifiers */
 		/* XXX we assign 5 pixels per character in the node identity */
-		g_snprintf(label_string, NODE_WIDTH/5, "%s",
-			get_addr_name(&(user_data->nodes[i])));
+		g_strlcpy(label_string, get_addr_name(&(user_data->nodes[i])), NODE_WIDTH/5);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {

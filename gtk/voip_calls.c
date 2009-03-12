@@ -942,7 +942,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		if (pi->request_method == NULL){
 			frame_label = g_strdup_printf("%u %s", pi->response_code, pi->reason_phrase );
-			comment = g_strdup_printf("SIP Status");
+			comment = g_strdup("SIP Status");
 
 			if ((tmp_sipinfo && pi->tap_cseq_number == tmp_sipinfo->invite_cseq)&&(ADDRESSES_EQUAL(&tmp_dst,&(callsinfo->initial_speaker)))){
 				if ((pi->response_code > 199) && (pi->response_code<300) && (tmp_sipinfo->sip_state == SIP_INVITE_SENT)){
@@ -967,20 +967,20 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(tmp_sipinfo->sip_state==SIP_200_REC)
 				&&(callsinfo->call_state == VOIP_CALL_SETUP)){
 				callsinfo->call_state = VOIP_IN_CALL;
-				comment = g_strdup_printf("SIP Request");
+				comment = g_strdup("SIP Request");
 			}
 			else if (strcmp(pi->request_method,"BYE")==0){
 				callsinfo->call_state = VOIP_COMPLETED;
 				tapinfo->completed_calls++;
-				comment = g_strdup_printf("SIP Request");
+				comment = g_strdup("SIP Request");
 			}
 			else if ((strcmp(pi->request_method,"CANCEL")==0)&&(pi->tap_cseq_number == tmp_sipinfo->invite_cseq)
 				&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))&&(callsinfo->call_state==VOIP_CALL_SETUP)){
 				callsinfo->call_state = VOIP_CANCELLED;
 				tmp_sipinfo->sip_state = SIP_CANCEL_SENT;
-				comment = g_strdup_printf("SIP Request");
+				comment = g_strdup("SIP Request");
 			} else {
-				comment = g_strdup_printf("SIP Request");
+				comment = g_strdup("SIP Request");
 			}
 		}
 
@@ -1176,7 +1176,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			frame_label = g_strdup(isup_message_type_value_acro[i].strptr);
 		}
 		else{
-			frame_label = g_strdup_printf("Unknown");
+			frame_label = g_strdup("Unknown");
 		}
 
 		if (callsinfo->npackets == 1){ /* this is the first packet, that must be an IAM */
@@ -1919,7 +1919,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			default:
 				comment = g_strdup("H225 RAS");
 			}
-			frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+			frame_label = g_strdup(val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
 		} else {
 			frame_label = g_strdup("H225: Unknown");
 			comment = NULL;
@@ -2501,7 +2501,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 		}
 
-		if (frame_label == NULL) frame_label = g_strdup_printf("%s",pi->code);
+		if (frame_label == NULL) frame_label = g_strdup(pi->code);
 		break;
 	case MGCP_RESPONSE:
 		frame_label = g_strdup_printf("%u (%s)",pi->rspcode, pi->code);
@@ -3146,7 +3146,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 				callsinfo->call_active_state = VOIP_ACTIVE;
 				callsinfo->call_state = VOIP_CALL_SETUP;
 				callsinfo->from_identity=g_strdup_printf("%x",pi->termid);
-				callsinfo->to_identity=g_strdup_printf("UNKNOWN");
+				callsinfo->to_identity=g_strdup("UNKNOWN");
 				COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
 				callsinfo->first_frame_num=pinfo->fd->num;
 				callsinfo->selected=FALSE;
@@ -3223,9 +3223,9 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 					/* Create new string */
 					if(pi->key_val == 10) {
-						tmp_unistim_info->key_buffer = g_strdup_printf("*");
+						tmp_unistim_info->key_buffer = g_strdup("*");
 					} else if(pi->key_val == 11) {
-						tmp_unistim_info->key_buffer = g_strdup_printf("#");
+						tmp_unistim_info->key_buffer = g_strdup("#");
 					} else {
 						tmp_unistim_info->key_buffer = g_strdup_printf("%d",pi->key_val);
 					}
@@ -3258,7 +3258,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 					g_string_truncate(g_tmp,g_tmp->len-1);
 
 					/* Insert new data */
-					tmp_unistim_info->key_buffer = g_strdup_printf("%s",g_tmp->str);
+					tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
 				}
 
 				/* Set label and comment for graph */
@@ -3281,7 +3281,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 					g_string_truncate(g_tmp,g_tmp->len-1);
 
 					/* Insert new data */
-					tmp_unistim_info->key_buffer = g_strdup_printf("%s",g_tmp->str);
+					tmp_unistim_info->key_buffer = g_strdup(g_tmp->str);
 				}
 
 				/* add label and comment */
@@ -3293,7 +3293,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 				/* User pressed the soft key 3 */
 				/* Cancel on cs2k so clear buffer */
 				/* On mcs its config which will clear the buffer too */
-				tmp_unistim_info->key_buffer = g_strdup_printf("\n");
+				tmp_unistim_info->key_buffer = g_strdup("\n");
 
 				/* User pressed something, set labels*/
 				comment = g_strdup_printf("Key Input Sent: S3 (%d)", pi->sequence);
@@ -3397,8 +3397,8 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			callsinfo = g_malloc0(sizeof(voip_calls_info_t));
 			callsinfo->call_active_state = VOIP_ACTIVE;
 			callsinfo->call_state = VOIP_CALL_SETUP;
-			callsinfo->from_identity=g_strdup_printf("UNKNOWN");
-			callsinfo->to_identity=g_strdup_printf("UNKNOWN");
+			callsinfo->from_identity=g_strdup("UNKNOWN");
+			callsinfo->to_identity=g_strdup("UNKNOWN");
 			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
 			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
