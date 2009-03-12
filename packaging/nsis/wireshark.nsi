@@ -35,7 +35,7 @@ InstType "un.All (remove all)"
 Name "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 
 ; The file to write
-OutFile "wireshark-${WIRESHRK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "wireshark-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
 Icon "..\..\image\wiresharkinst.ico"
