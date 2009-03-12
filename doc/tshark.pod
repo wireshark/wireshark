@@ -539,6 +539,7 @@ B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
 Collect packet/bytes statistics for the capture in intervals of
 I<interval> seconds.  I<Intervals> can be specified either as whole or
 fractional seconds.  Interval can be specified in ms resolution.
+If Interval is 0, the statistics will be calculated over all packets.
 
 If no I<filter> is specified the statistics will be calculated for all packets.
 If one or more I<filters> are specified statistics will be calculated for

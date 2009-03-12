@@ -284,7 +284,8 @@ iostat_draw(void *arg)
 	printf("\n");
 	printf("===================================================================\n");
 	printf("IO Statistics\n");
-	printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
+        if(iot->interval!=G_MAXINT32) 
+                printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
 	for(i=0;i<iot->num_items;i++){
 		printf("Column #%d: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
@@ -353,9 +354,14 @@ iostat_draw(void *arg)
 		}
 
 		if(more_items){
-			printf("%03d.%03d-%03d.%03d  ",
-				t/1000,t%1000,
-				(t+iot->interval)/1000,(t+iot->interval)%1000);
+                        if(iot->interval==G_MAXINT32) {
+			        printf("000.000-         ");
+                        } else {
+        			printf("%03d.%03d-%03d.%03d  ",
+        				t/1000,t%1000,
+        				(t+iot->interval)/1000,
+                                        (t+iot->interval)%1000);
+                        }
 			for(i=0;i<iot->num_items;i++){
 				switch(iot->items[i].calc_type){
 				case CALC_TYPE_BYTES:
@@ -625,11 +631,18 @@ iostat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 
+        /* if interval is 0, calculate statistics over the whole file
+         * by setting the interval to G_MAXINT32
+         */
+        if(interval_float==0) {
+                interval=G_MAXINT32;
+        } else {
+	        /* make interval be number of ms */
+	        interval=(gint32)(interval_float*1000.0+0.9);	
+        }
 
-	/* make interval be number of ms */
-	interval=(gint32)(interval_float*1000.0+0.9);	
 	if(interval<1){
-		fprintf(stderr, "tshark: \"-z\" interval must be >=0.001 seconds.\n");
+		fprintf(stderr, "tshark: \"-z\" interval must be >=0.001 seconds or 0.\n");
 		exit(10);
 	}
 	
