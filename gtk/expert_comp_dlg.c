@@ -86,6 +86,7 @@ static void
 error_reset(void *pss)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
+    gchar *buf;
 
     ss->error_events = 0;
     ss->warn_events = 0;
@@ -94,18 +95,26 @@ error_reset(void *pss)
     ss->disp_events = 0;
 
     reset_error_table_data(&ss->error_table);
-    gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u (0)", ss->error_table.num_procs));
+    buf = g_strdup_printf("Errors: %u (0)", ss->error_table.num_procs);
+    gtk_label_set_text( GTK_LABEL(ss->error_label), buf);
+    g_free(buf);
 
     reset_error_table_data(&ss->warn_table);
-    gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u (0)", ss->warn_table.num_procs));
+    buf = g_strdup_printf("Warnings: %u (0)", ss->warn_table.num_procs);
+    gtk_label_set_text( GTK_LABEL(ss->warn_label), buf);
+    g_free(buf);
 
     reset_error_table_data(&ss->note_table);
-    gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u (0)", ss->note_table.num_procs));
+    buf = g_strdup_printf("Notes: %u (0)", ss->note_table.num_procs);
+    gtk_label_set_text( GTK_LABEL(ss->note_label), buf);
+    g_free(buf);
 
     reset_error_table_data(&ss->chat_table);
-    gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u (0)", ss->chat_table.num_procs));
+    buf = g_strdup_printf("Chats: %u (0)", ss->chat_table.num_procs);
+    gtk_label_set_text( GTK_LABEL(ss->chat_label), buf);
+    g_free(buf);
 
-    gtk_label_set_text( GTK_LABEL(ss->all_label), g_strdup_printf("Details: 0"));
+    gtk_label_set_text( GTK_LABEL(ss->all_label), "Details: 0");
     error_set_title(ss);
 }
 
@@ -114,6 +123,7 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
     const expert_info_t *error_pkt=prv;
+    gchar *buf = NULL;	/* set to NULL to prevent warnings */
 
     /* if return value is 0 then no error */
     if(error_pkt==NULL){
@@ -126,38 +136,41 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
         ss->error_events++;
         init_error_table_row(&ss->error_table, error_pkt);
         add_error_table_data(&ss->error_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->error_label), g_strdup_printf("Errors: %u (%u)", 
-        ss->error_table.num_procs, ss->error_events));
+        buf = g_strdup_printf("Errors: %u (%u)", ss->error_table.num_procs, ss->error_events);
+        gtk_label_set_text( GTK_LABEL(ss->error_label), buf);
         break;
     case PI_WARN:
         ss->disp_events++;
         ss->warn_events++;
         init_error_table_row(&ss->warn_table, error_pkt);
         add_error_table_data(&ss->warn_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->warn_label), g_strdup_printf("Warnings: %u (%u)", 
-        ss->warn_table.num_procs, ss->warn_events));
+        buf = g_strdup_printf("Warnings: %u (%u)", ss->warn_table.num_procs, ss->warn_events);
+        gtk_label_set_text( GTK_LABEL(ss->warn_label), buf);
         break;
     case PI_NOTE:
         ss->disp_events++;
         ss->note_events++;
         init_error_table_row(&ss->note_table, error_pkt);
         add_error_table_data(&ss->note_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->note_label), g_strdup_printf("Notes: %u (%u)", 
-        ss->note_table.num_procs, ss->note_events));
+        buf = g_strdup_printf("Notes: %u (%u)", ss->note_table.num_procs, ss->note_events);
+        gtk_label_set_text( GTK_LABEL(ss->note_label), buf);
         break;
     case PI_CHAT:
         ss->disp_events++;
         ss->chat_events++;
         init_error_table_row(&ss->chat_table, error_pkt);
         add_error_table_data(&ss->chat_table, error_pkt);
-        gtk_label_set_text( GTK_LABEL(ss->chat_label), g_strdup_printf("Chats: %u (%u)", 
-        ss->chat_table.num_procs, ss->chat_events));
+        buf = g_strdup_printf("Chats: %u (%u)", ss->chat_table.num_procs, ss->chat_events);
+        gtk_label_set_text( GTK_LABEL(ss->chat_label), buf);
         break;
     default:
         return 0; /* Don't draw */
     }
+    g_free(buf);
 
-    gtk_label_set_text( GTK_LABEL(ss->all_label), g_strdup_printf("Details: %u", ss->disp_events));
+    buf = g_strdup_printf("Details: %u", ss->disp_events);
+    gtk_label_set_text( GTK_LABEL(ss->all_label), buf);
+    g_free(buf);
 
     return 1; /* Draw */
 }
