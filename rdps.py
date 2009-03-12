@@ -25,7 +25,7 @@
 
 '''\
 takes the file listed as the first argument and creates the file listed
-as the second argument. It takes a PostScript file and creates a C program
+as the second argument. It takes a PostScript file and creates a C source
 with 2 functions:
 	print_ps_preamble()
 	print_ps_finale()
@@ -54,7 +54,6 @@ def start_code(fd, func):
     fd.write("/* Created by %s. Do not edit! */\n" % script_name)
     fd.write("void print_ps_%s(FILE *fd) {\n" % func)
 
-
 def write_code(fd, raw_str):
     ps_str = ps_clean_string(raw_str)
     fd.write("\tfprintf(fd, \"%s\");\n" % ps_str)
@@ -62,9 +61,9 @@ def write_code(fd, raw_str):
 def end_code(fd):
     fd.write("}\n\n\n")
 
-def exit_err(msg=None):
+def exit_err(msg=None, *param):
     if msg is not None:
-        sys.stderr.write(msg)
+        sys.stderr.write(msg % param)
     sys.exit(1)
 
 # Globals
@@ -81,16 +80,18 @@ def main():
     input = open(sys.argv[1], 'r')
     output = open(sys.argv[2], 'w')
 
+    script_name = os.path.split(__file__)[-1]
+
     output.write('''\
-/* Created by rdps.c. Do not edit! */
+/* Created by %s. Do not edit! */
 
 #include <stdio.h>
 
 #include "ps.h"
 
-''')
+''' % script_name)
 
-    for line in input.xreadlines():
+    for line in input:
         #line = line.rstrip()
         if state is STATE_NULL:
             if line.startswith("% ---- wireshark preamble start ---- %"):
