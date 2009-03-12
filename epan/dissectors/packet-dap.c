@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dap.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p dap -c ./dap.cnf -s ./packet-dap-template -D . dap.asn DirectoryAccessProtocol.asn */
 
 /* Input file: packet-dap-template.c */
 
@@ -316,6 +316,8 @@ static int hf_dap_overspecFilter = -1;            /* Filter */
 static int hf_dap_entryCount = -1;                /* T_entryCount */
 static int hf_dap_bestEstimate = -1;              /* INTEGER */
 static int hf_dap_lowEstimate = -1;               /* INTEGER */
+static int hf_dap_exact = -1;                     /* INTEGER */
+static int hf_dap_streamedResult = -1;            /* BOOLEAN */
 static int hf_dap_baseObject = -1;                /* Name */
 static int hf_dap_subset = -1;                    /* T_subset */
 static int hf_dap_filter = -1;                    /* Filter */
@@ -857,7 +859,7 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static const ber_sequence_t T_manageDSAITPlaneRef_sequence[] = {
   { &hf_dap_dsaName         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_Name },
-  { &hf_dap_agreementID     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
+  { &hf_dap_agreementID     , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2821,12 +2823,14 @@ dissect_dap_T_unknownErrors(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static const value_string dap_T_entryCount_vals[] = {
   {   7, "bestEstimate" },
   {   8, "lowEstimate" },
+  {   9, "exact" },
   { 0, NULL }
 };
 
 static const ber_choice_t T_entryCount_choice[] = {
   {   7, &hf_dap_bestEstimate    , BER_CLASS_CON, 7, 0, dissect_dap_INTEGER },
   {   8, &hf_dap_lowEstimate     , BER_CLASS_CON, 8, 0, dissect_dap_INTEGER },
+  {   9, &hf_dap_exact           , BER_CLASS_CON, 9, 0, dissect_dap_INTEGER },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2849,6 +2853,7 @@ static const ber_sequence_t PartialOutcomeQualifier_set[] = {
   { &hf_dap_overspecFilter  , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Filter },
   { &hf_dap_notification    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { &hf_dap_entryCount      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_entryCount },
+  { &hf_dap_streamedResult  , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5794,6 +5799,14 @@ void proto_register_dap(void) {
       { "lowEstimate", "dap.lowEstimate",
         FT_INT32, BASE_DEC, NULL, 0,
         "dap.INTEGER", HFILL }},
+    { &hf_dap_exact,
+      { "exact", "dap.exact",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "dap.INTEGER", HFILL }},
+    { &hf_dap_streamedResult,
+      { "streamedResult", "dap.streamedResult",
+        FT_BOOLEAN, 8, NULL, 0,
+        "dap.BOOLEAN", HFILL }},
     { &hf_dap_baseObject,
       { "baseObject", "dap.baseObject",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,

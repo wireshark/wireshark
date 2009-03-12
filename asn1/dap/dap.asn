@@ -659,7 +659,9 @@ PartialOutcomeQualifier ::= SET {
     [6]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL,
   entryCount
     CHOICE {bestEstimate  [7]  INTEGER,
-            lowEstimate   [8]  INTEGER} OPTIONAL
+            lowEstimate   [8]  INTEGER,
+            exact         [9]  INTEGER} OPTIONAL,
+  streamedResult                 [10] BOOLEAN DEFAULT FALSE
 }
 
 LimitProblem ::= INTEGER {
