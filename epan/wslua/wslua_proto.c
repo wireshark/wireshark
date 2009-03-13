@@ -225,9 +225,10 @@ static int Pref_gc(lua_State* L) {
     Pref pref = checkPref(L,1);
     
     if (pref && ! pref->name) {
-        if (pref->label) g_free(pref->label);
-        if (pref->desc) g_free(pref->desc);
-        if (pref->type == PREF_STRING) g_free((void*)pref->value.s);
+        g_free(pref->label);
+        g_free(pref->desc);
+        if (pref->type == PREF_STRING)
+	    g_free((void*)pref->value.s);
         g_free(pref);
     }
     

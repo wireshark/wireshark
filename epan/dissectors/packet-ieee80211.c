@@ -12171,7 +12171,8 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
     }
   }
 
-  if ((!decr_tvb) && (tmp))    g_free(tmp);
+  if (!decr_tvb)
+  	g_free(tmp);
 
 #if 0
   printf("de-wep %p\n", decr_tvb);
@@ -12275,7 +12276,7 @@ void set_airpdcap_keys(void)
         }
       }
     }
-    if(tmpk != NULL) g_free(tmpk);
+    g_free(tmpk);
   }
 
   /* Now set the keys */
@@ -12384,9 +12385,7 @@ static void init_wepkeys(void) {
       g_free(wep_keys[i]);
     g_free(wep_keys);
   }
-
-  if (wep_keylens)
-    g_free(wep_keylens);
+  g_free(wep_keylens);
 
 #ifdef USE_ENV
   guint8 *buf;
@@ -12437,9 +12436,7 @@ static void init_wepkeys(void) {
 #endif
 #endif
 
-      if (wep_keys[keyidx]) {
-        g_free(wep_keys[keyidx]);
-      }
+      g_free(wep_keys[keyidx]);
 
       res = wep_str_to_bytes(tmp, bytes);
       if (tmp && res && bytes->len > 0) {

@@ -322,9 +322,8 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  g_free(pf_dir_path);
 	}
 	profile1->status = PROF_STAT_EXISTS;
-	if (profile1->reference) {
-	  g_free (profile1->reference);
-	}
+
+	g_free (profile1->reference);
 	profile1->reference = g_strdup(profile1->name);
       }
     } else if (profile1->status == PROF_STAT_CHANGED) {
@@ -506,8 +505,7 @@ profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
     gtk_widget_set_sensitive(copy_bt, sensitivity);
   if (del_bt != NULL)
     gtk_widget_set_sensitive(del_bt, sensitivity);
-  if (name != NULL)
-    g_free(name);
+  g_free(name);
 }
 
 static void

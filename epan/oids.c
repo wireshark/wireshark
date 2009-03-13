@@ -243,7 +243,7 @@ static void* smi_mod_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 
 static void smi_mod_free_cb(void* p) {
 	smi_module_t* m = p;
-	if (m->name) g_free(m->name);
+	g_free(m->name);
 }
 
 

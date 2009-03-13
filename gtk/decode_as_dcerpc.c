@@ -267,8 +267,7 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
 			binding->ver = key->ver;
 			decode_dcerpc_binding_change(table_name, binding);
     }
-    if (abbrev != NULL)
-	g_free(abbrev);
+    g_free(abbrev);
 }
 
 

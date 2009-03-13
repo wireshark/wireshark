@@ -636,7 +636,7 @@ static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gp
 		gtk_widget_destroy(uat->rep->window);
 
 		uat->rep = NULL;
-		if (rep) g_free(rep);
+		g_free(rep);
 	}
 	return TRUE;
 }

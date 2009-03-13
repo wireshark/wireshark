@@ -2697,12 +2697,10 @@ ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInf
     g_hash_table_destroy(*session_hash);
   *session_hash = g_hash_table_new(ssl_hash, ssl_equal);
 
-  if (decrypted_data->data)
-    g_free(decrypted_data->data);
+  g_free(decrypted_data->data);
   ssl_data_alloc(decrypted_data, 32);
 
-  if (compressed_data->data)
-    g_free(compressed_data->data);
+  g_free(compressed_data->data);
   ssl_data_alloc(compressed_data, 32);
 }
 

@@ -212,7 +212,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     error = register_tap_listener(tap_type, tap, tap->filter, lua_tap_reset, lua_tap_packet, lua_tap_draw);
 
     if (error) {
-        if (tap->filter) g_free(tap->filter);
+        g_free(tap->filter);
         g_free(tap->name);
         g_free(tap);
 		/* WSLUA_ERROR(new_tap,"tap registration error"); */

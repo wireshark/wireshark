@@ -537,8 +537,7 @@ set_main_window_name(const gchar *window_name)
 
   /* Attach the new un-decorated window name to the window. */
   old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
-  if (old_window_name != NULL)
-    g_free(old_window_name);
+  g_free(old_window_name);
   g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
   update_main_window_name();

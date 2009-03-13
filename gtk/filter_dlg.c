@@ -1025,10 +1025,8 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
         gtk_widget_set_sensitive(copy_bt, sensitivity);
     if (del_bt != NULL)
         gtk_widget_set_sensitive(del_bt, sensitivity);
-    if (name != NULL)
-        g_free(name);
-    if (strval != NULL)
-        g_free(strval);
+    g_free(name);
+    g_free(strval);
 }
 
 /* To do: add input checking to each of these callbacks */

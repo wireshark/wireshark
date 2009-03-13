@@ -1679,9 +1679,7 @@ init_ndr_pointer_list(packet_info *pinfo)
 
 		npd=g_slist_nth_data(ndr_pointer_list, 0);
 		ndr_pointer_list=g_slist_remove(ndr_pointer_list, npd);
-		if(npd){
-			g_free(npd);
-		}
+		g_free(npd);
 	}
 
 	ndr_pointer_list=NULL;

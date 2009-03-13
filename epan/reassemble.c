@@ -850,8 +850,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		}
 	}
 
-	if( old_data )
-		g_free(old_data);
+	g_free(old_data);
 	/* mark this packet as defragmented.
            allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
@@ -1134,9 +1133,7 @@ fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
 			g_free(fd_i->data);
 		fd_i->data=NULL;
 	}
-	
-	if( old_data )
-		g_free(old_data);
+	g_free(old_data);
 	
 	/* mark this packet as defragmented.
            allows us to skip any trailing fragments */

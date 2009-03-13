@@ -168,10 +168,8 @@ tvb_free(tvbuff_t* tvb)
 
 			g_slist_free(composite->tvbs);
 
-			if (composite->start_offsets)
-				g_free(composite->start_offsets);
-			if (composite->end_offsets)
-				g_free(composite->end_offsets);
+			g_free(composite->start_offsets);
+			g_free(composite->end_offsets);
 			if (tvb->real_data) {
 				/*
 				 * XXX - do this with a union?

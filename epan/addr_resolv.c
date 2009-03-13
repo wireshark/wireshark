@@ -1961,8 +1961,7 @@ read_hosts_file (const char *hostspath)
         add_ipv4_name(host_addr[0], cp);
     }
   }
-  if (line != NULL)
-    g_free(line);
+  g_free(line);
 
   fclose(hf);
   return TRUE;
@@ -2028,8 +2027,7 @@ read_subnets_file (const char *subnetspath)
 
     subnet_entry_set(host_addr, (guint32)mask_length, cp);
   }
-  if (line != NULL)
-    g_free(line);
+  g_free(line);
 
   fclose(hf);
   return TRUE;

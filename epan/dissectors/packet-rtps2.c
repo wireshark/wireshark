@@ -1795,9 +1795,8 @@ static gint rtps_util_add_string(proto_tree *tree,
       g_snprintf(buffer, buffer_size, "%s", retVal);
     }
   }
-  if (retVal != NULL) {
-    g_free(retVal);
-  }
+  g_free(retVal);
+
   /* NDDS align strings at 4-bytes word. So:
    *  string_length: 4 -> buffer_length = 4;
    *  string_length: 5 -> buffer_length = 8;

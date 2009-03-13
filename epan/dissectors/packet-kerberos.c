@@ -533,9 +533,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		input.ciphertext.data = (guint8 *)cryptotext;
 
 		data.length = length;
-		if(data.data){
-			g_free(data.data);
-		}
+		g_free(data.data);
 		data.data = g_malloc(length);
 
 		key.key.enctype=ek->keytype;
@@ -748,8 +746,10 @@ clear_keytab(void) {
 
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
 		sk = (service_key_t *) ske->data;
-		if (sk && sk->contents) g_free(sk->contents);
-		if (sk) g_free(sk);
+		if (sk) {
+			g_free(sk->contents);
+			g_free(sk);
+		}
 	}
 	g_slist_free(service_key_list);
 	service_key_list = NULL;

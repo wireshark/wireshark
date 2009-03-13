@@ -351,9 +351,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
         cfmt = (fmt_data *) clp->data;
         g_free(cfmt->title);
         g_free(cfmt->fmt);
-        if (cfmt->custom_field) {
-          g_free (cfmt->custom_field);
-        }
+        g_free(cfmt->custom_field);
         g_free(cfmt);
         prefs.col_list = g_list_remove_link(prefs.col_list, clp);
 
@@ -406,9 +404,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
         fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
 	g_free(fmt);
-        if (cfmt->custom_field) {
-          g_free(cfmt->custom_field);
-        }
+        g_free(cfmt->custom_field);
         cfmt->custom_field = field;
     }
     cfile.cinfo.columns_changed = TRUE;

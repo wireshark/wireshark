@@ -118,7 +118,7 @@ static void* geoip_db_path_copy_cb(void* dest, const void* orig, unsigned len _U
 
 static void geoip_db_path_free_cb(void* p) {
 	geoip_db_path_t *m = p;
-	if (m->path) g_free(m->path);
+	g_free(m->path);
 }
 
 /**

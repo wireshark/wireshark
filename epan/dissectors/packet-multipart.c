@@ -435,8 +435,7 @@ cleanup_multipart_info(void *data)
 {
 	multipart_info_t *m_info = data;
 	if (m_info) {
-		if (m_info->boundary)
-			g_free(m_info->boundary);
+		g_free(m_info->boundary);
 		g_free(m_info);
 	}
 }
@@ -792,10 +791,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 			}
 		}
 
-		if(filename)
-			g_free(filename);
-		if(typename)
-			g_free(typename);
+		g_free(filename);
+		g_free(typename);
 
 		return boundary_start + boundary_line_len;
 	}

@@ -475,10 +475,8 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 static gboolean
 welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
 {
-    if (global_capture_opts.iface)
-        g_free(global_capture_opts.iface);
-    if (global_capture_opts.iface_descr)
-        g_free(global_capture_opts.iface_descr);
+    g_free(global_capture_opts.iface);
+    g_free(global_capture_opts.iface_descr);
 
     global_capture_opts.iface = g_strdup(data);
     global_capture_opts.iface_descr = NULL;

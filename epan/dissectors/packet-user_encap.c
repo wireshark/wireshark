@@ -142,9 +142,9 @@ static void user_free_cb(void* record)
 {
   user_encap_t *u = record;
 
-  if (u->payload_proto_name) g_free(u->payload_proto_name);
-  if (u->header_proto_name)  g_free(u->header_proto_name);
-  if (u->trailer_proto_name) g_free(u->trailer_proto_name);
+  g_free(u->payload_proto_name);
+  g_free(u->header_proto_name);
+  g_free(u->trailer_proto_name);
 }
 
 UAT_VS_DEF(user_encap, encap, user_encap_t, WTAP_ENCAP_USER0, ENCAP0_STR)

@@ -103,8 +103,5 @@ apply_selected_filter (guint callback_action, char *filter)
 		color_display_with_filter(str);
 		break;
 	}
-
-	if (str) {
-		g_free (str);
-	}
+	g_free (str);
 }

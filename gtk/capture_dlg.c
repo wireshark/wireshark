@@ -2608,10 +2608,8 @@ capture_dlg_prep(gpointer parent_w) {
     g_free(entry_text);
     return FALSE;
   }
-  if (global_capture_opts.iface)
-    g_free(global_capture_opts.iface);
-  if (global_capture_opts.iface_descr)
-    g_free(global_capture_opts.iface_descr);
+  g_free(global_capture_opts.iface);
+  g_free(global_capture_opts.iface_descr);
   global_capture_opts.iface = g_strdup(if_name);
   global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
   g_free(entry_text);

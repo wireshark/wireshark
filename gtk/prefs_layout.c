@@ -477,8 +477,7 @@ layout_prefs_fetch(GtkWidget *w)
     prefs.gui_toolbar_main_style = fetch_enum_value(
         g_object_get_data(G_OBJECT(w), GUI_TOOLBAR_STYLE_KEY), toolbar_style_vals);
 
-    if (prefs.gui_window_title != NULL)
-        g_free(prefs.gui_window_title);
+    g_free(prefs.gui_window_title);
     prefs.gui_window_title = g_strdup(gtk_entry_get_text(
                                           GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WINDOW_TITLE_KEY))));
 }

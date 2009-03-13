@@ -169,10 +169,8 @@ free_stat_node(stat_node *node)
 	
 	if (node->hash) g_hash_table_destroy(node->hash);
 
-	if (node->rng) g_free(node->rng);
-	
-	if (node->name) g_free(node->name);
-	
+	g_free(node->rng);
+	g_free(node->name);
 	g_free(node);
 }
 

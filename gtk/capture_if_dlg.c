@@ -152,10 +152,8 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
   airpcap_if_selected = airpcap_if_active;
 #endif
 
-  if (global_capture_opts.iface)
-    g_free(global_capture_opts.iface);
-  if (global_capture_opts.iface_descr)
-    g_free(global_capture_opts.iface_descr);
+  g_free(global_capture_opts.iface);
+  g_free(global_capture_opts.iface_descr);
 
   global_capture_opts.iface = g_strdup(if_dlg_data->device);
   global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
@@ -179,10 +177,8 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
 {
   if_dlg_data_t *if_dlg_data = if_data;
 
-  if (global_capture_opts.iface)
-    g_free(global_capture_opts.iface);
-  if (global_capture_opts.iface_descr)
-    g_free(global_capture_opts.iface_descr);
+  g_free(global_capture_opts.iface);
+  g_free(global_capture_opts.iface_descr);
 
   global_capture_opts.iface = g_strdup(if_dlg_data->device);
   global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);

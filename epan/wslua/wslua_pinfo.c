@@ -223,7 +223,7 @@ static int Address__gc(lua_State* L) {
     Address addr = checkAddress(L,1);
 
     if (addr) {
-        if (addr->data) g_free((void*)addr->data);
+        g_free((void*)addr->data);
         g_free((void*)addr);
     }
 

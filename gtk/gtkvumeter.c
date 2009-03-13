@@ -692,9 +692,7 @@ void gtk_vumeter_free_scale_items(GList *scale_items)
     for (current = scale_items; current != NULL; current = g_list_next(current)) {
         GtkVUMeterScaleItem * item = current->data;
 
-        if(item->label != NULL) {
-            g_free((void *) item->label);
-        }
+        g_free((void *) item->label);
         g_free(item);
     }
 

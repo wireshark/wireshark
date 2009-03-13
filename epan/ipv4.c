@@ -49,8 +49,7 @@ ipv4_addr_new(void)
 void
 ipv4_addr_free(ipv4_addr *ipv4)
 {
-	if (ipv4)
-		g_free(ipv4);
+	g_free(ipv4);
 }
 
 void

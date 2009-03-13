@@ -120,9 +120,7 @@ free_col_width_info(recent_settings_t *rs)
 
   while (rs->col_width_list != NULL) {
     cfmt = rs->col_width_list->data;
-    if (cfmt->cfield) {
-      g_free(cfmt->cfield);
-    }
+    g_free(cfmt->cfield);
     g_free(cfmt);
     rs->col_width_list = g_list_remove_link(rs->col_width_list, rs->col_width_list);
   }

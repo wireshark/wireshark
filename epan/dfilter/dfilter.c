@@ -150,9 +150,7 @@ dfilter_free(dfilter_t *df)
 		free_insns(df->consts);
 	}
 
-	if (df->interesting_fields) {
-		g_free(df->interesting_fields);
-	}
+	g_free(df->interesting_fields);
 
 	/* clear registers */
 	for (i = 0; i < df->max_registers; i++) {

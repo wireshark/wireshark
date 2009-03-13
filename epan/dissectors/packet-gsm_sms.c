@@ -2747,8 +2747,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 						}
 					}
 
-					if(utf8_text)
-						g_free(utf8_text);
+					g_free(utf8_text);
 					g_iconv_close(cd);
 				}
 				else

@@ -61,7 +61,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 
 static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
 	fvt_cache_entry_t* e = v;
-	if (e->repr) g_free(e->repr);
+	g_free(e->repr);
 	g_free(e);
 	return TRUE;
 }
@@ -465,12 +465,10 @@ static void macro_update(void* mp, const gchar** error) {
 done:
 	g_ptr_array_add(parts,NULL);
 
-	if (m->parts) g_free(m->parts);
-
+	g_free(m->parts);
 	m->parts = (gchar**)parts->pdata;
 
-	if (m->args_pos) g_free(m->args_pos);
-
+	g_free(m->args_pos);
 	m->args_pos = (int*)(void *)args_pos->data;
 
 	g_ptr_array_free(parts,FALSE);

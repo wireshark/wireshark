@@ -733,8 +733,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
                           "Ranges of that field can't be tested with \"%s\".",
                           item_str);
         }
-        if (range_str != NULL)
-            g_free(range_str);
+        g_free(range_str);
         return;
     }
 
@@ -753,8 +752,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
                           "That field must be compared with a value, "
                           "but you didn't specify a value with which to "
                           "compare it.");
-            if (range_str != NULL)
-                g_free(range_str);
+            g_free(range_str);
             g_free(value_str);
             return;
         }
@@ -781,8 +779,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
              * The dialog box was already popped up by
              * "dfilter_report_bad_value()".
              */
-            if (range_str != NULL)
-                g_free(range_str);
+            g_free(range_str);
             g_free(value_str);
             return;
         }

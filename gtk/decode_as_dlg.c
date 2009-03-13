@@ -652,8 +652,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     } else {
 	dissector_change(table_name, selector, handle);
     }
-    if (abbrev != NULL)
-	g_free(abbrev);
+    g_free(abbrev);
 }
 
 

@@ -84,8 +84,7 @@ decode_ber(GtkWidget *notebook_pg)
     } else {
       ber_decode_as(syntax);
     }
-    if (syntax != NULL)
-	g_free(syntax);
+    g_free(syntax);
 }
 
 

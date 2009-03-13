@@ -45,9 +45,7 @@ string_fvalue_new(fvalue_t *fv)
 static void
 string_fvalue_free(fvalue_t *fv)
 {
-	if (fv->value.string) {
-		g_free(fv->value.string);
-	}
+	g_free(fv->value.string);
 }
 
 static void

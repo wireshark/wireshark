@@ -318,8 +318,7 @@ k12_update_cb(void* r, const char** err)
 	for (num_protos = 0; protos[num_protos]; num_protos++)
 		g_strstrip(protos[num_protos]);
 
-	if (h->handles) g_free(h->handles);
-
+	g_free(h->handles);
 	h->handles = g_malloc0(sizeof(dissector_handle_t)*(num_protos < 2 ? 2 : num_protos));
 
 	for (i = 0; i < num_protos; i++) {
@@ -355,9 +354,10 @@ static void
 k12_free_cb(void* r)
 {
 	k12_handles_t* h = r;
-	if (h->match) g_free(h->match);
-	if (h->protos) g_free(h->protos);
-	if (h->handles) g_free(h->handles);
+
+	g_free(h->match);
+	g_free(h->protos);
+	g_free(h->handles);
 }
 
 

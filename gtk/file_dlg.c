@@ -247,9 +247,7 @@ set_last_open_dir(char *dirname)
 			updated_last_open_dir = TRUE;
 	}
 
-	if (last_open_dir) {
-		g_free(last_open_dir);
-	}
+	g_free(last_open_dir);
 	last_open_dir = new_last_open_dir;
 }
 

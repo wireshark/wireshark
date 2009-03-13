@@ -793,14 +793,12 @@ static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p) {
 }
 
 static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
-
-	if(dtd_data->proto_name) g_free(dtd_data->proto_name);
-	if(dtd_data->media_type) g_free(dtd_data->media_type);
-	if(dtd_data->description) g_free(dtd_data->description);
-	if(dtd_data->proto_root) g_free(dtd_data->proto_root);
+	g_free(dtd_data->proto_name);
+	g_free(dtd_data->media_type);
+	g_free(dtd_data->description);
+	g_free(dtd_data->proto_root);
 
 	g_string_free(dtd_data->error,TRUE);
-
 
 	while(dtd_data->elements->len) {
 		dtd_named_list_t* nl = g_ptr_array_remove_index_fast(dtd_data->elements,0);
@@ -819,9 +817,7 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
 	g_ptr_array_free(dtd_data->attributes,TRUE);
 
 	g_free(dtd_data);
-
 }
-
 
 static void copy_attrib_item(gpointer k, gpointer v _U_, gpointer p) {
 	gchar* key = g_strdup(k);
@@ -1036,8 +1032,7 @@ next_attribute:
 
 	/* if a proto_root is defined in the dtd we'll use that as root */
 	if( dtd_data->proto_root ) {
-		if(root_name)
-			g_free(root_name);
+		g_free(root_name);
 		root_name = g_strdup(dtd_data->proto_root);
 	}
 
@@ -1186,9 +1181,7 @@ next_attribute:
 	g_hash_table_destroy(elements);
 
 	destroy_dtd_data(dtd_data);
-
-	if (root_name)
-		g_free(root_name);
+	g_free(root_name);
 }
 
 #  define DIRECTORY_T GDir

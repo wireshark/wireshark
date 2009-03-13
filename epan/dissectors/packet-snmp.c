@@ -3005,12 +3005,12 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 static void snmp_users_free_cb(void* p) {
 	snmp_ue_assoc_t* ue = p;
-	if (ue->user.userName.data) g_free(ue->user.userName.data);
-	if (ue->user.authPassword.data) g_free(ue->user.authPassword.data);
-	if (ue->user.privPassword.data) g_free(ue->user.privPassword.data);
-	if (ue->user.authKey.data) g_free(ue->user.authKey.data);
-	if (ue->user.privKey.data) g_free(ue->user.privKey.data);
-	if (ue->engine.data) g_free(ue->engine.data);
+	g_free(ue->user.userName.data);
+	g_free(ue->user.authPassword.data);
+	g_free(ue->user.privPassword.data);
+	g_free(ue->user.authKey.data);
+	g_free(ue->user.privKey.data);
+	g_free(ue->engine.data);
 }
 
 static void snmp_users_update_cb(void* p _U_, const char** err) {

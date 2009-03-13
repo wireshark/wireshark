@@ -310,8 +310,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
       return FALSE;
     }
 
-    if (first)
-      g_free (first);
+    g_free (first);
 
     gtk_widget_size_request(list, &requisition);
 
@@ -417,11 +416,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       popup_win = filter_autocomplete_new(filter_te, name_with_period, FALSE, &stop_propagation);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
-      if(name_with_period)
-        g_free (name_with_period);
-
-      if(prefix_start)
-        g_free(prefix_start);
+      g_free(name_with_period);
+      g_free(prefix_start);
 
       return stop_propagation;
     }
@@ -439,8 +435,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       }
     }
 
-    if(prefix_start)
-      g_free(prefix_start);
+    g_free(prefix_start);
 
     return FALSE;
   } else if(g_ascii_isalnum(ckey) && !popup_win) {
@@ -451,19 +446,15 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
     }
 
-    if (name)
-      g_free (name);
-
-    if(prefix_start)
-      g_free(prefix_start);
+    g_free(name);
+    g_free(prefix_start);
 
     return stop_propagation;
   }
 
   /* If the popup window hasn't been constructed yet then we have nothing to do */
   if( !popup_win ) {
-    if(prefix_start)
-      g_free(prefix_start);
+    g_free(prefix_start);
 
     return FALSE;
   }
@@ -508,8 +499,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
         gtk_tree_path_free(path);
       }
 
-      if(prefix_start)
-        g_free(prefix_start);
+      g_free(prefix_start);
 
       /* stop event propagation */
       return TRUE;
@@ -549,8 +539,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
         gtk_tree_path_free(path);
       }
 
-      if(prefix_start)
-        g_free(prefix_start);
+      g_free(prefix_start);
 
       /* stop event propagation */
       return TRUE;
@@ -595,15 +584,12 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
         g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, NULL);
       }
 
-      if(updated_str)
-        g_free(updated_str);
+      g_free(updated_str);
     }
 
   }
 
-
-  if(prefix_start)
-    g_free(prefix_start);
+  g_free(prefix_start);
 
   if(k == GDK_Return || k == GDK_KP_Enter)
     return TRUE;    /* stop event propagation */

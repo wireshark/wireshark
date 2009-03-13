@@ -415,8 +415,7 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
 	    g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
 	
-	if (prefs.gui_fileopen_dir != NULL)
-		g_free(prefs.gui_fileopen_dir);
+	g_free(prefs.gui_fileopen_dir);
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
                                               GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
@@ -446,8 +445,7 @@ gui_prefs_fetch(GtkWidget *w)
 	if (font_fetch()) {
 		if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
 			font_changed = TRUE;
-			if (prefs.gui_font_name != NULL)
-				g_free(prefs.gui_font_name);
+			g_free(prefs.gui_font_name);
 			prefs.gui_font_name = g_strdup(new_font_name);
 		}
 	}

@@ -3110,9 +3110,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  rebuild_protocol_prefs_menu (prefs, properties);
 
 	  g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
-	  if (prev_abbrev) {
-	    g_free (prev_abbrev);
-	  }
+	  g_free (prev_abbrev);
 	}
   } else {
 	set_menu_sensitivity(main_menu_factory,

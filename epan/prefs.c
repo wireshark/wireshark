@@ -1206,33 +1206,21 @@ void
 prefs_reset(void)
 {
   prefs_initialized = FALSE;
-  if (prefs.pr_file)
-    g_free(prefs.pr_file);
-  if (prefs.pr_cmd)
-    g_free(prefs.pr_cmd);
+
+  g_free(prefs.pr_file);
+  g_free(prefs.pr_cmd);
   free_col_info(&prefs);
-  if (prefs.gui_font_name)
-    g_free(prefs.gui_font_name);
-  if (prefs.gui_colorized_fg)
-    g_free(prefs.gui_colorized_fg);
-  if (prefs.gui_colorized_bg)
-    g_free(prefs.gui_colorized_bg);
-  if (prefs.gui_fileopen_dir)
-    g_free(prefs.gui_fileopen_dir);
-  if (prefs.gui_webbrowser)
-    g_free(prefs.gui_webbrowser);
-  if (prefs.gui_window_title)
-    g_free(prefs.gui_window_title);
-  if (prefs.gui_start_title)
-    g_free(prefs.gui_start_title);
-  if (prefs.capture_device)
-    g_free(prefs.capture_device);
-  if (prefs.capture_devices_linktypes)
-    g_free(prefs.capture_devices_linktypes);
-  if (prefs.capture_devices_descr)
-    g_free(prefs.capture_devices_descr);
-  if (prefs.capture_devices_hide)
-    g_free(prefs.capture_devices_hide);
+  g_free(prefs.gui_font_name);
+  g_free(prefs.gui_colorized_fg);
+  g_free(prefs.gui_colorized_bg);
+  g_free(prefs.gui_fileopen_dir);
+  g_free(prefs.gui_webbrowser);
+  g_free(prefs.gui_window_title);
+  g_free(prefs.gui_start_title);
+  g_free(prefs.capture_device);
+  g_free(prefs.capture_devices_linktypes);
+  g_free(prefs.capture_devices_descr);
+  g_free(prefs.capture_devices_hide);
 
   uat_unload_all();
   init_prefs();
@@ -1788,10 +1776,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;
     }
   } else if (strcmp(pref_name, PRS_PRINT_FILE) == 0) {
-    if (prefs.pr_file) g_free(prefs.pr_file);
+    g_free(prefs.pr_file);
     prefs.pr_file = g_strdup(value);
   } else if (strcmp(pref_name, PRS_PRINT_CMD) == 0) {
-    if (prefs.pr_cmd) g_free(prefs.pr_cmd);
+    g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
   } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
     col_l = prefs_get_string_list(value);
@@ -1927,8 +1915,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
     /* GTK1 font name obsolete */
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_2) == 0) {
-    if (prefs.gui_font_name != NULL)
-      g_free(prefs.gui_font_name);
+    g_free(prefs.gui_font_name);
     prefs.gui_font_name = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
     cval = strtoul(value, NULL, 16);
@@ -1943,12 +1930,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_COLORIZED_FG) == 0) {
-    if (prefs.gui_colorized_fg != NULL)
-      g_free(prefs.gui_colorized_fg);
+    g_free(prefs.gui_colorized_fg);
     prefs.gui_colorized_fg = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_COLORIZED_BG) == 0) {
-    if (prefs.gui_colorized_bg != NULL)
-      g_free(prefs.gui_colorized_bg);
+    g_free(prefs.gui_colorized_bg);
     prefs.gui_colorized_bg = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_POSITION) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -2003,8 +1988,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 	find_index_from_string_array(value, gui_fileopen_style_text,
 				     FO_STYLE_LAST_OPENED);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_DIR) == 0) {
-    if (prefs.gui_fileopen_dir != NULL)
-      g_free(prefs.gui_fileopen_dir);
+    g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { /* deprecated */
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_PREVIEW) == 0) {
@@ -2034,12 +2018,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     g_free(prefs.gui_webbrowser);
     prefs.gui_webbrowser = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_WINDOW_TITLE) == 0) {
-    if (prefs.gui_window_title != NULL)
-      g_free(prefs.gui_window_title);
+    g_free(prefs.gui_window_title);
     prefs.gui_window_title = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_START_TITLE) == 0) {
-    if (prefs.gui_start_title != NULL)
-      g_free(prefs.gui_start_title);
+    g_free(prefs.gui_start_title);
     prefs.gui_start_title = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_VERSION_IN_START_PAGE) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -2069,20 +2051,16 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
-    if (prefs.capture_device != NULL)
-      g_free(prefs.capture_device);
+    g_free(prefs.capture_device);
     prefs.capture_device = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_DEVICES_LINKTYPES) == 0) {
-    if (prefs.capture_devices_linktypes != NULL)
-      g_free(prefs.capture_devices_linktypes);
+    g_free(prefs.capture_devices_linktypes);
     prefs.capture_devices_linktypes = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_DEVICES_DESCR) == 0) {
-    if (prefs.capture_devices_descr != NULL)
-      g_free(prefs.capture_devices_descr);
+    g_free(prefs.capture_devices_descr);
     prefs.capture_devices_descr = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_DEVICES_HIDE) == 0) {
-    if (prefs.capture_devices_hide != NULL)
-      g_free(prefs.capture_devices_hide);
+    g_free(prefs.capture_devices_hide);
     prefs.capture_devices_hide = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
     prefs.capture_prom_mode = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
@@ -3127,11 +3105,10 @@ free_col_info(e_prefs *pr)
 
   while (pr->col_list != NULL) {
     cfmt = pr->col_list->data;
+
     g_free(cfmt->title);
     g_free(cfmt->fmt);
-    if (cfmt->custom_field) {
-      g_free(cfmt->custom_field);
-    }
+    g_free(cfmt->custom_field);
     g_free(cfmt);
     pr->col_list = g_list_remove_link(pr->col_list, pr->col_list);
   }

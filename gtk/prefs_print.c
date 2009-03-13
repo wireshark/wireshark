@@ -152,14 +152,12 @@ printer_prefs_fetch(GtkWidget *w)
       g_object_get_data(G_OBJECT(w), E_PRINT_DESTINATION_KEY), print_dest_vals);
 
 #ifndef _WIN32
-  if (prefs.pr_cmd)
-    g_free(prefs.pr_cmd);
+  g_free(prefs.pr_cmd);
   prefs.pr_cmd = g_strdup(gtk_entry_get_text(
                               GTK_ENTRY(g_object_get_data(G_OBJECT(w), PRINT_CMD_TE_KEY))));
 #endif
 
-  if (prefs.pr_file)
-    g_free(prefs.pr_file);
+  g_free(prefs.pr_file);
   prefs.pr_file = g_strdup(gtk_entry_get_text(
                                GTK_ENTRY(g_object_get_data(G_OBJECT(w), PRINT_FILE_TE_KEY))));
 }

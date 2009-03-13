@@ -86,10 +86,10 @@ static void
 pcre_tuple_free(pcre_tuple_t *tuple)
 {
 	if (tuple) {
-		if (tuple->string) g_free(tuple->string);
-		if (tuple->re) g_free(tuple->re);
-		if (tuple->ex) g_free(tuple->ex);
-		if (tuple->error) g_free(tuple->error);
+		g_free(tuple->string);
+		g_free(tuple->re);
+		g_free(tuple->ex);
+		g_free(tuple->error);
 		g_free(tuple);
 	}
 }

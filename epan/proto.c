@@ -407,8 +407,7 @@ proto_cleanup(void)
 		g_free(gpa_hfinfo.hfi);
 		gpa_hfinfo.hfi=NULL;
 	}
-	if (tree_is_expanded != NULL)
-		g_free(tree_is_expanded);
+	g_free(tree_is_expanded);
 
 }
 

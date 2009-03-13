@@ -150,15 +150,12 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	while (list)
 	{
 		callsinfo = list->data;
-		if (callsinfo->call_id)
-			g_free(callsinfo->call_id);
+		g_free(callsinfo->call_id);
 		g_free(callsinfo->from_identity);
 		g_free(callsinfo->to_identity);
 		g_free((void *)(callsinfo->initial_speaker.data));
-		if (callsinfo->protocol_name)
-			g_free(callsinfo->protocol_name);
-		if (callsinfo->call_comment)
-			g_free(callsinfo->call_comment);
+		g_free(callsinfo->protocol_name);
+		g_free(callsinfo->call_comment);
 
 		if (callsinfo->free_prot_info && callsinfo->prot_info)
 			callsinfo->free_prot_info(callsinfo->prot_info);
@@ -864,7 +861,7 @@ static guint32 sdp_frame_num = 0;
 static void free_sip_info(gpointer p) {
 	sip_calls_info_t *si = p;
 
-	if (si->call_identifier) g_free(si->call_identifier);
+	g_free(si->call_identifier);
 	g_free(si);
 }
 
@@ -1705,7 +1702,7 @@ static void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_
 static void free_h225_info(gpointer p) {
 	h323_calls_info_t *tmp_h323info = p;
 
-	if (tmp_h323info->guid) g_free(tmp_h323info->guid);
+	g_free(tmp_h323info->guid);
 
 	if (tmp_h323info->h245_list) {
 		GList *list2 = g_list_first(tmp_h323info->h245_list);
@@ -2948,12 +2945,12 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 	} else {
 
 		if ( assoc->calling_party ) {
-			if (callsinfo->from_identity) g_free(callsinfo->from_identity );
+			g_free(callsinfo->from_identity);
 			callsinfo->from_identity =  g_strdup(assoc->calling_party);
 		}
 
 		if ( assoc->called_party ) {
-			if (callsinfo->to_identity) g_free(callsinfo->to_identity );
+			g_free(callsinfo->to_identity);
 			callsinfo->to_identity =  g_strdup(assoc->called_party);
 		}
 

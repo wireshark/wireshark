@@ -2039,9 +2039,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gio->filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 
 	g_snprintf(str, 256, "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
-	if(gio->args->title){
-		g_free( (gpointer) (gio->args->title) );
-	}
+	g_free( (gpointer) (gio->args->title) );
 	gio->args->title=g_strdup(str);
 
 	g_signal_connect(gio->filter_bt, "clicked", G_CALLBACK(filter_button_clicked), gio);

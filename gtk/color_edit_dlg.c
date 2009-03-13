@@ -405,12 +405,12 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
         colorf = (color_filter_t *)g_object_get_data(G_OBJECT(button), COLOR_FILTER);
 
-        if (colorf->filter_name != NULL)
-            g_free(colorf->filter_name);
+        g_free(colorf->filter_name);
         colorf->filter_name = filter_name;
-        if (colorf->filter_text != NULL)
-            g_free(colorf->filter_text);
+
+        g_free(colorf->filter_text);
         colorf->filter_text = filter_text;
+
 	colorf->disabled = filter_disabled;
         gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
         gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);

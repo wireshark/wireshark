@@ -249,13 +249,10 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	gai->comment=NULL;
 	gai->frame_label=NULL;
 
-	if (gai->comment!=NULL){
-		g_free(gai->comment);
-	}
-	if (gai->frame_label!=NULL){
-		g_free(gai->frame_label);
-	}
-
+	/* this code doesn't make sense.
+	g_free(gai->comment);
+	g_free(gai->frame_label);
+	*/
 
 	if(pinfo->cinfo) {
 		if (pinfo->cinfo->col_first[COL_INFO]>=0){
@@ -263,6 +260,7 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 			for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
 				if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
 					colinfo = g_strdup(pinfo->cinfo->col_data[i]);
+					/* break; ? or g_free(colinfo); before g_strdup() */
 				}
 			}
 		}
@@ -272,7 +270,7 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 			for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
 				if (pinfo->cinfo->fmt_matx[i][COL_PROTOCOL]) {
 					protocol = g_strdup(pinfo->cinfo->col_data[i]);
-
+					/* break; ? or g_free(protocol); before g_strdup() */
 				}
 			}
 		}
@@ -291,18 +289,11 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 		if (protocol != NULL) {
 			gai->frame_label = g_strdup_printf("%.19s", protocol);
 			gai->comment = g_strdup_printf("%s", protocol);
-		} else {
-			gai->frame_label = NULL;
-			gai->comment = NULL;
 		}
 	}
 
-	if (protocol!=NULL){
-		g_free(protocol);
-	}
-	if (colinfo!=NULL){
-		g_free(colinfo);
-	}
+	g_free(protocol);
+	g_free(colinfo);
 
 	gai->line_style=1;
 	gai->conv_num=0;

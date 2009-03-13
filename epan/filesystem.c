@@ -812,9 +812,7 @@ char *getenv_utf8(const char *varname)
 void
 set_profile_name(const gchar *profilename)
 {
-	if (persconfprofile) {
-		g_free (persconfprofile);
-	}
+	g_free (persconfprofile);
 
 	if (profilename && strlen(profilename) > 0 &&
 	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
@@ -934,10 +932,7 @@ get_profiles_dir(void)
 {
 	static char *profiles_dir = NULL;
 
-	if (profiles_dir) {
-		g_free (profiles_dir);
-	}
-
+	g_free (profiles_dir);
 	profiles_dir = g_strdup_printf ("%s%s%s", get_persconffile_dir_no_profile (),
 					G_DIR_SEPARATOR_S, PROFILES_DIR);
 
@@ -949,9 +944,7 @@ get_persconffile_dir(const gchar *profilename)
 {
 	static char *persconffile_profile_dir = NULL;
 
-	if (persconffile_profile_dir) {
-		g_free (persconffile_profile_dir);
-	}
+	g_free (persconffile_profile_dir);
 
 	if (profilename && strlen(profilename) > 0 &&
 	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
