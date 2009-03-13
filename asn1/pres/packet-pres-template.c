@@ -182,6 +182,7 @@ pres_copy_cb(void *dest, const void *orig, unsigned len _U_)
 	pres_user_t *u = dest;
 	const pres_user_t *o = orig;
 
+	u->ctx_id = o->ctx_id;
 	u->oid = g_strdup(o->oid);
 
 	return dest;
@@ -192,7 +193,7 @@ pres_free_cb(void *r)
 {
 	pres_user_t *u = r;
 
-	if (u->oid) g_free(u->oid);
+	g_free(u->oid);
 }
 
 static gboolean

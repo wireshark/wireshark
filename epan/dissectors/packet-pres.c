@@ -312,6 +312,7 @@ pres_copy_cb(void *dest, const void *orig, unsigned len _U_)
 	pres_user_t *u = dest;
 	const pres_user_t *o = orig;
 
+	u->ctx_id = o->ctx_id;
 	u->oid = g_strdup(o->oid);
 
 	return dest;
@@ -322,7 +323,7 @@ pres_free_cb(void *r)
 {
 	pres_user_t *u = r;
 
-	if (u->oid) g_free(u->oid);
+	g_free(u->oid);
 }
 
 static gboolean
@@ -1322,7 +1323,7 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 221 "packet-pres-template.c"
+#line 222 "packet-pres-template.c"
 
 
 /*
@@ -1785,7 +1786,7 @@ void proto_register_pres(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 375 "packet-pres-template.c"
+#line 376 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1831,7 +1832,7 @@ void proto_register_pres(void) {
     &ett_pres_User_session_requirements,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 381 "packet-pres-template.c"
+#line 382 "packet-pres-template.c"
   };
   
   static uat_field_t users_flds[] = {
