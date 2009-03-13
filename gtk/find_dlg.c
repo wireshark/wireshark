@@ -98,6 +98,13 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 static GtkWidget *find_frame_w;
 static GtkWidget *filter_text_box;
 
+/*
+ * Save the presskey handlers to be able to dissable the auto-completion 
+ * feature for hex and string searches.
+ */
+static int te_presskey_handler_id;
+static int win_presskey_handler_id;
+
 void
 find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -139,7 +146,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   find_frame_w = dlg_window_new("Wireshark: Find Packet");
-
   tooltips = gtk_tooltips_new ();
 
   /* Container for each row of widgets */
@@ -215,8 +221,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
   g_signal_connect(filter_text_box, "changed", G_CALLBACK(find_filter_te_syntax_check_cb), find_frame_w);
   g_object_set_data(G_OBJECT(find_frame_w), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-  g_signal_connect(filter_text_box, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-  g_signal_connect(find_frame_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+  te_presskey_handler_id = g_signal_connect(filter_text_box, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+  win_presskey_handler_id = g_signal_connect(find_frame_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   gtk_widget_show(filter_text_box);
 
 
@@ -456,9 +462,16 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
 static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *filter_text_box;
+    GtkWidget   *filter_text_box, *hex_rb;
 
     filter_text_box = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+    hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
+
+    /* Disable AutoCompletion feature */
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb)) && g_signal_handler_is_connected(filter_text_box, te_presskey_handler_id)) {
+      g_signal_handler_disconnect(filter_text_box, te_presskey_handler_id);
+      g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
+    }
 
     /* Re-check the display filter. */
     find_filter_te_syntax_check_cb(filter_text_box, parent_w);
@@ -492,6 +505,13 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
+
+	/* Disable AutoCompletion feature */
+	if(g_signal_handler_is_connected(filter_text_box, te_presskey_handler_id)) {
+	  g_signal_handler_disconnect(filter_text_box, te_presskey_handler_id);
+	  g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
+	}
+
     } else {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
@@ -512,14 +532,20 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *filter_bt, *filter_rb;
+    GtkWidget   *filter_bt, *filter_rb, *filter_te;
 
     filter_bt = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_BUTTON_KEY);
     filter_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILTERDATA_KEY);
+    filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
     {
         gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), TRUE);
+	/* Enable AutoCompletion feature */
+	if(!g_signal_handler_is_connected(filter_te, te_presskey_handler_id)) {
+	  te_presskey_handler_id = g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	  win_presskey_handler_id = g_signal_connect(parent_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+	}
     }
     else
     {
