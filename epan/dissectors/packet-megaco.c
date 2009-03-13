@@ -299,7 +299,7 @@ my_proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item *pi;
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
-	if (global_megaco_dissect_tree) {
+	if (!global_megaco_dissect_tree) {
 		PROTO_ITEM_SET_HIDDEN(pi);
 	}
 
