@@ -124,7 +124,7 @@ get_nsecs(char *startp, int *nsecs)
 	/*
 	 * How many characters are in the string?
 	 */
-	ndigits = strlen(startp);
+	ndigits = (int)strlen(startp);
 
 	/*
 	 * If there are N characters in the string, the last of the
@@ -319,7 +319,7 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 	gchar *rep;
 
 	rep = abs_time_to_str(&fv->value.time);
-	return strlen(rep) + 2;	/* 2 for opening and closing quotes */
+	return (int)strlen(rep) + 2;	/* 2 for opening and closing quotes */
 }
 
 static void
@@ -334,7 +334,7 @@ relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 	gchar *rep;
 
 	rep = rel_time_to_secs_str(&fv->value.time);
-	return strlen(rep);
+	return (int)strlen(rep);
 }
 
 static void

@@ -79,9 +79,9 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 
 	/* Make a tvbuff from the string. We can drop the
 	 * terminating NUL. */
-	private_data = g_memdup(s, strlen(s)); 
+	private_data = g_memdup(s, (guint)strlen(s)); 
 	new_tvb = tvb_new_real_data(private_data, 
-			strlen(s), strlen(s));
+			(guint)strlen(s), (gint)strlen(s));
 
 	/* Let the tvbuff know how to delete the data. */
 	tvb_set_free_cb(new_tvb, free_tvb_data);

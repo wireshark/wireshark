@@ -68,7 +68,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-			return strlen(fv->value.string);
+			return (int)strlen(fv->value.string);
 		case FTREPR_DFILTER:
 			repr_len = 0;
 			for (p = fv->value.string; (c = *p) != '\0'; p++) {
@@ -182,7 +182,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 static guint
 len(fvalue_t *fv)
 {
-	return strlen(fv->value.string);
+	return (guint)strlen(fv->value.string);
 }
 
 static void
