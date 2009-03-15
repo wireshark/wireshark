@@ -74,7 +74,11 @@ my %APIs = (
 		# may not be freeable--at least on Windows--with g_free() and
 		# vice-versa.)
 		'malloc',
+		'calloc',
+		'realloc',
+		'valloc',
 		'free',
+		'cfree',
 		# Locale-unsafe APIs
 		# These may have unexpected behaviors in some locales (e.g.,
 		# "I" isn't always the upper-case form of "i", and "i" isn't
@@ -106,7 +110,7 @@ my %APIs = (
 	        ] },
 
 	# APIs that SHOULD NOT be used in Wireshark (any more)
-	'deprecated' => { 'count_errors' => 0, 'functions' => [
+	'deprecated' => { 'count_errors' => 1, 'functions' => [
 		# Use strerror() and report messages in whatever
 		# fashion is appropriate for the code in question.
 		'perror',
