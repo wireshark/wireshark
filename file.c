@@ -1438,8 +1438,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   }
 
   /* We have a valid filter.  Replace the current filter. */
-  if (cf->dfilter != NULL)
-    g_free(cf->dfilter);
+  g_free(cf->dfilter);
   cf->dfilter = dftext;
 
   /* Now rescan the packet list, applying the new filter, but not
@@ -2198,12 +2197,9 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
                                   "selected packets", TRUE, print_packet,
                                   &callback_args);
 
-  if (callback_args.header_line_buf != NULL)
-    g_free(callback_args.header_line_buf);
-  if (callback_args.line_buf != NULL)
-    g_free(callback_args.line_buf);
-  if (callback_args.col_widths != NULL)
-    g_free(callback_args.col_widths);
+  g_free(callback_args.header_line_buf);
+  g_free(callback_args.line_buf);
+  g_free(callback_args.col_widths);
 
   switch (ret) {
 

@@ -1217,8 +1217,7 @@ TimeZoneFaster(time_t t)
 		else
 			tdt = g_realloc(dst_table, sizeof(dst_table[0])*(i+1));
 		if (tdt == NULL) {
-			if (dst_table)
-				g_free(dst_table);
+			g_free(dst_table);
 			table_size = 0;
 		} else {
 			dst_table = tdt;

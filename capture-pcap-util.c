@@ -336,8 +336,7 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 	if_info_t *if_info = data;
 
 	g_free(if_info->name);
-	if (if_info->description != NULL)
-		g_free(if_info->description);
+	g_free(if_info->description);
 
 	g_slist_foreach(if_info->ip_addr, free_if_info_addr_cb, NULL);
 	g_slist_free(if_info->ip_addr);
@@ -550,8 +549,7 @@ free_linktype_cb(gpointer data, gpointer user_data _U_)
 	data_link_info_t *linktype_info = data;
 
 	g_free(linktype_info->name);
-	if (linktype_info->description != NULL)
-		g_free(linktype_info->description);
+	g_free(linktype_info->description);
 }
 
 void

@@ -4137,10 +4137,8 @@ dcm_set_syntax(dcm_state_pctx_t *pctx, gchar *xfer_uid, gchar *xfer_desc)
     if ((pctx == NULL) || (xfer_uid == NULL) || (xfer_desc == NULL))
 	return;
 
-    if (pctx->xfer_uid != NULL)
-	g_free(pctx->xfer_uid);		/* free prev allocated xfer */
-    if (pctx->xfer_desc != NULL)
-	g_free(pctx->xfer_desc);	/* free prev allocated xfer */
+    g_free(pctx->xfer_uid);	/* free prev allocated xfer */
+    g_free(pctx->xfer_desc);	/* free prev allocated xfer */
 
     pctx->syntax = 0;
     pctx->xfer_uid = g_strdup(xfer_uid);
@@ -5540,7 +5538,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    vr = (gchar *)tvb_get_ephemeral_string(tvb, offset, 2);
 	    offset += 2;
 
-	    if (pdv->open_tag.vr) g_free(pdv->open_tag.vr);	/* Free if needed */
+	    g_free(pdv->open_tag.vr);
 	    pdv->open_tag.vr = g_strdup(vr);	    /* needs to survive withing a session */
 	}
 

@@ -129,9 +129,7 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 		fprintf(stderr, "tshark: Couldn't register proto,colinfo tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
-		if(rs->filter){
-			g_free(rs->filter);
-		}
+		g_free(rs->filter);
 		g_free(rs);
 
 		exit(1);

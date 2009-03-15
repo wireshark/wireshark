@@ -2313,8 +2313,7 @@ out:
   wtap_close(cf->wth);
   cf->wth = NULL;
 
-  if (save_file_string != NULL)
-    g_free(save_file_string);
+  g_free(save_file_string);
 
   return err;
 }

@@ -118,23 +118,14 @@ update_info_new(void)
 void
 update_info_delete(update_info_t *update_info)
 {
-    if(update_info->prefix)
-        g_free(update_info->prefix);
-    if(update_info->version_installed)
-        g_free(update_info->version_installed);
-
-    if(update_info->title)
-        g_free(update_info->title);
-    if(update_info->description)
-        g_free(update_info->description);
-    if(update_info->version_recommended)
-        g_free(update_info->version_recommended);
-    if(update_info->url)
-        g_free(update_info->url);
-    if(update_info->md5)
-        g_free(update_info->md5);
-    if(update_info->size)
-        g_free(update_info->size);
+    g_free(update_info->prefix);
+    g_free(update_info->version_installed);
+    g_free(update_info->title);
+    g_free(update_info->description);
+    g_free(update_info->version_recommended);
+    g_free(update_info->url);
+    g_free(update_info->md5);
+    g_free(update_info->size);
 
     g_free(update_info);
 }
@@ -293,8 +284,7 @@ update_check_winpcap(const char *local_file)
     }
 
     g_string_free(pcap_version_tmp, TRUE);
-    if(pcap_version)
-        g_free(pcap_version);
+    g_free(pcap_version);
 
     return update_info;
 }
