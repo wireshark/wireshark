@@ -3,7 +3,7 @@
  * draft-cheshire-nat-pmp-03
  * http://files.dns-sd.org/draft-cheshire-nat-pmp.txt
  *
- * Copyright 2009, Stig Bjørlykke <stig@bjorlykke.org>
+ * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *

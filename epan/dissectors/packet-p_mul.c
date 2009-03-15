@@ -4,7 +4,7 @@
  * A protocol for reliable multicast messaging in bandwidth constrained
  * and delayed acknowledgement (EMCON) environments.
  *
- * Copyright 2005, Stig Bjørlykke <stig@bjorlykke.org>, Thales Norway AS
+ * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * $Id$
  *

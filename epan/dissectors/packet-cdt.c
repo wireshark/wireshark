@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cdt.c                                                               */
-/* ../../tools/asn2wrs.py -b -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
+/* ../../tools/asn2wrs.py -b -p cdt -c ./cdt.cnf -s ./packet-cdt-template -D . cdt.asn */
 
 /* Input file: packet-cdt-template.c */
 
@@ -10,7 +10,7 @@
  *
  * Routines for Compressed Data Type packet dissection.
  *
- * Copyright 2005, Stig Bjørlykke <stig@bjorlykke.org>, Thales Norway AS
+ * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * $Id$
  *

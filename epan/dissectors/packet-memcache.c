@@ -2,7 +2,7 @@
  * Routines for Memcache Binary Protocol
  * http://code.google.com/p/memcached/wiki/MemcacheBinaryProtocol
  *
- * Copyright 2009, Stig Bjørlykke <stig@bjorlykke.org>
+ * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *

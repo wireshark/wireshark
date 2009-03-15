@@ -1,7 +1,7 @@
 /* packet-bjnp.c
  * Routines for Canon BJNP packet disassembly.
  *
- * Copyright 2009, Stig Bjørlykke <stig@bjorlykke.org>
+ * Copyright 2009, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *
