@@ -171,7 +171,7 @@ extern gboolean gtcap_DisplaySRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
-/* static dissector_handle_t	tcap_handle = NULL; */
+/* static dissector_handle_t    tcap_handle = NULL; */
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -231,36 +231,32 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-	struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = value;
-	gchar *TransactionId_str = key;
+        struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = value;
+        gchar *TransactionId_str = key;
 
-	if ( TransactionId_str ){
-		g_free(TransactionId_str);
-	}
-	if (ansi_tcap_saved_invokedata){
-		g_free(ansi_tcap_saved_invokedata);
-	}
+        g_free(TransactionId_str);
+        g_free(ansi_tcap_saved_invokedata);
 
 }
 
 void
 ansi_tcap_init_transaction_table(void){
 
-	/* Destroy any existing memory chunks / hashes. */
-	if (TransactionId_table){
-		g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
-		g_hash_table_destroy(TransactionId_table);
-		TransactionId_table = NULL;
-	}
+        /* Destroy any existing memory chunks / hashes. */
+        if (TransactionId_table){
+                g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
+                g_hash_table_destroy(TransactionId_table);
+                TransactionId_table = NULL;
+        }
 
-	TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
+        TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
 
 }
 
 static void
 ansi_tcap_init_protocol(void)
 {
-	ansi_tcap_init_transaction_table();
+        ansi_tcap_init_transaction_table();
 }
 
 /* Store Invoke information needed for the corresponding reply */
@@ -273,30 +269,30 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 
-	  /* Only do this once XXX I hope its the right thing to do */
-  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
-	  buf = ep_alloc(MAX_TID_STR_LEN);
-	  buf[0] = '\0';
+          /* Only do this once XXX I hope its the right thing to do */
+          /* The hash string needs to contain src and dest to distiguish differnt flows */
+          buf = ep_alloc(MAX_TID_STR_LEN);
+          buf[0] = '\0';
           g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-		ansi_tcap_private.TransactionID_str, address_to_str(src),
-		address_to_str(dst));
+                ansi_tcap_private.TransactionID_str, address_to_str(src),
+                address_to_str(dst));
 
-	  /* If the entry allready exists don't owervrite it */
-	  ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
-	  if(ansi_tcap_saved_invokedata)
-		  return;
+          /* If the entry allready exists don't owervrite it */
+          ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+          if(ansi_tcap_saved_invokedata)
+                  return;
 
-	  ansi_tcap_saved_invokedata = g_malloc(sizeof(struct ansi_tcap_invokedata_t));
-	  ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
-	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
-	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
+          ansi_tcap_saved_invokedata = g_malloc(sizeof(struct ansi_tcap_invokedata_t));
+          ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
+          ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
+          ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
 
-	  g_hash_table_insert(TransactionId_table,
-			g_strdup(buf),
-			ansi_tcap_saved_invokedata);
-	  /*
-	  g_warning("Tcap Invoke Hash string %s",buf);
-	  */
+          g_hash_table_insert(TransactionId_table,
+                        g_strdup(buf),
+                        ansi_tcap_saved_invokedata);
+          /*
+          g_warning("Tcap Invoke Hash string %s",buf);
+          */
   }
 }
 
@@ -316,15 +312,15 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   buf[0] = '\0';
   /* Reverse order to invoke */
   g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-	ansi_tcap_private.TransactionID_str, address_to_str(dst),
-	address_to_str(src));
+        ansi_tcap_private.TransactionID_str, address_to_str(dst),
+        address_to_str(src));
 
   ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
-	  ansi_tcap_private.d.OperationCode			 = ansi_tcap_saved_invokedata->OperationCode;
-	  ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
-	  ansi_tcap_private.d.OperationCode_private  = ansi_tcap_saved_invokedata->OperationCode_private;
-	  return TRUE;
+          ansi_tcap_private.d.OperationCode                      = ansi_tcap_saved_invokedata->OperationCode;
+          ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
+          ansi_tcap_private.d.OperationCode_private  = ansi_tcap_saved_invokedata->OperationCode_private;
+          return TRUE;
   }
   return FALSE;
 }
@@ -347,61 +343,61 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
  */
 static gboolean
 find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
-	proto_item *item;
+        proto_item *item;
 
-	/* If "DialoguePortion objectApplicationId ObjectIDApplicationContext
-	 * points to the subdissector this code can be used.
-	 *
-	if(ansi_tcap_private.d.oid_is_present){
-		call_ber_oid_callback(ansi_tcap_private.objectApplicationId_oid, tvb, 0, actx-pinfo, tree);
-		return TRUE;
-	}
-	*/
-	if(ansi_tcap_private.d.pdu == 1){
-		/* Save Invoke data for this transaction */
-		save_invoke_data(actx->pinfo, tree, tvb);
-	}else{
-		/* Get saved data for this transaction */
-		if(find_saved_invokedata(actx->pinfo, tree, tvb)){
-			if(ansi_tcap_private.d.OperationCode == 0){
-				/* national */
-				item = proto_tree_add_int(tree, hf_ansi_tcap_national, tvb, 0, 0, ansi_tcap_private.d.OperationCode_national);
-			}else{
-				item = proto_tree_add_int(tree, hf_ansi_tcap_private, tvb, 0, 0, ansi_tcap_private.d.OperationCode_private);
-			}
-			PROTO_ITEM_SET_GENERATED(item);
-			ansi_tcap_private.d.OperationCode_item = item;
-		}
-	}
-	if(ansi_tcap_private.d.OperationCode == 0){
-		/* national */
-		item = proto_tree_add_text(tree, tvb, 0, -1,
-			"Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
-			ansi_tcap_private.d.OperationCode_national);
-		PROTO_ITEM_SET_GENERATED(item);
-		return FALSE;
-	}else if(ansi_tcap_private.d.OperationCode == 1){
-		/* private */
-		if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
-			item = proto_tree_add_text(tree, tvb, 0, -1,
-				"Dissector for ANSI TCAP PRIVATE code:%u not implemented. Contact Wireshark developers if you want this supported",
-				ansi_tcap_private.d.OperationCode_private);
-			PROTO_ITEM_SET_GENERATED(item);
-			return FALSE;
-		}
-	}
-	/* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
-	 * See TODO above.
-	 * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
-	 * 6.3.2 Component Portion
-	 * The Operation Code is partitioned into an Operation Family followed by a
-	 * Specifier associated with each Operation Family member. For TIA/EIA-41 the
-	 * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
-	 * coded as 0.
-	 */
-	call_dissector(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree);
+        /* If "DialoguePortion objectApplicationId ObjectIDApplicationContext
+         * points to the subdissector this code can be used.
+         *
+        if(ansi_tcap_private.d.oid_is_present){
+                call_ber_oid_callback(ansi_tcap_private.objectApplicationId_oid, tvb, 0, actx-pinfo, tree);
+                return TRUE;
+        }
+        */
+        if(ansi_tcap_private.d.pdu == 1){
+                /* Save Invoke data for this transaction */
+                save_invoke_data(actx->pinfo, tree, tvb);
+        }else{
+                /* Get saved data for this transaction */
+                if(find_saved_invokedata(actx->pinfo, tree, tvb)){
+                        if(ansi_tcap_private.d.OperationCode == 0){
+                                /* national */
+                                item = proto_tree_add_int(tree, hf_ansi_tcap_national, tvb, 0, 0, ansi_tcap_private.d.OperationCode_national);
+                        }else{
+                                item = proto_tree_add_int(tree, hf_ansi_tcap_private, tvb, 0, 0, ansi_tcap_private.d.OperationCode_private);
+                        }
+                        PROTO_ITEM_SET_GENERATED(item);
+                        ansi_tcap_private.d.OperationCode_item = item;
+                }
+        }
+        if(ansi_tcap_private.d.OperationCode == 0){
+                /* national */
+                item = proto_tree_add_text(tree, tvb, 0, -1,
+                        "Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
+                        ansi_tcap_private.d.OperationCode_national);
+                PROTO_ITEM_SET_GENERATED(item);
+                return FALSE;
+        }else if(ansi_tcap_private.d.OperationCode == 1){
+                /* private */
+                if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
+                        item = proto_tree_add_text(tree, tvb, 0, -1,
+                                "Dissector for ANSI TCAP PRIVATE code:%u not implemented. Contact Wireshark developers if you want this supported",
+                                ansi_tcap_private.d.OperationCode_private);
+                        PROTO_ITEM_SET_GENERATED(item);
+                        return FALSE;
+                }
+        }
+        /* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
+         * See TODO above.
+         * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
+         * 6.3.2 Component Portion
+         * The Operation Code is partitioned into an Operation Family followed by a
+         * Specifier associated with each Operation Family member. For TIA/EIA-41 the
+         * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
+         * coded as 0.
+         */
+        call_dissector(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree);
 
-	return TRUE;
+        return TRUE;
 }
 
 
@@ -1306,7 +1302,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 317 "packet-ansi_tcap-template.c"
+#line 313 "packet-ansi_tcap-template.c"
 
 
 
@@ -1314,24 +1310,24 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static void
 dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-    proto_item		*item=NULL;
-    proto_tree		*tree=NULL;
+    proto_item          *item=NULL;
+    proto_tree          *tree=NULL;
 #if 0
-    proto_item		*stat_item=NULL;
-    proto_tree		*stat_tree=NULL;
-	gint			offset = 0;
+    proto_item          *stat_item=NULL;
+    proto_tree          *stat_tree=NULL;
+        gint                    offset = 0;
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 #endif
-	asn1_ctx_t asn1_ctx;
+        asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	ansi_tcap_ctx_init(&ansi_tcap_private);
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+        ansi_tcap_ctx_init(&ansi_tcap_private);
 
     tcap_top_tree = parent_tree;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI TCAP");
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI TCAP");
     }
 
     /* create display subtree for the protocol */
@@ -1353,30 +1349,30 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #if 0 /* Skipp this part for now it will be rewritten */
 
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
-		if (gtcap_DisplaySRT && tree) {
-			stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
-			PROTO_ITEM_SET_GENERATED(stat_item);
-			stat_tree = proto_item_add_subtree(stat_item, ett_ansi_tcap_stat);
-		}
-		p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
-		ansi_tcap_private.context=p_tcap_context;
+                if (gtcap_DisplaySRT && tree) {
+                        stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
+                        PROTO_ITEM_SET_GENERATED(stat_item);
+                        stat_tree = proto_item_add_subtree(stat_item, ett_ansi_tcap_stat);
+                }
+                p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
+                ansi_tcap_private.context=p_tcap_context;
 
-		/* If the current message is TCAP only,
-		 * save the Application contexte name for the next messages
-		 */
-		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
-			/* Save the application context and the sub dissector */
-			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
-			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-				p_tcap_context->subdissector_handle=subdissector_handle;
-				p_tcap_context->oid_present=TRUE;
-			}
-		}
-		if (g_ansi_tcap_HandleSRT && p_tcap_context && p_tcap_context->callback) {
-			/* Callback fonction for the upper layer */
-			(p_tcap_context->callback)(tvb, pinfo, stat_tree, p_tcap_context);
-		}
-	}
+                /* If the current message is TCAP only,
+                 * save the Application contexte name for the next messages
+                 */
+                if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
+                        /* Save the application context and the sub dissector */
+                        g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+                        if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+                                p_tcap_context->subdissector_handle=subdissector_handle;
+                                p_tcap_context->oid_present=TRUE;
+                        }
+                }
+                if (g_ansi_tcap_HandleSRT && p_tcap_context && p_tcap_context->callback) {
+                        /* Callback fonction for the upper layer */
+                        (p_tcap_context->callback)(tvb, pinfo, stat_tree, p_tcap_context);
+                }
+        }
 #endif
 }
 
@@ -1385,8 +1381,8 @@ void
 proto_reg_handoff_ansi_tcap(void)
 {
 
-	ansi_map_handle = find_dissector("ansi_map");
-	ber_oid_dissector_table = find_dissector_table("ber.oid");
+        ansi_map_handle = find_dissector("ansi_map");
+        ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
 
@@ -1397,37 +1393,37 @@ proto_register_ansi_tcap(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
-	/* Tcap Service Response Time */
-	{ &hf_ansi_tcapsrt_SessionId,
-	  { "Session Id",
-	    "ansi_tcap.srt.session_id",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_tcapsrt_BeginSession,
-	  { "Begin Session",
-	    "ansi_tcap.srt.begin",
-	    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "SRT Begin of Session", HFILL }
-	},
-	{ &hf_ansi_tcapsrt_EndSession,
-	  { "End Session",
-	    "ansi_tcap.srt.end",
-	    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "SRT End of Session", HFILL }
-	},
-	{ &hf_ansi_tcapsrt_SessionTime,
-	  { "Session duration",
-	    "ansi_tcap.srt.sessiontime",
-	    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-	    "Duration of the TCAP session", HFILL }
-	},
-	{ &hf_ansi_tcapsrt_Duplicate,
-	  { "Request Duplicate",
-	    "ansi_tcap.srt.duplicate",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "", HFILL }
-	},
+        /* Tcap Service Response Time */
+        { &hf_ansi_tcapsrt_SessionId,
+          { "Session Id",
+            "ansi_tcap.srt.session_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "", HFILL }
+        },
+        { &hf_ansi_tcapsrt_BeginSession,
+          { "Begin Session",
+            "ansi_tcap.srt.begin",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "SRT Begin of Session", HFILL }
+        },
+        { &hf_ansi_tcapsrt_EndSession,
+          { "End Session",
+            "ansi_tcap.srt.end",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "SRT End of Session", HFILL }
+        },
+        { &hf_ansi_tcapsrt_SessionTime,
+          { "Session duration",
+            "ansi_tcap.srt.sessiontime",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "Duration of the TCAP session", HFILL }
+        },
+        { &hf_ansi_tcapsrt_Duplicate,
+          { "Request Duplicate",
+            "ansi_tcap.srt.duplicate",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "", HFILL }
+        },
 
 /*--- Included file: packet-ansi_tcap-hfarr.c ---*/
 #line 1 "packet-ansi_tcap-hfarr.c"
@@ -1637,16 +1633,16 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 439 "packet-ansi_tcap-template.c"
+#line 435 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
     static gint *ett[] = {
-	&ett_tcap,
-	&ett_param,
-	&ett_otid,
-	&ett_dtid,
-	&ett_ansi_tcap_stat,
+        &ett_tcap,
+        &ett_param,
+        &ett_otid,
+        &ett_dtid,
+        &ett_ansi_tcap_stat,
 
 /*--- Included file: packet-ansi_tcap-ettarr.c ---*/
 #line 1 "packet-ansi_tcap-ettarr.c"
@@ -1674,37 +1670,26 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 449 "packet-ansi_tcap-template.c"
+#line 445 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
-	{ "itu", "ITU",  ITU_TCAP_STANDARD },
-	{ "ansi", "ANSI", ANSI_TCAP_STANDARD },
-	{ NULL, NULL, 0 }
+        { "itu", "ITU",  ITU_TCAP_STANDARD },
+        { "ansi", "ANSI", ANSI_TCAP_STANDARD },
+        { NULL, NULL, 0 }
     };*/
 
 
 /* Register the protocol name and description */
     proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
+        register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
 
-	register_init_routine(&ansi_tcap_init_protocol);
+    register_init_routine(&ansi_tcap_init_protocol);
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
