@@ -311,10 +311,10 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 /* to serve as inspiration when implementing ppp over rfcomm */
 static void *my_malloc(int size) {
 
-	void *p = calloc(size, 1);
+/*	void *p = calloc(size, 1); */
 
 	if (!p) {
-		perror("calloc()");
+/*		perror("calloc()"); */
 		/* exit(1); */
 	}
 	return p;
