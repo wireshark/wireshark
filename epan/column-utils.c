@@ -1468,7 +1468,7 @@ col_fill_in(packet_info *pinfo)
     case COL_PACKET_LENGTH:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.pkt_len",
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.len",
 	COL_MAX_LEN);
       g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i], COL_MAX_LEN);
       break;
