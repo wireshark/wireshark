@@ -7105,7 +7105,7 @@
 00:1B:B2	IntellectI             # Intellect International NV
 00:1B:B3	Condalo                # Condalo GmbH
 00:1B:B4	Airvod                 # Airvod Limited
-00:1B:B5	Cherry                 # Cherry GmbH
+00:1B:B5	ZfElectron             # ZF Electronics GmbH
 00:1B:B6	BirdElectr             # Bird Electronic Corp.
 00:1B:B7	AltaHeight             # Alta Heights Technology Corp.
 00:1B:B8	BluewayEle             # BLUEWAY ELECTRONIC CO;LTD
@@ -9601,6 +9601,27 @@
 00:25:72	Nemo-QInte             # Nemo-Q International AB
 00:25:73	StElectron             # ST Electronics (Info-Security) Pte Ltd
 00:25:74	KunimiMedi             # KUNIMI MEDIA DEVICE Co., Ltd.
+00:25:75	Fiberplex              # FiberPlex Inc
+00:25:76	NeliTechno             # NELI TECHNOLOGIES
+00:25:77	D-BoxTechn             # D-BOX Technologies
+00:25:78	Jsc"Concer             # JSC "Concern "Sozvezdie"
+00:25:79	JFLabs                 # J & F Labs
+00:25:7A	CamcoProdu             # CAMCO Produktions- und Vertriebs-GmbH für Beschallungs- und Beleuchtungsanlagen
+00:25:7B	StjElectro             # STJ  ELECTRONICS  PVT  LTD
+00:25:7C	Huachentel             # Huachentel Technology Development Co., Ltd
+00:25:7D	PointredTe             # PointRed Telecom Private Ltd.
+00:25:7E	NewPosTech             # NEW POS Technology Limited
+00:25:7F	Calltechso             # CallTechSolution Co.,Ltd
+00:25:80	EquipsonSA             # Equipson S.A.
+00:25:81	X-StarNetw             # x-star networks Inc.
+00:25:82	MaksatTech             # Maksat Technologies (P) Ltd
+00:25:83	Cisco                  # Cisco Systems
+00:25:84	Cisco                  # Cisco Systems
+00:25:85	ItcProduct             # ITC products development Dep.
+00:25:86	Tp-LinkTec             # TP-LINK Technologies Co., Ltd.
+00:25:87	Vitality               # Vitality, Inc.
+00:25:88	GenieIndus             # Genie Industries, Inc.
+00:25:89	HillsIndus             # Hills Industries Limited
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12966,6 +12987,15 @@
 00:50:C2:A7:30:00/36	KyoeiEngin             # KYOEI ENGINEERING Co.,Ltd.
 00:50:C2:A7:40:00/36	DspDesign              # DSP DESIGN LTD
 00:50:C2:A7:50:00/36	Jtl                    # JTL Systems Ltd.
+00:50:C2:A7:60:00/36	RoeschWalt             # Roesch & Walter Industrie-Elektronik GmbH
+00:50:C2:A7:70:00/36	KeithKoep              # Keith & Koep GmbH
+00:50:C2:A7:80:00/36	ApantacLlc             # Apantac LLC
+00:50:C2:A7:90:00/36	Saintronic
+00:50:C2:A7:A0:00/36	DetnetSout             # DetNet South Africa PTY (LTD)
+00:50:C2:A7:B0:00/36	OrangeTree             # Orange Tree Technologies
+00:50:C2:A7:C0:00/36	Pneu-Logic             # Pneu-Logic Corporation
+00:50:C2:A7:D0:00/36	VitelNet               # Vitel Net
+00:50:C2:A7:E0:00/36	Independen             # Independent Project Engineering Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
