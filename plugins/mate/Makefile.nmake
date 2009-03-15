@@ -123,9 +123,9 @@ mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
 	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon
 
 $(LEMON)\lemon.exe:
-	cd ../../tools/lemon
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
-	cd ../../plugins/mate
+	cd ../../tools
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake lemon
+	cd ../plugins/mate
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

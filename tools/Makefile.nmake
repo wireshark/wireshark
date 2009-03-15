@@ -29,5 +29,5 @@ maintainer-clean: maintainer-clean-local
 
 lemon::
 	cd lemon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	..\native-nmake $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

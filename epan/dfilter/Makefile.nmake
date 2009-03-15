@@ -57,9 +57,9 @@ grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon
 	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon 
 
 $(LEMON)\lemon.exe:
-	cd ../../tools/lemon
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
-	cd ../../epan/dfilter
+	cd ../../tools
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake lemon
+	cd ../epan/dfilter
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
