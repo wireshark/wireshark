@@ -8448,7 +8448,7 @@ proto_register_ieee80211 (void)
   /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
   static const value_string  ff_channel_width_vals[] = {
     {0x00, "20 MHz channel width only"},
-    {0x01, "Any channel width in the STA’s Supported Channel Width Set"},
+    {0x01, "Any channel width in the STA's Supported Channel Width Set"},
     {0, NULL}
   };
   /*** End: Channel Width Fixed Field - Dustin Johnson ***/
@@ -11358,7 +11358,7 @@ proto_register_ieee80211 (void)
     /*** End: Measurement Report Tag  - Dustin Johnson***/
 
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
-    /* Table 7-35a—Capabilities field */
+    /* Table 7-35a-Capabilities field */
     {&hf_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
       FT_UINT8, BASE_HEX, NULL, 0, "Extended Capabilities", HFILL }},
