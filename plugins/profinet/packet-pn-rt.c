@@ -146,7 +146,7 @@ dissect_SubFrame_heur(tvbuff_t *tvb,
     proto_tree *sub_tree;
     proto_item *item;
 	const char *crc_buf;
-	unsigned long crc;
+	guint16 crc;
 
 
     /* the sub tvb will NOT contain the frame_id here! */
