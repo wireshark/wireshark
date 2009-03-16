@@ -35,7 +35,6 @@ NONGENERATED_C_FILES = \
 	dfvm.c			\
 	drange.c		\
 	gencode.c		\
-	glib-util.c		\
 	semcheck.c		\
 	sttype-function.c	\
 	sttype-integer.c	\
@@ -54,7 +53,6 @@ NONGENERATED_HEADER_FILES = \
 	dfvm.h			\
 	drange.h		\
 	gencode.h		\
-	glib-util.h		\
 	semcheck.h		\
 	sttype-function.h	\
 	sttype-range.h		\

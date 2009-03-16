@@ -44,7 +44,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "glib-util.h"
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "grammar.h"
