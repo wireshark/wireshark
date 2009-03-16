@@ -1048,7 +1048,7 @@ decode_add_pack_menu (GtkWidget *optmenu)
  * which we've packed the newly created option menu.
  */
 static GtkWidget *
-decode_add_srcdst_menu (GtkWidget *page)
+decode_add_srcdst_menu (GtkWidget *page _U_)
 {
     GtkWidget *optmenu, *alignment=NULL;
     gchar      tmp[100];
@@ -1111,7 +1111,7 @@ decode_add_srcdst_menu (GtkWidget *page)
     alignment = decode_add_pack_menu(optmenu);
 #endif
 
-	alignment = decode_add_pack_menu(optmenu);
+    alignment = decode_add_pack_menu(optmenu);
 
     return(alignment);
 }
