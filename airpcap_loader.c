@@ -794,7 +794,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSup
     if (numInfo == 0)
         return NULL;
 
-    pSupportedChannels = malloc(numInfo * (sizeof *pSupportedChannels));
+    pSupportedChannels = g_malloc(numInfo * (sizeof *pSupportedChannels));
 
     for (i = 0; i < numInfo; i++)
     {
