@@ -50,8 +50,9 @@ typedef struct mac_lte_info
     guint16         rnti;
     guint16         ueid;
     guint16         subframeNumber;
-    guint8          is_predefined_data;
+    guint8          isPredefinedData;
     guint16         length;
+    guint8          reTxCount;
 } mac_lte_info;
 
 
@@ -60,6 +61,7 @@ typedef struct mac_lte_tap_info {
     guint16  rnti;
     guint8   rnti_type;
     guint8   is_predefined_data;
+    guint8   reTxCount;
     guint8   direction;
 
     /* Number of bytes (which part is used depends upon context settings) */

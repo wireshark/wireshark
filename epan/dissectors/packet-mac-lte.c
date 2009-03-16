@@ -61,6 +61,7 @@ static int hf_mac_lte_context_subframe_number = -1;
 static int hf_mac_lte_context_predefined_frame = -1;
 static int hf_mac_lte_context_length = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
+static int hf_mac_lte_context_retx_count = -1;
 
 /* MAC SCH header fields */
 static int hf_mac_lte_ulsch_header = -1;
@@ -343,6 +344,10 @@ static gboolean global_mac_lte_single_rar = FALSE;
 /* By default check and warn about reserved bits not being zero.
    December '08 spec says they should be ignored... */
 static gboolean global_mac_lte_check_reserved_bits = TRUE;
+
+/* If this PDU has been NACK'd (by HARQ) more than a certain number of times,
+   we trigger an expert warning. */
+static gint global_mac_lte_retx_counter_trigger = 3;
 
 
 
@@ -1035,24 +1040,37 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(ti);
 
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_predefined_frame,
-                             tvb, 0, 0, p_mac_lte_info->is_predefined_data);
+                             tvb, 0, 0, p_mac_lte_info->isPredefinedData);
     PROTO_ITEM_SET_GENERATED(ti);
 
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_length,
                              tvb, 0, 0, p_mac_lte_info->length);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    if (p_mac_lte_info->reTxCount) {
+        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
+                                 tvb, 0, 0, p_mac_lte_info->reTxCount);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
+            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                                   "Frame has now been NACK'd %u times",
+                                   p_mac_lte_info->reTxCount);
+        }
+    }
+
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
     tap_info.rnti_type = p_mac_lte_info->rntiType;
-    tap_info.is_predefined_data = p_mac_lte_info->is_predefined_data;
+    tap_info.is_predefined_data = p_mac_lte_info->isPredefinedData;
+    tap_info.reTxCount = p_mac_lte_info->reTxCount;
     tap_info.direction = p_mac_lte_info->direction;
 
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
     tap_info.single_number_of_bytes = tvb_length_remaining(tvb, offset);
 
     /* If we know its predefined data, don't try to decode any further */
-    if (p_mac_lte_info->is_predefined_data) {
+    if (p_mac_lte_info->isPredefinedData) {
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Predefined data (%u bytes)", tvb_length_remaining(tvb, offset));
@@ -1169,6 +1187,12 @@ void proto_register_mac_lte(void)
             { "Transport channel",
               "mac-lte.bch-transport-channel", FT_UINT8, BASE_DEC, VALS(bch_transport_channel_vals), 0x0,
               "Transport channel BCH data was carried on", HFILL
+            }
+        },
+        { &hf_mac_lte_context_retx_count,
+            { "ReTX count",
+              "mac-lte.bch-transport-channel", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Number of times this PDU has been retransmitted", HFILL
             }
         },
 
@@ -1453,6 +1477,7 @@ void proto_register_mac_lte(void)
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
 
+    /* TODO: delete/obselete this preference? */
     prefs_register_bool_preference(mac_lte_module, "single_rar",
         "Expect single RAR bodies",
         "When dissecting an RA_RNTI frame, expect to find only one RAR body "
@@ -1463,6 +1488,11 @@ void proto_register_mac_lte(void)
         "Warn if reserved bits are not 0",
         "When set, an expert warning will indicate if reserved bits are not zero",
         &global_mac_lte_check_reserved_bits);
+
+    prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
+        "Number of Re-Transmits before expert warning triggered",
+        "Number of Re-Transmits before expert warning triggered (note that this",
+        10, &global_mac_lte_retx_counter_trigger);
 }
 
 

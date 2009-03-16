@@ -1330,9 +1330,12 @@ static void attach_mac_lte_info(packet_info *pinfo)
     p_mac_lte_info->rntiType = outhdr_values[i++];
     p_mac_lte_info->direction = outhdr_values[i++];
     p_mac_lte_info->subframeNumber = outhdr_values[i++];
-    p_mac_lte_info->is_predefined_data = outhdr_values[i++];
+    p_mac_lte_info->isPredefinedData = outhdr_values[i++];
     p_mac_lte_info->rnti = outhdr_values[i++];
     p_mac_lte_info->ueid = outhdr_values[i++];
+    if (outhdr_values_found > 8) {
+        p_mac_lte_info->reTxCount = outhdr_values[i++];
+    }
     p_mac_lte_info->length = outhdr_values[i++];
 
     /* Store info in packet */
