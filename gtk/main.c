@@ -3141,7 +3141,7 @@ window_state_event_cb (GtkWidget *widget _U_,
 
 #define NO_SHIFT_MOD_MASK (GDK_MODIFIER_MASK & ~(GDK_SHIFT_MASK|GDK_MOD2_MASK|GDK_LOCK_MASK))
 static int
-top_level_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_data _U_)
+top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
 	packet_list_next();
