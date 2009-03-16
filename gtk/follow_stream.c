@@ -104,7 +104,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 	GtkTextIter    iter;
 
 	/* While our isprint() hack is in place, we
-	 * have to use convert some chars to '.' in order
+	 * have to convert some chars to '.' in order
 	 * to be able to see the data we *should* see
 	 * in the GtkText widget.
 	 */
