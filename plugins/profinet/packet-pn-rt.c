@@ -47,9 +47,11 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
+#include "crc16.h"
 
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
@@ -67,12 +69,21 @@ static int hf_pn_rt_data_status_valid = -1;
 static int hf_pn_rt_data_status_res1 = -1;
 static int hf_pn_rt_data_status_primary = -1;
 
+static int hf_pn_rt_sf_crc16 = -1;
+static int hf_pn_rt_sf = -1;
+static int hf_pn_rt_sf_position = -1;
+static int hf_pn_rt_sf_position_control = -1;
+static int hf_pn_rt_sf_data_length = -1;
+static int hf_pn_rt_sf_cycle_counter = -1;
+
+
 /* 
  * Define the trees for pn-rt
  * We need one tree for pn-rt itself and one for the pn-rt data status subtree
  */
 static int ett_pn_rt = -1;
 static int ett_pn_rt_data_status = -1;
+static int ett_pn_rt_sf = -1;
 
 /* 
  * Here are the global variables associated with  
@@ -84,6 +95,134 @@ static gboolean pn_rt_summary_in_tree = TRUE;
 /* heuristic to find the right pn-rt payload dissector */
 static heur_dissector_list_t heur_subdissector_list;
 
+
+static const value_string pn_rt_position_control[] = {
+	{ 0x00, "CRC16 and CycleCounter shall not be checked" },
+	{ 0x80, "CRC16 and CycleCounter valid" },
+    { 0, NULL }
+};
+
+
+
+static void
+dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataStatus)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+    sub_item = proto_tree_add_uint_format(tree, hf_pn_rt_data_status, 
+	    tvb, offset, 1, u8DataStatus,
+	    "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)", 
+	    u8DataStatus, 
+	    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
+	    (u8DataStatus & 0x01) ? "Primary" : "Backup",
+	    (u8DataStatus & 0x20) ? "Ok" : "Problem",
+	    (u8DataStatus & 0x10) ? "Run" : "Stop");
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_data_status);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res67, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ok, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_operate, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res3, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res1, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
+}
+
+
+/* possibly dissect a SubFrame related PN-RT packet */
+static gboolean
+dissect_SubFrame_heur(tvbuff_t *tvb,
+	packet_info *pinfo, proto_tree *tree)
+{
+	guint16 u16FrameID;
+	guint16 u16SFCRC16;
+	guint8  u8SFPosition;
+	guint8  u8SFDataLength = 255;
+	guint8  u8SFCycleCounter;
+	guint8  u8SFDataStatus;
+	int offset = 0;
+	guint32 u32SubStart;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    proto_item *item;
+	const char *crc_buf;
+	unsigned long crc;
+
+
+    /* the sub tvb will NOT contain the frame_id here! */
+    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
+
+	/* XXX - add more of the possible FrameID ranges */
+	if (u16FrameID >= 0x7800 && u16FrameID < 0x7fff) {
+		/* can't check this CRC, as the checked data bytes are not available */
+		u16SFCRC16 = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
+		offset += 2;
+
+		while(1) {
+			sub_item = proto_tree_add_item(tree, hf_pn_rt_sf, tvb, offset, 0, FALSE);
+			sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_sf);
+			u32SubStart = offset;
+
+			u8SFPosition = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(sub_tree, hf_pn_rt_sf_position_control, tvb, offset, 1, u8SFPosition);
+			proto_tree_add_uint(sub_tree, hf_pn_rt_sf_position, tvb, offset, 1, u8SFPosition);
+			offset += 1;
+
+			u8SFDataLength = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(sub_tree, hf_pn_rt_sf_data_length, tvb, offset, 1, u8SFDataLength);
+			offset += 1;
+
+			if(u8SFDataLength == 0) {
+				proto_item_append_text(sub_item, ": Pos:%u, Length:%u", u8SFPosition, u8SFDataLength);
+				proto_item_set_len(sub_item, offset - u32SubStart);
+				break;
+			}
+
+			u8SFCycleCounter = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(sub_tree, hf_pn_rt_sf_cycle_counter, tvb, offset, 1, u8SFCycleCounter);
+			offset += 1;
+
+			u8SFDataStatus = tvb_get_guint8(tvb, offset);
+			dissect_DataStatus(tvb, offset, sub_tree, u8SFDataStatus);
+			offset += 1;
+
+			offset = dissect_pn_user_data(tvb, offset, pinfo, sub_tree, u8SFDataLength, "DataItem");
+
+			u16SFCRC16 = tvb_get_letohs(tvb, offset);
+			item = proto_tree_add_uint(sub_tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
+
+			if(u8SFPosition & 0x80) {
+				crc_buf = (const char *) tvb_get_ptr(tvb, u32SubStart, offset-u32SubStart);
+				crc = crc16(0, crc_buf, offset-u32SubStart);
+
+				if(crc != u16SFCRC16) {
+					proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);
+					expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+				} else {
+					proto_item_append_text(item, " [Preliminary check: Correct]");
+				}
+			} else {
+				proto_item_append_text(item, " [No preliminary check, Control bit not set]");
+			}
+			offset += 2;
+
+			proto_item_append_text(sub_item, ": Pos:%u, Length:%u, Cycle:%u, Status: 0x%02x (%s,%s,%s,%s)",
+				u8SFPosition, u8SFDataLength, u8SFCycleCounter, u8SFDataStatus,
+				(u8SFDataStatus & 0x04) ? "Valid" : "Invalid",
+				(u8SFDataStatus & 0x01) ? "Primary" : "Backup",
+				(u8SFDataStatus & 0x20) ? "Ok" : "Problem",
+				(u8SFDataStatus & 0x10) ? "Run" : "Stop");
+
+			proto_item_set_len(sub_item, offset - u32SubStart);
+		}
+
+        return TRUE;
+    }
+
+    return FALSE;
+
+}
 
 
 /*
@@ -102,8 +241,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const gchar *pszProtShort;
   const gchar *pszProtSummary;
   const gchar *pszProtComment;
-  proto_item *item = NULL;
-  proto_tree *ds_tree = NULL;
   proto_tree *pn_rt_tree, *ti;
   gchar szFieldSummary[100];
   tvbuff_t *next_tvb;
@@ -131,7 +268,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Initialize variables */
   pn_rt_tree = NULL;
-  ds_tree = NULL;
   ti = NULL;
   
   /*
@@ -151,59 +287,119 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* build some "raw" data */
 	u16FrameID = tvb_get_ntohs(tvb, 0);
-    if (u16FrameID < 0x0040) {
-        pszProtShort 	= "PN-PTCP";
-        pszProtAddInfo  = "Synchronization, ";
-        pszProtSummary  = "Real-Time";
-        pszProtComment	= "0x0000-0x003F: Real-Time: Sync (with follow up)";
-        bCyclic         = FALSE;
-    } else if (u16FrameID < 0x0080) {
+    if (u16FrameID <= 0x001F) {
         pszProtShort 	= "PN-RT";
         pszProtAddInfo  = "reserved, ";
         pszProtSummary  = "Real-Time";
-        pszProtComment	= "0x0040-0x007F: Reserved ID";
+        pszProtComment	= "0x0000-0x001F: Reserved ID";
         bCyclic         = FALSE;
-    } else if (u16FrameID < 0x0100) {
+    } else if (u16FrameID <= 0x0021) {
+        pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "Synchronization, ";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x0020-0x0021: Real-Time: Sync (with follow up)";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0x007F) {
+        pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "reserved, ";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x0022-0x007F: Reserved ID";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0x0081) {
         pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "Synchronization, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment	= "0x0080-0x00FF: Real-Time: Sync (without follow up)";
+        pszProtComment	= "0x0080-0x0081: Real-Time: Sync (without follow up)";
         bCyclic         = FALSE;
-    } else if (u16FrameID < 0x8000){
+    } else if (u16FrameID <= 0x00FF) {
+        pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "reserved, ";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x0082-0x00FF: Reserved ID";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0x0FFF){
         pszProtShort 	= "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment	= "0x0100-0x7FFF: Isochronous-Real-Time(class=3): Cyclic";
+        pszProtComment	= "0x0100-0x0FFF: Isochronous-Real-Time(class=3): RED, non redundant, redundant, normal, DFP";
         bCyclic         = TRUE;
-    } else if (u16FrameID < 0xbf00){
+    } else if (u16FrameID <= 0x47FF) {
+        pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "reserved, ";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x1000-0x47FF: Reserved ID";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0x4FFF){
         pszProtShort 	= "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0x8000-0xBEFF: Real-Time(class=2): Cyclic";
+        pszProtComment	= "0x4800-0x4FFF: Real-Time(class=2): RED, redundant, DFP";
         bCyclic         = TRUE;
-    } else if (u16FrameID < 0xc000){
+    } else if (u16FrameID < 0x57FF){
         pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x5000-0x57FF: Real-Time(class=2): RED, redundant, normal";
+        bCyclic         = TRUE;
+	} else if (u16FrameID <= 0x5FFF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x5800-0x5FFF: Real-Time(class=2): RED, non redundant, DFP";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0x67FF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x6000-0x67FF: Real-Time(class=2): RED, non redundant, normal";
+        bCyclic         = TRUE;
+	} else if (u16FrameID <= 0x6FFF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x6800-0x6FFF: Real-Time(class=2): ORANGE, redundant, DFP";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0x77FF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x7000-0x77FF: Real-Time(class=2): ORANGE, redundant, normal";
+        bCyclic         = TRUE;
+	} else if (u16FrameID <= 0x7FFF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x7800-0x7FFF: Real-Time(class=2): ORANGE, non redundant, DFP";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0xBBFF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x8000-0xBBFF: Real-Time(class=2): ORANGE, non redundant, normal";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0xBFFF){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0xBC00-0xBFFF: Real-Time(class=2 multicast): ORANGE, non redundant, normal";
+        bCyclic         = TRUE;
+	} else if (u16FrameID <= 0xF7FF){
+        pszProtShort 	= "PN-RTC1/UDP";
+        pszProtAddInfo  = "RTC1/UDP, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0xC000-0xF7FF: Real-Time(class=1/UDP): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID <= 0xFBFF){
+        pszProtShort 	= "PN-RTC1/UDP";
         pszProtAddInfo  = "Multicast, ";
         pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0xBF00-0xBFFF: Real-Time(class=2 multicast): Cyclic";
+        pszProtComment	= "0xF800-0xFBFF: Real-Time(class=1/UDP multicast): Cyclic";
         bCyclic         = TRUE;
-    } else if (u16FrameID < 0xfb00){
-        pszProtShort 	= "PN-RTC1";
-        pszProtAddInfo  = "RTC1, ";
-        pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0xC000-0xFAFF: Real-Time(class=1): Cyclic";
-        bCyclic         = TRUE;
-    } else if (u16FrameID < 0xfc00){
-        pszProtShort 	= "PN-RTC1";
-        pszProtAddInfo  = "Multicast, ";
-        pszProtSummary 	= "cyclic Real-Time";
-        pszProtComment	= "0xFB00-0xFBFF: Real-Time(class=1 multicast): Cyclic";
-        bCyclic         = TRUE;
-    } else if (u16FrameID < 0xfe00){
+	} else if (u16FrameID <= 0xFDFF){
         pszProtShort 	= "PN-RTA";
         pszProtAddInfo  = "Reserved, ";
         pszProtSummary	= "acyclic Real-Time";
-        pszProtComment	= "0xFC00-0xFDFF: Real-Time: Acyclic high priority";
+        pszProtComment	= "0xFC00-0xFDFF: Reserved";
         bCyclic         = FALSE;
         if (u16FrameID == 0xfc01) {
 			pszProtShort 	= "PN-RTA";
@@ -211,23 +407,30 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: Acyclic PN-IO Alarm high priority";
         }
-    } else if (u16FrameID < 0xff00){
+
+	} else if (u16FrameID <= 0xFEFF){
         pszProtShort 	= "PN-RTA";
         pszProtAddInfo  = "Reserved, ";
         pszProtSummary	= "acyclic Real-Time";
-        pszProtComment	= "0xFE00-0xFEFF: Real-Time: Acyclic low priority";
+        pszProtComment	= "0xFE00-0xFEFF: Real-Time: Reserved";
         bCyclic         = FALSE;
-        if (u16FrameID == 0xfe01) {
+        if (u16FrameID == 0xFE01) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "Alarm Low, ";
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: Acyclic PN-IO Alarm low priority";
         }
+        if (u16FrameID == FRAME_ID_DCP_HELLO) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) hello";
+        }
         if (u16FrameID == FRAME_ID_DCP_GETORSET) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
-	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol)";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) get/set";
         }
         if (u16FrameID == FRAME_ID_DCP_IDENT_REQ) {
 			pszProtShort 	= "PN-RTA";
@@ -241,29 +444,47 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) identify response";
         }
-    } else if (u16FrameID < 0xff20){
+    } else if (u16FrameID <= 0xFF01){
 		pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "RTA Sync, ";
         pszProtSummary	= "acyclic Real-Time";
-        pszProtComment	= "0xFF00-0xFF1F: Acyclic Real-Time: RTA sync";
+        pszProtComment	= "0xFF00-0xFF01: PTCP Announce";
         bCyclic         = FALSE;
-    } else if (u16FrameID < 0xff40){
+    } else if (u16FrameID <= 0xFF1F){
+		pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "RTA Sync, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFF02-0xFF1F: Reserved";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0xFF21){
 		pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "Follow Up, ";
         pszProtSummary	= "acyclic Real-Time";
-        pszProtComment	= "0xFF20-0xFF3F: Acyclic Real-Time: Follow Up";
+        pszProtComment	= "0xFF20-0xFF21: PTCP Follow Up";
         bCyclic         = FALSE;
-    } else if (u16FrameID < 0xff43){
+    } else if (u16FrameID <= 0xFF22){
+		pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "Follow Up, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFF22-0xFF3F: Reserved";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0xFF43){
 		pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "Delay, ";
         pszProtSummary	= "acyclic Real-Time";
-        pszProtComment	= "0xFF40-0xFF42: Acyclic Real-Time: Delay";
+        pszProtComment	= "0xFF40-0xFF43: Acyclic Real-Time: Delay";
+        bCyclic         = FALSE;
+    } else if (u16FrameID <= 0xFF7F){
+		pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "Reserved, ";
+        pszProtSummary	= "Real-Time";
+        pszProtComment	= "0xFF44-0xFF7F: reserved ID";
         bCyclic         = FALSE;
     } else {
 		pszProtShort 	= "PN-RT";
         pszProtAddInfo  = "Reserved, ";
         pszProtSummary	= "Real-Time";
-        pszProtComment	= "0xFF43-0xFFFF: reserved ID";
+        pszProtComment	= "0xFF80-0xFFFF: Fragmentation";
         bCyclic         = FALSE;
 	}
 
@@ -320,22 +541,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tvb_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
 		    
             /* add data status subtree */
-		    item = proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_data_status, 
-			    tvb, tvb_len - 2, 1, u8DataStatus,
-			    "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)", 
-			    u8DataStatus, 
-			    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
-			    (u8DataStatus & 0x01) ? "Primary" : "Backup",
-			    (u8DataStatus & 0x20) ? "Ok" : "Problem",
-			    (u8DataStatus & 0x10) ? "Run" : "Stop");
-		    ds_tree = proto_item_add_subtree(item, ett_pn_rt_data_status);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_res67, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_ok, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_operate, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_res3, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_valid, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_res1, tvb, tvb_len - 2, 1, u8DataStatus);
-	        proto_tree_add_uint(ds_tree, hf_pn_rt_data_status_primary, tvb, tvb_len - 2, 1, u8DataStatus);
+			dissect_DataStatus(tvb, tvb_len - 2, tree, u8DataStatus);
 
 	        /* add transfer status */
 	        if (u8TransferStatus) {
@@ -399,10 +605,23 @@ proto_register_pn_rt(void)
 		"State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, "", HFILL }},
     { &hf_pn_rt_transfer_status,
       { "TransferStatus", "pn_rt.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_rt_sf, { 
+		"SubFrame", "pn_rt.sf", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_rt_sf_crc16, { 
+		"CRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_rt_sf_position, { 
+		"Position", "pn_rt.sf.position", FT_UINT8, BASE_DEC, NULL, 0x7F, "", HFILL }},
+	{ &hf_pn_rt_sf_position_control, { 
+		"Control", "pn_rt.sf.position_control", FT_UINT8, BASE_DEC, VALS(pn_rt_position_control), 0x80, "", HFILL }},
+	{ &hf_pn_rt_sf_data_length, { 
+		"DataLength", "pn_rt.sf.data_length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_rt_sf_cycle_counter, { 
+		"CycleCounter", "pn_rt.sf.cycle_counter", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,
     &ett_pn_rt_data_status,
+	&ett_pn_rt_sf
   };
   module_t *pn_rt_module; 
 
@@ -438,5 +657,7 @@ proto_reg_handoff_pn_rt(void)
 
   dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
   dissector_add("udp.port", 0x8892, pn_rt_handle);
+
+  heur_dissector_add("pn_rt", dissect_SubFrame_heur, proto_pn_rt);
 }
 
