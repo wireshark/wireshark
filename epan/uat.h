@@ -328,7 +328,8 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	(((rec_t*)rec)->field_name) = new_buf; } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 		if (((rec_t*)rec)->field_name ) { \
-			*out_ptr = (((rec_t*)rec)->field_name); *out_len = strlen((((rec_t*)rec)->field_name)); \
+			*out_ptr = (((rec_t*)rec)->field_name); \
+			*out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
 		} else { \
 			*out_ptr = ""; *out_len = 0; } }
 
@@ -359,7 +360,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if (((rec_t*)rec)->ptr_element ) { \
 		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
-		*out_len = strlen(*out_ptr); \
+		*out_len = (unsigned)strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } }
 
@@ -396,7 +397,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,10); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
-	*out_len = strlen(*out_ptr); }
+	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_DEC(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
@@ -411,7 +412,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,16); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
-	*out_len = strlen(*out_ptr); }
+	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_HEX(basename,field_name,title,desc) \
 {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
@@ -434,11 +435,12 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
 	guint i; \
-	*out_ptr = ep_strdup(default_str); *out_len = strlen(default_str);\
+	*out_ptr = ep_strdup(default_str); \
+	*out_len = (unsigned)strlen(default_str);\
 	for(i=0;((value_string*)vs)[i].strptr;i++) { \
 		if ( ((value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
 			*out_ptr = ep_strdup(((value_string*)vs)[i].strptr); \
-			*out_len = strlen(*out_ptr); return; } } }
+			*out_len = (unsigned)strlen(*out_ptr); return; } } }
 
 
 #define UAT_FLD_VS(basename,field_name,title,enum,desc) \
@@ -461,7 +463,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if ( ((rec_t*)rec)->name_field ) { \
 		*out_ptr = (((rec_t*)rec)->name_field); \
-		*out_len = strlen(*out_ptr); \
+		*out_len = (unsigned)strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } }
 
@@ -480,7 +482,8 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	} \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if ( ((rec_t*)rec)->field_name ) { \
-		*out_ptr = range_convert_range(((rec_t*)rec)->field_name);  *out_len = strlen(*out_ptr); \
+		*out_ptr = range_convert_range(((rec_t*)rec)->field_name); \
+		*out_len = (unsigned)strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } }
 
