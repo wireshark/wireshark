@@ -5868,7 +5868,7 @@ proto_register_cigi(void)
                 "Specifies the entity's geodetic latitude or the distance from the parent's reference point along its parent's X axis", HFILL }
         },
         { &hf_cigi3_entity_control_lon_yoff,
-            { "Longitude (°)/Y Offset (m)", "cigi.entity_control.lon_yoff",
+            { "Longitude (degrees)/Y Offset (m)", "cigi.entity_control.lon_yoff",
                 FT_DOUBLE, BASE_DEC, NULL, 0x0,
                 "Specifies the entity's geodetic longitude or the distance from the parent's reference point along its parent's Y axis", HFILL }
         },
