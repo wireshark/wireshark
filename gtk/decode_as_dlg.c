@@ -1071,7 +1071,7 @@ decode_add_srcdst_menu (GtkWidget *page _U_)
 #else
   optmenu = gtk_combo_new();
   g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
-  glist = g_list_append(glist, tmp));
+  glist = g_list_append(glist, tmp);
   g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
   glist = g_list_append(glist, tmp);
   glist = g_list_append(glist, "both");
