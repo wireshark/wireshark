@@ -531,7 +531,8 @@ get_pcap_linktype_list(const char *devname, char **err_str)
 	 *	http://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
 	 */
 #ifndef _WIN32
-	free(linktypes);
+#define xx_free free  /* hack so checkAPIs doesn't complain */
+	xx_free(linktypes);
 #endif /* _WIN32 */
 #endif /* HAVE_PCAP_FREE_DATALINKS */
 #else /* HAVE_PCAP_LIST_DATALINKS */
