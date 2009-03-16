@@ -2,7 +2,7 @@
  *
  * Routines for RFC-4629-encapsulated H.263 dissection
  *
- * Copyright 2003 Niklas ™gren <niklas.ogren@7l.se>
+ * Copyright 2003 Niklas Ogren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
  * Copyright 2008 Richard van der Hoff, MX Telecom

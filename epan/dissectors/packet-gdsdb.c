@@ -1,6 +1,6 @@
 /* packet-gdsdb.c
  * Routines for Firebird/Interbase dissection
- * Copyright 2007, Môshe van der Sterre <moshevds@gmail.com>
+ * Copyright 2007, Moshe van der Sterre <moshevds@gmail.com>
  *
  * $Id$
  *

@@ -1,6 +1,6 @@
 /* packet-aodv.c
  * Routines for AODV dissection
- * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
+ * Copyright 2000, Erik Nordstrom <erik.nordstrom@it.uu.se>
  *
  * $Id$
  *

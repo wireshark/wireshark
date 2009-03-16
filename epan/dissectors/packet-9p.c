@@ -1,6 +1,6 @@
 /* packet-9P.c
  * Routines for 9P dissection
- * Copyright 2005, Nils O. SelÃ¥sdal
+ * Copyright 2005, Nils O. Selaasdal
  *
  * $Id$
  *

@@ -32,7 +32,7 @@
  * From 3GPP TS 44.006:
  *
  * LAPDm is used for information sent on the control channels BCCH, AGCH, NCH,
- * PCH, FACCH, SACCH and SDCCH as defined in 3GPP TS 44.003.
+ * PCH, FACCH, SACCH and SDCCH as defined in 3GPP TS 44.003.
  *
  * AGCH, NCH and PCH are sometimes referred to by the collective name CCCH.
  * FACCH, SACCH and SDCCH are, similarly, referred to by the collective name DCCH.

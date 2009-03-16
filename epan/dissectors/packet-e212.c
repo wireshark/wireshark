@@ -204,7 +204,7 @@ const value_string E212_codes[] = {
 	{  609,	"Mauritania (Islamic Republic of)" },
 	{  610,	"Mali (Republic of)" },
 	{  611,	"Guinea (Republic of)" },
-	{  612,	"Côte d'Ivoire (Republic of)" },
+	{  612,	"Cote d'Ivoire (Republic of)" },
 	{  613,	"Burkina Faso" },
 	{  614,	"Niger (Republic of the)" },
 	{  615,	"Togolese Republic" },

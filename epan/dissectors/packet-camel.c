@@ -10,7 +10,7 @@
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
- * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
+ * Copyright 2005, Javier Acuna <javier.acuna@sixbell.com>
  * Updated to ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
  * Copyright 2005-2007, Anders Broman <anders.broman@ericsson.com>
  * Updated to 3GPP TS 29.078 version 7.3.0 Release 7 (2006-06)
