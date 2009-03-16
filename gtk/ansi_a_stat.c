@@ -192,26 +192,6 @@ ansi_a_stat_gtk_win_destroy_cb(
     memset((void *) user_data, 0, sizeof(ansi_a_stat_dlg_t));
 }
 
-static void
-present_as_hex_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-   {
-     guint  val;
-     gchar   buf[35];
-
-	 /* the col to get data from is in userdata */
-	 gint col = GPOINTER_TO_INT(user_data);
-
-     gtk_tree_model_get(model, iter, col, &val, -1);
-
-     g_snprintf(buf, sizeof(buf), "0x%02x", val);
-	 /* restore previous locale setting */
-
-     g_object_set(renderer, "text", buf, NULL);
-   }
 
 /* Create list */
 static

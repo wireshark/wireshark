@@ -56,38 +56,24 @@
 #include "gtk/gui_utils.h"
 #include "gtk/mtp3_stat.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
 
-
-typedef struct column_arrows {
-    GtkWidget		*table;
-    GtkWidget		*ascend_pm;
-    GtkWidget		*descend_pm;
-} column_arrows;
-
-#define	MTP3_INIT_TABLE_NUM_COLUMNS		6
-
-typedef struct _my_columns_t {
-    guint32		value;
-    const gchar		*strptr;
-    GtkJustification	just;
-} my_columns_t;
-
-static my_columns_t columns[MTP3_INIT_TABLE_NUM_COLUMNS] = {
-    { 80,	"OPC",			GTK_JUSTIFY_LEFT },
-    { 80,	"DPC",			GTK_JUSTIFY_LEFT },
-    { 110,	"SI",			GTK_JUSTIFY_LEFT },
-    { 80,	"Num MSUs",		GTK_JUSTIFY_RIGHT },
-    { 100,	"Num Bytes",		GTK_JUSTIFY_RIGHT },
-    { 80,	"Avg Bytes",		GTK_JUSTIFY_RIGHT }
+enum
+{
+   OPC_COLUMN,
+   DPC_COLUMN,
+   SI_COLUMN,
+   NUM_MSUS_COLUMN,
+   NUM_BYTES_COLUMN,
+   AVG_BYTES_COLUMN,
+   N_COLUMN /* The number of columns */
 };
+
 
 typedef struct _mtp3_stat_dlg_t {
     GtkWidget		*win;
     GtkWidget		*scrolled_win;
     GtkWidget		*table;
-    char		*entries[MTP3_INIT_TABLE_NUM_COLUMNS];
+    char		*entries[N_COLUMN];
 } mtp3_stat_dlg_t;
 
 static mtp3_stat_dlg_t	dlg;
@@ -95,6 +81,138 @@ static mtp3_stat_dlg_t	dlg;
 mtp3_stat_t		mtp3_stat[MTP3_MAX_NUM_OPC_DPC];
 guint8			mtp3_num_used;
 
+
+
+/* Create list */
+static
+GtkWidget* create_list()
+{
+
+    GtkListStore *list_store;
+    GtkWidget *list;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+	GtkTreeView     *list_view;
+	GtkTreeSelection  *selection;
+
+	/* Create the store */
+    list_store = gtk_list_store_new(N_COLUMN,	/* Total number of columns XXX*/
+                               G_TYPE_STRING,	/* OPC				*/
+                               G_TYPE_STRING,	/* DPC				*/
+                               G_TYPE_STRING,	/* SI				*/
+                               G_TYPE_INT,		/* Num MSUs			*/
+                               G_TYPE_INT,		/* Num Bytes		*/
+                               G_TYPE_FLOAT);	/* Avg Bytes		*/
+
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    /* Setup the sortable columns */
+    gtk_tree_sortable_set_sort_column_id(sortable, OPC_COLUMN, GTK_SORT_ASCENDING);
+    gtk_tree_view_set_headers_clickable(list_view, FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+	 * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+	 */
+	/* 1:st column */
+	renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("OPC", renderer, 
+		"text",	OPC_COLUMN, 
+		NULL);
+
+	gtk_tree_view_column_set_sort_column_id(column, OPC_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 2:nd column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("DPC", renderer, 
+		"text", DPC_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, DPC_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+	/* 3:d column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("SI", renderer, 
+		"text", SI_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, SI_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 110);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 4:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Num MSUs", renderer, 
+		"text", NUM_MSUS_COLUMN, 
+		NULL);
+	
+
+    gtk_tree_view_column_set_sort_column_id(column, NUM_MSUS_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 5:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Num Bytes", renderer, 
+		"text", NUM_BYTES_COLUMN, 
+		NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, NUM_BYTES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 100);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 6:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Avg Bytes", renderer, 
+		"text", AVG_BYTES_COLUMN, 
+		NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, float_data_func, 
+		GINT_TO_POINTER(AVG_BYTES_COLUMN), NULL);
+
+    gtk_tree_view_column_set_sort_column_id(column, AVG_BYTES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+	/* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	return list;
+
+}
 
 static void
 mtp3_stat_reset(
@@ -107,7 +225,7 @@ mtp3_stat_reset(
 
     if (dlg.win != NULL)
     {
-	gtk_clist_clear(GTK_CLIST(dlg.table));
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(dlg.table))));
     }
 }
 
@@ -176,8 +294,11 @@ mtp3_stat_draw(
     void		*tapdata)
 {
     mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
-    int			i, j, row_offset;
+    int			i,j;
     char		*str;
+	float		avg;
+    GtkListStore *list_store = NULL;
+	GtkTreeIter  iter;
 
     if (!dlg.win || !tapdata)
     {
@@ -187,127 +308,47 @@ mtp3_stat_draw(
     str=ep_alloc(256);
     i = 0;
 
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */
     while (i < mtp3_num_used)
     {
-	row_offset = i * MTP3_NUM_SI_CODE;
+		mtp3_addr_to_str_buf(&(*stat_p)[i].addr_opc, str, 256);
+		dlg.entries[0] = g_strdup(str);
 
-	mtp3_addr_to_str_buf(&(*stat_p)[i].addr_opc, str, 256);
-	dlg.entries[0] = g_strdup(str);
+		mtp3_addr_to_str_buf(&(*stat_p)[i].addr_dpc, str, 256);
+		dlg.entries[1] = g_strdup(str);
 
-	mtp3_addr_to_str_buf(&(*stat_p)[i].addr_dpc, str, 256);
-	dlg.entries[1] = g_strdup(str);
+		for (j=0; j < MTP3_NUM_SI_CODE; j++){
+			/* Creates a new row at position. iter will be changed to point to this new row. 
+			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+			 * The row will be filled with the values given to this function.
+			 * :
+			 * should generally be preferred when inserting rows in a sorted list store.
+			 */
+			 avg = 0.0;
+			 if ((*stat_p)[i].si_code[j].num_msus !=0){
+				 avg = (float)(*stat_p)[i].si_code[j].size/(float)(*stat_p)[i].si_code[j].num_msus;
+			 }
 
-	for (j=0; j < MTP3_NUM_SI_CODE; j++)
-	{
-	    dlg.entries[2] = g_strdup(mtp3_service_indicator_code_short_vals[j].strptr);
 
-	    dlg.entries[3] = g_strdup_printf("%u", (*stat_p)[i].si_code[j].num_msus);
-
-	    dlg.entries[4] = g_strdup_printf("%.0f", (*stat_p)[i].si_code[j].size);
-
-	    dlg.entries[5] =
-		g_strdup_printf("%.2f",
-		    (*stat_p)[i].si_code[j].size/(*stat_p)[i].si_code[j].num_msus);
-
-	    gtk_clist_insert(GTK_CLIST(dlg.table), row_offset + j, dlg.entries);
+#if GTK_CHECK_VERSION(2,6,0)
+			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+			gtk_list_store_append  (list_store, &iter);
+			gtk_list_store_set  (list_store, &iter,
+#endif
+			   OPC_COLUMN, dlg.entries[0],
+			   DPC_COLUMN, dlg.entries[1],
+			   SI_COLUMN, mtp3_service_indicator_code_short_vals[j].strptr,
+			   NUM_MSUS_COLUMN, (*stat_p)[i].si_code[j].num_msus,
+			   NUM_BYTES_COLUMN, (*stat_p)[i].si_code[j].size,
+			   AVG_BYTES_COLUMN, avg,
+			   -1);
+		}
+		i++;
 	}
-
-	i++;
-    }
-
-    gtk_clist_sort(GTK_CLIST(dlg.table));
 }
 
 
-static void
-mtp3_stat_gtk_click_column_cb(
-    GtkCList		*clist,
-    gint		column,
-    gpointer		data)
-{
-    column_arrows	*col_arrows = (column_arrows *) data;
-    int			i;
-
-
-    gtk_clist_freeze(clist);
-
-    for (i=0; i < MTP3_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	gtk_widget_hide(col_arrows[i].ascend_pm);
-	gtk_widget_hide(col_arrows[i].descend_pm);
-    }
-
-    if (column == clist->sort_column)
-    {
-	if (clist->sort_type == GTK_SORT_ASCENDING)
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-    }
-    else
-    {
-	/*
-	 * Columns 0-1 sorted in descending order by default
-	 */
-	if (column <= 1)
-	{
-	    clist->sort_type = GTK_SORT_ASCENDING;
-	    gtk_widget_show(col_arrows[column].ascend_pm);
-	}
-	else
-	{
-	    clist->sort_type = GTK_SORT_DESCENDING;
-	    gtk_widget_show(col_arrows[column].descend_pm);
-	}
-
-	gtk_clist_set_sort_column(clist, column);
-    }
-
-    gtk_clist_thaw(clist);
-    gtk_clist_sort(clist);
-}
-
-
-static gint
-mtp3_stat_gtk_sort_column(
-    GtkCList		*clist,
-    gconstpointer	ptr1,
-    gconstpointer	ptr2)
-{
-    const GtkCListRow	*row1 = ptr1;
-    const GtkCListRow	*row2 = ptr2;
-    char		*text1 = NULL;
-    char		*text2 = NULL;
-    int			i1, i2;
-
-    text1 = GTK_CELL_TEXT(row1->cell[clist->sort_column])->text;
-    text2 = GTK_CELL_TEXT(row2->cell[clist->sort_column])->text;
-
-    switch (clist->sort_column)
-    {
-    case 0:
-    case 1:
-    case 2:
-	/* text columns */
-	return(strcmp(text1, text2));
-
-    default:
-	/* number columns */
-	i1 = strtol(text1, NULL, 0);
-	i2 = strtol(text2, NULL, 0);
-	return(i1 - i2);
-    }
-
-    g_assert_not_reached();
-
-    return(0);
-}
 
 
 static void
@@ -324,9 +365,6 @@ mtp3_stat_gtk_win_create(
     mtp3_stat_dlg_t	*dlg_p,
     const char		*title)
 {
-    int			i;
-    column_arrows	*col_arrows;
-    GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
@@ -342,61 +380,8 @@ mtp3_stat_gtk_win_create(
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
-    dlg_p->table = gtk_clist_new(MTP3_INIT_TABLE_NUM_COLUMNS);
+    dlg_p->table = create_list();
 
-    col_arrows =
-	(column_arrows *) g_malloc(sizeof(column_arrows) * MTP3_INIT_TABLE_NUM_COLUMNS);
-
-    for (i = 0; i < MTP3_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-
-	gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-
-	column_lb = gtk_label_new(columns[i].strptr);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
-	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	gtk_widget_show(column_lb);
-
-	col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-
-	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-
-	if (i == 0)
-	{
-	    /* default column sorting */
-	    gtk_widget_show(col_arrows[i].ascend_pm);
-	}
-
-	gtk_clist_set_column_justification(GTK_CLIST(dlg_p->table), i, columns[i].just);
-
-	gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
-	gtk_widget_show(col_arrows[i].table);
-    }
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
-
-    gtk_clist_set_compare_func(GTK_CLIST(dlg_p->table), mtp3_stat_gtk_sort_column);
-    gtk_clist_set_sort_column(GTK_CLIST(dlg_p->table), 0);
-    gtk_clist_set_sort_type(GTK_CLIST(dlg_p->table), GTK_SORT_ASCENDING);
-
-    for (i = 0; i < MTP3_INIT_TABLE_NUM_COLUMNS; i++)
-    {
-	gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), i, columns[i].value);
-    }
-
-    gtk_clist_set_shadow_type(GTK_CLIST(dlg_p->table), GTK_SHADOW_IN);
-    gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
-    gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
-
-    g_signal_connect(dlg_p->table, "click-column", G_CALLBACK(mtp3_stat_gtk_click_column_cb), col_arrows);
 
     /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);

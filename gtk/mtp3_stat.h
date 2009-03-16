@@ -30,8 +30,8 @@
  */
 
 typedef struct _mtp3_stat_si_code_t {
-    int				num_msus;
-    double			size;
+    int			num_msus;
+    int			size;
 } mtp3_stat_si_code_t;
 
 typedef struct _mtp3_stat_t {

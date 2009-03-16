@@ -337,12 +337,6 @@ gsm_map_stat_draw(
 
 		i = 0;
 		while (gsm_map_opr_code_strings[i].strptr){
-			/* Creates a new row at position. iter will be changed to point to this new row. 
-			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
-			 * The row will be filled with the values given to this function.
-			 * :
-			 * should generally be preferred when inserting rows in a sorted list store.
-			 */
 			float avrage_bytes_fwd;
 			float avrage_bytes_rev;
 			float avrage_bytes_tot;
@@ -363,6 +357,12 @@ gsm_map_stat_draw(
 			}else{
 				avrage_bytes_tot = 0;
 			}
+			/* Creates a new row at position. iter will be changed to point to this new row. 
+			 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+			 * The row will be filled with the values given to this function.
+			 * :
+			 * should generally be preferred when inserting rows in a sorted list store.
+			 */
 #if GTK_CHECK_VERSION(2,6,0)
 			gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
 #else

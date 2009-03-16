@@ -1170,4 +1170,30 @@ float_data_func (GtkTreeViewColumn *column _U_,
 
      g_object_set(renderer, "text", buf, NULL);
    }
+/* 
+ * This function can be called from gtk_tree_view_column_set_cell_data_func()
+ * the user data must be the colum number.
+ * Present value as hexadecimal. 
+ */
+
+void
+present_as_hex_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+   {
+     guint  val;
+     gchar   buf[35];
+
+	 /* the col to get data from is in userdata */
+	 gint col = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, col, &val, -1);
+
+     g_snprintf(buf, sizeof(buf), "0x%02x", val);
+	 /* restore previous locale setting */
+
+     g_object_set(renderer, "text", buf, NULL);
+   }
 

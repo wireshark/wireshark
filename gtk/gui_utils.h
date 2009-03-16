@@ -310,4 +310,11 @@ extern gchar *create_user_window_title(const gchar *caption);
  */
 void float_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
+/* 
+ * This function can be called from gtk_tree_view_column_set_cell_data_func()
+ * the user data must be the colum number.
+ * Present value as hexadecimal. 
+ */
+void present_as_hex_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+
 #endif /* __GTKGUIUI_UTIL_H__ */
