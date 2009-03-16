@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Copyright (c) 1996-1999 by Internet Software Consortium.
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -14,6 +16,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  */
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -133,7 +136,7 @@ inet_ntop4(src, dst, size)
 		errno = ENOSPC;
 		return (NULL);
 	}
-	strcpy(dst, tmp);
+	g_strlcpy(dst, tmp, size);
 	return (dst);
 }
 
@@ -230,6 +233,6 @@ inet_ntop6(src, dst, size)
 		errno = ENOSPC;
 		return (NULL);
 	}
-	strcpy(dst, tmp);
+	g_strlcpy(dst, tmp, size);
 	return (dst);
 }
