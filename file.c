@@ -2036,9 +2036,9 @@ print_packet(capture_file *cf, frame_data *fdata,
 
       /* Right-justify the packet number column. */
       if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        sprintf(cp, "%*s", args->col_widths[i], cf->cinfo.col_data[i]);
+        g_snprintf(cp, column_len+1, "%*s", args->col_widths[i], cf->cinfo.col_data[i]);
       else
-        sprintf(cp, "%-*s", args->col_widths[i], cf->cinfo.col_data[i]);
+        g_snprintf(cp, column_len+1, "%-*s", args->col_widths[i], cf->cinfo.col_data[i]);
       cp += column_len;
       if (i != cf->cinfo.num_cols - 1)
         *cp++ = ' ';
@@ -2176,9 +2176,9 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
 
       /* Right-justify the packet number column. */
 /*      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        sprintf(cp, "%*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+        g_snprintf(cp, column_len+1, "%*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
       else*/
-        sprintf(cp, "%-*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+      g_snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
       cp += column_len;
       if (i != cf->cinfo.num_cols - 1)
         *cp++ = ' ';
