@@ -796,6 +796,13 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   row_count = (length/global_disp_col_count) + ((length%global_disp_col_count) == 0 ? 0 : 1);
   ptr = string;
+  /* XX: In theory the g_snprintf statements below could store '\0' bytes off the end of the     */
+  /*     'string' buffer'. This is so since g_snprint returns the number of characters which     */
+  /*     "would have been written" (whether or not there was room) and since ptr is always       */
+  /*     incremented by this amount. In practice the string buffer is large enough such that the */
+  /*     string buffer size is not exceeded even with the maximum number of columns which might  */
+  /*     be displayed.                                                                           */
+  /*     ToDo: consider recoding slightly ...                                                    */
   for (r=0; r < row_count;r++) {
     for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < length);c++) {
       if ((c % (global_disp_col_count/2)) == 0) {
