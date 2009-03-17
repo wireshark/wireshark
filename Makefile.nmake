@@ -1067,7 +1067,7 @@ clean-deps:
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \
-#	$(wireshark_SOURCES) \
+	$(wireshark_SOURCES) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)
 
