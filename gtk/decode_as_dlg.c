@@ -1048,42 +1048,11 @@ decode_add_pack_menu (GtkWidget *optmenu)
  * which we've packed the newly created option menu.
  */
 static GtkWidget *
-decode_add_srcdst_menu (GtkWidget *page _U_)
+decode_add_srcdst_menu (GtkWidget *page)
 {
-    GtkWidget *optmenu, *alignment=NULL;
+    GtkWidget *optmenu, *menu, *menuitem, *alignment;
     gchar      tmp[100];
 
-#if GTK_CHECK_VERSION(2,6,0)
-#else
-  GList *glist = NULL;
-#endif
-
-#if GTK_CHECK_VERSION(2,6,0)
-  optmenu = gtk_combo_box_new_text();
-
-  g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
-  gtk_combo_box_append_text(GTK_COMBO_BOX(optmenu), tmp);
-  g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
-  gtk_combo_box_append_text(GTK_COMBO_BOX(optmenu), tmp);
-  gtk_combo_box_append_text(GTK_COMBO_BOX(optmenu), "both");
-
-  gtk_combo_box_set_active(GTK_COMBO_BOX(optmenu),0);
-#else
-  optmenu = gtk_combo_new();
-  g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
-  glist = g_list_append(glist, tmp);
-  g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
-  glist = g_list_append(glist, tmp);
-  glist = g_list_append(glist, "both");
-
-  gtk_combo_set_popdown_strings(GTK_COMBO(optmenu), glist);
-  g_list_free(glist);
-  /* You only get to choose from the options we offer */
-  gtk_entry_set_editable(GTK_ENTRY(GTK_COMBO(optmenu)->entry), FALSE);
-
-#endif
-  gtk_widget_show(optmenu);
-#if 0
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
@@ -1107,9 +1076,6 @@ decode_add_srcdst_menu (GtkWidget *page _U_)
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
-
-    alignment = decode_add_pack_menu(optmenu);
-#endif
 
     alignment = decode_add_pack_menu(optmenu);
 
