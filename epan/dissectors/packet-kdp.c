@@ -207,25 +207,19 @@ static void dissect_kdp(tvbuff_t *tvb,
       char src_flowid_string[BUFFER_SIZE];
 
       if (packet_flags & KDP_ACK_FLAG) {
-	int numchars = g_snprintf(ack_string, sizeof(ack_string),
-				  "ACK=%x ", ack_number);
-	ack_string[numchars] = 0;
+	g_snprintf(ack_string, sizeof(ack_string), "ACK=%x ", ack_number);
       } else {
-	ack_string[0] = 0;
+	ack_string[0] = '\0';
       }
       if (header_len > 4) {
-	int numchars = g_snprintf(seq_num_string, sizeof(seq_num_string),
-				  "SEQ=%x ", sequence_number);
-	seq_num_string[numchars] = 0;
+	g_snprintf(seq_num_string, sizeof(seq_num_string), "SEQ=%x ", sequence_number);
       } else {
-	seq_num_string[0] = 0;
+	seq_num_string[0] = '\0';
       }
       if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
-	int numchars = g_snprintf(src_flowid_string, sizeof(ack_string),
-				  "SRC_FLOWID=%x ", src_flowid);
-	src_flowid_string[numchars] = 0;
+	g_snprintf(src_flowid_string, sizeof(src_flowid_string), "SRC_FLOWID=%x ", src_flowid);
       } else {
-	src_flowid_string[0] = 0;
+	src_flowid_string[0] = '\0';
       }
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s%s%s%serrors=%d",
 		   ((packet_flags & KDP_DROP_FLAG) ? "DROP " : ""),
