@@ -2205,7 +2205,7 @@ void proto_register_nas_eps(void) {
 		"", HFILL }
 	},
 	{ &hf_nas_eps_esm_pdn_type,
-		{ "Request type",	"nas_eps.nas_eps_esm_pdn_type",
+		{ "PDN type",	"nas_eps.nas_eps_esm_pdn_type",
 		FT_UINT8, BASE_HEX, VALS(nas_eps_esm_pdn_type_values), 0x0,
 		NULL, HFILL }
 	},
