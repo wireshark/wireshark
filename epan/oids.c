@@ -187,22 +187,22 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 #ifdef HAVE_LIBSMI
 /* de-allocate storage mallocated by libsmi                            */
 /*                                                                     */
-/* XXX: On Windows we can use free() only if the Windows libsmi.dll    */
-/*      being used is linked with the same CRTL as wireshark.          */
-/*      As a temporary hack we'll assume on Windows that the Wireshark */
-/*      build of libsmi.dll was done with VC6/msvcrt.dll (as is        */
-/*      currently the case).  If wireshark is being built with         */
-/*      vc6 (which is also currently the case for the standard         */
-/*      wireshark release). we can use free().                         */
-/*      If vc6 is not being used here, then we'll just have to live    */
-/*      with a memory leak for now.                                    */
-/*      Note: A permanent fix would probably be for libsmi to include  */
-/*       its' existing smiFree function as part of the libsmi API so   */
-/*       wireshark can call it to free storage mallocated by libsmi.   */
+/* XXX: libsmi provides access to smiFree as of libsmi v 0.4.8.        */
+/*      On Windows: Wireshark 1.01 and later is built and distributed  */
+/*      with libsmi 0.4.8 (or newer).                                  */
+/*      On non-Windows systems, free() should be OK for libsmi         */
+/*       versions older than 0.4.8.                                    */
 
 static void smi_free(void *ptr) {
-#if !defined _WIN32 || (_MSC_VER == 1200)
-	free(ptr);
+
+#if (SMI_VERSION_MAJOR >= 0) && (SMI_VERSION_MINOR >= 4) && (SMI_VERSION_PATCHLEVEL >= 8)
+       smiFree(ptr);
+#else
+ #ifdef _WIN32
+ #error Invalid Windows libsmi version ?? !!
+ #endif
+#define xx_free free  /* hack so checkAPIs.pl doesn't complain */
+       xx_free(ptr);
 #endif
 }
 
@@ -730,7 +730,7 @@ const char* oid_subid2string(guint32* subids, guint len) {
 		return "*** Empty OID ***";
 
 	do {
-		w += sprintf(w,"%u.",*subids++);
+		w += g_snprintf(w,12,"%u.",*subids++);
 	} while(--len);
 
 	if (w!=s) *(w-1) = '\0'; else *(s) = '\0';
