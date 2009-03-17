@@ -221,52 +221,55 @@ mtp3_sum_draw(
     int			*tot_num_msus_p,
     double		*tot_num_bytes_p)
 {
-    const char		*entries[N_COLUMN];
+    char		*entries[N_COLUMN];
     int			i, j;
     int			num_msus;
     int			num_bytes;
     GtkListStore *list_store = NULL;
-	GtkTreeIter  iter;
+    GtkTreeIter  iter;
 
     *tot_num_msus_p = 0;
     *tot_num_bytes_p = 0;
 
-	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (table))); /* Get store */
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (table))); /* Get store */
 
     for (i=0; i < MTP3_NUM_SI_CODE; i++)
     {
-		j = 0;
-		num_msus = 0;
-		num_bytes = 0;
+        j = 0;
+        num_msus = 0;
+        num_bytes = 0;
 
-		while (j < mtp3_num_used)
-		{
-			num_msus += mtp3_stat[j].si_code[i].num_msus;
-			num_bytes += mtp3_stat[j].si_code[i].size;
+        while (j < mtp3_num_used)
+        {
+            num_msus += mtp3_stat[j].si_code[i].num_msus;
+            num_bytes += mtp3_stat[j].si_code[i].size;
 
-			j++;
-		}
+            j++;
+        }
 
-		*tot_num_msus_p += num_msus;
-		*tot_num_bytes_p += num_bytes;
+        *tot_num_msus_p += num_msus;
+        *tot_num_bytes_p += num_bytes;
 
-		entries[2] = (seconds) ? g_strdup_printf("%.2f", num_msus/seconds) : "N/A";
-		entries[4] = (num_msus) ? g_strdup_printf("%.2f", num_bytes/num_msus) : "N/A";
-		entries[5] = (seconds) ? g_strdup_printf("%.2f", num_bytes/seconds) : "N/A";
+        /*
+         * XXX - when do these get freed?
+         */
+        entries[2] = (seconds) ? g_strdup_printf("%.2f", (double)num_msus/seconds) : g_strdup("N/A");
+        entries[4] = (num_msus) ? g_strdup_printf("%.2f", (double)num_bytes/num_msus) : g_strdup("N/A");
+        entries[5] = (seconds) ? g_strdup_printf("%.2f", (double)num_bytes/seconds) : g_strdup("N/A");
 
 #if GTK_CHECK_VERSION(2,6,0)
-		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+        gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
 #else
-		gtk_list_store_append  (list_store, &iter);
-		gtk_list_store_set  (list_store, &iter,
+        gtk_list_store_append  (list_store, &iter);
+        gtk_list_store_set  (list_store, &iter,
 #endif
-		   SI_COLUMN, mtp3_service_indicator_code_short_vals[i].strptr,
-		   NUM_MSUS_COLUMN, num_msus,
-		   NUM_MSUS_SEC_COLUMN, entries[2],
-		   NUM_BYTES_COLUMN, num_bytes,
-		   NUM_BYTES_MSU_COLUMN, entries[4],
-		   NUM_BYTES_SEC_COLUMN, entries[5],
-		   -1);
+           SI_COLUMN, mtp3_service_indicator_code_short_vals[i].strptr,
+           NUM_MSUS_COLUMN, num_msus,
+           NUM_MSUS_SEC_COLUMN, entries[2],
+           NUM_BYTES_COLUMN, num_bytes,
+           NUM_BYTES_MSU_COLUMN, entries[4],
+           NUM_BYTES_SEC_COLUMN, entries[5],
+           -1);
     }
 }
 
