@@ -61,9 +61,17 @@
 /*                                                               */
 /* For more information on the Rocksoft^tm Model CRC Algorithm,  */
 /* see the document titled "A Painless Guide to CRC Error        */
-/* Detection Algorithms" by Ross Williams                        */
-/* (ross@xxxxxxxxxxxxxxxxxxxxxx). This document is likely to be  */
-/* in the FTP archive "ftp.adelaide.edu.au/pub/rocksoft".        */
+/* Detection Algorithms" by Ross Williams.  See                  */
+/*                                                               */
+/*    http://www.ross.net/crc/crcpaper.html                      */
+/*                                                               */
+/* which links to a text version and an HTML-but-not-all-on-one- */
+/* page version, or various HTML-all-on-one-page versions such   */
+/* as the one at                                                 */
+/*                                                               */
+/*    http://www.geocities.com/SiliconValley/Pines/8659/crc.htm  */
+/*                                                               */
+/* (search for the title to find others).                        */
 /*                                                               */
 /*****************************************************************/
 
