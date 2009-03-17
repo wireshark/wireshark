@@ -10,8 +10,10 @@ include Makefile.common
 
 LEMON=..\..\tools\lemon
 
-CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
+# We GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
 	$(GLIB_CFLAGS) $(PCRE_CFLAGS) /I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX $(GENERATED_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -51,6 +53,7 @@ RUNLEX=..\..\tools\runlex.sh
 
 scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c scanner.c
 
 grammar.h : grammar.c
 grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon
