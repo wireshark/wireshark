@@ -2,6 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  * Copyright 2007, Ville Nuorvala <Ville.Nuorvala@secgo.com>
+ * Copyright 2009, Ohuchi Munenori <ohuchi_at_iij.ad.jp>
  *
  * $Id$
  *
@@ -97,12 +98,22 @@ static int hf_mip_utrpext_flags = -1;
 static int hf_mip_utrpext_f = -1;
 static int hf_mip_utrpext_reserved = -1;
 static int hf_mip_utrpext_keepalive = -1;
+static int hf_mip_pmipv4nonskipext_stype = -1;
+static int hf_mip_pmipv4nonskipext_pernodeauthmethod = -1;
+static int hf_mip_pmipv4skipext_stype = -1;
+static int hf_mip_pmipv4skipext_interfaceid = -1;
+static int hf_mip_pmipv4skipext_deviceid_type = -1;
+static int hf_mip_pmipv4skipext_deviceid_id = -1;
+static int hf_mip_pmipv4skipext_subscriberid_type = -1;
+static int hf_mip_pmipv4skipext_subscriberid_id = -1;
+static int hf_mip_pmipv4skipext_accesstechnology_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
 static gint ett_mip_flags = -1;
 static gint ett_mip_ext = -1;
 static gint ett_mip_exts = -1;
+static gint ett_mip_pmipv4_ext = -1;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
@@ -181,6 +192,8 @@ static const value_string mip_reply_codes[]= {
   {142, "Reg Deny (HA)- UDP Encapsulation Unavailable"},
   {143, "Reg Deny (HA)- Register with Redirected HA"},
   {144, "Reg Deny (HA)- MN Failed AAA Authentication"},
+  {149, "Reg Deny (HA)- PMIP_UNSUPPORTED"},               /* draft-leung-mip4-proxy-mode */
+  {150, "Reg Deny (HA)- PMIP_DISALLOWED"},                /* draft-leung-mip4-proxy-mode */
   {192, "Reg Deny (HA)- Error Code for Experimental Use"},
   {0, NULL}
 };
@@ -200,6 +213,7 @@ typedef enum {
   OLD_CVSE_EXT = 37,      /* RFC 3115 */
   CVSE_EXT = 38,          /* RFC 3115 */
   UDP_TUN_REP_EXT = 44,   /* RFC 3519 */
+  PMIPv4_NON_SKIP_EXT = 47,  /* draft-leung-mip4-proxy-mode */
   MN_NAI_EXT = 131,       /* RFC 2794 */
   MF_CHALLENGE_EXT = 132, /* RFC 3012 */
   OLD_NVSE_EXT = 133,     /* RFC 3115 */
@@ -208,6 +222,7 @@ typedef enum {
   DYN_HA_EXT = 139,       /* RFC 4433 */
   UDP_TUN_REQ_EXT = 144,  /* RFC 3519 */
   MSG_STR_EXT = 145,
+  PMIPv4_SKIP_EXT = 147,  /* draft-leung-mip4-proxy-mode */
   SKIP_EXP_EXT = 255      /* RFC 4064 */
 } MIP_EXTS;
 
@@ -219,6 +234,7 @@ static const value_string mip_ext_types[]= {
   {OLD_CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
   {CVSE_EXT, "Critical Vendor/Organization Specific Extension"},
   {UDP_TUN_REP_EXT, "UDP Tunnel Reply Extension"},
+  {PMIPv4_NON_SKIP_EXT, "Proxy Mobile IPv4 Non-skippable Extension"},
   {MN_NAI_EXT,  "Mobile Node NAI Extension"},
   {MF_CHALLENGE_EXT, "MN-FA Challenge Extension"},
   {OLD_NVSE_EXT, "Normal Vendor/Organization Specific Extension"},
@@ -227,6 +243,7 @@ static const value_string mip_ext_types[]= {
   {DYN_HA_EXT, "Dynamic HA Extension"},
   {UDP_TUN_REQ_EXT, "UDP Tunnel Request Extension"},
   {MSG_STR_EXT, "Message String Extension"},
+  {PMIPv4_SKIP_EXT, "Proxy Mobile IPv4 Skippable Extension"},
   {SKIP_EXP_EXT, "Skippable Extension for Experimental use"},
   {0, NULL}
 };
@@ -271,6 +288,60 @@ static const value_string mip_utrpext_codes[]= {
   {0, NULL}
 };
 
+static const value_string mip_pmipv4nonskipext_stypes[]= {
+  {0, "Unknown"},
+  {1, "Per-Node Authentication Method"},
+  {0, NULL}
+};
+
+static const value_string mip_pmipv4nonskipext_pernodeauthmethod_types[]= {
+  {0, "Reserved"},
+  {1, "FA-HA Authentication"},
+  {2, "IPSec Authentication"},
+  {0, NULL}
+};
+
+#define PMIPv4_SKIPEXT_STYPE_INTERFACE_ID	(1)
+#define PMIPv4_SKIPEXT_STYPE_DEVICE_ID		(2)
+#define PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID	(3)
+#define PMIPv4_SKIPEXT_STYPE_ACCESS_TECHNOLOGY	(4)
+static const value_string mip_pmipv4skipext_stypes[]= {
+  {0, "Unknown"},
+  {PMIPv4_SKIPEXT_STYPE_INTERFACE_ID, "Interface ID"},
+  {PMIPv4_SKIPEXT_STYPE_DEVICE_ID, "Device ID"},
+  {PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID, "Subscriber ID"},
+  {PMIPv4_SKIPEXT_STYPE_ACCESS_TECHNOLOGY, "Access Technology Type"},
+  {0, NULL}
+};
+
+static const value_string mip_pmipv4skipext_deviceid_types[]= {
+  {0, "Reserved"},
+  {1, "Ethernet MAC address"},
+  {2, "Mobile Equipment Identifier (MEID)"},
+  {3, "International Mobile Equipment Identity (IMEI)"},
+  {4, "Electronic Serial Number (ESN)"},
+  {0, NULL}
+};
+
+static const value_string mip_pmipv4skipext_subscriberid_types[]= {
+  {0, "Reserved"},
+  {1, "International Mobile Subscriber Identity (IMSI)"},
+  {0, NULL}
+};
+
+static const value_string mip_pmipv4skipext_accesstechnology_types[]= {
+  {0, "Reserved"},
+  {1, "802.3"},
+  {2, "802.11a/b/g"},
+  {3, "802.16e"},
+  {4, "802.16m"},
+  {5, "3GPP EUTRAN/LTE"},
+  {6, "3GPP UTRAN/GERAN"},
+  {7, "3GPP2 1xRTT/HRPD"},
+  {8, "3GPP2 UMB"},
+  {0, NULL}
+};
+
 static dissector_handle_t ip_handle;
 
 /* Code to dissect extensions */
@@ -282,9 +353,12 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree   *ext_tree;
   proto_tree   *tf;
   proto_tree   *ext_flags_tree;
+  proto_tree   *tp;
+  proto_tree   *pmipv4_tree;
   size_t        ext_len;
   guint8        ext_type;
   guint8        ext_subtype=0;
+  guint8        pmipv4skipext_type;
   guint16       flags;
   size_t        hdrLen;
 
@@ -300,7 +374,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	/* Get our extension info */
 	ext_type = tvb_get_guint8(tvb, offset);
-	if (ext_type == GEN_AUTH_EXT) {
+	if (ext_type == GEN_AUTH_EXT || ext_type == PMIPv4_NON_SKIP_EXT) {
 	  /*
 	   * Very nasty . . breaks normal extensions, since the length is
 	   * in the wrong place :(
@@ -321,8 +395,8 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
 	offset++;
-	if (ext_type != GEN_AUTH_EXT) {
-	  /* Another nasty hack since GEN_AUTH_EXT broke everything */
+	if (ext_type != GEN_AUTH_EXT || ext_type != PMIPv4_NON_SKIP_EXT) {
+	  /* Another nasty hack since GEN_AUTH_EXT and PMIPv4_NON_SKIP_EXT broke everything */
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 1, ext_len);
 	  offset++;
 	}
@@ -422,6 +496,44 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	  /* keepalive interval */
 	  proto_tree_add_item(ext_tree, hf_mip_utrpext_keepalive, tvb, offset + 4, 2, FALSE);
+	  break;
+	case PMIPv4_NON_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
+	  /* sub-type */
+	  proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_stype, tvb, offset, 1, ext_subtype);
+	  offset++;
+          /* len */
+	  proto_tree_add_item(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);	  
+	  offset+=2;
+	  if(ext_subtype == 1){     
+	    /* Sub-type == 1 : PMIPv4 Per-Node Authentication Method */
+	    proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_pernodeauthmethod, tvb, offset, 1, FALSE);
+	  }
+ 	  break;
+	case PMIPv4_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
+	  /* sub-type */
+	  ext_subtype = tvb_get_guint8(tvb, offset);
+	  tp = proto_tree_add_text(ext_tree, tvb, offset, ext_len, 
+				   "PMIPv4 Sub-Type: %s",
+				   val_to_str(ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
+	  pmipv4_tree = proto_item_add_subtree(tp, ett_mip_pmipv4_ext);
+	  proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
+	  
+	  if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_interfaceid, tvb, offset + 1, ext_len-1, FALSE);
+	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_DEVICE_ID) {
+	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_type, tvb, offset + 1, 1, pmipv4skipext_type);
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, FALSE);
+	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID) {
+	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);	    
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, pmipv4skipext_type);
+	    if (pmipv4skipext_type == 1) {     
+	      proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, FALSE);
+	    }
+	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_ACCESS_TECHNOLOGY) {
+	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);	    
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_accesstechnology_type, tvb, offset + 1, 1, pmipv4skipext_type);
+	  }
 	  break;
 	case OLD_CVSE_EXT:      /* RFC 3115 */
 	case CVSE_EXT:          /* RFC 3115 */
@@ -971,7 +1083,52 @@ void proto_register_mip(void)
 		 { "Keepalive Interval",            "mip.ext.utrp.keepalive",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			"NAT Keepalive Interval", HFILL }
-	  }
+	  },
+	  { &hf_mip_pmipv4nonskipext_stype,
+		 { "Sub-type",	"mip.ext.pmipv4nonskipext.subtype",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4nonskipext_stypes), 0,
+			"PMIPv4 Skippable Extension Sub-type", HFILL }
+	  },
+	  { &hf_mip_pmipv4nonskipext_pernodeauthmethod,
+		 { "Per-Node Authentication Method",		"mip.ext.pmipv4nonskipext.pernodeauthmethod",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4nonskipext_pernodeauthmethod_types), 0,
+			"Per-Node Authentication Method", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_stype,
+		 { "Sub-type",	"mip.ext.pmipv4skipext.subtype",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_stypes), 0,
+			"PMIPv4 Non-skippable Extension Sub-type", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_interfaceid,
+		 { "Interface ID",		"mip.ext.pmipv4skipext.interfaceid",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"Interface ID", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_deviceid_type,
+		 { "ID-Type",		"mip.ext.pmipv4skipext.deviceid_type",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_deviceid_types), 0,
+			"Device ID-Type", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_deviceid_id,
+		 { "Identifier",	"mip.ext.pmipv4skipext.deviceid_id",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"Device ID Identifier", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_subscriberid_type,
+		 { "ID-Type",	"mip.ext.pmipv4skipext.subscriberid_type",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_subscriberid_types), 0,
+			"Subscriber ID-Type", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_subscriberid_id,
+		 { "Identifier",	"mip.ext.pmipv4skipext.subscriberid_id",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"Subscriber ID Identifier", HFILL }
+	  },
+	  { &hf_mip_pmipv4skipext_accesstechnology_type,
+		 { "Access Technology Type",	"mip.ext.pmipv4skipext.accesstechnology_type",
+			FT_UINT8, BASE_DEC, VALS(mip_pmipv4skipext_accesstechnology_types), 0,
+			"Access Technology Type", HFILL }
+	  },
 	};
 
 	/* Setup protocol subtree array */
@@ -980,6 +1137,7 @@ void proto_register_mip(void)
 		&ett_mip_flags,
 		&ett_mip_ext,
 		&ett_mip_exts,
+		&ett_mip_pmipv4_ext,
 	};
 
 	/* Register the protocol name and description */
