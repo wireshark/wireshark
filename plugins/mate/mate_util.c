@@ -242,7 +242,7 @@ gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	static gchar buf[SCS_HUGE_SIZE];
 
 	va_start( list, fmt );
-	g_vsnprintf(buf, SCS_HUGE_SIZE-1 ,fmt, list);
+	g_vsnprintf(buf, SCS_HUGE_SIZE, fmt, list);
 	va_end( list );
 
 	return scs_subscribe(c,buf);

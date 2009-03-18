@@ -186,12 +186,12 @@ mac_lte_stat_reset(void *phs)
 
     /* Set the title */
     if (mac_lte_stat_dlg_w != NULL) {
-        g_snprintf (title, 255, "Wireshark: LTE MAC Traffic Statistics: %s",
+        g_snprintf (title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s",
                     cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat_dlg_w), title);
     }
 
-    g_snprintf(title, 255, "UL/DL-SCH data");
+    g_snprintf(title, sizeof(title), "UL/DL-SCH data");
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
     memset(&common_stats, 0, sizeof(common_stats));
@@ -574,7 +574,7 @@ static void mac_lte_stat_dlg_create(void)
     hs->number_of_packets = 0;
 
     /* Set title */
-    g_snprintf(title, 255, "Wireshark: LTE MAC Statistics: %s",
+    g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Statistics: %s",
                cf_get_display_name(&cfile));
     mac_lte_stat_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE MAC Statistics");
 

@@ -2661,7 +2661,7 @@ situation2str(guint32 type)
 
   if (type & SIT_IDENTITY) {
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
-    if (ret == -1 || ret >= SIT_MSG_NUM-n) {
+    if (ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       return msg;
     }
@@ -2674,7 +2674,7 @@ situation2str(guint32 type)
       return msg;
     }
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
-    if (ret == -1 || ret >= SIT_MSG_NUM-n) {
+    if (ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       return msg;
     }
@@ -2687,7 +2687,7 @@ situation2str(guint32 type)
       return msg;
     }
     ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
-    if (ret == -1 || ret >= SIT_MSG_NUM-n) {
+    if (ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       return msg;
     }
