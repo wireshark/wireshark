@@ -43,7 +43,7 @@
    - more testing of control bodies
    - TDD mode
    - add a preference so that padding can be verified against an expected pattern?
-   - context values to show HARQ retry counts and CRC-pased flag
+   - context value to show CRC-passed flag
 */
 
 /* Initialize the protocol and registered fields. */
@@ -608,7 +608,7 @@ static int is_bsr_lcid(guint8 lcid)
 }
 
 
-#define MAX_HEADERS_IN_PDU 64
+#define MAX_HEADERS_IN_PDU 1024
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
@@ -1491,7 +1491,7 @@ void proto_register_mac_lte(void)
 
     prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
         "Number of Re-Transmits before expert warning triggered",
-        "Number of Re-Transmits before expert warning triggered (note that this",
+        "Number of Re-Transmits before expert warning triggered",
         10, &global_mac_lte_retx_counter_trigger);
 }
 
