@@ -177,368 +177,368 @@ static guint
 get_amqp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 
 static void
-dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, size_t length, proto_item *item);
+dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, int length, proto_item *item);
 
 static void
 dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_start(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_start_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_secure(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_tune(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_open(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_open_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_redirect(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_close(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_connection_close_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_open(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_open_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_flow(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_close(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_close_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_resume(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_ping(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_pong(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_channel_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_access_request(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_access_request_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_exchange_declare(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_exchange_declare_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_exchange_delete(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_exchange_delete_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_declare(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_bind(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_bind_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_unbind(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_unbind_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_purge(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_delete(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_qos(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_qos_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_consume(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_cancel(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_publish(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_return(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_deliver(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_get(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_get_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_get_empty(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_ack(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_reject(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_basic_recover(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_qos(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_qos_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_consume(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_consume_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_cancel(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_open(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_open_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_stage(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_publish(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_return(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_deliver(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_ack(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_file_reject(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_qos(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_qos_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_consume(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_cancel(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_publish(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_return(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_stream_deliver(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_select(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_select_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_commit(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_commit_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_rollback(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tx_rollback_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_dtx_select(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_dtx_select_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_dtx_start(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_dtx_start_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_method_tunnel_request(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
-static size_t
+static int
 dissect_amqp_content_header_basic(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree);
 
-static size_t
+static int
 dissect_amqp_content_header_file(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree);
 
-static size_t
+static int
 dissect_amqp_content_header_stream(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree);
 
-static size_t
+static int
 dissect_amqp_content_header_tunnel(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree);
 
@@ -1000,16 +1000,16 @@ get_amqp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 /*  Dissection routine for AMQP field tables  */
 
 static void
-dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, size_t length, proto_item *item)
+dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, int length, proto_item *item)
 {
     proto_item *field_table_tree;
     char *buff;
-    size_t namelen, vallen;
+    guint namelen, vallen;
     guint8 type;
     const char *name;
     const char *typename;
     const char *value;
-    size_t field_start;
+    int field_start;
 
     buff = ep_alloc(64);
 
@@ -1089,7 +1089,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *amqp_tree;
     proto_item *args_tree;
     proto_item *prop_tree;
-    size_t length;
+    guint length;
     int offset;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -2086,9 +2086,9 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*  Dissection routine for method Connection.Start                        */
 
-static size_t
-dissect_amqp_method_connection_start(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_start(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
     /*  version-major (octet)    */
@@ -2124,9 +2124,9 @@ dissect_amqp_method_connection_start(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Start-Ok                     */
 
-static size_t
-dissect_amqp_method_connection_start_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_start_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
     /*  client-properties (table)  */
@@ -2157,9 +2157,9 @@ dissect_amqp_method_connection_start_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Secure                       */
 
-static size_t
-dissect_amqp_method_connection_secure(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_secure(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  challenge (longstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_secure_challenge,
@@ -2171,9 +2171,9 @@ dissect_amqp_method_connection_secure(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Secure-Ok                    */
 
-static size_t
-dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  response (longstr)       */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_secure_ok_response,
@@ -2185,9 +2185,9 @@ dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Tune                         */
 
-static size_t
-dissect_amqp_method_connection_tune(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_tune(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  channel-max (short)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_channel_max,
@@ -2209,9 +2209,9 @@ dissect_amqp_method_connection_tune(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Tune-Ok                      */
 
-static size_t
-dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  channel-max (short)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_ok_channel_max,
@@ -2233,9 +2233,9 @@ dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Open                         */
 
-static size_t
-dissect_amqp_method_connection_open(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_open(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  virtual-host (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_virtual_host,
@@ -2256,9 +2256,9 @@ dissect_amqp_method_connection_open(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Open-Ok                      */
 
-static size_t
-dissect_amqp_method_connection_open_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+static int
+dissect_amqp_method_connection_open_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  known-hosts (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_ok_known_hosts,
@@ -2270,7 +2270,7 @@ dissect_amqp_method_connection_open_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Redirect                     */
 
-static size_t
+static int
 dissect_amqp_method_connection_redirect(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2289,7 +2289,7 @@ dissect_amqp_method_connection_redirect(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Close                        */
 
-static size_t
+static int
 dissect_amqp_method_connection_close(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2318,7 +2318,7 @@ dissect_amqp_method_connection_close(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Connection.Close-Ok                     */
 
-static size_t
+static int
 dissect_amqp_method_connection_close_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2327,7 +2327,7 @@ dissect_amqp_method_connection_close_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Open                            */
 
-static size_t
+static int
 dissect_amqp_method_channel_open(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2341,7 +2341,7 @@ dissect_amqp_method_channel_open(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Open-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_channel_open_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2355,7 +2355,7 @@ dissect_amqp_method_channel_open_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Flow                            */
 
-static size_t
+static int
 dissect_amqp_method_channel_flow(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2368,7 +2368,7 @@ dissect_amqp_method_channel_flow(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Flow-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2381,7 +2381,7 @@ dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Close                           */
 
-static size_t
+static int
 dissect_amqp_method_channel_close(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2410,7 +2410,7 @@ dissect_amqp_method_channel_close(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Close-Ok                        */
 
-static size_t
+static int
 dissect_amqp_method_channel_close_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2419,7 +2419,7 @@ dissect_amqp_method_channel_close_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Resume                          */
 
-static size_t
+static int
 dissect_amqp_method_channel_resume(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2433,7 +2433,7 @@ dissect_amqp_method_channel_resume(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Ping                            */
 
-static size_t
+static int
 dissect_amqp_method_channel_ping(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2442,7 +2442,7 @@ dissect_amqp_method_channel_ping(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Pong                            */
 
-static size_t
+static int
 dissect_amqp_method_channel_pong(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2451,7 +2451,7 @@ dissect_amqp_method_channel_pong(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Channel.Ok                              */
 
-static size_t
+static int
 dissect_amqp_method_channel_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2460,7 +2460,7 @@ dissect_amqp_method_channel_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Access.Request                          */
 
-static size_t
+static int
 dissect_amqp_method_access_request(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2494,7 +2494,7 @@ dissect_amqp_method_access_request(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Access.Request-Ok                       */
 
-static size_t
+static int
 dissect_amqp_method_access_request_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2508,7 +2508,7 @@ dissect_amqp_method_access_request_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Exchange.Declare                        */
 
-static size_t
+static int
 dissect_amqp_method_exchange_declare(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2562,7 +2562,7 @@ dissect_amqp_method_exchange_declare(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Exchange.Declare-Ok                     */
 
-static size_t
+static int
 dissect_amqp_method_exchange_declare_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2571,7 +2571,7 @@ dissect_amqp_method_exchange_declare_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Exchange.Delete                         */
 
-static size_t
+static int
 dissect_amqp_method_exchange_delete(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2598,7 +2598,7 @@ dissect_amqp_method_exchange_delete(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Exchange.Delete-Ok                      */
 
-static size_t
+static int
 dissect_amqp_method_exchange_delete_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2607,7 +2607,7 @@ dissect_amqp_method_exchange_delete_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Declare                           */
 
-static size_t
+static int
 dissect_amqp_method_queue_declare(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2656,7 +2656,7 @@ dissect_amqp_method_queue_declare(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Declare-Ok                        */
 
-static size_t
+static int
 dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2680,7 +2680,7 @@ dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Bind                              */
 
-static size_t
+static int
 dissect_amqp_method_queue_bind(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2723,7 +2723,7 @@ dissect_amqp_method_queue_bind(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Bind-Ok                           */
 
-static size_t
+static int
 dissect_amqp_method_queue_bind_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2732,7 +2732,7 @@ dissect_amqp_method_queue_bind_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Unbind                            */
 
-static size_t
+static int
 dissect_amqp_method_queue_unbind(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2770,7 +2770,7 @@ dissect_amqp_method_queue_unbind(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Unbind-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_queue_unbind_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2779,7 +2779,7 @@ dissect_amqp_method_queue_unbind_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Purge                             */
 
-static size_t
+static int
 dissect_amqp_method_queue_purge(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2802,7 +2802,7 @@ dissect_amqp_method_queue_purge(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Purge-Ok                          */
 
-static size_t
+static int
 dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2816,7 +2816,7 @@ dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Delete                            */
 
-static size_t
+static int
 dissect_amqp_method_queue_delete(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2847,7 +2847,7 @@ dissect_amqp_method_queue_delete(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Queue.Delete-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2861,7 +2861,7 @@ dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Qos                               */
 
-static size_t
+static int
 dissect_amqp_method_basic_qos(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2884,7 +2884,7 @@ dissect_amqp_method_basic_qos(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Qos-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_basic_qos_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2893,7 +2893,7 @@ dissect_amqp_method_basic_qos_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Consume                           */
 
-static size_t
+static int
 dissect_amqp_method_basic_consume(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2943,7 +2943,7 @@ dissect_amqp_method_basic_consume(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Consume-Ok                        */
 
-static size_t
+static int
 dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2957,7 +2957,7 @@ dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Cancel                            */
 
-static size_t
+static int
 dissect_amqp_method_basic_cancel(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2975,7 +2975,7 @@ dissect_amqp_method_basic_cancel(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Cancel-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -2989,7 +2989,7 @@ dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Publish                           */
 
-static size_t
+static int
 dissect_amqp_method_basic_publish(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3021,7 +3021,7 @@ dissect_amqp_method_basic_publish(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Return                            */
 
-static size_t
+static int
 dissect_amqp_method_basic_return(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3050,7 +3050,7 @@ dissect_amqp_method_basic_return(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Deliver                           */
 
-static size_t
+static int
 dissect_amqp_method_basic_deliver(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3084,7 +3084,7 @@ dissect_amqp_method_basic_deliver(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Get                               */
 
-static size_t
+static int
 dissect_amqp_method_basic_get(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3107,7 +3107,7 @@ dissect_amqp_method_basic_get(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Get-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_basic_get_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3141,7 +3141,7 @@ dissect_amqp_method_basic_get_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Get-Empty                         */
 
-static size_t
+static int
 dissect_amqp_method_basic_get_empty(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3155,7 +3155,7 @@ dissect_amqp_method_basic_get_empty(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Ack                               */
 
-static size_t
+static int
 dissect_amqp_method_basic_ack(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3173,7 +3173,7 @@ dissect_amqp_method_basic_ack(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Reject                            */
 
-static size_t
+static int
 dissect_amqp_method_basic_reject(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3191,7 +3191,7 @@ dissect_amqp_method_basic_reject(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Basic.Recover                           */
 
-static size_t
+static int
 dissect_amqp_method_basic_recover(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3204,7 +3204,7 @@ dissect_amqp_method_basic_recover(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Qos                                */
 
-static size_t
+static int
 dissect_amqp_method_file_qos(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3227,7 +3227,7 @@ dissect_amqp_method_file_qos(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Qos-Ok                             */
 
-static size_t
+static int
 dissect_amqp_method_file_qos_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3236,7 +3236,7 @@ dissect_amqp_method_file_qos_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Consume                            */
 
-static size_t
+static int
 dissect_amqp_method_file_consume(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3286,7 +3286,7 @@ dissect_amqp_method_file_consume(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Consume-Ok                         */
 
-static size_t
+static int
 dissect_amqp_method_file_consume_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3300,7 +3300,7 @@ dissect_amqp_method_file_consume_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Cancel                             */
 
-static size_t
+static int
 dissect_amqp_method_file_cancel(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3318,7 +3318,7 @@ dissect_amqp_method_file_cancel(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Cancel-Ok                          */
 
-static size_t
+static int
 dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3332,7 +3332,7 @@ dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Open                               */
 
-static size_t
+static int
 dissect_amqp_method_file_open(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3351,7 +3351,7 @@ dissect_amqp_method_file_open(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Open-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_file_open_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3365,7 +3365,7 @@ dissect_amqp_method_file_open_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Stage                              */
 
-static size_t
+static int
 dissect_amqp_method_file_stage(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3374,7 +3374,7 @@ dissect_amqp_method_file_stage(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Publish                            */
 
-static size_t
+static int
 dissect_amqp_method_file_publish(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3412,7 +3412,7 @@ dissect_amqp_method_file_publish(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Return                             */
 
-static size_t
+static int
 dissect_amqp_method_file_return(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3441,7 +3441,7 @@ dissect_amqp_method_file_return(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Deliver                            */
 
-static size_t
+static int
 dissect_amqp_method_file_deliver(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3480,7 +3480,7 @@ dissect_amqp_method_file_deliver(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Ack                                */
 
-static size_t
+static int
 dissect_amqp_method_file_ack(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3498,7 +3498,7 @@ dissect_amqp_method_file_ack(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method File.Reject                             */
 
-static size_t
+static int
 dissect_amqp_method_file_reject(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3516,7 +3516,7 @@ dissect_amqp_method_file_reject(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Qos                              */
 
-static size_t
+static int
 dissect_amqp_method_stream_qos(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3544,7 +3544,7 @@ dissect_amqp_method_stream_qos(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Qos-Ok                           */
 
-static size_t
+static int
 dissect_amqp_method_stream_qos_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3553,7 +3553,7 @@ dissect_amqp_method_stream_qos_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Consume                          */
 
-static size_t
+static int
 dissect_amqp_method_stream_consume(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3599,7 +3599,7 @@ dissect_amqp_method_stream_consume(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Consume-Ok                       */
 
-static size_t
+static int
 dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3613,7 +3613,7 @@ dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Cancel                           */
 
-static size_t
+static int
 dissect_amqp_method_stream_cancel(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3631,7 +3631,7 @@ dissect_amqp_method_stream_cancel(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Cancel-Ok                        */
 
-static size_t
+static int
 dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3645,7 +3645,7 @@ dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Publish                          */
 
-static size_t
+static int
 dissect_amqp_method_stream_publish(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3677,7 +3677,7 @@ dissect_amqp_method_stream_publish(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Return                           */
 
-static size_t
+static int
 dissect_amqp_method_stream_return(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3706,7 +3706,7 @@ dissect_amqp_method_stream_return(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Stream.Deliver                          */
 
-static size_t
+static int
 dissect_amqp_method_stream_deliver(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3735,7 +3735,7 @@ dissect_amqp_method_stream_deliver(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Select                               */
 
-static size_t
+static int
 dissect_amqp_method_tx_select(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3744,7 +3744,7 @@ dissect_amqp_method_tx_select(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Select-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_tx_select_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3753,7 +3753,7 @@ dissect_amqp_method_tx_select_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Commit                               */
 
-static size_t
+static int
 dissect_amqp_method_tx_commit(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3762,7 +3762,7 @@ dissect_amqp_method_tx_commit(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Commit-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_tx_commit_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3771,7 +3771,7 @@ dissect_amqp_method_tx_commit_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Rollback                             */
 
-static size_t
+static int
 dissect_amqp_method_tx_rollback(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3780,7 +3780,7 @@ dissect_amqp_method_tx_rollback(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tx.Rollback-Ok                          */
 
-static size_t
+static int
 dissect_amqp_method_tx_rollback_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3789,7 +3789,7 @@ dissect_amqp_method_tx_rollback_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Dtx.Select                              */
 
-static size_t
+static int
 dissect_amqp_method_dtx_select(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3798,7 +3798,7 @@ dissect_amqp_method_dtx_select(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Dtx.Select-Ok                           */
 
-static size_t
+static int
 dissect_amqp_method_dtx_select_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3807,7 +3807,7 @@ dissect_amqp_method_dtx_select_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Dtx.Start                               */
 
-static size_t
+static int
 dissect_amqp_method_dtx_start(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3821,7 +3821,7 @@ dissect_amqp_method_dtx_start(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Dtx.Start-Ok                            */
 
-static size_t
+static int
 dissect_amqp_method_dtx_start_ok(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3830,7 +3830,7 @@ dissect_amqp_method_dtx_start_ok(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for method Tunnel.Request                          */
 
-static size_t
+static int
 dissect_amqp_method_tunnel_request(tvbuff_t *tvb _U_,
     int offset _U_, int bound _U_, proto_tree *args_tree _U_)
 {
@@ -3849,7 +3849,7 @@ dissect_amqp_method_tunnel_request(tvbuff_t *tvb _U_,
 
 /*  Dissection routine for content headers of class basic          */
 
-static size_t
+static int
 dissect_amqp_content_header_basic(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree)
 {
@@ -3977,7 +3977,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
 }
 /*  Dissection routine for content headers of class file           */
 
-static size_t
+static int
 dissect_amqp_content_header_file(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree)
 {
@@ -4065,7 +4065,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
 }
 /*  Dissection routine for content headers of class stream         */
 
-static size_t
+static int
 dissect_amqp_content_header_stream(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree)
 {
@@ -4121,7 +4121,7 @@ dissect_amqp_content_header_stream(tvbuff_t *tvb,
 }
 /*  Dissection routine for content headers of class tunnel         */
 
-static size_t
+static int
 dissect_amqp_content_header_tunnel(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree)
 {
