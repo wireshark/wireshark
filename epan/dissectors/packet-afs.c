@@ -663,8 +663,8 @@ static gint ett_afs_vldb_flags = -1;
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_acl); \
 		proto_tree_add_string(tree,hf_afs_fs_acl_entity, tvb,offset,strlen(who), who);\
-		tmpoffset = offset + strlen(who) + 1; \
-		acllen = bytes - strlen(who) - 1; \
+		tmpoffset = offset + (int)strlen(who) + 1; \
+		acllen = bytes - (int)strlen(who) - 1; \
 		proto_tree_add_boolean(tree,hf_afs_fs_acl_r, tvb,tmpoffset,acllen,acl);\
 		proto_tree_add_boolean(tree,hf_afs_fs_acl_l, tvb,tmpoffset,acllen,acl);\
 		proto_tree_add_boolean(tree,hf_afs_fs_acl_i, tvb,tmpoffset,acllen,acl);\
