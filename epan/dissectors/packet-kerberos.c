@@ -1744,6 +1744,8 @@ static int dissect_krb5_addr_type(proto_tree *tree, tvbuff_t *tvb, int offset, a
 	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_addr_type, &addr_type);
 	return offset;
 }
+
+#define ADDRESS_STR_BUFSIZ 256
 static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	gint8 class;
@@ -1757,13 +1759,12 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
 	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-	address_str=ep_alloc(256);
-	address_str[0]=0;
-	address_str[255]=0;
+	address_str=ep_alloc(ADDRESS_STR_BUFSIZ);
+	address_str[0]='\0';
 	switch(addr_type){
 	case KRB5_ADDR_IPv4:
 		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, FALSE);
-		g_snprintf(address_str,256,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
+		g_snprintf(address_str,ADDRESS_STR_BUFSIZ,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
 		break;
 	case KRB5_ADDR_NETBIOS:
 		{
@@ -1772,13 +1773,13 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
 		int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
 		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
-		g_snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
+		g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s<%02x>", netbios_name, netbios_name_type);
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
 		break;
 	case KRB5_ADDR_IPv6:
 		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
-		g_snprintf(address_str, 256, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
+		g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I don't know how to parse this type of address yet");
