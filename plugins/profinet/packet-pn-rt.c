@@ -49,9 +49,9 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include <epan/crc16.h>
 
 #include "packet-pn.h"
-#include "crc16.h"
 
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
@@ -145,7 +145,6 @@ dissect_SubFrame_heur(tvbuff_t *tvb,
     proto_item *sub_item;
     proto_tree *sub_tree;
     proto_item *item;
-	const char *crc_buf;
 	guint16 crc;
 
 
@@ -193,8 +192,11 @@ dissect_SubFrame_heur(tvbuff_t *tvb,
 			item = proto_tree_add_uint(sub_tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
 
 			if(u8SFPosition & 0x80) {
+				/*
 				crc_buf = (const char *) tvb_get_ptr(tvb, u32SubStart, offset-u32SubStart);
 				crc = crc16(0, crc_buf, offset-u32SubStart);
+				*/
+				crc = crc16_plain_tvb_offset(tvb, u32SubStart, offset-u32SubStart);
 
 				if(crc != u16SFCRC16) {
 					proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);

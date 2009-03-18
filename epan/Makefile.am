@@ -35,7 +35,7 @@ wslua_dist_dir = wslua
 endif           # HAVE_LIBLUA
 
 
-SUBDIRS = crypt ftypes dfilter dissectors $(wslua_dir)
+SUBDIRS = crc crypt ftypes dfilter dissectors $(wslua_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
@@ -125,8 +125,8 @@ MAINTAINERCLEANFILES = \
 #
 libwireshark_la_LIBADD = \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
-	libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la \
-	dfilter/libdfilter.la dissectors/libdissectors.la \
+	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
+	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
@@ -134,8 +134,8 @@ libwireshark_la_LIBADD = \
 
 libwireshark_la_DEPENDENCIES = \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
-	libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la \
-	dfilter/libdfilter.la dissectors/libdissectors.la \
+	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
+	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) \
 	${top_builddir}/wsutil/libwsutil.la
 

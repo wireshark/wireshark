@@ -102,6 +102,23 @@ extern guint16 crc16_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint16 seed);
 extern guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
                                            guint len, guint16 seed);
 
+/** Compute the "plain" CRC16 checksum of a tv buffer using the following
+ * parameters:
+ *    Width        = 16
+ *    Poly         = 0x8005
+ *    XorIn        = 0x0000
+ *    ReflectIn    = True
+ *    XorOut       = 0x0000
+ *    ReflectOut   = True
+ *    Algorithm    = table-driven
+ *    Direct       = True
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 checksum. */
+extern guint16 crc16_plain_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

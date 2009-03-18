@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/tvbuff.h>
 #include <epan/crc16.h>
+#include <epan/crc/crc-16-plain.h>
 
 
 /*****************************************************************/
@@ -234,5 +235,16 @@ guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guin
     const guint8* buf = tvb_get_ptr(tvb, offset, len);
 
     return crc16_ccitt_seed(buf, len, seed);
+}
+
+guint16 crc16_plain_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint16 crc = crc16_plain_init();
+    
+    const guint8* buf = tvb_get_ptr(tvb, offset, len);
+
+    crc = crc16_plain_update(crc, buf, len);
+    
+    return crc16_plain_finalize(crc);
 }
 

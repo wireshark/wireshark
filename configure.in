@@ -1646,6 +1646,7 @@ AC_OUTPUT(
   asn1/x721/Makefile
   doc/Makefile
   epan/Makefile
+  epan/crc/Makefile
   epan/crypt/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile

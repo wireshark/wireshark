@@ -105,6 +105,7 @@ convert_string_to_hex
 copy_file_binary_mode
 copy_prefs
 crc16_ccitt_tvb
+crc16_plain_tvb_offset
 create_dissector_handle
 create_persconffile_dir
 create_persconffile_profile
