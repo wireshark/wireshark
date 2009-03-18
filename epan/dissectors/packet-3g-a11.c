@@ -429,7 +429,7 @@ static const struct radius_attribute attrs[]={
    Last Byte: [F] [Digit N]
 */
 static void
-decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
+decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
 {
     guint8 msid_len =  0;
     guint8 msid_start_offset =  0;
@@ -561,7 +561,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 {
   proto_item *ti;
   proto_tree *radius_tree=NULL;
-  size_t     radius_len;
+  guint      radius_len;
   guint8     radius_type;
   guint8     radius_subtype;
   int        attribute_type;
@@ -596,8 +596,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
     if (radius_len < 2)
     {
       proto_tree_add_text(radius_tree, tvb, offset, 2,
-                "Bogus RADIUS length %lu, should be >= 2",
-                (unsigned long)radius_len);
+                "Bogus RADIUS length %u, should be >= 2",
+                radius_len);
       break;
     }
 
@@ -606,8 +606,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       if (radius_len < SKIP_HDR_LEN)
       {
         proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                  "Bogus RADIUS length %lu, should be >= %u",
-                  (unsigned long)radius_len, SKIP_HDR_LEN);
+                  "Bogus RADIUS length %u, should be >= %u",
+                  radius_len, SKIP_HDR_LEN);
         offset += radius_len;
         continue;
       }
@@ -636,8 +636,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
         if (radius_len < 2+4)
         {
           proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                    "Bogus RADIUS length %lu, should be >= %u",
-                    (unsigned long)radius_len, 2+4);
+                    "Bogus RADIUS length %u, should be >= %u",
+                    radius_len, 2+4);
         }
         else
         {
@@ -666,8 +666,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       if (radius_len < radius_offset + 2)
       {
         proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
-                  "Bogus RADIUS length %lu, should be >= %u",
-                  (unsigned long)(radius_len + SKIP_HDR_LEN),
+                  "Bogus RADIUS length %u, should be >= %u",
+                  radius_len + SKIP_HDR_LEN,
                   radius_offset + 2 + SKIP_HDR_LEN);
         return;
       }
@@ -683,8 +683,8 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       if (attribute_len > radius_len - radius_offset)
       {
         proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
-                  "Bogus attribute length %u, should be <= %lu",
-                  attribute_len, (unsigned long)(radius_len - radius_offset));
+                  "Bogus attribute length %u, should be <= %u",
+                  attribute_len, radius_len - radius_offset);
         return;
       }
 
@@ -757,9 +757,9 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 
 
 /* Code to dissect Additional Session Info */
-static void dissect_ase(tvbuff_t* tvb, int offset, int ase_len, proto_tree* ext_tree)
+static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ext_tree)
 {
-   int clen = 0; /* consumed length */
+   guint clen = 0; /* consumed length */
 
    while(clen < ase_len)
    {
@@ -1151,10 +1151,10 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_item   *ti;
   proto_tree   *exts_tree=NULL;
   proto_tree   *ext_tree;
-  size_t        ext_len;
+  guint         ext_len;
   guint8        ext_type;
   guint8        ext_subtype=0;
-  size_t        hdrLen;
+  guint         hdrLen;
 
   gint16       apptype = -1;
 
@@ -1381,7 +1381,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree    *flags_tree;
   guint8         type;
   guint8         flags;
-  size_t         offset=0;
+  guint          offset=0;
   const guint8  *reftime;
 
   if (!tvb_bytes_exist(tvb, offset, 1))
