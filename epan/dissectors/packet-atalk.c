@@ -198,17 +198,17 @@ static gint ett_zip_network_list = -1;
 #define ASPFUNC_ATTN    8
 
 #define ASP_HDRSIZ      4
-#define ASPERR_OK       0x0000
-#define ASPERR_BADVERS  0xfbd6
-#define ASPERR_BUFSMALL 0xfbd5
-#define ASPERR_NOSESS   0xfbd4
-#define ASPERR_NOSERV   0xfbd3
-#define ASPERR_PARM     0xfbd2
-#define ASPERR_SERVBUSY 0xfbd1
-#define ASPERR_SESSCLOS 0xfbd0
-#define ASPERR_SIZERR   0xfbcf
-#define ASPERR_TOOMANY  0xfbce
-#define ASPERR_NOACK    0xfbcd
+#define ASPERR_OK       0
+#define ASPERR_BADVERS  (-1066)
+#define ASPERR_BUFSMALL (-1067)
+#define ASPERR_NOSESS   (-1068)
+#define ASPERR_NOSERV   (-1069)
+#define ASPERR_PARM     (-1070)
+#define ASPERR_SERVBUSY (-1071)
+#define ASPERR_SESSCLOS (-1072)
+#define ASPERR_SIZERR   (-1073)
+#define ASPERR_TOOMANY  (-1074)
+#define ASPERR_NOACK    (-1075)
 
 static int proto_asp = -1;
 static int hf_asp_func = -1;
@@ -482,6 +482,8 @@ static const value_string asp_func_vals[] = {
 
 const value_string asp_error_vals[] = {
   {AFP_OK		, "success"},
+  {ASPERR_NOSESS	, "no more sessions available"},
+  {ASPERR_SESSCLOS 	, "session closed (ASP)" },
   {AFPERR_ACCESS	, "permission denied" },
   {AFPERR_AUTHCONT	, "logincont" },
   {AFPERR_BADUAM	, "uam doesn't exist" },
