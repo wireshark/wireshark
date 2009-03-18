@@ -35,6 +35,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/filesystem.h>
+#include <wsutil/file_util.h>
 
 
 /* Initialize the protocol and registered fields */
@@ -267,7 +268,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
                 bitstream_channels_file_read = 1;
                 filename = get_persconffile_path ( ".bitstream_channels", FALSE, FALSE );
-                fp = fopen ( filename, "r" );
+                fp = ws_fopen ( filename, "r" );
 
                 if ( NULL != fp )
                 {
@@ -440,7 +441,6 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   /* printf ( "new_ptr=%d new_offset=%d apid=%d ccsds_len=%d\n", new_ptr, new_offset, apid, ccsds_len );  fflush(stdout); */
 
 			   new_tvb = tvb_new_subset(tvb, new_offset, -1, -1);
-			   g_assert(ccsds_handle != NULL);
 			   call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
 		
 			   new_offset=new_offset+ccsds_len+7;
