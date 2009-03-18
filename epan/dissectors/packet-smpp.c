@@ -151,7 +151,10 @@ static int hf_smpp_esme_addr			= -1;
 /*
  * Optional parameter section
  */
+static int hf_smpp_opt_params			= -1;
 static int hf_smpp_opt_param			= -1;
+static int hf_smpp_opt_param_tag		= -1;
+static int hf_smpp_opt_param_len		= -1;
 static int hf_smpp_vendor_op			= -1;
 static int hf_smpp_reserved_op			= -1;
 
@@ -251,6 +254,7 @@ static int hf_smpp_dcs_cbs_class = -1;
 static gint ett_smpp		= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
+static gint ett_opt_params	= -1;
 static gint ett_opt_param	= -1;
 static gint ett_dcs		= -1;
 
@@ -931,7 +935,6 @@ static const range_string vals_broadcast_area_identifier_format[] = {
 	{0, 0,	NULL }
 };
 
-
 static dissector_handle_t gsm_sms_handle;
 
 /*
@@ -1223,27 +1226,40 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
 static void
 smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
-    proto_item	*sub_tree = NULL;
-    guint	 tag;
-    guint	 length;
-    guint8	 field;
-    guint16	 field16;
-    guint8	 major, minor;
-    char	 *strval=NULL;
+    proto_item	*tlvs_tree = NULL;
 
-    if (tvb_reported_length_remaining(tvb, *offset) >= 4)
+    if (tvb_reported_length_remaining(tvb, *offset) >= 1)
     {
-	sub_tree = proto_tree_add_item(tree, hf_smpp_opt_param,
-				       tvb, *offset, 0, FALSE);
-	proto_item_add_subtree(sub_tree, ett_opt_param);
+	tlvs_tree = proto_tree_add_item(tree, hf_smpp_opt_params,
+				       tvb, *offset, -1, FALSE);
+	proto_item_add_subtree(tlvs_tree, ett_opt_params);
     }
 
-    while (tvb_reported_length_remaining(tvb, *offset) >= 4)
+    while (tvb_reported_length_remaining(tvb, *offset) >= 1)
     {
-	tag = tvb_get_ntohs(tvb, *offset);
-	*offset += 2;
-	length = tvb_get_ntohs(tvb, *offset);
-	*offset += 2;
+        proto_item *sub_tree;
+        guint16  tag;
+        guint16  length;
+
+        guint8	 field;
+        guint16	 field16;
+        guint8	 major, minor;
+        char	 *strval=NULL;
+
+        tag = tvb_get_ntohs(tvb, *offset);
+        length = tvb_get_ntohs(tvb, (*offset+2));
+
+        // XXX it would be nice to pull the tag from a value_string array and
+        // display the name of the tlv in the tag item and the tree header
+        sub_tree = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param,
+                                              tvb, *offset, length+4,
+                                              "Optional parameter: %#02x", tag);
+        proto_item_add_subtree(sub_tree, ett_opt_param);
+        proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
+        proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
+        
+        *offset += 4;
+	
 	switch (tag) {
 	    case  0x0005:	/* dest_addr_subunit	*/
 		smpp_handle_int1(sub_tree, tvb,
@@ -1574,12 +1590,15 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 	    default:
 		/* TODO : Hopefully to be implemented soon - handle vendor specific TLVs
 		 * from a dictionary before treating them as unknown! */
-		if ((tag >= 0x1400) && (tag <= 0x3FFF))
+		if ((tag >= 0x1400) && (tag <= 0x3FFF)) {
 		    proto_tree_add_item(sub_tree, hf_smpp_vendor_op, tvb,
 			    		*offset, length, FALSE);
-		else
+                } else {
 		    proto_tree_add_item(sub_tree, hf_smpp_reserved_op, tvb,
 			    		*offset, length, FALSE);
+                }
+
+                proto_item_append_text(sub_tree,": %s", tvb_bytes_to_str(tvb,*offset,length));
 		(*offset) += length;
 		break;
 	}
@@ -3024,15 +3043,15 @@ proto_register_smpp(void)
 	    }
 	},
 	{   &hf_smpp_vendor_op,
-	    {   "Optional parameter - Vendor-specific", "smpp.vendor_op",
-		FT_NONE, BASE_NONE, NULL, 0x00,
+	    {   "Value", "smpp.vendor_op",
+		FT_BYTES, BASE_NONE, NULL, 0x00,
 		"A supplied optional parameter specific to an SMSC-vendor.",
 		HFILL
 	    }
 	},
 	{   &hf_smpp_reserved_op,
-	    {   "Optional parameter - Reserved", "smpp.reserved_op",
-		FT_NONE, BASE_NONE, NULL, 0x00,
+	    {   "Value", "smpp.reserved_op",
+		FT_BYTES, BASE_NONE, NULL, 0x00,
 		"An optional parameter that is reserved in this version.",
 		HFILL
 	    }
@@ -3143,14 +3162,36 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
-	{   &hf_smpp_opt_param,
-	    {   "Optional parameters", "smpp.opt_param",
+	{   &hf_smpp_opt_params,
+	    {   "Optional parameters", "smpp.opt_params",
 		FT_NONE, BASE_NONE, NULL, 0x00,
 		"The list of optional parameters in this operation.",
 		HFILL
 	    }
+        },
+	{   &hf_smpp_opt_param,
+	    {   "Optional parameter", "smpp.opt_param",
+		FT_NONE, BASE_NONE, NULL, 0x00,
+		"Optional parameter",
+		HFILL
+	    }
 	},
-	/*
+	{   &hf_smpp_opt_param_tag,
+	    {   "Tag", "smpp.opt_param_tag",
+		FT_UINT16, BASE_HEX, NULL, 0x00,
+		"Optional parameter intentifier tag",
+		HFILL
+	    }
+	},
+	{   &hf_smpp_opt_param_len,
+	    {   "Length", "smpp.opt_param_len",
+		FT_UINT16, BASE_DEC, NULL, 0x00,
+		"Optional parameter length",
+		HFILL
+	    }
+	},
+
+        /*
 	 * Data Coding Scheme
 	 */
 	{	&hf_smpp_dcs,
@@ -3376,6 +3417,7 @@ proto_register_smpp(void)
 	&ett_smpp,
 	&ett_dlist,
 	&ett_dlist_resp,
+	&ett_opt_params,
 	&ett_opt_param,
 	&ett_dcs,
     };
