@@ -1687,21 +1687,6 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 /******************************************************************************/
-/* reverses the characters in a string */
-static void
-reverse(char *s)
-{
-	char c;
-  long i,j;
-  for (i=0, j=strlen(s)-1; i < j; i++, j--) {
-    c = s[i];
-    s[i] = s[j];
-    s[j] = c;
-  }
-}
-
-
-/******************************************************************************/
 /* level to string (ascii)                                                    */
 /*  level    : 8 bit value                                                    */
 /*  string   : pointer to buffer to fill                                      */
@@ -1745,7 +1730,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
   string[i] = '\0';
 
   /* now reverse (and correct) the order */
-  reverse(string);
+  g_strreverse(string);
 
   /* add a space at the end (ok its at the start but it will be at the end)*/
   string[i++] = ' ';
