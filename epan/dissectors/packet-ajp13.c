@@ -244,7 +244,7 @@ static guint16
 get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 {
   guint16 len;
-  guint16 copylen;
+  size_t copylen;
 
   len = tvb_get_ntohs(tvb, offset);
 
