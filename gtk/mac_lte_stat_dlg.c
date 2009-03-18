@@ -75,8 +75,10 @@ enum {
     RNTI_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
+    UL_RETX_FRAMES_COLUMN,
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
+    DL_RETX_FRAMES_COLUMN,
     TABLE_COLUMN,
     NUM_UE_COLUMNS
 };
@@ -98,8 +100,8 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "RNTI",
-                                 "UL Frames", "UL Bytes",
-                                 "DL Frames", "DL Bytes" };
+                                 "UL Frames", "UL Bytes", "UL ReTX Frames",
+                                 "DL Frames", "DL Bytes", "DL ReTX Frames"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
@@ -116,9 +118,11 @@ typedef struct mac_lte_row_data {
 
     guint32 UL_frames;
     guint32 UL_total_bytes;
+    guint32 UL_retx_frames;
 
     guint32 DL_frames;
     guint32 DL_total_bytes;
+    guint32 DL_retx_frames;
 
     guint32 UL_bytes_for_lcid[11];
     guint32 UL_sdus_for_lcid[11];
@@ -239,6 +243,9 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     ep->stats.DL_frames = 0;
     ep->stats.UL_total_bytes = 0;
     ep->stats.DL_total_bytes = 0;
+    ep->stats.UL_retx_frames = 0;
+    ep->stats.DL_retx_frames = 0;
+
     for (n=0; n < 11; n++) {
         ep->stats.UL_sdus_for_lcid[n] = 0;
         ep->stats.UL_bytes_for_lcid[n] = 0;
@@ -324,7 +331,13 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     te->number_of_packets++;
     te->stats.rnti = si->rnti;
     te->stats.is_predefined_data = si->is_predefined_data;
+
+    /* Uplink */
     if (si->direction == DIRECTION_UPLINK) {
+        if (si->reTxCount >= 1) {
+            te->stats.UL_retx_frames++;
+            return 1;
+        }
         te->stats.UL_frames++;
 
         if (si->is_predefined_data) {
@@ -340,7 +353,14 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             }
         }
     }
+
+    /* Downlink */
     else {
+        if (si->reTxCount >= 1) {
+            te->stats.DL_retx_frames++;
+            return 1;
+        }
+
         te->stats.DL_frames++;
 
         if (si->is_predefined_data) {
@@ -487,8 +507,10 @@ mac_lte_stat_draw(void *phs)
                            RNTI_COLUMN, tmp->stats.rnti,
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
+                           UL_RETX_FRAMES_COLUMN, tmp->stats.UL_retx_frames,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
                            DL_BYTES_COLUMN, tmp->stats.DL_total_bytes,
+                           DL_RETX_FRAMES_COLUMN, tmp->stats.DL_retx_frames,
                            TABLE_COLUMN, tmp,
                            -1);
 
@@ -558,6 +580,8 @@ static void mac_lte_stat_dlg_create(void)
     GtkWidget     *selected_ue_column_titles[5];
 
     GtkWidget     *close_bt;
+    GtkWidget     *help_bt;
+
     GtkListStore  *store;
 
     GtkTreeView       *tree_view;
@@ -639,8 +663,8 @@ static void mac_lte_stat_dlg_create(void)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
-                               G_TYPE_INT, G_TYPE_INT,  /* UL */
-                               G_TYPE_INT, G_TYPE_INT,  /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
@@ -748,12 +772,15 @@ static void mac_lte_stat_dlg_create(void)
     /* Button row.                      */
     /************************************/
 
-    bbox = dlg_button_row_new (GTK_STOCK_CLOSE, NULL);
+    bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_end (GTK_BOX(top_level_vbox), bbox, FALSE, FALSE, 0);
 
     /* Add the close button */
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(mac_lte_stat_dlg_w, close_bt, window_cancel_button_cb);
+
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_LTE_MAC_TRAFFIC_DIALOG);
 
     /* Set callbacks */
     g_signal_connect(mac_lte_stat_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
