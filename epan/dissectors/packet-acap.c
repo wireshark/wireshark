@@ -129,8 +129,8 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tokenlen, "Response Tag: %s",
 				    format_text(line, tokenlen));
 			}
-			offset += next_token - line;
-			linelen -= next_token - line;
+			offset += (int)(next_token - line);
+			linelen -= (int)(next_token - line);
 			line = next_token;
 		}
 
