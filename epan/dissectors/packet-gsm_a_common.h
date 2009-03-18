@@ -133,12 +133,12 @@ extern int hf_nas_eps_common_elem_id;
 extern const value_string nas_emm_elem_strings[];
 extern gint ett_nas_eps_emm_elem[];
 extern elem_fcn emm_elem_fcn[];
-extern int hf_nas_emm_elem_id;
+extern int hf_nas_eps_emm_elem_id;
 
 extern const value_string nas_esm_elem_strings[];
 extern gint ett_nas_eps_esm_elem[];
 extern elem_fcn esm_elem_fcn[];
-extern int hf_nas_esm_elem_id;
+extern int hf_nas_eps_esm_elem_id;
 
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;

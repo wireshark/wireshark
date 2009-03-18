@@ -630,10 +630,10 @@ static int get_hf_elem_id(int pdu_type)
 			hf_elem_id = hf_nas_eps_common_elem_id;
 			break;
 		case NAS_PDU_TYPE_EMM:
-			hf_elem_id = hf_nas_emm_elem_id;
+			hf_elem_id = hf_nas_eps_emm_elem_id;
 			break;
 		case NAS_PDU_TYPE_ESM:
-			hf_elem_id = hf_nas_esm_elem_id;
+			hf_elem_id = hf_nas_eps_esm_elem_id;
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -666,17 +666,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	if (oct == iei){
-		if (oct == GSM_BSSMAP_APDU_IE){
-			/* This elements length is in two octets (a bit of a hack here)*/
-			lengt_length = 2;
-			parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
-			if(parm_len > 255){
-				/* The rest of the logic can't handle length > 255 */
-				DISSECTOR_ASSERT_NOT_REACHED();
-			}
-		}else{
-			parm_len = tvb_get_guint8(tvb, curr_offset + 1);
-		}
+		parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
 		item =
 		proto_tree_add_text(tree,

@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 
 #include "packet-gsm_a_common.h"
+#include "packet-e212.h"
 
 #define PNAME  "Non-Access-Stratum (NAS)PDU"
 #define PSNAME "NAS-EPS"
@@ -44,13 +45,17 @@ static int proto_nas_eps = -1;
 
 static int hf_nas_eps_msg_emm_type = -1;
 int hf_nas_eps_common_elem_id = -1;
-int hf_nas_emm_elem_id = -1;
+int hf_nas_eps_emm_elem_id = -1;
+static int hf_nas_eps_bearer_id = -1;
 static int hf_nas_eps_spare_bits = -1;
 static int hf_nas_eps_security_header_type = -1;
 static int hf_nas_eps_emm_eps_att_type = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_emm_odd_even = -1;
 static int hf_nas_eps_emm_type_of_id = -1;
+static int hf_nas_eps_emm_mme_grp_id = -1;
+static int hf_nas_eps_emm_mme_code = -1;
+static int hf_nas_eps_emm_m_tmsi = -1;
 static int hf_nas_eps_esm_msg_cont = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
@@ -64,7 +69,8 @@ static int hf_nas_eps_service_type = -1;
 
 /* ESM */
 static int hf_nas_eps_msg_esm_type = -1;
-int hf_nas_esm_elem_id = -1;
+int hf_nas_eps_esm_elem_id = -1;
+static int hf_nas_eps_esm_proc_trans_id = -1;
 static int hf_nas_eps_esm_request_type = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 
@@ -534,15 +540,33 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	curr_offset = offset;
 
 	octet = tvb_get_guint8(tvb,offset);
-	if ((octet&0x7) == 1){
-		/* IMSI */
-		proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
-	}
 	/* Type of identity (octet 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
-
-	proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Not decoded yet");
+	switch (octet&0x7){
+		case 1:
+			/* IMSI */
+			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Not decoded yet");
+			break;
+		case 6:
+			/* GUTI */
+			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			/* MME Group ID octet 7 - 8 */
+			proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, FALSE);
+			curr_offset+=2;
+			/* MME Code Octet 9 */
+			proto_tree_add_item(tree, hf_nas_eps_emm_mme_code, tvb, curr_offset, 1, FALSE);
+			offset++;
+			/* M-TMSI Octet 10 - 13 */
+			proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, FALSE);
+			offset+=3;
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Type of identity not known");
+			break;
+	}
+	
 	return(len);
 }
 /*
@@ -1034,7 +1058,6 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix up the lengths */
-	consumed = 1;/*Remove later */
 	curr_len--;
 	curr_offset++;
 	/* 	T3412 value	GPRS timer 9.9.3.16	M	V	1 */
@@ -1601,6 +1624,9 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
+	/* No more mandatory elements */
+	if (curr_len==0)
+		return;
 	/* 5A	T3412 value	GPRS timer 9.9.3.16	O	TV	2 */
 	ELEM_OPT_TV(0x5a, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, "T3412 value");
 	/* 50	GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
@@ -1691,6 +1717,9 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
+	/* No more Mandatory elements */
+	if (curr_len==0)
+		return;
 	/* 19	Old P-TMSI signature	P-TMSI signature 9.9.3.26	O	TV	4 */
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
 	/* 50	Additional GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
@@ -1698,7 +1727,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* 55	NonceUE	Nonce 9.9.3.25	O	TV	5 */
 	ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - NonceUE");
 	/* 58	UE network capability	UE network capability 9.9.3.34	O	TLV	4-15 */
-	ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, "");
+	ELEM_OPT_TLV(0x58, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, "");
 	/* 52	Last visited registered TAI	Tracking area identity 9.9.3.32	O	TV	6 */
 	ELEM_OPT_TV(0x52, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, "Last visited registered TAI");
 	/* 5C	DRX parameter	DRX parameter 9.9.3.8	O	TV	3 */
@@ -1814,6 +1843,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
+	g_warning("Length %u",len);
 
 	bit_offset=curr_offset<<3;
 	/* Request type 9.9.4.14 M V 1/2 */
@@ -1824,9 +1854,10 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix up the lengths */
-	consumed = 1;/*Remove later */
 	curr_len--;
 	curr_offset++;
+	if (curr_len==0)
+		return;
 
 	/* D- ESM information transfer flag 9.9.4.5 O TV 1 */
 	ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , "" );
@@ -1950,11 +1981,15 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = tvb_length(tvb);
 
 	/* EPS bearer identity 9.3.2 */
+	proto_tree_add_item(tree, hf_nas_eps_bearer_id, tvb, offset, 1, FALSE);
 	/* Protocol discriminator 9.2 */
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* Procedure transaction identity 9.4 */
+	/* Procedure transaction identity 9.4 
+	 * The procedure transaction identity and its use are defined in 3GPP TS 24.007
+	 */
+	proto_tree_add_item(tree, hf_nas_eps_esm_proc_trans_id, tvb, offset, 1, FALSE);
 	offset++;
 
 	/*messge type IE*/
@@ -2108,9 +2143,14 @@ void proto_register_nas_eps(void) {
 		FT_UINT8, BASE_DEC, NULL, 0,
 		"", HFILL }
 	},
-	{ &hf_nas_emm_elem_id,
+	{ &hf_nas_eps_emm_elem_id,
 		{ "Element ID",	"nas_eps.emm.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_nas_eps_bearer_id,
+		{ "EPS bearer identity",	"nas_eps.bearer_id",
+		FT_UINT8, BASE_HEX, NULL, 0xf0,
 		"", HFILL }
 	},
 	{ &hf_nas_eps_spare_bits,
@@ -2142,6 +2182,21 @@ void proto_register_nas_eps(void) {
 		{ "Type of identity","nas_eps.emm.type_of_id",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_id_vals), 0x07,
 		"Type of identity", HFILL }
+	},
+	{ &hf_nas_eps_emm_mme_grp_id,
+		{ "MME Group ID","nas_eps.emm.mme_grp_id",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_mme_code,
+		{ "MME Code","nas_eps.emm.mme_code",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_m_tmsi,
+		{ "M-TMSI","nas_eps.emm.m_tmsi",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_nas_eps_esm_msg_cont,
 		{ "ESM message container contents","nas_eps.emm.esm_msg_cont",
@@ -2199,14 +2254,19 @@ void proto_register_nas_eps(void) {
 		FT_UINT8, BASE_HEX, VALS(nas_msg_esm_strings), 0x0,
 		"", HFILL }
 	},
-	{ &hf_nas_esm_elem_id,
+	{ &hf_nas_eps_esm_elem_id,
 		{ "Element ID",	"nas_eps.esm.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		"", HFILL }
+	},
+	{ &hf_nas_eps_esm_proc_trans_id,
+		{ "Procedure transaction identity",	"nas_eps.esm.proc_trans_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
 		"", HFILL }
 	},
 	{ &hf_nas_eps_esm_pdn_type,
 		{ "PDN type",	"nas_eps.nas_eps_esm_pdn_type",
-		FT_UINT8, BASE_HEX, VALS(nas_eps_esm_pdn_type_values), 0x0,
+		FT_UINT8, BASE_DEC, VALS(nas_eps_esm_pdn_type_values), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_esm_request_type,
