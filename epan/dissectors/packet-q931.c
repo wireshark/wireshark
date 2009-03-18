@@ -1407,7 +1407,7 @@ static const value_string q931_new_status_vals[] = {
 };
 
 static void
-dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len _U_, proto_tree *tree)
 {
 	guint8 octet;
 
