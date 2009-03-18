@@ -172,7 +172,7 @@ ATTRIBUTE	NAS-Port-Id		87	string
 ATTRIBUTE	Framed-Pool		88	string
 ATTRIBUTE	NAS-IPv6-Address	95	ipv6addr
 ATTRIBUTE	Framed-Interface-Id	96	ifid
-ATTRIBUTE	Framed-IPv6-Prefix	97	octets # ipv6prefix
+ATTRIBUTE	Framed-IPv6-Prefix	97	ipv6prefix
 ATTRIBUTE	Login-IPv6-Host		98	ipv6addr
 ATTRIBUTE	Framed-IPv6-Route	99	string
 ATTRIBUTE	Framed-IPv6-Pool	100	string
@@ -201,6 +201,9 @@ ATTRIBUTE	Digest-Domain		119	string
 ATTRIBUTE	Digest-Stale		120	string
 ATTRIBUTE	Digest-HA1		121	string
 ATTRIBUTE	SIP-AOR			122	string
+
+#  As defined in RFC 4818
+ATTRIBUTE	Delegated-IPv6-Prefix	123	ipv6prefix
 
 #  As defined in draft-sterman-aaa-sip-00.txt
 ATTRIBUTE	Digest-Response		206	string

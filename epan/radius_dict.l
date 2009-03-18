@@ -146,6 +146,7 @@
 <ATTR_W_ID>octets			{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipaddr			{ attr_type = radius_ipaddr;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipv6addr			{ attr_type = radius_ipv6addr;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ipv6prefix			{ attr_type = radius_ipv6prefix;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ipxnet			{ attr_type = radius_ipxnet;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>date				{ attr_type = radius_date;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>ifid				{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }

@@ -92,6 +92,7 @@ radius_attr_dissector_t radius_string;
 radius_attr_dissector_t radius_octets;
 radius_attr_dissector_t radius_ipaddr;
 radius_attr_dissector_t radius_ipv6addr;
+radius_attr_dissector_t radius_ipv6prefix;
 radius_attr_dissector_t radius_ipxnet;
 radius_attr_dissector_t radius_date;
 radius_attr_dissector_t radius_abinary;

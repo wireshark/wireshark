@@ -558,6 +558,39 @@ void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 	proto_item_append_text(avp_item, "%s", txtbuf);
 }
 
+void radius_ipv6prefix(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
+	struct e_in6_addr ipv6_buff;
+	gchar txtbuf[256];
+	guint8 n;
+
+	if ((len < 2) || (len > 18) ) {
+		proto_item_append_text(avp_item, "[wrong length for IPv6 prefix]");
+		return;
+	}
+ 
+	/* first byte is reserved == 0x00 */
+	if (tvb_get_guint8(tvb, offset)) {
+		proto_item_append_text(avp_item, "[invalid reserved byte for IPv6 prefix]");
+		return;
+	}
+
+	/* this is the prefix length */
+	n = tvb_get_guint8(tvb, offset + 1);
+	if (n > 128) {
+		proto_item_append_text(avp_item, "[invalid IPv6 prefix length]");
+		return;
+	}
+
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+
+	/* cannot use tvb_get_ipv6() here, since the prefix most likely is truncated */
+	memset(&ipv6_buff, 0, sizeof ipv6_buff);
+	tvb_memcpy(tvb, &ipv6_buff, offset + 2,  len - 2);
+	ip6_to_str_buf(&ipv6_buff, txtbuf);
+	proto_item_append_text(avp_item, "%s/%u", txtbuf, n);
+}
+
+
 void radius_ipxnet(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	guint32 net;
 
@@ -1362,6 +1395,9 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_ipv6addr) {
 		hfri[0].hfinfo.type = FT_IPv6;
+		hfri[0].hfinfo.display = BASE_NONE;
+	} else if (a->type == radius_ipv6prefix) {
+		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_ipxnet) {
 		hfri[0].hfinfo.type = FT_IPXNET;
