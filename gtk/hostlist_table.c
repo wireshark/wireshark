@@ -78,28 +78,23 @@
 static char *
 hostlist_port_to_str(int port_type, guint32 port)
 {
-	static int i=0;
-	static gchar *strp, str[4][12];
+    static int i=0;
+    static gchar str[4][12];
 
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	switch(port_type){
-	case PT_TCP:
-	case PT_UDP:
-	case PT_SCTP:
-		g_snprintf(strp, 11, "%d", port);
-		return strp;
-	}
-	return NULL;
+    switch(port_type){
+    case PT_TCP:
+    case PT_UDP:
+    case PT_SCTP:
+        i = (i+1)%4;
+        g_snprintf(str[i], sizeof(str[0]), "%d", port);
+        return str[i];
+    }
+    return NULL;
 }
 
 
-#define FN_ANY_ADDRESS		0
-#define FN_ANY_PORT		1
+#define FN_ANY_ADDRESS          0
+#define FN_ANY_PORT             1
 
 /* given an address (to distinguish between ipv4 and ipv6 for tcp/udp
    a port_type and a name_type (FN_...)
@@ -112,65 +107,65 @@ hostlist_port_to_str(int port_type, guint32 port)
 static const char *
 hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
-	switch(name_type){
-	case FN_ANY_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.addr";
-			case SAT_WLAN:
-				return "wlan.addr";
-			case SAT_FDDI:
-				return "fddi.addr";
-			case SAT_TOKENRING:
-				return "tr.addr";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_IPv4:
-			return "ip.addr";
-		case AT_IPv6:
-			return "ipv6.addr";
-		case AT_IPX:
-			return "ipx.addr";
-		case AT_FC:
-			return "fc.id";
-		case AT_URI:
-			switch(specific_addr_type){
-			case SAT_JXTA:
-				return "jxta.message.address";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_USB:
-			return "usb.addr";
-		default:
-			break;
-		}
-	case FN_ANY_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.port";
-		case PT_UDP:
-			return "udp.port";
-		case PT_SCTP:
-			return "sctp.port";
-		}
-		break;
-	}
+    switch(name_type){
+    case FN_ANY_ADDRESS:
+        switch(addr->type){
+        case AT_ETHER:
+            switch(specific_addr_type){
+            case SAT_ETHER:
+                return "eth.addr";
+            case SAT_WLAN:
+                return "wlan.addr";
+            case SAT_FDDI:
+                return "fddi.addr";
+            case SAT_TOKENRING:
+                return "tr.addr";
+            default:
+                break;
+            }
+            break;
+        case AT_IPv4:
+            return "ip.addr";
+        case AT_IPv6:
+            return "ipv6.addr";
+        case AT_IPX:
+            return "ipx.addr";
+        case AT_FC:
+            return "fc.id";
+        case AT_URI:
+            switch(specific_addr_type){
+            case SAT_JXTA:
+                return "jxta.message.address";
+            default:
+                break;
+            }
+            break;
+        case AT_USB:
+            return "usb.addr";
+        default:
+            break;
+        }
+    case FN_ANY_PORT:
+        switch(port_type){
+        case PT_TCP:
+            return "tcp.port";
+        case PT_UDP:
+            return "udp.port";
+        case PT_SCTP:
+            return "sctp.port";
+        }
+        break;
+    }
 
-	g_assert_not_reached();
-	return NULL;
+    g_assert_not_reached();
+    return NULL;
 }
 
 
 typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
+    GtkWidget *table;
+    GtkWidget *ascend_pm;
+    GtkWidget *descend_pm;
 } column_arrows;
 
 
@@ -198,24 +193,24 @@ reset_hostlist_table_data(hostlist_table *hosts)
     gtk_clist_thaw(hosts->table);
 
     if(hosts->page_lb) {
-        g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
+        g_snprintf(title, sizeof(title), "Endpoints: %s", cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(hosts->win), title);
-        g_snprintf(title, 255, "%s", hosts->name);
+        g_snprintf(title, sizeof(title), "%s", hosts->name);
         gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
         gtk_widget_set_sensitive(hosts->page_lb, FALSE);
 
         if (hosts->use_dfilter) {
             if (filter && strlen(filter)) {
-                g_snprintf(title, 255, "%s Endpoints - Filter: %s", hosts->name, filter);
+                g_snprintf(title, sizeof(title), "%s Endpoints - Filter: %s", hosts->name, filter);
             } else {
-                g_snprintf(title, 255, "%s Endpoints - No Filter", hosts->name);
+                g_snprintf(title, sizeof(title), "%s Endpoints - No Filter", hosts->name);
             }
         } else {
-            g_snprintf(title, 255, "%s Endpoints", hosts->name);
+            g_snprintf(title, sizeof(title), "%s Endpoints", hosts->name);
         }
         gtk_label_set_text(GTK_LABEL(hosts->name_lb), title);
     } else {
-        g_snprintf(title, 255, "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
+        g_snprintf(title, sizeof(title), "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(hosts->win), title);
     }
 
@@ -240,14 +235,14 @@ reset_hostlist_table_data_cb(void *arg)
 static void
 hostlist_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	hostlist_table *hosts=(hostlist_table *)data;
+    hostlist_table *hosts=(hostlist_table *)data;
 
-	protect_thread_critical_region();
-	remove_tap_listener(hosts);
-	unprotect_thread_critical_region();
+    protect_thread_critical_region();
+    remove_tap_listener(hosts);
+    unprotect_thread_critical_region();
 
-	reset_hostlist_table_data(hosts);
-	g_free(hosts);
+    reset_hostlist_table_data(hosts);
+    g_free(hosts);
 }
 
 static gint
@@ -289,65 +284,65 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 static void
 hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
+    column_arrows *col_arrows = (column_arrows *) data;
+    int i;
 
-	for (i = 0; i < NUM_HOSTLIST_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
+    for (i = 0; i < NUM_HOSTLIST_COLS; i++) {
+        gtk_widget_hide(col_arrows[i].ascend_pm);
+        gtk_widget_hide(col_arrows[i].descend_pm);
+    }
 
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		clist->sort_type = GTK_SORT_DESCENDING;
-		gtk_widget_show(col_arrows[column].descend_pm);
-		gtk_clist_set_sort_column(clist, column);
-	}
+    if (column == clist->sort_column) {
+        if (clist->sort_type == GTK_SORT_ASCENDING) {
+            clist->sort_type = GTK_SORT_DESCENDING;
+            gtk_widget_show(col_arrows[column].descend_pm);
+        } else {
+            clist->sort_type = GTK_SORT_ASCENDING;
+            gtk_widget_show(col_arrows[column].ascend_pm);
+        }
+    } else {
+        clist->sort_type = GTK_SORT_DESCENDING;
+        gtk_widget_show(col_arrows[column].descend_pm);
+        gtk_clist_set_sort_column(clist, column);
+    }
 
-	gtk_clist_sort(clist);
+    gtk_clist_sort(clist);
 
-	/* Allow update of clist */
-	gtk_clist_thaw(clist);
-	gtk_clist_freeze(clist);
+    /* Allow update of clist */
+    gtk_clist_thaw(clist);
+    gtk_clist_freeze(clist);
 }
 
 static void
 hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int selection;
-	hostlist_table *hl=(hostlist_table *)callback_data;
-	char *str = NULL;
-	char *sport;
+    int selection;
+    hostlist_table *hl=(hostlist_table *)callback_data;
+    char *str = NULL;
+    char *sport;
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hl->table)->selection, 0));
-	if(selection>=(int)hl->num_hosts){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No hostlist selected");
-		return;
-	}
-	/* translate it back from row index to index in hostlist array */
-	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(hl->table, selection));
+    selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hl->table)->selection, 0));
+    if(selection>=(int)hl->num_hosts){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No hostlist selected");
+        return;
+    }
+    /* translate it back from row index to index in hostlist array */
+    selection=GPOINTER_TO_INT(gtk_clist_get_row_data(hl->table, selection));
 
-	sport=hostlist_port_to_str(hl->hosts[selection].port_type, hl->hosts[selection].port);
+    sport=hostlist_port_to_str(hl->hosts[selection].port_type, hl->hosts[selection].port);
 
-	str = g_strdup_printf("%s==%s%s%s%s%s",
-		hostlist_get_filter_name(&hl->hosts[selection].address,
-		hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
-		address_to_str(&hl->hosts[selection].address),
-		sport?" && ":"",
-		sport?hostlist_get_filter_name(&hl->hosts[selection].address, hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_PORT):"",
-		sport?"==":"",
-		sport?sport:"");
+    str = g_strdup_printf("%s==%s%s%s%s%s",
+                          hostlist_get_filter_name(&hl->hosts[selection].address,
+                                                   hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
+                          address_to_str(&hl->hosts[selection].address),
+                          sport?" && ":"",
+                          sport?hostlist_get_filter_name(&hl->hosts[selection].address, hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_PORT):"",
+                          sport?"==":"",
+                          sport?sport:"");
 
-        apply_selected_filter (callback_action, str);
+    apply_selected_filter (callback_action, str);
 
-        g_free (str);
+    g_free (str);
 }
 static gint
 hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
@@ -361,14 +356,14 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
     if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
         /* if this is a right click on one of our columns, select it and popup the context menu */
         if(gtk_clist_get_selection_info(et->table,
-                                          (gint) (((GdkEventButton *)event)->x),
-                                          (gint) (((GdkEventButton *)event)->y),
-                                             &row, &column)) {
+                                        (gint) (((GdkEventButton *)event)->x),
+                                        (gint) (((GdkEventButton *)event)->y),
+                                        &row, &column)) {
             gtk_clist_unselect_all(et->table);
             gtk_clist_select_row(et->table, row, -1);
 
             gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL,
-                bevent->button, bevent->time);
+                           bevent->button, bevent->time);
         }
     }
 
@@ -377,50 +372,50 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
 
 static GtkItemFactoryEntry hostlist_list_menu_items[] =
 {
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
+    /* Match */
+    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/Not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... and Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... or Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
+    /* Prepare */
+    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
-	/* Find Frame */
-	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Next */
-	{"/Find Frame/Find Next", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Find Frame */
+    {"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Frame/Find Frame", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Find Next */
+    {"/Find Frame/Find Next", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Find Previous */
+    {"/Find Frame/Find Previous", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
 
-	/* Colorize Host Traffic */
-	{"/Colorize Host Traffic", NULL,
-		GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
+    /* Colorize Host Traffic */
+    {"/Colorize Host Traffic", NULL,
+     GTK_MENU_FUNC(hostlist_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
 
 };
 
@@ -496,17 +491,17 @@ draw_hostlist_table_data(hostlist_table *hl)
 
     if (hl->page_lb) {
         if(hl->num_hosts) {
-            g_snprintf(title, 255, "%s: %u", hl->name, hl->num_hosts);
+            g_snprintf(title, sizeof(title), "%s: %u", hl->name, hl->num_hosts);
         } else {
-            g_snprintf(title, 255, "%s", hl->name);
+            g_snprintf(title, sizeof(title), "%s", hl->name);
         }
         gtk_label_set_text(GTK_LABEL(hl->page_lb), title);
         gtk_widget_set_sensitive(hl->page_lb, hl->num_hosts);
     } else {
         if(hl->num_hosts) {
-            g_snprintf(title, 255, "%s Endpoints: %u", hl->name, hl->num_hosts);
+            g_snprintf(title, sizeof(title), "%s Endpoints: %u", hl->name, hl->num_hosts);
         } else {
-            g_snprintf(title, 255, "%s Endpoints", hl->name);
+            g_snprintf(title, sizeof(title), "%s Endpoints", hl->name);
         }
         gtk_label_set_text(GTK_LABEL(hl->name_lb), title);
     }
@@ -553,196 +548,196 @@ draw_hostlist_table_data_cb(void *arg)
 static void
 copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
-   guint32         i,j;
-   gchar           *table_entry;
-   GtkClipboard    *cb;
-   GString         *CSV_str = g_string_new("");
+    guint32         i,j;
+    gchar           *table_entry;
+    GtkClipboard    *cb;
+    GString         *CSV_str = g_string_new("");
 
-   hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
-   if (!hosts)
-     return;
+    hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
+    if (!hosts)
+        return;
 
-   /* Add the column headers to the CSV data */
-   for(i=0;i<hosts->num_columns;i++){                  /* all columns         */
-    if(i==1 && !hosts->has_ports) continue;            /* Don't add the port column if it's empty */
-     g_string_append(CSV_str,hosts->default_titles[i]);/* add the column heading to the CSV string */
-    if(i!=hosts->num_columns-1)
-     g_string_append(CSV_str,",");
-   }
-   g_string_append(CSV_str,"\n");                      /* new row */
-
-   /* Add the column values to the CSV data */
-   for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
-    for(j=0;j<hosts->num_columns;j++){                 /* all columns         */
-     if(j==1 && !hosts->has_ports) continue;           /* Don't add the port column if it's empty */
-     gtk_clist_get_text(hosts->table,i,j,&table_entry);/* copy table item into string */
-     g_string_append(CSV_str,table_entry);             /* add the table entry to the CSV string */
-    if(j!=hosts->num_columns-1)
-     g_string_append(CSV_str,",");
+    /* Add the column headers to the CSV data */
+    for(i=0;i<hosts->num_columns;i++){                  /* all columns         */
+        if(i==1 && !hosts->has_ports) continue;            /* Don't add the port column if it's empty */
+        g_string_append(CSV_str,hosts->default_titles[i]);/* add the column heading to the CSV string */
+        if(i!=hosts->num_columns-1)
+            g_string_append(CSV_str,",");
     }
-    g_string_append(CSV_str,"\n");                     /* new row */
-   }
+    g_string_append(CSV_str,"\n");                      /* new row */
 
-   /* Now that we have the CSV data, copy it into the default clipboard */
-   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
-   gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
-   g_string_free(CSV_str, TRUE);                       /* Free the memory */
+    /* Add the column values to the CSV data */
+    for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
+        for(j=0;j<hosts->num_columns;j++){                 /* all columns         */
+            if(j==1 && !hosts->has_ports) continue;           /* Don't add the port column if it's empty */
+            gtk_clist_get_text(hosts->table,i,j,&table_entry);/* copy table item into string */
+            g_string_append(CSV_str,table_entry);             /* add the table entry to the CSV string */
+            if(j!=hosts->num_columns-1)
+                g_string_append(CSV_str,",");
+        }
+        g_string_append(CSV_str,"\n");                     /* new row */
+    }
+
+    /* Now that we have the CSV data, copy it into the default clipboard */
+    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
+    gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
+    g_string_free(CSV_str, TRUE);                       /* Free the memory */
 }
 
 #ifdef HAVE_GEOIP
 static void
 open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
-   guint32         i;
-   gchar           *table_entry;
-   gint32          col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
-   char            *file_path;
-   FILE            *out_file;
-   gchar           *file_uri;
-   gboolean        uri_open;
+    guint32         i;
+    gchar           *table_entry;
+    gint32          col_lat, col_lon, col_country, col_city, col_as_num, col_ip, col_packets, col_bytes;
+    char            *file_path;
+    FILE            *out_file;
+    gchar           *file_uri;
+    gboolean        uri_open;
 
-   hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
-   if (!hosts)
-     return;
+    hostlist_table *hosts=g_object_get_data(G_OBJECT(copy_bt), HOST_PTR_KEY);
+    if (!hosts)
+        return;
 
-   col_lat = col_lon = col_country = col_city = col_as_num = col_ip = col_packets = col_bytes = -1;
+    col_lat = col_lon = col_country = col_city = col_as_num = col_ip = col_packets = col_bytes = -1;
 
-   /* Find the interesting columns */
-   for(i=0;i<hosts->num_columns;i++){
-    if(strcmp(hosts->default_titles[i], "Latitude") == 0) {
-        col_lat = i;
+    /* Find the interesting columns */
+    for(i=0;i<hosts->num_columns;i++){
+        if(strcmp(hosts->default_titles[i], "Latitude") == 0) {
+            col_lat = i;
+        }
+        if(strcmp(hosts->default_titles[i], "Longitude") == 0) {
+            col_lon = i;
+        }
+        if(strcmp(hosts->default_titles[i], "Country") == 0) {
+            col_country = i;
+        }
+        if(strcmp(hosts->default_titles[i], "City") == 0) {
+            col_city = i;
+        }
+        if(strcmp(hosts->default_titles[i], "AS Number") == 0) {
+            col_as_num = i;
+        }
+        if(strcmp(hosts->default_titles[i], "Address") == 0) {
+            col_ip = i;
+        }
+        if(strcmp(hosts->default_titles[i], "Packets") == 0) {
+            col_packets = i;
+        }
+        if(strcmp(hosts->default_titles[i], "Bytes") == 0) {
+            col_bytes = i;
+        }
     }
-    if(strcmp(hosts->default_titles[i], "Longitude") == 0) {
-        col_lon = i;
-    }
-    if(strcmp(hosts->default_titles[i], "Country") == 0) {
-        col_country = i;
-    }
-    if(strcmp(hosts->default_titles[i], "City") == 0) {
-        col_city = i;
-    }
-    if(strcmp(hosts->default_titles[i], "AS Number") == 0) {
-        col_as_num = i;
-    }
-    if(strcmp(hosts->default_titles[i], "Address") == 0) {
-        col_ip = i;
-    }
-    if(strcmp(hosts->default_titles[i], "Packets") == 0) {
-        col_packets = i;
-    }
-    if(strcmp(hosts->default_titles[i], "Bytes") == 0) {
-        col_bytes = i;
-    }
-   }
    
-   /* check for the minimum required data */
-   if(col_lat == -1 || col_lon == -1) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Latitude/Longitude data not available (GeoIP installed?)");
-    return;
-   }
+    /* check for the minimum required data */
+    if(col_lat == -1 || col_lon == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Latitude/Longitude data not available (GeoIP installed?)");
+        return;
+    }
 
-   /* open the TSV output file */
-   /* XXX - add error handling */
-   file_path = get_tempfile_path("ipmap.txt");
-   out_file = ws_fopen(file_path, "w+b");
-   if(out_file == NULL) {
-    open_failure_alert_box(file_path, errno, TRUE);
+    /* open the TSV output file */
+    /* XXX - add error handling */
+    file_path = get_tempfile_path("ipmap.txt");
+    out_file = ws_fopen(file_path, "w+b");
+    if(out_file == NULL) {
+        open_failure_alert_box(file_path, errno, TRUE);
+        g_free(file_path);
+        return;
+    }
     g_free(file_path);
-    return;
-   }
-   g_free(file_path);
 
-   fputs("lat\tlon\ttitle\tdescription\t\n", out_file);
+    fputs("lat\tlon\ttitle\tdescription\t\n", out_file);
 
-   /* Add the column values to the TSV data */
-   for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
-    /* check, if we have a geolocation available for this host */
-    gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
-    if(strcmp(table_entry, "-") == 0) {
-        continue;
+    /* Add the column values to the TSV data */
+    for(i=0;i<hosts->num_hosts;i++){                    /* all rows            */
+        /* check, if we have a geolocation available for this host */
+        gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
+        if(strcmp(table_entry, "-") == 0) {
+            continue;
+        }
+        gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
+        if(strcmp(table_entry, "-") == 0) {
+            continue;
+        }
+
+        /* latitude */
+        gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
+        fputs(table_entry, out_file);
+        fputs("\t", out_file);
+
+        /* longitude */
+        gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
+        fputs(table_entry, out_file);
+        fputs("\t", out_file);
+
+        /* title */
+        gtk_clist_get_text(hosts->table,i,col_ip,&table_entry);
+        fputs(table_entry, out_file);
+        fputs("\t", out_file);
+
+        /* description */
+        gtk_clist_get_text(hosts->table,i,col_as_num,&table_entry);
+        fputs("AS: ", out_file);
+        fputs(table_entry, out_file);
+        fputs("<br/>", out_file);
+
+        gtk_clist_get_text(hosts->table,i,col_country,&table_entry);
+        fputs("Country: ", out_file);
+        fputs(table_entry, out_file);
+        fputs("<br/>", out_file);
+
+        gtk_clist_get_text(hosts->table,i,col_city,&table_entry);
+        fputs("City: ", out_file);
+        fputs(table_entry, out_file);
+        fputs("<br/>", out_file);
+
+        gtk_clist_get_text(hosts->table,i,col_packets,&table_entry);
+        fputs("Packets: ", out_file);
+        fputs(table_entry, out_file);
+        fputs("<br/>", out_file);
+
+        gtk_clist_get_text(hosts->table,i,col_bytes,&table_entry);
+        fputs("Bytes: ", out_file);
+        fputs(table_entry, out_file);
+        fputs("\t", out_file);
+
+        /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
+
+        fputs("\n", out_file);                     /* new row */
     }
-    gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
-    if(strcmp(table_entry, "-") == 0) {
-        continue;
+
+    fclose(out_file);
+
+    /* copy ipmap.html to temp dir */
+    {
+        char * src_file_path;
+        char * dst_file_path;
+
+        src_file_path = get_datafile_path("ipmap.html");
+        dst_file_path = get_tempfile_path("ipmap.html");
+
+        if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
+            g_free(src_file_path);
+            g_free(dst_file_path);
+            return;
+        }
+        g_free(src_file_path);
+        g_free(dst_file_path);
     }
 
-    /* latitude */
-    gtk_clist_get_text(hosts->table,i,col_lat,&table_entry);
-    fputs(table_entry, out_file);
-    fputs("\t", out_file);
+    /* open the webbrowser */
+    file_path = get_tempfile_path("ipmap.html");
+    file_uri = filename2uri(file_path);
+    g_free(file_path);
+    uri_open = browser_open_url (file_uri);
+    if(!uri_open) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
+        g_free(file_uri);
+        return;
+    }
 
-    /* longitude */
-    gtk_clist_get_text(hosts->table,i,col_lon,&table_entry);
-    fputs(table_entry, out_file);
-    fputs("\t", out_file);
-
-    /* title */
-    gtk_clist_get_text(hosts->table,i,col_ip,&table_entry);
-    fputs(table_entry, out_file);
-    fputs("\t", out_file);
-
-    /* description */
-    gtk_clist_get_text(hosts->table,i,col_as_num,&table_entry);
-    fputs("AS: ", out_file);
-    fputs(table_entry, out_file);
-    fputs("<br/>", out_file);
-
-    gtk_clist_get_text(hosts->table,i,col_country,&table_entry);
-    fputs("Country: ", out_file);
-    fputs(table_entry, out_file);
-    fputs("<br/>", out_file);
-
-    gtk_clist_get_text(hosts->table,i,col_city,&table_entry);
-    fputs("City: ", out_file);
-    fputs(table_entry, out_file);
-    fputs("<br/>", out_file);
-
-    gtk_clist_get_text(hosts->table,i,col_packets,&table_entry);
-    fputs("Packets: ", out_file);
-    fputs(table_entry, out_file);
-    fputs("<br/>", out_file);
-
-    gtk_clist_get_text(hosts->table,i,col_bytes,&table_entry);
-    fputs("Bytes: ", out_file);
-    fputs(table_entry, out_file);
-    fputs("\t", out_file);
-
-    /* XXX - we could add specific icons, e.g. depending on the amount of packets or bytes */
-
-    fputs("\n", out_file);                     /* new row */
-   }
-
-   fclose(out_file);
-
-   /* copy ipmap.html to temp dir */
-   {
-       char * src_file_path;
-       char * dst_file_path;
-
-       src_file_path = get_datafile_path("ipmap.html");
-       dst_file_path = get_tempfile_path("ipmap.html");
-
-       if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
-           g_free(src_file_path);
-           g_free(dst_file_path);
-           return;
-       }
-       g_free(src_file_path);
-       g_free(dst_file_path);
-   }
-
-   /* open the webbrowser */
-   file_path = get_tempfile_path("ipmap.html");
-   file_uri = filename2uri(file_path);
-   g_free(file_path);
-   uri_open = browser_open_url (file_uri);
-   if(!uri_open) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't open the file: \"%s\" in the webbrowser", file_uri);
     g_free(file_uri);
-    return;
-   }
-
-   g_free(file_uri);
 }
 #endif /* HAVE_GEOIP */
 
@@ -786,7 +781,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->resolve_names=TRUE;
     hosttable->page_lb = NULL;
 
-    g_snprintf(title, 255, "%s Endpoints", table_name);
+    g_snprintf(title, sizeof(title), "%s Endpoints", table_name);
     hosttable->name_lb = gtk_label_new(title);
     gtk_box_pack_start(GTK_BOX(vbox), hosttable->name_lb, FALSE, FALSE, 0);
 
@@ -883,7 +878,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable->name=table_name;
     hosttable->filter=filter;
     hosttable->use_dfilter=FALSE;
-    g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
+    g_snprintf(title, sizeof(title), "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
     hosttable->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 
     gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
@@ -918,7 +913,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
@@ -926,7 +921,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
     if(map_bt != NULL) {
         gtk_tooltips_set_tip(tooltips, map_bt,
-            "Show a map of the IP addresses (internet connection required).", NULL);
+                             "Show a map of the IP addresses (internet connection required).", NULL);
         g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, hosttable);
         g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     }
@@ -946,7 +941,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
        in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
-      gtk_clist_freeze(hosttable->table);
+    gtk_clist_freeze(hosttable->table);
 
 
     /* after retapping, redraw table */
@@ -1138,7 +1133,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
 
     win=window_new(GTK_WINDOW_TOPLEVEL, "hostlist");
-    g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
+    g_snprintf(title, sizeof(title), "Endpoints: %s", cf_get_display_name(&cfile));
     gtk_window_set_title(GTK_WINDOW(win), title);
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 
@@ -1157,8 +1152,8 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         registered = current_table->data;
         page_lb = gtk_label_new("");
         hosttable = init_hostlist_notebook_page_cb(registered->hide_ports,
-                registered->table_name, registered->tap_name,
-                registered->filter, registered->packet_func);
+                                                   registered->table_name, registered->tap_name,
+                                                   registered->filter, registered->packet_func);
         g_object_set_data(G_OBJECT(hosttable->win), HOST_PTR_KEY, hosttable);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), hosttable->win, page_lb);
         hosttable->win = win;
@@ -1177,7 +1172,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
-        "Please note: The corresponding name resolution must be enabled.", NULL);
+                         "Please note: The corresponding name resolution must be enabled.", NULL);
 
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
@@ -1201,14 +1196,14 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
 
 #ifdef HAVE_GEOIP
     map_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_MAP);
     gtk_tooltips_set_tip(tooltips, map_bt,
-        "Show a map of the IP addresses (internet connection required).", NULL);
+                         "Show a map of the IP addresses (internet connection required).", NULL);
     g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
     g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
