@@ -1249,8 +1249,8 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
         tag = tvb_get_ntohs(tvb, *offset);
         length = tvb_get_ntohs(tvb, (*offset+2));
 
-        // XXX it would be nice to pull the tag from a value_string array and
-        // display the name of the tlv in the tag item and the tree header
+        /* XXX it would be nice to pull the tag from a value_string array and */
+        /* display the name of the tlv in the tag item and the tree header */
         sub_tree = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param,
                                               tvb, *offset, length+4,
                                               "Optional parameter: %#02x", tag);
