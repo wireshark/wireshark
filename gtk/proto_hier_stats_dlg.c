@@ -56,9 +56,9 @@ enum {
 };
 
 typedef struct {
-        GtkTreeView  *tree_view;
-	GtkTreeIter  *iter;
-	ph_stats_t   *ps;
+    GtkTreeView  *tree_view;
+    GtkTreeIter  *iter;
+    ph_stats_t   *ps;
 } draw_info_t;
 
 static GtkWidget *tree;
@@ -69,72 +69,72 @@ static GtkWidget *tree;
 static void
 proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, guint callback_action)
 {
-	char *str = NULL;
-	const char *filter = NULL;
-	GtkTreeSelection *sel;
-	GtkTreeModel *model;
-	GtkTreeIter iter;
+    char *str = NULL;
+    const char *filter = NULL;
+    GtkTreeSelection *sel;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
 
-	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
-	gtk_tree_selection_get_selected (sel, &model, &iter);
-	gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
-	if (filter && 0 != strlen(filter)) {
-		str = g_strdup_printf("%s", filter);
-	} else {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
-		return;
-	}
+    sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
+    gtk_tree_selection_get_selected (sel, &model, &iter);
+    gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
+    if (filter && 0 != strlen(filter)) {
+        str = g_strdup_printf("%s", filter);
+    } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
+        return;
+    }
 
-	apply_selected_filter (callback_action, str);
+    apply_selected_filter (callback_action, str);
 
-	g_free (str);
+    g_free (str);
 }
 
 static GtkItemFactoryEntry proto_hier_list_menu_items[] =
 {
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
+    /* Match */
+    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/Not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... and Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... or Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
+    /* Prepare */
+    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
-	/* Find Frame */
-	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Next */
-	{"/Find Frame/Find Next", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
-	/* Colorize Protocol */
-	{"/Colorize Protocol", NULL,
-		GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
+    /* Find Frame */
+    {"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Frame/Find Frame", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Find Next */
+    {"/Find Frame/Find Next", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Find Previous */
+    {"/Find Frame/Find Previous", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
+    /* Colorize Protocol */
+    {"/Colorize Protocol", NULL,
+     GTK_MENU_FUNC(proto_hier_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
 
 };
 
@@ -144,7 +144,7 @@ fill_in_tree_node(GNode *node, gpointer data)
     ph_stats_node_t *stats = node->data;
     draw_info_t     *di = data;
     ph_stats_t      *ps = di->ps;
-    gboolean        is_leaf;
+    gboolean	is_leaf;
     draw_info_t     child_di;
     double          seconds;
     gchar           *text[NUM_STAT_COLUMNS];
@@ -217,14 +217,14 @@ fill_in_tree_node(GNode *node, gpointer data)
 static void
 fill_in_tree(GtkWidget *tree, ph_stats_t *ps)
 {
-	draw_info_t	di;
+    draw_info_t	di;
 
-        di.tree_view = GTK_TREE_VIEW(tree);
-	di.iter = NULL;
-	di.ps = ps;
+    di.tree_view = GTK_TREE_VIEW(tree);
+    di.iter = NULL;
+    di.ps = ps;
 
-	g_node_children_foreach(ps->stats_tree, G_TRAVERSE_ALL,
-                                fill_in_tree_node, &di);
+    g_node_children_foreach(ps->stats_tree, G_TRAVERSE_ALL,
+                            fill_in_tree_node, &di);
 }
 
 static GtkWidget *popup_menu_object;
@@ -268,7 +268,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     /* Scrolled Window */
     sw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), 
-                                   GTK_SHADOW_IN);
+                                        GTK_SHADOW_IN);
     gtk_container_add(GTK_CONTAINER(container), sw);
 
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING,
@@ -362,55 +362,68 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	ph_stats_t	*ps;
-	GtkWidget	*dlg, *close_bt, *help_bt, *vbox, *bbox;
-	GtkWidget	*label;
-	char		 title[256];
-	const char      *current_filter;
+    ph_stats_t	*ps;
+    GtkWidget	*dlg, *close_bt, *help_bt, *vbox, *bbox;
+    GtkWidget	*label;
+    char		 title[256];
+    const char      *current_filter;
 
-	/* Get the statistics. */
-	ps = ph_stats_new();
-	if (ps == NULL) {
-		/* The user gave up before we finished; don't pop up
-		   a statistics window. */
-		return;
-	}
+    /* Get the statistics. */
+    ps = ph_stats_new();
+    if (ps == NULL) {
+        /* The user gave up before we finished; don't pop up
+           a statistics window. */
+        return;
+    }
 
-	dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Protocol Hierarchy Statistics");
+    dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Protocol Hierarchy Statistics");
 
-	vbox = gtk_vbox_new(FALSE, 5);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
-	gtk_container_add(GTK_CONTAINER(dlg), vbox);
+    vbox = gtk_vbox_new(FALSE, 5);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
+    gtk_container_add(GTK_CONTAINER(dlg), vbox);
 
-	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 
-	if (current_filter && strlen(current_filter) != 0) {
-		g_snprintf(title, 255, "Display filter: %s", current_filter);
-	} else {
-		g_snprintf(title, 255, "Display filter: none");
-	}
-	label = gtk_label_new(title);
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+    if (current_filter && strlen(current_filter) != 0) {
+        g_snprintf(title, sizeof(title), "Display filter: %s", current_filter);
+    } else {
+        g_strlcpy(title, "Display filter: none", sizeof(title));
+    }
+    label = gtk_label_new(title);
+    gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
-	/* Data section */
-	create_tree(vbox, ps);
+    /* Data section */
+    create_tree(vbox, ps);
 
-	ph_stats_free(ps);
+    ph_stats_free(ps);
 
-	/* Button row. */
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
-	gtk_widget_show(bbox);
+    /* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
-	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
-	window_set_cancel_button(dlg, close_bt, window_cancel_button_cb);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    window_set_cancel_button(dlg, close_bt, window_cancel_button_cb);
 
-	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
 
-	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
-	gtk_widget_show_all(dlg);
-	window_present(dlg);
+    gtk_widget_show_all(dlg);
+    window_present(dlg);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
 
