@@ -88,6 +88,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/sminmpec.h>
+#include <epan/expert.h>
 
 
 static int bootp_dhcp_tap = -1;
@@ -3703,8 +3704,10 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	secs = tvb_get_letohs(tvb, 8);
 	if (secs > 0 && secs <= 0xff) {
-		proto_tree_add_uint_format(bp_tree, hf_bootp_secs, tvb,
-			    8, 2, secs, "Seconds elapsed: %u (little endian bug?)", secs);
+		ti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_secs, tvb,
+			    8, 2, secs, "%u", secs);
+		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_NOTE,
+			    "Seconds elapsed (%u) appears to be encoded as little-endian", secs);
 	} else {
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 			    8, 2, FALSE);
