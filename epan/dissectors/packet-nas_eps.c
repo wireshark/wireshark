@@ -23,7 +23,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * References: 3GPP TS 24.301 V8.0.0 (2008-12)
+ * References: 3GPP TS 24.301 V8.0.0 (2008-12) and V8.1.0 Draft v5
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,7 +61,33 @@ static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
 static int hf_nas_eps_emm_res = -1;
 static int hf_nas_eps_emm_cause = -1;
+static int hf_nas_eps_emm_id_type2 = -1;
 static int hf_nas_eps_emm_short_mac = -1;
+static int hf_nas_eps_emm_128eea0 = -1;
+static int hf_nas_eps_emm_128eea1 = -1;
+static int hf_nas_eps_emm_128eea2 = -1;
+static int hf_nas_eps_emm_128eea3 = -1;
+static int hf_nas_eps_emm_128eea4 = -1;
+static int hf_nas_eps_emm_128eea5 = -1;
+static int hf_nas_eps_emm_128eea6 = -1;
+static int hf_nas_eps_emm_128eea7 = -1;
+static int hf_nas_eps_emm_128eia1 = -1;
+static int hf_nas_eps_emm_128eia2 = -1;
+static int hf_nas_eps_emm_128eia3 = -1;
+static int hf_nas_eps_emm_128eia4 = -1;
+static int hf_nas_eps_emm_128eia5 = -1;
+static int hf_nas_eps_emm_128eia6 = -1;
+static int hf_nas_eps_emm_128eia7 = -1;
+static int hf_nas_eps_emm_128uea0 = -1;
+static int hf_nas_eps_emm_128uea1 = -1;
+static int hf_nas_eps_emm_128uea2 = -1;
+static int hf_nas_eps_emm_128uea3 = -1;
+static int hf_nas_eps_emm_128uea4 = -1;
+static int hf_nas_eps_emm_128uea5 = -1;
+static int hf_nas_eps_emm_128uea6 = -1;
+static int hf_nas_eps_emm_128uea7 = -1;
+
+
 static int hf_nas_eps_active_flg = -1;
 static int hf_nas_eps_eps_update_result_value = -1;
 static int hf_nas_eps_eps_update_type_value = -1;
@@ -119,6 +145,7 @@ static const value_string nas_msg_emm_strings[] = {
 	{ 0x61,	"EMM information"},
 	{ 0x62,	"Downlink NAS transport"},
 	{ 0x63,	"Uplink NAS transport"},
+	{ 0x64, "CS Service notification"},
 	{ 0,	NULL }
 };
 
@@ -140,8 +167,10 @@ static const value_string nas_msg_esm_strings[] = {
 	{ 0xd1,	"PDN connectivity reject"},
 	{ 0xd2,	"PDN disconnect request"},
 	{ 0xd3,	"PDN disconnect reject"},
-	{ 0xd4,	"Bearer resource modification request"},
-	{ 0xd5,	"Bearer resource modification reject"},
+	{ 0xd4,	"Bearer resource allocation request"},
+	{ 0xd5,	"Bearer resource allocation reject"},
+	{ 0xd6,	"Bearer resource modification request"},
+	{ 0xd7,	"Bearer resource modification reject"},
 	{ 0xd9,	"ESM information request"},
 	{ 0xda,	"ESM information response"},
 	{ 0xe8,	"ESM status"},
@@ -250,7 +279,7 @@ guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 of
 	/* 9.9.2	Common information elements */
 	de_eps_cmn_eps_be_ctx_status,	/* 9.9.2.1	EPS bearer context status */
 	de_lai,							/* 9.9.2.2	Location area identification */
-	de_mid,							/* 9.9.2.3	Mobile identity */
+	de_mid,							/* 9.9.2.3	Mobile identity See subclause 10.5.1.4 in 3GPP TS 24.008*/
 	de_ms_cm_2,						/* 9.9.2.4	Mobile station classmark 2 */
 	de_ms_cm_3,						/* 9.9.2.5	Mobile station classmark 3 */
 	de_plmn_list,					/* 9.9.2.6	PLMN list */
@@ -329,7 +358,6 @@ typedef enum
 	DE_EMM_NAS_SEC_ALGS,		/* 9.9.3.23	NAS security algorithms */
 	DE_EMM_NET_NAME,			/* 9.9.3.24	Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
 	DE_EMM_NONCE,				/* 9.9.3.25	Nonce */
-	DE_EMM_P_TMSI,				/* 9.9.3.22	P-TMSI, See subclause 10.5.1.4 in 3GPP TS 24.008 [6]. */
 	DE_EMM_P_TMSI_SIGN,			/* 9.9.3.26	P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
 	DE_EMM_SERV_TYPE,			/* 9.9.3.27	Service type */
 	DE_EMM_SHORT_MAC,			/* 9.9.3.28	Short MAC */
@@ -478,7 +506,7 @@ de_emm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, len, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	return curr_offset-offset;}
@@ -521,8 +549,8 @@ static const value_string nas_eps_emm_eps_att_type_vals[] = {
  */
 
 static const value_string nas_eps_emm_type_of_id_vals[] = {
-	{ 0,	"IMSI"},
-	{ 1,	"reserved"},
+	{ 0,	"reserved"},
+	{ 1,	"IMSI"},
 	{ 2,	"reserved"},
 	{ 3,	"reserved"},
 	{ 4,	"reserved"},
@@ -628,6 +656,14 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * 9.9.3.17	Identity type 2
  * See subclause 10.5.5.9 in 3GPP TS 24.008 [6].
  */
+static const value_string nas_eps_emm_id_type2_vals[] = {
+	{ 1,	"IMSI"},
+	{ 2,	"IMEI"},
+	{ 3,	"IMEISV"},
+	{ 4,	"TMSI"},
+	{ 0, NULL }
+};
+
 /*
  * 9.9.3.18	IMEISV request
  * See subclause 10.5.5.10 in 3GPP TS 24.008 [6].
@@ -792,6 +828,35 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 /*
  * 9.9.3.34	UE network capability 
  */
+/*
+EPS integrity algorithms supported (octet 4)
+Bit 8 of octet 4 is spare and shall be coded as zero.
+EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
+0 EPS integrity algorithm 128-EIA1 not supported
+1 EPS integrity algorithm 128-EIA1 supported
+EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6)
+0 EPS integrity algorithm 128-EIA2 not supported
+1 EPS integrity algorithm 128-EIA2 supported
+EPS integrity algorithm EIA3 supported (octet 4, bit 5)
+0 EPS integrity algorithm EIA3 not supported
+1 EPS integrity algorithm EIA3 supported
+EPS integrity algorithm EIA4 supported (octet 4, bit 4)
+0 EPS integrity algorithm EIA4 not supported
+1 EPS integrity algorithm EIA4 supported
+EPS integrity algorithm EIA5 supported (octet 4, bit 3)
+0 EPS integrity algorithm EIA5 not supported
+1 EPS integrity algorithm EIA5 supported
+EPS integrity algorithm EIA6 supported (octet 4, bit 2)
+0 EPS integrity algorithm EIA6 not supported
+1 EPS integrity algorithm EIA6 supported
+EPS integrity algorithm EIA7 supported (octet 4, bit 1)
+0 EPS integrity algorithm EIA7 not supported
+1 EPS integrity algorithm EIA7 supported
+*/
+static const true_false_string  nas_eps_emm_supported_flg_value = {
+	"Supported",
+	"Not Supported"
+};
 static guint16
 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -800,7 +865,72 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	/* EPS encryption algorithms supported (octet 3) */
+	/* EPS encryption algorithm 128-EEA0 supported (octet 3, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea0, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea3, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea4, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea5, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea6, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eea7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+
+	/* EPS integrity algorithms supported (octet 4)
+	* Bit 8 of octet 4 is spare and shall be coded as zero.
+	* EPS integrity algorithm 128-EIA1 supported (octet 4, bit 7)
+	*/
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia1, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA3 supported (octet 4, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia3, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia4, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia5, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia6, tvb, curr_offset, 1, FALSE);
+	/* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128eia7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+
+	/* UMTS encryption algorithms supported (octet 5)
+	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
+	 */
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea0, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea1, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea2, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea3, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm 128-UEA0 supported (octet 5, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea4, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea5, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea6, tvb, curr_offset, 1, FALSE);
+	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_128uea7, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* UCS2 support (UCS2) (octet 6, bit 8)
+	 * This information field indicates the likely treatment of UCS2 encoded character strings
+	 * by the UE.
+	 */
+	proto_tree_add_text(tree, tvb, curr_offset, len-3 , "Not decoded yet");
 
 	return(len);
 }
@@ -837,6 +967,41 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	return(len);
 }
 /*
+ * 9.9.3.37	Emergency Number List
+ * See subclause 10.5.3.13 in 3GPP TS 24.008 [13].
+ */
+
+/*
+ * 9.9.3.38	CLI
+ */
+/*
+ * The coding of the CLI value part is the same as for octets 3 to 14
+ * of the Calling party BCD number information element defined in 
+ * subclause 10.5.4.9 of 3GPP TS 24.008
+ */
+
+/*
+ * 9.9.3.39	SS Code
+ */
+/*
+SS Code value
+
+The coding of the SS Code value is given in subclause 17.7.5 of 3GPP TS 29.002 [15B].
+*/
+/*
+ * 9.9.3.40	LCS indicator
+ */
+
+/*
+ * 9.9.3.41	LCS client identity
+ */
+/*
+LCS client identity (value part)
+
+The coding of the value part of the LCS client identity is given in subclause 17.7.13 of 3GPP TS 29.002 [15B].
+*/
+
+/*
  * 9.9.4	EPS Session Management (ESM) information elements
  */
 
@@ -870,7 +1035,9 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 /*
  * 9.9.4.6 Linked EPS bearer identity 
  * 9.9.4.7 LLC service access point identifier 
+ * See subclause 10.5.6.9 in 3GPP TS 24.008
  * 9.9.4.8 Packet flow identifier 
+ * See subclause 10.5.6.11 in 3GPP TS 24.008 
  * 9.9.4.9 PDN address
  *
  * 9.9.4.10 PDN type
@@ -1118,7 +1285,7 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* * EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 	/* 78 ESM message container	ESM message container 9.9.3.15	O	TLV-E	4-n */
 	ELEM_OPT_TLV(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, "");
 
@@ -1138,19 +1305,19 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	/* EPS attach type	EPS attach type 9.9.3.11	M	V	1/2  
-	 * Inline:
-	 */
 	bit_offset = curr_offset<<3;
 	
-	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
-	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, FALSE);
-	bit_offset+=3;
 	/* NAS key set identifier	NAS key set identifier 9.9.3.21	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
+	bit_offset+=3;
+	/* EPS attach type	EPS attach type 9.9.3.11	M	V	1/2  
+	 * Inline:
+	 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, FALSE);
 	bit_offset+=3;
 	/* Fix up the lengths */
 	curr_len--;
@@ -1194,7 +1361,7 @@ nas_emm_attach_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	 /* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 	/* 30 Authentication failure parameter	Authentication failure parameter 9.9.3.1	O	TLV	1 */
 	ELEM_OPT_TLV(0x30, GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM, "");
 
@@ -1350,7 +1517,7 @@ nas_emm_emm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1428,14 +1595,19 @@ nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	consumed = 1;
 
-	/* Identity type	Identity type 2 9.9.3.17	M	V	1/2 */
 	bit_offset=curr_offset<<3;
 
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
+
+	/* Identity type	Identity type 2 9.9.3.17	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_id_type2, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	consumed = 1;
+
+
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
@@ -1542,7 +1714,7 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1582,7 +1754,7 @@ nas_emm_serv_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 
 	/* 5B	T3442 value	GPRS timer 9.9.3.16	C	TV	2 */
 	ELEM_OPT_TV(0x5b, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3442 value");
@@ -1668,7 +1840,7 @@ nas_emm_trac_area_upd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_len = len;
 
 	/* EMM cause	EMM cause 9.9.3.9	M	V	1 */
-	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_EMM_CAUSE);
+	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1771,6 +1943,29 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
+ * 8.2.9	CS service notification
+ */
+
+static void
+nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	consumed = 0;
+
+	/* 60	CLI	CLI 9.9.3.38	O	TLV	3-12 */
+	/* 61	SS Code	SS Code 9.9.3.39	O	TV	2 */
+	/* 62	LCS indicator	LCS indicator 9.9.3.40	O	TV	2 */
+	/* 63	LCS client identity	LCS client identity 9.9.3.41	O	TLV	3-257 */
+ 
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
  * 8.3	EPS session management messages
  */
 /*
@@ -1843,16 +2038,16 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	curr_offset = offset;
 	curr_len = len;
-	g_warning("Length %u",len);
 
 	bit_offset=curr_offset<<3;
+	/* PDN type PDN type 9.9.4.10 M V 1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+
 	/* Request type 9.9.4.14 M V 1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_esm_request_type, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	
-	/* PDN type PDN type 9.9.4.10 M V 1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
@@ -1892,6 +2087,8 @@ static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* PDN connectivity reject*/
 	NULL,	/* PDN disconnect request*/
 	NULL,	/* PDN disconnect reject*/
+	NULL,	/* Bearer resource allocation request*/
+	NULL,	/* Bearer resource allocation reject*/
 	NULL,	/* Bearer resource modification request*/
 	NULL,	/* Bearer resource modification reject*/
 	NULL,	/* ESM information request*/
@@ -1950,6 +2147,7 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	nas_emm_emm_inf,			/* EMM information */
 	nas_emm_dl_nas_trans,		/* Downlink NAS transport */
 	nas_emm_ul_nas_trans,		/* Uplink NAS transport */
+	nas_emm_cs_serv_not,		/* CS Service notification */
 	NULL,	/* NONE */
 
 };
@@ -2223,11 +2421,134 @@ void proto_register_nas_eps(void) {
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
 		"Cause", HFILL }
 	},
+	{ &hf_nas_eps_emm_id_type2,
+		{ "Identity type 2","nas_eps.emm.id_type2",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_id_type2_vals), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_nas_eps_emm_short_mac,
 		{ "Short MAC value","nas_eps.emm.short_mac",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"Short MAC value", HFILL }
 	},
+	{ &hf_nas_eps_emm_128eea0,
+		{ "128-EEA0","nas_eps.emm.128eea0",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea1,
+		{ "128-EEA1","nas_eps.emm.128eea1",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea2,
+		{ "128-EEA2","nas_eps.emm.128eea2",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea3,
+		{ "128-EEA3","nas_eps.emm.128eea3",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea4,
+		{ "128-EEA4","nas_eps.emm.128eea4",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea5,
+		{ "128-EEA5","nas_eps.emm.128eea5",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea6,
+		{ "128-EEA6","nas_eps.emm.128eea6",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eea7,
+		{ "128-EEA7","nas_eps.emm.128eea7",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia1,
+		{ "128-EIA1","nas_eps.emm.128eia1",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia2,
+		{ "128-EIA2","nas_eps.emm.128eia2",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia3,
+		{ "128-EIA3","nas_eps.emm.128eia3",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia4,
+		{ "128-EIA4","nas_eps.emm.128eia4",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia5,
+		{ "128-EIA5","nas_eps.emm.128eia5",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia6,
+		{ "128-EIA6","nas_eps.emm.128eia6",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128eia7,
+		{ "128-EIA7","nas_eps.emm.128eia7",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
+		NULL, HFILL }
+	},
+
+
+	{ &hf_nas_eps_emm_128uea0,
+		{ "128-UEA0","nas_eps.emm.128uea0",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea1,
+		{ "128-UEA1","nas_eps.emm.128uea1",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea2,
+		{ "128-UEA2","nas_eps.emm.128uea2",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea3,
+		{ "128-UEA3","nas_eps.emm.128uea3",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea4,
+		{ "128-UEA4","nas_eps.emm.128uea4",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea5,
+		{ "128-UEA5","nas_eps.emm.128uea5",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea6,
+		{ "128-UEA6","nas_eps.emm.128uea6",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_128uea7,
+		{ "128-UEA7","nas_eps.emm.128uea7",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
+		NULL, HFILL }
+	},
+
 	{ &hf_nas_eps_active_flg,
 		{ "Active flag", "nas_eps.emm.active_flg",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x0,
