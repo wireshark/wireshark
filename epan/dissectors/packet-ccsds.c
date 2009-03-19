@@ -436,7 +436,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Register the protocol with Wireshark
- * this format is require because a script is used to build the C function
+ * this format is required because a script is used to build the C function
  * that calls all the protocol registration.
  */
 void
@@ -592,6 +592,7 @@ proto_register_ccsds(void)
 	proto_register_field_array(proto_ccsds, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
 }
 
 
@@ -602,7 +603,6 @@ proto_register_ccsds(void)
 void
 proto_reg_handoff_ccsds(void)
 {
-	register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
-	dissector_add ( "udp.port", 0, find_dissector("ccsds") );
+	dissector_add_handle ( "udp.port", find_dissector("ccsds") ); /* for 'decode as' */
 }
 

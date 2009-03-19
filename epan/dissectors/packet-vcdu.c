@@ -76,7 +76,7 @@ static int hf_vcdu_replay = -1;
 static int hf_vcdu_fhp = -1;
 static int hf_vcdu_lbp = -1;
 
-static dissector_handle_t ccsds_handle = (dissector_handle_t)-1;
+static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_vcdu = -1;
@@ -631,6 +631,8 @@ proto_register_vcdu(void)
 	proto_register_field_array(proto_vcdu, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* XX: Does this dissector need to be publicly registered ?? */
+	register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
 }
 
 
@@ -641,8 +643,7 @@ proto_register_vcdu(void)
 void
 proto_reg_handoff_vcdu(void)
 {
-	register_dissector ( "vcdu", dissect_vcdu, proto_vcdu );
-	dissector_add ( "udp.port", 0, find_dissector("vcdu") );
+	dissector_add_handle ( "udp.port", find_dissector("vcdu") ); /* for 'decode as' */
 	ccsds_handle = find_dissector ( "ccsds" );
 }
 
