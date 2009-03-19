@@ -208,25 +208,25 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	}
 
 
-	g_snprintf(label_txt, 50,"Checksum Type: %s",u_data->assoc->checksum_type);
+	g_snprintf(label_txt, sizeof(label_txt),"Checksum Type: %s",u_data->assoc->checksum_type);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->checktype), label_txt);
-	g_snprintf(label_txt, 50,"Checksum Errors: %u",u_data->assoc->n_checksum_errors);
+	g_snprintf(label_txt, sizeof(label_txt),"Checksum Errors: %u",u_data->assoc->n_checksum_errors);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->checksum), label_txt);
-	g_snprintf(label_txt, 50,"Bundling Errors: %u",u_data->assoc->n_bundling_errors);
+	g_snprintf(label_txt, sizeof(label_txt),"Bundling Errors: %u",u_data->assoc->n_bundling_errors);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->bundling), label_txt);
-	g_snprintf(label_txt, 50,"Padding Errors: %u",u_data->assoc->n_padding_errors);
+	g_snprintf(label_txt, sizeof(label_txt),"Padding Errors: %u",u_data->assoc->n_padding_errors);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->padding), label_txt);
-	g_snprintf(label_txt, 50,"Length Errors: %u",u_data->assoc->n_length_errors);
+	g_snprintf(label_txt, sizeof(label_txt),"Length Errors: %u",u_data->assoc->n_length_errors);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->length), label_txt);
-	g_snprintf(label_txt, 50,"Value Errors: %u",u_data->assoc->n_value_errors);
+	g_snprintf(label_txt, sizeof(label_txt),"Value Errors: %u",u_data->assoc->n_value_errors);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->value), label_txt);
-	g_snprintf(label_txt, 50,"No of Data Chunks from EP1 to EP2: %u",u_data->assoc->n_data_chunks_ep1);
+	g_snprintf(label_txt, sizeof(label_txt),"No of Data Chunks from EP1 to EP2: %u",u_data->assoc->n_data_chunks_ep1);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->chunks_ep1), label_txt);
-	g_snprintf(label_txt, 50,"No of Data Bytes from EP1 to EP2: %u",u_data->assoc->n_data_bytes_ep1);
+	g_snprintf(label_txt, sizeof(label_txt),"No of Data Bytes from EP1 to EP2: %u",u_data->assoc->n_data_bytes_ep1);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->bytes_ep1), label_txt);
-	g_snprintf(label_txt, 50,"No of Data Chunks from EP2 to EP1: %u",u_data->assoc->n_data_chunks_ep2);
+	g_snprintf(label_txt, sizeof(label_txt),"No of Data Chunks from EP2 to EP1: %u",u_data->assoc->n_data_chunks_ep2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->chunks_ep2), label_txt);
-	g_snprintf(label_txt, 50,"No of Data Bytes from EP2 to EP1: %u",u_data->assoc->n_data_bytes_ep2);
+	g_snprintf(label_txt, sizeof(label_txt),"No of Data Bytes from EP2 to EP1: %u",u_data->assoc->n_data_bytes_ep2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->bytes_ep2), label_txt);
 
 	if (u_data->assoc->init == TRUE)
@@ -262,28 +262,28 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	{
 		return;
 	}
-	g_snprintf(label_txt, 50,"Port: %u",u_data->assoc->port1);
+	g_snprintf(label_txt, sizeof(label_txt),"Port: %u",u_data->assoc->port1);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->port), label_txt);
-	g_snprintf(label_txt, 50,"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag1);
+	g_snprintf(label_txt, sizeof(label_txt),"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag1);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->veritag), label_txt);
 
 	if (u_data->assoc->init == TRUE || (u_data->assoc->initack == TRUE && u_data->assoc->initack_dir == 1))
 	{
-		g_snprintf(label_txt, 50,"Requested Number of Inbound Streams: %u",u_data->assoc->instream1);
+		g_snprintf(label_txt, sizeof(label_txt),"Requested Number of Inbound Streams: %u",u_data->assoc->instream1);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_in), label_txt);
-		g_snprintf(label_txt, 50,"Minimum Number of Inbound Streams: %u",((u_data->assoc->instream1>u_data->assoc->outstream2)?u_data->assoc->outstream2:u_data->assoc->instream1));
+		g_snprintf(label_txt, sizeof(label_txt),"Minimum Number of Inbound Streams: %u",((u_data->assoc->instream1>u_data->assoc->outstream2)?u_data->assoc->outstream2:u_data->assoc->instream1));
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->min_in), label_txt);
 
-		g_snprintf(label_txt, 50,"Provided Number of Outbound Streams: %u",u_data->assoc->outstream1);
+		g_snprintf(label_txt, sizeof(label_txt),"Provided Number of Outbound Streams: %u",u_data->assoc->outstream1);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_out), label_txt);
-		g_snprintf(label_txt, 50,"Minimum Number of Outbound Streams: %u",((u_data->assoc->outstream1>u_data->assoc->instream2)?u_data->assoc->instream2:u_data->assoc->outstream1));
+		g_snprintf(label_txt, sizeof(label_txt),"Minimum Number of Outbound Streams: %u",((u_data->assoc->outstream1>u_data->assoc->instream2)?u_data->assoc->instream2:u_data->assoc->outstream1));
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_out), label_txt);
 	}
 	else
 	{
-		g_snprintf(label_txt, 50,"Used Number of Inbound Streams: %u",u_data->assoc->instream1);
+		g_snprintf(label_txt, sizeof(label_txt),"Used Number of Inbound Streams: %u",u_data->assoc->instream1);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_in), label_txt);
-		g_snprintf(label_txt, 50,"Used Number of Outbound Streams: %u",u_data->assoc->outstream1);
+		g_snprintf(label_txt, sizeof(label_txt),"Used Number of Outbound Streams: %u",u_data->assoc->outstream1);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_out), label_txt);
 	}
 
@@ -320,28 +320,28 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 		return;
 	}
 
-	g_snprintf(label_txt, 50,"Port: %u",u_data->assoc->port2);
+	g_snprintf(label_txt, sizeof(label_txt),"Port: %u",u_data->assoc->port2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->port), label_txt);
-	g_snprintf(label_txt, 50,"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag2);
+	g_snprintf(label_txt, sizeof(label_txt),"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->veritag), label_txt);
 
 	if (u_data->assoc->initack == TRUE)
 	{
-		g_snprintf(label_txt, 50,"Requested Number of Inbound Streams: %u",u_data->assoc->instream2);
+		g_snprintf(label_txt, sizeof(label_txt),"Requested Number of Inbound Streams: %u",u_data->assoc->instream2);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->max_in), label_txt);
-		g_snprintf(label_txt, 50,"Minimum Number of Inbound Streams: %u",((u_data->assoc->instream2>u_data->assoc->outstream1)?u_data->assoc->outstream1:u_data->assoc->instream2));
+		g_snprintf(label_txt, sizeof(label_txt),"Minimum Number of Inbound Streams: %u",((u_data->assoc->instream2>u_data->assoc->outstream1)?u_data->assoc->outstream1:u_data->assoc->instream2));
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->min_in), label_txt);
 
-		g_snprintf(label_txt, 50,"Provided Number of Outbound Streams: %u",u_data->assoc->outstream2);
+		g_snprintf(label_txt, sizeof(label_txt),"Provided Number of Outbound Streams: %u",u_data->assoc->outstream2);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->max_out), label_txt);
-		g_snprintf(label_txt, 50,"Minimum Number of Outbound Streams: %u",((u_data->assoc->outstream2>u_data->assoc->instream1)?u_data->assoc->instream1:u_data->assoc->outstream2));
+		g_snprintf(label_txt, sizeof(label_txt),"Minimum Number of Outbound Streams: %u",((u_data->assoc->outstream2>u_data->assoc->instream1)?u_data->assoc->instream1:u_data->assoc->outstream2));
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->min_out), label_txt);
 	}
 	else
 	{
-		g_snprintf(label_txt, 50,"Used Number of Inbound Streams: %u",u_data->assoc->instream2);
+		g_snprintf(label_txt, sizeof(label_txt),"Used Number of Inbound Streams: %u",u_data->assoc->instream2);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->max_in), label_txt);
-		g_snprintf(label_txt, 50,"Used Number of Outbound Streams: %u",u_data->assoc->outstream2);
+		g_snprintf(label_txt, sizeof(label_txt),"Used Number of Outbound Streams: %u",u_data->assoc->outstream2);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->min_out), label_txt);
 	}
 }

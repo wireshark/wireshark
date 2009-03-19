@@ -372,7 +372,7 @@ rpcstat_program_select(GtkWidget *item _U_, gpointer key)
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		GtkWidget *menu_item;
 		char vs[5];
-		g_snprintf(vs, 5, "%d",i);
+		g_snprintf(vs, sizeof(vs), "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
                                (gpointer)(long) i);
@@ -473,7 +473,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	for(i=rpc_min_vers;i<=rpc_max_vers;i++){
 		GtkWidget *menu_item;
 		char vs[5];
-		g_snprintf(vs, 5, "%d",i);
+		g_snprintf(vs, sizeof(vs), "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
                                (gpointer)(long) i);

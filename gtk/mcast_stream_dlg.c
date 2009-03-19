@@ -130,7 +130,7 @@ static void add_to_clist(mcast_stream_info_t* strinfo)
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
 
 	/* Update the top label with the number of detected streams */
-	g_snprintf(label_text, 256,
+	g_snprintf(label_text, sizeof(label_text),
 	        "Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
 	        ++streams_nb, 
 		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw, 
@@ -138,7 +138,7 @@ static void add_to_clist(mcast_stream_info_t* strinfo)
 		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
 	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
-	g_snprintf(label_text, 200, "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n", 
+         g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n", 
 		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);
 	gtk_label_set_text(GTK_LABEL(label_par), label_text);
 }
@@ -191,7 +191,7 @@ mcaststream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_fwd)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			g_strlcpy(ip_version,"v6",3);
+                    g_strlcpy(ip_version,"v6",sizeof(ip_version));
 		}		
 		else{
 			ip_version[0] = '\0';
@@ -229,7 +229,7 @@ mcaststream_on_select_row(GtkCList *clist,
 	gchar label_text[80];
 
 	selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-	g_snprintf(label_text, 80, "Selected: %s:%u -> %s:%u",
+	g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
 			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			get_addr_name(&(selected_stream_fwd->dest_addr)),
@@ -424,31 +424,31 @@ mcast_on_params                      (GtkButton       *button _U_,
 	label = gtk_label_new("  Burst measurement interval (ms)  ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 0, 1);
 	entry1 = gtk_entry_new();
-	g_snprintf(label_text, 50, "%u", burstint);
+	g_snprintf(label_text, sizeof(label_text), "%u", burstint);
 	gtk_entry_set_text(GTK_ENTRY(entry1), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry1, 1, 2, 0, 1);
 	label = gtk_label_new("  Burst alarm threshold (packets)   ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 1, 2);
 	entry2 = gtk_entry_new();
-	g_snprintf(label_text, 50, "%u", trigger);
+	g_snprintf(label_text, sizeof(label_text), "%u", trigger);
 	gtk_entry_set_text(GTK_ENTRY(entry2), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry2, 1, 2, 1, 2);
 	label = gtk_label_new("  Buffer alarm threshold (bytes)     ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 2, 3);
 	entry3 = gtk_entry_new();
-	g_snprintf(label_text, 50, "%u", bufferalarm);
+	g_snprintf(label_text, sizeof(label_text), "%u", bufferalarm);
 	gtk_entry_set_text(GTK_ENTRY(entry3), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry3, 1, 2, 2, 3);
 	label = gtk_label_new("  Stream empty speed (kbit/s)      ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 3, 4);
 	entry4 = gtk_entry_new();
-	g_snprintf(label_text, 50, "%u", emptyspeed);
+	g_snprintf(label_text, sizeof(label_text), "%u", emptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry4), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry4, 1, 2, 3, 4);
 	label = gtk_label_new("  Total empty speed (kbit/s)       ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 4, 5);
 	entry5 = gtk_entry_new();
-	g_snprintf(label_text, 50, "%u", cumulemptyspeed);
+	g_snprintf(label_text, sizeof(label_text), "%u", cumulemptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry5), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry5, 1, 2, 4, 5);
 

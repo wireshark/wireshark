@@ -402,7 +402,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 		return NULL;
 	}
 
-	g_snprintf(vs, 5, "%u",k->ver);
+	g_snprintf(vs, sizeof(vs), "%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	g_signal_connect(menu_item, "activate", G_CALLBACK(dcerpcstat_version_select),
                        (gpointer)((long)k->ver));
@@ -449,7 +449,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 	case 0:
 
 		first_menu_name=v->name;
-		g_snprintf(str,63,"%s ...",v->name);
+		g_snprintf(str,sizeof(str),"%s ...",v->name);
 		program_submenu_item=gtk_menu_item_new();
 		box=gtk_hbox_new(TRUE,0);
 		gtk_container_add(GTK_CONTAINER(program_submenu_item), box);
@@ -466,7 +466,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(program_submenu_item), program_submenu_menu);
 		break;
 	case 14:
-		g_snprintf(str,63,"%s - %s",first_menu_name,v->name);
+		g_snprintf(str,sizeof(str),"%s - %s",first_menu_name,v->name);
 		gtk_label_set_text(GTK_LABEL(program_submenu_label), str);
 		break;
 /*qqq*/

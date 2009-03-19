@@ -205,13 +205,13 @@ mgcpstat_draw(void *pms)
 			continue;
 		}
 
-		g_snprintf(str[0], 256, "%s", val_to_str(i,mgcp_mesage_type,"Other"));
-		g_snprintf(str[1], 256, "%d", ms->rtd[i].num);
-		g_snprintf(str[2], 256, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
-		g_snprintf(str[3], 256, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
-		g_snprintf(str[4], 256, "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
-		g_snprintf(str[5], 256, "%6u", ms->rtd[i].min_num);
-		g_snprintf(str[6], 256, "%6u", ms->rtd[i].max_num);
+		g_snprintf(str[0], sizeof(char[256]), "%s", val_to_str(i,mgcp_mesage_type,"Other"));
+		g_snprintf(str[1], sizeof(char[256]), "%d", ms->rtd[i].num);
+		g_snprintf(str[2], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
+		g_snprintf(str[3], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
+		g_snprintf(str[4], sizeof(char[256]), "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
+		g_snprintf(str[5], sizeof(char[256]), "%6u", ms->rtd[i].min_num);
+		g_snprintf(str[6], sizeof(char[256]), "%6u", ms->rtd[i].max_num);
 		gtk_clist_append(ms->table, str);
 	}
 

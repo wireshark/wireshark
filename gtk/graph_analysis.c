@@ -450,8 +450,8 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 			end_position
 			);
 
-		g_snprintf(src_port,8,"(%i)", user_data->dlg.items[current_item].port_src);
-		g_snprintf(dst_port,8,"(%i)", user_data->dlg.items[current_item].port_dst);
+		g_snprintf(src_port,sizeof(src_port),"(%i)", user_data->dlg.items[current_item].port_src);
+		g_snprintf(dst_port,sizeof(dst_port),"(%i)", user_data->dlg.items[current_item].port_dst);
 
 		if (start_position<end_position){
 			overwrite(tmp_str,src_port,start_position-9,start_position-1);

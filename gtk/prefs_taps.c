@@ -72,7 +72,7 @@ stats_prefs_show(void)
         tap_update_interval_te = create_preference_entry(main_tb, pos++,
             "Tap update interval in ms:", 
             "Determines time between tap updates.", max_visible_str);
-        g_snprintf(update_interval_str, 128, "%d", prefs.tap_update_interval);
+        g_snprintf(update_interval_str, sizeof(update_interval_str), "%d", prefs.tap_update_interval);
         gtk_entry_set_text(GTK_ENTRY(tap_update_interval_te), update_interval_str);
         gtk_tooltips_set_tip(tooltips, tap_update_interval_te,
             "Gap in milliseconds between updates to taps is defined here", NULL);
@@ -83,7 +83,7 @@ stats_prefs_show(void)
         rtp_player_max_visible_te = create_preference_entry(main_tb, pos++,
             "Max visible channels in RTP Player:", 
             "Determines maximum height of RTP Player window.", max_visible_str);
-        g_snprintf(max_visible_str, 128, "%d", prefs.rtp_player_max_visible);
+        g_snprintf(max_visible_str, sizeof(max_visible_str), "%d", prefs.rtp_player_max_visible);
         gtk_entry_set_text(GTK_ENTRY(rtp_player_max_visible_te), max_visible_str);
         gtk_tooltips_set_tip(tooltips, rtp_player_max_visible_te,
             "Maximum height of RTP Player window is defined here.", NULL);

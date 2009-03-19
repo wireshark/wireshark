@@ -734,9 +734,9 @@ airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel)
     gchar channel_offset_value[3];
 
     if (extChannel > 0){
-        g_snprintf(channel_offset_value, 3, "+%d", extChannel);
+        g_snprintf(channel_offset_value, sizeof(channel_offset_value), "+%d", extChannel);
     }else{
-        g_snprintf(channel_offset_value, 3, "%d", extChannel);
+        g_snprintf(channel_offset_value, sizeof(channel_offset_value), "%d", extChannel);
     }
 
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry), channel_offset_value);

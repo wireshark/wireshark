@@ -270,7 +270,7 @@ gui_prefs_show(void)
 	/* File Open dialog preview timeout */
 	fileopen_preview_te = create_preference_entry(main_tb, pos++,
 	    "\"File Open\" preview timeout:", "Timeout, until preview gives up scanning the capture file content.", open_file_preview_str);
-	g_snprintf(current_val_str, 128, "%d", prefs.gui_fileopen_preview);
+	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_fileopen_preview);
 	gtk_entry_set_text(GTK_ENTRY(fileopen_preview_te), current_val_str);
 	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, 
         "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
@@ -280,7 +280,7 @@ gui_prefs_show(void)
 	/* Number of recent entries in the display filter list ... */
 	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
 	    "Filter display max. list entries:", "Maximum number of recent entries in filter display list", recent_df_entries_max_str);
-	g_snprintf(current_val_str, 128, "%d", prefs.gui_recent_df_entries_max);
+	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_df_entries_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_df_entries_max_te), current_val_str);
 	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_DF_ENTRIES_KEY, recent_df_entries_max_te);
 	g_signal_connect(recent_df_entries_max_te, "focus_out_event", G_CALLBACK(recent_df_entries_changed_cb), main_vb);
@@ -288,7 +288,7 @@ gui_prefs_show(void)
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
 	    "\"Open Recent\" max. list entries:", "Maximum number of recent files", recent_files_count_max_str);
-	g_snprintf(current_val_str, 128, "%d", prefs.gui_recent_files_count_max);
+	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_files_count_max);
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
 	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, 
         "Maximum number of entries in the \"File/Open Recent\" list.", NULL);

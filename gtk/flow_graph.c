@@ -334,14 +334,14 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
     bpos = 1 << i;
     if (tcph->th_flags & bpos) {
       if (flags_found) {
-        g_strlcat(flags, ", ", 64);
+        g_strlcat(flags, ", ", sizeof(flags));
       }
-      g_strlcat(flags, fstr[i], 64);
+      g_strlcat(flags, fstr[i], sizeof(flags));
       flags_found = TRUE;
     }
   }
   if (flags[0] == '\0') {
-    g_snprintf (flags, 64, "<None>");
+    g_snprintf (flags, sizeof(flags), "<None>");
   }
 
   if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){

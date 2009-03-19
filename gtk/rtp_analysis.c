@@ -832,14 +832,14 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->series_rev.color.blue = 0xffff;
 	user_data->series_rev.yvalue = -0.5;
 
-	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=0x%X)",
+	g_snprintf(title1, sizeof(title1), "Forward: %s:%u to %s:%u (SSRC=0x%X)",
 		get_addr_name(&(user_data->ip_src_fwd)),
 		user_data->port_src_fwd,
 		get_addr_name(&(user_data->ip_dst_fwd)),
 		user_data->port_dst_fwd,
 		user_data->ssrc_fwd);
 
-	g_snprintf(title2, 80, "Reverse: %s:%u to %s:%u (SSRC=0x%X)",
+	g_snprintf(title2, sizeof(title2), "Reverse: %s:%u to %s:%u (SSRC=0x%X)",
 		get_addr_name(&(user_data->ip_src_rev)),
 		user_data->port_src_rev,
 		get_addr_name(&(user_data->ip_dst_rev)),
@@ -898,22 +898,26 @@ static void dialog_graph_reset(user_data_t* user_data)
 	for(i=0;i<MAX_GRAPHS;i++){
 		/* it is forward */
 		if (i<2){
-       			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=0x%X)",
-					graph_descr[i],
-                	get_addr_name(&(user_data->ip_src_fwd)),
-                	user_data->port_src_fwd,
-                	get_addr_name(&(user_data->ip_dst_fwd)),
-                	user_data->port_dst_fwd,
-                	user_data->ssrc_fwd);
+			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 
+				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
+				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
+				   graph_descr[i],
+				   get_addr_name(&(user_data->ip_src_fwd)),
+				   user_data->port_src_fwd,
+				   get_addr_name(&(user_data->ip_dst_fwd)),
+				   user_data->port_dst_fwd,
+				   user_data->ssrc_fwd);
 		/* it is reverse */
 		} else {
-			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=0x%X)",
-					graph_descr[i],
-                	get_addr_name(&(user_data->ip_src_rev)),
-                	user_data->port_src_rev,
-                	get_addr_name(&(user_data->ip_dst_rev)),
-                	user_data->port_dst_rev,
-                	user_data->ssrc_rev);
+			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 
+				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
+				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
+				   graph_descr[i],
+				   get_addr_name(&(user_data->ip_src_rev)),
+				   user_data->port_src_rev,
+				   get_addr_name(&(user_data->ip_dst_rev)),
+				   user_data->port_dst_rev,
+				   user_data->ssrc_rev);
 		}
 	}
 
@@ -1041,7 +1045,7 @@ static void dialog_graph_draw(user_data_t* user_data)
          * on the width of the text labels. For simplicity we assume that the
          * top y scale label will be the widest one
          */
-         print_time_scale_string(label_string, 15, max_y);
+	print_time_scale_string(label_string, sizeof(label_string), max_y);
         layout = gtk_widget_create_pango_layout(user_data->dlg.dialog_graph.draw_area, label_string);
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
         left_x_border=10;
@@ -1082,7 +1086,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10);
                 /* draw the labels */
                 if(i==0){
-                        print_time_scale_string(label_string, 15, (max_y*i/10));
+                        print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1092,7 +1096,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         layout);
                 }
                 if(i==5){
-                        print_time_scale_string(label_string, 15, (max_y*i/10));
+                        print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1102,7 +1106,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         layout);
                 }
                 if(i==10){
-                        print_time_scale_string(label_string, 15, (max_y*i/10));
+                        print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1175,13 +1179,13 @@ static void dialog_graph_draw(user_data_t* user_data)
                 if(xlen==17){
                         int lwidth;
                         if(user_data->dlg.dialog_graph.interval>=1000){
-                                g_snprintf(label_string, 15, "%ds", current_interval/1000);
+                                g_snprintf(label_string, sizeof(label_string), "%ds", current_interval/1000);
                         } else if(user_data->dlg.dialog_graph.interval>=100){
-                                g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
+                                g_snprintf(label_string, sizeof(label_string), "%d.%1ds", current_interval/1000,(current_interval/100)%10);
                         } else if(user_data->dlg.dialog_graph.interval>=10){
-                                g_snprintf(label_string, 15, "%d.%2ds", current_interval/1000,(current_interval/10)%100);
+                                g_snprintf(label_string, sizeof(label_string), "%d.%2ds", current_interval/1000,(current_interval/10)%100);
                         } else {
-                                g_snprintf(label_string, 15, "%d.%3ds", current_interval/1000,current_interval%1000);
+                                g_snprintf(label_string, sizeof(label_string), "%d.%3ds", current_interval/1000,current_interval%1000);
                         }
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
@@ -1203,7 +1207,7 @@ static void dialog_graph_draw(user_data_t* user_data)
          * Draw "x" for Sequence Errors and "m" for Marks
          */
 	/* Draw the labels Fwd and Rev */
-	g_strlcpy(label_string,"<-Fwd",15);
+	g_strlcpy(label_string,"<-Fwd",sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1211,7 +1215,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
 		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
 		layout);
-        g_strlcpy(label_string,"<-Rev",15);
+        g_strlcpy(label_string,"<-Rev",sizeof(label_string));
         pango_layout_set_text(layout, label_string, -1);
         pango_layout_get_pixel_size(layout, &lwidth, NULL);
         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1238,9 +1242,9 @@ static void dialog_graph_draw(user_data_t* user_data)
 			if(user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)){
 				int lwidth;
 				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ){
-					g_strlcpy(label_string,"x",15);
+					g_strlcpy(label_string,"x",sizeof(label_string));
 				} else {
-					g_strlcpy(label_string,"m",15);
+					g_strlcpy(label_string,"m",sizeof(label_string));
 				}
 
                            	pango_layout_set_text(layout, label_string, -1);
@@ -1489,7 +1493,7 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
         gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
         gtk_widget_show(hbox);
 
-	g_snprintf(str, 256, "Graph %d", num);
+	g_snprintf(str, sizeof(str), "Graph %d", num);
 	dgg->display_button=gtk_toggle_button_new_with_label(str);
         gtk_box_pack_start(GTK_BOX(hbox), dgg->display_button, FALSE, FALSE, 0);
         gtk_widget_show(dgg->display_button);
@@ -1586,9 +1590,9 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
 
         for(i=0;i<MAX_YSCALE;i++){
                 if(yscale_max[i]==AUTO_MAX_YSCALE){
-			g_strlcpy(str,"Auto",15);
+			g_strlcpy(str,"Auto",sizeof(str));
                 } else {
-                        g_snprintf(str, 15, "%u ms", yscale_max[i]/1000);
+                        g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000);
                 }
                 menu_item=gtk_menu_item_new_with_label(str);
                 g_object_set_data(G_OBJECT(menu_item), "yscale_max",
@@ -1608,7 +1612,7 @@ static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget 
         int i;
 
         for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-                g_snprintf(str, 5, "%u", pixels_per_tick[i]);
+                g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
                 menu_item=gtk_menu_item_new_with_label(str);
 
                 g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
@@ -1631,13 +1635,13 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
 
         for(i=0;i<MAX_TICK_VALUES;i++){
                 if(tick_interval_values[i]>=1000){
-                        g_snprintf(str, 15, "%u sec", tick_interval_values[i]/1000);
+                        g_snprintf(str, sizeof(str), "%u sec", tick_interval_values[i]/1000);
                 } else if(tick_interval_values[i]>=100){
-                        g_snprintf(str, 15, "0.%1u sec", (tick_interval_values[i]/100)%10);
+                        g_snprintf(str, sizeof(str), "0.%1u sec", (tick_interval_values[i]/100)%10);
                 } else if(tick_interval_values[i]>=10){
-                        g_snprintf(str, 15, "0.%02u sec", (tick_interval_values[i]/10)%10);
+                        g_snprintf(str, sizeof(str), "0.%02u sec", (tick_interval_values[i]/10)%10);
                 } else {
-                        g_snprintf(str, 15, "0.%03u sec", (tick_interval_values[i])%10);
+                        g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
                 }
 
                 menu_item=gtk_menu_item_new_with_label(str);
@@ -2820,7 +2824,7 @@ static void draw_stat(user_data_t *user_data)
                 r_perc = 0;
         }
 
-	g_snprintf(label_max, 199, "Max delta = %f sec at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
@@ -2829,7 +2833,7 @@ static void draw_stat(user_data_t *user_data)
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
-	g_snprintf(label_max, 199, "Max delta = %f sec at packet no. %u \n"
+	g_snprintf(label_max, sizeof(label_max), "Max delta = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
@@ -3126,22 +3130,22 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)), 16);
-	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)), 16);
+	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)), sizeof(str_ip_src));
+	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)), sizeof(str_ip_dst));
 
-	g_snprintf(label_forward, 149,
+	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
-	g_snprintf(label_forward_tree, 149,
+	g_snprintf(label_forward_tree, sizeof(label_forward_tree),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
-	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)), 16);
-	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)), 16);
+	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)), sizeof(str_ip_src));
+	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)), sizeof(str_ip_dst));
 
-	g_snprintf(label_reverse, 149,
+	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
@@ -3477,7 +3481,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	guint nfound;
 
 	/* Try to compile the filter. */
-	g_strlcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)",256);
+	g_strlcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)",sizeof(filter_text));
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
 		return;

@@ -415,8 +415,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	else
 		distance=5;
 
-	g_snprintf(label_string, 15, "%d", 0);
-	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+	g_snprintf(label_string, sizeof(label_string), "%d", 0);
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 	layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
@@ -428,9 +428,9 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 
 	if (u_data->io->offset!=0)
 	{
-		g_snprintf(label_string, 15, "%u", u_data->io->x1_tmp_sec);
+		g_snprintf(label_string, sizeof(label_string), "%u", u_data->io->x1_tmp_sec);
 
-		memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+		memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
@@ -490,11 +490,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		if (i>=u_data->io->min_x && i%1000000!=0)
 		{
 			length=5;
-			g_snprintf(label_string, 15, "%d", i%1000000);
+			g_snprintf(label_string, sizeof(label_string), "%d", i%1000000);
 			if (j%w==0)
 			{
 				length=10;
-				memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+				memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 				pango_layout_set_text(layout, label_string, -1);
 				pango_layout_get_pixel_size(layout, &lwidth, NULL);
 				gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
@@ -533,8 +533,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			              (guint32)(LEFT_BORDER+u_data->io->offset+(i-u_data->io->min_x)*u_data->io->x_interval),
 			              u_data->io->pixmap_height-BOTTOM_BORDER+10);
 
-			g_snprintf(label_string, 15, "%d", sec);
-			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+			g_snprintf(label_string, sizeof(label_string), "%d", sec);
+			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
@@ -547,9 +547,9 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		
 	}
 
-	g_strlcpy(label_string, "sec", 15);
+	g_strlcpy(label_string, "sec", sizeof(label_string));
 
-	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(u_data->io->pixmap,
@@ -590,12 +590,12 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			if (i>=u_data->io->min_y)
 			{
 				length=5;
-				g_snprintf(label_string, 15, "%d", i);
+				g_snprintf(label_string, sizeof(label_string), "%d", i);
 				if (i%distance==0 || (distance<=5 && u_data->io->y_interval>10))
 				{
 					length=10;
 
-					memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+					memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 					pango_layout_set_text(layout, label_string, -1);
 					pango_layout_get_pixel_size(layout, &lwidth, NULL);
 					gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
@@ -1070,7 +1070,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 				}
 			}
 
-			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
+			g_snprintf(label_string, sizeof(label_string), "(%.6lf, %u)", x_value, y_value);
 
 			label_set = TRUE;
 

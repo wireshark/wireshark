@@ -141,7 +141,7 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
 
 	/* Update the top label with the number of detected streams */
-	g_snprintf(label_text, 256,
+	g_snprintf(label_text, sizeof(label_text),
 	        "Detected %d RTP streams. Choose one for forward and reverse direction for analysis",
 	        ++streams_nb);
 	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
@@ -367,7 +367,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_fwd)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			g_strlcpy(ip_version,"v6",3);
+			g_strlcpy(ip_version,"v6",sizeof(ip_version));
 		}		
 		else{
 			ip_version[0] = '\0';
@@ -387,7 +387,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_rev)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			g_strlcpy(ip_version,"v6",3);
+			g_strlcpy(ip_version,"v6",sizeof(ip_version));
 		}		
 		else{
 			ip_version[0] = '\0';
@@ -527,7 +527,7 @@ rtpstream_on_select_row(GtkCList *clist,
 	/* update the labels */
 	if (event==NULL || event->state & GDK_SHIFT_MASK) {
 		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-		g_snprintf(label_text, 80, "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
+		g_snprintf(label_text, sizeof(label_text), "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			get_addr_name(&(selected_stream_rev->dest_addr)),
@@ -538,7 +538,7 @@ rtpstream_on_select_row(GtkCList *clist,
 	}
 	else {
 		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-		g_snprintf(label_text, 80, "Forward: %s:%u -> %s:%u, SSRC=0x%X",
+		g_snprintf(label_text, sizeof(label_text), "Forward: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			get_addr_name(&(selected_stream_fwd->dest_addr)),

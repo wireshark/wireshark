@@ -164,49 +164,49 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         case ACTYPE_SELECTED:
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
-                g_strlcpy(str, err->procedures[selection].entries[2], 256);
+                g_strlcpy(str, err->procedures[selection].entries[2], sizeof(str));
             }
             else
             {
                 /* expert item exists. Use it. */
-                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
             }
             break;
         case ACTYPE_NOT_SELECTED:
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
-                g_snprintf(str, 255, "!%s", err->procedures[selection].entries[2]);
+                g_snprintf(str, sizeof(str), "!%s", err->procedures[selection].entries[2]);
             }
             else
             {
                 /* expert item exists. Use it. */
-                g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
             }
             break;
             /* the remaining cases will only exist if the expert item exists so no need to check */
         case ACTYPE_AND_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
             else
-                g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_OR_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_strlcpy(str, err->procedures[selection].fvalue_value, 256);
+                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
             else
-                g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_AND_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
             else
-                g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_OR_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
             else
-                g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
@@ -270,7 +270,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         break;
     case ACTION_WEB_LOOKUP:
         /* Lookup expert string on internet. Default search via www.google.com */
-        g_snprintf(str, 255, "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
+        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
         browser_open_url(str);
         break;
     default:

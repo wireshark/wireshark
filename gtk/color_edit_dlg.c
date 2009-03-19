@@ -414,9 +414,9 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	colorf->disabled = filter_disabled;
         gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
         gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);
-        g_snprintf(fg_str, 14, "#%04X%04X%04X",
+        g_snprintf(fg_str, sizeof(fg_str), "#%04X%04X%04X",
                 new_fg_color.red, new_fg_color.green, new_fg_color.blue);
-        g_snprintf(bg_str, 14, "#%04X%04X%04X",
+        g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
                 new_bg_color.red, new_bg_color.green, new_bg_color.blue);
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
         gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);

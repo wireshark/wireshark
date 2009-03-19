@@ -162,7 +162,7 @@ nameres_prefs_show(void)
 
 	/* Max concurrent requests */
 	table_row++;
-	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
+	g_snprintf(concur_str, sizeof(concur_str), "%d", prefs.name_resolve_concurrency);
 	resolv_concurrency_te = create_preference_entry(main_tb, table_row,
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	g_object_set_data(G_OBJECT(main_vb), RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);

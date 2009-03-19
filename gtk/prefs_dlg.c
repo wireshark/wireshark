@@ -171,15 +171,15 @@ pref_show(pref_t *pref, gpointer user_data)
     switch (pref->info.base) {
 
     case 10:
-      g_snprintf(uint_str, 10+1, "%u", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%u", pref->saved_val.uint);
       break;
 
     case 8:
-      g_snprintf(uint_str, 10+1, "%o", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%o", pref->saved_val.uint);
       break;
 
     case 16:
-      g_snprintf(uint_str, 10+1, "%x", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%x", pref->saved_val.uint);
       break;
     }
     pref->control = create_preference_entry(main_tb, pref->ordinal,

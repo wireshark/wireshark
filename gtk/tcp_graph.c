@@ -562,7 +562,7 @@ static void create_text_widget (struct graph *g)
 }
 static void display_text (struct graph *g)
 {
-	char *line[256];
+	char line[256];
 	struct segment *ptr;
 	double first_time, prev_time;
 	unsigned int isn_this=0, isn_opposite=0, seq_this_prev, seq_opposite_prev;
@@ -578,11 +578,10 @@ static void display_text (struct graph *g)
 		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color SlateGray.");
 	}
-	g_snprintf ((char * )line, 256, "%10s%15s%15s%15s%15s%15s%15s%10s\n",
+	g_snprintf (line, sizeof(line), "%10s%15s%15s%15s%15s%15s%15s%10s\n",
 					"pkt num", "time", "delta first", "delta prev",
 					"seqno", "delta first", "delta prev", "data (B)");
-	gtk_text_insert (GTK_TEXT (g->text), g->font, NULL, NULL,
-							(const char *)line, -1);
+	gtk_text_insert (GTK_TEXT (g->text), g->font, NULL, NULL, line, -1);
 
 	first_time = g->segments->rel_secs + g->segments->rel_usecs/1000000.0;
 	prev_time = first_time;
@@ -617,11 +616,11 @@ static void display_text (struct graph *g)
 			seq_opposite_prev = seq;
 			c = &color;
 		}
-		g_snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
+		g_snprintf (line, sizeof(line), "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
 						ptr->th_seglen);
-                gtk_text_buffer_insert(buf, &iter, (const char *)line, -1);
+                gtk_text_buffer_insert(buf, &iter, line, -1);
 		prev_time = time;
 	}
 }
@@ -1176,9 +1175,9 @@ static void update_zoom_spins (struct graph *g)
 {
 	char s[32];
 
-	g_snprintf (s, 32, "%.3f", g->zoom.x / g->zoom.initial.x);
+	g_snprintf (s, sizeof(s), "%.3f", g->zoom.x / g->zoom.initial.x);
 	gtk_entry_set_text (g->zoom.widget.h_zoom, s);
-	g_snprintf (s, 32, "%.3f", g->zoom.y / g->zoom.initial.y);
+	g_snprintf (s, sizeof(s), "%.3f", g->zoom.y / g->zoom.initial.y);
 	gtk_entry_set_text (g->zoom.widget.v_zoom, s);
 }
 
@@ -2196,7 +2195,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 			continue;
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc,
                                axis->s.width - 15, y, axis->s.width - 1, y);
-		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
+		g_snprintf (desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
                 layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
                 pango_layout_get_pixel_size(layout, &w, &h);
                 gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
@@ -2282,7 +2281,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 		if (x < 0 || x > axis->s.width)
 			continue;
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, x, 0, x, 15);
-		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
+		g_snprintf (desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
                 layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
                 pango_layout_get_pixel_size(layout, &w, &h);
                 gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
@@ -2449,7 +2448,7 @@ static int get_label_dim (struct axis *axis, int dir, double label)
 			break;
 		y = y - floor (y);
 	}
-	g_snprintf (str, 32, "%.*f", rdigits, label);
+	g_snprintf (str, sizeof(str), "%.*f", rdigits, label);
 	switch (dir) {
 	case AXIS_HORIZONTAL:
                 layout = gtk_widget_create_pango_layout(axis->g->drawing_area,

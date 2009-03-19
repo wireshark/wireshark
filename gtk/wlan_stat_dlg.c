@@ -166,7 +166,7 @@ wlanstat_reset (void *phs)
 	const char *filter = NULL;
 
 	if (wlanstat_dlg_w != NULL) {
-		g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s",
+            g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
 			    cf_get_display_name(&cfile));
 		gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
 	}
@@ -184,12 +184,12 @@ wlanstat_reset (void *phs)
 
 	if (wlan_stat->use_dfilter) {
 		if (filter && strlen(filter)) {
-			g_snprintf(title, 255, "Network Overview - Filter: %s", filter);
+                    g_snprintf(title, sizeof(title), "Network Overview - Filter: %s", filter);
 		} else {
-			g_snprintf(title, 255, "Network Overview - No Filter");
+                    g_snprintf(title, sizeof(title), "Network Overview - No Filter");
 		}
 	} else {
-		g_snprintf(title, 255, "Network Overview");
+		g_snprintf(title, sizeof(title), "Network Overview");
 	}
 	gtk_frame_set_label(GTK_FRAME(wlanstat_name_lb), title);
 
@@ -1113,7 +1113,7 @@ wlanstat_dlg_create (void)
 	hs->use_dfilter = FALSE;
 	hs->show_only_existing = FALSE;
 
-	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s",
+	g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
 		    cf_get_display_name(&cfile));
 	wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics");
 	gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);

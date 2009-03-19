@@ -101,13 +101,13 @@ wsp_draw_statuscode(gchar *key _U_, wsp_status_code_t *data, gchar * unused _U_ 
 
 
 		/* Maybe we should display the hexadecimal value ? */
-		/* g_snprintf(string_buff, 256, "%s  (0X%x)", data->name, *key); */
+		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new( data->name  /* string_buff */ );
 		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_status_code), tmp, x, x+1, y, y+1);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
-		g_snprintf( string_buff, 256, "%9d", data->packets );
+		g_snprintf( string_buff, sizeof(string_buff), "%9d", data->packets );
 		data->widget = gtk_label_new( string_buff );
 		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_status_code), data->widget, x+1, x+2, y, y+1);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
@@ -116,7 +116,7 @@ wsp_draw_statuscode(gchar *key _U_, wsp_status_code_t *data, gchar * unused _U_ 
 		data->sp->index++;
 	} else {
 		/* Just update the label string */
-		g_snprintf( string_buff, 256, "%9d", data->packets );
+            g_snprintf( string_buff, sizeof(string_buff), "%9d", data->packets );
 		 gtk_label_set_text( GTK_LABEL(data->widget), string_buff);
 	}
 }
@@ -211,7 +211,7 @@ wspstat_draw(void *psp)
 
 	for(i=1;i<=sp->num_pdus ; i++)
 	{
-		g_snprintf(str, 256, "%9d",  sp->pdu_stats[i ].packets);
+            g_snprintf(str, sizeof(str), "%9d",  sp->pdu_stats[i ].packets);
 		 gtk_label_set_text( GTK_LABEL(sp->pdu_stats[i].widget), str);
 	}
 
@@ -283,7 +283,7 @@ wsp_init_table(wspstat_t *sp)
 			x=2;
 		}
 		/* Maybe we should display the hexadecimal value ? */
-		/* g_snprintf(buffer, 50, "%s  (0X%x)", match_strval( index2pdut( i ), vals_pdu_type), index2pdut(i) );*/
+		/* g_snprintf(buffer, sizeof(buffer), "%s  (0X%x)", match_strval( index2pdut( i ), vals_pdu_type), index2pdut(i) );*/
 		add_table_entry( sp,
 				match_strval(index2pdut(i), vals_pdu_type), /* or buffer, */
 				x,

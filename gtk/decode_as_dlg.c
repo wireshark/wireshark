@@ -1055,13 +1055,13 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
-    g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
+    g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
+    g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1092,7 +1092,7 @@ decode_add_ppid_menu (GtkWidget *page)
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
     
-    g_snprintf(tmp, 100, "PPID (%u)", 0);
+    g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1100,13 +1100,13 @@ decode_add_ppid_menu (GtkWidget *page)
     
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
       if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
-        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-        menuitem = gtk_menu_item_new_with_label(tmp);
-        g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+          g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
+          menuitem = gtk_menu_item_new_with_label(tmp);
+          g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+          gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+          gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
-        break;
+          break;
 
     g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
@@ -1491,14 +1491,14 @@ decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
 
     menu = gtk_menu_new();
 
-    g_snprintf(tmp, 100, "PPID (%u)", 0);
+    g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
       if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
-        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
+        g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
         g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1527,13 +1527,13 @@ decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
     GtkListStore *sctp_store;
 
     menu = gtk_menu_new();
-    g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
+    g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
+    g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1658,7 +1658,7 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add link level selection page */
     if (cfile.edt->pi.ethertype) {
-	g_snprintf(buffer, 40, "Ethertype 0x%04x", cfile.edt->pi.ethertype);
+	g_snprintf(buffer, sizeof(buffer), "Ethertype 0x%04x", cfile.edt->pi.ethertype);
 	page = decode_add_simple_page(buffer, "Link", "ethertype", cfile.edt->pi.ethertype);
 	label = gtk_label_new("Link");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1666,7 +1666,7 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add mpls selection page */
     if (cfile.edt->pi.mpls_label) {
-	g_snprintf(buffer, 40, "Data after label %u", cfile.edt->pi.mpls_label);
+	g_snprintf(buffer, sizeof(buffer), "Data after label %u", cfile.edt->pi.mpls_label);
 	page = decode_add_simple_page(buffer, "MPLS", "mpls.label", cfile.edt->pi.mpls_label);
 	label = gtk_label_new("MPLS");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1677,7 +1677,7 @@ decode_add_notebook (GtkWidget *format_hb)
 	/*
 	 * The network-layer protocol is IP.
 	 */
-	g_snprintf(buffer, 40, "IP protocol %u", cfile.edt->pi.ipproto);
+	g_snprintf(buffer, sizeof(buffer), "IP protocol %u", cfile.edt->pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
 	g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");

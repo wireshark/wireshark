@@ -729,9 +729,9 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
   if( strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) {
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
     gtk_list_store_append(store, &iter);
-    g_snprintf(fg_str, 14, "#%04X%04X%04X",
+    g_snprintf(fg_str, sizeof(fg_str), "#%04X%04X%04X",
             colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
-    g_snprintf(bg_str, 14, "#%04X%04X%04X",
+    g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
             colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
     gtk_list_store_set(store, &iter, 
 		0, colorf->filter_name,
