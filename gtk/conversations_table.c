@@ -67,36 +67,31 @@
 #define NB_PAGES_KEY "notebook-pages"
 #define NO_BPS_STR "N/A"
 
-#define CMP_NUM(n1, n2)	\
-	if ((n1) > (n2))	\
-		return 1;	\
-	else if ((n1) < (n2))	\
-		return -1;	\
-	else			\
-		return 0;
+#define CMP_NUM(n1, n2)                         \
+    if ((n1) > (n2))                            \
+        return 1;                               \
+    else if ((n1) < (n2))                       \
+        return -1;                              \
+    else                                        \
+        return 0;
 
 /* convert a port number into a string */
 static char *
 ct_port_to_str(int port_type, guint32 port)
 {
-	static int i=0;
-	static gchar *strp, str[4][12];
+    static int i=0;
+    static gchar str[4][12];
 
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	switch(port_type){
-	case PT_TCP:
-        case PT_UDP:
-        case PT_SCTP:
-        case PT_NCP:
-		g_snprintf(strp, 11, "%d", port);
-		return strp;
-	}
-	return NULL;
+    switch(port_type){
+    case PT_TCP:
+    case PT_UDP:
+    case PT_SCTP:
+    case PT_NCP:
+        i = (i+1)%4;
+        g_snprintf(str[i], sizeof(str[0]), "%d", port);
+        return str[i];
+    }
+    return NULL;
 }
 
 
@@ -117,174 +112,174 @@ ct_port_to_str(int port_type, guint32 port)
 static const char *
 ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
-	switch(name_type){
-	case FN_SRC_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.src";
-			case SAT_WLAN:
-				return "wlan.sa";
-			case SAT_FDDI:
-				return "fddi.src";
-			case SAT_TOKENRING:
-				return "tr.src";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_IPv4:
-			return "ip.src";
-		case AT_IPv6:
-			return "ipv6.src";
-		case AT_IPX:
-			return "ipx.src";
-		case AT_FC:
-			return "fc.s_id";
-		case AT_URI:
-			switch(specific_addr_type){
-			case SAT_JXTA:
-				return "jxta.message.src";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_USB:
-			return "usb.sa";
-		default:
-			break;
-		}
+    switch(name_type){
+    case FN_SRC_ADDRESS:
+        switch(addr->type){
+        case AT_ETHER:
+            switch(specific_addr_type){
+            case SAT_ETHER:
+                return "eth.src";
+            case SAT_WLAN:
+                return "wlan.sa";
+            case SAT_FDDI:
+                return "fddi.src";
+            case SAT_TOKENRING:
+                return "tr.src";
+            default:
                 break;
-	case FN_DST_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.dst";
-			case SAT_WLAN:
-				return "wlan.da";
-			case SAT_FDDI:
-				return "fddi.dst";
-			case SAT_TOKENRING:
-				return "tr.dst";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_IPv4:
-			return "ip.dst";
-		case AT_IPv6:
-			return "ipv6.dst";
-		case AT_IPX:
-			return "ipx.dst";
-		case AT_FC:
-			return "fc.d_id";
-		case AT_URI:
-			switch(specific_addr_type){
-			case SAT_JXTA:
-				return "jxta.message.dst";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_USB:
-			return "usb.da";
-		default:
-			break;
-		}
+            }
+            break;
+        case AT_IPv4:
+            return "ip.src";
+        case AT_IPv6:
+            return "ipv6.src";
+        case AT_IPX:
+            return "ipx.src";
+        case AT_FC:
+            return "fc.s_id";
+        case AT_URI:
+            switch(specific_addr_type){
+            case SAT_JXTA:
+                return "jxta.message.src";
+            default:
                 break;
-	case FN_ANY_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.addr";
-			case SAT_WLAN:
-				return "wlan.addr";
-			case SAT_FDDI:
-				return "fddi.addr";
-			case SAT_TOKENRING:
-				return "tr.addr";
-                        default:
-                            break;
-			}
-                        break;
-		case AT_IPv4:
-			return "ip.addr";
-		case AT_IPv6:
-			return "ipv6.addr";
-		case AT_IPX:
-			return "ipx.addr";
-		case AT_FC:
-			return "fc.id";
-		case AT_URI:
-			switch(specific_addr_type){
-			case SAT_JXTA:
-				return "jxta.message.address";
-                        default:
-                                break;
-			}
-                        break;
-		case AT_USB:
-			return "usb.addr";
-		default:
-			break;
-		}
+            }
+            break;
+        case AT_USB:
+            return "usb.sa";
+        default:
+            break;
+        }
+        break;
+    case FN_DST_ADDRESS:
+        switch(addr->type){
+        case AT_ETHER:
+            switch(specific_addr_type){
+            case SAT_ETHER:
+                return "eth.dst";
+            case SAT_WLAN:
+                return "wlan.da";
+            case SAT_FDDI:
+                return "fddi.dst";
+            case SAT_TOKENRING:
+                return "tr.dst";
+            default:
                 break;
-	case FN_SRC_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.srcport";
-		case PT_UDP:
-			return "udp.srcport";
-		case PT_SCTP:
-			return "sctp.srcport";
-		case PT_NCP:
-			return "ncp.connection";
-		default:
-			break;
-		}
-		break;
-	case FN_DST_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.dstport";
-		case PT_UDP:
-			return "udp.dstport";
-		case PT_SCTP:
-			return "sctp.dstport";
-		case PT_NCP:
-			return "ncp.connection";
-		default:
-			break;
-		}
-		break;
-	case FN_ANY_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.port";
-		case PT_UDP:
-			return "udp.port";
-		case PT_SCTP:
-			return "sctp.port";
-		case PT_NCP:
-			return "ncp.connection";
-		default:
-			break;
-		}
-		break;
-	}
+            }
+            break;
+        case AT_IPv4:
+            return "ip.dst";
+        case AT_IPv6:
+            return "ipv6.dst";
+        case AT_IPX:
+            return "ipx.dst";
+        case AT_FC:
+            return "fc.d_id";
+        case AT_URI:
+            switch(specific_addr_type){
+            case SAT_JXTA:
+                return "jxta.message.dst";
+            default:
+                break;
+            }
+            break;
+        case AT_USB:
+            return "usb.da";
+        default:
+            break;
+        }
+        break;
+    case FN_ANY_ADDRESS:
+        switch(addr->type){
+        case AT_ETHER:
+            switch(specific_addr_type){
+            case SAT_ETHER:
+                return "eth.addr";
+            case SAT_WLAN:
+                return "wlan.addr";
+            case SAT_FDDI:
+                return "fddi.addr";
+            case SAT_TOKENRING:
+                return "tr.addr";
+            default:
+                break;
+            }
+            break;
+        case AT_IPv4:
+            return "ip.addr";
+        case AT_IPv6:
+            return "ipv6.addr";
+        case AT_IPX:
+            return "ipx.addr";
+        case AT_FC:
+            return "fc.id";
+        case AT_URI:
+            switch(specific_addr_type){
+            case SAT_JXTA:
+                return "jxta.message.address";
+            default:
+                break;
+            }
+            break;
+        case AT_USB:
+            return "usb.addr";
+        default:
+            break;
+        }
+        break;
+    case FN_SRC_PORT:
+        switch(port_type){
+        case PT_TCP:
+            return "tcp.srcport";
+        case PT_UDP:
+            return "udp.srcport";
+        case PT_SCTP:
+            return "sctp.srcport";
+        case PT_NCP:
+            return "ncp.connection";
+        default:
+            break;
+        }
+        break;
+    case FN_DST_PORT:
+        switch(port_type){
+        case PT_TCP:
+            return "tcp.dstport";
+        case PT_UDP:
+            return "udp.dstport";
+        case PT_SCTP:
+            return "sctp.dstport";
+        case PT_NCP:
+            return "ncp.connection";
+        default:
+            break;
+        }
+        break;
+    case FN_ANY_PORT:
+        switch(port_type){
+        case PT_TCP:
+            return "tcp.port";
+        case PT_UDP:
+            return "udp.port";
+        case PT_SCTP:
+            return "sctp.port";
+        case PT_NCP:
+            return "ncp.connection";
+        default:
+            break;
+        }
+        break;
+    }
 
-	g_assert_not_reached();
-	return NULL;
+    g_assert_not_reached();
+    return NULL;
 }
 
 
 typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
+    GtkWidget *table;
+    GtkWidget *ascend_pm;
+    GtkWidget *descend_pm;
 } column_arrows;
 
 
@@ -314,24 +309,24 @@ reset_ct_table_data(conversations_table *ct)
     gtk_clist_thaw(ct->table);
 
     if(ct->page_lb) {
-        g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
+        g_snprintf(title, sizeof(title), "Conversations: %s", cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
-        g_snprintf(title, 255, "%s", ct->name);
+        g_snprintf(title, sizeof(title), "%s", ct->name);
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
         gtk_widget_set_sensitive(ct->page_lb, FALSE);
 
         if (ct->use_dfilter) {
             if (filter && strlen(filter)) {
-                g_snprintf(title, 255, "%s Conversations - Filter: %s", ct->name, filter);
+                g_snprintf(title, sizeof(title), "%s Conversations - Filter: %s", ct->name, filter);
             } else {
-                g_snprintf(title, 255, "%s Conversations - No Filter", ct->name);
+                g_snprintf(title, sizeof(title), "%s Conversations - No Filter", ct->name);
             }
         } else {
-            g_snprintf(title, 255, "%s Conversations", ct->name);
+            g_snprintf(title, sizeof(title), "%s Conversations", ct->name);
         }
         gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     } else {
-        g_snprintf(title, 255, "%s Conversations: %s", ct->name, cf_get_display_name(&cfile));
+        g_snprintf(title, sizeof(title), "%s Conversations: %s", ct->name, cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
     }
 
@@ -357,14 +352,14 @@ reset_ct_table_data_cb(void *arg)
 static void
 ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	conversations_table *conversations=(conversations_table *)data;
+    conversations_table *conversations=(conversations_table *)data;
 
-	protect_thread_critical_region();
-	remove_tap_listener(conversations);
-	unprotect_thread_critical_region();
+    protect_thread_critical_region();
+    remove_tap_listener(conversations);
+    unprotect_thread_critical_region();
 
-	reset_ct_table_data(conversations);
-	g_free(conversations);
+    reset_ct_table_data(conversations);
+    g_free(conversations);
 }
 
 
@@ -372,104 +367,104 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static gint
 ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
-	guint32 idx1, idx2;
-	conversations_table *ct = g_object_get_data(G_OBJECT(clist), CONV_PTR_KEY);
-	conv_t *conv1 = NULL;
-	conv_t *conv2 = NULL;
-        double duration1, duration2;
+    guint32 idx1, idx2;
+    conversations_table *ct = g_object_get_data(G_OBJECT(clist), CONV_PTR_KEY);
+    conv_t *conv1 = NULL;
+    conv_t *conv2 = NULL;
+    double duration1, duration2;
 
-	const GtkCListRow *row1 = ptr1;
-	const GtkCListRow *row2 = ptr2;
+    const GtkCListRow *row1 = ptr1;
+    const GtkCListRow *row2 = ptr2;
 
-	idx1 = GPOINTER_TO_INT(row1->data);
-	idx2 = GPOINTER_TO_INT(row2->data);
+    idx1 = GPOINTER_TO_INT(row1->data);
+    idx2 = GPOINTER_TO_INT(row2->data);
 
-	if (!ct || idx1 >= ct->num_conversations || idx2 >= ct->num_conversations)
-		return 0;
+    if (!ct || idx1 >= ct->num_conversations || idx2 >= ct->num_conversations)
+        return 0;
 
-	conv1 = &ct->conversations[idx1];
-	conv2 = &ct->conversations[idx2];
+    conv1 = &ct->conversations[idx1];
+    conv2 = &ct->conversations[idx2];
 
-        duration1 = nstime_to_sec(&conv1->stop_time) - nstime_to_sec(&conv1->start_time);
-        duration2 = nstime_to_sec(&conv2->stop_time) - nstime_to_sec(&conv2->start_time);
+    duration1 = nstime_to_sec(&conv1->stop_time) - nstime_to_sec(&conv1->start_time);
+    duration2 = nstime_to_sec(&conv2->stop_time) - nstime_to_sec(&conv2->start_time);
 
-	switch(clist->sort_column){
-	case 0: /* Source address */
-		return(CMP_ADDRESS(&conv1->src_address, &conv2->src_address));
-	case 2: /* Destination address */
-		return(CMP_ADDRESS(&conv1->dst_address, &conv2->dst_address));
-	case 1: /* Source port */
-		CMP_NUM(conv1->src_port, conv2->src_port);
-	case 3: /* Destination port */
-		CMP_NUM(conv1->dst_port, conv2->dst_port);
-	case 4: /* Packets */
-		CMP_NUM(conv1->tx_frames+conv1->rx_frames,
-			conv2->tx_frames+conv2->rx_frames);
-        case 5: /* Bytes */
-		CMP_NUM(conv1->tx_bytes+conv1->rx_bytes,
-			conv2->tx_bytes+conv2->rx_bytes);
-        case 6: /* Packets A->B */
-		CMP_NUM(conv1->tx_frames, conv2->tx_frames);
-        case 7: /* Bytes A->B */
-		CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
-        case 8: /* Packets A<-B */
-		CMP_NUM(conv1->rx_frames, conv2->rx_frames);
-        case 9: /* Bytes A<-B */
-		CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
-        case 10: /* Start time */
-		return nstime_cmp(&conv1->start_time, &conv2->start_time);
-        case 11: /* Duration */
-		CMP_NUM(duration1, duration2);
-        case 12: /* bps A->B */
-            if (duration1 > 0 && conv1->tx_frames > 1 && duration2 > 0 && conv2->tx_frames > 1) {
-                CMP_NUM((gint64) conv1->tx_bytes / duration1, (gint64) conv2->tx_bytes / duration2);
-            } else {
-                CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
-            }
-        case 13: /* bps A<-B */
-            if (duration1 > 0 && conv1->rx_frames > 1 && duration2 > 0 && conv2->rx_frames > 1) {
-                CMP_NUM((gint64) conv1->rx_bytes / duration1, (gint64) conv2->rx_bytes / duration2);
-            } else {
-                CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
-            }
-	default:
-		g_assert_not_reached();
-	}
+    switch(clist->sort_column){
+    case 0: /* Source address */
+        return(CMP_ADDRESS(&conv1->src_address, &conv2->src_address));
+    case 2: /* Destination address */
+        return(CMP_ADDRESS(&conv1->dst_address, &conv2->dst_address));
+    case 1: /* Source port */
+        CMP_NUM(conv1->src_port, conv2->src_port);
+    case 3: /* Destination port */
+        CMP_NUM(conv1->dst_port, conv2->dst_port);
+    case 4: /* Packets */
+        CMP_NUM(conv1->tx_frames+conv1->rx_frames,
+                conv2->tx_frames+conv2->rx_frames);
+    case 5: /* Bytes */
+        CMP_NUM(conv1->tx_bytes+conv1->rx_bytes,
+                conv2->tx_bytes+conv2->rx_bytes);
+    case 6: /* Packets A->B */
+        CMP_NUM(conv1->tx_frames, conv2->tx_frames);
+    case 7: /* Bytes A->B */
+        CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
+    case 8: /* Packets A<-B */
+        CMP_NUM(conv1->rx_frames, conv2->rx_frames);
+    case 9: /* Bytes A<-B */
+        CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
+    case 10: /* Start time */
+        return nstime_cmp(&conv1->start_time, &conv2->start_time);
+    case 11: /* Duration */
+        CMP_NUM(duration1, duration2);
+    case 12: /* bps A->B */
+        if (duration1 > 0 && conv1->tx_frames > 1 && duration2 > 0 && conv2->tx_frames > 1) {
+            CMP_NUM((gint64) conv1->tx_bytes / duration1, (gint64) conv2->tx_bytes / duration2);
+        } else {
+            CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
+        }
+    case 13: /* bps A<-B */
+        if (duration1 > 0 && conv1->rx_frames > 1 && duration2 > 0 && conv2->rx_frames > 1) {
+            CMP_NUM((gint64) conv1->rx_bytes / duration1, (gint64) conv2->rx_bytes / duration2);
+        } else {
+            CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
+        }
+    default:
+        g_assert_not_reached();
+    }
 
-	return 0;
+    return 0;
 }
 
 
 static void
 ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
+    column_arrows *col_arrows = (column_arrows *) data;
+    int i;
 
-	for (i = 0; i < NUM_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
+    for (i = 0; i < NUM_COLS; i++) {
+        gtk_widget_hide(col_arrows[i].ascend_pm);
+        gtk_widget_hide(col_arrows[i].descend_pm);
+    }
 
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		clist->sort_type = GTK_SORT_ASCENDING;
-		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist, column);
-	}
+    if (column == clist->sort_column) {
+        if (clist->sort_type == GTK_SORT_ASCENDING) {
+            clist->sort_type = GTK_SORT_DESCENDING;
+            gtk_widget_show(col_arrows[column].descend_pm);
+        } else {
+            clist->sort_type = GTK_SORT_ASCENDING;
+            gtk_widget_show(col_arrows[column].ascend_pm);
+        }
+    } else {
+        clist->sort_type = GTK_SORT_ASCENDING;
+        gtk_widget_show(col_arrows[column].ascend_pm);
+        gtk_clist_set_sort_column(clist, column);
+    }
 
-	gtk_clist_sort(clist);
+    gtk_clist_sort(clist);
 
-	/* Allow update of clist */
-	gtk_clist_thaw(clist);
-	gtk_clist_freeze(clist);
+    /* Allow update of clist */
+    gtk_clist_thaw(clist);
+    gtk_clist_freeze(clist);
 
 }
 
@@ -488,150 +483,150 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 static void
 ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int direction;
-	int selection;
-	conversations_table *ct = (conversations_table *)callback_data;
-	char *str = NULL;
-	char *sport, *dport;
+    int direction;
+    int selection;
+    conversations_table *ct = (conversations_table *)callback_data;
+    char *str = NULL;
+    char *sport, *dport;
 
-	direction=FILTER_EXTRA(callback_action);
+    direction=FILTER_EXTRA(callback_action);
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(ct->table)->selection, 0));
-	if(selection>=(int)ct->num_conversations){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
-		return;
-	}
-	/* translate it back from row index to index in enndpoint array */
-	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(ct->table, selection));
+    selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(ct->table)->selection, 0));
+    if(selection>=(int)ct->num_conversations){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+        return;
+    }
+    /* translate it back from row index to index in enndpoint array */
+    selection=GPOINTER_TO_INT(gtk_clist_get_row_data(ct->table, selection));
 
-	sport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].src_port);
-	dport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].dst_port);
+    sport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].src_port);
+    dport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].dst_port);
 
-	switch(direction){
-	case DIR_A_TO_FROM_B:
-		/* A <-> B */
-		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
-			sport?"==":"",
-			sport?sport:"",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
-	case DIR_A_TO_B:
-		/* A --> B */
-		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
-			sport?"==":"",
-			sport?sport:"",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
-	case DIR_A_FROM_B:
-		/* A <-- B */
-		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
-			sport?"==":"",
-			sport?sport:"",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
-	case DIR_A_TO_FROM_ANY:
-		/* A <-> ANY */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
-			sport?"==":"",
-			sport?sport:""
-		);
-		break;
-	case DIR_A_TO_ANY:
-		/* A --> ANY */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
-			sport?"==":"",
-			sport?sport:""
-		);
-		break;
-	case DIR_A_FROM_ANY:
-		/* A <-- ANY */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&ct->conversations[selection].src_address),
-			sport?" && ":"",
-			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
-			sport?"==":"",
-			sport?sport:""
-		);
-		break;
-	case DIR_ANY_TO_FROM_B:
-		/* ANY <-> B */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
-	case DIR_ANY_FROM_B:
-		/* ANY <-- B */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
-	case DIR_ANY_TO_B:
-		/* ANY --> B */
-		str = g_strdup_printf("%s==%s%s%s%s%s",
-			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&ct->conversations[selection].dst_address),
-			dport?" && ":"",
-			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
-			dport?"==":"",
-			dport?dport:""
-		);
-		break;
+    switch(direction){
+    case DIR_A_TO_FROM_B:
+        /* A <-> B */
+        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
+                              sport?"==":"",
+                              sport?sport:"",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
+    case DIR_A_TO_B:
+        /* A --> B */
+        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
+                              sport?"==":"",
+                              sport?sport:"",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
+    case DIR_A_FROM_B:
+        /* A <-- B */
+        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
+                              sport?"==":"",
+                              sport?sport:"",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
+    case DIR_A_TO_FROM_ANY:
+        /* A <-> ANY */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
+                              sport?"==":"",
+                              sport?sport:""
+            );
+        break;
+    case DIR_A_TO_ANY:
+        /* A --> ANY */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
+                              sport?"==":"",
+                              sport?sport:""
+            );
+        break;
+    case DIR_A_FROM_ANY:
+        /* A <-- ANY */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+                              address_to_str(&ct->conversations[selection].src_address),
+                              sport?" && ":"",
+                              sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
+                              sport?"==":"",
+                              sport?sport:""
+            );
+        break;
+    case DIR_ANY_TO_FROM_B:
+        /* ANY <-> B */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
+    case DIR_ANY_FROM_B:
+        /* ANY <-- B */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
+    case DIR_ANY_TO_B:
+        /* ANY --> B */
+        str = g_strdup_printf("%s==%s%s%s%s%s",
+                              ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+                              address_to_str(&ct->conversations[selection].dst_address),
+                              dport?" && ":"",
+                              dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
+                              dport?"==":"",
+                              dport?dport:""
+            );
+        break;
     default:
-		g_assert_not_reached();
-	}
+        g_assert_not_reached();
+    }
 
-        apply_selected_filter (callback_action, str);
+    apply_selected_filter (callback_action, str);
 
-        g_free (str);
+    g_free (str);
 }
 
 static gint
@@ -647,14 +642,14 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
     if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
         /* if this is a right click on one of our columns, select it and popup the context menu */
         if(gtk_clist_get_selection_info(ct->table,
-                                          (gint) (((GdkEventButton *)event)->x),
-                                          (gint) (((GdkEventButton *)event)->y),
-                                             &row, &column)) {
+                                        (gint) (((GdkEventButton *)event)->x),
+                                        (gint) (((GdkEventButton *)event)->y),
+                                        &row, &column)) {
             gtk_clist_unselect_all(ct->table);
             gtk_clist_select_row(ct->table, row, -1);
 
             gtk_menu_popup(GTK_MENU(ct->menu), NULL, NULL, NULL, NULL,
-                bevent->button, bevent->time);
+                           bevent->button, bevent->time);
         }
     }
 
@@ -663,346 +658,346 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 
 static GtkItemFactoryEntry ct_list_menu_items[] =
 {
-	/* Match */
-	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    /* Match */
+    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/Not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/Not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/Not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
 
-	{"/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... and Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/... and Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... or Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/... or Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... and not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/... and not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... and not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/... or not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Apply as Filter/... or not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Apply as Filter/... or not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	/* Prepare */
-	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    /* Prepare */
+    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/Not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/Not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... and Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/... and Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... or Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/... or Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... and not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/... and not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... and not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	{"/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/... or not Selected/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Prepare a Filter/... or not Selected/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Prepare a Filter/... or not Selected/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	/* Find Packet */
-	{"/Find Packet", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Packet/Find Packet", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Packet/Find Packet/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Packet/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Find Packet/Find Packet/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Packet/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Packet/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Find Packet/Find Packet/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Packet/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Packet/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Packet/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
-	/* Find Next */
-	{"/Find Packet/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Packet/Find Next/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Next/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Find Packet/Find Next/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Next/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Next/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Find Packet/Find Next/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Next/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Next/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Next/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
-	/* Find Previous */
-	{"/Find Packet/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Packet/Find Previous/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Previous/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Find Packet/Find Previous/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Previous/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Previous/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Find Packet/Find Previous/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Find Packet/Find Previous/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Previous/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Find Packet/Find Previous/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    /* Find Packet */
+    {"/Find Packet", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Packet/Find Packet", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Packet/Find Packet/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Packet/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Find Packet/Find Packet/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Packet/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Packet/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Find Packet/Find Packet/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Packet/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Packet/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Packet/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    /* Find Next */
+    {"/Find Packet/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Packet/Find Next/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Next/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Find Packet/Find Next/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Next/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Next/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Find Packet/Find Next/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Next/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Next/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Next/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+    /* Find Previous */
+    {"/Find Packet/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Find Packet/Find Previous/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Previous/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Find Packet/Find Previous/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Previous/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Previous/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Find Packet/Find Previous/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Find Packet/Find Previous/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Previous/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Find Packet/Find Previous/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
 
-	/* Colorize Conversation */
-	{"/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Colorize Conversation/A <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
-	{"/Colorize Conversation/A --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
-	{"/Colorize Conversation/A <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
-	{"/Colorize Conversation/A <-> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
-	{"/Colorize Conversation/A --> ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
-	{"/Colorize Conversation/A <-- ANY", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
-	{"/Colorize Conversation/ANY <-> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
-	{"/Colorize Conversation/ANY <-- B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
-	{"/Colorize Conversation/ANY --> B", NULL,
-		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,}
+    /* Colorize Conversation */
+    {"/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Colorize Conversation/A <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL,},
+    {"/Colorize Conversation/A --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL,},
+    {"/Colorize Conversation/A <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL,},
+    {"/Colorize Conversation/A <-> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL,},
+    {"/Colorize Conversation/A --> ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL,},
+    {"/Colorize Conversation/A <-- ANY", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL,},
+    {"/Colorize Conversation/ANY <-> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL,},
+    {"/Colorize Conversation/ANY <-- B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
+    {"/Colorize Conversation/ANY --> B", NULL,
+     GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,}
 };
 
 static void
 ct_create_popup_menu(conversations_table *ct)
 {
-	GtkItemFactory *item_factory;
+    GtkItemFactory *item_factory;
 
-	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	gtk_item_factory_create_items_ac(item_factory, sizeof(ct_list_menu_items)/sizeof(ct_list_menu_items[0]), ct_list_menu_items, ct, 2);
+    gtk_item_factory_create_items_ac(item_factory, sizeof(ct_list_menu_items)/sizeof(ct_list_menu_items[0]), ct_list_menu_items, ct, 2);
 
-	ct->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	g_signal_connect(ct->table, "button_press_event", G_CALLBACK(ct_show_popup_menu_cb), ct);
+    ct->menu = gtk_item_factory_get_widget(item_factory, "<main>");
+    g_signal_connect(ct->table, "button_press_event", G_CALLBACK(ct_show_popup_menu_cb), ct);
 }
 
 /* Draw/refresh the address fields of a single entry at the specified index */
@@ -1087,17 +1082,17 @@ draw_ct_table_data(conversations_table *ct)
 
     if (ct->page_lb) {
         if(ct->num_conversations) {
-            g_snprintf(title, 255, "%s: %u", ct->name, ct->num_conversations);
+            g_snprintf(title, sizeof(title), "%s: %u", ct->name, ct->num_conversations);
         } else {
-            g_snprintf(title, 255, "%s", ct->name);
+            g_snprintf(title, sizeof(title), "%s", ct->name);
         }
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
         gtk_widget_set_sensitive(ct->page_lb, ct->num_conversations);
     } else {
         if(ct->num_conversations) {
-            g_snprintf(title, 255, "%s Conversations: %u", ct->name, ct->num_conversations);
+            g_snprintf(title, sizeof(title), "%s Conversations: %u", ct->name, ct->num_conversations);
         } else {
-            g_snprintf(title, 255, "%s Conversations", ct->name);
+            g_snprintf(title, sizeof(title), "%s Conversations", ct->name);
         }
         gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     }
@@ -1163,40 +1158,40 @@ draw_ct_table_data_cb(void *arg)
 static void
 copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
-   guint32         i,j;
-   gchar           *table_entry;
-   GtkClipboard    *cb;
-   GString         *CSV_str = g_string_new("");
+    guint32         i,j;
+    gchar           *table_entry;
+    GtkClipboard    *cb;
+    GString         *CSV_str = g_string_new("");
 
-   conversations_table *talkers=g_object_get_data(G_OBJECT(copy_bt), CONV_PTR_KEY);
-   if (!talkers)
-     return;
+    conversations_table *talkers=g_object_get_data(G_OBJECT(copy_bt), CONV_PTR_KEY);
+    if (!talkers)
+        return;
 
-   /* Add the column headers to the CSV data */
-   for(i=0;i<talkers->num_columns;i++){                  /* all columns         */
-    if((i==1 || i==3) && !talkers->has_ports) continue;  /* Don't add the port column if it's empty */
-     g_string_append(CSV_str,talkers->default_titles[i]);/* add the column heading to the CSV string */
-    if(i!=talkers->num_columns-1)
-     g_string_append(CSV_str,",");
-   }
-   g_string_append(CSV_str,"\n");                        /* new row */
-
-   /* Add the column values to the CSV data */
-   for(i=0;i<talkers->num_conversations;i++){            /* all rows            */
-    for(j=0;j<talkers->num_columns;j++){                 /* all columns         */
-     if((j==1 || j==3) && !talkers->has_ports) continue; /* Don't add the port column if it's empty */
-     gtk_clist_get_text(talkers->table,i,j,&table_entry);/* copy table item into string */
-     g_string_append(CSV_str,table_entry);               /* add the table entry to the CSV string */
-    if(j!=talkers->num_columns-1)
-     g_string_append(CSV_str,",");
+    /* Add the column headers to the CSV data */
+    for(i=0;i<talkers->num_columns;i++){                  /* all columns         */
+        if((i==1 || i==3) && !talkers->has_ports) continue;  /* Don't add the port column if it's empty */
+        g_string_append(CSV_str,talkers->default_titles[i]);/* add the column heading to the CSV string */
+        if(i!=talkers->num_columns-1)
+            g_string_append(CSV_str,",");
     }
-    g_string_append(CSV_str,"\n");                       /* new row */
-   }
+    g_string_append(CSV_str,"\n");                        /* new row */
 
-   /* Now that we have the CSV data, copy it into the default clipboard */
-   cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
-   gtk_clipboard_set_text(cb, CSV_str->str, -1);         /* Copy the CSV data into the clipboard */
-   g_string_free(CSV_str, TRUE);                         /* Free the memory */
+    /* Add the column values to the CSV data */
+    for(i=0;i<talkers->num_conversations;i++){            /* all rows            */
+        for(j=0;j<talkers->num_columns;j++){                 /* all columns         */
+            if((j==1 || j==3) && !talkers->has_ports) continue; /* Don't add the port column if it's empty */
+            gtk_clist_get_text(talkers->table,i,j,&table_entry);/* copy table item into string */
+            g_string_append(CSV_str,table_entry);               /* add the table entry to the CSV string */
+            if(j!=talkers->num_columns-1)
+                g_string_append(CSV_str,",");
+        }
+        g_string_append(CSV_str,"\n");                       /* new row */
+    }
+
+    /* Now that we have the CSV data, copy it into the default clipboard */
+    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
+    gtk_clipboard_set_text(cb, CSV_str->str, -1);         /* Copy the CSV data into the clipboard */
+    g_string_free(CSV_str, TRUE);                         /* Free the memory */
 }
 
 
@@ -1215,7 +1210,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     conversations->has_ports=!hide_ports;
     conversations->num_columns=NUM_COLS;
     conversations->default_titles[0]="Address A",
-    conversations->default_titles[1]="Port A";
+        conversations->default_titles[1]="Port A";
     conversations->default_titles[2]="Address B";
     conversations->default_titles[3]="Port B";
     conversations->default_titles[4]="Packets";
@@ -1233,7 +1228,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
         conversations->default_titles[3]="Connection B";
     }
 
-    g_snprintf(title, 255, "%s Conversations", table_name);
+    g_snprintf(title, sizeof(title), "%s Conversations", table_name);
     conversations->name_lb=gtk_label_new(title);
     gtk_box_pack_start(GTK_BOX(vbox), conversations->name_lb, FALSE, FALSE, 0);
 
@@ -1322,7 +1317,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     conversations->name=table_name;
     conversations->filter=filter;
     conversations->use_dfilter=FALSE;
-    g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
+    g_snprintf(title, sizeof(title), "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
     conversations->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 
     gtk_window_set_default_size(GTK_WINDOW(conversations->win), 750, 400);
@@ -1348,7 +1343,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, conversations);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
@@ -1530,7 +1525,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
-    g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
+    g_snprintf(title, sizeof(title), "Conversations: %s", cf_get_display_name(&cfile));
     win=window_new(GTK_WINDOW_TOPLEVEL, title);
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 
@@ -1549,7 +1544,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         registered = current_table->data;
         page_lb = gtk_label_new("");
         conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
-            registered->filter, registered->packet_func);
+                                                 registered->filter, registered->packet_func);
         g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
         conversations->win = win;
@@ -1568,7 +1563,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
-        "Please note: The corresponding name resolution must be enabled.", NULL);
+                         "Please note: The corresponding name resolution must be enabled.", NULL);
 
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(ct_resolve_toggle_dest), pages);
 
@@ -1591,7 +1586,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+                         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
 
@@ -1729,10 +1724,10 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
     if(new_conversation){
         char *entries[NUM_COLS];
         char frames[COL_STR_LEN], bytes[COL_STR_LEN],
-             txframes[COL_STR_LEN], txbytes[COL_STR_LEN],
-             rxframes[COL_STR_LEN], rxbytes[COL_STR_LEN],
-             start_time[COL_STR_LEN], duration[COL_STR_LEN],
-             txbps[COL_STR_LEN], rxbps[COL_STR_LEN];
+            txframes[COL_STR_LEN], txbytes[COL_STR_LEN],
+            rxframes[COL_STR_LEN], rxbytes[COL_STR_LEN],
+            start_time[COL_STR_LEN], duration[COL_STR_LEN],
+            txbps[COL_STR_LEN], rxbps[COL_STR_LEN];
         double duration_s;
 
         /* these values will be filled by call to draw_ct_table_addresses() below */
