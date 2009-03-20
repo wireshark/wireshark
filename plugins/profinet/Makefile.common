@@ -28,7 +28,6 @@ PLUGIN_NAME = profinet
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	crc16.c \
 	packet-dcerpc-pn-io.c \
 	packet-dcom-cba.c \
 	packet-dcom-cba-acco.c \
@@ -40,7 +39,6 @@ DISSECTOR_SRC = \
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
-	crc16.h	\
 	packet-dcom-cba-acco.h	\
 	packet-pn.h
 
