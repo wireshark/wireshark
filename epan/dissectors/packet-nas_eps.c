@@ -794,7 +794,7 @@ de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, 
 	/* NAS key set identifier (octet 1) */
 	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
 	if(add_string){
-		proto_item_append_string(item, add_string);
+		proto_item_append_text(item, "%s", add_string);
 	}
 	bit_offset+=3;
 }
@@ -1207,7 +1207,7 @@ The coding of the value part of the LCS client identity is given in subclause 17
  * 9.9.4.3 EPS quality of service 
  * 9.9.4.4 ESM cause
  */
-/*
+#if 0
 static const value_string nas_eps_esm_cause_vals[] = {
 	{ 0,	""},
 	{ 0x08,	"Operator Determined Barring"},
@@ -1251,7 +1251,8 @@ static const value_string nas_eps_esm_cause_vals[] = {
 	{ 0x6f,	"Protocol error, unspecified"},
 	{ 0x70,	"APN restriction value incompatible with active EPS bearer context"},
 	{ 0, NULL }
-}; */
+};
+#endif
 
 /*
  * 9.9.4.5 ESM information transfer flag 
