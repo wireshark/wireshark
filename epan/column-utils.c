@@ -107,7 +107,7 @@ col_set_writable(column_info *cinfo, gboolean writable)
 gint
 check_col(column_info *cinfo, gint el) {
 
-  if (cinfo && cinfo->writable) {
+  if (col_get_writable(cinfo)) {
     /* We are constructing columns, and they're writable */
     if (cinfo->col_first[el] >= 0) {
       /* There is at least one column in that format */
@@ -123,15 +123,12 @@ col_set_fence(column_info *cinfo, gint el)
 {
   int i;
 
-  if (cinfo && cinfo->writable) {
-    /* We are constructing columns, and they're writable */
-    if (cinfo->col_first[el] >= 0) {
-      /* There is at least one column in that format */
-      for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
-        if (cinfo->fmt_matx[i][el]) {
-          cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
-        }
-      }
+  if (!check_col(cinfo, el))
+    return;
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
     }
   }
 }
@@ -148,7 +145,9 @@ col_clear(column_info *cinfo, gint el)
   int    i;
   int    fence;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       /*
@@ -206,12 +205,14 @@ col_set_str(column_info *cinfo, gint el, const gchar* str)
   int fence;
   size_t max_len;
 
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
 
-  g_assert(cinfo->col_first[el] >= 0);
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
       fence = cinfo->col_fence[i];
@@ -242,7 +243,9 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   int     fence;
   size_t  max_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -359,7 +362,6 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
   int     i;
   size_t  len, max_len, sep_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -399,6 +401,9 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list ap;
 
+  if (!check_col(cinfo, el))
+    return;
+
   va_start(ap, format);
   col_do_append_sep_va_fstr(cinfo, el, NULL, format, ap);
   va_end(ap);
@@ -411,6 +416,9 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
 		const gchar *format, ...)
 {
   va_list ap;
+
+  if (!check_col(cinfo, el))
+    return;
 
   if (separator == NULL)
     separator = ", ";    /* default */
@@ -433,7 +441,9 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   const char *orig;
   size_t      max_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -473,7 +483,9 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   const char *orig;
   size_t      max_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -517,7 +529,9 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
   int    fence;
   size_t max_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -550,7 +564,9 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
   int    i;
   size_t len, max_len, sep_len;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
@@ -1034,7 +1050,8 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 {
   int	col;
 
-  g_assert(cinfo->col_first[el] >= 0);
+  if (!check_col(cinfo, el))
+    return;
 
   for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
     if (cinfo->fmt_matx[col][el]) {
