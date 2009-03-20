@@ -794,7 +794,7 @@ de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, 
 	/* NAS key set identifier (octet 1) */
 	item = proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
 	if(add_string){
-		proto_item_append_text(item, add_string);
+		proto_item_append_string(item, add_string);
 	}
 	bit_offset+=3;
 }
@@ -1063,7 +1063,7 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	 * by the UE.
 	 */
 	/* UMTS integrity algorithms supported (octet 6) */
-	/* 
+	/*  */
 	/* Bits 8 to 3 and bit 1 of octet 7 are spare and shall be coded as zero. */
 	proto_tree_add_text(tree, tvb, curr_offset, len-3 , "Not decoded yet");
 
@@ -1251,7 +1251,7 @@ static const value_string nas_eps_esm_cause_vals[] = {
 	{ 0x6f,	"Protocol error, unspecified"},
 	{ 0x70,	"APN restriction value incompatible with active EPS bearer context"},
 	{ 0, NULL }
-};
+}; */
 
 /*
  * 9.9.4.5 ESM information transfer flag 
