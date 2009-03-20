@@ -43,11 +43,6 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
-#ifndef ETHERTYPE_LINX
-/* Ethertype 0x9999 is not reserved at IEEE */
-#define ETHERTYPE_LINX 0x9999
-#endif
-
 /* forward reference */
 static void dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 

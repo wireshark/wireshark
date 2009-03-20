@@ -386,6 +386,10 @@
 #define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
 #endif
 
+#ifndef ETHERTYPE_LINX
+#define ETHERTYPE_LINX          0x8911  /* ENEA LINX IPC protocol over Ethernet */
+#endif
+
 #ifndef ETHERTYPE_FIP
 #define ETHERTYPE_FIP		0x8914	/* FCoE Initialization Protocol */
 #endif
