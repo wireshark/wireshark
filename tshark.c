@@ -773,8 +773,7 @@ main(int argc, char *argv[])
   /*
    * Attempt to get the pathname of the executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0],
-                                              (const void *)main);
+  init_progfile_dir_error = init_progfile_dir(argv[0], (void *)main);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr, "tshark: Can't get pathname of tshark program: %s.\n",
             init_progfile_dir_error);

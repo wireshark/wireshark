@@ -302,8 +302,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   /* Register wiretap plugins */
 
-    if ((init_progfile_dir_error = init_progfile_dir(argv[0],
-        (const void *)main))) {
+    if ((init_progfile_dir_error = init_progfile_dir(argv[0], (void *)main))) {
 		g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
     } else {

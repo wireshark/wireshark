@@ -249,7 +249,7 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
 	_U_
 #endif
-, const void *main_addr
+, void *main_addr
 #if defined(_WIN32) || !defined(DLADDR_FINDS_EXECUTABLE_PATH)
 	_U_
 #endif
