@@ -9617,11 +9617,36 @@
 00:25:82	MaksatTech             # Maksat Technologies (P) Ltd
 00:25:83	Cisco                  # Cisco Systems
 00:25:84	Cisco                  # Cisco Systems
-00:25:85	ItcProduct             # ITC products development Dep.
+00:25:85	KokuyoS&T              # KOKUYO S&T Co., Ltd.
 00:25:86	Tp-LinkTec             # TP-LINK Technologies Co., Ltd.
 00:25:87	Vitality               # Vitality, Inc.
 00:25:88	GenieIndus             # Genie Industries, Inc.
 00:25:89	HillsIndus             # Hills Industries Limited
+00:25:8A	Pole/Zero              # Pole/Zero Corporation
+00:25:8B	MellanoxTe             # Mellanox Technologies Ltd
+00:25:8C	EsusElektr             # ESUS ELEKTRONIK SAN. VE DIS. TIC. LTD. STI.
+00:25:8D	Haier
+00:25:8E	WeatherCha             # The Weather Channel
+00:25:8F	TridentMic             # Trident Microsystems, Inc.
+00:25:90	SuperMicro             # Super Micro Computer, Inc.
+00:25:91	Nextek                 # NEXTEK, Inc.
+00:25:92	GuangzhouS             # Guangzhou Shirui Electronic Co., Ltd
+00:25:93	DatnetInfo             # DatNet Informatikai Kft.
+00:25:94	Eurodesign             # Eurodesign BG LTD
+00:25:95	NorthwestS             # Northwest Signal Supply, Inc
+00:25:96	Gigavision             # GIGAVISION srl
+00:25:97	KalkiCommu             # Kalki Communication Technologies
+00:25:98	ZhongShanC             # Zhong Shan City Litai Electronic Industrial Co. Ltd
+00:25:99	HedonEDBV              # Hedon e.d. B.V.
+00:25:9A	Cestronics             # CEStronics GmbH
+00:25:9B	BeijingPku             # Beijing PKUNITY Microsystems Technology Co., Ltd
+00:25:9C	Cisco-Link             # Cisco-Linksys, LLC
+00:25:9D	Private
+00:25:9E	HuaweiTech             # Huawei Technologies Co., Ltd.
+00:25:9F	Technodigi             # TechnoDigital Technologies GmbH
+00:25:A0	Nintendo               # Nintendo Co., Ltd.
+00:25:A1	Enalasys
+00:25:A2	AltaDefini             # Alta Definicion LINCEO S.L.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -12996,6 +13021,14 @@
 00:50:C2:A7:C0:00/36	Pneu-Logic             # Pneu-Logic Corporation
 00:50:C2:A7:D0:00/36	VitelNet               # Vitel Net
 00:50:C2:A7:E0:00/36	Independen             # Independent Project Engineering Ltd
+00:50:C2:A7:F0:00/36	PhytecMess             # Phytec Messtechnik GmbH
+00:50:C2:A8:00:00/36	ArdSa                  # ARD SA
+00:50:C2:A8:10:00/36	BpcCircuit             # BPC circuits Ltd
+00:50:C2:A8:20:00/36	Ct                     # CT Company
+00:50:C2:A8:30:00/36	TechnoSobi             # Techno Sobi Co. Ltd.
+00:50:C2:A8:40:00/36	LinoManfro             # Lino Manfrotto +Co spa
+00:50:C2:A8:50:00/36	Joysystem
+00:50:C2:A8:60:00/36	Limab                  # LIMAB AB
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
