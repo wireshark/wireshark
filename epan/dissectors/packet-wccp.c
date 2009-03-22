@@ -1237,7 +1237,7 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	for (i = 0; flags[i].long_name != NULL; i++) {
 		p = decode_bitfield_value(buf, capability_val,
 		      flags[i].value, 32);
-		str_index = MIN(p-buf, BUF_SIZE);
+		str_index = MIN((gint)(p-buf), BUF_SIZE);
 		returned_length = g_snprintf(&flags_string[str_index], BUF_SIZE-str_index,
 			"%s: %s", flags[i].long_name,
 				(capability_val & flags[i].value)?
