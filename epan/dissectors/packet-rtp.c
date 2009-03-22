@@ -444,7 +444,7 @@ void srtp_add_address(packet_info *pinfo,
 	/* Free the hash if already exists */
 	rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
 
-	g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
+	g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
 	p_conv_data->frame_number = setup_frame_number;
 	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
 	p_conv_data->srtp_info = srtp_info;
@@ -1339,8 +1339,7 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 
 				/* Save this conversation info into packet info */
 				p_conv_packet_data = se_alloc(sizeof(struct _rtp_conversation_info));
-				g_snprintf(p_conv_packet_data->method, MAX_RTP_SETUP_METHOD_SIZE+1, "%s", p_conv_data->method);
-				p_conv_packet_data->method[MAX_RTP_SETUP_METHOD_SIZE]='\0';
+				g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
 				p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
