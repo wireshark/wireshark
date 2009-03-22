@@ -36,7 +36,7 @@
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.
  */
-extern char *init_progfile_dir(const char *arg0, void *main_addr);
+extern char *init_progfile_dir(const char *arg0, int (*main)(int, char **));
 
 /*
  * Get the directory in which the program resides.

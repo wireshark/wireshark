@@ -460,7 +460,7 @@ main(int argc, char *argv[])
   /*
    * Attempt to get the pathname of the executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0], (void *)main);
+  init_progfile_dir_error = init_progfile_dir(argv[0], main);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr, "rawshark: Can't get pathname of rawshark program: %s.\n",
             init_progfile_dir_error);

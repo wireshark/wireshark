@@ -249,7 +249,7 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
 	_U_
 #endif
-, void *main_addr
+, int (*main_addr)(int, char **)
 #if defined(_WIN32) || !defined(DLADDR_FINDS_EXECUTABLE_PATH)
 	_U_
 #endif
@@ -369,7 +369,7 @@ init_progfile_dir(const char *arg0
 	/*
 	 * Try to use dladdr() to find the pathname of the executable.
 	 */
-	if (dladdr(main_addr, &info) && info.dli_fname[0] == '/') {
+	if (dladdr((void *)main_addr, &info) && info.dli_fname[0] == '/') {
 		/*
 		 * dladdr() succeeded, and we got an absolute path
 		 * for the module containing main() (I don't know
