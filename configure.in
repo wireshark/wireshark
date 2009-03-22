@@ -677,15 +677,19 @@ else
 fi
 
 #
-# Check whether we can use dladdr to find the pathname of an executable.
+# If we have <dlfcn.h>, check whether we can use dladdr to find a
+# filename (hopefully, a full pathname, but no guarantees) for
+# the executable.
 #
-AC_MSG_CHECKING(whether dladdr can be used to find the pathname of an executable)
-ac_save_CFLAGS="$CFLAGS"
-ac_save_LIBS="$LIBS"
-CFLAGS="$CFLAGS $GLIB_CFLAGS"
-LIBS="$GLIB_LIBS $LIBS"
-AC_TRY_RUN([
-#include <stdio.h>
+if test "$ac_cv_header_dlfcn_h" = "yes"
+then
+	AC_MSG_CHECKING(whether dladdr can be used to find the pathname of an executable)
+	ac_save_CFLAGS="$CFLAGS"
+	ac_save_LIBS="$LIBS"
+	CFLAGS="$CFLAGS $GLIB_CFLAGS"
+	LIBS="$GLIB_LIBS $LIBS"
+	AC_TRY_RUN([
+#define _GNU_SOURCE	/* required on Linux, sigh */
 #include <dlfcn.h>
 
 int
@@ -693,23 +697,21 @@ main(void)
 {
 	Dl_info info;
 
-	if (!dladdr((const void *)main, &info))
+	if (!dladdr((void *)main, &info))
 		return 1;	/* failure */
-	if (info.dli_fname[0] != '/')
-		return 1;	/* not an absolute path - failure */
 	return 0;		/* assume success */
 }
 ], ac_cv_dladdr_finds_executable_path=yes, ac_cv_dladdr_finds_executable_path=no,
    [echo $ac_n "cross compiling; assumed OK... $ac_c"
     ac_cv_dladdr_finds_executable_path=yes])
-CFLAGS="$ac_save_CFLAGS"
-LIBS="$ac_save_LIBS"
-if test x$ac_cv_dladdr_finds_executable_path = xyes
-then
-  AC_DEFINE(DLADDR_FINDS_EXECUTABLE_PATH, 1, [Define if dladdr can be used to find the path of the executable])
+	CFLAGS="$ac_save_CFLAGS"
+	LIBS="$ac_save_LIBS"
+	if test x$ac_cv_dladdr_finds_executable_path = xyes
+	then
+		AC_DEFINE(DLADDR_FINDS_EXECUTABLE_PATH, 1, [Define if dladdr can be used to find the path of the executable])
+	fi
+	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
 fi
-AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
-
 
 dnl IGE Mac integration check
 AC_MSG_CHECKING(whether to use IGE Mac integration functions)

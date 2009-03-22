@@ -26,6 +26,13 @@
 # include "config.h"
 #endif
 
+/*
+ * Required with GNU libc to get dladdr().
+ * We define it here because <dlfcn.h> apparently gets included by
+ * one of the headers we include below.
+ */
+#define _GNU_SOURCE
+
 #ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #endif
@@ -368,23 +375,21 @@ init_progfile_dir(const char *arg0
 #ifdef DLADDR_FINDS_EXECUTABLE_PATH
 	/*
 	 * Try to use dladdr() to find the pathname of the executable.
+	 * dladdr() is not guaranteed to give you anything better than
+	 * argv[0] (i.e., it might not contain a / at all, much less
+	 * being an absolute path), and doesn't appear to do so on
+	 * Linux, but on other platforms it could give you an absolute
+	 * path and obviate the need for us to determine the absolute
+	 * path.
 	 */
-	if (dladdr((void *)main_addr, &info) && info.dli_fname[0] == '/') {
-		/*
-		 * dladdr() succeeded, and we got an absolute path
-		 * for the module containing main() (I don't know
-		 * whether it's guaranteed to return an absolute path
-		 * on all platforms), so we'll use that as the
-		 * executable image's path.
-		 */
-		prog_pathname = g_strdup(info.dli_fname);
-	} else
+	if (dladdr((void *)main_addr, &info))
+		arg0 = info.dli_fname;
 #endif
-	{
 	/*
 	 * Try to figure out the directory in which the currently running
-	 * program resides, given the argv[0] it was started with.  That
-	 * might be the absolute path of the program, or a path relative
+	 * program resides, given something purporting to be the executable
+	 * name (from dladdr() or from the argv[0] it was started with.
+	 * That might be the absolute path of the program, or a path relative
 	 * to the current directory of the process that started it, or
 	 * just a name for the program if it was started from the command
 	 * line and was searched for in $PATH.  It's not guaranteed to be
@@ -481,7 +486,6 @@ init_progfile_dir(const char *arg0
 			 */
 			return g_strdup("PATH isn't set");
 		}
-	}
 	}
 
 	/*
