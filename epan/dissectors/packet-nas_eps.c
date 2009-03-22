@@ -89,7 +89,20 @@ static int hf_nas_eps_emm_128uea4 = -1;
 static int hf_nas_eps_emm_128uea5 = -1;
 static int hf_nas_eps_emm_128uea6 = -1;
 static int hf_nas_eps_emm_128uea7 = -1;
+static int hf_nas_eps_emm_ucs2_supp = -1;
+static int hf_nas_eps_emm_uia1 = -1;
+static int hf_nas_eps_emm_uia2 = -1;
+static int hf_nas_eps_emm_uia3 = -1;
+static int hf_nas_eps_emm_uia4 = -1;
+static int hf_nas_eps_emm_uia5 = -1;
+static int hf_nas_eps_emm_uia6 = -1;
+static int hf_nas_eps_emm_uia7 = -1;
+static int hf_nas_eps_emm_1xsrvcc_cap = -1;
+static int hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg;
 static int hf_nas_eps_emm_ss_code = -1;
+
+static int hf_nas_eps_esm_cause = -1;
+static int hf_nas_eps_esm_linked_bearer_id = -1;
 
 static int hf_nas_eps_active_flg = -1;
 static int hf_nas_eps_eps_update_result_value = -1;
@@ -989,6 +1002,16 @@ static const true_false_string  nas_eps_emm_supported_flg_value = {
 	"Supported",
 	"Not Supported"
 };
+static const true_false_string  nas_eps_emm_ucs2_supp_flg_value = {
+	"The UE has no preference between the use of the default alphabet and the use of UCS2",
+	"The UE has a preference for the default alphabet"
+};
+/* 1xSRVCC capability (octet 7, bit 2) */
+static const true_false_string  nas_eps_emm_1xsrvcc_cap_flg = {
+	"SRVCC from E-UTRAN to cdma2000  1xCS supported",
+	"SRVCC from E-UTRAN to cdma2000 1x CS not supported"
+};
+
 static guint16
 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1062,20 +1085,35 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	 * This information field indicates the likely treatment of UCS2 encoded character strings
 	 * by the UE.
 	 */
+	proto_tree_add_item(tree, hf_nas_eps_emm_ucs2_supp, tvb, curr_offset, 1, FALSE);
 	/* UMTS integrity algorithms supported (octet 6) */
-	/*  */
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 6) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 5) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 4) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 3) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 2) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, FALSE);
+	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
+
 	/* Bits 8 to 3 and bit 1 of octet 7 are spare and shall be coded as zero. */
-	proto_tree_add_text(tree, tvb, curr_offset, len-3 , "Not decoded yet");
+	/* 1xSRVCC capability (octet 7, bit 2) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_1xsrvcc_cap, tvb, curr_offset, 1, FALSE);
 
 	return(len);
 }
-/*
-UE radio capability information update needed flag (URC upd) (octet 1)
-Bit
-1				
-0				UE radio capability information update not needed
-1				UE radio capability information update needed
-*/
+/* UE radio capability information update needed flag (URC upd) (octet 1) */
+static const true_false_string  nas_eps_emm_ue_ra_cap_inf_upd_need_flg = {
+	"UE radio capability information update needed",
+	"UE radio capability information update not needed"
+};
+
 /*
  * 9.9.3.35	UE radio capability information update needed
  */
@@ -1087,8 +1125,7 @@ de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 	curr_offset = offset;
 
-
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+	proto_tree_add_item(tree, hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg, tvb, curr_offset, 1, FALSE);
 
 	return(len);
 }
@@ -1157,7 +1194,16 @@ de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 /*
  * 9.9.3.40	LCS indicator
  */
-
+/*
+LCS indicator value
+	Bits
+8 7 6 5 4 3 2 1
+0 0 0 0 0 0 0 0	Normal, unspecified in this version of the protocol.
+0 0 0 0 0 0 0 1	MT-LR
+0 0 0 0 0 0 1 0
+	to				Normal, unspecified in this version of the protocol
+1 1 1 1 1 1 1 1
+*/
 static guint16
 de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1180,16 +1226,15 @@ de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	curr_offset = offset;
 
+	/* LCS client identity (value part)
+	 * The coding of the value part of the LCS client identity is given
+	 * in subclause 17.7.13 of 3GPP TS 29.002 [15B].
+	 */
 
 	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 
 	return(len);
 }
-/*
-LCS client identity (value part)
-
-The coding of the value part of the LCS client identity is given in subclause 17.7.13 of 3GPP TS 29.002 [15B].
-*/
 
 /*
  * 9.9.4	EPS Session Management (ESM) information elements
@@ -1201,15 +1246,43 @@ The coding of the value part of the LCS client identity is given in subclause 17
  */
 /*
  * 9.9.4.2 APN aggregate maximum bit rate
+ */
+static guint16
+de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+	/* APN-AMBR for downlink	octet 3 */
+	/* APN-AMBR for uplink	octet 4 */
+	/* APN-AMBR for downlink (extended)	octet 5 */
+	/* APN-AMBR for uplink (extended)	octet 6 */
+	/* APN-AMBR for downlink (extended-2)	octet 7 */
+	/* APN-AMBR for uplink (extended-2)	octet 8 */
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+	return(len);
+}
+/*
  * 9.9.4.3 EPS quality of service
- * 9.9.4.1 Access point name
- * 9.9.4.2 APN aggregate maximum bit rate 
- * 9.9.4.3 EPS quality of service 
+ */
+static guint16
+de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+	return(len);
+}
+/*
  * 9.9.4.4 ESM cause
  */
-#if 0
+
 static const value_string nas_eps_esm_cause_vals[] = {
-	{ 0,	""},
 	{ 0x08,	"Operator Determined Barring"},
 	{ 0x1a,	"Insufficient resources"},
 	{ 0x1b,	"Unknown or missing APN"},
@@ -1252,11 +1325,29 @@ static const value_string nas_eps_esm_cause_vals[] = {
 	{ 0x70,	"APN restriction value incompatible with active EPS bearer context"},
 	{ 0, NULL }
 };
-#endif
 
+static guint16
+de_esm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, FALSE);
+
+	return(len);
+}
 /*
  * 9.9.4.5 ESM information transfer flag 
  */
+/*
+EIT (ESM information transfer)
+
+Bit
+1		
+0		security protected ESM information transfer not required
+1		security protected ESM information transfer required
+*/
 static guint16
 de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -1271,12 +1362,70 @@ de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
 /*
  * 9.9.4.6 Linked EPS bearer identity 
+ */
+/* 
+ * Linked EPS bearer identity (bits 1-4)
+ */
+
+static const value_string nas_eps_esm_linked_bearer_id_vals[] = {
+	{ 0x0,	"Reserved"},
+	{ 0x1,	"Reserved"},
+	{ 0x2,	"Reserved"},
+	{ 0x3,	"Reserved"},
+	{ 0x4,	"Reserved"},
+	{ 0x5,	"EPS bearer identity value 5"},
+	{ 0x6,	"EPS bearer identity value 6"},
+	{ 0x7,	"EPS bearer identity value 7"},
+	{ 0x8,	"EPS bearer identity value 8"},
+	{ 0x9,	"EPS bearer identity value 9"},
+	{ 0xa,	"EPS bearer identity value 10"},
+	{ 0xb,	"EPS bearer identity value 11"},
+	{ 0xc,	"EPS bearer identity value 12"},
+	{ 0xd,	"EPS bearer identity value 13"},
+	{ 0xe,	"EPS bearer identity value 14"},
+	{ 0xf,	"EPS bearer identity value 15"},
+	{ 0, NULL }
+};
+
+
+
+static guint16
+de_esm_lnkd_eps_bearer_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+	return(len);
+}
+/*
  * 9.9.4.7 LLC service access point identifier 
  * See subclause 10.5.6.9 in 3GPP TS 24.008
+ */
+/*
  * 9.9.4.8 Packet flow identifier 
  * See subclause 10.5.6.11 in 3GPP TS 24.008 
+ */
+/*
  * 9.9.4.9 PDN address
- *
+ */
+static guint16
+de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+	return(len);
+}
+
+/*
  * 9.9.4.10 PDN type
  * Coded inline 1/2 octet
  */
@@ -1317,11 +1466,13 @@ static const value_string nas_eps_esm_request_type_values[] = {
 /*
  * 9.9.4.16 Traffic flow template
  * See subclause 10.5.6.12 in 3GPP TS 24.008
+ * packet-gsm_a_gm.c
  */
 /*
  * 9.9.4.17 Transaction identifier 
  * The Transaction identifier information element is coded as the Linked TI information element in 3GPP TS 24.008 [13],
  * subclause 10.5.6.7.
+ * The coding of the TI flag, the TI value and the EXT bit is defined in 3GPP TS 24.007[20].
  */
 
 guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
@@ -1421,23 +1572,23 @@ typedef enum
 nas_esm_elem_idx_t;
 
 guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
-	NULL,						/* 9.9.4.1 Access point name */
-	NULL,			/* 9.9.4.2 APN aggregate maximum bit rate */
-	NULL,					/* 9.9.4.3 EPS quality of service */
-	NULL,					/* 9.9.4.4 ESM cause */
+	NULL,							/* 9.9.4.1 Access point name */
+	de_esm_apn_aggr_max_br,			/* 9.9.4.2 APN aggregate maximum bit rate */
+	de_esm_qos,						/* 9.9.4.3 EPS quality of service */
+	de_esm_cause,					/* 9.9.4.4 ESM cause */
 	de_esm_inf_trf_flg,				/* 9.9.4.5 ESM information transfer flag */ 
-	NULL,			/* 9.9.4.6 Linked EPS bearer identity  */
-	NULL,				/* 9.9.4.7 LLC service access point identifier */ 
-	NULL,				/* 9.9.4.8 Packet flow identifier  */
-	NULL,				/* 9.9.4.9 PDN address */
-	NULL,				/* 9.9.4.10 PDN type */
-	NULL,			/* 9.9.4.11 Protocol configuration options */ 
-	NULL,						/* 9.9.4.12 Quality of service */
-	NULL,					/* 9.9.4.13 Radio priority  */
-	NULL,				/* 9.9.4.14 Request type */
-	NULL,		/* 9.9.4.15 Traffic flow aggregate description */ 
-	NULL,			/* 9.9.4.16 Traffic flow template */
-	NULL,						/* 9.9.4.17 Transaction identifier  */
+	de_esm_lnkd_eps_bearer_id,		/* 9.9.4.6 Linked EPS bearer identity  */
+	NULL,							/* 9.9.4.7 LLC service access point identifier */ 
+	NULL,							/* 9.9.4.8 Packet flow identifier  */
+	de_esm_pdn_addr,				/* 9.9.4.9 PDN address */
+	NULL,							/* 9.9.4.10 PDN type */
+	NULL,							/* 9.9.4.11 Protocol configuration options */ 
+	NULL,							/* 9.9.4.12 Quality of service */
+	NULL,							/* 9.9.4.13 Radio priority  */
+	NULL,							/* 9.9.4.14 Request type */
+	NULL,							/* 9.9.4.15 Traffic flow aggregate description */ 
+	NULL,							/* 9.9.4.16 Traffic flow template */
+	NULL,							/* 9.9.4.17 Transaction identifier  */
 	NULL,	/* NONE */
 };
 
@@ -2201,62 +2352,446 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 /*
  * 8.3.1	Activate dedicated EPS bearer context accept
- * 27	Protocol configuration options	Protocol configuration options 9.9.4.8	O	TLV	3-253
  */
+static void
+nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+ 
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 /*
  * 8.3.2	Activate dedicated EPS bearer context reject
- * 	ESM cause	ESM cause 9.9.4.2	M	V	1
- * 27	Protocol configuration options	Protocol configuration options 9.9.4.8	O	TLV	3-253
  */
-/*
- * 8.3.3	Activate dedicated EPS bearer context request
- 	Linked EPS bearer identity	Linked EPS bearer identity
-9.9.4.6	M	V	1/2
-	Spare half octet	Spare half octet
-9.9.2.7	M	V	1/2
-	EPS QoS	EPS quality of service
-9.9.4.3	M	LV	2-10
-	TFT	Traffic flow template
-9.9.4.16	M	LV	2-256
-5D	Transaction identifier	Transaction identifier
-9.9.4.17	O	TLV	3-4
-30	Negotiated QoS	Quality of service
-9.9.4.12	O	TLV	14-18
-32	Negotiated LLC SAPI	LLC service access point identifier
-9.9.4.7	O	TV	2
-8-	Radio priority	Radio priority
-9.9.4.13	O	TV	1
-34	Packet flow Identifier	Packet flow Identifier
-9.9.4.8	O	TLV	3
-27	Protocol configuration options	Protocol configuration options
-9.9.4.11	O	TLV	3-253
+static void
+nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
 
- */
+	curr_offset = offset;
+	curr_len = len;
+
+	/* ESM cause	ESM cause 9.9.4.2	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+ 
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 /*
  * 8.3.3	Activate dedicated EPS bearer context request
- *
  */
+static void
+nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+
+	/* EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 DE_ESM_QOS*/
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, "");
+	/* TFT	Traffic flow template 9.9.4.16	M	LV	2-256 */
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
+	/* 5D	Transaction identifier	Transaction identifier 9.9.4.17	O	TLV	3-4 */
+	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , "Transaction identifier" );
+	/* 30	Negotiated QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
+	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
+	/* 32	Negotiated LLC SAPI	LLC service access point identifier 9.9.4.7	O	TV	2 */
+	ELEM_OPT_TV( 0x32 , GSM_A_PDU_TYPE_GM, DE_LLC_SAPI , " - Negotiated LLC SAPI" );
+	/* 8-	Radio priority	Radio priority 9.9.4.13	O	TV	1 */
+	ELEM_OPT_TV_SHORT ( 0x80 , GSM_A_PDU_TYPE_GM , DE_RAD_PRIO , "" );
+	/* 34	Packet flow Identifier	Packet flow Identifier 9.9.4.8	O	TLV	3 */
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * 8.3.4	Activate default EPS bearer context accept
  */
+static void
+nas_esm_act_def_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 /*
  * 8.3.5	Activate default EPS bearer context reject
+ */
+static void
+nas_esm_act_def_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
  * 8.3.6 Activate default EPS bearer context request
- * 8.3.7 Bearer resource modification reject
- * 8.3.8 Bearer resource modification request
- * 8.3.9 Deactivate EPS bearer context accept
- * 8.3.10 Deactivate EPS bearer context request
- * 8.3.11 ESM information request
- * 8.3.12 ESM information response
- * 8.3.13 ESM status
- * 8.3.14 Modify EPS bearer context accept
- * 8.3.15 Modify EPS bearer context reject
- * 8.3.16 Modify EPS bearer context request
+ */
+static void
+nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	EPS QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, "");
+	/* 	Access point name	Access point name 9.9.4.1	M	LV	2-101 */
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	/* 	PDN address	PDN address 9.9.4.9	M	LV	6-14 DE_ESM_PDN_ADDR*/
+	ELEM_MAND_LV( NAS_PDU_TYPE_ESM, DE_ESM_PDN_ADDR , "" );
+	/* 5D	Transaction identifier	Transaction identifier 9.9.4.17	O	TLV	3-4 */
+	ELEM_OPT_TLV( 0x5d , GSM_A_PDU_TYPE_GM, DE_LINKED_TI , "Transaction identifier" );
+	/* 30	Negotiated QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
+	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - Negotiated QoS" );
+	/* 32	Negotiated LLC SAPI	LLC service access point identifier 9.9.4.7	O	TV	2 */
+	ELEM_OPT_TV( 0x32 , GSM_A_PDU_TYPE_GM, DE_LLC_SAPI , " - Negotiated LLC SAPI" );
+	/* 8-	Radio priority	Radio priority 9.9.4.13	O	TV	1 */
+	ELEM_OPT_TV_SHORT ( 0x80 , GSM_A_PDU_TYPE_GM , DE_RAD_PRIO , "" );
+	/* 34	Packet flow Identifier	Packet flow Identifier 9.9.4.8	O	TLV	3 */
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	/* 5E	APN-AMBR	APN aggregate maximum bit rate 9.9.4.2	O	TLV	4-8 DE_ESM_APN_AGR_MAX_BR*/
+	ELEM_OPT_TLV( 0x34 , NAS_PDU_TYPE_ESM, DE_ESM_APN_AGR_MAX_BR , "" );
+	/* 58	ESM cause	ESM cause 9.9.4.4	O	TV	2 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * 8.3.7	Bearer resource allocation reject
+ */
+static void
+nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * 8.3.8	Bearer resource allocation request
+ */
+static void
+nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+
+	/* 	Traffic flow aggregate	Traffic flow aggregate description 9.9.4.15	M	LV	2-256 */
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
+	/* 	Required traffic flow QoS	EPS quality of service 9.9.4.3	M	LV	2-10 */
+	ELEM_MAND_LV(NAS_PDU_TYPE_ESM, DE_ESM_QOS, " - Required traffic flow QoS");
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.9	Bearer resource modification reject 
+ */
+static void
+nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.108	Bearer resource modification request
+ */
+static void
+nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+	/* Traffic flow aggregate	Traffic flow aggregate description 9.9.4.15	M	LV	2-256 */
+	ELEM_MAND_LV( GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - Traffic flow aggregate" );
+	/* 5B	Required traffic flow QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
+	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_QOS , " - Required traffic flow QoS" );
+	/* 58	ESM cause	ESM cause 9.9.4.4	O	TV	2 */
+	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_CAUSE , "" );
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253  */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.11 Deactivate EPS bearer context accept
+ */
+static void
+nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.12 Deactivate EPS bearer context request
+ */
+static void
+nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 	ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * 8.3.13 ESM information request
+ * No IE:s
  */
 /*
- * 8.3.17 PDN connectivity reject
+ * 8.3.14 ESM information response
  */
+static void
+nas_esm_inf_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 28	Access point name	Access point name 9.9.4.1	O	TLV	3-102 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.15 ESM status
+ */
+static void
+nas_esm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.16 Modify EPS bearer context accept
+ */
+static void
+nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.17 Modify EPS bearer context reject
+ */
+static void
+nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.18 Modify EPS bearer context request
+ */
+static void
+nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* 5B	New EPS QoS	EPS quality of service 9.9.4.3	O	TLV	3-11 */
+	ELEM_OPT_TLV( 0x27 , NAS_PDU_TYPE_ESM, DE_ESM_QOS , " - New EPS QoS" );
+	/* 36	TFT	Traffic flow template 9.9.4.16	O	TLV	3-257 */
+	ELEM_OPT_TLV( 0x36 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
+	/* 30	New QoS	Quality of service 9.9.4.12	O	TLV	14-18 */
+	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_GM, DE_QOS , " - New QoS" );
+	/* 32	Negotiated LLC SAPI	LLC service access point identifier 9.9.4.7	O	TV	2 */
+	ELEM_OPT_TV( 0x32 , GSM_A_PDU_TYPE_GM, DE_LLC_SAPI , " - Negotiated LLC SAPI" );
+	/* 8-	Radio priority	Radio priority 9.9.4.13	O	TV	1 */
+	ELEM_OPT_TV_SHORT ( 0x80 , GSM_A_PDU_TYPE_GM , DE_RAD_PRIO , "" );
+	/* 34	Packet flow Identifier	Packet flow Identifier 9.9.4.8	O	TLV	3 */
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	/* 5E	APN-AMBR	APN aggregate maximum bit rate 9.9.4.2	O	TLV	4-8 */
+	ELEM_OPT_TLV( 0x34 , NAS_PDU_TYPE_ESM, DE_ESM_APN_AGR_MAX_BR , "" );
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.19 PDN connectivity reject
+ */
+static void
+nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 /*
  * 8.3.18 PDN connectivity request
  */
@@ -2295,36 +2830,80 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 8.3.19 PDN disconnect reject
- * 8.3.20 PDN disconnect request
+ * 8.3.20 PDN disconnect reject
  */
+static void
+nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* ESM cause	ESM cause 9.9.4.4	M	V	1 */
+	ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE);
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 8.3.21 PDN disconnect request
+ */
+static void
+nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset, bit_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Fix the lengths */
+	curr_len--;
+	curr_offset++;
+	/* 27	Protocol configuration options	Protocol configuration options 9.9.4.11	O	TLV	3-253 */
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 
 #define	NUM_NAS_MSG_ESM (sizeof(nas_msg_esm_strings)/sizeof(value_string))
 static gint ett_nas_msg_esm[NUM_NAS_MSG_ESM];
 static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-	NULL,	/* Activate default EPS bearer context request*/
-	NULL,	/* Activate default EPS bearer context accept*/
-	NULL,	/* Activate default EPS bearer context reject*/
-	NULL,	/* Activate dedicated EPS bearer context request*/
-	NULL,	/* Activate dedicated EPS bearer context accept*/
-	NULL,	/* Activate dedicated EPS bearer context reject*/
-	NULL,	/* Modify EPS bearer context request*/
-	NULL,	/* Modify EPS bearer context accept*/
-	NULL,	/* Modify EPS bearer context reject*/
-	NULL,	/* Deactivate EPS bearer context request*/
-	NULL,	/* Deactivate EPS bearer context accept*/
-	nas_esm_pdn_con_req,	/* 8.3.18 PDN connectivity request */
-	NULL,	/* PDN connectivity reject*/
-	NULL,	/* PDN disconnect request*/
-	NULL,	/* PDN disconnect reject*/
-	NULL,	/* Bearer resource allocation request*/
-	NULL,	/* Bearer resource allocation reject*/
-	NULL,	/* Bearer resource modification request*/
-	NULL,	/* Bearer resource modification reject*/
-	NULL,	/* ESM information request*/
-	NULL,	/* ESM information response*/
-	NULL,	/* ESM status */
+	nas_esm_act_def_eps_bearer_ctx_req,	/* Activate default EPS bearer context request*/
+	nas_esm_act_def_eps_bearer_ctx_acc,	/* Activate default EPS bearer context accept*/
+	nas_esm_act_def_eps_bearer_ctx_rej,	/* Activate default EPS bearer context reject*/
+	nas_esm_act_ded_eps_bearer_ctx_req,	/* Activate dedicated EPS bearer context request*/
+	nas_esm_act_ded_eps_bearer_ctx_acc,	/* Activate dedicated EPS bearer context accept*/
+	nas_esm_act_ded_eps_bearer_ctx_rej,	/* Activate dedicated EPS bearer context reject*/
+	nas_esm_mod_eps_bearer_ctx_req,		/* Modify EPS bearer context request*/
+	nas_esm_mod_eps_bearer_ctx_acc,		/* Modify EPS bearer context accept*/
+	nas_esm_mod_eps_bearer_ctx_rej,		/* Modify EPS bearer context reject*/
+	nas_esm_deact_eps_bearer_ctx_req,	/* Deactivate EPS bearer context request*/
+	nas_esm_deact_eps_bearer_ctx_acc,	/* Deactivate EPS bearer context accept*/
+	nas_esm_pdn_con_req,				/* 8.3.18 PDN connectivity request */
+	nas_esm_pdn_con_rej,				/* PDN connectivity reject*/
+	nas_esm_pdn_disc_req,				/* PDN disconnect request*/
+	nas_esm_pdn_disc_rej,				/* PDN disconnect reject*/
+	nas_esm_bearer_res_all_req,			/* Bearer resource allocation request*/
+	nas_esm_bearer_res_all_rej,			/* Bearer resource allocation reject*/
+	nas_esm_bearer_res_mod_req,			/* Bearer resource modification request*/
+	nas_esm_bearer_res_mod_rej,			/* Bearer resource modification reject*/
+	NULL,								/* ESM information request, No IE:s*/
+	nas_esm_inf_resp,					/* ESM information response*/
+	nas_esm_status,						/* ESM status */
 
 	NULL,	/* NONE */
 };
@@ -2783,10 +3362,69 @@ void proto_register_nas_eps(void) {
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
 		NULL, HFILL }
 	},
-
+	{ &hf_nas_eps_emm_ucs2_supp,
+		{ "UCS2 support (UCS2)","nas_eps.emm.emm_ucs2_supp",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ucs2_supp_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia1,
+		{ "UMTS integrity algorithm UIA1","nas_eps.emm.uia1",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia2,
+		{ "UMTS integrity algorithm UIA2","nas_eps.emm.uia2",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia3,
+		{ "UMTS integrity algorithm UIA3","nas_eps.emm.uia3",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia4,
+		{ "UMTS integrity algorithm UIA4","nas_eps.emm.uia4",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia5,
+		{ "UMTS integrity algorithm UIA5","nas_eps.emm.uia5",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia6,
+		{ "UMTS integrity algorithm UIA6","nas_eps.emm.uia6",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_uia7,
+		{ "UMTS integrity algorithm UIA7","nas_eps.emm.uia7",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_1xsrvcc_cap,
+		{ "1xSRVCC capability ","nas_eps.emm.1xsrvcc_cap",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_1xsrvcc_cap_flg), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_ue_ra_cap_inf_upd_need_flg,
+		{ "1xSRVCC capability ","nas_eps.emm.ue_ra_cap_inf_upd_need_flg",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_ue_ra_cap_inf_upd_need_flg), 0x01,
+		NULL, HFILL }
+	},
 	{ &hf_nas_eps_emm_ss_code,
 		{ "SS Code","nas_eps.emm.eps_update_result_value",
 		FT_UINT8,BASE_DEC, VALS(ssCode_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_esm_cause,
+		{ "Cause","nas_eps.esm.cause",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_esm_cause_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_esm_linked_bearer_id,
+		{ "Linked EPS bearer identity ","nas_eps.esm.linked_bearer_id",
+		FT_UINT8,BASE_DEC, VALS(nas_eps_esm_linked_bearer_id_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_active_flg,
