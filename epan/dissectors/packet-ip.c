@@ -1788,7 +1788,7 @@ static const value_string mip_extensions[] = {
  * Dissect the mobile ip advertisement extensions.
  */
 static void
-dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
+dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
   guint8       type;
   guint8       length;
@@ -1937,7 +1937,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
  * Dissect the MPLS extensions
  */
 static void
-dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
+dissect_mpls_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
     guint8          version;
     guint8          class_num;
@@ -1949,7 +1949,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
     guint16         obj_length, obj_trunc_length;
     proto_item      *ti, *tf_object, *tf_entry, *hidden_item;
     proto_tree      *mpls_tree=NULL, *mpls_object_tree, *mpls_stack_object_tree;
-    guint           obj_end_offset;
+    gint            obj_end_offset;
     guint           reported_length;
     guint           label;
     gboolean        unknown_object;
@@ -2135,8 +2135,8 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                             proto_tree_add_text(mpls_object_tree, tvb,
                                                 offset,
                                                 obj_end_offset - offset,
-                                                "%ld junk bytes",
-                                                (long)(obj_end_offset - offset));
+                                                "%d junk bytes",
+                                                obj_end_offset - offset);
 
                         break;
                     default:

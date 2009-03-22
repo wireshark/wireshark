@@ -308,10 +308,10 @@ static void
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     char *szInfo;
-    int		offCur		= 0; /* current offset from start of WTP data */
-    size_t		returned_length, str_index = 0;
+    int			offCur		= 0;   /* current offset from start of WTP data */
+    gint		returned_length, str_index = 0;
 
-    unsigned char  b0;
+    unsigned char	b0;
 
     /* continuation flag */
     unsigned char  	fCon;			/* Continue flag	*/

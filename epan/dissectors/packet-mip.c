@@ -355,12 +355,12 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_tree   *ext_flags_tree;
   proto_tree   *tp;
   proto_tree   *pmipv4_tree;
-  size_t        ext_len;
+  gint          ext_len;
   guint8        ext_type;
   guint8        ext_subtype=0;
   guint8        pmipv4skipext_type;
   guint16       flags;
-  size_t        hdrLen;
+  gint          hdrLen;
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
@@ -562,7 +562,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree    *flags_tree;
   guint8         type;
   guint16        flags;
-  size_t         offset=0;
+  gint           offset=0;
   const guint8  *reftime;
   tvbuff_t      *next_tvb;
 

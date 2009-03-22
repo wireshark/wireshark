@@ -510,7 +510,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	unsigned int    pduret, ver = 0, pdus = 0, x = 1;
 	hdrinfo_t       hdrinfo;
 	gint            flow_len = -1;
-	size_t          available, pdusize, offset = 0;
+	guint           available, pdusize, offset = 0;
 	nstime_t        ts;
 	dissect_pdu_t  *pduptr;
 

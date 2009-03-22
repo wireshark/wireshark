@@ -426,7 +426,7 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
     md5_state_t md_ctx;
     md5_byte_t digest[16];
     int i;
-    size_t totlen, returned_length;
+    gint totlen, returned_length;
     const guint8 *pd;
     guchar c;
 

@@ -978,7 +978,7 @@ static char *data_to_string(void *data, guint col_type, guint col_size)
  * the length must be computed using the column information seen in the result
  * PDU. This function does just that.
  */
-static size_t
+static guint
 tds_get_row_size(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 {
 	guint cur, i, csize;

@@ -1201,7 +1201,7 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	int i;
 	char *flags_string;
 	char *p;
-	size_t returned_length, str_index = 0;
+	gint returned_length, str_index = 0;
 	char *buf;
 
 	if (capability_val_len != 4) {

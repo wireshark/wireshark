@@ -1388,8 +1388,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	char *str;
 	char *sid_string;
 	char *sid_name;
-	size_t returned_length;
-	unsigned long str_index;;
+	gint returned_length;
+	gint str_index;;
 
 
 	if(sid_str){
@@ -1428,7 +1428,6 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
           str = ep_alloc(MAX_STR_LEN);
           str_index = 0;
-          str[str_index]=0;
 
 	  /* sub authorities, leave RID to last */
 	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){

@@ -2929,7 +2929,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int        offset = 0;
   gchar      *flags = "<None>";
   const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR"};
-  size_t     fpos = 0, returned_length;
+  gint       fpos = 0, returned_length;
   gint       i;
   guint      bpos;
   guint      optlen;

@@ -1126,11 +1126,11 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     guint32 flags;
     char *str;
-    size_t length, pos;
+    gint length, pos;
     gint i;
     header_field_info *hfinfo;
     int hfindex, index;
-    size_t returned_length;
+    gint returned_length;
 
     hfindex = ospf_filter[bfinfo->hfindex];
     hfinfo = proto_registrar_get_nth(hfindex);

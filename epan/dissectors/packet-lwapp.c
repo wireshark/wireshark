@@ -267,7 +267,7 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
-    size_t           offset=0;
+    gint             offset=0;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -330,7 +330,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
     proto_tree      *lwapp_tree;
-    size_t           offset=0;
+    gint             offset=0;
     tvbuff_t        *next_client;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -375,7 +375,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
-    size_t           offset=0;
+    gint             offset=0;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))

@@ -258,7 +258,7 @@ static const char *
 optsstr(guint8 opts)
 {
 	char *msg;
-	size_t returned_length, index = 0;
+	gint  returned_length, index = 0;
 	const int MAX_STR_LEN = 256;
 
 	if (opts == 0)
@@ -290,7 +290,7 @@ static const char *
 paritystr(guint8 parity)
 {
 	char *msg;
-	size_t returned_length, index = 0;
+	gint returned_length, index = 0;
 	const int MAX_STR_LEN = 256;
 
 	if (parity == 0)

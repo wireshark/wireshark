@@ -1691,7 +1691,7 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     "DLE", "DC1 (XON)", "DC2", "DC3 (XOFF)", "DC4",      "NAK", "SYN", "ETB",
     "CAN", "EM",        "SUB", "ESC",        "FS",       "GS",  "RS",  "US"
   };
-  size_t returned_length, str_index;
+  gint returned_length, str_index;
   int i;
 
   /*

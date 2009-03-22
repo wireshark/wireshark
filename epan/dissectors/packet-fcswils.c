@@ -772,11 +772,10 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         if (elp.cls1_svcparm[0] & 0x80) {
 #define MAX_FLAGS_LEN 40
             char *flagsbuf;
-            size_t stroff, returned_length;
+            gint stroff, returned_length;
 
             flagsbuf=ep_alloc(MAX_FLAGS_LEN);
             stroff = 0;
-	    flagsbuf[stroff]=0;
 
             returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
 		"Class 1 Valid");

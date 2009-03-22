@@ -311,7 +311,7 @@ static gchar *print_tsap(const guchar *tsap, int length)
 
   gchar *cur;
   gboolean allprintable;
-  size_t idx = 0, returned_length;
+  gint idx = 0, returned_length;
 
   cur=ep_alloc(MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';

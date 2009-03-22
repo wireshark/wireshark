@@ -2702,7 +2702,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 		lvt -= (extra);
 
 		do {
-			l = inbytesleft = min(lvt, 255);
+			inbytesleft = l = min(lvt, 255);
 			/*
 			 * XXX - are we guaranteed that these encoding
 			 * names correspond, on *all* platforms with

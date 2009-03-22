@@ -806,7 +806,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	const char *fstr[] = { "<None>", "NOCHECK", "EDGE", "NOERR", "MULTI", "RES",
 				"SORT", "NOFLOW", "FASTNAK", "SREQ", "DREQ",
 				"RCLOSE", "WCLOSE", "EOM", "END", "BTAG" };
-	size_t	fpos = 0, returned_length;
+	gint	fpos = 0, returned_length;
 	guint	i, bpos;
 	guint	cmd_options;
 	vec_t	cksum_vec[1];
