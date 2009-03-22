@@ -3043,13 +3043,11 @@ static void
 proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap)
 {
 	int	ret;	/*tmp return value */
-	int	replen;
 	field_info *fi = PITEM_FINFO(pi);
 	header_field_info *hf = fi->hfinfo;
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
-		replen = 0;
 		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
 			char tmpbuf[64];
 			guint32 val;
@@ -3067,34 +3065,27 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 					 "%s: ", fi->hfinfo->name);
 		}
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
-			/* That's all we can put in the representation. */
-			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
-			return;
-		}
-		replen = ret;
 
-		/* Put in the value of the string */
-		ret = g_vsnprintf(fi->rep->representation + replen,
-				  ITEM_LABEL_LENGTH - replen, format, ap);
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH - replen)) {
+		/* If possible, Put in the value of the string */
+		if (ret < ITEM_LABEL_LENGTH) {
+			ret += g_vsnprintf(fi->rep->representation + ret,
+					  ITEM_LABEL_LENGTH - ret, format, ap);
+		}
+		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
 			char *oldrep;
-
-			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 
 			/*  Argh, we cannot reuse 'ap' here.  So make a copy
 			 *  of what we formatted for (re)use below.
 			 */
 			oldrep = g_strdup(fi->rep->representation);
 
-			ret = g_snprintf(fi->rep->representation,
-					 ITEM_LABEL_LENGTH,
-					 "[truncated] %s",
-					 oldrep);
-			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+			g_snprintf(fi->rep->representation,
+				   ITEM_LABEL_LENGTH,
+				   "[truncated] %s",
+				   oldrep);
 			g_free(oldrep);
 		}
 	}
@@ -3113,13 +3104,11 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 		ITEM_LABEL_NEW(fi->rep);
 		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 				  format, ap);
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
+		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
 			char *oldrep;
-
-			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 
 			/*  Argh, we cannot reuse 'ap' here.  So make a copy
 			 *  of what we formatted for (re)use below.
@@ -3128,7 +3117,6 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 			g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 				   "[truncated] %s", oldrep);
-			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 			g_free(oldrep);
 		}
 	}
@@ -3163,7 +3151,6 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	field_info *fi = NULL;
 	size_t curlen;
 	va_list	ap;
-	int					ret;	/*tmp return value */
 
 	if (pi==NULL) {
 		return;
@@ -3188,10 +3175,8 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
-			ret = g_vsnprintf(fi->rep->representation + curlen,
+			g_vsnprintf(fi->rep->representation + curlen,
 			    ITEM_LABEL_LENGTH - curlen, format, ap);
-			if ((ret == -1) || (ret >= (int)(ITEM_LABEL_LENGTH - curlen)))
-				fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 		}
 		va_end(ap);
 	}
@@ -4009,10 +3994,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	switch(hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL:
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s", hfinfo->name);
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+			g_strlcpy(label_str, hfinfo->name, ITEM_LABEL_LENGTH);
 			break;
 
 		case FT_BOOLEAN:
@@ -4026,22 +4008,18 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
 					 bytes_to_str(bytes, fvalue_length(&fi->value)));
-				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
+				if (ret >= ITEM_LABEL_LENGTH) {
 					/* Uh oh, we don't have enough room.  Tell the
 					 *  user that the field is truncated.
 					 */
-					ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					g_snprintf(label_str, ITEM_LABEL_LENGTH,
 							 "%s [truncated]: %s",
 							 hfinfo->name,
 							 bytes_to_str(bytes, fvalue_length(&fi->value)));
-					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 				}
 			}
 			else {
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					"%s: <MISSING>", hfinfo->name);
-				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+				g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: <MISSING>", hfinfo->name);
 			}
 			break;
 
@@ -4080,100 +4058,80 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_FLOAT:
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %." STRINGIFY(FLT_DIG) "f",
 				hfinfo->name, fvalue_get_floating(&fi->value));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_DOUBLE:
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %." STRINGIFY(DBL_DIG) "g",
 				hfinfo->name, fvalue_get_floating(&fi->value));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				abs_time_to_str(fvalue_get(&fi->value)));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_RELATIVE_TIME:
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s seconds", hfinfo->name,
 				rel_time_to_secs_str(fvalue_get(&fi->value)));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPXNET:
 			integer = fvalue_get_uinteger(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (0x%08X)", hfinfo->name,
 				get_ipxnet_name(integer), integer);
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_ETHER:
 			bytes = fvalue_get(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_ether_name(bytes),
 				ether_to_str(bytes));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPv4:
 			ipv4 = fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname(n_addr),
 				ip_to_str((guint8*)&n_addr));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_IPv6:
 			bytes = fvalue_get(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname6((struct e_in6_addr *)bytes),
 				ip6_to_str((struct e_in6_addr*)bytes));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_GUID:
 			guid = fvalue_get(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				 guid_to_str(guid));
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_OID:
 			bytes = fvalue_get(&fi->value);
 			name = oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
 			if (name) {
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s (%s)", hfinfo->name,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
 			} else {
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		case FT_STRING:
@@ -4181,21 +4139,18 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	        case FT_EBCDIC:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-			if(strlen(bytes) > ITEM_LABEL_LENGTH) {
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+					 "%s: %s", hfinfo->name,
+					 format_text(bytes, strlen(bytes)));
+			if (ret >= ITEM_LABEL_LENGTH) {
 				/* Uh oh, we don't have enough room.  Tell the
 				 *  user that the field is truncated.
 				 */
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				g_snprintf(label_str, ITEM_LABEL_LENGTH,
 						 "%s [truncated]: %s",
 						 hfinfo->name,
 						 format_text(bytes, strlen(bytes)));
-			} else {
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-						 "%s: %s", hfinfo->name,
-						 format_text(bytes, strlen(bytes)));
 			}
-			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
 		default:
@@ -4214,7 +4169,6 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	int	bitfield_byte_length = 0, bitwidth;
 	guint32	unshifted_value;
 	guint32	value;
-	int					ret;	/*tmp return value */
 
 	header_field_info		*hfinfo = fi->hfinfo;
 	const true_false_string		*tfstring = &tfs_true_false;
@@ -4240,13 +4194,10 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 		"%s: %s",  hfinfo->name,
 		value ? tfstring->true_string : tfstring->false_string);
-	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
-
 
 /* Fills data for bitfield ints with val_strings */
 static void
@@ -4257,7 +4208,6 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	int bitfield_byte_length, bitwidth;
 	guint32 unshifted_value;
 	guint32 value;
-	int					ret;	/*tmp return value */
 
 	header_field_info	*hfinfo = fi->hfinfo;
 
@@ -4282,17 +4232,17 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+		g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				"%s: %s", hfinfo->name, tmp);
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
 		if (hfinfo->display & BASE_RANGE_STRING) {
-			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 					 format,  hfinfo->name,
 					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
 		} else {
-			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 					 format,  hfinfo->name,
 					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
@@ -4300,15 +4250,13 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 	else {
 		format = hfinfo_uint_format(hfinfo);
 		if (IS_BASE_DUAL(hfinfo->display)) {
-			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 					format,  hfinfo->name, value, value);
 		} else {
-			ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 					format,  hfinfo->name, value);
 		}
 	}
-	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -4317,7 +4265,6 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
-	int					ret;	/*tmp return value */
 
 	value = fvalue_get_uinteger(&fi->value);
 
@@ -4328,16 +4275,16 @@ fill_label_uint(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+		g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
 		if (hfinfo->display & BASE_RANGE_STRING) {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					 format,  hfinfo->name,
 					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
 		} else {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					 format,  hfinfo->name,
 					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
@@ -4345,15 +4292,13 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	else {
 		format = hfinfo_uint_format(hfinfo);
 		if (IS_BASE_DUAL(hfinfo->display)) {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					format,  hfinfo->name, value, value);
 		} else {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					format,  hfinfo->name, value);
 		}
 	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -4362,7 +4307,6 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint64 value;
-	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_uint64_format(hfinfo);
@@ -4370,14 +4314,12 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				format,  hfinfo->name, value, value);
 	} else {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				format,  hfinfo->name, value);
 	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -4386,7 +4328,6 @@ fill_label_int(field_info *fi, gchar *label_str)
 	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
-	int					ret;	/*tmp return value */
 
 	value = fvalue_get_sinteger(&fi->value);
 
@@ -4397,16 +4338,16 @@ fill_label_int(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+		g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_int_vals_format(hfinfo);
 		if (hfinfo->display & BASE_RANGE_STRING) {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					 format,  hfinfo->name,
 					 rval_to_str(value, hfinfo->strings, "Unknown"), value);
 		} else {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					 format,  hfinfo->name,
 					 val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
@@ -4414,15 +4355,13 @@ fill_label_int(field_info *fi, gchar *label_str)
 	else {
 		format = hfinfo_int_format(hfinfo);
 		if (IS_BASE_DUAL(hfinfo->display)) {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					format,  hfinfo->name, value, value);
 		} else {
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					format,  hfinfo->name, value);
 		}
 	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 static void
@@ -4431,7 +4370,6 @@ fill_label_int64(field_info *fi, gchar *label_str)
 	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint64 value;
-	int					ret;	/*tmp return value */
 
 	/* Pick the proper format string */
 	format = hfinfo_int64_format(hfinfo);
@@ -4439,14 +4377,12 @@ fill_label_int64(field_info *fi, gchar *label_str)
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				format,  hfinfo->name, value, value);
 	} else {
-		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+		g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				format,  hfinfo->name, value);
 	}
-	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
 
 int
