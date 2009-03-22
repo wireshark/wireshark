@@ -1808,7 +1808,8 @@ main(int argc, char *argv[])
   /*
    * Attempt to get the pathname of the executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0]);
+  init_progfile_dir_error = init_progfile_dir(argv[0],
+                                              (const void *)main);
 
   /* initialize the funnel mini-api */
   initialize_funnel_ops();

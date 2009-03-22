@@ -55,9 +55,12 @@
 #include <tchar.h>
 #include <shlobj.h>
 #include <wsutil/unicode-utils.h>
-#else
+#else /* _WIN32 */
+#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+#include <dlfcn.h>
+#endif /* DLADDR_FINDS_EXECUTABLE_PATH */
 #include <pwd.h>
-#endif
+#endif /* _WIN32 */
 
 #include "filesystem.h"
 #include "report_err.h"
@@ -246,6 +249,10 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
 	_U_
 #endif
+, const void *main_addr
+#if defined(_WIN32) || !defined(DLADDR_FINDS_EXECUTABLE_PATH)
+	_U_
+#endif
 )
 {
 	char *dir_end;
@@ -334,6 +341,9 @@ init_progfile_dir(const char *arg0
 		    msg, error);
 	}
 #else
+#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+	Dl_info info;
+#endif
 	char *prog_pathname;
 	char *curdir;
 	long path_max;
@@ -355,6 +365,22 @@ init_progfile_dir(const char *arg0
 	    && !started_with_special_privs())
 		running_in_build_directory_flag = TRUE;
 
+#ifdef DLADDR_FINDS_EXECUTABLE_PATH
+	/*
+	 * Try to use dladdr() to find the pathname of the executable.
+	 */
+	if (dladdr(main_addr, &info) && info.dli_fname[0] == '/') {
+		/*
+		 * dladdr() succeeded, and we got an absolute path
+		 * for the module containing main() (I don't know
+		 * whether it's guaranteed to return an absolute path
+		 * on all platforms), so we'll use that as the
+		 * executable image's path.
+		 */
+		prog_pathname = g_strdup(info.dli_fname);
+	} else
+#endif
+	{
 	/*
 	 * Try to figure out the directory in which the currently running
 	 * program resides, given the argv[0] it was started with.  That
@@ -455,6 +481,7 @@ init_progfile_dir(const char *arg0
 			 */
 			return g_strdup("PATH isn't set");
 		}
+	}
 	}
 
 	/*

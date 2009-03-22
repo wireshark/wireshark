@@ -31,7 +31,7 @@
  * - Opens a specified file or named pipe
  * - Applies a specfied DLT or "decode as" encapsulation
  * - Reads frames prepended with a libpcap packet header.
- * - Prints a status line, followed by  fields from a specified list.
+ * - Prints a status line, followed by fields from a specified list.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -460,7 +460,8 @@ main(int argc, char *argv[])
   /*
    * Attempt to get the pathname of the executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0]);
+  init_progfile_dir_error = init_progfile_dir(argv[0],
+                                              (const void *)main);
   if (init_progfile_dir_error != NULL) {
     fprintf(stderr, "rawshark: Can't get pathname of rawshark program: %s.\n",
             init_progfile_dir_error);
