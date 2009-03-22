@@ -901,25 +901,25 @@ static int hf_chan_tx_pow  =	-1;
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
-static int ff_auth_alg = -1;  /* Authentication algorithm field            */
-static int ff_auth_seq = -1;  /* Authentication transaction sequence       */
-static int ff_current_ap = -1;  /* Current AP MAC address                    */
-static int ff_listen_ival = -1;  /* Listen interval fixed field               */
-static int ff_timestamp = -1;  /* 64 bit timestamp                          */
-static int ff_beacon_interval = -1;  /* 16 bit Beacon interval            */
-static int ff_assoc_id = -1;  /* 16 bit AID field                          */
-static int ff_reason = -1;  /* 16 bit reason code                        */
-static int ff_status_code = -1;  /* Status code                               */
-static int ff_category_code = -1;  /* 8 bit Category code */
-static int ff_action_code = -1;    /* 8 bit Action code */
-static int ff_dialog_token = -1;  /* 8 bit Dialog token */
-static int ff_wme_action_code = -1;  /* Management notification action code */
-static int ff_wme_status_code = -1;  /* Management notification setup response status code */
+static int ff_auth_alg = -1;            /* Authentication algorithm field            */
+static int ff_auth_seq = -1;            /* Authentication transaction sequence       */
+static int ff_current_ap = -1;          /* Current AP MAC address                    */
+static int ff_listen_ival = -1;         /* Listen interval fixed field               */
+static int ff_timestamp = -1;           /* 64 bit timestamp                          */
+static int ff_beacon_interval = -1;     /* 16 bit Beacon interval                    */
+static int ff_assoc_id = -1;            /* 16 bit AID field                          */
+static int ff_reason = -1;              /* 16 bit reason code                        */
+static int ff_status_code = -1;         /* Status code                               */
+static int ff_category_code = -1;       /* 8 bit Category code */
+static int ff_action_code = -1;         /* 8 bit Action code */
+static int ff_dialog_token = -1;        /* 8 bit Dialog token */
+static int ff_wme_action_code = -1;     /* Management notification action code */
+static int ff_wme_status_code = -1;     /* Management notification setup response status code */
 static int ff_qos_action_code = -1;
 static int ff_dls_action_code = -1;
-static int ff_dst_mac_addr = -1;  /* DLS destination MAC addressi */
-static int ff_src_mac_addr = -1;  /* DLS source MAC addressi */
-static int ff_dls_timeout = -1;    /* DLS timeout value */
+static int ff_dst_mac_addr = -1;        /* DLS destination MAC addressi */
+static int ff_src_mac_addr = -1;        /* DLS source MAC addressi */
+static int ff_dls_timeout = -1;         /* DLS timeout value */
 
 /* Vendor specific */
 static int ff_marvell_action_type = -1;
@@ -3231,15 +3231,15 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
   /* Wi-Fi Protected Access (WPA) Information Element */
   if (tag_off + 6 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WPA_OUI"\x01", 4)) {
     g_snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
-    tvb_get_guint8(tag_tvb, tag_off + 3), tvb_get_letohs(tag_tvb, tag_off + 4));
+      tvb_get_guint8(tag_tvb, tag_off + 3), tvb_get_letohs(tag_tvb, tag_off + 4));
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 6, out_buff);
     tag_off += 6;
     if (tag_off + 4 <= tag_len) {
       /* multicast cipher suite */
       if (!tvb_memeql(tag_tvb, tag_off, WPA_OUI, 3)) {
         g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s",
-        val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3), wpa_cipher_vals,
-          "UNKNOWN"));
+          val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3), wpa_cipher_vals,
+            "UNKNOWN"));
         proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
           out_buff);
         tag_off += 4;
@@ -3256,7 +3256,7 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
               g_snprintf(out_buff, SHORT_STR,
                 "Unicast cipher suite %u: %s", i,
                 val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-                wpa_cipher_vals, "UNKNOWN"));
+                  wpa_cipher_vals, "UNKNOWN"));
               proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
                 out_buff);
               tag_off += 4;
@@ -3278,7 +3278,7 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
                 g_snprintf(out_buff, SHORT_STR,
                   "auth key management suite %u: %s", i,
                   val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-                  wpa_keymgmt_vals, "UNKNOWN"));
+                    wpa_keymgmt_vals, "UNKNOWN"));
                 proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
                   out_buff);
                 tag_off += 4;
@@ -4515,16 +4515,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
                           (tag_data_ptr[i] & 0x7F) * 0.5,
                           (tag_data_ptr[i] & 0x80) ? "(B)" : "");
-          if (ret == -1 || ret >= SHORT_STR - n) {
-            /* Some versions of snprintf return -1 if they'd truncate
-               the output. Others return <buf_size> or greater.  */
+          if (ret >= SHORT_STR - n) {
+            /* ret = <buf_size> or greater. means buffer truncated */
             break;
           }
           n += ret;
         }
       }
       g_snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
            tag_len, out_buff);
       proto_item_append_text(ti, ": %s", print_buff);
@@ -4543,7 +4541,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           tvb_get_guint8(tvb, offset + 4),
           tvb_get_guint8(tvb, offset + 5),
           tvb_get_guint8(tvb, offset + 6));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                              tag_len, out_buff);
       break;
@@ -4557,7 +4554,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       g_snprintf (out_buff, SHORT_STR, "Current Channel: %u",
                 tvb_get_guint8(tvb, offset + 2));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                              tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
@@ -4573,22 +4569,18 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       g_snprintf (out_buff, SHORT_STR, "CFP count: %u",
                 tvb_get_guint8(tvb, offset + 2));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2,
                                    1, out_buff, "%s", out_buff);
       g_snprintf (out_buff, SHORT_STR, "CFP period: %u",
                 tvb_get_guint8(tvb, offset + 3));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 3,
                                    1, out_buff, "%s", out_buff);
       g_snprintf (out_buff, SHORT_STR, "CFP max duration: %u",
                 tvb_get_letohs(tvb, offset + 4));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 4,
                                    2, out_buff, "%s", out_buff);
       g_snprintf (out_buff, SHORT_STR, "CFP Remaining: %u",
                 tvb_get_letohs(tvb, offset + 6));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 6,
                                    2, out_buff, "%s", out_buff);
       proto_item_append_text(ti, ": CFP count %u, CFP period %u, CFP max duration %u, "
@@ -4650,7 +4642,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
               }
             }
           }
-          out_buff[SHORT_STR-1] = '\0';
           proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 5,
                bmaplen, out_buff, "%s", out_buff);
         }
@@ -4666,7 +4657,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
       g_snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
                 tvb_get_letohs(tvb, offset + 2));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
            tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
@@ -4687,7 +4677,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         g_snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
                  format_text(ccode, 2),
                  val_to_str(tvb_get_guint8(tvb, offset + 4), environment_vals,"Unknown (0x%02x)"));
-        out_buff[SHORT_STR-1] = '\0';
         proto_item_append_text(ti, ": %s", out_buff);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
 
@@ -4754,7 +4743,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       g_snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u",
                 tvb_get_guint8(tvb, offset + 2),
                 tvb_get_guint8(tvb, offset + 3));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
       break;
@@ -4890,7 +4878,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_CHALLENGE_TEXT:
       g_snprintf (out_buff, SHORT_STR, "Challenge text: %s",
                 tvb_bytes_to_str(tvb, offset + 2, tag_len));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
            tag_len, out_buff);
       break;
@@ -4913,10 +4900,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                   /* 802.11g, 7.3.2.13: 1 means "one or more ... STAs
                    * are not short preamble capable" */
                   erp_info & 0x04 ? "long": "short or long");
-        print_buff[SHORT_STR-1] = '\0';
         g_snprintf (out_buff, SHORT_STR,
                   "ERP info: 0x%x (%s)",erp_info,print_buff);
-        out_buff[SHORT_STR-1] = '\0';
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                                tag_len, out_buff);
         proto_item_append_text(ti, ": %s", print_buff);
@@ -4946,7 +4931,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
          followed by '\0' for ASCII termination */
       g_snprintf (out_buff, SHORT_STR, "%.16s",
                 tvb_format_stringzpad(tvb, offset + 12, 16));
-      out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 2,
            tag_len, "", "Tag interpretation: Unknown + Name: %s #Clients: %u",
            out_buff,
@@ -5701,14 +5685,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       tag_data_ptr = tvb_get_ptr (tvb, offset, tag_len);
       for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
         ret = g_snprintf (print_buff + n, SHORT_STR - n, (i == tag_len-1)?"%d":"%d, ", tag_data_ptr[i]);
-        if (ret == -1 || ret >= SHORT_STR - n) {
-          /* Some versions of snprintf return -1 if they'd truncate
-             the output. Others return <buf_size> or greater.  */
+        if (ret >= SHORT_STR - n) {
+          /* ret >= <buf_size> means buffer truncated  */
           break;
         }
         n += ret;
       }
-      print_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, hf_tag_supported_reg_classes_alternate, tvb, offset, tag_len, print_buff);
 
       break;
