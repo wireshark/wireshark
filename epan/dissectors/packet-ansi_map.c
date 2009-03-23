@@ -338,6 +338,7 @@ static int hf_ansi_map_authenticationResponseUniqueChallenge = -1;  /* Authentic
 static int hf_ansi_map_callHistoryCount = -1;     /* CallHistoryCount */
 static int hf_ansi_map_cdmaPrivateLongCodeMask = -1;  /* CDMAPrivateLongCodeMask */
 static int hf_ansi_map_carrierDigits = -1;        /* CarrierDigits */
+static int hf_ansi_map_caveKey = -1;              /* CaveKey */
 static int hf_ansi_map_denyAccess = -1;           /* DenyAccess */
 static int hf_ansi_map_destinationDigits = -1;    /* DestinationDigits */
 static int hf_ansi_map_locationAreaID = -1;       /* LocationAreaID */
@@ -4538,6 +4539,16 @@ dissect_ansi_map_CarrierDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
+
+static int
+dissect_ansi_map_CaveKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const value_string ansi_map_DenyAccess_vals[] = {
   {   0, "not-used" },
   {   1, "unspecified" },
@@ -4722,12 +4733,13 @@ dissect_ansi_map_UpdateCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static const ber_sequence_t AuthenticationDirective_U_set[] = {
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
   { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
-  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
-  { &hf_ansi_map_authenticationResponseReauthentication, BER_CLASS_CON, 182, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseReauthentication },
+  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
+  { &hf_ansi_map_authenticationResponseReauthentication, BER_CLASS_CON, 182, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseReauthentication },
   { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
   { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
   { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
   { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_caveKey    , BER_CLASS_CON, 316, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CaveKey },
   { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
   { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
   { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
@@ -6932,13 +6944,13 @@ dissect_ansi_map_OneTimeFeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static const ber_sequence_t FeatureRequest_U_set[] = {
-  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
-  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
-  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
-  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
   { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
-  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
   { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
   { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
   { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
@@ -6951,7 +6963,7 @@ static const ber_sequence_t FeatureRequest_U_set[] = {
   { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
   { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
   { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
-  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
   { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
   { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
   { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
@@ -14035,7 +14047,7 @@ dissect_ansi_map_TDMA_MAHORequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static const ber_sequence_t InterSystemPositionRequest_U_set[] = {
   { &hf_ansi_map_positionRequestType, BER_CLASS_CON, 337, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionRequestType },
   { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
-  { &hf_ansi_map_cdmaPSMMCount, BER_CLASS_CON, 344, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMCount },
+  { &hf_ansi_map_cdmaPSMMCount, BER_CLASS_CON, 345, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMCount },
   { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
   { &hf_ansi_map_emergencyServicesRoutingDigits, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_EmergencyServicesRoutingDigits },
@@ -14969,6 +14981,36 @@ static int
 dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_CDMA2000MobileSupportedCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_EnhancedPrivacyEncryptionReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MINExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -16790,6 +16832,10 @@ void proto_register_ansi_map(void) {
       { "carrierDigits", "ansi_map.carrierDigits",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.CarrierDigits", HFILL }},
+    { &hf_ansi_map_caveKey,
+      { "caveKey", "ansi_map.caveKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CaveKey", HFILL }},
     { &hf_ansi_map_denyAccess,
       { "denyAccess", "ansi_map.denyAccess",
         FT_UINT32, BASE_DEC, VALS(ansi_map_DenyAccess_vals), 0,

@@ -10,7 +10,8 @@ IMPORTS
 	IMSI
 	FROM MAP-Protocol;
 
---6.4.2.1 
+-- 6.4.2.1 
+-- http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v2.0_070723.pdf
 AuthenticationDirective ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
 	--M 6.5.2.63
@@ -18,18 +19,20 @@ AuthenticationDirective ::= [PRIVATE 18] SET {
 	--M 6.5.2.81
 	msid									MSID OPTIONAL,
 	--
-	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion,
+	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion OPTIONAL,
 	-- O 6.5.2.7 a
-	authenticationResponseReauthentication	[182] IMPLICIT AuthenticationResponseReauthentication,
+	authenticationResponseReauthentication	[182] IMPLICIT AuthenticationResponseReauthentication OPTIONAL,
 	-- O 6.5.2.mT j
 	authenticationResponseUniqueChallenge	[37] IMPLICIT AuthenticationResponseUniqueChallenge OPTIONAL,
 	--	O 6.5.2.12 b
 	callHistoryCount						[38] IMPLICIT CallHistoryCount OPTIONAL,
-	--	O 6.5.2.18 c
+	--	O 6.5.2.18 
 	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
 	-- O 6.5.2.36 m
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 j
+	caveKey									[316] IMPLICIT CaveKey OPTIONAL,
+	-- CaveKey O 2.38 p X.S0004-550-E_v1.0_040406.pdf
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	--	O 6.5.2.54 d
 	destinationDigits						[87] IMPLICIT	DestinationDigits OPTIONAL,
@@ -52,6 +55,7 @@ AuthenticationDirective ::= [PRIVATE 18] SET {
 	-- O 6.5.2.114
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	--	O 6.5.2.116 g
+	-- ServiceIndicator O 2.221 k
 	sharedSecretData						[46] IMPLICIT SharedSecretData OPTIONAL,
 	--	O 6.5.2.119 c
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
@@ -60,6 +64,7 @@ AuthenticationDirective ::= [PRIVATE 18] SET {
 	--	O 6.5.2.141 h
 	updateCount								[51] IMPLICIT UpdateCount OPTIONAL
 	--	O 6.5.2.163 i
+	-- VoicePrivacyMask O 2.297 m
 }
 -- AuthenticationDirective RETURN RESULT Parameters
 AuthenticationDirectiveRes ::= [PRIVATE 18] SET { 
@@ -576,22 +581,23 @@ FacilitiesReleaseRes ::= [PRIVATE 18] SET {
 	}
 
 -- Updated with N.S0004, N.S0012-0 v 1.0 N.S0023-0 v 1.0
+-- http://www.3gpp2.org/Public_html/specs/X.S0004-540-E_v2.0_070723.pdf
 -- 6.4.2.13 FeatureRequest
 FeatureRequest ::= [PRIVATE 18] SET {
-	billingID								[1] IMPLICIT BillingID,
-	-- M 6.5.2.16
-	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16
+	digits		 							[4] IMPLICIT Digits,
 	-- (Dialed) M 6.5.2.58
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
-	-- M 6.5.2.72
-	interSwitchCount						[7] IMPLICIT InterSwitchCount,
-	-- M 6.5.2.73
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID OPTIONAL,
+	-- M 6.5.2.72 Optional?
+	interSwitchCount						[7] IMPLICIT InterSwitchCount OPTIONAL,
+	-- M 6.5.2.73 Optional?
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
-	servingCellID							[2] IMPLICIT ServingCellID,
-	-- M 6.5.2.117 a
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- M 6.5.2.117 a Optional?
 	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
 	-- O 6.5.2.fv
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
@@ -616,7 +622,7 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.41 c
 	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
 	-- O 6.5.2.43 g
-	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList,
+	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList OPTIONAL,
 	-- O 6.5.2.45 h
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.47 i
@@ -4457,7 +4463,7 @@ InterSystemPositionRequest ::= [PRIVATE 18] SET {
 	--  M 6.5.2.fs
 	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
 	-- O 6.5.2.2 o
-	cdmaPSMMCount							[344] IMPLICIT CDMAPSMMCount OPTIONAL,
+	cdmaPSMMCount							[345] IMPLICIT CDMAPSMMCount OPTIONAL,
 	-- O 6.5.2.gbh
 	digits		 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Dialed) O 6.5.2.58 j
@@ -7306,11 +7312,28 @@ MSStatus ::= OCTET STRING
 -- 0 0 1 1 1 0 1 1 (0x3b)(315)
 PositionInformationCode::= OCTET STRING
 
+-- 2.38 http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v1.0_040406.pdf
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 1 1 1 0 0 (0x3c)(316)
+CaveKey  ::= OCTET STRING
+
+-- 2.41 http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v1.0_040406.pdf
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 0 0 0 1 (0x41)(321)
+CDMA2000MobileSupportedCapabilities ::= OCTET STRING
+
+-- 2.114 http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v1.0_040406.pdf
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 0 1 0 1 (0x45)(325)
+EnhancedPrivacyEncryptionReport ::= OCTET STRING
+
 -- 6.5.2.fd
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 0 0 0 1 1 0 (0x46)(326)
--- (3xx)
 InterMessageTime ::= OCTET STRING
 
 -- 6.5.2.fe
@@ -7532,13 +7555,13 @@ ServiceManagementSystemGapInterval ::= ENUMERATED{
 -- 2.2.2.3 (ANSI-41 6.5.2.gb) J-STD-036-AD-1
 -- 1 0 0 1 1 1 1 1
 -- 1 0 0 0 0 0 1 0
--- 0 1 0 1 1 0 0 1(0x58)(344)
+-- 0 1 0 1 1 0 0 1(0x59)(345)
 CDMAPSMMCount ::= OCTET STRING
 
 -- 2.2.2.4 (ANSI-41 6.5.2.gc) J-STD-036-AD-1
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 1 0 1 1 0 1 0 (0x5b)(346)
+-- 0 1 0 1 1 0 1 0 (0x5a)(346)
  CDMAPSMMList ::= SET OF SET{
 	cdmaServingOneWayDelay2		[347] IMPLICIT CDMAServingOneWayDelay2,
 	-- M 6.5.2.gd
@@ -7795,7 +7818,12 @@ MPCAddressList ::= SET{
 -- (0x01)(385)
 -- (0x02)(386)
 -- (0x03)(387)
--- (0x04)(388)
+
+-- 2.138 http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v1.0_040406.pdf
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 0 0 1 0 0 (0x04)(388)
+MINExtension ::= OCTET STRING
 
 -- 3.3.2.2 X.S0008-0 v1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
