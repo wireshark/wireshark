@@ -75,9 +75,11 @@ enum {
     RNTI_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
+    UL_CRC_ERRORS_COLUMN,
     UL_RETX_FRAMES_COLUMN,
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
+    DL_CRC_ERRORS_COLUMN,
     DL_RETX_FRAMES_COLUMN,
     TABLE_COLUMN,
     NUM_UE_COLUMNS
@@ -100,8 +102,8 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "RNTI",
-                                 "UL Frames", "UL Bytes", "UL ReTX Frames",
-                                 "DL Frames", "DL Bytes", "DL ReTX Frames"};
+                                 "UL Frames", "UL Bytes", "UL CRC Errors", "UL ReTX Frames",
+                                 "DL Frames", "DL Bytes", "DL CRC Errors", "DL ReTX Frames"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
@@ -118,10 +120,12 @@ typedef struct mac_lte_row_data {
 
     guint32 UL_frames;
     guint32 UL_total_bytes;
+    guint32 UL_CRC_errors;
     guint32 UL_retx_frames;
 
     guint32 DL_frames;
     guint32 DL_total_bytes;
+    guint32 DL_CRC_errors;
     guint32 DL_retx_frames;
 
     guint32 UL_bytes_for_lcid[11];
@@ -243,6 +247,8 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     ep->stats.DL_frames = 0;
     ep->stats.UL_total_bytes = 0;
     ep->stats.DL_total_bytes = 0;
+    ep->stats.UL_CRC_errors = 0;
+    ep->stats.DL_CRC_errors = 0;
     ep->stats.UL_retx_frames = 0;
     ep->stats.DL_retx_frames = 0;
 
@@ -331,6 +337,16 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     te->number_of_packets++;
     te->stats.rnti = si->rnti;
     te->stats.is_predefined_data = si->is_predefined_data;
+    if (!si->crcStatus) {
+        if (si->direction == DIRECTION_UPLINK) {
+            te->stats.UL_CRC_errors++;
+            return 1;
+        }
+        else {
+            te->stats.DL_CRC_errors++;
+            return 1;
+        }
+    }
 
     /* Uplink */
     if (si->direction == DIRECTION_UPLINK) {
@@ -483,13 +499,13 @@ mac_lte_stat_draw(void *phs)
 
     /* Common channel data */
     g_snprintf(buff, sizeof(buff), "BCH Frames: %u", common_stats.bch_frames);
-     gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_frames), buff);
+    gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_frames), buff);
     g_snprintf(buff, sizeof(buff), "BCH Bytes: %u", common_stats.bch_bytes);
-     gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_bytes), buff);
+    gtk_label_set_text(GTK_LABEL(mac_lte_common_bch_bytes), buff);
     g_snprintf(buff, sizeof(buff), "PCH Frames: %u", common_stats.pch_frames);
-     gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_frames), buff);
+    gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_frames), buff);
     g_snprintf(buff, sizeof(buff), "PCH Bytes: %u", common_stats.pch_bytes);
-     gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_bytes), buff);
+    gtk_label_set_text(GTK_LABEL(mac_lte_common_pch_bytes), buff);
 
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
@@ -507,9 +523,11 @@ mac_lte_stat_draw(void *phs)
                            RNTI_COLUMN, tmp->stats.rnti,
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
+                           UL_CRC_ERRORS_COLUMN, tmp->stats.UL_CRC_errors,
                            UL_RETX_FRAMES_COLUMN, tmp->stats.UL_retx_frames,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
                            DL_BYTES_COLUMN, tmp->stats.DL_total_bytes,
+                           DL_CRC_ERRORS_COLUMN, tmp->stats.DL_CRC_errors,
                            DL_RETX_FRAMES_COLUMN, tmp->stats.DL_retx_frames,
                            TABLE_COLUMN, tmp,
                            -1);
@@ -663,8 +681,8 @@ static void mac_lte_stat_dlg_create(void)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));

@@ -1326,6 +1326,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
     }
 
     /* Populate the struct from outhdr values */
+    p_mac_lte_info->crcStatus = TRUE;
+
     p_mac_lte_info->radioType = outhdr_values[i++];
     p_mac_lte_info->rntiType = outhdr_values[i++];
     p_mac_lte_info->direction = outhdr_values[i++];
@@ -1333,10 +1335,14 @@ static void attach_mac_lte_info(packet_info *pinfo)
     p_mac_lte_info->isPredefinedData = outhdr_values[i++];
     p_mac_lte_info->rnti = outhdr_values[i++];
     p_mac_lte_info->ueid = outhdr_values[i++];
+    p_mac_lte_info->length = outhdr_values[i++];
     if (outhdr_values_found > 8) {
         p_mac_lte_info->reTxCount = outhdr_values[i++];
     }
-    p_mac_lte_info->length = outhdr_values[i++];
+    if (outhdr_values_found > 9) {
+        p_mac_lte_info->crcStatus = outhdr_values[i++];
+    }
+
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);

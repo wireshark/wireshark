@@ -43,7 +43,6 @@
    - more testing of control bodies
    - TDD mode
    - add a preference so that padding can be verified against an expected pattern?
-   - context value to show CRC-passed flag
 */
 
 /* Initialize the protocol and registered fields. */
@@ -62,6 +61,7 @@ static int hf_mac_lte_context_predefined_frame = -1;
 static int hf_mac_lte_context_length = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
+static int hf_mac_lte_context_crc_status = -1;
 
 /* MAC SCH header fields */
 static int hf_mac_lte_ulsch_header = -1;
@@ -160,6 +160,13 @@ static const value_string bch_transport_channel_vals[] =
 {
     { SI_RNTI,      "DL-SCH"},
     { NO_RNTI,      "BCH"},
+    { 0, NULL }
+};
+
+static const value_string crc_status_vals[] =
+{
+    { 0,      "CRC Status Failed"},
+    { 1,      "CRC Status OK"},
     { 0, NULL }
 };
 
@@ -1059,11 +1066,24 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
+    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_crc_status,
+                             tvb, 0, 0, p_mac_lte_info->crcStatus);
+    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_lte_info->crcStatus != TRUE) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Frame has CRC error");
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
+        }
+    }
+
+
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
     tap_info.rnti_type = p_mac_lte_info->rntiType;
     tap_info.is_predefined_data = p_mac_lte_info->isPredefinedData;
     tap_info.reTxCount = p_mac_lte_info->reTxCount;
+    tap_info.crcStatus = p_mac_lte_info->crcStatus;
     tap_info.direction = p_mac_lte_info->direction;
 
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
@@ -1191,8 +1211,14 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_context_retx_count,
             { "ReTX count",
-              "mac-lte.bch-transport-channel", FT_UINT8, BASE_DEC, 0, 0x0,
+              "mac-lte.retx-count", FT_UINT8, BASE_DEC, 0, 0x0,
               "Number of times this PDU has been retransmitted", HFILL
+            }
+        },
+        { &hf_mac_lte_context_crc_status,
+            { "CRC Status",
+              "mac-lte.crc-status", FT_UINT8, BASE_DEC, VALS(crc_status_vals), 0x0,
+              "CRC Status as reported by PHY", HFILL
             }
         },
 
