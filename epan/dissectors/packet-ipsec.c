@@ -1176,7 +1176,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		      *ascii_key = NULL;
 		      return -1;	/* not a valid hex digit */
 		    }
-		  key_byte = ((guchar)hex_digit) << 8;
+		  key_byte = ((guchar)hex_digit) << 4;
 		  hex_digit = g_ascii_xdigit_value(key[i]);
 		  i++;
 		  if (hex_digit == -1)
@@ -1222,7 +1222,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		      *ascii_key = NULL;
 		      return -1;	/* not a valid hex digit */
 		    }
-		  key_byte = ((guchar)hex_digit) << 8;
+		  key_byte = ((guchar)hex_digit) << 4;
 		  hex_digit = g_ascii_xdigit_value(key[i]);
 		  i++;
 		  if (hex_digit == -1)
