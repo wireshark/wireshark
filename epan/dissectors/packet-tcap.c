@@ -275,7 +275,7 @@ static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 69 "tcap.cnf"
 
-return dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 
 
 
@@ -318,7 +318,7 @@ static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 59 "tcap.cnf"
 
-return dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
+  offset = dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
 
 
@@ -383,7 +383,7 @@ static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 74 "tcap.cnf"
 
-return dissect_tcap_param(actx,tree,tvb,offset);
+  offset = dissect_tcap_param(actx,tree,tvb,offset);
 
 
 
@@ -676,7 +676,7 @@ if (!next_tvb)
 
  dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
-/* return comp_offset+len; or return offset (will be automatically added */
+/* return comp_offset+len; or return offset (will be automatically added) */
 
 
 
