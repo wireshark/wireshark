@@ -194,7 +194,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct tcpinfo* tcpinfo = pinfo->private_data;
 	static gint iPreviousFrameNumber = -1;
 
-	guint16 iCommand = -1;
+	guint16 iCommand = G_MAXUINT16;
 	guint16 iLength = 1;
 	guint16 iHeaderType = 4; 
 	guint16 iHeaderLength;
@@ -391,7 +391,7 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	{
 		guint16 iHeaderType;
 		guint8 iID;
-		guint16 iCommand = -1;
+		guint16 iCommand = G_MAXUINT16;
 
 		iID = tvb_get_guint8(tvb, offset + 0);
 		iHeaderType = iID >> 6;

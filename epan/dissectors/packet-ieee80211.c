@@ -6998,7 +6998,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 #define PROTECTION_ALG_CCMP  2
 #define PROTECTION_ALG_RSNA  PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
 #endif
-    guint8 algorithm=-1;
+    guint8 algorithm=G_MAXUINT8;
     /* Davide Schiera (2006-11-27): added macros to check the algorithm    */
     /* used could be TKIP or CCMP                            */
 #define IS_TKIP(tvb, hdr_len)  (tvb_get_guint8(tvb, hdr_len + 1) & 0x20)

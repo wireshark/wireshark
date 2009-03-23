@@ -38,7 +38,7 @@
 #include <epan/emem.h>
 
 static int		proto_ipars		= -1;
-static guint8	ipars_eomtype	= -1;
+static guint8	ipars_eomtype	= G_MAXUINT8;
 static gint		ett_ipars		= -1;
 
 #define S1		(0x00)

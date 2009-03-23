@@ -1011,7 +1011,7 @@ static gint dissect_type2f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint16 message_type;
-    guint16 second_message_type = -1;
+    guint16 second_message_type = G_MAXUINT16;
     guint16 proto_version;
     guint16 packet_size;
     guint32 dplay_id;

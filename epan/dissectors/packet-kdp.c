@@ -78,9 +78,9 @@ static void dissect_kdp(tvbuff_t *tvb,
   guint8 header_len = 0;
   guint8 packet_flags = 0;
   guint8 packet_errors = 0;
-  guint32 sequence_number = -1;
-  guint32 ack_number = -1; 
-  guint32 src_flowid = -1; 
+  guint32 sequence_number = G_MAXUINT32;
+  guint32 ack_number = G_MAXUINT32; 
+  guint32 src_flowid = G_MAXUINT32; 
   int offset;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {

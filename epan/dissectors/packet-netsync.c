@@ -371,7 +371,7 @@ static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tr
 
 static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
-	guint len = -1;
+	guint len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_type, tvb,
 				offset, 1, FALSE );

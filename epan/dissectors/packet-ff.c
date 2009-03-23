@@ -10556,7 +10556,7 @@ dissect_ff_msg_lr_get_statistics_rsp(
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
-	guint32 NumXcableStat	= -1;
+	guint32 NumXcableStat;
 
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
