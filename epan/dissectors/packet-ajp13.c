@@ -345,7 +345,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
 
       guint8 hcd;
       guint8 hid;
-      char hval[8192];
+      guint8 hval[8192];
       guint16 hval_len;
       int orig_pos = pos;
       const gchar* hname = NULL;
@@ -598,7 +598,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     const gchar* hname = NULL;
     int dp = 0;
     int cl = 0;
-    char *hval;
+    guint8 *hval;
     guint16 hval_len;
 
     /* HEADER CODE/NAME
