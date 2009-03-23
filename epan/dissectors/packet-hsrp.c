@@ -373,7 +373,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree *hsrp_tree;
                         gint offset;
                         guint8 hellotime, holdtime;
-                        guint8 auth_buf[8 + 1];
+                        gchar auth_buf[8 + 1];
 
                         offset = 0;
                         ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);
@@ -551,7 +551,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 /* Text Authentication TLV */
                                 if (tree) {
                                         proto_tree *text_auth_tlv;
-                                        guint8 auth_buf[8 + 1];
+                                        gchar auth_buf[8 + 1];
 
                                         ti = proto_tree_add_uint_format(hsrp_tree, hf_hsrp2_text_auth_tlv, tvb, offset, 1, type,
                                         "Text Authentication TLV: Type=%d Len=%d", type, len);
