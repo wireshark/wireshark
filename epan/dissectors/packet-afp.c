@@ -1577,10 +1577,10 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 }
 
 /* -------------------------- */
-static gchar *
+static guint8 *
 name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 {
-	gchar *name;
+	guint8 *name;
 	gint 	org_offset = offset;
 	guint16 nameoff;
 	guint8  len;
@@ -1606,8 +1606,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs,
-								len);
+			name = tvb_get_ephemeral_string(tvb, tp_ofs, len);
 			return name;
 		}
 		offset += 2;
@@ -1645,8 +1644,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs,
-								len16);
+			name = tvb_get_ephemeral_string(tvb, tp_ofs, len16);
 			return name;
 		}
 	}
@@ -1654,10 +1652,10 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 }
 
 /* -------------------------- */
-static gchar *
+static guint8 *
 name_in_dbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 {
-	gchar *name;
+	guint8 *name;
 
 	name = name_in_bitmap(tvb, offset, bitmap, 1);
 	if (name != NULL)
@@ -1670,10 +1668,10 @@ name_in_dbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 }
 
 /* -------------------------- */
-static gchar *
+static guint8 *
 name_in_fbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 {
-	gchar *name;
+	guint8 *name;
 
 	name = name_in_bitmap(tvb, offset, bitmap, 0);
 	if (name != NULL)
@@ -2043,7 +2041,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 {
   	proto_tree *tree = NULL;
   	proto_item *item;
-	gchar 	*name;
+	guint8 	*name;
 	guint8	flags;
 	guint	size;
 	gint	org;
@@ -2370,7 +2368,7 @@ dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* ***************************/
 static gint
-decode_uam_parameters(const char *uam, int len_uam, tvbuff_t *tvb, proto_tree *tree, gint offset)
+decode_uam_parameters(const guint8 *uam, int len_uam, tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	int len;
 
@@ -2403,7 +2401,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	int len;
 	int len_uam;
-	const char *uam;
+	const guint8 *uam;
 
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
@@ -2430,7 +2428,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
 	int len;
 	int len_uam;
-	const char *uam;
+	const guint8 *uam;
 	guint8 type;
 
 	type = tvb_get_guint8(tvb, offset);
