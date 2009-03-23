@@ -446,6 +446,7 @@ static int hf_ansi_map_conferenceCallingIndicator = -1;  /* ConferenceCallingInd
 static int hf_ansi_map_mobileDirectoryNumber = -1;  /* MobileDirectoryNumber */
 static int hf_ansi_map_mSCIdentificationNumber = -1;  /* MSCIdentificationNumber */
 static int hf_ansi_map_oneTimeFeatureIndicator = -1;  /* OneTimeFeatureIndicator */
+static int hf_ansi_map_systemMyTypeCode = -1;     /* SystemMyTypeCode */
 static int hf_ansi_map_featureResult = -1;        /* FeatureResult */
 static int hf_ansi_map_accessDeniedReason = -1;   /* AccessDeniedReason */
 static int hf_ansi_map_actionCode = -1;           /* ActionCode */
@@ -492,7 +493,6 @@ static int hf_ansi_map_pageIndicator = -1;        /* PageIndicator */
 static int hf_ansi_map_pageResponseTime = -1;     /* PageResponseTime */
 static int hf_ansi_map_pilotBillingID = -1;       /* PilotBillingID */
 static int hf_ansi_map_redirectingPartyName = -1;  /* RedirectingPartyName */
-static int hf_ansi_map_systemMyTypeCode = -1;     /* SystemMyTypeCode */
 static int hf_ansi_map_tdmaDataFeaturesIndicator = -1;  /* TDMADataFeaturesIndicator */
 static int hf_ansi_map_terminationTreatment = -1;  /* TerminationTreatment */
 static int hf_ansi_map_conditionallyDeniedReason = -1;  /* ConditionallyDeniedReason */
@@ -6943,49 +6943,75 @@ dissect_ansi_map_OneTimeFeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tv
 }
 
 
+static const value_string ansi_map_SystemMyTypeCode_vals[] = {
+  {   0, "not-used" },
+  {   1, "eDS" },
+  {   2, "astronet" },
+  {   3, "lucent-Technologies" },
+  {   4, "ericsson" },
+  {   5, "gTE" },
+  {   6, "motorola" },
+  {   7, "nEC" },
+  {   8, "nORTEL" },
+  {   9, "novAtel" },
+  {  10, "plexsys" },
+  {  11, "digital-Equipment-Corp" },
+  {  12, "iNET" },
+  {  13, "bellcore" },
+  {  14, "alcatel-SEL" },
+  {  15, "compaq" },
+  {  16, "qUALCOMM" },
+  {  17, "aldiscon" },
+  {  18, "celcore" },
+  {  19, "tELOS" },
+  {  20, "aDI-Limited" },
+  {  21, "coral-Systems" },
+  {  22, "synacom-Technology" },
+  {  23, "dSC" },
+  {  24, "mCI" },
+  {  25, "newNet" },
+  {  26, "sema-Group-Telecoms" },
+  {  27, "lG-Information-and-Communications" },
+  {  28, "cBIS" },
+  {  29, "siemens" },
+  {  30, "samsung-Electronics" },
+  {  31, "readyCom-Inc" },
+  {  32, "aG-Communication-Systems" },
+  {  33, "hughes-Network-Systems" },
+  {  34, "phoenix-Wireless-Group" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t FeatureRequest_U_set[] = {
-  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
   { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
-  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
-  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
-  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
-  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
   { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
   { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
   { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
   { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
   { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
-  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
-  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
-  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
-  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
-  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
-  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
-  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
-  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
-  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
   { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
-  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
-  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
-  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
   { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
   { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
-  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
   { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
   { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
-  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
-  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
   { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
-  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
-  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
-  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
-  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
-  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
-  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
-  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8542,55 +8568,6 @@ static int
 dissect_ansi_map_RedirectingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
-
-  return offset;
-}
-
-
-static const value_string ansi_map_SystemMyTypeCode_vals[] = {
-  {   0, "not-used" },
-  {   1, "eDS" },
-  {   2, "astronet" },
-  {   3, "lucent-Technologies" },
-  {   4, "ericsson" },
-  {   5, "gTE" },
-  {   6, "motorola" },
-  {   7, "nEC" },
-  {   8, "nORTEL" },
-  {   9, "novAtel" },
-  {  10, "plexsys" },
-  {  11, "digital-Equipment-Corp" },
-  {  12, "iNET" },
-  {  13, "bellcore" },
-  {  14, "alcatel-SEL" },
-  {  15, "compaq" },
-  {  16, "qUALCOMM" },
-  {  17, "aldiscon" },
-  {  18, "celcore" },
-  {  19, "tELOS" },
-  {  20, "aDI-Limited" },
-  {  21, "coral-Systems" },
-  {  22, "synacom-Technology" },
-  {  23, "dSC" },
-  {  24, "mCI" },
-  {  25, "newNet" },
-  {  26, "sema-Group-Telecoms" },
-  {  27, "lG-Information-and-Communications" },
-  {  28, "cBIS" },
-  {  29, "siemens" },
-  {  30, "samsung-Electronics" },
-  {  31, "readyCom-Inc" },
-  {  32, "aG-Communication-Systems" },
-  {  33, "hughes-Network-Systems" },
-  {  34, "phoenix-Wireless-Group" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
 
   return offset;
 }
@@ -17264,6 +17241,10 @@ void proto_register_ansi_map(void) {
       { "oneTimeFeatureIndicator", "ansi_map.oneTimeFeatureIndicator",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.OneTimeFeatureIndicator", HFILL }},
+    { &hf_ansi_map_systemMyTypeCode,
+      { "systemMyTypeCode", "ansi_map.systemMyTypeCode",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_SystemMyTypeCode_vals), 0,
+        "ansi_map.SystemMyTypeCode", HFILL }},
     { &hf_ansi_map_featureResult,
       { "featureResult", "ansi_map.featureResult",
         FT_UINT32, BASE_DEC, VALS(ansi_map_FeatureResult_vals), 0,
@@ -17448,10 +17429,6 @@ void proto_register_ansi_map(void) {
       { "redirectingPartyName", "ansi_map.redirectingPartyName",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.RedirectingPartyName", HFILL }},
-    { &hf_ansi_map_systemMyTypeCode,
-      { "systemMyTypeCode", "ansi_map.systemMyTypeCode",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_SystemMyTypeCode_vals), 0,
-        "ansi_map.SystemMyTypeCode", HFILL }},
     { &hf_ansi_map_tdmaDataFeaturesIndicator,
       { "tdmaDataFeaturesIndicator", "ansi_map.tdmaDataFeaturesIndicator",
         FT_BYTES, BASE_HEX, NULL, 0,

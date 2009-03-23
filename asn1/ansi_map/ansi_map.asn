@@ -584,20 +584,14 @@ FacilitiesReleaseRes ::= [PRIVATE 18] SET {
 -- http://www.3gpp2.org/Public_html/specs/X.S0004-540-E_v2.0_070723.pdf
 -- 6.4.2.13 FeatureRequest
 FeatureRequest ::= [PRIVATE 18] SET {
-	billingID								[1] IMPLICIT BillingID OPTIONAL,
-	-- O 6.5.2.16
 	digits		 							[4] IMPLICIT Digits,
 	-- (Dialed) M 6.5.2.58
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID OPTIONAL,
-	-- M 6.5.2.72 Optional?
-	interSwitchCount						[7] IMPLICIT InterSwitchCount OPTIONAL,
-	-- M 6.5.2.73 Optional?
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
-	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
-	-- M 6.5.2.117 a Optional?
+	msid									MSID OPTIONAL,
+	--
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16
 	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
 	-- O 6.5.2.fv
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
@@ -608,66 +602,26 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.22 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
-	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
-	-- O 6.5.2.29 c, d, e
-	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
-	-- (Serving) O 6.5.2.30 c
-	cdmaMobileProtocolRevision				[66] IMPLICIT CDMAMobileProtocolRevision OPTIONAL,
-	-- O 6.5.2.34 c
-	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
-	-- O 6.5.2.36 f
-	cdmaServingOneWayDelay					[60] IMPLICIT CDMAServingOneWayDelay OPTIONAL,
-	-- O 6.5.2.38 a, c
-	cdmaStationClassMark					[59] IMPLICIT CDMAStationClassMark OPTIONAL,
-	-- O 6.5.2.41 c
-	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
-	-- O 6.5.2.43 g
-	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList OPTIONAL,
-	-- O 6.5.2.45 h
-	channelData								[5] IMPLICIT ChannelData OPTIONAL,
-	-- (Serving) O 6.5.2.47 i
 	conferenceCallingIndicator				[137] IMPLICIT ConferenceCallingIndicator OPTIONAL,
 	-- O 6.5.2.49
-	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
-	-- (Desired) O 6.5.2.50 j
-	handoffReason							[30] IMPLICIT HandoffReason OPTIONAL,
-	-- O 6.5.2.70 k
-	handoffState							[164] IMPLICIT HandoffState OPTIONAL,
-	-- O 6.5.2.71 l
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 d
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Serving) O 6.5.2.82 e
 	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 6.5.2.83
-	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
-	-- O 6.5.2.84 c
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 f
 	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
 	-- O 6.5.2.93
-	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
-	-- O 6.5.2.85 e, m
-	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
-	-- (Serving) O 6.5.2.86 n
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116
-	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
-	-- O 6.5.2.120 j
-	stationClassMark						[18] IMPLICIT StationClassMark OPTIONAL,
-	-- O 6.5.2.143 i, o
-	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
-	-- O 6.5.2.148 b
-	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
-	-- (Serving) O 6.5.2.151 o
-	tdmaCallMode							[29] IMPLICIT TDMACallMode OPTIONAL,
-	-- O 6.5.2.152 e, p
-	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
-	-- (Serving) O 6.5.2.153 o
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
+	-- (Originating MSC)
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
 	-- 6.5.2.160
-	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
-	-- O 6.5.2.166 q
 	}
 -- FeatureRequest RETURN RESULT Parameters
 FeatureRequestRes ::= [PRIVATE 18] SET {
