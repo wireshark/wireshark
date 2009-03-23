@@ -63,32 +63,33 @@ static int hf_nas_eps_esm_msg_cont = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
 static int hf_nas_eps_emm_res = -1;
+static int hf_nas_eps_emm_csfb_resp = -1;
 static int hf_nas_eps_emm_cause = -1;
 static int hf_nas_eps_emm_id_type2 = -1;
 static int hf_nas_eps_emm_short_mac = -1;
 static int hf_nas_eps_emm_128eea0 = -1;
 static int hf_nas_eps_emm_128eea1 = -1;
 static int hf_nas_eps_emm_128eea2 = -1;
-static int hf_nas_eps_emm_128eea3 = -1;
-static int hf_nas_eps_emm_128eea4 = -1;
-static int hf_nas_eps_emm_128eea5 = -1;
-static int hf_nas_eps_emm_128eea6 = -1;
-static int hf_nas_eps_emm_128eea7 = -1;
+static int hf_nas_eps_emm_eea3 = -1;
+static int hf_nas_eps_emm_eea4 = -1;
+static int hf_nas_eps_emm_eea5 = -1;
+static int hf_nas_eps_emm_eea6 = -1;
+static int hf_nas_eps_emm_eea7 = -1;
 static int hf_nas_eps_emm_128eia1 = -1;
 static int hf_nas_eps_emm_128eia2 = -1;
-static int hf_nas_eps_emm_128eia3 = -1;
-static int hf_nas_eps_emm_128eia4 = -1;
-static int hf_nas_eps_emm_128eia5 = -1;
-static int hf_nas_eps_emm_128eia6 = -1;
-static int hf_nas_eps_emm_128eia7 = -1;
-static int hf_nas_eps_emm_128uea0 = -1;
-static int hf_nas_eps_emm_128uea1 = -1;
-static int hf_nas_eps_emm_128uea2 = -1;
-static int hf_nas_eps_emm_128uea3 = -1;
-static int hf_nas_eps_emm_128uea4 = -1;
-static int hf_nas_eps_emm_128uea5 = -1;
-static int hf_nas_eps_emm_128uea6 = -1;
-static int hf_nas_eps_emm_128uea7 = -1;
+static int hf_nas_eps_emm_eia3 = -1;
+static int hf_nas_eps_emm_eia4 = -1;
+static int hf_nas_eps_emm_eia5 = -1;
+static int hf_nas_eps_emm_eia6 = -1;
+static int hf_nas_eps_emm_eia7 = -1;
+static int hf_nas_eps_emm_uea0 = -1;
+static int hf_nas_eps_emm_uea1 = -1;
+static int hf_nas_eps_emm_uea2 = -1;
+static int hf_nas_eps_emm_uea3 = -1;
+static int hf_nas_eps_emm_uea4 = -1;
+static int hf_nas_eps_emm_uea5 = -1;
+static int hf_nas_eps_emm_uea6 = -1;
+static int hf_nas_eps_emm_uea7 = -1;
 static int hf_nas_eps_emm_ucs2_supp = -1;
 static int hf_nas_eps_emm_uia1 = -1;
 static int hf_nas_eps_emm_uia2 = -1;
@@ -488,15 +489,29 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 /*
  * 9.9.3.5	CSFB response
  */
+
+/*
+ * CSFB response value (octet 1)
+ */
+
+static const value_string nas_eps_emm_csfb_resp_vals[] = {
+	{ 0x0,	"CS fallback rejected by the UE"},
+	{ 0x1,	"CS fallback accepted by the UE"},
+	{ 0, NULL }
+};
+
 static guint16
 de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, bit_offset;
 
 	curr_offset = offset;
 
+	/* bit 4 Spare */
+	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset+4, 1, FALSE);
 
-	proto_tree_add_text(tree, tvb, curr_offset, 1, "Not decoded yet");
+	proto_tree_add_item(tree, hf_nas_eps_emm_csfb_resp, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	return(curr_offset-offset);
@@ -916,7 +931,7 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 	curr_offset = offset;
 
 
-	proto_tree_add_text(tree, tvb, curr_offset, 5 , "Not decoded yet");
+	proto_tree_add_text(tree, tvb, curr_offset, 4 , "Nounce");
 	curr_offset+=5;
 
 	return(len);
@@ -1028,15 +1043,15 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 
@@ -1048,15 +1063,15 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	/* EPS integrity algorithm 128-EIA2 supported (octet 4, bit 6) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eia2, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm EIA3 supported (octet 4, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia3, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm EIA4 supported (octet 4, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia4, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm EIA5 supported (octet 4, bit 3) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia5, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm EIA6 supported (octet 4, bit 2) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia6, tvb, curr_offset, 1, FALSE);
 	/* EPS integrity algorithm EIA7 supported (octet 4, bit 1) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eia7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 
@@ -1064,21 +1079,21 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
 	 */
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea0, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea1, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-UEA0 supported (octet 5, bit 4) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, FALSE);
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128uea7, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	/* UCS2 support (UCS2) (octet 6, bit 8)
@@ -3230,6 +3245,11 @@ void proto_register_nas_eps(void) {
 		FT_BYTES, BASE_HEX, NULL, 0x0,
 		"RES", HFILL }
 	},
+	{ &hf_nas_eps_emm_csfb_resp,
+		{ "CSFB response","nas_eps.emm.csfb_resp",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_csfb_resp_vals), 0x03,
+		NULL, HFILL }
+	},
 	{ &hf_nas_eps_emm_cause,
 		{ "Cause","nas_eps.emm.cause",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
@@ -3260,28 +3280,28 @@ void proto_register_nas_eps(void) {
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea3,
-		{ "128-EEA3","nas_eps.emm.128eea3",
+	{ &hf_nas_eps_emm_eea3,
+		{ "EEA3","nas_eps.emm.eea3",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea4,
-		{ "128-EEA4","nas_eps.emm.128eea4",
+	{ &hf_nas_eps_emm_eea4,
+		{ "EEA4","nas_eps.emm.eea4",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea5,
-		{ "128-EEA5","nas_eps.emm.128eea5",
+	{ &hf_nas_eps_emm_eea5,
+		{ "EEA5","nas_eps.emm.eea5",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea6,
-		{ "128-EEA6","nas_eps.emm.128eea6",
+	{ &hf_nas_eps_emm_eea6,
+		{ "EEA6","nas_eps.emm.eea6",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eea7,
-		{ "128-EEA7","nas_eps.emm.128eea7",
+	{ &hf_nas_eps_emm_eea7,
+		{ "EEA7","nas_eps.emm.eea7",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
 		NULL, HFILL }
 	},
@@ -3295,70 +3315,70 @@ void proto_register_nas_eps(void) {
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eia3,
-		{ "128-EIA3","nas_eps.emm.128eia3",
+	{ &hf_nas_eps_emm_eia3,
+		{ "EIA3","nas_eps.emm.eia3",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eia4,
-		{ "128-EIA4","nas_eps.emm.128eia4",
+	{ &hf_nas_eps_emm_eia4,
+		{ "EIA4","nas_eps.emm.eia4",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eia5,
-		{ "128-EIA5","nas_eps.emm.128eia5",
+	{ &hf_nas_eps_emm_eia5,
+		{ "EIA5","nas_eps.emm.eia5",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eia6,
-		{ "128-EIA6","nas_eps.emm.128eia6",
+	{ &hf_nas_eps_emm_eia6,
+		{ "EIA6","nas_eps.emm.eia6",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128eia7,
-		{ "128-EIA7","nas_eps.emm.128eia7",
+	{ &hf_nas_eps_emm_eia7,
+		{ "EIA7","nas_eps.emm.eia7",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
 		NULL, HFILL }
 	},
 
 
-	{ &hf_nas_eps_emm_128uea0,
-		{ "128-UEA0","nas_eps.emm.128uea0",
+	{ &hf_nas_eps_emm_uea0,
+		{ "UEA0","nas_eps.emm.uea0",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea1,
-		{ "128-UEA1","nas_eps.emm.128uea1",
+	{ &hf_nas_eps_emm_uea1,
+		{ "UEA1","nas_eps.emm.uea1",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x40,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea2,
-		{ "128-UEA2","nas_eps.emm.128uea2",
+	{ &hf_nas_eps_emm_uea2,
+		{ "UEA2","nas_eps.emm.uea2",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x20,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea3,
-		{ "128-UEA3","nas_eps.emm.128uea3",
+	{ &hf_nas_eps_emm_uea3,
+		{ "UEA3","nas_eps.emm.uea3",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x10,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea4,
-		{ "128-UEA4","nas_eps.emm.128uea4",
+	{ &hf_nas_eps_emm_uea4,
+		{ "UEA4","nas_eps.emm.uea4",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x08,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea5,
-		{ "128-UEA5","nas_eps.emm.128uea5",
+	{ &hf_nas_eps_emm_uea5,
+		{ "UEA5","nas_eps.emm.uea5",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x04,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea6,
-		{ "128-UEA6","nas_eps.emm.128uea6",
+	{ &hf_nas_eps_emm_uea6,
+		{ "UEA6","nas_eps.emm.uea6",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x02,
 		NULL, HFILL }
 	},
-	{ &hf_nas_eps_emm_128uea7,
-		{ "128-UEA7","nas_eps.emm.128uea7",
+	{ &hf_nas_eps_emm_uea7,
+		{ "UEA7","nas_eps.emm.uea7",
 		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x01,
 		NULL, HFILL }
 	},
