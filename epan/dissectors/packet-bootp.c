@@ -796,7 +796,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	gboolean		o52at_end;
 	guint8			s_option;
 	int			ava_vid;
-	const gchar		*dns_name;
+	const guchar		*dns_name;
 
 
 	static const value_string slpda_vals[] = {
@@ -3373,7 +3373,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	int max_timer_val = 255, i;
-	const char *dns_name;
+	const guchar *dns_name;
 	char bit_fld[24];
 
 	subopt = tvb_get_guint8(tvb, suboptoff);

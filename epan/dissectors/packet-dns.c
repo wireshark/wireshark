@@ -600,10 +600,10 @@ dns_class_name(int class)
  */
 int
 get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const char **name)
+    const guchar **name)
 {
   int start_offset = offset;
-  char *np;
+  guchar *np;
   int len = -1;
   int chars_processed = 0;
   int data_size = tvb_reported_length_remaining(tvb, dns_data_offset);
@@ -772,7 +772,7 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
 static int
 get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
-    const char **name_ret, int *name_len_ret, int *type_ret, int *class_ret)
+    const guchar **name_ret, int *name_len_ret, int *type_ret, int *class_ret)
 {
   int len;
   int name_len;
@@ -849,8 +849,8 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   column_info *cinfo, proto_tree *dns_tree, gboolean is_mdns)
 {
   int len;
-  const char *name;
-  char *name_out;
+  const guchar *name;
+  gchar *name_out;
   int name_len;
   int type;
   int class;
@@ -915,7 +915,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type, int class, int flush,
+  const guchar *name, int namelen, int type, int class, int flush,
   guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree;
@@ -1096,8 +1096,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   gboolean is_mdns)
 {
   int len;
-  const char *name;
-  char *name_out;
+  const guchar *name;
+  gchar *name_out;
   int name_len;
   int type;
   int class;
@@ -1193,7 +1193,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_NS:
     {
-      const char *ns_name;
+      const guchar *ns_name;
       int ns_name_len;
 
       /* XXX Fix data length */
@@ -1211,7 +1211,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_CNAME:
     {
-      const char *cname;
+      const guchar *cname;
       int cname_len;
 
       /* XXX Fix data length */
@@ -1229,9 +1229,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_SOA:
     {
-      const char *mname;
+      const guchar *mname;
       int mname_len;
-      const char *rname;
+      const guchar *rname;
       int rname_len;
       guint32 serial;
       guint32 refresh;
@@ -1286,7 +1286,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_PTR:
     {
-      const char *pname;
+      const guchar *pname;
       int pname_len;
 
       /* XXX Fix data length */
@@ -1417,7 +1417,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   case T_MX:
     {
       guint16 preference = 0;
-      const char *mx_name;
+      const guchar *mx_name;
       int mx_name_len;
 
       preference = tvb_get_ntohs(tvb, cur_offset);
@@ -1461,7 +1461,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int rr_len = data_len;
       guint16 type_covered;
       nstime_t nstime;
-      const char *signer_name;
+      const guchar *signer_name;
       int signer_name_len;
 
       if (dns_tree != NULL) {
@@ -1669,7 +1669,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int rr_len = data_len;
       guint8 gw_type, algo;
       const guint8 *addr;
-      const char *gw;
+      const guchar *gw;
       int gw_name_len;
       static const value_string gw_algo[] = {
 	  { 1,     "DSA" },
@@ -1763,7 +1763,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       unsigned short pre_len;
       unsigned short suf_len;
       unsigned short suf_octet_count;
-      const char *pname;
+      const guchar *pname;
       int pname_len;
       int a6_offset;
       int suf_offset;
@@ -1823,7 +1823,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_DNAME:
     {
-      const char *dname;
+      const guchar *dname;
       int dname_len;
 
       /* XXX Fix data length */
@@ -1882,7 +1882,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   case T_NSEC:
     {
       int rr_len = data_len;
-      const char *next_domain_name;
+      const guchar *next_domain_name;
       int next_domain_name_len;
 
       /* XXX Fix data length */
@@ -1934,7 +1934,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   case T_NXT:
     {
       int rr_len = data_len;
-      const char *next_domain_name;
+      const guchar *next_domain_name;
       int next_domain_name_len;
       int rr_type;
       guint8 bits;
@@ -1976,7 +1976,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   case T_KX:
     {
       guint16 preference = 0;
-      const char *kx_name;
+      const guchar *kx_name;
       int kx_name_len;
 
       /* XXX Fix data length */
@@ -2040,7 +2040,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_DS:
     {
-      guint16 keytag, digest_data_size = -1;
+      guint16 keytag, digest_data_size;
       guint8  ds_algorithm, ds_digest;
       int rr_len = data_len;
 
@@ -2072,9 +2072,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	cur_offset += 1;
 	rr_len -= 1;
 
-	if (ds_digest == TDSDIGEST_SHA1)
+	if (ds_digest == TDSDIGEST_SHA1) {
 	  digest_data_size = 20; /* SHA1 key is always 20 bytes long */
-	if (digest_data_size > 0) {
 	  if (rr_len < digest_data_size)
 	    goto bad_rr;
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key"); 
@@ -2085,7 +2084,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_TKEY:
     {
-      const char *tkey_algname;
+      const guchar *tkey_algname;
       int tkey_algname_len;
       guint16 tkey_mode, tkey_error, tkey_keylen, tkey_otherlen;
       int rr_len = data_len;
@@ -2222,7 +2221,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       guint16 tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
       guint32 tsig_timelo;
-      const char *tsig_raw_algname;
+      const guchar *tsig_raw_algname;
       char *tsig_algname;
       int tsig_algname_len;
       nstime_t nstime;
@@ -2385,7 +2384,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint32 local_flag;
       guint32 lookup_timeout;
       guint32 cache_timeout;
-      const char *dname;
+      const guchar *dname;
       int dname_len;
 
       if (rr_len < 4)
@@ -2436,7 +2435,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint16 priority = 0;
       guint16 weight = 0;
       guint16 port = 0;
-      const char *target;
+      const guchar *target;
       int target_len;
 
       priority = tvb_get_ntohs(tvb, cur_offset);

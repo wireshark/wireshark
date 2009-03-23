@@ -965,7 +965,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     unsigned int j;
     int i, n, l, p;
     guint16 flags;
-    const char *dname;
+    const guchar *dname;
     guint32 ipaddr;
 
     ni = &icmp6_nodeinfo;
