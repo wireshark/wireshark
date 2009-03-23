@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.4.0 (2008-12)
+-- 3GPP TS 36.413 V8.5.0 (2009-03)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -74,7 +74,9 @@ id-WriteReplaceWarning				ProcedureCode ::= 36
 id-eNBDirectInformationTransfer			ProcedureCode ::= 37
 id-MMEDirectInformationTransfer			ProcedureCode ::= 38
 id-PrivateMessage					ProcedureCode ::= 39
-
+id-eNBConfigurationTransfer			ProcedureCode ::= 40
+id-MMEConfigurationTransfer			ProcedureCode ::= 41
+id-CellTrafficTrace					ProcedureCode ::= 42
 
 -- **************************************************************
 --
@@ -94,7 +96,7 @@ maxProtocolIEs						INTEGER ::= 65535
 maxNrOfCSGs								INTEGER ::= 256
 maxNrOfE-RABs							INTEGER ::= 256
 maxNrOfInterfaces						INTEGER ::= 3   --FFS
-maxnoofTAI								INTEGER ::= 256
+maxnoofTAIs								INTEGER ::= 256
 maxnoofTACs								INTEGER ::= 256
 maxNrOfErrors							INTEGER ::= 256
 maxnoofBPLMNs							INTEGER ::= 6
@@ -106,12 +108,16 @@ maxnoofForbTACs							INTEGER ::= 4096
 maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
 maxnoofGUMMEIs							INTEGER ::= 256 -- FFS
 maxnoofCells							INTEGER ::= 16		
-maxnoofTAIforWarning					INTEGER ::= 65535 -- FFS
-maxnoofCellID							INTEGER ::= 65535 -- FFS
-maxnoofEmergencyAreaID					INTEGER ::= 65535 -- FFS
-maxnoofCellinTAI						INTEGER ::= 65535 -- FFS
-maxnoofCellinEAI						INTEGER ::= 65535 -- FFS
+maxnoofTAIforWarning					INTEGER ::= 65535 
+maxnoofCellID							INTEGER ::= 65535 
+maxnoofEmergencyAreaID					INTEGER ::= 65535 
+maxnoofCellinTAI						INTEGER ::= 65535 
+maxnoofCellinEAI						INTEGER ::= 65535 
 maxnoofeNBX2TLAs						INTEGER ::= 2
+maxnoofRATs								INTEGER ::= 8
+maxnoofGroupIDs								INTEGER ::= 65535
+maxnoofMMECs								INTEGER ::= 256
+
 
 
 
@@ -190,7 +196,7 @@ id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
 id-cdma2000HOStatus								ProtocolIE-ID ::= 83
 id-cdma2000HORequiredIndication					ProtocolIE-ID ::= 84
-id-TraceReference								ProtocolIE-ID ::= 86
+id-E-UTRAN-Trace-ID								ProtocolIE-ID ::= 86
 id-RelativeMMECapacity							ProtocolIE-ID ::= 87
 id-SourceMME-UE-S1AP-ID							ProtocolIE-ID ::= 88
 id-Bearers-SubjectToStatusTransfer-Item			ProtocolIE-ID ::= 89
@@ -233,5 +239,14 @@ id-SRVCCHOIndication							ProtocolIE-ID ::= 125
 id-NAS-DownlinkCount							ProtocolIE-ID ::= 126
 id-CSG-Id										ProtocolIE-ID ::= 127
 id-CSG-IdList									ProtocolIE-ID ::= 128
-
+id-SONConfigurationTransferECT					ProtocolIE-ID ::= 129
+id-SONConfigurationTransferMCT					ProtocolIE-ID ::= 130
+id-TraceCollectionEntityIPAddress				ProtocolIE-ID ::= 131
+id-MSClassmark2									ProtocolIE-ID ::= 132
+id-MSClassmark3									ProtocolIE-ID ::= 133
+id-RRC-Establishment-Cause						ProtocolIE-ID ::= 134
+id-NASSecurityParametersfromE-UTRAN				ProtocolIE-ID ::= 135
+id-NASSecurityParameterstoE-UTRAN				ProtocolIE-ID ::= 136
+id-DefaultPagingDRX								ProtocolIE-ID ::= 137
 END
+

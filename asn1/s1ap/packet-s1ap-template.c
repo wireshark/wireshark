@@ -66,10 +66,13 @@ static dissector_handle_t nas_eps_handle;
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
 
+static int hf_s1ap_transportLayerAddressIPv4 = -1;
+static int hf_s1ap_transportLayerAddressIPv6 = -1;
 #include "packet-s1ap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
+static int ett_s1ap_TransportLayerAddress = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -187,6 +190,14 @@ void proto_register_s1ap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_s1ap_transportLayerAddressIPv4,
+      { "transportLayerAddress(IPv4)", "s1ap.transportLayerAddressIPv4",
+        FT_IPv4, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_s1ap_transportLayerAddressIPv6,
+      { "transportLayerAddress(IPv6)", "s1ap.transportLayerAddressIPv6",
+        FT_IPv4, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
 
 #include "packet-s1ap-hfarr.c"
   };
@@ -194,6 +205,7 @@ void proto_register_s1ap(void) {
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_s1ap,
+		  &ett_s1ap_TransportLayerAddress,
 #include "packet-s1ap-ettarr.c"
   };
 

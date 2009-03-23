@@ -43,7 +43,7 @@ UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 
 
-#PrivateIE-Field/id private_id
+PrivateIE-Field/id private_id
 ProtocolExtensionField/id ext_id
 
 #PrivateIE-Field/value private_value
@@ -199,6 +199,30 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if ((tvb_length(parameter_tvb)>0)&&(nas_eps_handle))
     call_dissector(nas_eps_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
 
+#.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+  gint tvb_len;
+  
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+# The Transport Layer Address signalled in S1-AP messages is a bit string of 
+# a)	32 bits in case of IPv4 address according to [6]; and
+# b)	128 bits in case of IPv6 address according to [5].
+	/* Get the length */
+	tvb_len = tvb_length(tvb);
+	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_TransportLayerAddress);
+	if (tvb_len==4){
+		/* IPv4 */
+		 proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv4, tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==16){
+		/* IPv6 */
+		 proto_tree_add_item(subtree, hf_s1ap_transportLayerAddressIPv6, tvb, 0, tvb_len, FALSE);
+	}
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_ProtocolIE_ID_vals)
 
@@ -245,7 +269,9 @@ id-WriteReplaceWarning					ProcedureCode
 id-eNBDirectInformationTransfer			ProcedureCode
 id-MMEDirectInformationTransfer			ProcedureCode
 id-PrivateMessage						ProcedureCode
-
+id-eNBConfigurationTransfer				ProcedureCode
+id-MMEConfigurationTransfer				ProcedureCode
+id-CellTrafficTrace						ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
@@ -315,7 +341,7 @@ id-Direct-Forwarding-Path-Availability				ProtocolIE-ID
 id-UEIdentityIndexValue								ProtocolIE-ID
 id-cdma2000HOStatus									ProtocolIE-ID
 id-cdma2000HORequiredIndication						ProtocolIE-ID
-id-TraceReference									ProtocolIE-ID
+id-E-UTRAN-Trace-ID									ProtocolIE-ID
 id-RelativeMMECapacity								ProtocolIE-ID
 id-SourceMME-UE-S1AP-ID								ProtocolIE-ID
 id-Bearers-SubjectToStatusTransfer-Item				ProtocolIE-ID
@@ -359,7 +385,15 @@ id-SRVCCHOIndication								ProtocolIE-ID
 id-NAS-DownlinkCount								ProtocolIE-ID
 id-CSG-Id											ProtocolIE-ID
 id-CSG-IdList										ProtocolIE-ID
-
+id-SONConfigurationTransferECT						ProtocolIE-ID
+id-SONConfigurationTransferMCT						ProtocolIE-ID
+id-TraceCollectionEntityIPAddress					ProtocolIE-ID
+id-MSClassmark2										ProtocolIE-ID
+id-MSClassmark3										ProtocolIE-ID
+id-RRC-Establishment-Cause							ProtocolIE-ID
+id-NASSecurityParametersfromE-UTRAN					ProtocolIE-ID
+id-NASSecurityParameterstoE-UTRAN					ProtocolIE-ID
+id-DefaultPagingDRX									ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -431,7 +465,6 @@ Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availa
 UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
 Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
 Cdma2000HORequiredIndication			N s1ap.ies id-cdma2000HORequiredIndication
-TraceReference							N s1ap.ies id-TraceReference
 RelativeMMECapacity						N s1ap.ies id-RelativeMMECapacity
 MME-UE-S1AP-ID							N s1ap.ies id-SourceMME-UE-S1AP-ID
 Bearers-SubjectToStatusTransfer-Item	N s1ap.ies id-Bearers-SubjectToStatusTransfer-Item
@@ -471,9 +504,17 @@ Inter-SystemInformationTransferType		N s1ap.ies id-Inter-SystemInformationTransf
 Target-ToSource-TransparentContainer	N s1ap.ies id-Target-ToSource-TransparentContainer
 SRVCCOperationPossible					N s1ap.ies id-SRVCCOperationPossible
 SRVCCHOIndication						N s1ap.ies id-SRVCCHOIndication
-NAS-DownlinkCount						N s1ap.ies id-NAS-DownlinkCount
 CSG-Id									N s1ap.ies id-CSG-Id
 CSG-IdList								N s1ap.ies id-CSG-IdList
+SONConfigurationTransfer				N s1ap.ies id-SONConfigurationTransferECT
+SONConfigurationTransfer				N s1ap.ies id-SONConfigurationTransferMCT
+TransportLayerAddress					N s1ap.ies id-TraceCollectionEntityIPAddress
+MSClassmark2							N s1ap.ies id-MSClassmark2
+MSClassmark3							N s1ap.ies id-MSClassmark3
+RRC-Establishment-Cause					N s1ap.ies id-RRC-Establishment-Cause
+NASSecurityParametersfromE-UTRAN		N s1ap.ies id-NASSecurityParametersfromE-UTRAN
+NASSecurityParameterstoE-UTRAN			N s1ap.ies id-NASSecurityParameterstoE-UTRAN
+PagingDRX								N s1ap.ies id-DefaultPagingDRX
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -586,6 +627,13 @@ ENBDirectInformationTransfer			N s1ap.proc.imsg id-eNBDirectInformationTransfer
 MMEDirectInformationTransfer			N s1ap.proc.imsg id-MMEDirectInformationTransfer
 
 PrivateMessage							N s1ap.proc.imsg id-PrivateMessage
+
+ENBConfigurationTransfer				N s1ap.proc.imsg id-eNBConfigurationTransfer
+
+MMEConfigurationTransfer				N s1ap.proc.imsg id-MMEConfigurationTransfer
+
+CellTrafficTrace						N s1ap.proc.imsg id-CellTrafficTrace
+
 
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.4.0 (2008-12)
+-- 3GPP TS 36.413 V8.5.0 (2009-03)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -26,6 +26,7 @@ IMPORTS
 	ProcedureCode
 FROM S1AP-CommonDataTypes
 
+	CellTrafficTrace,
 	DeactivateTrace,
 	DownlinkNASTransport,
 	DownlinkS1cdma2000tunneling,
@@ -88,11 +89,14 @@ FROM S1AP-CommonDataTypes
 	UplinkNASTransport,
 	UplinkS1cdma2000tunneling,
 	WriteReplaceWarningRequest,
-	WriteReplaceWarningResponse
+	WriteReplaceWarningResponse,
+	ENBConfigurationTransfer,
+	MMEConfigurationTransfer
 
 
 FROM S1AP-PDU-Contents
 	
+	id-CellTrafficTrace,
 	id-DeactivateTrace,
 	id-downlinkNASTransport,
 	id-DownlinkS1cdma2000tunneling,
@@ -132,7 +136,9 @@ FROM S1AP-PDU-Contents
 	id-UEContextReleaseRequest,
 	id-uplinkNASTransport,
 	id-UplinkS1cdma2000tunneling,
-	id-WriteReplaceWarning
+	id-WriteReplaceWarning,
+	id-eNBConfigurationTransfer,
+	id-MMEConfigurationTransfer
 FROM S1AP-Constants;
 
 
@@ -150,11 +156,11 @@ S1AP-ELEMENTARY-PROCEDURE ::= CLASS {
 	&criticality			Criticality 	DEFAULT ignore
 }
 WITH SYNTAX {
-	INITIATING MESSAGE		&InitiatingMessage
-	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	INITIATING MESSAGE			&InitiatingMessage
+	[SUCCESSFUL OUTCOME			&SuccessfulOutcome]
 	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
 	PROCEDURE CODE				&procedureCode
-	[CRITICALITY			&criticality]
+	[CRITICALITY				&criticality]
 }
 
 -- **************************************************************
@@ -172,19 +178,19 @@ S1AP-PDU ::= CHOICE {
 
 InitiatingMessage ::= SEQUENCE {
 	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality		({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
 	value		S1AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 SuccessfulOutcome ::= SEQUENCE {
 	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality		({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
 	value		S1AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 UnsuccessfulOutcome ::= SEQUENCE {
 	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality		({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
 	value		S1AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
@@ -205,9 +211,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	handoverPreparation				|
 	handoverResourceAllocation		|
 	pathSwitchRequest 				|
-	e-RABSetup					|
-	e-RABModify					|
-	e-RABRelease				|
+	e-RABSetup						|
+	e-RABModify						|
+	e-RABRelease					|
 	initialContextSetup				|
 	handoverCancel					|
 	reset							|
@@ -224,8 +230,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	handoverNotification			|
 	e-RABReleaseIndication			|
 	paging 							|
-	downlinkNASTransport						|
-	initialUEMessage							|
+	downlinkNASTransport			|
+	initialUEMessage				|
 	uplinkNASTransport				|
 	errorIndication					|
 	nASNonDeliveryIndication		|
@@ -238,13 +244,16 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	deactivateTrace					|
 	traceStart						|
 	traceFailureIndication			|
+	CellTrafficTrace				|
 	locationReportingControl		|
-	locationReportingFailureIndication		|
+	locationReportingFailureIndication	|
 	locationReport					|
 	overloadStart					|
 	overloadStop					|
 	eNBDirectInformationTransfer	|
 	mMEDirectInformationTransfer	|
+	eNBConfigurationTransfer		|
+	mMEConfigurationTransfer		|
 	privateMessage					,
 	...
 }
@@ -462,6 +471,11 @@ traceFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE		id-TraceFailureIndication
 	CRITICALITY			ignore
 }
+cellTrafficTrace S1AP-ELEMENTARY-PROCEDURE ::={
+INITIATING MESSAGE CellTrafficTrace
+PROCEDURE CODE      id-CellTrafficTrace
+CRITICALITY         ignore
+}
 
 locationReportingControl S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		LocationReportingControl
@@ -512,6 +526,19 @@ mMEDirectInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			ignore
 }
 
+eNBConfigurationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBConfigurationTransfer
+	PROCEDURE CODE			id-eNBConfigurationTransfer
+	CRITICALITY				ignore
+}
+
+mMEConfigurationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MMEConfigurationTransfer
+	PROCEDURE CODE			id-MMEConfigurationTransfer
+	CRITICALITY				ignore
+}
+
+
 privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	PrivateMessage
 	PROCEDURE CODE		id-PrivateMessage
@@ -519,5 +546,6 @@ privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 END
+
 
 
