@@ -98,6 +98,7 @@ EXTRA_DIST = \
 	make-dissector-reg.py				\
 	make-tap-reg.py					\
 	msnchat						\
+	native-nmake.cmd			\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
 	runlex.sh					\
