@@ -1157,42 +1157,8 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	   * as a sequence of hex digits.
 	   */
 	  i = 2;	/* first character after "0[Xx]" */
-	  if(strlen(key) %2  == 0)
-	    {
-	      /*
-	       * Key has an even number of characters, so we treat each
-	       * pair of hex digits as a single byte value.
-	       */
-	      key_len = (strlen(key) - 2) / 2;
-	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      j = 0;
-	      while(i < (strlen(key) -1))
-		{
-		  hex_digit = g_ascii_xdigit_value(key[i]);
-		  i++;
-		  if (hex_digit == -1)
-		    {
-		      g_free(*ascii_key);
-		      *ascii_key = NULL;
-		      return -1;	/* not a valid hex digit */
-		    }
-		  key_byte = ((guchar)hex_digit) << 4;
-		  hex_digit = g_ascii_xdigit_value(key[i]);
-		  i++;
-		  if (hex_digit == -1)
-		    {
-		      g_free(*ascii_key);
-		      *ascii_key = NULL;
-		      return -1;	/* not a valid hex digit */
-		    }
-		  key_byte |= (guchar)hex_digit;
-		  (*ascii_key)[j] = key_byte;
-		  j++;
-		}
-	      (*ascii_key)[j] = '\0';
-	    }
-
-	  else
+	  j = 0;
+	  if(strlen(key) %2  == 1)
 	    {
 	      /*
 	       * Key has an odd number of characters; we act as if the
@@ -1201,7 +1167,6 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	       */
 	      key_len = (strlen(key) - 2) / 2 + 1;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      j = 0;
 	      hex_digit = g_ascii_xdigit_value(key[i]);
 	      i++;
 	      if (hex_digit == -1)
@@ -1212,31 +1177,41 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		}
 	      (*ascii_key)[j] = (guchar)hex_digit;
 	      j++;
-	      while(i < (strlen(key) -1))
-		{
-		  hex_digit = g_ascii_xdigit_value(key[i]);
-		  i++;
-		  if (hex_digit == -1)
-		    {
-		      g_free(*ascii_key);
-		      *ascii_key = NULL;
-		      return -1;	/* not a valid hex digit */
-		    }
-		  key_byte = ((guchar)hex_digit) << 4;
-		  hex_digit = g_ascii_xdigit_value(key[i]);
-		  i++;
-		  if (hex_digit == -1)
-		    {
-		      g_free(*ascii_key);
-		      *ascii_key = NULL;
-		      return -1;	/* not a valid hex digit */
-		    }
-		  key_byte |= (guchar)hex_digit;
-		  (*ascii_key)[j] = key_byte;
-		  j++;
-		}
-	      (*ascii_key)[j] = '\0';
-	    }
+	     } 
+	   else 
+	     {
+	       /*
+	        * Key has an even number of characters, so we treat each
+	        * pair of hex digits as a single byte value.
+	        */
+	       key_len = (strlen(key) - 2) / 2;
+	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
+	     }
+	     
+	   while(i < (strlen(key) -1))
+	     {
+	       hex_digit = g_ascii_xdigit_value(key[i]);
+	       i++;
+	       if (hex_digit == -1)
+	         {
+		   g_free(*ascii_key);
+		   *ascii_key = NULL;
+		   return -1;	/* not a valid hex digit */
+		 }
+	       key_byte = ((guchar)hex_digit) << 4;
+	       hex_digit = g_ascii_xdigit_value(key[i]);
+	       i++;
+	       if (hex_digit == -1)
+	         {
+		   g_free(*ascii_key);
+		   *ascii_key = NULL;
+		   return -1;	/* not a valid hex digit */
+		 }
+	       key_byte |= (guchar)hex_digit;
+	       (*ascii_key)[j] = key_byte;
+	       j++;
+	     }
+	   (*ascii_key)[j] = '\0';
 	}
 
       else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
