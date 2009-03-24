@@ -548,6 +548,7 @@ DISSECTOR_SRC = \
 	packet-isis-snp.c	\
 	packet-isis.c 		\
 	packet-isl.c		\
+	packet-ismacryp.c	\
 	packet-ismp.c		\
 	packet-isns.c		\
 	packet-isup.c		\
