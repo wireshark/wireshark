@@ -1066,23 +1066,26 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_crc_status,
-                             tvb, 0, 0, p_mac_lte_info->crcStatus);
-    PROTO_ITEM_SET_GENERATED(ti);
-    if (p_mac_lte_info->crcStatus != TRUE) {
-        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                               "Frame has CRC error");
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
+    if (p_mac_lte_info->crcStatusValid) {
+        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_crc_status,
+                                 tvb, 0, 0, p_mac_lte_info->crcStatus);
+        PROTO_ITEM_SET_GENERATED(ti);
+        if (p_mac_lte_info->crcStatus != TRUE) {
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                   "Frame has CRC error");
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE>");
+            }
         }
     }
 
 
     /* Set context-info parts of tap struct */
     tap_info.rnti = p_mac_lte_info->rnti;
-    tap_info.rnti_type = p_mac_lte_info->rntiType;
-    tap_info.is_predefined_data = p_mac_lte_info->isPredefinedData;
+    tap_info.rntiType = p_mac_lte_info->rntiType;
+    tap_info.isPredefinedData = p_mac_lte_info->isPredefinedData;
     tap_info.reTxCount = p_mac_lte_info->reTxCount;
+    tap_info.crcStatusValid = p_mac_lte_info->crcStatusValid;
     tap_info.crcStatus = p_mac_lte_info->crcStatus;
     tap_info.direction = p_mac_lte_info->direction;
 

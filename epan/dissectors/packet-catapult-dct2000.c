@@ -1326,7 +1326,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     }
 
     /* Populate the struct from outhdr values */
-    p_mac_lte_info->crcStatus = TRUE;
+    p_mac_lte_info->crcStatusValid = FALSE;
 
     p_mac_lte_info->radioType = outhdr_values[i++];
     p_mac_lte_info->rntiType = outhdr_values[i++];
@@ -1340,9 +1340,19 @@ static void attach_mac_lte_info(packet_info *pinfo)
         p_mac_lte_info->reTxCount = outhdr_values[i++];
     }
     if (outhdr_values_found > 9) {
-        p_mac_lte_info->crcStatus = outhdr_values[i++];
-    }
+        /* CRC only valid for DL-SCH */
+        if ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) &&
+            ((p_mac_lte_info->rntiType == C_RNTI) ||
+             (p_mac_lte_info->rntiType == SI_RNTI) ||
+             (p_mac_lte_info->rntiType == P_RNTI))) {
 
+            p_mac_lte_info->crcStatusValid = TRUE;
+            p_mac_lte_info->crcStatus = outhdr_values[i++];
+        }
+        else {
+            i++;
+        }
+    }
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);

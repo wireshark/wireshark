@@ -53,6 +53,7 @@ typedef struct mac_lte_info
     guint8          isPredefinedData;
     guint16         length;
     guint8          reTxCount;
+    guint8          crcStatusValid;
     guint8          crcStatus;
 } mac_lte_info;
 
@@ -60,9 +61,10 @@ typedef struct mac_lte_info
 typedef struct mac_lte_tap_info {
     /* Info from context */
     guint16  rnti;
-    guint8   rnti_type;
-    guint8   is_predefined_data;
+    guint8   rntiType;
+    guint8   isPredefinedData;
     guint8   reTxCount;
+    guint8   crcStatusValid;
     guint8   crcStatus;
     guint8   direction;
 

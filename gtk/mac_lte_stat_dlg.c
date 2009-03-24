@@ -289,7 +289,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     hs->number_of_packets++;
 
     /* For common channels, just update global counters */
-    switch (si->rnti_type) {
+    switch (si->rntiType) {
         case P_RNTI:
             common_stats.pch_frames++;
             common_stats.pch_bytes += si->single_number_of_bytes;
@@ -336,8 +336,8 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     /* Update entry with details from si */
     te->number_of_packets++;
     te->stats.rnti = si->rnti;
-    te->stats.is_predefined_data = si->is_predefined_data;
-    if (!si->crcStatus) {
+    te->stats.is_predefined_data = si->isPredefinedData;
+    if (si->crcStatusValid && !si->crcStatus) {
         if (si->direction == DIRECTION_UPLINK) {
             te->stats.UL_CRC_errors++;
             return 1;
@@ -356,7 +356,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         }
         te->stats.UL_frames++;
 
-        if (si->is_predefined_data) {
+        if (si->isPredefinedData) {
             te->stats.UL_total_bytes += si->single_number_of_bytes;
         }
         else {
@@ -379,7 +379,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         te->stats.DL_frames++;
 
-        if (si->is_predefined_data) {
+        if (si->isPredefinedData) {
             te->stats.DL_total_bytes += si->single_number_of_bytes;
         }
         else {
