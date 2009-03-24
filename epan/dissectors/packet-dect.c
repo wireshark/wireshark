@@ -800,7 +800,7 @@ calc_rcrc(guint8* data)
 }
 
 static gint
-dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
+dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 	struct dect_bfield *pkt_bfield, packet_info *pinfo, const guint8 *pkt_ptr _U_,
 	tvbuff_t *tvb, proto_item *ti _U_, proto_tree *DectTree, gint offset)
 {
@@ -848,6 +848,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 		}
 		break;
 	case 7:
+	default:
 		blen=0;
 		xcrclen=0;
 
@@ -856,11 +857,7 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 			col_append_str(pinfo->cinfo, COL_DEF_NET_DST, "No B-Field");
 		}
 		break;
-	default:
-		/* can't happen but makes gcc happy */
-		blen=0;
-		xcrclen=0;
-		break;
+
 	}
 	if(blen)
 	{
@@ -875,14 +872,16 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 		guint16 x, y=0;
 		for(x=0;x<blen;x+=16)
 		{
-			gchar string[60];
+			/*gchar string[60];*/
+			gchar string[145];
 			string[0]='\0';
 			for(y=0;y<16;y++)
 			{
 				if((x+y)>=blen)
 					break;
 
-				g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]);
+				/*g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]);*/
+				sprintf(string,"%s%.2x ", string, pkt_bfield->Data[x+y]);
 			}
 			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string);
 			if(y==16)
@@ -900,14 +899,16 @@ dissect_bfield(gboolean type _U_, struct dect_afield *pkt_afield,
 			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Framenumber %u/%u", fn, fn+8);
 			for(x=0;x<blen;x+=16)
 			{
-				gchar string[60];
+				/*gchar string[60];*/
+				gchar string[145];
 				string[0]='\0';
 				for(y=0;y<16;y++)
 				{
 					if((x+y)>=blen)
 						break;
 
-					g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
+					/*g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);*/
+					sprintf(string,"%s%.2x ", string, pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
 					bytecount++;
 				}
 				proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string);
