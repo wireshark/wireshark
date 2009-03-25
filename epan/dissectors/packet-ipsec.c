@@ -43,6 +43,7 @@ DES-CBC [RFC2405] : keylen 64 bits
 - Add ESP Payload Decryption support for the following Encryption Algorithms :
 BLOWFISH-CBC : keylen 128 bits.
 TWOFISH-CBC : keylen 128/256 bits.
+CAST5-CBC :  keylen 128
 
 - Check ESP Authentication for the following Algorithms defined in RFC 4305:
 
@@ -55,7 +56,7 @@ AES-XCBC-MAC-96 [RFC3566] : Not available because no implementation found.
 
 - Add ESP Authentication checking for the following Authentication Algorithm :
 HMAC-SHA256 : any keylen
-
+HMAC-RIPEMD160-96 [RFC2857] : any keylen
 */
 
 #ifdef HAVE_CONFIG_H
@@ -118,11 +119,15 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_ENCRYPT_BLOWFISH_CBC 5
 #define IPSEC_ENCRYPT_TWOFISH_CBC 6
 
+/* Encryption algorithm defined in RFC 2144 */
+#define IPSEC_ENCRYPT_CAST5_CBC 7
+
 /* Authentication algorithms defined in RFC 4305 */
 #define IPSEC_AUTH_NULL 0
 #define IPSEC_AUTH_HMAC_SHA1_96 1
 #define IPSEC_AUTH_HMAC_SHA256 2
 #define IPSEC_AUTH_HMAC_MD5_96 3
+#define IPSEC_AUTH_HMAC_RIPEMD160_96 4
 #define IPSEC_AUTH_ANY_12BYTES 5
 /* define IPSEC_AUTH_AES_XCBC_MAC_96 6 */
 #endif
@@ -1767,6 +1772,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		  }
 
+		case IPSEC_AUTH_HMAC_RIPEMD160_96:
+		  {
+		    esp_auth_len = 12;
+		    break;
+		  }
+
 		case IPSEC_AUTH_ANY_12BYTES:
 		default:
 		  {
@@ -1841,6 +1852,20 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      */
 		      {
 			auth_algo_libgcrypt = GCRY_MD_MD5;
+			authentication_check_using_hmac_libgcrypt = TRUE;
+			break;
+		      }
+
+		    case IPSEC_AUTH_HMAC_RIPEMD160_96:
+		      /*
+			RFC 2857 : HMAC-RIPEMD-160-96 produces a 160-bit 
+			authenticator value.  This 160-bit value can be 
+			truncated as described in RFC2104.  For use with 
+			either ESP or AH, a truncated value using the first 
+			96 bits MUST be supported. 
+		      */
+		      {
+			auth_algo_libgcrypt = GCRY_MD_RMD160;
 			authentication_check_using_hmac_libgcrypt = TRUE;
 			break;
 		      }
@@ -2029,6 +2054,50 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      default:
 				{
 				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",
+				           esp_crypt_key_len * 8);
+				  decrypt_ok = FALSE;
+				}
+			      }
+			  }
+			break;
+		      }
+
+
+		    case IPSEC_ENCRYPT_CAST5_CBC :
+		      {
+			/* RFC 2144 says :
+			   The CAST-128 encryption algorithm has been designed to allow a key
+			   size that can vary from 40 bits to 128 bits, in 8-bit increments
+			   (that is, the allowable key sizes are 40, 48, 56, 64, ..., 112, 120,
+			   and 128 bits. 
+			   We support only 128 bits. */
+
+			/* Fix parameters for CAST5-CBC */
+			esp_iv_len = 8;
+			crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+
+			decrypted_len = len - sizeof(struct newesp);
+
+			if (decrypted_len <= 0)
+			  decrypt_ok = FALSE;
+			else
+			  {
+			    if(decrypted_len % esp_iv_len  == 0)
+			      decrypted_len_alloc = decrypted_len;
+			    else
+			      decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+			    switch(esp_crypt_key_len * 8)
+			      {
+			      case 128:
+				{
+				  crypt_algo_libgcrypt = GCRY_CIPHER_CAST5;
+				  decrypt_using_libgcrypt = TRUE;
+				  break;
+				}
+			      default:
+				{
+				  fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm CAST5-CBC : Bad Keylen (%i Bits)\n",
 				           esp_crypt_key_len * 8);
 				  decrypt_ok = FALSE;
 				}
@@ -2612,6 +2681,7 @@ proto_register_ipsec(void)
     {"aescbc", "AES-CBC [RFC3602]", IPSEC_ENCRYPT_AES_CBC},
     {"aesctr", "AES-CTR [RFC3686]", IPSEC_ENCRYPT_AES_CTR},
     {"descbc", "DES-CBC [RFC2405]", IPSEC_ENCRYPT_DES_CBC},
+    {"cast5cbc", "CAST5-CBC [RFC2144]", IPSEC_ENCRYPT_CAST5_CBC},
     {"blowfishcbc","BLOWFISH-CBC [RFC2451]", IPSEC_ENCRYPT_BLOWFISH_CBC},
     {"twofishcbc","TWOFISH-CBC", IPSEC_ENCRYPT_TWOFISH_CBC},
     {NULL,NULL,0}
@@ -2623,6 +2693,7 @@ proto_register_ipsec(void)
     {"hmacsha196", "HMAC-SHA1-96 [RFC2404]", IPSEC_AUTH_HMAC_SHA1_96},
     {"hmacsha256", "HMAC-SHA256", IPSEC_AUTH_HMAC_SHA256},
     {"hmacmd596", "HMAC-MD5-96 [RFC2403]", IPSEC_AUTH_HMAC_MD5_96},
+    {"hmacripemd160", "HMAC-RIPEMD", IPSEC_AUTH_HMAC_RIPEMD160_96},
     /*    {"aesxcbcmac96", "AES-XCBC-MAC-96 [RFC3566]", IPSEC_AUTH_AES_XCBC_MAC_96}, */
     {"any12bytes", "ANY 12-bytes of Authentication [No Checking]", IPSEC_AUTH_ANY_12BYTES},
     {NULL,NULL,0}
