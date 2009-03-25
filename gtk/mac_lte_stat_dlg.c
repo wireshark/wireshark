@@ -188,7 +188,7 @@ mac_lte_stat_reset(void *phs)
 {
     mac_lte_stat_t* mac_lte_stat = (mac_lte_stat_t *)phs;
     mac_lte_ep_t* list = mac_lte_stat->ep_list;
-    char title[256];
+    gchar title[256];
     GtkListStore *store;
     gint i, n;
 
@@ -199,7 +199,7 @@ mac_lte_stat_reset(void *phs)
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat_dlg_w), title);
     }
 
-    g_snprintf(title, sizeof(title), "UL/DL-SCH data");
+    g_snprintf(title, sizeof(title), "UL/DL-SCH data (0 UEs)");
     gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
     memset(&common_stats, 0, sizeof(common_stats));
@@ -486,7 +486,9 @@ mac_lte_ue_details(mac_lte_stat_t *hs _U_, mac_lte_ep_t *mac_stat_ep _U_, gboole
 static void
 mac_lte_stat_draw(void *phs)
 {
-    char buff[32];
+    gchar   buff[32];
+    guint16 number_of_ues = 0;
+    gchar title[256];
 
     /* Look up the statistics window */
     mac_lte_stat_t *hs = (mac_lte_stat_t *)phs;
@@ -510,6 +512,11 @@ mac_lte_stat_draw(void *phs)
     /* Per-UE table entries */
     ues_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->ue_table));
     hs->num_entries = 0;
+
+    /* Set title that shows how many UEs currently in table */
+    for (tmp = list; tmp; tmp=tmp->next, number_of_ues++);
+    g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u UEs)", number_of_ues);
+    gtk_frame_set_label(GTK_FRAME(mac_lte_stat_ues_lb), title);
 
     /* For each row/UE/C-RNTI */
     for (tmp = list; tmp; tmp=tmp->next) {
@@ -606,7 +613,7 @@ static void mac_lte_stat_dlg_create(void)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
-    char title[256];
+    gchar title[256];
     gint i, n;
 
     /* Create dialog */
@@ -669,7 +676,7 @@ static void mac_lte_stat_dlg_create(void)
     /* UL/DL-SCH data                             */
     /**********************************************/
 
-    mac_lte_stat_ues_lb = gtk_frame_new("UL/DL-SCH Data");
+    mac_lte_stat_ues_lb = gtk_frame_new("UL/DL-SCH Data (0 UEs)");
     ues_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_ues_lb), ues_vb);
     gtk_container_set_border_width(GTK_CONTAINER(ues_vb), 5);
