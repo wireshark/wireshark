@@ -3869,7 +3869,7 @@ class SequenceOfType (SeqOfType):
       body = ectx.eth_fn_call('dissect_%(ER)s_constrained_sequence_of', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                    ('%(ETT_INDEX)s', '%(TABLE)s',),
-                                   ('%(MIN_VAL)s', '%(MAX_VAL)s',),))
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body
@@ -3921,7 +3921,7 @@ class SetOfType (SeqOfType):
       body = ectx.eth_fn_call('dissect_%(ER)s_constrained_set_of', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                    ('%(ETT_INDEX)s', '%(TABLE)s',),
-                                   ('%(MIN_VAL)s', '%(MAX_VAL)s',),))
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body

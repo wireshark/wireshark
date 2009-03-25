@@ -6933,7 +6933,7 @@ static int
 dissect_nbap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
-                                                  0, maxProtocolIEs);
+                                                  0, maxProtocolIEs, FALSE);
 
   return offset;
 }
@@ -6981,7 +6981,7 @@ static int
 dissect_nbap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_ProtocolExtensionContainer, ProtocolExtensionContainer_sequence_of,
-                                                  1, maxProtocolExtensions);
+                                                  1, maxProtocolExtensions, FALSE);
 
   return offset;
 }
@@ -7020,7 +7020,7 @@ static int
 dissect_nbap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PrivateIE_Container, PrivateIE_Container_sequence_of,
-                                                  1, maxPrivateIEs);
+                                                  1, maxPrivateIEs, FALSE);
 
   return offset;
 }
@@ -7180,7 +7180,7 @@ static int
 dissect_nbap_TimeSlotMeasurementValueListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotMeasurementValueListLCR, TimeSlotMeasurementValueListLCR_sequence_of,
-                                                  1, 6);
+                                                  1, 6, FALSE);
 
   return offset;
 }
@@ -7210,7 +7210,7 @@ static int
 dissect_nbap_AdditionalMeasurementValueList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AdditionalMeasurementValueList, AdditionalMeasurementValueList_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -7224,7 +7224,7 @@ static int
 dissect_nbap_TimeSlot_InitiatedListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlot_InitiatedListLCR, TimeSlot_InitiatedListLCR_sequence_of,
-                                                  0, 6);
+                                                  0, 6, FALSE);
 
   return offset;
 }
@@ -7254,7 +7254,7 @@ static int
 dissect_nbap_AdditionalTimeSlotListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AdditionalTimeSlotListLCR, AdditionalTimeSlotListLCR_sequence_of,
-                                                  0, maxFrequencyinCell_1);
+                                                  0, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -7331,7 +7331,7 @@ static int
 dissect_nbap_Transmission_Gap_Pattern_Sequence_Status_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Transmission_Gap_Pattern_Sequence_Status_List, Transmission_Gap_Pattern_Sequence_Status_List_sequence_of,
-                                                  0, maxTGPS);
+                                                  0, maxTGPS, FALSE);
 
   return offset;
 }
@@ -7633,7 +7633,7 @@ static int
 dissect_nbap_Best_Cell_Portions_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Best_Cell_Portions_Value, Best_Cell_Portions_Value_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -7934,7 +7934,7 @@ static int
 dissect_nbap_Vacant_ERNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Vacant_ERNTI, Vacant_ERNTI_sequence_of,
-                                                  1, maxERNTItoRelease);
+                                                  1, maxERNTItoRelease, FALSE);
 
   return offset;
 }
@@ -7963,7 +7963,7 @@ static int
 dissect_nbap_Cell_ERNTI_Status_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_ERNTI_Status_Information, Cell_ERNTI_Status_Information_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -8193,7 +8193,7 @@ static int
 dissect_nbap_CommonChannelsCapacityConsumptionLaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommonChannelsCapacityConsumptionLaw, CommonChannelsCapacityConsumptionLaw_sequence_of,
-                                                  1, maxNrOfSF);
+                                                  1, maxNrOfSF, FALSE);
 
   return offset;
 }
@@ -8357,7 +8357,7 @@ static int
 dissect_nbap_Reference_E_TFCI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Reference_E_TFCI_Information, Reference_E_TFCI_Information_sequence_of,
-                                                  1, maxNrOfRefETFCIs);
+                                                  1, maxNrOfRefETFCIs, FALSE);
 
   return offset;
 }
@@ -8904,7 +8904,7 @@ static int
 dissect_nbap_Common_E_DCH_Resource_Combination_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_DCH_Resource_Combination_InfoList, Common_E_DCH_Resource_Combination_InfoList_sequence_of,
-                                                  1, maxNrOfCommonEDCH);
+                                                  1, maxNrOfCommonEDCH, FALSE);
 
   return offset;
 }
@@ -9088,7 +9088,7 @@ static int
 dissect_nbap_Common_E_DCH_LogicalChannel_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_DCH_LogicalChannel_InfoList, Common_E_DCH_LogicalChannel_InfoList_sequence_of,
-                                                  1, maxNoOfLogicalChannels);
+                                                  1, maxNoOfLogicalChannels, FALSE);
 
   return offset;
 }
@@ -9121,7 +9121,7 @@ static int
 dissect_nbap_Common_E_DCH_MACdFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList, Common_E_DCH_MACdFlow_Specific_InfoList_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -9157,7 +9157,7 @@ static int
 dissect_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList, Ul_common_E_DCH_MACflow_Specific_InfoList_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -9210,7 +9210,7 @@ static int
 dissect_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList, Ul_common_E_DCH_MACflow_Specific_InfoResponseList_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -9265,7 +9265,7 @@ static int
 dissect_nbap_Common_MACFlows_to_DeleteFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_MACFlows_to_DeleteFDD, Common_MACFlows_to_DeleteFDD_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -9445,7 +9445,7 @@ static int
 dissect_nbap_Common_MACFlow_PriorityQueue_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_MACFlow_PriorityQueue_Information, Common_MACFlow_PriorityQueue_Information_sequence_of,
-                                                  1, maxNrOfcommonMACQueues);
+                                                  1, maxNrOfcommonMACQueues, FALSE);
 
   return offset;
 }
@@ -9478,7 +9478,7 @@ static int
 dissect_nbap_CommonMACFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommonMACFlow_Specific_InfoList, CommonMACFlow_Specific_InfoList_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -9529,7 +9529,7 @@ static int
 dissect_nbap_HSDSCH_Initial_Capacity_Allocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_Initial_Capacity_Allocation, HSDSCH_Initial_Capacity_Allocation_sequence_of,
-                                                  1, maxNrOfPriorityQueues);
+                                                  1, maxNrOfPriorityQueues, FALSE);
 
   return offset;
 }
@@ -9561,7 +9561,7 @@ static int
 dissect_nbap_CommonMACFlow_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommonMACFlow_Specific_InfoList_Response, CommonMACFlow_Specific_InfoList_Response_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -10550,7 +10550,7 @@ static int
 dissect_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information, ContinuousPacketConnectivityHS_SCCH_less_Information_sequence_of,
-                                                  1, maxNrOfHS_DSCH_TBSs_HS_SCCHless);
+                                                  1, maxNrOfHS_DSCH_TBSs_HS_SCCHless, FALSE);
 
   return offset;
 }
@@ -10663,7 +10663,7 @@ static int
 dissect_nbap_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CriticalityDiagnostics_IE_List, CriticalityDiagnostics_IE_List_sequence_of,
-                                                  1, maxNrOfErrors);
+                                                  1, maxNrOfErrors, FALSE);
 
   return offset;
 }
@@ -10820,7 +10820,7 @@ static int
 dissect_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR, Common_E_DCH_MACdFlow_Specific_InfoListLCR_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlowsLCR);
+                                                  1, maxNrOfEDCHMACdFlowsLCR, FALSE);
 
   return offset;
 }
@@ -10856,7 +10856,7 @@ static int
 dissect_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR, Ul_common_E_DCH_MACflow_Specific_InfoListLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -10896,7 +10896,7 @@ static int
 dissect_nbap_PRXdes_base_perURAFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRXdes_base_perURAFCN, PRXdes_base_perURAFCN_sequence_of,
-                                                  1, maxFrequencyinCell);
+                                                  1, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -10990,7 +10990,7 @@ static int
 dissect_nbap_E_DCH_QPSK_RefBetaInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_QPSK_RefBetaInfo, E_DCH_QPSK_RefBetaInfo_sequence_of,
-                                                  1, maxNrOfRefBetas);
+                                                  1, maxNrOfRefBetas, FALSE);
 
   return offset;
 }
@@ -11004,7 +11004,7 @@ static int
 dissect_nbap_E_DCH_sixteenQAM_RefBetaInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_sixteenQAM_RefBetaInfo, E_DCH_sixteenQAM_RefBetaInfo_sequence_of,
-                                                  1, maxNrOfRefBetas);
+                                                  1, maxNrOfRefBetas, FALSE);
 
   return offset;
 }
@@ -11071,7 +11071,7 @@ static int
 dissect_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR, Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -11111,7 +11111,7 @@ static int
 dissect_nbap_Common_E_AGCH_ListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_AGCH_ListLCR, Common_E_AGCH_ListLCR_sequence_of,
-                                                  1, maxNrOfEAGCHsLCR);
+                                                  1, maxNrOfEAGCHsLCR, FALSE);
 
   return offset;
 }
@@ -11161,7 +11161,7 @@ static int
 dissect_nbap_Common_E_HICH_ListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_HICH_ListLCR, Common_E_HICH_ListLCR_sequence_of,
-                                                  1, maxNrOfEHICHsLCR);
+                                                  1, maxNrOfEHICHsLCR, FALSE);
 
   return offset;
 }
@@ -11212,7 +11212,7 @@ static int
 dissect_nbap_Common_E_RNTI_Info_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_E_RNTI_Info_LCR, Common_E_RNTI_Info_LCR_sequence_of,
-                                                  1, maxnrofERUCCHsLCR);
+                                                  1, maxnrofERUCCHsLCR, FALSE);
 
   return offset;
 }
@@ -11259,7 +11259,7 @@ static int
 dissect_nbap_Common_MACFlows_to_DeleteLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_MACFlows_to_DeleteLCR, Common_MACFlows_to_DeleteLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlowsLCR);
+                                                  1, maxNrOfCommonMACFlowsLCR, FALSE);
 
   return offset;
 }
@@ -11294,7 +11294,7 @@ static int
 dissect_nbap_CommonMACFlow_Specific_InfoListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommonMACFlow_Specific_InfoListLCR, CommonMACFlow_Specific_InfoListLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlowsLCR);
+                                                  1, maxNrOfCommonMACFlowsLCR, FALSE);
 
   return offset;
 }
@@ -11323,7 +11323,7 @@ static int
 dissect_nbap_Common_H_RNTI_InformationLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Common_H_RNTI_InformationLCR, Common_H_RNTI_InformationLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlowsLCR);
+                                                  1, maxNrOfCommonMACFlowsLCR, FALSE);
 
   return offset;
 }
@@ -11425,7 +11425,7 @@ static int
 dissect_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR, CommonMACFlow_Specific_InfoList_ResponseLCR_sequence_of,
-                                                  1, maxNrOfCommonMACFlows);
+                                                  1, maxNrOfCommonMACFlows, FALSE);
 
   return offset;
 }
@@ -11548,7 +11548,7 @@ static int
 dissect_nbap_TransmissionTimeIntervalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TransmissionTimeIntervalInformation, TransmissionTimeIntervalInformation_sequence_of,
-                                                  1, maxTTI_count);
+                                                  1, maxTTI_count, FALSE);
 
   return offset;
 }
@@ -11616,7 +11616,7 @@ static int
 dissect_nbap_TransportFormatSet_DynamicPartList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TransportFormatSet_DynamicPartList, TransportFormatSet_DynamicPartList_sequence_of,
-                                                  1, maxNrOfTFs);
+                                                  1, maxNrOfTFs, FALSE);
 
   return offset;
 }
@@ -11832,7 +11832,7 @@ static int
 dissect_nbap_DCH_Specific_FDD_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_Specific_FDD_InformationList, DCH_Specific_FDD_InformationList_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -11865,7 +11865,7 @@ static int
 dissect_nbap_DCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_FDD_Information, DCH_FDD_Information_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -11911,7 +11911,7 @@ static int
 dissect_nbap_DCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_InformationResponse, DCH_InformationResponse_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -11947,7 +11947,7 @@ static int
 dissect_nbap_DCH_Specific_TDD_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_Specific_TDD_InformationList, DCH_Specific_TDD_InformationList_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -11980,7 +11980,7 @@ static int
 dissect_nbap_DCH_TDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_TDD_Information, DCH_TDD_Information_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -12013,7 +12013,7 @@ static int
 dissect_nbap_DCH_ModifySpecificInformation_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_ModifySpecificInformation_FDD, DCH_ModifySpecificInformation_FDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -12046,7 +12046,7 @@ static int
 dissect_nbap_FDD_DCHs_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FDD_DCHs_to_Modify, FDD_DCHs_to_Modify_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -12081,7 +12081,7 @@ static int
 dissect_nbap_DCH_ModifySpecificInformation_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_ModifySpecificInformation_TDD, DCH_ModifySpecificInformation_TDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -12114,7 +12114,7 @@ static int
 dissect_nbap_TDD_DCHs_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_DCHs_to_Modify, TDD_DCHs_to_Modify_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -12146,7 +12146,7 @@ static int
 dissect_nbap_DedicatedChannelsCapacityConsumptionLaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DedicatedChannelsCapacityConsumptionLaw, DedicatedChannelsCapacityConsumptionLaw_sequence_of,
-                                                  1, maxNrOfSF);
+                                                  1, maxNrOfSF, FALSE);
 
   return offset;
 }
@@ -12578,7 +12578,7 @@ static int
 dissect_nbap_DGANSS_SignalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DGANSS_SignalInformation, DGANSS_SignalInformation_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -12609,7 +12609,7 @@ static int
 dissect_nbap_DGANSS_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DGANSS_Information, DGANSS_Information_sequence_of,
-                                                  1, maxSgnType);
+                                                  1, maxSgnType, FALSE);
 
   return offset;
 }
@@ -12777,7 +12777,7 @@ static int
 dissect_nbap_SAT_Info_DGPSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SAT_Info_DGPSCorrections, SAT_Info_DGPSCorrections_sequence_of,
-                                                  1, maxNoSat);
+                                                  1, maxNoSat, FALSE);
 
   return offset;
 }
@@ -13173,7 +13173,7 @@ static int
 dissect_nbap_TDD_DL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_DL_Code_Information, TDD_DL_Code_Information_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -13205,7 +13205,7 @@ static int
 dissect_nbap_DL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_Information, DL_Timeslot_Information_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -13366,7 +13366,7 @@ static int
 dissect_nbap_TDD_DL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_DL_Code_LCR_Information, TDD_DL_Code_LCR_Information_sequence_of,
-                                                  1, maxNrOfDPCHLCRs);
+                                                  1, maxNrOfDPCHLCRs, FALSE);
 
   return offset;
 }
@@ -13398,7 +13398,7 @@ static int
 dissect_nbap_DL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_TimeslotLCR_Information, DL_TimeslotLCR_Information_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -13670,7 +13670,7 @@ static int
 dissect_nbap_TDD_DL_Code_768_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_DL_Code_768_Information, TDD_DL_Code_768_Information_sequence_of,
-                                                  1, maxNrOfDPCHs768);
+                                                  1, maxNrOfDPCHs768, FALSE);
 
   return offset;
 }
@@ -13702,7 +13702,7 @@ static int
 dissect_nbap_DL_Timeslot768_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot768_Information, DL_Timeslot768_Information_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -13795,7 +13795,7 @@ static int
 dissect_nbap_DL_ReferencePowerInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_ReferencePowerInformationList, DL_ReferencePowerInformationList_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -13925,7 +13925,7 @@ static int
 dissect_nbap_DL_TimeslotISCPInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_TimeslotISCPInfo, DL_TimeslotISCPInfo_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -13955,7 +13955,7 @@ static int
 dissect_nbap_DL_TimeslotISCPInfoLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_TimeslotISCPInfoLCR, DL_TimeslotISCPInfoLCR_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -14006,7 +14006,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst, DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSPDSCHs);
+                                                  1, maxNrOfHSPDSCHs, FALSE);
 
   return offset;
 }
@@ -14048,7 +14048,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst, DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -14115,7 +14115,7 @@ static int
 dissect_nbap_DSCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DSCH_InformationResponse, DSCH_InformationResponse_sequence_of,
-                                                  1, maxNrOfDSCHs);
+                                                  1, maxNrOfDSCHs, FALSE);
 
   return offset;
 }
@@ -14150,7 +14150,7 @@ static int
 dissect_nbap_DSCH_TDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DSCH_TDD_Information, DSCH_TDD_Information_sequence_of,
-                                                  1, maxNrOfDSCHs);
+                                                  1, maxNrOfDSCHs, FALSE);
 
   return offset;
 }
@@ -14190,7 +14190,7 @@ static int
 dissect_nbap_E_AGCH_FDD_Code_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_FDD_Code_List, E_AGCH_FDD_Code_List_sequence_of,
-                                                  1, maxNrOfE_AGCHs);
+                                                  1, maxNrOfE_AGCHs, FALSE);
 
   return offset;
 }
@@ -14274,7 +14274,7 @@ static int
 dissect_nbap_E_DCH_SF_allocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_SF_allocation, E_DCH_SF_allocation_sequence_of,
-                                                  1, maxNrOfCombEDPDCH);
+                                                  1, maxNrOfCombEDPDCH, FALSE);
 
   return offset;
 }
@@ -14533,7 +14533,7 @@ static int
 dissect_nbap_E_DCH_MACdPDU_SizeList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdPDU_SizeList, E_DCH_MACdPDU_SizeList_sequence_of,
-                                                  1, maxNrOfMACdPDUSize);
+                                                  1, maxNrOfMACdPDUSize, FALSE);
 
   return offset;
 }
@@ -14567,7 +14567,7 @@ static int
 dissect_nbap_E_DCH_LogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_LogicalChannelInformation, E_DCH_LogicalChannelInformation_sequence_of,
-                                                  1, maxNoOfLogicalChannels);
+                                                  1, maxNoOfLogicalChannels, FALSE);
 
   return offset;
 }
@@ -14605,7 +14605,7 @@ static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlow_Specific_InfoList, E_DCH_MACdFlow_Specific_InfoList_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -14691,7 +14691,7 @@ static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InformationResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlow_Specific_InformationResp, E_DCH_MACdFlow_Specific_InformationResp_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -14721,7 +14721,7 @@ static int
 dissect_nbap_E_DCH_MACdPDU_SizeToModifyList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdPDU_SizeToModifyList, E_DCH_MACdPDU_SizeToModifyList_sequence_of,
-                                                  0, maxNrOfMACdPDUSize);
+                                                  0, maxNrOfMACdPDUSize, FALSE);
 
   return offset;
 }
@@ -14755,7 +14755,7 @@ static int
 dissect_nbap_E_DCH_LogicalChannelToModify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_LogicalChannelToModify, E_DCH_LogicalChannelToModify_sequence_of,
-                                                  1, maxNoOfLogicalChannels);
+                                                  1, maxNoOfLogicalChannels, FALSE);
 
   return offset;
 }
@@ -14784,7 +14784,7 @@ static int
 dissect_nbap_E_DCH_LogicalChannelToDelete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_LogicalChannelToDelete, E_DCH_LogicalChannelToDelete_sequence_of,
-                                                  1, maxNoOfLogicalChannels);
+                                                  1, maxNoOfLogicalChannels, FALSE);
 
   return offset;
 }
@@ -14824,7 +14824,7 @@ static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify, E_DCH_MACdFlow_Specific_InfoList_to_Modify_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -14889,7 +14889,7 @@ static int
 dissect_nbap_E_DCH_MACdFlow_Specific_UpdateInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlow_Specific_UpdateInformation, E_DCH_MACdFlow_Specific_UpdateInformation_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -14934,7 +14934,7 @@ static int
 dissect_nbap_E_DCH_DL_Control_Channel_Change_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_DL_Control_Channel_Change_Information, E_DCH_DL_Control_Channel_Change_Information_sequence_of,
-                                                  1, maxNrOfEDCHRLs);
+                                                  1, maxNrOfEDCHRLs, FALSE);
 
   return offset;
 }
@@ -14963,7 +14963,7 @@ static int
 dissect_nbap_E_DCH_DL_Control_Channel_Grant_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_DL_Control_Channel_Grant_Information, E_DCH_DL_Control_Channel_Grant_Information_sequence_of,
-                                                  1, maxNrOfEDCHRLs);
+                                                  1, maxNrOfEDCHRLs, FALSE);
 
   return offset;
 }
@@ -15024,7 +15024,7 @@ static int
 dissect_nbap_E_DCH_MACdFlows_to_Delete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlows_to_Delete, E_DCH_MACdFlows_to_Delete_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -15110,7 +15110,7 @@ static int
 dissect_nbap_E_DCH_RL_InformationList_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_RL_InformationList_Rsp, E_DCH_RL_InformationList_Rsp_sequence_of,
-                                                  0, maxNrOfRLs);
+                                                  0, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -15227,7 +15227,7 @@ static int
 dissect_nbap_EDCH_RACH_Report_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_EDCH_RACH_Report_Value, EDCH_RACH_Report_Value_sequence_of,
-                                                  1, maxNrOfCommonEDCH);
+                                                  1, maxNrOfCommonEDCH, FALSE);
 
   return offset;
 }
@@ -15265,7 +15265,7 @@ static int
 dissect_nbap_E_DCH_MACdFlows_to_DeleteLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlows_to_DeleteLCR, E_DCH_MACdFlows_to_DeleteLCR_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlowsLCR);
+                                                  1, maxNrOfEDCHMACdFlowsLCR, FALSE);
 
   return offset;
 }
@@ -15366,7 +15366,7 @@ static int
 dissect_nbap_E_RGCH_E_HICH_FDD_Code_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_RGCH_E_HICH_FDD_Code_List, E_RGCH_E_HICH_FDD_Code_List_sequence_of,
-                                                  1, maxNrOfE_RGCHs_E_HICHs);
+                                                  1, maxNrOfE_RGCHs_E_HICHs, FALSE);
 
   return offset;
 }
@@ -15454,7 +15454,7 @@ static int
 dissect_nbap_E_DCHProvidedBitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCHProvidedBitRate, E_DCHProvidedBitRate_sequence_of,
-                                                  1, maxNrOfPriorityClasses);
+                                                  1, maxNrOfPriorityClasses, FALSE);
 
   return offset;
 }
@@ -15588,7 +15588,7 @@ static int
 dissect_nbap_E_DCH_MACdFlows_Information_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_MACdFlows_Information_TDD, E_DCH_MACdFlows_Information_TDD_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -15756,7 +15756,7 @@ static int
 dissect_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp, E_DCH_TDD_MACdFlow_Specific_InformationResp_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -15785,7 +15785,7 @@ static int
 dissect_nbap_E_AGCH_Specific_InformationRespListTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_Specific_InformationRespListTDD, E_AGCH_Specific_InformationRespListTDD_sequence_of,
-                                                  1, maxNrOfEAGCHCodes);
+                                                  1, maxNrOfEAGCHCodes, FALSE);
 
   return offset;
 }
@@ -15825,7 +15825,7 @@ static int
 dissect_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD, Scheduled_E_HICH_Specific_Information_ResponseLCRTDD_sequence_of,
-                                                  1, maxNrOfEHICHCodes);
+                                                  1, maxNrOfEHICHCodes, FALSE);
 
   return offset;
 }
@@ -15901,7 +15901,7 @@ static int
 dissect_nbap_E_DCH_TDD_Information_to_Modify_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_TDD_Information_to_Modify_List, E_DCH_TDD_Information_to_Modify_List_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -16448,7 +16448,7 @@ static int
 dissect_nbap_FDD_DL_CodeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FDD_DL_CodeInformation, FDD_DL_CodeInformation_sequence_of,
-                                                  1, maxNrOfCodes);
+                                                  1, maxNrOfCodes, FALSE);
 
   return offset;
 }
@@ -17221,7 +17221,7 @@ static int
 dissect_nbap_Ganss_Sat_Info_AddNavList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Ganss_Sat_Info_AddNavList, Ganss_Sat_Info_AddNavList_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -17330,7 +17330,7 @@ static int
 dissect_nbap_GANSS_Additional_Time_Models(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_Additional_Time_Models, GANSS_Additional_Time_Models_sequence_of,
-                                                  1, maxGANSS_1);
+                                                  1, maxGANSS_1, FALSE);
 
   return offset;
 }
@@ -17503,7 +17503,7 @@ static int
 dissect_nbap_GANSS_SatelliteInformationKP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SatelliteInformationKP, GANSS_SatelliteInformationKP_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17559,7 +17559,7 @@ static int
 dissect_nbap_GANSS_SAT_Info_Almanac_NAVkpList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SAT_Info_Almanac_NAVkpList, GANSS_SAT_Info_Almanac_NAVkpList_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17610,7 +17610,7 @@ static int
 dissect_nbap_GANSS_SAT_Info_Almanac_REDkpList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SAT_Info_Almanac_REDkpList, GANSS_SAT_Info_Almanac_REDkpList_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17667,7 +17667,7 @@ static int
 dissect_nbap_GANSS_SAT_Info_Almanac_MIDIkpList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SAT_Info_Almanac_MIDIkpList, GANSS_SAT_Info_Almanac_MIDIkpList_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17724,7 +17724,7 @@ static int
 dissect_nbap_GANSS_SAT_Info_Almanac_GLOkpList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SAT_Info_Almanac_GLOkpList, GANSS_SAT_Info_Almanac_GLOkpList_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17787,7 +17787,7 @@ static int
 dissect_nbap_GANSS_SAT_Info_Almanac_SBASecefList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_SAT_Info_Almanac_SBASecefList, GANSS_SAT_Info_Almanac_SBASecefList_sequence_of,
-                                                  1, maxGANSSSatAlmanac);
+                                                  1, maxGANSSSatAlmanac, FALSE);
 
   return offset;
 }
@@ -17878,7 +17878,7 @@ static int
 dissect_nbap_GANSS_AuxInfoGANSS_ID1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_AuxInfoGANSS_ID1, GANSS_AuxInfoGANSS_ID1_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -17919,7 +17919,7 @@ static int
 dissect_nbap_GANSS_AuxInfoGANSS_ID3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_AuxInfoGANSS_ID3, GANSS_AuxInfoGANSS_ID3_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -18010,7 +18010,7 @@ static int
 dissect_nbap_GANSS_Clock_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_Clock_Model, GANSS_Clock_Model_sequence_of,
-                                                  1, maxGANSSClockMod);
+                                                  1, maxGANSSClockMod, FALSE);
 
   return offset;
 }
@@ -18189,7 +18189,7 @@ static int
 dissect_nbap_GANSS_DataBitAssistanceSgnList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_DataBitAssistanceSgnList, GANSS_DataBitAssistanceSgnList_sequence_of,
-                                                  1, maxSgnType);
+                                                  1, maxSgnType, FALSE);
 
   return offset;
 }
@@ -18219,7 +18219,7 @@ static int
 dissect_nbap_GANSS_DataBitAssistanceList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_DataBitAssistanceList, GANSS_DataBitAssistanceList_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -18259,7 +18259,7 @@ static int
 dissect_nbap_T_ganss_SatelliteInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_T_ganss_SatelliteInfo, T_ganss_SatelliteInfo_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -18393,7 +18393,7 @@ static int
 dissect_nbap_GANSS_GenericDataInfoReqList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_GenericDataInfoReqList, GANSS_GenericDataInfoReqList_sequence_of,
-                                                  1, maxNoGANSS);
+                                                  1, maxNoGANSS, FALSE);
 
   return offset;
 }
@@ -18491,7 +18491,7 @@ static int
 dissect_nbap_GANSS_Sat_Info_Nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_Sat_Info_Nav, GANSS_Sat_Info_Nav_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -18560,7 +18560,7 @@ static int
 dissect_nbap_GANSS_Real_Time_Integrity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_Real_Time_Integrity, GANSS_Real_Time_Integrity_sequence_of,
-                                                  1, maxGANSSSat);
+                                                  1, maxGANSSSat, FALSE);
 
   return offset;
 }
@@ -18596,7 +18596,7 @@ static int
 dissect_nbap_GANSS_Generic_Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GANSS_Generic_Data, GANSS_Generic_Data_sequence_of,
-                                                  1, maxNoGANSS);
+                                                  1, maxNoGANSS, FALSE);
 
   return offset;
 }
@@ -18701,7 +18701,7 @@ static int
 dissect_nbap_SAT_Info_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SAT_Info_Almanac, SAT_Info_Almanac_sequence_of,
-                                                  1, maxNoSat);
+                                                  1, maxNoSat, FALSE);
 
   return offset;
 }
@@ -18761,7 +18761,7 @@ static int
 dissect_nbap_GPS_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GPS_Information, GPS_Information_sequence_of,
-                                                  0, maxNoGPSItems);
+                                                  0, maxNoGPSItems, FALSE);
 
   return offset;
 }
@@ -18790,7 +18790,7 @@ static int
 dissect_nbap_SATInfo_RealTime_Integrity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SATInfo_RealTime_Integrity, SATInfo_RealTime_Integrity_sequence_of,
-                                                  1, maxNoSat);
+                                                  1, maxNoSat, FALSE);
 
   return offset;
 }
@@ -18911,7 +18911,7 @@ static int
 dissect_nbap_GPS_NavigationModel_and_TimeRecovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_GPS_NavigationModel_and_TimeRecovery, GPS_NavigationModel_and_TimeRecovery_sequence_of,
-                                                  1, maxNoSat);
+                                                  1, maxNoSat, FALSE);
 
   return offset;
 }
@@ -19123,7 +19123,7 @@ static int
 dissect_nbap_HARQ_MemoryPartitioningList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HARQ_MemoryPartitioningList, HARQ_MemoryPartitioningList_sequence_of,
-                                                  1, maxNrOfHARQProcesses);
+                                                  1, maxNrOfHARQProcesses, FALSE);
 
   return offset;
 }
@@ -19174,7 +19174,7 @@ static int
 dissect_nbap_HARQ_MemoryPartitioningInfoExtForMIMO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HARQ_MemoryPartitioningInfoExtForMIMO, HARQ_MemoryPartitioningInfoExtForMIMO_sequence_of,
-                                                  4, 8);
+                                                  4, 8, FALSE);
 
   return offset;
 }
@@ -19261,7 +19261,7 @@ static int
 dissect_nbap_HS_DSCHProvidedBitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_DSCHProvidedBitRate, HS_DSCHProvidedBitRate_sequence_of,
-                                                  1, maxNrOfPriorityClasses);
+                                                  1, maxNrOfPriorityClasses, FALSE);
 
   return offset;
 }
@@ -19291,7 +19291,7 @@ static int
 dissect_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion, HS_DSCHProvidedBitRateValueInformation_For_CellPortion_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -19341,7 +19341,7 @@ static int
 dissect_nbap_HS_DSCHRequiredPowerPerUEInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_DSCHRequiredPowerPerUEInformation, HS_DSCHRequiredPowerPerUEInformation_sequence_of,
-                                                  1, maxNrOfContextsOnUeList);
+                                                  1, maxNrOfContextsOnUeList, FALSE);
 
   return offset;
 }
@@ -19372,7 +19372,7 @@ static int
 dissect_nbap_HS_DSCHRequiredPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_DSCHRequiredPower, HS_DSCHRequiredPower_sequence_of,
-                                                  1, maxNrOfPriorityClasses);
+                                                  1, maxNrOfPriorityClasses, FALSE);
 
   return offset;
 }
@@ -19402,7 +19402,7 @@ static int
 dissect_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion, HS_DSCHRequiredPowerValueInformation_For_CellPortion_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -19566,7 +19566,7 @@ static int
 dissect_nbap_HSSCCH_Specific_InformationRespListFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSCCH_Specific_InformationRespListFDD, HSSCCH_Specific_InformationRespListFDD_sequence_of,
-                                                  1, maxNrOfHSSCCHCodes);
+                                                  1, maxNrOfHSSCCHCodes, FALSE);
 
   return offset;
 }
@@ -19625,7 +19625,7 @@ static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_MACdFlow_Specific_InfoList, HSDSCH_MACdFlow_Specific_InfoList_sequence_of,
-                                                  1, maxNrOfMACdFlows);
+                                                  1, maxNrOfMACdFlows, FALSE);
 
   return offset;
 }
@@ -19675,7 +19675,7 @@ static int
 dissect_nbap_MACdPDU_Size_Indexlist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MACdPDU_Size_Indexlist, MACdPDU_Size_Indexlist_sequence_of,
-                                                  1, maxNrOfMACdPDUIndexes);
+                                                  1, maxNrOfMACdPDUIndexes, FALSE);
 
   return offset;
 }
@@ -19728,7 +19728,7 @@ static int
 dissect_nbap_PriorityQueue_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PriorityQueue_InfoList, PriorityQueue_InfoList_sequence_of,
-                                                  1, maxNrOfPriorityQueues);
+                                                  1, maxNrOfPriorityQueues, FALSE);
 
   return offset;
 }
@@ -19875,7 +19875,7 @@ static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify, HSDSCH_MACdFlow_Specific_InfoList_to_Modify_sequence_of,
-                                                  1, maxNrOfMACdFlows);
+                                                  1, maxNrOfMACdFlows, FALSE);
 
   return offset;
 }
@@ -19928,7 +19928,7 @@ static int
 dissect_nbap_MACdPDU_Size_Indexlist_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MACdPDU_Size_Indexlist_to_Modify, MACdPDU_Size_Indexlist_to_Modify_sequence_of,
-                                                  1, maxNrOfMACdPDUIndexes);
+                                                  1, maxNrOfMACdPDUIndexes, FALSE);
 
   return offset;
 }
@@ -19987,7 +19987,7 @@ static int
 dissect_nbap_PriorityQueue_InfoList_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PriorityQueue_InfoList_to_Modify, PriorityQueue_InfoList_to_Modify_sequence_of,
-                                                  1, maxNrOfPriorityQueues);
+                                                  1, maxNrOfPriorityQueues, FALSE);
 
   return offset;
 }
@@ -20093,7 +20093,7 @@ static int
 dissect_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised, PriorityQueue_InfoList_to_Modify_Unsynchronised_sequence_of,
-                                                  1, maxNrOfPriorityQueues);
+                                                  1, maxNrOfPriorityQueues, FALSE);
 
   return offset;
 }
@@ -20146,7 +20146,7 @@ static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_MACdFlow_Specific_InformationResp, HSDSCH_MACdFlow_Specific_InformationResp_sequence_of,
-                                                  1, maxNrOfMACdFlows);
+                                                  1, maxNrOfMACdFlows, FALSE);
 
   return offset;
 }
@@ -20440,7 +20440,7 @@ static int
 dissect_nbap_Paging_MACFlow_PriorityQueue_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Paging_MACFlow_PriorityQueue_Information, Paging_MACFlow_PriorityQueue_Information_sequence_of,
-                                                  1, maxNrOfpagingMACQueues);
+                                                  1, maxNrOfpagingMACQueues, FALSE);
 
   return offset;
 }
@@ -20476,7 +20476,7 @@ static int
 dissect_nbap_Paging_MACFlow_Specific_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Paging_MACFlow_Specific_Information, Paging_MACFlow_Specific_Information_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -20525,7 +20525,7 @@ static int
 dissect_nbap_Transport_Block_Size_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Transport_Block_Size_List, Transport_Block_Size_List_sequence_of,
-                                                  1, maxNrOfHS_DSCHTBSsE_PCH);
+                                                  1, maxNrOfHS_DSCHTBSsE_PCH, FALSE);
 
   return offset;
 }
@@ -20586,7 +20586,7 @@ static int
 dissect_nbap_HSDSCH_Paging_System_Information_ResponseFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_Paging_System_Information_ResponseFDD, HSDSCH_Paging_System_Information_ResponseFDD_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -20646,7 +20646,7 @@ static int
 dissect_nbap_HSSCCH_Specific_InformationRespListTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSCCH_Specific_InformationRespListTDD, HSSCCH_Specific_InformationRespListTDD_sequence_of,
-                                                  1, maxNrOfHSSCCHCodes);
+                                                  1, maxNrOfHSSCCHCodes, FALSE);
 
   return offset;
 }
@@ -20697,7 +20697,7 @@ static int
 dissect_nbap_HSSCCH_Specific_InformationRespListTDDLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSCCH_Specific_InformationRespListTDDLCR, HSSCCH_Specific_InformationRespListTDDLCR_sequence_of,
-                                                  1, maxNrOfHSSCCHCodes);
+                                                  1, maxNrOfHSSCCHCodes, FALSE);
 
   return offset;
 }
@@ -20744,7 +20744,7 @@ static int
 dissect_nbap_HSDSCH_MACdFlows_to_Delete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_MACdFlows_to_Delete, HSDSCH_MACdFlows_to_Delete_sequence_of,
-                                                  1, maxNrOfMACdFlows);
+                                                  1, maxNrOfMACdFlows, FALSE);
 
   return offset;
 }
@@ -20783,7 +20783,7 @@ static int
 dissect_nbap_HS_SCCH_PreconfiguredCodes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_PreconfiguredCodes, HS_SCCH_PreconfiguredCodes_sequence_of,
-                                                  1, maxNrOfHSSCCHCodes);
+                                                  1, maxNrOfHSSCCHCodes, FALSE);
 
   return offset;
 }
@@ -20814,7 +20814,7 @@ static int
 dissect_nbap_SetsOfHS_SCCH_Codes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SetsOfHS_SCCH_Codes, SetsOfHS_SCCH_Codes_sequence_of,
-                                                  1, maxNrOfHSDSCH);
+                                                  1, maxNrOfHSDSCH, FALSE);
 
   return offset;
 }
@@ -20915,7 +20915,7 @@ static int
 dissect_nbap_SecondaryServingCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SecondaryServingCells, SecondaryServingCells_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -20999,7 +20999,7 @@ static int
 dissect_nbap_HSSCCH_Specific_InformationRespListTDD768(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSCCH_Specific_InformationRespListTDD768, HSSCCH_Specific_InformationRespListTDD768_sequence_of,
-                                                  1, maxNrOfHSSCCHCodes);
+                                                  1, maxNrOfHSSCCHCodes, FALSE);
 
   return offset;
 }
@@ -21126,7 +21126,7 @@ static int
 dissect_nbap_HS_SCCH_FDD_Code_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_FDD_Code_List, HS_SCCH_FDD_Code_List_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -21453,7 +21453,7 @@ static int
 dissect_nbap_HSSCCH_Specific_InformationRespListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSCCH_Specific_InformationRespListLCR, HSSCCH_Specific_InformationRespListLCR_sequence_of,
-                                                  1, maxNrOfHSSCCHsLCR);
+                                                  1, maxNrOfHSSCCHsLCR, FALSE);
 
   return offset;
 }
@@ -21507,7 +21507,7 @@ static int
 dissect_nbap_Paging_MACFlow_Specific_InformationLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Paging_MACFlow_Specific_InformationLCR, Paging_MACFlow_Specific_InformationLCR_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -21590,7 +21590,7 @@ static int
 dissect_nbap_HSDSCH_Paging_System_Information_ResponseLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_Paging_System_Information_ResponseLCR, HSDSCH_Paging_System_Information_ResponseLCR_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -22438,7 +22438,7 @@ static int
 dissect_nbap_MessageStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MessageStructure, MessageStructure_sequence_of,
-                                                  1, maxNrOfLevels);
+                                                  1, maxNrOfLevels, FALSE);
 
   return offset;
 }
@@ -22768,7 +22768,7 @@ static int
 dissect_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR, MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_sequence_of,
-                                                  1, maxHSDPAFrequency_1);
+                                                  1, maxHSDPAFrequency_1, FALSE);
 
   return offset;
 }
@@ -22813,7 +22813,7 @@ static int
 dissect_nbap_Possible_Secondary_Serving_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Possible_Secondary_Serving_Cell_List, Possible_Secondary_Serving_Cell_List_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -22999,7 +22999,7 @@ static int
 dissect_nbap_NeighbouringCellMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_NeighbouringCellMeasurementInformation, NeighbouringCellMeasurementInformation_sequence_of,
-                                                  1, maxNrOfMeasNCell);
+                                                  1, maxNrOfMeasNCell, FALSE);
 
   return offset;
 }
@@ -23061,7 +23061,7 @@ static int
 dissect_nbap_NI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_NI_Information, NI_Information_sequence_of,
-                                                  1, maxNrOfNIs);
+                                                  1, maxNrOfNIs, FALSE);
 
   return offset;
 }
@@ -23207,7 +23207,7 @@ static int
 dissect_nbap_Paging_MACFlows_to_DeleteFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Paging_MACFlows_to_DeleteFDD, Paging_MACFlows_to_DeleteFDD_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -23404,7 +23404,7 @@ static int
 dissect_nbap_Paging_MACFlows_to_DeleteLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Paging_MACFlows_to_DeleteLCR, Paging_MACFlows_to_DeleteLCR_sequence_of,
-                                                  1, maxNrOfPagingMACFlow);
+                                                  1, maxNrOfPagingMACFlow, FALSE);
 
   return offset;
 }
@@ -23463,7 +23463,7 @@ static int
 dissect_nbap_RL_Specific_DCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Specific_DCH_Info, RL_Specific_DCH_Info_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -23494,7 +23494,7 @@ static int
 dissect_nbap_RL_Specific_E_DCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Specific_E_DCH_Information, RL_Specific_E_DCH_Information_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -24084,7 +24084,7 @@ static int
 dissect_nbap_Received_total_wide_band_power_For_CellPortion_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Received_total_wide_band_power_For_CellPortion_Value, Received_total_wide_band_power_For_CellPortion_Value_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -24125,7 +24125,7 @@ static int
 dissect_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value, Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -24334,7 +24334,7 @@ static int
 dissect_nbap_SAT_Info_Almanac_ExtList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SAT_Info_Almanac_ExtList, SAT_Info_Almanac_ExtList_sequence_of,
-                                                  1, maxNrOfSatAlmanac_maxNoSat);
+                                                  1, maxNrOfSatAlmanac_maxNoSat, FALSE);
 
   return offset;
 }
@@ -24626,7 +24626,7 @@ static int
 dissect_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of,
-                                                  1, maxNrOfMeasNCell);
+                                                  1, maxNrOfMeasNCell, FALSE);
 
   return offset;
 }
@@ -24655,7 +24655,7 @@ static int
 dissect_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation, T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of,
-                                                  0, maxNrOfMeasNCell_1);
+                                                  0, maxNrOfMeasNCell_1, FALSE);
 
   return offset;
 }
@@ -24915,7 +24915,7 @@ static int
 dissect_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem, SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem_sequence_of,
-                                                  1, maxNrOfReceptsPerSyncFrame);
+                                                  1, maxNrOfReceptsPerSyncFrame, FALSE);
 
   return offset;
 }
@@ -24945,7 +24945,7 @@ static int
 dissect_nbap_SynchronisationReportCharactThreExc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SynchronisationReportCharactThreExc, SynchronisationReportCharactThreExc_sequence_of,
-                                                  1, maxNrOfCellSyncBursts);
+                                                  1, maxNrOfCellSyncBursts, FALSE);
 
   return offset;
 }
@@ -24992,7 +24992,7 @@ static int
 dissect_nbap_SyncDLCodeInfoListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SyncDLCodeInfoListLCR, SyncDLCodeInfoListLCR_sequence_of,
-                                                  1, maxNrOfSyncDLCodesLCR);
+                                                  1, maxNrOfSyncDLCodesLCR, FALSE);
 
   return offset;
 }
@@ -25022,7 +25022,7 @@ static int
 dissect_nbap_SyncDLCodeIdThreInfoLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SyncDLCodeIdThreInfoLCR, SyncDLCodeIdThreInfoLCR_sequence_of,
-                                                  0, maxNrOfSyncFramesLCR);
+                                                  0, maxNrOfSyncFramesLCR, FALSE);
 
   return offset;
 }
@@ -25202,7 +25202,7 @@ static int
 dissect_nbap_TDD_UL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_UL_Code_Information, TDD_UL_Code_Information_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -25275,7 +25275,7 @@ static int
 dissect_nbap_TDD_UL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_UL_Code_LCR_Information, TDD_UL_Code_LCR_Information_sequence_of,
-                                                  1, maxNrOfDPCHLCRs);
+                                                  1, maxNrOfDPCHLCRs, FALSE);
 
   return offset;
 }
@@ -25305,7 +25305,7 @@ static int
 dissect_nbap_TDD_UL_Code_768_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TDD_UL_Code_768_Information, TDD_UL_Code_768_Information_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -25574,7 +25574,7 @@ static int
 dissect_nbap_Transmission_Gap_Pattern_Sequence_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Transmission_Gap_Pattern_Sequence_Information, Transmission_Gap_Pattern_Sequence_Information_sequence_of,
-                                                  1, maxTGPS);
+                                                  1, maxTGPS, FALSE);
 
   return offset;
 }
@@ -25614,7 +25614,7 @@ static int
 dissect_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue, TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -25644,7 +25644,7 @@ static int
 dissect_nbap_Transmitted_Carrier_Power_For_CellPortion_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Transmitted_Carrier_Power_For_CellPortion_Value, Transmitted_Carrier_Power_For_CellPortion_Value_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -25741,7 +25741,7 @@ static int
 dissect_nbap_TFCS_TFCSList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TFCS_TFCSList, TFCS_TFCSList_sequence_of,
-                                                  1, maxNrOfTFCs);
+                                                  1, maxNrOfTFCs, FALSE);
 
   return offset;
 }
@@ -26103,7 +26103,7 @@ static int
 dissect_nbap_UL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_Information, UL_Timeslot_Information_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -26135,7 +26135,7 @@ static int
 dissect_nbap_UL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_TimeslotLCR_Information, UL_TimeslotLCR_Information_sequence_of,
-                                                  1, maxNrOfULTSLCRs);
+                                                  1, maxNrOfULTSLCRs, FALSE);
 
   return offset;
 }
@@ -26167,7 +26167,7 @@ static int
 dissect_nbap_UL_Timeslot768_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot768_Information, UL_Timeslot768_Information_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -26259,7 +26259,7 @@ static int
 dissect_nbap_UL_TimeSlot_ISCP_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_TimeSlot_ISCP_Info, UL_TimeSlot_ISCP_Info_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -26289,7 +26289,7 @@ static int
 dissect_nbap_UL_TimeSlot_ISCP_LCR_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_TimeSlot_ISCP_LCR_Info, UL_TimeSlot_ISCP_LCR_Info_sequence_of,
-                                                  1, maxNrOfULTSLCRs);
+                                                  1, maxNrOfULTSLCRs, FALSE);
 
   return offset;
 }
@@ -26357,7 +26357,7 @@ static int
 dissect_nbap_USCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_USCH_Information, USCH_Information_sequence_of,
-                                                  1, maxNrOfUSCHs);
+                                                  1, maxNrOfUSCHs, FALSE);
 
   return offset;
 }
@@ -26388,7 +26388,7 @@ static int
 dissect_nbap_USCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_USCH_InformationResponse, USCH_InformationResponse_sequence_of,
-                                                  1, maxNrOfUSCHs);
+                                                  1, maxNrOfUSCHs, FALSE);
 
   return offset;
 }
@@ -26492,7 +26492,7 @@ static int
 dissect_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD, AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_sequence_of,
-                                                  1, maxNrOfSlotFormatsPRACH);
+                                                  1, maxNrOfSlotFormatsPRACH, FALSE);
 
   return offset;
 }
@@ -26601,7 +26601,7 @@ static int
 dissect_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD, FACH_ParametersListIE_CTCH_SetupRqstFDD_sequence_of,
-                                                  1, maxNrOfFACHs);
+                                                  1, maxNrOfFACHs, FALSE);
 
   return offset;
 }
@@ -26831,7 +26831,7 @@ static int
 dissect_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD, Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHs);
+                                                  1, maxNrOfSCCPCHs, FALSE);
 
   return offset;
 }
@@ -26868,7 +26868,7 @@ static int
 dissect_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD, Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHLCRs);
+                                                  1, maxNrOfSCCPCHLCRs, FALSE);
 
   return offset;
 }
@@ -26905,7 +26905,7 @@ static int
 dissect_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD, Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHs768);
+                                                  1, maxNrOfSCCPCHs768, FALSE);
 
   return offset;
 }
@@ -26938,7 +26938,7 @@ static int
 dissect_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD, FACH_ParametersListIE_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfFACHs);
+                                                  1, maxNrOfFACHs, FALSE);
 
   return offset;
 }
@@ -27165,7 +27165,7 @@ static int
 dissect_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD, TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, 7);
+                                                  1, 7, FALSE);
 
   return offset;
 }
@@ -27179,7 +27179,7 @@ static int
 dissect_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD, Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHsinExt);
+                                                  1, maxNrOfSCCPCHsinExt, FALSE);
 
   return offset;
 }
@@ -27193,7 +27193,7 @@ static int
 dissect_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD, Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHsLCRinExt);
+                                                  1, maxNrOfSCCPCHsLCRinExt, FALSE);
 
   return offset;
 }
@@ -27273,7 +27273,7 @@ static int
 dissect_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD, PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfPRACHLCRs);
+                                                  1, maxNrOfPRACHLCRs, FALSE);
 
   return offset;
 }
@@ -27399,7 +27399,7 @@ static int
 dissect_nbap_FACH_CommonTransportChannel_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_CommonTransportChannel_InformationResponse, FACH_CommonTransportChannel_InformationResponse_sequence_of,
-                                                  1, maxNrOfFACHs);
+                                                  1, maxNrOfFACHs, FALSE);
 
   return offset;
 }
@@ -27563,7 +27563,7 @@ static int
 dissect_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD, FACH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of,
-                                                  1, maxFACHCell);
+                                                  1, maxFACHCell, FALSE);
 
   return offset;
 }
@@ -27642,7 +27642,7 @@ static int
 dissect_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD, AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_sequence_of,
-                                                  1, maxNrOfSlotFormatsPRACH);
+                                                  1, maxNrOfSlotFormatsPRACH, FALSE);
 
   return offset;
 }
@@ -27674,7 +27674,7 @@ static int
 dissect_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD, PRACH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -27704,7 +27704,7 @@ static int
 dissect_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD, AICH_ParametersListIE_CTCH_ReconfRqstFDD_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -27774,7 +27774,7 @@ static int
 dissect_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD, Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHs);
+                                                  1, maxNrOfSCCPCHs, FALSE);
 
   return offset;
 }
@@ -27788,7 +27788,7 @@ static int
 dissect_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD, Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHsinExt);
+                                                  1, maxNrOfSCCPCHsinExt, FALSE);
 
   return offset;
 }
@@ -27802,7 +27802,7 @@ static int
 dissect_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD, Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHsLCRinExt);
+                                                  1, maxNrOfSCCPCHsLCRinExt, FALSE);
 
   return offset;
 }
@@ -27849,7 +27849,7 @@ static int
 dissect_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD, FACH_ParametersList_CTCH_ReconfRqstTDD_sequence_of,
-                                                  0, maxNrOfFACHs);
+                                                  0, maxNrOfFACHs, FALSE);
 
   return offset;
 }
@@ -27943,7 +27943,7 @@ static int
 dissect_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD, Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSCCPCHs768);
+                                                  1, maxNrOfSCCPCHs768, FALSE);
 
   return offset;
 }
@@ -28186,7 +28186,7 @@ static int
 dissect_nbap_Cell_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_InformationList_AuditRsp, Cell_InformationList_AuditRsp_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -28227,7 +28227,7 @@ static int
 dissect_nbap_S_CPICH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CPICH_InformationList_AuditRsp, S_CPICH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxSCPICHCell);
+                                                  1, maxSCPICHCell, FALSE);
 
   return offset;
 }
@@ -28259,7 +28259,7 @@ static int
 dissect_nbap_S_CCPCH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_InformationList_AuditRsp, S_CCPCH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxSCCPCHCell);
+                                                  1, maxSCCPCHCell, FALSE);
 
   return offset;
 }
@@ -28291,7 +28291,7 @@ static int
 dissect_nbap_FACH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_InformationList_AuditRsp, FACH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxFACHCell);
+                                                  1, maxFACHCell, FALSE);
 
   return offset;
 }
@@ -28305,7 +28305,7 @@ static int
 dissect_nbap_PRACH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_InformationList_AuditRsp, PRACH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -28319,7 +28319,7 @@ static int
 dissect_nbap_RACH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RACH_InformationList_AuditRsp, RACH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxRACHCell);
+                                                  1, maxRACHCell, FALSE);
 
   return offset;
 }
@@ -28333,7 +28333,7 @@ static int
 dissect_nbap_AICH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AICH_InformationList_AuditRsp, AICH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -28393,7 +28393,7 @@ static int
 dissect_nbap_FPACH_LCR_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FPACH_LCR_InformationList_AuditRsp, FPACH_LCR_InformationList_AuditRsp_sequence_of,
-                                                  1, maxFPACHCell);
+                                                  1, maxFPACHCell, FALSE);
 
   return offset;
 }
@@ -28423,7 +28423,7 @@ static int
 dissect_nbap_S_CCPCH_InformationListExt_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_InformationListExt_AuditRsp, S_CCPCH_InformationListExt_AuditRsp_sequence_of,
-                                                  1, maxSCCPCHCellinExt);
+                                                  1, maxSCCPCHCellinExt, FALSE);
 
   return offset;
 }
@@ -28437,7 +28437,7 @@ static int
 dissect_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp, S_CCPCH_LCR_InformationListExt_AuditRsp_sequence_of,
-                                                  1, maxSCCPCHCellinExtLCR);
+                                                  1, maxSCCPCHCellinExtLCR, FALSE);
 
   return offset;
 }
@@ -28467,7 +28467,7 @@ static int
 dissect_nbap_PLCCH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PLCCH_InformationList_AuditRsp, PLCCH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxPLCCHCell);
+                                                  1, maxPLCCHCell, FALSE);
 
   return offset;
 }
@@ -28481,7 +28481,7 @@ static int
 dissect_nbap_S_CCPCH_768_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_768_InformationList_AuditRsp, S_CCPCH_768_InformationList_AuditRsp_sequence_of,
-                                                  1, maxSCCPCHCell768);
+                                                  1, maxSCCPCHCell768, FALSE);
 
   return offset;
 }
@@ -28495,7 +28495,7 @@ static int
 dissect_nbap_PRACH_768_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_768_InformationList_AuditRsp, PRACH_768_InformationList_AuditRsp_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -28509,7 +28509,7 @@ static int
 dissect_nbap_E_RUCCH_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_RUCCH_InformationList_AuditRsp, E_RUCCH_InformationList_AuditRsp_sequence_of,
-                                                  1, maxE_RUCCHCell);
+                                                  1, maxE_RUCCHCell, FALSE);
 
   return offset;
 }
@@ -28523,7 +28523,7 @@ static int
 dissect_nbap_E_RUCCH_768_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_RUCCH_768_InformationList_AuditRsp, E_RUCCH_768_InformationList_AuditRsp_sequence_of,
-                                                  1, maxE_RUCCHCell);
+                                                  1, maxE_RUCCHCell, FALSE);
 
   return offset;
 }
@@ -28537,7 +28537,7 @@ static int
 dissect_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp, Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp_sequence_of,
-                                                  1, maxFrequencyinCell);
+                                                  1, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -28568,7 +28568,7 @@ static int
 dissect_nbap_UPPCH_LCR_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UPPCH_LCR_InformationList_AuditRsp, UPPCH_LCR_InformationList_AuditRsp_sequence_of,
-                                                  1, maxFrequencyinCell);
+                                                  1, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -28600,7 +28600,7 @@ static int
 dissect_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp, MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -28614,7 +28614,7 @@ static int
 dissect_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp, MultipleFreq_E_DCH_Resources_InformationList_AuditRsp_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -28628,7 +28628,7 @@ static int
 dissect_nbap_CCP_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCP_InformationList_AuditRsp, CCP_InformationList_AuditRsp_sequence_of,
-                                                  1, maxCCPinNodeB);
+                                                  1, maxCCPinNodeB, FALSE);
 
   return offset;
 }
@@ -28659,7 +28659,7 @@ static int
 dissect_nbap_Local_Cell_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_InformationList_AuditRsp, Local_Cell_InformationList_AuditRsp_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -28696,7 +28696,7 @@ static int
 dissect_nbap_Local_Cell_Group_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_Group_InformationList_AuditRsp, Local_Cell_Group_InformationList_AuditRsp_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -28729,7 +28729,7 @@ static int
 dissect_nbap_Power_Local_Cell_Group_InformationList_AuditRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Power_Local_Cell_Group_InformationList_AuditRsp, Power_Local_Cell_Group_InformationList_AuditRsp_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -29234,7 +29234,7 @@ static int
 dissect_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD, SecondaryCPICH_InformationList_Cell_SetupRqstFDD_sequence_of,
-                                                  1, maxSCPICHCell);
+                                                  1, maxSCPICHCell, FALSE);
 
   return offset;
 }
@@ -29332,7 +29332,7 @@ static int
 dissect_nbap_CellPortion_InformationList_Cell_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellPortion_InformationList_Cell_SetupRqstFDD, CellPortion_InformationList_Cell_SetupRqstFDD_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -29494,7 +29494,7 @@ static int
 dissect_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD, TimeSlotConfigurationList_Cell_SetupRqstTDD_sequence_of,
-                                                  1, 15);
+                                                  1, 15, FALSE);
 
   return offset;
 }
@@ -29525,7 +29525,7 @@ static int
 dissect_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD, TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_sequence_of,
-                                                  1, 7);
+                                                  1, 7, FALSE);
 
   return offset;
 }
@@ -29663,7 +29663,7 @@ static int
 dissect_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD, Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -29787,7 +29787,7 @@ static int
 dissect_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD, SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_sequence_of,
-                                                  1, maxSCPICHCell);
+                                                  1, maxSCPICHCell, FALSE);
 
   return offset;
 }
@@ -29864,7 +29864,7 @@ static int
 dissect_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD, CellPortion_InformationList_Cell_ReconfRqstFDD_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -29958,7 +29958,7 @@ static int
 dissect_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD, TimeSlotConfigurationList_Cell_ReconfRqstTDD_sequence_of,
-                                                  1, 15);
+                                                  1, 15, FALSE);
 
   return offset;
 }
@@ -29989,7 +29989,7 @@ static int
 dissect_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD, TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_sequence_of,
-                                                  1, 7);
+                                                  1, 7, FALSE);
 
   return offset;
 }
@@ -30115,7 +30115,7 @@ static int
 dissect_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD, Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -30243,7 +30243,7 @@ static int
 dissect_nbap_Local_Cell_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_InformationList_ResourceStatusInd, Local_Cell_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30257,7 +30257,7 @@ static int
 dissect_nbap_Local_Cell_Group_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_Group_InformationList_ResourceStatusInd, Local_Cell_Group_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30287,7 +30287,7 @@ static int
 dissect_nbap_Local_Cell_InformationList2_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_InformationList2_ResourceStatusInd, Local_Cell_InformationList2_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30301,7 +30301,7 @@ static int
 dissect_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd, Local_Cell_Group_InformationList2_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30315,7 +30315,7 @@ static int
 dissect_nbap_CCP_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCP_InformationList_ResourceStatusInd, CCP_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxCCPinNodeB);
+                                                  1, maxCCPinNodeB, FALSE);
 
   return offset;
 }
@@ -30329,7 +30329,7 @@ static int
 dissect_nbap_Cell_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_InformationList_ResourceStatusInd, Cell_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30426,7 +30426,7 @@ static int
 dissect_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd, Power_Local_Cell_Group_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30541,7 +30541,7 @@ static int
 dissect_nbap_S_CPICH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CPICH_InformationList_ResourceStatusInd, S_CPICH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxSCPICHCell);
+                                                  1, maxSCPICHCell, FALSE);
 
   return offset;
 }
@@ -30573,7 +30573,7 @@ static int
 dissect_nbap_S_CCPCH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_InformationList_ResourceStatusInd, S_CCPCH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxSCCPCHCell);
+                                                  1, maxSCCPCHCell, FALSE);
 
   return offset;
 }
@@ -30605,7 +30605,7 @@ static int
 dissect_nbap_FACH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FACH_InformationList_ResourceStatusInd, FACH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxFACHCell);
+                                                  1, maxFACHCell, FALSE);
 
   return offset;
 }
@@ -30619,7 +30619,7 @@ static int
 dissect_nbap_PRACH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_InformationList_ResourceStatusInd, PRACH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -30633,7 +30633,7 @@ static int
 dissect_nbap_RACH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RACH_InformationList_ResourceStatusInd, RACH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -30647,7 +30647,7 @@ static int
 dissect_nbap_AICH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_AICH_InformationList_ResourceStatusInd, AICH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -30705,7 +30705,7 @@ static int
 dissect_nbap_FPACH_LCR_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_FPACH_LCR_InformationList_ResourceStatusInd, FPACH_LCR_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxFPACHCell);
+                                                  1, maxFPACHCell, FALSE);
 
   return offset;
 }
@@ -30744,7 +30744,7 @@ static int
 dissect_nbap_S_CCPCH_InformationListExt_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_InformationListExt_ResourceStatusInd, S_CCPCH_InformationListExt_ResourceStatusInd_sequence_of,
-                                                  1, maxSCCPCHCellinExt);
+                                                  1, maxSCCPCHCellinExt, FALSE);
 
   return offset;
 }
@@ -30758,7 +30758,7 @@ static int
 dissect_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd, S_CCPCH_LCR_InformationListExt_ResourceStatusInd_sequence_of,
-                                                  1, maxSCCPCHCellinExtLCR);
+                                                  1, maxSCCPCHCellinExtLCR, FALSE);
 
   return offset;
 }
@@ -30788,7 +30788,7 @@ static int
 dissect_nbap_PLCCH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PLCCH_InformationList_ResourceStatusInd, PLCCH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxPLCCHCell);
+                                                  1, maxPLCCHCell, FALSE);
 
   return offset;
 }
@@ -30802,7 +30802,7 @@ static int
 dissect_nbap_S_CCPCH_768_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_S_CCPCH_768_InformationList_ResourceStatusInd, S_CCPCH_768_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxSCCPCHCell768);
+                                                  1, maxSCCPCHCell768, FALSE);
 
   return offset;
 }
@@ -30816,7 +30816,7 @@ static int
 dissect_nbap_PRACH_768_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PRACH_768_InformationList_ResourceStatusInd, PRACH_768_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxPRACHCell);
+                                                  1, maxPRACHCell, FALSE);
 
   return offset;
 }
@@ -30830,7 +30830,7 @@ static int
 dissect_nbap_E_RUCCH_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_RUCCH_InformationList_ResourceStatusInd, E_RUCCH_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxE_RUCCHCell);
+                                                  1, maxE_RUCCHCell, FALSE);
 
   return offset;
 }
@@ -30844,7 +30844,7 @@ static int
 dissect_nbap_E_RUCCH_768_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_RUCCH_768_InformationList_ResourceStatusInd, E_RUCCH_768_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxE_RUCCHCell);
+                                                  1, maxE_RUCCHCell, FALSE);
 
   return offset;
 }
@@ -30858,7 +30858,7 @@ static int
 dissect_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd, Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd_sequence_of,
-                                                  1, maxFrequencyinCell);
+                                                  1, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -30890,7 +30890,7 @@ static int
 dissect_nbap_UPPCH_LCR_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UPPCH_LCR_InformationList_ResourceStatusInd, UPPCH_LCR_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxFrequencyinCell);
+                                                  1, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -30922,7 +30922,7 @@ static int
 dissect_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd, MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -30936,7 +30936,7 @@ static int
 dissect_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd, Power_Local_Cell_Group_InformationList2_ResourceStatusInd_sequence_of,
-                                                  1, maxLocalCellinNodeB);
+                                                  1, maxLocalCellinNodeB, FALSE);
 
   return offset;
 }
@@ -30966,7 +30966,7 @@ static int
 dissect_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd, MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -31060,7 +31060,7 @@ static int
 dissect_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst, MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_sequence_of,
-                                                  1, maxIB);
+                                                  1, maxIB, FALSE);
 
   return offset;
 }
@@ -31091,7 +31091,7 @@ static int
 dissect_nbap_SegmentInformationListIE_SystemInfoUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SegmentInformationListIE_SystemInfoUpdate, SegmentInformationListIE_SystemInfoUpdate_sequence_of,
-                                                  1, maxIBSEG);
+                                                  1, maxIBSEG, FALSE);
 
   return offset;
 }
@@ -31167,7 +31167,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_RL_Setup_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_RL_Setup_List, Additional_HS_Cell_Information_RL_Setup_List_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -31247,7 +31247,7 @@ static int
 dissect_nbap_RL_InformationList_RL_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_SetupRqstFDD, RL_InformationList_RL_SetupRqstFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -31359,7 +31359,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD, UL_CCTrCH_InformationList_RL_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -31455,7 +31455,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD, DL_CCTrCH_InformationList_RL_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -31484,7 +31484,7 @@ static int
 dissect_nbap_CCTrCH_TPCList_RL_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCTrCH_TPCList_RL_SetupRqstTDD, CCTrCH_TPCList_RL_SetupRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -31636,7 +31636,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_Response_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_Response_List, Additional_HS_Cell_Information_Response_List_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -31650,7 +31650,7 @@ static int
 dissect_nbap_RL_InformationResponseList_RL_SetupRspFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationResponseList_RL_SetupRspFDD, RL_InformationResponseList_RL_SetupRspFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -31848,7 +31848,7 @@ static int
 dissect_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD, Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -31862,7 +31862,7 @@ static int
 dissect_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD, Successful_RL_InformationRespList_RL_SetupFailureFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -32127,7 +32127,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_RL_Addition_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_RL_Addition_List, Additional_HS_Cell_Information_RL_Addition_List_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -32141,7 +32141,7 @@ static int
 dissect_nbap_RL_InformationList_RL_AdditionRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_AdditionRqstFDD, RL_InformationList_RL_AdditionRqstFDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -32242,7 +32242,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD, UL_CCTrCH_InformationList_RL_AdditionRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -32335,7 +32335,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD, DL_CCTrCH_InformationList_RL_AdditionRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -32456,7 +32456,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Change_Information_Response_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Change_Information_Response_List, Additional_HS_Cell_Change_Information_Response_List_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -32470,7 +32470,7 @@ static int
 dissect_nbap_RL_InformationResponseList_RL_AdditionRspFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationResponseList_RL_AdditionRspFDD, RL_InformationResponseList_RL_AdditionRspFDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -32725,7 +32725,7 @@ static int
 dissect_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD, Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -32739,7 +32739,7 @@ static int
 dissect_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD, Successful_RL_InformationRespList_RL_AdditionFailureFDD_sequence_of,
-                                                  1, maxNrOfRLs_2);
+                                                  1, maxNrOfRLs_2, FALSE);
 
   return offset;
 }
@@ -33004,7 +33004,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep, Additional_HS_Cell_Information_RL_Reconf_Prep_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -33113,7 +33113,7 @@ static int
 dissect_nbap_DCH_DeleteList_RL_ReconfPrepFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_DeleteList_RL_ReconfPrepFDD, DCH_DeleteList_RL_ReconfPrepFDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -33127,7 +33127,7 @@ static int
 dissect_nbap_RL_InformationList_RL_ReconfPrepFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_ReconfPrepFDD, RL_InformationList_RL_ReconfPrepFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -33261,7 +33261,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD, UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -33330,7 +33330,7 @@ static int
 dissect_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD, MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -33410,7 +33410,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD, UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -33458,7 +33458,7 @@ static int
 dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -33490,7 +33490,7 @@ static int
 dissect_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD, UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -33538,7 +33538,7 @@ static int
 dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR, UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_sequence_of,
-                                                  1, maxNrOfDPCHLCRs);
+                                                  1, maxNrOfDPCHLCRs, FALSE);
 
   return offset;
 }
@@ -33570,7 +33570,7 @@ static int
 dissect_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD, UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfULTSLCRs);
+                                                  1, maxNrOfULTSLCRs, FALSE);
 
   return offset;
 }
@@ -33600,7 +33600,7 @@ static int
 dissect_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768, UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -33632,7 +33632,7 @@ static int
 dissect_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD, UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -33661,7 +33661,7 @@ static int
 dissect_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD, UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -33714,7 +33714,7 @@ static int
 dissect_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD, MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -33761,7 +33761,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD, UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -33790,7 +33790,7 @@ static int
 dissect_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD, CCTrCH_TPCAddList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -33833,7 +33833,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD, DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -33904,7 +33904,7 @@ static int
 dissect_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD, MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -33951,7 +33951,7 @@ static int
 dissect_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD, CCTrCH_TPCModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -34014,7 +34014,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD, DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -34062,7 +34062,7 @@ static int
 dissect_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  0, maxNrOfDPCHs);
+                                                  0, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -34094,7 +34094,7 @@ static int
 dissect_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -34142,7 +34142,7 @@ static int
 dissect_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDPCHLCRs);
+                                                  1, maxNrOfDPCHLCRs, FALSE);
 
   return offset;
 }
@@ -34174,7 +34174,7 @@ static int
 dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -34204,7 +34204,7 @@ static int
 dissect_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDPCHs768);
+                                                  1, maxNrOfDPCHs768, FALSE);
 
   return offset;
 }
@@ -34236,7 +34236,7 @@ static int
 dissect_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD, DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -34265,7 +34265,7 @@ static int
 dissect_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD, DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDPCHs);
+                                                  1, maxNrOfDPCHs, FALSE);
 
   return offset;
 }
@@ -34319,7 +34319,7 @@ static int
 dissect_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD, MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -34366,7 +34366,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD, DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -34395,7 +34395,7 @@ static int
 dissect_nbap_DCH_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_DeleteList_RL_ReconfPrepTDD, DCH_DeleteList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -34431,7 +34431,7 @@ static int
 dissect_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD, DSCH_Information_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDSCHs);
+                                                  1, maxNrOfDSCHs, FALSE);
 
   return offset;
 }
@@ -34460,7 +34460,7 @@ static int
 dissect_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD, DSCH_Information_DeleteList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfDSCHs);
+                                                  1, maxNrOfDSCHs, FALSE);
 
   return offset;
 }
@@ -34493,7 +34493,7 @@ static int
 dissect_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD, USCH_Information_ModifyList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfUSCHs);
+                                                  1, maxNrOfUSCHs, FALSE);
 
   return offset;
 }
@@ -34522,7 +34522,7 @@ static int
 dissect_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD, USCH_Information_DeleteList_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfUSCHs);
+                                                  1, maxNrOfUSCHs, FALSE);
 
   return offset;
 }
@@ -34553,7 +34553,7 @@ static int
 dissect_nbap_MultipleRL_Information_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_Information_RL_ReconfPrepTDD, MultipleRL_Information_RL_ReconfPrepTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -34582,7 +34582,7 @@ static int
 dissect_nbap_RL_InformationResponseList_RL_ReconfReady(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationResponseList_RL_ReconfReady, RL_InformationResponseList_RL_ReconfReady_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -34672,7 +34672,7 @@ static int
 dissect_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure, RL_ReconfigurationFailureList_RL_ReconfFailure_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -34803,7 +34803,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_RL_Reconf_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Req, Additional_HS_Cell_Information_RL_Reconf_Req_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }
@@ -34864,7 +34864,7 @@ static int
 dissect_nbap_DCH_DeleteList_RL_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_DeleteList_RL_ReconfRqstFDD, DCH_DeleteList_RL_ReconfRqstFDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -34878,7 +34878,7 @@ static int
 dissect_nbap_RL_InformationList_RL_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_ReconfRqstFDD, RL_InformationList_RL_ReconfRqstFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -34948,7 +34948,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD, UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -34979,7 +34979,7 @@ static int
 dissect_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD, UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -35008,7 +35008,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD, DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -35056,7 +35056,7 @@ static int
 dissect_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD, DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -35102,7 +35102,7 @@ static int
 dissect_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD, MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -35116,7 +35116,7 @@ static int
 dissect_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD, DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -35160,7 +35160,7 @@ static int
 dissect_nbap_DCH_DeleteList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_DeleteList_RL_ReconfRqstTDD, DCH_DeleteList_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -35191,7 +35191,7 @@ static int
 dissect_nbap_Multiple_RL_Information_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_RL_Information_RL_ReconfRqstTDD, Multiple_RL_Information_RL_ReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfRLs_1);
+                                                  1, maxNrOfRLs_1, FALSE);
 
   return offset;
 }
@@ -35220,7 +35220,7 @@ static int
 dissect_nbap_RL_InformationResponseList_RL_ReconfRsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationResponseList_RL_ReconfRsp, RL_InformationResponseList_RL_ReconfRsp_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35274,7 +35274,7 @@ static int
 dissect_nbap_RL_informationList_RL_DeletionRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_informationList_RL_DeletionRqst, RL_informationList_RL_DeletionRqst_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35333,7 +35333,7 @@ static int
 dissect_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst, DL_ReferencePowerInformationList_DL_PC_Rqst_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35393,7 +35393,7 @@ static int
 dissect_nbap_RL_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_DM_Rqst, RL_InformationList_DM_Rqst_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35437,7 +35437,7 @@ static int
 dissect_nbap_RL_Set_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Set_InformationList_DM_Rqst, RL_Set_InformationList_DM_Rqst_sequence_of,
-                                                  1, maxNrOfRLSets);
+                                                  1, maxNrOfRLSets, FALSE);
 
   return offset;
 }
@@ -35526,7 +35526,7 @@ static int
 dissect_nbap_PUSCH_Info_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCH_Info_DM_Rqst, PUSCH_Info_DM_Rqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -35540,7 +35540,7 @@ static int
 dissect_nbap_HSSICH_Info_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSICH_Info_DM_Rqst, HSSICH_Info_DM_Rqst_sequence_of,
-                                                  1, maxNrOfHSSICHs);
+                                                  1, maxNrOfHSSICHs, FALSE);
 
   return offset;
 }
@@ -35554,7 +35554,7 @@ static int
 dissect_nbap_HSSICH_InfoExt_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSSICH_InfoExt_DM_Rqst, HSSICH_InfoExt_DM_Rqst_sequence_of,
-                                                  1, maxNrOfHSSICHs);
+                                                  1, maxNrOfHSSICHs, FALSE);
 
   return offset;
 }
@@ -35583,7 +35583,7 @@ static int
 dissect_nbap_RL_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_DM_Rsp, RL_InformationList_DM_Rsp_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35612,7 +35612,7 @@ static int
 dissect_nbap_RL_Set_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Set_InformationList_DM_Rsp, RL_Set_InformationList_DM_Rsp_sequence_of,
-                                                  1, maxNrOfRLSets);
+                                                  1, maxNrOfRLSets, FALSE);
 
   return offset;
 }
@@ -35685,7 +35685,7 @@ static int
 dissect_nbap_PUSCH_Info_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCH_Info_DM_Rsp, PUSCH_Info_DM_Rsp_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -35715,7 +35715,7 @@ static int
 dissect_nbap_Multiple_PUSCH_InfoList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_PUSCH_InfoList_DM_Rsp, Multiple_PUSCH_InfoList_DM_Rsp_sequence_of,
-                                                  1, maxNrOfPUSCHs_1);
+                                                  1, maxNrOfPUSCHs_1, FALSE);
 
   return offset;
 }
@@ -35745,7 +35745,7 @@ static int
 dissect_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp, Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_sequence_of,
-                                                  1, maxNrOfDPCHsPerRL_1);
+                                                  1, maxNrOfDPCHsPerRL_1, FALSE);
 
   return offset;
 }
@@ -35775,7 +35775,7 @@ static int
 dissect_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp, Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_sequence_of,
-                                                  1, maxNrOfDPCHsLCRPerRL_1);
+                                                  1, maxNrOfDPCHsLCRPerRL_1, FALSE);
 
   return offset;
 }
@@ -35805,7 +35805,7 @@ static int
 dissect_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp, Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_sequence_of,
-                                                  1, maxNrOfHSSICHs_1);
+                                                  1, maxNrOfHSSICHs_1, FALSE);
 
   return offset;
 }
@@ -35835,7 +35835,7 @@ static int
 dissect_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp, Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp_sequence_of,
-                                                  1, maxNrOfDPCHs768PerRL_1);
+                                                  1, maxNrOfDPCHs768PerRL_1, FALSE);
 
   return offset;
 }
@@ -35896,7 +35896,7 @@ static int
 dissect_nbap_RL_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_DM_Rprt, RL_InformationList_DM_Rprt_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -35925,7 +35925,7 @@ static int
 dissect_nbap_RL_Set_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Set_InformationList_DM_Rprt, RL_Set_InformationList_DM_Rprt_sequence_of,
-                                                  1, maxNrOfRLSets);
+                                                  1, maxNrOfRLSets, FALSE);
 
   return offset;
 }
@@ -35997,7 +35997,7 @@ static int
 dissect_nbap_PUSCH_Info_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCH_Info_DM_Rprt, PUSCH_Info_DM_Rprt_sequence_of,
-                                                  0, maxNrOfPUSCHs);
+                                                  0, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -36027,7 +36027,7 @@ static int
 dissect_nbap_Multiple_PUSCH_InfoList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Multiple_PUSCH_InfoList_DM_Rprt, Multiple_PUSCH_InfoList_DM_Rprt_sequence_of,
-                                                  1, maxNrOfPUSCHs_1);
+                                                  1, maxNrOfPUSCHs_1, FALSE);
 
   return offset;
 }
@@ -36102,7 +36102,7 @@ static int
 dissect_nbap_RL_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_FailureInd, RL_InformationList_RL_FailureInd_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -36131,7 +36131,7 @@ static int
 dissect_nbap_RL_Set_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Set_InformationList_RL_FailureInd, RL_Set_InformationList_RL_FailureInd_sequence_of,
-                                                  1, maxNrOfRLSets);
+                                                  1, maxNrOfRLSets, FALSE);
 
   return offset;
 }
@@ -36160,7 +36160,7 @@ static int
 dissect_nbap_CCTrCH_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCTrCH_InformationList_RL_FailureInd, CCTrCH_InformationList_RL_FailureInd_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -36277,7 +36277,7 @@ static int
 dissect_nbap_RL_InformationList_RL_PreemptRequiredInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_PreemptRequiredInd, RL_InformationList_RL_PreemptRequiredInd_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -36321,7 +36321,7 @@ static int
 dissect_nbap_RL_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_InformationList_RL_RestoreInd, RL_InformationList_RL_RestoreInd_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -36350,7 +36350,7 @@ static int
 dissect_nbap_RL_Set_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Set_InformationList_RL_RestoreInd, RL_Set_InformationList_RL_RestoreInd_sequence_of,
-                                                  1, maxNrOfRLSets);
+                                                  1, maxNrOfRLSets, FALSE);
 
   return offset;
 }
@@ -36379,7 +36379,7 @@ static int
 dissect_nbap_CCTrCH_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CCTrCH_InformationList_RL_RestoreInd, CCTrCH_InformationList_RL_RestoreInd_sequence_of,
-                                                  1, maxNrOfCCTrCHs);
+                                                  1, maxNrOfCCTrCHs, FALSE);
 
   return offset;
 }
@@ -36559,7 +36559,7 @@ static int
 dissect_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst, HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfCellPortionsPerCell);
+                                                  1, maxNrOfCellPortionsPerCell, FALSE);
 
   return offset;
 }
@@ -36613,7 +36613,7 @@ static int
 dissect_nbap_PDSCHSets_AddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PDSCHSets_AddList_PSCH_ReconfRqst, PDSCHSets_AddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHSets);
+                                                  1, maxNrOfPDSCHSets, FALSE);
 
   return offset;
 }
@@ -36643,7 +36643,7 @@ static int
 dissect_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst, DL_Code_InformationAddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -36675,7 +36675,7 @@ static int
 dissect_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst, DL_Timeslot_InformationAddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -36723,7 +36723,7 @@ static int
 dissect_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst, DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -36755,7 +36755,7 @@ static int
 dissect_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -36803,7 +36803,7 @@ static int
 dissect_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst, DL_Code_InformationAddList_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -36835,7 +36835,7 @@ static int
 dissect_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst, DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -36892,7 +36892,7 @@ static int
 dissect_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst, PDSCHSets_ModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHSets);
+                                                  1, maxNrOfPDSCHSets, FALSE);
 
   return offset;
 }
@@ -36922,7 +36922,7 @@ static int
 dissect_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst, DL_Code_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -36954,7 +36954,7 @@ static int
 dissect_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst, DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -37002,7 +37002,7 @@ static int
 dissect_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -37034,7 +37034,7 @@ static int
 dissect_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst, DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSLCRs);
+                                                  1, maxNrOfDLTSLCRs, FALSE);
 
   return offset;
 }
@@ -37082,7 +37082,7 @@ static int
 dissect_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst, DL_Code_768_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHs);
+                                                  1, maxNrOfPDSCHs, FALSE);
 
   return offset;
 }
@@ -37114,7 +37114,7 @@ static int
 dissect_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst, DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -37161,7 +37161,7 @@ static int
 dissect_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst, PDSCHSets_DeleteList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPDSCHSets);
+                                                  1, maxNrOfPDSCHSets, FALSE);
 
   return offset;
 }
@@ -37200,7 +37200,7 @@ static int
 dissect_nbap_PUSCHSets_AddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCHSets_AddList_PSCH_ReconfRqst, PUSCHSets_AddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHSets);
+                                                  1, maxNrOfPUSCHSets, FALSE);
 
   return offset;
 }
@@ -37230,7 +37230,7 @@ static int
 dissect_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst, UL_Code_InformationAddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37262,7 +37262,7 @@ static int
 dissect_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst, UL_Timeslot_InformationAddList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -37310,7 +37310,7 @@ static int
 dissect_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst, UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37342,7 +37342,7 @@ static int
 dissect_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst, UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSLCRs);
+                                                  1, maxNrOfULTSLCRs, FALSE);
 
   return offset;
 }
@@ -37390,7 +37390,7 @@ static int
 dissect_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst, UL_Code_InformationAddList_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37422,7 +37422,7 @@ static int
 dissect_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst, UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -37479,7 +37479,7 @@ static int
 dissect_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst, PUSCHSets_ModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHSets);
+                                                  1, maxNrOfPUSCHSets, FALSE);
 
   return offset;
 }
@@ -37509,7 +37509,7 @@ static int
 dissect_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst, UL_Code_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37541,7 +37541,7 @@ static int
 dissect_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst, UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -37589,7 +37589,7 @@ static int
 dissect_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst, UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37621,7 +37621,7 @@ static int
 dissect_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst, UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSLCRs);
+                                                  1, maxNrOfULTSLCRs, FALSE);
 
   return offset;
 }
@@ -37669,7 +37669,7 @@ static int
 dissect_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst, UL_Code_768_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHs);
+                                                  1, maxNrOfPUSCHs, FALSE);
 
   return offset;
 }
@@ -37701,7 +37701,7 @@ static int
 dissect_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst, UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfULTSs);
+                                                  1, maxNrOfULTSs, FALSE);
 
   return offset;
 }
@@ -37748,7 +37748,7 @@ static int
 dissect_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst, PUSCHSets_DeleteList_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfPUSCHSets);
+                                                  1, maxNrOfPUSCHSets, FALSE);
 
   return offset;
 }
@@ -37762,7 +37762,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst, DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSPDSCHs);
+                                                  1, maxNrOfHSPDSCHs, FALSE);
 
   return offset;
 }
@@ -37794,7 +37794,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst, DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -37824,7 +37824,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst, DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSPDSCHs768);
+                                                  1, maxNrOfHSPDSCHs768, FALSE);
 
   return offset;
 }
@@ -37856,7 +37856,7 @@ static int
 dissect_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst, DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfDLTSs);
+                                                  1, maxNrOfDLTSs, FALSE);
 
   return offset;
 }
@@ -37870,7 +37870,7 @@ static int
 dissect_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst, MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -37938,7 +37938,7 @@ static int
 dissect_nbap_HS_SCCH_Information_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_Information_PSCH_ReconfRqst, HS_SCCH_Information_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -37991,7 +37991,7 @@ static int
 dissect_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst, HS_SCCH_Information_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38059,7 +38059,7 @@ static int
 dissect_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst, HS_SCCH_Information_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38073,7 +38073,7 @@ static int
 dissect_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst, HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHsinExt);
+                                                  1, maxNrOfHSSCCHsinExt, FALSE);
 
   return offset;
 }
@@ -38125,7 +38125,7 @@ static int
 dissect_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst, HS_SCCH_InformationModify_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38178,7 +38178,7 @@ static int
 dissect_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst, HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38208,7 +38208,7 @@ static int
 dissect_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst, HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHsinExt);
+                                                  1, maxNrOfHSSCCHsinExt, FALSE);
 
   return offset;
 }
@@ -38260,7 +38260,7 @@ static int
 dissect_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst, HS_SCCH_InformationModify_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38289,7 +38289,7 @@ static int
 dissect_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst, Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHs);
+                                                  1, maxNrOfHSSCCHs, FALSE);
 
   return offset;
 }
@@ -38303,7 +38303,7 @@ static int
 dissect_nbap_E_PUCH_Timeslot_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_PUCH_Timeslot_Info, E_PUCH_Timeslot_Info_sequence_of,
-                                                  1, maxNrOfE_PUCHSlots);
+                                                  1, maxNrOfE_PUCHSlots, FALSE);
 
   return offset;
 }
@@ -38354,7 +38354,7 @@ static int
 dissect_nbap_E_AGCH_Information_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_Information_PSCH_ReconfRqst, E_AGCH_Information_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38402,7 +38402,7 @@ static int
 dissect_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst, E_AGCH_InformationModify_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38446,7 +38446,7 @@ static int
 dissect_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst, Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38514,7 +38514,7 @@ static int
 dissect_nbap_E_AGCH_Information_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_Information_768_PSCH_ReconfRqst, E_AGCH_Information_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38562,7 +38562,7 @@ static int
 dissect_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst, E_AGCH_InformationModify_768_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38608,7 +38608,7 @@ static int
 dissect_nbap_E_PUCH_Codelist_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_PUCH_Codelist_LCR, E_PUCH_Codelist_LCR_sequence_of,
-                                                  1, maxNrOfEPUCHcodes);
+                                                  1, maxNrOfEPUCHcodes, FALSE);
 
   return offset;
 }
@@ -38639,7 +38639,7 @@ static int
 dissect_nbap_E_PUCH_Timeslot_InfoLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_PUCH_Timeslot_InfoLCR, E_PUCH_Timeslot_InfoLCR_sequence_of,
-                                                  1, maxNrOfE_PUCHSlotsLCR);
+                                                  1, maxNrOfE_PUCHSlotsLCR, FALSE);
 
   return offset;
 }
@@ -38690,7 +38690,7 @@ static int
 dissect_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst, E_AGCH_Information_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38739,7 +38739,7 @@ static int
 dissect_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst, E_AGCH_InformationModify_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEAGCHs);
+                                                  1, maxNrOfEAGCHs, FALSE);
 
   return offset;
 }
@@ -38788,7 +38788,7 @@ static int
 dissect_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst, E_HICH_Information_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEHICHs);
+                                                  1, maxNrOfEHICHs, FALSE);
 
   return offset;
 }
@@ -38837,7 +38837,7 @@ static int
 dissect_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst, E_HICH_InformationModify_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEHICHs);
+                                                  1, maxNrOfEHICHs, FALSE);
 
   return offset;
 }
@@ -38881,7 +38881,7 @@ static int
 dissect_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst, Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfEHICHs);
+                                                  1, maxNrOfEHICHs, FALSE);
 
   return offset;
 }
@@ -38910,7 +38910,7 @@ static int
 dissect_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst, Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxNrOfHSSCCHsinExt);
+                                                  1, maxNrOfHSSCCHsinExt, FALSE);
 
   return offset;
 }
@@ -38924,7 +38924,7 @@ static int
 dissect_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst, MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -38969,7 +38969,7 @@ static int
 dissect_nbap_E_HICH_TimeOffset_ExtensionLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_HICH_TimeOffset_ExtensionLCR, E_HICH_TimeOffset_ExtensionLCR_sequence_of,
-                                                  1, maxFrequencyinCell_1);
+                                                  1, maxFrequencyinCell_1, FALSE);
 
   return offset;
 }
@@ -39029,7 +39029,7 @@ static int
 dissect_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD, Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_sequence_of,
-                                                  0, maxNrOfPDSCHSets);
+                                                  0, maxNrOfPDSCHSets, FALSE);
 
   return offset;
 }
@@ -39043,7 +39043,7 @@ static int
 dissect_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD, Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_sequence_of,
-                                                  0, maxNrOfPUSCHSets);
+                                                  0, maxNrOfPUSCHSets, FALSE);
 
   return offset;
 }
@@ -39138,7 +39138,7 @@ static int
 dissect_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD, UARFCNSpecificCauseList_PSCH_ReconfFailureTDD_sequence_of,
-                                                  0, maxFrequencyinCell);
+                                                  0, maxFrequencyinCell, FALSE);
 
   return offset;
 }
@@ -39183,7 +39183,7 @@ static int
 dissect_nbap_CommunicationContextInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommunicationContextInfoList_Reset, CommunicationContextInfoList_Reset_sequence_of,
-                                                  1, maxCommunicationContext);
+                                                  1, maxCommunicationContext, FALSE);
 
   return offset;
 }
@@ -39212,7 +39212,7 @@ static int
 dissect_nbap_CommunicationControlPortInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CommunicationControlPortInfoList_Reset, CommunicationControlPortInfoList_Reset_sequence_of,
-                                                  1, maxCCPinNodeB);
+                                                  1, maxCCPinNodeB, FALSE);
 
   return offset;
 }
@@ -39542,7 +39542,7 @@ static int
 dissect_nbap_TimeslotInfo_CellSyncInitiationRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_TimeslotInfo_CellSyncInitiationRqstTDD, TimeslotInfo_CellSyncInitiationRqstTDD_sequence_of,
-                                                  1, 15);
+                                                  1, 15, FALSE);
 
   return offset;
 }
@@ -39698,7 +39698,7 @@ static int
 dissect_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD, CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCellSyncBursts);
+                                                  1, maxNrOfCellSyncBursts, FALSE);
 
   return offset;
 }
@@ -39773,7 +39773,7 @@ static int
 dissect_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD, CellSyncBurstInfoList_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfReceptsPerSyncFrame);
+                                                  1, maxNrOfReceptsPerSyncFrame, FALSE);
 
   return offset;
 }
@@ -39803,7 +39803,7 @@ static int
 dissect_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD, CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfCellSyncBursts);
+                                                  1, maxNrOfCellSyncBursts, FALSE);
 
   return offset;
 }
@@ -39836,7 +39836,7 @@ static int
 dissect_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD, SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSyncFramesLCR);
+                                                  1, maxNrOfSyncFramesLCR, FALSE);
 
   return offset;
 }
@@ -39868,7 +39868,7 @@ static int
 dissect_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD, SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfReceptionsperSyncFrameLCR);
+                                                  1, maxNrOfReceptionsperSyncFrameLCR, FALSE);
 
   return offset;
 }
@@ -39898,7 +39898,7 @@ static int
 dissect_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD, SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_sequence_of,
-                                                  1, maxNrOfSyncDLCodesLCR);
+                                                  1, maxNrOfSyncDLCodesLCR, FALSE);
 
   return offset;
 }
@@ -39974,7 +39974,7 @@ static int
 dissect_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD, CellAdjustmentInfo_SyncAdjustmentRqstTDD_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -40052,7 +40052,7 @@ static int
 dissect_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD, Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -40197,7 +40197,7 @@ static int
 dissect_nbap_CellSyncInfo_CellSyncReprtTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellSyncInfo_CellSyncReprtTDD, CellSyncInfo_CellSyncReprtTDD_sequence_of,
-                                                  1, maxCellinNodeB);
+                                                  1, maxCellinNodeB, FALSE);
 
   return offset;
 }
@@ -40249,7 +40249,7 @@ static int
 dissect_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD, SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD_sequence_of,
-                                                  1, maxNrOfReceptsPerSyncFrame);
+                                                  1, maxNrOfReceptsPerSyncFrame, FALSE);
 
   return offset;
 }
@@ -40279,7 +40279,7 @@ static int
 dissect_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD, CellSyncBurstMeasInfoList_CellSyncReprtTDD_sequence_of,
-                                                  0, maxNrOfCellSyncBursts);
+                                                  0, maxNrOfCellSyncBursts, FALSE);
 
   return offset;
 }
@@ -40370,7 +40370,7 @@ static int
 dissect_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD, SyncDLCodeIdInfo_CellSyncReprtTDD_sequence_of,
-                                                  1, maxNrOfReceptionsperSyncFrameLCR);
+                                                  1, maxNrOfReceptionsperSyncFrameLCR, FALSE);
 
   return offset;
 }
@@ -40400,7 +40400,7 @@ static int
 dissect_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD, SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_sequence_of,
-                                                  0, maxNrOfSyncFramesLCR);
+                                                  0, maxNrOfSyncFramesLCR, FALSE);
 
   return offset;
 }
@@ -40444,7 +40444,7 @@ static int
 dissect_nbap_DCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DCH_RearrangeList_Bearer_RearrangeInd, DCH_RearrangeList_Bearer_RearrangeInd_sequence_of,
-                                                  1, maxNrOfDCHs);
+                                                  1, maxNrOfDCHs, FALSE);
 
   return offset;
 }
@@ -40473,7 +40473,7 @@ static int
 dissect_nbap_DSCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DSCH_RearrangeList_Bearer_RearrangeInd, DSCH_RearrangeList_Bearer_RearrangeInd_sequence_of,
-                                                  1, maxNrOfDSCHs);
+                                                  1, maxNrOfDSCHs, FALSE);
 
   return offset;
 }
@@ -40502,7 +40502,7 @@ static int
 dissect_nbap_USCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_USCH_RearrangeList_Bearer_RearrangeInd, USCH_RearrangeList_Bearer_RearrangeInd_sequence_of,
-                                                  1, maxNrOfUSCHs);
+                                                  1, maxNrOfUSCHs, FALSE);
 
   return offset;
 }
@@ -40531,7 +40531,7 @@ static int
 dissect_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd, HSDSCH_RearrangeList_Bearer_RearrangeInd_sequence_of,
-                                                  1, maxNrOfMACdFlows);
+                                                  1, maxNrOfMACdFlows, FALSE);
 
   return offset;
 }
@@ -40560,7 +40560,7 @@ static int
 dissect_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd, E_DCH_RearrangeList_Bearer_RearrangeInd_sequence_of,
-                                                  1, maxNrOfEDCHMACdFlows);
+                                                  1, maxNrOfEDCHMACdFlows, FALSE);
 
   return offset;
 }
@@ -40589,7 +40589,7 @@ static int
 dissect_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD, DelayedActivationInformationList_RL_ActivationCmdFDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -40634,7 +40634,7 @@ static int
 dissect_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD, DelayedActivationInformationList_RL_ActivationCmdTDD_sequence_of,
-                                                  1, maxNrOfRLs);
+                                                  1, maxNrOfRLs, FALSE);
 
   return offset;
 }
@@ -40695,7 +40695,7 @@ static int
 dissect_nbap_Additional_HS_Cell_Information_RL_Param_Upd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_Additional_HS_Cell_Information_RL_Param_Upd, Additional_HS_Cell_Information_RL_Param_Upd_sequence_of,
-                                                  1, maxNrOfHSDSCH_1);
+                                                  1, maxNrOfHSDSCH_1, FALSE);
 
   return offset;
 }

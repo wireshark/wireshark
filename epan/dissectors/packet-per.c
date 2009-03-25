@@ -812,7 +812,7 @@ dissect_per_object_descriptor(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 
 /* this function dissects a constrained sequence of */
 guint32
-dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len, gboolean has_extension _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -821,6 +821,23 @@ dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 	header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
+
+	/* 19.4	If there is a PER-visible constraint and an extension marker is present in it, 
+	 * a single bit shall be added to the field-list in a bit-field of length one
+	 */
+	if(has_extension){
+#if 0
+		gboolean extension_present;
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if(extension_present){
+			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list, 
+			 * followed by the component values
+			 * TODO: Handle extension
+			 */
+		}
+#endif
+	}
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
 	if((min_len==max_len) && (min_len<65536)){
@@ -860,11 +877,11 @@ call_sohelper:
 
 /* this function dissects a constrained set of */
 guint32
-dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
+dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len, gboolean has_extension)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_constrained_set_of");
-	offset=dissect_per_constrained_sequence_of(tvb, offset, actx, parent_tree, hf_index, ett_index, seq, min_len, max_len);
+	offset=dissect_per_constrained_sequence_of(tvb, offset, actx, parent_tree, hf_index, ett_index, seq, min_len, max_len, has_extension);
 	return offset;
 }
 
