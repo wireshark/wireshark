@@ -2378,7 +2378,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		  if(decrypt_ok)
 		    {
-		      tvb_decrypted = tvb_new_real_data(decrypted_data, decrypted_len, decrypted_len);
+		      tvb_decrypted = tvb_new_real_data(g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,(decrypted_len - esp_iv_len)*sizeof(guint8)), decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
+		      g_free(decrypted_data);
 		      tvb_set_child_real_data_tvbuff(tvb, tvb_decrypted);
 
 		      add_new_data_source(pinfo,
@@ -2388,34 +2389,34 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      /* Handler to free the Decrypted Data Buffer. */
 		      tvb_set_free_cb(tvb_decrypted,g_free);
 		      
-		      if(tvb_bytes_exist(tvb_decrypted, 0, esp_iv_len))
+		      if(tvb_bytes_exist(tvb, 8, esp_iv_len))
 			{
 			  if(esp_iv_len > 0)
 			    proto_tree_add_item(esp_tree, hf_esp_iv,
-						tvb_decrypted,
-						0, esp_iv_len,
+						tvb,
+						8, esp_iv_len,
 						FALSE);
 			}
 
 		      else
-			proto_tree_add_text(esp_tree, tvb_decrypted,
-					    0, -1,
+			proto_tree_add_text(esp_tree, tvb,
+					    8, -1,
 					    "IV (truncated)");
 
 		      /* Make sure the packet is not truncated before the fields
 		       * we need to read to determine the encapsulated protocol */
-		      if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_auth_len - 2, 2))
+		      if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2, 2))
 			{
-			  esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_auth_len - 2);
+			  esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2);
 
-			  if(decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2 >= esp_iv_len)
+			  if(decrypted_len - esp_iv_len - esp_auth_len - esp_pad_len - 2 >= 0)
 			    {
 			      /* Get the encapsulated protocol */
-			      encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_auth_len - 1);
+			      encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
 
 			      if(dissector_try_port(ip_dissector_table,
 						    encapsulated_protocol,
-						    tvb_new_subset(tvb_decrypted, esp_iv_len,
+						    tvb_new_subset(tvb_decrypted, 0,
 								   decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
 								   decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2),
 						    pinfo,
@@ -2432,30 +2433,30 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  if(esp_tree)
 			    {
 			      if(esp_pad_len !=0)
-				proto_tree_add_text(esp_tree, tvb_decrypted, decrypted_len - esp_auth_len - 2 - esp_pad_len, esp_pad_len,"Pad");
+				proto_tree_add_text(esp_tree, tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len, esp_pad_len,"Pad");
 
 			      proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
-						  decrypted_len - esp_auth_len - 2, 1,
+						  decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
 						  esp_pad_len);
 
 			      proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
-					 decrypted_len - esp_auth_len - 1, 1,
+					 decrypted_len - esp_iv_len - esp_auth_len - 1, 1,
 					 encapsulated_protocol,
 					"Next header: %s (0x%02x)",
 					 ipprotostr(encapsulated_protocol), encapsulated_protocol);
 
-			      dissect_esp_authentication(esp_tree, tvb_decrypted, decrypted_len, esp_auth_len, authenticator_data_computed, authentication_ok, authentication_checking_ok );
+			      dissect_esp_authentication(esp_tree, tvb_decrypted, decrypted_len - esp_iv_len, esp_auth_len, authenticator_data_computed, authentication_ok, authentication_checking_ok );
 
 			    }
 			}
 		      else
 			{
 			  call_dissector(data_handle,
-					 tvb_new_subset(tvb_decrypted, 0, decrypted_len - esp_auth_len, decrypted_len - esp_auth_len),
+					 tvb_new_subset(tvb_decrypted, 0, decrypted_len - esp_iv_len - esp_auth_len, decrypted_len - esp_iv_len - esp_auth_len),
 					 pinfo, esp_tree);
 
 			  if(esp_tree)
-			    dissect_esp_authentication(esp_tree, tvb_decrypted, decrypted_len, esp_auth_len, authenticator_data_computed, authentication_ok, authentication_checking_ok );
+			    dissect_esp_authentication(esp_tree, tvb_decrypted, decrypted_len - esp_iv_len, esp_auth_len, authenticator_data_computed, authentication_ok, authentication_checking_ok );
 
 			}
 		    }
