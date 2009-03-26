@@ -6581,7 +6581,7 @@ final_registration_ncp2222(void)
 	for (i = 0; i < NUM_REQ_CONDS; i++) {
 		if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
 			&req_conds[i].dfilter)) {
-			g_message("NCP dissector failed to compiler dfilter: %s\\n",
+			g_message("NCP dissector failed to compile dfilter: %s\\n",
 			req_conds[i].dfilter_text);
 			g_assert_not_reached();
 		}
