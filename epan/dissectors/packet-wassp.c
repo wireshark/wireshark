@@ -548,278 +548,278 @@ proto_register_wassp(void)
 	/* TLV fields */
 		{ &hf_wassp_tlv_type,
 		{ "TlvType",	"wassp.tlv.type", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_tlv_length,
 		{ "TlvLength",	"wassp.tlv.length", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_tlv_data,
 		{ "TlvData",   "wassp.tlv.data", FT_BYTES, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* WASSP tunnel header */
 		{ &hf_wassp_version,
 		{ "Protocol Version",	"wassp.version", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_type,
 		{ "PDU Type",	"wassp.type", FT_UINT8, BASE_DEC, VALS(wassp_tunnel_pdu_type),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_seqno,
 		{ "Sequence No",	"wassp.seqno", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_flags,
 		{ "Flags",	"wassp.flags", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_sessionid,
 		{ "Session ID",	"wassp.sessionid", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_length,
 		{ "PDU Length",	"wassp.length", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* WASSP tunnel data */
 		{ &hf_status,
 		{ "STATUS", "wassp.status", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_soft_version,
 		{ "RU-SOFT-VERSION", "wassp.ru.soft.version", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_serial_number,
 		{ "RU-SERIAL-NUMBER", "wassp.ru.serial.number", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_challenge,
 		{ "RU-CHALLENGE", "wassp.ru.challenge", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_response,
 		{ "RU-RESPONSE", "wassp.ru.response", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ac_ipaddr,
 		{ "AC-IPADDR", "wassp.ac.ipaddr", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_vns_id,
 		{ "RU-VNS-ID", "wassp.ru.vns.id", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_tftp_server,
 		{ "TFTP-SERVER", "wassp.tftp.server", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_image_path,
 		{ "IMAGE-PATH", "wassp.image.path", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_config,
 		{ "RU-CONFIG", "wassp.ru.config", FT_NONE, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_state,
 		{ "RU-STATE", "wassp.ru.state", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_session_key,
 		{ "RU-SESSION-KEY", "wassp.ru.session.key", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_message_type,
 		{ "MESSAGE-TYPE", "wassp.message.type", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_random_number,
 		{ "RANDOM-NUMBER", "wassp.random.number", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_standby_timeout,
 		{ "STANDBY-TIMEOUT", "wassp.standby.timeout", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_challenge_id,
 		{ "RU-CHALLENGE-ID", "wassp.ru.challenge.id", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_model,
 		{ "RU-MODEL", "wassp.ru.model", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_mode,
 		{ "RU-SCAN-MODE", "wassp.ru.scan.mode", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_type,
 		{ "RU-SCAN-TYPE", "wassp.ru.scan.type", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_interval,
 		{ "RU-SCAN-INTERVAL", "wassp.ru.scan.interval", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_radio_type,
 		{ "RU-RADIO-TYPE", "wassp.ru.radio.type", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_channel_dwell_time,
 		{ "RU-CHANNEL-DWELL-TIME", "wassp.ru.channel.dwell.time", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_channel_list,
 		{ "RU-CHANNEL-LIST", "wassp.ru.channel.list", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_trap,
 		{ "RU-TRAP", "wassp.ru.trap", FT_STRING, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_times,
 		{ "RU-SCAN-TIMES", "wassp.ru.scan.times", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_delay,
 		{ "RU-SCAN-DELAY", "wassp.ru.scan.delay", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_scan_req_id,
 		{ "RU-SCAN-REQ-ID", "wassp.ru.scan.req.id", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_static_config,
 		{ "STATIC-CONFIG", "wassp.static.config", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_local_bridging,
 		{ "LOCAL-BRIDGING", "wassp.local.bridging", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_static_bp_ipaddr,
 		{ "STATIC-BP-IPADDR", "wassp.static.bp.ipaddr", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_static_bp_netmask,
 		{ "STATIC-BP-NETMASK", "wassp.static.bp.netmask", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_static_bp_gateway,
 		{ "STATIC-BP-GATEWAY", "wassp.static.bp.gateway", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_static_bm_ipaddr,
 		{ "STATIC-BM-IPADDR", "wassp.static.bm.ipaddr", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ru_alarm,
 		{ "RU-ALARM", "wassp.ru.alarm", FT_NONE, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_bp_request_id,
 		{ "BP-REQUEST-ID", "wassp.bp.request.id", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_snmp_error_status,
 		{ "SNMP-ERROR-STATUS", "wassp.snmp.error.status", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_snmp_error_index,
 		{ "SNMP-ERROR-INDEX", "wassp.snmp.error.index", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_img_to_ram,
 		{ "AP-IMG-TO-RAM", "wassp.ap.img.to.ram", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_img_role,
 		{ "AP-IMG-ROLE", "wassp.ap.img.role", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_65,
 		{ "UNKNOWN-65", "wassp.unknown65", FT_NONE, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_69,
 		{ "UNKNOWN-65", "wassp.unknown69", FT_NONE, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_wassp_vlan_tag,
 		{ "WASSP-VLAN-TAG", "wassp.wassp.vlan.tag", FT_INT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_wassp_tunnel_type,
 		{ "WASSP-TUNNEL-TYPE", "wassp.wassp.tunnel.type", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_dhcp_mode,
 		{ "AP-DHCP-MODE", "wassp.ap.dhcp.mode", FT_UINT32, BASE_DEC, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_ipaddr,
 		{ "AP-IPADDR", "wassp.ap.ipaddr", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_netmask,
 		{ "AP-NETMASK", "wassp.ap.netmask", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_ap_gateway,
 		{ "AP-GATEWAY", "wassp.ap.gateway", FT_IPv4, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 	/* WASSP tunnel subtypes unknown 65 */
 		{ &hf_unknown_65_62,
 		{ "UNKNOWN-65-62", "wassp.unknown65.62", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_65_63,
 		{ "UNKNOWN-65-63", "wassp.unknown65.63", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_65_64,
 		{ "UNKNOWN-65-64", "wassp.unknown65.64", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_65_70,
 		{ "UNKNOWN-65-70", "wassp.unknown65.70", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 	/* WASSP tunnel subtypes unknown 69 */
 		{ &hf_unknown_69_1,
 		{ "UNKNOWN-69-1", "wassp.unknown69.1", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 		{ &hf_unknown_69_2,
 		{ "UNKNOWN-69-2", "wassp.unknown69.2", FT_BYTES, BASE_NONE, NULL,
-				0x0, "", HFILL }},
+				0x0, NULL, HFILL }},
 
 	/* WASSP discover header */
 		{ &hf_wassp_discover1,
 		{ "Discover Header1",	"wassp.discover1", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		/* { &hf_wassp_length, */ /* see tunnel header */
 
 		{ &hf_wassp_discover2,
 		{ "Discover Header2",	"wassp.discover2", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_subtype,
 		{ "Discover Subtype",	"wassp.subtype", FT_UINT8, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_ether,
 		{ "Discover Ether",	"wassp.ether", FT_ETHER, BASE_NONE, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_wassp_discover3,
 		{ "Discover Header3",	"wassp.discover3", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {
