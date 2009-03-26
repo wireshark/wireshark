@@ -161,7 +161,7 @@ static const guint16 bit_mask16[] = {
 };
 
 /* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
- * (add proceeding zeros).
+ * (add proceeding zeros in case of aligned PER)
  */
 static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits)
 {
@@ -826,9 +826,8 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
 	if(has_extension){
-#if 0
 		gboolean extension_present;
-		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		if(extension_present){
 			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list, 
@@ -836,7 +835,6 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 			 * TODO: Handle extension
 			 */
 		}
-#endif
 	}
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
