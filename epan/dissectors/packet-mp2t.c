@@ -448,7 +448,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	guint32 header;
 	guint afc;
 	gint start_offset = offset;
-	gint payload_len;
+	volatile gint payload_len;
 
 	guint32 pid;
 	guint32 cc;
