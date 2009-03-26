@@ -76,7 +76,6 @@ WIRESHARK_GTK_SRC = \
 	gui_utils.c	\
 	help_dlg.c	\
 	hostlist_table.c \
-	iax2_analysis.c	\
 	macros_dlg.c	\
 	main.c		\
 	main_airpcap_toolbar.c	\
@@ -177,6 +176,7 @@ WIRESHARK_TAP_SRC = \
 	hostlist_udpip.c \
 	hostlist_usb.c \
 	hostlist_wlan.c \
+	iax2_analysis.c	\
 	io_stat.c	\
 	ldap_stat.c	\
 	mac_lte_stat_dlg.c	\
