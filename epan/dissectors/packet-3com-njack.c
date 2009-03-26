@@ -684,99 +684,99 @@ proto_register_njack(void)
 	/* NJACK header */
 		{ &hf_njack_magic,
 		{ "Magic",	"njack.magic", FT_STRING, BASE_DEC, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_njack_type,
 		{ "Type",	"njack.type", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 	/* TLV fields */
 		{ &hf_njack_tlv_type,
 		{ "TlvType",	"njack.tlv.type", FT_UINT8, BASE_HEX, VALS(njack_cmd_vals),
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_njack_tlv_length,
 		{ "TlvLength",	"njack.tlv.length", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_data,
                 { "TlvData",   "njack.tlv.data", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_version,
                 { "TlvFwVersion",   "njack.tlv.version", FT_IPv4, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_snmpwrite,
                 { "TlvTypeSnmpwrite",   "njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(&njack_snmpwrite),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_dhcpcontrol,
                 { "TlvTypeDhcpControl",   "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(&njack_dhcpcontrol),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_devicemac,
                 { "TlvTypeDeviceMAC",   "njack.tlv.devicemac", FT_ETHER, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 		/* XXX dummy entries, to be replaced */
                 { &hf_njack_tlv_typeip,
                 { "TlvTypeIP",   "njack.tlv.typeip", FT_IPv4, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_typestring,
                 { "TlvTypeString",   "njack.tlv.typestring", FT_STRING, BASE_DEC, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 		/* 1st tab */
                 { &hf_njack_tlv_scheduling,
                 { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(&njack_scheduling),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_addtagscheme,
                 { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(&njack_addtagscheme),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_portingressmode,
                 { "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(&njack_portingressmode),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_maxframesize,
                 { "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(&njack_maxframesize),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_countermode,
                 { "TlvTypeCountermode",   "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(&njack_countermode),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_powerforwarding,
                 { "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(&njack_powerforwarding),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* Type 0x07: set */
 		{ &hf_njack_set_length,
 		{ "SetLength",	"njack.set.length", FT_UINT16, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
 		{ &hf_njack_set_salt,
 		{ "Salt",	"njack.set.salt", FT_UINT32, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
                 { &hf_njack_set_authdata,
                 { "Authdata",   "njack.tlv.authdata", FT_BYTES, BASE_NONE, NULL,
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* Type 0x08: set result */
                 { &hf_njack_setresult,
                 { "SetResult",   "njack.setresult", FT_UINT8, BASE_HEX, VALS(njack_setresult_vals),
-                        0x0, "", HFILL }},
+                        0x0, NULL, HFILL }},
 
 	/* Type 0x0b get */
 
 	/* Type 0x0c get response */
 		{ &hf_njack_getresp_unknown1,
 		{ "Unknown1",	"njack.getresp.unknown1", FT_UINT8, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+			0x0, NULL, HFILL }},
 
         };
 	static gint *ett[] = {
