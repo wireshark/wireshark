@@ -8258,7 +8258,7 @@ dissect_ansi_map_HandoffToThird2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static const ber_sequence_t InformationDirective_U_set[] = {
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
-  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
   { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
   { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
   { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },

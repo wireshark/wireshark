@@ -1208,11 +1208,12 @@ HandoffToThird2Res ::= [PRIVATE 18] SET {
 	}
 
 -- 6.4.2.21 InformationDirective Updated with N.S0012-0 v 1.0
+-- http://www.3gpp2.org/Public_html/specs/X.S0004-540-E_v2.0_070723.pdf
 InformationDirective ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
-	-- M 6.5.2.81
+	msid									MSID OPTIONAL,
+	-- M 2.153 e
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
 	-- O 6.5.2.3 a
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
