@@ -222,7 +222,7 @@ Hide                          [RFC3261] (deprecated)
                 { "Min-SE",						NULL },  /*  33 RFC4028  */
                 { "Organization", 				NULL },  /*  34 RFC3261  */
                 { "P-Access-Network-Info",		NULL },  /*  35 RFC3455  */
-                { "P-Answer-State",				NULL },  /*  36 RFC4964  */
+                { "P-Answer-State",		NULL },  /*  36 RFC4964  */
                 { "P-Asserted-Identity",        NULL },  /*  37 RFC3325  */
                 { "P-Associated-URI",           NULL },	 /*  38 RFC3455  */
                 { "P-Called-Party-ID",          NULL },	 /*  39 RFC3455  */
@@ -326,8 +326,8 @@ Hide                          [RFC3261] (deprecated)
 #define POS_MIN_SE							33
 #define POS_ORGANIZATION					34
 #define POS_P_ACCESS_NETWORK_INFO			35
-#define POS_P_ASSERTED_IDENTITY				36
-#define POS_P_ANSWER_STATE					37
+#define POS_P_ANSWER_STATE					36
+#define POS_P_ASSERTED_IDENTITY				37
 #define POS_P_ASSOCIATED_URI				38
 #define POS_P_CALLED_PARTY_ID				39
 #define POS_P_CHARGING_FUNCTION_ADDRESSES	40
@@ -422,8 +422,8 @@ static gint hf_header_array[] = {
                 -1, /* 33"Min-SE",								RFC4028 */
                 -1, /* 34"Organization",								*/
                 -1, /* 35"P-Access-Network-Info",				RFC3455	*/
-                -1, /* 36"P-Asserted-Identity",					RFC3325	*/
-                -1, /* 37"P-Asserted-Identity",							*/
+                -1, /* 36"P-Answer-State",					RFC4964	*/
+                -1, /* 37"P-Asserted-Identity",					RFC3325	*/
                 -1, /* 38"P-Associated-URI",					RFC3455	*/
                 -1, /* 39"P-Called-Party-ID",					RFC3455	*/
                 -1, /* 40"P-Charging-Function-Addresses",		RFC3455 */
@@ -3457,16 +3457,15 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Access-Network-Info Header", HFILL }
 		},
-
+		{ &hf_header_array[POS_P_ANSWER_STATE],
+		       { "P-Answer-State",		"sip.P-Answer-State",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 4964: P-Answer-State Header", HFILL }
+		},
 		{ &hf_header_array[POS_P_ASSERTED_IDENTITY],
 		       { "P-Asserted-Identity",		"sip.P-Asserted-Identity",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3325: P-Asserted-Identity Header", HFILL }
-		},
-		{ &hf_header_array[POS_P_ANSWER_STATE],
-		       { "P-Answer-State",		"sip.P-Answer-State",
-		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Answer-State Header", HFILL }
 		},
 		{ &hf_header_array[POS_P_ASSOCIATED_URI],
 		       { "P-Associated-URI", 		"sip.P-Associated-URI",
