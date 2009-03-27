@@ -914,11 +914,11 @@ ssh_evaluate_negotiation(tvbuff_t *tvb, int offset, int len,
 	if (!tvb || !client || !server || !agreed) return;
 
 	if (hf_value == hf_client && !*client) {
-		*client = se_strdup(tvb_get_ephemeral_string(tvb, offset, len));
+		*client = tvb_get_seasonal_string(tvb, offset, len));
 	}
 
 	if (hf_value == hf_server && !*server) {
-		*server = se_strdup(tvb_get_ephemeral_string(tvb, offset, len));
+		*server = tvb_get_seasonal_string(tvb, offset, len));
 	}
 
 	if (*client && *server && !*agreed) {
