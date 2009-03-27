@@ -35,9 +35,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -65,36 +62,6 @@ static const value_string vals_frg[] = {
 	{ 0,	NULL }
 };
 
-static hf_register_info hf[] = {
-	{&hf_cw_bits03	,{"Bits 0 to 3"		,"pwfr.bits03"	,FT_UINT8	,BASE_HEX
-			,NULL			,0xf0		,NULL
-			,HFILL }}
-	,{&hf_cw_fecn	,{"FR FECN"		,"pwfr.fecn"	,FT_UINT8	,BASE_DEC
-			,NULL			,0x08		,"FR Forward Explicit Congestion Notification bit"
-			,HFILL}}
-	,{&hf_cw_becn	,{"FR BECN"		,"pwfr.becn"	,FT_UINT8	,BASE_DEC
-			,NULL			,0x04		,"FR Backward Explicit Congestion Notification bit"
-			,HFILL}}
-	,{&hf_cw_de	,{"FR DE bit"		,"pwfr.de"	,FT_UINT8	,BASE_DEC
-			,NULL			,0x02		,"FR Discard Eligibility bit"
-			,HFILL}}
-	,{&hf_cw_cr	,{"FR Frame C/R"	,"pwfr.cr"	,FT_UINT8	,BASE_DEC
-			,NULL			,0x01		,"FR frame Command/Response bit"
-			,HFILL}}
-	,{&hf_cw_frg	,{"Fragmentation"	,"pwfr.frag"	,FT_UINT8	,BASE_DEC
-			,vals_frg		,0xc0		,NULL
-			,HFILL}}
-	,{&hf_cw_len	,{"Length"		,"pwfr.length"	,FT_UINT8	,BASE_DEC
-			,NULL			,0x3f		,NULL
-			,HFILL}}
-	,{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
-			,NULL			,0		,NULL
-			,HFILL}}
-};
-
-static gint *ett[] = {
-	&ett_encaps
-};
 
 static dissector_handle_t fr_stripped_address_handle;
 
@@ -295,6 +262,37 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 void
 proto_register_pw_fr(void)
 {
+	static hf_register_info hf[] = {
+		{&hf_cw_bits03	,{"Bits 0 to 3"		,"pwfr.bits03"	,FT_UINT8	,BASE_HEX
+				  ,NULL			,0xf0		,NULL
+				  ,HFILL }}
+		,{&hf_cw_fecn	,{"FR FECN"		,"pwfr.fecn"	,FT_UINT8	,BASE_DEC
+				  ,NULL			,0x08		,"FR Forward Explicit Congestion Notification bit"
+				  ,HFILL}}
+		,{&hf_cw_becn	,{"FR BECN"		,"pwfr.becn"	,FT_UINT8	,BASE_DEC
+				  ,NULL			,0x04		,"FR Backward Explicit Congestion Notification bit"
+				  ,HFILL}}
+		,{&hf_cw_de	,{"FR DE bit"		,"pwfr.de"	,FT_UINT8	,BASE_DEC
+				  ,NULL			,0x02		,"FR Discard Eligibility bit"
+				  ,HFILL}}
+		,{&hf_cw_cr	,{"FR Frame C/R"	,"pwfr.cr"	,FT_UINT8	,BASE_DEC
+				  ,NULL			,0x01		,"FR frame Command/Response bit"
+				  ,HFILL}}
+		,{&hf_cw_frg	,{"Fragmentation"	,"pwfr.frag"	,FT_UINT8	,BASE_DEC
+				  ,vals_frg		,0xc0		,NULL
+				  ,HFILL}}
+		,{&hf_cw_len	,{"Length"		,"pwfr.length"	,FT_UINT8	,BASE_DEC
+				  ,NULL			,0x3f		,NULL
+				  ,HFILL}}
+		,{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
+				  ,NULL			,0		,NULL
+				  ,HFILL}}
+	};
+
+	static gint *ett[] = {
+		&ett_encaps
+	};
+
 	proto_encaps = proto_register_protocol( "PW Frame Relay DLCI Control Word",
 						"Frame Relay DLCI PW",
 						"pwfr");
@@ -307,14 +305,8 @@ proto_register_pw_fr(void)
 void
 proto_reg_handoff_pw_fr(void)
 {
-	static gboolean initialized=FALSE;
-
-	if ( !initialized )
-	{
-		dissector_handle_t h;
-		h = find_dissector("pw_fr");
-		dissector_add("mpls.label", LABEL_INVALID, h);
-		fr_stripped_address_handle = find_dissector("fr_stripped_address");
-		initialized = TRUE;
-	}
+	dissector_handle_t h;
+	h = find_dissector("pw_fr");
+	dissector_add("mpls.label", LABEL_INVALID, h);
+	fr_stripped_address_handle = find_dissector("fr_stripped_address");
 }
