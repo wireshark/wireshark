@@ -399,8 +399,15 @@ buffer overflows for large strings.
 When using a buffer to create a string, do not use a buffer stored on the stack.
 I.e. do not use a buffer declared as
    char buffer[1024];
-instead allocate a buffer dynamically using the emem routines (see
-README.malloc) such as
+instead allocate a buffer dynamically using the string-specific or plain emem
+routines (see README.malloc) such as
+
+   emem_strbuf_t *strbuf;
+   strbuf = ep_strbuf_new_label("");
+   ep_strbuf_append_printf(strbuf, ...
+
+or
+
    char *buffer=NULL;
    ...
    #define MAX_BUFFER 1024

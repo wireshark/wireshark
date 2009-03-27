@@ -2927,9 +2927,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
   proto_item *ti = NULL, *tf, *hidden_item;
   int        offset = 0;
-  gchar      *flags = "<None>";
+  emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("<None>");
   const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR"};
-  gint       fpos = 0, returned_length;
   gint       i;
   guint      bpos;
   guint      optlen;
@@ -3130,22 +3129,21 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_have_seglen = FALSE;
 
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
-#define MAX_FLAGS_LEN 64
-    flags=ep_alloc(MAX_FLAGS_LEN);
-    flags[0]=0;
+    gboolean first_flag = TRUE;
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
       if (tcph->th_flags & bpos) {
-        returned_length = g_snprintf(&flags[fpos], MAX_FLAGS_LEN-fpos, "%s%s",
-		fpos?", ":"",
-		fstr[i]);
-	fpos += MIN(returned_length, MAX_FLAGS_LEN-fpos);
+        if (first_flag) {
+          ep_strbuf_truncate(flags_strbuf, 0);
+        }
+        ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[i]);
+        first_flag = FALSE;
       }
     }
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags, tcph->th_seq);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_strbuf->str, tcph->th_seq);
     if (tcph->th_flags&TH_ACK) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
     }
@@ -3217,7 +3215,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
 	"Header length: %u bytes", tcph->th_hlen);
     tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 13, 1,
-	tcph->th_flags, "Flags: 0x%02x (%s)", tcph->th_flags, flags);
+	tcph->th_flags, "Flags: 0x%02x (%s)", tcph->th_flags, flags_strbuf->str);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, tvb, offset + 13, 1, tcph->th_flags);

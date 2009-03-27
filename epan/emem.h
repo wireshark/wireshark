@@ -364,6 +364,88 @@ typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
 gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
 
 
+/* ******************************************************************
+ * String buffers - Growable strings similar to GStrings
+ * ****************************************************************** */
+
+typedef struct _emem_strbuf_t {
+    gchar *str;
+    gsize len;
+    gsize alloc_len;
+    gsize max_len;
+} emem_strbuf_t;
+
+/*
+ * The maximum length is limited to 64K. If you need something bigger, you
+ * should probably use an actual GString or GByteArray.
+ */
+
+/**
+ * Allocate an ephemeral string buffer with "unlimited" size.
+ *
+ * @param init The initial string for the buffer, or NULL.
+ *
+ * @return A newly-allocated string buffer.
+ */
+emem_strbuf_t *ep_strbuf_new(const gchar *init);
+
+/**
+ * Allocate an ephemeral string buffer suitable for the protocol tree.
+ * The string will never grow beyond the maximum tree item length.
+ *
+ * @param init The initial string for the buffer, or NULL.
+ *
+ * @return A newly-allocated string buffer.
+ */
+emem_strbuf_t *ep_strbuf_new_label(const gchar *init);
+
+/**
+ * Allocate an ephemeral string buffer with enough initial space for @len bytes
+ * and a maximum of @max_len bytes.
+ *
+ * @param len The initial size of the buffer. This value can be 0, but a nonzero
+ * value is recommended.
+ * @param max_len The maximum size of the buffer. 0 means "unlimited" (within
+ * reason).
+ *
+ * @return A newly-allocated string buffer. @str will be empty.
+ */
+emem_strbuf_t *ep_strbuf_sized_new(gsize len, gsize max_len);
+
+/**
+ * Append vprintf-style formatted text to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param format A printf-style string format.
+ * @param args The list of arguments to append.
+ */
+void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap);
+
+/**
+ * Append printf-style formatted text to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param format A printf-style string format.
+ */
+void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
+    GNUC_FORMAT_CHECK(printf, 2, 3);
+
+/**
+ * Append a string to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param str A null-terminated string.
+ */
+void ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
+
+/**
+ * Chop off the end of a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param len The new string length.
+ */
+void ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
+
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 /* Helper to troubleshoot ep memory corruption

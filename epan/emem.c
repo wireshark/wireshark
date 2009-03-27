@@ -1652,3 +1652,156 @@ emem_print_tree(emem_tree_t* emem_tree)
 	if(emem_tree->tree)
 		emem_tree_print_nodes(emem_tree->tree, 0);
 }
+
+/*
+ * String buffers
+ */
+
+/*
+ * Presumably we're using these routines for building strings for the tree.
+ * Use ITEM_LABEL_LENGTH as the basis for our default lengths.
+ */
+
+#define DEFAULT_STRBUF_LEN (ITEM_LABEL_LENGTH / 10)
+#define MAX_STRBUF_LEN 65536
+
+static gsize
+next_size(gsize cur_len, gsize wanted_len, gsize max_len) {
+	if (max_len < 1 || max_len > MAX_STRBUF_LEN) {
+		max_len = MAX_STRBUF_LEN;
+	}
+	
+	if (cur_len < 1) {
+		cur_len = DEFAULT_STRBUF_LEN;
+	}
+	
+	while (cur_len < wanted_len) { 
+		cur_len *= 2;
+	}
+	
+	return cur_len < max_len ? cur_len : max_len;
+}
+
+static void
+ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_len) {
+	gsize new_alloc_len;
+	gchar *new_str;
+        
+	if (!strbuf || strbuf->alloc_len >= strbuf->max_len) {
+		return;
+	}
+	
+	new_alloc_len = next_size(strbuf->len, wanted_len, strbuf->max_len);
+        new_str = ep_alloc(new_alloc_len);
+        g_strlcpy(new_str, strbuf->str, new_alloc_len);
+        
+        strbuf->alloc_len = new_alloc_len;
+        strbuf->str = new_str;
+}
+
+emem_strbuf_t *
+ep_strbuf_sized_new(gsize len, gsize max_len) {
+	emem_strbuf_t *strbuf;
+	
+	strbuf = ep_alloc(sizeof(emem_strbuf_t));
+	
+	if (len > 0) {
+		strbuf->str = ep_alloc(len);
+		strbuf->str[0] = '\0';
+	} else {
+		strbuf->str = ep_strdup("");
+	}
+	
+	strbuf->len = len;
+	strbuf->alloc_len = len;
+	strbuf->max_len = max_len;
+	return strbuf;
+}
+
+emem_strbuf_t *
+ep_strbuf_new(const gchar *init) {
+	emem_strbuf_t *strbuf;
+	
+	strbuf = ep_strbuf_sized_new(next_size(0, strlen(init), 0), 0);
+
+	g_strlcpy(strbuf->str, init, strbuf->alloc_len);	
+	return strbuf;
+}
+
+emem_strbuf_t *
+ep_strbuf_new_label(const gchar *init) {
+	emem_strbuf_t *strbuf;
+	gsize init_size;
+	
+	if (!init) {
+		init = "";
+	}
+	
+	init_size = strlen(init);
+	strbuf = ep_strbuf_sized_new(init_size > DEFAULT_STRBUF_LEN ? init_size : DEFAULT_STRBUF_LEN,
+				     ITEM_LABEL_LENGTH);
+
+	g_strlcpy(strbuf->str, init, strbuf->alloc_len);
+	strbuf->len = MIN(init_size, strbuf->alloc_len);
+	return strbuf;
+}
+
+void
+ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
+	gsize add_len;
+	
+	if (!strbuf || !str) {
+		return;
+	}
+		
+	add_len = strlen(str);
+	
+	if (strbuf->len + add_len > strbuf->alloc_len) {
+		ep_strbuf_grow(strbuf, strbuf->len + add_len);
+	}
+	
+	g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len - add_len);
+	strbuf->len += add_len;
+}
+
+void
+ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap) {
+	va_list ap2;
+	gsize add_len, full_len;
+
+	G_VA_COPY(ap2, ap);
+
+	add_len = g_printf_string_upper_bound(format, ap);
+
+	if (strbuf->len + add_len > strbuf->alloc_len) {
+		ep_strbuf_grow(strbuf, strbuf->len + add_len);
+	}
+
+	if (strbuf->len + add_len > strbuf->alloc_len) {
+		add_len = strbuf->alloc_len - strbuf->len;
+	}
+
+	full_len = g_vsnprintf(&strbuf->str[strbuf->len], add_len, format, ap2);
+	strbuf->len += MIN(add_len, full_len);
+	va_end(ap2);
+
+}
+
+void
+ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
+	va_list ap;
+	
+	va_start(ap, format);
+	ep_strbuf_append_vprintf(strbuf, format, ap);
+	va_end(ap);
+}
+
+void
+ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len) {
+	if (!strbuf || len >= strbuf->len) {
+		return;
+	}
+
+	strbuf->str[len] = '\0';	
+	strbuf->len = len;
+}

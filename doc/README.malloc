@@ -76,4 +76,16 @@ ep_stack_peek() : returns the top element of the stack without popping it.
 
 ep_tvb_memdup(): create an ephemeral duplicate of part of the tvbuff.
 
+3.4 String buffers
 
+The ep_strbuf_... functions create and modify growable strings, similar to GLib's
+GStrings.
+
+ep_strbuf_new(s) : Creates a new strbuf, initialized to s.
+ep_strbuf_new_label(s) : Like ep_strbuf_new, but with a max length suitable for
+  protocol tree items.
+ep_strbuf_sized_new() : Creates a new strbuf with explicit sizes.
+ep_strbuf_append_vprintf() : Appends an argument list to a strbuf.
+ep_strbuf_append_printf() : Appends to a strbuf in the style of printf.
+ep_strbuf_append() : Appends a string to a strbuf.
+ep_strbuf_truncate() : Shortens a strbuf.
