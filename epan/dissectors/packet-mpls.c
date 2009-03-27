@@ -89,12 +89,81 @@ enum mpls_filter_keys {
     MPLSF_MAX
 };
 
+static dissector_handle_t dissector_data;
+static dissector_handle_t dissector_ipv6;
+static dissector_handle_t dissector_ip;
+static dissector_handle_t dissector_pw_eth_heuristic;
+static dissector_handle_t dissector_pw_fr;
+static dissector_handle_t dissector_pw_hdlc_nocw_fr;
+static dissector_handle_t dissector_pw_hdlc_nocw_hdlc_ppp;
+static dissector_handle_t dissector_pw_eth_cw;
+static dissector_handle_t dissector_pw_eth_nocw;
+static dissector_handle_t dissector_itdm;
+
+enum mpls_default_dissector_t {
+    MDD_PW_ETH_HEUR = 0
+    ,MDD_FAKE_1
+    ,MDD_FAKE_2
+    ,MDD_MPLS_PW_FR_DLCI
+    ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
+    ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
+    ,MDD_MPLS_PW_ETH_CW
+    ,MDD_MPLS_PW_ETH_NOCW
+    ,MDD_MPLS_PW_GENERIC
+    ,MDD_ITDM
+};
+
+/* TODO the content of mpls_default_payload menu
+ * should be automatically built like mpls "decode as..." menu;
+ * this way, mpls_default_payload will be automatically filled up when
+ * new mpls-specific dissector added.
+ */
 static enum_val_t mpls_default_payload_defs[] = {
-    {"mpls pw ethernet heuristic" ,"Ethernet MPLS PW (CW is heuristically detected)" ,0},
-    {"mpls pw ethernet cw"        ,"Ethernet MPLS PW (with CW)"                      ,6},
-    {"mpls pw ethernet no cw"     ,"Ethernet MPLS PW (no CW, early implementations)" ,7},
-    {"mpls pw generic cw"         ,"Generic MPLS PW (with Generic/Preferred MPLS CW)",8},
-    {NULL, NULL, -1}
+    {
+        "mpls pw ethernet heuristic"
+        ,"Ethernet MPLS PW (CW is heuristically detected)"
+        ,MDD_PW_ETH_HEUR
+    },
+    {
+        "mpls pw fr dlci"
+        ,"Frame relay DLCI MPLS PW"
+        ,MDD_MPLS_PW_FR_DLCI
+    }, /*FIXME*/
+    {
+        "mpls pw hdlc no_cw fr_port"
+        ,"HDLC MPLS PW (no CW), FR Port mode"
+        ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
+    },
+    {
+        "mpls pw hdlc no_cw hdlc payload_ppp"
+        ,"HDLC MPLS PW (no CW), HDLC mode, PPP payload"
+        ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
+    },
+    {
+        "mpls pw ethernet cw"
+        ,"Ethernet MPLS PW (with CW)"
+        ,MDD_MPLS_PW_ETH_CW
+    },
+    {
+        "mpls pw ethernet no_cw"
+        ,"Ethernet MPLS PW (no CW, early implementations)"
+        ,MDD_MPLS_PW_ETH_NOCW
+    },
+    {
+        "mpls pw generic cw"
+        ,"Generic MPLS PW (with Generic/Preferred MPLS CW)"
+        ,MDD_MPLS_PW_GENERIC
+    },
+    {
+        "itdm"
+        ,"Internal TDM"
+        ,MDD_ITDM
+    },
+    {
+        NULL
+        ,NULL
+        ,-1
+    }
 };
 
 static int mpls_filter[MPLSF_MAX];
@@ -300,7 +369,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
     if (!dissector_try_port(ppp_subdissector_table, channel_type, 
                             next_tvb, pinfo, tree)) {
-            call_dissector(find_dissector("data"), next_tvb, pinfo, tree);
+            call_dissector(dissector_data, next_tvb, pinfo, tree);
     }
 }
 
@@ -311,10 +380,10 @@ gboolean dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_t
 	switch ( nibble )
 	{
 	case 6:
-		call_dissector( find_dissector("ipv6"), tvb, pinfo, tree);
+		call_dissector( dissector_ipv6, tvb, pinfo, tree);
 		return TRUE;
 	case 4:
-		call_dissector( find_dissector("ip"), tvb, pinfo, tree);
+		call_dissector( dissector_ip, tvb, pinfo, tree);
 		return TRUE;
 	case 1:
 		dissect_pw_ach( tvb, pinfo, tree );
@@ -368,7 +437,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    "Sequence Number: %d", sequence_number);
     }
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-    call_dissector( find_dissector("data"), next_tvb, pinfo, tree );
+    call_dissector( dissector_data, next_tvb, pinfo, tree );
 }
 
 static void
@@ -654,21 +723,32 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         switch ( mpls_default_payload )
         {
-        case 0:
-               call_dissector( find_dissector("pw_eth_heuristic"), next_tvb, pinfo, tree);
+        case MDD_PW_ETH_HEUR:
+               call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
                break;
-        case 6:
-               call_dissector( find_dissector("pw_eth_cw"), next_tvb, pinfo, tree);
+        case MDD_MPLS_PW_FR_DLCI:
+               call_dissector(dissector_pw_fr, next_tvb, pinfo, tree);
                break;
-        case 7:
-               call_dissector( find_dissector("pw_eth_nocw"), next_tvb, pinfo, tree);
+        case MDD_MPLS_PW_HDLC_NOCW_FRPORT:
+               call_dissector(dissector_pw_hdlc_nocw_fr, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
+               call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_ETH_CW:
+               call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
+               break;
+        case MDD_MPLS_PW_ETH_NOCW:
+               call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
+               break;
+        case MDD_ITDM:
+               call_dissector(dissector_itdm, next_tvb, pinfo, tree);
                break;
         default: /*fallthrough*/
-        case 8: 
+        case MDD_MPLS_PW_GENERIC:
                dissect_pw_mcw(next_tvb, pinfo, tree);
                break;
         }
-
     }
 }
 
@@ -734,6 +814,17 @@ proto_reg_handoff_mpls(void)
 
 		mpls_handle = find_dissector("mplspwcw");
 		dissector_add( "mpls.label", LABEL_INVALID, mpls_handle );
+
+		dissector_data 			= find_dissector("data");
+		dissector_ipv6 			= find_dissector("ipv6");
+		dissector_ip 			= find_dissector("ip");
+		dissector_pw_eth_heuristic 	= find_dissector("pw_eth_heuristic");
+		dissector_pw_fr 		= find_dissector("pw_fr");
+		dissector_pw_hdlc_nocw_fr 	= find_dissector("pw_hdlc_nocw_fr");
+		dissector_pw_hdlc_nocw_hdlc_ppp = find_dissector("pw_hdlc_nocw_hdlc_ppp");
+		dissector_pw_eth_cw 		= find_dissector("pw_eth_cw");
+		dissector_pw_eth_nocw 		= find_dissector("pw_eth_nocw");
+		dissector_itdm 			= find_dissector("itdm");
 
 		initialized = TRUE;
 	}

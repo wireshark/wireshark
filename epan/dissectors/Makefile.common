@@ -699,6 +699,7 @@ DISSECTOR_SRC = \
 	packet-pvfs2.c		\
 	packet-pw-eth.c   	\
 	packet-pw-hdlc.c	\
+	packet-pw-fr.c		\
 	packet-q2931.c		\
 	packet-q931.c		\
 	packet-q933.c		\

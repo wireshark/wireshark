@@ -401,7 +401,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
 
 static void
 dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  gboolean has_direction)
+		  gboolean has_direction, gboolean decode_address )
 {
   int offset = 0;
   proto_item *ti = NULL;
@@ -410,7 +410,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *octet_tree = NULL;
   guint8 fr_octet;
   int is_response = FALSE;
-  guint32 addr;
+  guint32 addr = 0;
   guint8  fr_ctrl;
   guint16 fr_type;
   tvbuff_t *next_tvb;
@@ -434,142 +434,148 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
-  /*
-   * OK, fetch the address field - keep going until we get an EA bit.
-   */
-  fr_octet = tvb_get_guint8(tvb, offset);
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, -1, "Frame Relay");
       fr_tree = proto_item_add_subtree(ti, ett_fr);
   }
-  if (fr_octet & FRELAY_EA) {
-    /*
-     * Bogus!  There should be at least 2 octets.
-     * XXX - is this FRF.12 frame relay fragmentation?  If so, we
-     * should dissect it as such, if possible.
-     */
-    addr = 0;
-    if (tree) {
-      proto_tree_add_text(fr_tree, tvb, offset, 1,
-			  "Bogus 1-octet address field");
-      offset++;
-    }
-  } else {
-    /*
-     * The first octet contains the upper 6 bits of the DLCI, as well
-     * as the C/R bit.
-     */
-    addr = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
-    is_response = (fr_octet & FRELAY_CR);
-    if (tree) {
-      octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
-				       "First address octet: 0x%02x", fr_octet);
-      octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
-      proto_tree_add_uint(octet_tree, hf_fr_upper_dlci, tvb, offset, 1, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_cr, tvb, offset, 1, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
-    }
-    offset++;
 
+  if (decode_address)
+  {
     /*
-     * The second octet contains 4 more bits of DLCI, as well as FECN,
-     * BECN, and DE.
+     * OK, fetch the address field - keep going until we get an EA bit.
      */
     fr_octet = tvb_get_guint8(tvb, offset);
-    addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
-    if (tree) {
-      octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
-				       "Second address octet: 0x%02x",
-				       fr_octet);
-      octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
-      proto_tree_add_uint(octet_tree, hf_fr_second_dlci, tvb, offset, 1, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_fecn, tvb, 0, offset, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_becn, tvb, 0, offset, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_de, tvb, 0, offset, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
-    }
-    offset++;
 
-    if (!(fr_octet & FRELAY_EA)) {
+    if (fr_octet & FRELAY_EA) {
       /*
-       * We have 3 or more address octets.
-       *
-       * The third octet contains 7 more bits of DLCI if EA isn't set,
-       * and lower DLCI or DL-CORE control plus the DLCI or DL-CORE
-       * control indicator flag if EA is set.
+       * Bogus!  There should be at least 2 octets.
+       * XXX - is this FRF.12 frame relay fragmentation?  If so, we
+       * should dissect it as such, if possible.
+       */
+      addr = 0;
+      if (tree) {
+        proto_tree_add_text(fr_tree, tvb, offset, 1,
+			    "Bogus 1-octet address field");
+        offset++;
+      }
+    } else {
+      /*
+       * The first octet contains the upper 6 bits of the DLCI, as well
+       * as the C/R bit.
+       */
+      addr = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
+      is_response = (fr_octet & FRELAY_CR);
+      if (tree) {
+        octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
+					 "First address octet: 0x%02x", fr_octet);
+        octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
+        proto_tree_add_uint(octet_tree, hf_fr_upper_dlci, tvb, offset, 1, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_cr, tvb, offset, 1, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
+      }
+      offset++;
+
+      /*
+       * The second octet contains 4 more bits of DLCI, as well as FECN,
+       * BECN, and DE.
        */
       fr_octet = tvb_get_guint8(tvb, offset);
+      addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
+      if (tree) {
+        octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
+					 "Second address octet: 0x%02x",
+					 fr_octet);
+        octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
+        proto_tree_add_uint(octet_tree, hf_fr_second_dlci, tvb, offset, 1, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_fecn, tvb, 0, offset, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_becn, tvb, 0, offset, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_de, tvb, 0, offset, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
+      }
+      offset++;
+
       if (!(fr_octet & FRELAY_EA)) {
-	/*
-	 * 7 more bits of DLCI.
-	 */
-	addr = (addr << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
-	if (tree) {
-	  octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
-					   "Third address octet: 0x%02x",
-					   fr_octet);
-	  octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
-	  proto_tree_add_uint(octet_tree, hf_fr_third_dlci, tvb, offset, 1, fr_octet);
-	  proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
-	}
-	offset++;
-	fr_octet = tvb_get_guint8(tvb, offset);
-	while (!(fr_octet & FRELAY_EA)) {
+        /*
+         * We have 3 or more address octets.
+         *
+         * The third octet contains 7 more bits of DLCI if EA isn't set,
+         * and lower DLCI or DL-CORE control plus the DLCI or DL-CORE
+         * control indicator flag if EA is set.
+         */
+        fr_octet = tvb_get_guint8(tvb, offset);
+        if (!(fr_octet & FRELAY_EA)) {
 	  /*
-	   * Bogus!  More than 4 octets of address.
+	   * 7 more bits of DLCI.
 	   */
+	  addr = (addr << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
 	  if (tree) {
-	    proto_tree_add_text(fr_tree, tvb, offset, 1,
-				"Bogus extra address octet");
+	    octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
+					     "Third address octet: 0x%02x",
+					     fr_octet);
+	    octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
+	    proto_tree_add_uint(octet_tree, hf_fr_third_dlci, tvb, offset, 1, fr_octet);
+	    proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
 	  }
 	  offset++;
 	  fr_octet = tvb_get_guint8(tvb, offset);
-	}
-      }
-      if (tree) {
-	octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
-					 "Final address octet: 0x%02x",
-					 fr_octet);
-	octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
-      } 
+	  while (!(fr_octet & FRELAY_EA)) {
+	    /*
+	     * Bogus!  More than 4 octets of address.
+	     */
+	    if (tree) {
+	      proto_tree_add_text(fr_tree, tvb, offset, 1,
+				 "Bogus extra address octet");
+	    }
+	    offset++;
+	    fr_octet = tvb_get_guint8(tvb, offset);
+	  }
+        }
+        if (tree) {
+	  octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
+					   "Final address octet: 0x%02x",
+					   fr_octet);
+	  octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
+        } 
 
-      /*
-       * Last octet - contains lower DLCI or DL-CORE control, DLCI or
-       * DL-CORE control indicator flag.
-       */
-      if (fr_octet & FRELAY_DC) {
-	/*
-	 * DL-CORE.
-	 */
-	proto_tree_add_uint(octet_tree, hf_fr_dlcore_control, tvb, offset, 1, fr_octet);
-      } else {
-      	/*
-      	 * Last 6 bits of DLCI.
-      	 */
-      	addr = (addr << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
-	proto_tree_add_uint(octet_tree, hf_fr_lower_dlci, tvb, offset, 1, fr_octet);
-      }
-      proto_tree_add_boolean(octet_tree, hf_fr_dc, tvb, offset, 1, fr_octet);
-      proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
+        /*
+         * Last octet - contains lower DLCI or DL-CORE control, DLCI or
+         * DL-CORE control indicator flag.
+         */
+        if (fr_octet & FRELAY_DC) {
+	  /*
+	   * DL-CORE.
+	   */
+	  proto_tree_add_uint(octet_tree, hf_fr_dlcore_control, tvb, offset, 1, fr_octet);
+        } else {
+      	  /*
+      	   * Last 6 bits of DLCI.
+      	   */
+      	  addr = (addr << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
+	  proto_tree_add_uint(octet_tree, hf_fr_lower_dlci, tvb, offset, 1, fr_octet);
+        }
+        proto_tree_add_boolean(octet_tree, hf_fr_dc, tvb, offset, 1, fr_octet);
+        proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
       
-      offset++;
+        offset++;
+      }
+    }
+    if (tree) {
+      /* Put the full DLCI into the protocol tree. */
+      proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, addr);
+    }
+
+    pinfo->ctype = CT_DLCI;
+    pinfo->circuit_id = addr;
+
+    /* Add DLCI to a collumn */
+    if ( check_col(pinfo->cinfo, COL_FR_DLCI)) {
+      col_add_fstr(pinfo->cinfo, COL_FR_DLCI, "%u", addr);
+    }
+  
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
     }
   }
-  if (tree) {
-    /* Put the full DLCI into the protocol tree. */
-    proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, addr);
-  }
-
-  pinfo->ctype = CT_DLCI;
-  pinfo->circuit_id = addr;
-
-  /* Add DLCI to a collumn */
-  if ( check_col(pinfo->cinfo, COL_FR_DLCI)) {
-      col_add_fstr(pinfo->cinfo, COL_FR_DLCI, "%u", addr);
-  }
-  
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
 
   switch (fr_encap) {
 
@@ -651,13 +657,19 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_fr_common(tvb, pinfo, tree, FALSE);
+  dissect_fr_common(tvb, pinfo, tree, FALSE, TRUE );
 }
 
 static void
 dissect_fr_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_fr_common(tvb, pinfo, tree, TRUE);
+  dissect_fr_common(tvb, pinfo, tree, TRUE, TRUE );
+}
+
+static void
+dissect_fr_stripped_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_fr_common(tvb, pinfo, tree, TRUE, FALSE );
 }
 
 static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
@@ -923,6 +935,7 @@ void proto_register_fr(void)
 
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);
+  register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
   /*
