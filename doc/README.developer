@@ -1127,6 +1127,7 @@ String accessors:
 
 guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
 guint8 *tvb_get_ephemeral_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_seasonal_string(tvbuff_t*, gint offset, gint length);
 
 Returns a null-terminated buffer containing data from the specified
 tvbuff, starting at the specified offset, and containing the specified
@@ -1136,14 +1137,20 @@ as it includes a null character to terminate the string).
 tvb_get_string() returns a buffer allocated by g_malloc() so you must
 g_free() it when you are finished with the string. Failure to g_free() this
 buffer will lead to memory leaks.
+
 tvb_get_ephemeral_string() returns a buffer allocated from a special heap
 with a lifetime until the next packet is dissected. You do not need to
 free() this buffer, it will happen automatically once the next packet is
 dissected.
 
+tvb_get_seasonal_string() returns a buffer allocated from a special heap
+with a lifetime of the current capture session. You do not need to
+free() this buffer, it will happen automatically once the a new capture or
+file is opened.
 
 guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
 Returns a null-terminated buffer, allocated with "g_malloc()",
 containing data from the specified tvbuff, starting at the
@@ -1159,6 +1166,10 @@ with a lifetime until the next packet is dissected. You do not need to
 free() this buffer, it will happen automatically once the next packet is
 dissected.
 
+tvb_get_seasonal_stringz() returns a buffer allocated from a special heap
+with a lifetime of the current capture session. You do not need to
+free() this buffer, it will happen automatically once the a new capture or
+file is opened.
 
 guint8 *tvb_fake_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);
 guint8 *tvb_get_ephemeral_faked_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);

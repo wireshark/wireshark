@@ -460,9 +460,14 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
  * tvb_get_ephemeral_string() returns a string that does not need to be freed,
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
+ *
+ * tvb_get_seasonal_string() returns a string that does not need to be freed,
+ *                   instead it will automatically be freed when a new capture
+ *                   or file is opened.
  */
 extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
 extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length);
+extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length);
 
 
 /**
@@ -480,9 +485,14 @@ extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
  * tvb_get_ephemeral_stringz() returns a string that does not need to be freed,
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
+ *
+ * tvb_get_seasonal_stringz() returns a string that does not need to be freed,
+ *                   instead it will automatically be freed when a new capture
+ *                   or file is opened.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+extern guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
 /** Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.

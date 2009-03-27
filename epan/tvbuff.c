@@ -2144,6 +2144,34 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
 	return strbuf;
 }
 
+/*
+ * Given a tvbuff, an offset, and a length, allocate a buffer big enough
+ * to hold a non-null-terminated string of that length at that offset,
+ * plus a trailing '\0', copy the string into it, and return a pointer
+ * to the string.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * This function allocates memory from a buffer with capture session lifetime.
+ * You do not have to free this buffer, it will be automatically freed
+ * when wireshark starts or opens a new capture.
+ */
+guint8 *
+tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8 *ptr;
+	guint8 *strbuf = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	strbuf = se_alloc(length + 1);
+	if (length != 0) {
+		memcpy(strbuf, ptr, length);
+	}
+	strbuf[length] = '\0';
+	return strbuf;
+}
 
 /*
  * Given a tvbuff and an offset, with the offset assumed to refer to
@@ -2187,6 +2215,31 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 
 	size = tvb_strsize(tvb, offset);
 	strptr = ep_alloc(size);
+	tvb_memcpy(tvb, strptr, offset, size);
+	*lengthp = size;
+	return strptr;
+}
+
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), allocate
+ * a buffer big enough to hold the string, copy the string into it,
+ * and return a pointer to the string.  Also return the length of the
+ * string (including the terminating null) through a pointer.
+ *
+ * This function allocates memory from a buffer with capture session lifetime.
+ * You do not have to free this buffer, it will be automatically freed
+ * when wireshark starts or opens a new capture.
+ */
+guint8 *
+tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint size;
+	guint8 *strptr;
+
+	size = tvb_strsize(tvb, offset);
+	strptr = se_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
 	*lengthp = size;
 	return strptr;
