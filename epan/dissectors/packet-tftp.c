@@ -54,6 +54,7 @@
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
 	guint16 blocksize;
+	gchar *source_file, *destination_file;
 } tftp_conv_info_t;
 
 
@@ -185,6 +186,18 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, FALSE);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
+	  if(tftp_info->source_file) {
+	    ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
+				       0, 0, tftp_info->source_file);
+	    PROTO_ITEM_SET_GENERATED(ti);
+	  }
+
+	  if(tftp_info->destination_file) {
+	    ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
+				       0, 0, tftp_info->destination_file);
+	    PROTO_ITEM_SET_GENERATED(ti);
+	  }
+
 	  proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb,
 			    offset, 2, opcode);
 	}
@@ -198,6 +211,9 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
 			    tvb, offset, i1, FALSE);
 	  }
+
+	  tftp_info->source_file = tvb_get_seasonal_string(tvb, offset, i1);
+
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
 			    tvb_format_text(tvb, offset, i1));
@@ -226,6 +242,10 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
 			    tvb, offset, i1, FALSE);
 	  }
+
+	  tftp_info->destination_file =
+	   tvb_get_seasonal_string(tvb, offset, i1);
+
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
 			    tvb_format_text(tvb, offset, i1));
@@ -237,6 +257,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
 	  }
+
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
 			    tvb_format_text(tvb, offset, i1));
@@ -354,6 +375,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!tftp_info) {
     tftp_info = se_alloc(sizeof(tftp_conv_info_t));
     tftp_info->blocksize = 512; /* TFTP default block size */
+    tftp_info->source_file = NULL;
+    tftp_info->destination_file = NULL;
     conversation_add_proto_data(conversation, proto_tftp, tftp_info);
   }
 
@@ -417,9 +440,11 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
         if (!tftp_info) {
-       		tftp_info = se_alloc(sizeof(tftp_conv_info_t));
-		tftp_info->blocksize = 512; /* TFTP default block size */
-       		conversation_add_proto_data(conversation, proto_tftp, tftp_info);
+	  tftp_info = se_alloc(sizeof(tftp_conv_info_t));
+	  tftp_info->blocksize = 512; /* TFTP default block size */
+	  tftp_info->source_file = NULL;
+	  tftp_info->destination_file = NULL;
+	  conversation_add_proto_data(conversation, proto_tftp, tftp_info);
 	}
 
 
