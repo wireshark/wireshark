@@ -201,9 +201,7 @@ char *mechanism = NULL;
         if (mechanism == NULL) {
             mechanism = ldap_info->auth_mech;
         } else {
-          if (ldap_info->auth_mech != NULL) {
-              g_free(ldap_info->auth_mech);
-          }
+          g_free(ldap_info->auth_mech);
           ldap_info->auth_mech = mechanism;
         }
 	actx->pinfo->private_data = ldap_info;

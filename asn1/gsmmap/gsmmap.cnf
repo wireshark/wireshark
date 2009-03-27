@@ -447,9 +447,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	    else
 		proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_convert_with_iconv FAILED");
 
-	    if(utf8_text)
-		g_free(utf8_text);
-
+	    g_free(utf8_text);
 	    g_iconv_close(cd);				
 	}
 	else

@@ -1794,14 +1794,9 @@ ldap_reinit(void)
   for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
     ldap_conv_info_t *next;
 
-    if (ldap_info->auth_mech != NULL) {
-      g_free(ldap_info->auth_mech);
-      ldap_info->auth_mech=NULL;
-    }
+    g_free(ldap_info->auth_mech);
     g_hash_table_destroy(ldap_info->matched);
-    ldap_info->matched=NULL;
     g_hash_table_destroy(ldap_info->unmatched);
-    ldap_info->unmatched=NULL;
 
     next = ldap_info->next;
     g_free(ldap_info);
