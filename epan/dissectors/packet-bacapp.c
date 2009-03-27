@@ -6497,7 +6497,7 @@ fConvertXXXtoUTF8 (gchar *in, size_t *inbytesleft, gchar *out, size_t *outbytesl
 	GIConv icd;
 
 	if ((icd = g_iconv_open ("UTF-8", fromcoding)) != (GIConv) -1) {
-		i = g_iconv (icd, &in, inbytesleft, &out, outbytesleft);
+		i = (guint32) g_iconv (icd, &in, inbytesleft, &out, outbytesleft);
 		/* g_iconv incremented 'out'; now ensure it's NULL terminated */
 		out[0] = '\0';
 

@@ -248,14 +248,14 @@ get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 
   len = tvb_get_ntohs(tvb, offset);
 
-  if (len == 0xffff) {
+  if (len == 0xffff || cbuflen < 1) {
     cbuf[0] = '\0';
     len = 0;
   } else {
     copylen = len;
     if (copylen > cbuflen - 1)
       copylen = cbuflen - 1;
-    tvb_memcpy(tvb, cbuf, offset+2, copylen);
+    tvb_memcpy(tvb, cbuf, offset+2, (gint) copylen);
     cbuf[copylen] = '\0';
     len++;
   }
