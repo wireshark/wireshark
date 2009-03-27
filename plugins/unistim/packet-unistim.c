@@ -2611,9 +2611,7 @@ set_ascii_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint msg_len){
    #define MAX_BUFFER 1024
    buffer=ep_alloc(MAX_BUFFER);
 
-   g_snprintf(buffer,MAX_BUFFER,"%s",label);
-   buffer_index=strlen(label);
-
+   buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
       character=tvb_get_guint8(tvb,offset+msg_index);
       msg_index++;
@@ -2645,9 +2643,7 @@ set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, gint offset,guint m
    #define MAX_BUFFER 1024
    buffer=ep_alloc(MAX_BUFFER);
 
-   g_snprintf(buffer,MAX_BUFFER,"%s",label);
-   buffer_index=strlen(label);
-
+   buffer_index=g_strlcpy(buffer,label,MAX_BUFFER);
    while((buffer_index<MAX_BUFFER-2)&&(msg_index<msg_len)){
       character=tvb_get_guint8(tvb,offset+msg_index);
       msg_index++;

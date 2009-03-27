@@ -223,7 +223,7 @@ static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 
 	memset(&hfri, 0, sizeof hfri);
 	hfri.p_id = p_id;
-	hfri.hfinfo.name = g_strdup_printf("%s",name);
+	hfri.hfinfo.name = g_strdup(name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",item_name,name);
 	hfri.hfinfo.type = FT_STRING;
 	hfri.hfinfo.display = BASE_NONE;
@@ -275,7 +275,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	gint* ett;
 
 	hfri.p_id = &(cfg->hfid);
-	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
+	hfri.hfinfo.name = g_strdup(cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
@@ -320,7 +320,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 
 	hfri.p_id = &(cfg->hfid);
-	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
+	hfri.hfinfo.name = g_strdup(cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
@@ -436,7 +436,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	/* create the hf array for this gog */
 	hfri.p_id = &(cfg->hfid);
-	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
+	hfri.hfinfo.name = g_strdup(cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("%s Id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
