@@ -73,7 +73,7 @@ add_table_entry(gtk_table *tab, const char *str, int x, int y)
 }
 #endif
 
-/* init a main windowfor stats, set title and display used filter in window */
+/* init a main window for stats, set title and display used filter in window */
 
 void
 init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, const char *filter)
