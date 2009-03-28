@@ -508,7 +508,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
 
         ep_strbuf_append_printf(stack_strbuf, "%u%s", label_entry >> 4,
                 ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
-	
+
         indx += 3 ;
 
 	if ((label_entry & 0x000001) == 0) {
@@ -952,6 +952,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
             plen =  tvb_get_guint8(tvb, offset);
+            stack_strbuf = ep_strbuf_new_label("");
             labnum = decode_MPLS_stack(tvb, offset + 1, stack_strbuf);
 
             offset += (1 + labnum * 3);
@@ -992,7 +993,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 total_length = (1 + labnum * 3 + 8) + length;
                 break;
 
-            case FORMAT_IP_LOC: 
+            case FORMAT_IP_LOC:
                 tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
 
                 length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
@@ -1528,7 +1529,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    const char *msg;
 	    int     off;
 	    gint    k;
-	    guint16 alen, tlen, aoff, aoff_save; 
+	    guint16 alen, tlen, aoff, aoff_save;
 	    guint16 af;
 	    guint8  saf, snpa;
 	    guint8  nexthop_len;
@@ -1572,7 +1573,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                 ep_strbuf_truncate(as_path_emstr, 0);
 
 		/* estimate the length of the AS number */
-		if (bgpa.bgpa_type == BGPTYPE_NEW_AS_PATH) 
+		if (bgpa.bgpa_type == BGPTYPE_NEW_AS_PATH)
 		    asn_len = 4;
 		else {
 		    if (bgp_asn_len == 0) {
@@ -1889,7 +1890,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                 /* snarf each AS path tuple, we have to step through each one
                    again to make a separate subtree so we can't just reuse
                    as_path_gstr from above */
-		/* XXX - Can we use some g_string*() trickery instead, e.g. 
+		/* XXX - Can we use some g_string*() trickery instead, e.g.
 		   g_string_erase()? */
                 while (q < end) {
 		    ep_strbuf_truncate(as_path_emstr, 0);
@@ -1908,7 +1909,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     /* snarf each value in path */
                     for (j = 0; j < length; j++) {
 			ep_strbuf_append_printf(as_path_emstr, "%u%s",
-				(asn_len == 2) ? 
+				(asn_len == 2) ?
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
                                 (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
                         q += asn_len;
@@ -1950,7 +1951,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     as_path_segment_tree = proto_item_add_subtree(ti,
                             ett_bgp_as_path_segments);
                     for (j = 0; j < length; j++) {
-			as_path_item = (asn_len == 2) ? 
+			as_path_item = (asn_len == 2) ?
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q);
 			proto_item_append_text(ti, " %u", as_path_item);
 			hidden_item = proto_tree_add_uint(as_path_tree, hf_bgp_as_path, tvb,
@@ -2132,7 +2133,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			if (j + advance > nexthop_len)
 				break;
 			proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-				advance, "Next hop: %s (%u)", junk_emstr, advance);
+				advance, "Next hop: %s (%u)", junk_emstr->str, advance);
 			j += advance;
 		    }
                     break;
@@ -2318,7 +2319,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 				ti = proto_tree_add_text(subtree5, tvb, q+1, 1, "%s", decode_boolean_bitfield(tvb_get_guint8(tvb,q+1),
 							 0x10, 8, "LE class supported", "LE class NOT supported"));
 				ti = proto_tree_add_text(subtree4, tvb, q+2, 1,
-						    "Flags byte 2..7 : 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x", 
+						    "Flags byte 2..7 : 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
 							tvb_get_guint8(tvb,q+2),tvb_get_guint8(tvb,q+3),tvb_get_guint8(tvb,q+4),
 							tvb_get_guint8(tvb,q+5),tvb_get_guint8(tvb,q+6),tvb_get_guint8(tvb,q+7));
 				break;
@@ -2377,7 +2378,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                         break;
                                     case BGP_EXT_COM_L2INFO:
                                         is_extended_type = TRUE;
-                                        ep_strbuf_append_printf(junk_emstr, 
+                                        ep_strbuf_append_printf(junk_emstr,
                                                                ": %s, Control Flags: %s%s%s%s%s, MTU: %u byte%s",
                                                                val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
                                                                tvb_get_guint8(tvb,q+3) ? "" : "none",
@@ -2698,7 +2699,7 @@ dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree)
 	ctype  = tvb_get_guint8(tvb, offset++);
 	clen   = tvb_get_guint8(tvb, offset++);
 
-	ti = proto_tree_add_text(tree, tvb, offset - 2, 2 + clen, 
+	ti = proto_tree_add_text(tree, tvb, offset - 2, 2 + clen,
              "%s (%u byte%s)", val_to_str(ctype, capability_vals,
              "Unknown capability"), 2 + clen, plurality(clen, "", "s"));
 	subtree = proto_item_add_subtree(ti, ett_bgp_option);
@@ -3014,7 +3015,7 @@ proto_register_bgp(void)
 	  NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_aggregator_origin,
 	{ "Aggregator origin", "bgp.aggregator_origin", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL}}, 
+	  NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_as_path,
 	{ "AS Path", "bgp.as_path", FT_UINT16, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL}},
@@ -3035,7 +3036,7 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_mp_unreach_nlri_ipv4_prefix,
 	{ "MP Unreach NLRI IPv4 prefix", "bgp.mp_unreach_nlri_ipv4_prefix", FT_IPv4, BASE_NONE,
-          NULL, 0x0, NULL, HFILL}}, 
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_mp_nlri_tnl_id,
         { "MP Reach NLRI Tunnel Identifier", "bgp.mp_nlri_tnl_id", FT_UINT16, BASE_HEX,
           NULL, 0x0, NULL, HFILL}},
@@ -3044,10 +3045,10 @@ proto_register_bgp(void)
 	  NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_next_hop,
 	{ "Next hop", "bgp.next_hop", FT_IPv4, BASE_NONE,
-          NULL, 0x0, NULL, HFILL}}, 
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_nlri_prefix,
         { "NLRI prefix", "bgp.nlri_prefix", FT_IPv4, BASE_NONE,
-          NULL, 0x0, NULL, HFILL}}, 
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_origin,
 	{ "Origin", "bgp.origin", FT_UINT8, BASE_DEC,
 	  VALS(bgpattr_origin), 0x0, NULL, HFILL}},
@@ -3086,10 +3087,10 @@ proto_register_bgp(void)
           NULL, 0x0, "Cookie", HFILL}},
       { &hf_bgp_withdrawn_prefix,
         { "Withdrawn prefix", "bgp.withdrawn_prefix", FT_IPv4, BASE_NONE,
-          NULL, 0x0, NULL, HFILL}}, 
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_cluster_list,
         { "Cluster List", "bgp.cluster_list", FT_BYTES, BASE_HEX,
-          NULL, 0x0, NULL, HFILL}} 
+          NULL, 0x0, NULL, HFILL}}
     };
 
     static gint *ett[] = {
