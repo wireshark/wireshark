@@ -1760,7 +1760,11 @@ ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
 		ep_strbuf_grow(strbuf, strbuf->len + add_len);
 	}
 	
-	g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len - add_len);
+	if (strbuf->len + add_len > strbuf->alloc_len) {
+		add_len = strbuf->alloc_len - strbuf->len;
+	}
+
+	g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
 	strbuf->len += add_len;
 }
 
