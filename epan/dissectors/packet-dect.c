@@ -872,18 +872,21 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 		guint16 x, y=0;
 		for(x=0;x<blen;x+=16)
 		{
-			/*gchar string[60];*/
-			gchar string[145];
-			string[0]='\0';
+			/*
+			 * XXX - should this just be an FTYPE_BYTES field,
+			 * and possibly just displayed as "Data: N bytes"
+			 * rather than giving all the bytes of data?
+			 */
+			emem_strbuf_t *string;
+			string = ep_strbuf_new(NULL);
 			for(y=0;y<16;y++)
 			{
 				if((x+y)>=blen)
 					break;
 
-				/*g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]);*/
-				sprintf(string,"%s%.2x ", string, pkt_bfield->Data[x+y]);
+				ep_strbuf_append_printf(string,"%.2x ", pkt_bfield->Data[x+y]);
 			}
-			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string);
+			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string->str);
 			if(y==16)
 				offset+=16;
 			else
@@ -899,19 +902,23 @@ dissect_bfield(gboolean dect_packet_type _U_, struct dect_afield *pkt_afield,
 			proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Framenumber %u/%u", fn, fn+8);
 			for(x=0;x<blen;x+=16)
 			{
-				/*gchar string[60];*/
-				gchar string[145];
-				string[0]='\0';
+				/*
+				 * XXX - should this just be an FTYPE_BYTES
+				 * field, and possibly just displayed as
+				 * "Data: N bytes" rather than giving all
+				 * the bytes of data?
+				 */
+				emem_strbuf_t *string;
+				string = ep_strbuf_new(NULL);
 				for(y=0;y<16;y++)
 				{
 					if((x+y)>=blen)
 						break;
 
-					/*g_snprintf(string, sizeof(string), "%s%.2x ", string, pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);*/
-					sprintf(string,"%s%.2x ", string, pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
+					ep_strbuf_append_printf(string,"%.2x ", pkt_bfield->Data[x+y]^scrt[fn][bytecount%31]);
 					bytecount++;
 				}
-				proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string);
+				proto_tree_add_uint_format(BField, hf_dect_B_Data, tvb, offset, y, 0x2323, "Data: %s", string->str);
 				if(y==16)
 					offset+=16;
 				else
