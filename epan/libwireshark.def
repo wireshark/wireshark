@@ -334,10 +334,12 @@ ep_stack_new
 ep_stack_pop
 ep_stack_push
 ep_strbuf_append
+ep_strbuf_append_c
 ep_strbuf_append_printf
 ep_strbuf_append_vprintf
 ep_strbuf_new
 ep_strbuf_new_label
+ep_strbuf_printf
 ep_strbuf_sized_new
 ep_strbuf_truncate
 ep_strdup

@@ -1797,6 +1797,35 @@ ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 }
 
 void
+ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
+	va_list ap;
+	if (!strbuf) {
+		return;
+	}
+	
+	strbuf->len = 0;
+	
+	va_start(ap, format);
+	ep_strbuf_append_vprintf(strbuf, format, ap);
+	va_end(ap);
+}
+
+void
+ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c) {
+	if (!strbuf) {
+		return;
+	}
+	
+	ep_strbuf_grow(strbuf, strbuf->len + 1);
+	
+	if (strbuf->alloc_len > strbuf->len + 1) {
+		strbuf->str[strbuf->len] = c;
+		strbuf->len++;
+		strbuf->str[strbuf->len] = '\0';
+	}
+}
+
+void
 ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len) {
 	if (!strbuf || len >= strbuf->len) {
 		return;

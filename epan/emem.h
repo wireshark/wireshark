@@ -422,6 +422,15 @@ emem_strbuf_t *ep_strbuf_sized_new(gsize len, gsize max_len);
 void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap);
 
 /**
+ * Apply printf-style formatted text to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to set to.
+ * @param format A printf-style string format.
+ */
+void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
+    GNUC_FORMAT_CHECK(printf, 2, 3);
+
+/**
  * Append printf-style formatted text to a string buffer.
  *
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
@@ -437,6 +446,14 @@ void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
  * @param str A null-terminated string.
  */
 void ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
+
+/**
+ * Append a character to a string buffer.
+ *
+ * @param strbuf The ep_strbuf-allocated string buffer to append to.
+ * @param c The character to append.
+ */
+void ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
 /**
  * Chop off the end of a string buffer.
