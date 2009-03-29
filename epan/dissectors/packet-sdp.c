@@ -1636,7 +1636,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  int address_offset, port_offset, port_end_offset;
 
 		  /* Address starts here */
-		  address_offset = offset + strlen(msrp_res);
+		  address_offset = offset + (int)strlen(msrp_res);
 
 		  /* Port is after next ':' */
 		  port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
@@ -1665,7 +1665,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  gint len;
 		  asn1_ctx_t actx;
 
-		  len = strlen(attribute_value);
+		  len = (gint)strlen(attribute_value);
 		  h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
 		  /* arbitrary maximum length */
 		  /* should go through a handle, however,  the two h245 entry

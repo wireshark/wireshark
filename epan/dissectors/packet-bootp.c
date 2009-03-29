@@ -1166,19 +1166,19 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		proto_item_append_text(vti, " = \"%s\"",
 			tvb_format_stringzpad(tvb, optoff, consumed-2));
 		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10,
-				      strlen(PACKETCABLE_MTA_CAP10)) == 0)
+				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
 		    (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP15,
-				      strlen(PACKETCABLE_MTA_CAP10)) == 0))
+				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0))
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
 		}
 		else {
 		  if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
-				      strlen(PACKETCABLE_CM_CAP11)) == 0
+				      (int)strlen(PACKETCABLE_CM_CAP11)) == 0
 		      ||
 		      tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
-				      strlen(PACKETCABLE_CM_CAP20)) == 0 )
+				      (int)strlen(PACKETCABLE_CM_CAP20)) == 0 )
 		  {
 			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
 		  }

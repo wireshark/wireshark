@@ -1237,7 +1237,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
     int line_len;
     int data_len;
 
-    prefix_len = strlen(prefix);
+    prefix_len = (int)strlen(prefix);
     if (prefix_len > 64)
 	prefix_len = 64;
     for (i = 0; i < prefix_len; i++)

@@ -4265,7 +4265,7 @@ dcm_export_create_tag_str(guint8 *buffer, guint32 bufflen, guint32 offset,
 	return offset;
     }
 
-    len=strlen(value);
+    len=(int)strlen(value);
 
     if ((len & 0x01) == 1) {
 	/*  Odd length: since buffer is 0 initalized, pad with a 0x00 */

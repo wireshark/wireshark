@@ -311,7 +311,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   g_size   = endOffset - g_offset;
 
   payloadText = tvb_format_text(tvb, g_offset, g_size);
-  size = strlen(payloadText);
+  size = (int)strlen(payloadText);
   for (loop = 0; loop < size; loop++)
   {
     if (payloadText[loop] == '_')
@@ -356,7 +356,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   }
   tmpBuffer[bufPoz] = '\0';
 
-  size1 = strlen(tmpBuffer);
+  size1 = (int)strlen(tmpBuffer);
   for (loop=0; loop<size1;loop++)
   {
     ch = tmpBuffer[loop];
