@@ -9486,7 +9486,7 @@
 00:24:FF	Qlogic                 # QLogic Corporation
 00:25:00	Apple                  # Apple, Inc
 00:25:01	Jsc"Supert             # JSC "Supertel"
-00:25:02	Naruralpoi             # NaruralPoint
+00:25:02	Naturalpoi             # NaturalPoint
 00:25:03	BladeNetwo             # BLADE Network Technology
 00:25:04	ValiantCom             # Valiant Communications Limited
 00:25:05	EksEngel               # eks Engel GmbH & Co. KG
@@ -9647,6 +9647,29 @@
 00:25:A0	Nintendo               # Nintendo Co., Ltd.
 00:25:A1	Enalasys
 00:25:A2	AltaDefini             # Alta Definicion LINCEO S.L.
+00:25:A3	TrimaxWire             # Trimax Wireless, Inc.
+00:25:A4	Eurodesign             # EuroDesign embedded technologies GmbH
+00:25:A5	WalnutMedi             # Walnut Media Network
+00:25:A6	CentralNet             # Central Network Solution Co., Ltd.
+00:25:A7	Comverge               # Comverge, Inc.
+00:25:A8	KontronBei             # Kontron (BeiJing) Technology Co.,Ltd
+00:25:A9	ShanghaiEm             # Shanghai Embedway Information Technologies Co.,Ltd
+00:25:AA	BeijingSou             # Beijing Soul Technology Co.,Ltd.
+00:25:AB	AioLcdPcBu             # AIO LCD PC BU / TPV
+00:25:AC	I-Tech                 # I-Tech corporation
+00:25:AD	Manufactur             # Manufacturing Resources International
+00:25:AE	Microsoft              # Microsoft Corporation
+00:25:AF	ComfileTec             # COMFILE Technology
+00:25:B0	Schmartz               # Schmartz Inc
+00:25:B1	Maya-Creat             # Maya-Creation Corporation
+00:25:B2	Ope2
+00:25:B3	HewlettPac             # Hewlett Packard
+00:25:B4	Cisco                  # Cisco Systems
+00:25:B5	Cisco                  # Cisco Systems
+00:25:B6	TelecomFm              # Telecom FM
+00:25:B7	CostarElec             # Costar  electronics, inc.,
+00:25:B8	AgileCommu             # Agile Communications, Inc.
+00:25:B9	Agilink                # Agilink Systems Corp.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -13029,6 +13052,13 @@
 00:50:C2:A8:40:00/36	LinoManfro             # Lino Manfrotto +Co spa
 00:50:C2:A8:50:00/36	Joysystem
 00:50:C2:A8:60:00/36	Limab                  # LIMAB AB
+00:50:C2:A8:70:00/36	Littlemore             # Littlemore Scientific
+00:50:C2:A8:80:00/36	S-Sys
+00:50:C2:A8:90:00/36	CaTraffic              # CA Traffic Ltd
+00:50:C2:A8:A0:00/36	AudioEngin             # Audio Engineering Ltd.
+00:50:C2:A8:B0:00/36	NavicronOy             # Navicron Oy
+00:50:C2:A8:C0:00/36	RedwireLlc             # Redwire, LLC
+00:50:C2:A8:D0:00/36	FrontierEl             # Frontier Electronic Systems Corp.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
