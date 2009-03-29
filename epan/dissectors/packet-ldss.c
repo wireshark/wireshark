@@ -282,7 +282,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32	targetTime;
     guint16 port;
     guint16	rate;
-	guint16 messageDetail;
+    guint16 messageDetail = INFERRED_NONE;
 
     proto_tree	*ti, *ldss_tree;
 
