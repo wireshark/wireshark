@@ -1018,7 +1018,7 @@ static guint32 giop_hash_module_hash(gconstpointer v) {
    *
    */
 
-  len = strlen(key->module);
+  len = (int)strlen(key->module);
 
   for (i=0; i<len; i++) {
     val += (guint8) key->module[i];
@@ -1279,7 +1279,7 @@ static int giop_getline(FILE *fp, gchar *line, int maxlen) {
   if (fgets(line,maxlen,fp) == NULL)
     return 0;
   else
-    return strlen(line);
+    return (int)strlen(line);
 
 }
 

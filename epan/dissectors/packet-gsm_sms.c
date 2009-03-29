@@ -1566,7 +1566,7 @@ gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned i
 	}
     }
 
-    return out_num - output;
+    return (int)(out_num - output);
 }
 
 #define GN_CHAR_ALPHABET_SIZE 128
@@ -2713,7 +2713,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 						utf8_text = g_convert_with_iconv(sm_tvb->real_data, sm_tvb->reported_length , cd , NULL , NULL , &l_conv_error);
 						if(!l_conv_error)
 						{
-							len_sms = strlen(utf8_text);
+							len_sms = (int)strlen(utf8_text);
 							num_labels = len_sms / MAX_SMS_FRAG_LEN;
 							num_labels += len_sms % MAX_SMS_FRAG_LEN ? 1 : 0;
 							for(i = 0; i < num_labels;i++)

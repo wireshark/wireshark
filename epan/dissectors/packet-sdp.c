@@ -1259,7 +1259,7 @@ static const value_string h264_packetization_mode_vals[] =
  * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
  */
 static void
-decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint tokenlen, guint8 *mime_type){
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint tokenlen, char *mime_type){
   gint next_offset;
   gint end_offset;
   guint8 *field_name;
@@ -1291,7 +1291,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   offset = next_offset;
 
   /* Dissect the MPEG4 profile-level-id parameter if present */
-  if (mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "MP4V-ES") == 0) {
+  if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "MP4V-ES") == 0) {
     if (strcmp((char*)field_name, "profile-level-id") == 0) {
       offset++;
       tokenlen = end_offset - offset;
@@ -1312,7 +1312,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   }
 
   /* Dissect the H263-2000 profile parameter if present */
-  if ((mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-2000") == 0)||(mime_type != NULL && g_ascii_strcasecmp((char*)mime_type, "H263-1998") == 0)) {
+  if ((mime_type != NULL && g_ascii_strcasecmp(mime_type, "H263-2000") == 0)||(mime_type != NULL && g_ascii_strcasecmp(mime_type, "H263-1998") == 0)) {
     if (strcmp((char*)field_name, "profile") == 0) {
       offset++;
       tokenlen = end_offset - offset;
@@ -1623,7 +1623,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 			  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
 			  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
-                      (guint8 *)transport_info->encoding_name);
+                      transport_info->encoding_name);
 
 			  /* Move offset past "; " and onto firts char */	
 			  offset = next_offset + 1;

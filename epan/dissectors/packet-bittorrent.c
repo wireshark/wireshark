@@ -535,7 +535,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 	  for ( i=0 ; amp_messages[i].name ; i++ ) {
 	    if (strlen(amp_messages[i].name)==typelen &&
 		tvb_memeql(tvb, offset + BITTORRENT_HEADER_LENGTH + 4,
-			   amp_messages[i].name, strlen(amp_messages[i].name))==0) {
+			   amp_messages[i].name, (int)strlen(amp_messages[i].name))==0) {
 
 	      prio = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH + 4 + typelen);
 	      if (prio==0 || prio==1 || prio==2) {
@@ -701,11 +701,11 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
    if(decode_client_information) {
       for(i = 0; peer_id[i].id[0] != '\0'; ++i)
       {
-	 if(tvb_memeql(tvb, offset, peer_id[i].id, strlen(peer_id[i].id)) == 0) {
+	 if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
             /* The version number is 4 numeric characters for the
                client ids beginning with '-' and 3 characters for the
                rest. */
-	    version = tvb_get_ephemeral_string(tvb, offset + strlen(peer_id[i].id),
+	    version = tvb_get_ephemeral_string(tvb, offset + (int)strlen(peer_id[i].id),
 	       (peer_id[i].id[0] == '-') ? 4 : 3);
             proto_tree_add_text(tree, tvb, offset, 20, "Client is %s v%s",
                peer_id[i].name,
