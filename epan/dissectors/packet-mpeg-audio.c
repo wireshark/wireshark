@@ -467,7 +467,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 h;
 	struct mpa mpa;
-	size_t data_size = 0;
+	int data_size = 0;
 	asn1_ctx_t asn1_ctx;
 	int offset = 0;
 
@@ -492,7 +492,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
-		data_size = MPA_DATA_BYTES(&mpa) - sizeof mpa;
+		data_size = (int)(MPA_DATA_BYTES(&mpa) - sizeof mpa);
 		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
 			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,

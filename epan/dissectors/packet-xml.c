@@ -1229,7 +1229,7 @@ static void init_xml_names(void) {
 				guint namelen;
 				filename = GETFNAME_OP(file);
 
-				namelen = strlen(filename);
+				namelen = (int)strlen(filename);
 				if ( namelen > 4 && ( g_ascii_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
 					GString* errors = g_string_new("");
 					GString* preparsed = dtd_preparse(dirname, filename, errors);

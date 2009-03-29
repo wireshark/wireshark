@@ -119,14 +119,14 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             gchar * value = NULL;
             gint fieldlen;
 
-            length = strlen(field) + 1;
+            length = (int)strlen(field) + 1;
 
             if ( !(value=strchr(field, '=')) ) {
                 /* bad packet: missing the field separator */
                 continue;
             }
             *value++='\0';
-            fieldlen=strlen(field)+1;
+            fieldlen=(int)strlen(field)+1;
 
             if ( g_ascii_strcasecmp(field,"tivoconnect") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
