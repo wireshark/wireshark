@@ -580,6 +580,7 @@ DISSECTOR_SRC = \
 	packet-laplink.c	\
 	packet-l1-events.c	\
 	packet-ldp.c		\
+	packet-ldss.c		\
 	packet-lge_monitor.c	\
 	packet-linx.c		\
 	packet-llc.c		\
