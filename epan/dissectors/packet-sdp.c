@@ -194,7 +194,7 @@ static int ett_sdp_key_mgmt = -1;
 
 #define SDP_MAX_RTP_CHANNELS 4
 #define SDP_MAX_RTP_PAYLOAD_TYPES 20
-
+#define SDP_NO_OF_PT 128
 typedef struct {
   gint32 pt[SDP_MAX_RTP_PAYLOAD_TYPES];
   gint8 pt_count;
@@ -204,7 +204,7 @@ typedef struct {
 typedef struct {
   char *connection_address;
   char *connection_type;
-  char *encoding_name;
+  char *encoding_name[SDP_NO_OF_PT]; 
   char *media_port[SDP_MAX_RTP_CHANNELS];
   char *media_proto[SDP_MAX_RTP_CHANNELS];
   transport_media_pt_t media[SDP_MAX_RTP_CHANNELS];
@@ -287,7 +287,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Initialise RTP channel info */
   transport_info.connection_address=NULL;
   transport_info.connection_type=NULL;
-  transport_info.encoding_name=NULL;
+  for (n=0; n < SDP_NO_OF_PT; n++){
+	  transport_info.encoding_name[n]=NULL;
+  }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
     transport_info.media_port[n]=NULL;
@@ -1457,6 +1459,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   guint8 *payload_type;
   guint8 *attribute_value;
   gint   *key;
+  guint8 pt;
   gint	sdp_media_attrbute_code;
   const char *msrp_res = "msrp://";
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
@@ -1524,11 +1527,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
-	  /* get_string is needed here as the string is "saved" in a hashtable */
-	  transport_info->encoding_name = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	
+
 	  key=g_malloc( sizeof(gint) );
 	  *key=atol((char*)payload_type);
+	  pt = atoi((char*)payload_type);
+	  transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	
 
 	  offset = next_offset + 1;
 	  tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
@@ -1557,13 +1561,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
 			  if (n==0)
 				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                                    key, g_strdup(transport_info->encoding_name));
+                                    key, g_strdup(transport_info->encoding_name[pt]));
 			  else {    /* we create a new key and encoding_name to assign to the other hash tables */
 				  gint *key2;
 				  key2=g_malloc( sizeof(gint) );
 				  *key2=atol((char*)payload_type);
 				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-					  key2, g_strdup(transport_info->encoding_name));
+					  key2, g_strdup(transport_info->encoding_name[pt]));
 			  }
 		  }
 		  return;
@@ -1572,13 +1576,14 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
 		  if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
 			  g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-					key, g_strdup(transport_info->encoding_name));
+					key, g_strdup(transport_info->encoding_name[pt]));
 		  else
 			  g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
-					key, g_strdup(transport_info->encoding_name));
+					key, g_strdup(transport_info->encoding_name[pt]));
 	  break;
   case SDP_FMTP:
 	  if(sdp_media_attribute_tree){
+		  guint8 media_format;
 		  /* Reading the Format parameter(fmtp) */
 		  /* Skip leading space, if any */
 		  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
@@ -1594,10 +1599,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
+		  media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+
 		  /* Append encoding name to format if known */
-		  if (transport_info->encoding_name)
-			  proto_item_append_text(media_format_item, " [%s]",
-                             transport_info->encoding_name);
+		  proto_item_append_text(media_format_item, " [%s]",
+                             transport_info->encoding_name[media_format]);
 
 		  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 		  /* Move offset past the payload type */
@@ -1623,7 +1629,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 			  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
 			  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
-                      transport_info->encoding_name);
+                      transport_info->encoding_name[media_format]);
 
 			  /* Move offset past "; " and onto firts char */	
 			  offset = next_offset + 1;
@@ -1692,23 +1698,23 @@ proto_register_sdp(void)
     { &hf_protocol_version,
       { "Session Description Protocol Version (v)",
         "sdp.version", FT_STRING, BASE_NONE,NULL,0x0,
-        "Session Description Protocol Version", HFILL }},
+        NULL, HFILL }},
     { &hf_owner,
       { "Owner/Creator, Session Id (o)",
         "sdp.owner", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Owner/Creator, Session Id", HFILL}},
+        NULL, HFILL}},
     { &hf_session_name,
       { "Session Name (s)",
         "sdp.session_name", FT_STRING, BASE_NONE,NULL, 0x0,
-        "Session Name", HFILL }},
+        NULL, HFILL }},
     { &hf_session_info,
       { "Session Information (i)",
         "sdp.session_info", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Information", HFILL }},
+        NULL, HFILL }},
     { &hf_uri,
       { "URI of Description (u)",
         "sdp.uri", FT_STRING, BASE_NONE,NULL, 0x0,
-        "URI of Description", HFILL }},
+        NULL, HFILL }},
     { &hf_email,
       { "E-mail Address (e)",
         "sdp.email", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1716,43 +1722,43 @@ proto_register_sdp(void)
     { &hf_phone,
       { "Phone Number (p)",
         "sdp.phone", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Phone Number", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info,
       { "Connection Information (c)",
         "sdp.connection_info", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection Information", HFILL }},
+        NULL, HFILL }},
     { &hf_bandwidth,
       { "Bandwidth Information (b)",
         "sdp.bandwidth", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Bandwidth Information", HFILL }},
+        NULL, HFILL }},
     { &hf_timezone,
       { "Time Zone Adjustments (z)",
         "sdp.timezone", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Time Zone Adjustments", HFILL }},
+        NULL, HFILL }},
     { &hf_encryption_key,
       { "Encryption Key (k)",
         "sdp.encryption_key", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Encryption Key", HFILL }},
+        NULL, HFILL }},
     { &hf_session_attribute,
       { "Session Attribute (a)",
         "sdp.session_attr", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Attribute", HFILL }},
+        NULL, HFILL }},
     { &hf_media_attribute,
       { "Media Attribute (a)",
         "sdp.media_attr", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Attribute", HFILL }},
+        NULL, HFILL }},
     { &hf_time,
       { "Time Description, active time (t)",
         "sdp.time", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Time Description, active time", HFILL }},
+        NULL, HFILL }},
     { &hf_repeat_time,
       { "Repeat Time (r)",
         "sdp.repeat_time", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Repeat Time", HFILL }},
+        NULL, HFILL }},
     { &hf_media,
       { "Media Description, name and address (m)",
         "sdp.media", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Description, name and address", HFILL }},
+        NULL, HFILL }},
     { &hf_media_title,
       { "Media Title (i)",
         "sdp.media_title",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1760,27 +1766,27 @@ proto_register_sdp(void)
     { &hf_unknown,
       { "Unknown",
         "sdp.unknown",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Unknown", HFILL }},
+        NULL, HFILL }},
     { &hf_invalid,
       { "Invalid line",
         "sdp.invalid",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Invalid line", HFILL }},
+        NULL, HFILL }},
     { &hf_owner_username,
       { "Owner Username",
         "sdp.owner.username",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Owner Username", HFILL }},
+        NULL, HFILL }},
     { &hf_owner_sessionid,
       { "Session ID",
         "sdp.owner.sessionid",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session ID", HFILL }},
+        NULL, HFILL }},
     { &hf_owner_version,
       { "Session Version",
         "sdp.owner.version",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Version", HFILL }},
+        NULL, HFILL }},
     { &hf_owner_network_type,
       { "Owner Network Type",
         "sdp.owner.network_type",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Owner Network Type", HFILL }},
+        NULL, HFILL }},
     { &hf_owner_address_type,
       { "Owner Address Type",
         "sdp.owner.address_type",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1788,31 +1794,31 @@ proto_register_sdp(void)
     { &hf_owner_address,
       { "Owner Address",
         "sdp.owner.address",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Owner Address", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info_network_type,
       { "Connection Network Type",
         "sdp.connection_info.network_type",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection Network Type", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info_address_type,
       { "Connection Address Type",
         "sdp.connection_info.address_type",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection Address Type", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info_connection_address,
       { "Connection Address",
         "sdp.connection_info.address",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection Address", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info_ttl,
       { "Connection TTL",
         "sdp.connection_info.ttl",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection TTL", HFILL }},
+        NULL, HFILL }},
     { &hf_connection_info_num_addr,
       { "Connection Number of Addresses",
         "sdp.connection_info.num_addr",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Connection Number of Addresses", HFILL }},
+        NULL, HFILL }},
     { &hf_bandwidth_modifier,
       { "Bandwidth Modifier",
         "sdp.bandwidth.modifier",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Bandwidth Modifier", HFILL }},
+        NULL, HFILL }},
     { &hf_bandwidth_value,
       { "Bandwidth Value",
         "sdp.bandwidth.value",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1820,7 +1826,7 @@ proto_register_sdp(void)
     { &hf_time_start,
       { "Session Start Time",
         "sdp.time.start",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Start Time", HFILL }},
+        NULL, HFILL }},
     { &hf_time_stop,
       { "Session Stop Time",
         "sdp.time.stop",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1828,67 +1834,67 @@ proto_register_sdp(void)
     { &hf_repeat_time_interval,
       { "Repeat Interval",
         "sdp.repeat_time.interval",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Repeat Interval", HFILL }},
+        NULL, HFILL }},
     { &hf_repeat_time_duration,
       { "Repeat Duration",
         "sdp.repeat_time.duration",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Repeat Duration", HFILL }},
+        NULL, HFILL }},
     { &hf_repeat_time_offset,
       { "Repeat Offset",
         "sdp.repeat_time.offset",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Repeat Offset", HFILL }},
+        NULL, HFILL }},
     { &hf_timezone_time,
       { "Timezone Time",
         "sdp.timezone.time",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Timezone Time", HFILL }},
+        NULL, HFILL }},
     { &hf_timezone_offset,
       { "Timezone Offset",
         "sdp.timezone.offset",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Timezone Offset", HFILL }},
+        NULL, HFILL }},
     { &hf_encryption_key_type,
       { "Key Type",
         "sdp.encryption_key.type",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Type", HFILL }},
+        NULL, HFILL }},
     { &hf_encryption_key_data,
       { "Key Data",
         "sdp.encryption_key.data",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Data", HFILL }},
+        NULL, HFILL }},
     { &hf_session_attribute_field,
       { "Session Attribute Fieldname",
         "sdp.session_attr.field",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Attribute Fieldname", HFILL }},
+        NULL, HFILL }},
     { &hf_session_attribute_value,
       { "Session Attribute Value",
         "sdp.session_attr.value",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Session Attribute Value", HFILL }},
+        NULL, HFILL }},
     { &hf_media_media,
       { "Media Type",
         "sdp.media.media",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Type", HFILL }},
+        NULL, HFILL }},
     { &hf_media_port,
       { "Media Port",
         "sdp.media.port",FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Media Port", HFILL }},
+        NULL, HFILL }},
     { &hf_media_portcount,
       { "Media Port Count",
         "sdp.media.portcount",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Port Count", HFILL }},
+        NULL, HFILL }},
     { &hf_media_proto,
-      { "Media Proto",
+      { "Media Protocol",
         "sdp.media.proto",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Protocol", HFILL }},
+        NULL, HFILL }},
     { &hf_media_format,
       { "Media Format",
         "sdp.media.format",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Format", HFILL }},
+        NULL, HFILL }},
     { &hf_media_attribute_field,
       { "Media Attribute Fieldname",
         "sdp.media_attribute.field",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Attribute Fieldname", HFILL }},
+        NULL, HFILL }},
     { &hf_media_attribute_value,
       { "Media Attribute Value",
         "sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Media Attribute Value", HFILL }},
+        NULL, HFILL }},
     { &hf_media_encoding_name,
       { "MIME Type",
         "sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1896,7 +1902,7 @@ proto_register_sdp(void)
 	{ &hf_media_sample_rate,
       { "Sample Rate",
         "sdp.sample_rate",FT_STRING, BASE_NONE, NULL, 0x0,
-        "Sample Rate", HFILL }},
+        NULL, HFILL }},
     { &hf_media_format_specific_parameter,
       { "Media format specific parameters",
         "sdp.fmtp.parameter",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1904,47 +1910,47 @@ proto_register_sdp(void)
     { &hf_ipbcp_version,
       { "IPBCP Protocol Version",
         "ipbcp.version",FT_STRING, BASE_NONE, NULL, 0x0,
-        "IPBCP Protocol Version", HFILL }},
+        NULL, HFILL }},
     { &hf_ipbcp_type,
       { "IPBCP Command Type",
         "ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
-        "IPBCP Command Type", HFILL }},
+        NULL, HFILL }},
 	{&hf_sdp_fmtp_mpeg4_profile_level_id,
       { "Level Code",
         "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mp4ves_level_indication_vals), 0x0,
-        "Level Code", HFILL }},
+        NULL, HFILL }},
 	{ &hf_sdp_fmtp_h263_profile,
       { "Profile",
         "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
-        "Profile", HFILL }},
+        NULL, HFILL }},
 	{ &hf_sdp_fmtp_h263_level,
       { "Level",
         "sdp.fmtp.h263level",FT_UINT32, BASE_DEC,VALS(h263_level_vals), 0x0,
-        "level", HFILL }},
+        NULL, HFILL }},
 	{ &hf_sdp_h264_packetization_mode,
       { "Packetization mode",
         "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
-        "Packetization mode", HFILL }},
+        NULL, HFILL }},
 	{ &hf_sdp_h264_sprop_parameter_sets,
       { "Sprop_parameter_sets",
         "sdp.h264.sprop_parameter_sets", FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Sprop_parameter_sets", HFILL }},
+        NULL, HFILL }},
     { &hf_SDPh223LogicalChannelParameters,
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
-        "sdp.h223LogicalChannelParameters", HFILL }},
+        NULL, HFILL }},
     { &hf_key_mgmt_att_value,
       { "Key Management",
         "sdp.key_mgmt", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Key Management", HFILL }},
+        NULL, HFILL }},
     { &hf_key_mgmt_prtcl_id,
       { "Key Management Protocol (kmpid)",
         "sdp.key_mgmt.kmpid", FT_STRING, BASE_NONE, NULL, 0x0,
-        "Key Management Protocol", HFILL }},
+        NULL, HFILL }},
     { &hf_key_mgmt_data,
       { "Key Management Data",
         "sdp.key_mgmt.data", FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Key Management Data", HFILL }},
+        NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_sdp,
