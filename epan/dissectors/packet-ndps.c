@@ -2626,7 +2626,7 @@ server_entry(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Server Info");
     atree = proto_item_add_subtree(aitem, ett_ndps);
     foffset = ndps_string(tvb, hf_ndps_server_name, ndps_tree, foffset, &server_name);
-    proto_item_append_text(aitem, ": %s", format_text(server_name, strlen(server_name)));
+    proto_item_append_text(aitem, ": %s", format_text(server_name, (int)strlen(server_name)));
     proto_tree_add_item(atree, hf_ndps_server_type, tvb, foffset, 4, FALSE);
     foffset += 4;
     foffset = print_address(tvb, atree, foffset);

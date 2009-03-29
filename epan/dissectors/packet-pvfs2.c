@@ -867,9 +867,9 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				guint16 string_buffer_size = 0;
 
 				formatted = format_text((guint8 *)string_buffer, 
-						strlen(string_buffer));
+						(int)strlen(string_buffer));
 
-				string_buffer_size = strlen(formatted) + 12 + 1;
+				string_buffer_size = (guint16)strlen(formatted) + 12 + 1;
 
 				/* alloc maximum data area */
 				string_buffer_print = (char*) ep_alloc(string_buffer_size);
@@ -891,7 +891,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			if (string_data) {
 				string_buffer_print = (char *)
 				    ep_strdup(format_text((guint8 *) string_buffer, 
-								 strlen(string_buffer)));
+								 (int)strlen(string_buffer)));
 			} else {
 				string_buffer_print="<DATA>";
 			}

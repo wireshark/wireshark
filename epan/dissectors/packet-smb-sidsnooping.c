@@ -292,7 +292,7 @@ sid_name_hash(gconstpointer k)
 	const sid_name *sn = (const sid_name *)k;
 	int i, sum;
 
-	for(sum=0,i=strlen(sn->sid)-1;i>=0;i--){
+	for(sum=0,i=(int)strlen(sn->sid)-1;i>=0;i--){
 		sum+=sn->sid[i];
 	}
 

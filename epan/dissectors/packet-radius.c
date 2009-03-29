@@ -437,7 +437,7 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
     dest_len -= 1; /* Need to add trailing \" */
 
     md5_init(&md_ctx);
-    md5_append(&md_ctx,(const guint8*)shared_secret,strlen(shared_secret));
+    md5_append(&md_ctx,(const guint8*)shared_secret,(int)strlen(shared_secret));
     md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
     md5_finish(&md_ctx,digest);
 

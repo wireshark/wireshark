@@ -211,11 +211,11 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (ident) {
-		pcnfsd_decode_obscure(ident, strlen(ident));
+		pcnfsd_decode_obscure(ident, (int)strlen(ident));
 		if (ident_tree)
 			proto_tree_add_string(ident_tree,
 				hf_pcnfsd_auth_ident_clear,
-				tvb, offset+4, strlen(ident), ident);
+				tvb, offset+4, (gint)strlen(ident), ident);
 	}
 	if (ident_item) {
 		proto_item_set_text(ident_item, "Authentication Ident: %s",
@@ -238,11 +238,11 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	if (password) {
-		pcnfsd_decode_obscure(password, strlen(password));
+		pcnfsd_decode_obscure(password, (int)strlen(password));
 		if (password_tree)
 			proto_tree_add_string(password_tree,
 				hf_pcnfsd_auth_password_clear,
-				tvb, offset+4, strlen(password), password);
+				tvb, offset+4, (gint)strlen(password), password);
 	}
 	if (password_item) {
 		proto_item_set_text(password_item, "Authentication Password: %s",

@@ -830,7 +830,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	}
 
 	if(name){
-		nns->name_len=strlen(name);
+		nns->name_len=(int)strlen(name);
 		nns->name=g_strdup(name);
 	} else {
 		nns->name_len=name_len;

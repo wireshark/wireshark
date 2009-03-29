@@ -550,14 +550,14 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             }
             /* Parse the attribute name */
             tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, (length-offset)/2, FALSE);
-            type_len = strcspn(tmp, "=");
+            type_len = (int)strcspn(tmp, "=");
             attr_type = tvb_get_ephemeral_faked_unicode(tvb, offset, type_len, FALSE);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
             /* If this is the attribute svcname */
             if (strcmp(attr_type, "svcname-ws")==0) {
                 tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, (length-offset)/2, FALSE);
-                type_len = strcspn(tmp, ")");
+                type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
                 attr_type[0] = '\0';
@@ -635,7 +635,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         break;
 
     case CHARSET_UTF_8:
-        type_len = strcspn(tvb_get_ptr(tvb, offset, length), "=");
+        type_len = (int)strcspn(tvb_get_ptr(tvb, offset, length), "=");
         attr_type = unicode_to_bytes(tvb, offset+1, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
         i=1;

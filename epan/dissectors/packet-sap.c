@@ -232,7 +232,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
 
           /* Do we have the optional payload type aka. MIME content specifier */
-          if (tvb_strneql(tvb, offset, "v=", strlen("v="))) {
+          if (tvb_strneql(tvb, offset, "v=", (int)strlen("v="))) {
                   gint remaining_len;
                   guint32 pt_len;
                   int pt_string_len;

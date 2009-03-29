@@ -1801,8 +1801,8 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 	    SET_ADDRESS(&save_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 	    SET_ADDRESS(&save_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 	    /* Set SMPP source and destination address */
-	    SET_ADDRESS(&(pinfo->src), AT_STRINGZ, 1+strlen(src_str), src_str);
-	    SET_ADDRESS(&(pinfo->dst), AT_STRINGZ, 1+strlen(dst_str), dst_str);
+	    SET_ADDRESS(&(pinfo->src), AT_STRINGZ, 1+(int)strlen(src_str), src_str);
+	    SET_ADDRESS(&(pinfo->dst), AT_STRINGZ, 1+(int)strlen(dst_str), dst_str);
 	    tvb_msg = tvb_new_subset (tvb, offset,
 		    MIN(length, tvb_reported_length(tvb) - offset), length);
 	    call_dissector (gsm_sms_handle, tvb_msg, pinfo, top_tree);
