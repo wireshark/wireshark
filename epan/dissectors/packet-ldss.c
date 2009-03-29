@@ -466,7 +466,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ldss_transfer_info_t *transfer_info;
 	struct tcpinfo *transfer_tcpinfo;
 
-	proto_tree	*ti, *line_tree, *ldss_tree;
+	proto_tree	*ti, *line_tree = NULL, *ldss_tree = NULL;
 
 	nstime_t broadcast_response_time;
 
