@@ -645,8 +645,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         /* Display the destination address. */
         if(packet->dst.addr16==IEEE802154_BCAST_ADDR) g_snprintf(dst_addr, 32, "Broadcast");
         else g_snprintf(dst_addr, 32, "0x%04x", packet->dst.addr16);
-        SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
+        SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_addr16, tvb, offset, sizeof(guint16), packet->dst.addr16);
             proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
@@ -722,8 +722,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         /* Update the Address fields. */
         if(packet->src.addr16==IEEE802154_BCAST_ADDR) g_snprintf(src_addr, 32, "Broadcast");
         else g_snprintf(src_addr, 32, "0x%04x", packet->src.addr16);
-        SET_ADDRESS(&pinfo->dl_src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
+        SET_ADDRESS(&pinfo->dl_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
 
         /* Add the addressing info to the tree. */
         if (tree) {

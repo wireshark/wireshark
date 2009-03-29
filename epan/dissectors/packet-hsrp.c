@@ -408,7 +408,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         			auth_buf[sizeof auth_buf - 1] = '\0';
         			proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
                                                      "Authentication Data: %sDefault (%s)",
-                                                     (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                                     (tvb_strneql(tvb, offset, "cisco", (int)strlen("cisco"))) == 0 ? "" : "Non-",
                                                      auth_buf);
         			offset += 8;
         			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
@@ -564,7 +564,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			auth_buf[sizeof auth_buf - 1] = '\0';
                 			proto_tree_add_string_format(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
                                                              "Authentication Data: %sDefault (%s)",
-                                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                                             (tvb_strneql(tvb, offset, "cisco", (int)strlen("cisco"))) == 0 ? "" : "Non-",
                                                              auth_buf);
                 			offset += 8;
                                 }

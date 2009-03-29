@@ -1180,7 +1180,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				format_text(strval, strlen(strval)),
+				format_text(strval, (int)strlen(strval)),
 				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1217,7 +1217,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				format_text(strval, strlen(strval)),
+				format_text(strval, (int)strlen(strval)),
 				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
@@ -1256,7 +1256,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				proto_tree_add_text(mmse_tree, tvb, offset - 1,
 					length + 1, "%s: %s (Not decoded)",
 					hdr_name,
-					format_text(strval, strlen(strval)));
+					format_text(strval, (int)strlen(strval)));
 			    }
 			} else { /* General form with length */
 			    if (peek == 0x1F) { /* Value length in guintvar */
@@ -1292,8 +1292,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    (const char *) tvb_get_ptr(
 					    tvb, offset, length + length2),
 				    "%s: %s",
-				    format_text(strval, strlen(strval)),
-				    format_text(strval2, strlen(strval2)));
+				    format_text(strval, (int)strlen(strval)),
+				    format_text(strval2, (int)strlen(strval2)));
 			}
 			offset += length + length2;
 		    }

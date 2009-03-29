@@ -1893,7 +1893,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 	
 	for (i = 0; tokens[i] != NULL; i++)
 	{
-		tokenlen = strlen(tokens[i]);
+		tokenlen = (int)strlen(tokens[i]);
 		typval = ep_strsplit(tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
@@ -2007,7 +2007,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 		hf_uint = -1;
 		hf_string = -1;
         
-		tokenlen = strlen(tokens[i]);
+		tokenlen = (int)strlen(tokens[i]);
 		typval = ep_strsplit(tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{

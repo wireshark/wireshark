@@ -189,7 +189,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				ptr+=len;
 				*ptr=0;
 
-				nfs_name_snoop_add_name(civ->xid, tvb, -1, strlen(name), 0, 0, name);
+				nfs_name_snoop_add_name(civ->xid, tvb, -1, (gint)strlen(name), 0, 0, name);
 			}
 		}
 	}

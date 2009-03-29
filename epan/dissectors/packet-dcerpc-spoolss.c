@@ -1038,7 +1038,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	remaining = tvb_length_remaining(tvb, offset) / 2;
 	text = tvb_fake_unicode(tvb, offset, remaining, TRUE);
-	len = strlen(text);
+	len = (int)strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
 			    name ? name : "String", text);
@@ -6643,7 +6643,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 		subtree, tvb, offset - 4, 4, "Name len: %d", name_len);
 
 	proto_tree_add_text(
-		subtree, tvb, start_offset + name_offset, (strlen(name) + 1) * 2,
+		subtree, tvb, start_offset + name_offset, ((int)strlen(name) + 1) * 2,
 		"Name: %s", name);
 
 	offset = dissect_ndr_uint32(

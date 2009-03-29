@@ -202,7 +202,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 				if (ident)
 				{
-					ident_len = strlen(ident);
+					ident_len = (int)strlen(ident);
 
 					proto_item_set_len(ident_item, ident_len);
 

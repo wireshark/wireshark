@@ -382,7 +382,7 @@ static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 	family = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH + 4);
 	addrlen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
 	addr = tvb_get_ptr(tvb, LWRES_LWPACKET_LENGTH + 10, 4);
-	slen = strlen(ip_to_str(addr));
+	slen = (int)strlen(ip_to_str(addr));
 
 	if(lwres_tree)
 	{
@@ -670,7 +670,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 			family = tvb_get_ntohl(tvb, offset);
 			length = tvb_get_ntohs(tvb, offset + 4);
 			addr = (gchar*)tvb_get_ptr(tvb, offset + 6, 4);
-			slen = strlen((char*)ip_to_str((guint8*)addr));
+			slen = (int)strlen((char*)ip_to_str((guint8*)addr));
 		
 			addr_item = proto_tree_add_text(adn_resp_tree,tvb, offset, 4+2+4, "Address %s",ip_to_str((guint8*)addr));
 			addr_tree = proto_item_add_subtree(addr_item, ett_adn_addr);
