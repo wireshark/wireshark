@@ -77,7 +77,8 @@ static int					hf_dcd				= -1;
 #define IOP					"Local"
 #define REMOTE				"Remote"
 
-gchar *format_flags_string(guchar value, const gchar *array[]) 
+static gchar *
+format_flags_string(guchar value, const gchar *array[]) 
 {
 	int			i;
 	guint		bpos;

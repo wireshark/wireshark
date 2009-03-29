@@ -128,7 +128,8 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 * DETAILS : Calculate a new FCS-16 given the current FCS-16 and the new data.
 *******************************************************************************
 */
-static guint16 mtp2_fcs16(tvbuff_t * tvbuff)
+static guint16
+mtp2_fcs16(tvbuff_t * tvbuff)
 {
     guint len = tvb_length(tvbuff)-2;
 
@@ -141,7 +142,8 @@ static guint16 mtp2_fcs16(tvbuff_t * tvbuff)
 /*
  * This function for CRC16 only is based on the decode_fcs of packet_ppp.c
  */
-tvbuff_t * mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
+static tvbuff_t *
+mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
 {
   tvbuff_t   *next_tvb;
   gint       len, reported_len;
@@ -373,21 +375,21 @@ proto_register_mtp2(void)
 {
 
   static hf_register_info hf[] = {
-    { &hf_mtp2_bsn,       { "Backward sequence number", "mtp2.bsn",      FT_UINT8,  BASE_DEC, NULL,                    BSN_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_bsn,   { "Backward sequence number", "mtp2.bsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BSN_MASK,   "", HFILL } },
-    { &hf_mtp2_ext_res,   { "Reserved",                 "mtp2.res",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_RES_MASK,   "", HFILL } },
-    { &hf_mtp2_bib,       { "Backward indicator bit",   "mtp2.bib",      FT_UINT8,  BASE_DEC, NULL,                    BIB_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_bib,   { "Backward indicator bit",   "mtp2.bib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BIB_MASK,   "", HFILL } },
-    { &hf_mtp2_fsn,       { "Forward sequence number",  "mtp2.fsn",      FT_UINT8,  BASE_DEC, NULL,                    FSN_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_fsn,   { "Forward sequence number",  "mtp2.fsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FSN_MASK,   "", HFILL } },
-    { &hf_mtp2_fib,       { "Forward indicator bit",    "mtp2.fib",      FT_UINT8,  BASE_DEC, NULL,                    FIB_MASK,            "", HFILL } },
-    { &hf_mtp2_ext_fib,   { "Forward indicator bit",    "mtp2.fib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FIB_MASK,   "", HFILL } },
-    { &hf_mtp2_li,        { "Length Indicator",         "mtp2.li",       FT_UINT8,  BASE_DEC, NULL,                    LI_MASK,             "", HFILL } },
-    { &hf_mtp2_ext_li,    { "Length Indicator",         "mtp2.li",       FT_UINT16, BASE_DEC, NULL,                    EXTENDED_LI_MASK,    "", HFILL } },
-    { &hf_mtp2_spare,     { "Spare",                    "mtp2.spare",    FT_UINT8,  BASE_DEC, NULL,                    SPARE_MASK,          "", HFILL } },
-    { &hf_mtp2_ext_spare, { "Spare",                    "mtp2.spare",    FT_UINT16, BASE_DEC, NULL,                    EXTENDED_SPARE_MASK, "", HFILL } },
-    { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",       FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 "", HFILL } },
-    { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 "", HFILL } }
+    { &hf_mtp2_bsn,       { "Backward sequence number", "mtp2.bsn",      FT_UINT8,  BASE_DEC, NULL,                    BSN_MASK,            NULL, HFILL } },
+    { &hf_mtp2_ext_bsn,   { "Backward sequence number", "mtp2.bsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BSN_MASK,   NULL, HFILL } },
+    { &hf_mtp2_ext_res,   { "Reserved",                 "mtp2.res",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_RES_MASK,   NULL, HFILL } },
+    { &hf_mtp2_bib,       { "Backward indicator bit",   "mtp2.bib",      FT_UINT8,  BASE_DEC, NULL,                    BIB_MASK,            NULL, HFILL } },
+    { &hf_mtp2_ext_bib,   { "Backward indicator bit",   "mtp2.bib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_BIB_MASK,   NULL, HFILL } },
+    { &hf_mtp2_fsn,       { "Forward sequence number",  "mtp2.fsn",      FT_UINT8,  BASE_DEC, NULL,                    FSN_MASK,            NULL, HFILL } },
+    { &hf_mtp2_ext_fsn,   { "Forward sequence number",  "mtp2.fsn",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FSN_MASK,   NULL, HFILL } },
+    { &hf_mtp2_fib,       { "Forward indicator bit",    "mtp2.fib",      FT_UINT8,  BASE_DEC, NULL,                    FIB_MASK,            NULL, HFILL } },
+    { &hf_mtp2_ext_fib,   { "Forward indicator bit",    "mtp2.fib",      FT_UINT16, BASE_DEC, NULL,                    EXTENDED_FIB_MASK,   NULL, HFILL } },
+    { &hf_mtp2_li,        { "Length Indicator",         "mtp2.li",       FT_UINT8,  BASE_DEC, NULL,                    LI_MASK,             NULL, HFILL } },
+    { &hf_mtp2_ext_li,    { "Length Indicator",         "mtp2.li",       FT_UINT16, BASE_DEC, NULL,                    EXTENDED_LI_MASK,    NULL, HFILL } },
+    { &hf_mtp2_spare,     { "Spare",                    "mtp2.spare",    FT_UINT8,  BASE_DEC, NULL,                    SPARE_MASK,          NULL, HFILL } },
+    { &hf_mtp2_ext_spare, { "Spare",                    "mtp2.spare",    FT_UINT16, BASE_DEC, NULL,                    EXTENDED_SPARE_MASK, NULL, HFILL } },
+    { &hf_mtp2_sf,        { "Status field",             "mtp2.sf",       FT_UINT8,  BASE_DEC, VALS(status_field_vals), 0x0,                 NULL, HFILL } },
+    { &hf_mtp2_sf_extra,  { "Status field extra octet", "mtp2.sf_extra", FT_UINT8,  BASE_HEX, NULL,                    0x0,                 NULL, HFILL } }
   };
 
   static gint *ett[] = {

@@ -168,7 +168,8 @@ typedef struct lapd_ppi {
 } lapd_ppi_t;
 
 /* Fill values in lapd_byte_state struct */
-void fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, char full_byte, char bit_offset, int ones)
+static void
+fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, char full_byte, char bit_offset, int ones)
 {
 	ptr->state = state;
 	ptr->full_byte = full_byte;
@@ -548,31 +549,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_lapd(void)
-{
-	static gboolean init = FALSE;
-	static dissector_handle_t lapd_bitstream_handle;
-	static gint lapd_rtp_payload_type;
-
-	if (!init) {
-		dissector_handle_t lapd_handle;
-
-		lapd_handle = find_dissector("lapd");
-		dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
-
-		lapd_bitstream_handle = create_dissector_handle(dissect_lapd_bitstream, proto_lapd);
-		data_handle = find_dissector("data");
-
-		init = TRUE;
-	} else {
-		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-			dissector_delete("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
-	}
-
-	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
-	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-		dissector_add("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
-}
+proto_reg_handoff_lapd(void);
 
 void
 proto_register_lapd(void)
@@ -581,7 +558,7 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_direction,
 	  { "Direction", "lapd.direction", FT_UINT8, BASE_DEC, VALS(lapd_direction_vals), 0x0,
-	  	"Direction", HFILL }},
+	  	NULL, HFILL }},
 
 	{ &hf_lapd_address,
 	  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -617,51 +594,51 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_n_r,
 	    { "N(R)", "lapd.control.n_r", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_R_EXT_MASK, "", HFILL }},
+		NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_n_s,
 	    { "N(S)", "lapd.control.n_s", FT_UINT16, BASE_DEC,
-		NULL, XDLC_N_S_EXT_MASK, "", HFILL }},
+		NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_p,
 	    { "Poll", "lapd.control.p", FT_BOOLEAN, 8,
-		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+		TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapd_p_ext,
 	    { "Poll", "lapd.control.p", FT_BOOLEAN, 16,
-		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+		TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_lapd_f,
 	    { "Final", "lapd.control.f", FT_BOOLEAN, 8,
-		TFS(&flags_set_truth), XDLC_P_F, "", HFILL }},
+		TFS(&flags_set_truth), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_lapd_f_ext,
 	    { "Final", "lapd.control.f", FT_BOOLEAN, 16,
-		TFS(&flags_set_truth), XDLC_P_F_EXT, "", HFILL }},
+		TFS(&flags_set_truth), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_lapd_s_ftype,
 	    { "Supervisory frame type", "lapd.control.s_ftype", FT_UINT16, BASE_HEX,
-		VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
+		VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_u_modifier_cmd,
 	    { "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
+		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_u_modifier_resp,
 	    { "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
-		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
+		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_ftype_i,
 	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_I_MASK, "", HFILL }},
+		VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_ftype_s_u,
 	    { "Frame type", "lapd.control.ftype", FT_UINT8, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_ftype_s_u_ext,
 	    { "Frame type", "lapd.control.ftype", FT_UINT16, BASE_HEX,
-		VALS(ftype_vals), XDLC_S_U_MASK, "", HFILL }},
+		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_checksum,
 	    { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX, 
@@ -711,3 +688,31 @@ proto_register_lapd(void)
 		 10, &pref_lapd_rtp_payload_type);
 
 }
+
+void
+proto_reg_handoff_lapd(void)
+{
+	static gboolean init = FALSE;
+	static dissector_handle_t lapd_bitstream_handle;
+	static gint lapd_rtp_payload_type;
+
+	if (!init) {
+		dissector_handle_t lapd_handle;
+
+		lapd_handle = find_dissector("lapd");
+		dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
+
+		lapd_bitstream_handle = create_dissector_handle(dissect_lapd_bitstream, proto_lapd);
+		data_handle = find_dissector("data");
+
+		init = TRUE;
+	} else {
+		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
+			dissector_delete("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+	}
+
+	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
+	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
+		dissector_add("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+}
+

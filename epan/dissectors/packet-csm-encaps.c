@@ -170,26 +170,25 @@ static int hf_csm_encaps_param            = -1;
 static gint ett_csm_encaps         = -1;
 static gint ett_csm_encaps_control = -1;
 
-gchar *csm_fc(guint16 fc, guint16 ct);
-gboolean csm_to_host(guint16 fc, guint16 ct);
-
 
 /* returns the command name */
-gchar *csm_fc(guint16 fc, guint16 ct)
+static gchar *
+csm_fc(guint16 fc, guint16 ct)
 {
-    if (fc == 0x0000) {
-        return g_strdup(val_to_str(ct, class_type_vals,
-            "0x%04x"));
-    } else {
-        return g_strdup(val_to_str(fc, function_code_vals,
-            "0x%04x"));
-    }
+	if (fc == 0x0000) {
+		return g_strdup(val_to_str(ct, class_type_vals,
+					   "0x%04x"));
+	} else {
+		return g_strdup(val_to_str(fc, function_code_vals,
+					   "0x%04x"));
+	}
 }
 
 
 
 /* check to see if the message is an exclusive message send to host */
-gboolean csm_to_host(guint16 fc, guint16 ct)
+static gboolean
+csm_to_host(guint16 fc, guint16 ct)
 {
 	if (fc == 0x0000)
 	{

@@ -833,7 +833,7 @@ static guint rtps_max_batch_samples_dissected = 16;
 /* *********************************************************************** */
 /* Appends a submessage description to the info summary text
  */
-void info_summary_append(char *summaryText, int submessageId, const char * extra_text) {
+static void info_summary_append(char *summaryText, int submessageId, const char * extra_text) {
   gint len = strlen(summaryText);
   if (extra_text == NULL) {
     extra_text="";
@@ -853,7 +853,7 @@ void info_summary_append(char *summaryText, int submessageId, const char * extra
 /* Appends a submessage description to the info summary text, with 
  * extra formatting for those submessages that has a status info
  */
-void info_summary_append_ex(char *info_summary_text, 
+static void info_summary_append_ex(char *info_summary_text, 
                         int submessageId, 
                         guint32 writer_id, 
                         guint32 status_info) {

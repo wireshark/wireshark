@@ -95,8 +95,8 @@ static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
 
 
 /* Variables used for preferences */
-gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
-gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
+static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
+static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;

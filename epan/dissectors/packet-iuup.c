@@ -563,31 +563,31 @@ static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     
 }
 
-proto_item *add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
+static proto_item *add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
 {
-   proto_item *crc_item;
-   if (crccheck) {
-      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,FALSE);
-      expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-   } else {
-      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
-   }
-   return crc_item;
+    proto_item *crc_item;
+    if (crccheck) {
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,FALSE);
+        expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+    } else {
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
+    }
+    return crc_item;
 }
 
-proto_item *add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
+static proto_item *add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
 {
-   proto_item *crc_item;
-   int length = tvb_length(tvb);
-   guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
-   guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
-   if (crccheck) {
-      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,FALSE);
-      expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-   } else {
-      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
-   }
-   return crc_item;
+    proto_item *crc_item;
+    int length = tvb_length(tvb);
+    guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
+    guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
+    if (crccheck) {
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,FALSE);
+        expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+    } else {
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
+    }
+    return crc_item;
 }
 
 #define ACKNACK_MASK  0x0c
@@ -800,49 +800,49 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
 
 static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	int len = tvb_length(tvb);
+    int len = tvb_length(tvb);
 	
-	guint8 first_octet =  tvb_get_guint8(tvb,0);
-	guint8 second_octet =  tvb_get_guint8(tvb,1);
-	guint16 hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
+    guint8 first_octet =  tvb_get_guint8(tvb,0);
+    guint8 second_octet =  tvb_get_guint8(tvb,1);
+    guint16 hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
 	
-	if (update_crc6_by_bytes(hdrcrc6, first_octet, second_octet)) return FALSE;
+    if (update_crc6_by_bytes(hdrcrc6, first_octet, second_octet)) return FALSE;
 	
-	switch ( first_octet & 0xf0 ) {
-		case 0x00: {
-			if (len<7) return FALSE;
-			if (update_crc10_by_bytes((guint16)(tvb_get_ntohs(tvb, 4) & 0x3FF), tvb_get_ptr(tvb, 6, len-4), len-4) ) return FALSE;
-			break;
-		}
-		case 0x10:
-			/* a FALSE positive factory */
-			if (len<5) return FALSE;
-			break;
-		case 0xe0:
-			if (len<5) return FALSE;
-			if( (second_octet & 0x0f) > 3) return FALSE;
-		default:
-			return FALSE;
-	}
+    switch ( first_octet & 0xf0 ) {
+        case 0x00: {
+            if (len<7) return FALSE;
+            if (update_crc10_by_bytes((guint16)(tvb_get_ntohs(tvb, 4) & 0x3FF), tvb_get_ptr(tvb, 6, len-4), len-4) ) return FALSE;
+            break;
+        }
+        case 0x10:
+            /* a FALSE positive factory */
+            if (len<5) return FALSE;
+            break;
+        case 0xe0:
+            if (len<5) return FALSE;
+            if( (second_octet & 0x0f) > 3) return FALSE;
+        default:
+            return FALSE;
+    }
 	
-	dissect_iuup(tvb, pinfo, tree);
-	return TRUE;
+    dissect_iuup(tvb, pinfo, tree);
+    return TRUE;
 }
 
 
 static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	int len = tvb_length(tvb);
-	int offset = 0;
+    int len = tvb_length(tvb);
+    int offset = 0;
 	
-	while (len > 3) {
-		if ( dissect_iuup_heur(tvb_new_subset(tvb,offset,-1,-1), pinfo, tree) )
-			return;
+    while (len > 3) {
+        if ( dissect_iuup_heur(tvb_new_subset(tvb,offset,-1,-1), pinfo, tree) )
+            return;
 
-		offset++;
-		len--;
-	}
+        offset++;
+        len--;
+    }
 	
-	call_dissector(data_handle, tvb, pinfo, tree);
+    call_dissector(data_handle, tvb, pinfo, tree);
 }
 
 static void init_iuup(void) {
@@ -877,90 +877,90 @@ void proto_reg_handoff_iuup(void) {
 
 
 #define HFS_RFCI(i) \
-{ &hf_iuup_rfci_ratectl[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, VALS(iuup_rfci_indicator),0x80>>(i%8),"",HFILL}}, \
-{ &hf_iuup_init_rfci[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, NULL,0x3f,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][0], { "RFCI " #i " Flow 0 Len", "iuup.rfci."#i".flow.0.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][1], { "RFCI " #i " Flow 1 Len", "iuup.rfci."#i".flow.1.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][2], { "RFCI " #i " Flow 2 Len", "iuup.rfci."#i".flow.2.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][3], { "RFCI " #i " Flow 3 Len", "iuup.rfci."#i".flow.3.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][4], { "RFCI " #i " Flow 4 Len", "iuup.rfci."#i".flow.4.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][5], { "RFCI " #i " Flow 5 Len", "iuup.rfci."#i".flow.5.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][6], { "RFCI " #i " Flow 6 Len", "iuup.rfci."#i".flow.6.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_rfci_flow_len[i][7], { "RFCI " #i " Flow 7 Len", "iuup.rfci."#i".flow.7.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_ratectl[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, VALS(iuup_rfci_indicator),0x80>>(i%8),NULL,HFILL}}, \
+{ &hf_iuup_init_rfci[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, NULL,0x3f,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][0], { "RFCI " #i " Flow 0 Len", "iuup.rfci."#i".flow.0.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][1], { "RFCI " #i " Flow 1 Len", "iuup.rfci."#i".flow.1.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][2], { "RFCI " #i " Flow 2 Len", "iuup.rfci."#i".flow.2.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][3], { "RFCI " #i " Flow 3 Len", "iuup.rfci."#i".flow.3.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][4], { "RFCI " #i " Flow 4 Len", "iuup.rfci."#i".flow.4.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][5], { "RFCI " #i " Flow 5 Len", "iuup.rfci."#i".flow.5.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][6], { "RFCI " #i " Flow 6 Len", "iuup.rfci."#i".flow.6.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_rfci_flow_len[i][7], { "RFCI " #i " Flow 7 Len", "iuup.rfci."#i".flow.7.len", FT_UINT16, BASE_DEC, NULL,0x0,NULL,HFILL}}, \
 { &hf_iuup_init_rfci_li[i], { "RFCI " #i " LI", "iuup.rfci."#i".li", FT_UINT8, BASE_HEX, VALS(iuup_init_rfci_li_vals),0x40,"Length Indicator",HFILL}}, \
 { &hf_iuup_init_rfci_lri[i], { "RFCI " #i " LRI", "iuup.rfci."#i".lri", FT_UINT8, BASE_HEX, VALS(iuup_init_lri_vals),0x80,"Last Record Indicator",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][0], { "RFCI " #i " Flow 0", "iuup.rfci."#i".flow.0", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][1], { "RFCI " #i " Flow 1", "iuup.rfci."#i".flow.1", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][2], { "RFCI " #i " Flow 2", "iuup.rfci."#i".flow.2", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_init_ipti[i], { "RFCI " #i " IPTI", "iuup.rfci."#i".ipti", FT_UINT8, BASE_HEX, NULL,i%2 ? 0x0F : 0xF0,"",HFILL}}
+{ &hf_iuup_rfci_subflow[i][0], { "RFCI " #i " Flow 0", "iuup.rfci."#i".flow.0", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][1], { "RFCI " #i " Flow 1", "iuup.rfci."#i".flow.1", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][2], { "RFCI " #i " Flow 2", "iuup.rfci."#i".flow.2", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}}, \
+{ &hf_iuup_init_ipti[i], { "RFCI " #i " IPTI", "iuup.rfci."#i".ipti", FT_UINT8, BASE_HEX, NULL,i%2 ? 0x0F : 0xF0,NULL,HFILL}}
 
 
 
 void proto_register_iuup(void) {
     static hf_register_info hf[] = {
-        { &hf_iuup_direction, { "Frame Direction", "iuup.direction", FT_UINT16, BASE_DEC, NULL,0x8000,"",HFILL}},
-        { &hf_iuup_circuit_id, { "Circuit ID", "iuup.circuit_id", FT_UINT16, BASE_DEC, NULL,0x7fff,"",HFILL}},
-        { &hf_iuup_pdu_type, { "PDU Type", "iuup.pdu_type", FT_UINT8, BASE_DEC, VALS(iuup_pdu_types),0xf0,"",HFILL}},
-        { &hf_iuup_frame_number, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x0F,"",HFILL}},
+        { &hf_iuup_direction, { "Frame Direction", "iuup.direction", FT_UINT16, BASE_DEC, NULL,0x8000,NULL,HFILL}},
+        { &hf_iuup_circuit_id, { "Circuit ID", "iuup.circuit_id", FT_UINT16, BASE_DEC, NULL,0x7fff,NULL,HFILL}},
+        { &hf_iuup_pdu_type, { "PDU Type", "iuup.pdu_type", FT_UINT8, BASE_DEC, VALS(iuup_pdu_types),0xf0,NULL,HFILL}},
+        { &hf_iuup_frame_number, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x0F,NULL,HFILL}},
         { &hf_iuup_fqc, { "FQC", "iuup.fqc", FT_UINT8, BASE_DEC, VALS(iuup_fqcs),0xc0,"Frame Quality Classification",HFILL}},
         { &hf_iuup_rfci, { "RFCI", "iuup.rfci", FT_UINT8, BASE_HEX, NULL, 0x3f, "RAB sub-Flow Combination Indicator",HFILL}},
-        { &hf_iuup_hdr_crc, { "Header CRC", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,"",HFILL}},        
-        { &hf_iuup_hdr_crc_error, { "Header CRC [incorrect]", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,"",HFILL}},        
-        { &hf_iuup_payload_crc, { "Payload CRC", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,"",HFILL}},
-        { &hf_iuup_payload_crc_error, { "Payload CRC [incorrect]", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,"",HFILL}},
-        { &hf_iuup_ack_nack, { "Ack/Nack", "iuup.ack", FT_UINT8, BASE_DEC, VALS(iuup_acknack_vals),0x0c,"Ack/Nack",HFILL}},
-        { &hf_iuup_frame_number_t14, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x03,"",HFILL}},
-        { &hf_iuup_mode_version, { "Mode Version", "iuup.mode", FT_UINT8, BASE_HEX, NULL,0xf0,"",HFILL}},
-        { &hf_iuup_procedure_indicator, { "Procedure", "iuup.procedure", FT_UINT8, BASE_DEC, VALS(iuup_procedures),0x0f,"",HFILL}},
-        { &hf_iuup_error_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, VALS(iuup_error_causes),0xfc,"",HFILL}},
-        { &hf_iuup_error_distance, { "Error DISTANCE", "iuup.error_distance", FT_UINT8, BASE_DEC, VALS(iuup_error_distances),0xc0,"",HFILL}},
-        { &hf_iuup_errorevt_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, NULL,0x3f,"",HFILL}},
-        { &hf_iuup_time_align, { "Time Align", "iuup.time_align", FT_UINT8, BASE_HEX, NULL,0x0,"",HFILL}},
-        { &hf_iuup_data_pdu_type, { "RFCI Data Pdu Type", "iuup.data_pdu_type", FT_UINT8, BASE_HEX, VALS(iuup_payload_pdu_type),0xF0,"",HFILL}},
+        { &hf_iuup_hdr_crc, { "Header CRC", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,NULL,HFILL}},        
+        { &hf_iuup_hdr_crc_error, { "Header CRC [incorrect]", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,NULL,HFILL}},        
+        { &hf_iuup_payload_crc, { "Payload CRC", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,NULL,HFILL}},
+        { &hf_iuup_payload_crc_error, { "Payload CRC [incorrect]", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,NULL,HFILL}},
+        { &hf_iuup_ack_nack, { "Ack/Nack", "iuup.ack", FT_UINT8, BASE_DEC, VALS(iuup_acknack_vals),0x0c,NULL,HFILL}},
+        { &hf_iuup_frame_number_t14, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x03,NULL,HFILL}},
+        { &hf_iuup_mode_version, { "Mode Version", "iuup.mode", FT_UINT8, BASE_HEX, NULL,0xf0,NULL,HFILL}},
+        { &hf_iuup_procedure_indicator, { "Procedure", "iuup.procedure", FT_UINT8, BASE_DEC, VALS(iuup_procedures),0x0f,NULL,HFILL}},
+        { &hf_iuup_error_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, VALS(iuup_error_causes),0xfc,NULL,HFILL}},
+        { &hf_iuup_error_distance, { "Error DISTANCE", "iuup.error_distance", FT_UINT8, BASE_DEC, VALS(iuup_error_distances),0xc0,NULL,HFILL}},
+        { &hf_iuup_errorevt_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, NULL,0x3f,NULL,HFILL}},
+        { &hf_iuup_time_align, { "Time Align", "iuup.time_align", FT_UINT8, BASE_HEX, NULL,0x0,NULL,HFILL}},
+        { &hf_iuup_data_pdu_type, { "RFCI Data Pdu Type", "iuup.data_pdu_type", FT_UINT8, BASE_HEX, VALS(iuup_payload_pdu_type),0xF0,NULL,HFILL}},
 
-        { &hf_iuup_spare_03, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0x03,"",HFILL}},
-        { &hf_iuup_spare_0f, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0x0f,"",HFILL}},
-        { &hf_iuup_spare_c0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xc0,"",HFILL}},
-        { &hf_iuup_spare_e0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xe0,"",HFILL}},
-        { &hf_iuup_spare_ff, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xff,"",HFILL}},
-        { &hf_iuup_spare_bytes, { "Spare", "iuup.spare", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}},
+        { &hf_iuup_spare_03, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0x03,NULL,HFILL}},
+        { &hf_iuup_spare_0f, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0x0f,NULL,HFILL}},
+        { &hf_iuup_spare_c0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xc0,NULL,HFILL}},
+        { &hf_iuup_spare_e0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xe0,NULL,HFILL}},
+        { &hf_iuup_spare_ff, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xff,NULL,HFILL}},
+        { &hf_iuup_spare_bytes, { "Spare", "iuup.spare", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}},
         
-        { &hf_iuup_delay, { "Delay", "iuup.delay", FT_UINT32, BASE_HEX, NULL,0x0,"",HFILL}},
-        { &hf_iuup_advance, { "Advance", "iuup.advance", FT_UINT32, BASE_HEX, NULL,0x0,"",HFILL}},
-        { &hf_iuup_delta, { "Delta Time", "iuup.delta", FT_FLOAT, BASE_DEC, NULL,0x0,"",HFILL}},
+        { &hf_iuup_delay, { "Delay", "iuup.delay", FT_UINT32, BASE_HEX, NULL,0x0,NULL,HFILL}},
+        { &hf_iuup_advance, { "Advance", "iuup.advance", FT_UINT32, BASE_HEX, NULL,0x0,NULL,HFILL}},
+        { &hf_iuup_delta, { "Delta Time", "iuup.delta", FT_FLOAT, BASE_DEC, NULL,0x0,NULL,HFILL}},
 
         { &hf_iuup_init_ti, { "TI", "iuup.ti", FT_UINT8, BASE_DEC, VALS(iuup_ti_vals),0x10,"Timing Information",HFILL}},
         { &hf_iuup_init_subflows_per_rfci, { "Subflows", "iuup.subflows", FT_UINT8, BASE_DEC, NULL,0x0e,"Number of Subflows",HFILL}},
-        { &hf_iuup_init_chain_ind, { "Chain Indicator", "iuup.chain_ind", FT_UINT8, BASE_DEC, VALS(iuup_init_chain_ind_vals),0x01,"",HFILL}},
-        { &hf_iuup_payload, { "Payload Data", "iuup.payload_data", FT_BYTES, BASE_HEX, NULL,0x00,"",HFILL}},
+        { &hf_iuup_init_chain_ind, { "Chain Indicator", "iuup.chain_ind", FT_UINT8, BASE_DEC, VALS(iuup_init_chain_ind_vals),0x01,NULL,HFILL}},
+        { &hf_iuup_payload, { "Payload Data", "iuup.payload_data", FT_BYTES, BASE_HEX, NULL,0x00,NULL,HFILL}},
 
 
-        { &hf_iuup_mode_versions, { "Iu UP Mode Versions Supported", "iuup.support_mode", FT_UINT16, BASE_HEX, NULL,0x0,"",HFILL}},
+        { &hf_iuup_mode_versions, { "Iu UP Mode Versions Supported", "iuup.support_mode", FT_UINT16, BASE_HEX, NULL,0x0,NULL,HFILL}},
         
-        { &hf_iuup_mode_versions_a[ 0], { "Version 16", "iuup.support_mode.version16", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x8000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 1], { "Version 15", "iuup.support_mode.version15", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x4000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 2], { "Version 14", "iuup.support_mode.version14", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x2000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 3], { "Version 13", "iuup.support_mode.version13", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x1000,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 4], { "Version 12", "iuup.support_mode.version12", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0800,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 5], { "Version 11", "iuup.support_mode.version11", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0400,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 6], { "Version 10", "iuup.support_mode.version10", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0200,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 7], { "Version  9", "iuup.support_mode.version9", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0100,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 8], { "Version  8", "iuup.support_mode.version8", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0080,"",HFILL}},
-        { &hf_iuup_mode_versions_a[ 9], { "Version  7", "iuup.support_mode.version7", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0040,"",HFILL}},
-        { &hf_iuup_mode_versions_a[10], { "Version  6", "iuup.support_mode.version6", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0020,"",HFILL}},
-        { &hf_iuup_mode_versions_a[11], { "Version  5", "iuup.support_mode.version5", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0010,"",HFILL}},
-        { &hf_iuup_mode_versions_a[12], { "Version  4", "iuup.support_mode.version4", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0008,"",HFILL}},
-        { &hf_iuup_mode_versions_a[13], { "Version  3", "iuup.support_mode.version3", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0004,"",HFILL}},
-        { &hf_iuup_mode_versions_a[14], { "Version  2", "iuup.support_mode.version2", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0002,"",HFILL}},
-        { &hf_iuup_mode_versions_a[15], { "Version  1", "iuup.support_mode.version1", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0001,"",HFILL}}, 
+        { &hf_iuup_mode_versions_a[ 0], { "Version 16", "iuup.support_mode.version16", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x8000,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 1], { "Version 15", "iuup.support_mode.version15", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x4000,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 2], { "Version 14", "iuup.support_mode.version14", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x2000,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 3], { "Version 13", "iuup.support_mode.version13", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x1000,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 4], { "Version 12", "iuup.support_mode.version12", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0800,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 5], { "Version 11", "iuup.support_mode.version11", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0400,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 6], { "Version 10", "iuup.support_mode.version10", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0200,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 7], { "Version  9", "iuup.support_mode.version9", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0100,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 8], { "Version  8", "iuup.support_mode.version8", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0080,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[ 9], { "Version  7", "iuup.support_mode.version7", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0040,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[10], { "Version  6", "iuup.support_mode.version6", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0020,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[11], { "Version  5", "iuup.support_mode.version5", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0010,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[12], { "Version  4", "iuup.support_mode.version4", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0008,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[13], { "Version  3", "iuup.support_mode.version3", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0004,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[14], { "Version  2", "iuup.support_mode.version2", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0002,NULL,HFILL}},
+        { &hf_iuup_mode_versions_a[15], { "Version  1", "iuup.support_mode.version1", FT_UINT16, BASE_HEX, VALS(iuup_mode_version_support),0x0001,NULL,HFILL}}, 
 
-        { &hf_iuup_num_rfci_ind, { "Number of RFCI Indicators", "iuup.p", FT_UINT8, BASE_HEX, NULL,0x3f,"",HFILL}},
-        { &hf_iuup_init_rfci_ind, { "RFCI Initialization", "iuup.rfci.init", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}},
+        { &hf_iuup_num_rfci_ind, { "Number of RFCI Indicators", "iuup.p", FT_UINT8, BASE_HEX, NULL,0x3f,NULL,HFILL}},
+        { &hf_iuup_init_rfci_ind, { "RFCI Initialization", "iuup.rfci.init", FT_BYTES, BASE_HEX, NULL,0x0,NULL,HFILL}},
 
         HFS_RFCI(0),HFS_RFCI(1),HFS_RFCI(2),HFS_RFCI(3),HFS_RFCI(4),HFS_RFCI(5),HFS_RFCI(6),HFS_RFCI(7),
         HFS_RFCI(8),HFS_RFCI(9),HFS_RFCI(10),HFS_RFCI(11),HFS_RFCI(12),HFS_RFCI(13),HFS_RFCI(14),HFS_RFCI(15),

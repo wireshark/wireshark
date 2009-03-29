@@ -183,7 +183,7 @@ static void dissect_lb_conf(tvbuff_t *, int, proto_tree *);
 static void dissect_policy_change(tvbuff_t *, int, proto_tree *);
 static void dissect_probe(tvbuff_t *, int, proto_tree *);
 static void dissect_conf_reply(tvbuff_t *, int, proto_tree *);
-int is_report_ifs(guint16);
+static int is_report_ifs(guint16);
 static const char *report_code2str(guint16);
 static const char *ha_mode2str(guint16);
 static const char *state2str(guint8);
@@ -416,7 +416,8 @@ static void dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
   offset += 4;
 }
 
-int is_report_ifs(guint16 report_code) {
+static int
+is_report_ifs(guint16 report_code) {
   if(report_code & 2)
 	return 1;
   return 0;
@@ -485,61 +486,61 @@ proto_register_cpha(void)
 {
   static hf_register_info hf[] = {
     { &hf_magic_number,
-    { "CPHAP Magic Number", "cpha.magic_number", FT_UINT16, BASE_HEX, NULL, 0x0, "CPHAP Magic Number", HFILL}},
+    { "CPHAP Magic Number", "cpha.magic_number", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     { &hf_cpha_protocol_ver,
     { "Protocol Version", "cpha.version", FT_UINT16, BASE_DEC, NULL, 0x0, "CPHAP Version", HFILL}},
     { &hf_cluster_number,
-    { "Cluster Number", "cpha.cluster_number", FT_UINT16, BASE_DEC, NULL, 0x0, "Cluster Number", HFILL}},
+    { "Cluster Number", "cpha.cluster_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_opcode,
-    { "OpCode", "cpha.opcode", FT_UINT16, BASE_DEC, NULL, 0x0, "OpCode", HFILL}},
+    { "OpCode", "cpha.opcode", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_src_if_num,
-    { "Source Interface", "cpha.src_if", FT_UINT16, BASE_DEC, NULL, 0x0, "Source Interface", HFILL}},
+    { "Source Interface", "cpha.src_if", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_random_id,
-    { "Random ID", "cpha.random_id", FT_UINT16, BASE_DEC, NULL, 0x0, "Random ID", HFILL}},
+    { "Random ID", "cpha.random_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_src_machine_id,
-    { "Source Machine ID", "cpha.src_id", FT_UINT16, BASE_DEC, NULL, 0x0, "Source Machine ID", HFILL}},
+    { "Source Machine ID", "cpha.src_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_dst_machine_id,
-    { "Destination Machine ID", "cpha.dst_id", FT_UINT16, BASE_DEC, NULL, 0x0, "Destination Machine ID", HFILL}},
+    { "Destination Machine ID", "cpha.dst_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_policy_id,
-    { "Policy ID", "cpha.policy_id", FT_UINT16, BASE_DEC, NULL, 0x0, "Policy ID", HFILL}},
+    { "Policy ID", "cpha.policy_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_filler,
-    { "Filler", "cpha.filler", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Filler", "cpha.filler", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_id_num,
-    { "Number of IDs reported", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, "Number of IDs reported", HFILL}},
+    { "Number of IDs reported", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_report_code,
-    { "Report code", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, "Report Code", HFILL}},
+    { "Report code", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ha_mode,
-    { "HA mode", "cpha.ha_mode", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Mode", HFILL}},
+    { "HA mode", "cpha.ha_mode", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ha_time_unit,
     { "HA Time unit", "cpha.ha_time_unit", FT_UINT16, BASE_DEC, NULL, 0x0, "HA Time unit (ms)", HFILL}},
     { &hf_num_reported_ifs,
-    { "Reported Interfaces", "cpha.reported_ifs", FT_UINT32, BASE_DEC, NULL, 0x0, "Reported Interfaces", HFILL}},
+    { "Reported Interfaces", "cpha.reported_ifs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ethernet_add,
-    { "Ethernet Address", "cpha.ethernet_addr", FT_ETHER, BASE_HEX, NULL, 0x0, "Ethernet Address", HFILL}},
+    { "Ethernet Address", "cpha.ethernet_addr", FT_ETHER, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     { &hf_is_if_trusted,
-    { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_DEC, NULL, 0x0, "Interface Trusted", HFILL}},
+    { "Interface Trusted", "cpha.if_trusted", FT_BOOLEAN, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ip,
-    { "IP Address", "cpha.ip", FT_IPv4, BASE_DEC, NULL, 0x0, "IP Address", HFILL}},
+    { "IP Address", "cpha.ip", FT_IPv4, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_slot_num,
-    { "Slot Number", "cpha.slot_num", FT_INT16, BASE_DEC, NULL, 0x0, "Slot Number", HFILL}},
+    { "Slot Number", "cpha.slot_num", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_machine_num,
-    { "Machine Number", "cpha.machine_num", FT_INT16, BASE_DEC, NULL, 0x0, "Machine Number", HFILL}},
+    { "Machine Number", "cpha.machine_num", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_seed,
-    { "Seed", "cpha.seed", FT_UINT32, BASE_DEC, NULL, 0x0, "Seed", HFILL}},
+    { "Seed", "cpha.seed", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_hash_len,
-    { "Hash list length", "cpha.hash_len", FT_INT32, BASE_DEC, NULL, 0x0, "Hash list length", HFILL}},
+    { "Hash list length", "cpha.hash_len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_in_up_num,
-    { "Interfaces up in the Inbound", "cpha.in_up", FT_INT8, BASE_DEC, NULL, 0x0, "Interfaces up in the Inbound", HFILL}},
+    { "Interfaces up in the Inbound", "cpha.in_up", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_in_assumed_up_num,
-    { "Interfaces assumed up in the Inbound", "cpha.in_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Interfaces assumed up in the Inbound", "cpha.in_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_out_up_num,
-    { "Interfaces up in the Outbound", "cpha.out_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Interfaces up in the Outbound", "cpha.out_up", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_out_assumed_up_num,
-    { "Interfaces assumed up in the Outbound", "cpha.out_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Interfaces assumed up in the Outbound", "cpha.out_assume_up", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_status,
-    { "Status", "cpha.status", FT_UINT32, BASE_DEC, VALS(status_vals), 0x0, "", HFILL}},
+    { "Status", "cpha.status", FT_UINT32, BASE_DEC, VALS(status_vals), 0x0, NULL, HFILL}},
     { &hf_ifn,
-    { "Interface Number", "cpha.ifn", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { "Interface Number", "cpha.ifn", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
   };
   static gint *ett[] = {
     &ett_cphap,

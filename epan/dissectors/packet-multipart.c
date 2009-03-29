@@ -168,7 +168,7 @@ static gint
 is_known_multipart_header(const char *header_str, guint len);
 static gint
 index_of_char(const char *str, const char c);
-char *
+static char *
 unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset);
 
 
@@ -197,7 +197,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
  * Set value to the start of the value 
  * Return the cleaned-up RFC2822 header (buffer must be freed).
  */
-char *
+static char *
 unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset)
 {
 	const char *p = lines;

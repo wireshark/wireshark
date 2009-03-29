@@ -1144,7 +1144,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 }
 
-tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
+static tvbuff_t *
+ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 {
 	guint8 *buf = ep_alloc(10240);
 

@@ -239,7 +239,7 @@ static gint ett_bfd_auth = -1;
 /* Given the type of authentication being used, return the required length of
  * the authentication header
  */
-guint8 get_bfd_required_auth_len(guint8 auth_type) 
+static guint8 get_bfd_required_auth_len(guint8 auth_type) 
 {
     guint8 auth_len = 0;
     switch (auth_type) {
@@ -260,7 +260,7 @@ guint8 get_bfd_required_auth_len(guint8 auth_type)
 /* Given the type of authentication being used, return the length of
  * checksum field
  */
-guint8 get_bfd_checksum_len(guint8 auth_type) 
+static guint8 get_bfd_checksum_len(guint8 auth_type) 
 {
     guint8 checksum_len = 0;
     switch (auth_type) {

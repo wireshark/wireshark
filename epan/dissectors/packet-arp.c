@@ -105,17 +105,17 @@ static nstime_t time_at_start_of_count;
 static GHashTable *address_hash_table = NULL;
 
 struct address_hash_value {
-    guint8    mac[6];
-    guint     frame_num;
-    time_t    time_of_entry;
+  guint8    mac[6];
+  guint     frame_num;
+  time_t    time_of_entry;
 };
 
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
-	http://www.iana.org/assignments/arp-parameters
+   http://www.iana.org/assignments/arp-parameters
 
- */
+*/
 
 /* ARP / RARP structs and definitions */
 #ifndef ARPOP_REQUEST
@@ -166,17 +166,17 @@ static const value_string atmop_vals[] = {
  * is an Ethernet address - the address must be of type "Ethernet" or
  * "IEEE 802.x", and the length must be 6 bytes.
  */
-#define ARP_HW_IS_ETHER(ar_hrd, ar_hln) \
-	(((ar_hrd) == ARPHRD_ETHER || (ar_hrd) == ARPHRD_IEEE802) \
-  				&& (ar_hln) == 6)
+#define ARP_HW_IS_ETHER(ar_hrd, ar_hln)                         \
+  (((ar_hrd) == ARPHRD_ETHER || (ar_hrd) == ARPHRD_IEEE802)     \
+   && (ar_hln) == 6)
 
 /*
  * Given the protocol address type and length, check whether an address
  * is an IPv4 address - the address must be of type "IP", and the length
  * must be 4 bytes.
  */
-#define ARP_PRO_IS_IPv4(ar_pro, ar_pln) \
-	((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
+#define ARP_PRO_IS_IPv4(ar_pro, ar_pln)         \
+  ((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
 
 const gchar *
 arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
@@ -299,7 +299,7 @@ static const value_string hrd_vals[] = {
 
 const gchar *
 arphrdtype_to_str(guint16 hwtype, const char *fmt) {
-    return val_to_str(hwtype, hrd_vals, fmt);
+  return val_to_str(hwtype, hrd_vals, fmt);
 }
 
 /* Offsets of fields within an ARP packet. */
@@ -324,21 +324,21 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 
 static void
 dissect_atm_number(tvbuff_t *tvb, int offset, int tl, int hf_e164,
-    int hf_nsap, proto_tree *tree)
+                   int hf_nsap, proto_tree *tree)
 {
-	int len = tl & ATMARP_LEN_MASK;
-	proto_item *ti;
-	proto_tree *nsap_tree;
+  int len = tl & ATMARP_LEN_MASK;
+  proto_item *ti;
+  proto_tree *nsap_tree;
 
-	if (tl & ATMARP_IS_E164)
-		proto_tree_add_item(tree, hf_e164, tvb, offset, len, FALSE);
-	else {
-		ti = proto_tree_add_item(tree, hf_nsap, tvb, offset, len, FALSE);
-		if (len >= 20) {
-			nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
-			dissect_atm_nsap(tvb, offset, len, nsap_tree);
-		}
-	}
+  if (tl & ATMARP_IS_E164)
+    proto_tree_add_item(tree, hf_e164, tvb, offset, len, FALSE);
+  else {
+    ti = proto_tree_add_item(tree, hf_nsap, tvb, offset, len, FALSE);
+    if (len >= 20) {
+      nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
+      dissect_atm_nsap(tvb, offset, len, nsap_tree);
+    }
+  }
 }
 
 /*
@@ -349,79 +349,79 @@ dissect_atm_number(tvbuff_t *tvb, int offset, int tl, int hf_e164,
 void
 dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
-	guint8 afi;
+  guint8 afi;
 
-	afi = tvb_get_guint8(tvb, offset);
-	switch (afi) {
+  afi = tvb_get_guint8(tvb, offset);
+  switch (afi) {
 
-	case 0x39:	/* DCC ATM format */
-	case 0xBD:	/* DCC ATM group format */
-		proto_tree_add_text(tree, tvb, offset + 0, 3,
-		    "Data Country Code%s: 0x%04X",
-		    (afi == 0xBD) ? " (group)" : "",
-		    tvb_get_ntohs(tvb, offset + 1));
-		proto_tree_add_text(tree, tvb, offset + 3, 10,
-		    "High Order DSP: %s",
-		    tvb_bytes_to_str(tvb, offset + 3, 10));
-		proto_tree_add_text(tree, tvb, offset + 13, 6,
-		    "End System Identifier: %s",
-		    tvb_bytes_to_str(tvb, offset + 13, 6));
-		proto_tree_add_text(tree, tvb, offset + 19, 1,
-		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
-		break;
+    case 0x39:	/* DCC ATM format */
+    case 0xBD:	/* DCC ATM group format */
+      proto_tree_add_text(tree, tvb, offset + 0, 3,
+                          "Data Country Code%s: 0x%04X",
+                          (afi == 0xBD) ? " (group)" : "",
+                          tvb_get_ntohs(tvb, offset + 1));
+      proto_tree_add_text(tree, tvb, offset + 3, 10,
+                          "High Order DSP: %s",
+                          tvb_bytes_to_str(tvb, offset + 3, 10));
+      proto_tree_add_text(tree, tvb, offset + 13, 6,
+                          "End System Identifier: %s",
+                          tvb_bytes_to_str(tvb, offset + 13, 6));
+      proto_tree_add_text(tree, tvb, offset + 19, 1,
+                          "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
+      break;
 
-	case 0x47:	/* ICD ATM format */
-	case 0xC5:	/* ICD ATM group format */
-		proto_tree_add_text(tree, tvb, offset + 0, 3,
-		    "International Code Designator%s: 0x%04X",
-		    (afi == 0xC5) ? " (group)" : "",
-		    tvb_get_ntohs(tvb, offset + 1));
-		proto_tree_add_text(tree, tvb, offset + 3, 10,
-		    "High Order DSP: %s",
-		    tvb_bytes_to_str(tvb, offset + 3, 10));
-		proto_tree_add_text(tree, tvb, offset + 13, 6,
-		    "End System Identifier: %s",
-		    tvb_bytes_to_str(tvb, offset + 13, 6));
-		proto_tree_add_text(tree, tvb, offset + 19, 1,
-		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
-		break;
+    case 0x47:	/* ICD ATM format */
+    case 0xC5:	/* ICD ATM group format */
+      proto_tree_add_text(tree, tvb, offset + 0, 3,
+                          "International Code Designator%s: 0x%04X",
+                          (afi == 0xC5) ? " (group)" : "",
+                          tvb_get_ntohs(tvb, offset + 1));
+      proto_tree_add_text(tree, tvb, offset + 3, 10,
+                          "High Order DSP: %s",
+                          tvb_bytes_to_str(tvb, offset + 3, 10));
+      proto_tree_add_text(tree, tvb, offset + 13, 6,
+                          "End System Identifier: %s",
+                          tvb_bytes_to_str(tvb, offset + 13, 6));
+      proto_tree_add_text(tree, tvb, offset + 19, 1,
+                          "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
+      break;
 
-	case 0x45:	/* E.164 ATM format */
-	case 0xC3:	/* E.164 ATM group format */
-		proto_tree_add_text(tree, tvb, offset + 0, 9,
-		    "E.164 ISDN%s: %s",
-		    (afi == 0xC3) ? " (group)" : "",
-		    tvb_bytes_to_str(tvb, offset + 1, 8));
-		proto_tree_add_text(tree, tvb, offset + 9, 4,
-		    "High Order DSP: %s",
-		    tvb_bytes_to_str(tvb, offset + 3, 10));
-		proto_tree_add_text(tree, tvb, offset + 13, 6,
-		    "End System Identifier: %s",
-		    tvb_bytes_to_str(tvb, offset + 13, 6));
-		proto_tree_add_text(tree, tvb, offset + 19, 1,
-		    "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
-		break;
+    case 0x45:	/* E.164 ATM format */
+    case 0xC3:	/* E.164 ATM group format */
+      proto_tree_add_text(tree, tvb, offset + 0, 9,
+                          "E.164 ISDN%s: %s",
+                          (afi == 0xC3) ? " (group)" : "",
+                          tvb_bytes_to_str(tvb, offset + 1, 8));
+      proto_tree_add_text(tree, tvb, offset + 9, 4,
+                          "High Order DSP: %s",
+                          tvb_bytes_to_str(tvb, offset + 3, 10));
+      proto_tree_add_text(tree, tvb, offset + 13, 6,
+                          "End System Identifier: %s",
+                          tvb_bytes_to_str(tvb, offset + 13, 6));
+      proto_tree_add_text(tree, tvb, offset + 19, 1,
+                          "Selector: 0x%02X", tvb_get_guint8(tvb, offset + 19));
+      break;
 
-	default:
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Unknown AFI: 0x%02X", afi);
-		proto_tree_add_text(tree, tvb, offset + 1, len - 1,
-		    "Rest of address: %s",
-		    tvb_bytes_to_str(tvb, offset + 1, len - 1));
-		break;
-	}
+    default:
+      proto_tree_add_text(tree, tvb, offset, 1,
+                          "Unknown AFI: 0x%02X", afi);
+      proto_tree_add_text(tree, tvb, offset + 1, len - 1,
+                          "Rest of address: %s",
+                          tvb_bytes_to_str(tvb, offset + 1, len - 1));
+      break;
+  }
 }
 
 /* l.s. 32 bits are ipv4 address */
 static guint address_hash_func(gconstpointer v)
 {
-	return GPOINTER_TO_UINT(v);
+  return GPOINTER_TO_UINT(v);
 }
 
 /* Compare 2 ipv4 addresses */
 static gint address_equal_func(gconstpointer v, gconstpointer v2)
 {
-    return v == v2;
+  return v == v2;
 }
 
 /* Check to see if this mac & ip pair represent 2 devices trying to share
@@ -431,73 +431,73 @@ static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tr
                                               const guint8 *mac, guint32 ip,
                                               guint32 *duplicate_ip)
 {
-    struct   address_hash_value *value;
-    gboolean return_value = FALSE;
+  struct   address_hash_value *value;
+  gboolean return_value = FALSE;
 
-    /* Look up any existing entries */
-    value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
+  /* Look up any existing entries */
+  value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
 
-    /* If MAC matches table, just update details */
-    if (value != NULL)
+  /* If MAC matches table, just update details */
+  if (value != NULL)
+  {
+    if (pinfo->fd->num > value->frame_num)
     {
-        if (pinfo->fd->num > value->frame_num)
-        {
-            if ((memcmp(value->mac, mac, 6) == 0))
-            {
-                /* Same MAC as before - update existing entry */
-                value->frame_num = pinfo->fd->num;
-                value->time_of_entry = pinfo->fd->abs_ts.secs;
-            }
-            else
-            {
-                /* Doesn't match earlier MAC - report! */
-                proto_tree *duplicate_tree;
-
-                /* Create subtree */
-                proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
-                                                            tvb, 0, 0,
-                                                            "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
-                                                            arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
-                                                            ether_to_str(mac),
-                                                            ether_to_str(value->mac),
-                                                            value->frame_num);
-                PROTO_ITEM_SET_GENERATED(ti);
-                duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
-
-                /* Add item for navigating to earlier frame */
-                ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
-                                         tvb, 0, 0, value->frame_num);
-                PROTO_ITEM_SET_GENERATED(ti);
-                expert_add_info_format(pinfo, ti,
-                                       PI_SEQUENCE, PI_WARN,
-                                       "Duplicate IP address configured (%s)",
-                                       arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
-
-                /* Time since that frame was seen */
-                ti = proto_tree_add_uint(duplicate_tree,
-                                         hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
-                                         tvb, 0, 0,
-                                         (guint32)(pinfo->fd->abs_ts.secs - value->time_of_entry));
-                PROTO_ITEM_SET_GENERATED(ti);
-
-                *duplicate_ip = ip;
-                return_value = TRUE;
-            }
-        }
-    }
-    else
-    {
-        /* No existing entry. Prepare one */
-        value = se_alloc(sizeof(struct address_hash_value));
-        memcpy(value->mac, mac, 6);
+      if ((memcmp(value->mac, mac, 6) == 0))
+      {
+        /* Same MAC as before - update existing entry */
         value->frame_num = pinfo->fd->num;
         value->time_of_entry = pinfo->fd->abs_ts.secs;
+      }
+      else
+      {
+        /* Doesn't match earlier MAC - report! */
+        proto_tree *duplicate_tree;
 
-        /* Add it */
-        g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
+        /* Create subtree */
+        proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
+                                                    tvb, 0, 0,
+                                                    "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
+                                                    arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
+                                                    ether_to_str(mac),
+                                                    ether_to_str(value->mac),
+                                                    value->frame_num);
+        PROTO_ITEM_SET_GENERATED(ti);
+        duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
+
+        /* Add item for navigating to earlier frame */
+        ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
+                                 tvb, 0, 0, value->frame_num);
+        PROTO_ITEM_SET_GENERATED(ti);
+        expert_add_info_format(pinfo, ti,
+                               PI_SEQUENCE, PI_WARN,
+                               "Duplicate IP address configured (%s)",
+                               arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
+
+        /* Time since that frame was seen */
+        ti = proto_tree_add_uint(duplicate_tree,
+                                 hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
+                                 tvb, 0, 0,
+                                 (guint32)(pinfo->fd->abs_ts.secs - value->time_of_entry));
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        *duplicate_ip = ip;
+        return_value = TRUE;
+      }
     }
+  }
+  else
+  {
+    /* No existing entry. Prepare one */
+    value = se_alloc(sizeof(struct address_hash_value));
+    memcpy(value->mac, mac, 6);
+    value->frame_num = pinfo->fd->num;
+    value->time_of_entry = pinfo->fd->abs_ts.secs;
 
-    return return_value;
+    /* Add it */
+    g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
+  }
+
+  return return_value;
 }
 
 
@@ -507,85 +507,85 @@ static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tr
 static void
 arp_init_protocol(void)
 {
-	/* Destroy any existing hashes. */
-	if (address_hash_table)
-		g_hash_table_destroy(address_hash_table);
+  /* Destroy any existing hashes. */
+  if (address_hash_table)
+    g_hash_table_destroy(address_hash_table);
 
-	/* Now create it over */
-	address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
+  /* Now create it over */
+  address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
 }
 
 
 
 
 /* Take note that a request has been seen */
-void request_seen(packet_info *pinfo)
+static void request_seen(packet_info *pinfo)
 {
-    /* Don't count frame again after already recording first time around. */
-    if (p_get_proto_data(pinfo->fd, proto_arp) == 0)
-    {
-        arp_request_count++;
-    }
+  /* Don't count frame again after already recording first time around. */
+  if (p_get_proto_data(pinfo->fd, proto_arp) == 0)
+  {
+    arp_request_count++;
+  }
 }
 
 /* Has storm request rate been exceeded with this request? */
-void check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gboolean report_storm = FALSE;
+  gboolean report_storm = FALSE;
 
-    if (p_get_proto_data(pinfo->fd, proto_arp) != 0)
+  if (p_get_proto_data(pinfo->fd, proto_arp) != 0)
+  {
+    /* Read any previous stored packet setting */
+    report_storm = (p_get_proto_data(pinfo->fd, proto_arp) == (void*)STORM);
+  }
+  else
+  {
+    /* Seeing packet for first time - check against preference settings */
+    gint seconds_delta  = (gint) (pinfo->fd->abs_ts.secs - time_at_start_of_count.secs);
+    gint nseconds_delta = pinfo->fd->abs_ts.nsecs - time_at_start_of_count.nsecs;
+    gint gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
+
+    /* Reset if gap exceeds period or -ve gap (indicates we're rescanning from start) */
+    if ((gap > (gint)global_arp_detect_request_storm_period) ||
+        (gap < 0))
     {
-        /* Read any previous stored packet setting */
-        report_storm = (p_get_proto_data(pinfo->fd, proto_arp) == (void*)STORM);
+      /* Time period elapsed without threshold being exceeded */
+      arp_request_count = 1;
+      time_at_start_of_count = pinfo->fd->abs_ts;
+      p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
+      return;
     }
     else
-    {
-        /* Seeing packet for first time - check against preference settings */
-        gint seconds_delta  = (gint) (pinfo->fd->abs_ts.secs - time_at_start_of_count.secs);
-        gint nseconds_delta = pinfo->fd->abs_ts.nsecs - time_at_start_of_count.nsecs;
-        gint gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
+      if (arp_request_count > global_arp_detect_request_storm_packets)
+      {
+        /* Storm detected, record and reset start time. */
+        report_storm = TRUE;
+        p_add_proto_data(pinfo->fd, proto_arp, (void*)STORM);
+        time_at_start_of_count = pinfo->fd->abs_ts;
+      }
+      else
+      {
+        /* Threshold not exceeded yet - no storm */
+        p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
+      }
+  }
 
-        /* Reset if gap exceeds period or -ve gap (indicates we're rescanning from start) */
-        if ((gap > (gint)global_arp_detect_request_storm_period) ||
-            (gap < 0))
-        {
-            /* Time period elapsed without threshold being exceeded */
-            arp_request_count = 1;
-            time_at_start_of_count = pinfo->fd->abs_ts;
-            p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
-            return;
-        }
-        else
-        if (arp_request_count > global_arp_detect_request_storm_packets)
-        {
-            /* Storm detected, record and reset start time. */
-            report_storm = TRUE;
-            p_add_proto_data(pinfo->fd, proto_arp, (void*)STORM);
-            time_at_start_of_count = pinfo->fd->abs_ts;
-        }
-        else
-        {
-            /* Threshold not exceeded yet - no storm */
-            p_add_proto_data(pinfo->fd, proto_arp, (void*)NO_STORM);
-        }
-    }
+  if (report_storm)
+  {
+    /* Report storm and reset counter */
+    proto_item *ti = proto_tree_add_none_format(tree, hf_arp_packet_storm, tvb, 0, 0,
+                                                "Packet storm detected (%u packets in < %u ms)",
+                                                global_arp_detect_request_storm_packets,
+                                                global_arp_detect_request_storm_period);
+    PROTO_ITEM_SET_GENERATED(ti);
 
-    if (report_storm)
-    {
-        /* Report storm and reset counter */
-        proto_item *ti = proto_tree_add_none_format(tree, hf_arp_packet_storm, tvb, 0, 0,
-                                                    "Packet storm detected (%u packets in < %u ms)",
-                                                    global_arp_detect_request_storm_packets,
-                                                    global_arp_detect_request_storm_period);
-	PROTO_ITEM_SET_GENERATED(ti);
-
-        expert_add_info_format(pinfo, ti,
-                               PI_SEQUENCE, PI_NOTE,
-                               "ARP packet storm detected (%u packets in < %u ms)",
-                               global_arp_detect_request_storm_packets,
-                               global_arp_detect_request_storm_period);
-        arp_request_count = 0;
-    }
+    expert_add_info_format(pinfo, ti,
+                           PI_SEQUENCE, PI_NOTE,
+                           "ARP packet storm detected (%u packets in < %u ms)",
+                           global_arp_detect_request_storm_packets,
+                           global_arp_detect_request_storm_period);
+    arp_request_count = 0;
+  }
 }
 
 
@@ -639,7 +639,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_tpln = tvb_get_guint8(tvb, ATM_AR_TPLN);
 
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shl + ar_ssl + ar_spln +
-				ar_thl + ar_tsl + ar_tpln;
+    ar_thl + ar_tsl + ar_tpln;
 
   /* Adjust the length of this tvbuff to include only the ARP datagram.
      Our caller may use that to determine how much of its packet
@@ -694,22 +694,22 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
-    case ARPOP_REQUEST:
-    case ARPOP_REPLY:
-    case ATMARPOP_NAK:
-    default:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMARP");
-      break;
+      case ARPOP_REQUEST:
+      case ARPOP_REPLY:
+      case ATMARPOP_NAK:
+      default:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMARP");
+        break;
 
-    case ARPOP_RREQUEST:
-    case ARPOP_RREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMRARP");
-      break;
+      case ARPOP_RREQUEST:
+      case ARPOP_RREPLY:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMRARP");
+        break;
 
-    case ARPOP_IREQUEST:
-    case ARPOP_IREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ATMARP");
-      break;
+      case ARPOP_IREQUEST:
+      case ARPOP_IREPLY:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ATMARP");
+        break;
     }
   }
 
@@ -717,28 +717,28 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (ar_op) {
       case ARPOP_REQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-		tpa_str, spa_str);
+                     tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
-		((ssa_str != NULL) ? "," : ""),
-		((ssa_str != NULL) ? ssa_str : ""));
+                     ((ssa_str != NULL) ? "," : ""),
+                     ((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
-		tha_str,
-		((tsa_str != NULL) ? "," : ""),
-		((tsa_str != NULL) ? tsa_str : ""),
-		sha_str,
-		((ssa_str != NULL) ? "," : ""),
-		((ssa_str != NULL) ? ssa_str : ""));
+                     tha_str,
+                     ((tsa_str != NULL) ? "," : ""),
+                     ((tsa_str != NULL) ? tsa_str : ""),
+                     sha_str,
+                     ((ssa_str != NULL) ? "," : ""),
+                     ((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s is at %s",
-		sha_str,
-		((ssa_str != NULL) ? "," : ""),
-		((ssa_str != NULL) ? ssa_str : ""),
-		spa_str);
+                     sha_str,
+                     ((ssa_str != NULL) ? "," : ""),
+                     ((ssa_str != NULL) ? ssa_str : ""),
+                     spa_str);
         break;
       case ATMARPOP_NAK:
         col_add_fstr(pinfo->cinfo, COL_INFO, "I don't know where %s is", spa_str);
@@ -752,11 +752,11 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if ((op_str = match_strval(ar_op, atmop_vals)))
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-					"ATM Address Resolution Protocol (%s)",
-					op_str);
+                                          "ATM Address Resolution Protocol (%s)",
+                                          op_str);
     else
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
+                                          "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
 
     proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, ATM_AR_HRD, 2, ar_hrd);
@@ -764,21 +764,21 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, ATM_AR_PRO, 2,ar_pro);
 
     tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SHTL, 1,
-			       "Sender ATM number type/length: %s/%u",
-			       (ar_shtl & ATMARP_IS_E164 ?
-			          "E.164" :
-				  "ATM Forum NSAPA"),
-			       ar_shl);
+                             "Sender ATM number type/length: %s/%u",
+                             (ar_shtl & ATMARP_IS_E164 ?
+                              "E.164" :
+                              "ATM Forum NSAPA"),
+                             ar_shl);
     tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sht, tvb, ATM_AR_SHTL, 1, ar_shtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_shl, tvb, ATM_AR_SHTL, 1, ar_shtl);
 
     tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SSTL, 1,
-			       "Sender ATM subaddress type/length: %s/%u",
-			       (ar_sstl & ATMARP_IS_E164 ?
-			          "E.164" :
-				  "ATM Forum NSAPA"),
-			       ar_ssl);
+                             "Sender ATM subaddress type/length: %s/%u",
+                             (ar_sstl & ATMARP_IS_E164 ?
+                              "E.164" :
+                              "ATM Forum NSAPA"),
+                             ar_ssl);
     tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_sst, tvb, ATM_AR_SSTL, 1, ar_sstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_ssl, tvb, ATM_AR_SSTL, 1, ar_sstl);
@@ -788,21 +788,21 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_atmarp_spln, tvb, ATM_AR_SPLN, 1, ar_spln);
 
     tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_THTL, 1,
-			       "Target ATM number type/length: %s/%u",
-			       (ar_thtl & ATMARP_IS_E164 ?
-			          "E.164" :
-				  "ATM Forum NSAPA"),
-			       ar_thl);
+                             "Target ATM number type/length: %s/%u",
+                             (ar_thtl & ATMARP_IS_E164 ?
+                              "E.164" :
+                              "ATM Forum NSAPA"),
+                             ar_thl);
     tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
     proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
 
     tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_TSTL, 1,
-			       "Target ATM subaddress type/length: %s/%u",
-			       (ar_tstl & ATMARP_IS_E164 ?
-			          "E.164" :
-				  "ATM Forum NSAPA"),
-			       ar_tsl);
+                             "Target ATM subaddress type/length: %s/%u",
+                             (ar_tstl & ATMARP_IS_E164 ?
+                              "E.164" :
+                              "ATM Forum NSAPA"),
+                             ar_tsl);
     tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
     proto_tree_add_boolean(tl_tree, hf_atmarp_tst, tvb, ATM_AR_TSTL, 1, ar_tstl);
     proto_tree_add_uint(tl_tree, hf_atmarp_tsl, tvb, ATM_AR_TSTL, 1, ar_tstl);
@@ -811,36 +811,36 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (ar_shl != 0)
       dissect_atm_number(tvb, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
-			       hf_atmarp_src_atm_num_nsap, arp_tree);
+                         hf_atmarp_src_atm_num_nsap, arp_tree);
 
     if (ar_ssl != 0)
       proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
-			       ar_ssl,
-			       ssa_val,
-			       "Sender ATM subaddress: %s", ssa_str);
+                                  ar_ssl,
+                                  ssa_val,
+                                  "Sender ATM subaddress: %s", ssa_str);
 
     if (ar_spln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_spln) ? hf_arp_src_proto_ipv4
-					: hf_arp_src_proto,
-	tvb, spa_offset, ar_spln, FALSE);
+                          ARP_PRO_IS_IPv4(ar_pro, ar_spln) ? hf_arp_src_proto_ipv4
+                          : hf_arp_src_proto,
+                          tvb, spa_offset, ar_spln, FALSE);
     }
 
     if (ar_thl != 0)
       dissect_atm_number(tvb, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
-			       hf_atmarp_dst_atm_num_nsap, arp_tree);
+                         hf_atmarp_dst_atm_num_nsap, arp_tree);
 
     if (ar_tsl != 0)
       proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
-			       ar_tsl,
-			       tsa_val,
-			       "Target ATM subaddress: %s", tsa_str);
+                                  ar_tsl,
+                                  tsa_val,
+                                  "Target ATM subaddress: %s", tsa_str);
 
     if (ar_tpln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_tpln) ? hf_arp_dst_proto_ipv4
-					: hf_arp_dst_proto,
-	tvb, tpa_offset, ar_tpln, FALSE);
+                          ARP_PRO_IS_IPv4(ar_pro, ar_tpln) ? hf_arp_dst_proto_ipv4
+                          : hf_arp_dst_proto,
+                          tvb, tpa_offset, ar_tpln, FALSE);
     }
   }
 }
@@ -872,9 +872,9 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      Clear the Info column so that, if we throw an exception, it
      shows up as a short or malformed ARP frame. */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
   if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
   /* Hardware Address Type */
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
@@ -901,25 +901,25 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
-    case ARPOP_REQUEST:
-      if (global_arp_detect_request_storm)
-      {
-        request_seen(pinfo);
-      }
-    case ARPOP_REPLY:
-    default:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
-      break;
+      case ARPOP_REQUEST:
+        if (global_arp_detect_request_storm)
+        {
+          request_seen(pinfo);
+        }
+      case ARPOP_REPLY:
+      default:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+        break;
 
-    case ARPOP_RREQUEST:
-    case ARPOP_RREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
-      break;
+      case ARPOP_RREQUEST:
+      case ARPOP_RREPLY:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
+        break;
 
-    case ARPOP_IREQUEST:
-    case ARPOP_IREPLY:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
-      break;
+      case ARPOP_IREQUEST:
+      case ARPOP_IREPLY:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
+        break;
     }
   }
 
@@ -953,8 +953,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (global_arp_detect_duplicate_ip_addresses)
       {
         duplicate_detected =
-            check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
-                                          &duplicate_ip);
+          check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
+                                        &duplicate_ip);
       }
     }
 
@@ -974,8 +974,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (global_arp_detect_duplicate_ip_addresses)
       {
         duplicate_detected =
-            check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
-                                          &duplicate_ip);
+          check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
+                                        &duplicate_ip);
       }
     }
   }
@@ -1052,10 +1052,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (is_gratuitous && (ar_op == ARPOP_REPLY))
         op_str = "reply/gratuitous ARP";
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-					"Address Resolution Protocol (%s)", op_str);
+                                          "Address Resolution Protocol (%s)", op_str);
     } else
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
-				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
+                                          "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, AR_HRD, 2, ar_hrd);
     proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, AR_PRO, 2, ar_pro);
@@ -1065,29 +1065,29 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
-                              hf_arp_src_hw_mac :
-                              hf_arp_src_hw,
+                          hf_arp_src_hw_mac :
+                          hf_arp_src_hw,
                           tvb, sha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
-                              hf_arp_src_proto_ipv4 :
-                              hf_arp_src_proto,
+                          hf_arp_src_proto_ipv4 :
+                          hf_arp_src_proto,
                           tvb, spa_offset, ar_pln, FALSE);
     }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
-                              hf_arp_dst_hw_mac :
-                              hf_arp_dst_hw,
+                          hf_arp_dst_hw_mac :
+                          hf_arp_dst_hw,
                           tvb, tha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
-                              hf_arp_dst_proto_ipv4 :
-                              hf_arp_dst_proto,
+                          hf_arp_dst_proto_ipv4 :
+                          hf_arp_dst_proto,
                           tvb, tpa_offset, ar_pln, FALSE);
     }
   }
@@ -1252,32 +1252,32 @@ proto_register_arp(void)
     { &hf_arp_dst_proto,
       { "Target protocol address",	"arp.dst.proto",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
     { &hf_arp_dst_proto_ipv4,
       { "Target IP address",		"arp.dst.proto_ipv4",
 	FT_IPv4,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
     { &hf_arp_packet_storm,
       { "Packet storm detected",	"arp.packet-storm-detected",
 	FT_NONE,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
     { &hf_arp_duplicate_ip_address,
       { "Duplicate IP address detected",	"arp.duplicate-address-detected",
 	FT_NONE,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
     { &hf_arp_duplicate_ip_address_earlier_frame,
       { "Frame showing earlier use of IP address",	"arp.duplicate-address-frame",
 	FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
     { &hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
       { "Seconds since earlier frame seen",	"arp.seconds-since-duplicate-address-frame",
 	FT_UINT32,	BASE_DEC,	NULL,	0x0,
-      "", HFILL }},
+        "", HFILL }},
 
   };
 
@@ -1303,24 +1303,24 @@ proto_register_arp(void)
   arp_module = prefs_register_protocol(proto_arp, NULL);
 
   prefs_register_bool_preference(arp_module, "detect_request_storms",
-    "Detect ARP request storms",
-    "Attempt to detect excessive rate of ARP requests",
-     &global_arp_detect_request_storm);
+                                 "Detect ARP request storms",
+                                 "Attempt to detect excessive rate of ARP requests",
+                                 &global_arp_detect_request_storm);
 
   prefs_register_uint_preference(arp_module, "detect_storm_number_of_packets",
-    "Number of requests to detect during period",
-    "Number of requests needed within period to indicate a storm",
-    10, &global_arp_detect_request_storm_packets);
+                                 "Number of requests to detect during period",
+                                 "Number of requests needed within period to indicate a storm",
+                                 10, &global_arp_detect_request_storm_packets);
 
   prefs_register_uint_preference(arp_module, "detect_storm_period",
-    "Detection period (in ms)",
-    "Period in milliseconds during which a packet storm may be detected",
-    10, &global_arp_detect_request_storm_period);
+                                 "Detection period (in ms)",
+                                 "Period in milliseconds during which a packet storm may be detected",
+                                 10, &global_arp_detect_request_storm_period);
 
   prefs_register_bool_preference(arp_module, "detect_duplicate_ips",
-    "Detect duplicate IP address configuration",
-    "Attempt to detect duplicate use of IP addresses",
-     &global_arp_detect_duplicate_ip_addresses);
+                                 "Detect duplicate IP address configuration",
+                                 "Attempt to detect duplicate use of IP addresses",
+                                 &global_arp_detect_duplicate_ip_addresses);
 
   /* TODO: define a minimum time between sightings that is worth reporting? */
 

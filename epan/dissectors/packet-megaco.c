@@ -277,22 +277,22 @@ static const megaco_tokens_t megaco_messageBody_names[] = {
 /* Returns index of megaco_tokens_t */
 static gint find_megaco_messageBody_names(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint i;
+	guint i;
 
-        for (i = 1; i < array_length(megaco_messageBody_names); i++) {
-                if (header_len == strlen(megaco_messageBody_names[i].name) &&
-                    tvb_strncaseeql(tvb, offset, megaco_messageBody_names[i].name, header_len) == 0)
-                        return i;
-                if (megaco_messageBody_names[i].compact_name != NULL &&
-                    header_len == strlen(megaco_messageBody_names[i].compact_name) &&
-                    tvb_strncaseeql(tvb, offset, megaco_messageBody_names[i].compact_name, header_len) == 0)
-                        return i;
-        }
+	for (i = 1; i < array_length(megaco_messageBody_names); i++) {
+		if (header_len == strlen(megaco_messageBody_names[i].name) &&
+		    tvb_strncaseeql(tvb, offset, megaco_messageBody_names[i].name, header_len) == 0)
+			return i;
+		if (megaco_messageBody_names[i].compact_name != NULL &&
+		    header_len == strlen(megaco_messageBody_names[i].compact_name) &&
+		    tvb_strncaseeql(tvb, offset, megaco_messageBody_names[i].compact_name, header_len) == 0)
+			return i;
+	}
 
-        return -1;
+	return -1;
 }
 
-proto_item *
+static proto_item *
 my_proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			 gint start, gint length, const char *value)
 {
@@ -548,7 +548,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 			/* transactionResponseAck
 			 * transactionResponseAck = ResponseAckToken LBRKT transactionAck
-             *                           *(COMMA transactionAck) RBRKT
+			 *                           *(COMMA transactionAck) RBRKT
 			 * transactionAck = transactionID / (transactionID "-" transactionID)
 			 */
 		case RESPONSEACKTOKEN:
@@ -684,7 +684,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 			proto_tree_add_text(megaco_tree, tvb, 0, -1,
 			"Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
-                         tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
+					    tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
 			return;
 		} /* end switch */
 /* 		Only these remains now
@@ -1393,19 +1393,18 @@ static const megaco_tokens_t megaco_descriptors_names[] = {
 /* note - also called by dissect_megaco_auditdescriptor */
 static gint find_megaco_descriptors_names(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint i;
+	guint i;
 
-        for (i = 1; i < array_length(megaco_descriptors_names); i++) {
-                if (header_len == strlen(megaco_descriptors_names[i].name) &&
-                    tvb_strncaseeql(tvb, offset, megaco_descriptors_names[i].name, header_len) == 0)
-                        return i;
-                if (megaco_descriptors_names[i].compact_name != NULL &&
-                    header_len == strlen(megaco_descriptors_names[i].compact_name) &&
-                    tvb_strncaseeql(tvb, offset, megaco_descriptors_names[i].compact_name, header_len) == 0)
-                        return i;
-        }
-
-        return -1;
+	for (i = 1; i < array_length(megaco_descriptors_names); i++) {
+		if (header_len == strlen(megaco_descriptors_names[i].name) &&
+		    tvb_strncaseeql(tvb, offset, megaco_descriptors_names[i].name, header_len) == 0)
+			return i;
+		if (megaco_descriptors_names[i].compact_name != NULL &&
+		    header_len == strlen(megaco_descriptors_names[i].compact_name) &&
+		    tvb_strncaseeql(tvb, offset, megaco_descriptors_names[i].compact_name, header_len) == 0)
+			return i;
+	}
+	return -1;
 }
 
 static void

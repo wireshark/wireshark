@@ -250,7 +250,7 @@ typedef struct frame_analysis_data {
 
 } frame_analysis_data_t;
 
-conversation_t *
+static conversation_t *
 get_the_conversation(packet_info *pinfo)
 {
 	conversation_t *conv = NULL;
@@ -267,7 +267,7 @@ get_the_conversation(packet_info *pinfo)
 	return conv;
 }
 
-mp2t_analysis_data_t *
+static mp2t_analysis_data_t *
 init_mp2t_conversation_data()
 {
 	mp2t_analysis_data_t *mp2t_data = NULL;
@@ -285,7 +285,7 @@ init_mp2t_conversation_data()
 	return mp2t_data;
 }
 
-mp2t_analysis_data_t *
+static mp2t_analysis_data_t *
 get_mp2t_conversation_data(conversation_t *conv)
 {
 	mp2t_analysis_data_t *mp2t_data = NULL;
@@ -299,7 +299,7 @@ get_mp2t_conversation_data(conversation_t *conv)
 	return mp2t_data;
 }
 
-frame_analysis_data_t *
+static frame_analysis_data_t *
 init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
 	frame_analysis_data_t *frame_data = NULL;
@@ -316,7 +316,7 @@ init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 }
 
 
-frame_analysis_data_t *
+static frame_analysis_data_t *
 get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
 	frame_analysis_data_t *frame_data = NULL;
@@ -324,7 +324,7 @@ get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 	return frame_data;
 }
 
-pid_analysis_data_t *
+static pid_analysis_data_t *
 get_pid_analysis(guint32 pid, conversation_t *conv)
 {
 
@@ -345,7 +345,7 @@ get_pid_analysis(guint32 pid, conversation_t *conv)
 
 #define KEY(pid, cc) ((pid << 4)|cc)
 
-void
+static void
 detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		guint32 pid, gint32 cc_curr, conversation_t *conv)
 {
