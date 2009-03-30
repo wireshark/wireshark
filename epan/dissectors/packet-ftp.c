@@ -451,8 +451,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			next_token = line;
 		}
 	}
-	offset += next_token - line;
-	linelen -= next_token - line;
+	offset += (gint) (next_token - line);
+	linelen -= (int) (next_token - line);
 	line = next_token;
 
 	if (tree) {

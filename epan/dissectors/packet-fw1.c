@@ -139,15 +139,12 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char		*interface_name;
   guint32	iface_len = 10;
   guint16	etype;
-  char		*header;
-  char		*p_header;
+  emem_strbuf_t	*header;
   int		i;
   gboolean	found;
   static const char	fw1_header[] = "FW1 Monitor";
 
-#define MAX_HEADER_LEN 1000
-  header=ep_alloc(MAX_HEADER_LEN);
-  g_snprintf(header, MAX_HEADER_LEN, "FW1 Monitor");
+  header = ep_strbuf_new_label(fw1_header);
 
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -187,9 +184,8 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* display all interfaces always in the same order */
   for (i=0; i<interface_anzahl; i++) {
-    p_header = header + strlen(header);
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-       	g_snprintf(p_header, MAX_HEADER_LEN-(p_header-header), "  %c%c %s %c%c",
+       	ep_strbuf_append_printf(header, "  %c%c %s %c%c",
  			direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
 			(direction == 'i' || direction == 'O') ? chain : ' ',
 			p_interfaces[i],
@@ -197,19 +193,19 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(direction == 'I' || direction == 'o') ? chain : ' '
 		);
     } else {
-    	g_snprintf(p_header, MAX_HEADER_LEN-(p_header-header), "    %s  ", p_interfaces[i]);
+    	ep_strbuf_append_printf(header, "    %s  ", p_interfaces[i]);
     }
   }
 
   if (check_col(pinfo->cinfo, COL_IF_DIR))
-    col_add_str(pinfo->cinfo, COL_IF_DIR, header + sizeof(fw1_header) + 1);
+    col_add_str(pinfo->cinfo, COL_IF_DIR, header->str + sizeof(fw1_header) + 1);
 
   if (tree) {
     if (!fw1_summary_in_tree)
       /* Do not show the summary in Protocol Tree */
       ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, "%s", fw1_header);
     else
-      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, "%s", header);
+      ti = proto_tree_add_protocol_format(tree, proto_fw1, tvb, 0, ETH_HEADER_SIZE, "%s", header->str);
 
     /* create display subtree for the protocol */
     fh_tree = proto_item_add_subtree(ti, ett_fw1);
